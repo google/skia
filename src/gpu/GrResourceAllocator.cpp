@@ -221,6 +221,21 @@ void GrResourceAllocator::recycleSurface(sk_sp<GrSurface> surface) {
 // If we can't find a useable one, create a new one.
 sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy,
                                                      bool needsStencil) {
+
+    if (proxy->asTextureProxy() && proxy->asTextureProxy()->getUniqueKey().isValid()) {
+        // First try to reattach to a cached version if the proxy is uniquely keyed
+        sk_sp<GrSurface> surface = fResourceProvider->findByUniqueKey<GrSurface>(
+                                                        proxy->asTextureProxy()->getUniqueKey());
+        if (surface) {
+            if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider, surface.get(),
+                                                           needsStencil)) {
+                return nullptr;
+            }
+
+            return surface;
+        }
+    }
+
     // First look in the free pool
     GrScratchKey key;
 
@@ -242,6 +257,7 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
                                                        needsStencil)) {
             return nullptr;
         }
+        SkASSERT(!surface->getUniqueKey().isValid());
         return surface;
     }
 
@@ -350,10 +366,14 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
-            GrTextureProxy* tex = cur->proxy()->asTextureProxy();
-            if (tex && tex->getUniqueKey().isValid()) {
-                fResourceProvider->assignUniqueKeyToResource(tex->getUniqueKey(), surface.get());
-                SkASSERT(surface->getUniqueKey() == tex->getUniqueKey());
+            GrTextureProxy* texProxy = cur->proxy()->asTextureProxy();
+
+            if (texProxy && texProxy->getUniqueKey().isValid()) {
+                if (!surface->getUniqueKey().isValid()) {
+                    fResourceProvider->assignUniqueKeyToResource(texProxy->getUniqueKey(),
+                                                                 surface.get());
+                }
+                SkASSERT(surface->getUniqueKey() == texProxy->getUniqueKey());
             }
 
 #if GR_ALLOCATION_SPEW
