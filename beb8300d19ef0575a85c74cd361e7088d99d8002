@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66a4403c_cd8c8689",
+        "filename": "gm/imagefromyuvtextures.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-18T15:21:16Z",
+      "side": 0,
+      "message": "This was the crash. When the context has already been abandoned gpu is null.",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 43
+      },
+      "revId": "beb8300d19ef0575a85c74cd361e7088d99d8002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
