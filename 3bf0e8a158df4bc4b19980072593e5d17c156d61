@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45938e06_a6bad45c",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-09-18T16:25:41Z",
+      "side": 1,
+      "message": "why not our std formatting for the copyright?",
+      "range": {
+        "startLine": 1,
+        "startChar": 3,
+        "endLine": 1,
+        "endChar": 12
+      },
+      "revId": "3bf0e8a158df4bc4b19980072593e5d17c156d61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
