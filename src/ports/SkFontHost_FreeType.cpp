@@ -1350,7 +1350,8 @@ bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
 
     SkAutoMutexAcquire  ac(gFTMutex);
 
-    if (this->setupSize()) {
+    // FT_IS_SCALABLE is documented to mean the face contains outline glyphs.
+    if (!FT_IS_SCALABLE(fFace) || this->setupSize()) {
         path->reset();
         return false;
     }
@@ -1360,7 +1361,7 @@ bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
 
     FT_Error err = FT_Load_Glyph(fFace, glyphID, flags);
-    if (err != 0 || fFace->glyph->format == FT_GLYPH_FORMAT_BITMAP) {
+    if (err != 0 || fFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
         path->reset();
         return false;
     }
