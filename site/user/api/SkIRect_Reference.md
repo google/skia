@@ -1,8 +1,6 @@
 SkIRect Reference
 ===
 
-# <a name='IRect'>IRect</a>
-
 # <a name='SkIRect'>Struct SkIRect</a>
 <a href='#SkIRect'>SkIRect</a> holds four 32-bit integer coordinates describing the upper and
 lower bounds of a rectangle. <a href='#SkIRect'>SkIRect</a> may be created from outer bounds or
@@ -16,29 +14,29 @@ its top, it is considered empty.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkIRect'>SkIRect</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member'>Members</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Members'>Members</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkIRect global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -71,7 +69,7 @@ SkIRect global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkIRect member functions read and modify the structure properties.
@@ -240,7 +238,7 @@ SkIRect member functions read and modify the structure properties.
   </tr>
 </table>
 
-## <a name='Member'>Member</a>
+## <a name='Members'>Members</a>
 
 
 
@@ -335,7 +333,7 @@ When equal to or less than <a href='#SkIRect_fTop'>fTop</a>, <a href='#IRect'>IR
   </tr>
 
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkIRect can be constructed or initialized by these functions, including C++ class constructors.
@@ -1095,7 +1093,7 @@ sorted: {20, 40, 20, 50} is empty
 
 ---
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
 SkIRect operators inline class member functions with arithmetic equivalents.

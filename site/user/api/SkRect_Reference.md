@@ -1,8 +1,6 @@
 SkRect Reference
 ===
 
-# <a name='Rect'>Rect</a>
-
 # <a name='SkRect'>Struct SkRect</a>
 <a href='#SkRect'>SkRect</a> holds four <a href='undocumented#SkScalar'>SkScalar</a> coordinates describing the upper and
 lower bounds of a rectangle. <a href='#SkRect'>SkRect</a> may be created from outer bounds or
@@ -19,29 +17,29 @@ integer input cannot convert to <a href='undocumented#SkScalar'>SkScalar</a> wit
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkRect'>SkRect</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member'>Members</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Members'>Members</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkRect global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -86,7 +84,7 @@ SkRect global, <code>struct</code>, and <code>class</code> related member functi
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkRect member functions read and modify the structure properties.
@@ -307,7 +305,7 @@ SkRect member functions read and modify the structure properties.
   </tr>
 </table>
 
-## <a name='Member'>Member</a>
+## <a name='Members'>Members</a>
 
 
 
@@ -402,7 +400,7 @@ vertical values when sorted. When equal to or less than <a href='#SkRect_fTop'>f
   </tr>
 
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkRect can be constructed or initialized by these functions, including C++ class constructors.
@@ -1321,7 +1319,7 @@ left: 2e+38 right: 3e+38 centerX: 2.5e+38 safe mid x: 2.5e+38
 
 ---
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
 SkRect operators inline class member functions with arithmetic equivalents.
@@ -1460,6 +1458,8 @@ void <a href='#SkRect_toQuad'>toQuad</a>(<a href='SkPoint_Reference#SkPoint'>SkP
 
 Returns four points in <a href='#SkRect_toQuad_quad'>quad</a> that enclose <a href='#Rect'>Rect</a> ordered as: top-left, top-right,
 bottom-right, bottom-left.
+
+Private: Consider adding param to control whether quad is clockwise or counterclockwise.
 
 ### Parameters
 

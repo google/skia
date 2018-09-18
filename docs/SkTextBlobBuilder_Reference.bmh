@@ -9,15 +9,15 @@ Helper class for constructing SkTextBlob.
 #Populate
 ##
 
-#Subtopic Class
+#Subtopic Classes
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
@@ -44,7 +44,7 @@ determine the advance to subsequent Glyphs; by specifying a baseline, and
 the position on that baseline for each Glyph in run; or by providing Point
 array, one per Glyph.
 
-#Subtopic Member
+#Subtopic Members
 #Populate
 ##
 
@@ -78,7 +78,7 @@ array, one per Glyph.
 # ------------------------------------------------------------------------------
 
 #Method SkTextBlobBuilder()
-#In Constructor
+#In Constructors
 #Line # constructs with default values ##
 
 Constructs empty Text_Blob_Builder. By default, Text_Blob_Builder has no runs.
@@ -101,7 +101,7 @@ blob equals nullptr
 # ------------------------------------------------------------------------------
 
 #Method ~SkTextBlobBuilder()
-#In Constructor
+#In Constructors
 #Line # deletes storage ##
 Deletes data allocated internally by Text_Blob_Builder.
 
@@ -115,7 +115,7 @@ Deletes data allocated internally by Text_Blob_Builder.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkTextBlob> make()
-#In Constructor
+#In Constructors
 #Line # constructs Text_Blob from bulider ##
 
 Returns Text_Blob built from runs of Glyphs added by builder. Returned
