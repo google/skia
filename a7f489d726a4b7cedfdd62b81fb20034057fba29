@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fc77a36_1695a9c6",
+        "filename": "src/pathops/SkPathOpsConic.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-18T17:47:52Z",
+      "side": 1,
+      "message": "Can az or cz be zero here also?",
+      "range": {
+        "startLine": 162,
+        "startChar": 28,
+        "endLine": 162,
+        "endChar": 30
+      },
+      "revId": "a7f489d726a4b7cedfdd62b81fb20034057fba29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
