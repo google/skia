@@ -114,8 +114,8 @@ protected:
         context->resetContext();
     }
 
-    void createExternalBackendTexture(GrContext* context, int width, int height,
-                                      GrBackendTexture externalBackendTexture[1]) {
+    void createResultTexture(GrContext* context, int width, int height,
+                             GrBackendTexture* resultTexture) {
         if (context->abandoned()) {
             return;
         }
@@ -125,13 +125,13 @@ protected:
             return;
         }
 
-        externalBackendTexture[0] = gpu->createTestingOnlyBackendTexture(
+        *resultTexture = gpu->createTestingOnlyBackendTexture(
                 nullptr, width, height, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
 
         context->resetContext();
     }
 
-    void deleteYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
+    void deleteBackendTextures(GrContext* context, GrBackendTexture textures[], int n) {
         if (context->abandoned()) {
             return;
         }
@@ -143,23 +143,10 @@ protected:
 
         context->flush();
         gpu->testingOnly_flushGpuAndSync();
-        for (int i = 0; i < 3; ++i) {
-            if (yuvTextures[i].isValid()) {
-                gpu->deleteTestingOnlyBackendTexture(yuvTextures[i]);
+        for (int i = 0; i < n; ++i) {
+            if (textures[i].isValid()) {
+                gpu->deleteTestingOnlyBackendTexture(textures[i]);
             }
-        }
-
-        context->resetContext();
-    }
-
-    void deleteAllTextures(GrContext* context, GrBackendTexture yuvTextures[3],
-                           GrBackendTexture externalBackendTexture) {
-        this->deleteYUVTextures(context, yuvTextures);
-
-        GrGpu* gpu = context->contextPriv().getGpu();
-        gpu->testingOnly_flushGpuAndSync();
-        if (externalBackendTexture.isValid()) {
-            gpu->deleteTestingOnlyBackendTexture(externalBackendTexture);
         }
 
         context->resetContext();
@@ -184,7 +171,7 @@ protected:
                                                               static_cast<SkYUVColorSpace>(space),
                                                               yuvTextures,
                                                               kTopLeft_GrSurfaceOrigin));
-            this->deleteYUVTextures(context, yuvTextures);
+            this->deleteBackendTextures(context, yuvTextures, 3);
         }
         for (int i = 0; i < images.count(); ++ i) {
             SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
@@ -197,24 +184,28 @@ protected:
         for (int space = kJPEG_SkYUVColorSpace, i = images.count();
              space <= kLastEnum_SkYUVColorSpace; ++space, ++i) {
             GrBackendTexture yuvTextures[3];
-            GrBackendTexture externalBackendTexture[1];
+            GrBackendTexture resultTexture;
             this->createYUVTextures(context, yuvTextures);
-            this->createExternalBackendTexture(context,
-                                               yuvTextures[0].width(),
-                                               yuvTextures[0].height(),
-                                               externalBackendTexture);
+            this->createResultTexture(
+                    context, yuvTextures[0].width(), yuvTextures[0].height(), &resultTexture);
             image = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
                     context,
                     static_cast<SkYUVColorSpace>(space),
                     yuvTextures,
                     kTopLeft_GrSurfaceOrigin,
-                    externalBackendTexture[0]);
+                    resultTexture);
 
             SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
             SkScalar x = kPad;
 
             canvas->drawImage(image.get(), x, y);
-            this->deleteAllTextures(context, yuvTextures, externalBackendTexture[0]);
+            GrBackendTexture texturesToDelete[4]{
+                    yuvTextures[0],
+                    yuvTextures[1],
+                    yuvTextures[2],
+                    resultTexture,
+            };
+            this->deleteBackendTextures(context, texturesToDelete, 4);
         }
      }
 
