@@ -219,8 +219,13 @@ void GrTextContext::FallbackGlyphRunHelper::appendGlyph(
         // that fScaledFallbackTextSize may end up minimizing too much. We'd rather skip
         // that glyph than make the others blurry, so we set a minimum size of half the
         // maximum text size to avoid this case.
+        // textSizeScaleToFitMaxGlyphDimension is on (0, 1].
+        SkScalar factorForMaxDimensionToFit = fMaxTextSize / maxDim;
+        SkScalar scaledToFitTextSize = factorForMaxDimensionToFit * fTextSize;
+        // The following is different from the original code which is 0.5f*fMaxTextSize.
+        SkScalar minimumAcceptableTextSize = 0.5f * fTextSize;
         SkScalar glyphTextSize =
-                SkTMax(SkScalarFloorToScalar(fTextSize * fMaxTextSize/maxDim), 0.5f*fMaxTextSize);
+                SkTMax(SkScalarFloorToScalar(scaledToFitTextSize), minimumAcceptableTextSize);
         fTransformedFallbackTextSize = SkTMin(glyphTextSize, fTransformedFallbackTextSize);
     }
     fFallbackPos.push_back(glyphPos);
