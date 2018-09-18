@@ -691,10 +691,10 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
     if (overlap && os && oe && overlap->contains(os, oe)) {
         return true;
     }
-    SkASSERT(!cs || !cs->deleted());
-    SkASSERT(!os || !os->deleted());
-    SkASSERT(!ce || !ce->deleted());
-    SkASSERT(!oe || !oe->deleted());
+    FAIL_IF(cs && cs->deleted());
+    FAIL_IF(os && os->deleted());
+    FAIL_IF(ce && ce->deleted());
+    FAIL_IF(oe && oe->deleted());
     const SkOpPtT* csExisting = !cs ? coinSeg->existing(coinTs, nullptr) : nullptr;
     const SkOpPtT* ceExisting = !ce ? coinSeg->existing(coinTe, nullptr) : nullptr;
     FAIL_IF(csExisting && csExisting == ceExisting);
@@ -723,6 +723,7 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
         csWritable->span()->addOpp(osWritable->span());
         cs = csWritable;
         os = osWritable->active();
+        FAIL_IF(!os);
         FAIL_IF((ce && ce->deleted()) || (oe && oe->deleted()));
     }
     if (!ce || !oe) {
@@ -849,7 +850,7 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
                 }
             } else if (outerOpp == innerOpp) {
                 const SkOpPtT* ooe = outer->oppPtTEnd();
-                SkASSERT(!ooe->deleted());
+                FAIL_IF(ooe->deleted());
                 const SkOpPtT* ioe = inner->oppPtTEnd();
                 if (ioe->deleted()) {
                     return true;
@@ -1094,9 +1095,10 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
             SkDebugf("seg=%d span=%d windValue=%d oppValue=%d\n", oSegment->debugID(),
                     oStart->debugID(), oWindValue, oOppValue);
 #endif
+            FAIL_IF(windValue <= -1);
             start->setWindValue(windValue);
             start->setOppValue(oppValue);
-            FAIL_IF(oWindValue == -1);
+            FAIL_IF(oWindValue <= -1);
             oStart->setWindValue(oWindValue);
             oStart->setOppValue(oOppValue);
             if (!windValue && !oppValue) {
@@ -1322,7 +1324,7 @@ bool SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
         SkOpSpanBase* oStart = coin->oppPtTStartWritable()->span();
         SkOPASSERT(!oStart->deleted());
         SkOpSpanBase* oEnd = coin->oppPtTEndWritable()->span();
-        SkASSERT(!oEnd->deleted());
+        FAIL_IF(oEnd->deleted());
         bool flipped = coin->flipped();
         if (flipped) {
             SkTSwap(oStart, oEnd);

@@ -23,7 +23,7 @@ struct SkRect;
  *  allow for clients of the drawable that may want to cache the results, the drawable must
  *  change its generation ID whenever its internal state changes such that it will draw differently.
  */
-class SkDrawable : public SkFlattenable {
+class SK_API SkDrawable : public SkFlattenable {
 public:
     SkDrawable();
 
@@ -32,7 +32,7 @@ public:
      *  (i.e. the saveLevel() on the canvas will match what it was when draw() was called,
      *  and the current matrix and clip settings will not be changed.
      */
-    void draw(SkCanvas*, const SkMatrix* = NULL);
+    void draw(SkCanvas*, const SkMatrix* = nullptr);
     void draw(SkCanvas*, SkScalar x, SkScalar y);
 
     SkPicture* newPictureSnapshot();
@@ -60,13 +60,27 @@ public:
      */
     void notifyDrawingChanged();
 
-    SK_DEFINE_FLATTENABLE_TYPE(SkDrawable)
+    static SkFlattenable::Type GetFlattenableType() {
+        return kSkDrawable_Type;
+    }
+
+    SkFlattenable::Type getFlattenableType() const override {
+        return kSkDrawable_Type;
+    }
+
+    static sk_sp<SkDrawable> Deserialize(const void* data, size_t size,
+                                          const SkDeserialProcs* procs = nullptr) {
+        return sk_sp<SkDrawable>(static_cast<SkDrawable*>(
+                                  SkFlattenable::Deserialize(
+                                  kSkDrawable_Type, data, size, procs).release()));
+    }
+
     Factory getFactory() const override { return nullptr; }
 
 protected:
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
-    
+
     /**
      *  Default implementation calls onDraw() with a canvas that records into a picture. Subclasses
      *  may override if they have a more efficient way to return a picture for the current state

@@ -11,13 +11,15 @@
 #include "SkBitmap.h"
 #include "SkDrawable.h"
 #include "SkPicture.h"
-#include "SkPictureContentInfo.h"
 #include "SkPictureFlat.h"
+#include "SkTArray.h"
+
+#include <memory>
 
 class SkData;
 class SkPictureRecord;
-class SkPixelSerializer;
 class SkReader32;
+struct SkSerialProcs;
 class SkStream;
 class SkWStream;
 class SkBBoxHierarchy;
@@ -28,12 +30,6 @@ class SkReadBuffer;
 class SkTextBlob;
 
 struct SkPictInfo {
-    enum Flags {
-        kCrossProcess_Flag      = 1 << 0,
-        kScalarIsFloat_Flag     = 1 << 1,
-        kPtrIs64Bit_Flag        = 1 << 2,
-    };
-
     SkPictInfo() : fVersion(~0U) {}
 
     uint32_t getVersion() const {
@@ -52,7 +48,6 @@ private:
     uint32_t    fVersion;
 public:
     SkRect      fCullRect;
-    uint32_t    fFlags;
 };
 
 #define SK_PICT_READER_TAG     SkSetFourByteTag('r', 'e', 'a', 'd')
@@ -64,7 +59,6 @@ public:
 // This tag specifies the size of the ReadBuffer, needed for the following tags
 #define SK_PICT_BUFFER_SIZE_TAG     SkSetFourByteTag('a', 'r', 'a', 'y')
 // these are all inside the ARRAYS tag
-#define SK_PICT_BITMAP_BUFFER_TAG   SkSetFourByteTag('b', 't', 'm', 'p')
 #define SK_PICT_PAINT_BUFFER_TAG    SkSetFourByteTag('p', 'n', 't', ' ')
 #define SK_PICT_PATH_BUFFER_TAG     SkSetFourByteTag('p', 't', 'h', ' ')
 #define SK_PICT_TEXTBLOB_BUFFER_TAG SkSetFourByteTag('b', 'l', 'o', 'b')
@@ -74,26 +68,24 @@ public:
 // Always write this guy last (with no length field afterwards)
 #define SK_PICT_EOF_TAG     SkSetFourByteTag('e', 'o', 'f', ' ')
 
+template <typename T>
+T* read_index_base_1_or_null(SkReadBuffer* reader, const SkTArray<sk_sp<T>>& array) {
+    int index = reader->readInt();
+    return reader->validate(index > 0 && index <= array.count()) ? array[index - 1].get() : nullptr;
+}
+
 class SkPictureData {
 public:
     SkPictureData(const SkPictureRecord& record, const SkPictInfo&);
     // Does not affect ownership of SkStream.
     static SkPictureData* CreateFromStream(SkStream*,
                                            const SkPictInfo&,
-                                           SkImageDeserializer*,
+                                           const SkDeserialProcs&,
                                            SkTypefacePlayback*);
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
-    virtual ~SkPictureData();
-
-    void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet*) const;
+    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*) const;
     void flatten(SkWriteBuffer&) const;
-
-    bool containsBitmaps() const;
-
-    bool hasText() const { return fContentInfo.hasText(); }
-
-    int opCount() const { return fContentInfo.numOperations(); }
 
     const sk_sp<SkData>& opData() const { return fOpData; }
 
@@ -101,80 +93,53 @@ protected:
     explicit SkPictureData(const SkPictInfo& info);
 
     // Does not affect ownership of SkStream.
-    bool parseStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*);
+    bool parseStream(SkStream*, const SkDeserialProcs&, SkTypefacePlayback*);
     bool parseBuffer(SkReadBuffer& buffer);
 
 public:
-    const SkImage* getBitmapAsImage(SkReadBuffer* reader) const {
-        const int index = reader->readInt();
-        return reader->validateIndex(index, fBitmapImageCount) ? fBitmapImageRefs[index] : nullptr;
-    }
-
     const SkImage* getImage(SkReadBuffer* reader) const {
+        // images are written base-0, unlike paths, pictures, drawables, etc.
         const int index = reader->readInt();
-        return reader->validateIndex(index, fImageCount) ? fImageRefs[index] : nullptr;
+        return reader->validateIndex(index, fImages.count()) ? fImages[index].get() : nullptr;
     }
 
     const SkPath& getPath(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        return reader->validateIndex(index, fPaths.count()) ? fPaths[index] : fEmptyPath;
+        int index = reader->readInt();
+        return reader->validate(index > 0 && index <= fPaths.count()) ?
+                fPaths[index - 1] : fEmptyPath;
     }
 
     const SkPicture* getPicture(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        return reader->validateIndex(index, fPictureCount) ? fPictureRefs[index] : nullptr;
+        return read_index_base_1_or_null(reader, fPictures);
     }
 
     SkDrawable* getDrawable(SkReadBuffer* reader) const {
-        int index = reader->readInt();
-        SkASSERT(index > 0 && index <= fDrawableCount);
-        return fDrawableRefs[index - 1];
+        return read_index_base_1_or_null(reader, fDrawables);
     }
 
     const SkPaint* getPaint(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        if (index == -1) {  // recorder wrote a zero for no paint (likely drawimage)
-            return nullptr;
+        int index = reader->readInt();
+        if (index == 0) {
+            return nullptr; // recorder wrote a zero for no paint (likely drawimage)
         }
-        return reader->validateIndex(index, fPaints.count()) ? &fPaints[index] : nullptr;
+        return reader->validate(index > 0 && index <= fPaints.count()) ?
+                &fPaints[index - 1] : nullptr;
     }
 
     const SkTextBlob* getTextBlob(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        return reader->validateIndex(index, fTextBlobCount) ? fTextBlobRefs[index] : nullptr;
+        return read_index_base_1_or_null(reader, fTextBlobs);
     }
 
     const SkVertices* getVertices(SkReadBuffer* reader) const {
-        const int index = reader->readInt() - 1;
-        return reader->validateIndex(index, fVerticesCount) ? fVerticesRefs[index] : nullptr;
+        return read_index_base_1_or_null(reader, fVertices);
     }
 
-#if SK_SUPPORT_GPU
-    /**
-     * sampleCount is the number of samples-per-pixel or zero if non-MSAA.
-     * It is defaulted to be zero.
-     */
-    bool suitableForGpuRasterization(GrContext* context, const char **reason,
-                                     int sampleCount = 0) const;
-
-    /**
-     * Calls getRecommendedSampleCount with GrPixelConfig and dpi to calculate sampleCount
-     * and then calls the above version of suitableForGpuRasterization
-     */
-    bool suitableForGpuRasterization(GrContext* context, const char **reason,
-                                     GrPixelConfig config, SkScalar dpi) const;
-
-    bool suitableForLayerOptimization() const;
-#endif
-
 private:
-    void init();
-
     // these help us with reading/writing
     // Does not affect ownership of SkStream.
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
-                        SkImageDeserializer*, SkTypefacePlayback*);
-    bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
+                        const SkDeserialProcs&, SkTypefacePlayback*);
+    void parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 
     SkTArray<SkPaint>  fPaints;
@@ -185,23 +150,14 @@ private:
     const SkPath    fEmptyPath;
     const SkBitmap  fEmptyBitmap;
 
-    const SkPicture** fPictureRefs;
-    int fPictureCount;
-    SkDrawable** fDrawableRefs;
-    int fDrawableCount;
-    const SkTextBlob** fTextBlobRefs;
-    int fTextBlobCount;
-    const SkVertices** fVerticesRefs;
-    int fVerticesCount;
-    const SkImage** fImageRefs;
-    int fImageCount;
-    const SkImage** fBitmapImageRefs;
-    int fBitmapImageCount;
+    SkTArray<sk_sp<const SkPicture>>   fPictures;
+    SkTArray<sk_sp<SkDrawable>>        fDrawables;
+    SkTArray<sk_sp<const SkTextBlob>>  fTextBlobs;
+    SkTArray<sk_sp<const SkVertices>>  fVertices;
+    SkTArray<sk_sp<const SkImage>>     fImages;
 
-    SkPictureContentInfo fContentInfo;
-
-    SkTypefacePlayback fTFPlayback;
-    SkFactoryPlayback* fFactoryPlayback;
+    SkTypefacePlayback                 fTFPlayback;
+    std::unique_ptr<SkFactoryPlayback> fFactoryPlayback;
 
     const SkPictInfo fInfo;
 

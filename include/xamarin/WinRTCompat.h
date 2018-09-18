@@ -34,7 +34,10 @@ C_PLUS_PLUS_BEGIN_GUARD
 // not a problem to have a stub.
 
 // used in: deflate.c
-unsigned int _mm_crc32_u32(unsigned int crc, unsigned int v);
+unsigned int _mm_crc32_u32Compat(unsigned int crc, unsigned int v);
+
+// override any previous declaration with ours
+#define _mm_crc32_u32 _mm_crc32_u32Compat
 
 #endif // _M_ARM
 
@@ -60,7 +63,6 @@ BOOL WINAPI TlsFreeCompat(_In_ DWORD dwTlsIndex);
 char *getenvCompat(const char *name);
 
 // override any previous declaration with ours
-
 #define MessageBoxA MessageBoxACompat
 #define CompareStringW CompareStringWCompat
 #define GetACP GetACPCompat
@@ -71,6 +73,9 @@ char *getenvCompat(const char *name);
 #define TlsSetValue TlsSetValueCompat
 #define TlsFree TlsFreeCompat
 #define getenv getenvCompat
+
+// use the provided override hooks if we can
+#define PNG_ABORT() abort()
 
 C_PLUS_PLUS_END_GUARD
 

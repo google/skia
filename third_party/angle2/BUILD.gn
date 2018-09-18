@@ -41,24 +41,34 @@ config("common") {
     "$root_gen_dir/angle2",
     "$angle_root/include",
     "$angle_root/src",
-    "$angle_root/src/common/third_party/numerics",
+    "$angle_root/src/common/third_party/base",
     "$angle_root/src/third_party/khronos",
   ]
-
+  cflags_cc = []
   assert(is_linux || is_win)  # TODO: is_mac?
   if (is_linux) {
     defines += [
       "ANGLE_USE_X11",
       "GL_APICALL=__attribute__((visibility(\"default\")))",
+      "GL_API=__attribute__((visibility(\"default\")))",
       "EGLAPI=__attribute__((visibility(\"default\")))",
     ]
+    cflags_cc += [ "-std=c++14" ]
   } else if (is_win) {
     defines += [
       "ANGLE_ENABLE_D3D11",
       "ANGLE_ENABLE_D3D9",
       "GL_APICALL=",
+      "GL_API=",
       "EGLAPI=",
     ]
+
+    # Allow noexcept, even though we build without exceptions
+    cflags_cc += [ "/wd4577" ]
+    if (is_clang) {
+      # utilities.cpp includes an 'unsigned long' <= UINT_MAX check
+      cflags_cc += [ "-Wno-tautological-constant-compare" ]
+    }
   }
 }
 
@@ -93,19 +103,20 @@ shared_library("libGLESv2") {
               gles_gypi.libglesv2_sources + gles_gypi.libangle_gl_sources,
           ".",
           "$angle_root/src")
-  if (!is_win) {
-    sources -= [ "$angle_root/src/libGLESv2/libGLESv2.def" ]
+  if (is_win) {
+    sources += [ "$angle_root/src/libGLESv2/libGLESv2_autogen.def" ]
   }
-
   if (is_linux) {
     libs += [
       "X11",
       "Xi",
       "Xext",
     ]
-    sources +=
-        rebase_path(gles_gypi.libangle_gl_glx_sources, ".", "$angle_root/src") +
-        [ "$angle_root/src/third_party/libXNVCtrl/NVCtrl.c" ]
+    sources += rebase_path(gles_gypi.libangle_gl_glx_sources +
+                               gles_gypi.libangle_common_linux_sources,
+                           ".",
+                           "$angle_root/src") +
+               [ "$angle_root/src/third_party/libXNVCtrl/NVCtrl.c" ]
   } else if (is_win) {
     defines += [
       # TODO: ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES
@@ -114,7 +125,8 @@ shared_library("libGLESv2") {
                                gles_gypi.libangle_d3d_shared_sources +
                                gles_gypi.libangle_d3d9_sources +
                                gles_gypi.libangle_d3d11_sources +
-                               gles_gypi.libangle_d3d11_win32_sources,
+                               gles_gypi.libangle_d3d11_win32_sources +
+                               gles_gypi.libangle_common_win_sources,
                            ".",
                            "$angle_root/src")
     libs += [
@@ -137,7 +149,7 @@ shared_library("libEGL") {
     ":libGLESv2",
   ]
   sources = rebase_path(gles_gypi.libegl_sources, ".", "$angle_root/src")
-  if (!is_win) {
-    sources -= [ "$angle_root/src/libEGL/libEGL.def" ]
+  if (is_win) {
+    sources += [ "$angle_root/src/libEGL/libEGL.def" ]
   }
 }

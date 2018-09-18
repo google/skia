@@ -5,17 +5,35 @@
  * found in the LICENSE file.
  */
 
-#include "sk_tool_utils.h"
 #include "SampleCode.h"
-#include "SkView.h"
+#include "SkBlendMode.h"
 #include "SkCanvas.h"
+#include "SkColor.h"
 #include "SkGeometry.h"
+#include "SkImageInfo.h"
+#include "SkMatrix.h"
+#include "SkPaint.h"
+#include "SkPath.h"
 #include "SkPathMeasure.h"
-#include "SkRandom.h"
+#include "SkPoint.h"
+#include "SkPointPriv.h"
 #include "SkRRect.h"
-#include "SkColorPriv.h"
-#include "SkStrokerPriv.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
+#include "SkShader.h"
+#include "SkString.h"
+#include "SkStroke.h"
 #include "SkSurface.h"
+#include "SkTArray.h"
+#include "SkTemplates.h"
+#include "SkTypes.h"
+#include "SkView.h"
+#include "sk_tool_utils.h"
+
+#include <cfloat>
+
+class SkEvent;
 
 static bool hittest(const SkPoint& target, SkScalar x, SkScalar y) {
     const SkScalar TOL = 7;
@@ -211,7 +229,6 @@ protected:
                 default:
                     fText.appendUnichar(uni);
             }
-            this->inval(nullptr);
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -313,7 +330,7 @@ protected:
         for (SkScalar dist = 0; dist <= total; dist += delta) {
             if (meas.getPosTan(dist, &pos, &tan)) {
                 tan.scale(radius);
-                tan.rotateCCW();
+                SkPointPriv::RotateCCW(&tan);
                 canvas->drawLine(pos.x() + tan.x(), pos.y() + tan.y(),
                                  pos.x() - tan.x(), pos.y() - tan.y(), paint);
                 if (0 == index % 10) {
@@ -375,7 +392,7 @@ protected:
                     return;
             }
             tan.setLength(radius);
-            tan.rotateCCW();
+            SkPointPriv::RotateCCW(&tan);
             canvas->drawLine(pos.x() + tan.x(), pos.y() + tan.y(),
                                 pos.x() - tan.x(), pos.y() - tan.y(), paint);
             if (0 == index % 10) {
@@ -556,8 +573,8 @@ protected:
         before.setLength(fRadius);
         after.setLength(fRadius);
         SkVector beforeCCW, afterCCW;
-        before.rotateCCW(&beforeCCW);
-        after.rotateCCW(&afterCCW);
+        SkPointPriv::RotateCCW(before, &beforeCCW);
+        SkPointPriv::RotateCCW(after, &afterCCW);
         beforeCCW += pts[0];
         afterCCW += pts[2];
         *center = beforeCCW;
@@ -566,8 +583,8 @@ protected:
             return true;
         }
         SkVector beforeCW, afterCW;
-        before.rotateCW(&beforeCW);
-        after.rotateCW(&afterCW);
+        SkPointPriv::RotateCW(before, &beforeCW);
+        SkPointPriv::RotateCW(after, &afterCW);
         beforeCW += pts[0];
         afterCW += pts[2];
         *center = beforeCW;
@@ -696,7 +713,6 @@ protected:
         draw_button(canvas, fRRectButton);
         draw_button(canvas, fCircleButton);
         draw_button(canvas, fTextButton);
-        this->inval(nullptr);
     }
 
     class MyClick : public Click {
@@ -770,7 +786,6 @@ protected:
         if (index < (int) SK_ARRAY_COUNT(fPts)) {
             fPts[index].offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
                                SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
-            this->inval(nullptr);
         } else if (index == (int) SK_ARRAY_COUNT(fPts) + 1) {
             fWeight = MapScreenYtoValue(click->fICurr.fY, fWeightControl, 0, 5);
         } else if (index == (int) SK_ARRAY_COUNT(fPts) + 2) {

@@ -7,9 +7,55 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkCanvas.h"
+#include "SkCanvasPriv.h"
 #include "SkPath.h"
 #include "SkMakeUnique.h"
+
+
+#include "SkCubicMap.h"
+
+static void test_cubic(SkCanvas* canvas) {
+    const SkPoint pts[] = {
+        { 0.333333f, 0.333333f }, { 0.666666f, 0.666666f },
+        { 1, 0 }, { 0, 1 },
+        { 0, 1 }, { 1, 0 },
+        { 0, 0 }, { 1, 1 },
+        { 1, 1 }, { 0, 0 },
+        { 0, 1 }, { 0, 1 },
+        { 1, 0 }, { 1, 0 },
+    };
+
+    SkPaint paint0, paint1;
+    paint0.setAntiAlias(true);  paint0.setStrokeWidth(3/256.0f); paint0.setColor(SK_ColorRED);
+    paint1.setAntiAlias(true);
+
+    SkCubicMap cmap;
+
+    canvas->translate(10, 266);
+    canvas->scale(256, -256);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); i += 2) {
+        cmap.setPts(pts[i], pts[i+1]);
+
+        const int N = 128;
+        SkPoint tmp0[N+1], tmp1[N+1], tmp2[N+1];
+        for (int j = 0; j <= N; ++j) {
+            float p = j * 1.0f / N;
+            tmp0[j] = cmap.computeFromT(p);
+            tmp1[j].set(p, cmap.computeYFromX(p));
+            tmp2[j].set(p, cmap.hackYFromX(p));
+        }
+
+        canvas->save();
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp0, paint0);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp1, paint1);
+        canvas->translate(0, -1.2f);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp0, paint0);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp2, paint1);
+        canvas->restore();
+
+        canvas->translate(1.1f, 0);
+    }
+}
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
@@ -19,7 +65,7 @@ static void do_draw(SkCanvas* canvas, const SkRect& r) {
 }
 
 /**
- *  Exercise kDontClipToLayer_Legacy_SaveLayerFlag flag, which does not limit the clip to the
+ *  Exercise SkCanvasPriv::kDontClipToLayer_SaveLayerFlag flag, which does not limit the clip to the
  *  layer's bounds. Thus when a draw occurs, it can (depending on "where" it is) draw into the layer
  *  and/or draw onto the surrounding portions of the canvas, or both.
  *
@@ -59,7 +105,7 @@ DEF_SIMPLE_GM(dont_clip_to_layer, canvas, 120, 120) {
     rec.fPaint = nullptr;
     rec.fBounds = &r0;
     rec.fBackdrop = nullptr;
-    rec.fSaveLayerFlags = 1 << 31;//SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag;
+    rec.fSaveLayerFlags = SkCanvasPriv::kDontClipToLayer_SaveLayerFlag;
     canvas->saveLayer(rec);
     rec.fBounds = &r1;
     canvas->saveLayer(rec);
@@ -141,6 +187,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (0) { test_cubic(canvas); return; }
+
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 

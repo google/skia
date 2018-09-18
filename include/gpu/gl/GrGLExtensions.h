@@ -13,6 +13,7 @@
 #include "SkString.h"
 
 struct GrGLInterface;
+class SkJSONWriter;
 
 /**
  * This helper queries the current GL context for its extensions, remembers them, and can be
@@ -22,14 +23,14 @@ struct GrGLInterface;
  */
 class SK_API GrGLExtensions {
 public:
-    GrGLExtensions() : fInitialized(false), fStrings(new SkTArray<SkString>) {}
+    GrGLExtensions() {}
 
     GrGLExtensions(const GrGLExtensions&);
 
     GrGLExtensions& operator=(const GrGLExtensions&);
 
     void swap(GrGLExtensions* that) {
-        fStrings.swap(that->fStrings);
+        fStrings.swap(&that->fStrings);
         SkTSwap(fInitialized, that->fInitialized);
     }
 
@@ -39,10 +40,10 @@ public:
      * NULL if on desktop GL with version 3.0 or higher. Otherwise it will fail.
      */
     bool init(GrGLStandard standard,
-              GrGLFunction<GrGLGetStringProc> getString,
-              GrGLFunction<GrGLGetStringiProc> getStringi,
-              GrGLFunction<GrGLGetIntegervProc> getIntegerv,
-              GrGLFunction<GrEGLQueryStringProc> queryString = nullptr,
+              GrGLFunction<GrGLGetStringFn> getString,
+              GrGLFunction<GrGLGetStringiFn> getStringi,
+              GrGLFunction<GrGLGetIntegervFn> getIntegerv,
+              GrGLFunction<GrEGLQueryStringFn> queryString = nullptr,
               GrEGLDisplay eglDisplay = nullptr);
 
     bool isInitialized() const { return fInitialized; }
@@ -62,13 +63,13 @@ public:
      */
     void add(const char[]);
 
-    void reset() { fStrings->reset(); }
+    void reset() { fStrings.reset(); }
 
-    void print(const char* sep = "\n") const;
+    void dumpJSON(SkJSONWriter*) const;
 
 private:
-    bool                                fInitialized;
-    std::unique_ptr<SkTArray<SkString>> fStrings;
+    bool fInitialized = false;
+    SkTArray<SkString> fStrings;
 };
 
 #endif

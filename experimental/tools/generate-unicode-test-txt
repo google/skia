@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python
 
 # Copyright 2016 Google Inc.
 #
@@ -41,7 +41,7 @@ valid_codepoint_data = '''
 '''
 if sys.version_info[0] < 3:
     def to_unicode(i):
-        return ('\U%08x' % i).decode('unicode-escape').encode('UTF-8')
+        return ('\\U%08x' % i).decode('unicode-escape').encode('UTF-8')
 else:
     def to_unicode(i):
         return chr(i)

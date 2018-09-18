@@ -40,4 +40,6 @@ static inline void SkAppendScalarHex(SkString* str, SkScalar value) {
 /** Indents every non-empty line of the string by tabCnt tabs */
 SkString SkTabString(const SkString& string, int tabCnt);
 
+SkString SkStringFromUTF16(const uint16_t* src, size_t count);
+
 #endif

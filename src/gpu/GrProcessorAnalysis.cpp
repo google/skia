@@ -9,33 +9,43 @@
 #include "GrGeometryProcessor.h"
 #include "ops/GrDrawOp.h"
 
-void GrColorFragmentProcessorAnalysis::analyzeProcessors(
-        const GrFragmentProcessor* const* processors, int cnt) {
+GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
+        const GrProcessorAnalysisColor& input,
+        const GrFragmentProcessor* const* processors,
+        int cnt) {
+    fCompatibleWithCoverageAsAlpha = true;
+    fIsOpaque = input.isOpaque();
+    fUsesLocalCoords = false;
+    fProcessorsToEliminate = 0;
+    GrColor color;
+    if ((fKnowOutputColor = input.isConstant(&color))) {
+        fLastKnownOutputColor = GrColor4f::FromGrColor(color);
+    }
     for (int i = 0; i < cnt; ++i) {
-        bool knowCurrentOutput = fProcessorsVisitedWithKnownOutput == fTotalProcessorsVisited;
-        if (fUsesLocalCoords && !knowCurrentOutput &&
-            !fAllProcessorsCompatibleWithCoverageAsAlpha && !fIsOpaque) {
-            fTotalProcessorsVisited += cnt - i;
-            return;
+        if (fUsesLocalCoords && !fKnowOutputColor && !fCompatibleWithCoverageAsAlpha &&
+            !fIsOpaque) {
+            break;
         }
         const GrFragmentProcessor* fp = processors[i];
-        if (knowCurrentOutput &&
+        if (fKnowOutputColor &&
             fp->hasConstantOutputForConstantInput(fLastKnownOutputColor, &fLastKnownOutputColor)) {
-            ++fProcessorsVisitedWithKnownOutput;
+            ++fProcessorsToEliminate;
             fIsOpaque = fLastKnownOutputColor.isOpaque();
             // We reset these since the caller is expected to not use the earlier fragment
             // processors.
-            fAllProcessorsCompatibleWithCoverageAsAlpha = true;
+            fCompatibleWithCoverageAsAlpha = true;
             fUsesLocalCoords = false;
-        } else if (fIsOpaque && !fp->preservesOpaqueInput()) {
-            fIsOpaque = false;
+        } else {
+            fKnowOutputColor = false;
+            if (fIsOpaque && !fp->preservesOpaqueInput()) {
+                fIsOpaque = false;
+            }
+            if (fCompatibleWithCoverageAsAlpha && !fp->compatibleWithCoverageAsAlpha()) {
+                fCompatibleWithCoverageAsAlpha = false;
+            }
+            if (fp->usesLocalCoords()) {
+                fUsesLocalCoords = true;
+            }
         }
-        if (fAllProcessorsCompatibleWithCoverageAsAlpha && !fp->compatibleWithCoverageAsAlpha()) {
-            fAllProcessorsCompatibleWithCoverageAsAlpha = false;
-        }
-        if (fp->usesLocalCoords()) {
-            fUsesLocalCoords = true;
-        }
-        ++fTotalProcessorsVisited;
     }
 }

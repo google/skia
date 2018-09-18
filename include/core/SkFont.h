@@ -29,17 +29,13 @@ enum SkTextEncoding {
  enum Flags {
      kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
      kDither_Flag          = 0x04,   //!< mask to enable dithering
-     kUnderlineText_Flag   = 0x08,   //!< mask to enable underline text
-     kStrikeThruText_Flag  = 0x10,   //!< mask to enable strike-thru text
      kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
      kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
      kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
-     kDevKernText_Flag     = 0x100,  //!< mask to enable device kerning text
      kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
      kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
      kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
      kVerticalText_Flag    = 0x1000,
-     kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
  };
 
  SkFont would absorb these:
@@ -47,19 +43,15 @@ enum SkTextEncoding {
      kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
      kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
      kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
-     kDevKernText_Flag     = 0x100,  //!< mask to enable device kerning text
      kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
      kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
      kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
      kVerticalText_Flag    = 0x1000,
-     kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
 
  leaving these still in paint
 
      kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
      kDither_Flag          = 0x04,   //!< mask to enable dithering
-     kUnderlineText_Flag   = 0x08,   //!< mask to enable underline text
-     kStrikeThruText_Flag  = 0x10,   //!< mask to enable strike-thru text
 
  3. Antialiasing
 
@@ -106,9 +98,8 @@ public:
         kUseNonlinearMetrics_Flag   = 1 << 3,
 
         kVertical_Flag              = 1 << 4,
-        kGenA8FromLCD_Flag          = 1 << 5,
+
         kEmbolden_Flag              = 1 << 6,
-        kDevKern_Flag               = 1 << 7,   // ifdef ANDROID ?
     };
 
     enum MaskType {
@@ -143,7 +134,6 @@ public:
     bool isEnableAutoHints() const { return SkToBool(fFlags & kEnableAutoHints_Flag); }
     bool isEnableByteCodeHints() const { return SkToBool(fFlags & kEnableByteCodeHints_Flag); }
     bool isUseNonLinearMetrics() const { return SkToBool(fFlags & kUseNonlinearMetrics_Flag); }
-    bool isDevKern() const { return SkToBool(fFlags & kDevKern_Flag); }
 
     int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding,
                      SkGlyphID glyphs[], int maxGlyphCount) const;
@@ -157,9 +147,7 @@ public:
     static sk_sp<SkFont> Testing_CreateFromPaint(const SkPaint&);
 
 private:
-    enum {
-        kAllFlags = 0xFF,
-    };
+    static constexpr int kAllFlags = 0xFF;
 
     SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType,
            uint32_t flags);

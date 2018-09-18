@@ -65,17 +65,18 @@ public:
     size_t peek(void* buffer, size_t size) const override;
     
     bool rewind() override;
-    SkManagedStream* duplicate() const override;
     
     size_t getPosition() const override;
     bool seek(size_t position) override;
     bool move(long offset) override;
-    SkManagedStream* fork() const override;
     
     size_t getLength() const override;
     
 private:
     size_t address;
+
+    SkStreamAsset* onDuplicate() const override;
+    SkStreamAsset* onFork() const override;
 
     typedef SkStreamAsset INHERITED;
 };

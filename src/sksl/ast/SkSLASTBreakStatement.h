@@ -16,8 +16,8 @@ namespace SkSL {
  * A 'break' statement.
  */
 struct ASTBreakStatement : public ASTStatement {
-    ASTBreakStatement(Position position)
-    : INHERITED(position, kBreak_Kind) {}
+    ASTBreakStatement(int offset)
+    : INHERITED(offset, kBreak_Kind) {}
 
     String description() const override {
         return String("break;");

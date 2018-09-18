@@ -10,9 +10,7 @@
 
 #include "SkBitmaskEnum.h"
 #include "SkRect.h"
-#include "SkRefCnt.h"
 #include "SkString.h"
-#include "SkTDArray.h"
 
 /** \class SkAdvancedTypefaceMetrics
 
@@ -21,11 +19,8 @@
     SkTypeface::getAdvancedMetrics.
 */
 struct SkAdvancedTypefaceMetrics {
-    SkAdvancedTypefaceMetrics() {}
-    SkAdvancedTypefaceMetrics(const SkAdvancedTypefaceMetrics&) = delete;
-    SkAdvancedTypefaceMetrics& operator=(const SkAdvancedTypefaceMetrics&) = delete;
-    ~SkAdvancedTypefaceMetrics() {}
-
+    // The PostScript name of the font. See `FontName` and `BaseFont` in PDF standard.
+    SkString fPostScriptName;
     SkString fFontName;
 
     // These enum values match the values used in the PDF file format.
@@ -68,12 +63,6 @@ struct SkAdvancedTypefaceMetrics {
     int16_t fCapHeight = 0;    // Height (from baseline) of top of flat capitals.
 
     SkIRect fBBox = {0, 0, 0, 0};  // The bounding box of all glyphs (in font units).
-
-    // The names of each glyph, only populated for postscript fonts.
-    SkTArray<SkString> fGlyphNames;
-
-    // The mapping from glyph to Unicode; array indices are glyph ids.
-    SkTDArray<SkUnichar> fGlyphToUnicode;
 };
 
 namespace skstd {

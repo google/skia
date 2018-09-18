@@ -138,7 +138,8 @@ protected:
                 canvas->translate(gap, 0);
 
                 sk_sp<SkImageFilter> bg =
-                        SkArithmeticImageFilter::Make(0, 0, -one / 2, 1, enforcePMColor, dstFilter);
+                        SkArithmeticImageFilter::Make(0, 0, -one / 2, 1, enforcePMColor, dstFilter,
+                                                      nullptr, nullptr);
                 SkPaint p;
                 p.setImageFilter(SkArithmeticImageFilter::Make(0, one / 2, -one, 1, true,
                                                                std::move(bg), dstFilter, nullptr));

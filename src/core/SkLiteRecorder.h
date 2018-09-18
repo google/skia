@@ -8,11 +8,12 @@
 #ifndef SkLiteRecorder_DEFINED
 #define SkLiteRecorder_DEFINED
 
+#include "SkCanvasVirtualEnforcer.h"
 #include "SkNoDrawCanvas.h"
 
 class SkLiteDL;
 
-class SkLiteRecorder final : public SkNoDrawCanvas {
+class SkLiteRecorder final : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
     SkLiteRecorder();
     void reset(SkLiteDL*, const SkIRect& bounds);
@@ -26,6 +27,8 @@ public:
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override;
+
+    void onFlush() override;
 
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
@@ -80,7 +83,7 @@ public:
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
 
 private:
-    typedef SkNoDrawCanvas INHERITED;
+    typedef SkCanvasVirtualEnforcer<SkNoDrawCanvas> INHERITED;
 
     SkLiteDL* fDL;
 };

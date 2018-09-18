@@ -88,13 +88,13 @@ int SkPackBits::Unpack8(const uint8_t* SK_RESTRICT src, size_t srcSize,
         unsigned n = *src++;
         if (n <= 127) {   // repeat count (n + 1)
             n += 1;
-            if (dst >(endDst - n)) {
+            if (dst > (endDst - n) || src >= stop) {
                 return 0;
             }
             memset(dst, *src++, n);
         } else {    // same count (n - 127)
             n -= 127;
-            if (dst > (endDst - n)) {
+            if (dst > (endDst - n) || src > (stop - n)) {
                 return 0;
             }
             memcpy(dst, src, n);
@@ -103,5 +103,6 @@ int SkPackBits::Unpack8(const uint8_t* SK_RESTRICT src, size_t srcSize,
         dst += n;
     }
     SkASSERT(src <= stop);
+    SkASSERT(dst <= endDst);
     return SkToInt(dst - origDst);
 }

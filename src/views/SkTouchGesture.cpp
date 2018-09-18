@@ -108,15 +108,19 @@ SkTouchGesture::SkTouchGesture() {
 SkTouchGesture::~SkTouchGesture() {
 }
 
-void SkTouchGesture::reset() {
+void SkTouchGesture::resetTouchState() {
     fIsTransLimited = false;
     fTouches.reset();
     fState = kEmpty_State;
     fLocalM.reset();
-    fGlobalM.reset();
 
     fLastUpMillis = SkTime::GetMSecs() - 2*MAX_DBL_TAP_INTERVAL;
     fLastUpP.set(0, 0);
+}
+
+void SkTouchGesture::reset() {
+    fGlobalM.reset();
+    this->resetTouchState();
 }
 
 void SkTouchGesture::flushLocalM() {
@@ -209,10 +213,8 @@ void SkTouchGesture::touchMoved(void* owner, float x, float y) {
 
     int index = this->findRec(owner);
     if (index < 0) {
-        // not found, so I guess we should add it...
-        SkDebugf("---- add missing begin\n");
-        this->appendNewRec(owner, x, y);
-        index = fTouches.count() - 1;
+        SkDebugf("---- ignoring move without begin\n");
+        return;
     }
 
     Rec& rec = fTouches[index];
@@ -220,7 +222,7 @@ void SkTouchGesture::touchMoved(void* owner, float x, float y) {
     // not sure how valuable this is
     if (fTouches.count() == 2) {
         if (close_enough_for_jitter(rec.fLastX, rec.fLastY, x, y)) {
-//            SkDebugf("--- drop touchMove, withing jitter tolerance %g %g\n", rec.fLastX - x, rec.fLastY - y);
+//            SkDebugf("--- drop touchMove, within jitter tolerance %g %g\n", rec.fLastX - x, rec.fLastY - y);
             return;
         }
     }
@@ -331,10 +333,12 @@ bool SkTouchGesture::handleDblTap(float x, float y) {
     return found;
 }
 
-void SkTouchGesture::setTransLimit(const SkRect& contentRect, const SkRect& windowRect) {
+void SkTouchGesture::setTransLimit(const SkRect& contentRect, const SkRect& windowRect,
+                                   const SkMatrix& preTouchMatrix) {
     fIsTransLimited = true;
     fContentRect = contentRect;
     fWindowRect = windowRect;
+    fPreTouchM = preTouchMatrix;
 }
 
 void SkTouchGesture::limitTrans() {
@@ -343,6 +347,7 @@ void SkTouchGesture::limitTrans() {
     }
 
     SkRect scaledContent = fContentRect;
+    fPreTouchM.mapRect(&scaledContent);
     fGlobalM.mapRect(&scaledContent);
     const SkScalar ZERO = 0;
 

@@ -10,7 +10,7 @@
 
 #include "GrPathRenderer.h"
 
-class GrResourceProvider;
+class GrProxyProvider;
 
 /**
  * This class uses the software side to render a path to an SkBitmap and
@@ -18,9 +18,11 @@ class GrResourceProvider;
  */
 class GrSoftwarePathRenderer : public GrPathRenderer {
 public:
-    GrSoftwarePathRenderer(GrResourceProvider* resourceProvider, bool allowCaching)
-            : fResourceProvider(resourceProvider)
-            , fAllowCaching(allowCaching) {}
+    GrSoftwarePathRenderer(GrProxyProvider* proxyProvider, bool allowCaching)
+            : fProxyProvider(proxyProvider)
+            , fAllowCaching(allowCaching) {
+    }
+
 private:
     static void DrawNonAARect(GrRenderTargetContext* renderTargetContext,
                               GrPaint&& paint,
@@ -37,16 +39,28 @@ private:
                                   const SkIRect& devClipBounds,
                                   const SkIRect& devPathBounds);
 
+    // This utility draws a path mask using a provided paint. The rectangle is drawn in device
+    // space. The 'viewMatrix' will be used to ensure the correct local coords are provided to
+    // any fragment processors in the paint.
+    static void DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
+                                          GrRenderTargetContext* renderTargetContext,
+                                          GrPaint&& paint,
+                                          const GrUserStencilSettings& userStencilSettings,
+                                          const GrClip& clip,
+                                          const SkMatrix& viewMatrix,
+                                          const SkIPoint& textureOriginInDeviceSpace,
+                                          const SkIRect& deviceSpaceRectToDraw);
+
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
 
-    bool onCanDrawPath(const CanDrawPathArgs&) const override;
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
 
 private:
-    GrResourceProvider*    fResourceProvider;
+    GrProxyProvider*       fProxyProvider;
     bool                   fAllowCaching;
 
     typedef GrPathRenderer INHERITED;

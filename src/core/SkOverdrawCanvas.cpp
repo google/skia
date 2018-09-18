@@ -7,6 +7,7 @@
 
 #include "SkColorFilter.h"
 #include "SkDrawable.h"
+#include "SkDrawShadowInfo.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkImagePriv.h"
 #include "SkLatticeIter.h"
@@ -15,6 +16,7 @@
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkRSXform.h"
+#include "SkStrikeCache.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
 
@@ -62,7 +64,8 @@ void SkOverdrawCanvas::onDrawText(const void* text, size_t byteLength, SkScalar 
     ProcessOneGlyphBounds processBounds(this);
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     this->getProps(&props);
-    SkAutoGlyphCache cache(paint, &props, 0, &this->getTotalMatrix());
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+            paint, &props, SkScalerContextFlags::kNone, &this->getTotalMatrix());
     SkFindAndPlaceGlyph::ProcessText(paint.getTextEncoding(), (const char*) text, byteLength,
                                      SkPoint::Make(x, y), SkMatrix(), paint.getTextAlign(),
                                      cache.get(), processBounds);
@@ -74,10 +77,11 @@ void SkOverdrawCanvas::drawPosTextCommon(const void* text, size_t byteLength, co
     ProcessOneGlyphBounds processBounds(this);
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     this->getProps(&props);
-    SkAutoGlyphCache cache(paint, &props, 0, &this->getTotalMatrix());
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+            paint, &props, SkScalerContextFlags::kNone, &this->getTotalMatrix());
     SkFindAndPlaceGlyph::ProcessPosText(paint.getTextEncoding(), (const char*) text, byteLength,
                                         SkPoint::Make(0, 0), SkMatrix(), (const SkScalar*) pos, 2,
-                                        paint.getTextAlign(), cache.get(), processBounds);
+                                        cache.get(), processBounds);
 }
 
 void SkOverdrawCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
@@ -298,6 +302,14 @@ void SkOverdrawCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matr
 void SkOverdrawCanvas::onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) {
     SkASSERT(false);
     return;
+}
+
+void SkOverdrawCanvas::onDrawAnnotation(const SkRect&, const char[], SkData*) {}
+
+void SkOverdrawCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    SkRect bounds;
+    SkDrawShadowMetrics::GetLocalBounds(path, rec, this->getTotalMatrix(), &bounds);
+    fList[0]->onDrawRect(bounds, fPaint);
 }
 
 inline SkPaint SkOverdrawCanvas::overdrawPaint(const SkPaint& paint) {

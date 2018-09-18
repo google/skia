@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvas.h"
+#include "SkSurface.h"
 #include "SkVertices.h"
+#include "sk_pixel_iter.h"
 #include "Test.h"
 
 static bool equal(const SkVertices* v0, const SkVertices* v1) {
@@ -83,6 +86,64 @@ DEF_TEST(Vertices, reporter) {
             REPORTER_ASSERT(reporter, v1->uniqueID() != 0);
             REPORTER_ASSERT(reporter, v0->uniqueID() != v1->uniqueID());
             REPORTER_ASSERT(reporter, equal(v0.get(), v1.get()));
+        }
+    }
+    {
+        // This has the maximum number of vertices to be rewritten as indexed triangles without
+        // overflowing a 16bit index.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, SK_MaxU16 + 1, 0,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, builder.isValid());
+    }
+    {
+        // This has too many to be rewritten.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, SK_MaxU16 + 2, 0,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, !builder.isValid());
+    }
+    {
+        // Only two vertices - can't be rewritten.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 2, 0,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, !builder.isValid());
+    }
+    {
+        // Minimum number of indices to be rewritten.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 3,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, builder.isValid());
+    }
+    {
+        // Too few indices to be rewritten.
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, 10, 2,
+                                    SkVertices::kHasColors_BuilderFlag);
+        REPORTER_ASSERT(reporter, !builder.isValid());
+    }
+}
+
+static void fill_triangle(SkCanvas* canvas, const SkPoint pts[], SkColor c) {
+    SkColor colors[] = { c, c, c };
+    auto verts = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, pts, nullptr, colors);
+    canvas->drawVertices(verts, SkBlendMode::kSrc, SkPaint());
+}
+
+DEF_TEST(Vertices_clipping, reporter) {
+    // A very large triangle has to be geometrically clipped (since its "fast" clipping is
+    // normally done in after building SkFixed coordinates). Check that we handle this.
+    // (and don't assert).
+    auto surf = SkSurface::MakeRasterN32Premul(3, 3);
+
+    SkPoint pts[] = { { -10, 1 }, { -10, 2 }, { 1e9f, 1.5f } };
+    fill_triangle(surf->getCanvas(), pts, SK_ColorBLACK);
+
+    sk_tool_utils::PixelIter iter(surf.get());
+    SkIPoint loc;
+    while (void* addr = iter.next(&loc)) {
+        SkPMColor c = *(SkPMColor*)addr;
+        if (loc.fY == 1) {
+            REPORTER_ASSERT(reporter, c == 0xFF000000);
+        } else {
+            REPORTER_ASSERT(reporter, c == 0);
         }
     }
 }

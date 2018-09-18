@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "GrNonAAFillRectOp.h"
 #include "GrAppliedClip.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -14,6 +13,7 @@
 #include "GrOpFlushState.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrQuad.h"
+#include "GrRectOpFactory.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkMatrixPriv.h"
@@ -72,7 +72,7 @@ static void tesselate(intptr_t vertices,
                       const GrQuad* localQuad) {
     SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
 
-    positions->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
+    SkPointPriv::SetRectTriStrip(positions, rect, vertexStride);
 
     if (viewMatrix) {
         SkMatrixPriv::MapPointsWithStride(*viewMatrix, positions, vertexStride, kVertsPerRect);
@@ -119,24 +119,29 @@ public:
                     const SkRect& rect, const SkRect* localRect, const SkMatrix* localMatrix,
                     GrAAType aaType, const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID()), fHelper(args, aaType, stencilSettings) {
+
         SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective()));
         RectInfo& info = fRects.push_back();
         info.fColor = color;
         info.fViewMatrix = viewMatrix;
         info.fRect = rect;
         if (localRect && localMatrix) {
-            info.fLocalQuad.setFromMappedRect(*localRect, *localMatrix);
+            info.fLocalQuad = GrQuad(*localRect, *localMatrix);
         } else if (localRect) {
-            info.fLocalQuad.set(*localRect);
+            info.fLocalQuad = GrQuad(*localRect);
         } else if (localMatrix) {
-            info.fLocalQuad.setFromMappedRect(rect, *localMatrix);
+            info.fLocalQuad = GrQuad(rect, *localMatrix);
         } else {
-            info.fLocalQuad.set(rect);
+            info.fLocalQuad = GrQuad(rect);
         }
         this->setTransformedBounds(fRects[0].fRect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "NonAAFillRectOp"; }
+
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
+    }
 
     SkString dumpInfo() const override {
         SkString str;
@@ -148,12 +153,16 @@ public:
                         info.fColor, info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight,
                         info.fRect.fBottom);
         }
+        str += fHelper.dumpInfo();
+        str += INHERITED::dumpInfo();
         return str;
     }
 
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrColor* color = &fRects.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone, color);
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kNone, color);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
@@ -161,7 +170,7 @@ public:
     DEFINE_OP_CLASS_ID
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp = make_gp();
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
@@ -173,8 +182,8 @@ private:
         size_t vertexStride = gp->getVertexStride();
         int rectCount = fRects.count();
 
-        sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
-        PatternHelper helper(kTriangles_GrPrimitiveType);
+        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+        PatternHelper helper(GrPrimitiveType::kTriangles);
         void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
                                      kIndicesPerRect, rectCount);
         if (!vertices || !indexBuffer) {
@@ -255,22 +264,29 @@ public:
 
     const char* name() const override { return "NonAAFillRectPerspectiveOp"; }
 
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# combined: %d\n", fRects.count());
         for (int i = 0; i < fRects.count(); ++i) {
-            const RectInfo& geo = fRects[0];
+            const RectInfo& geo = fRects[i];
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
                         geo.fColor, geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight,
                         geo.fRect.fBottom);
         }
-        str.append(INHERITED::dumpInfo());
+        str += fHelper.dumpInfo();
+        str += INHERITED::dumpInfo();
         return str;
     }
 
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrColor* color = &fRects.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone, color);
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kNone, color);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
@@ -278,7 +294,7 @@ public:
     DEFINE_OP_CLASS_ID
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp = make_perspective_gp(
                 fViewMatrix, fHasLocalRect, fHasLocalMatrix ? &fLocalMatrix : nullptr);
         if (!gp) {
@@ -294,8 +310,8 @@ private:
         size_t vertexStride = gp->getVertexStride();
         int rectCount = fRects.count();
 
-        sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
-        PatternHelper helper(kTriangles_GrPrimitiveType);
+        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+        PatternHelper helper(GrPrimitiveType::kTriangles);
         void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
                                      kIndicesPerRect, rectCount);
         if (!vertices || !indexBuffer) {
@@ -357,41 +373,68 @@ private:
 
 }  // anonymous namespace
 
-namespace GrNonAAFillRectOp {
+namespace GrRectOpFactory {
 
-std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect,
-                               const SkRect* localRect,
-                               const SkMatrix* localMatrix,
-                               GrAAType aaType,
-                               const GrUserStencilSettings* stencilSettings) {
-    if (!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective())) {
-        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, localRect, localMatrix,
-                                     aaType, stencilSettings);
+std::unique_ptr<GrDrawOp> MakeNonAAFill(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                        const SkRect& rect, GrAAType aaType,
+                                        const GrUserStencilSettings* stencilSettings) {
+    if (viewMatrix.hasPerspective()) {
+        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, nullptr,
+                                                nullptr, aaType, stencilSettings);
     } else {
-        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, localRect,
-                                                localMatrix, aaType, stencilSettings);
+        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, nullptr, nullptr, aaType,
+                                     stencilSettings);
     }
 }
 
-};  // namespace GrNonAAFillRectOp
+std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalMatrix(
+        GrPaint&& paint, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+        const SkRect& rect, GrAAType aaType, const GrUserStencilSettings* stencilSettings) {
+    if (viewMatrix.hasPerspective() || localMatrix.hasPerspective()) {
+        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, nullptr,
+                                                &localMatrix, aaType, stencilSettings);
+    } else {
+        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, nullptr, &localMatrix,
+                                     aaType, stencilSettings);
+    }
+}
+
+std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalRect(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                                     const SkRect& rect, const SkRect& localRect,
+                                                     GrAAType aaType) {
+    if (viewMatrix.hasPerspective()) {
+        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, &localRect,
+                                                nullptr, aaType, nullptr);
+    } else {
+        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, &localRect, nullptr,
+                                     aaType, nullptr);
+    }
+}
+
+}  // namespace GrRectOpFactory
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if GR_TEST_UTILS
 
 GR_DRAW_OP_TEST_DEFINE(NonAAFillRectOp) {
     SkRect rect = GrTest::TestRect(random);
     SkRect localRect = GrTest::TestRect(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkMatrix localMatrix = GrTest::TestMatrix(random);
-    bool hasLocalRect = random->nextBool();
-    bool hasLocalMatrix = random->nextBool();
     const GrUserStencilSettings* stencil = GrGetRandomStencil(random, context);
     GrAAType aaType = GrAAType::kNone;
     if (fsaaType == GrFSAAType::kUnifiedMSAA) {
         aaType = random->nextBool() ? GrAAType::kMSAA : GrAAType::kNone;
     }
-    return GrNonAAFillRectOp::Make(std::move(paint), viewMatrix, rect,
-                                   hasLocalRect ? &localRect : nullptr,
-                                   hasLocalMatrix ? &localMatrix : nullptr, aaType, stencil);
+    const SkRect* lr = random->nextBool() ? &localRect : nullptr;
+    const SkMatrix* lm = random->nextBool() ? &localMatrix : nullptr;
+    if (viewMatrix.hasPerspective() || (lm && lm->hasPerspective())) {
+        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType,
+                                                stencil);
+    } else {
+        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType, stencil);
+    }
 }
+
+#endif

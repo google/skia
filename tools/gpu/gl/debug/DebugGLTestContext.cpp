@@ -102,6 +102,12 @@ public:
         this->setTexture(texture);
     }
 
+    GrGLboolean isTexture(GrGLuint textureID) override {
+        GrTextureObj *texture = FIND(textureID, GrTextureObj, kTexture_ObjTypes);
+
+        return texture ? GR_GL_TRUE : GR_GL_FALSE;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     GrGLvoid bufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data,
                         GrGLenum usage) override {
@@ -662,7 +668,7 @@ public:
                 break;
             }
             default:
-                SkFAIL("Unexpected pname to GetIntegerv");
+                SK_ABORT("Unexpected pname to GetIntegerv");
         }
     }
 
@@ -688,7 +694,7 @@ public:
                 *params = 32;
                 break;
             default:
-                SkFAIL("Unexpected pname passed GetQueryiv.");
+                SK_ABORT("Unexpected pname passed GetQueryiv.");
         }
     }
 
@@ -730,7 +736,7 @@ public:
             case GR_GL_RENDERER:
                 return (const GrGLubyte*)"The Debug (Non-)Renderer";
             default:
-                SkFAIL("Unexpected name passed to GetString");
+                SK_ABORT("Unexpected name passed to GetString");
                 return nullptr;
         }
     }
@@ -747,7 +753,7 @@ public:
                 }
             }
             default:
-                SkFAIL("Unexpected name passed to GetStringi");
+                SK_ABORT("Unexpected name passed to GetStringi");
                 return nullptr;
         }
     }
@@ -756,7 +762,7 @@ public:
                                     GrGLint* params) override {
         // we used to use this to query stuff about externally created textures,
         // now we just require clients to tell us everything about the texture.
-        SkFAIL("Should never query texture parameters.");
+        SK_ABORT("Should never query texture parameters.");
     }
 
     GrGLvoid deleteVertexArrays(GrGLsizei n, const GrGLuint* ids) override {
@@ -893,7 +899,7 @@ public:
                     *params = buffer->getUsage();
                 break;
             default:
-                SkFAIL("Unexpected value to glGetBufferParamateriv");
+                SK_ABORT("Unexpected value to glGetBufferParamateriv");
                 break;
         }
     }
@@ -901,7 +907,7 @@ public:
 private:
     inline int static GetBufferIndex(GrGLenum glTarget) {
         switch (glTarget) {
-            default:                           SkFAIL("Unexpected GL target to GetBufferIndex");
+            default:                           SK_ABORT("Unexpected GL target to GetBufferIndex");
             case GR_GL_ARRAY_BUFFER:           return 0;
             case GR_GL_ELEMENT_ARRAY_BUFFER:   return 1;
             case GR_GL_TEXTURE_BUFFER:         return 2;
@@ -982,12 +988,13 @@ private:
             case GR_GL_COMPILE_STATUS:
                 *params = GR_GL_TRUE;
                 break;
-            case GR_GL_INFO_LOG_LENGTH:
+            case GR_GL_INFO_LOG_LENGTH: // fallthru
+            case GL_PROGRAM_BINARY_LENGTH:
                 *params = 0;
                 break;
                 // we don't expect any other pnames
             default:
-                SkFAIL("Unexpected pname to GetProgramiv");
+                SK_ABORT("Unexpected pname to GetProgramiv");
                 break;
         }
     }
@@ -1002,7 +1009,7 @@ private:
                 *params = 0;
                 break;
             default:
-                SkFAIL("Unexpected pname passed to GetQueryObject.");
+                SK_ABORT("Unexpected pname passed to GetQueryObject.");
                 break;
         }
     }
@@ -1194,14 +1201,13 @@ const char* DebugInterface::kExtensions[] = {
 
 class DebugGLContext : public sk_gpu_test::GLTestContext {
 public:
-   DebugGLContext() {
-       this->init(new DebugInterface());
-   }
+    DebugGLContext() { this->init(sk_make_sp<DebugInterface>()); }
 
-   ~DebugGLContext() override { this->teardown(); }
+    ~DebugGLContext() override { this->teardown(); }
 
 private:
     void onPlatformMakeCurrent() const override {}
+    std::function<void()> onPlatformGetAutoContextRestore() const override { return nullptr; }
     void onPlatformSwapBuffers() const override {}
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override { return nullptr; }
 };

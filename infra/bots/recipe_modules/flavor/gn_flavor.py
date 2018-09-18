@@ -6,6 +6,7 @@ import default_flavor
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
+  # TODO(borenet): Delete this file.
   def _run(self, title, cmd, infra_step=False, **kwargs):
     return self.m.run(self.m.step, title, cmd=cmd,
                infra_step=infra_step, **kwargs)
@@ -14,164 +15,97 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     return self.m.run(self.m.python, title, script=script, args=args,
                infra_step=infra_step)
 
-  def build_command_buffer(self):
-    self.m.run(self.m.python, 'build command_buffer',
-        script=self.m.vars.skia_dir.join('tools', 'build_command_buffer.py'),
-        args=[
-          '--chrome-dir', self.m.vars.checkout_root,
-          '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
-          '--no-sync', '--make-output-dir'])
-
-  def compile(self, unused_target):
-    """Build Skia with GN."""
-    compiler      = self.m.vars.builder_cfg.get('compiler',      '')
-    configuration = self.m.vars.builder_cfg.get('configuration', '')
-    extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
-    os            = self.m.vars.builder_cfg.get('os',            '')
-    target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
-
-    clang_linux   = str(self.m.vars.slave_dir.join('clang_linux'))
-    linux_vulkan_sdk   = str(self.m.vars.slave_dir.join('linux_vulkan_sdk'))
-    win_toolchain = str(self.m.vars.slave_dir.join(
-      't', 'depot_tools', 'win_toolchain', 'vs_files',
-      'd3cb0e37bdd120ad0ac4650b674b09e81be45616'))
-    win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
-
-    cc, cxx = None, None
-    extra_cflags = []
-    extra_ldflags = []
-
-    if compiler == 'Clang' and os == 'Ubuntu':
-      cc  = clang_linux + '/bin/clang'
-      cxx = clang_linux + '/bin/clang++'
-      extra_cflags .append('-B%s/bin' % clang_linux)
-      extra_ldflags.append('-B%s/bin' % clang_linux)
-      extra_ldflags.append('-fuse-ld=lld')
-    elif compiler == 'Clang':
-      cc, cxx = 'clang', 'clang++'
-    elif compiler == 'GCC':
-      cc, cxx = 'gcc', 'g++'
-
-    if compiler != 'MSVC' and configuration == 'Debug':
-      extra_cflags.append('-O1')
-
-    if extra_config == 'Exceptions':
-      extra_cflags.append('/EHsc')
-    if extra_config == 'Fast':
-      extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3',
-                           '-ffp-contract=off'])
-    if extra_config.startswith('SK'):
-      extra_cflags.append('-D' + extra_config)
-    if extra_config == 'MSAN':
-      extra_ldflags.append('-L' + clang_linux + '/msan')
-
-    args = {}
-
-    if configuration != 'Debug':
-      args['is_debug'] = 'false'
-    if extra_config == 'ANGLE':
-      args['skia_use_angle'] = 'true'
-    if extra_config == 'CommandBuffer':
-      self.m.run.run_once(self.build_command_buffer)
-    if extra_config == 'GDI':
-      args['skia_use_gdi'] = 'true'
-    if extra_config == 'MSAN':
-      args['skia_enable_gpu']     = 'false'
-      args['skia_use_fontconfig'] = 'false'
-    if extra_config == 'ASAN':
-      args['skia_enable_spirv_validation'] = 'false'
-    if extra_config == 'Mesa':
-      args['skia_use_mesa'] = 'true'
-    if extra_config == 'Mini':
-      args.update({
-        'is_component_build':     'true',   # Proves we can link a coherent .so.
-        'is_official_build':      'true',   # No debug symbols, no tools.
-        'skia_enable_effects':    'false',
-        'skia_enable_gpu':        'false',
-        'skia_enable_pdf':        'false',
-        'skia_use_expat':         'false',
-        'skia_use_libjpeg_turbo': 'false',
-        'skia_use_libpng':        'false',
-        'skia_use_libwebp':       'false',
-        'skia_use_zlib':          'false',
-      })
-    if extra_config == 'NoGPU':
-      args['skia_enable_gpu'] = 'false'
-    if extra_config == 'Shared':
-      args['is_component_build'] = 'true'
-    if extra_config == 'Vulkan':
-      args['skia_enable_vulkan_debug_layers'] = 'false'
-      if os == 'Ubuntu':
-        args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
-      if 'Win' in os:
-        args['skia_vulkan_sdk'] = '"%s"' % win_vulkan_sdk
-
-    for (k,v) in {
-      'cc':  cc,
-      'cxx': cxx,
-      'sanitize': extra_config if 'SAN' in extra_config else '',
-      'target_cpu': target_arch,
-      'target_os': 'ios' if 'iOS' in extra_config else '',
-      'windk': win_toolchain if 'Win' in os else '',
-    }.iteritems():
-      if v:
-        args[k] = '"%s"' % v
-    if extra_cflags:
-      args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
-    if extra_ldflags:
-      args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
-
-    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
-
-    gn    = 'gn.exe'    if 'Win' in os else 'gn'
-    ninja = 'ninja.exe' if 'Win' in os else 'ninja'
-    gn = self.m.vars.skia_dir.join('bin', gn)
-
-    with self.m.context(cwd=self.m.vars.skia_dir):
-      self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-      self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-      self._run('ninja', [ninja, '-C', self.out_dir])
-
-  def copy_extra_build_products(self, swarming_out_dir):
-    configuration = self.m.vars.builder_cfg.get('configuration', '')
-    extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
-    os            = self.m.vars.builder_cfg.get('os',            '')
-
-    win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
-    if 'Win' in os and extra_config == 'Vulkan':
-      self.m.run.copy_build_products(
-          win_vulkan_sdk,
-          swarming_out_dir.join('out', configuration + '_x64'))
-
   def step(self, name, cmd):
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    app = self.device_dirs.bin_dir.join(cmd[0])
     cmd = [app] + cmd[1:]
-    env = self.m.step.get_from_context('env', {})
+    env = self.m.context.env
+    path = []
+    ld_library_path = []
 
-    clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
-    extra_config = self.m.vars.builder_cfg.get('extra_config', '')
+    slave_dir = self.m.vars.slave_dir
+    clang_linux = str(slave_dir.join('clang_linux'))
+    extra_tokens = self.m.vars.extra_tokens
 
-    if 'SAN' in extra_config:
+    if self.m.vars.is_linux:
+      if (self.m.vars.builder_cfg.get('cpu_or_gpu', '') == 'GPU'
+          and 'Intel' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')):
+        # The vulkan in this asset name simply means that the graphics driver
+        # supports Vulkan. It is also the driver used for GL code.
+        dri_path = slave_dir.join('linux_vulkan_intel_driver_release')
+        if self.m.vars.builder_cfg.get('configuration', '') == 'Debug':
+          dri_path = slave_dir.join('linux_vulkan_intel_driver_debug')
+        ld_library_path.append(dri_path)
+        env['LIBGL_DRIVERS_PATH'] = str(dri_path)
+        env['VK_ICD_FILENAMES'] = str(dri_path.join('intel_icd.x86_64.json'))
+
+      if 'Vulkan' in extra_tokens:
+        path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
+        ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
+
+    if 'SwiftShader' in extra_tokens:
+      ld_library_path.append(
+          self.m.vars.build_dir.join('out', 'swiftshader_out'))
+
+    if 'MSAN' in extra_tokens:
+      # Find the MSAN-built libc++.
+      ld_library_path.append(clang_linux + '/msan')
+
+    if any('SAN' in t for t in extra_tokens):
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
-      env['PATH'] = '%%(PATH)s:%s' % clang_linux + '/bin'
-    elif 'Ubuntu' == self.m.vars.builder_cfg.get('os', ''):
+      path.append(clang_linux + '/bin')
+      # We find that testing sanitizer builds with libc++ uncovers more issues
+      # than with the system-provided C++ standard library, which is usually
+      # libstdc++. libc++ proactively hooks into sanitizers to help their
+      # analyses. We ship a copy of libc++ with our Linux toolchain in /lib.
+      ld_library_path.append(clang_linux + '/lib')
+    elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
+    elif 'ProcDump' in extra_tokens:
+      dumps_dir = self.m.path.join(self.m.vars.swarming_out_dir, 'dumps')
+      self.m.file.ensure_directory('makedirs dumps', dumps_dir)
+      procdump = str(self.m.vars.slave_dir.join('procdump_win',
+                                                'procdump64.exe'))
+      # Full docs for ProcDump here:
+      # https://docs.microsoft.com/en-us/sysinternals/downloads/procdump
+      # -accepteula automatically accepts the license agreement
+      # -mp saves a packed minidump to save space
+      # -e 1 tells procdump to dump once
+      # -x <dump dir> <exe> <args> launches exe and writes dumps to the
+      #   specified dir
+      cmd = [procdump, '-accepteula', '-mp', '-e', '1', '-x', dumps_dir] + cmd
 
-    if 'ASAN' == extra_config:
-      env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
+    if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
+      if 'Mac' in self.m.vars.builder_cfg.get('os', ''):
+        env['ASAN_OPTIONS'] = 'symbolize=1'  # Mac doesn't support detect_leaks.
+      else:
+        env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
-    if 'MSAN' == extra_config:
-      # Find the MSAN-built libc++.
-      env['LD_LIBRARY_PATH'] = clang_linux + '/msan'
+    if 'TSAN' in extra_tokens:
+      # We don't care about malloc(), fprintf, etc. used in signal handlers.
+      # If we're in a signal handler, we're already crashing...
+      env['TSAN_OPTIONS'] = 'report_signal_unsafe=0'
+
+    if 'Coverage' in extra_tokens:
+      # This is the output file for the coverage data. Just running the binary
+      # will produce the output. The output_file is in the swarming_out_dir and
+      # thus will be an isolated output of the Test step.
+      profname = '%s.profraw' % self.m.vars.builder_cfg.get('test_filter','o')
+      env['LLVM_PROFILE_FILE'] = self.m.path.join(self.m.vars.swarming_out_dir,
+                                                  profname)
+
+    if path:
+      env['PATH'] = '%%(PATH)s:%s' % ':'.join('%s' % p for p in path)
+    if ld_library_path:
+      env['LD_LIBRARY_PATH'] = ':'.join('%s' % p for p in ld_library_path)
 
     to_symbolize = ['dm', 'nanobench']
-    if name in to_symbolize and 'Ubuntu' in self.m.vars.builder_cfg['os']:
+    if name in to_symbolize and self.m.vars.is_linux:
       # Convert path objects or placeholders into strings such that they can
       # be passed to symbolize_stack_trace.py
-      args = [self.m.vars.slave_dir] + [str(x) for x in cmd]
-      with self.m.context(cwd=self.m.vars.skia_dir, env=env):
+      args = [slave_dir] + [str(x) for x in cmd]
+      with self.m.context(cwd=self.m.path['start_dir'].join('skia'), env=env):
         self._py('symbolized %s' % name,
                  self.module.resource('symbolize_stack_trace.py'),
                  args=args,

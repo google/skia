@@ -7,6 +7,8 @@
 
 #include "vk/GrVkPipelineStateBuilder.h"
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrShaderCaps.h"
 #include "vk/GrVkDescriptorSetManager.h"
 #include "vk/GrVkGpu.h"
@@ -80,7 +82,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
     }
     if (inputs.fFlipY) {
         desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().getRenderTarget()->origin()));
+                                                     this->pipeline().proxy()->origin()));
         desc->finalize();
     }
     return result;
@@ -139,7 +141,10 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
 
     VkPipelineShaderStageCreateInfo shaderStageInfo[3];
     SkSL::Program::Settings settings;
-    settings.fFlipY = this->pipeline().getRenderTarget()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fCaps = this->caps()->shaderCaps();
+    settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
+    SkASSERT(!this->fragColorIsInOut());
     SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                               fVS,
                                               &vertShaderModule,
@@ -203,8 +208,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                  fUniformHandler.fCurrentFragmentUBOOffset,
                                  (uint32_t)fUniformHandler.numSamplers(),
                                  (uint32_t)fUniformHandler.numTexelBuffers(),
-                                 fGeometryProcessor,
-                                 fXferProcessor,
+                                 std::move(fGeometryProcessor),
+                                 std::move(fXferProcessor),
                                  fFragmentProcessors);
 }
 

@@ -36,7 +36,6 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
     private static final String VALUE = "value";
     private static final String OPTIONS = "options";
     private static final String BACKEND_STATE_NAME = "Backend";
-    private static final String FPS_STATE_NAME = "FPS";
     private static final String REFRESH_STATE_NAME = "Refresh";
     private static final String ON = "ON";
     private static final String OFF = "OFF";
@@ -45,11 +44,9 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
     private ViewerActivity mViewerActivity;
     private LinearLayout mLayout;
     private JSONArray mStateJson;
-    private TextView mFPSFloatText;
 
     public StateAdapter(ViewerActivity viewerActivity) {
         mViewerActivity = viewerActivity;
-        mFPSFloatText = (TextView) viewerActivity.findViewById(R.id.fpsFloatText);
         try {
             mStateJson = new JSONArray("[{\"name\": \"Please\", " +
                     "\"value\": \"Initialize\", \"options\": []}]");
@@ -72,10 +69,9 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
     }
 
     // The first list item is the mLayout that contains a list of state items
-    // The second list item is the toggle for float FPS
     @Override
     public int getCount() {
-        return 2;
+        return 1;
     }
 
     @Override
@@ -99,19 +95,6 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
                 }
                 return mLayout;
             }
-            case 1: {
-                View view = LayoutInflater.from(mViewerActivity).inflate(R.layout.fps_toggle, null);
-                Switch theSwitch = (Switch) view.findViewById(R.id.theSwitch);
-                theSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        mFPSFloatText.setVisibility(isChecked ? View.VISIBLE : View.INVISIBLE);
-                        // Quickly set the bool fRefresh in native Viewer app for continuous refresh
-                        mViewerActivity.onStateChanged(REFRESH_STATE_NAME, isChecked ? ON : OFF);
-                    }
-                });
-                return view;
-            }
             default: {
                 return null;
             }
@@ -129,12 +112,6 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
         itemView.setTag(R.integer.value_tag_key, value);
 
         nameText.setText(item.getString(NAME));
-
-        if (nameText.getText().equals(FPS_STATE_NAME) && mFPSFloatText != null) {
-            mFPSFloatText.setText(value);
-            // Don't show FPS in the drawer. We'll show it in the float text.
-            itemView.setVisibility(View.GONE);
-        }
 
         JSONArray options = item.getJSONArray(OPTIONS);
         if (options.length() == 0) {

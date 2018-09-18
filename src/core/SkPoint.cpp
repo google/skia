@@ -7,8 +7,9 @@
 
 
 #include "SkMathPriv.h"
-#include "SkPoint.h"
+#include "SkPointPriv.h"
 
+#if 0
 void SkIPoint::rotateCW(SkIPoint* dst) const {
     SkASSERT(dst);
 
@@ -26,39 +27,9 @@ void SkIPoint::rotateCCW(SkIPoint* dst) const {
     dst->fX = fY;
     dst->fY = -tmp;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void SkPoint::setIRectFan(int l, int t, int r, int b, size_t stride) {
-    SkASSERT(stride >= sizeof(SkPoint));
-
-    ((SkPoint*)((intptr_t)this + 0 * stride))->set(SkIntToScalar(l),
-                                                   SkIntToScalar(t));
-    ((SkPoint*)((intptr_t)this + 1 * stride))->set(SkIntToScalar(l),
-                                                   SkIntToScalar(b));
-    ((SkPoint*)((intptr_t)this + 2 * stride))->set(SkIntToScalar(r),
-                                                   SkIntToScalar(b));
-    ((SkPoint*)((intptr_t)this + 3 * stride))->set(SkIntToScalar(r),
-                                                   SkIntToScalar(t));
-}
-
-void SkPoint::rotateCW(SkPoint* dst) const {
-    SkASSERT(dst);
-
-    // use a tmp in case this == dst
-    SkScalar tmp = fX;
-    dst->fX = -fY;
-    dst->fY = tmp;
-}
-
-void SkPoint::rotateCCW(SkPoint* dst) const {
-    SkASSERT(dst);
-
-    // use a tmp in case this == dst
-    SkScalar tmp = fX;
-    dst->fX = fY;
-    dst->fY = -tmp;
-}
 
 void SkPoint::scale(SkScalar scale, SkPoint* dst) const {
     SkASSERT(dst);
@@ -94,35 +65,67 @@ static inline bool is_length_nearly_zero(float dx, float dy,
     return *lengthSquared <= (SK_ScalarNearlyZero * SK_ScalarNearlyZero);
 }
 
-SkScalar SkPoint::Normalize(SkPoint* pt) {
-    float x = pt->fX;
-    float y = pt->fY;
+/*
+ *  We have to worry about 2 tricky conditions:
+ *  1. underflow of mag2 (compared against nearlyzero^2)
+ *  2. overflow of mag2 (compared w/ isfinite)
+ *
+ *  If we underflow, we return false. If we overflow, we compute again using
+ *  doubles, which is much slower (3x in a desktop test) but will not overflow.
+ */
+template <bool use_rsqrt> bool set_point_length(SkPoint* pt, float x, float y, float length,
+                                                float* orig_length = nullptr) {
+    SkASSERT(!use_rsqrt || (orig_length == nullptr));
+
+    float mag = 0;
     float mag2;
     if (is_length_nearly_zero(x, y, &mag2)) {
         pt->set(0, 0);
-        return 0;
+        return false;
     }
 
-    float mag, scale;
-    if (SkScalarIsFinite(mag2)) {
-        mag = sk_float_sqrt(mag2);
-        scale = 1 / mag;
+    if (sk_float_isfinite(mag2)) {
+        float scale;
+        if (use_rsqrt) {
+            scale = length * sk_float_rsqrt(mag2);
+        } else {
+            mag = sk_float_sqrt(mag2);
+            scale = length / mag;
+        }
+        x *= scale;
+        y *= scale;
     } else {
         // our mag2 step overflowed to infinity, so use doubles instead.
         // much slower, but needed when x or y are very large, other wise we
         // divide by inf. and return (0,0) vector.
         double xx = x;
         double yy = y;
-        double magmag = sqrt(xx * xx + yy * yy);
-        mag = (float)magmag;
-        // we perform the divide with the double magmag, to stay exactly the
-        // same as setLength. It would be faster to perform the divide with
-        // mag, but it is possible that mag has overflowed to inf. but still
-        // have a non-zero value for scale (thanks to denormalized numbers).
-        scale = (float)(1 / magmag);
+        double dmag = sqrt(xx * xx + yy * yy);
+        double dscale = length / dmag;
+        x *= dscale;
+        y *= dscale;
+        // check if we're not finite, or we're zero-length
+        if (!sk_float_isfinite(x) || !sk_float_isfinite(y) || (x == 0 && y == 0)) {
+            pt->set(0, 0);
+            return false;
+        }
+        if (orig_length) {
+            mag = sk_double_to_float(dmag);
+        }
     }
-    pt->set(x * scale, y * scale);
-    return mag;
+    pt->set(x, y);
+    if (orig_length) {
+        *orig_length = mag;
+    }
+    return true;
+}
+
+SkScalar SkPoint::Normalize(SkPoint* pt) {
+    float mag;
+    if (set_point_length<false>(pt, pt->fX, pt->fY, 1.0f, &mag)) {
+        return mag;
+    }
+    return 0;
 }
 
 SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
@@ -132,93 +135,33 @@ SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
     } else {
         double xx = dx;
         double yy = dy;
-        return (float)sqrt(xx * xx + yy * yy);
+        return sk_double_to_float(sqrt(xx * xx + yy * yy));
     }
 }
 
-/*
- *  We have to worry about 2 tricky conditions:
- *  1. underflow of mag2 (compared against nearlyzero^2)
- *  2. overflow of mag2 (compared w/ isfinite)
- *
- *  If we underflow, we return false. If we overflow, we compute again using
- *  doubles, which is much slower (3x in a desktop test) but will not overflow.
- */
 bool SkPoint::setLength(float x, float y, float length) {
-    float mag2;
-    if (is_length_nearly_zero(x, y, &mag2)) {
-        this->set(0, 0);
-        return false;
-    }
-
-    float scale;
-    if (SkScalarIsFinite(mag2)) {
-        scale = length / sk_float_sqrt(mag2);
-    } else {
-        // our mag2 step overflowed to infinity, so use doubles instead.
-        // much slower, but needed when x or y are very large, other wise we
-        // divide by inf. and return (0,0) vector.
-        double xx = x;
-        double yy = y;
-    #ifdef SK_CPU_FLUSH_TO_ZERO
-        // The iOS ARM processor discards small denormalized numbers to go faster.
-        // Casting this to a float would cause the scale to go to zero. Keeping it
-        // as a double for the multiply keeps the scale non-zero.
-        double dscale = length / sqrt(xx * xx + yy * yy);
-        fX = x * dscale;
-        fY = y * dscale;
-        return true;
-    #else
-        scale = (float)(length / sqrt(xx * xx + yy * yy));
-    #endif
-    }
-    fX = x * scale;
-    fY = y * scale;
-    return true;
+    return set_point_length<false>(this, x, y, length);
 }
 
-bool SkPoint::setLengthFast(float length) {
-    return this->setLengthFast(fX, fY, length);
-}
-
-bool SkPoint::setLengthFast(float x, float y, float length) {
-    float mag2;
-    if (is_length_nearly_zero(x, y, &mag2)) {
-        this->set(0, 0);
-        return false;
-    }
-
-    float scale;
-    if (SkScalarIsFinite(mag2)) {
-        scale = length * sk_float_rsqrt(mag2);  // <--- this is the difference
-    } else {
-        // our mag2 step overflowed to infinity, so use doubles instead.
-        // much slower, but needed when x or y are very large, other wise we
-        // divide by inf. and return (0,0) vector.
-        double xx = x;
-        double yy = y;
-        scale = (float)(length / sqrt(xx * xx + yy * yy));
-    }
-    fX = x * scale;
-    fY = y * scale;
-    return true;
+bool SkPointPriv::SetLengthFast(SkPoint* pt, float length) {
+    return set_point_length<true>(pt, pt->fX, pt->fY, length);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkScalar SkPoint::distanceToLineBetweenSqd(const SkPoint& a,
+SkScalar SkPointPriv::DistanceToLineBetweenSqd(const SkPoint& pt, const SkPoint& a,
                                            const SkPoint& b,
-                                           Side* side) const {
+                                           Side* side) {
 
     SkVector u = b - a;
-    SkVector v = *this - a;
+    SkVector v = pt - a;
 
-    SkScalar uLengthSqd = u.lengthSqd();
+    SkScalar uLengthSqd = LengthSqd(u);
     SkScalar det = u.cross(v);
     if (side) {
-        SkASSERT(-1 == SkPoint::kLeft_Side &&
-                  0 == SkPoint::kOn_Side &&
+        SkASSERT(-1 == kLeft_Side &&
+                  0 == kOn_Side &&
                   1 == kRight_Side);
         *side = (Side) SkScalarSignAsInt(det);
     }
@@ -227,8 +170,8 @@ SkScalar SkPoint::distanceToLineBetweenSqd(const SkPoint& a,
     return temp;
 }
 
-SkScalar SkPoint::distanceToLineSegmentBetweenSqd(const SkPoint& a,
-                                                  const SkPoint& b) const {
+SkScalar SkPointPriv::DistanceToLineSegmentBetweenSqd(const SkPoint& pt, const SkPoint& a,
+                                                  const SkPoint& b) {
     // See comments to distanceToLineBetweenSqd. If the projection of c onto
     // u is between a and b then this returns the same result as that
     // function. Otherwise, it returns the distance to the closer of a and
@@ -246,15 +189,15 @@ SkScalar SkPoint::distanceToLineSegmentBetweenSqd(const SkPoint& a,
     // avoid a sqrt to compute |u|.
 
     SkVector u = b - a;
-    SkVector v = *this - a;
+    SkVector v = pt - a;
 
-    SkScalar uLengthSqd = u.lengthSqd();
+    SkScalar uLengthSqd = LengthSqd(u);
     SkScalar uDotV = SkPoint::DotProduct(u, v);
 
     if (uDotV <= 0) {
-        return v.lengthSqd();
+        return LengthSqd(v);
     } else if (uDotV > uLengthSqd) {
-        return b.distanceToSqd(*this);
+        return DistanceToSqd(b, pt);
     } else {
         SkScalar det = u.cross(v);
         SkScalar temp = det / uLengthSqd;

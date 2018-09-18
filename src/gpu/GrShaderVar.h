@@ -29,7 +29,7 @@ public:
     };
 
     /**
-     * Values for array count that have special meaning. We allow 1-sized arrays.git 
+     * Values for array count that have special meaning. We allow 1-sized arrays.git
      */
     enum {
         kNonArray     =  0, // not an array
@@ -37,13 +37,12 @@ public:
     };
 
     /**
-     * Defaults to a non-arry float with no precision specifier, type modifier, or layout qualifier.
+     * Defaults to a non-arry half with no type modifier or layout qualifier.
      */
     GrShaderVar()
-        : fType(kFloat_GrSLType)
+        : fType(kHalf_GrSLType)
         , fTypeModifier(kNone_TypeModifier)
         , fCount(kNonArray)
-        , fPrecision(kDefault_GrSLPrecision)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
     }
 
@@ -116,7 +115,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -140,7 +139,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -165,7 +164,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -190,7 +189,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -283,12 +282,6 @@ public:
             fLayoutQualifier.appendf(", %s", layoutQualifier);
         }
     }
-
-    void setImageStorageFormat(GrImageStorageFormat format);
-
-    void setMemoryModel(GrSLMemoryModel);
-
-    void setRestrict(GrSLRestrict);
 
     void setIOType(GrIOType);
 

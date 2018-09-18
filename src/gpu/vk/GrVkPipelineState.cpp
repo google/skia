@@ -7,6 +7,8 @@
 
 #include "GrVkPipelineState.h"
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrPipeline.h"
 #include "GrTexturePriv.h"
 #include "GrVkBufferView.h"
@@ -39,8 +41,8 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
                                      uint32_t fragmentUniformSize,
                                      uint32_t numSamplers,
                                      uint32_t numTexelBuffers,
-                                     GrGLSLPrimitiveProcessor* geometryProcessor,
-                                     GrGLSLXferProcessor* xferProcessor,
+                                     std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+                                     std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                                      const GrGLSLFragProcs& fragmentProcessors)
     : fPipeline(pipeline)
     , fPipelineLayout(layout)
@@ -50,8 +52,8 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
     , fSamplerDSHandle(samplerDSHandle)
     , fTexelBufferDSHandle(texelBufferDSHandle)
     , fBuiltinUniformHandles(builtinUniformHandles)
-    , fGeometryProcessor(geometryProcessor)
-    , fXferProcessor(xferProcessor)
+    , fGeometryProcessor(std::move(geometryProcessor))
+    , fXferProcessor(std::move(xferProcessor))
     , fFragmentProcessors(fragmentProcessors)
     , fDesc(desc)
     , fDataManager(uniforms, geometryUniformSize, fragmentUniformSize) {
@@ -208,8 +210,6 @@ static void append_texture_bindings(
         const GrResourceIOProcessor& processor,
         SkTArray<const GrResourceIOProcessor::TextureSampler*>* textureBindings,
         SkTArray<const GrResourceIOProcessor::BufferAccess*>* bufferAccesses) {
-    // We don't support image storages in VK.
-    SkASSERT(!processor.numImageStorages());
     if (int numTextureSamplers = processor.numTextureSamplers()) {
         const GrResourceIOProcessor::TextureSampler** bindings =
                 textureBindings->push_back_n(numTextureSamplers);
@@ -235,7 +235,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     // freeing the tempData between calls.
     this->freeTempResources(gpu);
 
-    this->setRenderTargetState(pipeline.getRenderTarget());
+    this->setRenderTargetState(pipeline.proxy());
 
     SkSTArray<8, const GrResourceIOProcessor::TextureSampler*> textureBindings;
     SkSTArray<8, const GrResourceIOProcessor::BufferAccess*> bufferAccesses;
@@ -257,13 +257,19 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     }
     SkASSERT(!fp && !glslFP);
 
-    SkIPoint offset;
-    GrTexture* dstTexture = pipeline.dstTexture(&offset);
-    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+    {
+        SkIPoint offset;
+        GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
+
+        fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+    }
+
+    GrResourceProvider* resourceProvider = gpu->getContext()->contextPriv().resourceProvider();
+
     GrResourceIOProcessor::TextureSampler dstTextureSampler;
-    if (dstTexture) {
-        // MDB TODO: this is the last usage of a GrTexture-based TextureSampler reset method
-        dstTextureSampler.reset(dstTexture);
+    if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
+        dstTextureSampler.reset(sk_ref_sp(dstTextureProxy));
+        SkAssertResult(dstTextureSampler.instantiate(resourceProvider));
         textureBindings.push_back(&dstTextureSampler);
     }
 
@@ -371,12 +377,12 @@ void GrVkPipelineState::writeSamplers(
     SkASSERT(fNumSamplers == textureBindings.count());
 
     for (int i = 0; i < textureBindings.count(); ++i) {
-        const GrSamplerParams& params = textureBindings[i]->params();
+        GrSamplerState state = textureBindings[i]->samplerState();
 
-        GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->texture());
+        GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->peekTexture());
 
-        fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(params,
-                                                          texture->texturePriv().maxMipMapLevel()));
+        fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(
+                state, texture->texturePriv().maxMipMapLevel()));
 
         const GrVkResource* textureResource = texture->resource();
         textureResource->ref();
@@ -456,7 +462,9 @@ void GrVkPipelineState::writeTexelBuffers(
     }
 }
 
-void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt) {
+void GrVkPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) {
+    GrRenderTarget* rt = proxy->priv().peekRenderTarget();
+
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
         fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
@@ -467,10 +475,10 @@ void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt) {
     SkISize size;
     size.set(rt->width(), rt->height());
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
-    if (fRenderTargetState.fRenderTargetOrigin != rt->origin() ||
+    if (fRenderTargetState.fRenderTargetOrigin != proxy->origin() ||
         fRenderTargetState.fRenderTargetSize != size) {
         fRenderTargetState.fRenderTargetSize = size;
-        fRenderTargetState.fRenderTargetOrigin = rt->origin();
+        fRenderTargetState.fRenderTargetOrigin = proxy->origin();
 
         float rtAdjustmentVec[4];
         fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
@@ -565,20 +573,20 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
                                     const GrStencilSettings& stencil,
                                     GrPrimitiveType primitiveType,
                                     const GrShaderCaps& caps) {
-    if (!INHERITED::Build(desc, primProc, primitiveType == kPoints_GrPrimitiveType, pipeline,
+    if (!INHERITED::Build(desc, primProc, primitiveType == GrPrimitiveType::kPoints, pipeline,
                           caps)) {
         return false;
     }
 
     GrProcessorKeyBuilder b(&desc->key());
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.getRenderTarget();
+    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.renderTarget();
     vkRT->simpleRenderPass()->genKey(&b);
 
     stencil.genKey(&b);
 
     b.add32(get_blend_info_key(pipeline));
 
-    b.add32(primitiveType);
+    b.add32((uint32_t)primitiveType);
 
     return true;
 }

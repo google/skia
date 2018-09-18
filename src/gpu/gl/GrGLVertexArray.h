@@ -42,19 +42,26 @@ public:
              const GrBuffer* vertexBuffer,
              GrVertexAttribType type,
              GrGLsizei stride,
-             size_t offsetInBytes);
+             size_t offsetInBytes,
+             int divisor = 0);
+
+    enum class EnablePrimitiveRestart : bool {
+        kYes = true,
+        kNo = false
+    };
 
     /**
      * This function enables the first 'enabledCount' vertex arrays and disables the rest.
      */
-    void enableVertexArrays(const GrGLGpu*, int enabledCount);
+    void enableVertexArrays(const GrGLGpu*, int enabledCount,
+                            EnablePrimitiveRestart = EnablePrimitiveRestart::kNo);
 
     void invalidate() {
         int count = fAttribArrayStates.count();
         for (int i = 0; i < count; ++i) {
             fAttribArrayStates[i].invalidate();
         }
-        fEnabledCountIsValid = false;
+        fEnableStateIsValid = false;
     }
 
     /**
@@ -63,21 +70,28 @@ public:
     int count() const { return fAttribArrayStates.count(); }
 
 private:
+    static constexpr int kInvalidDivisor = -1;
+
     /**
      * Tracks the state of glVertexAttribArray for an attribute index.
      */
     struct AttribArrayState {
-        void invalidate() { fVertexBufferUniqueID.makeInvalid(); }
+        void invalidate() {
+            fVertexBufferUniqueID.makeInvalid();
+            fDivisor = kInvalidDivisor;
+        }
 
         GrGpuResource::UniqueID   fVertexBufferUniqueID;
         GrVertexAttribType        fType;
         GrGLsizei                 fStride;
         size_t                    fOffset;
+        int                       fDivisor;
     };
 
-    SkSTArray<16, AttribArrayState, true>   fAttribArrayStates;
-    int                                     fNumEnabledArrays;
-    bool                                    fEnabledCountIsValid;
+    SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
+    int fNumEnabledArrays;
+    EnablePrimitiveRestart fPrimitiveRestartEnabled;
+    bool fEnableStateIsValid = false;
 };
 
 /**

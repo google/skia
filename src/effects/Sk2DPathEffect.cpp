@@ -74,14 +74,12 @@ void Sk2DPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(fMatrix);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void Sk2DPathEffect::toString(SkString* str) const {
     str->appendf("(matrix: %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f)",
             fMatrix[SkMatrix::kMScaleX], fMatrix[SkMatrix::kMSkewX],  fMatrix[SkMatrix::kMTransX],
             fMatrix[SkMatrix::kMSkewY],  fMatrix[SkMatrix::kMScaleY], fMatrix[SkMatrix::kMTransY],
             fMatrix[SkMatrix::kMPersp0], fMatrix[SkMatrix::kMPersp1], fMatrix[SkMatrix::kMPersp2]);
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -120,14 +118,12 @@ void SkLine2DPathEffect::flatten(SkWriteBuffer &buffer) const {
 }
 
 
-#ifndef SK_IGNORE_TO_STRING
 void SkLine2DPathEffect::toString(SkString* str) const {
     str->appendf("SkLine2DPathEffect: (");
     this->INHERITED::toString(str);
     str->appendf("width: %f", fWidth);
     str->appendf(")");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -153,11 +149,10 @@ void SkPath2DPathEffect::next(const SkPoint& loc, int u, int v,
     dst->addPath(fPath, loc.fX, loc.fY);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkPath2DPathEffect::toString(SkString* str) const {
     str->appendf("SkPath2DPathEffect: (");
     this->INHERITED::toString(str);
     // TODO: print out path information
     str->appendf(")");
 }
-#endif
+

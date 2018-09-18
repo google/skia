@@ -11,6 +11,7 @@
 #include "SkAnnotation.h"
 #include "SkNoDrawCanvas.h"
 #include "SkNWayCanvas.h"
+#include "SkOverdrawCanvas.h"
 
 #include "sk_canvas.h"
 
@@ -178,16 +179,8 @@ bool sk_canvas_quick_reject(sk_canvas_t* ccanvas, const sk_rect_t* crect) {
     return AsCanvas(ccanvas)->quickReject(AsRect(*crect));
 }
 
-void sk_canvas_clip_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect) {
-    AsCanvas(ccanvas)->clipRect(AsRect(*crect));
-}
-
 void sk_canvas_clip_region(sk_canvas_t* ccanvas, const sk_region_t* region, sk_clipop_t op) {
     AsCanvas(ccanvas)->clipRegion(AsRegion(*region), (SkClipOp)op);
-}
-
-void sk_canvas_clip_path(sk_canvas_t* ccanvas, const sk_path_t* cpath) {
-    AsCanvas(ccanvas)->clipPath(AsPath(*cpath));
 }
 
 void sk_canvas_draw_paint(sk_canvas_t* ccanvas, const sk_paint_t* cpaint) {
@@ -336,4 +329,12 @@ void sk_nway_canvas_remove_canvas(sk_nway_canvas_t* t, sk_canvas_t* canvas) {
 
 void sk_nway_canvas_remove_all(sk_nway_canvas_t* t) {
     AsNWayCanvas(t)->removeAll();
+}
+
+sk_overdraw_canvas_t* sk_overdraw_canvas_new(sk_canvas_t* canvas) {
+    return ToOverdrawCanvas(new SkOverdrawCanvas(AsCanvas(canvas)));
+}
+
+void sk_overdraw_canvas_destroy(sk_overdraw_canvas_t* canvas) {
+    delete AsOverdrawCanvas(canvas);
 }

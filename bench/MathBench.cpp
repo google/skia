@@ -6,7 +6,7 @@
  */
 
 #include "Benchmark.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkFixed.h"
 #include "SkMathPriv.h"
 #include "SkMatrix.h"
@@ -599,28 +599,67 @@ DEF_BENCH( return new NormalizeBench(); )
 
 DEF_BENCH( return new FixedMathBench(); )
 
+//////////////////////////////////////////////////////////////
 
-struct FloatToIntBench : public Benchmark {
-    enum { N = 1000000 };
-    float fFloats[N];
-    int   fInts  [N];
+#include "../private/SkFloatBits.h"
+class Floor2IntBench : public Benchmark {
+    enum {
+        ARRAY = 1000,
+    };
+    float fData[ARRAY];
+    const bool fSat;
+public:
 
-    const char* onGetName() override { return "float_to_int"; }
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    Floor2IntBench(bool sat) : fSat(sat) {
+        SkRandom rand;
 
-    void onDelayedSetup() override  {
-        const auto f32 = 4294967296.0f;
-        for (int i = 0; i < N; ++i) {
-            fFloats[i] = -f32 + i*(2*f32/N);
+        for (int i = 0; i < ARRAY; ++i) {
+            fData[i] = SkBits2Float(rand.nextU());
+        }
+
+        if (sat) {
+            fName = "floor2int_sat";
+        } else {
+            fName = "floor2int_undef";
         }
     }
 
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    // These exist to try to stop the compiler from detecting what we doing, and throwing
+    // parts away (or knowing exactly how big the loop counts are).
+    virtual void process(unsigned) {}
+    virtual int count() { return ARRAY; }
+
+protected:
     void onDraw(int loops, SkCanvas*) override {
-        while (loops --> 0) {
-            for (int i = 0; i < N; i++) {
-                fInts[i] = SkFloatToIntFloor(fFloats[i]);
+        // used unsigned to avoid undefined behavior if/when the += might overflow
+        unsigned accum = 0;
+
+        for (int j = 0; j < loops; ++j) {
+            int n = this->count();
+            if (fSat) {
+                for (int i = 0; i < n; ++i) {
+                    accum += sk_float_floor2int(fData[i]);
+                }
+            } else {
+                for (int i = 0; i < n; ++i) {
+                    accum += sk_float_floor2int_no_saturate(fData[i]);
+                }
             }
+            this->process(accum);
         }
     }
+
+    const char* onGetName() override { return fName; }
+
+private:
+    const char* fName;
+
+    typedef Benchmark INHERITED;
 };
-DEF_BENCH( return new FloatToIntBench; )
+DEF_BENCH( return new Floor2IntBench(false); )
+DEF_BENCH( return new Floor2IntBench(true); )
+

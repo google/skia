@@ -13,14 +13,13 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterClip.h"
 #include "SkScan.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkVertState.h"
 
 #include "SkArenaAlloc.h"
 #include "SkCoreBlitters.h"
 #include "SkColorSpaceXform.h"
-#include "SkColorSpace_Base.h"
 
 struct Matrix43 {
     float fMat[12];    // column major
@@ -56,8 +55,9 @@ static SkScan::HairRCProc ChooseHairProc(bool doAntiAlias) {
     return doAntiAlias ? SkScan::AntiHairLine : SkScan::HairLine;
 }
 
-static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
-                              const SkPoint texs[], SkMatrix* matrix) {
+static bool SK_WARN_UNUSED_RESULT
+texture_to_matrix(const VertState& state, const SkPoint verts[], const SkPoint texs[],
+                  SkMatrix* matrix) {
     SkPoint src[3], dst[3];
 
     src[0] = texs[state.f0];
@@ -69,7 +69,7 @@ static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
     return matrix->setPolyToPoly(src, dst, 3);
 }
 
-class SkTriColorShader : public SkShader {
+class SkTriColorShader : public SkShaderBase {
 public:
     SkTriColorShader(bool isOpaque) : fIsOpaque(isOpaque) {}
 
@@ -77,24 +77,18 @@ public:
 
     bool isOpaque() const override { return fIsOpaque; }
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
 
     // For serialization.  This will never be called.
-    Factory getFactory() const override { sk_throw(); return nullptr; }
+    Factory getFactory() const override { SK_ABORT("not reached"); return nullptr; }
 
 protected:
     Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
         return nullptr;
     }
-    bool onAppendStages(SkRasterPipeline* pipeine, SkColorSpace* dstCS, SkArenaAlloc* alloc,
-                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override {
-        pipeine->append(SkRasterPipeline::matrix_4x3, &fM43);
-        // In theory we should never need to clamp. However, either due to imprecision in our
-        // matrix43, or the scan converter passing us pixel centers that in fact are not within
-        // the triangle, we do see occasional (slightly) out-of-range values, so we add these
-        // clamp stages. It would be nice to find a way to detect when these are not needed.
-        pipeine->append(SkRasterPipeline::clamp_0);
-        pipeine->append(SkRasterPipeline::clamp_a);
+    bool onAppendStages(const StageRec& rec) const override {
+        rec.fPipeline->append(SkRasterPipeline::seed_shader);
+        rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
         return true;
     }
 
@@ -102,10 +96,9 @@ private:
     Matrix43 fM43;
     const bool fIsOpaque;
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
-#ifndef SK_IGNORE_TO_STRING
 void SkTriColorShader::toString(SkString* str) const {
     str->append("SkTriColorShader: (");
 
@@ -113,11 +106,10 @@ void SkTriColorShader::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif
 
-static bool update_tricolor_matrix(const SkMatrix& ctmInv,
-                                   const SkPoint pts[], const SkPM4f colors[],
-                                   int index0, int index1, int index2, Matrix43* result) {
+static bool SK_WARN_UNUSED_RESULT
+update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPM4f colors[],
+                       int index0, int index1, int index2, Matrix43* result) {
     SkMatrix m, im;
     m.reset();
     m.set(0, pts[index1].fX - pts[index0].fX);
@@ -163,7 +155,7 @@ static SkPM4f* convert_colors(const SkColor src[], int count, SkColorSpace* devi
         }
     } else {
         auto srcCS = SkColorSpace::MakeSRGB();
-        auto dstCS = as_CSB(deviceCS)->makeLinearGamma();
+        auto dstCS = deviceCS->makeLinearGamma();
         SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat, dst,
                                  srcCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
                                  count, SkColorSpaceXform::kPremul_AlphaOp);
@@ -202,6 +194,26 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         textures = nullptr;
     }
 
+    // We can simplify things for certain blendmodes. This is for speed, and SkComposeShader
+    // itself insists we don't pass kSrc or kDst to it.
+    //
+    if (colors && textures) {
+        switch (bmode) {
+            case SkBlendMode::kSrc:
+                colors = nullptr;
+                break;
+            case SkBlendMode::kDst:
+                textures = nullptr;
+                break;
+            default: break;
+        }
+    }
+
+    // we don't use the shader if there are no textures
+    if (!textures) {
+        shader = nullptr;
+    }
+
     constexpr size_t defCount = 16;
     constexpr size_t outerSize = sizeof(SkTriColorShader) +
                                  sizeof(SkComposeShader) +
@@ -210,6 +222,15 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
 
     SkPoint* devVerts = outerAlloc.makeArray<SkPoint>(count);
     fMatrix->mapPoints(devVerts, vertices, count);
+
+    {
+        SkRect bounds;
+        // this also sets bounds to empty if we see a non-finite value
+        bounds.set(devVerts, count);
+        if (bounds.isEmpty()) {
+            return;
+        }
+    }
 
     VertState       state(count, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(vmode);
@@ -226,7 +247,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
             matrix43 = triShader->getMatrix43();
             if (shader) {
                 shader = outerAlloc.make<SkComposeShader>(sk_ref_sp(triShader), sk_ref_sp(shader),
-                                                          bmode);
+                                                          bmode, 1);
             } else {
                 shader = triShader;
             }
@@ -235,35 +256,54 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         SkPaint p(paint);
         p.setShader(sk_ref_sp(shader));
 
-        while (vertProc(&state)) {
-            SkSTArenaAlloc<2048> innerAlloc;
+        if (!textures) {    // only tricolor shader
+            SkASSERT(matrix43);
+            auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrix, &outerAlloc);
+            while (vertProc(&state)) {
+                if (!update_tricolor_matrix(ctmInv, vertices, dstColors,
+                                            state.f0, state.f1, state.f2,
+                                            matrix43)) {
+                    continue;
+                }
 
-            const SkMatrix* ctm = fMatrix;
-            SkMatrix tmpCtm;
-            if (textures) {
-                SkMatrix localM;
-                texture_to_matrix(state, vertices, textures, &localM);
-                tmpCtm = SkMatrix::Concat(*fMatrix, localM);
-                ctm = &tmpCtm;
+                SkPoint tmp[] = {
+                    devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+                };
+                SkScan::FillTriangle(tmp, *fRC, blitter);
             }
+        } else {
+            while (vertProc(&state)) {
+                SkSTArenaAlloc<2048> innerAlloc;
 
-            if (matrix43 && !update_tricolor_matrix(ctmInv, vertices, dstColors,
-                                                    state.f0, state.f1, state.f2,
-                                                    matrix43)) {
-                continue;
+                const SkMatrix* ctm = fMatrix;
+                SkMatrix tmpCtm;
+                if (textures) {
+                    SkMatrix localM;
+                    if (!texture_to_matrix(state, vertices, textures, &localM)) {
+                        continue;
+                    }
+                    tmpCtm = SkMatrix::Concat(*fMatrix, localM);
+                    ctm = &tmpCtm;
+                }
+
+                if (matrix43 && !update_tricolor_matrix(ctmInv, vertices, dstColors,
+                                                        state.f0, state.f1, state.f2,
+                                                        matrix43)) {
+                    continue;
+                }
+
+                SkPoint tmp[] = {
+                    devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+                };
+                auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *ctm, &innerAlloc);
+                SkScan::FillTriangle(tmp, *fRC, blitter);
             }
-
-            SkPoint tmp[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
-            };
-            auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *ctm, &innerAlloc);
-            SkScan::FillTriangle(tmp, *fRC, blitter);
         }
     } else {
         // no colors[] and no texture, stroke hairlines with paint's color.
         SkPaint p;
         p.setStyle(SkPaint::kStroke_Style);
-        SkAutoBlitterChoose blitter(fDst, *fMatrix, p);
+        SkAutoBlitterChoose blitter(*this, nullptr, p);
         // Abort early if we failed to create a shader context.
         if (blitter->isNullBlitter()) {
             return;

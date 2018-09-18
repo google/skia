@@ -120,7 +120,10 @@ bool AlmostDequalUlps(float a, float b) {
 }
 
 bool AlmostDequalUlps(double a, double b) {
-    return AlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+    if (fabs(a) < SK_ScalarMax && fabs(b) < SK_ScalarMax) {
+        return AlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+    }
+    return fabs(a - b) / SkTMax(fabs(a), fabs(b)) < FLT_EPSILON * 16;
 }
 
 bool AlmostEqualUlps(float a, float b) {

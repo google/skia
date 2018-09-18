@@ -132,8 +132,8 @@ SkImageGeneratorWIC::SkImageGeneratorWIC(const SkImageInfo& info,
     , fData(SkRef(data))
 {}
 
-SkData* SkImageGeneratorWIC::onRefEncodedData() {
-    return SkRef(fData.get());
+sk_sp<SkData> SkImageGeneratorWIC::onRefEncodedData() {
+    return fData;
 }
 
 bool SkImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,

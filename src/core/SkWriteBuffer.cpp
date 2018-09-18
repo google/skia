@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkDeduper.h"
+#include "SkPaintPriv.h"
 #include "SkPixelRef.h"
 #include "SkPtrRecorder.h"
 #include "SkStream.h"
@@ -16,15 +17,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkBinaryWriteBuffer::SkBinaryWriteBuffer(uint32_t flags)
-    : fFlags(flags)
-    , fFactorySet(nullptr)
+SkBinaryWriteBuffer::SkBinaryWriteBuffer()
+    : fFactorySet(nullptr)
     , fTFSet(nullptr) {
 }
 
-SkBinaryWriteBuffer::SkBinaryWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
-    : fFlags(flags)
-    , fFactorySet(nullptr)
+SkBinaryWriteBuffer::SkBinaryWriteBuffer(void* storage, size_t storageSize)
+    : fFactorySet(nullptr)
     , fWriter(storage, storageSize)
     , fTFSet(nullptr) {
 }
@@ -32,6 +31,10 @@ SkBinaryWriteBuffer::SkBinaryWriteBuffer(void* storage, size_t storageSize, uint
 SkBinaryWriteBuffer::~SkBinaryWriteBuffer() {
     SkSafeUnref(fFactorySet);
     SkSafeUnref(fTFSet);
+}
+
+bool SkBinaryWriteBuffer::usingInitialStorage() const {
+    return fWriter.usingInitialStorage();
 }
 
 void SkBinaryWriteBuffer::writeByteArray(const void* data, size_t size) {
@@ -130,45 +133,6 @@ bool SkBinaryWriteBuffer::writeToStream(SkWStream* stream) {
     return fWriter.writeToStream(stream);
 }
 
-static void write_encoded_bitmap(SkBinaryWriteBuffer* buffer, SkData* data,
-                                 const SkIPoint& origin) {
-    buffer->writeDataAsByteArray(data);
-    buffer->write32(origin.fX);
-    buffer->write32(origin.fY);
-}
-
-void SkBinaryWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
-    // Record the width and height. This way if readBitmap fails a dummy bitmap can be drawn at the
-    // right size.
-    this->writeInt(bitmap.width());
-    this->writeInt(bitmap.height());
-
-    // Record information about the bitmap in one of two ways, in order of priority:
-    // 1. If there is a function for encoding bitmaps, use it to write an encoded version of the
-    //    bitmap. After writing a boolean value of false, signifying that a heap was not used, write
-    //    the size of the encoded data. A non-zero size signifies that encoded data was written.
-    // 2. Call SkBitmap::flatten. After writing a boolean value of false, signifying that a heap was
-    //    not used, write a zero to signify that the data was not encoded.
-
-    // Write a bool to indicate that we did not use an SkBitmapHeap. That feature is deprecated.
-    this->writeBool(false);
-
-    // see if the caller wants to manually encode
-    SkPixmap result;
-    if (fPixelSerializer && bitmap.peekPixels(&result)) {
-        sk_sp<SkData> data(fPixelSerializer->encode(result));
-        if (data) {
-            // if we have to "encode" the bitmap, then we assume there is no
-            // offset to share, since we are effectively creating a new pixelref
-            write_encoded_bitmap(this, data.get(), SkIPoint::Make(0, 0));
-            return;
-        }
-    }
-
-    this->writeUInt(0); // signal raw pixels
-    SkBitmap::WriteRawPixels(this, bitmap);
-}
-
 void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     if (fDeduper) {
         this->write32(fDeduper->findOrDefineImage(const_cast<SkImage*>(image)));
@@ -178,20 +142,22 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     this->writeInt(image->width());
     this->writeInt(image->height());
 
-    sk_sp<SkData> encoded(image->encode(this->getPixelSerializer()));
-    if (encoded && encoded->size() > 0) {
-        write_encoded_bitmap(this, encoded.get(), SkIPoint::Make(0, 0));
-        return;
+    sk_sp<SkData> data;
+    if (fProcs.fImageProc) {
+        data = fProcs.fImageProc(const_cast<SkImage*>(image), fProcs.fImageCtx);
+    }
+    if (!data) {
+        data = image->encodeToData();
     }
 
-    SkBitmap bm;
-    if (image->asLegacyBitmap(&bm, SkImage::kRO_LegacyBitmapMode)) {
-        this->writeUInt(1);  // signal raw pixels.
-        SkBitmap::WriteRawPixels(this, bm);
-        return;
+    size_t size = data ? data->size() : 0;
+    if (!SkTFitsIn<int32_t>(size)) {
+        size = 0;   // too big to store
     }
-
-    this->writeUInt(0); // signal no pixels (in place of the size of the encoded data)
+    this->write32(SkToS32(size));   // writing 0 signals failure
+    if (size) {
+        this->writePad32(data->data(), size);
+    }
 }
 
 void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
@@ -200,15 +166,34 @@ void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
         return;
     }
 
-    if (nullptr == obj || nullptr == fTFSet) {
+    // Write 32 bits (signed)
+    //   0 -- default font
+    //  >0 -- index
+    //  <0 -- custom (serial procs)
+
+    if (obj == nullptr) {
         fWriter.write32(0);
-    } else {
-        fWriter.write32(fTFSet->add(obj));
+    } else if (fProcs.fTypefaceProc) {
+        auto data = fProcs.fTypefaceProc(obj, fProcs.fTypefaceCtx);
+        if (data) {
+            size_t size = data->size();
+            if (!SkTFitsIn<int32_t>(size)) {
+                size = 0;               // fall back to default font
+            }
+            int32_t ssize = SkToS32(size);
+            fWriter.write32(-ssize);    // negative to signal custom
+            if (size) {
+                this->writePad32(data->data(), size);
+            }
+            return;
+        }
+        // no data means fall through for std behavior
     }
+    fWriter.write32(fTFSet ? fTFSet->add(obj) : 0);
 }
 
 void SkBinaryWriteBuffer::writePaint(const SkPaint& paint) {
-    paint.flatten(*this);
+    SkPaintPriv::Flatten(paint, *this);
 }
 
 SkFactorySet* SkBinaryWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
@@ -219,10 +204,6 @@ SkFactorySet* SkBinaryWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
 SkRefCntSet* SkBinaryWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
     SkRefCnt_SafeAssign(fTFSet, rec);
     return rec;
-}
-
-void SkBinaryWriteBuffer::setPixelSerializer(sk_sp<SkPixelSerializer> serializer) {
-    fPixelSerializer = std::move(serializer);
 }
 
 void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {

@@ -9,7 +9,10 @@
 
 #include "SkAtomics.h"
 #include "SkMalloc.h"
+#include "SkMakeUnique.h"
 #include "SkStream.h"
+
+#include <atomic>
 
 // Force small chunks to be a page's worth
 static const size_t kMinAllocSize = 4096;
@@ -61,7 +64,7 @@ private:
 };
 
 struct SkBufferHead {
-    mutable int32_t fRefCnt;
+    mutable std::atomic<int32_t> fRefCnt;
     SkBufferBlock   fBlock;
 
     SkBufferHead(size_t capacity) : fRefCnt(1), fBlock(capacity) {}
@@ -79,14 +82,14 @@ struct SkBufferHead {
     }
 
     void ref() const {
-        SkASSERT(fRefCnt > 0);
-        sk_atomic_inc(&fRefCnt);
+        SkAssertResult(fRefCnt.fetch_add(+1, std::memory_order_relaxed));
     }
 
     void unref() const {
-        SkASSERT(fRefCnt > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, sk_memory_order_acq_rel)) {
+        int32_t oldRefCnt = fRefCnt.fetch_add(-1, std::memory_order_acq_rel);
+        SkASSERT(oldRefCnt);
+        if (1 == oldRefCnt) {
             // Like unique(), the acquire is only needed on success.
             SkBufferBlock* block = fBlock.fNext;
             sk_free((void*)this);
@@ -100,7 +103,7 @@ struct SkBufferHead {
 
     void validate(size_t minUsed, const SkBufferBlock* tail = nullptr) const {
 #ifdef SK_DEBUG
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(fRefCnt.load(std::memory_order_relaxed) > 0);
         size_t totalUsed = 0;
         const SkBufferBlock* block = &fBlock;
         const SkBufferBlock* lastBlock = block;
@@ -143,6 +146,10 @@ SkROBuffer::~SkROBuffer() {
 
 SkROBuffer::Iter::Iter(const SkROBuffer* buffer) {
     this->reset(buffer);
+}
+
+SkROBuffer::Iter::Iter(const sk_sp<SkROBuffer>& buffer) {
+    this->reset(buffer.get());
 }
 
 void SkROBuffer::Iter::reset(const SkROBuffer* buffer) {
@@ -240,10 +247,6 @@ void SkRWBuffer::validate() const {
 }
 #endif
 
-SkROBuffer* SkRWBuffer::newRBufferSnapshot() const {
-    return new SkROBuffer(fHead, fTotalUsed, fTail);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkROBufferStreamAsset : public SkStreamAsset {
@@ -268,17 +271,15 @@ class SkROBufferStreamAsset : public SkStreamAsset {
 #endif
 
 public:
-    SkROBufferStreamAsset(const SkROBuffer* buffer) : fBuffer(SkRef(buffer)), fIter(buffer) {
+    SkROBufferStreamAsset(sk_sp<SkROBuffer> buffer) : fBuffer(std::move(buffer)), fIter(fBuffer) {
         fGlobalOffset = fLocalOffset = 0;
     }
-
-    ~SkROBufferStreamAsset() override { fBuffer->unref(); }
 
     size_t getLength() const override { return fBuffer->size(); }
 
     bool rewind() override {
         AUTO_VALIDATE
-        fIter.reset(fBuffer);
+        fIter.reset(fBuffer.get());
         fGlobalOffset = fLocalOffset = 0;
         return true;
     }
@@ -316,8 +317,6 @@ public:
         return fBuffer->size() == fGlobalOffset;
     }
 
-    SkStreamAsset* duplicate() const override { return new SkROBufferStreamAsset(fBuffer); }
-
     size_t getPosition() const override {
         return fGlobalOffset;
     }
@@ -342,21 +341,23 @@ public:
         return true;
     }
 
-    SkStreamAsset* fork() const override {
-        SkStreamAsset* clone = this->duplicate();
-        clone->seek(this->getPosition());
-        return clone;
+private:
+    SkStreamAsset* onDuplicate() const override {
+        return new SkROBufferStreamAsset(fBuffer);
     }
 
+    SkStreamAsset* onFork() const override {
+        auto clone = this->duplicate();
+        clone->seek(this->getPosition());
+        return clone.release();
+    }
 
-private:
-    const SkROBuffer*   fBuffer;
-    SkROBuffer::Iter    fIter;
-    size_t              fLocalOffset;
-    size_t              fGlobalOffset;
+    sk_sp<SkROBuffer> fBuffer;
+    SkROBuffer::Iter  fIter;
+    size_t            fLocalOffset;
+    size_t            fGlobalOffset;
 };
 
-SkStreamAsset* SkRWBuffer::newStreamSnapshot() const {
-    sk_sp<SkROBuffer> buffer(this->newRBufferSnapshot());
-    return new SkROBufferStreamAsset(buffer.get());
+std::unique_ptr<SkStreamAsset> SkRWBuffer::makeStreamSnapshot() const {
+    return skstd::make_unique<SkROBufferStreamAsset>(this->makeROBufferSnapshot());
 }

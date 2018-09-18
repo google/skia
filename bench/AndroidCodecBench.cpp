@@ -29,7 +29,7 @@ bool AndroidCodecBench::isSuitableFor(Backend backend) {
 }
 
 void AndroidCodecBench::onDelayedSetup() {
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(fData));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromData(fData));
     SkISize scaledSize = codec->getSampledDimensions(fSampleSize);
 
     fInfo = codec->getInfo().makeWH(scaledSize.width(), scaledSize.height())
@@ -38,7 +38,7 @@ void AndroidCodecBench::onDelayedSetup() {
         fInfo = fInfo.makeAlphaType(kPremul_SkAlphaType);
     }
 
-    fPixelStorage.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
+    fPixelStorage.reset(fInfo.computeMinByteSize());
 }
 
 void AndroidCodecBench::onDraw(int n, SkCanvas* canvas) {
@@ -46,7 +46,7 @@ void AndroidCodecBench::onDraw(int n, SkCanvas* canvas) {
     SkAndroidCodec::AndroidOptions options;
     options.fSampleSize = fSampleSize;
     for (int i = 0; i < n; i++) {
-        codec.reset(SkAndroidCodec::NewFromData(fData));
+        codec = SkAndroidCodec::MakeFromData(fData);
 #ifdef SK_DEBUG
         const SkCodec::Result result =
 #endif

@@ -19,6 +19,7 @@ DECLARE_string(config);
 #if SK_SUPPORT_GPU
 class SkCommandLineConfigGpu;
 #endif
+class SkCommandLineConfigSvg;
 
 // SkCommandLineConfig represents a Skia rendering configuration string.
 // The string has following form:
@@ -34,6 +35,7 @@ class SkCommandLineConfig {
 #if SK_SUPPORT_GPU
     virtual const SkCommandLineConfigGpu* asConfigGpu() const { return nullptr; }
 #endif
+    virtual const SkCommandLineConfigSvg* asConfigSvg() const { return nullptr; }
     const SkString& getTag() const { return fTag; }
     const SkString& getBackend() const { return fBackend; }
     const SkTArray<SkString>& getViaParts() const { return fViaParts; }
@@ -50,13 +52,21 @@ class SkCommandLineConfig {
 // * backends that represent a shorthand of above (such as "glmsaa16" representing
 // "gpu(api=gl,samples=16)")
 class SkCommandLineConfigGpu : public SkCommandLineConfig {
-  public:
+public:
+    enum class SurfType {
+        kDefault,
+        kBackendTexture,
+        kBackendRenderTarget
+    };
     typedef sk_gpu_test::GrContextFactory::ContextType ContextType;
     typedef sk_gpu_test::GrContextFactory::ContextOverrides ContextOverrides;
+
     SkCommandLineConfigGpu(const SkString& tag, const SkTArray<SkString>& viaParts,
-                           ContextType contextType, bool useNVPR, bool useInstanced, bool useDIText,
-                           int samples, SkColorType colorType, sk_sp<SkColorSpace> colorSpace,
-                           bool useStencilBuffers);
+                           ContextType contextType, bool useNVPR, bool useDIText, int samples,
+                           SkColorType colorType, SkAlphaType alphaType,
+                           sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers,
+                           bool testThreading, SurfType);
+
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
     ContextType getContextType() const { return fContextType; }
     ContextOverrides getContextOverrides() const { return fContextOverrides; }
@@ -65,21 +75,40 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
                  !(fContextOverrides & ContextOverrides::kDisableNVPR));
         return fContextOverrides & ContextOverrides::kRequireNVPRSupport;
     }
-    bool getUseInstanced() const { return fContextOverrides & ContextOverrides::kUseInstanced; }
     bool getUseDIText() const { return fUseDIText; }
     int getSamples() const { return fSamples; }
     SkColorType getColorType() const { return fColorType; }
+    SkAlphaType getAlphaType() const { return fAlphaType; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
+    bool getTestThreading() const { return fTestThreading; }
+    SurfType getSurfType() const { return fSurfType; }
 
-  private:
+private:
     ContextType fContextType;
     ContextOverrides fContextOverrides;
     bool fUseDIText;
     int fSamples;
     SkColorType fColorType;
+    SkAlphaType fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;
+    bool fTestThreading;
+    SurfType fSurfType;
 };
 #endif
+
+// SkCommandLineConfigSvg is a SkCommandLineConfig that extracts information out of the backend
+// part of the tag. It is constructed tags that have:
+// * backends of form "svg[option=value,option2=value,...]"
+class SkCommandLineConfigSvg : public SkCommandLineConfig {
+public:
+    SkCommandLineConfigSvg(const SkString& tag, const SkTArray<SkString>& viaParts, int pageIndex);
+    const SkCommandLineConfigSvg* asConfigSvg() const override { return this; }
+
+    int getPageIndex() const { return fPageIndex; }
+
+private:
+    int fPageIndex;
+};
 
 typedef SkTArray<std::unique_ptr<SkCommandLineConfig>, true> SkCommandLineConfigArray;
 void ParseConfigs(const SkCommandLineFlags::StringArray& configList,

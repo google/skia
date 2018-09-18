@@ -95,14 +95,14 @@ protected:
         ~Builder() { this->finish(); }
 
         void finish() {
-            if (NULL == fKey) {
+            if (nullptr == fKey) {
                 return;
             }
             GR_STATIC_ASSERT(0 == kHash_MetaDataIdx);
             uint32_t* hash = &fKey->fKey[kHash_MetaDataIdx];
             *hash = GrResourceKeyHash(hash + 1, fKey->internalSize() - sizeof(uint32_t));
             fKey->validate();
-            fKey = NULL;
+            fKey = nullptr;
         }
 
         uint32_t& operator[](int dataIdx) {
@@ -241,7 +241,7 @@ public:
     GrUniqueKey& operator=(const GrUniqueKey& that) {
         this->INHERITED::operator=(that);
         this->setCustomData(sk_ref_sp(that.getCustomData()));
-        SkDEBUGCODE(fTag = that.fTag;)
+        fTag = that.fTag;
         return *this;
     }
 
@@ -257,14 +257,13 @@ public:
         return fData.get();
     }
 
-    SkDEBUGCODE(const char* tag() const { return fTag.c_str(); })
+    const char* tag() const { return fTag; }
 
     class Builder : public INHERITED::Builder {
     public:
         Builder(GrUniqueKey* key, Domain type, int data32Count, const char* tag = nullptr)
                 : INHERITED::Builder(key, type, data32Count) {
-            SkDEBUGCODE(key->fTag = tag;)
-            (void) tag;  // suppress unused named param warning.
+            key->fTag = tag;
         }
 
         /** Used to build a key that wraps another key and adds additional data. */
@@ -277,8 +276,7 @@ public:
             const uint32_t* srcData = innerKey.data();
             (*innerKeyData++) = innerKey.domain();
             memcpy(innerKeyData, srcData, innerKey.dataSize());
-            SkDEBUGCODE(key->fTag = tag;)
-            (void) tag;  // suppress unused named param warning.
+            key->fTag = tag;
         }
 
     private:
@@ -290,7 +288,7 @@ public:
 
 private:
     sk_sp<SkData> fData;
-    SkDEBUGCODE(SkString fTag;)
+    const char* fTag;
 };
 
 /**

@@ -6,6 +6,7 @@
  */
 
 #include "SkData.h"
+#include "SkMakeUnique.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkStreamBuffer.h"
@@ -25,8 +26,12 @@ static void test_get_data_at_position(skiatest::Reporter* r, SkStreamBuffer* buf
 }
 
 // Test buffering from the beginning, by different amounts.
-static void test_buffer_from_beginning(skiatest::Reporter* r, SkStream* stream, size_t length) {
-    SkStreamBuffer buffer(stream);
+static void test_buffer_from_beginning(skiatest::Reporter* r, std::unique_ptr<SkStream> stream,
+                                       size_t length) {
+    if (!stream) {
+        return;
+    }
+    SkStreamBuffer buffer(std::move(stream));
 
     // Buffer an arbitrary amount:
     size_t buffered = length / 2;
@@ -42,9 +47,12 @@ static void test_buffer_from_beginning(skiatest::Reporter* r, SkStream* stream, 
 }
 
 // Test flushing the stream as we read.
-static void test_flushing(skiatest::Reporter* r, SkStream* stream, size_t length,
+static void test_flushing(skiatest::Reporter* r, std::unique_ptr<SkStream> stream, size_t length,
                           bool getDataAtPosition) {
-    SkStreamBuffer buffer(stream);
+    if (!stream) {
+        return;
+    }
+    SkStreamBuffer buffer(std::move(stream));
     const size_t step = 5;
     for (size_t position = 0; position + step <= length; position += step) {
         REPORTER_ASSERT(r, buffer.buffer(step));
@@ -76,16 +84,22 @@ DEF_TEST(StreamBuffer, r) {
     if (!tmpDir.isEmpty()) {
         path = SkOSPath::Join(tmpDir.c_str(), subdir);
         SkFILEWStream writer(path.c_str());
+        if (!writer.isValid()) {
+            ERRORF(r, "unable to write to '%s'\n", path.c_str());
+            return;
+        }
         writer.write(gText, size);
     }
 
     struct {
-        std::function<SkStream*()> createStream;
-        bool                       skipIfNoTmpDir;
+        std::function<std::unique_ptr<SkStream>()>  createStream;
+        bool                                        skipIfNoTmpDir;
     } factories[] = {
-        { [&data]() { return new SkMemoryStream(data); },       false },
-        { [&data]() { return new NotAssetMemStream(data); },    false },
-        { [&path]() { return new SkFILEStream(path.c_str()); }, true  },
+        { [&data]() { return skstd::make_unique<SkMemoryStream>(data); },       false  },
+        { [&data]() { return skstd::make_unique<NotAssetMemStream>(data); },    false  },
+        { [&path]() { return path.isEmpty()
+                             ? nullptr
+                             : skstd::make_unique<SkFILEStream>(path.c_str()); }, true },
     };
 
     for (auto f : factories) {
@@ -98,8 +112,9 @@ DEF_TEST(StreamBuffer, r) {
     }
 
     // Stream that will receive more data. Will be owned by the SkStreamBuffer.
-    HaltingStream* stream = new HaltingStream(data, 6);
-    SkStreamBuffer buffer(stream);
+    auto halting = skstd::make_unique<HaltingStream>(data, 6);
+    HaltingStream* peekHalting = halting.get();
+    SkStreamBuffer buffer(std::move(halting));
 
     // Can only buffer less than what's available (6).
     REPORTER_ASSERT(r, !buffer.buffer(7));
@@ -107,7 +122,7 @@ DEF_TEST(StreamBuffer, r) {
     REPORTER_ASSERT(r, !memcmp(buffer.get(), gText, 5));
 
     // Add some more data. We can buffer and read all of it.
-    stream->addNewData(8);
+    peekHalting->addNewData(8);
     REPORTER_ASSERT(r, buffer.buffer(14));
     REPORTER_ASSERT(r, !memcmp(buffer.get(), gText, 14));
 
@@ -116,9 +131,9 @@ DEF_TEST(StreamBuffer, r) {
 
     // Add some data, and try to read more. Can only read what is
     // available.
-    stream->addNewData(9);
+    peekHalting->addNewData(9);
     REPORTER_ASSERT(r, !buffer.buffer(13));
-    stream->addNewData(4);
+    peekHalting->addNewData(4);
     REPORTER_ASSERT(r, buffer.buffer(13));
 
     // Do not call get on this data. We'll come back to this data after adding
@@ -126,7 +141,7 @@ DEF_TEST(StreamBuffer, r) {
     buffer.flush();
     const size_t remaining = size - 27;
     REPORTER_ASSERT(r, remaining > 0);
-    stream->addNewData(remaining);
+    peekHalting->addNewData(remaining);
     REPORTER_ASSERT(r, buffer.buffer(remaining));
     REPORTER_ASSERT(r, !memcmp(buffer.get(), gText + 27, remaining));
 

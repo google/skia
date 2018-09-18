@@ -8,27 +8,24 @@
 #ifndef SkTextToPathIter_DEFINED
 #define SkTextToPathIter_DEFINED
 
-#include "SkAutoKern.h"
 #include "SkPaint.h"
+#include "SkStrikeCache.h"
 
-class SkGlyphCache;
 
 class SkTextBaseIter {
 protected:
     SkTextBaseIter(const char text[], size_t length, const SkPaint& paint,
                    bool applyStrokeAndPathEffects);
-    ~SkTextBaseIter();
 
-    SkGlyphCache*   fCache;
-    SkPaint         fPaint;
-    SkScalar        fScale;
-    SkScalar        fPrevAdvance;
-    const char*     fText;
-    const char*     fStop;
+    SkExclusiveStrikePtr fCache;
+    SkPaint              fPaint;
+    SkScalar             fScale;
+    SkScalar             fPrevAdvance;
+    const char*          fText;
+    const char*          fStop;
     SkPaint::GlyphCacheProc fGlyphCacheProc;
 
     SkScalar        fXPos;      // accumulated xpos, returned in next
-    SkAutoKern      fAutoKern;
     int             fXYIndex;   // cache for horizontal -vs- vertical text
 };
 
@@ -74,7 +71,7 @@ public:
         if (TextType::kPosText == fTextType
                 && fPaint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
             const char* text = fText;
-            const SkGlyph& glyph = fGlyphCacheProc(fCache, &text);
+            const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &text);
             SkScalar width = (&glyph.fAdvanceX)[0] * fScale;
             if (fPaint.getTextAlign() == SkPaint::kCenter_Align) {
                 width = SkScalarHalf(width);

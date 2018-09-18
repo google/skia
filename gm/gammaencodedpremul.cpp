@@ -37,10 +37,9 @@ public:
         for (int r = 0; r < kColorSteps; r++) {
             for (int g = 0; g < kColorSteps; g++) {
                 for (int b = 0; b < kColorSteps; b++) {
-                    fColors[i++] = SkColorSetARGBInline(0xFF,
-                                                        r * kColorScale,
-                                                        g * kColorScale,
-                                                        b * kColorScale);
+                    fColors[i++] = SkColorSetRGB(r * kColorScale,
+                                                 g * kColorScale,
+                                                 b * kColorScale);
                 }
             }
         }
@@ -80,6 +79,7 @@ protected:
                           SkColorSpaceXform::kBGRA_8888_ColorFormat, row, kAlphaMax,
                           kUnpremul_SkAlphaType);
             SkOpts::RGBA_to_rgbA(pixels, pixels, kAlphaMax);
+            bitmap.notifyPixelsChanged();
 
             // Write the dst space premultiplied row to the canvas.
             for (int j = 0; j < kStripeHeight; j++) {
@@ -92,6 +92,7 @@ protected:
                           SkColorSpaceXform::kBGRA_8888_ColorFormat, pixels, kAlphaMax,
                           kUnpremul_SkAlphaType);
             clamp_to_alpha(pixels, kAlphaMax);
+            bitmap.notifyPixelsChanged();
 
             // Write the src space premultiplied row to the canvas.
             for (int j = 0; j < kStripeHeight; j++) {

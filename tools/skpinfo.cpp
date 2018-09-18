@@ -8,6 +8,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
+#include "SkPictureCommon.h"
 #include "SkStream.h"
 #include "SkFontDescriptor.h"
 
@@ -51,7 +52,7 @@ int main(int argc, char** argv) {
     size_t totStreamSize = stream.getLength();
 
     SkPictInfo info;
-    if (!SkPicture::InternalOnly_StreamIsSKP(&stream, &info)) {
+    if (!SkPicture_StreamIsSKP(&stream, &info)) {
         return kNotAnSKP;
     }
 
@@ -63,30 +64,10 @@ int main(int argc, char** argv) {
                  info.fCullRect.fLeft, info.fCullRect.fTop,
                  info.fCullRect.fRight, info.fCullRect.fBottom);
     }
-    if (FLAGS_flags && !FLAGS_quiet) {
-        SkDebugf("Flags: ");
-        bool needsSeparator = false;
-        if (info.fFlags & SkPictInfo::kCrossProcess_Flag) {
-            SkDebugf("kCrossProcess");
-            needsSeparator = true;
-        }
-        if (info.fFlags & SkPictInfo::kScalarIsFloat_Flag) {
-            if (needsSeparator) {
-                SkDebugf("|");
-            }
-            SkDebugf("kScalarIsFloat");
-            needsSeparator = true;
-        }
-        if (info.fFlags & SkPictInfo::kPtrIs64Bit_Flag) {
-            if (needsSeparator) {
-                SkDebugf("|");
-            }
-            SkDebugf("kPtrIs64Bit");
-        }
-        SkDebugf("\n");
-    }
 
-    if (!stream.readBool()) {
+    bool hasData;
+    if (!stream.readBool(&hasData)) { return kTruncatedFile; }
+    if (!hasData) {
         // If we read true there's a picture playback object flattened
         // in the file; if false, there isn't a playback, so we're done
         // reading the file.
@@ -94,12 +75,14 @@ int main(int argc, char** argv) {
     }
 
     for (;;) {
-        uint32_t tag = stream.readU32();
+        uint32_t tag;
+        if (!stream.readU32(&tag)) { return kTruncatedFile; }
         if (SK_PICT_EOF_TAG == tag) {
             break;
         }
 
-        uint32_t chunkSize = stream.readU32();
+        uint32_t chunkSize;
+        if (!stream.readU32(&chunkSize)) { return kTruncatedFile; }
         size_t curPos = stream.getPosition();
 
         // "move" doesn't error out when seeking beyond the end of file

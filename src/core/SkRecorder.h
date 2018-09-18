@@ -9,6 +9,7 @@
 #define SkRecorder_DEFINED
 
 #include "SkBigPicture.h"
+#include "SkCanvasVirtualEnforcer.h"
 #include "SkMiniRecorder.h"
 #include "SkNoDrawCanvas.h"
 #include "SkRecord.h"
@@ -36,7 +37,7 @@ private:
 
 // SkRecorder provides an SkCanvas interface for recording into an SkRecord.
 
-class SkRecorder final : public SkNoDrawCanvas {
+class SkRecorder final : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
     // Does not take ownership of the SkRecord.
     SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
@@ -52,6 +53,8 @@ public:
 
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
+
+    void onFlush() override;
 
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
@@ -142,6 +145,9 @@ private:
 
     template <typename T>
     T* copy(const T[], size_t count);
+
+    template<typename T, typename... Args>
+    void append(Args&&...);
 
     DrawPictureMode fDrawPictureMode;
     size_t fApproxBytesUsedBySubPictures;

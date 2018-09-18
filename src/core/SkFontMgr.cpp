@@ -49,32 +49,37 @@ protected:
         return SkFontStyleSet::CreateEmpty();
     }
 
-    virtual SkTypeface* onMatchFamilyStyle(const char[],
-                                           const SkFontStyle&) const override {
+    SkTypeface* onMatchFamilyStyle(const char[], const SkFontStyle&) const override {
         return nullptr;
     }
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
-                                                    const SkFontStyle& style,
-                                                    const char* bcp47[],
-                                                    int bcp47Count,
-                                                    SkUnichar character) const override {
+    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
+                                            const SkFontStyle& style,
+                                            const char* bcp47[],
+                                            int bcp47Count,
+                                            SkUnichar character) const override {
         return nullptr;
     }
-    virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
-                                         const SkFontStyle&) const override {
+    SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override {
         return nullptr;
     }
-    SkTypeface* onCreateFromData(SkData*, int) const override {
+
+    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int) const override {
         return nullptr;
     }
-    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int) const override {
-        delete stream;
+    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>, int) const override {
         return nullptr;
     }
-    SkTypeface* onCreateFromFile(const char[], int) const override {
+    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>,
+                                           const SkFontArguments&) const override {
         return nullptr;
     }
-    SkTypeface* onLegacyCreateTypeface(const char [], SkFontStyle) const override {
+    sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData>) const override {
+        return nullptr;
+    }
+    sk_sp<SkTypeface> onMakeFromFile(const char[], int) const override {
+        return nullptr;
+    }
+    sk_sp<SkTypeface> onLegacyMakeTypeface(const char [], SkFontStyle) const override {
         return nullptr;
     }
 };
@@ -118,61 +123,65 @@ SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face,
     return this->onMatchFaceStyle(face, fs);
 }
 
-SkTypeface* SkFontMgr::createFromData(SkData* data, int ttcIndex) const {
+sk_sp<SkTypeface> SkFontMgr::makeFromData(sk_sp<SkData> data, int ttcIndex) const {
     if (nullptr == data) {
         return nullptr;
     }
-    return this->onCreateFromData(data, ttcIndex);
+    return this->onMakeFromData(std::move(data), ttcIndex);
 }
 
-SkTypeface* SkFontMgr::createFromStream(SkStreamAsset* stream, int ttcIndex) const {
+sk_sp<SkTypeface> SkFontMgr::makeFromStream(std::unique_ptr<SkStreamAsset> stream,
+                                            int ttcIndex) const {
     if (nullptr == stream) {
         return nullptr;
     }
-    return this->onCreateFromStream(stream, ttcIndex);
+    return this->onMakeFromStreamIndex(std::move(stream), ttcIndex);
 }
 
-SkTypeface* SkFontMgr::createFromStream(SkStreamAsset* stream, const SkFontArguments& args) const {
+sk_sp<SkTypeface> SkFontMgr::makeFromStream(std::unique_ptr<SkStreamAsset> stream,
+                                            const SkFontArguments& args) const {
     if (nullptr == stream) {
         return nullptr;
     }
-    return this->onCreateFromStream(stream, args);
+    return this->onMakeFromStreamArgs(std::move(stream), args);
 }
 
-SkTypeface* SkFontMgr::createFromFontData(std::unique_ptr<SkFontData> data) const {
+sk_sp<SkTypeface> SkFontMgr::makeFromFontData(std::unique_ptr<SkFontData> data) const {
     if (nullptr == data) {
         return nullptr;
     }
-    return this->onCreateFromFontData(std::move(data));
+    return this->onMakeFromFontData(std::move(data));
 }
 
-// This implementation is temporary until it can be made pure virtual.
-SkTypeface* SkFontMgr::onCreateFromStream(SkStreamAsset* stream, const SkFontArguments& args) const{
-    return this->createFromStream(stream, args.getCollectionIndex());
-}
-
-// This implementation is temporary until it can be made pure virtual.
-SkTypeface* SkFontMgr::onCreateFromFontData(std::unique_ptr<SkFontData> data) const {
-    return this->createFromStream(data->detachStream().release(), data->getIndex());
-}
-
-SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) const {
+sk_sp<SkTypeface> SkFontMgr::makeFromFile(const char path[], int ttcIndex) const {
     if (nullptr == path) {
         return nullptr;
     }
-    return this->onCreateFromFile(path, ttcIndex);
+    return this->onMakeFromFile(path, ttcIndex);
 }
 
-SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[], SkFontStyle style) const {
-    return this->onLegacyCreateTypeface(familyName, style);
+sk_sp<SkTypeface> SkFontMgr::legacyMakeTypeface(const char familyName[], SkFontStyle style) const {
+    return this->onLegacyMakeTypeface(familyName, style);
 }
+
+sk_sp<SkTypeface> SkFontMgr::onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
+                                                  const SkFontArguments& args) const {
+    return this->makeFromStream(std::move(stream), args.getCollectionIndex());
+}
+sk_sp<SkTypeface> SkFontMgr::onMakeFromFontData(std::unique_ptr<SkFontData> data) const {
+    return this->makeFromStream(data->detachStream(), data->getIndex());
+}
+
+// A global function pointer that's not declared, but can be overriden at startup by test tools.
+sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)() = nullptr;
 
 sk_sp<SkFontMgr> SkFontMgr::RefDefault() {
     static SkOnce once;
     static sk_sp<SkFontMgr> singleton;
 
     once([]{
-        sk_sp<SkFontMgr> fm = SkFontMgr::Factory();
+        sk_sp<SkFontMgr> fm = gSkFontMgr_DefaultFactory ? gSkFontMgr_DefaultFactory()
+                                                        : SkFontMgr::Factory();
         singleton = fm ? std::move(fm) : sk_make_sp<SkEmptyFontMgr>();
     });
     return singleton;

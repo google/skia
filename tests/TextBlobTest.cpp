@@ -11,6 +11,7 @@
 #include "SkTypeface.h"
 
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 class TextBlobTester {
 public:
@@ -193,7 +194,6 @@ public:
         font.setEmbeddedBitmapText(true);
         font.setAutohinted(true);
         font.setVerticalText(true);
-        font.setFlags(font.getFlags() | SkPaint::kGenA8FromLCD_Flag);
 
         // Ensure we didn't pick default values by mistake.
         SkPaint defaultPaint;
@@ -207,13 +207,10 @@ public:
         REPORTER_ASSERT(reporter, defaultPaint.isFakeBoldText() != font.isFakeBoldText());
         REPORTER_ASSERT(reporter, defaultPaint.isLinearText() != font.isLinearText());
         REPORTER_ASSERT(reporter, defaultPaint.isSubpixelText() != font.isSubpixelText());
-        REPORTER_ASSERT(reporter, defaultPaint.isDevKernText() != font.isDevKernText());
         REPORTER_ASSERT(reporter, defaultPaint.isLCDRenderText() != font.isLCDRenderText());
         REPORTER_ASSERT(reporter, defaultPaint.isEmbeddedBitmapText() != font.isEmbeddedBitmapText());
         REPORTER_ASSERT(reporter, defaultPaint.isAutohinted() != font.isAutohinted());
         REPORTER_ASSERT(reporter, defaultPaint.isVerticalText() != font.isVerticalText());
-        REPORTER_ASSERT(reporter, (defaultPaint.getFlags() & SkPaint::kGenA8FromLCD_Flag) !=
-                                  (font.getFlags() & SkPaint::kGenA8FromLCD_Flag));
 
         SkTextBlobBuilder builder;
         AddRun(font, 1, SkTextBlob::kDefault_Positioning, SkPoint::Make(0, 0), builder);
@@ -236,13 +233,10 @@ public:
             REPORTER_ASSERT(reporter, paint.isFakeBoldText() == font.isFakeBoldText());
             REPORTER_ASSERT(reporter, paint.isLinearText() == font.isLinearText());
             REPORTER_ASSERT(reporter, paint.isSubpixelText() == font.isSubpixelText());
-            REPORTER_ASSERT(reporter, paint.isDevKernText() == font.isDevKernText());
             REPORTER_ASSERT(reporter, paint.isLCDRenderText() == font.isLCDRenderText());
             REPORTER_ASSERT(reporter, paint.isEmbeddedBitmapText() == font.isEmbeddedBitmapText());
             REPORTER_ASSERT(reporter, paint.isAutohinted() == font.isAutohinted());
             REPORTER_ASSERT(reporter, paint.isVerticalText() == font.isVerticalText());
-            REPORTER_ASSERT(reporter, (paint.getFlags() & SkPaint::kGenA8FromLCD_Flag) ==
-                                      (font.getFlags() & SkPaint::kGenA8FromLCD_Flag));
 
             it.next();
         }
@@ -333,7 +327,7 @@ private:
             }
         } break;
         default:
-            SkFAIL("unhandled positioning value");
+            SK_ABORT("unhandled positioning value");
         }
     }
 };
@@ -381,5 +375,83 @@ DEF_TEST(TextBlob_extended, reporter) {
             REPORTER_ASSERT(reporter, i == it.clusters()[i]);
         }
         REPORTER_ASSERT(reporter, 0 == strncmp(text2, it.text(), it.textSize()));
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkCanvas.h"
+#include "SkSurface.h"
+#include "SkTDArray.h"
+
+static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, SkScalar y,
+                    sk_sp<SkTypeface> tf) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setSubpixelText(true);
+    paint.setTextSize(16);
+    paint.setTypeface(tf);
+
+    int glyphCount = paint.textToGlyphs(text, strlen(text), nullptr);
+
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    SkTextBlobBuilder::RunBuffer buffer = builder->allocRun(paint, glyphCount, x, y);
+
+    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
+    (void)paint.textToGlyphs(text, strlen(text), buffer.glyphs);
+}
+
+static sk_sp<SkImage> render(const SkTextBlob* blob) {
+    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(blob->bounds().width()),
+                                               SkScalarRoundToInt(blob->bounds().height()));
+    if (!surf) {
+        return nullptr; // bounds are empty?
+    }
+    surf->getCanvas()->clear(SK_ColorWHITE);
+    surf->getCanvas()->drawTextBlob(blob, -blob->bounds().left(), -blob->bounds().top(), SkPaint());
+    return surf->makeImageSnapshot();
+}
+
+/*
+ *  Build a blob with more than one typeface.
+ *  Draw it into an offscreen,
+ *  then serialize and deserialize,
+ *  Then draw the new instance and assert it draws the same as the original.
+ */
+DEF_TEST(TextBlob_serialize, reporter) {
+    sk_sp<SkTextBlob> blob0 = []() {
+        sk_sp<SkTypeface> tf = SkTypeface::MakeDefault();
+
+        SkTextBlobBuilder builder;
+        add_run(&builder, "Hello", 10, 20, nullptr);    // we don't flatten this in the paint
+        add_run(&builder, "World", 10, 40, tf);         // we will flatten this in the paint
+        return builder.make();
+    }();
+
+    SkTDArray<SkTypeface*> array;
+    sk_sp<SkData> data = blob0->serialize([](SkTypeface* tf, void* ctx) {
+        auto array = (SkTDArray<SkTypeface*>*)ctx;
+        if (array->find(tf) < 0) {
+            *array->append() = tf;
+        }
+    }, &array);
+    // we only expect 1, since null would not have been serialized, but the default would
+    REPORTER_ASSERT(reporter, array.count() == 1);
+
+    sk_sp<SkTextBlob> blob1 = SkTextBlob::Deserialize(data->data(), data->size(),
+                                                      [](uint32_t uniqueID, void* ctx) {
+        auto array = (SkTDArray<SkTypeface*>*)ctx;
+        for (int i = 0; i < array->count(); ++i) {
+            if ((*array)[i]->uniqueID() == uniqueID) {
+                return sk_ref_sp((*array)[i]);
+            }
+        }
+        SkASSERT(false);
+        return sk_sp<SkTypeface>(nullptr);
+    }, &array);
+
+    sk_sp<SkImage> img0 = render(blob0.get());
+    sk_sp<SkImage> img1 = render(blob1.get());
+    if (img0 && img1) {
+        REPORTER_ASSERT(reporter, sk_tool_utils::equal_pixels(img0.get(), img1.get()));
     }
 }

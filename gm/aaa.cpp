@@ -44,6 +44,7 @@ protected:
 
         y += 200;
 
+        canvas->save();
         canvas->translate(0, y);
         canvas->rotate(1);
         canvas->drawRect({ 20, 20, 20.2f, 200 }, p);
@@ -74,6 +75,28 @@ protected:
         path.close();
         // Manually setting convexity is required. Otherwise, this path will be considered concave.
         path.setConvexity(SkPath::kConvex_Convexity);
+        canvas->drawPath(path, p);
+
+        // skbug.com/7573
+        y += 200;
+        canvas->save();
+        canvas->translate(0, y);
+        p.setAntiAlias(true);
+        path.reset();
+        path.moveTo(1.98009784f, 9.0162744f);
+        path.lineTo(47.843992f, 10.1922744f);
+        path.lineTo(47.804008f, 11.7597256f);
+        path.lineTo(1.93990216f, 10.5837256f);
+        canvas->drawPath(path, p);
+        canvas->restore();
+
+        // skbug.com/7813
+        // t8888 splits the 800-high canvas into 3 pieces; the boundary is close to 266 and 534
+        path.reset();
+        path.moveTo(700, 266);
+        path.lineTo(710, 266);
+        path.lineTo(710, 534);
+        path.lineTo(700, 534);
         canvas->drawPath(path, p);
     }
 
@@ -123,6 +146,22 @@ protected:
         p.setStrokeWidth(5);
         canvas->drawPath(path, p);
         canvas->restore();
+
+
+        // The following two paths test if we correctly cumulates the alpha on the middle pixel
+        // column where the left rect and the right rect abut.
+        p.setStyle(SkPaint::kFill_Style);
+        canvas->translate(0, 300);
+        path.reset();
+        path.addRect({20, 20, 100.4999f, 100});
+        path.addRect({100.5001f, 20, 200, 100});
+        canvas->drawPath(path, p);
+
+        canvas->translate(300, 0);
+        path.reset();
+        path.addRect({20, 20, 100.1f, 100});
+        path.addRect({100.9f, 20, 200, 100});
+        canvas->drawPath(path, p);
     }
 
 private:

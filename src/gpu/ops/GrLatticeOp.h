@@ -8,19 +8,22 @@
 #ifndef GLatticeOp_DEFINED
 #define GLatticeOp_DEFINED
 
-#include "GrColor.h"
+#include <memory>
+#include "GrSamplerState.h"
 #include "SkRefCnt.h"
 
-class GrLegacyMeshDrawOp;
+class GrDrawOp;
+class GrPaint;
 class SkLatticeIter;
+class GrTextureProxy;
+class GrColorSpaceXform;
 class SkMatrix;
 struct SkRect;
 
 namespace GrLatticeOp {
-std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix,
-                                              int imageWidth, int imageHeight,
-                                              std::unique_ptr<SkLatticeIter> iter,
-                                              const SkRect& dst);
+std::unique_ptr<GrDrawOp> MakeNonAA(GrPaint&&, const SkMatrix& viewMatrix, sk_sp<GrTextureProxy>,
+                                    sk_sp<GrColorSpaceXform>, GrSamplerState::Filter,
+                                    std::unique_ptr<SkLatticeIter>, const SkRect& dst);
 };
 
 #endif

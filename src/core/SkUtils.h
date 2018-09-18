@@ -11,6 +11,7 @@
 #include "SkTypes.h"
 #include "SkMath.h"
 #include "SkOpts.h"
+#include "SkTypeface.h"
 
 /** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.
     @param buffer   The memory to have value copied into it
@@ -43,13 +44,11 @@ inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
 
 int         SkUTF8_CountUnichars(const char utf8[]);
 
-/** This function is safe: invalid UTF8 sequences will return -1; */
-int         SkUTF8_CountUnicharsWithError(const char utf8[], size_t byteLength);
-
-/** This function is safe: invalid UTF8 sequences will return 0; */
-inline int  SkUTF8_CountUnichars(const char utf8[], size_t byteLength) {
-    return SkClampPos(SkUTF8_CountUnicharsWithError(utf8, byteLength));
-}
+/** These functions are safe: invalid sequences will return -1; */
+int SkUTF8_CountUnichars(const void* utf8, size_t byteLength);
+int SkUTF16_CountUnichars(const void* utf16, size_t byteLength);
+int SkUTF32_CountUnichars(const void* utf32, size_t byteLength);
+int SkUTFN_CountUnichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
 
 /** This function is safe: invalid UTF8 sequences will return -1
  *  When -1 is returned, ptr is unchanged.
@@ -75,7 +74,7 @@ SkUnichar   SkUTF8_PrevUnichar(const char**);
     into a utf8 sequence. Will be 1..kMaxBytesInUTF8Sequence,
     or 0 if uni is illegal.
 */
-size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = NULL);
+size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -83,15 +82,14 @@ size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = NULL);
 #define SkUTF16_IsLowSurrogate(c)   (((c) & 0xFC00) == 0xDC00)
 
 int SkUTF16_CountUnichars(const uint16_t utf16[]);
-int SkUTF16_CountUnichars(const uint16_t utf16[], int numberOf16BitValues);
 // returns the current unichar and then moves past it (*p++)
 SkUnichar SkUTF16_NextUnichar(const uint16_t**);
 // this guy backs up to the previus unichar value, and returns it (*--p)
 SkUnichar SkUTF16_PrevUnichar(const uint16_t**);
-size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = NULL);
+size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = nullptr);
 
 size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
-                      char utf8[] = NULL);
+                      char utf8[] = nullptr);
 
 inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
 /*  The 'true' ranges are:
@@ -107,4 +105,10 @@ inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
     }
     return true;
 }
+
+namespace SkHexadecimalDigits {
+    extern const char gUpper[16];  // 0-9A-F
+    extern const char gLower[16];  // 0-9a-f
+}
+
 #endif

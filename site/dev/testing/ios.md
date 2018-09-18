@@ -24,6 +24,7 @@ Follow these steps to install them:
   (Note: All these are part of the *libimobiledevice* project but packaged/developed
   under different names. The *cask* extension to *brew* is necessary to install
   *osxfuse* and *ifuse*, which allows to mount the application directory on an iOS device).
+
 ```
 brew install libimobiledevice
 brew install ideviceinstaller
@@ -31,7 +32,9 @@ brew install caskroom/cask/brew-cask
 brew install Caskroom/cask/osxfuse
 brew install ifuse
 ```
+
 * Install node.js and ios-deploy
+
 ```
 $ brew update
 $ brew install node

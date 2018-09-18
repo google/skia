@@ -8,6 +8,7 @@
 #ifndef SkMatrixImageFilter_DEFINED
 #define SkMatrixImageFilter_DEFINED
 
+#include "SkFlattenable.h"
 #include "SkImageFilter.h"
 #include "SkMatrix.h"
 
@@ -16,7 +17,7 @@
     input transformed by the given matrix.
  */
 
-class SK_API SkMatrixImageFilter : public SkImageFilter {
+class SkMatrixImageFilter : public SkImageFilter {
 public:
     /** Construct a 2D transformation image filter.
      *  @param transform     The matrix to apply when drawing the src bitmap
@@ -31,8 +32,9 @@ public:
 
     SkRect computeFastBounds(const SkRect&) const override;
 
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixImageFilter)
+    void toString(SkString* str) const override;
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     SkMatrixImageFilter(const SkMatrix& transform,
@@ -43,9 +45,13 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
-    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                               MapDirection, const SkIRect* inputRect) const override;
 
 private:
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
+
     SkMatrix              fTransform;
     SkFilterQuality       fFilterQuality;
     typedef SkImageFilter INHERITED;

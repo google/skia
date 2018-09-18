@@ -8,7 +8,10 @@
 #include "Resources.h"
 #include "SkCommandLineFlags.h"
 #include "SkFixed.h"
+#include "SkFontMgr_android.h"
 #include "SkFontMgr_android_parser.h"
+#include "SkOSFile.h"
+#include "SkTypeface.h"
 #include "Test.h"
 
 #include <cmath>
@@ -45,11 +48,13 @@ void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstE
     REPORTER_ASSERT(reporter, !fontFamilies[0]->fIsFallbackFont);
 
     // Check that the languages are all sane.
-    for (int i = 0; i < fontFamilies.count(); ++i) {
-        const SkString& lang = fontFamilies[i]->fLanguage.getTag();
-        for (size_t j = 0; j < lang.size(); ++j) {
-            int c = lang[j];
-            REPORTER_ASSERT(reporter, isALPHA(c) || isDIGIT(c) || '-' == c);
+    for (const auto& fontFamily : fontFamilies) {
+        for (const auto& lang : fontFamily->fLanguages) {
+            const SkString& langString = lang.getTag();
+            for (size_t i = 0; i < langString.size(); ++i) {
+                int c = langString[i];
+                REPORTER_ASSERT(reporter, isALPHA(c) || isDIGIT(c) || '-' == c);
+            }
         }
     }
 
@@ -81,8 +86,12 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* label) {
             default: break;
         }
         SkDebugf("  basePath %s\n", fontFamilies[i]->fBasePath.c_str());
-        if (!fontFamilies[i]->fLanguage.getTag().isEmpty()) {
-            SkDebugf("  language %s\n", fontFamilies[i]->fLanguage.getTag().c_str());
+        if (!fontFamilies[i]->fLanguages.empty()) {
+            SkDebugf("  language");
+            for (const auto& lang : fontFamilies[i]->fLanguages) {
+                SkDebugf(" %s", lang.getTag().c_str());
+            }
+            SkDebugf("\n");
         }
         for (int j = 0; j < fontFamilies[i]->fNames.count(); ++j) {
             SkDebugf("  name %s\n", fontFamilies[i]->fNames[j].c_str());
@@ -213,4 +222,26 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
     if (resourcesMissing) {
         SkDebugf("---- Resource files missing for FontConfigParser test\n");
     }
+}
+
+DEF_TEST(FontMgrAndroidLegacyMakeTypeface, reporter) {
+    constexpr char fontsXmlFilename[] = "fonts/fonts.xml";
+    SkString basePath = GetResourcePath("fonts/");
+    SkString fontsXml = GetResourcePath(fontsXmlFilename);
+
+    if (!sk_exists(fontsXml.c_str())) {
+        ERRORF(reporter, "file missing: %s\n", fontsXmlFilename);
+        return;
+    }
+
+    SkFontMgr_Android_CustomFonts custom;
+    custom.fSystemFontUse = SkFontMgr_Android_CustomFonts::kOnlyCustom;
+    custom.fBasePath = basePath.c_str();
+    custom.fFontsXml = fontsXml.c_str();
+    custom.fFallbackFontsXml = nullptr;
+    custom.fIsolated = false;
+
+    sk_sp<SkFontMgr> fm(SkFontMgr_New_Android(&custom));
+    sk_sp<SkTypeface> t(fm->legacyMakeTypeface("non-existent-font", SkFontStyle()));
+    REPORTER_ASSERT(reporter, nullptr == t);
 }

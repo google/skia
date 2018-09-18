@@ -173,8 +173,8 @@ private:
 
         fCount = 0;
         fCapacity = capacity;
-        SkAutoTArray<Slot> oldSlots(capacity);
-        oldSlots.swap(fSlots);
+        SkAutoTArray<Slot> oldSlots = std::move(fSlots);
+        fSlots = SkAutoTArray<Slot>(capacity);
 
         for (int i = 0; i < oldCapacity; i++) {
             Slot& s = oldSlots[i];
@@ -279,7 +279,7 @@ private:
     SkTHashTable<Pair, K> fTable;
 };
 
-// A set of T.  T is treated as an ordiary copyable C++ type.
+// A set of T.  T is treated as an ordinary copyable C++ type.
 template <typename T, typename HashT = SkGoodHash>
 class SkTHashSet : SkNoncopyable {
 public:

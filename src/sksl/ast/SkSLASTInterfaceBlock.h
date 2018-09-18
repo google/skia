@@ -16,24 +16,24 @@ namespace SkSL {
 /**
  * An interface block, as in:
  *
- * out gl_PerVertex {
- *   layout(builtin=0) vec4 gl_Position;
- *   layout(builtin=1) float gl_PointSize;
+ * out sk_PerVertex {
+ *   layout(builtin=0) float4 sk_Position;
+ *   layout(builtin=1) float sk_PointSize;
  * };
  */
 struct ASTInterfaceBlock : public ASTDeclaration {
     // valueName is empty when it was not present in the source
-    ASTInterfaceBlock(Position position,
+    ASTInterfaceBlock(int offset,
                       Modifiers modifiers,
-                      String typeName,
+                      StringFragment typeName,
                       std::vector<std::unique_ptr<ASTVarDeclarations>> declarations,
-                      String instanceName,
+                      StringFragment instanceName,
                       std::vector<std::unique_ptr<ASTExpression>> sizes)
-    : INHERITED(position, kInterfaceBlock_Kind)
+    : INHERITED(offset, kInterfaceBlock_Kind)
     , fModifiers(modifiers)
-    , fTypeName(std::move(typeName))
+    , fTypeName(typeName)
     , fDeclarations(std::move(declarations))
-    , fInstanceName(std::move(instanceName))
+    , fInstanceName(instanceName)
     , fSizes(std::move(sizes)) {}
 
     String description() const override {
@@ -42,7 +42,7 @@ struct ASTInterfaceBlock : public ASTDeclaration {
             result += fDeclarations[i]->description() + "\n";
         }
         result += "}";
-        if (fInstanceName.size()) {
+        if (fInstanceName.fLength) {
             result += " " + fInstanceName;
             for (const auto& size : fSizes) {
                 result += "[";
@@ -56,9 +56,9 @@ struct ASTInterfaceBlock : public ASTDeclaration {
     }
 
     const Modifiers fModifiers;
-    const String fTypeName;
+    const StringFragment fTypeName;
     const std::vector<std::unique_ptr<ASTVarDeclarations>> fDeclarations;
-    const String fInstanceName;
+    const StringFragment fInstanceName;
     const std::vector<std::unique_ptr<ASTExpression>> fSizes;
 
     typedef ASTDeclaration INHERITED;

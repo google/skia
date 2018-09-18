@@ -7,10 +7,10 @@
 
 #include "gm.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkLayerDrawLooper.h"
+#include "SkMaskFilter.h"
 
 // This GM tests 3 different ways of drawing four shadows around a square:
 //      just using 4 blurred rects
@@ -113,8 +113,7 @@ private:
     static sk_sp<SkMaskFilter> MakeBlur() {
         const SkScalar kBlurSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(25));
 
-        return SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kBlurSigma,
-                                      SkBlurMaskFilter::kHighQuality_BlurFlag);
+        return SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, kBlurSigma);
     }
 
     // This draws 4 blurred shadows around a single square (centered at x, y).

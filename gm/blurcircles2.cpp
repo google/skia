@@ -55,9 +55,8 @@ protected:
         };
 
         auto blurMaker = [] (SkScalar radius) ->sk_sp<SkMaskFilter> {
-            return SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
-                                          SkBlurMask::ConvertRadiusToSigma(radius),
-                                          SkBlurMaskFilter::kHighQuality_BlurFlag);
+            return SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
+                                          SkBlurMask::ConvertRadiusToSigma(radius));
         };
 
         SkPaint paint;

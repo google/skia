@@ -4,9 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkMalloc.h"
 
-#include "SkTypes.h"
+#include "SkMalloc.h"
 
 #include <cstdlib>
 
@@ -16,7 +15,7 @@
 static inline void sk_out_of_memory(size_t size) {
     SK_DEBUGFAILF("sk_out_of_memory (asked for " SK_SIZE_T_SPECIFIER " bytes)",
                   size);
-#if defined(IS_FUZZING)
+#if defined(IS_FUZZING_WITH_AFL)
     exit(1);
 #else
     abort();
@@ -38,9 +37,6 @@ void sk_abort_no_print() {
 #endif
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN)
     __debugbreak();
-#endif
-#if defined(IS_FUZZING)
-    exit(1);
 #else
     abort();
 #endif
@@ -48,15 +44,11 @@ void sk_abort_no_print() {
 
 void sk_out_of_memory(void) {
     SkDEBUGFAIL("sk_out_of_memory");
-#if defined(IS_FUZZING)
+#if defined(IS_FUZZING_WITH_AFL)
     exit(1);
 #else
     abort();
 #endif
-}
-
-void* sk_malloc_throw(size_t size) {
-    return sk_malloc_flags(size, SK_MALLOC_THROW);
 }
 
 void* sk_realloc_throw(void* addr, size_t size) {
@@ -70,18 +62,15 @@ void sk_free(void* p) {
 }
 
 void* sk_malloc_flags(size_t size, unsigned flags) {
-    void* p = malloc(size);
+    void* p;
+    if (flags & SK_MALLOC_ZERO_INITIALIZE) {
+        p = calloc(size, 1);
+    } else {
+        p = malloc(size);
+    }
     if (flags & SK_MALLOC_THROW) {
         return throw_on_failure(size, p);
     } else {
         return p;
     }
-}
-
-void* sk_calloc(size_t size) {
-    return calloc(size, 1);
-}
-
-void* sk_calloc_throw(size_t size) {
-    return throw_on_failure(size, sk_calloc(size));
 }

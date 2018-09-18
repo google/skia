@@ -11,47 +11,41 @@
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
+#include "GrSimpleMeshDrawOpHelper.h"
 
-class GrDrawAtlasOp final : public GrLegacyMeshDrawOp {
+class GrDrawAtlasOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelper;
+
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                                    int spriteCount, const SkRSXform* xforms,
-                                                    const SkRect* rects, const SkColor* colors) {
-        return std::unique_ptr<GrLegacyMeshDrawOp>(
-                new GrDrawAtlasOp(color, viewMatrix, spriteCount, xforms, rects, colors));
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                          GrAAType aaType, int spriteCount, const SkRSXform* xforms,
+                                          const SkRect* rects, const SkColor* colors) {
+        return Helper::FactoryHelper<GrDrawAtlasOp>(std::move(paint), viewMatrix, aaType,
+                                                    spriteCount, xforms, rects, colors);
     }
+
+    GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+                  GrAAType, int spriteCount, const SkRSXform* xforms, const SkRect* rects,
+                  const SkColor* colors);
 
     const char* name() const override { return "DrawAtlasOp"; }
 
-    SkString dumpInfo() const override {
-        SkString string;
-        for (const auto& geo : fGeoData) {
-            string.appendf("Color: 0x%08x, Quads: %d\n", geo.fColor, geo.fVerts.count() / 4);
-        }
-        string.append(DumpPipelineInfo(*this->pipeline()));
-        string.append(INHERITED::dumpInfo());
-        return string;
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
     }
+
+    SkString dumpInfo() const override;
+
+    FixedFunctionFlags fixedFunctionFlags() const override;
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override;
 
 private:
-    GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
-                  const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
-
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        if (this->hasColors()) {
-            color->setToUnknown();
-        } else {
-            color->setToConstant(fGeoData[0].fColor);
-        }
-        *coverage = GrProcessorAnalysisCoverage::kNone;
-    }
-
-    void onPrepareDraws(Target*) const override;
-
-    void applyPipelineOptimizations(const PipelineOptimizations&) override;
+    void onPrepareDraws(Target*) override;
 
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
@@ -66,13 +60,13 @@ private:
     };
 
     SkSTArray<1, Geometry, true> fGeoData;
-
+    Helper fHelper;
     SkMatrix fViewMatrix;
     GrColor fColor;
     int fQuadCount;
     bool fHasColors;
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 #endif

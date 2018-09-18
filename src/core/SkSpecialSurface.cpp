@@ -105,7 +105,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
         return nullptr;
     }
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, 0, nullptr);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, 0);
     if (!pr) {
         return nullptr;
     }
@@ -133,7 +133,7 @@ public:
             return;
         }
 
-        fCanvas.reset(new SkCanvas(device.get()));
+        fCanvas.reset(new SkCanvas(device));
         fCanvas->clipRect(SkRect::Make(subset));
 #ifdef SK_IS_BOT
         fCanvas->clear(SK_ColorRED);  // catch any imageFilter sloppiness
@@ -147,12 +147,12 @@ public:
             return nullptr;
         }
         sk_sp<SkSpecialImage> tmp(SkSpecialImage::MakeDeferredFromGpu(
-                                                   fCanvas->getGrContext(),
-                                                   this->subset(),
-                                                   kNeedNewImageUniqueID_SpecialImage,
-                                                   fRenderTargetContext->asTextureProxyRef(),
-                                                   fRenderTargetContext->refColorSpace(),
-                                                   &this->props()));
+                fCanvas->getGrContext(),
+                this->subset(),
+                kNeedNewImageUniqueID_SpecialImage,
+                fRenderTargetContext->asTextureProxyRef(),
+                fRenderTargetContext->colorSpaceInfo().refColorSpace(),
+                &this->props()));
         fRenderTargetContext = nullptr;
         return tmp;
     }
@@ -171,8 +171,9 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
-        SkBackingFit::kApprox, width, height, config, std::move(colorSpace)));
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        context->contextPriv().makeDeferredRenderTargetContext(
+                SkBackingFit::kApprox, width, height, config, std::move(colorSpace)));
     if (!renderTargetContext) {
         return nullptr;
     }

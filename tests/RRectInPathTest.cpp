@@ -7,14 +7,14 @@
 
 #include "SkMatrix.h"
 #include "SkPath.h"
-#include "SkPathRef.h"
+#include "SkPathPriv.h"
 #include "SkRRect.h"
 #include "Test.h"
 
 static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& path,
                                    SkPath::Direction* dir, unsigned* start) {
     SkRRect out;
-    REPORTER_ASSERT(reporter, path.isRRect(&out, dir, start));
+    REPORTER_ASSERT(reporter, SkPathPriv::IsRRect(path, &out, dir, start));
     SkPath recreatedPath;
     recreatedPath.addRRect(out, *dir, *start);
     REPORTER_ASSERT(reporter, path == recreatedPath);
@@ -32,7 +32,7 @@ static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& p
         SkRRect xrr = SkRRect::MakeRect(SkRect::MakeEmpty());
         SkPath::Direction xd = SkPath::kCCW_Direction;
         unsigned xs = ~0U;
-        REPORTER_ASSERT(reporter, xformed.isRRect(&xrr, &xd, &xs));
+        REPORTER_ASSERT(reporter, SkPathPriv::IsRRect(xformed, &xrr, &xd, &xs));
         recreatedPath.reset();
         recreatedPath.addRRect(xrr, xd, xs);
         REPORTER_ASSERT(reporter, recreatedPath == xformed);
@@ -470,3 +470,27 @@ DEF_TEST(RoundRectInPath, reporter) {
     test_skbug_3239(reporter);
     test_mix(reporter);
 }
+
+DEF_TEST(RRect_fragile, reporter) {
+    SkRect rect = {
+        SkBits2Float(0x1f800000),  // 0x003F0000 was the starter value that also fails
+        SkBits2Float(0x1400001C),
+        SkBits2Float(0x3F000004),
+        SkBits2Float(0x3F000004),
+    };
+
+    SkPoint radii[] = {
+        { SkBits2Float(0x00000001), SkBits2Float(0x00000001) },
+        { SkBits2Float(0x00000020), SkBits2Float(0x00000001) },
+        { SkBits2Float(0x00000000), SkBits2Float(0x00000000) },
+        { SkBits2Float(0x3F000004), SkBits2Float(0x3F000004) },
+    };
+
+    SkRRect rr;
+    // please don't assert
+    if (false) {    // disable until we fix this
+        SkDebugf("%g 0x%08X\n", rect.fLeft, SkFloat2Bits(rect.fLeft));
+        rr.setRectRadii(rect, radii);
+    }
+}
+

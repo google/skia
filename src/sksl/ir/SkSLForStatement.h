@@ -18,10 +18,10 @@ namespace SkSL {
  * A 'for' statement.
  */
 struct ForStatement : public Statement {
-    ForStatement(Position position, std::unique_ptr<Statement> initializer,
+    ForStatement(int offset, std::unique_ptr<Statement> initializer,
                  std::unique_ptr<Expression> test, std::unique_ptr<Expression> next,
                  std::unique_ptr<Statement> statement, std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(position, kFor_Kind)
+    : INHERITED(offset, kFor_Kind)
     , fSymbols(symbols)
     , fInitializer(std::move(initializer))
     , fTest(std::move(test))

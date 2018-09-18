@@ -7,9 +7,21 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColor.h"
 #include "SkDashPathEffect.h"
+#include "SkImageInfo.h"
+#include "SkMatrix.h"
+#include "SkPaint.h"
+#include "SkPath.h"
+#include "SkPathEffect.h"
+#include "SkPoint.h"
+#include "SkRRect.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
 #include "SkStrokeRec.h"
 #include "SkSurface.h"
+#include "SkTypes.h"
 #include "Test.h"
 
 // test that we can draw an aa-rect at coordinates > 32K (bigger than fixedpoint)
@@ -26,10 +38,10 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     int y = SkScalarRoundToInt(r.top());
 
     // check that the pixel in question starts as transparent (by the surface)
-    if (canvas->readPixels(output, x, y)) {
+    if (surf->readPixels(output, x, y)) {
         REPORTER_ASSERT(reporter, 0 == pixel[0]);
     } else {
-        REPORTER_ASSERT_MESSAGE(reporter, false, "readPixels failed");
+        REPORTER_ASSERT(reporter, false, "readPixels failed");
     }
 
     SkPaint paint;
@@ -39,12 +51,12 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     canvas->drawRect(r, paint);
 
     // Now check that it is BLACK
-    if (canvas->readPixels(output, x, y)) {
+    if (surf->readPixels(output, x, y)) {
         // don't know what swizzling PMColor did, but white should always
         // appear the same.
         REPORTER_ASSERT(reporter, 0xFFFFFFFF == pixel[0]);
     } else {
-        REPORTER_ASSERT_MESSAGE(reporter, false, "readPixels failed");
+        REPORTER_ASSERT(reporter, false, "readPixels failed");
     }
 }
 

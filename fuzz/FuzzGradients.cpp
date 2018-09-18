@@ -56,11 +56,11 @@ static void logOptionalMatrix(const char* label, const SkMatrix* m) {
         return;
     }
 
-    SkDebugf("  %s: [ ", label);
+    SkDEBUGF(("  %s: [ ", label));
     for (int i = 0; i < 9; ++i) {
-        SkDebugf("%.9g ", m->get(i));
+        SkDEBUGF(("%.9g ", m->get(i)));
     }
-    SkDebugf("]\n");
+    SkDEBUGF(("]\n"));
 }
 
 static void logLinearGradient(const SkPoint pts[2],
@@ -256,19 +256,19 @@ DEF_FUZZ(Gradients, fuzz) {
 
     switch(i) {
         case 0:
-            SkDebugf("LinearGradient\n");
+            SkDEBUGF(("LinearGradient\n"));
             fuzzLinearGradient(fuzz);
             return;
         case 1:
-            SkDebugf("RadialGradient\n");
+            SkDEBUGF(("RadialGradient\n"));
             fuzzRadialGradient(fuzz);
             return;
         case 2:
-            SkDebugf("TwoPointConicalGradient\n");
+            SkDEBUGF(("TwoPointConicalGradient\n"));
             fuzzTwoPointConicalGradient(fuzz);
             return;
     }
-    SkDebugf("SweepGradient\n");
+    SkDEBUGF(("SweepGradient\n"));
     fuzzSweepGradient(fuzz);
     return;
 }

@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkImage.h"
+#include "SkImageInfoPriv.h"
 #include "SkJpegEncoder.h"
 
 #include "Resources.h"
@@ -43,7 +44,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkImage> srcImg = GetResourceAsImage("rainbow-gradient.png");
+        sk_sp<SkImage> srcImg = GetResourceAsImage("images/rainbow-gradient.png");
         fStorage.reset(srcImg->width() * srcImg->height() *
                 SkColorTypeBytesPerPixel(kRGBA_F16_SkColorType));
 

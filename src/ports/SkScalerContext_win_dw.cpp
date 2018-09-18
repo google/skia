@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #undef GetGlyphIndices
 
@@ -42,7 +42,7 @@ static SkSharedMutex DWriteFactoryMutex;
 
 typedef SkAutoSharedMutexShared Shared;
 
-static bool isLCD(const SkScalerContext::Rec& rec) {
+static bool isLCD(const SkScalerContextRec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;
 }
 
@@ -197,7 +197,7 @@ static bool both_zero(SkScalar a, SkScalar b) {
 }
 
 // returns false if there is any non-90-rotation or skew
-static bool is_axis_aligned(const SkScalerContext::Rec& rec) {
+static bool is_axis_aligned(const SkScalerContextRec& rec) {
     return 0 == rec.fPreSkewX &&
            (both_zero(rec.fPost2x2[0][1], rec.fPost2x2[1][0]) ||
             both_zero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
@@ -377,12 +377,6 @@ uint16_t SkScalerContext_DW::generateCharToGlyph(SkUnichar uni) {
 }
 
 void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
-    //Delta is the difference between the right/left side bearing metric
-    //and where the right/left side bearing ends up after hinting.
-    //DirectWrite does not provide this information.
-    glyph->fRsbDelta = 0;
-    glyph->fLsbDelta = 0;
-
     glyph->fAdvanceX = 0;
     glyph->fAdvanceY = 0;
 
@@ -505,6 +499,14 @@ static bool glyph_check_and_set_bounds(SkGlyph* glyph, const RECT& bbox) {
     if (bbox.left >= bbox.right || bbox.top >= bbox.bottom) {
         return false;
     }
+
+    // We're trying to pack left and top into int16_t,
+    // and width and height into uint16_t, after outsetting by 1.
+    if (!SkIRect::MakeXYWH(-32767, -32767, 65535, 65535).contains(
+                SkIRect::MakeLTRB(bbox.left, bbox.top, bbox.right, bbox.bottom))) {
+        return false;
+    }
+
     glyph->fWidth = SkToU16(bbox.right - bbox.left);
     glyph->fHeight = SkToU16(bbox.bottom - bbox.top);
     glyph->fLeft = SkToS16(bbox.left);
@@ -612,9 +614,13 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     metrics->fCapHeight = fTextSizeRender * SkIntToScalar(dwfm.capHeight) / upem;
     metrics->fUnderlineThickness = fTextSizeRender * SkIntToScalar(dwfm.underlineThickness) / upem;
     metrics->fUnderlinePosition = -(fTextSizeRender * SkIntToScalar(dwfm.underlinePosition) / upem);
+    metrics->fStrikeoutThickness = fTextSizeRender * SkIntToScalar(dwfm.strikethroughThickness) / upem;
+    metrics->fStrikeoutPosition = -(fTextSizeRender * SkIntToScalar(dwfm.strikethroughPosition) / upem);
 
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag;
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+    metrics->fFlags |= SkPaint::FontMetrics::kStrikeoutThicknessIsValid_Flag;
+    metrics->fFlags |= SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag;
 
     if (this->getDWriteTypeface()->fDWriteFontFace1.get()) {
         DWRITE_FONT_METRICS1 dwfm1;
@@ -648,7 +654,7 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 static void bilevel_to_bw(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph) {
     const int width = glyph.fWidth;
@@ -847,7 +853,7 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
     SkDraw draw;
     draw.fDst = SkPixmap(SkImageInfo::MakeN32(glyph.fWidth, glyph.fHeight, kPremul_SkAlphaType),
                          glyph.fImage,
-                         glyph.ComputeRowBytes(glyph.fWidth, SkMask::Format::kARGB32_Format));
+                         glyph.rowBytesUsingFormat(SkMask::Format::kARGB32_Format));
     draw.fMatrix = &matrix;
     draw.fRC = &rc;
 
@@ -863,10 +869,10 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
 
         SkColor color;
         if (colorGlyph->paletteIndex != 0xffff) {
-            color = SkColorSetARGB(SkFloatToIntRound(colorGlyph->runColor.a * 255),
-                                   SkFloatToIntRound(colorGlyph->runColor.r * 255),
-                                   SkFloatToIntRound(colorGlyph->runColor.g * 255),
-                                   SkFloatToIntRound(colorGlyph->runColor.b * 255));
+            color = SkColorSetARGB(sk_float_round2int(colorGlyph->runColor.a * 255),
+                                   sk_float_round2int(colorGlyph->runColor.r * 255),
+                                   sk_float_round2int(colorGlyph->runColor.g * 255),
+                                   sk_float_round2int(colorGlyph->runColor.b * 255));
         } else {
             // If all components of runColor are 0 or (equivalently) paletteIndex is 0xFFFF then
             // the 'current brush' is used. fRec.getLuminanceColor() is kinda sorta what is wanted
@@ -955,20 +961,20 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     }
 }
 
-void SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
+bool SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
 
     path->reset();
 
     SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
-    HRVM(SkDWriteGeometrySink::Create(path, &geometryToPath),
+    HRBM(SkDWriteGeometrySink::Create(path, &geometryToPath),
          "Could not create geometry to path converter.");
     UINT16 glyphId = SkTo<UINT16>(glyph);
     {
         SkAutoExclusive l(DWriteFactoryMutex);
         //TODO: convert to<->from DIUs? This would make a difference if hinting.
         //It may not be needed, it appears that DirectWrite only hints at em size.
-        HRVM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
+        HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
              SkScalarToFloat(fTextSizeRender),
              &glyphId,
              nullptr, //advances
@@ -981,6 +987,7 @@ void SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
     }
 
     path->transform(fSkXform);
+    return true;
 }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

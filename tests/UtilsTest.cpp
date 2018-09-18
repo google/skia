@@ -174,7 +174,7 @@ static void test_utf16(skiatest::Reporter* reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gUni); i++) {
         size_t count = SkUTF16_FromUnichar(gUni[i], buf);
         REPORTER_ASSERT(reporter, count == 2);
-        size_t count2 = SkUTF16_CountUnichars(buf, 2);
+        size_t count2 = SkUTF16_CountUnichars(buf, 2 * sizeof(uint16_t));
         REPORTER_ASSERT(reporter, count2 == 1);
         const uint16_t* ptr = buf;
         SkUnichar c = SkUTF16_NextUnichar(&ptr);
@@ -227,7 +227,7 @@ DEF_TEST(Utils, reporter) {
 #define LEADING_FOUR_BYTE  "\xF0"
 #define INVALID_BYTE       "\xFC"
 static bool valid_utf8(const char* p, size_t l) {
-    return SkUTF8_CountUnicharsWithError(p, l) >= 0;
+    return SkUTF8_CountUnichars(p, l) >= 0;
 }
 DEF_TEST(Utils_UTF8_ValidLength, r) {
     const char* goodTestcases[] = {

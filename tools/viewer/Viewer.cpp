@@ -6,138 +6,56 @@
 */
 
 #include "Viewer.h"
-
-#include "GMSlide.h"
-#include "ImageSlide.h"
-#include "Resources.h"
-#include "SampleSlide.h"
-#include "SKPSlide.h"
-
-#include "GrContext.h"
-#include "SkATrace.h"
-#include "SkCanvas.h"
-#include "SkColorSpace_Base.h"
-#include "SkColorSpaceXformCanvas.h"
-#include "SkCommandLineFlags.h"
-#include "SkCommonFlagsPathRenderer.h"
-#include "SkDashPathEffect.h"
-#include "SkGraphics.h"
-#include "SkImagePriv.h"
-#include "SkMetaData.h"
-#include "SkOnce.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkRandom.h"
-#include "SkStream.h"
-#include "SkSurface.h"
-#include "SkSwizzle.h"
-#include "SkTaskGroup.h"
-#include "SkTime.h"
-#include "SkVertices.h"
-
-#include "imgui.h"
-
 #include <stdlib.h>
 #include <map>
+#include "BisectSlide.h"
+#include "GMSlide.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "ImageSlide.h"
+#include "Resources.h"
+#include "SKPSlide.h"
+#include "SampleSlide.h"
+#include "SkCanvas.h"
+#include "SkColorSpacePriv.h"
+#include "SkColorSpaceXformCanvas.h"
+#include "SkCommandLineFlags.h"
+#include "SkCommonFlags.h"
+#include "SkCommonFlagsGpu.h"
+#include "SkEventTracingPriv.h"
+#include "SkFontMgrPriv.h"
+#include "SkGraphics.h"
+#include "SkImagePriv.h"
+#include "SkMakeUnique.h"
+#include "SkOSFile.h"
+#include "SkOSPath.h"
+#include "SkPaintFilterCanvas.h"
+#include "SkPictureRecorder.h"
+#include "SkScan.h"
+#include "SkStream.h"
+#include "SkSurface.h"
+#include "SkTaskGroup.h"
+#include "SkTestFontMgr.h"
+#include "SkThreadedBMPDevice.h"
+#include "SlideDir.h"
+#include "SvgSlide.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
+#include "imgui.h"
+
+#if defined(SK_ENABLE_SKOTTIE)
+    #include "SkottieSlide.h"
+#endif
 
 using namespace sk_app;
 
-using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
 
 Application* Application::Create(int argc, char** argv, void* platformData) {
     return new Viewer(argc, argv, platformData);
 }
 
-static void on_backend_created_func(void* userData) {
-    Viewer* vv = reinterpret_cast<Viewer*>(userData);
-
-    return vv->onBackendCreated();
-}
-
-static void on_paint_handler(SkCanvas* canvas, void* userData) {
-    Viewer* vv = reinterpret_cast<Viewer*>(userData);
-
-    return vv->onPaint(canvas);
-}
-
-static bool on_touch_handler(intptr_t owner, Window::InputState state, float x, float y, void* userData)
-{
-    Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-
-    return viewer->onTouch(owner, state, x, y);
-}
-
-static void on_ui_state_changed_handler(const SkString& stateName, const SkString& stateValue, void* userData) {
-    Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-
-    return viewer->onUIStateChanged(stateName, stateValue);
-}
-
-static bool on_mouse_handler(int x, int y, Window::InputState state, uint32_t modifiers,
-                             void* userData) {
-    ImGuiIO& io = ImGui::GetIO();
-    io.MousePos.x = static_cast<float>(x);
-    io.MousePos.y = static_cast<float>(y);
-    if (Window::kDown_InputState == state) {
-        io.MouseDown[0] = true;
-    } else if (Window::kUp_InputState == state) {
-        io.MouseDown[0] = false;
-    }
-    if (io.WantCaptureMouse) {
-        return true;
-    } else {
-        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-        return viewer->onMouse(x, y, state, modifiers);
-    }
-}
-
-static bool on_mouse_wheel_handler(float delta, uint32_t modifiers, void* userData) {
-    ImGuiIO& io = ImGui::GetIO();
-    io.MouseWheel += delta;
-    return true;
-}
-
-static bool on_key_handler(Window::Key key, Window::InputState state, uint32_t modifiers,
-                           void* userData) {
-    ImGuiIO& io = ImGui::GetIO();
-    io.KeysDown[static_cast<int>(key)] = (Window::kDown_InputState == state);
-
-    if (io.WantCaptureKeyboard) {
-        return true;
-    } else {
-        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-        return viewer->onKey(key, state, modifiers);
-    }
-}
-
-static bool on_char_handler(SkUnichar c, uint32_t modifiers, void* userData) {
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.WantTextInput) {
-        if (c > 0 && c < 0x10000) {
-            io.AddInputCharacter(c);
-        }
-        return true;
-    } else {
-        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-        return viewer->onChar(c, modifiers);
-    }
-}
-
-static DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
-
-static DEFINE_string2(match, m, nullptr,
-               "[~][^]substring[$] [...] of bench name to run.\n"
-               "Multiple matches may be separated by spaces.\n"
-               "~ causes a matching bench to always be skipped\n"
-               "^ requires the start of the bench to match\n"
-               "$ requires the end of the bench to match\n"
-               "^ and $ requires an exact match\n"
-               "If a bench does not match any list entry,\n"
-               "it is skipped unless some list entry starts with ~");
-
-DEFINE_string(slide, "", "Start on this sample.");
-DEFINE_bool(list, false, "List samples?");
+static DEFINE_string(slide, "", "Start on this sample.");
+static DEFINE_bool(list, false, "List samples?");
 
 #ifdef SK_VULKAN
 #    define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
@@ -145,25 +63,21 @@ DEFINE_bool(list, false, "List samples?");
 #    define BACKENDS_STR "\"sw\" and \"gl\""
 #endif
 
-#ifdef SK_BUILD_FOR_ANDROID
-static DEFINE_string(skps, "/data/local/tmp/skia", "Directory to read skps from.");
-static DEFINE_string(jpgs, "/data/local/tmp/skia", "Directory to read jpgs from.");
-#else
-static DEFINE_string(skps, "skps", "Directory to read skps from.");
-static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
-#endif
-
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
-static DEFINE_bool(atrace, false, "Enable support for using ATrace. ATrace is only supported on Android.");
+static DEFINE_int32(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing.");
 
-DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasing.");
-DEFINE_pathrenderer_flag;
+DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
 
-DEFINE_bool(instancedRendering, false, "Enable instanced rendering on GPU backends.");
+DECLARE_int32(threads)
 
-const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
+DEFINE_string2(file, f, "", "Open a single file for viewing.");
+
+const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
+#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+    "ANGLE",
+#endif
 #ifdef SK_VULKAN
     "Vulkan",
 #endif
@@ -174,6 +88,11 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
 #ifdef SK_VULKAN
     if (0 == strcmp(str, "vk")) {
         return sk_app::Window::kVulkan_BackendType;
+    } else
+#endif
+#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+    if (0 == strcmp(str, "angle")) {
+        return sk_app::Window::kANGLE_BackendType;
     } else
 #endif
     if (0 == strcmp(str, "gl")) {
@@ -224,6 +143,12 @@ static bool primaries_equal(const SkColorSpacePrimaries& a, const SkColorSpacePr
     return memcmp(&a, &b, sizeof(SkColorSpacePrimaries)) == 0;
 }
 
+static Window::BackendType backend_type_for_window(Window::BackendType backendType) {
+    // In raster mode, we still use GL for the window.
+    // This lets us render the GUI faster (and correct).
+    return Window::kRaster_BackendType == backendType ? Window::kNativeGL_BackendType : backendType;
+}
+
 const char* kName = "name";
 const char* kValue = "value";
 const char* kOptions = "options";
@@ -231,7 +156,6 @@ const char* kSlideStateName = "Slide";
 const char* kBackendStateName = "Backend";
 const char* kMSAAStateName = "MSAA";
 const char* kPathRendererStateName = "Path renderer";
-const char* kInstancedRenderingStateName = "Instanced rendering";
 const char* kSoftkeyStateName = "Softkey";
 const char* kSoftkeyHint = "Please select a softkey";
 const char* kFpsStateName = "FPS";
@@ -240,38 +164,36 @@ const char* kOFF = "OFF";
 const char* kRefreshStateName = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
-    : fCurrentMeasurement(0)
-    , fDisplayStats(false)
+    : fCurrentSlide(-1)
     , fRefresh(false)
+    , fSaveToSKP(false)
     , fShowImGuiDebugWindow(false)
+    , fShowSlidePicker(false)
     , fShowImGuiTestWindow(false)
     , fShowZoomWindow(false)
     , fLastImage(nullptr)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
-    , fZoomCenterX(0.0f)
-    , fZoomCenterY(0.0f)
+    // Our UI can only tweak gamma (currently), so start out gamma-only
+    , fColorSpaceTransferFn(g2Dot2_TransferFn)
     , fZoomLevel(0.0f)
-    , fZoomScale(SK_Scalar1)
+    , fRotation(0.0f)
+    , fGestureDevice(GestureDevice::kNone)
+    , fPerspectiveMode(kPerspective_Off)
+    , fTileCnt(0)
+    , fThreadCnt(0)
 {
-    static SkTaskGroup::Enabler kTaskGroupEnabler;
     SkGraphics::Init();
 
-    static SkOnce initPathRendererNames;
-    initPathRendererNames([]() {
-        gPathRendererNames[GpuPathRenderers::kAll] = "Default Ganesh Behavior (best path renderer)";
-        gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
-        gPathRendererNames[GpuPathRenderers::kMSAA] = "Sample shading";
-        gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
-        gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
-        gPathRendererNames[GpuPathRenderers::kDefault] = "Original Ganesh path renderer";
-        gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
-    });
-
-    memset(fPaintTimes, 0, sizeof(fPaintTimes));
-    memset(fFlushTimes, 0, sizeof(fFlushTimes));
-    memset(fAnimateTimes, 0, sizeof(fAnimateTimes));
+    gPathRendererNames[GpuPathRenderers::kAll] = "All Path Renderers";
+    gPathRendererNames[GpuPathRenderers::kDefault] =
+            "Default Ganesh Behavior (best path renderer, not including CCPR)";
+    gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
+    gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
+    gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "Coverage counting";
+    gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
+    gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
 
     SkDebugf("Command line arguments: ");
     for (int i = 1; i < argc; ++i) {
@@ -281,36 +203,51 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     SkCommandLineFlags::Parse(argc, argv);
 #ifdef SK_BUILD_FOR_ANDROID
-    SetResourcePath("/data/local/tmp/skia");
+    SetResourcePath("/data/local/tmp/resources");
 #endif
 
-    if (FLAGS_atrace) {
-        SkAssertResult(SkEventTracer::SetInstance(new SkATrace()));
+    if (!FLAGS_nativeFonts) {
+        gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
     }
+
+    initializeEventTracingForTools();
+    static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Window::CreateNativeWindow(platformData);
 
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
-    displayParams.fGrContextOptions.fEnableInstancedRendering = FLAGS_instancedRendering;
-    displayParams.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
     fWindow->setRequestedDisplayParams(displayParams);
+
+    // Configure timers
+    fStatsLayer.setActive(false);
+    fAnimateTimer = fStatsLayer.addTimer("Animate", SK_ColorMAGENTA, 0xffff66ff);
+    fPaintTimer = fStatsLayer.addTimer("Paint", SK_ColorGREEN);
+    fFlushTimer = fStatsLayer.addTimer("Flush", SK_ColorRED, 0xffff6666);
 
     // register callbacks
     fCommands.attach(fWindow);
-    fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
-    fWindow->registerPaintFunc(on_paint_handler, this);
-    fWindow->registerTouchFunc(on_touch_handler, this);
-    fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
-    fWindow->registerMouseFunc(on_mouse_handler, this);
-    fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
-    fWindow->registerKeyFunc(on_key_handler, this);
-    fWindow->registerCharFunc(on_char_handler, this);
+    fWindow->pushLayer(this);
+    fWindow->pushLayer(&fStatsLayer);
+    fWindow->pushLayer(&fImGuiLayer);
 
     // add key-bindings
     fCommands.addCommand(' ', "GUI", "Toggle Debug GUI", [this]() {
         this->fShowImGuiDebugWindow = !this->fShowImGuiDebugWindow;
+        fWindow->inval();
+    });
+    // Command to jump directly to the slide picker and give it focus
+    fCommands.addCommand('/', "GUI", "Jump to slide picker", [this]() {
+        this->fShowImGuiDebugWindow = true;
+        this->fShowSlidePicker = true;
+        fWindow->inval();
+    });
+    // Alias that to Backspace, to match SampleApp
+    fCommands.addCommand(Window::Key::kBack, "Backspace", "GUI", "Jump to slide picker", [this]() {
+        this->fShowImGuiDebugWindow = true;
+        this->fShowSlidePicker = true;
         fWindow->inval();
     });
     fCommands.addCommand('g', "GUI", "Toggle GUI Demo", [this]() {
@@ -322,7 +259,12 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
-        this->fDisplayStats = !this->fDisplayStats;
+        fStatsLayer.setActive(!fStatsLayer.getActive());
+        fWindow->inval();
+    });
+    fCommands.addCommand('0', "Overlays", "Reset stats", [this]() {
+        fStatsLayer.resetMeasurements();
+        this->updateTitle();
         fWindow->inval();
     });
     fCommands.addCommand('c', "Modes", "Cycle color mode", [this]() {
@@ -342,20 +284,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         }
     });
     fCommands.addCommand(Window::Key::kRight, "Right", "Navigation", "Next slide", [this]() {
-        int previousSlide = fCurrentSlide;
-        fCurrentSlide++;
-        if (fCurrentSlide >= fSlides.count()) {
-            fCurrentSlide = 0;
-        }
-        this->setupCurrentSlide(previousSlide);
+        this->setCurrentSlide(fCurrentSlide < fSlides.count() - 1 ? fCurrentSlide + 1 : 0);
     });
     fCommands.addCommand(Window::Key::kLeft, "Left", "Navigation", "Previous slide", [this]() {
-        int previousSlide = fCurrentSlide;
-        fCurrentSlide--;
-        if (fCurrentSlide < 0) {
-            fCurrentSlide = fSlides.count() - 1;
-        }
-        this->setupCurrentSlide(previousSlide);
+        this->setCurrentSlide(fCurrentSlide > 0 ? fCurrentSlide - 1 : fSlides.count() - 1);
     });
     fCommands.addCommand(Window::Key::kUp, "Up", "Transform", "Zoom in", [this]() {
         this->changeZoomLevel(1.f / 32.f);
@@ -366,107 +298,329 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('d', "Modes", "Change rendering backend", [this]() {
-        sk_app::Window::BackendType newBackend = fBackendType;
-#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
-        if (sk_app::Window::kRaster_BackendType == fBackendType) {
-            newBackend = sk_app::Window::kNativeGL_BackendType;
-#ifdef SK_VULKAN
-        } else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
-            newBackend = sk_app::Window::kVulkan_BackendType;
-#endif
-        } else {
-            newBackend = sk_app::Window::kRaster_BackendType;
-        }
-#elif defined(SK_BUILD_FOR_UNIX)
+        sk_app::Window::BackendType newBackend = (sk_app::Window::BackendType)(
+                (fBackendType + 1) % sk_app::Window::kBackendTypeCount);
         // Switching to and from Vulkan is problematic on Linux so disabled for now
-        if (sk_app::Window::kRaster_BackendType == fBackendType) {
-            newBackend = sk_app::Window::kNativeGL_BackendType;
-        } else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
-            newBackend = sk_app::Window::kRaster_BackendType;
+#if defined(SK_BUILD_FOR_UNIX) && defined(SK_VULKAN)
+        if (newBackend == sk_app::Window::kVulkan_BackendType) {
+            newBackend = (sk_app::Window::BackendType)((newBackend + 1) %
+                                                       sk_app::Window::kBackendTypeCount);
+        } else if (fBackendType == sk_app::Window::kVulkan_BackendType) {
+            newBackend = sk_app::Window::kVulkan_BackendType;
         }
 #endif
-
         this->setBackend(newBackend);
+    });
+    fCommands.addCommand('+', "Threaded Backend", "Increase tile count", [this]() {
+        fTileCnt++;
+        if (fThreadCnt == 0) {
+            this->resetExecutor();
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('-', "Threaded Backend", "Decrease tile count", [this]() {
+        fTileCnt = SkTMax(0, fTileCnt - 1);
+        if (fThreadCnt == 0) {
+            this->resetExecutor();
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('>', "Threaded Backend", "Increase thread count", [this]() {
+        if (fTileCnt == 0) {
+            return;
+        }
+        fThreadCnt = (fThreadCnt + 1) % fTileCnt;
+        this->resetExecutor();
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('<', "Threaded Backend", "Decrease thread count", [this]() {
+        if (fTileCnt == 0) {
+            return;
+        }
+        fThreadCnt = (fThreadCnt + fTileCnt - 1) % fTileCnt;
+        this->resetExecutor();
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('K', "IO", "Save slide to SKP", [this]() {
+        fSaveToSKP = true;
+        fWindow->inval();
+    });
+    fCommands.addCommand('G', "Modes", "Geometry", [this]() {
+        DisplayParams params = fWindow->getRequestedDisplayParams();
+        uint32_t flags = params.fSurfaceProps.flags();
+        if (!fPixelGeometryOverrides) {
+            fPixelGeometryOverrides = true;
+            params.fSurfaceProps = SkSurfaceProps(flags, kUnknown_SkPixelGeometry);
+        } else {
+            switch (params.fSurfaceProps.pixelGeometry()) {
+                case kUnknown_SkPixelGeometry:
+                    params.fSurfaceProps = SkSurfaceProps(flags, kRGB_H_SkPixelGeometry);
+                    break;
+                case kRGB_H_SkPixelGeometry:
+                    params.fSurfaceProps = SkSurfaceProps(flags, kBGR_H_SkPixelGeometry);
+                    break;
+                case kBGR_H_SkPixelGeometry:
+                    params.fSurfaceProps = SkSurfaceProps(flags, kRGB_V_SkPixelGeometry);
+                    break;
+                case kRGB_V_SkPixelGeometry:
+                    params.fSurfaceProps = SkSurfaceProps(flags, kBGR_V_SkPixelGeometry);
+                    break;
+                case kBGR_V_SkPixelGeometry:
+                    params.fSurfaceProps = SkSurfaceProps(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+                    fPixelGeometryOverrides = false;
+                    break;
+            }
+        }
+        fWindow->setRequestedDisplayParams(params);
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('H', "Paint", "Hinting mode", [this]() {
+        if (!fPaintOverrides.fHinting) {
+            fPaintOverrides.fHinting = true;
+            fPaint.setHinting(SkPaint::kNo_Hinting);
+        } else {
+            switch (fPaint.getHinting()) {
+                case SkPaint::kNo_Hinting:
+                    fPaint.setHinting(SkPaint::kSlight_Hinting);
+                    break;
+                case SkPaint::kSlight_Hinting:
+                    fPaint.setHinting(SkPaint::kNormal_Hinting);
+                    break;
+                case SkPaint::kNormal_Hinting:
+                    fPaint.setHinting(SkPaint::kFull_Hinting);
+                    break;
+                case SkPaint::kFull_Hinting:
+                    fPaint.setHinting(SkPaint::kNo_Hinting);
+                    fPaintOverrides.fHinting = false;
+                    break;
+            }
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('A', "Paint", "Antialias Mode", [this]() {
+        if (!(fPaintOverrides.fFlags & SkPaint::kAntiAlias_Flag)) {
+            fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
+            fPaintOverrides.fFlags |= SkPaint::kAntiAlias_Flag;
+            fPaint.setAntiAlias(false);
+            gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+            gSkUseDeltaAA = gSkForceDeltaAA = false;
+        } else {
+            fPaint.setAntiAlias(true);
+            switch (fPaintOverrides.fAntiAlias) {
+                case SkPaintFields::AntiAliasState::Alias:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Normal;
+                    gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                    gSkUseDeltaAA = gSkForceDeltaAA = false;
+                    break;
+                case SkPaintFields::AntiAliasState::Normal:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::AnalyticAAEnabled;
+                    gSkUseAnalyticAA = true;
+                    gSkForceAnalyticAA = false;
+                    gSkUseDeltaAA = gSkForceDeltaAA = false;
+                    break;
+                case SkPaintFields::AntiAliasState::AnalyticAAEnabled:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::AnalyticAAForced;
+                    gSkUseAnalyticAA = gSkForceAnalyticAA = true;
+                    gSkUseDeltaAA = gSkForceDeltaAA = false;
+                    break;
+                case SkPaintFields::AntiAliasState::AnalyticAAForced:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::DeltaAAEnabled;
+                    gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                    gSkUseDeltaAA = true;
+                    gSkForceDeltaAA = false;
+                    break;
+                case SkPaintFields::AntiAliasState::DeltaAAEnabled:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::DeltaAAForced;
+                    gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                    gSkUseDeltaAA = gSkForceDeltaAA = true;
+                    break;
+                case SkPaintFields::AntiAliasState::DeltaAAForced:
+                    fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
+                    fPaintOverrides.fFlags &= ~SkPaint::kAntiAlias_Flag;
+                    gSkUseAnalyticAA = fPaintOverrides.fOriginalSkUseAnalyticAA;
+                    gSkForceAnalyticAA = fPaintOverrides.fOriginalSkForceAnalyticAA;
+                    gSkUseDeltaAA = fPaintOverrides.fOriginalSkUseDeltaAA;
+                    gSkForceDeltaAA = fPaintOverrides.fOriginalSkForceDeltaAA;
+                    break;
+            }
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('D', "Modes", "DFT", [this]() {
+        DisplayParams params = fWindow->getRequestedDisplayParams();
+        uint32_t flags = params.fSurfaceProps.flags();
+        flags ^= SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
+        params.fSurfaceProps = SkSurfaceProps(flags, params.fSurfaceProps.pixelGeometry());
+        fWindow->setRequestedDisplayParams(params);
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('L', "Paint", "Subpixel Antialias Mode", [this]() {
+        if (!(fPaintOverrides.fFlags & SkPaint::kLCDRenderText_Flag)) {
+            fPaintOverrides.fFlags |= SkPaint::kLCDRenderText_Flag;
+            fPaint.setLCDRenderText(false);
+        } else {
+            if (!fPaint.isLCDRenderText()) {
+                fPaint.setLCDRenderText(true);
+            } else {
+                fPaintOverrides.fFlags &= ~SkPaint::kLCDRenderText_Flag;
+            }
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('S', "Paint", "Subpixel Position Mode", [this]() {
+        if (!(fPaintOverrides.fFlags & SkPaint::kSubpixelText_Flag)) {
+            fPaintOverrides.fFlags |= SkPaint::kSubpixelText_Flag;
+            fPaint.setSubpixelText(false);
+        } else {
+            if (!fPaint.isSubpixelText()) {
+                fPaint.setSubpixelText(true);
+            } else {
+                fPaintOverrides.fFlags &= ~SkPaint::kSubpixelText_Flag;
+            }
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('p', "Transform", "Toggle Perspective Mode", [this]() {
+        fPerspectiveMode = (kPerspective_Real == fPerspectiveMode) ? kPerspective_Fake
+                                                                   : kPerspective_Real;
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('P', "Transform", "Toggle Perspective", [this]() {
+        fPerspectiveMode = (kPerspective_Off == fPerspectiveMode) ? kPerspective_Real
+                                                                  : kPerspective_Off;
+        this->updateTitle();
+        fWindow->inval();
     });
 
     // set up slides
     this->initSlides();
-    this->setStartupSlide();
     if (FLAGS_list) {
         this->listNames();
     }
 
+    fPerspectivePoints[0].set(0, 0);
+    fPerspectivePoints[1].set(1, 0);
+    fPerspectivePoints[2].set(0, 1);
+    fPerspectivePoints[3].set(1, 1);
     fAnimTimer.run();
 
-    // ImGui initialization:
-    ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize.x = static_cast<float>(fWindow->width());
-    io.DisplaySize.y = static_cast<float>(fWindow->height());
-
-    // Keymap...
-    io.KeyMap[ImGuiKey_Tab] = (int)Window::Key::kTab;
-    io.KeyMap[ImGuiKey_LeftArrow] = (int)Window::Key::kLeft;
-    io.KeyMap[ImGuiKey_RightArrow] = (int)Window::Key::kRight;
-    io.KeyMap[ImGuiKey_UpArrow] = (int)Window::Key::kUp;
-    io.KeyMap[ImGuiKey_DownArrow] = (int)Window::Key::kDown;
-    io.KeyMap[ImGuiKey_PageUp] = (int)Window::Key::kPageUp;
-    io.KeyMap[ImGuiKey_PageDown] = (int)Window::Key::kPageDown;
-    io.KeyMap[ImGuiKey_Home] = (int)Window::Key::kHome;
-    io.KeyMap[ImGuiKey_End] = (int)Window::Key::kEnd;
-    io.KeyMap[ImGuiKey_Delete] = (int)Window::Key::kDelete;
-    io.KeyMap[ImGuiKey_Backspace] = (int)Window::Key::kBack;
-    io.KeyMap[ImGuiKey_Enter] = (int)Window::Key::kOK;
-    io.KeyMap[ImGuiKey_Escape] = (int)Window::Key::kEscape;
-    io.KeyMap[ImGuiKey_A] = (int)Window::Key::kA;
-    io.KeyMap[ImGuiKey_C] = (int)Window::Key::kC;
-    io.KeyMap[ImGuiKey_V] = (int)Window::Key::kV;
-    io.KeyMap[ImGuiKey_X] = (int)Window::Key::kX;
-    io.KeyMap[ImGuiKey_Y] = (int)Window::Key::kY;
-    io.KeyMap[ImGuiKey_Z] = (int)Window::Key::kZ;
-
-    int w, h;
-    unsigned char* pixels;
-    io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
-    SkImageInfo info = SkImageInfo::MakeA8(w, h);
-    SkPixmap pmap(info, pixels, info.minRowBytes());
-    SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / w, 1.0f / h);
-    auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
-    auto fontShader = fontImage->makeShader(&localMatrix);
-    fImGuiFontPaint.setShader(fontShader);
-    fImGuiFontPaint.setColor(SK_ColorWHITE);
-    fImGuiFontPaint.setFilterQuality(kLow_SkFilterQuality);
-    io.Fonts->TexID = &fImGuiFontPaint;
-
-    auto gamutImage = GetResourceAsImage("gamut.png");
+    auto gamutImage = GetResourceAsImage("images/gamut.png");
     if (gamutImage) {
         fImGuiGamutPaint.setShader(gamutImage->makeShader());
     }
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
 
-    fWindow->attach(fBackendType);
+    fWindow->attach(backend_type_for_window(fBackendType));
+    this->setCurrentSlide(this->startupSlide());
 }
 
 void Viewer::initSlides() {
     fAllSlideNames = Json::Value(Json::arrayValue);
 
+    using SlideFactory = sk_sp<Slide>(*)(const SkString& name, const SkString& path);
+    static const struct {
+        const char*                            fExtension;
+        const char*                            fDirName;
+        const SkCommandLineFlags::StringArray& fFlags;
+        const SlideFactory                     fFactory;
+    } gExternalSlidesInfo[] = {
+        { ".skp", "skp-dir", FLAGS_skps,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<SKPSlide>(name, path);}
+        },
+        { ".jpg", "jpg-dir", FLAGS_jpgs,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<ImageSlide>(name, path);}
+        },
+#if defined(SK_ENABLE_SKOTTIE)
+        { ".json", "skottie-dir", FLAGS_jsons,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<SkottieSlide>(name, path);}
+        },
+#endif
+        { ".svg", "svg-dir", FLAGS_svgs,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<SvgSlide>(name, path);}
+        },
+    };
+
+    SkTArray<sk_sp<Slide>, true> dirSlides;
+
+    const auto addSlide = [&](const SkString& name,
+                              const SkString& path,
+                              const SlideFactory& fact) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match,  name.c_str())) {
+            return;
+        }
+
+        if (auto slide = fact(name, path)) {
+            dirSlides.push_back(slide);
+            fSlides.push_back(std::move(slide));
+        }
+    };
+
+    if (!FLAGS_file.isEmpty()) {
+        // single file mode
+        const SkString file(FLAGS_file[0]);
+
+        if (sk_exists(file.c_str(), kRead_SkFILE_Flag)) {
+            for (const auto& sinfo : gExternalSlidesInfo) {
+                if (file.endsWith(sinfo.fExtension)) {
+                    addSlide(SkOSPath::Basename(file.c_str()), file, sinfo.fFactory);
+                    return;
+                }
+            }
+
+            fprintf(stderr, "Unsupported file type \"%s\"\n", file.c_str());
+        } else {
+            fprintf(stderr, "Cannot read \"%s\"\n", file.c_str());
+        }
+
+        return;
+    }
+
+    // Bisect slide.
+    if (!FLAGS_bisect.isEmpty()) {
+        sk_sp<BisectSlide> bisect = BisectSlide::Create(FLAGS_bisect[0]);
+        if (bisect && !SkCommandLineFlags::ShouldSkip(FLAGS_match, bisect->getName().c_str())) {
+            if (FLAGS_bisect.count() >= 2) {
+                for (const char* ch = FLAGS_bisect[1]; *ch; ++ch) {
+                    bisect->onChar(*ch);
+                }
+            }
+            fSlides.push_back(std::move(bisect));
+        }
+    }
+
+    // GMs
+    int firstGM = fSlides.count();
     const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
     while (gms) {
         std::unique_ptr<skiagm::GM> gm(gms->factory()(nullptr));
 
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
             sk_sp<Slide> slide(new GMSlide(gm.release()));
-            fSlides.push_back(slide);
+            fSlides.push_back(std::move(slide));
         }
 
         gms = gms->next();
     }
-
-    // reverse array
-    for (int i = 0; i < fSlides.count()/2; ++i) {
-        sk_sp<Slide> temp = fSlides[i];
-        fSlides[i] = fSlides[fSlides.count() - i - 1];
-        fSlides[fSlides.count() - i - 1] = temp;
+    // reverse gms
+    int numGMs = fSlides.count() - firstGM;
+    for (int i = 0; i < numGMs/2; ++i) {
+        std::swap(fSlides[firstGM + i], fSlides[fSlides.count() - i - 1]);
     }
 
     // samples
@@ -479,48 +633,25 @@ void Viewer::initSlides() {
         reg = reg->next();
     }
 
-    // SKPs
-    for (int i = 0; i < FLAGS_skps.count(); i++) {
-        if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
-                continue;
-            }
-
-            SkString path(FLAGS_skps[i]);
-            sk_sp<SKPSlide> slide(new SKPSlide(SkOSPath::Basename(path.c_str()), path));
-            if (slide) {
-                fSlides.push_back(slide);
-            }
-        } else {
-            SkOSFile::Iter it(FLAGS_skps[i], ".skp");
-            SkString skpName;
-            while (it.next(&skpName)) {
-                if (SkCommandLineFlags::ShouldSkip(FLAGS_match, skpName.c_str())) {
-                    continue;
-                }
-
-                SkString path = SkOSPath::Join(FLAGS_skps[i], skpName.c_str());
-                sk_sp<SKPSlide> slide(new SKPSlide(skpName, path));
-                if (slide) {
-                    fSlides.push_back(slide);
+    for (const auto& info : gExternalSlidesInfo) {
+        for (const auto& flag : info.fFlags) {
+            if (SkStrEndsWith(flag.c_str(), info.fExtension)) {
+                // single file
+                addSlide(SkOSPath::Basename(flag.c_str()), flag, info.fFactory);
+            } else {
+                // directory
+                SkOSFile::Iter it(flag.c_str(), info.fExtension);
+                SkString name;
+                while (it.next(&name)) {
+                    addSlide(name, SkOSPath::Join(flag.c_str(), name.c_str()), info.fFactory);
                 }
             }
-        }
-    }
 
-    // JPGs
-    for (int i = 0; i < FLAGS_jpgs.count(); i++) {
-        SkOSFile::Iter it(FLAGS_jpgs[i], ".jpg");
-        SkString jpgName;
-        while (it.next(&jpgName)) {
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, jpgName.c_str())) {
-                continue;
-            }
-
-            SkString path = SkOSPath::Join(FLAGS_jpgs[i], jpgName.c_str());
-            sk_sp<ImageSlide> slide(new ImageSlide(jpgName, path));
-            if (slide) {
-                fSlides.push_back(slide);
+            if (!dirSlides.empty()) {
+                fSlides.push_back(
+                    sk_make_sp<SlideDir>(SkStringPrintf("%s[%s]", info.fDirName, flag.c_str()),
+                                         std::move(dirSlides)));
+                dirSlides.reset();
             }
         }
     }
@@ -532,16 +663,97 @@ Viewer::~Viewer() {
     delete fWindow;
 }
 
+struct SkPaintTitleUpdater {
+    SkPaintTitleUpdater(SkString* title) : fTitle(title), fCount(0) {}
+    void append(const char* s) {
+        if (fCount == 0) {
+            fTitle->append(" {");
+        } else {
+            fTitle->append(", ");
+        }
+        fTitle->append(s);
+        ++fCount;
+    }
+    void done() {
+        if (fCount > 0) {
+            fTitle->append("}");
+        }
+    }
+    SkString* fTitle;
+    int fCount;
+};
+
 void Viewer::updateTitle() {
     if (!fWindow) {
         return;
     }
-    if (fWindow->sampleCount() < 0) {
+    if (fWindow->sampleCount() < 1) {
         return; // Surface hasn't been created yet.
     }
 
     SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
+
+    if (gSkUseDeltaAA) {
+        if (gSkForceDeltaAA) {
+            title.append(" <FDAA>");
+        } else {
+            title.append(" <DAA>");
+        }
+    } else if (gSkUseAnalyticAA) {
+        if (gSkForceAnalyticAA) {
+            title.append(" <FAAA>");
+        } else {
+            title.append(" <AAA>");
+        }
+    }
+
+    SkPaintTitleUpdater paintTitle(&title);
+    auto paintFlag = [this, &paintTitle](SkPaint::Flags flag, bool (SkPaint::* isFlag)() const,
+                                         const char* on, const char* off)
+    {
+        if (fPaintOverrides.fFlags & flag) {
+            paintTitle.append((fPaint.*isFlag)() ? on : off);
+        }
+    };
+
+    paintFlag(SkPaint::kAntiAlias_Flag, &SkPaint::isAntiAlias, "Antialias", "Alias");
+    paintFlag(SkPaint::kDither_Flag, &SkPaint::isDither, "DITHER", "No Dither");
+    paintFlag(SkPaint::kFakeBoldText_Flag, &SkPaint::isFakeBoldText, "Fake Bold", "No Fake Bold");
+    paintFlag(SkPaint::kLinearText_Flag, &SkPaint::isLinearText, "Linear Text", "Non-Linear Text");
+    paintFlag(SkPaint::kSubpixelText_Flag, &SkPaint::isSubpixelText, "Subpixel Text", "Pixel Text");
+    paintFlag(SkPaint::kLCDRenderText_Flag, &SkPaint::isLCDRenderText, "LCD", "lcd");
+    paintFlag(SkPaint::kEmbeddedBitmapText_Flag, &SkPaint::isEmbeddedBitmapText,
+              "Bitmap Text", "No Bitmap Text");
+    paintFlag(SkPaint::kAutoHinting_Flag, &SkPaint::isAutohinted,
+              "Force Autohint", "No Force Autohint");
+    paintFlag(SkPaint::kVerticalText_Flag, &SkPaint::isVerticalText,
+              "Vertical Text", "No Vertical Text");
+
+    if (fPaintOverrides.fHinting) {
+        switch (fPaint.getHinting()) {
+            case SkPaint::kNo_Hinting:
+                paintTitle.append("No Hinting");
+                break;
+            case SkPaint::kSlight_Hinting:
+                paintTitle.append("Slight Hinting");
+                break;
+            case SkPaint::kNormal_Hinting:
+                paintTitle.append("Normal Hinting");
+                break;
+            case SkPaint::kFull_Hinting:
+                paintTitle.append("Full Hinting");
+                break;
+        }
+    }
+    paintTitle.done();
+
+    if (fTileCnt > 0) {
+        title.appendf(" T%d", fTileCnt);
+        if (fThreadCnt > 0) {
+            title.appendf("/%d", fThreadCnt);
+        }
+    }
 
     switch (fColorMode) {
         case ColorMode::kLegacy:
@@ -567,31 +779,66 @@ void Viewer::updateTitle() {
             }
         }
         title.appendf(" %s", curPrimaries >= 0 ? gNamedPrimaries[curPrimaries].fName : "Custom");
+
+        if (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) {
+            title.appendf(" Gamma %f", fColorSpaceTransferFn.fG);
+        }
+    }
+
+    const DisplayParams& params = fWindow->getRequestedDisplayParams();
+    if (fPixelGeometryOverrides) {
+        switch (params.fSurfaceProps.pixelGeometry()) {
+            case kUnknown_SkPixelGeometry:
+                title.append( " Flat");
+                break;
+            case kRGB_H_SkPixelGeometry:
+                title.append( " RGB");
+                break;
+            case kBGR_H_SkPixelGeometry:
+                title.append( " BGR");
+                break;
+            case kRGB_V_SkPixelGeometry:
+                title.append( " RGBV");
+                break;
+            case kBGR_V_SkPixelGeometry:
+                title.append( " BGRV");
+                break;
+        }
+    }
+
+    if (params.fSurfaceProps.isUseDeviceIndependentFonts()) {
+        title.append(" DFT");
     }
 
     title.append(" [");
     title.append(kBackendTypeStrings[fBackendType]);
-    if (int msaa = fWindow->sampleCount()) {
+    int msaa = fWindow->sampleCount();
+    if (msaa > 1) {
         title.appendf(" MSAA: %i", msaa);
     }
     title.append("]");
 
     GpuPathRenderers pr = fWindow->getRequestedDisplayParams().fGrContextOptions.fGpuPathRenderers;
-    if (GpuPathRenderers::kAll != pr) {
+    if (GpuPathRenderers::kDefault != pr) {
         title.appendf(" [Path renderer: %s]", gPathRendererNames[pr].c_str());
+    }
+
+    if (kPerspective_Real == fPerspectiveMode) {
+        title.append(" Perpsective (Real)");
+    } else if (kPerspective_Fake == fPerspectiveMode) {
+        title.append(" Perspective (Fake)");
     }
 
     fWindow->setTitle(title.c_str());
 }
 
-void Viewer::setStartupSlide() {
+int Viewer::startupSlide() const {
 
     if (!FLAGS_slide.isEmpty()) {
         int count = fSlides.count();
         for (int i = 0; i < count; i++) {
             if (fSlides[i]->getName().equals(FLAGS_slide[0])) {
-                fCurrentSlide = i;
-                return;
+                return i;
             }
         }
 
@@ -599,53 +846,60 @@ void Viewer::setStartupSlide() {
         this->listNames();
     }
 
-    fCurrentSlide = 0;
+    return 0;
 }
 
-void Viewer::listNames() {
-    int count = fSlides.count();
+void Viewer::listNames() const {
     SkDebugf("All Slides:\n");
-    for (int i = 0; i < count; i++) {
-        SkDebugf("    %s\n", fSlides[i]->getName().c_str());
+    for (const auto& slide : fSlides) {
+        SkDebugf("    %s\n", slide->getName().c_str());
     }
 }
 
-void Viewer::setupCurrentSlide(int previousSlide) {
-    if (fCurrentSlide == previousSlide) {
-        return; // no change; do nothing
+void Viewer::setCurrentSlide(int slide) {
+    SkASSERT(slide >= 0 && slide < fSlides.count());
+
+    if (slide == fCurrentSlide) {
+        return;
     }
-    // prepare dimensions for image slides
-    fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()), SkIntToScalar(fWindow->height()));
 
-    fGesture.reset();
-    fDefaultMatrix.reset();
-    fDefaultMatrixInv.reset();
+    if (fCurrentSlide >= 0) {
+        fSlides[fCurrentSlide]->unload();
+    }
 
-    if (fWindow->supportsContentRect() && fWindow->scaleContentToFit()) {
-        const SkRect contentRect = fWindow->getContentRect();
+    fSlides[slide]->load(SkIntToScalar(fWindow->width()),
+                         SkIntToScalar(fWindow->height()));
+    fCurrentSlide = slide;
+    this->setupCurrentSlide();
+}
+
+void Viewer::setupCurrentSlide() {
+    if (fCurrentSlide >= 0) {
+        // prepare dimensions for image slides
+        fGesture.resetTouchState();
+        fDefaultMatrix.reset();
+
         const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
         const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
-        if (contentRect.width() > 0 && contentRect.height() > 0) {
-            fDefaultMatrix.setRectToRect(slideBounds, contentRect, SkMatrix::kStart_ScaleToFit);
-            SkAssertResult(fDefaultMatrix.invert(&fDefaultMatrixInv));
+        const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
+
+        // Start with a matrix that scales the slide to the available screen space
+        if (fWindow->scaleContentToFit()) {
+            if (windowRect.width() > 0 && windowRect.height() > 0) {
+                fDefaultMatrix.setRectToRect(slideBounds, windowRect, SkMatrix::kStart_ScaleToFit);
+            }
         }
-    }
 
-    if (fWindow->supportsContentRect()) {
-        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
-        SkRect windowRect = fWindow->getContentRect();
-        fDefaultMatrixInv.mapRect(&windowRect);
-        fGesture.setTransLimit(SkRect::MakeWH(SkIntToScalar(slideSize.width()), 
-                                              SkIntToScalar(slideSize.height())),
-                               windowRect);
-    }
+        // Prevent the user from dragging content so far outside the window they can't find it again
+        fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
 
-    this->updateTitle();
-    this->updateUIState();
-    if (previousSlide >= 0) {
-        fSlides[previousSlide]->unload();
+        this->updateTitle();
+        this->updateUIState();
+
+        fStatsLayer.resetMeasurements();
+
+        fWindow->inval();
     }
-    fWindow->inval();
 }
 
 #define MAX_ZOOM_LEVEL  8
@@ -653,36 +907,53 @@ void Viewer::setupCurrentSlide(int previousSlide) {
 
 void Viewer::changeZoomLevel(float delta) {
     fZoomLevel += delta;
-    if (fZoomLevel > 0) {
-        fZoomLevel = SkMinScalar(fZoomLevel, MAX_ZOOM_LEVEL);
-        fZoomScale = fZoomLevel + SK_Scalar1;
-    } else if (fZoomLevel < 0) {
-        fZoomLevel = SkMaxScalar(fZoomLevel, MIN_ZOOM_LEVEL);
-        fZoomScale = SK_Scalar1 / (SK_Scalar1 - fZoomLevel);
-    } else {
-        fZoomScale = SK_Scalar1;
+    fZoomLevel = SkScalarPin(fZoomLevel, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
+    this->preTouchMatrixChanged();
+}
+
+void Viewer::preTouchMatrixChanged() {
+    // Update the trans limit as the transform changes.
+    const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+    const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
+    const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
+    fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
+}
+
+SkMatrix Viewer::computePerspectiveMatrix() {
+    SkScalar w = fWindow->width(), h = fWindow->height();
+    SkPoint orthoPts[4] = { { 0, 0 }, { w, 0 }, { 0, h }, { w, h } };
+    SkPoint perspPts[4] = {
+        { fPerspectivePoints[0].fX * w, fPerspectivePoints[0].fY * h },
+        { fPerspectivePoints[1].fX * w, fPerspectivePoints[1].fY * h },
+        { fPerspectivePoints[2].fX * w, fPerspectivePoints[2].fY * h },
+        { fPerspectivePoints[3].fX * w, fPerspectivePoints[3].fY * h }
+    };
+    SkMatrix m;
+    m.setPolyToPoly(orthoPts, perspPts, 4);
+    return m;
+}
+
+SkMatrix Viewer::computePreTouchMatrix() {
+    SkMatrix m = fDefaultMatrix;
+    SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
+                                          : SK_Scalar1 + fZoomLevel;
+    m.preScale(zoomScale, zoomScale);
+
+    const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+    m.preRotate(fRotation, slideSize.width() * 0.5f, slideSize.height() * 0.5f);
+
+    if (kPerspective_Real == fPerspectiveMode) {
+        SkMatrix persp = this->computePerspectiveMatrix();
+        m.postConcat(persp);
     }
+
+    return m;
 }
 
 SkMatrix Viewer::computeMatrix() {
-    SkMatrix m;
-    m.reset();
-
-    if (fZoomLevel) {
-        SkPoint center;
-        //m = this->getLocalMatrix();//.invert(&m);
-        m.mapXY(fZoomCenterX, fZoomCenterY, &center);
-        SkScalar cx = center.fX;
-        SkScalar cy = center.fY;
-
-        m.setTranslate(-cx, -cy);
-        m.postScale(fZoomScale, fZoomScale);
-        m.postTranslate(cx, cy);
-    }
-
-    m.preConcat(fGesture.localM());
+    SkMatrix m = fGesture.localM();
     m.preConcat(fGesture.globalM());
-
+    m.preConcat(this->computePreTouchMatrix());
     return m;
 }
 
@@ -691,29 +962,29 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
 
     fWindow->detach();
 
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_VULKAN)
-    // Switching from OpenGL to Vulkan in the same window is problematic at this point on
-    // Windows, so we just delete the window and recreate it.
-    if (sk_app::Window::kVulkan_BackendType == fBackendType) {
-        DisplayParams params = fWindow->getRequestedDisplayParams();
-        delete fWindow;
-        fWindow = Window::CreateNativeWindow(nullptr);
+#if defined(SK_BUILD_FOR_WIN)
+    // Switching between OpenGL, Vulkan, and ANGLE in the same window is problematic at this point
+    // on Windows, so we just delete the window and recreate it.
+    DisplayParams params = fWindow->getRequestedDisplayParams();
+    delete fWindow;
+    fWindow = Window::CreateNativeWindow(nullptr);
 
-        // re-register callbacks
-        fCommands.attach(fWindow);
-        fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
-        fWindow->registerPaintFunc(on_paint_handler, this);
-        fWindow->registerTouchFunc(on_touch_handler, this);
-        fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
-        fWindow->registerMouseFunc(on_mouse_handler, this);
-        fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
-        fWindow->registerKeyFunc(on_key_handler, this);
-        fWindow->registerCharFunc(on_char_handler, this);
-        fWindow->setRequestedDisplayParams(params);
-    }
+    // re-register callbacks
+    fCommands.attach(fWindow);
+    fWindow->pushLayer(this);
+    fWindow->pushLayer(&fStatsLayer);
+    fWindow->pushLayer(&fImGuiLayer);
+
+    // Don't allow the window to re-attach. If we're in MSAA mode, the params we grabbed above
+    // will still include our correct sample count. But the re-created fWindow will lose that
+    // information. On Windows, we need to re-create the window when changing sample count,
+    // so we'll incorrectly detect that situation, then re-initialize the window in GL mode,
+    // rendering this tear-down step pointless (and causing the Vulkan window context to fail
+    // as if we had never changed windows at all).
+    fWindow->setRequestedDisplayParams(params, false);
 #endif
 
-    fWindow->attach(fBackendType);
+    fWindow->attach(backend_type_for_window(fBackendType));
 }
 
 void Viewer::setColorMode(ColorMode colorMode) {
@@ -734,14 +1005,55 @@ void Viewer::setColorMode(ColorMode colorMode) {
     fWindow->inval();
 }
 
+class OveridePaintFilterCanvas : public SkPaintFilterCanvas {
+public:
+    OveridePaintFilterCanvas(SkCanvas* canvas, SkPaint* paint, Viewer::SkPaintFields* fields)
+        : SkPaintFilterCanvas(canvas), fPaint(paint), fPaintOverrides(fields)
+    { }
+    bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
+        if (*paint == nullptr) {
+            return true;
+        }
+        if (fPaintOverrides->fHinting) {
+            paint->writable()->setHinting(fPaint->getHinting());
+        }
+
+        if (fPaintOverrides->fFlags & SkPaint::kAntiAlias_Flag) {
+            paint->writable()->setAntiAlias(fPaint->isAntiAlias());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kDither_Flag) {
+            paint->writable()->setDither(fPaint->isDither());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kFakeBoldText_Flag) {
+            paint->writable()->setFakeBoldText(fPaint->isFakeBoldText());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kLinearText_Flag) {
+            paint->writable()->setLinearText(fPaint->isLinearText());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kSubpixelText_Flag) {
+            paint->writable()->setSubpixelText(fPaint->isSubpixelText());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kLCDRenderText_Flag) {
+            paint->writable()->setLCDRenderText(fPaint->isLCDRenderText());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kEmbeddedBitmapText_Flag) {
+            paint->writable()->setEmbeddedBitmapText(fPaint->isEmbeddedBitmapText());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kAutoHinting_Flag) {
+            paint->writable()->setAutohinted(fPaint->isAutohinted());
+        }
+        if (fPaintOverrides->fFlags & SkPaint::kVerticalText_Flag) {
+            paint->writable()->setVerticalText(fPaint->isVerticalText());
+        }
+
+        return true;
+    }
+    SkPaint* fPaint;
+    Viewer::SkPaintFields* fPaintOverrides;
+};
+
 void Viewer::drawSlide(SkCanvas* canvas) {
     SkAutoCanvasRestore autorestore(canvas, false);
-
-    if (fWindow->supportsContentRect()) {
-        SkRect contentRect = fWindow->getContentRect();
-        canvas->clipRect(contentRect);
-        canvas->translate(contentRect.fLeft, contentRect.fTop);
-    }
 
     // By default, we render directly into the window's surface/canvas
     SkCanvas* slideCanvas = canvas;
@@ -752,15 +1064,40 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     if (ColorMode::kLegacy != fColorMode) {
         auto transferFn = (ColorMode::kColorManagedLinearF16 == fColorMode)
             ? SkColorSpace::kLinear_RenderTargetGamma : SkColorSpace::kSRGB_RenderTargetGamma;
-        SkMatrix44 toXYZ;
+        SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
         SkAssertResult(fColorSpacePrimaries.toXYZD50(&toXYZ));
-        cs = SkColorSpace::MakeRGB(transferFn, toXYZ);
+        if (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) {
+            cs = SkColorSpace::MakeRGB(fColorSpaceTransferFn, toXYZ);
+        } else {
+            cs = SkColorSpace::MakeRGB(transferFn, toXYZ);
+        }
+    }
+
+    if (fSaveToSKP) {
+        SkPictureRecorder recorder;
+        SkCanvas* recorderCanvas = recorder.beginRecording(
+                SkRect::Make(fSlides[fCurrentSlide]->getDimensions()));
+        // In xform-canvas mode, record the transformed output
+        std::unique_ptr<SkCanvas> xformCanvas = nullptr;
+        if (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) {
+            xformCanvas = SkCreateColorSpaceXformCanvas(recorderCanvas, cs);
+            recorderCanvas = xformCanvas.get();
+        }
+        fSlides[fCurrentSlide]->draw(recorderCanvas);
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
+        SkFILEWStream stream("sample_app.skp");
+        picture->serialize(&stream);
+        fSaveToSKP = false;
     }
 
     // If we're in F16, or we're zooming, or we're in color correct 8888 and the gamut isn't sRGB,
-    // we need to render offscreen
+    // we need to render offscreen. We also need to render offscreen if we're in any raster mode,
+    // because the window surface is actually GL, or we're doing fake perspective.
     sk_sp<SkSurface> offscreenSurface = nullptr;
-    if (ColorMode::kColorManagedLinearF16 == fColorMode ||
+    std::unique_ptr<SkCanvas> threadedCanvas;
+    if (Window::kRaster_BackendType == fBackendType ||
+        kPerspective_Fake == fPerspectiveMode ||
+        ColorMode::kColorManagedLinearF16 == fColorMode ||
         fShowZoomWindow ||
         (ColorMode::kColorManagedSRGB8888 == fColorMode &&
          !primaries_equal(fColorSpacePrimaries, gSrgbPrimaries))) {
@@ -773,8 +1110,23 @@ void Viewer::drawSlide(SkCanvas* canvas) {
             (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) ? nullptr : cs;
         SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), colorType,
                                              kPremul_SkAlphaType, std::move(offscreenColorSpace));
-        offscreenSurface = canvas->makeSurface(info);
-        slideCanvas = offscreenSurface->getCanvas();
+        SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+        canvas->getProps(&props);
+        offscreenSurface = Window::kRaster_BackendType == fBackendType
+                         ? SkSurface::MakeRaster(info, &props)
+                         : canvas->makeSurface(info);
+        SkPixmap offscreenPixmap;
+        if (fTileCnt > 0 && offscreenSurface->peekPixels(&offscreenPixmap)) {
+            SkBitmap offscreenBitmap;
+            offscreenBitmap.installPixels(offscreenPixmap);
+            threadedCanvas =
+                skstd::make_unique<SkCanvas>(
+                    sk_make_sp<SkThreadedBMPDevice>(
+                         offscreenBitmap, fTileCnt, fThreadCnt, fExecutor.get()));
+            slideCanvas = threadedCanvas.get();
+        } else {
+            slideCanvas = offscreenSurface->getCanvas();
+        }
     }
 
     std::unique_ptr<SkCanvas> xformCanvas = nullptr;
@@ -785,18 +1137,21 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 
     int count = slideCanvas->save();
     slideCanvas->clear(SK_ColorWHITE);
-    slideCanvas->concat(fDefaultMatrix);
     slideCanvas->concat(computeMatrix());
+    if (kPerspective_Real == fPerspectiveMode) {
+        slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
+    }
     // Time the painting logic of the slide
-    double startTime = SkTime::GetMSecs();
-    fSlides[fCurrentSlide]->draw(slideCanvas);
-    fPaintTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
+    fStatsLayer.beginTiming(fPaintTimer);
+    OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides);
+    fSlides[fCurrentSlide]->draw(&filterCanvas);
+    fStatsLayer.endTiming(fPaintTimer);
     slideCanvas->restoreToCount(count);
 
     // Force a flush so we can time that, too
-    startTime = SkTime::GetMSecs();
+    fStatsLayer.beginTiming(fFlushTimer);
     slideCanvas->flush();
-    fFlushTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
+    fStatsLayer.endTiming(fFlushTimer);
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas
     if (offscreenSurface) {
@@ -808,152 +1163,101 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         auto retaggedImage = SkImageMakeRasterCopyAndAssignColorSpace(fLastImage.get(), srgb.get());
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
+        int prePerspectiveCount = canvas->save();
+        if (kPerspective_Fake == fPerspectiveMode) {
+            paint.setFilterQuality(kHigh_SkFilterQuality);
+            canvas->clear(SK_ColorWHITE);
+            canvas->concat(this->computePerspectiveMatrix());
+        }
         canvas->drawImage(retaggedImage, 0, 0, &paint);
+        canvas->restoreToCount(prePerspectiveCount);
     }
 }
 
 void Viewer::onBackendCreated() {
-    this->updateTitle();
-    this->updateUIState();
-    this->setupCurrentSlide(-1);
+    this->setupCurrentSlide();
     fWindow->show();
-    fWindow->inval();
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
-    // Update ImGui input
-    ImGuiIO& io = ImGui::GetIO();
-    io.DeltaTime = 1.0f / 60.0f;
-    io.DisplaySize.x = static_cast<float>(fWindow->width());
-    io.DisplaySize.y = static_cast<float>(fWindow->height());
+    this->drawSlide(canvas);
 
-    io.KeyAlt = io.KeysDown[static_cast<int>(Window::Key::kOption)];
-    io.KeyCtrl = io.KeysDown[static_cast<int>(Window::Key::kCtrl)];
-    io.KeyShift = io.KeysDown[static_cast<int>(Window::Key::kShift)];
-
-    ImGui::NewFrame();
-
-    drawSlide(canvas);
-
-    // Advance our timing bookkeeping
-    fCurrentMeasurement = (fCurrentMeasurement + 1) & (kMeasurementCount - 1);
-    SkASSERT(fCurrentMeasurement < kMeasurementCount);
-
-    // Draw any overlays or UI that we don't want timed
-    if (fDisplayStats) {
-        drawStats(canvas);
-    }
     fCommands.drawHelp(canvas);
 
-    drawImGui(canvas);
+    this->drawImGui();
+}
 
-    // Update the FPS
-    updateUIState();
+SkPoint Viewer::mapEvent(float x, float y) {
+    const auto m = this->computeMatrix();
+    SkMatrix inv;
+
+    SkAssertResult(m.invert(&inv));
+
+    return inv.mapXY(x, y);
 }
 
 bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
+    if (GestureDevice::kMouse == fGestureDevice) {
+        return false;
+    }
+
+    const auto slidePt = this->mapEvent(x, y);
+    if (fSlides[fCurrentSlide]->onMouse(slidePt.x(), slidePt.y(), state, 0)) {
+        fWindow->inval();
+        return true;
+    }
+
     void* castedOwner = reinterpret_cast<void*>(owner);
-    SkPoint touchPoint = fDefaultMatrixInv.mapXY(x, y);
     switch (state) {
         case Window::kUp_InputState: {
             fGesture.touchEnd(castedOwner);
             break;
         }
         case Window::kDown_InputState: {
-            fGesture.touchBegin(castedOwner, touchPoint.fX, touchPoint.fY);
+            fGesture.touchBegin(castedOwner, x, y);
             break;
         }
         case Window::kMove_InputState: {
-            fGesture.touchMoved(castedOwner, touchPoint.fX, touchPoint.fY);
+            fGesture.touchMoved(castedOwner, x, y);
             break;
         }
     }
+    fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kTouch : GestureDevice::kNone;
     fWindow->inval();
     return true;
 }
 
-bool Viewer::onMouse(float x, float y, Window::InputState state, uint32_t modifiers) {
+bool Viewer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers) {
+    if (GestureDevice::kTouch == fGestureDevice) {
+        return false;
+    }
 
-    SkPoint touchPoint = fDefaultMatrixInv.mapXY(x, y);
+    const auto slidePt = this->mapEvent(x, y);
+    if (fSlides[fCurrentSlide]->onMouse(slidePt.x(), slidePt.y(), state, modifiers)) {
+        fWindow->inval();
+        return true;
+    }
+
     switch (state) {
         case Window::kUp_InputState: {
             fGesture.touchEnd(nullptr);
             break;
         }
         case Window::kDown_InputState: {
-            fGesture.touchBegin(nullptr, touchPoint.fX, touchPoint.fY);
+            fGesture.touchBegin(nullptr, x, y);
             break;
         }
         case Window::kMove_InputState: {
-            fGesture.touchMoved(nullptr, touchPoint.fX, touchPoint.fY);
+            fGesture.touchMoved(nullptr, x, y);
             break;
         }
     }
-    fWindow->inval();
-    return true;
-}
+    fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kMouse : GestureDevice::kNone;
 
-void Viewer::drawStats(SkCanvas* canvas) {
-    static const float kPixelPerMS = 2.0f;
-    static const int kDisplayWidth = 130;
-    static const int kDisplayHeight = 100;
-    static const int kDisplayPadding = 10;
-    static const int kGraphPadding = 3;
-    static const SkScalar kBaseMS = 1000.f / 60.f;  // ms/frame to hit 60 fps
-
-    SkISize canvasSize = canvas->getBaseLayerSize();
-    SkRect rect = SkRect::MakeXYWH(SkIntToScalar(canvasSize.fWidth-kDisplayWidth-kDisplayPadding),
-                                   SkIntToScalar(kDisplayPadding),
-                                   SkIntToScalar(kDisplayWidth), SkIntToScalar(kDisplayHeight));
-    SkPaint paint;
-    canvas->save();
-
-    if (fWindow->supportsContentRect()) {
-        SkRect contentRect = fWindow->getContentRect();
-        canvas->clipRect(contentRect);
-        canvas->translate(contentRect.fLeft, contentRect.fTop);
+    if (state != Window::kMove_InputState || fGesture.isBeingTouched()) {
+        fWindow->inval();
     }
-
-    canvas->clipRect(rect);
-    paint.setColor(SK_ColorBLACK);
-    canvas->drawRect(rect, paint);
-    // draw the 16ms line
-    paint.setColor(SK_ColorLTGRAY);
-    canvas->drawLine(rect.fLeft, rect.fBottom - kBaseMS*kPixelPerMS,
-                     rect.fRight, rect.fBottom - kBaseMS*kPixelPerMS, paint);
-    paint.setColor(SK_ColorRED);
-    paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawRect(rect, paint);
-
-    int x = SkScalarTruncToInt(rect.fLeft) + kGraphPadding;
-    const int xStep = 2;
-    int i = fCurrentMeasurement;
-    do {
-        // Round to nearest values
-        int animateHeight = (int)(fAnimateTimes[i] * kPixelPerMS + 0.5);
-        int paintHeight = (int)(fPaintTimes[i] * kPixelPerMS + 0.5);
-        int flushHeight = (int)(fFlushTimes[i] * kPixelPerMS + 0.5);
-        int startY = SkScalarTruncToInt(rect.fBottom);
-        int endY = startY - flushHeight;
-        paint.setColor(SK_ColorRED);
-        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
-                         SkIntToScalar(x), SkIntToScalar(endY), paint);
-        startY = endY;
-        endY = startY - paintHeight;
-        paint.setColor(SK_ColorGREEN);
-        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
-                         SkIntToScalar(x), SkIntToScalar(endY), paint);
-        startY = endY;
-        endY = startY - animateHeight;
-        paint.setColor(SK_ColorMAGENTA);
-        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
-                         SkIntToScalar(x), SkIntToScalar(endY), paint);
-        i++;
-        i &= (kMeasurementCount - 1);  // fast mod
-        x += xStep;
-    } while (i != fCurrentMeasurement);
-
-    canvas->restore();
+    return true;
 }
 
 static ImVec2 ImGui_DragPrimary(const char* label, float* x, float* y,
@@ -997,7 +1301,6 @@ static void ImGui_Primaries(SkColorSpacePrimaries* primaries, SkPaint* gamutPain
     // Magic numbers are pixel locations of the origin and upper-right corner.
     drawList->AddImage(gamutPaint, pos, ImVec2(pos.x + size.x, pos.y + size.y),
                        ImVec2(242, 61), ImVec2(1897, 1922));
-    ImVec2 endPos = ImGui::GetCursorPos();
 
     // Primary markers
     ImVec2 r = ImGui_DragPrimary("R", &primaries->fRX, &primaries->fRY, pos, size);
@@ -1013,10 +1316,68 @@ static void ImGui_Primaries(SkColorSpacePrimaries* primaries, SkPaint* gamutPain
     drawList->AddTriangle(r, g, b, 0xFFFFFFFF);
 
     // Re-position cursor immediate after the diagram for subsequent controls
-    ImGui::SetCursorPos(endPos);
+    ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + size.y));
 }
 
-void Viewer::drawImGui(SkCanvas* canvas) {
+static ImVec2 ImGui_DragPoint(const char* label, SkPoint* p,
+                              const ImVec2& pos, const ImVec2& size, bool* dragging) {
+    // Transform points ([0, 0] - [1.0, 1.0]) to screen coords
+    ImVec2 center(pos.x + p->fX * size.x, pos.y + p->fY * size.y);
+
+    // Invisible 10x10 button
+    ImGui::SetCursorScreenPos(ImVec2(center.x - 5, center.y - 5));
+    ImGui::InvisibleButton(label, ImVec2(10, 10));
+
+    if (ImGui::IsItemActive() && ImGui::IsMouseDragging()) {
+        ImGuiIO& io = ImGui::GetIO();
+        // Normalized mouse position, relative to our gamut box
+        ImVec2 mousePosXY((io.MousePos.x - pos.x) / size.x, (io.MousePos.y - pos.y) / size.y);
+        // Clamp to edge of box
+        p->fX = SkTPin(mousePosXY.x, 0.0f, 1.0f);
+        p->fY = SkTPin(mousePosXY.y, 0.0f, 1.0f);
+        *dragging = true;
+    }
+
+    // Return screen coordinates for the caller. We could just return center here, but we'd have
+    // one frame of lag during drag.
+    return ImVec2(pos.x + p->fX * size.x, pos.y + p->fY * size.y);
+}
+
+static bool ImGui_DragQuad(SkPoint* pts) {
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    // Fit our image/canvas to the available width, and scale the height to maintain aspect ratio.
+    float canvasWidth = SkTMax(ImGui::GetContentRegionAvailWidth(), 50.0f);
+    ImVec2 size = ImVec2(canvasWidth, canvasWidth);
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+
+    // Background rectangle
+    drawList->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), IM_COL32(0, 0, 0, 128));
+
+    // Corner markers
+    bool dragging = false;
+    ImVec2 tl = ImGui_DragPoint("TL", pts + 0, pos, size, &dragging);
+    ImVec2 tr = ImGui_DragPoint("TR", pts + 1, pos, size, &dragging);
+    ImVec2 bl = ImGui_DragPoint("BL", pts + 2, pos, size, &dragging);
+    ImVec2 br = ImGui_DragPoint("BR", pts + 3, pos, size, &dragging);
+
+    // Draw markers and quad
+    drawList->AddCircle(tl, 5.0f, 0xFFFFFFFF);
+    drawList->AddCircle(tr, 5.0f, 0xFFFFFFFF);
+    drawList->AddCircle(bl, 5.0f, 0xFFFFFFFF);
+    drawList->AddCircle(br, 5.0f, 0xFFFFFFFF);
+    drawList->AddLine(tl, tr, 0xFFFFFFFF);
+    drawList->AddLine(tr, br, 0xFFFFFFFF);
+    drawList->AddLine(br, bl, 0xFFFFFFFF);
+    drawList->AddLine(bl, tl, 0xFFFFFFFF);
+
+    ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + size.y));
+    ImGui::Spacing();
+
+    return dragging;
+}
+
+void Viewer::drawImGui() {
     // Support drawing the ImGui demo window. Superfluous, but gives a good idea of what's possible
     if (fShowImGuiTestWindow) {
         ImGui::ShowTestWindow(&fShowImGuiTestWindow);
@@ -1035,6 +1396,10 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 ImGui::RadioButton("Raster", &newBackend, sk_app::Window::kRaster_BackendType);
                 ImGui::SameLine();
                 ImGui::RadioButton("OpenGL", &newBackend, sk_app::Window::kNativeGL_BackendType);
+#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+                ImGui::SameLine();
+                ImGui::RadioButton("ANGLE", &newBackend, sk_app::Window::kANGLE_BackendType);
+#endif
 #if defined(SK_VULKAN)
                 ImGui::SameLine();
                 ImGui::RadioButton("Vulkan", &newBackend, sk_app::Window::kVulkan_BackendType);
@@ -1046,10 +1411,6 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 }
 
                 const GrContext* ctx = fWindow->getGrContext();
-                bool* inst = &params.fGrContextOptions.fEnableInstancedRendering;
-                if (ctx && ImGui::Checkbox("Instanced Rendering", inst)) {
-                    paramsChanged = true;
-                }
                 bool* wire = &params.fGrContextOptions.fWireframeMode;
                 if (ctx && ImGui::Checkbox("Wireframe Mode", wire)) {
                     paramsChanged = true;
@@ -1058,7 +1419,7 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 if (ctx) {
                     int sampleCount = fWindow->sampleCount();
                     ImGui::Text("MSAA: "); ImGui::SameLine();
-                    ImGui::RadioButton("0", &sampleCount, 0); ImGui::SameLine();
+                    ImGui::RadioButton("1", &sampleCount, 1); ImGui::SameLine();
                     ImGui::RadioButton("4", &sampleCount, 4); ImGui::SameLine();
                     ImGui::RadioButton("8", &sampleCount, 8); ImGui::SameLine();
                     ImGui::RadioButton("16", &sampleCount, 16);
@@ -1067,6 +1428,38 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                         params.fMSAASampleCount = sampleCount;
                         paramsChanged = true;
                     }
+                }
+
+                int pixelGeometryIdx = 0;
+                if (fPixelGeometryOverrides) {
+                    pixelGeometryIdx = params.fSurfaceProps.pixelGeometry() + 1;
+                }
+                if (ImGui::Combo("Pixel Geometry", &pixelGeometryIdx,
+                                 "Default\0Flat\0RGB\0BGR\0RGBV\0BGRV\0\0"))
+                {
+                    uint32_t flags = params.fSurfaceProps.flags();
+                    if (pixelGeometryIdx == 0) {
+                        fPixelGeometryOverrides = false;
+                        params.fSurfaceProps = SkSurfaceProps(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+                    } else {
+                        fPixelGeometryOverrides = true;
+                        SkPixelGeometry pixelGeometry = SkTo<SkPixelGeometry>(pixelGeometryIdx - 1);
+                        params.fSurfaceProps = SkSurfaceProps(flags, pixelGeometry);
+                    }
+                    paramsChanged = true;
+                }
+
+                bool useDFT = params.fSurfaceProps.isUseDeviceIndependentFonts();
+                if (ImGui::Checkbox("DFT", &useDFT)) {
+                    uint32_t flags = params.fSurfaceProps.flags();
+                    if (useDFT) {
+                        flags |= SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
+                    } else {
+                        flags &= ~SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
+                    }
+                    SkPixelGeometry pixelGeometry = params.fSurfaceProps.pixelGeometry();
+                    params.fSurfaceProps = SkSurfaceProps(flags, pixelGeometry);
+                    paramsChanged = true;
                 }
 
                 if (ImGui::TreeNode("Path Renderers")) {
@@ -1082,19 +1475,21 @@ void Viewer::drawImGui(SkCanvas* canvas) {
 
                     if (!ctx) {
                         ImGui::RadioButton("Software", true);
-                    } else if (fWindow->sampleCount()) {
+                    } else if (fWindow->sampleCount() > 1) {
+                        prButton(GpuPathRenderers::kDefault);
                         prButton(GpuPathRenderers::kAll);
-                        if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
+                        if (ctx->contextPriv().caps()->shaderCaps()->pathRenderingSupport()) {
                             prButton(GpuPathRenderers::kStencilAndCover);
                         }
-                        if (ctx->caps()->sampleShadingSupport()) {
-                            prButton(GpuPathRenderers::kMSAA);
-                        }
                         prButton(GpuPathRenderers::kTessellating);
-                        prButton(GpuPathRenderers::kDefault);
                         prButton(GpuPathRenderers::kNone);
                     } else {
+                        prButton(GpuPathRenderers::kDefault);
                         prButton(GpuPathRenderers::kAll);
+                        if (GrCoverageCountingPathRenderer::IsSupported(
+                                    *ctx->contextPriv().caps())) {
+                            prButton(GpuPathRenderers::kCoverageCounting);
+                        }
                         prButton(GpuPathRenderers::kSmall);
                         prButton(GpuPathRenderers::kTessellating);
                         prButton(GpuPathRenderers::kNone);
@@ -1103,23 +1498,213 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 }
             }
 
-            if (ImGui::CollapsingHeader("Slide")) {
-                static ImGuiTextFilter filter;
-                filter.Draw();
-                int previousSlide = fCurrentSlide;
-                fCurrentSlide = 0;
-                for (auto slide : fSlides) {
-                    if (filter.PassFilter(slide->getName().c_str())) {
-                        ImGui::BulletText("%s", slide->getName().c_str());
-                        if (ImGui::IsItemClicked()) {
-                            setupCurrentSlide(previousSlide);
-                            break;
+            if (ImGui::CollapsingHeader("Transform")) {
+                float zoom = fZoomLevel;
+                if (ImGui::SliderFloat("Zoom", &zoom, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
+                    fZoomLevel = zoom;
+                    this->preTouchMatrixChanged();
+                    paramsChanged = true;
+                }
+                float deg = fRotation;
+                if (ImGui::SliderFloat("Rotate", &deg, -30, 360, "%.3f deg")) {
+                    fRotation = deg;
+                    this->preTouchMatrixChanged();
+                    paramsChanged = true;
+                }
+                int perspectiveMode = static_cast<int>(fPerspectiveMode);
+                if (ImGui::Combo("Perspective", &perspectiveMode, "Off\0Real\0Fake\0\0")) {
+                    fPerspectiveMode = static_cast<PerspectiveMode>(perspectiveMode);
+                    this->preTouchMatrixChanged();
+                    this->updateTitle();
+                }
+                if (ImGui_DragQuad(fPerspectivePoints)) {
+                    this->preTouchMatrixChanged();
+                }
+            }
+
+            if (ImGui::CollapsingHeader("Paint")) {
+                int hintingIdx = 0;
+                if (fPaintOverrides.fHinting) {
+                    hintingIdx = fPaint.getHinting() + 1;
+                }
+                if (ImGui::Combo("Hinting", &hintingIdx,
+                                 "Default\0None\0Slight\0Normal\0Full\0\0"))
+                {
+                    if (hintingIdx == 0) {
+                        fPaintOverrides.fHinting = false;
+                        fPaint.setHinting(SkPaint::kNo_Hinting);
+                    } else {
+                        fPaintOverrides.fHinting = true;
+                        SkPaint::Hinting hinting = SkTo<SkPaint::Hinting>(hintingIdx - 1);
+                        fPaint.setHinting(hinting);
+                    }
+                    paramsChanged = true;
+                }
+
+                int aliasIdx = 0;
+                if (fPaintOverrides.fFlags & SkPaint::kAntiAlias_Flag) {
+                    aliasIdx = SkTo<int>(fPaintOverrides.fAntiAlias) + 1;
+                }
+                if (ImGui::Combo("Anti-Alias", &aliasIdx,
+                                 "Default\0Alias\0Normal\0AnalyticAAEnabled\0AnalyticAAForced\0"
+                                 "DeltaAAEnabled\0DeltaAAForced\0\0"))
+                {
+                    gSkUseAnalyticAA = fPaintOverrides.fOriginalSkUseAnalyticAA;
+                    gSkForceAnalyticAA = fPaintOverrides.fOriginalSkForceAnalyticAA;
+                    gSkUseDeltaAA = fPaintOverrides.fOriginalSkUseDeltaAA;
+                    gSkForceDeltaAA = fPaintOverrides.fOriginalSkForceDeltaAA;
+                    if (aliasIdx == 0) {
+                        fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
+                        fPaintOverrides.fFlags &= ~SkPaint::kAntiAlias_Flag;
+                    } else {
+                        fPaintOverrides.fFlags |= SkPaint::kAntiAlias_Flag;
+                        fPaintOverrides.fAntiAlias =SkTo<SkPaintFields::AntiAliasState>(aliasIdx-1);
+                        fPaint.setAntiAlias(aliasIdx > 1);
+                        switch (fPaintOverrides.fAntiAlias) {
+                            case SkPaintFields::AntiAliasState::Alias:
+                                break;
+                            case SkPaintFields::AntiAliasState::Normal:
+                                break;
+                            case SkPaintFields::AntiAliasState::AnalyticAAEnabled:
+                                gSkUseAnalyticAA = true;
+                                gSkForceAnalyticAA = false;
+                                gSkUseDeltaAA = gSkForceDeltaAA = false;
+                                break;
+                            case SkPaintFields::AntiAliasState::AnalyticAAForced:
+                                gSkUseAnalyticAA = gSkForceAnalyticAA = true;
+                                gSkUseDeltaAA = gSkForceDeltaAA = false;
+                                break;
+                            case SkPaintFields::AntiAliasState::DeltaAAEnabled:
+                                gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                                gSkUseDeltaAA = true;
+                                gSkForceDeltaAA = false;
+                                break;
+                            case SkPaintFields::AntiAliasState::DeltaAAForced:
+                                gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+                                gSkUseDeltaAA = gSkForceDeltaAA = true;
+                                break;
                         }
                     }
-                    ++fCurrentSlide;
+                    paramsChanged = true;
                 }
-                if (fCurrentSlide >= fSlides.count()) {
-                    fCurrentSlide = previousSlide;
+
+                auto paintFlag = [this, &paramsChanged](const char* label, const char* items,
+                                                        SkPaint::Flags flag,
+                                                        bool (SkPaint::* isFlag)() const,
+                                                        void (SkPaint::* setFlag)(bool) )
+                {
+                    int itemIndex = 0;
+                    if (fPaintOverrides.fFlags & flag) {
+                        itemIndex = (fPaint.*isFlag)() ? 2 : 1;
+                    }
+                    if (ImGui::Combo(label, &itemIndex, items)) {
+                        if (itemIndex == 0) {
+                            fPaintOverrides.fFlags &= ~flag;
+                        } else {
+                            fPaintOverrides.fFlags |= flag;
+                            (fPaint.*setFlag)(itemIndex == 2);
+                        }
+                        paramsChanged = true;
+                    }
+                };
+
+                paintFlag("Dither",
+                          "Default\0No Dither\0Dither\0\0",
+                          SkPaint::kDither_Flag,
+                          &SkPaint::isDither, &SkPaint::setDither);
+
+                paintFlag("Fake Bold Glyphs",
+                          "Default\0No Fake Bold\0Fake Bold\0\0",
+                          SkPaint::kFakeBoldText_Flag,
+                          &SkPaint::isFakeBoldText, &SkPaint::setFakeBoldText);
+
+                paintFlag("Linear Text",
+                          "Default\0No Linear Text\0Linear Text\0\0",
+                          SkPaint::kLinearText_Flag,
+                          &SkPaint::isLinearText, &SkPaint::setLinearText);
+
+                paintFlag("Subpixel Position Glyphs",
+                          "Default\0Pixel Text\0Subpixel Text\0\0",
+                          SkPaint::kSubpixelText_Flag,
+                          &SkPaint::isSubpixelText, &SkPaint::setSubpixelText);
+
+                paintFlag("Subpixel Anti-Alias",
+                          "Default\0lcd\0LCD\0\0",
+                          SkPaint::kLCDRenderText_Flag,
+                          &SkPaint::isLCDRenderText, &SkPaint::setLCDRenderText);
+
+                paintFlag("Embedded Bitmap Text",
+                          "Default\0No Embedded Bitmaps\0Embedded Bitmaps\0\0",
+                          SkPaint::kEmbeddedBitmapText_Flag,
+                          &SkPaint::isEmbeddedBitmapText, &SkPaint::setEmbeddedBitmapText);
+
+                paintFlag("Force Auto-Hinting",
+                          "Default\0No Force Auto-Hinting\0Force Auto-Hinting\0\0",
+                          SkPaint::kAutoHinting_Flag,
+                          &SkPaint::isAutohinted, &SkPaint::setAutohinted);
+
+                paintFlag("Vertical Text",
+                          "Default\0No Vertical Text\0Vertical Text\0\0",
+                          SkPaint::kVerticalText_Flag,
+                          &SkPaint::isVerticalText, &SkPaint::setVerticalText);
+            }
+
+            {
+                SkMetaData controls;
+                if (fSlides[fCurrentSlide]->onGetControls(&controls)) {
+                    if (ImGui::CollapsingHeader("Current Slide")) {
+                        SkMetaData::Iter iter(controls);
+                        const char* name;
+                        SkMetaData::Type type;
+                        int count;
+                        bool found = false;
+                        while ((name = iter.next(&type, &count)) != nullptr && found == false) {
+                            if (type == SkMetaData::kScalar_Type) {
+                                float val[3];
+                                SkASSERT(count == 3);
+                                controls.findScalars(name, &count, val);
+                                if (ImGui::SliderFloat(name, &val[0], val[1], val[2])) {
+                                    controls.setScalars(name, 3, val);
+                                    fSlides[fCurrentSlide]->onSetControls(controls);
+                                    found = paramsChanged = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (fShowSlidePicker) {
+                ImGui::SetNextTreeNodeOpen(true);
+            }
+            if (ImGui::CollapsingHeader("Slide")) {
+                static ImGuiTextFilter filter;
+                static ImVector<const char*> filteredSlideNames;
+                static ImVector<int> filteredSlideIndices;
+
+                if (fShowSlidePicker) {
+                    ImGui::SetKeyboardFocusHere();
+                    fShowSlidePicker = false;
+                }
+
+                filter.Draw();
+                filteredSlideNames.clear();
+                filteredSlideIndices.clear();
+                int filteredIndex = 0;
+                for (int i = 0; i < fSlides.count(); ++i) {
+                    const char* slideName = fSlides[i]->getName().c_str();
+                    if (filter.PassFilter(slideName) || i == fCurrentSlide) {
+                        if (i == fCurrentSlide) {
+                            filteredIndex = filteredSlideIndices.size();
+                        }
+                        filteredSlideNames.push_back(slideName);
+                        filteredSlideIndices.push_back(i);
+                    }
+                }
+
+                if (ImGui::ListBox("", &filteredIndex, filteredSlideNames.begin(),
+                                   filteredSlideNames.size(), 20)) {
+                    this->setCurrentSlide(filteredSlideIndices[filteredIndex]);
                 }
             }
 
@@ -1154,6 +1739,11 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                     }
                 }
 
+                // When we're in xform canvas mode, we can alter the transfer function, too
+                if (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) {
+                    ImGui::SliderFloat("Gamma", &fColorSpaceTransferFn.fG, 0.5f, 3.5f);
+                }
+
                 if (ImGui::Combo("Primaries", &primariesIdx,
                                  "sRGB\0AdobeRGB\0P3\0Rec. 2020\0Custom\0\0")) {
                     if (primariesIdx >= 0 && primariesIdx <= 3) {
@@ -1175,79 +1765,45 @@ void Viewer::drawImGui(SkCanvas* canvas) {
         ImGui::End();
     }
 
-    SkPaint zoomImagePaint;
     if (fShowZoomWindow && fLastImage) {
         if (ImGui::Begin("Zoom", &fShowZoomWindow, ImVec2(200, 200))) {
-            static int zoomFactor = 4;
-            ImGui::SliderInt("Scale", &zoomFactor, 1, 16);
+            static int zoomFactor = 8;
+            if (ImGui::Button("<<")) {
+                zoomFactor = SkTMax(zoomFactor / 2, 4);
+            }
+            ImGui::SameLine(); ImGui::Text("%2d", zoomFactor); ImGui::SameLine();
+            if (ImGui::Button(">>")) {
+                zoomFactor = SkTMin(zoomFactor * 2, 32);
+            }
 
-            zoomImagePaint.setShader(fLastImage->makeShader());
-            zoomImagePaint.setColor(SK_ColorWHITE);
-
-            // Zoom by shrinking the corner UVs towards the mouse cursor
             ImVec2 mousePos = ImGui::GetMousePos();
             ImVec2 avail = ImGui::GetContentRegionAvail();
 
-            ImVec2 zoomHalfExtents = ImVec2((avail.x * 0.5f) / zoomFactor,
-                                            (avail.y * 0.5f) / zoomFactor);
-            ImGui::Image(&zoomImagePaint, avail,
-                         ImVec2(mousePos.x - zoomHalfExtents.x, mousePos.y - zoomHalfExtents.y),
-                         ImVec2(mousePos.x + zoomHalfExtents.x, mousePos.y + zoomHalfExtents.y));
+            uint32_t pixel = 0;
+            SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+            if (fLastImage->readPixels(info, &pixel, info.minRowBytes(), mousePos.x, mousePos.y)) {
+                ImGui::SameLine();
+                ImGui::Text("(X, Y): %d, %d RGBA: %x %x %x %x",
+                            sk_float_round2int(mousePos.x), sk_float_round2int(mousePos.y),
+                            SkGetPackedR32(pixel), SkGetPackedG32(pixel),
+                            SkGetPackedB32(pixel), SkGetPackedA32(pixel));
+            }
+
+            fImGuiLayer.skiaWidget(avail, [=](SkCanvas* c) {
+                // Translate so the region of the image that's under the mouse cursor is centered
+                // in the zoom canvas:
+                c->scale(zoomFactor, zoomFactor);
+                c->translate(avail.x * 0.5f / zoomFactor - mousePos.x - 0.5f,
+                             avail.y * 0.5f / zoomFactor - mousePos.y - 0.5f);
+                c->drawImage(this->fLastImage, 0, 0);
+
+                SkPaint outline;
+                outline.setStyle(SkPaint::kStroke_Style);
+                c->drawRect(SkRect::MakeXYWH(mousePos.x, mousePos.y, 1, 1), outline);
+            });
         }
 
         ImGui::End();
-    }
-
-    // This causes ImGui to rebuild vertex/index data based on all immediate-mode commands
-    // (widgets, etc...) that have been issued
-    ImGui::Render();
-
-    // Then we fetch the most recent data, and convert it so we can render with Skia
-    const ImDrawData* drawData = ImGui::GetDrawData();
-    SkTDArray<SkPoint> pos;
-    SkTDArray<SkPoint> uv;
-    SkTDArray<SkColor> color;
-
-    for (int i = 0; i < drawData->CmdListsCount; ++i) {
-        const ImDrawList* drawList = drawData->CmdLists[i];
-
-        // De-interleave all vertex data (sigh), convert to Skia types
-        pos.rewind(); uv.rewind(); color.rewind();
-        for (int i = 0; i < drawList->VtxBuffer.size(); ++i) {
-            const ImDrawVert& vert = drawList->VtxBuffer[i];
-            pos.push(SkPoint::Make(vert.pos.x, vert.pos.y));
-            uv.push(SkPoint::Make(vert.uv.x, vert.uv.y));
-            color.push(vert.col);
-        }
-        // ImGui colors are RGBA
-        SkSwapRB(color.begin(), color.begin(), color.count());
-
-        int indexOffset = 0;
-
-        // Draw everything with canvas.drawVertices...
-        for (int j = 0; j < drawList->CmdBuffer.size(); ++j) {
-            const ImDrawCmd* drawCmd = &drawList->CmdBuffer[j];
-
-            // TODO: Find min/max index for each draw, so we know how many vertices (sigh)
-            if (drawCmd->UserCallback) {
-                drawCmd->UserCallback(drawList, drawCmd);
-            } else {
-                SkPaint* paint = static_cast<SkPaint*>(drawCmd->TextureId);
-                SkASSERT(paint);
-
-                canvas->save();
-                canvas->clipRect(SkRect::MakeLTRB(drawCmd->ClipRect.x, drawCmd->ClipRect.y,
-                                                  drawCmd->ClipRect.z, drawCmd->ClipRect.w));
-                canvas->drawVertices(SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
-                                                          drawList->VtxBuffer.size(), pos.begin(),
-                                                          uv.begin(), color.begin(),
-                                                          drawCmd->ElemCount,
-                                                          drawList->IdxBuffer.begin() + indexOffset),
-                                     SkBlendMode::kModulate, *paint);
-                indexOffset += drawCmd->ElemCount;
-                canvas->restore();
-            }
-        }
     }
 }
 
@@ -1257,13 +1813,13 @@ void Viewer::onIdle() {
     }
     fDeferredActions.reset();
 
-    double startTime = SkTime::GetMSecs();
+    fStatsLayer.beginTiming(fAnimateTimer);
     fAnimTimer.updateTime();
     bool animateWantsInval = fSlides[fCurrentSlide]->animate(fAnimTimer);
-    fAnimateTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
+    fStatsLayer.endTiming(fAnimateTimer);
 
     ImGuiIO& io = ImGui::GetIO();
-    if (animateWantsInval || fDisplayStats || fRefresh || io.MetricsActiveWindows) {
+    if (animateWantsInval || fStatsLayer.getActive() || fRefresh || io.MetricsActiveWindows) {
         fWindow->inval();
     }
 }
@@ -1272,7 +1828,7 @@ void Viewer::updateUIState() {
     if (!fWindow) {
         return;
     }
-    if (fWindow->sampleCount() < 0) {
+    if (fWindow->sampleCount() < 1) {
         return; // Surface hasn't been created yet.
     }
 
@@ -1318,36 +1874,23 @@ void Viewer::updateUIState() {
     const GrContext* ctx = fWindow->getGrContext();
     if (!ctx) {
         prState[kOptions].append("Software");
-    } else if (fWindow->sampleCount()) {
+    } else if (fWindow->sampleCount() > 1) {
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
-        if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
+        if (ctx->contextPriv().caps()->shaderCaps()->pathRenderingSupport()) {
             prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kStencilAndCover]);
         }
-        if (ctx->caps()->sampleShadingSupport()) {
-            prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kMSAA]);
-        }
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
     } else {
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
+        if (GrCoverageCountingPathRenderer::IsSupported(*ctx->contextPriv().caps())) {
+            prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kCoverageCounting]);
+        }
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kSmall]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
-    }
-
-    // Instanced rendering state
-    Json::Value instState(Json::objectValue);
-    instState[kName] = kInstancedRenderingStateName;
-    if (ctx) {
-        if (fWindow->getRequestedDisplayParams().fGrContextOptions.fEnableInstancedRendering) {
-            instState[kValue] = kON;
-        } else {
-            instState[kValue] = kOFF;
-        }
-        instState[kOptions] = Json::Value(Json::arrayValue);
-        instState[kOptions].append(kOFF);
-        instState[kOptions].append(kON);
     }
 
     // Softkey state
@@ -1360,27 +1903,14 @@ void Viewer::updateUIState() {
         softkeyState[kOptions].append(Json::Value(softkey.c_str()));
     }
 
-    // FPS state
-    Json::Value fpsState(Json::objectValue);
-    fpsState[kName] = kFpsStateName;
-    int idx = (fCurrentMeasurement + (kMeasurementCount - 1)) & (kMeasurementCount - 1);
-    fpsState[kValue] = SkStringPrintf("%8.3lf ms\n\nA %8.3lf\nP %8.3lf\nF%8.3lf",
-                                      fAnimateTimes[idx] + fPaintTimes[idx] + fFlushTimes[idx],
-                                      fAnimateTimes[idx],
-                                      fPaintTimes[idx],
-                                      fFlushTimes[idx]).c_str();
-    fpsState[kOptions] = Json::Value(Json::arrayValue);
-
     Json::Value state(Json::arrayValue);
     state.append(slideState);
     state.append(backendState);
     state.append(msaaState);
     state.append(prState);
-    state.append(instState);
     state.append(softkeyState);
-    state.append(fpsState);
 
-    fWindow->setUIState(state);
+    fWindow->setUIState(state.toStyledString().c_str());
 }
 
 void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateValue) {
@@ -1389,26 +1919,21 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
     // For example, after slide change, updateUIState is called inside setupCurrentSlide;
     // after backend change, updateUIState is called in this function.
     if (stateName.equals(kSlideStateName)) {
-        int previousSlide = fCurrentSlide;
-        fCurrentSlide = 0;
-        for(auto slide : fSlides) {
-            if (slide->getName().equals(stateValue)) {
-                this->setupCurrentSlide(previousSlide);
-                break;
+        for (int i = 0; i < fSlides.count(); ++i) {
+            if (fSlides[i]->getName().equals(stateValue)) {
+                this->setCurrentSlide(i);
+                return;
             }
-            fCurrentSlide++;
         }
-        if (fCurrentSlide >= fSlides.count()) {
-            fCurrentSlide = previousSlide;
-            SkDebugf("Slide not found: %s", stateValue.c_str());
-        }
+
+        SkDebugf("Slide not found: %s", stateValue.c_str());
     } else if (stateName.equals(kBackendStateName)) {
         for (int i = 0; i < sk_app::Window::kBackendTypeCount; i++) {
             if (stateValue.equals(kBackendTypeStrings[i])) {
                 if (fBackendType != i) {
                     fBackendType = (sk_app::Window::BackendType)i;
                     fWindow->detach();
-                    fWindow->attach(fBackendType);
+                    fWindow->attach(backend_type_for_window(fBackendType));
                 }
                 break;
             }
@@ -1437,16 +1962,6 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                 break;
             }
         }
-    } else if (stateName.equals(kInstancedRenderingStateName)) {
-        DisplayParams params = fWindow->getRequestedDisplayParams();
-        bool value = !strcmp(stateValue.c_str(), kON);
-        if (params.fGrContextOptions.fEnableInstancedRendering != value) {
-            params.fGrContextOptions.fEnableInstancedRendering = value;
-            fWindow->setRequestedDisplayParams(params);
-            fWindow->inval();
-            this->updateTitle();
-            this->updateUIState();
-        }
     } else if (stateName.equals(kSoftkeyStateName)) {
         if (!stateValue.equals(kSoftkeyHint)) {
             fCommands.onSoftkey(stateValue);
@@ -1469,7 +1984,7 @@ bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
     if (fSlides[fCurrentSlide]->onChar(c)) {
         fWindow->inval();
         return true;
+    } else {
+        return fCommands.onChar(c, modifiers);
     }
-
-    return fCommands.onChar(c, modifiers);
 }

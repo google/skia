@@ -14,7 +14,8 @@
 #include "SkGeometry.h"
 #include "SkMatrix.h"
 #include "SkPathOps.h"
-#include "SkPoint.h"
+#include "SkPointPriv.h"
+#include "SkRectPriv.h"
 
 /**
  * If a scanline (a row of texel) cross from the kRight_SegSide
@@ -275,7 +276,7 @@ void PathSegment::init() {
         t.fX = _P1mP0.x() * t.x();
         t.fY = _P1mP0.y() * t.y();
         const SkPoint m = fPts[0] + t;
-        fBoundingBox.growToInclude(&m, 1);
+        SkRectPriv::GrowToInclude(&fBoundingBox, m);
 
         const double p1x = fPts[1].x();
         const double p1y = fPts[1].y();
@@ -370,8 +371,8 @@ static inline void add_line_to_segment(const SkPoint pts[2],
 
 static inline void add_quad_segment(const SkPoint pts[3],
                                     PathSegmentArray* segments) {
-    if (pts[0].distanceToSqd(pts[1]) < kCloseSqd ||
-        pts[1].distanceToSqd(pts[2]) < kCloseSqd ||
+    if (SkPointPriv::DistanceToSqd(pts[0], pts[1]) < kCloseSqd ||
+        SkPointPriv::DistanceToSqd(pts[1], pts[2]) < kCloseSqd ||
         is_colinear(pts)) {
         if (pts[0] != pts[2]) {
             SkPoint line_pts[2];

@@ -8,27 +8,32 @@
 #include "Resources.h"
 #include "SkAnnotationKeys.h"
 #include "SkCanvas.h"
+#include "SkDashPathEffect.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
 #include "SkImage.h"
 #include "SkImageSource.h"
-#include "SkLightingShader.h"
 #include "SkMakeUnique.h"
 #include "SkMallocPixelRef.h"
-#include "SkNormalSource.h"
+#include "SkMatrixPriv.h"
 #include "SkOSFile.h"
+#include "SkReadBuffer.h"
 #include "SkPictureRecorder.h"
+#include "SkShaderBase.h"
 #include "SkTableColorFilter.h"
 #include "SkTemplates.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
-#include "SkValidatingReadBuffer.h"
 #include "SkXfermodeImageFilter.h"
 #include "sk_tool_utils.h"
 #include "Test.h"
 
 static const uint32_t kArraySize = 64;
 static const int kBitmapSize = 256;
+
+class SerializationTest {
+public:
 
 template<typename T>
 static void TestAlignment(T* testObj, skiatest::Reporter* reporter) {
@@ -39,13 +44,14 @@ static void TestAlignment(T* testObj, skiatest::Reporter* reporter) {
     size_t bytesReadFromMemory = testObj->readFromMemory(dataWritten, bytesWrittenToMemory);
     REPORTER_ASSERT(reporter, SkAlign4(bytesReadFromMemory) == bytesReadFromMemory);
 }
+};
 
 template<typename T> struct SerializationUtils {
     // Generic case for flattenables
     static void Write(SkWriteBuffer& writer, const T* flattenable) {
         writer.writeFlattenable(flattenable);
     }
-    static void Read(SkValidatingReadBuffer& reader, T** flattenable) {
+    static void Read(SkReadBuffer& reader, T** flattenable) {
         *flattenable = (T*)reader.readFlattenable(T::GetFlattenableType());
     }
 };
@@ -54,7 +60,7 @@ template<> struct SerializationUtils<SkMatrix> {
     static void Write(SkWriteBuffer& writer, const SkMatrix* matrix) {
         writer.writeMatrix(*matrix);
     }
-    static void Read(SkValidatingReadBuffer& reader, SkMatrix* matrix) {
+    static void Read(SkReadBuffer& reader, SkMatrix* matrix) {
         reader.readMatrix(matrix);
     }
 };
@@ -63,7 +69,7 @@ template<> struct SerializationUtils<SkPath> {
     static void Write(SkWriteBuffer& writer, const SkPath* path) {
         writer.writePath(*path);
     }
-    static void Read(SkValidatingReadBuffer& reader, SkPath* path) {
+    static void Read(SkReadBuffer& reader, SkPath* path) {
         reader.readPath(path);
     }
 };
@@ -72,7 +78,7 @@ template<> struct SerializationUtils<SkRegion> {
     static void Write(SkWriteBuffer& writer, const SkRegion* region) {
         writer.writeRegion(*region);
     }
-    static void Read(SkValidatingReadBuffer& reader, SkRegion* region) {
+    static void Read(SkReadBuffer& reader, SkRegion* region) {
         reader.readRegion(region);
     }
 };
@@ -81,7 +87,7 @@ template<> struct SerializationUtils<SkString> {
     static void Write(SkWriteBuffer& writer, const SkString* string) {
         writer.writeString(string->c_str());
     }
-    static void Read(SkValidatingReadBuffer& reader, SkString* string) {
+    static void Read(SkReadBuffer& reader, SkString* string) {
         reader.readString(string);
     }
 };
@@ -90,7 +96,7 @@ template<> struct SerializationUtils<unsigned char> {
     static void Write(SkWriteBuffer& writer, unsigned char* data, uint32_t arraySize) {
         writer.writeByteArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, unsigned char* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, unsigned char* data, uint32_t arraySize) {
         return reader.readByteArray(data, arraySize);
     }
 };
@@ -99,7 +105,7 @@ template<> struct SerializationUtils<SkColor> {
     static void Write(SkWriteBuffer& writer, SkColor* data, uint32_t arraySize) {
         writer.writeColorArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, SkColor* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, SkColor* data, uint32_t arraySize) {
         return reader.readColorArray(data, arraySize);
     }
 };
@@ -108,7 +114,7 @@ template<> struct SerializationUtils<SkColor4f> {
     static void Write(SkWriteBuffer& writer, SkColor4f* data, uint32_t arraySize) {
         writer.writeColor4fArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, SkColor4f* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, SkColor4f* data, uint32_t arraySize) {
         return reader.readColor4fArray(data, arraySize);
     }
 };
@@ -117,7 +123,7 @@ template<> struct SerializationUtils<int32_t> {
     static void Write(SkWriteBuffer& writer, int32_t* data, uint32_t arraySize) {
         writer.writeIntArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, int32_t* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, int32_t* data, uint32_t arraySize) {
         return reader.readIntArray(data, arraySize);
     }
 };
@@ -126,7 +132,7 @@ template<> struct SerializationUtils<SkPoint> {
     static void Write(SkWriteBuffer& writer, SkPoint* data, uint32_t arraySize) {
         writer.writePointArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, SkPoint* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, SkPoint* data, uint32_t arraySize) {
         return reader.readPointArray(data, arraySize);
     }
 };
@@ -135,7 +141,7 @@ template<> struct SerializationUtils<SkScalar> {
     static void Write(SkWriteBuffer& writer, SkScalar* data, uint32_t arraySize) {
         writer.writeScalarArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, SkScalar* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, SkScalar* data, uint32_t arraySize) {
         return reader.readScalarArray(data, arraySize);
     }
 };
@@ -163,13 +169,13 @@ static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* repor
     SerializationTestUtils<T, testInvalid>::InvalidateData(dataWritten);
 
     // Make sure this fails when it should (test with smaller size, but still multiple of 4)
-    SkValidatingReadBuffer buffer(dataWritten, bytesWritten - 4);
+    SkReadBuffer buffer(dataWritten, bytesWritten - 4);
     T obj;
     SerializationUtils<T>::Read(buffer, &obj);
     REPORTER_ASSERT(reporter, !buffer.isValid());
 
     // Make sure this succeeds when it should
-    SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
+    SkReadBuffer buffer2(dataWritten, bytesWritten);
     size_t offsetBefore = buffer2.offset();
     T obj2;
     SerializationUtils<T>::Read(buffer2, &obj2);
@@ -184,7 +190,7 @@ static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* repor
 template<typename T>
 static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
     TestObjectSerializationNoAlign<T, false>(testObj, reporter);
-    TestAlignment(testObj, reporter);
+    SerializationTest::TestAlignment(testObj, reporter);
 }
 
 template<typename T>
@@ -200,14 +206,14 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should (test with smaller size, but still multiple of 4)
-    SkValidatingReadBuffer buffer(dataWritten, bytesWritten - 4);
+    SkReadBuffer buffer(dataWritten, bytesWritten - 4);
     T* obj = nullptr;
     SerializationUtils<T>::Read(buffer, &obj);
     REPORTER_ASSERT(reporter, !buffer.isValid());
     REPORTER_ASSERT(reporter, nullptr == obj);
 
     // Make sure this succeeds when it should
-    SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
+    SkReadBuffer buffer2(dataWritten, bytesWritten);
     const unsigned char* peekBefore = static_cast<const unsigned char*>(buffer2.skip(0));
     T* obj2 = nullptr;
     SerializationUtils<T>::Read(buffer2, &obj2);
@@ -238,14 +244,14 @@ static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should
-    SkValidatingReadBuffer buffer(dataWritten, bytesWritten);
+    SkReadBuffer buffer(dataWritten, bytesWritten);
     T dataRead[kArraySize];
     bool success = SerializationUtils<T>::Read(buffer, dataRead, kArraySize / 2);
     // This should have failed, since the provided size was too small
     REPORTER_ASSERT(reporter, !success);
 
     // Make sure this succeeds when it should
-    SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
+    SkReadBuffer buffer2(dataWritten, bytesWritten);
     success = SerializationUtils<T>::Read(buffer2, dataRead, kArraySize);
     // This should have succeeded, since there are enough bytes to read this
     REPORTER_ASSERT(reporter, success);
@@ -279,19 +285,6 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
         paint.setImageFilter(deserializedFilter);
         canvas.clipRect(SkRect::MakeXYWH(0, 0, SkIntToScalar(24), SkIntToScalar(24)));
         canvas.drawBitmap(bitmap, 0, 0, &paint);
-    }
-}
-
-static void TestXfermodeSerialization(skiatest::Reporter* reporter) {
-    for (size_t i = 0; i <= SkXfermode::kLastMode; ++i) {
-        if (i == SkXfermode::kSrcOver_Mode) {
-            // skip SrcOver, as it is allowed to return nullptr from Create()
-            continue;
-        }
-        auto mode(SkXfermode::Make(static_cast<SkXfermode::Mode>(i)));
-        REPORTER_ASSERT(reporter, mode);
-        sk_sp<SkXfermode> copy(
-            TestFlattenableSerialization<SkXfermode>(mode.get(), true, reporter));
     }
 }
 
@@ -367,8 +360,8 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const cha
 static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
     {
         // Load typeface from file to test CreateFromFile with index.
-        SkString filename = GetResourcePath("/fonts/test.ttc");
-        sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFile(filename.c_str(), 1));
+        auto data = GetResourceAsData("fonts/test.ttc");
+        auto typeface = SkTypeface::MakeFromStream(new SkMemoryStream(std::move(data)), 1);
         if (!typeface) {
             INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
         } else {
@@ -378,7 +371,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
 
     {
         // Load typeface as stream to create with axis settings.
-        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
         if (!distortable) {
             INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
         } else {
@@ -460,11 +453,6 @@ DEF_TEST(Serialization, reporter) {
         TestObjectSerialization(&region, reporter);
     }
 
-    // Test xfermode serialization
-    {
-        TestXfermodeSerialization(reporter);
-    }
-
     // Test color filter serialization
     {
         TestColorFilterSerialization(reporter);
@@ -486,7 +474,7 @@ DEF_TEST(Serialization, reporter) {
         SkRect rect = SkRect::MakeXYWH(1, 2, 20, 30);
         SkVector corners[4] = { {1, 2}, {2, 3}, {3,4}, {4,5} };
         rrect.setRectRadii(rect, corners);
-        TestAlignment(&rrect, reporter);
+        SerializationTest::TestAlignment(&rrect, reporter);
     }
 
     // Test readByteArray
@@ -562,81 +550,13 @@ DEF_TEST(Serialization, reporter) {
         writer.writeToMemory(static_cast<void*>(data.get()));
 
         // Deserialize picture
-        SkValidatingReadBuffer reader(static_cast<void*>(data.get()), size);
+        SkReadBuffer reader(static_cast<void*>(data.get()), size);
         sk_sp<SkPicture> readPict(SkPicture::MakeFromBuffer(reader));
         REPORTER_ASSERT(reporter, reader.isValid());
         REPORTER_ASSERT(reporter, readPict.get());
     }
 
     TestPictureTypefaceSerialization(reporter);
-
-    // Test SkLightingShader/NormalMapSource serialization
-    {
-        const int kTexSize = 2;
-
-        SkLights::Builder builder;
-
-        builder.add(SkLights::Light::MakeDirectional(SkColor3f::Make(1.0f, 1.0f, 1.0f),
-                                                     SkVector3::Make(1.0f, 0.0f, 0.0f)));
-        builder.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
-
-        sk_sp<SkLights> fLights = builder.finish();
-
-        SkBitmap diffuse = sk_tool_utils::create_checkerboard_bitmap(
-                kTexSize, kTexSize,
-                sk_tool_utils::color_to_565(0x0),
-                sk_tool_utils::color_to_565(0xFF804020),
-                8);
-
-        SkRect bitmapBounds = SkRect::MakeIWH(diffuse.width(), diffuse.height());
-
-        SkMatrix matrix;
-        SkRect r = SkRect::MakeWH(SkIntToScalar(kTexSize), SkIntToScalar(kTexSize));
-        matrix.setRectToRect(bitmapBounds, r, SkMatrix::kFill_ScaleToFit);
-
-        SkMatrix ctm;
-        ctm.setRotate(45);
-        SkBitmap normals;
-        normals.allocN32Pixels(kTexSize, kTexSize);
-
-        sk_tool_utils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
-        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(normals, SkShader::kClamp_TileMode,
-                SkShader::kClamp_TileMode, &matrix);
-        sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
-                                                                               ctm);
-        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(diffuse,
-                SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix);
-
-        sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
-                                                                normalSource,
-                                                                fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
-
-        lightingShader = SkLightingShader::Make(std::move(diffuseShader),
-                                                nullptr,
-                                                fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
-
-        lightingShader = SkLightingShader::Make(nullptr,
-                                                std::move(normalSource),
-                                                fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
-
-        lightingShader = SkLightingShader::Make(nullptr,
-                                                nullptr,
-                                                fLights);
-        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
-    }
-
-    // Test NormalBevelSource serialization
-    {
-        sk_sp<SkNormalSource> bevelSource = SkNormalSource::MakeBevel(
-                SkNormalSource::BevelType::kLinear, 2.0f, 5.0f);
-
-        sk_sp<SkNormalSource>(TestFlattenableSerialization(bevelSource.get(), true, reporter));
-        // TODO test equality?
-
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -718,4 +638,75 @@ DEF_TEST(Annotations, reporter) {
 
     TestAnnotationCanvas canvas(reporter, recs, SK_ARRAY_COUNT(recs));
     canvas.drawPicture(pict1);
+}
+
+DEF_TEST(WriteBuffer_storage, reporter) {
+    enum {
+        kSize = 32
+    };
+    int32_t storage[kSize/4];
+    char src[kSize];
+    sk_bzero(src, kSize);
+
+    SkBinaryWriteBuffer writer(storage, kSize);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == 0);
+    writer.write(src, kSize - 4);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize - 4);
+    writer.writeInt(0);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize);
+
+    writer.reset(storage, kSize-4);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == 0);
+    writer.write(src, kSize - 4);
+    REPORTER_ASSERT(reporter, writer.usingInitialStorage());
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize - 4);
+    writer.writeInt(0);
+    REPORTER_ASSERT(reporter, !writer.usingInitialStorage());   // this is the change
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == kSize);
+}
+
+DEF_TEST(WriteBuffer_external_memory_textblob, reporter) {
+    SkPaint font;
+    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    font.setTypeface(SkTypeface::MakeDefault());
+
+    SkTextBlobBuilder builder;
+    int glyph_count = 5;
+    const auto& run = builder.allocRun(font, glyph_count, 1.2f, 2.3f);
+    // allocRun() allocates only the glyph buffer.
+    std::fill(run.glyphs, run.glyphs + glyph_count, 0);
+    auto blob = builder.make();
+    SkSerialProcs procs;
+    SkAutoTMalloc<uint8_t> storage;
+    size_t blob_size = 0u;
+    size_t storage_size = 0u;
+
+    blob_size = SkAlign4(blob->serialize(procs)->size());
+    REPORTER_ASSERT(reporter, blob_size > 4u);
+    storage_size = blob_size - 4;
+    storage.realloc(storage_size);
+    REPORTER_ASSERT(reporter, blob->serialize(procs, storage.get(), storage_size) == 0u);
+    storage_size = blob_size;
+    storage.realloc(storage_size);
+    REPORTER_ASSERT(reporter, blob->serialize(procs, storage.get(), storage_size) != 0u);
+}
+
+DEF_TEST(WriteBuffer_external_memory_flattenable, reporter) {
+    SkScalar intervals[] = {1.f, 1.f};
+    auto path_effect = SkDashPathEffect::Make(intervals, 2, 0);
+    size_t path_size = SkAlign4(path_effect->serialize()->size());
+    REPORTER_ASSERT(reporter, path_size > 4u);
+    SkAutoTMalloc<uint8_t> storage;
+
+    size_t storage_size = path_size - 4;
+    storage.realloc(storage_size);
+    REPORTER_ASSERT(reporter, path_effect->serialize(storage.get(), storage_size) == 0u);
+
+    storage_size = path_size;
+    storage.realloc(storage_size);
+    REPORTER_ASSERT(reporter, path_effect->serialize(storage.get(), storage_size) != 0u);
 }

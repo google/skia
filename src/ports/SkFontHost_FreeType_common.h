@@ -23,6 +23,17 @@ typedef struct FT_FaceRec_* FT_Face;
 typedef struct FT_StreamRec_* FT_Stream;
 typedef signed long FT_Pos;
 
+
+#ifdef SK_DEBUG
+const char* SkTraceFtrGetError(int);
+#define SK_TRACEFTR(ERR, MSG, ...) \
+    SkDebugf("%s:%lu:1: error: 0x%x '%s' " MSG "\n", __FILE__, __LINE__, ERR, \
+            SkTraceFtrGetError((int)(ERR)), __VA_ARGS__)
+#else
+#define SK_TRACEFTR(ERR, ...) do { sk_ignore_unused_variable(ERR); } while (false)
+#endif
+
+
 class SkScalerContext_FreeType_Base : public SkScalerContext {
 protected:
     // See http://freetype.sourceforge.net/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
@@ -35,7 +46,7 @@ protected:
     {}
 
     void generateGlyphImage(FT_Face face, const SkGlyph& glyph, const SkMatrix& bitmapTransform);
-    void generateGlyphPath(FT_Face face, SkPath* path);
+    bool generateGlyphPath(FT_Face face, SkPath* path);
 private:
     typedef SkScalerContext INHERITED;
 };
@@ -80,7 +91,9 @@ protected:
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
+    void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
+    void getPostScriptGlyphNames(SkString* dstArray) const override;
     int onGetUPEM() const override;
     bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                      int32_t adjustments[]) const override;

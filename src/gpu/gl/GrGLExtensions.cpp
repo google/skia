@@ -9,6 +9,7 @@
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLUtil.h"
 
+#include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
@@ -32,13 +33,15 @@ static int find_string(const SkTArray<SkString>& strings, const char ext[]) {
     return idx;
 }
 
-GrGLExtensions::GrGLExtensions(const GrGLExtensions& that) : fStrings(new SkTArray<SkString>) {
+GrGLExtensions::GrGLExtensions(const GrGLExtensions& that) {
     *this = that;
 }
 
 GrGLExtensions& GrGLExtensions::operator=(const GrGLExtensions& that) {
-    *fStrings = *that.fStrings;
-    fInitialized = that.fInitialized;
+    if (this != &that) {
+        fStrings = that.fStrings;
+        fInitialized = that.fInitialized;
+    }
     return *this;
 }
 
@@ -63,13 +66,13 @@ static void eat_space_sep_strings(SkTArray<SkString>* out, const char in[]) {
 }
 
 bool GrGLExtensions::init(GrGLStandard standard,
-                          GrGLFunction<GrGLGetStringProc> getString,
-                          GrGLFunction<GrGLGetStringiProc> getStringi,
-                          GrGLFunction<GrGLGetIntegervProc> getIntegerv,
-                          GrGLFunction<GrEGLQueryStringProc> queryString,
+                          GrGLFunction<GrGLGetStringFn> getString,
+                          GrGLFunction<GrGLGetStringiFn> getStringi,
+                          GrGLFunction<GrGLGetIntegervFn> getIntegerv,
+                          GrGLFunction<GrEGLQueryStringFn> queryString,
                           GrEGLDisplay eglDisplay) {
     fInitialized = false;
-    fStrings->reset();
+    fStrings.reset();
 
     if (!getString) {
         return false;
@@ -90,26 +93,26 @@ bool GrGLExtensions::init(GrGLStandard standard,
         }
         GrGLint extensionCnt = 0;
         getIntegerv(GR_GL_NUM_EXTENSIONS, &extensionCnt);
-        fStrings->push_back_n(extensionCnt);
+        fStrings.push_back_n(extensionCnt);
         for (int i = 0; i < extensionCnt; ++i) {
             const char* ext = (const char*) getStringi(GR_GL_EXTENSIONS, i);
-            (*fStrings)[i] = ext;
+            fStrings[i] = ext;
         }
     } else {
         const char* extensions = (const char*) getString(GR_GL_EXTENSIONS);
         if (!extensions) {
             return false;
         }
-        eat_space_sep_strings(fStrings.get(), extensions);
+        eat_space_sep_strings(&fStrings, extensions);
     }
     if (queryString) {
         const char* extensions = queryString(eglDisplay, GR_EGL_EXTENSIONS);
 
-        eat_space_sep_strings(fStrings.get(), extensions);
+        eat_space_sep_strings(&fStrings, extensions);
     }
-    if (!fStrings->empty()) {
+    if (!fStrings.empty()) {
         SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
-        SkTQSort(&fStrings->front(), &fStrings->back(), cmp);
+        SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
     }
     fInitialized = true;
     return true;
@@ -117,41 +120,41 @@ bool GrGLExtensions::init(GrGLStandard standard,
 
 bool GrGLExtensions::has(const char ext[]) const {
     SkASSERT(fInitialized);
-    return find_string(*fStrings, ext) >= 0;
+    return find_string(fStrings, ext) >= 0;
 }
 
 bool GrGLExtensions::remove(const char ext[]) {
     SkASSERT(fInitialized);
-    int idx = find_string(*fStrings, ext);
+    int idx = find_string(fStrings, ext);
     if (idx < 0) {
         return false;
     }
 
     // This is not terribly effecient but we really only expect this function to be called at
     // most a handful of times when our test programs start.
-    fStrings->removeShuffle(idx);
-    SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
-    SkTInsertionSort(&(fStrings->operator[](idx)), &fStrings->back(), cmp);
+    fStrings.removeShuffle(idx);
+    if (idx != fStrings.count()) {
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+        SkTInsertionSort(&(fStrings.operator[](idx)), &fStrings.back(), cmp);
+    }
     return true;
 }
 
 void GrGLExtensions::add(const char ext[]) {
-    int idx = find_string(*fStrings, ext);
+    int idx = find_string(fStrings, ext);
     if (idx < 0) {
         // This is not the most effecient approach since we end up looking at all of the
         // extensions after the add
-        fStrings->emplace_back(ext);
+        fStrings.emplace_back(ext);
         SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
-        SkTInsertionSort(&fStrings->front(), &fStrings->back(), cmp);
+        SkTInsertionSort(&fStrings.front(), &fStrings.back(), cmp);
     }
 }
 
-void GrGLExtensions::print(const char* sep) const {
-    if (nullptr == sep) {
-        sep = " ";
+void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
+    writer->beginArray();
+    for (int i = 0; i < fStrings.count(); ++i) {
+        writer->appendString(fStrings[i].c_str());
     }
-    int cnt = fStrings->count();
-    for (int i = 0; i < cnt; ++i) {
-        SkDebugf("%s%s", (*fStrings)[i].c_str(), (i < cnt - 1) ? sep : "");
-    }
+    writer->endArray();
 }

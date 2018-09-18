@@ -7,6 +7,7 @@
 
 #include "SampleCode.h"
 #include "SkView.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
@@ -395,7 +396,6 @@ protected:
     bool onClick(Click* click) override {
         fRect.offset(click->fICurr.fX - click->fIPrev.fX,
                      click->fICurr.fY - click->fIPrev.fY);
-        this->inval(nullptr);
         return true;
     }
 

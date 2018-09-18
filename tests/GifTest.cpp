@@ -195,7 +195,7 @@ DEF_TEST(Gif, reporter) {
     // Likewise, incremental decoding should succeed here.
     {
         sk_sp<SkData> data = SkData::MakeWithoutCopy(gGIFDataNoColormap, 31);
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+        std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
         REPORTER_ASSERT(reporter, codec);
         if (codec) {
             auto info = codec->getInfo().makeColorType(kN32_SkColorType);
@@ -225,38 +225,23 @@ DEF_TEST(Gif, reporter) {
 // Regression test for decoding a gif image with sampleSize of 4, which was
 // previously crashing.
 DEF_TEST(Gif_Sampled, r) {
-    std::unique_ptr<SkFILEStream> stream(
-            new SkFILEStream(GetResourcePath("test640x479.gif").c_str()));
-    REPORTER_ASSERT(r, stream->isValid());
-    if (!stream->isValid()) {
+    auto data = GetResourceAsData("images/test640x479.gif");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
         return;
     }
-
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(std::move(data)));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromStream(std::move(stream)));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
     }
 
-    // Construct a color table for the decode if necessary
-    sk_sp<SkColorTable> colorTable(nullptr);
-    SkPMColor* colorPtr = nullptr;
-    int* colorCountPtr = nullptr;
-    int maxColors = 256;
-    if (kIndex_8_SkColorType == codec->getInfo().colorType()) {
-        SkPMColor colors[256];
-        colorTable.reset(new SkColorTable(colors, maxColors));
-        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
-        colorCountPtr = &maxColors;
-    }
-
     SkAndroidCodec::AndroidOptions options;
     options.fSampleSize = 4;
-    options.fColorPtr = colorPtr;
-    options.fColorCount = colorCountPtr;
 
     SkBitmap bm;
-    bm.allocPixels(codec->getInfo(), colorTable);
+    bm.allocPixels(codec->getInfo());
     const SkCodec::Result result = codec->getAndroidPixels(codec->getInfo(), bm.getPixels(),
             bm.rowBytes(), &options);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
@@ -265,49 +250,34 @@ DEF_TEST(Gif_Sampled, r) {
 // If a GIF file is truncated before the header for the first image is defined,
 // we should not create an SkCodec.
 DEF_TEST(Codec_GifTruncated, r) {
-    SkString path = GetResourcePath("test640x479.gif");
-    sk_sp<SkData> data(SkData::MakeFromFileName(path.c_str()));
+    sk_sp<SkData> data(GetResourceAsData("images/test640x479.gif"));
+    if (!data) {
+        return;
+    }
 
     // This is right before the header for the first image.
     data = SkData::MakeSubset(data.get(), 0, 446);
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
     REPORTER_ASSERT(r, !codec);
 }
 
-// There was a bug where SkAndroidCodec::computeOutputColorType returned kIndex_8 for
-// GIFs that did not support kIndex_8. Verify that for such an image, the method computes
-// something that it can actually decode to.
-DEF_TEST(Codec_GifIndex8, r) {
-    std::unique_ptr<SkStream> stream(GetResourceAsStream("randPixelsOffset.gif"));
-    if (!stream) {
+DEF_TEST(Codec_GifTruncated2, r) {
+    sk_sp<SkData> data(GetResourceAsData("images/box.gif"));
+    if (!data) {
         return;
     }
 
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
-    REPORTER_ASSERT(r, codec);
+    // This is after the header, but before the color table.
+    data = SkData::MakeSubset(data.get(), 0, 23);
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
     if (!codec) {
+        ERRORF(r, "Failed to create codec with partial data");
         return;
     }
 
-    REPORTER_ASSERT(r, codec->getInfo().colorType() == kN32_SkColorType);
-    const SkColorType outputColorType = codec->computeOutputColorType(kN32_SkColorType);
-    REPORTER_ASSERT(r, outputColorType == kN32_SkColorType);
-
-    SkAndroidCodec::AndroidOptions options;
-    sk_sp<SkColorTable> colorTable(nullptr);
-    int maxColors = 256;
-    if (kIndex_8_SkColorType == outputColorType) {
-        SkPMColor colors[256];
-        colorTable.reset(new SkColorTable(colors, maxColors));
-        options.fColorPtr = const_cast<SkPMColor*>(colorTable->readColors());
-        options.fColorCount = &maxColors;
-    }
-
-    auto info = codec->getInfo().makeColorType(outputColorType);
-    SkBitmap bm;
-    bm.setInfo(info);
-    bm.allocPixels(colorTable.get());
-
-    REPORTER_ASSERT(r, SkCodec::kSuccess == codec->getAndroidPixels(info, bm.getPixels(),
-            bm.rowBytes(), &options));
+    // Although we correctly created a codec, no frame is
+    // complete enough that it has its metadata. Returning 0
+    // ensures that Chromium will not try to create a frame
+    // too early.
+    REPORTER_ASSERT(r, codec->getFrameCount() == 0);
 }

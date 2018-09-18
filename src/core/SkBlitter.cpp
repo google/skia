@@ -13,14 +13,14 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMask.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
+#include "SkPaintPriv.h"
+#include "SkRegionPriv.h"
+#include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkXfermodeInterpretation.h"
-
-// define this for testing srgb blits
-//#define SK_FORCE_PM4f_FOR_L32_BLITS
 
 SkBlitter::~SkBlitter() {}
 
@@ -41,6 +41,182 @@ void SkBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
     SkDEBUGFAIL("unimplemented");
 }
  */
+
+inline static SkAlpha ScalarToAlpha(SkScalar a) {
+    SkAlpha alpha = (SkAlpha)(a * 255);
+    return alpha > 247 ? 0xFF : alpha < 8 ? 0 : alpha;
+}
+
+void SkBlitter::blitFatAntiRect(const SkRect& rect) {
+    SkIRect bounds = rect.roundOut();
+    SkASSERT(bounds.width() >= 3);
+
+    // skbug.com/7813
+    // To ensure consistency of the threaded backend (a rect that's considered fat in the init-once
+    // phase must also be considered fat in the draw phase), we have to deal with rects with small
+    // heights because the horizontal tiling in the threaded backend may change the height.
+    //
+    // This also implies that we cannot do vertical tiling unless we can blit any rect (not just the
+    // fat one.)
+    if (bounds.height() == 0) {
+        return;
+    }
+
+    int         runSize = bounds.width() + 1; // +1 so we can set runs[bounds.width()] = 0
+    void*       storage = this->allocBlitMemory(runSize * (sizeof(int16_t) + sizeof(SkAlpha)));
+    int16_t*    runs    = reinterpret_cast<int16_t*>(storage);
+    SkAlpha*    alphas  = reinterpret_cast<SkAlpha*>(runs + runSize);
+
+    runs[0] = 1;
+    runs[1] = bounds.width() - 2;
+    runs[bounds.width() - 1] = 1;
+    runs[bounds.width()]  = 0;
+
+    SkScalar partialL = bounds.fLeft + 1 - rect.fLeft;
+    SkScalar partialR = rect.fRight - (bounds.fRight - 1);
+    SkScalar partialT = bounds.fTop + 1 - rect.fTop;
+    SkScalar partialB = rect.fBottom - (bounds.fBottom - 1);
+
+    if (bounds.height() == 1) {
+        partialT = rect.fBottom - rect.fTop;
+    }
+
+    alphas[0] = ScalarToAlpha(partialL * partialT);
+    alphas[1] = ScalarToAlpha(partialT);
+    alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialT);
+    this->blitAntiH(bounds.fLeft, bounds.fTop, alphas, runs);
+
+    if (bounds.height() > 2) {
+        this->blitAntiRect(bounds.fLeft, bounds.fTop + 1, bounds.width() - 2, bounds.height() - 2,
+                           ScalarToAlpha(partialL), ScalarToAlpha(partialR));
+    }
+
+    if (bounds.height() > 1) {
+        alphas[0] = ScalarToAlpha(partialL * partialB);
+        alphas[1] = ScalarToAlpha(partialB);
+        alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialB);
+        this->blitAntiH(bounds.fLeft, bounds.fBottom - 1, alphas, runs);
+    }
+}
+
+void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
+                                   bool isEvenOdd, bool isInverse, bool isConvex) {
+    int         runSize = clip.width() + 1; // +1 so we can set runs[clip.width()] = 0
+    void*       storage = this->allocBlitMemory(runSize * (sizeof(int16_t) + sizeof(SkAlpha)));
+    int16_t*    runs    = reinterpret_cast<int16_t*>(storage);
+    SkAlpha*    alphas  = reinterpret_cast<SkAlpha*>(runs + runSize);
+    runs[clip.width()]  = 0; // we must set the last run to 0 so blitAntiH can stop there
+
+    bool canUseMask = !deltas->forceRLE() &&
+                      SkCoverageDeltaMask::CanHandle(SkIRect::MakeLTRB(0, 0, clip.width(), 1));
+    const SkAntiRect& antiRect = deltas->getAntiRect();
+
+    // Only access rows within our clip. Otherwise, we'll have data race in the threaded backend.
+    int top = SkTMax(deltas->top(), clip.fTop);
+    int bottom = SkTMin(deltas->bottom(), clip.fBottom);
+    for(int y = top; y < bottom; ++y) {
+        // If antiRect is non-empty and we're in it, blit it and skip to the bottom
+        if (y >= antiRect.fY && y < antiRect.fY + antiRect.fHeight) {
+            // Clip the antiRect because of possible tilings (e.g., the threaded backend)
+            int leftOverClip = clip.fLeft - antiRect.fX;
+            int rightOverClip = antiRect.fX + antiRect.fWidth - clip.fRight;
+            int topOverClip = clip.fTop - antiRect.fY;
+            int botOverClip = antiRect.fY + antiRect.fHeight - clip.fBottom;
+
+            int rectX = antiRect.fX;
+            int rectY = antiRect.fY;
+            int width = antiRect.fWidth;
+            int height = antiRect.fHeight;
+            SkAlpha leftAlpha = antiRect.fLeftAlpha;
+            SkAlpha rightAlpha = antiRect.fRightAlpha;
+
+            if (leftOverClip > 0) {
+                rectX = clip.fLeft;
+                width -= leftOverClip;
+                leftAlpha = 0xFF;
+            }
+            if (rightOverClip > 0) {
+                width -= rightOverClip;
+                rightAlpha = 0xFF;
+            }
+            if (topOverClip > 0) {
+                rectY = clip.fTop;
+                height -= topOverClip;
+            }
+            if (botOverClip > 0) {
+                height -= botOverClip;
+            }
+
+            if (width >= 0) {
+                this->blitAntiRect(rectX, rectY, width, height, leftAlpha, rightAlpha);
+            }
+            y += antiRect.fHeight - 1; // -1 because ++y in the for loop
+            continue;
+        }
+
+        // If there are too many deltas, sorting will be slow. Using a mask is much faster.
+        // This is such an important optimization that will bring ~2x speedup for benches like
+        // path_fill_small_long_line and path_stroke_small_sawtooth.
+        if (canUseMask && !deltas->sorted(y) && deltas->count(y) << 3 >= clip.width()) {
+#ifdef SK_SUPPORT_LEGACY_THREADED_DAA_BUGS
+            SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
+#else
+            // Note that deltas->left()/right() may be different than clip.fLeft/fRight because in
+            // the threaded backend, deltas are generated in the initFn with full clip, while
+            // blitCoverageDeltas is called in drawFn with a subclip. For inverse fill, the clip
+            // might be wider than deltas' bounds (which is clippedIR).
+            SkIRect rowIR = SkIRect::MakeLTRB(SkTMin(clip.fLeft, deltas->left()), y,
+                                              SkTMax(clip.fRight, deltas->right()), y + 1);
+#endif
+            SkSTArenaAlloc<SkCoverageDeltaMask::MAX_SIZE> alloc;
+            SkCoverageDeltaMask mask(&alloc, rowIR);
+            for(int i = 0; i < deltas->count(y); ++i) {
+                const SkCoverageDelta& delta = deltas->getDelta(y, i);
+                mask.addDelta(delta.fX, y, delta.fDelta);
+            }
+            mask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
+            this->blitMask(mask.prepareSkMask(), rowIR);
+            continue;
+        }
+
+        // The normal flow of blitting deltas starts from here. First sort deltas.
+        deltas->sort(y);
+
+        int     i = 0;              // init delta index to 0
+        int     lastX = clip.fLeft; // init x to clip.fLeft
+        SkFixed coverage = 0;       // init coverage to 0
+
+        // skip deltas with x less than clip.fLeft; they may be:
+        //   1. precision errors
+        //   2. deltas generated during init-once phase (threaded backend) that has a wider
+        //      clip than the final tile clip.
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i) {
+#ifndef SK_SUPPORT_LEGACY_THREADED_DAA_BUGS
+            coverage += deltas->getDelta(y, i).fDelta;
+#endif
+        }
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
+            const SkCoverageDelta& delta = deltas->getDelta(y, i);
+            SkASSERT(delta.fX >= lastX);    // delta must be x sorted
+            if (delta.fX > lastX) {         // we have proceeded to a new x (different from lastX)
+                SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                         : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+                alphas[lastX - clip.fLeft]  = alpha;            // set alpha at lastX
+                runs[lastX - clip.fLeft]    = delta.fX - lastX; // set the run length
+                lastX                       = delta.fX;         // now set lastX to current x
+            }
+            coverage += delta.fDelta; // cumulate coverage with the current delta
+        }
+
+        // Set the alpha and run length from the right-most delta to the right clip boundary
+        SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                 : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+        alphas[lastX - clip.fLeft]  = alpha;
+        runs[lastX - clip.fLeft]    = clip.fRight - lastX;
+
+        this->blitAntiH(clip.fLeft, y, alphas, runs); // finally blit the current row
+    }
+}
 
 void SkBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
     if (alpha == 255) {
@@ -232,13 +408,9 @@ void SkBlitter::blitRectRegion(const SkIRect& rect, const SkRegion& clip) {
 }
 
 void SkBlitter::blitRegion(const SkRegion& clip) {
-    SkRegion::Iterator iter(clip);
-
-    while (!iter.done()) {
-        const SkIRect& cr = iter.rect();
-        this->blitRect(cr.fLeft, cr.fTop, cr.width(), cr.height());
-        iter.next();
-    }
+    SkRegionPriv::VisitSpans(clip, [this](const SkIRect& r) {
+        this->blitRect(r.left(), r.top(), r.width(), r.height());
+    });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -580,16 +752,16 @@ SkBlitter* SkBlitterClipper::apply(SkBlitter* blitter, const SkRegion* clip,
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkColorShader.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
-class Sk3DShader : public SkShader {
+class Sk3DShader : public SkShaderBase {
 public:
     Sk3DShader(sk_sp<SkShader> proxy) : fProxy(std::move(proxy)) {}
 
     Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
-        SkShader::Context* proxyContext = nullptr;
+        SkShaderBase::Context* proxyContext = nullptr;
         if (fProxy) {
-            proxyContext = fProxy->makeContext(rec, alloc);
+            proxyContext = as_SB(fProxy)->makeContext(rec, alloc);
             if (!proxyContext) {
                 return nullptr;
             }
@@ -597,11 +769,11 @@ public:
         return alloc->make<Sk3DShaderContext>(*this, rec, proxyContext);
     }
 
-    class Sk3DShaderContext : public SkShader::Context {
+    class Sk3DShaderContext : public Context {
     public:
         // Calls proxyContext's destructor but will NOT free its memory.
         Sk3DShaderContext(const Sk3DShader& shader, const ContextRec& rec,
-                          SkShader::Context* proxyContext)
+                          Context* proxyContext)
             : INHERITED(shader, rec)
             , fMask(nullptr)
             , fProxyContext(proxyContext)
@@ -611,11 +783,7 @@ public:
             }
         }
 
-        ~Sk3DShaderContext() override {
-            if (fProxyContext) {
-                fProxyContext->~Context();
-            }
-        }
+        ~Sk3DShaderContext() override = default;
 
         void set3DMask(const SkMask* mask) override { fMask = mask; }
 
@@ -685,28 +853,26 @@ public:
 
     private:
         // Unowned.
-        const SkMask*       fMask;
-        // Memory is unowned, but we need to call the destructor.
-        SkShader::Context*  fProxyContext;
-        SkPMColor           fPMColor;
+        const SkMask* fMask;
+        // Memory is unowned.
+        Context*      fProxyContext;
+        SkPMColor     fPMColor;
 
-        typedef SkShader::Context INHERITED;
+        typedef Context INHERITED;
     };
 
-#ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
         str->append("Sk3DShader: (");
 
         if (fProxy) {
             str->append("Proxy: ");
-            fProxy->toString(str);
+            as_SB(fProxy)->toString(str);
         }
 
         this->INHERITED::toString(str);
 
         str->append(")");
     }
-#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
 
@@ -718,7 +884,7 @@ protected:
 private:
     sk_sp<SkShader> fProxy;
 
-    typedef SkShader INHERITED;
+    typedef SkShaderBase INHERITED;
 };
 
 sk_sp<SkFlattenable> Sk3DShader::CreateProc(SkReadBuffer& buffer) {
@@ -727,7 +893,7 @@ sk_sp<SkFlattenable> Sk3DShader::CreateProc(SkReadBuffer& buffer) {
 
 class Sk3DBlitter : public SkBlitter {
 public:
-    Sk3DBlitter(SkBlitter* proxy, SkShader::Context* shaderContext)
+    Sk3DBlitter(SkBlitter* proxy, SkShaderBase::Context* shaderContext)
         : fProxy(proxy)
         , fShaderContext(shaderContext)
     {}
@@ -764,36 +930,55 @@ public:
 
 private:
     // Both pointers are unowned. They will be deleted by SkSmallAllocator.
-    SkBlitter*          fProxy;
-    SkShader::Context*  fShaderContext;
+    SkBlitter*              fProxy;
+    SkShaderBase::Context*  fShaderContext;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkCoreBlitters.h"
 
-SkShader::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageInfo& dstInfo) {
-#ifdef SK_FORCE_PM4f_FOR_L32_BLITS
-    return SkShader::ContextRec::kPM4f_DstType;
-#else
+SkShaderBase::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageInfo& dstInfo) {
     return (dstInfo.gammaCloseToSRGB() || dstInfo.colorType() == kRGBA_F16_SkColorType)
-            ? SkShader::ContextRec::kPM4f_DstType
-            : SkShader::ContextRec::kPMColor_DstType;
-#endif
+            ? SkShaderBase::ContextRec::kPM4f_DstType
+            : SkShaderBase::ContextRec::kPMColor_DstType;
 }
 
-bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& paint) {
-#if defined(SK_FORCE_RASTER_PIPELINE_BLITTER)
+// hack for testing, not to be exposed to clients
+bool gSkForceRasterPipelineBlitter;
+
+bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& paint,
+                                         const SkMatrix& matrix) {
+    if (gSkForceRasterPipelineBlitter) {
+        return true;
+    }
+    if (device.info().alphaType() == kUnpremul_SkAlphaType) {
+        return true;
+    }
+#if 0 || defined(SK_FORCE_RASTER_PIPELINE_BLITTER)
     return true;
 #else
     // By policy we choose not to handle legacy 8888 with SkRasterPipelineBlitter.
     if (device.colorSpace()) {
         return true;
     }
-
-    // ... unless the shader is raster pipeline-only.
-    if (paint.getShader() && paint.getShader()->isRasterPipelineOnly()) {
+    if (paint.getColorFilter()) {
         return true;
+    }
+    if (paint.getFilterQuality() == kHigh_SkFilterQuality) {
+        return true;
+    }
+    // ... unless the blend mode is complicated enough.
+    if (paint.getBlendMode() > SkBlendMode::kLastSeparableMode) {
+        return true;
+    }
+    if (matrix.hasPerspective()) {
+        return true;
+    }
+
+    // Added support only for shaders (and other constraints) for android
+    if (device.colorType() == kRGB_565_SkColorType) {
+        return false;
     }
 
     return device.colorType() != kN32_SkColorType;
@@ -814,27 +999,30 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         return alloc->make<SkNullBlitter>();
     }
 
-    SkShader* shader = origPaint.getShader();
+    auto* shader = as_SB(origPaint.getShader());
     SkColorFilter* cf = origPaint.getColorFilter();
     SkBlendMode mode = origPaint.getBlendMode();
     sk_sp<Sk3DShader> shader3D;
 
-    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
+    // We're going to tweak the original paint in two ways:
+    //  1) tweaks to `commonPaint` affect both raster pipeline and legacy pipeline
+    //  2) (later) tweaks to `legacyPaint` affect only legacy pipeline
+    SkTCopyOnFirstWrite<SkPaint> commonPaint(origPaint);
 
     if (origPaint.getMaskFilter() != nullptr &&
-            origPaint.getMaskFilter()->getFormat() == SkMask::k3D_Format) {
+            as_MFB(origPaint.getMaskFilter())->getFormat() == SkMask::k3D_Format) {
         shader3D = sk_make_sp<Sk3DShader>(sk_ref_sp(shader));
         // we know we haven't initialized lazyPaint yet, so just do it
-        paint.writable()->setShader(shader3D);
-        shader = shader3D.get();
+        commonPaint.writable()->setShader(shader3D);
+        shader = as_SB(shader3D.get());
     }
 
     if (mode != SkBlendMode::kSrcOver) {
         bool deviceIsOpaque = kRGB_565_SkColorType == device.colorType();
-        switch (SkInterpretXfermode(*paint, deviceIsOpaque)) {
+        switch (SkInterpretXfermode(*commonPaint, deviceIsOpaque)) {
             case kSrcOver_SkXfermodeInterpretation:
                 mode = SkBlendMode::kSrcOver;
-                paint.writable()->setBlendMode(mode);
+                commonPaint.writable()->setBlendMode(mode);
                 break;
             case kSkipDrawing_SkXfermodeInterpretation:{
                 return alloc->make<SkNullBlitter>();
@@ -850,7 +1038,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
      *  will fall into our optimizations for SRC mode.
      */
     if (mode == SkBlendMode::kClear) {
-        SkPaint* p = paint.writable();
+        SkPaint* p = commonPaint.writable();
         p->setShader(nullptr);
         shader = nullptr;
         p->setColorFilter(nullptr);
@@ -861,27 +1049,35 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     if (kAlpha_8_SkColorType == device.colorType() && drawCoverage) {
         SkASSERT(nullptr == shader);
-        SkASSERT(paint->isSrcOver());
-        return alloc->make<SkA8_Coverage_Blitter>(device, *paint);
+        SkASSERT(commonPaint->isSrcOver());
+        return alloc->make<SkA8_Coverage_Blitter>(device, *commonPaint);
     }
 
-    if (UseRasterPipelineBlitter(device, *paint)) {
-        auto blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc);
+    if (commonPaint->isDither() && !SkPaintPriv::ShouldDither(*commonPaint, device.colorType())) {
+        // Disable dithering when not needed.
+        commonPaint.writable()->setDither(false);
+    }
+
+    if (UseRasterPipelineBlitter(device, *commonPaint, matrix)) {
+        auto blitter = SkCreateRasterPipelineBlitter(device, *commonPaint, matrix, alloc);
         SkASSERT(blitter);
         return blitter;
     }
 
+    // Used for the legacy pipeline.
+    SkTCopyOnFirstWrite<SkPaint> legacyPaint(*commonPaint);
+
     if (nullptr == shader) {
         if (mode != SkBlendMode::kSrcOver) {
             // xfermodes (and filters) require shaders for our current blitters
-            paint.writable()->setShader(SkShader::MakeColorShader(paint->getColor()));
-            paint.writable()->setAlpha(0xFF);
-            shader = paint->getShader();
+            legacyPaint.writable()->setShader(SkShader::MakeColorShader(legacyPaint->getColor()));
+            legacyPaint.writable()->setAlpha(0xFF);
+            shader = as_SB(legacyPaint->getShader());
         } else if (cf) {
             // if no shader && no xfermode, we just apply the colorfilter to
             // our color and move on.
-            SkPaint* writablePaint = paint.writable();
-            writablePaint->setColor(cf->filterColor(paint->getColor()));
+            SkPaint* writablePaint = legacyPaint.writable();
+            writablePaint->setColor(cf->filterColor(legacyPaint->getColor()));
             writablePaint->setColorFilter(nullptr);
             cf = nullptr;
         }
@@ -889,8 +1085,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     if (cf) {
         SkASSERT(shader);
-        paint.writable()->setShader(shader->makeWithColorFilter(sk_ref_sp(cf)));
-        shader = paint->getShader();
+        legacyPaint.writable()->setShader(shader->makeWithColorFilter(sk_ref_sp(cf)));
+        shader = as_SB(legacyPaint->getShader());
         // blitters should ignore the presence/absence of a filter, since
         // if there is one, the shader will take care of it.
     }
@@ -898,61 +1094,48 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     /*
      *  We create a SkShader::Context object, and store it on the blitter.
      */
-    SkShader::Context* shaderContext = nullptr;
+    SkShaderBase::Context* shaderContext = nullptr;
     if (shader) {
-        const SkShader::ContextRec rec(*paint, matrix, nullptr,
+        const SkShaderBase::ContextRec rec(*legacyPaint, matrix, nullptr,
                                        PreferredShaderDest(device.info()),
                                        device.colorSpace());
         // Try to create the ShaderContext
         shaderContext = shader->makeContext(rec, alloc);
         if (!shaderContext) {
-            return alloc->make<SkNullBlitter>();
+            // Fall back to raster pipeline.
+            auto blitter = SkCreateRasterPipelineBlitter(device, *commonPaint, matrix, alloc);
+            SkASSERT(blitter);
+            return blitter;
         }
-        SkASSERT(shaderContext);
     }
 
     SkBlitter*  blitter = nullptr;
     switch (device.colorType()) {
-        case kAlpha_8_SkColorType:
-            SkASSERT(!drawCoverage);  // Handled above.
-            if (shader) {
-                blitter = alloc->make<SkA8_Shader_Blitter>(device, *paint, shaderContext);
-            } else {
-                blitter = alloc->make<SkA8_Blitter>(device, *paint);
-            }
-            break;
-
-        case kRGB_565_SkColorType:
-            blitter = SkBlitter_ChooseD565(device, *paint, shaderContext, alloc);
-            break;
-
         case kN32_SkColorType:
-#ifdef SK_FORCE_PM4f_FOR_L32_BLITS
-            if (true)
-#else
-            if (device.info().gammaCloseToSRGB())
-#endif
-            {
-                blitter = SkBlitter_ARGB32_Create(device, *paint, shaderContext, alloc);
+            // sRGB and general color spaces are handled via raster pipeline.
+            SkASSERT(!device.colorSpace());
+
+            if (shader) {
+                blitter = alloc->make<SkARGB32_Shader_Blitter>(device, *legacyPaint, shaderContext);
+            } else if (legacyPaint->getColor() == SK_ColorBLACK) {
+                blitter = alloc->make<SkARGB32_Black_Blitter>(device, *legacyPaint);
+            } else if (legacyPaint->getAlpha() == 0xFF) {
+                blitter = alloc->make<SkARGB32_Opaque_Blitter>(device, *legacyPaint);
             } else {
-                if (shader) {
-                        blitter = alloc->make<SkARGB32_Shader_Blitter>(
-                                device, *paint, shaderContext);
-                } else if (paint->getColor() == SK_ColorBLACK) {
-                    blitter = alloc->make<SkARGB32_Black_Blitter>(device, *paint);
-                } else if (paint->getAlpha() == 0xFF) {
-                    blitter = alloc->make<SkARGB32_Opaque_Blitter>(device, *paint);
-                } else {
-                    blitter = alloc->make<SkARGB32_Blitter>(device, *paint);
-                }
+                blitter = alloc->make<SkARGB32_Blitter>(device, *legacyPaint);
             }
             break;
-
-        case kRGBA_F16_SkColorType:
-            blitter = SkBlitter_F16_Create(device, *paint, shaderContext, alloc);
+        case kRGB_565_SkColorType:
+            if (shader && SkRGB565_Shader_Blitter::Supports(device, *legacyPaint)) {
+                blitter = alloc->make<SkRGB565_Shader_Blitter>(device, *legacyPaint, shaderContext);
+            } else {
+                blitter = SkCreateRasterPipelineBlitter(device, *commonPaint, matrix, alloc);
+            }
             break;
 
         default:
+            // should have been handled via raster pipeline.
+            SkASSERT(false);
             break;
     }
 
@@ -974,7 +1157,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkShaderBlitter::SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
-                                 SkShader::Context* shaderContext)
+                                 SkShaderBase::Context* shaderContext)
         : INHERITED(device)
         , fShader(paint.getShader())
         , fShaderContext(shaderContext) {
@@ -983,7 +1166,7 @@ SkShaderBlitter::SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
 
     fShader->ref();
     fShaderFlags = fShaderContext->getFlags();
-    fConstInY = SkToBool(fShaderFlags & SkShader::kConstInY32_Flag);
+    fConstInY = SkToBool(fShaderFlags & SkShaderBase::kConstInY32_Flag);
 }
 
 SkShaderBlitter::~SkShaderBlitter() {

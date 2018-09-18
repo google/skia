@@ -8,13 +8,33 @@
 #include "SkEmbossMaskFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
+#include "SkColorPriv.h"
 #include "SkEmbossMask.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
+static void normalize3(SkScalar dst[3], const SkScalar src[3]) {
+    SkScalar mag = SkScalarSquare(src[0]) + SkScalarSquare(src[1]) + SkScalarSquare(src[2]);
+    SkScalar scale = SkScalarInvert(SkScalarSqrt(mag));
+
+    for (int i = 0; i < 3; i++) {
+        dst[i] = src[i] * scale;
+    }
+}
+
 sk_sp<SkMaskFilter> SkEmbossMaskFilter::Make(SkScalar blurSigma, const Light& light) {
-    return sk_sp<SkMaskFilter>(new SkEmbossMaskFilter(blurSigma, light));
+    if (!SkScalarIsFinite(blurSigma) || blurSigma <= 0) {
+        return nullptr;
+    }
+
+    Light newLight = light;
+    normalize3(newLight.fDirection, light.fDirection);
+    if (!SkScalarsAreFinite(newLight.fDirection, 3)) {
+        return nullptr;
+    }
+
+    return sk_sp<SkMaskFilter>(new SkEmbossMaskFilter(blurSigma, newLight));
 }
 
 #ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
@@ -39,18 +59,11 @@ sk_sp<SkMaskFilter> SkBlurMaskFilter::MakeEmboss(SkScalar blurSigma, const SkSca
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void normalize(SkScalar v[3]) {
-    SkScalar mag = SkScalarSquare(v[0]) + SkScalarSquare(v[1]) + SkScalarSquare(v[2]);
-    mag = SkScalarSqrt(mag);
-
-    for (int i = 0; i < 3; i++) {
-        v[i] /= mag;
-    }
-}
-
 SkEmbossMaskFilter::SkEmbossMaskFilter(SkScalar blurSigma, const Light& light)
-    : fLight(light), fBlurSigma(blurSigma) {
-    normalize(fLight.fDirection);
+    : fLight(light), fBlurSigma(blurSigma)
+{
+    SkASSERT(fBlurSigma > 0);
+    SkASSERT(SkScalarsAreFinite(fLight.fDirection, 3));
 }
 
 SkMask::Format SkEmbossMaskFilter::getFormat() const {
@@ -59,9 +72,13 @@ SkMask::Format SkEmbossMaskFilter::getFormat() const {
 
 bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
                                     const SkMatrix& matrix, SkIPoint* margin) const {
+    if (src.fFormat != SkMask::kA8_Format) {
+        return false;
+    }
+
     SkScalar sigma = matrix.mapRadius(fBlurSigma);
 
-    if (!SkBlurMask::BoxBlur(dst, src, sigma, kInner_SkBlurStyle, kLow_SkBlurQuality)) {
+    if (!SkBlurMask::BoxBlur(dst, src, sigma, kInner_SkBlurStyle)) {
         return false;
     }
 
@@ -124,7 +141,6 @@ void SkEmbossMaskFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fBlurSigma);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkEmbossMaskFilter::toString(SkString* str) const {
     str->append("SkEmbossMaskFilter: (");
 
@@ -143,4 +159,3 @@ void SkEmbossMaskFilter::toString(SkString* str) const {
     str->appendScalar(fBlurSigma);
     str->append(")");
 }
-#endif

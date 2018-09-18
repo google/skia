@@ -24,8 +24,7 @@ const SkOpPtT* SkOpPtT::active() const {
             return ptT;
         }
     }
-    SkASSERT(0);  // should never return deleted
-    return this;
+    return nullptr; // should never return deleted; caller must abort
 }
 
 bool SkOpPtT::contains(const SkOpPtT* check) const {
@@ -269,12 +268,6 @@ tryNextRemainder:
     fSpanAdds += span->fSpanAdds;
 }
 
-SkOpSpanBase* SkOpSpanBase::active() {
-    SkOpSpanBase* result = fPrev ? fPrev->next() : upCast()->next()->prev();
-    SkASSERT(this == result || fDebugDeleted);
-    return result;
-}
-
 // please keep in sync with debugCheckForCollapsedCoincidence()
 void SkOpSpanBase::checkForCollapsedCoincidence() {
     SkOpCoincidence* coins = this->globalState()->coincidence();
@@ -327,7 +320,7 @@ void SkOpSpanBase::mergeMatches(SkOpSpanBase* opp) {
             }
             SkOpSpanBase* innerBase = inner->span();
             SkASSERT(innerBase->ptT() == inner);
-            // when the intersection is first detected, the span base is marked if there are 
+            // when the intersection is first detected, the span base is marked if there are
             // more than one point in the intersection.
             if (!zero_or_one(inner->fT)) {
                 innerBase->upCast()->release(test);

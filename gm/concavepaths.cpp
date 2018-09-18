@@ -159,6 +159,20 @@ void test_star(SkCanvas* canvas, const SkPaint& paint) {
     canvas->restore();
 }
 
+// Exercise a case where the intersection is below a bottom edge.
+void test_twist(SkCanvas* canvas, const SkPaint& paint) {
+    SkPath path;
+    canvas->save();
+    path.moveTo(                 0.5,                    6);
+    path.lineTo(5.8070392608642578125, 6.4612660408020019531);
+    path.lineTo(-2.9186885356903076172, 2.811046600341796875);
+    path.lineTo(0.49999994039535522461, -1.4124038219451904297);
+    canvas->translate(420, 220);
+    canvas->scale(10, 10);
+    canvas->drawPath(path, paint);
+    canvas->restore();
+}
+
 // Stairstep with repeated vert (intersection)
 void test_stairstep(SkCanvas* canvas, const SkPaint& paint) {
     SkPath path;
@@ -216,6 +230,24 @@ void test_partners(SkCanvas* canvas, const SkPaint& paint) {
     path.moveTo(70, 30);
     path.lineTo(70, 70);
     path.lineTo(55, 50);
+    canvas->drawPath(path, paint);
+    canvas->restore();
+}
+
+// A split edge causes one half to be merged to zero winding (destroyed).
+// Test that the other half of the split doesn't also get zero winding.
+void test_winding_merged_to_zero(SkCanvas* canvas, const SkPaint& paint) {
+    SkPath path;
+    canvas->save();
+    canvas->translate(400, 350);
+    path.moveTo(20, 80);
+    path.moveTo(70,  -0.000001f);
+    path.lineTo(70,   0.0);
+    path.lineTo(60, -30.0);
+    path.lineTo(40,  20.0);
+    path.moveTo(50,  50.0);
+    path.lineTo(50, -50.0);
+    path.lineTo(10,  50.0);
     canvas->drawPath(path, paint);
     canvas->restore();
 }
@@ -409,11 +441,13 @@ DEF_SIMPLE_GM(concavepaths, canvas, 500, 600) {
     test_fast_forward(canvas, paint);
     test_hole(canvas, paint);
     test_star(canvas, paint);
+    test_twist(canvas, paint);
     test_inversion_repeat_vertex(canvas, paint);
     test_stairstep(canvas, paint);
     test_stairstep2(canvas, paint);
     test_overlapping(canvas, paint);
     test_partners(canvas, paint);
+    test_winding_merged_to_zero(canvas, paint);
     test_monotone_1(canvas, paint);
     test_monotone_2(canvas, paint);
     test_monotone_3(canvas, paint);

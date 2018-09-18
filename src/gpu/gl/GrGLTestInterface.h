@@ -319,6 +319,7 @@ public:
     virtual GrGLvoid flushMappedNamedBufferRange(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length) {}
     virtual GrGLvoid textureBuffer(GrGLuint texture, GrGLenum target, GrGLenum internalformat, GrGLuint buffer) {}
     virtual GrGLsync fenceSync(GrGLenum condition, GrGLbitfield flags) { return nullptr;  }
+    virtual GrGLboolean isSync(GrGLsync) { return false;  }
     virtual GrGLenum clientWaitSync(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout) { return GR_GL_WAIT_FAILED;  }
     virtual GrGLvoid waitSync(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout) {}
     virtual GrGLvoid deleteSync(GrGLsync sync) {}
@@ -329,6 +330,10 @@ public:
     virtual GrGLvoid pushDebugGroup(GrGLenum source, GrGLuint id, GrGLsizei length,  const GrGLchar * message) {}
     virtual GrGLvoid popDebugGroup() {}
     virtual GrGLvoid objectLabel(GrGLenum identifier, GrGLuint name, GrGLsizei length, const GrGLchar *label) {}
+    virtual GrGLvoid getInternalformativ(GrGLenum target, GrGLenum internalformat, GrGLenum pname, GrGLsizei bufSize, GrGLint *params) {}
+    virtual GrGLvoid programBinary(GrGLuint program, GrGLenum binaryFormat, void *binary, GrGLsizei length) {}
+    virtual GrGLvoid getProgramBinary(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length, GrGLenum *binaryFormat, void *binary) {}
+    virtual GrGLvoid programParameteri(GrGLuint program, GrGLenum pname, GrGLint value) {}
 
 protected:
     // This must be called by leaf class

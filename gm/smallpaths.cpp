@@ -106,7 +106,7 @@ static SkScalar make_curve(SkPath* path) {
 }
 
 static SkScalar make_battery(SkPath* path) {
-    static SkScalar xOffset = 5.f;
+    static SkScalar xOffset = 5.0f;
 
     path->moveTo(24.67f + xOffset, 0.33000004f);
     path->lineTo(8.3299999f + xOffset, 0.33000004f);
@@ -132,7 +132,7 @@ static SkScalar make_battery(SkPath* path) {
 }
 
 static SkScalar make_battery2(SkPath* path) {
-    static SkScalar xOffset = 5.f;
+    static SkScalar xOffset = 225.625f;
 
     path->moveTo(32.669998f + xOffset, 9.8640003f);
     path->lineTo(0.33000004f + xOffset, 9.8640003f);
@@ -193,6 +193,19 @@ constexpr SkScalar gMiters[] = {
     4.0f,
 };
 
+constexpr SkScalar gXTranslate[] = {
+    0.0f,
+    0.0f,
+    0.0f,
+    0.0f,
+    0.0f,
+    0.0f,
+    0.0f,
+    0.0f,
+    -220.625f,
+    0.0f,
+};
+
 #define N   SK_ARRAY_COUNT(gProcs)
 
 // This GM tests out drawing small paths (i.e., for Ganesh, using the Distance
@@ -225,7 +238,7 @@ protected:
         canvas->save();
         for (size_t i = 0; i < N; i++) {
             canvas->drawPath(fPath[i], paint);
-            canvas->translate(SkIntToScalar(0), fDY[i]);
+            canvas->translate(gXTranslate[i], fDY[i]);
         }
         canvas->restore();
         canvas->translate(SkIntToScalar(120), SkIntToScalar(0));
@@ -238,7 +251,7 @@ protected:
             paint.setStrokeWidth(gWidths[i]);
             paint.setStrokeMiter(gMiters[i]);
             canvas->drawPath(fPath[i], paint);
-            canvas->translate(SkIntToScalar(0), fDY[i]);
+            canvas->translate(gXTranslate[i], fDY[i]);
         }
         canvas->restore();
         canvas->translate(SkIntToScalar(120), SkIntToScalar(0));
@@ -251,7 +264,7 @@ protected:
             paint.setStrokeWidth(gWidths[i] + 2.0f);
             paint.setStrokeMiter(gMiters[i]);
             canvas->drawPath(fPath[i], paint);
-            canvas->translate(SkIntToScalar(0), fDY[i]);
+            canvas->translate(gXTranslate[i], fDY[i]);
         }
         canvas->restore();
         canvas->translate(SkIntToScalar(120), SkIntToScalar(0));
@@ -263,7 +276,7 @@ protected:
             paint.setStrokeWidth(gWidths[i]);
             paint.setStrokeMiter(gMiters[i]);
             canvas->drawPath(fPath[i], paint);
-            canvas->translate(SkIntToScalar(0), fDY[i]);
+            canvas->translate(gXTranslate[i], fDY[i]);
         }
 
     }

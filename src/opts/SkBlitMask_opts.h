@@ -189,9 +189,9 @@ namespace SK_OPTS_NS {
     }
 #endif
 
-static void blit_mask_d32_a8(SkPMColor* dst, size_t dstRB,
-                             const SkAlpha* mask, size_t maskRB,
-                             SkColor color, int w, int h) {
+/*not static*/ inline void blit_mask_d32_a8(SkPMColor* dst, size_t dstRB,
+                                            const SkAlpha* mask, size_t maskRB,
+                                            SkColor color, int w, int h) {
     if (color == SK_ColorBLACK) {
         blit_mask_d32_a8_black(dst, dstRB, mask, maskRB, w, h);
     } else if (SkColorGetA(color) == 0xFF) {

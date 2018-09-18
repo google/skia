@@ -9,7 +9,7 @@
 #include "sk_tool_utils.h"
 
 #include "Resources.h"
-#include "SkBitmapScaler.h"
+#include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
 #include "SkStream.h"
@@ -114,9 +114,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override {
-        return { 824, 862 };
-    }
+    SkISize onISize() override { return { 150, 862 }; }
 
     static void DrawAndFrame(SkCanvas* canvas, const SkBitmap& orig, SkScalar x, SkScalar y) {
         SkBitmap bm;
@@ -169,25 +167,6 @@ protected:
             bm.installPixels(curr);
             return bm;
         });
-
-        const SkBitmapScaler::ResizeMethod methods[] = {
-            SkBitmapScaler::RESIZE_BOX,
-            SkBitmapScaler::RESIZE_TRIANGLE,
-            SkBitmapScaler::RESIZE_LANCZOS3,
-            SkBitmapScaler::RESIZE_HAMMING,
-            SkBitmapScaler::RESIZE_MITCHELL,
-        };
-
-        SkPixmap basePM;
-        orig.peekPixels(&basePM);
-        for (auto method : methods) {
-            canvas->translate(orig.width()/2 + 8.0f, 0);
-            drawLevels(canvas, orig, [method](const SkPixmap& prev, const SkPixmap& curr) {
-                SkBitmap bm;
-                SkBitmapScaler::Resize(&bm, prev, method, curr.width(), curr.height());
-                return bm;
-            });
-        }
     }
 
     void onOnceBeforeDraw() override {
@@ -201,7 +180,10 @@ protected:
         canvas->translate(4, 4);
         for (const auto& bm : fBM) {
             this->drawSet(canvas, bm);
-            canvas->translate(0, bm.height() * 0.85f);
+            // round so we always produce an integral translate, so the GOLD tool won't show
+            // unimportant diffs if this is drawn on a GPU with different rounding rules
+            // since we draw the bitmaps using nearest-neighbor
+            canvas->translate(0, SkScalarRoundToScalar(bm.height() * 0.85f));
         }
     }
 

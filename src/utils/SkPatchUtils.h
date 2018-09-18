@@ -8,7 +8,7 @@
 #ifndef SkPatchUtils_DEFINED
 #define SkPatchUtils_DEFINED
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkMatrix.h"
 #include "SkVertices.h"
 

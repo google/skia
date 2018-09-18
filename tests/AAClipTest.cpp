@@ -6,13 +6,24 @@
  */
 
 #include "SkAAClip.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColor.h"
+#include "SkImageInfo.h"
+#include "SkMalloc.h"
 #include "SkMask.h"
+#include "SkMatrix.h"
 #include "SkPath.h"
+#include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkRasterClip.h"
-#include "SkRRect.h"
+#include "SkRect.h"
+#include "SkRegion.h"
+#include "SkScalar.h"
+#include "SkTypes.h"
 #include "Test.h"
+
+#include <string.h>
 
 static bool operator==(const SkMask& a, const SkMask& b) {
     if (a.fFormat != b.fFormat || a.fBounds != b.fBounds) {
@@ -409,6 +420,15 @@ static void test_crbug_422693(skiatest::Reporter* reporter) {
     rc.op(path, SkMatrix::I(), rc.getBounds(), SkRegion::kIntersect_Op, true);
 }
 
+static void test_huge(skiatest::Reporter* reporter) {
+    SkAAClip clip;
+    int big = 0x70000000;
+    SkIRect r = { -big, -big, big, big };
+    SkASSERT(r.width() < 0 && r.height() < 0);
+
+    clip.setRect(r);
+}
+
 DEF_TEST(AAClip, reporter) {
     test_empty(reporter);
     test_path_bounds(reporter);
@@ -419,4 +439,5 @@ DEF_TEST(AAClip, reporter) {
     test_nearly_integral(reporter);
     test_really_a_rect(reporter);
     test_crbug_422693(reporter);
+    test_huge(reporter);
 }

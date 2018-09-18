@@ -6,152 +6,31 @@
  */
 
 #include "SkAutoMalloc.h"
-#include "SkColorSpace_Base.h"
-#include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformPriv.h"
 #include "SkEndian.h"
 #include "SkFixed.h"
 #include "SkICC.h"
 #include "SkICCPriv.h"
+#include "SkMD5.h"
+#include "SkUtils.h"
 
-SkICC::SkICC(sk_sp<SkColorSpace> colorSpace)
-    : fColorSpace(std::move(colorSpace))
-{}
+static constexpr char kDescriptionTagBodyPrefix[12] =
+        { 'G', 'o', 'o', 'g', 'l', 'e', '/', 'S', 'k', 'i', 'a' , '/'};
 
-sk_sp<SkICC> SkICC::Make(const void* ptr, size_t len) {
-    sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(ptr, len);
-    if (!colorSpace) {
-        return nullptr;
-    }
+static constexpr size_t kICCDescriptionTagSize = 44;
 
-    return sk_sp<SkICC>(new SkICC(std::move(colorSpace)));
-}
+static_assert(kICCDescriptionTagSize ==
+              sizeof(kDescriptionTagBodyPrefix) + 2 * sizeof(SkMD5::Digest), "");
+static constexpr size_t kDescriptionTagBodySize = kICCDescriptionTagSize * 2;  // ascii->utf16be
 
-bool SkICC::toXYZD50(SkMatrix44* toXYZD50) const {
-    const SkMatrix44* m = as_CSB(fColorSpace)->toXYZD50();
-    if (!m) {
-        return false;
-    }
-
-    *toXYZD50 = *m;
-    return true;
-}
-
-bool SkICC::isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
-    return as_CSB(fColorSpace)->onIsNumericalTransferFn(coeffs);
-}
-
-static const int kDefaultTableSize = 512; // Arbitrary
-
-void fn_to_table(float* tablePtr, const SkColorSpaceTransferFn& fn) {
-    // Y = (aX + b)^g + e  for X >= d
-    // Y = cX + f          otherwise
-    for (int i = 0; i < kDefaultTableSize; i++) {
-        float x = ((float) i) / ((float) (kDefaultTableSize - 1));
-        if (x >= fn.fD) {
-            tablePtr[i] = clamp_0_1(powf(fn.fA * x + fn.fB, fn.fG) + fn.fE);
-        } else {
-            tablePtr[i] = clamp_0_1(fn.fC * x + fn.fF);
-        }
-    }
-}
-
-void copy_to_table(float* tablePtr, const SkGammas* gammas, int index) {
-    SkASSERT(gammas->isTable(index));
-    const float* ptr = gammas->table(index);
-    const size_t bytes = gammas->tableSize(index) * sizeof(float);
-    memcpy(tablePtr, ptr, bytes);
-}
-
-bool SkICC::rawTransferFnData(Tables* tables) const {
-    if (SkColorSpace_Base::Type::kA2B == as_CSB(fColorSpace)->type()) {
-        return false;
-    }
-    SkColorSpace_XYZ* colorSpace = (SkColorSpace_XYZ*) fColorSpace.get();
-
-    SkColorSpaceTransferFn fn;
-    if (this->isNumericalTransferFn(&fn)) {
-        tables->fStorage = SkData::MakeUninitialized(kDefaultTableSize * sizeof(float));
-        fn_to_table((float*) tables->fStorage->writable_data(), fn);
-        tables->fRed.fOffset = tables->fGreen.fOffset = tables->fBlue.fOffset = 0;
-        tables->fRed.fCount = tables->fGreen.fCount = tables->fBlue.fCount = kDefaultTableSize;
-        return true;
-    }
-
-    const SkGammas* gammas = colorSpace->gammas();
-    SkASSERT(gammas);
-    if (gammas->data(0) == gammas->data(1) && gammas->data(0) == gammas->data(2)) {
-        SkASSERT(gammas->isTable(0));
-        tables->fStorage = SkData::MakeUninitialized(gammas->tableSize(0) * sizeof(float));
-        copy_to_table((float*) tables->fStorage->writable_data(), gammas, 0);
-        tables->fRed.fOffset = tables->fGreen.fOffset = tables->fBlue.fOffset = 0;
-        tables->fRed.fCount = tables->fGreen.fCount = tables->fBlue.fCount = gammas->tableSize(0);
-        return true;
-    }
-
-    // Determine the storage size.
-    size_t storageSize = 0;
-    for (int i = 0; i < 3; i++) {
-        if (gammas->isTable(i)) {
-            storageSize += gammas->tableSize(i) * sizeof(float);
-        } else {
-            storageSize += kDefaultTableSize * sizeof(float);
-        }
-    }
-
-    // Fill in the tables.
-    tables->fStorage = SkData::MakeUninitialized(storageSize);
-    float* ptr = (float*) tables->fStorage->writable_data();
-    size_t offset = 0;
-    Channel rgb[3];
-    for (int i = 0; i < 3; i++) {
-        if (gammas->isTable(i)) {
-            copy_to_table(ptr, gammas, i);
-            rgb[i].fOffset = offset;
-            rgb[i].fCount = gammas->tableSize(i);
-            offset += rgb[i].fCount * sizeof(float);
-            ptr += rgb[i].fCount;
-            continue;
-        }
-
-        if (gammas->isNamed(i)) {
-            SkAssertResult(named_to_parametric(&fn, gammas->data(i).fNamed));
-        } else if (gammas->isValue(i)) {
-            value_to_parametric(&fn, gammas->data(i).fValue);
-        } else {
-            SkASSERT(gammas->isParametric(i));
-            fn = gammas->params(i);
-        }
-
-        fn_to_table(ptr, fn);
-        rgb[i].fOffset = offset;
-        rgb[i].fCount = kDefaultTableSize;
-        offset += kDefaultTableSize * sizeof(float);
-        ptr += kDefaultTableSize;
-    }
-
-    tables->fRed = rgb[0];
-    tables->fGreen = rgb[1];
-    tables->fBlue = rgb[2];
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Google Skia (UTF-16)
-static constexpr uint8_t kDescriptionTagBody[] = {
-        0x00, 0x47, 0x00, 0x6f, 0x00, 0x6f, 0x00, 0x67, 0x00, 0x6c, 0x00, 0x65, 0x00, 0x20, 0x00,
-        0x53, 0x00, 0x6b, 0x00, 0x69, 0x00, 0x61, 0x00, 0x20,
-    };
-static_assert(SkIsAlign4(sizeof(kDescriptionTagBody)), "Description must be aligned to 4-bytes.");
+static_assert(SkIsAlign4(kDescriptionTagBodySize), "Description must be aligned to 4-bytes.");
 static constexpr uint32_t kDescriptionTagHeader[7] {
     SkEndian_SwapBE32(kTAG_TextType),                        // Type signature
     0,                                                       // Reserved
     SkEndian_SwapBE32(1),                                    // Number of records
     SkEndian_SwapBE32(12),                                   // Record size (must be 12)
     SkEndian_SwapBE32(SkSetFourByteTag('e', 'n', 'U', 'S')), // English USA
-    SkEndian_SwapBE32(sizeof(kDescriptionTagBody)),          // Length of string
+    SkEndian_SwapBE32(kDescriptionTagBodySize),              // Length of string
     SkEndian_SwapBE32(28),                                   // Offset of string
 };
 
@@ -165,9 +44,14 @@ static constexpr uint32_t kWhitePointTag[5] {
 
 // Google Inc. 2016 (UTF-16)
 static constexpr uint8_t kCopyrightTagBody[] = {
-        0x00, 0x47, 0x00, 0x6f, 0x00, 0x6f, 0x00, 0x67, 0x00, 0x6c, 0x00, 0x65, 0x00, 0x20, 0x00,
-        0x49, 0x00, 0x6e, 0x00, 0x63, 0x00, 0x2e, 0x00, 0x20, 0x00, 0x32, 0x00, 0x30, 0x00, 0x31,
-        0x00, 0x36,
+        0x00, 0x47, 0x00, 0x6f,
+        0x00, 0x6f, 0x00, 0x67,
+        0x00, 0x6c, 0x00, 0x65,
+        0x00, 0x20, 0x00, 0x49,
+        0x00, 0x6e, 0x00, 0x63,
+        0x00, 0x2e, 0x00, 0x20,
+        0x00, 0x32, 0x00, 0x30,
+        0x00, 0x31, 0x00, 0x36,
 };
 static_assert(SkIsAlign4(sizeof(kCopyrightTagBody)), "Copyright must be aligned to 4-bytes.");
 static constexpr uint32_t kCopyrightTagHeader[7] {
@@ -185,7 +69,7 @@ static constexpr uint32_t kICCNumEntries = 9;
 
 static constexpr uint32_t kTAG_desc = SkSetFourByteTag('d', 'e', 's', 'c');
 static constexpr uint32_t kTAG_desc_Bytes = sizeof(kDescriptionTagHeader) +
-                                            sizeof(kDescriptionTagBody);
+                                            kDescriptionTagBodySize;
 static constexpr uint32_t kTAG_desc_Offset = kICCHeaderSize +
                                              kICCNumEntries * kICCTagTableEntrySize;
 
@@ -280,35 +164,137 @@ static constexpr uint32_t kICCTagTable[3 * kICCNumEntries] {
     SkEndian_SwapBE32(kTAG_cprt_Bytes),
 };
 
-static void write_xyz_tag(uint32_t* ptr, const SkMatrix44& toXYZ, int col) {
+// This is like SkFloatToFixed, but rounds to nearest, preserving as much accuracy as possible
+// when going float -> fixed -> float (it has the same accuracy when going fixed -> float -> fixed).
+// The use of double is necessary to accomodate the full potential 32-bit mantissa of the 16.16
+// SkFixed value, and so avoiding rounding problems with float. Also, see the comment in SkFixed.h.
+static SkFixed float_round_to_fixed(float x) {
+    return sk_float_saturate2int((float)floor((double)x * SK_Fixed1 + 0.5));
+}
+
+static void write_xyz_tag(uint32_t* ptr, const float toXYZD50[9], int col) {
     ptr[0] = SkEndian_SwapBE32(kXYZ_PCSSpace);
     ptr[1] = 0;
-    ptr[2] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(0, col)));
-    ptr[3] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(1, col)));
-    ptr[4] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(2, col)));
+    ptr[2] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50[0*3 + col]));
+    ptr[3] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50[1*3 + col]));
+    ptr[4] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50[2*3 + col]));
 }
 
 static void write_trc_tag(uint32_t* ptr, const SkColorSpaceTransferFn& fn) {
     ptr[0] = SkEndian_SwapBE32(kTAG_ParaCurveType);
     ptr[1] = 0;
     ptr[2] = (uint32_t) (SkEndian_SwapBE16(kGABCDEF_ParaCurveType));
-    ptr[3] = SkEndian_SwapBE32(SkFloatToFixed(fn.fG));
-    ptr[4] = SkEndian_SwapBE32(SkFloatToFixed(fn.fA));
-    ptr[5] = SkEndian_SwapBE32(SkFloatToFixed(fn.fB));
-    ptr[6] = SkEndian_SwapBE32(SkFloatToFixed(fn.fC));
-    ptr[7] = SkEndian_SwapBE32(SkFloatToFixed(fn.fD));
-    ptr[8] = SkEndian_SwapBE32(SkFloatToFixed(fn.fE));
-    ptr[9] = SkEndian_SwapBE32(SkFloatToFixed(fn.fF));
+    ptr[3] = SkEndian_SwapBE32(float_round_to_fixed(fn.fG));
+    ptr[4] = SkEndian_SwapBE32(float_round_to_fixed(fn.fA));
+    ptr[5] = SkEndian_SwapBE32(float_round_to_fixed(fn.fB));
+    ptr[6] = SkEndian_SwapBE32(float_round_to_fixed(fn.fC));
+    ptr[7] = SkEndian_SwapBE32(float_round_to_fixed(fn.fD));
+    ptr[8] = SkEndian_SwapBE32(float_round_to_fixed(fn.fE));
+    ptr[9] = SkEndian_SwapBE32(float_round_to_fixed(fn.fF));
 }
 
-static bool is_3x3(const SkMatrix44& toXYZD50) {
-    return 0.0f == toXYZD50.get(3, 0) && 0.0f == toXYZD50.get(3, 1) && 0.0f == toXYZD50.get(3, 2) &&
-           0.0f == toXYZD50.get(0, 3) && 0.0f == toXYZD50.get(1, 3) && 0.0f == toXYZD50.get(2, 3) &&
-           1.0f == toXYZD50.get(3, 3);
+static bool nearly_equal(float x, float y) {
+    // A note on why I chose this tolerance:  transfer_fn_almost_equal() uses a
+    // tolerance of 0.001f, which doesn't seem to be enough to distinguish
+    // between similar transfer functions, for example: gamma2.2 and sRGB.
+    //
+    // If the tolerance is 0.0f, then this we can't distinguish between two
+    // different encodings of what is clearly the same colorspace.  Some
+    // experimentation with example files lead to this number:
+    static constexpr float kTolerance = 1.0f / (1 << 11);
+    return ::fabsf(x - y) <= kTolerance;
 }
 
-sk_sp<SkData> SkICC::WriteToICC(const SkColorSpaceTransferFn& fn, const SkMatrix44& toXYZD50) {
-    if (!is_3x3(toXYZD50) || !is_valid_transfer_fn(fn)) {
+static bool nearly_equal(const SkColorSpaceTransferFn& u,
+                         const SkColorSpaceTransferFn& v) {
+    return nearly_equal(u.fG, v.fG)
+        && nearly_equal(u.fA, v.fA)
+        && nearly_equal(u.fB, v.fB)
+        && nearly_equal(u.fC, v.fC)
+        && nearly_equal(u.fD, v.fD)
+        && nearly_equal(u.fE, v.fE)
+        && nearly_equal(u.fF, v.fF);
+}
+
+static bool nearly_equal(const float u[9], const float v[9]) {
+    for (int i = 0; i < 9; i++) {
+        if (!nearly_equal(u[i], v[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Return nullptr if the color profile doen't have a special name.
+const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
+                                          const float toXYZD50[9]) {
+    bool srgb_xfer = nearly_equal(fn, gSRGB_TransferFn);
+    bool srgb_gamut = nearly_equal(toXYZD50, gSRGB_toXYZD50);
+    if (srgb_xfer && srgb_gamut) {
+        return "sRGB";
+    }
+    bool line_xfer = nearly_equal(fn, gLinear_TransferFn);
+    if (line_xfer && srgb_gamut) {
+        return "Linear Transfer with sRGB Gamut";
+    }
+    bool twoDotTwo = nearly_equal(fn, g2Dot2_TransferFn);
+    if (twoDotTwo && srgb_gamut) {
+        return "2.2 Transfer with sRGB Gamut";
+    }
+    if (twoDotTwo && nearly_equal(toXYZD50, gAdobeRGB_toXYZD50)) {
+        return "AdobeRGB";
+    }
+    bool dcip3_gamut = nearly_equal(toXYZD50, gDCIP3_toXYZD50);
+    if (srgb_xfer || line_xfer) {
+        if (srgb_xfer && dcip3_gamut) {
+            return "sRGB Transfer with DCI-P3 Gamut";
+        }
+        if (line_xfer && dcip3_gamut) {
+            return "Linear Transfer with DCI-P3 Gamut";
+        }
+        bool rec2020 = nearly_equal(toXYZD50, gRec2020_toXYZD50);
+        if (srgb_xfer && rec2020) {
+            return "sRGB Transfer with Rec-BT-2020 Gamut";
+        }
+        if (line_xfer && rec2020) {
+            return "Linear Transfer with Rec-BT-2020 Gamut";
+        }
+    }
+    if (dcip3_gamut && nearly_equal(fn, gDCIP3_TransferFn)) {
+        return "DCI-P3";
+    }
+    return nullptr;
+}
+
+static void get_color_profile_tag(char dst[kICCDescriptionTagSize],
+                                 const SkColorSpaceTransferFn& fn,
+                                 const float toXYZD50[9]) {
+    SkASSERT(dst);
+    if (const char* description = get_color_profile_description(fn, toXYZD50)) {
+        SkASSERT(strlen(description) < kICCDescriptionTagSize);
+        strncpy(dst, description, kICCDescriptionTagSize);
+        // "If the length of src is less than n, strncpy() writes additional
+        // null bytes to dest to ensure that a total of n bytes are written."
+    } else {
+        strncpy(dst, kDescriptionTagBodyPrefix, sizeof(kDescriptionTagBodyPrefix));
+        SkMD5 md5;
+        md5.write(toXYZD50, 9*sizeof(float));
+        static_assert(sizeof(fn) == sizeof(float) * 7, "packed");
+        md5.write(&fn, sizeof(fn));
+        SkMD5::Digest digest;
+        md5.finish(digest);
+        char* ptr = dst + sizeof(kDescriptionTagBodyPrefix);
+        for (unsigned i = 0; i < sizeof(SkMD5::Digest); ++i) {
+            uint8_t byte = digest.data[i];
+            *ptr++ = SkHexadecimalDigits::gUpper[byte >> 4];
+            *ptr++ = SkHexadecimalDigits::gUpper[byte & 0xF];
+        }
+        SkASSERT(ptr == dst + kICCDescriptionTagSize);
+    }
+}
+
+sk_sp<SkData> SkWriteICCProfile(const SkColorSpaceTransferFn& fn, const float toXYZD50[9]) {
+    if (!is_valid_transfer_fn(fn)) {
         return nullptr;
     }
 
@@ -326,8 +312,16 @@ sk_sp<SkData> SkICC::WriteToICC(const SkColorSpaceTransferFn& fn, const SkMatrix
     // Write profile description tag
     memcpy(ptr, kDescriptionTagHeader, sizeof(kDescriptionTagHeader));
     ptr += sizeof(kDescriptionTagHeader);
-    memcpy(ptr, kDescriptionTagBody, sizeof(kDescriptionTagBody));
-    ptr += sizeof(kDescriptionTagBody);
+    {
+        char colorProfileTag[kICCDescriptionTagSize];
+        get_color_profile_tag(colorProfileTag, fn, toXYZD50);
+
+        // ASCII --> big-endian UTF-16.
+        for (size_t i = 0; i < kICCDescriptionTagSize; i++) {
+            *ptr++ = 0;
+            *ptr++ = colorProfileTag[i];
+        }
+    }
 
     // Write XYZ tags
     write_xyz_tag((uint32_t*) ptr, toXYZD50, 0);

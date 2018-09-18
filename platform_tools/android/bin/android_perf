@@ -38,7 +38,7 @@ perf_setup() {
     adb_pull_if_needed /system/lib/libm.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libz.so $TMP_SYS_LIB
 
-    # BUILDTYPE variable is set by android_setup.sh
+    # SKIA_OUT variable is set by android_setup.sh
     if [ ! -f "${SKIA_OUT}/${runVars[0]}" ];
     then
       echo "Unable to find the ${runVars[0]} executable"

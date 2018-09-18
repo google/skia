@@ -126,7 +126,6 @@ SK_C_API sk_imagefilter_t* sk_imagefilter_new_matrix_convolution(
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_merge(
     sk_imagefilter_t* filters[],
     int count,
-    const sk_blendmode_t modes[] /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/);
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_dilate(
     int radiusX, 
@@ -148,10 +147,6 @@ SK_C_API sk_imagefilter_t* sk_imagefilter_new_picture(
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_picture_with_croprect(
     sk_picture_t* picture,
     const sk_rect_t* cropRect);
-SK_C_API sk_imagefilter_t* sk_imagefilter_new_picture_for_localspace(
-    sk_picture_t* picture,
-    const sk_rect_t* cropRect,
-    sk_filter_quality_t filterQuality);
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_tile(
     const sk_rect_t* src,
     const sk_rect_t* dst,

@@ -37,13 +37,14 @@ struct SkCpu {
         AVX512VL   = 1 << 19,
 
         // Handy alias for all the cool Skylake Xeon+ instructions.
-        SKY = AVX512F  | AVX512DQ | AVX512CD | AVX512BW | AVX512VL,
+        SKX = AVX512F  | AVX512DQ | AVX512CD | AVX512BW | AVX512VL,
     };
     enum {
         NEON     = 1 << 0,
         NEON_FMA = 1 << 1,
         VFP_FP16 = 1 << 2,
         CRC32    = 1 << 3,
+        ASIMDHP  = 1 << 4,
     };
 
     static void CacheRuntimeFeatures();

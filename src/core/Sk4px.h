@@ -10,7 +10,7 @@
 
 #include "SkNx.h"
 #include "SkColor.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 // This file may be included multiple times by .cpp files with different flags, leading
 // to different definitions.  Usually that doesn't matter because it's all inlined, but

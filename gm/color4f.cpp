@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkColorSpace_Base.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 
@@ -36,14 +35,13 @@ static sk_sp<SkColorFilter> make_cf0() {
 static sk_sp<SkColorFilter> make_cf1() {
     SkColorMatrix cm;
     cm.setSaturation(0.75f);
-    auto a(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
+    auto a = SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat);
     // CreateComposedFilter will try to concat these two matrices, resulting in a single
     // filter (which is good for speed). For this test, we want to force a real compose of
     // these two, so our inner filter has a scale-up, which disables the optimization of
     // combining the two matrices.
     cm.setScale(1.1f, 0.9f, 1);
-    auto b(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
-    return SkColorFilter::MakeComposeFilter(a, b);
+    return a->makeComposed(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
 }
 
 static sk_sp<SkColorFilter> make_cf2() {
@@ -96,11 +94,7 @@ DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
     canvas->translate(10, 10);
 
     auto srgb = SkColorSpace::MakeSRGB();
-
-    SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
-    // red -> blue, green -> red, blue -> green (sRGB)
-    mat.set3x3(0, 0, 1, 1, 0, 0, 0, 1, 0);
-    mat.postConcat(*as_CSB(srgb)->toXYZD50());
+    auto spin = srgb->makeColorSpin(); // RGB -> GBR
 
     const SkColor4f colors[] {
         { 1, 0, 0, 1 },
@@ -116,8 +110,7 @@ DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
         sk_sp<SkShader> shaders[] {
             SkShader::MakeColorShader(c4, nullptr),
             SkShader::MakeColorShader(c4, srgb),
-            SkShader::MakeColorShader(c4,
-                    SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, mat)),
+            SkShader::MakeColorShader(c4, spin),
         };
 
         canvas->save();

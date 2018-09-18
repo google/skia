@@ -26,6 +26,8 @@ public:
     virtual bool waitFence(PlatformFence) const = 0;
     virtual void deleteFence(PlatformFence) const = 0;
 
+    virtual bool validate() const { return true; }
+
     virtual ~FenceSync() {}
 };
 

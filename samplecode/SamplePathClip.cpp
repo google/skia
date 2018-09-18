@@ -61,7 +61,6 @@ protected:
 
     bool onClick(Click* click) override {
         fCenter.set(click->fCurr.fX, click->fCurr.fY);
-        this->inval(nullptr);
         return false;
     }
 
@@ -307,7 +306,6 @@ protected:
 
     bool onClick(Click* click) override {
         ((MyClick*)click)->handleMove();
-        this->inval(nullptr);
         return false;
     }
 

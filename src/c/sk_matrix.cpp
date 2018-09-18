@@ -277,7 +277,7 @@ void sk_matrix44_to_matrix (sk_matrix44_t* matrix, sk_matrix_t* dst)
 
 sk_matrix44_type_mask_t sk_matrix44_get_type (sk_matrix44_t* matrix)
 {
-    return (sk_matrix44_type_mask_t) AsMatrix44(matrix)->getType ();
+    return (sk_matrix44_type_mask_t)AsMatrix44(matrix)->getType ();
 }
 
 void sk_matrix44_set_identity (sk_matrix44_t* matrix)

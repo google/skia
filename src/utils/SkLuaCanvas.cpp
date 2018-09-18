@@ -6,7 +6,9 @@
  */
 
 #include "SkLuaCanvas.h"
+
 #include "SkLua.h"
+#include "SkStringUtils.h"
 
 extern "C" {
     #include "lua.h"
@@ -51,11 +53,9 @@ void AutoCallLua::pushEncodedText(SkPaint::TextEncoding enc, const void* text,
         case SkPaint::kUTF8_TextEncoding:
             this->pushString((const char*)text, length, "text");
             break;
-        case SkPaint::kUTF16_TextEncoding: {
-            SkString str;
-            str.setUTF16((const uint16_t*)text, length);
-            this->pushString(str, "text");
-        } break;
+        case SkPaint::kUTF16_TextEncoding:
+            this->pushString(SkStringFromUTF16((const uint16_t*)text, length), "text");
+            break;
         case SkPaint::kGlyphID_TextEncoding:
             this->pushArrayU16((const uint16_t*)text, SkToInt(length >> 1),
                                "glyphs");
@@ -305,6 +305,12 @@ void SkLuaCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix
     AUTO_LUA("drawPicture");
     // call through so we can see the nested picture ops
     this->INHERITED::onDrawPicture(picture, matrix, paint);
+}
+
+void SkLuaCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    AUTO_LUA("drawDrawable");
+    // call through so we can see the nested ops
+    this->INHERITED::onDrawDrawable(drawable, matrix);
 }
 
 void SkLuaCanvas::onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint& paint) {

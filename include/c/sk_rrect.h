@@ -20,7 +20,6 @@ SK_C_API void sk_rrect_delete(const sk_rrect_t* rrect);
 SK_C_API sk_rrect_type_t sk_rrect_get_type(const sk_rrect_t* rrect);
 SK_C_API void sk_rrect_get_rect(const sk_rrect_t* rrect, sk_rect_t* rect);
 SK_C_API void sk_rrect_get_radii(const sk_rrect_t* rrect, sk_rrect_corner_t corner, sk_vector_t* radii);
-SK_C_API bool sk_rrect_all_corners_circular(const sk_rrect_t* rrect, float tolerance);
 SK_C_API float sk_rrect_get_width(const sk_rrect_t* rrect);
 SK_C_API float sk_rrect_get_height(const sk_rrect_t* rrect);
 SK_C_API void sk_rrect_set_empty(sk_rrect_t* rrect);

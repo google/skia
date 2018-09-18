@@ -8,6 +8,7 @@
 #include "GrVkBuffer.h"
 #include "GrVkGpu.h"
 #include "GrVkMemory.h"
+#include "GrVkTransferBuffer.h"
 #include "GrVkUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
@@ -87,7 +88,7 @@ void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu,
                                   bool byRegion) const {
     VkBufferMemoryBarrier bufferMemoryBarrier = {
         VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER, // sType
-        NULL,                                    // pNext
+        nullptr,                                 // pNext
         srcAccessMask,                           // srcAccessMask
         dstAccesMask,                            // dstAccessMask
         VK_QUEUE_FAMILY_IGNORED,                 // srcQueueFamilyIndex
@@ -168,11 +169,28 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
 
     if (fDesc.fDynamic) {
         const GrVkAlloc& alloc = this->alloc();
+        SkASSERT(alloc.fSize > 0);
+
+        // For Noncoherent buffers we want to make sure the range that we map, both offset and size,
+        // are aligned to the nonCoherentAtomSize limit. The offset should have been correctly
+        // aligned by our memory allocator. For size we pad out to make the range also aligned.
+        if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+            // Currently we always have the internal offset as 0.
+            SkASSERT(0 == fOffset);
+            VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
+            SkASSERT(0 == (alloc.fOffset & (alignment - 1)));
+
+            // Make size of the map aligned to nonCoherentAtomSize
+            size = (size + alignment - 1) & ~(alignment - 1);
+            fMappedSize = size;
+        }
+        SkASSERT(size + fOffset <= alloc.fSize);
         VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory,
                                               alloc.fOffset + fOffset,
                                               size, 0, &fMapPtr));
         if (err) {
             fMapPtr = nullptr;
+            fMappedSize = 0;
         }
     } else {
         if (!fMapPtr) {
@@ -188,11 +206,35 @@ void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size) {
     SkASSERT(this->vkIsMapped());
 
     if (fDesc.fDynamic) {
-        GrVkMemory::FlushMappedAlloc(gpu, this->alloc());
+        // We currently don't use fOffset
+        SkASSERT(0 == fOffset);
+        VkDeviceSize flushOffset = this->alloc().fOffset + fOffset;
+        VkDeviceSize flushSize = gpu->vkCaps().canUseWholeSizeOnFlushMappedMemory() ? VK_WHOLE_SIZE
+                                                                                    : fMappedSize;
+
+        GrVkMemory::FlushMappedAlloc(gpu, this->alloc(), flushOffset, flushSize);
         VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
         fMapPtr = nullptr;
+        fMappedSize = 0;
     } else {
-        gpu->updateBuffer(this, fMapPtr, this->offset(), size);
+        // vkCmdUpdateBuffer requires size < 64k and 4-byte alignment.
+        // https://bugs.chromium.org/p/skia/issues/detail?id=7488
+        if (size <= 65536 && 0 == (size & 0x3)) {
+            gpu->updateBuffer(this, fMapPtr, this->offset(), size);
+        } else {
+            GrVkTransferBuffer* transferBuffer =
+                    GrVkTransferBuffer::Create(gpu, size, GrVkBuffer::kCopyRead_Type);
+            if(!transferBuffer) {
+                return;
+            }
+
+            char* buffer = (char*) transferBuffer->map();
+            memcpy (buffer, fMapPtr, size);
+            transferBuffer->unmap();
+
+            gpu->copyBuffer(transferBuffer, this, 0, this->offset(), size);
+            transferBuffer->unref();
+        }
         this->addMemoryBarrier(gpu,
                                VK_ACCESS_TRANSFER_WRITE_BIT,
                                buffer_type_to_access_flags(fDesc.fType),
@@ -227,6 +269,6 @@ bool GrVkBuffer::vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInByt
 
 void GrVkBuffer::validate() const {
     SkASSERT(!fResource || kVertex_Type == fDesc.fType || kIndex_Type == fDesc.fType
-             || kCopyRead_Type == fDesc.fType || kCopyWrite_Type == fDesc.fType
-             || kUniform_Type == fDesc.fType);
+             || kTexel_Type == fDesc.fType || kCopyRead_Type == fDesc.fType
+             || kCopyWrite_Type == fDesc.fType || kUniform_Type == fDesc.fType);
 }

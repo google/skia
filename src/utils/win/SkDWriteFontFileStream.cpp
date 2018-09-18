@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkTypes.h"
 #include "SkDWriteFontFileStream.h"
@@ -86,7 +86,7 @@ bool SkDWriteFontFileStream::rewind() {
     return true;
 }
 
-SkDWriteFontFileStream* SkDWriteFontFileStream::duplicate() const {
+SkDWriteFontFileStream* SkDWriteFontFileStream::onDuplicate() const {
     return new SkDWriteFontFileStream(fFontFileStream.get());
 }
 
@@ -104,7 +104,7 @@ bool SkDWriteFontFileStream::move(long offset) {
     return seek(fPos + offset);
 }
 
-SkDWriteFontFileStream* SkDWriteFontFileStream::fork() const {
+SkDWriteFontFileStream* SkDWriteFontFileStream::onFork() const {
     std::unique_ptr<SkDWriteFontFileStream> that(this->duplicate());
     that->seek(fPos);
     return that.release();
@@ -232,4 +232,4 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::GetLastWriteTime(UINT64
     return E_NOTIMPL;
 }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

@@ -22,7 +22,7 @@ public:
     /*
      * Creates an instance of the decoder
      *
-     * Called only by SkBmpCodec::NewFromStream
+     * Called only by SkBmpCodec::MakeFromStream
      * There should be no other callers despite this being public
      *
      * @param info contains properties of the encoded data
@@ -35,7 +35,7 @@ public:
      *               headers
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
      */
-    SkBmpRLECodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+    SkBmpRLECodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream>,
             uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
             uint32_t offset, SkCodec::SkScanlineOrder rowOrder);
 
@@ -44,12 +44,11 @@ public:
 protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
-                       size_t dstRowBytes, const Options&, SkPMColor*,
-                       int*, int*) override;
+                       size_t dstRowBytes, const Options&,
+                       int*) override;
 
     SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
-            const SkCodec::Options& options, SkPMColor inputColorPtr[],
-            int* inputColorCount) override;
+            const SkCodec::Options& options) override;
 
 private:
 
@@ -57,7 +56,7 @@ private:
      * Creates the color table
      * Sets colorCount to the new color count if it is non-nullptr
      */
-    bool createColorTable(SkColorType dstColorType, int* colorCount);
+    bool createColorTable(SkColorType dstColorType);
 
     bool initializeStreamBuffer();
 

@@ -1,0 +1,44 @@
+[
+  {
+    "cmd": [
+      "echo",
+      "hi"
+    ],
+    "name": "1"
+  },
+  {
+    "cmd": [
+      "echo",
+      "hi"
+    ],
+    "env": {
+      "MYVAR": "myval"
+    },
+    "name": "2"
+  },
+  {
+    "cmd": [
+      "echo",
+      "hi"
+    ],
+    "env": {
+      "PATH": "mypath:<PATH>"
+    },
+    "name": "3"
+  },
+  {
+    "cmd": [
+      "echo",
+      "hi"
+    ],
+    "env": {
+      "PATH": "mypath:<PATH>:otherpath"
+    },
+    "name": "4"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

@@ -8,7 +8,6 @@
  */
 
 #include "SkPixmap.h"
-#include "SkBitmapScaler.h"
 #include "SkImageEncoder.h"
 #include "SkSwizzle.h"
 #include "SkJpegEncoder.h"
@@ -31,12 +30,12 @@ sk_pixmap_t* sk_pixmap_new()
     return ToPixmap(new SkPixmap());
 }
 
-sk_pixmap_t* sk_pixmap_new_with_params(const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes, sk_colortable_t* ctable)
+sk_pixmap_t* sk_pixmap_new_with_params(const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes)
 {
     SkImageInfo info;
     from_c(*cinfo, &info);
 
-    return ToPixmap(new SkPixmap(info, addr, rowBytes, AsColorTable(ctable)));
+    return ToPixmap(new SkPixmap(info, addr, rowBytes));
 }
 
 void sk_pixmap_reset(sk_pixmap_t* cpixmap)
@@ -44,39 +43,47 @@ void sk_pixmap_reset(sk_pixmap_t* cpixmap)
     AsPixmap(cpixmap)->reset();
 }
 
-void sk_pixmap_reset_with_params(sk_pixmap_t* cpixmap, const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes, sk_colortable_t* ctable)
+void sk_pixmap_reset_with_params(sk_pixmap_t* cpixmap, const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes)
 {
     SkImageInfo info;
     from_c(*cinfo, &info);
 
-    AsPixmap(cpixmap)->reset(info, addr, rowBytes, AsColorTable(ctable));
+    AsPixmap(cpixmap)->reset(info, addr, rowBytes);
 }
 
-void sk_pixmap_get_info(sk_pixmap_t* cpixmap, sk_imageinfo_t* cinfo)
+void sk_pixmap_get_info(const sk_pixmap_t* cpixmap, sk_imageinfo_t* cinfo)
 {
     from_sk(AsPixmap(cpixmap)->info(), cinfo);
 }
 
-size_t sk_pixmap_get_row_bytes(sk_pixmap_t* cpixmap)
+size_t sk_pixmap_get_row_bytes(const sk_pixmap_t* cpixmap)
 {
     return AsPixmap(cpixmap)->rowBytes();
 }
 
-const void* sk_pixmap_get_pixels(sk_pixmap_t* cpixmap)
+const void* sk_pixmap_get_pixels(const sk_pixmap_t* cpixmap)
 {
     return AsPixmap(cpixmap)->addr();
 }
 
-sk_colortable_t* sk_pixmap_get_colortable(sk_pixmap_t* cpixmap)
+const void* sk_pixmap_get_pixels_with_xy(const sk_pixmap_t* cpixmap, int x, int y)
 {
-    return ToColorTable(AsPixmap(cpixmap)->ctable());
+    return AsPixmap(cpixmap)->addr(x, y);
 }
 
-bool sk_bitmapscaler_resize(const sk_pixmap_t* cdst, const sk_pixmap_t* csrc, sk_bitmapscaler_resizemethod_t method)
+sk_color_t sk_pixmap_get_pixel_color(const sk_pixmap_t* cpixmap, int x, int y)
 {
-    const SkPixmap& dst = AsPixmap(*cdst);
-    const SkPixmap& src = AsPixmap(*csrc);
-    return SkBitmapScaler::Resize(dst, src, (SkBitmapScaler::ResizeMethod)method);
+    return AsPixmap(cpixmap)->getColor(x, y);
+}
+
+bool sk_pixmap_extract_subset(const sk_pixmap_t* cpixmap, sk_pixmap_t* result, const sk_irect_t* subset)
+{
+    return AsPixmap(cpixmap)->extractSubset(AsPixmap(result), *AsIRect(subset));
+}
+
+bool sk_pixmap_erase_color (const sk_pixmap_t* cpixmap, sk_color_t color, const sk_irect_t* subset)
+{
+    return AsPixmap(cpixmap)->erase((SkColor)color, *AsIRect(subset));
 }
 
 sk_color_t sk_color_unpremultiply(const sk_pmcolor_t pmcolor)
@@ -116,12 +123,16 @@ bool sk_pixmap_encode_image(sk_wstream_t* dst, const sk_pixmap_t* src, sk_encode
     return SkEncodeImage(AsWStream(dst), AsPixmap(*src), (SkEncodedImageFormat)encoder, quality);
 }
 
-bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY)
+bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY, sk_transfer_function_behavior_t behavior)
 {
     SkImageInfo info;
     from_c(*dstInfo, &info);
 
-    return AsPixmap(cpixmap)->readPixels(info, dstPixels, dstRowBytes, srcX, srcY);
+    return AsPixmap(cpixmap)->readPixels(info, dstPixels, dstRowBytes, srcX, srcY, (SkTransferFunctionBehavior)behavior);
+}
+
+bool sk_pixmap_scale_pixels(const sk_pixmap_t* cpixmap, const sk_pixmap_t* dst, sk_filter_quality_t quality) {
+    return AsPixmap(cpixmap)->scalePixels(*AsPixmap(dst), (SkFilterQuality)quality);
 }
 
 void sk_swizzle_swap_rb(uint32_t* dest, const uint32_t* src, int count)

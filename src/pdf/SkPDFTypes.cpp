@@ -15,18 +15,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkString* pun(char* x) { return reinterpret_cast<SkString*>(x); }
-const SkString* pun(const char* x) {
-    return reinterpret_cast<const SkString*>(x);
-}
-
 SkPDFUnion::SkPDFUnion(Type t) : fType(t) {}
 
 SkPDFUnion::~SkPDFUnion() {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            pun(fSkString)->~SkString();
+            fSkString.destroy();
             return;
         case Type::kObjRef:
         case Type::kObject:
@@ -59,7 +54,7 @@ SkPDFUnion SkPDFUnion::copy() const {
     switch (fType) {
         case Type::kNameSkS:
         case Type::kStringSkS:
-            new (pun(u.fSkString)) SkString(*pun(fSkString));
+            u.fSkString.init(fSkString.get());
             return u;
         case Type::kObjRef:
         case Type::kObject:
@@ -100,12 +95,12 @@ bool is_valid_name(const char* n) {
 // leading slash).
 static void write_name_escaped(SkWStream* o, const char* name) {
     static const char kToEscape[] = "#/%()<>[]{}";
-    static const char kHex[] = "0123456789ABCDEF";
     for (const uint8_t* n = reinterpret_cast<const uint8_t*>(name); *n; ++n) {
-        if (*n < '!' || *n > '~' || strchr(kToEscape, *n)) {
-            char buffer[3] = {'#', '\0', '\0'};
-            buffer[1] = kHex[(*n >> 4) & 0xF];
-            buffer[2] = kHex[*n & 0xF];
+        uint8_t v = *n;
+        if (v < '!' || v > '~' || strchr(kToEscape, v)) {
+            char buffer[3] = {'#',
+                              SkHexadecimalDigits::gUpper[v >> 4],
+                              SkHexadecimalDigits::gUpper[v & 0xF]};
             o->write(buffer, sizeof(buffer));
         } else {
             o->write(n, 1);
@@ -140,11 +135,10 @@ void SkPDFUnion::emitObject(SkWStream* stream,
             return;
         case Type::kNameSkS:
             stream->writeText("/");
-            write_name_escaped(stream, pun(fSkString)->c_str());
+            write_name_escaped(stream, fSkString.get().c_str());
             return;
         case Type::kStringSkS:
-            SkPDFUtils::WriteString(stream, pun(fSkString)->c_str(),
-                                    pun(fSkString)->size());
+            SkPDFUtils::WriteString(stream, fSkString.get().c_str(), fSkString.get().size());
             return;
         case Type::kObjRef:
             stream->writeDecAsText(objNumMap.getObjectNumber(fObject));
@@ -221,13 +215,13 @@ SkPDFUnion SkPDFUnion::String(const char* value) {
 
 SkPDFUnion SkPDFUnion::Name(const SkString& s) {
     SkPDFUnion u(Type::kNameSkS);
-    new (pun(u.fSkString)) SkString(s);
+    u.fSkString.init(s);
     return u;
 }
 
 SkPDFUnion SkPDFUnion::String(const SkString& s) {
     SkPDFUnion u(Type::kStringSkS);
-    new (pun(u.fSkString)) SkString(s);
+    u.fSkString.init(s);
     return u;
 }
 
@@ -271,8 +265,7 @@ void SkPDFArray::drop() {
 int SkPDFArray::size() const { return fValues.count(); }
 
 void SkPDFArray::reserve(int length) {
-    // TODO(halcanary): implement SkTArray<T>::reserve() or change the
-    // contstructor of SkPDFArray to take reserve size.
+    fValues.reserve(length);
 }
 
 void SkPDFArray::emitObject(SkWStream* stream,
@@ -384,6 +377,10 @@ void SkPDFDict::addResources(SkPDFObjNumMap* catalog) const {
 }
 
 int SkPDFDict::size() const { return fRecords.count(); }
+
+void SkPDFDict::reserve(int n) {
+    fRecords.reserve(n);
+}
 
 void SkPDFDict::insertObjRef(const char key[], sk_sp<SkPDFObject> objSp) {
     fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::ObjRef(std::move(objSp))});
@@ -573,17 +570,10 @@ void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool SkPDFObjNumMap::addObject(SkPDFObject* obj) {
-    if (fObjectNumbers.find(obj)) {
-        return false;
-    }
-    fObjectNumbers.set(obj, fObjectNumbers.count() + 1);
-    fObjects.emplace_back(sk_ref_sp(obj));
-    return true;
-}
-
 void SkPDFObjNumMap::addObjectRecursively(SkPDFObject* obj) {
-    if (obj && this->addObject(obj)) {
+    if (obj && !fObjectNumbers.find(obj)) {
+        fObjectNumbers.set(obj, fObjectNumbers.count() + 1);
+        fObjects.emplace_back(sk_ref_sp(obj));
         obj->addResources(this);
     }
 }

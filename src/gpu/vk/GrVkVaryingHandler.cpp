@@ -13,30 +13,43 @@ static inline int grsltype_to_location_size(GrSLType type) {
     switch(type) {
         case kVoid_GrSLType:
             return 0;
-        case kFloat_GrSLType:
+        case kFloat_GrSLType: // fall through
+        case kHalf_GrSLType:
             return 1;
-        case kVec2f_GrSLType:
+        case kFloat2_GrSLType: // fall through
+        case kHalf2_GrSLType:
             return 1;
-        case kVec3f_GrSLType:
+        case kFloat3_GrSLType:
+        case kHalf3_GrSLType:
             return 1;
-        case kVec4f_GrSLType:
+        case kFloat4_GrSLType:
+        case kHalf4_GrSLType:
             return 1;
-        case kVec2i_GrSLType:
+        case kUint2_GrSLType:
             return 1;
-        case kVec3i_GrSLType:
+        case kInt2_GrSLType:
+        case kShort2_GrSLType:
+        case kUShort2_GrSLType:
             return 1;
-        case kVec4i_GrSLType:
+        case kInt3_GrSLType:
+        case kShort3_GrSLType:
+        case kUShort3_GrSLType:
             return 1;
-        case kMat22f_GrSLType:
+        case kInt4_GrSLType:
+        case kShort4_GrSLType:
+        case kUShort4_GrSLType:
+            return 1;
+        case kFloat2x2_GrSLType:
+        case kHalf2x2_GrSLType:
             return 2;
-        case kMat33f_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kHalf3x3_GrSLType:
             return 3;
-        case kMat44f_GrSLType:
+        case kFloat4x4_GrSLType:
+        case kHalf4x4_GrSLType:
             return 4;
         case kTexture2DSampler_GrSLType:
             return 0;
-        case kITexture2DSampler_GrSLType:
-             return 0;
         case kTextureExternalSampler_GrSLType:
              return 0;
         case kTexture2DRectSampler_GrSLType:
@@ -45,20 +58,18 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 0;
         case kBool_GrSLType:
              return 1;
-        case kInt_GrSLType:
+        case kInt_GrSLType: // fall through
+        case kShort_GrSLType:
              return 1;
         case kUint_GrSLType:
+        case kUShort_GrSLType: // fall through
              return 1;
         case kTexture2D_GrSLType:
              return 0;
         case kSampler_GrSLType:
              return 0;
-        case kImageStorage2D_GrSLType:
-            return 0;
-        case kIImageStorage2D_GrSLType:
-            return 0;
     }
-    SkFAIL("Unexpected type");
+    SK_ABORT("Unexpected type");
     return -1;
 }
 
@@ -71,11 +82,12 @@ void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
         var.addLayoutQualifier(location.c_str());
 
         int elementSize = grsltype_to_location_size(var.getType());
-        SkASSERT(elementSize);
+        SkASSERT(elementSize > 0);
         int numElements = 1;
-        if (var.isArray()) {
-           numElements = var.getArrayCount();
+        if (var.isArray() && !var.isUnsizedArray()) {
+            numElements = var.getArrayCount();
         }
+        SkASSERT(numElements > 0);
         locationIndex += elementSize * numElements;
     }
     // Vulkan requires at least 64 locations to be supported for both vertex output and fragment

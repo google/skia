@@ -20,25 +20,18 @@
  */
 class GrTextureAdjuster : public GrTextureProducer {
 public:
-    /** Makes the subset of the texture safe to use with the given texture parameters.
-        outOffset will be the top-left corner of the subset if a copy is not made. Otherwise,
-        the copy will be tight to the contents and outOffset will be (0, 0). If the copy's size
-        does not match subset's dimensions then the contents are scaled to fit the copy.*/
-    sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerParams&, SkIPoint* outOffset,
-                                                       SkScalar scaleAdjust[2]);
-
-    sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                const SkMatrix& textureMatrix,
-                                const SkRect& constraintRect,
-                                FilterConstraint,
-                                bool coordsLimitedToConstraintRect,
-                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace) override;
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect& constraintRect,
+            FilterConstraint,
+            bool coordsLimitedToConstraintRect,
+            const GrSamplerState::Filter* filterOrNullForBicubic,
+            SkColorSpace* dstColorSpace) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
-    GrTextureAdjuster(GrContext*, sk_sp<GrTextureProxy>, SkAlphaType, const SkIRect& area,
-                      uint32_t uniqueID, SkColorSpace*);
+    GrTextureAdjuster(GrContext*, sk_sp<GrTextureProxy>, SkAlphaType, uint32_t uniqueID,
+                      SkColorSpace*);
 
 protected:
     SkAlphaType alphaType() const override { return fAlphaType; }
@@ -49,18 +42,19 @@ protected:
     GrTextureProxy* originalProxy() const { return fOriginal.get(); }
     sk_sp<GrTextureProxy> originalProxyRef() const { return fOriginal; }
 
-    /** Returns the content area or null for the whole original texture */
-    const SkIRect* contentAreaOrNull() { return fContentArea.getMaybeNull(); }
-
 private:
-    SkTLazy<SkIRect>      fContentArea;
+    sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
+                                                     SkColorSpace* dstColorSpace,
+                                                     sk_sp<SkColorSpace>* proxyColorSpace,
+                                                     SkScalar scaleAdjust[2]) override;
+
+    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped);
+
     GrContext*            fContext;
     sk_sp<GrTextureProxy> fOriginal;
     SkAlphaType           fAlphaType;
     SkColorSpace*         fColorSpace;
     uint32_t              fUniqueID;
-
-    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams &copyParams);
 
     typedef GrTextureProducer INHERITED;
 };

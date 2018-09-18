@@ -19,6 +19,10 @@ typedef uint8_t SkOpDebugBool;
 typedef bool SkOpDebugBool;
 #endif
 
+static inline bool SkDoubleIsNaN(double x) {
+    return x != x;
+}
+
 /* TCurve and OppCurve are one of { SkDQuadratic, SkDConic, SkDCubic } */
 template<typename TCurve, typename OppCurve>
 class SkTCoincident {
@@ -233,8 +237,7 @@ public:
             SkIntersections* intersections);
 
     SkDEBUGCODE(SkOpGlobalState* globalState() { return fDebugGlobalState; })
-    // for testing only
-    bool debugHasBounded(const SkTSpan<OppCurve, TCurve>* ) const;
+    bool hasBounded(const SkTSpan<OppCurve, TCurve>* ) const;
 
     const SkTSect<OppCurve, TCurve>* debugOpp() const {
         return SkDEBUGRELEASE(fOppSect, nullptr);
@@ -272,7 +275,7 @@ private:
     }
 
     bool binarySearchCoin(SkTSect<OppCurve, TCurve>* , double tStart, double tStep, double* t,
-                          double* oppT);
+                          double* oppT, SkTSpan<OppCurve, TCurve>** oppFirst);
     SkTSpan<TCurve, OppCurve>* boundsMax() const;
     bool coincidentCheck(SkTSect<OppCurve, TCurve>* sect2);
     void coincidentForce(SkTSect<OppCurve, TCurve>* sect2, double start1s, double start1e);
@@ -307,14 +310,14 @@ private:
                          bool* calcMatched, bool* oppMatched) const;
     void mergeCoincidence(SkTSect<OppCurve, TCurve>* sect2);
     SkTSpan<TCurve, OppCurve>* prev(SkTSpan<TCurve, OppCurve>* ) const;
-    void removeByPerpendicular(SkTSect<OppCurve, TCurve>* opp);
+    bool removeByPerpendicular(SkTSect<OppCurve, TCurve>* opp);
     void recoverCollapsed();
-    void removeCoincident(SkTSpan<TCurve, OppCurve>* span, bool isBetween);
+    bool removeCoincident(SkTSpan<TCurve, OppCurve>* span, bool isBetween);
     void removeAllBut(const SkTSpan<OppCurve, TCurve>* keep, SkTSpan<TCurve, OppCurve>* span,
                       SkTSect<OppCurve, TCurve>* opp);
     bool removeSpan(SkTSpan<TCurve, OppCurve>* span);
     void removeSpanRange(SkTSpan<TCurve, OppCurve>* first, SkTSpan<TCurve, OppCurve>* last);
-    void removeSpans(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp);
+    bool removeSpans(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp);
     void removedEndCheck(SkTSpan<TCurve, OppCurve>* span);
 
     void resetRemovedEnds() {
@@ -324,7 +327,7 @@ private:
     SkTSpan<TCurve, OppCurve>* spanAtT(double t, SkTSpan<TCurve, OppCurve>** priorSpan);
     SkTSpan<TCurve, OppCurve>* tail();
     bool trim(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp);
-    void unlinkSpan(SkTSpan<TCurve, OppCurve>* span);
+    bool unlinkSpan(SkTSpan<TCurve, OppCurve>* span);
     bool updateBounded(SkTSpan<TCurve, OppCurve>* first, SkTSpan<TCurve, OppCurve>* last,
                        SkTSpan<OppCurve, TCurve>* oppFirst);
     void validate() const;
@@ -415,6 +418,7 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::addFollowing(
         next->fPrev = result;
     }
     result->resetBounds(fCurve);
+    // world may not be consistent to call validate here
     result->validate();
     return result;
 }
@@ -571,6 +575,9 @@ void SkTSpan<TCurve, OppCurve>::init(const TCurve& c) {
 
 template<typename TCurve, typename OppCurve>
 bool SkTSpan<TCurve, OppCurve>::initBounds(const TCurve& c) {
+    if (SkDoubleIsNaN(fStartT) || SkDoubleIsNaN(fEndT)) {
+        return false;
+    }
     fPart = c.subDivide(fStartT, fEndT);
     fBounds.setBounds(fPart);
     fCoinStart.init();
@@ -908,7 +915,7 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::addOne() {
 
 template<typename TCurve, typename OppCurve>
 bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect2, double tStart,
-        double tStep, double* resultT, double* oppT) {
+        double tStep, double* resultT, double* oppT, SkTSpan<OppCurve, TCurve>** oppFirst) {
     SkTSpan<TCurve, OppCurve> work;
     double result = work.fStartT = work.fEndT = tStart;
     SkDEBUGCODE(work.fDebugSect = this);
@@ -916,7 +923,7 @@ bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect
     SkDPoint oppPt;
     bool flip = false;
     bool contained = false;
-    SkDEBUGCODE(bool down = tStep < 0);
+    bool down = tStep < 0;
     const OppCurve& opp = sect2->fCurve;
     do {
         tStep *= 0.5;
@@ -943,7 +950,10 @@ bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect
                 *oppT = oppTTest;
                 oppPt = work.fCoinStart.perpPt();
                 contained = true;
-                SkASSERT(down ? result > work.fStartT : result < work.fStartT);
+                if (down ? result <= work.fStartT : result >= work.fStartT) {
+                    *oppFirst = nullptr;    // signal caller to fail
+                    return false;
+                }
                 result = work.fStartT;
                 continue;
             }
@@ -1143,7 +1153,7 @@ int SkTSect<TCurve, OppCurve>::countConsecutiveSpans(SkTSpan<TCurve, OppCurve>* 
 }
 
 template<typename TCurve, typename OppCurve>
-bool SkTSect<TCurve, OppCurve>::debugHasBounded(const SkTSpan<OppCurve, TCurve>* span) const {
+bool SkTSect<TCurve, OppCurve>::hasBounded(const SkTSpan<OppCurve, TCurve>* span) const {
     const SkTSpan<TCurve, OppCurve>* test = fHead;
     if (!test) {
         return false;
@@ -1199,7 +1209,7 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
     SkTSpan<OppCurve, TCurve>* cutFirst;
     if (prev && prev->fEndT == startT
             && this->binarySearchCoin(sect2, startT, prev->fStartT - startT, &coinStart,
-                                      &oppStartT)
+                                      &oppStartT, &oppFirst)
             && prev->fStartT < coinStart && coinStart < startT
             && (cutFirst = prev->oppT(oppStartT))) {
         oppFirst = cutFirst;
@@ -1218,8 +1228,10 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
             }
         }
     } else {
+        if (!oppFirst) {
+            return false;
+        }
         SkDEBUGCODE(coinStart = first->fStartT);
-        FAIL_IF(!oppFirst);
         SkDEBUGCODE(oppStartT = oppMatched ? oppFirst->fStartT : oppFirst->fEndT);
     }
     // FIXME: incomplete : if we're not at the end, find end of coin
@@ -1273,8 +1285,12 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
     this->validateBounded();
     sect2->validateBounded();
     last = first->fNext;
-    this->removeCoincident(first, false);
-    sect2->removeCoincident(oppFirst, true);
+    if (!this->removeCoincident(first, false)) {
+        return false;
+    }
+    if (!sect2->removeCoincident(oppFirst, true)) {
+        return false;
+    }
     if (deleteEmptySpans) {
         if (!this->deleteEmptySpans() || !sect2->deleteEmptySpans()) {
             *result = nullptr;
@@ -1443,7 +1459,7 @@ int SkTSect<TCurve, OppCurve>::linesIntersect(SkTSpan<TCurve, OppCurve>* span,
     if (oppRayI.used() > 1) {
         int ptMatches = 0;
         for (int oIndex = 0; oIndex < oppRayI.used(); ++oIndex) {
-            for (int lIndex = 0; lIndex < (int) SK_ARRAY_COUNT(thisLine.fPts); ++lIndex) {
+            for (int lIndex = 0; lIndex < (int) SK_ARRAY_COUNT(oppLine.fPts); ++lIndex) {
                 ptMatches += oppRayI.pt(oIndex).approximatelyEqual(oppLine.fPts[lIndex]);
             }
         }
@@ -1715,7 +1731,7 @@ void SkTSect<TCurve, OppCurve>::removeAllBut(const SkTSpan<OppCurve, TCurve>* ke
 }
 
 template<typename TCurve, typename OppCurve>
-void SkTSect<TCurve, OppCurve>::removeByPerpendicular(SkTSect<OppCurve, TCurve>* opp) {
+bool SkTSect<TCurve, OppCurve>::removeByPerpendicular(SkTSect<OppCurve, TCurve>* opp) {
     SkTSpan<TCurve, OppCurve>* test = fHead;
     SkTSpan<TCurve, OppCurve>* next;
     do {
@@ -1732,13 +1748,18 @@ void SkTSect<TCurve, OppCurve>::removeByPerpendicular(SkTSect<OppCurve, TCurve>*
         if (startV.dot(endV) <= 0) {
             continue;
         }
-        this->removeSpans(test, opp);
+        if (!this->removeSpans(test, opp)) {
+            return false;
+        }
     } while ((test = next));
+    return true;
 }
 
 template<typename TCurve, typename OppCurve>
-void SkTSect<TCurve, OppCurve>::removeCoincident(SkTSpan<TCurve, OppCurve>* span, bool isBetween) {
-    this->unlinkSpan(span);
+bool SkTSect<TCurve, OppCurve>::removeCoincident(SkTSpan<TCurve, OppCurve>* span, bool isBetween) {
+    if (!this->unlinkSpan(span)) {
+        return false;
+    }
     if (isBetween || between(0, span->fCoinStart.perpT(), 1)) {
         --fActiveCount;
         span->fNext = fCoincident;
@@ -1746,6 +1767,7 @@ void SkTSect<TCurve, OppCurve>::removeCoincident(SkTSpan<TCurve, OppCurve>* span
     } else {
         this->markSpanGone(span);
     }
+    return true;
 }
 
 template<typename TCurve, typename OppCurve>
@@ -1761,7 +1783,9 @@ void SkTSect<TCurve, OppCurve>::removedEndCheck(SkTSpan<TCurve, OppCurve>* span)
 template<typename TCurve, typename OppCurve>
 bool SkTSect<TCurve, OppCurve>::removeSpan(SkTSpan<TCurve, OppCurve>* span) {\
     this->removedEndCheck(span);
-    this->unlinkSpan(span);
+    if (!this->unlinkSpan(span)) {
+        return false;
+    }
     return this->markSpanGone(span);
 }
 
@@ -1783,11 +1807,12 @@ void SkTSect<TCurve, OppCurve>::removeSpanRange(SkTSpan<TCurve, OppCurve>* first
         final->fPrev = first;
     }
     first->fNext = final;
+    // world may not be ready for validation here
     first->validate();
 }
 
 template<typename TCurve, typename OppCurve>
-void SkTSect<TCurve, OppCurve>::removeSpans(SkTSpan<TCurve, OppCurve>* span,
+bool SkTSect<TCurve, OppCurve>::removeSpans(SkTSpan<TCurve, OppCurve>* span,
         SkTSect<OppCurve, TCurve>* opp) {
     SkTSpanBounded<OppCurve, TCurve>* bounded = span->fBounded;
     while (bounded) {
@@ -1799,9 +1824,12 @@ void SkTSect<TCurve, OppCurve>::removeSpans(SkTSpan<TCurve, OppCurve>* span,
         if (spanBounded->removeBounded(span)) {
             opp->removeSpan(spanBounded);
         }
-        SkASSERT(!span->fDeleted || !opp->debugHasBounded(span));
+        if (span->fDeleted && opp->hasBounded(span)) {
+            return false;
+        }
         bounded = next;
     }
+    return true;
 }
 
 template<typename TCurve, typename OppCurve>
@@ -1864,13 +1892,17 @@ bool SkTSect<TCurve, OppCurve>::trim(SkTSpan<TCurve, OppCurve>* span,
 }
 
 template<typename TCurve, typename OppCurve>
-void SkTSect<TCurve, OppCurve>::unlinkSpan(SkTSpan<TCurve, OppCurve>* span) {
+bool SkTSect<TCurve, OppCurve>::unlinkSpan(SkTSpan<TCurve, OppCurve>* span) {
     SkTSpan<TCurve, OppCurve>* prev = span->fPrev;
     SkTSpan<TCurve, OppCurve>* next = span->fNext;
     if (prev) {
         prev->fNext = next;
         if (next) {
             next->fPrev = prev;
+            if (next->fStartT > next->fEndT) {
+                return false;
+            }
+            // world may not be ready for validate here
             next->validate();
         }
     } else {
@@ -1879,6 +1911,7 @@ void SkTSect<TCurve, OppCurve>::unlinkSpan(SkTSpan<TCurve, OppCurve>* span) {
             next->fPrev = nullptr;
         }
     }
+    return true;
 }
 
 template<typename TCurve, typename OppCurve>
@@ -2244,7 +2277,9 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
                 return;
             }
             sect2->computePerpendiculars(sect1, sect2->fHead, sect2->tail());
-            sect1->removeByPerpendicular(sect2);
+            if (!sect1->removeByPerpendicular(sect2)) {
+                return;
+            }
             sect1->validate();
             sect2->validate();
 #if DEBUG_T_SECT_LOOP_COUNT

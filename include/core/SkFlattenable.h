@@ -10,56 +10,12 @@
 
 #include "SkRefCnt.h"
 
+class SkData;
 class SkReadBuffer;
 class SkWriteBuffer;
 
-class SkPrivateEffectInitializer;
-
-/*
- *  Flattening is straight-forward:
- *      1. call getFactory() so we have a function-ptr to recreate the subclass
- *      2. call flatten(buffer) to write out enough data for the factory to read
- *
- *  Unflattening is easy for the caller: new_instance = factory(buffer)
- *
- *  The complexity of supporting this is as follows.
- *
- *  If your subclass wants to control unflattening, use this macro in your declaration:
- *      SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS
- *  This will provide a getFactory(), and require that the subclass implements CreateProc.
- *
- *  For older buffers (before the DEEPFLATTENING change, the macros below declare
- *  a thin factory DeepCreateProc. It checks the version of the buffer, and if it is pre-deep,
- *  then it calls through to a (usually protected) constructor, passing the buffer.
- *  If the buffer is newer, then it directly calls the "real" factory: CreateProc.
- */
-
-#define SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP() static void InitializeFlattenables();
-
-#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(flattenable) \
-    void flattenable::InitializeFlattenables() {
-
-#define SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END \
-    }
-
-#define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(flattenable) \
-    SkFlattenable::Register(#flattenable, flattenable::CreateProc, \
-                            flattenable::GetFlattenableType());
-
-#define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable)    \
-    private:                                                                \
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);                        \
-    friend class SkFlattenable::PrivateInitializer;                         \
-    public:                                                                 \
-    Factory getFactory() const override { return CreateProc; }
-
-/** For SkFlattenable derived objects with a valid type
-    This macro should only be used in base class objects in core
-  */
-#define SK_DEFINE_FLATTENABLE_TYPE(flattenable) \
-    static Type GetFlattenableType() { \
-        return k##flattenable##_Type; \
-    }
+struct SkSerialProcs;
+struct SkDeserialProcs;
 
 /** \class SkFlattenable
 
@@ -77,11 +33,11 @@ public:
         kSkMaskFilter_Type,
         kSkPathEffect_Type,
         kSkPixelRef_Type,
-        kSkRasterizer_Type,
-        kSkShader_Type,
+        kSkUnused_Type4,    // used to be SkRasterizer
+        kSkShaderBase_Type,
         kSkUnused_Type,     // used to be SkUnitMapper
-        kSkXfermode_Type,
-        kSkNormalSource_Type,
+        kSkUnused_Type2,
+        kSkUnused_Type3,    // used to be SkNormalSource
     };
 
     typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
@@ -113,8 +69,21 @@ public:
     /**
      *  Override this if your subclass needs to record data that it will need to recreate itself
      *  from its CreateProc (returned by getFactory()).
+     *
+     *  DEPRECATED public : will move to protected ... use serialize() instead
      */
     virtual void flatten(SkWriteBuffer&) const {}
+
+    virtual Type getFlattenableType() const = 0;
+
+    //
+    // public ways to serialize / deserialize
+    //
+    sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
+    size_t serialize(void* memory, size_t memory_size,
+                     const SkSerialProcs* = nullptr) const;
+    static sk_sp<SkFlattenable> Deserialize(Type, const void* data, size_t length,
+                                            const SkDeserialProcs* procs = nullptr);
 
 protected:
     class PrivateInitializer {
@@ -125,6 +94,7 @@ protected:
 
 private:
     static void InitializeFlattenablesIfNeeded();
+    static void Finalize();
 
     friend class SkGraphics;
 

@@ -27,7 +27,7 @@ const SkString input6("\n}}a; little ;  love; for   ; leading;  spaces;} "
                      "an struct = { int a; int b; };"
                      "int[5] arr = int[5](1,2,3,4,5);} some code at the bottom; for(;;) {} }");
 
-const SkString output1(
+const SkSL::String output1(
         "   1\t#this is not a realshader\n"
         "   2\tvec4 some stuff;\n"
         "   3\toutside of a function;\n"
@@ -103,7 +103,7 @@ DEF_TEST(GrSKSLPrettyPrint, r) {
     testStr.push_back(input6.c_str());
     lengths.push_back((int)input6.size());
 
-    SkString test = GrSKSLPrettyPrint::PrettyPrint(testStr.begin(), lengths.begin(),
+    SkSL::String test = GrSKSLPrettyPrint::PrettyPrint(testStr.begin(), lengths.begin(),
                                                    testStr.count(), true);
     ASSERT(output1 == test);
 

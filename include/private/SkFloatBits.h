@@ -11,6 +11,7 @@
 
 #include "SkTypes.h"
 #include "SkSafe_math.h"
+#include <float.h>
 
 /** Convert a sign-bit int (i.e. float interpreted as int) into a 2s compliement
     int. This also converts -0 (0x80000000) to 0. Doing this to a float allows
@@ -55,6 +56,18 @@ static inline float SkBits2Float(int32_t floatAsBits) {
     return data.fFloat;
 }
 
+constexpr int32_t gFloatBits_exponent_mask = 0x7F800000;
+constexpr int32_t gFloatBits_matissa_mask  = 0x007FFFFF;
+
+static inline bool SkFloatBits_IsFinite(int32_t bits) {
+    return (bits & gFloatBits_exponent_mask) != gFloatBits_exponent_mask;
+}
+
+static inline bool SkFloatBits_IsInf(int32_t bits) {
+    return ((bits & gFloatBits_exponent_mask) == gFloatBits_exponent_mask) &&
+            (bits & gFloatBits_matissa_mask) == 0;
+}
+
 /** Return the float as a 2s compliment int. Just to be used to compare floats
     to each other or against positive float-bit-constants (like 0). This does
     not return the int equivalent of the float, just something cheaper for
@@ -71,34 +84,8 @@ static inline float Sk2sComplimentAsFloat(int32_t x) {
     return SkBits2Float(Sk2sComplimentToSignBit(x));
 }
 
-static inline int32_t pin_double_to_int(double x) {
-    return (int32_t)SkTPin<double>(x, SK_MinS32, SK_MaxS32);
-}
-
-/** Return the floor of the float as an int.
-    If the value is out of range, or NaN, return +/- SK_MaxS32
-*/
-static inline int32_t SkFloatToIntFloor(float x) {
-    return pin_double_to_int(floor(x));
-}
-
-/** Return the float rounded to an int.
-    If the value is out of range, or NaN, return +/- SK_MaxS32
-*/
-static inline int32_t SkFloatToIntRound(float x) {
-    return pin_double_to_int(floor((double)x + 0.5));
-}
-
-/** Return the ceiling of the float as an int.
-    If the value is out of range, or NaN, return +/- SK_MaxS32
-*/
-static inline int32_t SkFloatToIntCeil(float x) {
-    return pin_double_to_int(ceil(x));
-}
-
 //  Scalar wrappers for float-bit routines
 
 #define SkScalarAs2sCompliment(x)    SkFloatAs2sCompliment(x)
-#define Sk2sComplimentAsScalar(x)    Sk2sComplimentAsFloat(x)
 
 #endif

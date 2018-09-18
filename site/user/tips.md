@@ -32,13 +32,15 @@ drawBitmapNine():
 <span id="skp-capture">Capture a `.skp` file on a web page in Chromium</span>
 -----------------------------------------------------------------------------
 
+Use the script `experimental/tools/web_to_skp` , *or* do the following:
+
 1.  Launch Chrome or Chromium with `--no-sandbox --enable-gpu-benchmarking`
-2.  Open the JS console (ctrl-shift-J)
+2.  Open the JS console (Ctrl+Shift+J (Windows / Linux) or Cmd+Opt+J (MacOS))
 3.  Execute: `chrome.gpuBenchmarking.printToSkPicture('/tmp')`
     This returns "undefined" on success.
 
 Open the resulting file in the [Skia Debugger](/dev/tools/debugger), rasterize it with `dm`,
-or use Skia's `SampleApp` to view it:
+or use Skia's `viewer` to view it:
 
 <!--?prettify lang=sh?-->
 
@@ -46,7 +48,7 @@ or use Skia's `SampleApp` to view it:
         --config 8888 gpu pdf --verbose
     ls -l /tmp/*/skp/layer_0.skp.*
 
-    out/Release/SampleApp --picture /tmp/layer_0.skp
+    out/Release/viewer --skps /tmp --slide layer_0.skp
 
 * * *
 
@@ -56,8 +58,10 @@ or use Skia's `SampleApp` to view it:
 Multipage Skia Picture files capture the commands sent to produce PDFs
 and printed documents.
 
+Use the script `experimental/tools/web_to_mskp` , *or* do the following:
+
 1.  Launch Chrome or Chromium with `--no-sandbox --enable-gpu-benchmarking`
-2.  Open the JS console (ctrl-shift-J)
+2.  Open the JS console (Ctrl+Shift+J (Windows / Linux) or Cmd+Opt+J (MacOS))
 3.  Execute: `chrome.gpuBenchmarking.printPagesToSkPictures('/tmp/filename.mskp')`
     This returns "undefined" on success.
 
@@ -81,29 +85,23 @@ process it with `dm`.
 
 There are two ways Skia takes advantage of specific hardware.
 
-1.  Subclass SkCanvas
-
-    Since all drawing calls go through SkCanvas, those calls can be
-    redirected to a different graphics API. SkGLCanvas has been
-    written to direct its drawing calls to OpenGL. See src/gl/
-
-2.  Custom bottleneck routines
+1.  Custom bottleneck routines
 
     There are sets of bottleneck routines inside the blits of Skia
     that can be replace on a platform in order to take advantage of
     specific CPU features. One such example is the NEON SIMD
-    instructions on ARM v7 devices. See src/opts/
+    instructions on ARM v7 devices. See [src/opts/](https://skia.googlesource.com/skia/+/master/src/opts/)
 
 * * *
 
 <span id="font-hinting">Does Skia support Font hinting?</span>
 --------------------------------------------------------------
 
-Skia has a built-in font cache, but it does not know how to actual render font
+Skia has a built-in font cache, but it does not know how to actually render font
 files like TrueType into its cache. For that it relies on the platform to
-supply an instance of SkScalerContext. This is Skia's abstract interface for
+supply an instance of `SkScalerContext`. This is Skia's abstract interface for
 communicating with a font scaler engine. In src/ports you can see support
-files for FreeType, Mac OS X, and Windows GDI font engines. Other font
+files for FreeType, macOS, and Windows GDI font engines. Other font
 engines can easily be supported in a like manner.
 
 
@@ -121,7 +119,7 @@ generate the glyphs and their positions, including kerning.
 together](https://github.com/aam/skiaex).  In the example, a
 `SkTypeface` and a `hb_face_t` are created using the same `mmap()`ed
 `.ttf` font file. The HarfBuzz face is used to shape unicode text into
-a sequence of glyphs and positions, and the SkTypeface can then be
+a sequence of glyphs and positions, and the `SkTypeface` can then be
 used to draw those glyphs.
 
 * * *

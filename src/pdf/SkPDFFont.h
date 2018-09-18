@@ -11,11 +11,11 @@
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitSet.h"
+#include "SkStrikeCache.h"
 #include "SkPDFTypes.h"
 #include "SkTDArray.h"
 #include "SkTypeface.h"
 
-class SkAutoGlyphCache;
 class SkPDFCanon;
 class SkPDFFont;
 
@@ -42,13 +42,14 @@ public:
     SkAdvancedTypefaceMetrics::FontType getType() const { return fFontType; }
 
     static SkAdvancedTypefaceMetrics::FontType FontType(const SkAdvancedTypefaceMetrics&);
+    static void GetType1GlyphNames(const SkTypeface&, SkString*);
 
     static bool IsMultiByte(SkAdvancedTypefaceMetrics::FontType type) {
         return type == SkAdvancedTypefaceMetrics::kType1CID_Font ||
                type == SkAdvancedTypefaceMetrics::kTrueType_Font;
     }
 
-    static SkAutoGlyphCache MakeVectorCache(SkTypeface*, int* sizeOut);
+    static SkExclusiveStrikePtr MakeVectorCache(SkTypeface*, int* sizeOut);
 
     /** Returns true if this font encoding supports glyph IDs above 255.
      */
@@ -92,6 +93,9 @@ public:
      *  @return nullptr only when typeface is bad.
      */
     static const SkAdvancedTypefaceMetrics* GetMetrics(SkTypeface* typeface,
+                                                       SkPDFCanon* canon);
+
+    static const std::vector<SkUnichar>& GetUnicodeMap(const SkTypeface* typeface,
                                                        SkPDFCanon* canon);
 
     /** Subset the font based on current usage.

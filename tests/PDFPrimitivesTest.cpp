@@ -12,10 +12,12 @@
 #include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkClusterator.h"
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkDeflate.h"
 #include "SkImageEncoder.h"
+#include "SkImageFilterPriv.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPDFCanon.h"
@@ -126,9 +128,9 @@ static void TestObjectNumberMap(skiatest::Reporter* reporter) {
     sk_sp<SkPDFArray> a2(new SkPDFArray);
     sk_sp<SkPDFArray> a3(new SkPDFArray);
 
-    objNumMap.addObject(a1.get());
-    objNumMap.addObject(a2.get());
-    objNumMap.addObject(a3.get());
+    objNumMap.addObjectRecursively(a1.get());
+    objNumMap.addObjectRecursively(a2.get());
+    objNumMap.addObjectRecursively(a3.get());
 
     // The objects should be numbered in the order they are added,
     // starting with 1.
@@ -146,7 +148,7 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     a2->appendObjRef(a1);
 
     SkPDFObjNumMap catalog;
-    catalog.addObject(a1.get());
+    catalog.addObjectRecursively(a1.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(a1.get()) == 1);
 
     SkString result = emit_to_string(*a2, &catalog);
@@ -265,7 +267,7 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
 
     sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
     SkPDFObjNumMap catalog;
-    catalog.addObject(referencedArray.get());
+    catalog.addObjectRecursively(referencedArray.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(
                             referencedArray.get()) == 1);
     array->appendObjRef(std::move(referencedArray));
@@ -329,7 +331,7 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
 
     sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
     SkPDFObjNumMap catalog;
-    catalog.addObject(referencedArray.get());
+    catalog.addObjectRecursively(referencedArray.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(
                             referencedArray.get()) == 1);
     dict->insertObjRef("n1", std::move(referencedArray));
@@ -355,7 +357,7 @@ public:
         return sk_sp<DummyImageFilter>(new DummyImageFilter(visited));
     }
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyImageFilter)
     bool visited() const { return fVisited; }
 
@@ -384,12 +386,10 @@ sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
     return DummyImageFilter::Make(visited);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void DummyImageFilter::toString(SkString* str) const {
     str->appendf("DummyImageFilter: (");
     str->append(")");
 }
-#endif
 
 };
 
@@ -426,7 +426,7 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
                         !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &canon));
     }
     sk_sp<SkTypeface> portableTypeface(
-            sk_tool_utils::create_portable_typeface(NULL, SkFontStyle()));
+            sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle()));
     REPORTER_ASSERT(reporter,
                     SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &canon));
 }
@@ -435,8 +435,8 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
 // test to see that all finite scalars round trip via scanf().
 static void check_pdf_scalar_serialization(
         skiatest::Reporter* reporter, float inputFloat) {
-    char floatString[SkPDFUtils::kMaximumFloatDecimalLength];
-    size_t len = SkPDFUtils::FloatToDecimal(inputFloat, floatString);
+    char floatString[kMaximumSkFloatToDecimalLength];
+    size_t len = SkFloatToDecimal(inputFloat, floatString);
     if (len >= sizeof(floatString)) {
         ERRORF(reporter, "string too long: %u", (unsigned)len);
         return;
@@ -492,4 +492,47 @@ DEF_TEST(SkPDF_Primitives_Color, reporter) {
         REPORTER_ASSERT(reporter, roundTrip == i);
     }
 }
+
+DEF_TEST(SkPDF_Clusterator, reporter) {
+    SkPaint paint;
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    {
+        const uint32_t clusters[11] = { 3, 2, 2, 1, 0, 4, 4, 7, 6, 6, 5 };
+        const SkGlyphID glyphs[11] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        const char text[] = "abcdefgh";
+        SkClusterator clusterator(glyphs, sizeof(glyphs), paint, clusters, strlen(text), text);
+        SkClusterator::Cluster expectations[] = {
+            {&text[3], 1, 0, 1},
+            {&text[2], 1, 1, 2},
+            {&text[1], 1, 3, 1},
+            {&text[0], 1, 4, 1},
+            {&text[4], 1, 5, 2},
+            {&text[7], 1, 7, 1},
+            {&text[6], 1, 8, 2},
+            {&text[5], 1, 10, 1},
+            {nullptr, 0, 0, 0},
+        };
+        for (const auto& expectation : expectations) {
+            REPORTER_ASSERT(reporter, clusterator.next() == expectation);
+        }
+    }
+    {
+        const uint32_t clusters[5] = { 0, 1, 4, 5, 6 };
+        const SkGlyphID glyphs[5] = { 43, 167, 79, 79, 82, };
+        const char text[] = "Ha\xCC\x8A" "llo";
+        SkClusterator clusterator(glyphs, sizeof(glyphs), paint, clusters, strlen(text), text);
+        SkClusterator::Cluster expectations[] = {
+            {&text[0], 1, 0, 1},
+            {&text[1], 3, 1, 1},
+            {&text[4], 1, 2, 1},
+            {&text[5], 1, 3, 1},
+            {&text[6], 1, 4, 1},
+            {nullptr, 0, 0, 0},
+        };
+        for (const auto& expectation : expectations) {
+            REPORTER_ASSERT(reporter, clusterator.next() == expectation);
+        }
+    }
+}
+
 #endif

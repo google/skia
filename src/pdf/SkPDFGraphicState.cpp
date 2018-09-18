@@ -12,66 +12,53 @@
 #include "SkPDFGraphicState.h"
 #include "SkPDFUtils.h"
 
-static const char* as_blend_mode(SkBlendMode mode) {
+static const char* as_pdf_blend_mode_name(SkBlendMode mode) {
+    // PDF32000.book section 11.3.5 "Blend Mode"
     switch (mode) {
-        case SkBlendMode::kSrcOver:
-            return "Normal";
-        case SkBlendMode::kMultiply:
-            return "Multiply";
-        case SkBlendMode::kScreen:
-            return "Screen";
-        case SkBlendMode::kOverlay:
-            return "Overlay";
-        case SkBlendMode::kDarken:
-            return "Darken";
-        case SkBlendMode::kLighten:
-            return "Lighten";
-        case SkBlendMode::kColorDodge:
-            return "ColorDodge";
-        case SkBlendMode::kColorBurn:
-            return "ColorBurn";
-        case SkBlendMode::kHardLight:
-            return "HardLight";
-        case SkBlendMode::kSoftLight:
-            return "SoftLight";
-        case SkBlendMode::kDifference:
-            return "Difference";
-        case SkBlendMode::kExclusion:
-            return "Exclusion";
-        case SkBlendMode::kHue:
-            return "Hue";
-        case SkBlendMode::kSaturation:
-            return "Saturation";
-        case SkBlendMode::kColor:
-            return "Color";
-        case SkBlendMode::kLuminosity:
-            return "Luminosity";
-
-        // These are handled in SkPDFDevice::setUpContentEntry.
-        case SkBlendMode::kClear:
-        case SkBlendMode::kSrc:
-        case SkBlendMode::kDst:
-        case SkBlendMode::kDstOver:
-        case SkBlendMode::kSrcIn:
-        case SkBlendMode::kDstIn:
-        case SkBlendMode::kSrcOut:
-        case SkBlendMode::kDstOut:
-        case SkBlendMode::kSrcATop:
-        case SkBlendMode::kDstATop:
-        case SkBlendMode::kModulate:
-            return "Normal";
-
-        // TODO(vandebo): Figure out if we can support more of these modes.
-        case SkBlendMode::kXor:
-        case SkBlendMode::kPlus:
-            return nullptr;
+        case SkBlendMode::kScreen:      return "Screen";
+        case SkBlendMode::kOverlay:     return "Overlay";
+        case SkBlendMode::kDarken:      return "Darken";
+        case SkBlendMode::kLighten:     return "Lighten";
+        case SkBlendMode::kColorDodge:  return "ColorDodge";
+        case SkBlendMode::kColorBurn:   return "ColorBurn";
+        case SkBlendMode::kHardLight:   return "HardLight";
+        case SkBlendMode::kSoftLight:   return "SoftLight";
+        case SkBlendMode::kDifference:  return "Difference";
+        case SkBlendMode::kExclusion:   return "Exclusion";
+        case SkBlendMode::kMultiply:    return "Multiply";
+        case SkBlendMode::kHue:         return "Hue";
+        case SkBlendMode::kSaturation:  return "Saturation";
+        case SkBlendMode::kColor:       return "Color";
+        case SkBlendMode::kLuminosity:  return "Luminosity";
+        // Other blendmodes are either unsupported or handled in
+        // SkPDFDevice::setUpContentEntry.
+        default:                        return "Normal";
     }
-    return nullptr;
+}
+
+static int to_stroke_cap(uint8_t cap) {
+    // PDF32000.book section 8.4.3.3 "Line Cap Style"
+    switch ((SkPaint::Cap)cap) {
+        case SkPaint::kButt_Cap:   return 0;
+        case SkPaint::kRound_Cap:  return 1;
+        case SkPaint::kSquare_Cap: return 2;
+        default: SkASSERT(false);  return 0;
+    }
+}
+
+static int to_stroke_join(uint8_t join) {
+    // PDF32000.book section 8.4.3.4 "Line Join Style"
+    switch ((SkPaint::Join)join) {
+        case SkPaint::kMiter_Join: return 0;
+        case SkPaint::kRound_Join: return 1;
+        case SkPaint::kBevel_Join: return 2;
+        default: SkASSERT(false);  return 0;
+    }
 }
 
 // If a SkXfermode is unsupported in PDF, this function returns
 // SrcOver, otherwise, it returns that Xfermode as a Mode.
-static SkBlendMode mode_for_pdf(SkBlendMode mode) {
+static uint8_t pdf_blend_mode(SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kSrcOver:
         case SkBlendMode::kMultiply:
@@ -89,36 +76,52 @@ static SkBlendMode mode_for_pdf(SkBlendMode mode) {
         case SkBlendMode::kSaturation:
         case SkBlendMode::kColor:
         case SkBlendMode::kLuminosity:
-            // Mode is suppported and handled by pdf graphics state.
-            return mode;
+            return SkToU8((unsigned)mode);
         default:
-            return SkBlendMode::kSrcOver;  // Default mode.
+            return SkToU8((unsigned)SkBlendMode::kSrcOver);
     }
 }
 
-SkPDFGraphicState::SkPDFGraphicState(const SkPaint& p)
-    : fStrokeWidth(p.getStrokeWidth())
-    , fStrokeMiter(p.getStrokeMiter())
-    , fAlpha(p.getAlpha())
-    , fStrokeCap(SkToU8(p.getStrokeCap()))
-    , fStrokeJoin(SkToU8(p.getStrokeJoin()))
-    , fMode(SkToU8((unsigned)mode_for_pdf(p.getBlendMode()))) {}
-
-sk_sp<SkPDFGraphicState> SkPDFGraphicState::GetGraphicStateForPaint(SkPDFCanon* canon,
-                                                                    const SkPaint& paint) {
+sk_sp<SkPDFDict> SkPDFGraphicState::GetGraphicStateForPaint(SkPDFCanon* canon,
+                                                            const SkPaint& p) {
     SkASSERT(canon);
-    SkPDFGraphicState key(paint);
-    if (const SkPDFGraphicState* canonGS = canon->findGraphicState(key)) {
-        // The returned SkPDFGraphicState must be made non-const,
-        // since the emitObject() interface is non-const.  But We
-        // promise that there is no way to mutate this object from
-        // here on out.
-        return sk_sp<SkPDFGraphicState>(SkRef(const_cast<SkPDFGraphicState*>(canonGS)));
+    if (SkPaint::kFill_Style == p.getStyle()) {
+        SkPDFFillGraphicState fillKey = {p.getAlpha(), pdf_blend_mode(p.getBlendMode())};
+        auto& fillMap = canon->fFillGSMap;
+        if (sk_sp<SkPDFDict>* statePtr = fillMap.find(fillKey)) {
+            return *statePtr;
+        }
+        auto state = sk_make_sp<SkPDFDict>();
+        state->reserve(2);
+        state->insertScalar("ca", fillKey.fAlpha / 255.0f);
+        state->insertName("BM", as_pdf_blend_mode_name((SkBlendMode)fillKey.fBlendMode));
+        fillMap.set(fillKey, state);
+        return state;
+    } else {
+        SkPDFStrokeGraphicState strokeKey = {
+            p.getStrokeWidth(), p.getStrokeMiter(),
+            SkToU8(p.getStrokeCap()), SkToU8(p.getStrokeJoin()),
+            p.getAlpha(), pdf_blend_mode(p.getBlendMode())};
+        auto& sMap = canon->fStrokeGSMap;
+        if (sk_sp<SkPDFDict>* statePtr = sMap.find(strokeKey)) {
+            return *statePtr;
+        }
+        auto state = sk_make_sp<SkPDFDict>();
+        state->reserve(8);
+        state->insertScalar("CA", strokeKey.fAlpha / 255.0f);
+        state->insertScalar("ca", strokeKey.fAlpha / 255.0f);
+        state->insertInt("LC", to_stroke_cap(strokeKey.fStrokeCap));
+        state->insertInt("LJ", to_stroke_join(strokeKey.fStrokeJoin));
+        state->insertScalar("LW", strokeKey.fStrokeWidth);
+        state->insertScalar("ML", strokeKey.fStrokeMiter);
+        state->insertBool("SA", true);  // SA = Auto stroke adjustment.
+        state->insertName("BM", as_pdf_blend_mode_name((SkBlendMode)strokeKey.fBlendMode));
+        sMap.set(strokeKey, state);
+        return state;
     }
-    sk_sp<SkPDFGraphicState> pdfGraphicState(new SkPDFGraphicState(paint));
-    canon->addGraphicState(pdfGraphicState.get());
-    return pdfGraphicState;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkPDFStream> make_invert_function() {
     // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
@@ -155,51 +158,13 @@ sk_sp<SkPDFDict> SkPDFGraphicState::GetSMaskGraphicState(
     if (invert) {
         // Instead of calling SkPDFGraphicState::MakeInvertFunction,
         // let the canon deduplicate this object.
-        sMaskDict->insertObjRef(
-                "TR", SkPDFUtils::GetCachedT(&canon->fInvertFunction, &make_invert_function));
+        sk_sp<SkPDFStream>& invertFunction = canon->fInvertFunction;
+        if (!invertFunction) {
+            invertFunction = make_invert_function();
+        }
+        sMaskDict->insertObjRef("TR", invertFunction);
     }
-
     auto result = sk_make_sp<SkPDFDict>("ExtGState");
     result->insertObject("SMask", std::move(sMaskDict));
     return result;
-}
-
-sk_sp<SkPDFDict> SkPDFGraphicState::MakeNoSmaskGraphicState() {
-    auto noSMaskGS = sk_make_sp<SkPDFDict>("ExtGState");
-    noSMaskGS->insertName("SMask", "None");
-    return noSMaskGS;
-}
-
-void SkPDFGraphicState::emitObject(
-        SkWStream* stream,
-        const SkPDFObjNumMap& objNumMap) const {
-    auto dict = sk_make_sp<SkPDFDict>("ExtGState");
-    dict->insertName("Type", "ExtGState");
-
-    SkScalar alpha = SkIntToScalar(fAlpha) / 0xFF;
-    dict->insertScalar("CA", alpha);
-    dict->insertScalar("ca", alpha);
-
-    SkPaint::Cap strokeCap = (SkPaint::Cap)fStrokeCap;
-    SkPaint::Join strokeJoin = (SkPaint::Join)fStrokeJoin;
-
-    static_assert(SkPaint::kButt_Cap == 0, "paint_cap_mismatch");
-    static_assert(SkPaint::kRound_Cap == 1, "paint_cap_mismatch");
-    static_assert(SkPaint::kSquare_Cap == 2, "paint_cap_mismatch");
-    static_assert(SkPaint::kCapCount == 3, "paint_cap_mismatch");
-    SkASSERT(strokeCap >= 0 && strokeCap <= 2);
-    dict->insertInt("LC", strokeCap);
-
-    static_assert(SkPaint::kMiter_Join == 0, "paint_join_mismatch");
-    static_assert(SkPaint::kRound_Join == 1, "paint_join_mismatch");
-    static_assert(SkPaint::kBevel_Join == 2, "paint_join_mismatch");
-    static_assert(SkPaint::kJoinCount == 3, "paint_join_mismatch");
-    SkASSERT(strokeJoin >= 0 && strokeJoin <= 2);
-    dict->insertInt("LJ", strokeJoin);
-
-    dict->insertScalar("LW", fStrokeWidth);
-    dict->insertScalar("ML", fStrokeMiter);
-    dict->insertBool("SA", true);  // SA = Auto stroke adjustment.
-    dict->insertName("BM", as_blend_mode((SkBlendMode)fMode));
-    dict->emitObject(stream, objNumMap);
 }

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkLeanWindows.h"
 #include "SkMutex.h"
@@ -95,4 +95,4 @@ PIMAGE_TLS_CALLBACK skia_tls_callback = onTLSCallback;
 
 #endif//not defined(SK_BUILD_FOR_WINRT)
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

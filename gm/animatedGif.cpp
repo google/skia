@@ -18,7 +18,7 @@
 
 #include <vector>
 
-DEFINE_string(animatedGif, "test640x479.gif", "Animated gif in resources folder");
+DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
 
 namespace {
     void error(SkCanvas* canvas, const SkString& errorText) {
@@ -53,7 +53,6 @@ private:
 
             SkCodec::Options opts;
             opts.fFrameIndex = frameIndex;
-            opts.fHasPriorFrame = false;
             const int requiredFrame = fFrameInfos[frameIndex].fRequiredFrame;
             if (requiredFrame != SkCodec::kNone) {
                 SkASSERT(requiredFrame >= 0
@@ -62,13 +61,12 @@ private:
                 // For simplicity, do not try to cache old frames
                 if (requiredBitmap.getPixels() &&
                         sk_tool_utils::copy_to(&bm, requiredBitmap.colorType(), requiredBitmap)) {
-                    opts.fHasPriorFrame = true;
+                    opts.fPriorFrame = requiredFrame;
                 }
             }
 
             if (SkCodec::kSuccess != fCodec->getPixels(info, bm.getPixels(),
-                                                       bm.rowBytes(), &opts,
-                                                       nullptr, nullptr)) {
+                                                       bm.rowBytes(), &opts)) {
                 SkDebugf("Could not getPixels for frame %i: %s", frameIndex, FLAGS_animatedGif[0]);
                 return;
             }
@@ -125,7 +123,7 @@ private:
             return false;
         }
 
-        fCodec.reset(SkCodec::NewFromStream(stream.release()));
+        fCodec = SkCodec::MakeFromStream(std::move(stream));
         if (!fCodec) {
             SkDebugf("Could create codec from %s", FLAGS_animatedGif[0]);
             return false;

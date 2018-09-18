@@ -10,16 +10,14 @@
 
 #include "GrBackendSurface.h"
 #include "GrContext.h"
+#include "GrDrawOpAtlas.h"
 
 namespace GrTest {
     /**
      * Forces the GrContext to use a small atlas which only has room for one plot and will thus
      * constantly be evicting entries
      */
-    void SetupAlwaysEvictAtlas(GrContext*);
-
-    GrBackendTexture CreateBackendTexture(GrBackend, int width, int height,
-                                          GrPixelConfig, GrBackendObject);
+    void SetupAlwaysEvictAtlas(GrContext*, int dim = GrDrawOpAtlas::kGlyphMaxDim);
 };
 
 #endif

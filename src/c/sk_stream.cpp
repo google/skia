@@ -73,33 +73,33 @@ bool sk_stream_is_at_end (sk_stream_t* cstream)
 {
     return AsStream(cstream)->isAtEnd();
 }
-int8_t sk_stream_read_s8 (sk_stream_t* cstream)
+bool sk_stream_read_s8 (sk_stream_t* cstream, int8_t* buffer)
 {
-    return AsStream(cstream)->readS8();
+    return AsStream(cstream)->readS8(buffer);
 }
-int16_t sk_stream_read_s16 (sk_stream_t* cstream)
+bool sk_stream_read_s16 (sk_stream_t* cstream, int16_t* buffer)
 {
-    return AsStream(cstream)->readS16();
+    return AsStream(cstream)->readS16(buffer);
 }
-int32_t sk_stream_read_s32 (sk_stream_t* cstream)
+bool sk_stream_read_s32 (sk_stream_t* cstream, int32_t* buffer)
 {
-    return AsStream(cstream)->readS32();
+    return AsStream(cstream)->readS32(buffer);
 }
-uint8_t sk_stream_read_u8 (sk_stream_t* cstream)
+bool sk_stream_read_u8 (sk_stream_t* cstream, uint8_t* buffer)
 {
-    return AsStream(cstream)->readU8();
+    return AsStream(cstream)->readU8(buffer);
 }
-uint16_t sk_stream_read_u16 (sk_stream_t* cstream)
+bool sk_stream_read_u16 (sk_stream_t* cstream, uint16_t* buffer)
 {
-    return AsStream(cstream)->readU16();
+    return AsStream(cstream)->readU16(buffer);
 }
-uint32_t sk_stream_read_u32 (sk_stream_t* cstream)
+bool sk_stream_read_u32 (sk_stream_t* cstream, uint32_t* buffer)
 {
-    return AsStream(cstream)->readU32();
+    return AsStream(cstream)->readU32(buffer);
 }
-bool sk_stream_read_bool (sk_stream_t* cstream)
+bool sk_stream_read_bool (sk_stream_t* cstream, bool* buffer)
 {
-    return AsStream(cstream)->readBool();
+    return AsStream(cstream)->readBool(buffer);
 }
 
 bool sk_stream_rewind (sk_stream_t* cstream)

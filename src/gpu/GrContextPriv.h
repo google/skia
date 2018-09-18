@@ -10,39 +10,44 @@
 
 #include "GrContext.h"
 #include "GrSurfaceContext.h"
+#include "text/GrAtlasManager.h"
 
 class GrBackendRenderTarget;
+class GrOnFlushCallbackObject;
 class GrSemaphore;
 class GrSurfaceProxy;
-class GrOnFlushCallbackObject;
+class GrTextureContext;
+
+class SkDeferredDisplayList;
 
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
     data members or virtual methods. */
 class GrContextPriv {
 public:
+    /**
+     * Create a GrContext without a resource cache
+     */
+    static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
+
+    const GrCaps* caps() const { return fContext->fCaps.get(); }
+
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
-    // Create a renderTargetContext that wraps an existing renderTarget
-    sk_sp<GrRenderTargetContext> makeWrappedRenderTargetContext(sk_sp<GrRenderTarget>,
-                                                                sk_sp<SkColorSpace>,
-                                                                const SkSurfaceProps* = nullptr);
-
-    // Create a surfaceContext that wraps an existing texture or renderTarget
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurface>);
-
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace> = nullptr,
+                                                      const SkSurfaceProps* = nullptr);
 
     sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc&,
+                                                       GrSurfaceOrigin,
+                                                       GrMipMapped,
                                                        SkBackingFit,
-                                                       SkBudgeted);
+                                                       SkBudgeted,
+                                                       sk_sp<SkColorSpace> colorSpace = nullptr,
+                                                       const SkSurfaceProps* = nullptr);
 
-    // TODO: Maybe add a 'surfaceProps' param (that is ignored for non-RTs) and remove
-    // makeBackendTextureRenderTargetContext & makeBackendTextureAsRenderTargetRenderTargetContext
-    sk_sp<GrSurfaceContext> makeBackendSurfaceContext(const GrBackendTexture& tex,
+    sk_sp<GrTextureContext> makeBackendTextureContext(const GrBackendTexture& tex,
                                                       GrSurfaceOrigin origin,
-                                                      GrBackendTextureFlags flags,
-                                                      int sampleCnt,
                                                       sk_sp<SkColorSpace> colorSpace);
 
     sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
@@ -66,6 +71,7 @@ public:
                                                                  const SkSurfaceProps* = nullptr);
 
     bool disableGpuYUVConversion() const { return fContext->fDisableGpuYUVConversion; }
+    bool sharpenMipmappedTextures() const { return fContext->fSharpenMipmappedTextures; }
 
     /**
      * Call to ensure all drawing to the context has been issued to the
@@ -124,13 +130,16 @@ public:
     };
 
     /**
-     * Reads a rectangle of pixels from a surface.
+     * Reads a rectangle of pixels from a surface. There are currently two versions of this.
+     * readSurfacePixels() is the older version which will be replaced by the more robust and
+     * maintainable (but perhaps slower) readSurfacePixels2().
+     *
      * @param src           the surface context to read from.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
      * @param height        height of rectangle to read in pixels.
-     * @param dstConfig     the pixel config of the destination buffer
+     * @param dstColorType  the color type of the destination buffer
      * @param dstColorSpace color space of the destination buffer
      * @param buffer        memory to read the rectangle into.
      * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
@@ -140,20 +149,24 @@ public:
      * @return true if the read succeeded, false if not. The read can fail because of an unsupported
      *         pixel configs
      */
-    bool readSurfacePixels(GrSurfaceContext* src,
-                           int left, int top, int width, int height,
-                           GrPixelConfig dstConfig, SkColorSpace* dstColorSpace, void* buffer,
-                           size_t rowBytes = 0,
-                           uint32_t pixelOpsFlags = 0);
+    bool readSurfacePixels(GrSurfaceContext* src, int left, int top, int width, int height,
+                           GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
+                           size_t rowBytes = 0, uint32_t pixelOpsFlags = 0);
+    bool readSurfacePixels2(GrSurfaceContext* src, int left, int top, int width, int height,
+                            GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
+                            size_t rowBytes = 0, uint32_t pixelOpsFlags = 0);
 
     /**
-     * Writes a rectangle of pixels to a surface.
+     * Writes a rectangle of pixels to a surface. There are currently two versions of this.
+     * writeSurfacePixels() is the older version which will be replaced by the more robust and
+     * maintainable (but perhaps slower) writeSurfacePixels2().
+     *
      * @param dst           the surface context to write to.
      * @param left          left edge of the rectangle to write (inclusive)
      * @param top           top edge of the rectangle to write (inclusive)
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
-     * @param srcConfig     the pixel config of the source buffer
+     * @param srcColorType  the color type of the source buffer
      * @param srcColorSpace color space of the source buffer
      * @param buffer        memory to read pixels from
      * @param rowBytes      number of bytes between consecutive rows. Zero
@@ -162,13 +175,120 @@ public:
      * @return true if the write succeeded, false if not. The write can fail because of an
      *         unsupported combination of surface and src configs.
      */
-    bool writeSurfacePixels(GrSurfaceContext* dst,
-                            int left, int top, int width, int height,
-                            GrPixelConfig srcConfig, SkColorSpace* srcColorSpace, const void* buffer,
-                            size_t rowBytes,
-                            uint32_t pixelOpsFlags = 0);
+    bool writeSurfacePixels(GrSurfaceContext* dst, int left, int top, int width, int height,
+                            GrColorType srcColorType, SkColorSpace* srcColorSpace,
+                            const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
+    bool writeSurfacePixels2(GrSurfaceContext* dst, int left, int top, int width, int height,
+                             GrColorType srcColorType, SkColorSpace* srcColorSpace,
+                             const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
 
     GrBackend getBackend() const { return fContext->fBackend; }
+
+    SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
+
+    GrProxyProvider* proxyProvider() { return fContext->fProxyProvider; }
+    const GrProxyProvider* proxyProvider() const { return fContext->fProxyProvider; }
+
+    GrResourceProvider* resourceProvider() { return fContext->fResourceProvider; }
+    const GrResourceProvider* resourceProvider() const { return fContext->fResourceProvider; }
+
+    GrResourceCache* getResourceCache() { return fContext->fResourceCache; }
+
+    GrTextureStripAtlasManager* textureStripAtlasManager() {
+        return fContext->fTextureStripAtlasManager.get();
+    }
+
+    GrGpu* getGpu() { return fContext->fGpu.get(); }
+    const GrGpu* getGpu() const { return fContext->fGpu.get(); }
+
+    GrGlyphCache* getGlyphCache() { return fContext->fGlyphCache; }
+    GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
+
+    // This accessor should only ever be called by the GrOpFlushState.
+    GrAtlasManager* getAtlasManager() {
+        return fContext->onGetAtlasManager();
+    }
+
+    void moveOpListsToDDL(SkDeferredDisplayList*);
+    void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
+
+    /**
+     * Purge all the unlocked resources from the cache.
+     * This entry point is mainly meant for timing texture uploads
+     * and is not defined in normal builds of Skia.
+     */
+    void purgeAllUnlockedResources_ForTesting();
+
+
+    /*
+     * Create a new render target context backed by a deferred-style
+     * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
+     * renderTargetContexts created via this entry point.
+     */
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
+                                                 SkBackingFit fit,
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 1,
+                                                 GrMipMapped = GrMipMapped::kNo,
+                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted = SkBudgeted::kYes);
+    /*
+     * This method will attempt to create a renderTargetContext that has, at least, the number of
+     * channels and precision per channel as requested in 'config' (e.g., A8 and 888 can be
+     * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
+     * SRGB-ness will be preserved.
+     */
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
+                                                 SkBackingFit fit,
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 1,
+                                                 GrMipMapped = GrMipMapped::kNo,
+                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted budgeted = SkBudgeted::kYes);
+
+    bool abandoned() const;
+
+    /** Reset GPU stats */
+    void resetGpuStats() const ;
+
+    /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
+    void dumpCacheStats(SkString*) const;
+    void dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
+    void printCacheStats() const;
+
+    /** Prints GPU stats to the string if GR_GPU_STATS == 1. */
+    void dumpGpuStats(SkString*) const;
+    void dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
+    void printGpuStats() const;
+
+    /** Returns a string with detailed information about the context & GPU, in JSON format. */
+    SkString dump() const;
+
+    /** Specify the TextBlob cache limit. If the current cache exceeds this limit it will purge.
+        this is for testing only */
+    void setTextBlobCacheLimit_ForTesting(size_t bytes);
+
+    /** Specify the sizes of the GrAtlasTextContext atlases.  The configs pointer below should be
+        to an array of 3 entries */
+    void setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs);
+
+    /** Get pointer to atlas texture for given mask format. Note that this wraps an
+        actively mutating texture in an SkImage. This could yield unexpected results
+        if it gets cached or used more generally. */
+    sk_sp<SkImage> getFontAtlasImage_ForTesting(GrMaskFormat format, unsigned int index = 0);
+
+    GrAuditTrail* getAuditTrail() { return &fContext->fAuditTrail; }
+
+    GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
+
+    /** This is only useful for debug purposes */
+    SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}

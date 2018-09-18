@@ -6,6 +6,7 @@
  */
 #include "SampleCode.h"
 #include "SkView.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkShader.h"
@@ -37,16 +38,16 @@ class AARectView : public SampleView {
     enum {
         N = 64
     };
-public:
-    AARectView() {
+
+protected:
+    void onOnceBeforeDraw() override {
         fBitmap = createBitmap(N);
 
         fWidth = N;
     }
 
-protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "AA Rects");
             return true;
@@ -54,7 +55,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 
         SkPaint bluePaint;

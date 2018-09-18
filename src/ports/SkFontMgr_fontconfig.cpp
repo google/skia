@@ -31,10 +31,10 @@
 class SkData;
 
 // FC_POSTSCRIPT_NAME was added with b561ff20 which ended up in 2.10.92
-// Ubuntu 12.04 is on 2.8.0, 13.10 is on 2.10.93
-// Debian 7 is on 2.9.0, 8 is on 2.11
-// OpenSUSE 12.2 is on 2.9.0, 12.3 is on 2.10.2, 13.1 2.11.0
-// Fedora 19 is on 2.10.93
+// Ubuntu 14.04 is on 2.11.0
+// Debian 8 is on 2.11
+// OpenSUSE Leap 42.1 is on 2.11.0 (42.3 is on 2.11.1)
+// Fedora 24 is on 2.11.94
 #ifndef FC_POSTSCRIPT_NAME
 #    define FC_POSTSCRIPT_NAME  "postscriptname"
 #endif
@@ -73,10 +73,9 @@ void DeleteThreadFcLocked(void* v) { delete static_cast<bool*>(v); }
         static_cast<bool*>(SkTLS::Get(CreateThreadFcLocked, DeleteThreadFcLocked))
 #endif
 
-struct FCLocker {
+class FCLocker {
     // Assume FcGetVersion() has always been thread safe.
-
-    FCLocker() {
+    static void lock() {
         if (FcGetVersion() < 21091) {
             gFCMutex.acquire();
         } else {
@@ -85,8 +84,7 @@ struct FCLocker {
             SkDEBUGCODE(*threadLocked = true);
         }
     }
-
-    ~FCLocker() {
+    static void unlock() {
         AssertHeld();
         if (FcGetVersion() < 21091) {
             gFCMutex.release();
@@ -94,6 +92,20 @@ struct FCLocker {
             SkDEBUGCODE(*THREAD_FC_LOCKED = false);
         }
     }
+
+public:
+    FCLocker() { lock(); }
+    ~FCLocker() { unlock(); }
+
+    /** If acquire and release were free, FCLocker would be used around each call into FontConfig.
+     *  Instead a much more granular approach is taken, but this means there are times when the
+     *  mutex is held when it should not be. A Suspend will drop the lock until it is destroyed.
+     *  While a Suspend exists, FontConfig should not be used without re-taking the lock.
+     */
+    struct Suspend {
+        Suspend() { unlock(); }
+        ~Suspend() { lock(); }
+    };
 
     static void AssertHeld() { SkDEBUGCODE(
         if (FcGetVersion() < 21091) {
@@ -166,6 +178,7 @@ enum SkWeakReturn {
 };
 /** Ideally there  would exist a call like
  *  FcResult FcPatternIsWeak(pattern, object, id, FcBool* isWeak);
+ *  Sometime after 2.12.4 FcPatternGetWithBinding was added which can retrieve the binding.
  *
  *  However, there is no such call and as of Fc 2.11.0 even FcPatternEquals ignores the weak bit.
  *  Currently, the only reliable way of finding the weak bit is by its effect on matching.
@@ -315,13 +328,20 @@ template<int n> struct SkTFixed {
     static const SkFixed value = static_cast<SkFixed>(n << 16);
 };
 
+#ifndef FC_WEIGHT_DEMILIGHT
+#define FC_WEIGHT_DEMILIGHT        65
+#endif
+
 static SkFontStyle skfontstyle_from_fcpattern(FcPattern* pattern) {
     typedef SkFontStyle SkFS;
 
+    // FcWeightToOpenType was buggy until 2.12.4
     static const MapRanges weightRanges[] = {
         { SkTFixed<FC_WEIGHT_THIN>::value,       SkTFixed<SkFS::kThin_Weight>::value },
         { SkTFixed<FC_WEIGHT_EXTRALIGHT>::value, SkTFixed<SkFS::kExtraLight_Weight>::value },
         { SkTFixed<FC_WEIGHT_LIGHT>::value,      SkTFixed<SkFS::kLight_Weight>::value },
+        { SkTFixed<FC_WEIGHT_DEMILIGHT>::value,  SkTFixed<350>::value },
+        { SkTFixed<FC_WEIGHT_BOOK>::value,       SkTFixed<380>::value },
         { SkTFixed<FC_WEIGHT_REGULAR>::value,    SkTFixed<SkFS::kNormal_Weight>::value },
         { SkTFixed<FC_WEIGHT_MEDIUM>::value,     SkTFixed<SkFS::kMedium_Weight>::value },
         { SkTFixed<FC_WEIGHT_DEMIBOLD>::value,   SkTFixed<SkFS::kSemiBold_Weight>::value },
@@ -363,10 +383,13 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
 
     typedef SkFontStyle SkFS;
 
+    // FcWeightFromOpenType was buggy until 2.12.4
     static const MapRanges weightRanges[] = {
         { SkTFixed<SkFS::kThin_Weight>::value,       SkTFixed<FC_WEIGHT_THIN>::value },
         { SkTFixed<SkFS::kExtraLight_Weight>::value, SkTFixed<FC_WEIGHT_EXTRALIGHT>::value },
         { SkTFixed<SkFS::kLight_Weight>::value,      SkTFixed<FC_WEIGHT_LIGHT>::value },
+        { SkTFixed<350>::value,                      SkTFixed<FC_WEIGHT_DEMILIGHT>::value },
+        { SkTFixed<380>::value,                      SkTFixed<FC_WEIGHT_BOOK>::value },
         { SkTFixed<SkFS::kNormal_Weight>::value,     SkTFixed<FC_WEIGHT_REGULAR>::value },
         { SkTFixed<SkFS::kMedium_Weight>::value,     SkTFixed<FC_WEIGHT_MEDIUM>::value },
         { SkTFixed<SkFS::kSemiBold_Weight>::value,   SkTFixed<FC_WEIGHT_DEMIBOLD>::value },
@@ -423,7 +446,7 @@ public:
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         *ttcIndex = fData->getIndex();
-        return fData->getStream()->duplicate();
+        return fData->getStream()->duplicate().release();
     }
 
     std::unique_ptr<SkFontData> onMakeFontData() const override {
@@ -652,6 +675,8 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             FcPatternReference(pattern);
             face = SkTypeface_fontconfig::Create(pattern);
             if (face) {
+                // Cannot hold the lock when calling add; an evicted typeface may need to lock.
+                FCLocker::Suspend suspend;
                 fTFCache.add(face);
             }
         }
@@ -886,8 +911,8 @@ protected:
         return this->matchFamilyStyle(get_string(fcTypeface->fPattern, FC_FAMILY), style);
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream(bareStream);
+    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
+                                            int ttcIndex) const override {
         const size_t length = stream->getLength();
         if (length <= 0 || (1u << 30) < length) {
             return nullptr;
@@ -901,12 +926,13 @@ protected:
         }
 
         auto data = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
-        return new SkTypeface_stream(std::move(data), std::move(name), style, isFixedWidth);
+        return sk_sp<SkTypeface>(new SkTypeface_stream(std::move(data), std::move(name),
+                                                       style, isFixedWidth));
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* s, const SkFontArguments& args) const override {
+    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
+                                           const SkFontArguments& args) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
-        std::unique_ptr<SkStreamAsset> stream(s);
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
@@ -923,18 +949,19 @@ protected:
 
         auto data = skstd::make_unique<SkFontData>(std::move(stream), args.getCollectionIndex(),
                                                    axisValues.get(), axisDefinitions.count());
-        return new SkTypeface_stream(std::move(data), std::move(name), style, isFixedPitch);
+        return sk_sp<SkTypeface>(new SkTypeface_stream(std::move(data), std::move(name),
+                                                       style, isFixedPitch));
     }
 
-    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
-        return this->createFromStream(new SkMemoryStream(sk_ref_sp(data)), ttcIndex);
+    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
+        return this->makeFromStream(skstd::make_unique<SkMemoryStream>(std::move(data)), ttcIndex);
     }
 
-    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
-        return this->createFromStream(SkStream::MakeFromFile(path).release(), ttcIndex);
+    sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
+        return this->makeFromStream(SkStream::MakeFromFile(path), ttcIndex);
     }
 
-    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> fontData) const override {
+    sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData> fontData) const override {
         SkStreamAsset* stream(fontData->getStream());
         const size_t length = stream->getLength();
         if (length <= 0 || (1u << 30) < length) {
@@ -949,16 +976,17 @@ protected:
             return nullptr;
         }
 
-        return new SkTypeface_stream(std::move(fontData), std::move(name), style, isFixedWidth);
+        return sk_sp<SkTypeface>(new SkTypeface_stream(std::move(fontData), std::move(name),
+                                                       style, isFixedWidth));
     }
 
-    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
+    sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override {
         sk_sp<SkTypeface> typeface(this->matchFamilyStyle(familyName, style));
-        if (typeface.get()) {
-            return typeface.release();
+        if (typeface) {
+            return typeface;
         }
 
-        return this->matchFamilyStyle(nullptr, style);
+        return sk_sp<SkTypeface>(this->matchFamilyStyle(nullptr, style));
     }
 };
 

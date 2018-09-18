@@ -33,7 +33,7 @@ class SkSurface;
 struct SkPoint;
 
 ///////////////////////////////////////////////////////////////////////////////
-class SK_API SkBitmapDevice : public SkBaseDevice {
+class SkBitmapDevice : public SkBaseDevice {
 public:
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
@@ -55,13 +55,21 @@ public:
      *  any drawing to this device will have no effect.
      */
     SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
-                   void* externalHandle = nullptr);
+                   void* externalHandle, const SkBitmap* coverage);
 
     static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&,
-                                  SkRasterHandleAllocator* = nullptr);
+                                  bool trackCoverage,
+                                  SkRasterHandleAllocator*);
+
+    static SkBitmapDevice* Create(const SkImageInfo& info, const SkSurfaceProps& props) {
+        return Create(info, props, false, nullptr);
+    }
+
+    const SkPixmap* accessCoverage() const {
+        return fCoverage ? &fCoverage->pixmap() : nullptr;
+    }
 
 protected:
-    bool onShouldDisableLCD(const SkPaint&) const override;
     void* getRasterHandle() const override { return fRasterHandle; }
 
     /** These are called inside the per-device-layer loop for each draw call.
@@ -89,7 +97,7 @@ protected:
      */
     void drawPath(const SkPath&, const SkPaint&, const SkMatrix* prePathMatrix,
                           bool pathIsMutable) override;
-    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkPaint&) override;
+    void drawBitmap(const SkBitmap&, SkScalar x, SkScalar y, const SkPaint&) override;
     void drawSprite(const SkBitmap&, int x, int y, const SkPaint&) override;
 
     /**
@@ -120,8 +128,8 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) override;
-    bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
+    bool onReadPixels(const SkPixmap&, int x, int y) override;
+    bool onWritePixels(const SkPixmap&, int, int) override;
     bool onPeekPixels(SkPixmap*) override;
     bool onAccessPixels(SkPixmap*) override;
 
@@ -137,11 +145,15 @@ protected:
     void validateDevBounds(const SkIRect& r) override;
     ClipType onGetClipType() const override;
 
+    virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
+                            const SkPaint&);
+
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
     friend class SkDrawIter;
+    friend class SkDrawTiler;
     friend class SkDeviceFilteredPaint;
     friend class SkSurface_Raster;
     friend class SkThreadedBMPDevice; // to copy fRCStack
@@ -162,8 +174,30 @@ private:
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
+    std::unique_ptr<SkBitmap> fCoverage;    // if non-null, will have the same dimensions as fBitmap
 
     typedef SkBaseDevice INHERITED;
+};
+
+class SkBitmapDeviceFilteredSurfaceProps {
+public:
+    SkBitmapDeviceFilteredSurfaceProps(const SkBitmap& bitmap, const SkPaint& paint,
+                                       const SkSurfaceProps& surfaceProps)
+        : fSurfaceProps((kN32_SkColorType != bitmap.colorType() || !paint.isSrcOver())
+                        ? fLazy.init(surfaceProps.flags(), kUnknown_SkPixelGeometry)
+                        : &surfaceProps)
+    { }
+
+    SkBitmapDeviceFilteredSurfaceProps(const SkBitmapDeviceFilteredSurfaceProps&) = delete;
+    SkBitmapDeviceFilteredSurfaceProps& operator=(const SkBitmapDeviceFilteredSurfaceProps&) = delete;
+    SkBitmapDeviceFilteredSurfaceProps(SkBitmapDeviceFilteredSurfaceProps&&) = delete;
+    SkBitmapDeviceFilteredSurfaceProps& operator=(SkBitmapDeviceFilteredSurfaceProps&&) = delete;
+
+    const SkSurfaceProps& operator()() const { return *fSurfaceProps; }
+
+private:
+    SkTLazy<SkSurfaceProps> fLazy;
+    SkSurfaceProps const * const fSurfaceProps;
 };
 
 #endif // SkBitmapDevice_DEFINED

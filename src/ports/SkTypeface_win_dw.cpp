@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 // SkTypes will include Windows.h, which will pull in all of the GDI defines.
 // GDI #defines GetGlyphIndices to GetGlyphIndicesA or GetGlyphIndicesW, but
@@ -251,14 +251,13 @@ SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkScalerContext
     return new SkScalerContext_DW(sk_ref_sp(const_cast<DWriteFontTypeface*>(this)), effects, desc);
 }
 
-void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
+void DWriteFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
     if (rec->fFlags & SkScalerContext::kLCD_Vertical_Flag) {
         rec->fMaskFormat = SkMask::kA8_Format;
         rec->fFlags |= SkScalerContext::kGenA8FromLCD_Flag;
     }
 
     unsigned flagsWeDontSupport = SkScalerContext::kVertical_Flag |
-                                  SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kForceAutohinting_Flag |
                                   SkScalerContext::kEmbolden_Flag |
                                   SkScalerContext::kLCD_Vertical_Flag;
@@ -289,43 +288,30 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
 ///////////////////////////////////////////////////////////////////////////////
 //PDF Support
 
-// Construct Glyph to Unicode table.
-// Unicode code points that require conjugate pairs in utf16 are not
-// supported.
-// TODO(bungeman): This never does what anyone wants.
-// What is really wanted is the text to glyphs mapping
-static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
-                                      const unsigned glyphCount,
-                                      SkTDArray<SkUnichar>* glyphToUnicode) {
-    //Do this like free type instead
-    SkAutoTMalloc<SkUnichar> glyphToUni(
-            (SkUnichar*)sk_calloc_throw(sizeof(SkUnichar) * glyphCount));
+void DWriteFontTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
+    unsigned glyphCount = fDWriteFontFace->GetGlyphCount();
+    sk_bzero(glyphToUnicode, sizeof(SkUnichar) * glyphCount);
+    IDWriteFontFace* fontFace = fDWriteFontFace.get();
     int maxGlyph = -1;
     unsigned remainingGlyphCount = glyphCount;
     for (UINT32 c = 0; c < 0x10FFFF && remainingGlyphCount != 0; ++c) {
         UINT16 glyph = 0;
-        HRVM(fontFace->GetGlyphIndices(&c, 1, &glyph),
-             "Failed to get glyph index.");
+        HRVM(fontFace->GetGlyphIndices(&c, 1, &glyph), "Failed to get glyph index.");
         // Intermittent DW bug on Windows 10. See crbug.com/470146.
         if (glyph >= glyphCount) {
-          return;
+            return;
         }
-        if (0 < glyph && glyphToUni[glyph] == 0) {
+        if (0 < glyph && glyphToUnicode[glyph] == 0) {
             maxGlyph = SkTMax(static_cast<int>(glyph), maxGlyph);
-            glyphToUni[glyph] = c;  // Always use lowest-index unichar.
+            glyphToUnicode[glyph] = c;  // Always use lowest-index unichar.
             --remainingGlyphCount;
         }
     }
-    SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetrics() const {
 
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
-
-    HRESULT hr = S_OK;
-
-    const unsigned glyphCount = fDWriteFontFace->GetGlyphCount();
 
     DWRITE_FONT_METRICS dwfm;
     fDWriteFontFace->GetMetrics(&dwfm);
@@ -336,21 +322,30 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     info->fDescent = SkToS16(dwfm.descent);
     info->fCapHeight = SkToS16(dwfm.capHeight);
 
-    // SkAdvancedTypefaceMetrics::fFontName is in theory supposed to be
-    // the PostScript name of the font. However, due to the way it is currently
-    // used, it must actually be a family name.
+    {
+        SkTScopedComPtr<IDWriteLocalizedStrings> postScriptNames;
+        BOOL exists = FALSE;
+        if (FAILED(fDWriteFont->GetInformationalStrings(
+                        DWRITE_INFORMATIONAL_STRING_POSTSCRIPT_NAME,
+                        &postScriptNames,
+                        &exists)) ||
+            !exists ||
+            FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &info->fPostScriptName)))
+        {
+            SkDEBUGF(("Unable to get postscript name for typeface %p\n", this));
+        }
+    }
+
+    // SkAdvancedTypefaceMetrics::fFontName must actually be a family name.
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-    hr = fDWriteFontFamily->GetFamilyNames(&familyNames);
-
-    UINT32 familyNameLen;
-    hr = familyNames->GetStringLength(0, &familyNameLen);
-
-    SkSMallocWCHAR familyName(familyNameLen+1);
-    hr = familyNames->GetString(0, familyName.get(), familyNameLen+1);
-
-    hr = sk_wchar_to_skstring(familyName.get(), familyNameLen, &info->fFontName);
-
-    populate_glyph_to_unicode(fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
+    if (FAILED(fDWriteFontFamily->GetFamilyNames(&familyNames)) ||
+        FAILED(sk_get_locale_string(familyNames.get(), nullptr, &info->fFontName)))
+    {
+        SkDEBUGF(("Unable to get family name for typeface 0x%p\n", this));
+    }
+    if (info->fPostScriptName.isEmpty()) {
+        info->fPostScriptName = info->fFontName;
+    }
 
     DWRITE_FONT_FACE_TYPE fontType = fDWriteFontFace->GetType();
     if (fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE &&
@@ -371,6 +366,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     if (!headTable.fExists || !postTable.fExists || !hheaTable.fExists || !os2Table.fExists) {
         return info;
     }
+
+    SkOTUtils::SetAdvancedTypefaceFlags(os2Table->version.v4.fsType, info.get());
 
     // There are versions of DirectWrite which support named instances for system variation fonts,
     // but no means to indicate that such a typeface is a variation.
@@ -420,4 +417,4 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
                                     (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMin));
     return info;
 }
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

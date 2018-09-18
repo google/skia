@@ -14,8 +14,8 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
         uint64_t colorOrIndex, SkCodec::ZeroInitialized zeroInit) {
     SkASSERT(dst != nullptr);
 
-    // Calculate bytes to fill.  We use getSafeSize since the last row may not be padded.
-    const size_t bytesToFill = info.getSafeSize(rowBytes);
+    // Calculate bytes to fill.
+    const size_t bytesToFill = info.computeByteSize(rowBytes);
     const int width = info.width();
     const int numRows = info.height();
 
@@ -57,9 +57,6 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
             }
             break;
         }
-        case kIndex_8_SkColorType:
-            // On an index destination color type, always assume the input is an index.
-            // Fall through
         case kGray_8_SkColorType:
             // If the destination is kGray, the caller passes in an 8-bit color.
             // We will not assert that the high bits of colorOrIndex must be zeroed.

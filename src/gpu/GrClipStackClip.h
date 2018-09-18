@@ -38,6 +38,7 @@ public:
 
 private:
     static bool PathNeedsSWRenderer(GrContext* context,
+                                    const SkIRect& scissorRect,
                                     bool hasUserStencilSettings,
                                     const GrRenderTargetContext*,
                                     const SkMatrix& viewMatrix,
@@ -45,12 +46,16 @@ private:
                                     GrPathRenderer** prOut,
                                     bool needsStencil);
 
+    bool applyClipMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&,
+                       bool hasUserStencilSettings, GrAppliedClip*) const;
+
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
     sk_sp<GrTextureProxy> createAlphaClipMask(GrContext*, const GrReducedClip&) const;
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
-    sk_sp<GrTextureProxy> createSoftwareClipMask(GrContext*, const GrReducedClip&) const;
+    sk_sp<GrTextureProxy> createSoftwareClipMask(GrContext*, const GrReducedClip&,
+                                                 GrRenderTargetContext*) const;
 
     static bool UseSWOnlyPath(GrContext*,
                               bool hasUserStencilSettings,

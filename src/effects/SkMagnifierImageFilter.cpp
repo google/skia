@@ -8,7 +8,10 @@
 #include "SkMagnifierImageFilter.h"
 
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
+#include "SkColorSpaceXformer.h"
+#include "SkFlattenablePriv.h"
+#include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
@@ -16,15 +19,16 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
+#include "../private/GrGLSL.h"
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
-#include "effects/GrProxyMove.h"
-#include "effects/GrSingleTextureEffect.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
+#include "GrCoordTransform.h"
+#include "GrTexture.h"
+#include "effects/GrMagnifierEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "../private/GrGLSL.h"
 #endif
 
 sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScalar inset,
@@ -44,257 +48,6 @@ sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScala
                                                            std::move(input),
                                                            cropRect));
 }
-
-#if SK_SUPPORT_GPU
-class GrMagnifierEffect : public GrSingleTextureEffect {
-public:
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           sk_sp<GrTextureProxy> proxy,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkIRect& bounds,
-                                           const SkRect& srcRect,
-                                           float xInvZoom,
-                                           float yInvZoom,
-                                           float xInvInset,
-                                           float yInvInset) {
-        return sk_sp<GrFragmentProcessor>(new GrMagnifierEffect(resourceProvider,
-                                                                std::move(proxy),
-                                                                std::move(colorSpaceXform),
-                                                                bounds, srcRect,
-                                                                xInvZoom, yInvZoom,
-                                                                xInvInset, yInvInset));
-    }
-
-    ~GrMagnifierEffect() override {}
-
-    const char* name() const override { return "Magnifier"; }
-
-    const SkIRect& bounds() const { return fBounds; }    // Bounds of source image.
-    const SkRect& srcRect() const { return fSrcRect; }
-
-    // Scale to apply to zoomed pixels (srcRect size / bounds size).
-    float xInvZoom() const { return fXInvZoom; }
-    float yInvZoom() const { return fYInvZoom; }
-
-    // 1/radius over which to transition from unzoomed to zoomed pixels (bounds size / inset).
-    float xInvInset() const { return fXInvInset; }
-    float yInvInset() const { return fYInvInset; }
-
-private:
-    GrMagnifierEffect(GrResourceProvider* resourceProvider,
-                      sk_sp<GrTextureProxy> proxy,
-                      sk_sp<GrColorSpaceXform> colorSpaceXform,
-                      const SkIRect& bounds,
-                      const SkRect& srcRect,
-                      float xInvZoom,
-                      float yInvZoom,
-                      float xInvInset,
-                      float yInvInset)
-            : INHERITED{resourceProvider,
-                        ModulationFlags(proxy->config()),
-                        GR_PROXY_MOVE(proxy),
-                        std::move(colorSpaceXform),
-                        SkMatrix::I()} // TODO: no GrSamplerParams::kBilerp_FilterMode?
-            , fBounds(bounds)
-            , fSrcRect(srcRect)
-            , fXInvZoom(xInvZoom)
-            , fYInvZoom(yInvZoom)
-            , fXInvInset(xInvInset)
-            , fYInvInset(yInvInset) {
-        this->initClassID<GrMagnifierEffect>();
-    }
-
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
-
-    bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
-
-    SkIRect fBounds;
-    SkRect  fSrcRect;
-    float fXInvZoom;
-    float fYInvZoom;
-    float fXInvInset;
-    float fYInvInset;
-
-    typedef GrSingleTextureEffect INHERITED;
-};
-
-// For brevity
-typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-
-class GrGLMagnifierEffect : public GrGLSLFragmentProcessor {
-public:
-    void emitCode(EmitArgs&) override;
-
-    static inline void GenKey(const GrProcessor& effect, const GrShaderCaps&,
-                              GrProcessorKeyBuilder* b) {
-        const GrMagnifierEffect& zoom = effect.cast<GrMagnifierEffect>();
-        b->add32(GrColorSpaceXform::XformKey(zoom.colorSpaceXform()));
-    }
-
-protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
-
-private:
-    UniformHandle       fOffsetVar;
-    UniformHandle       fInvZoomVar;
-    UniformHandle       fInvInsetVar;
-    UniformHandle       fBoundsVar;
-    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
-
-    typedef GrGLSLFragmentProcessor INHERITED;
-};
-
-void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
-    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fOffsetVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                            kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                            "Offset");
-    fInvZoomVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                             "InvZoom");
-    fInvInsetVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                              "InvInset");
-    fBoundsVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                            "Bounds");
-
-    const GrMagnifierEffect& zoom = args.fFp.cast<GrMagnifierEffect>();
-    fColorSpaceHelper.emitCode(uniformHandler, zoom.colorSpaceXform());
-
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
-    fragBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
-    fragBuilder->codeAppendf("\t\tvec2 zoom_coord = %s + %s * %s;\n",
-                             uniformHandler->getUniformCStr(fOffsetVar),
-                             coords2D.c_str(),
-                             uniformHandler->getUniformCStr(fInvZoomVar));
-    const char* bounds = uniformHandler->getUniformCStr(fBoundsVar);
-    fragBuilder->codeAppendf("\t\tvec2 delta = (coord - %s.xy) * %s.zw;\n", bounds, bounds);
-    fragBuilder->codeAppendf("\t\tdelta = min(delta, vec2(1.0, 1.0) - delta);\n");
-    fragBuilder->codeAppendf("\t\tdelta = delta * %s;\n",
-                             uniformHandler->getUniformCStr(fInvInsetVar));
-
-    fragBuilder->codeAppend("\t\tfloat weight = 0.0;\n");
-    fragBuilder->codeAppend("\t\tif (delta.s < 2.0 && delta.t < 2.0) {\n");
-    fragBuilder->codeAppend("\t\t\tdelta = vec2(2.0, 2.0) - delta;\n");
-    fragBuilder->codeAppend("\t\t\tfloat dist = length(delta);\n");
-    fragBuilder->codeAppend("\t\t\tdist = max(2.0 - dist, 0.0);\n");
-    fragBuilder->codeAppend("\t\t\tweight = min(dist * dist, 1.0);\n");
-    fragBuilder->codeAppend("\t\t} else {\n");
-    fragBuilder->codeAppend("\t\t\tvec2 delta_squared = delta * delta;\n");
-    fragBuilder->codeAppend("\t\t\tweight = min(min(delta_squared.x, delta_squared.y), 1.0);\n");
-    fragBuilder->codeAppend("\t\t}\n");
-
-    fragBuilder->codeAppend("\t\tvec2 mix_coord = mix(coord, zoom_coord, weight);\n");
-    fragBuilder->codeAppend("\t\tvec4 output_color = ");
-    fragBuilder->appendTextureLookup(args.fTexSamplers[0], "mix_coord", kVec2f_GrSLType,
-                                     &fColorSpaceHelper);
-    fragBuilder->codeAppend(";\n");
-
-    fragBuilder->codeAppendf("\t\t%s = output_color;\n", args.fOutputColor);
-    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
-}
-
-void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                    const GrFragmentProcessor& effect) {
-    const GrMagnifierEffect& zoom = effect.cast<GrMagnifierEffect>();
-
-    GrTexture* tex = zoom.textureSampler(0).texture();
-    SkASSERT(tex);
-
-    SkScalar invW = 1.0f / tex->width();
-    SkScalar invH = 1.0f / tex->height();
-
-    {
-        SkScalar y = zoom.srcRect().y() * invH;
-        if (tex->origin() != kTopLeft_GrSurfaceOrigin) {
-            y = 1.0f - (zoom.srcRect().height() / zoom.bounds().height()) - y;
-        }
-
-        pdman.set2f(fOffsetVar, zoom.srcRect().x() * invW, y);
-    }
-
-    pdman.set2f(fInvZoomVar, zoom.xInvZoom(), zoom.yInvZoom());
-    pdman.set2f(fInvInsetVar, zoom.xInvInset(), zoom.yInvInset());
-
-    {
-        SkScalar y = zoom.bounds().y() * invH;
-        if (tex->origin() != kTopLeft_GrSurfaceOrigin) {
-            y = 1.0f - zoom.bounds().height() * invH;
-        }
-
-        pdman.set4f(fBoundsVar,
-                    zoom.bounds().x() * invW,
-                    y,
-                    SkIntToScalar(tex->width()) / zoom.bounds().width(),
-                    SkIntToScalar(tex->height()) / zoom.bounds().height());
-    }
-
-    if (SkToBool(zoom.colorSpaceXform())) {
-        fColorSpaceHelper.setData(pdman, zoom.colorSpaceXform());
-    }
-}
-
-/////////////////////////////////////////////////////////////////////
-
-void GrMagnifierEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                              GrProcessorKeyBuilder* b) const {
-    GrGLMagnifierEffect::GenKey(*this, caps, b);
-}
-
-GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLSLInstance() const {
-    return new GrGLMagnifierEffect;
-}
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
-
-#if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(0);
-    const int kMaxWidth = 200;
-    const int kMaxHeight = 200;
-    const SkScalar kMaxInset = 20.0f;
-    uint32_t width = d->fRandom->nextULessThan(kMaxWidth);
-    uint32_t height = d->fRandom->nextULessThan(kMaxHeight);
-    SkScalar inset = d->fRandom->nextRangeScalar(1.0f, kMaxInset);
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-
-    SkIRect bounds = SkIRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight));
-    SkRect srcRect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-
-    sk_sp<GrFragmentProcessor> effect(GrMagnifierEffect::Make(
-        d->resourceProvider(),
-        std::move(proxy),
-        std::move(colorSpaceXform),
-        bounds,
-        srcRect,
-        srcRect.width() / bounds.width(),
-        srcRect.height() / bounds.height(),
-        bounds.width() / inset,
-        bounds.height() / inset));
-    SkASSERT(effect);
-    return effect;
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
-bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
-    const GrMagnifierEffect& s = sBase.cast<GrMagnifierEffect>();
-    return (this->fBounds == s.fBounds &&
-            this->fSrcRect == s.fSrcRect &&
-            this->fXInvZoom == s.fXInvZoom &&
-            this->fYInvZoom == s.fYInvZoom &&
-            this->fXInvInset == s.fXInvInset &&
-            this->fYInvInset == s.fYInvInset);
-}
-
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -355,19 +108,16 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
         offset->fY = bounds.top();
         bounds.offset(-inputOffset);
 
-        SkColorSpace* dstColorSpace = ctx.outputProperties().colorSpace();
-        sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(input->getColorSpace(),
-                                                                           dstColorSpace);
-        sk_sp<GrFragmentProcessor> fp(GrMagnifierEffect::Make(
-                                                        context->resourceProvider(),
-                                                        std::move(inputProxy),
-                                                        std::move(colorSpaceXform),
-                                                        bounds,
-                                                        fSrcRect,
-                                                        invXZoom,
-                                                        invYZoom,
-                                                        bounds.width() * invInset,
-                                                        bounds.height() * invInset));
+        GrPixelConfig inputConfig = inputProxy->config();
+        auto fp = GrMagnifierEffect::Make(std::move(inputProxy),
+                                          bounds,
+                                          fSrcRect,
+                                          invXZoom,
+                                          invYZoom,
+                                          bounds.width() * invInset,
+                                          bounds.height() * invInset);
+        fp = GrColorSpaceXformEffect::Make(std::move(fp), input->getColorSpace(),
+                                           inputConfig, ctx.outputProperties().colorSpace());
         if (!fp) {
             return nullptr;
         }
@@ -444,16 +194,14 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
 
 sk_sp<SkImageFilter> SkMagnifierImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     SkASSERT(1 == this->countInputs());
-    if (!this->getInput(0)) {
-        return sk_ref_sp(const_cast<SkMagnifierImageFilter*>(this));
+    auto input = xformer->apply(this->getInput(0));
+    if (input.get() != this->getInput(0)) {
+        return SkMagnifierImageFilter::Make(fSrcRect, fInset, std::move(input),
+                                            this->getCropRectIfSet());
     }
-
-    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return SkMagnifierImageFilter::Make(fSrcRect, fInset, std::move(input),
-                                        this->getCropRectIfSet());
+    return this->refMe();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkMagnifierImageFilter::toString(SkString* str) const {
     str->appendf("SkMagnifierImageFilter: (");
     str->appendf("src: (%f,%f,%f,%f) ",
@@ -461,4 +209,3 @@ void SkMagnifierImageFilter::toString(SkString* str) const {
     str->appendf("inset: %f", fInset);
     str->append(")");
 }
-#endif

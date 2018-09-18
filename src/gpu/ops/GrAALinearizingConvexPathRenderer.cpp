@@ -6,7 +6,6 @@
  */
 
 #include "GrAALinearizingConvexPathRenderer.h"
-
 #include "GrAAConvexTessellator.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -14,7 +13,6 @@
 #include "GrGeometryProcessor.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
-#include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
 #include "GrStyle.h"
 #include "SkGeometry.h"
@@ -23,6 +21,7 @@
 #include "SkTraceEvent.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "ops/GrMeshDrawOp.h"
+#include "ops/GrSimpleMeshDrawOpHelper.h"
 
 static const int DEFAULT_BUFFER_SIZE = 100;
 
@@ -35,35 +34,46 @@ GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrPathRenderer::CanDrawPath
+GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (GrAAType::kCoverage != args.fAAType) {
-        return false;
+        return CanDrawPath::kNo;
     }
     if (!args.fShape->knownToBeConvex()) {
-        return false;
+        return CanDrawPath::kNo;
     }
     if (args.fShape->style().pathEffect()) {
-        return false;
+        return CanDrawPath::kNo;
     }
     if (args.fShape->inverseFilled()) {
-        return false;
+        return CanDrawPath::kNo;
+    }
+    if (args.fShape->bounds().width() <= 0 && args.fShape->bounds().height() <= 0) {
+        // Stroked zero length lines should draw, but this PR doesn't handle that case
+        return CanDrawPath::kNo;
     }
     const SkStrokeRec& stroke = args.fShape->style().strokeRec();
 
     if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
         stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
         if (!args.fViewMatrix->isSimilarity()) {
-            return false;
+            return CanDrawPath::kNo;
         }
         SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * stroke.getWidth();
         if (strokeWidth < 1.0f && stroke.getStyle() == SkStrokeRec::kStroke_Style) {
-            return false;
+            return CanDrawPath::kNo;
         }
-        return strokeWidth <= kMaxStrokeWidth &&
-               args.fShape->knownToBeClosed() &&
-               stroke.getJoin() != SkPaint::Join::kRound_Join;
+        if (strokeWidth > kMaxStrokeWidth ||
+            !args.fShape->knownToBeClosed() ||
+            stroke.getJoin() == SkPaint::Join::kRound_Join) {
+            return CanDrawPath::kNo;
+        }
+        return CanDrawPath::kYes;
     }
-    return stroke.getStyle() == SkStrokeRec::kFill_Style;
+    if (stroke.getStyle() != SkStrokeRec::kFill_Style) {
+        return CanDrawPath::kNo;
+    }
+    return CanDrawPath::kYes;
 }
 
 // extract the result vertices and indices from the GrAAConvexTessellator
@@ -100,9 +110,9 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     }
 }
 
-static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
-                                                 const SkMatrix& viewMatrix,
-                                                 bool usesLocalCoords) {
+static sk_sp<GrGeometryProcessor> create_lines_only_gp(bool tweakAlphaForCoverage,
+                                                       const SkMatrix& viewMatrix,
+                                                       bool usesLocalCoords) {
     using namespace GrDefaultGeoProcFactory;
 
     Coverage::Type coverageType;
@@ -117,44 +127,37 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
                               viewMatrix);
 }
 
-class AAFlatteningConvexPathOp final : public GrLegacyMeshDrawOp {
+namespace {
+
+class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelperWithStencil;
+
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
-                                                    const SkMatrix& viewMatrix,
-                                                    const SkPath& path,
-                                                    SkScalar strokeWidth,
-                                                    SkStrokeRec::Style style,
-                                                    SkPaint::Join join,
-                                                    SkScalar miterLimit) {
-        return std::unique_ptr<GrLegacyMeshDrawOp>(new AAFlatteningConvexPathOp(
-                color, viewMatrix, path, strokeWidth, style, join, miterLimit));
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          const SkPath& path,
+                                          SkScalar strokeWidth,
+                                          SkStrokeRec::Style style,
+                                          SkPaint::Join join,
+                                          SkScalar miterLimit,
+                                          const GrUserStencilSettings* stencilSettings) {
+        return Helper::FactoryHelper<AAFlatteningConvexPathOp>(std::move(paint), viewMatrix, path,
+                                                               strokeWidth, style, join, miterLimit,
+                                                               stencilSettings);
     }
 
-    const char* name() const override { return "AAFlatteningConvexPathOp"; }
-
-    SkString dumpInfo() const override {
-        SkString string;
-        for (const auto& path : fPaths) {
-            string.appendf(
-                    "Color: 0x%08x, StrokeWidth: %.2f, Style: %d, Join: %d, "
-                    "MiterLimit: %.2f\n",
-                    path.fColor, path.fStrokeWidth, path.fStyle, path.fJoin, path.fMiterLimit);
-        }
-        string.append(DumpPipelineInfo(*this->pipeline()));
-        string.append(INHERITED::dumpInfo());
-        return string;
-    }
-
-private:
-    AAFlatteningConvexPathOp(GrColor color,
+    AAFlatteningConvexPathOp(const Helper::MakeArgs& helperArgs,
+                             GrColor color,
                              const SkMatrix& viewMatrix,
                              const SkPath& path,
                              SkScalar strokeWidth,
                              SkStrokeRec::Style style,
                              SkPaint::Join join,
-                             SkScalar miterLimit)
-            : INHERITED(ClassID()) {
+                             SkScalar miterLimit,
+                             const GrUserStencilSettings* stencilSettings)
+            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
         fPaths.emplace_back(
                 PathData{color, viewMatrix, path, strokeWidth, style, join, miterLimit});
 
@@ -172,25 +175,43 @@ private:
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToConstant(fPaths[0].fColor);
-        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
+    const char* name() const override { return "AAFlatteningConvexPathOp"; }
+
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
     }
 
-    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
-        optimizations.getOverrideColorIfSet(&fPaths[0].fColor);
-        fUsesLocalCoords = optimizations.readsLocalCoords();
-        fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
+    SkString dumpInfo() const override {
+        SkString string;
+        for (const auto& path : fPaths) {
+            string.appendf(
+                    "Color: 0x%08x, StrokeWidth: %.2f, Style: %d, Join: %d, "
+                    "MiterLimit: %.2f\n",
+                    path.fColor, path.fStrokeWidth, path.fStyle, path.fJoin, path.fMiterLimit);
+        }
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
+        return string;
     }
 
-    void draw(GrLegacyMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,
-              size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kSingleChannel,
+                                            &fPaths.back().fColor);
+    }
+
+private:
+    void draw(GrMeshDrawOp::Target* target, const GrGeometryProcessor* gp,
+              const GrPipeline* pipeline, int vertexCount, size_t vertexStride, void* vertices,
+              int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
         const GrBuffer* vertexBuffer;
-        GrMesh mesh(kTriangles_GrPrimitiveType);
+        GrMesh mesh(GrPrimitiveType::kTriangles);
         int firstVertex;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
                                               &firstVertex);
@@ -208,17 +229,18 @@ private:
             return;
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
-        mesh.setIndexed(indexBuffer, indexCount, firstIndex);
-        mesh.setVertices(vertexBuffer, vertexCount, firstVertex);
-        target->draw(gp, this->pipeline(), mesh);
+        mesh.setIndexed(indexBuffer, indexCount, firstIndex, 0, vertexCount - 1);
+        mesh.setVertexData(vertexBuffer, firstVertex);
+        target->draw(gp, pipeline, mesh);
     }
 
-    void onPrepareDraws(Target* target) const override {
-        bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
+    void onPrepareDraws(Target* target) override {
+        const GrPipeline* pipeline = fHelper.makePipeline(target);
 
         // Setup GrGeometryProcessor
-        sk_sp<GrGeometryProcessor> gp(create_fill_gp(
-                canTweakAlphaForCoverage, this->viewMatrix(), this->usesLocalCoords()));
+        sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(fHelper.compatibleWithAlphaAsCoverage(),
+                                                           this->viewMatrix(),
+                                                           fHelper.usesLocalCoords()));
         if (!gp) {
             SkDebugf("Couldn't create a GrGeometryProcessor\n");
             return;
@@ -226,9 +248,10 @@ private:
 
         size_t vertexStride = gp->getVertexStride();
 
-        SkASSERT(canTweakAlphaForCoverage ?
-                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
-                 vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
+        SkASSERT(fHelper.compatibleWithAlphaAsCoverage()
+                         ? vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr)
+                         : vertexStride ==
+                                   sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
 
         int instanceCount = fPaths.count();
 
@@ -248,12 +271,11 @@ private:
             }
 
             int currentIndices = tess.numIndices();
-            SkASSERT(currentIndices <= UINT16_MAX);
-            if (indexCount + currentIndices > UINT16_MAX) {
+            if (indexCount + currentIndices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->draw(target, gp.get(),
-                           vertexCount, vertexStride, vertices, indexCount, indices);
+                this->draw(target, gp.get(), pipeline, vertexCount, vertexStride, vertices,
+                           indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -268,31 +290,21 @@ private:
             }
 
             extract_verts(tess, vertices + vertexStride * vertexCount, vertexStride, args.fColor,
-                    vertexCount, indices + indexCount, canTweakAlphaForCoverage);
+                          vertexCount, indices + indexCount,
+                          fHelper.compatibleWithAlphaAsCoverage());
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
-        this->draw(target, gp.get(), vertexCount, vertexStride, vertices, indexCount, indices);
+        this->draw(target, gp.get(), pipeline, vertexCount, vertexStride, vertices, indexCount,
+                   indices);
         sk_free(vertices);
         sk_free(indices);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAFlatteningConvexPathOp* that = t->cast<AAFlatteningConvexPathOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return false;
-        }
-
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return false;
-        }
-
-        // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
-        // tweaking
-        if (this->canTweakAlphaForCoverage() != that->canTweakAlphaForCoverage()) {
-            fCanTweakAlphaForCoverage = false;
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
@@ -300,8 +312,6 @@ private:
         return true;
     }
 
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
-    bool canTweakAlphaForCoverage() const { return fCanTweakAlphaForCoverage; }
     const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
 
     struct PathData {
@@ -314,12 +324,13 @@ private:
         SkScalar fMiterLimit;
     };
 
-    bool fUsesLocalCoords;
-    bool fCanTweakAlphaForCoverage;
     SkSTArray<1, PathData, true> fPaths;
+    Helper fHelper;
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
+
+}  // anonymous namespace
 
 bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
@@ -336,16 +347,10 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    std::unique_ptr<GrLegacyMeshDrawOp> op =
-            AAFlatteningConvexPathOp::Make(args.fPaint.getColor(), *args.fViewMatrix, path,
-                                           strokeWidth, stroke.getStyle(), join, miterLimit);
-
-    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
-    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-
-    args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
-                                                   std::move(op));
-
+    std::unique_ptr<GrDrawOp> op = AAFlatteningConvexPathOp::Make(
+            std::move(args.fPaint), *args.fViewMatrix, path, strokeWidth, stroke.getStyle(), join,
+            miterLimit, args.fUserStencilSettings);
+    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     return true;
 }
 
@@ -353,8 +358,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #if GR_TEST_UTILS
 
-GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
-    GrColor color = GrRandomColor(random);
+GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     SkPath path = GrTest::TestPathConvex(random);
 
@@ -377,9 +381,9 @@ GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
         }
         miterLimit = random->nextRangeF(0.5f, 2.0f);
     }
-
-    return AAFlatteningConvexPathOp::Make(color, viewMatrix, path, strokeWidth, style, join,
-                                          miterLimit);
+    const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
+    return AAFlatteningConvexPathOp::Make(std::move(paint), viewMatrix, path, strokeWidth, style,
+                                          join, miterLimit, stencilSettings);
 }
 
 #endif

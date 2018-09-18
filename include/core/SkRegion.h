@@ -20,7 +20,7 @@ namespace android {
 }
 
 #define SkRegion_gEmptyRunHeadPtr   ((SkRegion::RunHead*)-1)
-#define SkRegion_gRectRunHeadPtr    0
+#define SkRegion_gRectRunHeadPtr    nullptr
 
 /** \class SkRegion
 
@@ -30,9 +30,7 @@ namespace android {
 class SK_API SkRegion {
 public:
     typedef int32_t RunType;
-    enum {
-        kRunTypeSentinel = 0x7FFFFFFF
-    };
+    static constexpr int kRunTypeSentinel = 0x7FFFFFFF;
 
     SkRegion();
     SkRegion(const SkRegion&);
@@ -117,7 +115,9 @@ public:
      *  If left < right and top < bottom, set this region to that rectangle and
      *  return true, otherwise set this region to empty and return false.
      */
-    bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom);
+    bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
+        return this->setRect({ left, top, right, bottom });
+    }
 
     /**
      *  Set this region to the union of an array of rects. This is generally
@@ -316,7 +316,7 @@ public:
      */
     class SK_API Iterator {
     public:
-        Iterator() : fRgn(NULL), fDone(true) {}
+        Iterator() : fRgn(nullptr), fDone(true) {}
         Iterator(const SkRegion&);
         // if we have a region, reset to it and return true, else return false
         bool rewind();
@@ -397,16 +397,12 @@ public:
     SkDEBUGCODE(bool debugSetRuns(const RunType runs[], int count);)
 
 private:
-    enum {
-        kOpCount = kReplace_Op + 1
-    };
+    static constexpr int kOpCount = kReplace_Op + 1;
 
-    enum {
-        // T
-        // [B N L R S]
-        // S
-        kRectRegionRuns = 7
-    };
+    // T
+    // [B N L R S]
+    // S
+    static constexpr int kRectRegionRuns = 7;
 
     friend class android::Region;    // needed for marshalling efficiently
 
@@ -455,6 +451,7 @@ private:
     friend struct RunHead;
     friend class Iterator;
     friend class Spanerator;
+    friend class SkRegionPriv;
     friend class SkRgnBuilder;
     friend class SkFlatRegion;
 };

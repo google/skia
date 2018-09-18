@@ -26,5 +26,5 @@ int sk_colortable_count(const sk_colortable_t* ctable) {
 }
 
 void sk_colortable_read_colors(const sk_colortable_t* ctable, sk_pmcolor_t** colors) {
-    *colors = (SkColor*) AsColorTable(ctable)->readColors();
+    *colors = (SkColor*)AsColorTable(ctable)->readColors();
 }

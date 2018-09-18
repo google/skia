@@ -1,0 +1,10 @@
+{
+  'includes': [
+    'perf_skia_bundled.isolate',
+  ],
+  'variables': {
+    'files': [
+      '../../tools/calmbench/',
+    ],
+  },
+}

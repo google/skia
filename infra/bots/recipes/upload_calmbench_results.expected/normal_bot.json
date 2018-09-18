@@ -1,0 +1,84 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/perf",
+      "*.json"
+    ],
+    "infra_step": true,
+    "name": "find json results",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/bench_modified_master.json@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/perf",
+      "*.csv"
+    ],
+    "infra_step": true,
+    "name": "find csv results",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/bench_modified_master.csv@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-z",
+      "json",
+      "[START_DIR]/perf/bench_modified_master.json",
+      "gs://skia-calmbench/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/bench_modified_master_abc123_1337000001.json"
+    ],
+    "infra_step": true,
+    "name": "upload json"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-z",
+      "csv",
+      "[START_DIR]/perf/bench_modified_master.csv",
+      "gs://skia-calmbench/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/bench_modified_master_abc123_1337000001.csv"
+    ],
+    "infra_step": true,
+    "name": "upload csv"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

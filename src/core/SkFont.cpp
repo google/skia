@@ -69,7 +69,7 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
             count = SkUTF8_CountUnichars((const char*)text, byteLength);
             break;
         case kUTF16_SkTextEncoding:
-            count = SkUTF16_CountUnichars((const uint16_t*)text, SkToInt(byteLength >> 1));
+            count = SkUTF16_CountUnichars((const uint16_t*)text, byteLength);
             break;
         case kUTF32_SkTextEncoding:
             count = SkToInt(byteLength >> 2);
@@ -121,9 +121,6 @@ sk_sp<SkFont> SkFont::Testing_CreateFromPaint(const SkPaint& paint) {
     }
     if (paint.isEmbeddedBitmapText()) {
         flags |= kEmbeddedBitmaps_Flag;
-    }
-    if (paint.getFlags() & SkPaint::kGenA8FromLCD_Flag) {
-        flags |= kGenA8FromLCD_Flag;
     }
     if (paint.isFakeBoldText()) {
         flags |= kEmbolden_Flag;

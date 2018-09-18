@@ -7,9 +7,9 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkBlurMaskFilter.h"
 #include "SkClipOpPriv.h"
 #include "SkColorFilter.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkRRect.h"
 
@@ -65,10 +65,9 @@ protected:
 
                     SkPaint paint;
 
-                    paint.setMaskFilter(SkBlurMaskFilter::Make(
+                    paint.setMaskFilter(SkMaskFilter::MakeBlur(
                                             kNormal_SkBlurStyle,
-                                            1.366025f,
-                                            SkBlurMaskFilter::kHighQuality_BlurFlag));
+                                            1.366025f));
                     paint.setColorFilter(SkColorFilter::MakeModeFilter(
                                              SK_ColorRED,
                                              SkBlendMode::kSrcIn));

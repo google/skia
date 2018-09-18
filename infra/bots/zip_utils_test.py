@@ -31,7 +31,7 @@ class ZipUtilsTest(unittest.TestCase):
       fw.write('b.txt', 0751)
       fw.write('c.txt', 0640)
       fw.write(os.path.join('subdir', 'd.txt'), 0640)
-      
+
       # Zip, unzip.
       zip_utils.zip('input', 'test.zip')
       zip_utils.unzip('test.zip', 'output')

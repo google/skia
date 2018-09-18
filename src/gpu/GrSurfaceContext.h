@@ -9,12 +9,13 @@
 #define GrSurfaceContext_DEFINED
 
 #include "../private/GrSurfaceProxy.h"
-
+#include "GrColorSpaceInfo.h"
 #include "SkRefCnt.h"
 
 class GrAuditTrail;
 class GrContext;
 class GrDrawingManager;
+class GrOpList;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
@@ -32,9 +33,7 @@ class SK_API GrSurfaceContext : public SkRefCnt {
 public:
     ~GrSurfaceContext() override {}
 
-    SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
-    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
-    bool isGammaCorrect() const { return fColorSpace; }
+    const GrColorSpaceInfo& colorSpaceInfo() const { return fColorSpaceInfo; }
 
     // TODO: these two calls would be way cooler if this object had a GrSurfaceProxy pointer
     int width() const { return this->asSurfaceProxy()->width(); }
@@ -52,14 +51,12 @@ public:
      *       The end result is only valid src pixels and dst pixels will be touched but the copied
      *       regions will not be shifted.
      */
-    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
-        return this->onCopy(src, srcRect, dstPoint);
-    }
+    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
 
     bool copy(GrSurfaceProxy* src) {
-        return this->onCopy(src,
-                            SkIRect::MakeWH(src->width(), src->height()),
-                            SkIPoint::Make(0, 0));
+        return this->copy(src,
+                          SkIRect::MakeWH(src->width(), src->height()),
+                          SkIPoint::Make(0, 0));
     }
 
     /**
@@ -97,6 +94,7 @@ public:
     virtual sk_sp<GrSurfaceProxy> asSurfaceProxyRef() = 0;
 
     virtual GrTextureProxy* asTextureProxy() = 0;
+    virtual const GrTextureProxy* asTextureProxy() const = 0;
     virtual sk_sp<GrTextureProxy> asTextureProxyRef() = 0;
 
     virtual GrRenderTargetProxy* asRenderTargetProxy() = 0;
@@ -113,22 +111,24 @@ public:
 protected:
     friend class GrSurfaceContextPriv;
 
-    GrSurfaceContext(GrContext*, GrDrawingManager*,
-                     sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
+    GrSurfaceContext(GrContext*, GrDrawingManager*, GrPixelConfig, sk_sp<SkColorSpace>,
+                     GrAuditTrail*, GrSingleOwner*);
 
     GrDrawingManager* drawingManager() { return fDrawingManager; }
     const GrDrawingManager* drawingManager() const { return fDrawingManager; }
 
+    virtual GrOpList* getOpList() = 0;
+    SkDEBUGCODE(virtual void validate() const = 0;)
+
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
 
-    GrContext*            fContext;
-    sk_sp<SkColorSpace>   fColorSpace;
-    GrAuditTrail*         fAuditTrail;
+    GrContext* fContext;
+    GrAuditTrail* fAuditTrail;
 
 private:
-    virtual bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
+    GrColorSpaceInfo fColorSpaceInfo;
 
-    GrDrawingManager*     fDrawingManager;
+    GrDrawingManager* fDrawingManager;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)

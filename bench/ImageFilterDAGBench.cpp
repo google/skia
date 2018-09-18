@@ -8,11 +8,12 @@
 #include "Benchmark.h"
 #include "Resources.h"
 #include "SkBlurImageFilter.h"
-#include "SkDisplacementMapEffect.h"
 #include "SkCanvas.h"
+#include "SkDisplacementMapEffect.h"
 #include "SkImage.h"
 #include "SkMergeImageFilter.h"
-
+#include "SkOffsetImageFilter.h"
+#include "SkXfermodeImageFilter.h"
 
 // Exercise a blur filter connected to 5 inputs of the same merge filter.
 // This bench shows an improvement in performance once cacheing of re-used
@@ -32,13 +33,11 @@ protected:
         for (int j = 0; j < loops; j++) {
             sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(20.0f, 20.0f, nullptr));
             sk_sp<SkImageFilter> inputs[kNumInputs];
-            SkBlendMode modes[kNumInputs];
             for (int i = 0; i < kNumInputs; ++i) {
                 inputs[i] = blur;
-                modes[i] = SkBlendMode::kSrcOver;
             }
             SkPaint paint;
-            paint.setImageFilter(SkMergeImageFilter::MakeN(inputs, kNumInputs, modes));
+            paint.setImageFilter(SkMergeImageFilter::Make(inputs, kNumInputs));
             canvas->drawRect(rect, paint);
         }
     }
@@ -59,7 +58,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        fImage = GetResourceAsImage("mandrill_512.png");
+        fImage = GetResourceAsImage("images/mandrill_512.png");
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
@@ -71,12 +70,10 @@ protected:
         for (int j = 0; j < loops; j++) {
             sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(20.0f, 20.0f, nullptr));
             sk_sp<SkImageFilter> inputs[kNumInputs];
-            SkBlendMode modes[kNumInputs];
             for (int i = 0; i < kNumInputs; ++i) {
                 inputs[i] = blur;
-                modes[i] = SkBlendMode::kSrcOver;
             }
-            sk_sp<SkImageFilter> mergeFilter = SkMergeImageFilter::MakeN(inputs, kNumInputs, modes);
+            sk_sp<SkImageFilter> mergeFilter = SkMergeImageFilter::Make(inputs, kNumInputs);
             image = image->makeWithFilter(mergeFilter.get(), subset, subset, &discardSubset,
                                           &offset);
             SkASSERT(image && image->dimensions() == fImage->dimensions());
@@ -121,6 +118,33 @@ private:
     typedef Benchmark INHERITED;
 };
 
+// Exercise an Xfermode kSrcIn filter compositing two inputs which have a small intersection.
+class ImageFilterXfermodeIn : public Benchmark {
+public:
+    ImageFilterXfermodeIn() {}
+
+protected:
+    const char* onGetName() override { return "image_filter_xfermode_in"; }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        for (int j = 0; j < loops; j++) {
+            auto blur = SkBlurImageFilter::Make(20.0f, 20.0f, nullptr);
+            auto offset1 = SkOffsetImageFilter::Make(100.0f, 100.0f, blur);
+            auto offset2 = SkOffsetImageFilter::Make(-100.0f, -100.0f, blur);
+            auto xfermode =
+                    SkXfermodeImageFilter::Make(SkBlendMode::kSrcIn, offset1, offset2, nullptr);
+
+            SkPaint paint;
+            paint.setImageFilter(xfermode);
+            canvas->drawRect(SkRect::MakeWH(200.0f, 200.0f), paint);
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
 DEF_BENCH(return new ImageFilterDAGBench;)
 DEF_BENCH(return new ImageMakeWithFilterDAGBench;)
 DEF_BENCH(return new ImageFilterDisplacedBlur;)
+DEF_BENCH(return new ImageFilterXfermodeIn;)

@@ -8,7 +8,7 @@ package skia
 
 /*
 #cgo LDFLAGS: -L${SRCDIR}/../../out/Shared
-#cgo LDFLAGS: -Wl,-rpath=${SRCDIR}/../../out/Shared
+#cgo LDFLAGS: -Wl,-rpath,${SRCDIR}/../../out/Shared
 #cgo LDFLAGS: -lskia
 #cgo CFLAGS: -I../../include/c
 #include "sk_canvas.h"

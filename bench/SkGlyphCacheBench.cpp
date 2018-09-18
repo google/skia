@@ -10,7 +10,7 @@
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkGlyphCache_Globals.h"
+#include "SkStrikeCache.h"
 #include "SkGraphics.h"
 #include "SkTaskGroup.h"
 #include "SkTypeface.h"
@@ -20,8 +20,8 @@
 static void do_font_stuff(SkPaint* paint) {
     for (SkScalar i = 8; i < 64; i++) {
         paint->setTextSize(i);
-        SkAutoGlyphCacheNoGamma autoCache(*paint, nullptr, nullptr);
-        SkGlyphCache* cache = autoCache.getCache();
+        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                *paint, nullptr, SkScalerContextFlags::kNone, nullptr);
         uint16_t glyphs['z'];
         for (int c = ' '; c < 'z'; c++) {
             glyphs[c] = cache->unicharToGlyph(c);
@@ -56,8 +56,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
-        paint.setTypeface(sk_tool_utils::create_portable_typeface(
-                              "serif", SkFontStyle::FromOldStyle(SkTypeface::kItalic)));
+        paint.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic()));
 
         for (int work = 0; work < loops; work++) {
             do_font_stuff(&paint);
@@ -89,10 +88,8 @@ protected:
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
         sk_sp<SkTypeface> typefaces[] =
-            {sk_tool_utils::create_portable_typeface("serif",
-                  SkFontStyle::FromOldStyle(SkTypeface::kItalic)),
-             sk_tool_utils::create_portable_typeface("sans-serif",
-                  SkFontStyle::FromOldStyle(SkTypeface::kItalic))};
+            {sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic()),
+             sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Italic())};
 
         for (int work = 0; work < loops; work++) {
             SkTaskGroup().batch(16, [&](int threadIndex) {

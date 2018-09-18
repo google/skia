@@ -7,6 +7,7 @@
 
 #include "GrGpuResource.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
@@ -15,8 +16,8 @@
 static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
     SkASSERT(gpu);
     SkASSERT(gpu->getContext());
-    SkASSERT(gpu->getContext()->getResourceCache());
-    return gpu->getContext()->getResourceCache();
+    SkASSERT(gpu->getContext()->contextPriv().getResourceCache());
+    return gpu->getContext()->contextPriv().getResourceCache();
 }
 
 GrGpuResource::GrGpuResource(GrGpu* gpu)
@@ -68,20 +69,37 @@ void GrGpuResource::abandon() {
 }
 
 void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
-    // Dump resource as "skia/gpu_resources/resource_#".
-    SkString dumpName("skia/gpu_resources/resource_");
-    dumpName.appendU32(this->uniqueID().asUInt());
-
-    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", this->gpuMemorySize());
-
-    if (this->isPurgeable()) {
-        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes",
-                                          this->gpuMemorySize());
+    if (this->fRefsWrappedObjects && !traceMemoryDump->shouldDumpWrappedObjects()) {
+        return;
     }
 
-    // Call setMemoryBacking to allow sub-classes with implementation specific backings (such as GL
-    // objects) to provide additional information.
-    this->setMemoryBacking(traceMemoryDump, dumpName);
+    this->dumpMemoryStatisticsPriv(traceMemoryDump, this->getResourceName(),
+                                   this->getResourceType(), this->gpuMemorySize());
+}
+
+void GrGpuResource::dumpMemoryStatisticsPriv(SkTraceMemoryDump* traceMemoryDump,
+                                             const SkString& resourceName,
+                                             const char* type, size_t size) const {
+    const char* tag = "Scratch";
+    if (fUniqueKey.isValid()) {
+        tag = (fUniqueKey.tag() != nullptr) ? fUniqueKey.tag() : "Other";
+    }
+
+    traceMemoryDump->dumpNumericValue(resourceName.c_str(), "size", "bytes", size);
+    traceMemoryDump->dumpStringValue(resourceName.c_str(), "type", type);
+    traceMemoryDump->dumpStringValue(resourceName.c_str(), "category", tag);
+    if (this->isPurgeable()) {
+        traceMemoryDump->dumpNumericValue(resourceName.c_str(), "purgeable_size", "bytes", size);
+    }
+
+    this->setMemoryBacking(traceMemoryDump, resourceName);
+}
+
+SkString GrGpuResource::getResourceName() const {
+    // Dump resource as "skia/gpu_resources/resource_#".
+    SkString resourceName("skia/gpu_resources/resource_");
+    resourceName.appendU32(this->uniqueID().asUInt());
+    return resourceName;
 }
 
 const GrContext* GrGpuResource::getContext() const {

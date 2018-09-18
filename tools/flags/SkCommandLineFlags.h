@@ -116,7 +116,7 @@ public:
      *  Call at the beginning of main to parse flags created by DEFINE_x, above.
      *  Must only be called once.
      */
-    static void Parse(int argc, char** argv);
+    static void Parse(int argc, const char* const * argv);
 
     /**
      *  Custom class for holding the arguments for a string flag.
@@ -154,6 +154,9 @@ public:
         void set(int i, const char* str) {
             fStrings[i].set(str);
         }
+
+        const SkString* begin() const { return fStrings.begin(); }
+        const SkString*   end() const { return fStrings.end(); }
 
     private:
         void reset() { fStrings.reset(); }

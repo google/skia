@@ -1,0 +1,8 @@
+overview
+
+--------------------------------------------------------------------------------
+
+Skia draws 2D primitives, paths and bitmaps, using the styles in the SkPaint, to
+the device contained by the SkCanvas.
+
+--------------------------------------------------------------------------------

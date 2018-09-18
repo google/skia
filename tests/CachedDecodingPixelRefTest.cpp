@@ -7,17 +7,19 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkData.h"
-#include "SkDiscardableMemoryPool.h"
+#include "SkColor.h"
+#include "SkColorData.h"
 #include "SkImage.h"
-#include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
+#include "SkImageInfo.h"
 #include "SkMakeUnique.h"
-#include "SkResourceCache.h"
-#include "SkStream.h"
+#include "SkRefCnt.h"
+#include "SkTypes.h"
 #include "SkUtils.h"
-
 #include "Test.h"
+#include "sk_tool_utils.h"
+
+#include <utility>
 
 class TestImageGenerator : public SkImageGenerator {
 public:
@@ -29,7 +31,7 @@ public:
     static int Width() { return 10; }
     static int Height() { return 10; }
     // value choosen so that there is no loss when converting to to RGB565 and back
-    static SkColor Color() { return 0xff10345a; }
+    static SkColor Color() { return sk_tool_utils::color_to_565(0xffaabbcc); }
     static SkPMColor PMColor() { return SkPreMultiplyColor(Color()); }
 
     TestImageGenerator(TestType type, skiatest::Reporter* reporter,

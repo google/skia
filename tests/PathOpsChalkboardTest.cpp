@@ -165,9 +165,9 @@ static void chalkboard_1(skiatest::Reporter* reporter, const char* filename) {
     chalkboard(reporter, testlines);
 }
 
-static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*skipTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static TestDesc tests[] = {
     TEST(chalkboard_1),

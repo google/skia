@@ -7,10 +7,17 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColor.h"
 #include "SkCubicClipper.h"
-#include "SkGeometry.h"
+#include "SkFloatBits.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPoint.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
+#include "SkSurface.h"
+#include "SkTypes.h"
 #include "Test.h"
 
 // Currently the supersampler blitter uses int16_t for its index into an array
@@ -203,4 +210,25 @@ DEF_TEST(test_fuzz_crbug_698714, reporter) {
     path.close();
     canvas->clipRect({0, 0, 65, 202});
     canvas->drawPath(path, paint);
+}
+
+DEF_TEST(cubic_scan_error_crbug_844457_and_845489, reporter) {
+    auto surface(SkSurface::MakeRasterN32Premul(100, 100));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint p;
+
+    SkPath path;
+    path.moveTo(-30/64.0, -31/64.0);
+    path.cubicTo(-31/64.0, -31/64,-31/64.0, -31/64,-31/64.0, 100);
+    path.lineTo(100, 100);
+    canvas->drawPath(path, p);
+
+    // May need to define SK_RASTERIZE_EVEN_ROUNDING to trigger the need for this test
+    path.reset();
+    path.moveTo(-30/64.0f,             -31/64.0f + 1/256.0f);
+    path.cubicTo(-31/64.0f + 1/256.0f, -31/64.0f + 1/256.0f,
+                 -31/64.0f + 1/256.0f, -31/64.0f + 1/256.0f,
+                 -31/64.0f + 1/256.0f, 100);
+    path.lineTo(100, 100);
+    canvas->drawPath(path, p);
 }

@@ -6,31 +6,36 @@
  */
 
 #include "SkGr.h"
-
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrResourceProvider.h"
+#include "GrPaint.h"
+#include "GrProxyProvider.h"
 #include "GrTextureProxy.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
-
 #include "SkAutoMalloc.h"
 #include "SkBlendModePriv.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkConvertPixels.h"
 #include "SkData.h"
+#include "SkImage_Base.h"
 #include "SkImageInfoPriv.h"
-#include "SkMaskFilter.h"
+#include "SkImagePriv.h"
+#include "SkMaskFilterBase.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkPM4fPriv.h"
+#include "SkPaintPriv.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
+#include "SkShaderBase.h"
 #include "SkTemplates.h"
+#include "SkTraceEvent.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrDitherEffect.h"
@@ -43,7 +48,7 @@ GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& ca
     desc.fWidth = info.width();
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info, caps);
-    desc.fSampleCnt = 0;
+    desc.fSampleCnt = 1;
     return desc;
 }
 
@@ -52,7 +57,7 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
     SkASSERT(imageID);
     SkASSERT(!imageBounds.isEmpty());
     static const GrUniqueKey::Domain kImageIDDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kImageIDDomain, 5);
+    GrUniqueKey::Builder builder(key, kImageIDDomain, 5, "Image");
     builder[0] = imageID;
     builder[1] = imageBounds.fLeft;
     builder[2] = imageBounds.fTop;
@@ -61,96 +66,30 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 }
 
 //////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceProvider,
+sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider* proxyProvider,
                                                    const SkBitmap& bitmap,
                                                    SkColorSpace* dstColorSpace) {
-    if (!bitmap.readyToDraw()) {
+    if (!bitmap.peekPixels(nullptr)) {
         return nullptr;
     }
-    SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap)) {
-        return nullptr;
-    }
-    return GrUploadPixmapToTextureProxy(resourceProvider, pixmap, SkBudgeted::kYes, dstColorSpace);
-}
 
-static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
-                                    GrSurfaceDesc* desc,
-                                    SkBitmap* tmpBitmap, SkPixmap* tmpPixmap) {
-    const SkPixmap* pmap = &pixmap;
-
-    *desc = GrImageInfoToSurfaceDesc(pixmap.info(), caps);
-
-    // TODO: We're checking for srgbSupport, but we can then end up picking sBGRA as our pixel
-    // config (which may not be supported). We need better fallback management here.
-    SkColorSpace* colorSpace = pixmap.colorSpace();
-
-    if (caps.srgbSupport() &&
-        colorSpace && colorSpace->gammaCloseToSRGB() && !GrPixelConfigIsSRGB(desc->fConfig)) {
-        // We were supplied an sRGB-like color space, but we don't have a suitable pixel config.
-        // Convert to 8888 sRGB so we can handle the data correctly. The raster backend doesn't
-        // handle sRGB Index8 -> sRGB 8888 correctly (yet), so lie about both the source and
-        // destination (claim they're linear):
-        SkImageInfo linSrcInfo = SkImageInfo::Make(pixmap.width(), pixmap.height(),
-                                                   pixmap.colorType(), pixmap.alphaType());
-        SkPixmap linSrcPixmap(linSrcInfo, pixmap.addr(), pixmap.rowBytes(), pixmap.ctable());
-
-        SkImageInfo dstInfo = SkImageInfo::Make(pixmap.width(), pixmap.height(),
-                                                kN32_SkColorType, kPremul_SkAlphaType,
-                                                pixmap.info().refColorSpace());
-
-        tmpBitmap->allocPixels(dstInfo);
-
-        SkImageInfo linDstInfo = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
-        if (!linSrcPixmap.readPixels(linDstInfo, tmpBitmap->getPixels(), tmpBitmap->rowBytes())) {
-            return nullptr;
-        }
-        if (!tmpBitmap->peekPixels(tmpPixmap)) {
-            return nullptr;
-        }
-        pmap = tmpPixmap;
-        // must rebuild desc, since we've forced the info to be N32
-        *desc = GrImageInfoToSurfaceDesc(pmap->info(), caps);
-    } else if (kIndex_8_SkColorType == pixmap.colorType()) {
-        SkImageInfo info = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
-        tmpBitmap->allocPixels(info);
-        if (!pixmap.readPixels(info, tmpBitmap->getPixels(), tmpBitmap->rowBytes())) {
-            return nullptr;
-        }
-        if (!tmpBitmap->peekPixels(tmpPixmap)) {
-            return nullptr;
-        }
-        pmap = tmpPixmap;
-        // must rebuild desc, since we've forced the info to be N32
-        *desc = GrImageInfoToSurfaceDesc(pmap->info(), caps);
-    }
-
-    return pmap;
-}
-
-sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
-                                                   const SkPixmap& pixmap,
-                                                   SkBudgeted budgeted,
-                                                   SkColorSpace* dstColorSpace) {
     SkDestinationSurfaceColorMode colorMode = dstColorSpace
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
 
-    if (!SkImageInfoIsValid(pixmap.info(), colorMode)) {
+    if (!SkImageInfoIsValid(bitmap.info(), colorMode)) {
         return nullptr;
     }
 
-    SkBitmap tmpBitmap;
-    SkPixmap tmpPixmap;
-    GrSurfaceDesc desc;
+    // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
+    // even if it's mutable. In ddl, if the bitmap is mutable then we must make a copy since the
+    // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
+    SkCopyPixelsMode cpyMode = proxyProvider->recordingDDL() ? kIfMutable_SkCopyPixelsMode
+                                                             : kNever_SkCopyPixelsMode;
+    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
 
-    if (const SkPixmap* pmap = compute_desc(*resourceProvider->caps(), pixmap, &desc,
-                                            &tmpBitmap, &tmpPixmap)) {
-        return GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
-                                            budgeted, pmap->addr(), pmap->rowBytes());
-    }
-
-    return nullptr;
+    return proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
+                                             SkBudgeted::kYes, SkBackingFit::kExact);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,103 +107,110 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
     pixelRef->addGenIDChangeListener(new Invalidator(key));
 }
 
-sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
-                                                               const SkBitmap& bitmap,
-                                                               SkColorSpace* dstColorSpace) {
-    SkDestinationSurfaceColorMode colorMode = dstColorSpace
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
+sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTextureProxy* baseProxy) {
+    SkASSERT(baseProxy);
 
-    if (!SkImageInfoIsValid(bitmap.info(), colorMode)) {
+    if (!ctx->contextPriv().caps()->isConfigCopyable(baseProxy->config())) {
         return nullptr;
     }
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+    GrSurfaceDesc desc;
+    desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fWidth = baseProxy->width();
+    desc.fHeight = baseProxy->height();
+    desc.fConfig = baseProxy->config();
+    desc.fSampleCnt = 1;
 
-    SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap)) {
+    sk_sp<GrTextureProxy> proxy =
+            proxyProvider->createMipMapProxy(desc, baseProxy->origin(), SkBudgeted::kYes);
+    if (!proxy) {
         return nullptr;
     }
 
-    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
-    if (!mipmaps) {
-        return nullptr;
+    // Copy the base layer to our proxy
+    sk_sp<SkColorSpace> colorSpace;
+    if (GrPixelConfigIsSRGB(proxy->config())) {
+        colorSpace = SkColorSpace::MakeSRGB();
     }
+    sk_sp<GrSurfaceContext> sContext =
+            ctx->contextPriv().makeWrappedSurfaceContext(proxy, std::move(colorSpace));
+    SkASSERT(sContext);
+    SkAssertResult(sContext->copy(baseProxy));
 
-    const int mipLevelCount = mipmaps->countLevels() + 1;
-    if (mipLevelCount < 1) {
-        return nullptr;
-    }
-
-    const bool isMipMapped = mipLevelCount > 1;
-    desc.fIsMipMapped = isMipMapped;
-
-    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
-
-    texels[0].fPixels = pixmap.addr();
-    texels[0].fRowBytes = pixmap.rowBytes();
-
-    for (int i = 1; i < mipLevelCount; ++i) {
-        SkMipMap::Level generatedMipLevel;
-        mipmaps->getLevel(i - 1, &generatedMipLevel);
-        texels[i].fPixels = generatedMipLevel.fPixmap.addr();
-        texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
-    }
-
-    return ctx->resourceProvider()->createMipMappedTexture(desc,
-                                                           SkBudgeted::kYes,
-                                                           texels.get(),
-                                                           mipLevelCount,
-                                                           colorMode);
-}
-
-sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImageInfo& info,
-                                                   const GrMipLevel* texels,
-                                                   int mipLevelCount,
-                                                   SkDestinationSurfaceColorMode colorMode) {
-    if (!SkImageInfoIsValid(info, colorMode)) {
-        return nullptr;
-    }
-
-    const GrCaps* caps = ctx->caps();
-    return ctx->resourceProvider()->createMipMappedTexture(GrImageInfoToSurfaceDesc(info, *caps),
-                                                           SkBudgeted::kYes, texels,
-                                                           mipLevelCount, colorMode);
+    return proxy;
 }
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
                                                     const SkBitmap& bitmap,
-                                                    const GrSamplerParams& params,
+                                                    const GrSamplerState& params,
                                                     SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
     return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, nullptr,
                                                                       nullptr, scaleAdjust);
 }
 
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvider,
-                                              const SkBitmap& bitmap) {
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider* proxyProvider,
+                                              const SkBitmap& bitmap,
+                                              SkBackingFit fit) {
+    if (!bitmap.peekPixels(nullptr)) {
+        return nullptr;
+    }
+
+    // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
+    // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
+    // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
+    SkCopyPixelsMode cpyMode = proxyProvider->recordingDDL() ? kIfMutable_SkCopyPixelsMode
+                                                             : kNever_SkCopyPixelsMode;
+    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
+
+    if (!image) {
+        return nullptr;
+    }
+
+    return GrMakeCachedImageProxy(proxyProvider, std::move(image), fit);
+}
+
+static void create_unique_key_for_image(const SkImage* image, GrUniqueKey* result) {
+    if (!image) {
+        result->reset(); // will be invalid
+        return;
+    }
+
+    if (const SkBitmap* bm = as_IB(image)->onPeekBitmap()) {
+        if (!bm->isVolatile()) {
+            SkIPoint origin = bm->pixelRefOrigin();
+            SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bm->width(), bm->height());
+            GrMakeKeyFromImageID(result, bm->getGenerationID(), subset);
+        }
+        return;
+    }
+
+    GrMakeKeyFromImageID(result, image->uniqueID(), image->bounds());
+}
+
+sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
+                                             sk_sp<SkImage> srcImage,
+                                             SkBackingFit fit) {
+    sk_sp<GrTextureProxy> proxy;
     GrUniqueKey originalKey;
 
-    if (!bitmap.isVolatile()) {
-        SkIPoint origin = bitmap.pixelRefOrigin();
-        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(), bitmap.height());
-        GrMakeKeyFromImageID(&originalKey, bitmap.pixelRef()->getGenerationID(), subset);
-    }
-
-    sk_sp<GrTextureProxy> proxy;
+    create_unique_key_for_image(srcImage.get(), &originalKey);
 
     if (originalKey.isValid()) {
-        proxy = resourceProvider->findProxyByUniqueKey(originalKey);
+        proxy = proxyProvider->findOrCreateProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
-        // Pass nullptr for |dstColorSpace|.  This is lenient - we allow a wider range of
-        // color spaces in legacy mode.  Unfortunately, we have to be lenient here, since
-        // we can't necessarily know the |dstColorSpace| at this time.
-        proxy = GrUploadBitmapToTextureProxy(resourceProvider, bitmap, nullptr);
+        proxy = proxyProvider->createTextureProxy(srcImage, kNone_GrSurfaceFlags, 1,
+                                                  SkBudgeted::kYes, fit);
         if (proxy && originalKey.isValid()) {
-            resourceProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
-            // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
-            GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
+            proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
+            const SkBitmap* bm = as_IB(srcImage.get())->onPeekBitmap();
+            // When recording DDLs we do not want to install change listeners because doing
+            // so isn't threadsafe.
+            if (bm && !proxyProvider->recordingDDL()) {
+                GrInstallBitmapUniqueKeyInvalidator(originalKey, bm->pixelRef());
+            }
         }
     }
 
@@ -273,34 +219,18 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvid
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
+GrColor4f SkColorToPremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
     // We want to premultiply after linearizing, so this is easy:
-    return SkColorToUnpremulGrColor4f(c, dstColorSpace).premul();
+    return SkColorToUnpremulGrColor4f(c, colorSpaceInfo).premul();
 }
 
-GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
-    if (dstColorSpace) {
-        auto srgbColorSpace = SkColorSpace::MakeSRGB();
-        auto gamutXform = GrColorSpaceXform::Make(srgbColorSpace.get(), dstColorSpace);
-        return SkColorToUnpremulGrColor4f(c, dstColorSpace, gamutXform.get());
-    } else {
-        return SkColorToUnpremulGrColor4f(c, nullptr, nullptr);
-    }
+GrColor4f SkColorToPremulGrColor4fLegacy(SkColor c) {
+    return GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c)).premul();
 }
 
-GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
-                                   GrColorSpaceXform* gamutXform) {
-    // We want to premultiply after linearizing, so this is easy:
-    return SkColorToUnpremulGrColor4f(c, dstColorSpace, gamutXform).premul();
-}
-
-GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
-                                     GrColorSpaceXform* gamutXform) {
-    // You can't be color-space aware in legacy mode
-    SkASSERT(dstColorSpace || !gamutXform);
-
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
     GrColor4f color;
-    if (dstColorSpace) {
+    if (colorSpaceInfo.colorSpace()) {
         // SkColor4f::FromColor does sRGB -> Linear
         color = GrColor4f::FromSkColor4f(SkColor4f::FromColor(c));
     } else {
@@ -308,8 +238,8 @@ GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
         color = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c));
     }
 
-    if (gamutXform) {
-        color = gamutXform->apply(color);
+    if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
+        color = xform->clampedXform(color);
     }
 
     return color;
@@ -317,11 +247,9 @@ GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps) {
-    // We intentionally ignore profile type for non-8888 formats. Anything we can't support
-    // in hardware will be expanded to sRGB 8888 in GrUploadPixmapToTexture.
-    SkColorSpace* cs = info.colorSpace();
-    switch (info.colorType()) {
+GrPixelConfig SkImageInfo2GrPixelConfig(const SkColorType type, SkColorSpace* cs,
+                                        const GrCaps& caps) {
+    switch (type) {
         case kUnknown_SkColorType:
             return kUnknown_GrPixelConfig;
         case kAlpha_8_SkColorType:
@@ -333,11 +261,17 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& c
         case kRGBA_8888_SkColorType:
             return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+        // TODO: We're checking for srgbSupport, but we can then end up picking sBGRA as our pixel
+        // config (which may not be supported). We need a better test here.
+        case kRGB_888x_SkColorType:
+            return kRGB_888_GrPixelConfig;
         case kBGRA_8888_SkColorType:
             return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
-        case kIndex_8_SkColorType:
-            return kSkia8888_GrPixelConfig;
+        case kRGBA_1010102_SkColorType:
+            return kRGBA_1010102_GrPixelConfig;
+        case kRGB_101010x_SkColorType:
+            return kUnknown_GrPixelConfig;
         case kGray_8_SkColorType:
             return kGray_8_GrPixelConfig;
         case kRGBA_F16_SkColorType:
@@ -347,49 +281,26 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& c
     return kUnknown_GrPixelConfig;
 }
 
+GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps) {
+    return SkImageInfo2GrPixelConfig(info.colorType(), info.colorSpace(), caps);
+}
+
 bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
-    SkColorType ct;
-    switch (config) {
-        case kAlpha_8_GrPixelConfig:
-            ct = kAlpha_8_SkColorType;
-            break;
-        case kGray_8_GrPixelConfig:
-            ct = kGray_8_SkColorType;
-            break;
-        case kRGB_565_GrPixelConfig:
-            ct = kRGB_565_SkColorType;
-            break;
-        case kRGBA_4444_GrPixelConfig:
-            ct = kARGB_4444_SkColorType;
-            break;
-        case kRGBA_8888_GrPixelConfig:
-            ct = kRGBA_8888_SkColorType;
-            break;
-        case kBGRA_8888_GrPixelConfig:
-            ct = kBGRA_8888_SkColorType;
-            break;
-        case kSRGBA_8888_GrPixelConfig:
-            ct = kRGBA_8888_SkColorType;
-            break;
-        case kSBGRA_8888_GrPixelConfig:
-            ct = kBGRA_8888_SkColorType;
-            break;
-        case kRGBA_half_GrPixelConfig:
-            ct = kRGBA_F16_SkColorType;
-            break;
-        default:
-            return false;
+    SkColorType ct = GrColorTypeToSkColorType(GrPixelConfigToColorType(config));
+    if (kUnknown_SkColorType != ct) {
+        if (ctOut) {
+            *ctOut = ct;
+        }
+        return true;
     }
-    if (ctOut) {
-        *ctOut = ct;
-    }
-    return true;
+    return false;
 }
 
 GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace* colorSpace) {
     if (!colorSpace) {
         return kRGBA_8888_GrPixelConfig;
     } else if (colorSpace->gammaIsLinear()) {
+        // TODO
         return kRGBA_half_GrPixelConfig;
     } else if (colorSpace->gammaCloseToSRGB()) {
         return kSRGBA_8888_GrPixelConfig;
@@ -406,28 +317,27 @@ static inline bool blend_requires_shader(const SkBlendMode mode) {
 }
 
 static inline bool skpaint_to_grpaint_impl(GrContext* context,
-                                           GrRenderTargetContext* rtc,
+                                           const GrColorSpaceInfo& colorSpaceInfo,
                                            const SkPaint& skPaint,
                                            const SkMatrix& viewM,
-                                           sk_sp<GrFragmentProcessor>* shaderProcessor,
+                                           std::unique_ptr<GrFragmentProcessor>* shaderProcessor,
                                            SkBlendMode* primColorMode,
                                            GrPaint* grPaint) {
-    grPaint->setAllowSRGBInputs(rtc->isGammaCorrect());
+    grPaint->setAllowSRGBInputs(colorSpaceInfo.isGammaCorrect());
 
     // Convert SkPaint color to 4f format, including optional linearizing and gamut conversion.
-    GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), rtc->getColorSpace(),
-                                                     rtc->getColorXformFromSRGB());
+    GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), colorSpaceInfo);
+
+    const GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
-    sk_sp<GrFragmentProcessor> shaderFP;
+    std::unique_ptr<GrFragmentProcessor> shaderFP;
     if (!primColorMode || blend_requires_shader(*primColorMode)) {
         if (shaderProcessor) {
-            shaderFP = *shaderProcessor;
-        } else if (const SkShader* shader = skPaint.getShader()) {
-            shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr,
-                                                                      skPaint.getFilterQuality(),
-                                                                      rtc->getColorSpace()));
+            shaderFP = std::move(*shaderProcessor);
+        } else if (const auto* shader = as_SB(skPaint.getShader())) {
+            shaderFP = shader->asFragmentProcessor(fpArgs);
             if (!shaderFP) {
                 return false;
             }
@@ -448,13 +358,13 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             // the GrPaint color will be ignored.
 
             GrColor4f shaderInput = origColor.opaque();
-            shaderFP = GrFragmentProcessor::OverrideInput(shaderFP, shaderInput);
+            shaderFP = GrFragmentProcessor::OverrideInput(std::move(shaderFP), shaderInput);
             shaderFP = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(shaderFP),
                                                                          *primColorMode);
 
             // The above may return null if compose results in a pass through of the prim color.
             if (shaderFP) {
-                grPaint->addColorFragmentProcessor(shaderFP);
+                grPaint->addColorFragmentProcessor(std::move(shaderFP));
             }
 
             // We can ignore origColor here - alpha is unchanged by gamma
@@ -464,7 +374,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                 // color channels. It's value should be treated as the same in ANY color space.
                 grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
                     GrColor4f::FromGrColor(paintAlpha),
-                    GrConstColorProcessor::kModulateRGBA_InputMode));
+                    GrConstColorProcessor::InputMode::kModulateRGBA));
             }
         } else {
             // The shader's FP sees the paint unpremul color
@@ -475,9 +385,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (primColorMode) {
             // There is a blend between the primitive color and the paint color. The blend considers
             // the opaque paint color. The paint's alpha is applied to the post-blended color.
-            sk_sp<GrFragmentProcessor> processor(
-                GrConstColorProcessor::Make(origColor.opaque(),
-                                            GrConstColorProcessor::kIgnore_InputMode));
+            auto processor = GrConstColorProcessor::Make(origColor.opaque(),
+                                                         GrConstColorProcessor::InputMode::kIgnore);
             processor = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(processor),
                                                                           *primColorMode);
             if (processor) {
@@ -493,7 +402,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                 // color channels. It's value should be treated as the same in ANY color space.
                 grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
                     GrColor4f::FromGrColor(paintAlpha),
-                    GrConstColorProcessor::kModulateRGBA_InputMode));
+                    GrConstColorProcessor::InputMode::kModulateRGBA));
             }
         } else {
             // No shader, no primitive color.
@@ -507,16 +416,15 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (applyColorFilterToPaintColor) {
             // If we're in legacy mode, we *must* avoid using the 4f version of the color filter,
             // because that will combine with the linearized version of the stored color.
-            if (rtc->isGammaCorrect()) {
+            if (colorSpaceInfo.isGammaCorrect()) {
                 grPaint->setColor4f(GrColor4f::FromSkColor4f(
                     colorFilter->filterColor4f(origColor.toSkColor4f())).premul());
             } else {
-                grPaint->setColor4f(SkColorToPremulGrColor4f(
-                    colorFilter->filterColor(skPaint.getColor()), nullptr, nullptr));
+                grPaint->setColor4f(SkColorToPremulGrColor4fLegacy(
+                        colorFilter->filterColor(skPaint.getColor())));
             }
         } else {
-            sk_sp<GrFragmentProcessor> cfFP(colorFilter->asFragmentProcessor(context,
-                                                                             rtc->getColorSpace()));
+            auto cfFP = colorFilter->asFragmentProcessor(context, colorSpaceInfo);
             if (cfFP) {
                 grPaint->addColorFragmentProcessor(std::move(cfFP));
             } else {
@@ -525,11 +433,10 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         }
     }
 
-    SkMaskFilter* maskFilter = skPaint.getMaskFilter();
+    SkMaskFilterBase* maskFilter = as_MFB(skPaint.getMaskFilter());
     if (maskFilter) {
-        GrFragmentProcessor* mfFP;
-        if (maskFilter->asFragmentProcessor(&mfFP, nullptr, viewM)) {
-            grPaint->addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor>(mfFP));
+        if (auto mfFP = maskFilter->asFragmentProcessor(fpArgs)) {
+            grPaint->addCoverageFragmentProcessor(std::move(mfFP));
         }
     }
 
@@ -541,109 +448,124 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     }
 
 #ifndef SK_IGNORE_GPU_DITHER
-    if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0 && !rtc->isGammaCorrect()) {
-        grPaint->addColorFragmentProcessor(GrDitherEffect::Make());
+    // Conservative default, in case GrPixelConfigToColorType() fails.
+    SkColorType ct = SkColorType::kRGB_565_SkColorType;
+    GrPixelConfigToColorType(colorSpaceInfo.config(), &ct);
+    if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->numColorFragmentProcessors() > 0 &&
+        !colorSpaceInfo.isGammaCorrect()) {
+        auto ditherFP = GrDitherEffect::Make(colorSpaceInfo.config());
+        if (ditherFP) {
+            grPaint->addColorFragmentProcessor(std::move(ditherFP));
+        }
     }
 #endif
     return true;
 }
 
-bool SkPaintToGrPaint(GrContext* context, GrRenderTargetContext* rtc, const SkPaint& skPaint,
-                      const SkMatrix& viewM, GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, rtc, skPaint, viewM, nullptr, nullptr, grPaint);
+bool SkPaintToGrPaint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
+                      const SkPaint& skPaint, const SkMatrix& viewM, GrPaint* grPaint) {
+    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, viewM, nullptr, nullptr,
+                                   grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
 bool SkPaintToGrPaintReplaceShader(GrContext* context,
-                                   GrRenderTargetContext* rtc,
+                                   const GrColorSpaceInfo& colorSpaceInfo,
                                    const SkPaint& skPaint,
-                                   sk_sp<GrFragmentProcessor> shaderFP,
+                                   std::unique_ptr<GrFragmentProcessor> shaderFP,
                                    GrPaint* grPaint) {
     if (!shaderFP) {
         return false;
     }
-    return skpaint_to_grpaint_impl(context, rtc, skPaint, SkMatrix::I(), &shaderFP, nullptr,
-                                   grPaint);
+    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, SkMatrix::I(), &shaderFP,
+                                   nullptr, grPaint);
 }
 
 /** Ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
-                              GrRenderTargetContext* rtc,
+                              const GrColorSpaceInfo& colorSpaceInfo,
                               const SkPaint& skPaint,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
-    static sk_sp<GrFragmentProcessor> kNullShaderFP(nullptr);
-    static sk_sp<GrFragmentProcessor>* kIgnoreShader = &kNullShaderFP;
-    return skpaint_to_grpaint_impl(context, rtc, skPaint, SkMatrix::I(), kIgnoreShader, nullptr,
-                                   grPaint);
+    std::unique_ptr<GrFragmentProcessor> nullShaderFP(nullptr);
+    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, SkMatrix::I(), &nullShaderFP,
+                                   nullptr, grPaint);
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
 be setup as a vertex attribute using the specified SkBlendMode. */
 bool SkPaintToGrPaintWithXfermode(GrContext* context,
-                                  GrRenderTargetContext* rtc,
+                                  const GrColorSpaceInfo& colorSpaceInfo,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
                                   SkBlendMode primColorMode,
                                   GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, rtc, skPaint, viewM, nullptr, &primColorMode,
+    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, viewM, nullptr, &primColorMode,
                                    grPaint);
 }
 
 bool SkPaintToGrPaintWithTexture(GrContext* context,
-                                 GrRenderTargetContext* rtc,
+                                 const GrColorSpaceInfo& colorSpaceInfo,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
-                                 sk_sp<GrFragmentProcessor> fp,
+                                 std::unique_ptr<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint) {
-    sk_sp<GrFragmentProcessor> shaderFP;
+    std::unique_ptr<GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
-        if (const SkShader* shader = paint.getShader()) {
-            shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context,
-                                                                      &viewM,
-                                                                      nullptr,
-                                                                      paint.getFilterQuality(),
-                                                                      rtc->getColorSpace()));
+        if (const auto* shader = as_SB(paint.getShader())) {
+            shaderFP = shader->asFragmentProcessor(GrFPArgs(
+                    context, &viewM, paint.getFilterQuality(), &colorSpaceInfo));
             if (!shaderFP) {
                 return false;
             }
-            sk_sp<GrFragmentProcessor> fpSeries[] = { std::move(shaderFP), std::move(fp) };
+            std::unique_ptr<GrFragmentProcessor> fpSeries[] = { std::move(shaderFP), std::move(fp) };
             shaderFP = GrFragmentProcessor::RunInSeries(fpSeries, 2);
         } else {
-            shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(fp);
+            shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
         }
     } else {
-        shaderFP = GrFragmentProcessor::MulOutputByInputAlpha(fp);
+        shaderFP = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
     }
 
-    return SkPaintToGrPaintReplaceShader(context, rtc, paint, std::move(shaderFP), grPaint);
+    return SkPaintToGrPaintReplaceShader(context, colorSpaceInfo, paint, std::move(shaderFP),
+                                         grPaint);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
-                                                            const SkMatrix& viewM,
-                                                            const SkMatrix& localM,
-                                                            bool* doBicubic) {
+GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
+                                                       const SkMatrix& viewM,
+                                                       const SkMatrix& localM,
+                                                       bool sharpenMipmappedTextures,
+                                                       bool* doBicubic) {
     *doBicubic = false;
-    GrSamplerParams::FilterMode textureFilterMode;
+    GrSamplerState::Filter textureFilterMode;
     switch (paintFilterQuality) {
         case kNone_SkFilterQuality:
-            textureFilterMode = GrSamplerParams::kNone_FilterMode;
+            textureFilterMode = GrSamplerState::Filter::kNearest;
             break;
         case kLow_SkFilterQuality:
-            textureFilterMode = GrSamplerParams::kBilerp_FilterMode;
+            textureFilterMode = GrSamplerState::Filter::kBilerp;
             break;
         case kMedium_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
-            if (matrix.getMinScale() < SK_Scalar1) {
-                textureFilterMode = GrSamplerParams::kMipMap_FilterMode;
+            // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until the
+            // computed LOD is >= 0.5. At what scale factor does a texture get an LOD of 0.5?
+            //
+            // Want:  0       = log2(1/s) - 0.5
+            //        0.5     = log2(1/s)
+            //        2^0.5   = 1/s
+            //        1/2^0.5 = s
+            //        2^0.5/2 = s
+            SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
+            if (matrix.getMinScale() < mipScale) {
+                textureFilterMode = GrSamplerState::Filter::kMipMap;
             } else {
                 // Don't trigger MIP level generation unnecessarily.
-                textureFilterMode = GrSamplerParams::kBilerp_FilterMode;
+                textureFilterMode = GrSamplerState::Filter::kBilerp;
             }
             break;
         }
@@ -655,7 +577,7 @@ GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
         }
         default:
             // Should be unreachable.  If not, fall back to mipmaps.
-            textureFilterMode = GrSamplerParams::kMipMap_FilterMode;
+            textureFilterMode = GrSamplerState::Filter::kMipMap;
             break;
 
     }

@@ -8,14 +8,14 @@
 #include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkTextBlob.h"
 #include "SkFontMgr.h"
 #include "SkGraphics.h"
+#include "SkPaint.h"
+#include "SkPoint.h"
+#include "SkRandomScalerContext.h"
 #include "SkSurface.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
-#include "../src/fonts/SkRandomScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #include "SkTypeface_win.h"
@@ -25,6 +25,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrTest.h"
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
@@ -54,7 +55,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
     // configure our context for maximum stressing of cache and atlas
     if (stressTest) {
         GrTest::SetupAlwaysEvictAtlas(context);
-        context->setTextBlobCacheLimit_ForTesting(0);
+        context->contextPriv().setTextBlobCacheLimit_ForTesting(0);
     }
 
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kN32_SkColorType, kPremul_SkAlphaType);

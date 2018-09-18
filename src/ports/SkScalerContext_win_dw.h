@@ -24,7 +24,7 @@ public:
     SkScalerContext_DW(sk_sp<DWriteFontTypeface>,
                        const SkScalerContextEffects&,
                        const SkDescriptor*);
-    virtual ~SkScalerContext_DW();
+    ~SkScalerContext_DW() override;
 
 protected:
     unsigned generateGlyphCount() override;
@@ -32,7 +32,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(SkGlyphID glyph, SkPath* path) override;
+    bool generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:

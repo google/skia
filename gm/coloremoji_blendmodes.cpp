@@ -4,12 +4,27 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "SkBitmap.h"
+#include "SkBlendMode.h"
+#include "SkCanvas.h"
+#include "SkColor.h"
+#include "SkFontStyle.h"
+#include "SkGradientShader.h"
+#include "SkImageInfo.h"
+#include "SkMatrix.h"
+#include "SkPaint.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
+#include "SkShader.h"
+#include "SkSize.h"
+#include "SkString.h"
+#include "SkTypeface.h"
+#include "SkTypes.h"
+#include "SkUtils.h"
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkShader.h"
-#include "SkUtils.h"
 
 namespace skiagm {
 
@@ -35,7 +50,7 @@ protected:
                                                     0, &local));
 
         sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface("serif",
-                                   SkFontStyle::FromOldStyle(SkTypeface::kBold)));
+                                                                       SkFontStyle::Bold()));
         if (nullptr == orig) {
             orig = SkTypeface::MakeDefault();
         }
@@ -47,7 +62,7 @@ protected:
 
     virtual SkString onShortName() override {
         SkString name("coloremoji_blendmodes");
-        name.append(sk_tool_utils::platform_os_emoji());
+        name.append(sk_tool_utils::platform_font_manager());
         return name;
     }
 

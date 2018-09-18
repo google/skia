@@ -35,9 +35,11 @@ def python_unit_tests(train):
 
 def recipe_test(train):
   cmd = [
-      'python', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test', 'run']
+      'python', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test']
   if train:
-    cmd.append('--train')
+    cmd.append('train')
+  else:
+    cmd.append('run')
   return test(cmd, SKIA_DIR)
 
 
@@ -50,9 +52,11 @@ def gen_tasks_test(train):
   except OSError:
     return ('Failed to run "%s"; do you have Go installed on your machine?'
             % ' '.join(cmd))
-  if output and 'cannot find package "go.skia.org/infra' in output:
-    return ('Failed to run gen_tests.go:\n\n%s\nMaybe you need to run:\n\n'
-            '$ go get -u go.skia.org/infra/...' % output)
+  if output:
+    if ('cannot find package "go.skia.org/infra' in output or
+        'gen_tasks.go:' in output):
+      return ('Failed to run gen_tests.go:\n\n%s\nMaybe you need to run:\n\n'
+              '$ go get -u go.skia.org/infra/...' % output)
   return output
 
 

@@ -128,11 +128,11 @@ class DownsampleBitmapTextGM: public DownsampleBitmapGM {
 
           setTypeface(&paint, "serif", SkFontStyle());
           canvas.drawString("Hamburgefons", fTextSize/2, 1.2f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kBold));
+          setTypeface(&paint, "serif", SkFontStyle::Bold());
           canvas.drawString("Hamburgefons", fTextSize/2, 2.4f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kItalic));
+          setTypeface(&paint, "serif", SkFontStyle::Italic());
           canvas.drawString("Hamburgefons", fTextSize/2, 3.6f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkFontStyle::FromOldStyle(SkTypeface::kBoldItalic));
+          setTypeface(&paint, "serif", SkFontStyle::BoldItalic());
           canvas.drawString("Hamburgefons", fTextSize/2, 4.8f*fTextSize, paint);
       }
   private:
@@ -160,18 +160,16 @@ class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
 
 class DownsampleBitmapImageGM: public DownsampleBitmapGM {
   public:
-      DownsampleBitmapImageGM(const char filename[], SkFilterQuality filterQuality)
-      : INHERITED(filterQuality), fFilename(filename)
-        {
-            fName.printf("downsamplebitmap_image_%s_%s", this->filterQualityToString(), filename);
-        }
+      explicit DownsampleBitmapImageGM(SkFilterQuality filterQuality)
+        : INHERITED(filterQuality) {
+          fName.printf("downsamplebitmap_image_%s", this->filterQualityToString());
+      }
 
   protected:
-      SkString fFilename;
       int fSize;
 
       void make_bitmap() override {
-        if (!GetResourceAsBitmap(fFilename.c_str(), &fBM)) {
+        if (!GetResourceAsBitmap("images/mandrill_512.png", &fBM)) {
             fBM.allocN32Pixels(1, 1);
             fBM.eraseARGB(255, 255, 0 , 0); // red == bad
         }
@@ -183,16 +181,16 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kHigh_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kHigh_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM(kHigh_SkFilterQuality); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kMedium_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kMedium_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kMedium_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM(kMedium_SkFilterQuality); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kLow_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kLow_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kLow_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM(kLow_SkFilterQuality); )
 
 DEF_GM( return new DownsampleBitmapTextGM(72, kNone_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kNone_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kNone_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapImageGM(kNone_SkFilterQuality); )

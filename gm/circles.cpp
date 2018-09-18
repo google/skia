@@ -7,9 +7,9 @@
 #include "gm.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
 #include "SkGradientShader.h"
+#include "SkMaskFilter.h"
 #include "SkMatrix.h"
 #include "SkRandom.h"
 #include "SkTArray.h"
@@ -52,10 +52,9 @@ protected:
         // AA with mask filter
         SkPaint p;
         p.setAntiAlias(true);
-        p.setMaskFilter(SkBlurMaskFilter::Make(
+        p.setMaskFilter(SkMaskFilter::MakeBlur(
                                kNormal_SkBlurStyle,
-                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
-                               SkBlurMaskFilter::kHighQuality_BlurFlag));
+                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5))));
         fPaints.push_back(p);
         }
 

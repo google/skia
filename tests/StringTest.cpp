@@ -5,32 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include <stdarg.h>
-#include <stdio.h>
-#include "SkString.h"
 #include "Test.h"
 
-// Windows vsnprintf doesn't 0-terminate safely), but is so far
-// encapsulated in SkString that we can't test it directly.
+#include <stdarg.h>
+#include <stdio.h>
+#include <thread>
 
-#ifdef SK_BUILD_FOR_WIN
-    #define VSNPRINTF(buffer, size, format, args)   \
-        vsnprintf_s(buffer, size, _TRUNCATE, format, args)
-#else
-    #define VSNPRINTF   vsnprintf
-#endif
+#include "SkString.h"
+#include "SkStringUtils.h"
 
-#define ARGS_TO_BUFFER(format, buffer, size)        \
-    do {                                            \
-        va_list args;                               \
-        va_start(args, format);                     \
-        VSNPRINTF(buffer, size, format, args);      \
-        va_end(args);                               \
-    } while (0)
-
-static void printfAnalog(char* buffer, int size, const char format[], ...) {
-    ARGS_TO_BUFFER(format, buffer, size);
-}
+static const char* gThirtyWideDecimal = "%30d";
 
 DEF_TEST(String, reporter) {
     SkString    a;
@@ -187,7 +171,7 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter, buffer[18] == 'a');
     REPORTER_ASSERT(reporter, buffer[19] == 'a');
     REPORTER_ASSERT(reporter, buffer[20] == 'a');
-    printfAnalog(buffer, 20, "%30d", 0);
+    snprintf(buffer, 20, gThirtyWideDecimal, 0);
     REPORTER_ASSERT(reporter, buffer[18] == ' ');
     REPORTER_ASSERT(reporter, buffer[19] == 0);
     REPORTER_ASSERT(reporter, buffer[20] == 'a');
@@ -208,7 +192,15 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter, a.size() == 2000);
     for (size_t i = 0; i < a.size(); ++i) {
         if (a[i] != ' ') {
-            ERRORF(reporter, "SkStringPrintf fail: a[%d] = '%c'", i, a[i]);
+            ERRORF(reporter, "SkString::printf fail: a[%d] = '%c'", i, a[i]);
+            break;
+        }
+    }
+    a.appendf("%2000s", " ");
+    REPORTER_ASSERT(reporter, a.size() == 4000);
+    for (size_t i = 0; i < a.size(); ++i) {
+        if (a[i] != ' ') {
+            ERRORF(reporter, "SkString::appendf fail: a[%d] = '%c'", i, a[i]);
             break;
         }
     }
@@ -287,3 +279,59 @@ DEF_TEST(String_SkStrSplit_All, r) {
     REPORTER_ASSERT(r, results[2].equals("b"));
     REPORTER_ASSERT(r, results[3].equals(""));
 }
+
+// https://bugs.chromium.org/p/skia/issues/detail?id=7107
+DEF_TEST(String_Threaded, r) {
+    SkString str("foo");
+
+    std::thread threads[5];
+    for (auto& thread : threads) {
+        thread = std::thread([&] {
+            SkString copy = str;
+            (void)copy.equals("test");
+        });
+    }
+    for (auto& thread : threads) {
+        thread.join();
+    }
+}
+
+// Ensure that the string allocate doesn't internally overflow any calculations, and accidentally
+// let us create a string with a requested length longer than we can manage.
+DEF_TEST(String_huge, r) {
+    // start testing slightly below max 32
+    size_t size = SK_MaxU32 - 16;
+    // See where we crash, and manually check that its at the right point.
+    //
+    //  To test, change the false to true
+    while (false) {
+        // On a 64bit build, this should crash when size == 1 << 32, since we can't store
+        // that length in the string's header (which has a u32 slot for the length).
+        //
+        // On a 32bit build, this should crash the first time around, since we can't allocate
+        // anywhere near this amount.
+        //
+        SkString str(size);
+        size += 1;
+    }
+}
+
+DEF_TEST(String_fromUTF16, r) {
+    // test data produced with `iconv`.
+    const uint16_t test1[] = {
+        0xD835, 0xDCD0, 0xD835, 0xDCD1, 0xD835, 0xDCD2, 0xD835, 0xDCD3, 0xD835, 0xDCD4, 0x0020,
+        0xD835, 0xDCD5, 0xD835, 0xDCD6, 0xD835, 0xDCD7, 0xD835, 0xDCD8, 0xD835, 0xDCD9
+    };
+    REPORTER_ASSERT(r, SkStringFromUTF16(test1, SK_ARRAY_COUNT(test1)).equals("𝓐𝓑𝓒𝓓𝓔 𝓕𝓖𝓗𝓘𝓙"));
+
+    const uint16_t test2[] = {
+        0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0020, 0x0046, 0x0047, 0x0048, 0x0049, 0x004A,
+    };
+    REPORTER_ASSERT(r, SkStringFromUTF16(test2, SK_ARRAY_COUNT(test2)).equals("ABCDE FGHIJ"));
+
+    const uint16_t test3[] = {
+        0x03B1, 0x03B2, 0x03B3, 0x03B4, 0x03B5, 0x0020, 0x03B6, 0x03B7, 0x03B8, 0x03B9, 0x03BA,
+    };
+    REPORTER_ASSERT(r, SkStringFromUTF16(test3, SK_ARRAY_COUNT(test3)).equals("αβγδε ζηθικ"));
+}
+

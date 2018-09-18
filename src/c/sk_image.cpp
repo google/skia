@@ -23,18 +23,14 @@ void sk_image_unref(const sk_image_t* cimage) {
 }
 
 sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pixels, size_t rowBytes) {
-    return sk_image_new_raster_copy_with_colortable(cinfo, pixels, rowBytes, nullptr);
+    SkImageInfo info;
+    from_c(*cinfo, &info);
+    auto image = SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes));
+    return ToImage(image.release());
 }
 
 sk_image_t* sk_image_new_raster_copy_with_pixmap(const sk_pixmap_t* pixmap) {
     auto image = SkImage::MakeRasterCopy(AsPixmap(*pixmap));
-    return ToImage(image.release());
-}
-
-sk_image_t* sk_image_new_raster_copy_with_colortable(const sk_imageinfo_t* cinfo, const void* pixels, size_t rowBytes, sk_colortable_t* ctable) {
-    SkImageInfo info;
-    from_c(*cinfo, &info);
-    auto image = SkImage::MakeRasterCopy(SkPixmap(info, pixels, rowBytes, AsColorTable(ctable)));
     return ToImage(image.release());
 }
 
@@ -57,12 +53,12 @@ sk_image_t* sk_image_new_from_encoded(sk_data_t* cdata, const sk_irect_t* subset
     return ToImage(SkImage::MakeFromEncoded(sk_ref_sp(AsData(cdata)), AsIRect(subset)).release());
 }
 
-sk_image_t* sk_image_new_from_texture(gr_context_t* context, const gr_backend_texture_desc_t* desc, sk_alphatype_t alpha, sk_colorspace_t* colorSpace, sk_image_texture_release_proc releaseProc, void* releaseContext) {
-    return ToImage(SkImage::MakeFromTexture(AsGrContext(context), AsGrBackendTextureDesc(*desc), (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace)), releaseProc, releaseContext).release());
+sk_image_t* sk_image_new_from_texture(gr_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_alphatype_t alpha, sk_colorspace_t* colorSpace, sk_image_texture_release_proc releaseProc, void* releaseContext) {
+    return ToImage(SkImage::MakeFromTexture(AsGrContext(context), AsGrBackendTexture(*texture), (GrSurfaceOrigin)origin, (SkColorType)colorType, (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace)), releaseProc, releaseContext).release());
 }
 
-sk_image_t* sk_image_new_from_adopted_texture(gr_context_t* context, const gr_backend_texture_desc_t* desc, sk_alphatype_t alpha, sk_colorspace_t* colorSpace) {
-    return ToImage(SkImage::MakeFromAdoptedTexture(AsGrContext(context), AsGrBackendTextureDesc(*desc), (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace))).release());
+sk_image_t* sk_image_new_from_adopted_texture(gr_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_alphatype_t alpha, sk_colorspace_t* colorSpace) {
+    return ToImage(SkImage::MakeFromAdoptedTexture(AsGrContext(context), AsGrBackendTexture(*texture), (GrSurfaceOrigin)origin, (SkColorType)colorType, (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace))).release());
 }
 
 sk_image_t* sk_image_new_from_picture(sk_picture_t* picture, const sk_isize_t* dimensions, const sk_matrix_t* cmatrix, const sk_paint_t* paint) {
@@ -86,7 +82,15 @@ uint32_t sk_image_get_unique_id(const sk_image_t* cimage) {
 }
 
 sk_alphatype_t sk_image_get_alpha_type(const sk_image_t* image) {
-    return (sk_alphatype_t) AsImage(image)->alphaType();
+    return (sk_alphatype_t)AsImage(image)->alphaType();
+}
+
+sk_colortype_t sk_image_get_color_type(const sk_image_t* image) {
+    return (sk_colortype_t)AsImage(image)->colorType();
+}
+
+sk_colorspace_t* sk_image_get_colorspace(const sk_image_t* image) {
+    return ToColorSpace(AsImage(image)->refColorSpace().release());
 }
 
 bool sk_image_is_alpha_only(const sk_image_t* image) {
@@ -131,16 +135,16 @@ bool sk_image_scale_pixels(const sk_image_t* image, const sk_pixmap_t* dst, sk_f
     return AsImage(image)->scalePixels(AsPixmap(*dst), (SkFilterQuality)quality, (SkImage::CachingHint)cachingHint);
 }
 
-sk_data_t* sk_image_encode(const sk_image_t* cimage) {
-    return ToData(AsImage(cimage)->encode());
+sk_data_t* sk_image_ref_encoded(const sk_image_t* cimage) {
+    return ToData(AsImage(cimage)->refEncodedData().release());
 }
 
-sk_data_t* sk_image_encode_with_serializer(const sk_image_t* cimage, sk_pixelserializer_t* serializer) {
-    return ToData(AsImage(cimage)->encode(AsPixelSerializer(serializer)));
+sk_data_t* sk_image_encode(const sk_image_t* cimage) {
+    return ToData(AsImage(cimage)->encodeToData().release());
 }
 
 sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_encoded_image_format_t encoder, int quality) {
-    return ToData(AsImage(cimage)->encode((SkEncodedImageFormat)encoder, quality));
+    return ToData(AsImage(cimage)->encodeToData((SkEncodedImageFormat)encoder, quality).release());
 }
 
 sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_irect_t* subset) {

@@ -13,7 +13,9 @@
 #include "GrPathRendering.h"
 
 class GrFixedClip;
+class GrHardClip;
 class GrPath;
+class GrRenderTargetPriv;
 struct GrUserStencilSettings;
 
 /** Class that adds methods to GrRenderTargetContext that are only intended for use internal to
@@ -21,27 +23,29 @@ struct GrUserStencilSettings;
     additional data members or virtual methods. */
 class GrRenderTargetContextPriv {
 public:
-    gr_instanced::InstancedRendering* accessInstancedRendering() const {
-        return fRenderTargetContext->getOpList()->instancedRendering();
-    }
-
     // called to note the last clip drawn to the stencil buffer.
     // TODO: remove after clipping overhaul.
-    void setLastClip(int32_t clipStackGenID, const SkIRect& devClipBounds) {
-        GrRenderTargetOpList* opList = fRenderTargetContext->getOpList();
+    void setLastClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
+                     int numClipAnalyticFPs) {
+        GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
         opList->fLastClipStackGenID = clipStackGenID;
         opList->fLastDevClipBounds = devClipBounds;
+        opList->fLastClipNumAnalyticFPs = numClipAnalyticFPs;
     }
 
     // called to determine if we have to render the clip into SB.
     // TODO: remove after clipping overhaul.
-    bool mustRenderClip(int32_t clipStackGenID, const SkIRect& devClipBounds) const {
-        GrRenderTargetOpList* opList = fRenderTargetContext->getOpList();
+    bool mustRenderClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
+                        int numClipAnalyticFPs) const {
+        GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
         return opList->fLastClipStackGenID != clipStackGenID ||
-               !opList->fLastDevClipBounds.contains(devClipBounds);
+               !opList->fLastDevClipBounds.contains(devClipBounds) ||
+               opList->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
     }
 
-    void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
+    using CanClearFullscreen = GrRenderTargetContext::CanClearFullscreen;
+
+    void clear(const GrFixedClip&, const GrColor, CanClearFullscreen);
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
@@ -58,19 +62,19 @@ public:
      */
     void absClear(const SkIRect* rect, const GrColor color);
 
-    void stencilRect(const GrClip& clip,
+    void stencilRect(const GrHardClip&,
                      const GrUserStencilSettings* ss,
                      GrAAType,
                      const SkMatrix& viewMatrix,
                      const SkRect& rect);
 
-    void stencilPath(const GrClip&, GrAAType, const SkMatrix& viewMatrix, const GrPath*);
+    void stencilPath(const GrHardClip&, GrAAType, const SkMatrix& viewMatrix, const GrPath*);
 
     /**
      * Draws a rect, either AA or not, and touches the stencil buffer with the user stencil settings
      * for each color sample written.
      */
-    bool drawAndStencilRect(const GrClip&,
+    bool drawAndStencilRect(const GrHardClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
@@ -82,7 +86,7 @@ public:
      * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
      * for each color sample written.
      */
-    bool drawAndStencilPath(const GrClip&,
+    bool drawAndStencilPath(const GrHardClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
@@ -102,12 +106,9 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
-    uint32_t testingOnly_addLegacyMeshDrawOp(GrPaint&&, GrAAType,
-                                             std::unique_ptr<GrLegacyMeshDrawOp>,
-                                             const GrUserStencilSettings* = nullptr,
-                                             bool snapToCenters = false);
-
+    uint32_t testingOnly_getOpListID();
     uint32_t testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
+    uint32_t testingOnly_addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
 
     bool refsWrappedObjects() const {
         return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();

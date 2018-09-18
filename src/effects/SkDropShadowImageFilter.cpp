@@ -10,6 +10,8 @@
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXformer.h"
+#include "SkFlattenablePriv.h"
+#include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
@@ -20,7 +22,7 @@ sk_sp<SkImageFilter> SkDropShadowImageFilter::Make(SkScalar dx, SkScalar dy,
                                                    SkColor color, ShadowMode shadowMode,
                                                    sk_sp<SkImageFilter> input,
                                                    const CropRect* cropRect) {
-    return sk_sp<SkImageFilter>(new SkDropShadowImageFilter(dx, dy, sigmaX, sigmaY, 
+    return sk_sp<SkImageFilter>(new SkDropShadowImageFilter(dx, dy, sigmaX, sigmaY,
                                                             color, shadowMode,
                                                             std::move(input),
                                                             cropRect));
@@ -46,9 +48,9 @@ sk_sp<SkFlattenable> SkDropShadowImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
     SkColor color = buffer.readColor();
-    ShadowMode shadowMode = buffer.isVersionLT(SkReadBuffer::kDropShadowMode_Version) ?
-                            kDrawShadowAndForeground_ShadowMode :
-                            static_cast<ShadowMode>(buffer.readInt());
+
+    ShadowMode shadowMode = buffer.read32LE(kLast_ShadowMode);
+
     return Make(dx, dy, sigmaX, sigmaY, color, shadowMode, common.getInput(0), &common.cropRect());
 }
 
@@ -116,11 +118,13 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilter::onFilterImage(SkSpecialImage* sou
 sk_sp<SkImageFilter> SkDropShadowImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     SkASSERT(1 == this->countInputs());
 
-    sk_sp<SkImageFilter> input =
-            this->getInput(0) ? this->getInput(0)->makeColorSpace(xformer) : nullptr;
-
-    return SkDropShadowImageFilter::Make(fDx, fDy, fSigmaX, fSigmaY, xformer->apply(fColor),
-                                         fShadowMode, std::move(input), this->getCropRectIfSet());
+    sk_sp<SkImageFilter> input = xformer->apply(this->getInput(0));
+    SkColor color = xformer->apply(fColor);
+    if (input.get() != this->getInput(0) || color != fColor) {
+        return SkDropShadowImageFilter::Make(fDx, fDy, fSigmaX, fSigmaY, color,
+                                             fShadowMode, input, this->getCropRectIfSet());
+    }
+    return this->refMe();
 }
 
 SkRect SkDropShadowImageFilter::computeFastBounds(const SkRect& src) const {
@@ -137,9 +141,9 @@ SkRect SkDropShadowImageFilter::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                    MapDirection direction) const {
+                                                    MapDirection dir, const SkIRect* inputRect) const {
     SkVector offsetVec = SkVector::Make(fDx, fDy);
-    if (kReverse_MapDirection == direction) {
+    if (kReverse_MapDirection == dir) {
         offsetVec.negate();
     }
     ctm.mapVectors(&offsetVec, 1);
@@ -156,7 +160,6 @@ SkIRect SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const Sk
     return dst;
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkDropShadowImageFilter::toString(SkString* str) const {
     str->appendf("SkDropShadowImageFilter: (");
 
@@ -178,4 +181,3 @@ void SkDropShadowImageFilter::toString(SkString* str) const {
 
     str->append(")");
 }
-#endif

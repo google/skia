@@ -62,13 +62,7 @@ protected:
             path.transform(m);
         }
 
-        int count = loops;
-        if (fFlags & kBig_Flag) {
-            count >>= 2;
-        }
-        count >>= (3 * complexity());
-
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawPath(path, paint);
         }
     }
@@ -1082,7 +1076,7 @@ class TightBoundsBench : public Benchmark {
 public:
     TightBoundsBench(SkRect (*proc)(const SkPath&), const char suffix[]) : fProc(proc) {
         fName.printf("tight_bounds_%s", suffix);
-        
+
         const int N = 100;
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
@@ -1102,13 +1096,13 @@ protected:
     }
 
     const char* onGetName() override { return fName.c_str(); }
-    
+
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops*100; ++i) {
             fProc(fPath);
         }
     }
-    
+
 private:
     typedef Benchmark INHERITED;
 };

@@ -14,8 +14,8 @@ class SkiaBuildbotDesktopPage(page_module.Page):
   def __init__(self, url, page_set):
     super(SkiaBuildbotDesktopPage, self).__init__(
         url=url,
+        name=url,
         page_set=page_set,
-        credentials_path='data/credentials.json',
         shared_page_state_class=shared_page_state.Shared10InchTabletPageState)
     self.archive_data_file = 'data/skia_pravda_nexus10.json'
 

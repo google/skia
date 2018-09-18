@@ -30,7 +30,7 @@
  *
  * Currently this can only be constructed from a path, rect, or rrect though it can become a path
  * applying style to the geometry. The idea is to expand this to cover most or all of the geometries
- * that have SkCanvas::draw APIs.
+ * that have fast paths in the GPU backend.
  */
 class GrShape {
 public:
@@ -116,10 +116,32 @@ public:
         this->attemptToSimplifyRRect();
     }
 
+    static GrShape MakeArc(const SkRect& oval, SkScalar startAngleDegrees,
+                           SkScalar sweepAngleDegrees, bool useCenter, const GrStyle& style);
+
     GrShape(const GrShape&);
     GrShape& operator=(const GrShape& that);
 
     ~GrShape() { this->changeType(Type::kEmpty); }
+
+    /**
+     * Informs MakeFilled on how to modify that shape's fill rule when making a simple filled
+     * version of the shape.
+     */
+    enum class FillInversion {
+        kPreserve,
+        kFlip,
+        kForceNoninverted,
+        kForceInverted
+    };
+    /**
+     * Makes a filled shape from the pre-styled original shape and optionally modifies whether
+     * the fill is inverted or not. It's important to note that the original shape's geometry
+     * may already have been modified if doing so was neutral with respect to its style
+     * (e.g. filled paths are always closed when stored in a shape and dashed paths are always
+     * made non-inverted since dashing ignores inverseness).
+     */
+    static GrShape MakeFilled(const GrShape& original, FillInversion = FillInversion::kPreserve);
 
     const GrStyle& style() const { return fStyle; }
 
@@ -176,11 +198,25 @@ public:
             case Type::kEmpty:
                 out->reset();
                 break;
+            case Type::kInvertedEmpty:
+                out->reset();
+                out->setFillType(kDefaultPathInverseFillType);
+                break;
             case Type::kRRect:
                 out->reset();
                 out->addRRect(fRRectData.fRRect, fRRectData.fDir, fRRectData.fStart);
                 // Below matches the fill type that attemptToSimplifyPath uses.
                 if (fRRectData.fInverted) {
+                    out->setFillType(kDefaultPathInverseFillType);
+                } else {
+                    out->setFillType(kDefaultPathFillType);
+                }
+                break;
+            case Type::kArc:
+                SkPathPriv::CreateDrawArcPath(out, fArcData.fOval, fArcData.fStartAngleDegrees,
+                                              fArcData.fSweepAngleDegrees, fArcData.fUseCenter,
+                                              fStyle.isSimpleFill());
+                if (fArcData.fInverted) {
                     out->setFillType(kDefaultPathInverseFillType);
                 } else {
                     out->setFillType(kDefaultPathFillType);
@@ -204,9 +240,9 @@ public:
 
     /**
      * Returns whether the geometry is empty. Note that applying the style could produce a
-     * non-empty shape.
+     * non-empty shape. It also may have an inverse fill.
      */
-    bool isEmpty() const { return Type::kEmpty == fType; }
+    bool isEmpty() const { return Type::kEmpty == fType || Type::kInvertedEmpty == fType; }
 
     /**
      * Gets the bounds of the geometry without reflecting the shape's styling. This ignores
@@ -229,8 +265,14 @@ public:
         switch (fType) {
             case Type::kEmpty:
                 return true;
+            case Type::kInvertedEmpty:
+                return true;
             case Type::kRRect:
                 return true;
+            case Type::kArc:
+                return SkPathPriv::DrawArcIsConvex(fArcData.fSweepAngleDegrees,
+                                                   SkToBool(fArcData.fUseCenter),
+                                                   fStyle.isSimpleFill());
             case Type::kLine:
                 return true;
             case Type::kPath:
@@ -251,8 +293,14 @@ public:
             case Type::kEmpty:
                 ret = false;
                 break;
+            case Type::kInvertedEmpty:
+                ret = true;
+                break;
             case Type::kRRect:
                 ret = fRRectData.fInverted;
+                break;
+            case Type::kArc:
+                ret = fArcData.fInverted;
                 break;
             case Type::kLine:
                 ret = fLineData.fInverted;
@@ -288,8 +336,12 @@ public:
         switch (fType) {
             case Type::kEmpty:
                 return true;
+            case Type::kInvertedEmpty:
+                return true;
             case Type::kRRect:
                 return true;
+            case Type::kArc:
+                return fArcData.fUseCenter;
             case Type::kLine:
                 return false;
             case Type::kPath:
@@ -303,13 +355,21 @@ public:
         switch (fType) {
             case Type::kEmpty:
                 return 0;
+            case Type::kInvertedEmpty:
+                return 0;
             case Type::kRRect:
                 if (fRRectData.fRRect.getType() == SkRRect::kOval_Type) {
                     return SkPath::kConic_SegmentMask;
-                } else if (fRRectData.fRRect.getType() == SkRRect::kRect_Type) {
+                } else if (fRRectData.fRRect.getType() == SkRRect::kRect_Type ||
+                           fRRectData.fRRect.getType() == SkRRect::kEmpty_Type) {
                     return SkPath::kLine_SegmentMask;
                 }
                 return SkPath::kLine_SegmentMask | SkPath::kConic_SegmentMask;
+            case Type::kArc:
+                if (fArcData.fUseCenter) {
+                    return SkPath::kConic_SegmentMask | SkPath::kLine_SegmentMask;
+                }
+                return SkPath::kConic_SegmentMask;
             case Type::kLine:
                 return SkPath::kLine_SegmentMask;
             case Type::kPath:
@@ -333,10 +393,28 @@ public:
      */
     void writeUnstyledKey(uint32_t* key) const;
 
+    /**
+     * Adds a listener to the *original* path. Typically used to invalidate cached resources when
+     * a path is no longer in-use. If the shape started out as something other than a path, this
+     * does nothing (but will delete the listener).
+     */
+    void addGenIDChangeListener(SkPathRef::GenIDChangeListener* listener) const;
+
+    /**
+     * Helpers that are only exposed for unit tests, to determine if the shape is a path, and get
+     * the generation ID of the *original* path. This is the path that will receive
+     * GenIDChangeListeners added to this shape.
+     */
+    uint32_t testingOnly_getOriginalGenerationID() const;
+    bool testingOnly_isPath() const;
+    bool testingOnly_isNonVolatilePath() const;
+
 private:
     enum class Type {
         kEmpty,
+        kInvertedEmpty,
         kRRect,
+        kArc,
         kLine,
         kPath,
     };
@@ -388,6 +466,12 @@ private:
     void attemptToSimplifyPath();
     void attemptToSimplifyRRect();
     void attemptToSimplifyLine();
+    void attemptToSimplifyArc();
+
+    bool attemptToSimplifyStrokedLineToRRect();
+
+    /** Gets the path that gen id listeners should be added to. */
+    const SkPath* originalPathForListeners() const;
 
     // Defaults to use when there is no distinction between even/odd and winding fills.
     static constexpr SkPath::FillType kDefaultPathFillType = SkPath::kEvenOdd_FillType;
@@ -439,25 +523,33 @@ private:
         return kPathRRectStartIdx;
     }
 
-    Type                        fType;
     union {
         struct {
-            SkRRect                     fRRect;
-            SkPath::Direction           fDir;
-            unsigned                    fStart;
-            bool                        fInverted;
+            SkRRect fRRect;
+            SkPath::Direction fDir;
+            unsigned fStart;
+            bool fInverted;
         } fRRectData;
         struct {
-            SkPath                      fPath;
+            SkRect fOval;
+            SkScalar fStartAngleDegrees;
+            SkScalar fSweepAngleDegrees;
+            int16_t fUseCenter;
+            int16_t fInverted;
+        } fArcData;
+        struct {
+            SkPath fPath;
             // Gen ID of the original path (fPath may be modified)
-            int32_t                     fGenID;
+            int32_t fGenID;
         } fPathData;
         struct {
-            SkPoint                     fPts[2];
-            bool                        fInverted;
+            SkPoint fPts[2];
+            bool fInverted;
         } fLineData;
     };
-    GrStyle                     fStyle;
+    GrStyle fStyle;
+    SkTLazy<SkPath> fInheritedPathForListeners;
     SkAutoSTArray<8, uint32_t>  fInheritedKey;
+    Type fType;
 };
 #endif

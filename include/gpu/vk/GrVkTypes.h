@@ -31,7 +31,21 @@
  * Vulkan textures are really const GrVkImageInfo*
  */
 struct GrVkAlloc {
-    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff Tex is an RT and uses borrow semantics
+    GrVkAlloc()
+            : fMemory(VK_NULL_HANDLE)
+            , fOffset(0)
+            , fSize(0)
+            , fFlags(0)
+            , fUsesSystemHeap(false) {}
+
+    GrVkAlloc(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, uint32_t flags)
+            : fMemory(memory)
+            , fOffset(offset)
+            , fSize(size)
+            , fFlags(flags)
+            , fUsesSystemHeap(false) {}
+
+    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
     VkDeviceSize   fOffset;
     VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
     uint32_t       fFlags;
@@ -39,8 +53,16 @@ struct GrVkAlloc {
     enum Flag {
         kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
     };
-};
 
+    bool operator==(const GrVkAlloc& that) const {
+        return fMemory == that.fMemory && fOffset == that.fOffset && fSize == that.fSize &&
+               fFlags == that.fFlags && fUsesSystemHeap == that.fUsesSystemHeap;
+    }
+
+private:
+    friend class GrVkHeap; // For access to usesSystemHeap
+    bool fUsesSystemHeap;
+};
 struct GrVkImageInfo {
     /**
      * If the image's format is sRGB (GrVkFormatIsSRGB returns true), then the image must have
@@ -53,12 +75,41 @@ struct GrVkImageInfo {
     VkFormat       fFormat;
     uint32_t       fLevelCount;
 
+    GrVkImageInfo()
+            : fImage(VK_NULL_HANDLE)
+            , fAlloc()
+            , fImageTiling(VK_IMAGE_TILING_OPTIMAL)
+            , fImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
+            , fFormat(VK_FORMAT_UNDEFINED)
+            , fLevelCount(0) {}
+
+    GrVkImageInfo(VkImage image, GrVkAlloc alloc, VkImageTiling imageTiling, VkImageLayout layout,
+                  VkFormat format, uint32_t levelCount)
+            : fImage(image)
+            , fAlloc(alloc)
+            , fImageTiling(imageTiling)
+            , fImageLayout(layout)
+            , fFormat(format)
+            , fLevelCount(levelCount) {}
+
+    GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
+            : fImage(info.fImage)
+            , fAlloc(info.fAlloc)
+            , fImageTiling(info.fImageTiling)
+            , fImageLayout(layout)
+            , fFormat(info.fFormat)
+            , fLevelCount(info.fLevelCount) {}
+
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle
     // to our internal GrVkImageInfo by calling getTextureHandle on a GrVkTexture.
     void updateImageLayout(VkImageLayout layout) { fImageLayout = layout; }
-};
 
-GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkImageInfo*));
+    bool operator==(const GrVkImageInfo& that) const {
+        return fImage == that.fImage && fAlloc == that.fAlloc &&
+               fImageTiling == that.fImageTiling && fImageLayout == that.fImageLayout &&
+               fFormat == that.fFormat && fLevelCount == that.fLevelCount;
+    }
+};
 
 #endif

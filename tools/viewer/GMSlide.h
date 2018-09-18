@@ -23,6 +23,9 @@ public:
 
     bool onChar(SkUnichar c) override;
 
+    bool onGetControls(SkMetaData*) override;
+    void onSetControls(const SkMetaData&) override;
+
 private:
     skiagm::GM* fGM;
 };

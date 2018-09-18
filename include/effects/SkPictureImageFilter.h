@@ -8,6 +8,7 @@
 #ifndef SkPictureImageFilter_DEFINED
 #define SkPictureImageFilter_DEFINED
 
+#include "SkFlattenable.h"
 #include "SkImageFilter.h"
 #include "SkPicture.h"
 
@@ -24,26 +25,11 @@ public:
      */
     static sk_sp<SkImageFilter> Make(sk_sp<SkPicture> picture, const SkRect& cropRect);
 
-    /**
-     *  Refs the passed-in picture. The picture is rasterized at a resolution that matches the
-     *  local coordinate space. If the picture needs to be resampled for drawing it into the
-     *  destination canvas, bilinear filtering will be used. cropRect can be used to crop or
-     *  expand the destination rect when the picture is drawn. (No scaling is implied by the
-     *  dest rect; only the CTM is applied.)
-     */
-    static sk_sp<SkImageFilter> MakeForLocalSpace(sk_sp<SkPicture> picture,
-                                                  const SkRect& cropRect,
-                                                  SkFilterQuality filterQuality);
+    void toString(SkString* str) const override;
 
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureImageFilter)
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
-    enum PictureResolution {
-        kDeviceSpace_PictureResolution,
-        kLocalSpace_PictureResolution
-    };
-
     /*  Constructs an SkPictureImageFilter object from an SkReadBuffer.
      *  Note: If the SkPictureImageFilter object construction requires bitmap
      *  decoding, the decoder must be set on the SkReadBuffer parameter by calling
@@ -57,21 +43,12 @@ protected:
 
 private:
     explicit SkPictureImageFilter(sk_sp<SkPicture> picture);
-    SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRect& cropRect,
-                         PictureResolution, SkFilterQuality, sk_sp<SkColorSpace>);
+    SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRect& cropRect, sk_sp<SkColorSpace>);
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
 
-    void drawPictureAtDeviceResolution(SkCanvas* canvas,
-                                       const SkIRect& deviceBounds,
-                                       const Context&) const;
-    void drawPictureAtLocalResolution(SkSpecialImage* source,
-                                      SkCanvas*,
-                                      const SkIRect& deviceBounds,
-                                      const Context&) const;
-
-    sk_sp<SkPicture>      fPicture;
-    SkRect                fCropRect;
-    PictureResolution     fPictureResolution;
-    SkFilterQuality       fFilterQuality;
+    sk_sp<SkPicture>    fPicture;
+    SkRect              fCropRect;
 
     // Should never be set by a public constructor.  This is only used when onMakeColorSpace()
     // forces a deferred color space xform.

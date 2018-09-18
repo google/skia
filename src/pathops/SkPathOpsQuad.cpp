@@ -21,11 +21,14 @@ static bool pointInTriangle(const SkDPoint fPts[3], const SkDPoint& test) {
     double dot11 = v1.dot(v1);
     double dot12 = v1.dot(v2);
     // Compute barycentric coordinates
-    double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-    double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-    double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+    double denom = dot00 * dot11 - dot01 * dot01;
+    double u = dot11 * dot02 - dot01 * dot12;
+    double v = dot00 * dot12 - dot01 * dot02;
     // Check if point is in triangle
-    return u >= 0 && v >= 0 && u + v < 1;
+    if (denom >= 0) {
+        return u >= 0 && v >= 0 && u + v < denom;
+    }
+    return u <= 0 && v <= 0 && u + v > denom;
 }
 
 static bool matchesEnd(const SkDPoint fPts[3], const SkDPoint& test) {
@@ -138,6 +141,15 @@ int SkDQuad::RootsValidT(double A, double B, double C, double t[2]) {
     return foundRoots;
 }
 
+static int handle_zero(const double B, const double C, double s[2]) {
+    if (approximately_zero(B)) {
+        s[0] = 0;
+        return C == 0;
+    }
+    s[0] = -C / B;
+    return 1;
+}
+
 /*
 Numeric Solutions (5.6) suggests to solve the quadratic by computing
        Q = -1/2(B + sgn(B)Sqrt(B^2 - 4 A C))
@@ -147,16 +159,13 @@ and using the roots
 */
 // this does not discard real roots <= 0 or >= 1
 int SkDQuad::RootsReal(const double A, const double B, const double C, double s[2]) {
+    if (!A) {
+        return handle_zero(B, C, s);
+    }
     const double p = B / (2 * A);
     const double q = C / A;
-    if (!A || (approximately_zero(A) && (approximately_zero_inverse(p)
-            || approximately_zero_inverse(q)))) {
-        if (approximately_zero(B)) {
-            s[0] = 0;
-            return C == 0;
-        }
-        s[0] = -C / B;
-        return 1;
+    if (approximately_zero(A) && (approximately_zero_inverse(p) || approximately_zero_inverse(q))) {
+        return handle_zero(B, C, s);
     }
     /* normal form: x^2 + px + q = 0 */
     const double p2 = p * p;

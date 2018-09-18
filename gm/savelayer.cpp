@@ -7,8 +7,8 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkCanvasPriv.h"
 
-static const uint32_t SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag = 1U << 31;
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
 // In particular, it attempts to compare the performance of unclipped saveLayers with alternatives.
@@ -17,7 +17,7 @@ static void save_layer_unclipped(SkCanvas* canvas,
                                  SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
     SkRect rect = SkRect::MakeLTRB(l, t, r, b);
     canvas->saveLayer({ &rect, nullptr, nullptr, nullptr, nullptr,
-                        SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag });
+                        (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag });
 }
 
 static void do_draw(SkCanvas* canvas) {
@@ -93,7 +93,8 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     // In the future, we might also test the clipped case by allowing i = 0
     for(int i = 1; i < 2; ++i) {
         canvas->translate(100 * i, 0);
-        auto flag = i ? SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag : 0;
+        auto flag = i ?
+                (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag : 0;
         canvas->saveLayer({ &rect1, &paint1, nullptr, nullptr, nullptr, flag});
         canvas->saveLayer({ &rect2, &paint2, nullptr, nullptr, nullptr, flag});
         canvas->drawRect(rect3, paint3);
@@ -109,7 +110,7 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
 // restore with kPlus mode, which should show the mandrill super-bright on the outside, but
 // normal where we punched the hole.
 DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
-    canvas->drawImage(GetResourceAsImage("mandrill_256.png"), 0, 0, nullptr);
+    canvas->drawImage(GetResourceAsImage("images/mandrill_256.png"), 0, 0, nullptr);
 
     SkCanvas::SaveLayerRec rec;
     SkPaint paint;
@@ -237,3 +238,42 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
         }
     }
 }
+
+DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
+    canvas->saveLayer(nullptr, nullptr);
+
+    SkRect r = { 0, 0, 200, 200 };
+    SkPaint layerPaint;
+    layerPaint.setBlendMode(SkBlendMode::kModulate);
+
+    auto image = GetResourceAsImage("images/mandrill_128.png");
+
+    auto proc = [layerPaint](SkCanvas* canvas, SkCanvas::SaveLayerRec& rec) {
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+
+        canvas->saveLayer(rec);
+        canvas->drawCircle(100, 100, 50, paint);
+        paint.setColor(0x8800FF00);
+        canvas->drawRect({10, 90, 190, 110}, paint);
+        canvas->restore();
+    };
+
+    const int yflags[] = { 0, SkCanvas::kInitWithPrevious_SaveLayerFlag };
+    for (int y = 0; y <= 1; ++y) {
+        const int xflags[] = { 0, SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag };
+        for (int x = 0; x <= 1; ++x) {
+            canvas->save();
+            canvas->translate(x * 200.f, y * 200.f);
+
+            SkCanvas::SaveLayerRec rec(&r, &layerPaint, yflags[y] | xflags[x]);
+            canvas->drawImageRect(image, r, nullptr);
+            proc(canvas, rec);
+
+            canvas->restore();
+        }
+    }
+
+    canvas->restore();
+}
+

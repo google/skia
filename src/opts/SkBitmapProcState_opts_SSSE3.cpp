@@ -6,7 +6,7 @@
  */
 
 #include "SkBitmapProcState_opts_SSSE3.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkPaint.h"
 #include "SkUtils.h"
 

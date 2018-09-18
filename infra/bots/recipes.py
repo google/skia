@@ -10,8 +10,8 @@
 ** DO NOT MODIFY **
 *******************
 
-This is a copy of https://github.com/luci/recipes-py/blob/master/doc/recipes.py.
-To fix bugs, fix in the github repo then run the autoroller.
+This is a copy of https://chromium.googlesource.com/infra/luci/recipes-py/+/master/doc/recipes.py.
+To fix bugs, fix in the googlesource repo then run the autoroller.
 """
 
 import argparse
@@ -59,7 +59,8 @@ def parse(repo_root, recipes_cfg_path):
     recipes_cfg_path (str) - native path to the recipes.cfg file to process.
 
   Returns (as tuple):
-    engine_dep (EngineDep): The recipe_engine dependency.
+    engine_dep (EngineDep|None): The recipe_engine dependency, or None, if the
+      current repo IS the recipe_engine.
     recipes_path (str) - native path to where the recipes live inside of the
       current repo (i.e. the folder containing `recipes/` and/or
       `recipe_modules`)
@@ -71,6 +72,11 @@ def parse(repo_root, recipes_cfg_path):
     if pb['api_version'] != 2:
       raise MalformedRecipesCfg('unknown version %d' % pb['api_version'],
                                 recipes_cfg_path)
+
+    # If we're running ./doc/recipes.py from the recipe_engine repo itself, then
+    # return None to signal that there's no EngineDep.
+    if pb['project_id'] == 'recipe_engine':
+      return None, pb.get('recipes_path', '')
 
     engine = pb['deps']['recipe_engine']
 
@@ -141,6 +147,9 @@ def parse_args(argv):
 
 def checkout_engine(engine_path, repo_root, recipes_cfg_path):
   dep, recipes_path = parse(repo_root, recipes_cfg_path)
+  if dep is None:
+    # we're running from the engine repo already!
+    return os.path.join(repo_root, recipes_path)
 
   url = dep.url
 

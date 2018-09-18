@@ -14,7 +14,6 @@
 #if GR_TEST_UTILS
 
 class GrDrawOp;
-class GrLegacyMeshDrawOp;
 class GrPaint;
 class GrRenderTargetContext;
 struct GrUserStencilSettings;
@@ -27,12 +26,9 @@ void GrDrawRandomOp(SkRandom*, GrRenderTargetContext*, GrPaint&&);
 #define GR_DRAW_OP_TEST_DEFINE(Op)                                                              \
     std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&& paint, SkRandom* random, GrContext* context, \
                                          GrFSAAType fsaaType)
-
-/** Variations for GrLegacyMeshDrawOps. To be deleted. */
-#define GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(Op) \
-    std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context)
-#define GR_LEGACY_MESH_DRAW_OP_TEST_FRIEND(Op) \
-    friend std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context);
+#define GR_DRAW_OP_TEST_FRIEND(Op)                                                 \
+    friend std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&& paint, SkRandom* random, \
+                                                GrContext* context, GrFSAAType fsaaType)
 
 /** Helper for op test factories to pick a random stencil state. */
 const GrUserStencilSettings* GrGetRandomStencil(SkRandom* random, GrContext*);

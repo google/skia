@@ -6,16 +6,18 @@
  */
 #include "SkArenaAlloc.h"
 #include "SkBlurDrawLooper.h"
-#include "SkBlurMaskFilter.h"
+#include "SkMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkColor.h"
+#include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkLayerDrawLooper.h"
 #include "SkString.h"
 #include "SkStringUtils.h"
 #include "SkUnPreMultiply.h"
+#include "SkXfermodePriv.h"
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
     fPaintBits = 0;                     // ignore our paint fields
@@ -53,8 +55,8 @@ static SkColor xferColor(SkColor src, SkColor dst, SkBlendMode mode) {
         default: {
             SkPMColor pmS = SkPreMultiplyColor(src);
             SkPMColor pmD = SkPreMultiplyColor(dst);
-            SkPMColor result = SkXfermode::GetProc(mode)(pmS, pmD);
-            return SkUnPreMultiply::PMColorToColor(result);
+            SkXfermode::Peek(mode)->xfer32(&pmD, &pmS, 1, nullptr);
+            return SkUnPreMultiply::PMColorToColor(pmD);
         }
     }
 }
@@ -180,8 +182,8 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
     if (nullptr == mf) {
         return false;
     }
-    SkMaskFilter::BlurRec maskBlur;
-    if (!mf->asABlur(&maskBlur)) {
+    SkMaskFilterBase::BlurRec maskBlur;
+    if (!as_MFB(mf)->asABlur(&maskBlur)) {
         return false;
     }
 
@@ -202,7 +204,6 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
         bsRec->fOffset = fRecs->fInfo.fOffset;
         bsRec->fColor = fRecs->fPaint.getColor();
         bsRec->fStyle = maskBlur.fStyle;
-        bsRec->fQuality = maskBlur.fQuality;
     }
     return true;
 }
@@ -271,11 +272,13 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
         buffer.readPoint(&info.fOffset);
         info.fPostTranslate = buffer.readBool();
         buffer.readPaint(builder.addLayerOnTop(info));
+        if (!buffer.isValid()) {
+            return nullptr;
+        }
     }
     return builder.detach();
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkLayerDrawLooper::toString(SkString* str) const {
     str->appendf("SkLayerDrawLooper (%d): ", fCount);
 
@@ -331,7 +334,6 @@ void SkLayerDrawLooper::toString(SkString* str) const {
         rec = rec->fNext;
     }
 }
-#endif
 
 SkLayerDrawLooper::Builder::Builder()
         : fRecs(nullptr),
@@ -402,7 +404,7 @@ sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor color, SkScalar sigma, SkScal
 {
     sk_sp<SkMaskFilter> blur = nullptr;
     if (sigma > 0.0f) {
-        blur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, SkBlurMaskFilter::kNone_BlurFlag);
+        blur = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, true);
     }
 
     SkLayerDrawLooper::Builder builder;

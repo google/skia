@@ -9,6 +9,9 @@
 #define GrOnFlushResourceProvider_DEFINED
 
 #include "GrTypes.h"
+#include "GrDeferredUpload.h"
+#include "GrOpFlushState.h"
+#include "GrResourceProvider.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 
@@ -42,12 +45,18 @@ public:
 
     /**
      * Called once flushing is complete and all ops indicated by preFlush have been executed and
-     * released.
+     * released. startTokenForNextFlush can be used to track resources used in the current flush.
      */
-    virtual void postFlush() {}
+    virtual void postFlush(GrDeferredUploadToken startTokenForNextFlush,
+                           const uint32_t* opListIDs, int numOpListIDs) {}
 
-private:
-    typedef SkRefCnt INHERITED;
+    /**
+     * Tells the callback owner to hold onto this object when freeing GPU resources
+     *
+     * In particular, GrDrawingManager::freeGPUResources() deletes all the path renderers.
+     * Any OnFlushCallbackObject associated with a path renderer will need to be deleted.
+     */
+    virtual bool retainOnFreeGpuResources() { return false; }
 };
 
 /*
@@ -57,24 +66,38 @@ private:
  */
 class GrOnFlushResourceProvider {
 public:
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(const GrSurfaceDesc& desc,
-                                                         sk_sp<SkColorSpace> colorSpace,
-                                                         const SkSurfaceProps* props);
+    explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
 
-    // TODO: we only need this entry point as long as we have to pre-allocate the atlas.
-    // Remove it ASAP.
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy> proxy,
-                                                         sk_sp<SkColorSpace> colorSpace,
-                                                         const SkSurfaceProps* props);
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(const GrSurfaceDesc&,
+                                                         GrSurfaceOrigin,
+                                                         sk_sp<SkColorSpace>,
+                                                         const SkSurfaceProps*);
+
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
+                                                         sk_sp<SkColorSpace>,
+                                                         const SkSurfaceProps*);
+
+    // Proxy unique key management. See GrProxyProvider.
+    bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
+    void removeUniqueKeyFromProxy(const GrUniqueKey&, GrTextureProxy*);
+    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
+
+    bool instatiateProxy(GrSurfaceProxy*);
+
+    // Creates a GPU buffer with a "dynamic" access pattern.
+    sk_sp<GrBuffer> makeBuffer(GrBufferType, size_t, const void* data = nullptr);
+
+    // Either finds and refs, or creates a static GPU buffer with the given data.
+    sk_sp<const GrBuffer> findOrMakeStaticBuffer(GrBufferType, size_t, const void* data,
+                                                 const GrUniqueKey&);
+
+    const GrCaps* caps() const;
 
 private:
-    explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
     GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;
     GrOnFlushResourceProvider& operator=(const GrOnFlushResourceProvider&) = delete;
 
     GrDrawingManager* fDrawingMgr;
-
-    friend class GrDrawingManager; // to construct this type.
 };
 
 #endif

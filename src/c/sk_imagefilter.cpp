@@ -89,7 +89,7 @@ sk_imagefilter_t* sk_imagefilter_new_blur(
     sk_imagefilter_t* input /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
-    sk_sp<SkImageFilter> filter = SkImageFilter::MakeBlur(sigmaX, sigmaY, sk_ref_sp(AsImageFilter(input)), AsImageFilterCropRect(cropRect));
+    sk_sp<SkImageFilter> filter = SkBlurImageFilter::Make(sigmaX, sigmaY, sk_ref_sp(AsImageFilter(input)), AsImageFilterCropRect(cropRect));
     return ToImageFilter(filter.release());
 }
 
@@ -317,7 +317,6 @@ sk_imagefilter_t* sk_imagefilter_new_matrix_convolution(
 sk_imagefilter_t* sk_imagefilter_new_merge(
     sk_imagefilter_t* cfilters[],
     int count,
-    const sk_blendmode_t cmodes[] /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
     sk_sp<SkImageFilter>* filters = new sk_sp<SkImageFilter>[count];
@@ -325,10 +324,9 @@ sk_imagefilter_t* sk_imagefilter_new_merge(
         filters[i] = sk_ref_sp(AsImageFilter(cfilters[i]));
     }
     
-    sk_sp<SkImageFilter> filter = SkMergeImageFilter::MakeN(
+    sk_sp<SkImageFilter> filter = SkMergeImageFilter::Make(
         filters,
         count,
-        (SkBlendMode*)cmodes,
         AsImageFilterCropRect(cropRect));
 
     return ToImageFilter(filter.release());
@@ -391,18 +389,6 @@ sk_imagefilter_t* sk_imagefilter_new_picture_with_croprect(
     sk_sp<SkImageFilter> filter = SkPictureImageFilter::Make(
         sk_ref_sp(AsPicture(picture)),
         *AsRect(cropRect));
-    return ToImageFilter(filter.release());
-}
-
-sk_imagefilter_t* sk_imagefilter_new_picture_for_localspace(
-    sk_picture_t* picture,
-    const sk_rect_t* cropRect,
-    sk_filter_quality_t filterQuality) {
-
-    sk_sp<SkImageFilter> filter = SkPictureImageFilter::MakeForLocalSpace(
-        sk_ref_sp(AsPicture(picture)),
-        *AsRect(cropRect),
-        (SkFilterQuality)filterQuality);
     return ToImageFilter(filter.release());
 }
 

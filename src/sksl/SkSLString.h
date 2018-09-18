@@ -8,8 +8,13 @@
 #ifndef SKSL_STRING
 #define SKSL_STRING
 
+#include <cstring>
 
-#ifdef SKSL_STANDALONE
+#define SKSL_USE_STD_STRING
+
+#include <stdarg.h>
+
+#ifdef SKSL_USE_STD_STRING
     #define SKSL_STRING_BASE std::string
     #include <string>
 #else
@@ -19,6 +24,38 @@
 
 namespace SkSL {
 
+// Represents a (not necessarily null-terminated) slice of a string.
+struct StringFragment {
+    StringFragment()
+    : fChars("")
+    , fLength(0) {}
+
+    StringFragment(const char* chars)
+    : fChars(chars)
+    , fLength(strlen(chars)) {}
+
+    StringFragment(const char* chars, size_t length)
+    : fChars(chars)
+    , fLength(length) {}
+
+    char operator[](size_t idx) const {
+        return fChars[idx];
+    }
+
+    bool operator==(const char* s) const;
+    bool operator!=(const char* s) const;
+    bool operator==(StringFragment s) const;
+    bool operator!=(StringFragment s) const;
+    bool operator<(StringFragment s) const;
+
+    const char* fChars;
+    size_t fLength;
+};
+
+bool operator==(const char* s1, StringFragment s2);
+
+bool operator!=(const char* s1, StringFragment s2);
+
 class String : public SKSL_STRING_BASE {
 public:
     String() = default;
@@ -27,7 +64,7 @@ public:
     String& operator=(const String&) = default;
     String& operator=(String&&) = default;
 
-#ifndef SKSL_STANDALONE
+#ifndef SKSL_USE_STD_STRING
     String(const SkString& s)
     : INHERITED(s) {}
 #endif
@@ -38,9 +75,12 @@ public:
     String(const char* s, size_t size)
     : INHERITED(s, size) {}
 
+    String(StringFragment s)
+    : INHERITED(s.fChars, s.fLength) {}
+
     static String printf(const char* fmt, ...);
 
-#ifdef SKSL_STANDALONE
+#ifdef SKSL_USE_STD_STRING
     void appendf(const char* fmt, ...);
 #endif
     void vappendf(const char* fmt, va_list va);
@@ -50,6 +90,11 @@ public:
 
     String operator+(const char* s) const;
     String operator+(const String& s) const;
+    String operator+(StringFragment s) const;
+    String& operator+=(char c);
+    String& operator+=(const char* s);
+    String& operator+=(const String& s);
+    String& operator+=(StringFragment s);
     bool operator==(const char* s) const;
     bool operator!=(const char* s) const;
     bool operator==(const String& s) const;
@@ -75,15 +120,27 @@ String to_string(int64_t value);
 
 String to_string(uint64_t value);
 
-int stoi(String s);
+int stoi(const String& s);
 
-double stod(String s);
+double stod(const String& s);
 
-long stol(String s);
+long stol(const String& s);
 
 } // namespace
 
-#ifdef SKSL_STANDALONE
+namespace std {
+    template<> struct hash<SkSL::StringFragment> {
+        size_t operator()(const SkSL::StringFragment& s) const {
+            size_t result = 0;
+            for (size_t i = 0; i < s.fLength; ++i) {
+                result = result * 101 + s.fChars[i];
+            }
+            return result;
+        }
+    };
+} // namespace
+
+#ifdef SKSL_USE_STD_STRING
 namespace std {
     template<> struct hash<SkSL::String> {
         size_t operator()(const SkSL::String& s) const {

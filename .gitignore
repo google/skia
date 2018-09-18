@@ -12,10 +12,14 @@
 .project
 .recipe_deps/
 .settings/
+.vs/
+.vscode/
 TAGS
 bower_components
 common
 imgui.ini
+infra/bots/README.recipes.md
+infra/bots/gen_tasks_aux.go
 infra/bots/tools/luci-go/linux64/cipd
 infra/bots/tools/luci-go/linux64/isolate
 infra/bots/tools/luci-go/mac64/cipd
@@ -42,6 +46,10 @@ bin/gn
 bin/gn.exe
 bin/clang-format
 bin/clang-format.exe
+bin/clang_win
 
 vulkan-out
 gl-out
+
+node_modules
+tools/lottiecap/filmstrip.png

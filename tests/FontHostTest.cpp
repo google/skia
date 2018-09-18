@@ -107,7 +107,7 @@ static void test_charsToGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypef
             SkString a;
             a.appendf("%s, paintGlyphIds[%d] = %d, faceGlyphIds[%d] = %d, face = %s",
                       test.name, i, (int)paintGlyphIds[i], i, (int)faceGlyphIds[i], name.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter, paintGlyphIds[i] == faceGlyphIds[i], a.c_str());
+            REPORTER_ASSERT(reporter, paintGlyphIds[i] == faceGlyphIds[i], a.c_str());
         }
     }
 }
@@ -139,7 +139,7 @@ static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream, int 
 }
 
 static void test_fontstream(skiatest::Reporter* reporter) {
-    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("/fonts/test.ttc"));
+    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("fonts/test.ttc"));
     if (!stream) {
         SkDebugf("Skipping FontHostTest::test_fontstream\n");
         return;
@@ -158,7 +158,7 @@ static void test_symbolfont(skiatest::Reporter* reporter) {
     SkUnichar c = 0xf021;
     uint16_t g;
     SkPaint paint;
-    paint.setTypeface(MakeResourceAsTypeface("/fonts/SpiderSymbol.ttf"));
+    paint.setTypeface(MakeResourceAsTypeface("fonts/SpiderSymbol.ttf"));
     paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
     paint.textToGlyphs(&c, 4, &g);
 

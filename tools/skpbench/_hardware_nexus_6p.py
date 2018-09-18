@@ -14,23 +14,9 @@ class HardwareNexus6P(HardwareAndroid):
     HardwareAndroid.__init__(self, adb)
 
   def __enter__(self):
-    self._lock_clocks()
-    return HardwareAndroid.__enter__(self)
-
-  def __exit__(self, exception_type, exception_value, exception_traceback):
-    HardwareAndroid.__exit__(self, exception_type,
-                             exception_value, exception_traceback)
-    self._unlock_clocks()
-
-  def _lock_clocks(self):
+    HardwareAndroid.__enter__(self)
     if not self._adb.is_root():
-      return
-
-    self._adb.shell('''\
-      stop thermal-engine
-      stop thermald
-      stop perfd
-      stop mpdecision''')
+      return self
 
     # enable and lock 3 of 4 big cores.
     self._adb.shell('''\
@@ -72,51 +58,7 @@ class HardwareNexus6P(HardwareAndroid):
       echo 9887 > /sys/class/devfreq/qcom,gpubw.70/max_freq
       echo 9887 > /sys/class/devfreq/qcom,gpubw.70/min_freq''')
 
-  def _unlock_clocks(self):
-    if not self._adb.is_root():
-      return
-
-    # restore ddr settings to default.
-    self._adb.shell('''\
-      echo 1525 > /sys/class/devfreq/qcom,cpubw.32/min_freq
-      echo 9887 > /sys/class/devfreq/qcom,cpubw.32/max_freq
-      echo bw_hwmon > /sys/class/devfreq/qcom,cpubw.32/governor
-      echo 1525 > /sys/class/devfreq/qcom,gpubw.70/min_freq
-      echo 9887 > /sys/class/devfreq/qcom,gpubw.70/max_freq
-      echo bw_hwmon > /sys/class/devfreq/qcom,gpubw.70/governor''')
-
-    # restore gpu settings to default.
-    self._adb.shell('''\
-      echo 180000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
-      echo 600000000 > /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
-      echo 180000000 > /sys/class/kgsl/kgsl-3d0/gpuclk
-      echo msm-adreno-tz > /sys/class/kgsl/kgsl-3d0/devfreq/governor
-      echo 0 > /sys/class/kgsl/kgsl-3d0/idle_timer
-      echo 0 > /sys/class/kgsl/kgsl-3d0/force_clk_on
-      echo 0 > /sys/class/kgsl/kgsl-3d0/force_rail_on
-      echo 0 > /sys/class/kgsl/kgsl-3d0/force_bus_on
-      echo 1 > /sys/class/kgsl/kgsl-3d0/bus_split''')
-
-    # turn the disabled cores back on.
-    self._adb.shell('''\
-      for N in 7 3 2 1 0; do
-        echo 1 > /sys/devices/system/cpu/cpu$N/online
-      done''')
-
-    # unlock the 3 enabled big cores.
-    self._adb.shell('''\
-      for N in 6 5 4; do
-        echo 633600 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_min_freq
-        echo 1958400 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_max_freq
-        echo 0 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_setspeed
-        echo interactive > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_governor
-      done''')
-
-    self._adb.shell('''\
-      start mpdecision
-      start perfd
-      start thermald
-      start thermal-engine''')
+    return self
 
   def sanity_check(self):
     HardwareAndroid.sanity_check(self)
@@ -148,8 +90,3 @@ class HardwareNexus6P(HardwareAndroid):
        for i in range(4, 7)]
 
     Expectation.check_all(expectations, result.splitlines())
-
-  def sleep(self, sleeptime):
-    self._unlock_clocks()
-    HardwareAndroid.sleep(self, sleeptime)
-    self._lock_clocks()

@@ -5,30 +5,32 @@
  * found in the LICENSE file.
  */
 
+#include "SkPDFDocument.h"
+
+#include "SkCanvas.h"
 #include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
-#include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 
 SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
-
-template <class T> static void renew(T* t) { t->~T(); new (t) T; }
 
 SkPDFObjectSerializer::~SkPDFObjectSerializer() {
     for (int i = 0; i < fObjNumMap.objects().count(); ++i) {
         fObjNumMap.objects()[i]->drop();
     }
 }
+SkPDFObjectSerializer::SkPDFObjectSerializer(SkPDFObjectSerializer&&) = default;
+SkPDFObjectSerializer& SkPDFObjectSerializer::operator=(SkPDFObjectSerializer&&) = default;
+
 
 void SkPDFObjectSerializer::addObjectRecursively(const sk_sp<SkPDFObject>& object) {
     fObjNumMap.addObjectRecursively(object.get());
 }
 
 #define SKPDF_MAGIC "\xD3\xEB\xE9\xE1"
-#ifndef SK_BUILD_FOR_WIN32
+#ifndef SK_BUILD_FOR_WIN
 static_assert((SKPDF_MAGIC[0] & 0x7F) == "Skia"[0], "");
 static_assert((SKPDF_MAGIC[1] & 0x7F) == "Skia"[1], "");
 static_assert((SKPDF_MAGIC[2] & 0x7F) == "Skia"[2], "");
@@ -38,7 +40,7 @@ void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream,
                                             const SkDocument::PDFMetadata& md) {
     fBaseOffset = wStream->bytesWritten();
     static const char kHeader[] = "%PDF-1.4\n%" SKPDF_MAGIC "\n";
-    wStream->write(kHeader, strlen(kHeader));
+    wStream->writeText(kHeader);
     // The PDF spec recommends including a comment with four
     // bytes, all with their high bits set.  "\xD3\xEB\xE9\xE1" is
     // "Skia" with the high bits set.
@@ -171,16 +173,9 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
-                             void (*doneProc)(SkWStream*, bool),
-                             SkScalar rasterDpi,
-                             const SkDocument::PDFMetadata& metadata,
-                             sk_sp<SkPixelSerializer> jpegEncoder,
-                             bool pdfa)
-    : SkDocument(stream, doneProc)
-    , fRasterDpi(rasterDpi)
-    , fMetadata(metadata)
-    , fPDFA(pdfa) {
-    fCanon.fPixelSerializer = std::move(jpegEncoder);
+                             const SkDocument::PDFMetadata& metadata)
+    : SkDocument(stream)
+    , fMetadata(metadata) {
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -193,14 +188,13 @@ void SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
     fObjectSerializer.serializeObjects(this->getStream());
 }
 
-SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
-                                     const SkRect& trimBox) {
+SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
     SkASSERT(!fCanvas.get());  // endPage() was called before this.
     if (fPages.empty()) {
         // if this is the first page if the document.
         fObjectSerializer.serializeHeader(this->getStream(), fMetadata);
         fDests = sk_make_sp<SkPDFDict>();
-        if (fPDFA) {
+        if (fMetadata.fPDFA) {
             SkPDFMetadata::UUID uuid = SkPDFMetadata::CreateUUID(fMetadata);
             // We use the same UUID for Document ID and Instance ID since this
             // is the first revision of this document (and Skia does not
@@ -213,15 +207,14 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
             fObjectSerializer.serializeObjects(this->getStream());
         }
     }
-    SkISize pageSize = SkISize::Make(
-            SkScalarRoundToInt(width), SkScalarRoundToInt(height));
-    fPageDevice.reset(
-            SkPDFDevice::Create(pageSize, fRasterDpi, this));
-    fCanvas.reset(new SkPDFCanvas(fPageDevice));
-    if (SkRect::MakeWH(width, height) != trimBox) {
-        fCanvas->clipRect(trimBox);
-        fCanvas->translate(trimBox.x(), trimBox.y());
-    }
+    SkScalar rasterScale = this->rasterDpi() / SkPDFUtils::kDpiForRasterScaleOne;
+    SkISize pageSize = {SkScalarRoundToInt(width  * rasterScale),
+                        SkScalarRoundToInt(height * rasterScale)};
+
+    fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this);
+    fPageDevice->setFlip();  // Only the top-level device needs to be flipped.
+    fCanvas.reset(new SkCanvas(fPageDevice));
+    fCanvas->scale(rasterScale, rasterScale);
     return fCanvas.get();
 }
 
@@ -232,7 +225,13 @@ void SkPDFDocument::onEndPage() {
     SkASSERT(fPageDevice);
     auto page = sk_make_sp<SkPDFDict>("Page");
     page->insertObject("Resources", fPageDevice->makeResourceDict());
-    page->insertObject("MediaBox", fPageDevice->copyMediaBox());
+
+    SkScalar rasterScale =  SkPDFUtils::kDpiForRasterScaleOne / this->rasterDpi();
+
+    SkISize pageSize = fPageDevice->imageInfo().dimensions();
+    page->insertObject("MediaBox", SkPDFUtils::RectToArray(
+                {0, 0, pageSize.width() * rasterScale, pageSize.height() * rasterScale}));
+
     auto annotations = sk_make_sp<SkPDFArray>();
     fPageDevice->appendAnnotations(annotations.get());
     if (annotations->size() > 0) {
@@ -253,8 +252,8 @@ void SkPDFDocument::onAbort() {
 void SkPDFDocument::reset() {
     fCanvas.reset(nullptr);
     fPages.reset();
-    renew(&fCanon);
-    renew(&fObjectSerializer);
+    fCanon = SkPDFCanon();
+    fObjectSerializer = SkPDFObjectSerializer();
     fFonts.reset();
 }
 
@@ -408,7 +407,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         return;
     }
     auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
-    if (fPDFA) {
+    if (fMetadata.fPDFA) {
         SkASSERT(fXMP);
         docCatalog->insertObjRef("Metadata", fXMP);
         // Don't specify OutputIntents if we are not in PDF/A mode since
@@ -435,31 +434,22 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
-                                    void (*proc)(SkWStream*, bool),
-                                    SkScalar dpi,
-                                    const SkDocument::PDFMetadata& metadata,
-                                    sk_sp<SkPixelSerializer> jpeg,
-                                    bool pdfa) {
-    return stream ? sk_make_sp<SkPDFDocument>(stream, proc, dpi, metadata,
-                                              std::move(jpeg), pdfa)
-                  : nullptr;
+                                    const SkDocument::PDFMetadata& metadata) {
+    SkDocument::PDFMetadata meta = metadata;
+    if (meta.fRasterDPI <= 0) {
+        meta.fRasterDPI = 72.0f;
+    }
+    if (meta.fEncodingQuality < 0) {
+        meta.fEncodingQuality = 0;
+    }
+    return stream ? sk_make_sp<SkPDFDocument>(stream, meta) : nullptr;
 }
 
-sk_sp<SkDocument> SkDocument::MakePDF(const char path[], SkScalar dpi) {
-    auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
-    auto stream = skstd::make_unique<SkFILEWStream>(path);
-    return stream->isValid()
-                   ? SkPDFMakeDocument(stream.release(), delete_wstream, dpi,
-                                       SkDocument::PDFMetadata(), nullptr,
-                                       false)
-                   : nullptr;
+sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
+    return SkPDFMakeDocument(stream, metadata);
 }
 
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream,
-                                      SkScalar dpi,
-                                      const SkDocument::PDFMetadata& metadata,
-                                      sk_sp<SkPixelSerializer> jpegEncoder,
-                                      bool pdfa) {
-    return SkPDFMakeDocument(stream, nullptr, dpi, metadata,
-                             std::move(jpegEncoder), pdfa);
+sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
+    return SkPDFMakeDocument(stream, PDFMetadata());
 }
+

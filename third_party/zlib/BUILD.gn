@@ -48,7 +48,7 @@ third_party("zlib_x86") {
       "../externals/zlib/fill_window_sse.c",
       "../externals/zlib/x86.c",
     ]
-    if (!is_win) {
+    if (!is_win || is_clang) {
       cflags_c = [
         "-msse4.2",
         "-mpclmul",

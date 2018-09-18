@@ -5,59 +5,49 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
-
-#include "GrSurfaceProxy.h"
+#include "GrContext.h"
+#include "GrContextFactory.h"
+#include "GrContextPriv.h"
+#include "GrProxyProvider.h"
+#include "GrSamplerState.h"
 #include "GrTextureProducer.h"
 #include "GrTextureProxy.h"
+#include "GrTypes.h"
+#include "GrTypesPriv.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "Test.h"
 
-// For DetermineDomainMode (in the MDB world) we have 4 rects:
+#include <initializer_list>
+
+// For DetermineDomainMode (in the MDB world) we have 3 rects:
 //      1) the final instantiated backing storage (i.e., the actual GrTexture's extent)
 //      2) the proxy's extent, which may or may not match the GrTexture's extent
-//      3) the content rect, which can be a subset of the proxy's extent or null
-//      4) the constraint rect, which can optionally be hard or soft
+//      3) the constraint rect, which can optionally be hard or soft
 // This test "fuzzes" all the combinations of these rects.
 class GrTextureProducer_TestAccess {
 public:
     using DomainMode = GrTextureProducer::DomainMode;
 
-    static DomainMode DetermineDomainMode(
-                                const SkRect& constraintRect,
-                                GrTextureProducer::FilterConstraint filterConstraint,
-                                bool coordsLimitedToConstraintRect,
-                                GrTextureProxy* proxy,
-                                const SkIRect* textureContentArea,
-                                const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
-                                SkRect* domainRect) {
+    static DomainMode DetermineDomainMode(const SkRect& constraintRect,
+                                          GrTextureProducer::FilterConstraint filterConstraint,
+                                          bool coordsLimitedToConstraintRect,
+                                          GrTextureProxy* proxy,
+                                          const GrSamplerState::Filter* filterModeOrNullForBicubic,
+                                          SkRect* domainRect) {
         return GrTextureProducer::DetermineDomainMode(constraintRect,
                                                       filterConstraint,
                                                       coordsLimitedToConstraintRect,
                                                       proxy,
-                                                      textureContentArea,
                                                       filterModeOrNullForBicubic,
                                                       domainRect);
     }
 };
 
 using DomainMode = GrTextureProducer_TestAccess::DomainMode;
-
-#ifdef SK_DEBUG
-static bool is_irect(const SkRect& r) {
-    return SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&
-           SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);
-}
-#endif
-
-static SkIRect to_irect(const SkRect& r) {
-    SkASSERT(is_irect(r));
-    return SkIRect::MakeLTRB(SkScalarRoundToInt(r.fLeft),
-                             SkScalarRoundToInt(r.fTop),
-                             SkScalarRoundToInt(r.fRight),
-                             SkScalarRoundToInt(r.fBottom));
-}
-
 
 class RectInfo {
 public:
@@ -129,7 +119,7 @@ private:
 
 };
 
-static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider,
+static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider,
                                           bool isPowerOfTwo,
                                           bool isExact,
                                           RectInfo* rect) {
@@ -137,9 +127,9 @@ static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider,
     SkBackingFit fit = isExact ? SkBackingFit::kExact : SkBackingFit::kApprox;
 
     GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = size;
     desc.fHeight = size;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     static const char* name = "proxy";
 
@@ -151,10 +141,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider,
               (isPowerOfTwo || isExact) ? RectInfo::kHard : RectInfo::kBad,
               name);
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(resourceProvider,
-                                                               desc, fit,
-                                                               SkBudgeted::kYes);
-    return proxy;
+    return proxyProvider->createProxy(desc, kTopLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,
@@ -315,20 +302,6 @@ static const SkRect* full_inset(const RectInfo& enclosing,
                          kInsetLeft_Flag|kInsetTop_Flag|kInsetRight_Flag|kInsetBot_Flag, name);
 }
 
-// This is only used for content rect creation. We ensure 'result' is correct but
-// return null to indicate no content area (other than what the proxy specifies).
-static const SkRect* null_rect(const RectInfo& enclosing,
-                               RectInfo* result,
-                               bool isInsetHard,
-                               bool areCoordsLimitedToRect,
-                               float insetAmount,
-                               float halfFilterWidth) {
-    static const char* name = "null";
-    generic_inset(enclosing, result, isInsetHard, areCoordsLimitedToRect,
-                  insetAmount, halfFilterWidth, 0, name);
-    return nullptr;
-}
-
 // Make a rect with no inset. This is only used for constraint rect creation.
 static const SkRect* no_inset(const RectInfo& enclosing,
                               RectInfo* result,
@@ -341,21 +314,18 @@ static const SkRect* no_inset(const RectInfo& enclosing,
                          insetAmount, halfFilterWidth, 0, name);
 }
 
-#ifndef SK_DISABLE_DEFERRED_PROXIES
-
-static void proxy_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider) {
+static void proxy_test(skiatest::Reporter* reporter, GrProxyProvider* proxyProvider) {
     GrTextureProducer_TestAccess::DomainMode actualMode, expectedMode;
     SkRect actualDomainRect;
 
-    static const GrSamplerParams::FilterMode gModes[] = {
-        GrSamplerParams::kNone_FilterMode,
-        GrSamplerParams::kBilerp_FilterMode,
-        GrSamplerParams::kMipMap_FilterMode,
+    static const GrSamplerState::Filter gModes[] = {
+            GrSamplerState::Filter::kNearest,
+            GrSamplerState::Filter::kBilerp,
+            GrSamplerState::Filter::kMipMap,
     };
 
-    static const GrSamplerParams::FilterMode* gModePtrs[] = {
-        &gModes[0], &gModes[1], nullptr, &gModes[2]
-    };
+    static const GrSamplerState::Filter* gModePtrs[] = {&gModes[0], &gModes[1], nullptr,
+                                                        &gModes[2]};
 
     static const float gHalfFilterWidth[] = { 0.0f, 0.5f, 1.5f, 10000.0f };
 
@@ -363,73 +333,48 @@ static void proxy_test(skiatest::Reporter* reporter, GrResourceProvider* resourc
         for (auto isExact : { true, false }) {
             RectInfo outermost;
 
-            sk_sp<GrTextureProxy> proxy = create_proxy(resourceProvider, isPowerOfTwoSized,
+            sk_sp<GrTextureProxy> proxy = create_proxy(proxyProvider, isPowerOfTwoSized,
                                                        isExact, &outermost);
             SkASSERT(outermost.isHardOrBadAllAround());
 
-            for (auto contentRectMaker : { left_only, top_only, right_only,
-                                           bot_only, full_inset, null_rect}) {
-                RectInfo contentRectStorage;
-                const SkRect* contentRect = (*contentRectMaker)(outermost,
-                                                                &contentRectStorage,
-                                                                true, false, 5.0f, -1.0f);
-                if (contentRect) {
-                    // We only have content rects if they actually reduce the extent of the content
-                    SkASSERT(!contentRect->contains(outermost.rect()));
-                    SkASSERT(outermost.rect().contains(*contentRect));
-                    SkASSERT(is_irect(*contentRect));
-                }
-                SkASSERT(contentRectStorage.isHardOrBadAllAround());
+            for (auto isConstraintRectHard : { true, false }) {
+                for (auto areCoordsLimitedToConstraintRect : { true, false }) {
+                    for (int filterMode = 0; filterMode < 4; ++filterMode) {
+                        for (auto constraintRectMaker : { left_only, top_only, right_only,
+                            bot_only, full_inset, no_inset }) {
+                            for (auto insetAmt : { 0.25f, 0.75f, 1.25f, 1.75f, 5.0f }) {
+                                RectInfo constraintRectStorage;
+                                const SkRect* constraintRect = (*constraintRectMaker)(
+                                        outermost,
+                                        &constraintRectStorage,
+                                        isConstraintRectHard,
+                                        areCoordsLimitedToConstraintRect,
+                                        insetAmt,
+                                        gHalfFilterWidth[filterMode]);
+                                SkASSERT(constraintRect); // always need one of these
+                                SkASSERT(outermost.rect().contains(*constraintRect));
 
-                for (auto isConstraintRectHard : { true, false }) {
-                    for (auto areCoordsLimitedToConstraintRect : { true, false }) {
-                        for (int filterMode = 0; filterMode < 4; ++filterMode) {
-                            for (auto constraintRectMaker : { left_only, top_only, right_only,
-                                                              bot_only, full_inset, no_inset }) {
-                                for (auto insetAmt : { 0.25f, 0.75f, 1.25f, 1.75f, 5.0f }) {
-                                    RectInfo constraintRectStorage;
-                                    const SkRect* constraintRect = (*constraintRectMaker)(
-                                                    contentRect ? contentRectStorage : outermost,
-                                                    &constraintRectStorage,
-                                                    isConstraintRectHard,
-                                                    areCoordsLimitedToConstraintRect,
-                                                    insetAmt,
-                                                    gHalfFilterWidth[filterMode]);
-                                    SkASSERT(constraintRect); // always need one of these
-                                    if (contentRect) {
-                                        SkASSERT(contentRect->contains(*constraintRect));
+                                actualMode = GrTextureProducer_TestAccess::DetermineDomainMode(
+                                        *constraintRect,
+                                        isConstraintRectHard
+                                            ? GrTextureProducer::kYes_FilterConstraint
+                                            : GrTextureProducer::kNo_FilterConstraint,
+                                        areCoordsLimitedToConstraintRect,
+                                        proxy.get(),
+                                        gModePtrs[filterMode],
+                                        &actualDomainRect);
+
+                                expectedMode = DomainMode::kNoDomain_DomainMode;
+                                if (constraintRectStorage.hasABad()) {
+                                    if (3 == filterMode) {
+                                        expectedMode = DomainMode::kTightCopy_DomainMode;
                                     } else {
-                                        SkASSERT(outermost.rect().contains(*constraintRect));
+                                        expectedMode = DomainMode::kDomain_DomainMode;
                                     }
-
-                                    SkIRect contentIRect;
-                                    if (contentRect) {
-                                        contentIRect = to_irect(*contentRect);
-                                    }
-
-                                    actualMode = GrTextureProducer_TestAccess::DetermineDomainMode(
-                                                    *constraintRect,
-                                                    isConstraintRectHard
-                                                        ? GrTextureProducer::kYes_FilterConstraint
-                                                        : GrTextureProducer::kNo_FilterConstraint,
-                                                    areCoordsLimitedToConstraintRect,
-                                                    proxy.get(),
-                                                    contentRect ? &contentIRect : nullptr,
-                                                    gModePtrs[filterMode],
-                                                    &actualDomainRect);
-
-                                    expectedMode = DomainMode::kNoDomain_DomainMode;
-                                    if (constraintRectStorage.hasABad()) {
-                                        if (3 == filterMode) {
-                                            expectedMode = DomainMode::kTightCopy_DomainMode;
-                                        } else {
-                                            expectedMode = DomainMode::kDomain_DomainMode;
-                                        }
-                                    }
-
-                                    REPORTER_ASSERT(reporter, expectedMode == actualMode);
-                                    // TODO: add a check that the returned domain rect is correct
                                 }
+
+                                REPORTER_ASSERT(reporter, expectedMode == actualMode);
+                                // TODO: add a check that the returned domain rect is correct
                             }
                         }
                     }
@@ -442,9 +387,7 @@ static void proxy_test(skiatest::Reporter* reporter, GrResourceProvider* resourc
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DetermineDomainModeTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    proxy_test(reporter, context->resourceProvider());
+    proxy_test(reporter, context->contextPriv().proxyProvider());
 }
-
-#endif
 
 #endif

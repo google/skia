@@ -6,12 +6,12 @@
  */
 
 #include "GrImageTextureMaker.h"
-
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "SkGr.h"
-#include "SkImage_Base.h"
 #include "SkImageCacherator.h"
+#include "SkImage_Base.h"
 #include "SkPixelRef.h"
 
 GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* client,
@@ -26,16 +26,17 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* clie
 }
 
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
-                                                                   SkColorSpace* dstColorSpace) {
+                                                                   SkColorSpace* dstColorSpace,
+                                                                   AllowedTexGenType onlyIfFast) {
     return fCacher->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
-                                     willBeMipped, dstColorSpace);
+                                     willBeMipped, dstColorSpace, onlyIfFast);
 }
 
 void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
                                       SkColorSpace* dstColorSpace) {
     if (fOriginalKey.isValid() && SkImage::kAllow_CachingHint == fCachingHint) {
         SkImageCacherator::CachedFormat cacheFormat =
-            fCacher->chooseCacheFormat(dstColorSpace, this->context()->caps());
+                fCacher->chooseCacheFormat(dstColorSpace, this->context()->contextPriv().caps());
         GrUniqueKey cacheKey;
         fCacher->makeCacheKeyFromOrigKey(fOriginalKey, cacheFormat, &cacheKey);
         MakeCopyKeyFromOrigKey(cacheKey, stretch, paramsCopyKey);

@@ -33,7 +33,7 @@ SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
  including flattening them. It does nothing in filterPath, and is only useful
  for managing the lifetimes of its two arguments.
  */
-class SK_API SkPairPathEffect : public SkPathEffect {
+class SkPairPathEffect : public SkPathEffect {
 protected:
     SkPairPathEffect(sk_sp<SkPathEffect> pe0, sk_sp<SkPathEffect> pe1)
         : fPE0(std::move(pe0)), fPE1(std::move(pe1))
@@ -51,13 +51,12 @@ protected:
     sk_sp<SkPathEffect> fPE0;
     sk_sp<SkPathEffect> fPE1;
 
-    SK_TO_STRING_OVERRIDE()
+    void toString(SkString* str) const override;
 
 private:
     typedef SkPathEffect INHERITED;
 };
 
-#ifndef SK_IGNORE_TO_STRING
 void SkPairPathEffect::toString(SkString* str) const {
     str->appendf("first: ");
     if (fPE0) {
@@ -68,7 +67,6 @@ void SkPairPathEffect::toString(SkString* str) const {
         fPE1->toString(str);
     }
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +75,7 @@ void SkPairPathEffect::toString(SkString* str) const {
  This subclass of SkPathEffect composes its two arguments, to create
  a compound pathEffect.
  */
-class SK_API SkComposePathEffect : public SkPairPathEffect {
+class SkComposePathEffect : public SkPairPathEffect {
 public:
     /** Construct a pathEffect whose effect is to apply first the inner pathEffect
      and the the outer pathEffect (e.g. outer(inner(path)))
@@ -104,9 +102,9 @@ public:
         }
         return fPE0->filterPath(dst, *ptr, rec, cullRect);
     }
-    
 
-    SK_TO_STRING_OVERRIDE()
+
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -132,13 +130,11 @@ sk_sp<SkFlattenable> SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
     return SkComposePathEffect::Make(std::move(pe0), std::move(pe1));
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkComposePathEffect::toString(SkString* str) const {
     str->appendf("SkComposePathEffect: (");
     this->INHERITED::toString(str);
     str->appendf(")");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -147,7 +143,7 @@ void SkComposePathEffect::toString(SkString* str) const {
  This subclass of SkPathEffect applies two pathEffects, one after the other.
  Its filterPath() returns true if either of the effects succeeded.
  */
-class SK_API SkSumPathEffect : public SkPairPathEffect {
+class SkSumPathEffect : public SkPairPathEffect {
 public:
     /** Construct a pathEffect whose effect is to apply two effects, in sequence.
      (e.g. first(path) + second(path))
@@ -170,9 +166,9 @@ public:
         return fPE0->filterPath(dst, src, rec, cullRect) |
                fPE1->filterPath(dst, src, rec, cullRect);
     }
-    
 
-    SK_TO_STRING_OVERRIDE()
+
+    void toString(SkString* str) const override;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -198,13 +194,11 @@ sk_sp<SkFlattenable> SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
     return SkSumPathEffect::Make(pe0, pe1);
 }
 
-#ifndef SK_IGNORE_TO_STRING
 void SkSumPathEffect::toString(SkString* str) const {
     str->appendf("SkSumPathEffect: (");
     this->INHERITED::toString(str);
     str->appendf(")");
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

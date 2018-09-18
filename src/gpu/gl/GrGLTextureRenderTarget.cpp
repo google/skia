@@ -6,49 +6,65 @@
  */
 
 #include "GrGLTextureRenderTarget.h"
-
 #include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrGLGpu.h"
+#include "GrTexturePriv.h"
 #include "SkTraceMemoryDump.h"
 
-// GrGLTextureRenderTarget must dump both of its superclasses.
+GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
+                                                 SkBudgeted budgeted,
+                                                 const GrSurfaceDesc& desc,
+                                                 const GrGLTexture::IDDesc& texIDDesc,
+                                                 const GrGLRenderTarget::IDDesc& rtIDDesc,
+                                                 GrMipMapsStatus mipMapsStatus)
+        : GrSurface(gpu, desc)
+        , GrGLTexture(gpu, desc, texIDDesc, mipMapsStatus)
+        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
+    this->registerWithCache(budgeted);
+}
+
+GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
+                                                 const GrSurfaceDesc& desc,
+                                                 const GrGLTexture::IDDesc& texIDDesc,
+                                                 const GrGLRenderTarget::IDDesc& rtIDDesc,
+                                                 GrMipMapsStatus mipMapsStatus)
+        : GrSurface(gpu, desc)
+        , GrGLTexture(gpu, desc, texIDDesc, mipMapsStatus)
+        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
+    this->registerWithCacheWrapped();
+}
+
 void GrGLTextureRenderTarget::dumpMemoryStatistics(
     SkTraceMemoryDump* traceMemoryDump) const {
-  GrGLRenderTarget::dumpMemoryStatistics(traceMemoryDump);
-
-  // Also dump the GrGLTexture's memory. Due to this resource having both a
-  // texture and a
-  // renderbuffer component, dump as skia/gpu_resources/resource_#/texture
-  SkString dumpName("skia/gpu_resources/resource_");
-  dumpName.appendU32(this->uniqueID().asUInt());
-  dumpName.append("/texture");
-
-  // Use the texture's gpuMemorySize, not our own, which includes the
-  // renderbuffer as well.
-  size_t size = GrGLTexture::gpuMemorySize();
-
-  traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
-
-  if (this->isPurgeable()) {
-    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size",
-                                      "bytes", size);
-  }
-
-  SkString texture_id;
-  texture_id.appendU32(this->textureID());
-  traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_texture",
-                                    texture_id.c_str());
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // Delegate to the base classes
+    GrGLRenderTarget::dumpMemoryStatistics(traceMemoryDump);
+    GrGLTexture::dumpMemoryStatistics(traceMemoryDump);
+#else
+    SkString resourceName = this->getResourceName();
+    resourceName.append("/texture_renderbuffer");
+    this->dumpMemoryStatisticsPriv(traceMemoryDump, resourceName, "RenderTarget",
+                                   this->gpuMemorySize());
+#endif
 }
 
 bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
     // The RT FBO of GrGLTextureRenderTarget is never created from a
     // wrapped FBO, so we only care about the flag.
-    return !this->getGpu()->getContext()->caps()->avoidStencilBuffers();
+    return !this->getGpu()->getContext()->contextPriv().caps()->avoidStencilBuffers();
 }
 
 sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
-    GrGLGpu* gpu, const GrSurfaceDesc& desc,
-    const GrGLTexture::IDDesc& texIDDesc, const GrGLRenderTarget::IDDesc& rtIDDesc)
+    GrGLGpu* gpu, const GrSurfaceDesc& desc, const GrGLTexture::IDDesc& texIDDesc,
+    const GrGLRenderTarget::IDDesc& rtIDDesc, GrMipMapsStatus mipMapsStatus)
 {
     return sk_sp<GrGLTextureRenderTarget>(
-        new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc, false));
+        new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc, mipMapsStatus));
+}
+
+size_t GrGLTextureRenderTarget::onGpuMemorySize() const {
+    return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
+                                    this->numSamplesOwnedPerPixel(),
+                                    this->texturePriv().mipMapped());
 }

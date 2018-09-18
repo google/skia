@@ -32,6 +32,7 @@ public:
     sk_sp<GrSurfaceProxy> asSurfaceProxyRef() override { return fTextureProxy; }
 
     GrTextureProxy* asTextureProxy() override { return fTextureProxy.get(); }
+    const GrTextureProxy* asTextureProxy() const override { return fTextureProxy.get(); }
     sk_sp<GrTextureProxy> asTextureProxyRef() override { return fTextureProxy; }
 
     GrRenderTargetProxy* asRenderTargetProxy() override;
@@ -41,14 +42,12 @@ protected:
     GrTextureContext(GrContext*, GrDrawingManager*, sk_sp<GrTextureProxy>,
                      sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
 
-    SkDEBUGCODE(void validate() const;)
+    SkDEBUGCODE(void validate() const override;)
 
 private:
     friend class GrDrawingManager; // for ctor
 
-    bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-
-    GrTextureOpList* getOpList();
+    GrOpList* getOpList() override;
 
     sk_sp<GrTextureProxy>        fTextureProxy;
 

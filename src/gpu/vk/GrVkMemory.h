@@ -38,8 +38,10 @@ namespace GrVkMemory {
 
     VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
 
-    void FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc);
-    void InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc);
+    void FlushMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
+                          VkDeviceSize size);
+    void InvalidateMappedAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc, VkDeviceSize offset,
+                               VkDeviceSize size);
 }
 
 class GrVkFreeListAlloc {
@@ -107,7 +109,7 @@ private:
     const GrVkGpu* fGpu;
 #ifdef SK_DEBUG
     uint32_t       fHeapIndex;
-#endif    
+#endif
     uint32_t       fMemoryTypeIndex;
     VkDeviceMemory fAlloc;
 
@@ -141,6 +143,7 @@ public:
     bool alloc(VkDeviceSize size, VkDeviceSize alignment, uint32_t memoryTypeIndex,
                uint32_t heapIndex, GrVkAlloc* alloc) {
         SkASSERT(size > 0);
+        alloc->fUsesSystemHeap = false;
         return (*this.*fAllocFunc)(size, alignment, memoryTypeIndex, heapIndex, alloc);
     }
     bool free(const GrVkAlloc& alloc);

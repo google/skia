@@ -6,8 +6,14 @@
  */
 
 #include "SkBitmap.h"
+#include "SkColor.h"
+#include "SkImageInfo.h"
 #include "SkMallocPixelRef.h"
+#include "SkPixelRef.h"
+#include "SkPixmap.h"
 #include "SkRandom.h"
+#include "SkRefCnt.h"
+#include "SkTypes.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 
@@ -33,7 +39,6 @@ static void test_peekpixels(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, pmap.info() == bm.info());
     REPORTER_ASSERT(reporter, pmap.addr() == bm.getPixels());
     REPORTER_ASSERT(reporter, pmap.rowBytes() == bm.rowBytes());
-    REPORTER_ASSERT(reporter, pmap.ctable() == bm.getColorTable());
 }
 
 // https://code.google.com/p/chromium/issues/detail?id=446164
@@ -45,7 +50,7 @@ static void test_bigalloc(skiatest::Reporter* reporter) {
     SkBitmap bm;
     REPORTER_ASSERT(reporter, !bm.tryAllocPixels(info));
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, info.minRowBytes(), nullptr);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, info.minRowBytes());
     REPORTER_ASSERT(reporter, !pr);
 }
 
@@ -219,3 +224,42 @@ DEF_TEST(Bitmap_erase_f16_erase_getColor, r) {
     }
 }
 
+// Make sure that the bitmap remains valid when pixelref is removed.
+DEF_TEST(Bitmap_clear_pixelref_keep_info, r) {
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::MakeN32Premul(100,100));
+    bm.setPixelRef(nullptr, 0, 0);
+    SkDEBUGCODE(bm.validate();)
+}
+
+// At the time of writing, SkBitmap::erase() works when the color is zero for all formats,
+// but some formats failed when the color is non-zero!
+DEF_TEST(Bitmap_erase, r) {
+    SkColorType colorTypes[] = {
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kRGB_888x_SkColorType,
+        kRGBA_8888_SkColorType,
+        kBGRA_8888_SkColorType,
+        kRGB_101010x_SkColorType,
+        kRGBA_1010102_SkColorType,
+    };
+
+    for (SkColorType ct : colorTypes) {
+        SkImageInfo info = SkImageInfo::Make(1,1, (SkColorType)ct, kPremul_SkAlphaType);
+
+        SkBitmap bm;
+        bm.allocPixels(info);
+
+        bm.eraseColor(0x00000000);
+        if (SkColorTypeIsAlwaysOpaque(ct)) {
+            REPORTER_ASSERT(r, bm.getColor(0,0) == 0xff000000);
+        } else {
+            REPORTER_ASSERT(r, bm.getColor(0,0) == 0x00000000);
+        }
+
+        bm.eraseColor(0xaabbccdd);
+        REPORTER_ASSERT(r, bm.getColor(0,0) != 0xff000000);
+        REPORTER_ASSERT(r, bm.getColor(0,0) != 0x00000000);
+    }
+}

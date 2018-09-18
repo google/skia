@@ -7,9 +7,12 @@
 
 #include "gm.h"
 #include "SkAlphaThresholdFilter.h"
+#include "SkImageSource.h"
 #include "SkOffsetImageFilter.h"
+#include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
+#include "sk_tool_utils.h"
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -86,7 +89,7 @@ private:
 // Create a 'width' x 'height' SkSurface that matches the colorType of 'canvas' as
 // best we can
 static sk_sp<SkSurface> make_color_matching_surface(SkCanvas* canvas, int width, int height,
-                                                    SkAlphaType alphaType) {
+                                                    SkAlphaType at) {
 
     SkColorType ct = canvas->imageInfo().colorType();
     sk_sp<SkColorSpace> cs(canvas->imageInfo().refColorSpace());
@@ -95,16 +98,13 @@ static sk_sp<SkSurface> make_color_matching_surface(SkCanvas* canvas, int width,
         // For backends that aren't yet color-space aware we just fallback to N32.
         ct = kN32_SkColorType;
         cs = nullptr;
+    } else if (SkColorTypeIsAlwaysOpaque(ct)) {
+        at = kOpaque_SkAlphaType;
     }
 
-    SkImageInfo info = SkImageInfo::Make(width, height, ct, alphaType, std::move(cs));
+    SkImageInfo info = SkImageInfo::Make(width, height, ct, at, std::move(cs));
 
-    sk_sp<SkSurface> result = canvas->makeSurface(info);
-    if (!result) {
-        result = SkSurface::MakeRaster(info);
-    }
-
-    return result;
+    return sk_tool_utils::makeSurface(canvas, info);
 }
 
 class ImageAlphaThresholdSurfaceGM : public skiagm::GM {
@@ -153,3 +153,43 @@ private:
 DEF_GM(return new ImageAlphaThresholdGM(true);)
 DEF_GM(return new ImageAlphaThresholdGM(false);)
 DEF_GM(return new ImageAlphaThresholdSurfaceGM();)
+
+//////////////////////////////////////////////////////////////////////////////
+
+static sk_sp<SkImage> make_img() {
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeS32(WIDTH, HEIGHT, kPremul_SkAlphaType));
+    SkCanvas canvas(bitmap);
+
+    SkPaint paint;
+    SkRect rect = SkRect::MakeWH(WIDTH, HEIGHT);
+    SkRandom rnd;
+
+    while (!rect.isEmpty()) {
+        paint.setColor(rnd.nextU() | (0xFF << 24));
+        canvas.drawRect(rect, paint);
+        rect.inset(25, 25);
+    }
+
+    return SkImage::MakeFromBitmap(bitmap);
+}
+
+DEF_SIMPLE_GM_BG(imagealphathreshold_image, canvas, WIDTH * 2, HEIGHT, SK_ColorBLACK) {
+    sk_sp<SkImage> image(make_img());
+
+    SkIRect rects[2];
+    rects[0] = SkIRect::MakeXYWH(0, 150, WIDTH, HEIGHT - 300);
+    rects[1] = SkIRect::MakeXYWH(150, 0, WIDTH - 300, HEIGHT);
+    SkRegion region;
+    region.setRects(rects, 2);
+
+    SkPaint filterPaint;
+    sk_sp<SkImageFilter> imageSource(SkImageSource::Make(image));
+    filterPaint.setImageFilter(SkAlphaThresholdFilter::Make(region, 0.2f, 0.7f,
+                                                            std::move(imageSource)));
+
+    canvas->saveLayer(nullptr, &filterPaint);
+    canvas->restore();
+    canvas->translate(WIDTH, 0);
+    canvas->drawImage(image, 0, 0);
+}

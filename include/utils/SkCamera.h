@@ -75,7 +75,7 @@ public:
     SkPatch3D();
 
     void    reset();
-    void    transform(const SkMatrix3D&, SkPatch3D* dst = NULL) const;
+    void    transform(const SkMatrix3D&, SkPatch3D* dst = nullptr) const;
 
     // dot a unit vector with the patch's normal
     SkScalar dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const;
@@ -115,7 +115,7 @@ private:
     void doUpdate() const;
 };
 
-class Sk3DView : SkNoncopyable {
+class SK_API Sk3DView : SkNoncopyable {
 public:
     Sk3DView();
     ~Sk3DView();

@@ -6,6 +6,7 @@
  */
 
 #include "SkMatrix44.h"
+#include "SkPoint3.h"
 #include "Test.h"
 
 static bool nearly_equal_double(double a, double b) {
@@ -554,17 +555,17 @@ static void test_3x3_conversion(skiatest::Reporter* reporter) {
 
     // Test that a point with a Z value of 0 is transformed the same way.
     SkScalar vec4[4] = { 2, 4, 0, 8 };
-    SkScalar vec3[3] = { 2, 4, 8 };
+    SkPoint3 vec3 = { 2, 4, 8 };
 
     SkScalar vec4transformed[4];
-    SkScalar vec3transformed[3];
+    SkPoint3 vec3transformed;
     SkScalar vec4transformed2[4];
     a44.mapScalars(vec4, vec4transformed);
-    a33.mapHomogeneousPoints(vec3transformed, vec3, 1);
+    a33.mapHomogeneousPoints(&vec3transformed, &vec3, 1);
     a44flattened.mapScalars(vec4, vec4transformed2);
-    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[0], vec3transformed[0]));
-    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[1], vec3transformed[1]));
-    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[3], vec3transformed[2]));
+    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[0], vec3transformed.fX));
+    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[1], vec3transformed.fY));
+    REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[3], vec3transformed.fZ));
     REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[0], vec4transformed2[0]));
     REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[1], vec4transformed2[1]));
     REPORTER_ASSERT(reporter, !nearly_equal_scalar(vec4transformed[2], vec4transformed2[2]));

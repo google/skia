@@ -8,6 +8,7 @@
 
 #include "SkAtomics.h"
 #include "SkRegionPriv.h"
+#include "SkSafeMath.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
 
@@ -24,6 +25,44 @@
 SkDEBUGCODE(int32_t gRgnAllocCounter;)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+
+constexpr int kRunArrayStackCount = 256;
+// This is a simple data structure which is like a SkSTArray<N,T,true>, except that:
+//   - It does not initialize memory.
+//   - It does not distinguish between reserved space and initialized space.
+//   - resizeToAtLeast() instead of resize()
+//   - Uses sk_realloc_throw()
+//   - Can never be made smaller.
+// Measurement:  for the `region_union_16` benchmark, this is 6% faster.
+class RunArray {
+public:
+    RunArray() { fPtr = fStack; }
+    #ifdef SK_DEBUG
+    int count() const { return fCount; }
+    #endif
+    SkRegion::RunType& operator[](int i) {
+        SkASSERT((unsigned)i < (unsigned)fCount);
+        return fPtr[i];
+    }
+    /** Resize the array to a size greater-than-or-equal-to count. */
+    void resizeToAtLeast(int count) {
+        if (count > fCount) {
+            // leave at least 50% extra space for future growth.
+            count += count >> 1;
+            fMalloc.realloc(count);
+            if (fPtr == fStack) {
+                memcpy(fMalloc.get(), fStack, fCount * sizeof(SkRegion::RunType));
+            }
+            fPtr = fMalloc.get();
+            fCount = count;
+        }
+    }
+private:
+    SkRegion::RunType fStack[kRunArrayStackCount];
+    SkAutoTMalloc<SkRegion::RunType> fMalloc;
+    int fCount = kRunArrayStackCount;
+    SkRegion::RunType* fPtr;  // non-owning pointer
+};
 
 /*  Pass in the beginning with the intervals.
  *  We back up 1 to read the interval-count.
@@ -90,7 +129,7 @@ SkRegion::~SkRegion() {
 void SkRegion::freeRuns() {
     if (this->isComplex()) {
         SkASSERT(fRunHead->fRefCnt >= 1);
-        if (sk_atomic_dec(&fRunHead->fRefCnt) == 1) {
+        if (--fRunHead->fRefCnt == 0) {
             //SkASSERT(gRgnAllocCounter > 0);
             //SkDEBUGCODE(sk_atomic_dec(&gRgnAllocCounter));
             //SkDEBUGF(("************** gRgnAllocCounter::free %d\n", gRgnAllocCounter));
@@ -139,19 +178,18 @@ bool SkRegion::setEmpty() {
     return false;
 }
 
-bool SkRegion::setRect(int32_t left, int32_t top,
-                       int32_t right, int32_t bottom) {
-    if (left >= right || top >= bottom) {
+bool SkRegion::setRect(const SkIRect& r) {
+    if (r.isEmpty()) {
         return this->setEmpty();
     }
     this->freeRuns();
-    fBounds.set(left, top, right, bottom);
+    SkASSERT(r.left()   != SkRegion::kRunTypeSentinel);
+    SkASSERT(r.top()    != SkRegion::kRunTypeSentinel);
+    SkASSERT(r.right()  != SkRegion::kRunTypeSentinel);
+    SkASSERT(r.bottom() != SkRegion::kRunTypeSentinel);
+    fBounds = r;
     fRunHead = SkRegion_gRectRunHeadPtr;
     return true;
-}
-
-bool SkRegion::setRect(const SkIRect& r) {
-    return this->setRect(r.fLeft, r.fTop, r.fRight, r.fBottom);
 }
 
 bool SkRegion::setRegion(const SkRegion& src) {
@@ -161,7 +199,7 @@ bool SkRegion::setRegion(const SkRegion& src) {
         fBounds = src.fBounds;
         fRunHead = src.fRunHead;
         if (this->isComplex()) {
-            sk_atomic_inc(&fRunHead->fRefCnt);
+            fRunHead->fRefCnt++;
         }
     }
     return fRunHead != SkRegion_gEmptyRunHeadPtr;
@@ -200,7 +238,7 @@ char* SkRegion::toString() {
     iter.reset(*this);
     while (!iter.done()) {
         const SkIRect& r = iter.rect();
-        count += snprintf(result+count, max - count, 
+        count += snprintf(result+count, max - count,
                 "(%d,%d,%d,%d)", r.fLeft, r.fTop, r.fRight, r.fBottom);
         iter.next();
     }
@@ -292,6 +330,11 @@ bool SkRegion::setRuns(RunType runs[], int count) {
     fRunHead = fRunHead->ensureWritable();
     memcpy(fRunHead->writable_runs(), runs, count * sizeof(RunType));
     fRunHead->computeRunBounds(&fBounds);
+
+    // Our computed bounds might be too large, so we have to check here.
+    if (fBounds.isEmpty()) {
+        return this->setEmpty();
+    }
 
     SkDEBUGCODE(this->validate();)
 
@@ -531,6 +574,16 @@ bool SkRegion::operator==(const SkRegion& b) const {
                     ah->fRunCount * sizeof(SkRegion::RunType));
 }
 
+// Return a (new) offset such that when applied (+=) to min and max, we don't overflow/underflow
+static int32_t pin_offset_s32(int32_t min, int32_t max, int32_t offset) {
+    SkASSERT(min <= max);
+    const int32_t lo = -SK_MaxS32-1,
+                  hi = +SK_MaxS32;
+    if ((int64_t)min + offset < lo) { offset = lo - min; }
+    if ((int64_t)max + offset > hi) { offset = hi - max; }
+    return offset;
+}
+
 void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
     SkDEBUGCODE(this->validate();)
 
@@ -539,9 +592,14 @@ void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
     }
     if (this->isEmpty()) {
         dst->setEmpty();
-    } else if (this->isRect()) {
-        dst->setRect(fBounds.fLeft + dx, fBounds.fTop + dy,
-                     fBounds.fRight + dx, fBounds.fBottom + dy);
+        return;
+    }
+    // pin dx and dy so we don't overflow our existing bounds
+    dx = pin_offset_s32(fBounds.fLeft, fBounds.fRight, dx);
+    dy = pin_offset_s32(fBounds.fTop, fBounds.fBottom, dy);
+
+    if (this->isRect()) {
+        dst->setRect(fBounds.makeOffset(dx, dy));
     } else {
         if (this == dst) {
             dst->fRunHead = dst->fRunHead->ensureWritable();
@@ -706,10 +764,21 @@ struct spanRec {
     }
 };
 
-static SkRegion::RunType* operate_on_span(const SkRegion::RunType a_runs[],
-                                          const SkRegion::RunType b_runs[],
-                                          SkRegion::RunType dst[],
-                                          int min, int max) {
+static int distance_to_sentinel(const SkRegion::RunType* runs) {
+    const SkRegion::RunType* ptr = runs;
+    while (*ptr != SkRegion::kRunTypeSentinel) { ptr += 2; }
+    return ptr - runs;
+}
+
+static int operate_on_span(const SkRegion::RunType a_runs[],
+                           const SkRegion::RunType b_runs[],
+                           RunArray* array, int dstOffset,
+                           int min, int max) {
+    // This is a worst-case for this span plus two for TWO terminating sentinels.
+    array->resizeToAtLeast(
+            dstOffset + distance_to_sentinel(a_runs) + distance_to_sentinel(b_runs) + 2);
+    SkRegion::RunType* dst = &(*array)[dstOffset]; // get pointer AFTER resizing.
+
     spanRec rec;
     bool    firstInterval = true;
 
@@ -724,19 +793,19 @@ static SkRegion::RunType* operate_on_span(const SkRegion::RunType a_runs[],
         // add left,rite to our dst buffer (checking for coincidence
         if ((unsigned)(rec.fInside - min) <= (unsigned)(max - min) &&
                 left < rite) {    // skip if equal
-            if (firstInterval || dst[-1] < left) {
+            if (firstInterval || *(dst - 1) < left) {
                 *dst++ = (SkRegion::RunType)(left);
                 *dst++ = (SkRegion::RunType)(rite);
                 firstInterval = false;
             } else {
                 // update the right edge
-                dst[-1] = (SkRegion::RunType)(rite);
+                *(dst - 1) = (SkRegion::RunType)(rite);
             }
         }
     }
-
+    SkASSERT(dst < &(*array)[array->count() - 1]);
     *dst++ = SkRegion::kRunTypeSentinel;
-    return dst;
+    return dst - &(*array)[0];
 }
 
 #if defined _WIN32
@@ -752,47 +821,45 @@ static const struct {
     { 1, 3 },   // Union
     { 1, 2 }    // XOR
 };
+// need to ensure that the op enum lines up with our minmax array
+static_assert(0 == SkRegion::kDifference_Op, "");
+static_assert(1 == SkRegion::kIntersect_Op,  "");
+static_assert(2 == SkRegion::kUnion_Op,      "");
+static_assert(3 == SkRegion::kXOR_Op,        "");
 
 class RgnOper {
 public:
-    RgnOper(int top, SkRegion::RunType dst[], SkRegion::Op op) {
-        // need to ensure that the op enum lines up with our minmax array
-        SkASSERT(SkRegion::kDifference_Op == 0);
-        SkASSERT(SkRegion::kIntersect_Op == 1);
-        SkASSERT(SkRegion::kUnion_Op == 2);
-        SkASSERT(SkRegion::kXOR_Op == 3);
-        SkASSERT((unsigned)op <= 3);
-
-        fStartDst = dst;
-        fPrevDst = dst + 1;
-        fPrevLen = 0;       // will never match a length from operate_on_span
-        fTop = (SkRegion::RunType)(top);    // just a first guess, we might update this
-
-        fMin = gOpMinMax[op].fMin;
-        fMax = gOpMinMax[op].fMax;
-    }
+    RgnOper(int top, RunArray* array, SkRegion::Op op)
+        : fMin(gOpMinMax[op].fMin)
+        , fMax(gOpMinMax[op].fMax)
+        , fArray(array)
+        , fTop((SkRegion::RunType)top)  // just a first guess, we might update this
+        { SkASSERT((unsigned)op <= 3); }
 
     void addSpan(int bottom, const SkRegion::RunType a_runs[],
                  const SkRegion::RunType b_runs[]) {
         // skip X values and slots for the next Y+intervalCount
-        SkRegion::RunType*  start = fPrevDst + fPrevLen + 2;
+        int start = fPrevDst + fPrevLen + 2;
         // start points to beginning of dst interval
-        SkRegion::RunType*  stop = operate_on_span(a_runs, b_runs, start, fMin, fMax);
-        size_t              len = stop - start;
+        int stop = operate_on_span(a_runs, b_runs, fArray, start, fMin, fMax);
+        size_t len = SkToSizeT(stop - start);
         SkASSERT(len >= 1 && (len & 1) == 1);
-        SkASSERT(SkRegion::kRunTypeSentinel == stop[-1]);
+        SkASSERT(SkRegion::kRunTypeSentinel == (*fArray)[stop - 1]);
 
+        // Assert memcmp won't exceed fArray->count().
+        SkASSERT(fArray->count() >= SkToInt(start + len - 1));
         if (fPrevLen == len &&
-            (1 == len || !memcmp(fPrevDst, start,
+            (1 == len || !memcmp(&(*fArray)[fPrevDst],
+                                 &(*fArray)[start],
                                  (len - 1) * sizeof(SkRegion::RunType)))) {
             // update Y value
-            fPrevDst[-2] = (SkRegion::RunType)(bottom);
+            (*fArray)[fPrevDst - 2] = (SkRegion::RunType)bottom;
         } else {    // accept the new span
             if (len == 1 && fPrevLen == 0) {
-                fTop = (SkRegion::RunType)(bottom); // just update our bottom
+                fTop = (SkRegion::RunType)bottom; // just update our bottom
             } else {
-                start[-2] = (SkRegion::RunType)(bottom);
-                start[-1] = SkToS32(len >> 1);
+                (*fArray)[start - 2] = (SkRegion::RunType)bottom;
+                (*fArray)[start - 1] = SkToS32(len >> 1);
                 fPrevDst = start;
                 fPrevLen = len;
             }
@@ -800,8 +867,10 @@ public:
     }
 
     int flush() {
-        fStartDst[0] = fTop;
-        fPrevDst[fPrevLen] = SkRegion::kRunTypeSentinel;
+        (*fArray)[fStartDst] = fTop;
+        // Previously reserved enough for TWO sentinals.
+        SkASSERT(fArray->count() > SkToInt(fPrevDst + fPrevLen));
+        (*fArray)[fPrevDst + fPrevLen] = SkRegion::kRunTypeSentinel;
         return (int)(fPrevDst - fStartDst + fPrevLen + 1);
     }
 
@@ -810,10 +879,11 @@ public:
     uint8_t fMin, fMax;
 
 private:
-    SkRegion::RunType*  fStartDst;
-    SkRegion::RunType*  fPrevDst;
-    size_t              fPrevLen;
-    SkRegion::RunType   fTop;
+    RunArray* fArray;
+    int fStartDst = 0;
+    int fPrevDst = 1;
+    size_t fPrevLen = 0;  // will never match a length from operate_on_span
+    SkRegion::RunType fTop;
 };
 
 // want a unique value to signal that we exited due to quickExit
@@ -821,7 +891,7 @@ private:
 
 static int operate(const SkRegion::RunType a_runs[],
                    const SkRegion::RunType b_runs[],
-                   SkRegion::RunType dst[],
+                   RunArray* dst,
                    SkRegion::Op op,
                    bool quickExit) {
     const SkRegion::RunType gEmptyScanline[] = {
@@ -946,26 +1016,6 @@ static int count_to_intervals(int count) {
 }
 #endif
 
-/*  Given a number of intervals, what is the worst case representation of that
-    many intervals?
-
-    Worst case (from a storage perspective), is a vertical stack of single
-    intervals:  TOP + N * (BOTTOM INTERVALCOUNT LEFT RIGHT SENTINEL) + SENTINEL
- */
-static int intervals_to_count(int intervals) {
-    return 1 + intervals * 5 + 1;
-}
-
-/*  Given the intervalCounts of RunTypes in two regions, return the worst-case number
-    of RunTypes need to store the result after a region-op.
- */
-static int compute_worst_case_count(int a_intervals, int b_intervals) {
-    // Our heuristic worst case is ai * (bi + 1) + bi * (ai + 1)
-    int intervals = 2 * a_intervals * b_intervals + a_intervals + b_intervals;
-    // convert back to number of RunType values
-    return intervals_to_count(intervals);
-}
-
 static bool setEmptyCheck(SkRegion* result) {
     return result ? result->setEmpty() : false;
 }
@@ -1068,20 +1118,13 @@ bool SkRegion::Oper(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op,
     const RunType* a_runs = rgna->getRuns(tmpA, &a_intervals);
     const RunType* b_runs = rgnb->getRuns(tmpB, &b_intervals);
 
-    int dstCount = compute_worst_case_count(a_intervals, b_intervals);
-    SkAutoSTMalloc<256, RunType> array(dstCount);
-
-#ifdef SK_DEBUG
-//  Sometimes helpful to seed everything with a known value when debugging
-//  sk_memset32((uint32_t*)array.get(), 0x7FFFFFFF, dstCount);
-#endif
-
-    int count = operate(a_runs, b_runs, array.get(), op, nullptr == result);
-    SkASSERT(count <= dstCount);
+    RunArray array;
+    int count = operate(a_runs, b_runs, &array, op, nullptr == result);
+    SkASSERT(count <= array.count());
 
     if (result) {
         SkASSERT(count >= 0);
-        return result->setRuns(array.get(), count);
+        return result->setRuns(&array[0], count);
     } else {
         return (QUICK_EXIT_TRUE_COUNT == count) || !isRunCountEmpty(count);
     }
@@ -1129,6 +1172,21 @@ size_t SkRegion::writeToMemory(void* storage) const {
     return buffer.pos();
 }
 
+static bool validate_run_count(int ySpanCount, int intervalCount, int runCount) {
+    // return 2 + 3 * ySpanCount + 2 * intervalCount;
+    if (ySpanCount < 1 || intervalCount < 2) {
+        return false;
+    }
+    SkSafeMath safeMath;
+    int sum = 2;
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, intervalCount);
+    sum = safeMath.addInt(sum, intervalCount);
+    return safeMath && sum == runCount;
+}
+
 // Validate that a memory sequence is a valid region.
 // Try to check all possible errors.
 // never read beyond &runs[runCount-1].
@@ -1139,7 +1197,7 @@ static bool validate_run(const int32_t* runs,
                          int32_t intervalCount) {
     // Region Layout:
     //    Top ( Bottom Span_Interval_Count ( Left Right )* Sentinel )+ Sentinel
-    if (ySpanCount < 1 || intervalCount < 2 || runCount != 2 + 3 * ySpanCount + 2 * intervalCount) {
+    if (!validate_run_count(SkToInt(ySpanCount), SkToInt(intervalCount), runCount)) {
         return false;
     }
     SkASSERT(runCount >= 7);  // 7==SkRegion::kRectRegionRuns
@@ -1155,6 +1213,9 @@ static bool validate_run(const int32_t* runs,
     if (rect.fTop == SkRegion::kRunTypeSentinel) {
         return false;  // no rect can contain SkRegion::kRunTypeSentinel
     }
+    if (rect.fTop != givenBounds.fTop) {
+        return false;  // Must not begin with empty span that does not contribute to bounds.
+    }
     do {
         --ySpanCount;
         if (ySpanCount < 0) {
@@ -1164,22 +1225,32 @@ static bool validate_run(const int32_t* runs,
         if (rect.fBottom == SkRegion::kRunTypeSentinel) {
             return false;
         }
+        if (rect.fBottom > givenBounds.fBottom) {
+            return false;  // Must not end with empty span that does not contribute to bounds.
+        }
+        if (rect.fBottom <= rect.fTop) {
+            return false;  // y-intervals must be ordered; rects must be non-empty.
+        }
+
         int32_t xIntervals = *runs++;
         SkASSERT(runs < end);
-        if (xIntervals < 0 || runs + 1 + 2 * xIntervals > end) {
+        if (xIntervals < 0 || xIntervals > intervalCount || runs + 1 + 2 * xIntervals > end) {
             return false;
         }
         intervalCount -= xIntervals;
-        if (intervalCount < 0) {
-            return false;  // too many intervals
-        }
+        bool firstInterval = true;
+        int32_t lastRight = 0;  // check that x-intervals are distinct and ordered.
         while (xIntervals-- > 0) {
             rect.fLeft = *runs++;
             rect.fRight = *runs++;
             if (rect.fLeft == SkRegion::kRunTypeSentinel ||
-                rect.fRight == SkRegion::kRunTypeSentinel || rect.isEmpty()) {
+                rect.fRight == SkRegion::kRunTypeSentinel ||
+                rect.fLeft >= rect.fRight ||  // check non-empty rect
+                (!firstInterval && rect.fLeft <= lastRight)) {
                 return false;
             }
+            lastRight = rect.fRight;
+            firstInterval = false;
             bounds.join(rect);
         }
         if (*runs++ != SkRegion::kRunTypeSentinel) {
@@ -1469,6 +1540,49 @@ bool SkRegion::Spanerator::next(int* left, int* right) {
     }
     fRuns = runs + 2;
     return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void visit_pairs(int pairCount, int y, const int32_t pairs[],
+                        const std::function<void(const SkIRect&)>& visitor) {
+    for (int i = 0; i < pairCount; ++i) {
+        visitor({ pairs[0], y, pairs[1], y + 1 });
+        pairs += 2;
+    }
+}
+
+void SkRegionPriv::VisitSpans(const SkRegion& rgn,
+                              const std::function<void(const SkIRect&)>& visitor) {
+    if (rgn.isEmpty()) {
+        return;
+    }
+    if (rgn.isRect()) {
+        visitor(rgn.getBounds());
+    } else {
+        const int32_t* p = rgn.fRunHead->readonly_runs();
+        int32_t top = *p++;
+        int32_t bot = *p++;
+        do {
+            int pairCount = *p++;
+            if (pairCount == 1) {
+                visitor({ p[0], top, p[1], bot });
+                p += 2;
+            } else if (pairCount > 1) {
+                // we have to loop repeated in Y, sending each interval in Y -> X order
+                for (int y = top; y < bot; ++y) {
+                    visit_pairs(pairCount, y, p, visitor);
+                }
+                p += pairCount * 2;
+            }
+            assert_sentinel(*p, true);
+            p += 1; // skip sentinel
+
+            // read next bottom or sentinel
+            top = bot;
+            bot = *p++;
+        } while (!SkRegionValueIsSentinel(bot));
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

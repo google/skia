@@ -8,10 +8,10 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkLayerDrawLooper.h"
+#include "SkMaskFilter.h"
 #include "SkRandom.h"
 
 #define WIDTH   200
@@ -78,7 +78,7 @@ private:
             paint->setStyle(gParams[i].fStyle);
             paint->setStrokeWidth(gParams[i].fWidth);
             if (gParams[i].fBlur > 0) {
-                paint->setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                paint->setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                          SkBlurMask::ConvertRadiusToSigma(gParams[i].fBlur)));
             }
         }

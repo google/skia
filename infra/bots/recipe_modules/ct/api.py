@@ -37,7 +37,8 @@ class CTApi(recipe_api.RecipeApi):
 
     # Delete and recreate the local dir.
     self.m.run.rmtree(slave_dest_dir)
-    self.m.file.makedirs(self.m.path.basename(slave_dest_dir), slave_dest_dir)
+    self.m.file.ensure_directory(
+      'makedirs %s' % self.m.path.basename(slave_dest_dir), slave_dest_dir)
 
     # Populate the empty local dir.
     gsutil_args = ['-m', 'cp']
@@ -45,7 +46,7 @@ class CTApi(recipe_api.RecipeApi):
       gsutil_args.append('%s/%s/*.skp' % (str(remote_dir), i))
     gsutil_args.append(str(slave_dest_dir))
     try:
-      self.m.gsutil(gsutil_args, use_retry_wrapper=False)
+      self.m.gsutil('gsutil cp', *gsutil_args)
     except self.m.step.StepFailure:
       # Some subdirectories might have no SKPs in them.
       pass

@@ -281,7 +281,7 @@ void sk_paint_set_autohinted(sk_paint_t* cpaint, bool useAutohinter) {
 }
 
 sk_paint_hinting_t sk_paint_get_hinting(const sk_paint_t* cpaint) {
-    return (sk_paint_hinting_t) AsPaint(cpaint)->getHinting();
+    return (sk_paint_hinting_t)AsPaint(cpaint)->getHinting();
 }
 
 void sk_paint_set_hinting(sk_paint_t* cpaint, sk_paint_hinting_t hintingLevel) {

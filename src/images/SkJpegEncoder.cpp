@@ -9,7 +9,7 @@
 
 #ifdef SK_HAS_JPEG_LIBRARY
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkImageEncoderFns.h"
 #include "SkImageInfoPriv.h"
 #include "SkJpegEncoder.h"
@@ -39,7 +39,7 @@ public:
 
     jpeg_compress_struct* cinfo() { return &fCInfo; }
 
-    jmp_buf& jmpBuf() { return fErrMgr.fJmpBuf; }
+    skjpeg_error_mgr* errorMgr() { return &fErrMgr; }
 
     transform_scanline_proc proc() const { return fProc; }
 
@@ -112,22 +112,13 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
             jpegColorType = JCS_RGB;
             numComponents = 3;
             break;
-        case kIndex_8_SkColorType:
-            if (SkJpegEncoder::AlphaOption::kBlendOnBlack == options.fAlphaOption) {
-                return false;
-            }
-
-            fProc = transform_scanline_index8_opaque;
-            jpegColorType = JCS_RGB;
-            numComponents = 3;
-            break;
         case kGray_8_SkColorType:
             SkASSERT(srcInfo.isOpaque());
             jpegColorType = JCS_GRAYSCALE;
             numComponents = 1;
             break;
         case kRGBA_F16_SkColorType:
-            if (!srcInfo.colorSpace() || !srcInfo.colorSpace()->gammaIsLinear() ||
+            if (!srcInfo.colorSpace() ||
                     SkTransferFunctionBehavior::kRespect != options.fBlendBehavior) {
                 return false;
             }
@@ -195,7 +186,9 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& s
     }
 
     std::unique_ptr<SkJpegEncoderMgr> encoderMgr = SkJpegEncoderMgr::Make(dst);
-    if (setjmp(encoderMgr->jmpBuf())) {
+
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(encoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return nullptr;
     }
 
@@ -206,22 +199,19 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& s
     jpeg_set_quality(encoderMgr->cinfo(), options.fQuality, TRUE);
     jpeg_start_compress(encoderMgr->cinfo(), TRUE);
 
-    if (src.colorSpace()) {
-        sk_sp<SkData> icc = icc_from_color_space(*src.colorSpace());
-        if (icc) {
-            // Create a contiguous block of memory with the icc signature followed by the profile.
-            sk_sp<SkData> markerData =
-                    SkData::MakeUninitialized(kICCMarkerHeaderSize + icc->size());
-            uint8_t* ptr = (uint8_t*) markerData->writable_data();
-            memcpy(ptr, kICCSig, sizeof(kICCSig));
-            ptr += sizeof(kICCSig);
-            *ptr++ = 1; // This is the first marker.
-            *ptr++ = 1; // Out of one total markers.
-            memcpy(ptr, icc->data(), icc->size());
+    sk_sp<SkData> icc = icc_from_color_space(src.info());
+    if (icc) {
+        // Create a contiguous block of memory with the icc signature followed by the profile.
+        sk_sp<SkData> markerData =
+                SkData::MakeUninitialized(kICCMarkerHeaderSize + icc->size());
+        uint8_t* ptr = (uint8_t*) markerData->writable_data();
+        memcpy(ptr, kICCSig, sizeof(kICCSig));
+        ptr += sizeof(kICCSig);
+        *ptr++ = 1; // This is the first marker.
+        *ptr++ = 1; // Out of one total markers.
+        memcpy(ptr, icc->data(), icc->size());
 
-            jpeg_write_marker(encoderMgr->cinfo(), kICCMarker, markerData->bytes(),
-                              markerData->size());
-        }
+        jpeg_write_marker(encoderMgr->cinfo(), kICCMarker, markerData->bytes(), markerData->size());
     }
 
     return std::unique_ptr<SkJpegEncoder>(new SkJpegEncoder(std::move(encoderMgr), src));
@@ -235,17 +225,17 @@ SkJpegEncoder::SkJpegEncoder(std::unique_ptr<SkJpegEncoderMgr> encoderMgr, const
 SkJpegEncoder::~SkJpegEncoder() {}
 
 bool SkJpegEncoder::onEncodeRows(int numRows) {
-    if (setjmp(fEncoderMgr->jmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fEncoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return false;
     }
 
     const void* srcRow = fSrc.addr(0, fCurrRow);
-    const SkPMColor* colors = fSrc.ctable() ? fSrc.ctable()->readColors() : nullptr;
     for (int i = 0; i < numRows; i++) {
         JSAMPLE* jpegSrcRow = (JSAMPLE*) srcRow;
         if (fEncoderMgr->proc()) {
             fEncoderMgr->proc()((char*)fStorage.get(), (const char*)srcRow, fSrc.width(),
-                                fEncoderMgr->cinfo()->input_components, colors);
+                                fEncoderMgr->cinfo()->input_components, nullptr);
             jpegSrcRow = fStorage.get();
         }
 

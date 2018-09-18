@@ -35,13 +35,10 @@ def create_asset(target_dir, gl_path):
   lib_dir = os.path.join(target_dir, 'lib')
   os.mkdir(lib_dir)
 
-  for f in glob.glob(os.path.join(gl_path,'libGL*')):
-    shutil.copy(f, lib_dir)
-
-  for f in glob.glob(os.path.join(gl_path,'libEGL*')):
-    shutil.copy(f, lib_dir)
-
-  for f in glob.glob(os.path.join(gl_path,'libmali*')):
+  to_copy = glob.glob(os.path.join(gl_path,'libGL*'))
+  to_copy.extend(glob.glob(os.path.join(gl_path,'libEGL*')))
+  to_copy.extend(glob.glob(os.path.join(gl_path,'libmali*')))
+  for f in to_copy:
     shutil.copy(f, lib_dir)
 
   include_dir = os.path.join(target_dir, 'include')

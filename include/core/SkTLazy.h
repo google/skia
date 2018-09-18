@@ -24,7 +24,8 @@ public:
     explicit SkTLazy(const T* src)
         : fPtr(src ? new (fStorage.get()) T(*src) : nullptr) {}
 
-    SkTLazy(const SkTLazy& src) : fPtr(nullptr) { *this = src; }
+    SkTLazy(const SkTLazy& that) : fPtr(nullptr) { *this = that; }
+    SkTLazy(SkTLazy&& that) : fPtr(nullptr) { *this = std::move(that); }
 
     ~SkTLazy() {
         if (this->isValid()) {
@@ -32,9 +33,18 @@ public:
         }
     }
 
-    SkTLazy& operator=(const SkTLazy& src) {
-        if (src.isValid()) {
-            this->set(*src.get());
+    SkTLazy& operator=(const SkTLazy& that) {
+        if (that.isValid()) {
+            this->set(*that.get());
+        } else {
+            this->reset();
+        }
+        return *this;
+    }
+
+    SkTLazy& operator=(SkTLazy&& that) {
+        if (that.isValid()) {
+            this->set(std::move(*that.get()));
         } else {
             this->reset();
         }
@@ -66,6 +76,15 @@ public:
             *fPtr = src;
         } else {
             fPtr = new (SkTCast<T*>(fStorage.get())) T(src);
+        }
+        return fPtr;
+    }
+
+    T* set(T&& src) {
+        if (this->isValid()) {
+            *fPtr = std::move(src);
+        } else {
+            fPtr = new (SkTCast<T*>(fStorage.get())) T(std::move(src));
         }
         return fPtr;
     }
@@ -129,12 +148,27 @@ private:
 template <typename T>
 class SkTCopyOnFirstWrite {
 public:
-    SkTCopyOnFirstWrite(const T& initial) : fObj(&initial) {}
+    explicit SkTCopyOnFirstWrite(const T& initial) : fObj(&initial) {}
 
-    SkTCopyOnFirstWrite(const T* initial) : fObj(initial) {}
+    explicit SkTCopyOnFirstWrite(const T* initial) : fObj(initial) {}
 
     // Constructor for delayed initialization.
     SkTCopyOnFirstWrite() : fObj(nullptr) {}
+
+    SkTCopyOnFirstWrite(const SkTCopyOnFirstWrite&  that) { *this = that;            }
+    SkTCopyOnFirstWrite(      SkTCopyOnFirstWrite&& that) { *this = std::move(that); }
+
+    SkTCopyOnFirstWrite& operator=(const SkTCopyOnFirstWrite& that) {
+        fLazy = that.fLazy;
+        fObj  = fLazy.isValid() ? fLazy.get() : that.fObj;
+        return *this;
+    }
+
+    SkTCopyOnFirstWrite& operator=(SkTCopyOnFirstWrite&& that) {
+        fLazy = std::move(that.fLazy);
+        fObj  = fLazy.isValid() ? fLazy.get() : that.fObj;
+        return *this;
+    }
 
     // Should only be called once, and only if the default constructor was used.
     void init(const T& initial) {
@@ -154,6 +188,8 @@ public:
         }
         return const_cast<T*>(fObj);
     }
+
+    const T* get() const { return fObj; }
 
     /**
      * Operators for treating this as though it were a const pointer.

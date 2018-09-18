@@ -8,11 +8,20 @@
 #include "SkJsonWriteBuffer.h"
 
 #include "SkDrawCommand.h"
-#include "SkObjectParser.h"
 
 void SkJsonWriteBuffer::append(const char* type, const Json::Value& value) {
     SkString fullName = SkStringPrintf("%02d_%s", fJson.size(), type);
     fJson[fullName.c_str()] = value;
+}
+
+void SkJsonWriteBuffer::writePad32(const void* data, size_t size) {
+    Json::Value jsonArray(Json::arrayValue);
+    const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+    for (size_t i = 0; i < size; ++i) {
+        SkString hexByte = SkStringPrintf("%02x", bytes[i]);
+        jsonArray.append(hexByte.c_str());
+    }
+    this->append("rawBytes", jsonArray);
 }
 
 void SkJsonWriteBuffer::writeByteArray(const void* data, size_t size) {
@@ -132,12 +141,6 @@ size_t SkJsonWriteBuffer::writeStream(SkStream* stream, size_t length) {
     SkASSERT(length < Json::Value::maxUInt);
     this->append("stream", static_cast<Json::UInt>(length));
     return 0;
-}
-
-void SkJsonWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
-    Json::Value jsonBitmap;
-    SkDrawCommand::flatten(bitmap, &jsonBitmap, *fUrlDataManager);
-    this->append("bitmap", jsonBitmap);
 }
 
 void SkJsonWriteBuffer::writeImage(const SkImage* image) {

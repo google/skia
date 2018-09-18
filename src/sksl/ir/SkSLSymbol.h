@@ -24,13 +24,15 @@ struct Symbol : public IRNode {
         kField_Kind
     };
 
-    Symbol(Position position, Kind kind, String name)
-    : INHERITED(position)
+    Symbol(int offset, Kind kind, StringFragment name)
+    : INHERITED(offset)
     , fKind(kind)
-    , fName(std::move(name)) {}
+    , fName(name) {}
 
-    const Kind fKind;
-    const String fName;
+    virtual ~Symbol() {}
+
+    Kind fKind;
+    StringFragment fName;
 
     typedef IRNode INHERITED;
 };

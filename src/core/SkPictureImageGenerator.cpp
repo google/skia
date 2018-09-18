@@ -23,10 +23,6 @@ SkPictureImageGenerator::Make(const SkISize& size, sk_sp<SkPicture> picture, con
         return nullptr;
     }
 
-    if (SkImage::BitDepth::kF16 == bitDepth && (!colorSpace || !colorSpace->gammaIsLinear())) {
-        return nullptr;
-    }
-
     if (colorSpace && (!colorSpace->gammaCloseToSRGB() && !colorSpace->gammaIsLinear())) {
         return nullptr;
     }
@@ -63,8 +59,10 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
     bool useXformCanvas =
             SkTransferFunctionBehavior::kIgnore == opts.fBehavior && info.colorSpace();
 
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     SkImageInfo canvasInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
-    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(canvasInfo, pixels, rowBytes);
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(canvasInfo, pixels, rowBytes,
+                                                                  &props);
     if (!canvas) {
         return false;
     }
@@ -100,27 +98,41 @@ SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(GrContext* ctx,
-                                                                 const SkImageInfo& info,
-                                                                 const SkIPoint& origin) {
+sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
+        GrContext* ctx, const SkImageInfo& info, const SkIPoint& origin,
+        SkTransferFunctionBehavior behavior, bool willNeedMipMaps) {
     SkASSERT(ctx);
+    bool useXformCanvas = SkTransferFunctionBehavior::kIgnore == behavior && info.colorSpace();
 
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface
     //
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, info));
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    SkImageInfo surfaceInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, surfaceInfo,
+                                                         0, kTopLeft_GrSurfaceOrigin, &props,
+                                                         willNeedMipMaps));
     if (!surface) {
         return nullptr;
     }
 
+    SkCanvas* canvas = surface->getCanvas();
+    std::unique_ptr<SkCanvas> xformCanvas;
+    if (useXformCanvas) {
+        xformCanvas = SkCreateColorSpaceXformCanvas(canvas, info.refColorSpace());
+        canvas = xformCanvas.get();
+    }
+
     SkMatrix matrix = fMatrix;
     matrix.postTranslate(-origin.x(), -origin.y());
-    surface->getCanvas()->clear(0); // does NewRenderTarget promise to do this for us?
-    surface->getCanvas()->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
+    canvas->clear(0);  // does NewRenderTarget promise to do this for us?
+    canvas->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     if (!image) {
         return nullptr;
     }
-    return as_IB(image)->asTextureProxyRef();
+    sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef();
+    SkASSERT(!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped());
+    return proxy;
 }
 #endif

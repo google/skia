@@ -39,6 +39,16 @@ private:
     typedef sk_gpu_test::FenceSync INHERITED;
 };
 
+std::function<void()> context_restorer() {
+    auto display = eglGetCurrentDisplay();
+    auto dsurface = eglGetCurrentSurface(EGL_DRAW);
+    auto rsurface = eglGetCurrentSurface(EGL_READ);
+    auto context = eglGetCurrentContext();
+    return [display, dsurface, rsurface, context] {
+        eglMakeCurrent(display, dsurface, rsurface, context);
+    };
+}
+
 class EGLGLTestContext : public sk_gpu_test::GLTestContext {
 public:
     EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* shareContext);
@@ -53,6 +63,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -61,6 +72,26 @@ private:
     EGLSurface fSurface;
 };
 
+static EGLContext create_gles_egl_context(EGLDisplay display,
+                                          EGLConfig surfaceConfig,
+                                          EGLContext eglShareContext,
+                                          EGLint eglContextClientVersion) {
+    const EGLint contextAttribsForOpenGLES[] = {
+        EGL_CONTEXT_CLIENT_VERSION,
+        eglContextClientVersion,
+        EGL_NONE
+    };
+    return eglCreateContext(display, surfaceConfig, eglShareContext, contextAttribsForOpenGLES);
+}
+static EGLContext create_gl_egl_context(EGLDisplay display,
+                                        EGLConfig surfaceConfig,
+                                        EGLContext eglShareContext) {
+    const EGLint contextAttribsForOpenGL[] = {
+        EGL_NONE
+    };
+    return eglCreateContext(display, surfaceConfig, eglShareContext, contextAttribsForOpenGL);
+}
+
 EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* shareContext)
     : fContext(EGL_NO_CONTEXT)
     , fDisplay(EGL_NO_DISPLAY)
@@ -68,43 +99,19 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
 
     EGLContext eglShareContext = shareContext ? shareContext->fContext : nullptr;
 
-    static const EGLint kEGLContextAttribsForOpenGL[] = {
-        EGL_NONE
+    static const GrGLStandard kStandards[] = {
+        kGL_GrGLStandard,
+        kGLES_GrGLStandard,
     };
 
-    static const EGLint kEGLContextAttribsForOpenGLES[] = {
-        EGL_CONTEXT_CLIENT_VERSION, 2,
-        EGL_NONE
-    };
-
-    static const struct {
-        const EGLint* fContextAttribs;
-        EGLenum fAPI;
-        EGLint  fRenderableTypeBit;
-        GrGLStandard fStandard;
-    } kAPIs[] = {
-        {   // OpenGL
-            kEGLContextAttribsForOpenGL,
-            EGL_OPENGL_API,
-            EGL_OPENGL_BIT,
-            kGL_GrGLStandard
-        },
-        {   // OpenGL ES. This seems to work for both ES2 and 3 (when available).
-            kEGLContextAttribsForOpenGLES,
-            EGL_OPENGL_ES_API,
-            EGL_OPENGL_ES2_BIT,
-            kGLES_GrGLStandard
-        },
-    };
-
-    size_t apiLimit = SK_ARRAY_COUNT(kAPIs);
+    size_t apiLimit = SK_ARRAY_COUNT(kStandards);
     size_t api = 0;
     if (forcedGpuAPI == kGL_GrGLStandard) {
         apiLimit = 1;
     } else if (forcedGpuAPI == kGLES_GrGLStandard) {
         api = 1;
     }
-    SkASSERT(forcedGpuAPI == kNone_GrGLStandard || kAPIs[api].fStandard == forcedGpuAPI);
+    SkASSERT(forcedGpuAPI == kNone_GrGLStandard || kStandards[api] == forcedGpuAPI);
 
     sk_sp<const GrGLInterface> gl;
 
@@ -121,15 +128,16 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
         SkDebugf("VERSION: %s\n", eglQueryString(fDisplay, EGL_VERSION));
         SkDebugf("EXTENSIONS %s\n", eglQueryString(fDisplay, EGL_EXTENSIONS));
 #endif
+        bool gles = kGLES_GrGLStandard == kStandards[api];
 
-        if (!eglBindAPI(kAPIs[api].fAPI)) {
+        if (!eglBindAPI(gles ? EGL_OPENGL_ES_API : EGL_OPENGL_API)) {
             continue;
         }
 
         EGLint numConfigs = 0;
         const EGLint configAttribs[] = {
             EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-            EGL_RENDERABLE_TYPE, kAPIs[api].fRenderableTypeBit,
+            EGL_RENDERABLE_TYPE, gles ? EGL_OPENGL_ES2_BIT : EGL_OPENGL_BIT,
             EGL_RED_SIZE, 8,
             EGL_GREEN_SIZE, 8,
             EGL_BLUE_SIZE, 8,
@@ -148,8 +156,20 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
-        fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext,
-                                    kAPIs[api].fContextAttribs);
+        if (gles) {
+#ifdef GR_EGL_TRY_GLES3_THEN_GLES2
+            // Some older devices (Nexus7/Tegra3) crash when you try this.  So it is (for now)
+            // hidden behind this flag.
+            fContext = create_gles_egl_context(fDisplay, surfaceConfig, eglShareContext, 3);
+            if (EGL_NO_CONTEXT == fContext) {
+                fContext = create_gles_egl_context(fDisplay, surfaceConfig, eglShareContext, 2);
+            }
+#else
+            fContext = create_gles_egl_context(fDisplay, surfaceConfig, eglShareContext, 2);
+#endif
+        } else {
+            fContext = create_gl_egl_context(fDisplay, surfaceConfig, eglShareContext);
+        }
         if (EGL_NO_CONTEXT == fContext) {
             SkDebugf("eglCreateContext failed.  EGL Error: 0x%08x\n", eglGetError());
             continue;
@@ -168,14 +188,15 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
+        SkScopeExit restorer(context_restorer());
         if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
             SkDebugf("eglMakeCurrent failed.  EGL Error: 0x%08x\n", eglGetError());
             this->destroyGLContext();
             continue;
         }
 
-        gl.reset(GrGLCreateNativeInterface());
-        if (nullptr == gl.get()) {
+        gl = GrGLMakeNativeInterface();
+        if (!gl) {
             SkDebugf("Failed to create gl interface.\n");
             this->destroyGLContext();
             continue;
@@ -187,7 +208,7 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
-        this->init(gl.release(), EGLFenceSync::MakeIfSupported(fDisplay));
+        this->init(std::move(gl), EGLFenceSync::MakeIfSupported(fDisplay));
         break;
     }
 }
@@ -199,9 +220,11 @@ EGLGLTestContext::~EGLGLTestContext() {
 
 void EGLGLTestContext::destroyGLContext() {
     if (fDisplay) {
-        eglMakeCurrent(fDisplay, 0, 0, 0);
-
         if (fContext) {
+            if (eglGetCurrentContext() == fContext) {
+                // This will ensure that the context is immediately deleted.
+                eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+            }
             eglDestroyContext(fDisplay, fContext);
             fContext = EGL_NO_CONTEXT;
         }
@@ -237,7 +260,6 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
     if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
         return 0;
     }
-#ifndef EGL_NO_IMAGE_EXTERNAL
     typedef GrGLvoid (*EGLImageTargetTexture2DProc)(GrGLenum, GrGLeglImage);
 
     EGLImageTargetTexture2DProc glEGLImageTargetTexture2D =
@@ -246,24 +268,21 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
         return 0;
     }
     GrGLuint texID;
-    glGenTextures(1, &texID);
+    GR_GL_CALL(this->gl(), GenTextures(1, &texID));
     if (!texID) {
         return 0;
     }
-    glBindTexture(GR_GL_TEXTURE_EXTERNAL, texID);
-    if (glGetError() != GR_GL_NO_ERROR) {
-        glDeleteTextures(1, &texID);
+    GR_GL_CALL_NOERRCHECK(this->gl(), BindTexture(GR_GL_TEXTURE_EXTERNAL, texID));
+    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
+        GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
     }
     glEGLImageTargetTexture2D(GR_GL_TEXTURE_EXTERNAL, image);
-    if (glGetError() != GR_GL_NO_ERROR) {
-        glDeleteTextures(1, &texID);
+    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
+        GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
     }
     return texID;
-#else
-    return 0;
-#endif //EGL_NO_IMAGE_EXTERNAL
 }
 
 std::unique_ptr<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {
@@ -279,6 +298,13 @@ void EGLGLTestContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
+}
+
+std::function<void()> EGLGLTestContext::onPlatformGetAutoContextRestore() const {
+    if (eglGetCurrentContext() == fContext) {
+        return nullptr;
+    }
+    return context_restorer();
 }
 
 void EGLGLTestContext::onPlatformSwapBuffers() const {

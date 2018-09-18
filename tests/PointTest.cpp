@@ -6,7 +6,7 @@
  */
 // Unit tests for src/core/SkPoint.cpp and its header
 
-#include "SkPoint.h"
+#include "SkPointPriv.h"
 #include "SkRect.h"
 #include "Test.h"
 
@@ -17,7 +17,7 @@ static void test_casts(skiatest::Reporter* reporter) {
     const SkScalar* pPtr = SkTCast<const SkScalar*>(&p);
     const SkScalar* rPtr = SkTCast<const SkScalar*>(&r);
 
-    REPORTER_ASSERT(reporter, p.asScalars() == pPtr);
+    REPORTER_ASSERT(reporter, SkPointPriv::AsScalars(p) == pPtr);
     REPORTER_ASSERT(reporter, r.asScalars() == rPtr);
 }
 
@@ -146,7 +146,7 @@ DEF_TEST(Point_setLengthFast, reporter) {
         SkPoint slow = kOne, fast = kOne;
 
         slow.setLength(tests[i]);
-        fast.setLengthFast(tests[i]);
+        SkPointPriv::SetLengthFast(&fast, tests[i]);
 
         if (slow.length() < FLT_MIN && fast.length() < FLT_MIN) continue;
 

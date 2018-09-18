@@ -1,0 +1,68 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef GrTextureProxyPriv_DEFINED
+#define GrTextureProxyPriv_DEFINED
+
+#include "GrTextureProxy.h"
+
+class GrDeferredProxyUploader;
+class GrOpFlushState;
+
+/**
+ * This class hides the more specialized capabilities of GrTextureProxy.
+ */
+class GrTextureProxyPriv {
+public:
+    // Attach a deferred uploader to the proxy. Holds data being prepared by a worker thread.
+    void setDeferredUploader(std::unique_ptr<GrDeferredProxyUploader>);
+    bool isDeferred() const { return SkToBool(fTextureProxy->fDeferredUploader.get()); }
+    // For a deferred proxy (one that has a deferred uploader attached), this schedules an ASAP
+    // upload of that data to the instantiated texture.
+    void scheduleUpload(GrOpFlushState*);
+    // Clears any deferred uploader object on the proxy. Used to free the CPU data after the
+    // contents have been uploaded.
+    void resetDeferredUploader();
+    // Returns the GrMipMapped value of the proxy from creation time regardless of whether it has
+    // been instantiated or not.
+    GrMipMapped proxyMipMapped() const { return fTextureProxy->fMipMapped; }
+
+    bool doesNotSupportMipMaps() const { return fTextureProxy->doesNotSupportMipMaps(); }
+    bool isGLTextureRectangleOrExternal() const {
+        return fTextureProxy->isGLTextureRectangleOrExternal();
+    }
+    // We assume that if a texture is not a GL_TEXTURE_RECTANGLE or GL_TEXTURE_EXTERNAL then it is a
+    // GL_TEXTURE_2D
+    bool isGLTexture2D() const { return !fTextureProxy->isGLTextureRectangleOrExternal(); }
+    // We only support the clamp wrap mode with gl rectangle or external textures.
+    bool isClampOnly() const { return fTextureProxy->isGLTextureRectangleOrExternal(); }
+
+    void setDoesNotSupportMipMaps() {
+        fTextureProxy->setDoesNotSupportMipMaps();
+    }
+
+private:
+    explicit GrTextureProxyPriv(GrTextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
+    GrTextureProxyPriv(const GrTextureProxyPriv&) {} // unimpl
+    GrTextureProxyPriv& operator=(const GrTextureProxyPriv&); // unimpl
+
+    // No taking addresses of this type.
+    const GrTextureProxyPriv* operator&() const;
+    GrTextureProxyPriv* operator&();
+
+    GrTextureProxy* fTextureProxy;
+
+    friend class GrTextureProxy;  // to construct/copy this type.
+};
+
+inline GrTextureProxyPriv GrTextureProxy::texPriv() { return GrTextureProxyPriv(this); }
+
+inline const GrTextureProxyPriv GrTextureProxy::texPriv() const {
+    return GrTextureProxyPriv(const_cast<GrTextureProxy*>(this));
+}
+
+#endif

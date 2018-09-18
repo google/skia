@@ -6,7 +6,7 @@
  */
 
 #include "SkMathPriv.h"
-#include "SkPoint.h"
+#include "SkPointPriv.h"
 #include "SkScalar.h"
 #include "Test.h"
 
@@ -42,7 +42,7 @@ static inline int estimate_distance(const SkPoint points[]) {
 }
 
 static inline SkScalar compute_distance(const SkPoint points[]) {
-    return points[1].distanceToLineSegmentBetween(points[0], points[2]);
+    return SkPointPriv::DistanceToLineSegmentBetween(points[1], points[0], points[2]);
 }
 
 static inline uint32_t estimate_pointCount(int distance) {

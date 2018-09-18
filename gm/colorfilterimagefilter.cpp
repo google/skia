@@ -67,7 +67,7 @@ static sk_sp<SkShader> sh_make_lineargradient1() {
 }
 
 static sk_sp<SkShader> sh_make_image() {
-    sk_sp<SkImage> image(GetResourceAsImage("mandrill_128.png"));
+    sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_128.png"));
     if (!image) {
         return nullptr;
     }
@@ -180,23 +180,29 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     SkPaint p;
     p.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
-    canvas->saveLayer(NULL, &p);
+    canvas->saveLayer(nullptr, &p);
     canvas->clear(SK_ColorRED);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "SkGradientShader.h"
 template <typename T> class SkTRefArray : public SkTDArray<T> {
 public:
     ~SkTRefArray() { this->unrefAll(); }
 };
 
-DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 450) {
+DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
     SkTArray<sk_sp<SkColorFilter>> filters;
     sk_gm_get_colorfilters(&filters);
 
     SkTRefArray<SkShader*> shaders;
     sk_gm_get_shaders(&shaders);
+
+    const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
+    *shaders.append() = SkGradientShader::MakeTwoPointConical({0, 0}, 50, {0, 0}, 150,
+                                                              colors, nullptr, 2,
+                                                              SkShader::kClamp_TileMode).release();
 
     SkPaint paint;
     SkRect r = SkRect::MakeWH(120, 120);
@@ -215,5 +221,35 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 450) {
         }
         canvas->restore();
         canvas->translate(0, 150);
+    }
+}
+
+DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
+    auto shaderA = GetResourceAsImage("images/mandrill_128.png")->makeShader(SkShader::kClamp_TileMode,
+                                                                      SkShader::kClamp_TileMode);
+    const SkColor colors[] = { SK_ColorGREEN, 0 };
+    auto shaderB = SkGradientShader::MakeRadial({60, 60}, 55, colors, nullptr, 2,
+                                                SkShader::kClamp_TileMode,
+                                                SkGradientShader::kInterpolateColorsInPremul_Flag,
+                                                nullptr);
+    const SkBlendMode modes[] = {
+        SkBlendMode::kSrc, SkBlendMode::kModulate, SkBlendMode::kColorBurn, SkBlendMode::kPlus,
+        SkBlendMode::kDstATop,
+    };
+    SkPaint paint;
+    SkRect r = SkRect::MakeWH(120, 120);
+
+    canvas->translate(10, 10);
+    for (auto mode : modes) {
+        canvas->save();
+        const int count = 6;
+        for (int x = 0; x < count; ++x) {
+            const float t = x * 1.0f / (count - 1);
+            paint.setShader(SkShader::MakeCompose(shaderA, shaderB, mode, t));
+            canvas->drawRect(r, paint);
+            canvas->translate(r.width() + 10, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, r.height() + 20);
     }
 }

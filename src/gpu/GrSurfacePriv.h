@@ -17,7 +17,7 @@
     implemented privately in GrSurface with a inline public method here). */
 class GrSurfacePriv {
 public:
-    /** Helpers used in read/write pixels implementations. The paramters are adjusted so that the
+    /** Helpers used in read/write pixels implementations. The parameters are adjusted so that the
         read/write respects the bounds of a surface. If the input *rowBytes is 0 it will be
         the tight row bytes (based on width and bpp) on output. */
     static bool AdjustReadPixelParams(int surfaceWidth,
@@ -36,6 +36,16 @@ public:
     bool hasPendingRead() const { return fSurface->hasPendingRead(); }
     bool hasPendingWrite() const { return fSurface->hasPendingWrite(); }
     bool hasPendingIO() const { return fSurface->hasPendingIO(); }
+    bool hasUniqueRef() const { return fSurface->internalHasUniqueRef(); }
+
+    GrInternalSurfaceFlags flags() const { return fSurface->fSurfaceFlags; }
+
+    bool doesNotSupportMipMaps() const { return fSurface->doesNotSupportMipMaps(); }
+    bool isGLTextureRectangleOrExternal() const {
+        return fSurface->isGLTextureRectangleOrExternal();
+    }
+    // We only support the clamp wrap mode with gl rectangle or external textures.
+    bool isClampOnly() const { return fSurface->isGLTextureRectangleOrExternal(); }
 
 private:
     explicit GrSurfacePriv(GrSurface* surface) : fSurface(surface) {}

@@ -27,9 +27,12 @@ public:
      * This will return nullptr if either space is nullptr, if both spaces are equal, or if either
      * space has a non-parametric transfer funcion (e.g. lookup table or A2B).
      */
-    static sk_sp<GrFragmentProcessor> Make(const SkColorSpace* src, const SkColorSpace* dst);
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkColorSpace* src,
+                                                     const SkColorSpace* dst);
 
     const char* name() const override { return "NonlinearColorSpaceXform"; }
+
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
     static const int kNumTransferFnCoeffs = 7;
 
@@ -54,6 +57,7 @@ private:
                                      const SkColorSpaceTransferFn& srcTransferFn,
                                      const SkColorSpaceTransferFn& dstTransferFn,
                                      const SkMatrix44& gamutXform);
+    GrNonlinearColorSpaceXformEffect(const GrNonlinearColorSpaceXformEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
@@ -64,7 +68,7 @@ private:
     SkMatrix44 fGamutXform;
     uint32_t fOps;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };

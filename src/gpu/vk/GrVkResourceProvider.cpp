@@ -7,9 +7,10 @@
 
 #include "GrVkResourceProvider.h"
 
-#include "GrSamplerParams.h"
+#include "GrSamplerState.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkCopyPipeline.h"
+#include "GrVkGpu.h"
 #include "GrVkPipeline.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkSampler.h"
@@ -87,6 +88,9 @@ GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
                                             dst->numColorSamples(),
                                             *dst->simpleRenderPass(),
                                             fPipelineCache);
+        if (!pipeline) {
+            return nullptr;
+        }
         fCopyPipelines.push_back(pipeline);
     }
     SkASSERT(pipeline);
@@ -164,11 +168,11 @@ GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
     return new GrVkDescriptorPool(fGpu, type, count);
 }
 
-GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSamplerParams& params,
-                                                                 uint32_t mipLevels) {
-    GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params, mipLevels));
+GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params,
+                                                                 uint32_t maxMipLevel) {
+    GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params, maxMipLevel));
     if (!sampler) {
-        sampler = GrVkSampler::Create(fGpu, params, mipLevels);
+        sampler = GrVkSampler::Create(fGpu, params, maxMipLevel);
         fSamplers.add(sampler);
     }
     SkASSERT(sampler);
@@ -176,7 +180,7 @@ GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSampler
     return sampler;
 }
 
-sk_sp<GrVkPipelineState> GrVkResourceProvider::findOrCreateCompatiblePipelineState(
+GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
                                                                  const GrPipeline& pipeline,
                                                                  const GrPrimitiveProcessor& proc,
                                                                  GrPrimitiveType primitiveType,

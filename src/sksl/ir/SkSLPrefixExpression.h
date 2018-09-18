@@ -11,7 +11,7 @@
 #include "SkSLExpression.h"
 #include "SkSLFloatLiteral.h"
 #include "SkSLIRGenerator.h"
-#include "SkSLToken.h"
+#include "SkSLLexer.h"
 
 namespace SkSL {
 
@@ -20,7 +20,7 @@ namespace SkSL {
  */
 struct PrefixExpression : public Expression {
     PrefixExpression(Token::Kind op, std::unique_ptr<Expression> operand)
-    : INHERITED(operand->fPosition, kPrefix_Kind, operand->fType)
+    : INHERITED(operand->fOffset, kPrefix_Kind, operand->fType)
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
@@ -33,13 +33,12 @@ struct PrefixExpression : public Expression {
                fOperand->hasSideEffects();
     }
 
-    virtual std::unique_ptr<Expression> constantPropagate(
-                                                        const IRGenerator& irGenerator,
-                                                        const DefinitionMap& definitions) override {
+    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
+                                                  const DefinitionMap& definitions) override {
         if (fOperand->fKind == Expression::kFloatLiteral_Kind) {
             return std::unique_ptr<Expression>(new FloatLiteral(
                                                               irGenerator.fContext,
-                                                              Position(),
+                                                              fOffset,
                                                               -((FloatLiteral&) *fOperand).fValue));
 
         }
@@ -47,7 +46,7 @@ struct PrefixExpression : public Expression {
     }
 
     String description() const override {
-        return Token::OperatorName(fOperator) + fOperand->description();
+        return Compiler::OperatorName(fOperator) + fOperand->description();
     }
 
     std::unique_ptr<Expression> fOperand;

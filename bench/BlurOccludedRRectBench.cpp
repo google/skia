@@ -6,8 +6,8 @@
  */
 
 #include "Benchmark.h"
-#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkRRect.h"
 #include "SkRect.h"
@@ -27,8 +27,6 @@ public:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int l = 0; l < loops; ++l) {
-            canvas->clear(0xFFFAFAFA);
-
             SkPaint opaque;
             opaque.setAntiAlias(true);
             opaque.setColor(SK_ColorWHITE);
@@ -50,7 +48,7 @@ public:
                         SkPaint firstBlur;
                         firstBlur.setAntiAlias(true);
                         firstBlur.setColor(0x09000000);
-                        firstBlur.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                        firstBlur.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                                                        2.5f,
                                                                        occRect));
 
@@ -62,7 +60,7 @@ public:
                             SkPaint secondBlur;
                             secondBlur.setAntiAlias(true);
                             secondBlur.setColor(0x30000000);
-                            secondBlur.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+                            secondBlur.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                                                             6.0f,
                                                                             occRect));
 

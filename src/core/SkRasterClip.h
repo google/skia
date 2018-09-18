@@ -39,11 +39,11 @@ public:
         fClipRestrictionRect = rect;
     }
 
-    void op(const SkRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
-    void op(const SkRRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
-    void op(const SkPath&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
-    void op(const SkRegion&, SkRegion::Op);
-    void op(const SkIRect&, SkRegion::Op);
+    void opRect(const SkRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
+    void opRRect(const SkRRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
+    void opPath(const SkPath&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
+    void opRegion(const SkRegion&, SkRegion::Op);
+    void opIRect(const SkIRect&, SkRegion::Op);
 };
 
 /**

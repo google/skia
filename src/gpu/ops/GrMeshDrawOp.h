@@ -12,11 +12,12 @@
 #include "GrGeometryProcessor.h"
 #include "GrMesh.h"
 #include "GrPendingProgramElement.h"
-#include "GrPipelineBuilder.h"
 
 #include "SkTLList.h"
 
+class GrAtlasManager;
 class GrCaps;
+class GrGlyphCache;
 class GrOpFlushState;
 
 /**
@@ -24,6 +25,7 @@ class GrOpFlushState;
  */
 class GrMeshDrawOp : public GrDrawOp {
 public:
+    /** Abstract interface that represents a destination for a GrMeshDrawOp. */
     class Target;
 
 protected:
@@ -52,7 +54,7 @@ protected:
     /** A specialization of InstanceHelper for quad rendering. */
     class QuadHelper : private PatternHelper {
     public:
-        QuadHelper() : INHERITED(kTriangles_GrPrimitiveType) {}
+        QuadHelper() : INHERITED(GrPrimitiveType::kTriangles) {}
         /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
             and on success a pointer to the vertex data that the caller should populate before
             calling recordDraws(). */
@@ -67,156 +69,100 @@ protected:
 private:
     void onPrepare(GrOpFlushState* state) final;
     void onExecute(GrOpFlushState* state) final;
-
-    virtual void onPrepareDraws(Target*) const = 0;
-
-    // A set of contiguous draws that share a draw token and primitive processor. The draws all use
-    // the op's pipeline. The meshes for the draw are stored in the fMeshes array and each
-    // Queued draw uses fMeshCnt meshes from the fMeshes array. The reason for coallescing meshes
-    // that share a primitive processor into a QueuedDraw is that it allows the Gpu object to setup
-    // the shared state once and then issue draws for each mesh.
-    struct QueuedDraw {
-        int fMeshCnt = 0;
-        GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
-        const GrPipeline* fPipeline;
-    };
-
-    // All draws in all the GrMeshDrawOps have implicit tokens based on the order they are enqueued
-    // globally across all ops. This is the offset of the first entry in fQueuedDraws.
-    // fQueuedDraws[i]'s token is fBaseDrawToken + i.
-    GrDrawOpUploadToken fBaseDrawToken;
-    SkSTArray<4, GrMesh> fMeshes;
-    SkSTArray<4, QueuedDraw, true> fQueuedDraws;
-
+    virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
 };
 
-/**
- * Many of our ops derive from this class which initializes a GrPipeline just before being recorded.
- * We are migrating away from use of this class.
- */
-class GrLegacyMeshDrawOp : public GrMeshDrawOp {
+class GrMeshDrawOp::Target {
 public:
-    /**
-     * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
-     * initial color and coverage from this op's geometry processor.
-     */
-    GrProcessorSet::Analysis analyzeUpdateAndRecordProcessors(GrPipelineBuilder* pipelineBuilder,
-                                                              const GrAppliedClip* appliedClip,
-                                                              bool isMixedSamples,
-                                                              const GrCaps& caps,
-                                                              GrColor* overrideColor) const {
-        GrProcessorAnalysisColor inputColor;
-        GrProcessorAnalysisCoverage inputCoverage;
-        this->getProcessorAnalysisInputs(&inputColor, &inputCoverage);
-        return pipelineBuilder->finalizeProcessors(inputColor, inputCoverage, appliedClip,
-                                                   isMixedSamples, caps, overrideColor);
-    }
+    virtual ~Target() {}
 
-    void initPipeline(const GrPipeline::InitArgs& args, const GrProcessorSet::Analysis& analysis,
-                      GrColor overrideColor) {
-        fPipeline.init(args);
-        this->applyPipelineOptimizations(PipelineOptimizations(analysis, overrideColor));
-    }
-
-    void addDependenciesTo(GrRenderTargetProxy* rtp) {
-        fPipeline.addDependenciesTo(rtp);
-    }
+    /** Adds a draw of a mesh. */
+    virtual void draw(const GrGeometryProcessor*, const GrPipeline*, const GrMesh&) = 0;
 
     /**
-     * Mesh draw ops use a legacy system in GrRenderTargetContext where the pipeline is created when
-     * the op is recorded. These methods are unnecessary as this information is in the pipeline.
+     * Makes space for vertex data. The returned pointer is the location where vertex data
+     * should be written. On return the buffer that will hold the data as well as an offset into
+     * the buffer (in 'vertexSize' units) where the data will be placed.
      */
-    FixedFunctionFlags fixedFunctionFlags() const override {
-        SkFAIL("This should never be called for legacy mesh draw ops.");
-        return FixedFunctionFlags::kNone;
-    }
-    bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) override {
-        SkFAIL("Should never be called for legacy mesh draw ops.");
-        return false;
-    }
+    virtual void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer**,
+                                  int* startVertex) = 0;
 
-protected:
-    GrLegacyMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
     /**
-     * This is a legacy class only used by GrLegacyMeshDrawOp and will be removed. It presents some
-     * aspects of GrProcessorSet::Analysis to GrLegacyMeshDrawOp subclasses.
+     * Makes space for index data. The returned pointer is the location where index data
+     * should be written. On return the buffer that will hold the data as well as an offset into
+     * the buffer (in uint16_t units) where the data will be placed.
      */
-    class PipelineOptimizations {
-    public:
-        PipelineOptimizations(const GrProcessorSet::Analysis& analysis, GrColor overrideColor) {
-            fFlags = 0;
-            if (analysis.inputColorIsOverridden()) {
-                fFlags |= kUseOverrideColor_Flag;
-                fOverrideColor = overrideColor;
-            }
-            if (analysis.usesLocalCoords()) {
-                fFlags |= kReadsLocalCoords_Flag;
-            }
-            if (analysis.isCompatibleWithCoverageAsAlpha()) {
-                fFlags |= kCanTweakAlphaForCoverage_Flag;
-            }
-        }
+    virtual uint16_t* makeIndexSpace(int indexCount, const GrBuffer**, int* startIndex) = 0;
 
-        /** Does the pipeline require access to (implicit or explicit) local coordinates? */
-        bool readsLocalCoords() const { return SkToBool(kReadsLocalCoords_Flag & fFlags); }
+    /**
+     * This is similar to makeVertexSpace. It allows the caller to use up to 'actualVertexCount'
+     * vertices in the returned pointer, which may exceed 'minVertexCount'.
+     * 'fallbackVertexCount' is the maximum number of vertices that should be allocated if a new
+     * buffer is allocated on behalf of this request.
+     */
+    virtual void* makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount,
+                                         int fallbackVertexCount, const GrBuffer**,
+                                         int* startVertex, int* actualVertexCount) = 0;
 
-        /** Does the pipeline allow the GrPrimitiveProcessor to combine color and coverage into one
-            color output ? */
-        bool canTweakAlphaForCoverage() const {
-            return SkToBool(kCanTweakAlphaForCoverage_Flag & fFlags);
-        }
+    /**
+     * This is similar to makeIndexSpace. It allows the caller to use up to 'actualIndexCount'
+     * indices in the returned pointer, which may exceed 'minIndexCount'.
+     * 'fallbackIndexCount' is the maximum number of indices that should be allocated if a new
+     * buffer is allocated on behalf of this request.
+     */
+    virtual uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
+                                            const GrBuffer**, int* startIndex,
+                                            int* actualIndexCount) = 0;
 
-        /** Does the pipeline require the GrPrimitiveProcessor to specify a specific color (and if
-            so get the color)? */
-        bool getOverrideColorIfSet(GrColor* overrideColor) const {
-            if (SkToBool(kUseOverrideColor_Flag & fFlags)) {
-                if (overrideColor) {
-                    *overrideColor = fOverrideColor;
-                }
-                return true;
-            }
-            return false;
-        }
+    /** Helpers for ops which over-allocate and then return excess data to the pool. */
+    virtual void putBackIndices(int indices) = 0;
+    virtual void putBackVertices(int vertices, size_t vertexStride) = 0;
 
-    private:
-        enum {
-            // If this is not set the primitive processor need not produce local coordinates
-            kReadsLocalCoords_Flag = 0x1,
-            // If this flag is set then the primitive processor may produce color*coverage as
-            // its color output (and not output a separate coverage).
-            kCanTweakAlphaForCoverage_Flag = 0x2,
-            // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
-            // output color. If not set fOverrideColor is to be ignored.
-            kUseOverrideColor_Flag = 0x4,
-        };
-
-        uint32_t fFlags;
-        GrColor fOverrideColor;
-    };
-
-    const GrPipeline* pipeline() const {
-        SkASSERT(fPipeline.isInitialized());
-        return &fPipeline;
+    /**
+     * Allocate space for a pipeline. The target ensures this pipeline lifetime is at least
+     * as long as any deferred execution of draws added via draw().
+     * @tparam Args
+     * @param args
+     * @return
+     */
+    template <typename... Args>
+    GrPipeline* allocPipeline(Args&&... args) {
+        return this->pipelineArena()->make<GrPipeline>(std::forward<Args>(args)...);
     }
+
+    /**
+     * Helper that makes a pipeline targeting the op's render target that incorporates the op's
+     * GrAppliedClip.
+     */
+    GrPipeline* makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
+                             GrAppliedClip&& clip) {
+        GrPipeline::InitArgs pipelineArgs;
+        pipelineArgs.fFlags = pipelineFlags;
+        pipelineArgs.fProxy = this->proxy();
+        pipelineArgs.fDstProxy = this->dstProxy();
+        pipelineArgs.fCaps = &this->caps();
+        pipelineArgs.fResourceProvider = this->resourceProvider();
+        return this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip));
+    }
+
+    virtual GrRenderTargetProxy* proxy() const = 0;
+
+    virtual GrAppliedClip detachAppliedClip() = 0;
+
+    virtual const GrXferProcessor::DstProxy& dstProxy() const = 0;
+
+    virtual GrResourceProvider* resourceProvider() const = 0;
+
+    virtual GrGlyphCache* glyphCache() const = 0;
+    virtual GrAtlasManager* atlasManager() const = 0;
+
+    virtual const GrCaps& caps() const = 0;
+
+    virtual GrDeferredUploadTarget* deferredUploadTarget() = 0;
 
 private:
-    /**
-     * Provides information about the GrPrimitiveProccesor color and coverage outputs which become
-     * inputs to the first color and coverage fragment processors.
-     */
-    virtual void getProcessorAnalysisInputs(GrProcessorAnalysisColor*,
-                                            GrProcessorAnalysisCoverage*) const = 0;
-
-    /**
-     * After processor analysis is complete this is called so that the op can use the analysis
-     * results when constructing its GrPrimitiveProcessor.
-     */
-    virtual void applyPipelineOptimizations(const PipelineOptimizations&) = 0;
-
-    GrPipeline fPipeline;
-
-    typedef GrMeshDrawOp INHERITED;
+    virtual SkArenaAlloc* pipelineArena() = 0;
 };
 
 #endif

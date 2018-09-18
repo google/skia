@@ -161,23 +161,59 @@ bool SkChopMonoCubicAtY(SkPoint src[4], SkScalar x, SkPoint dst[7]);
 enum class SkCubicType {
     kSerpentine,
     kLoop,
-    kLocalCusp,     // Cusp at a non-infinite parameter value with an inflection at t=infinity.
-    kInfiniteCusp,  // Cusp with a cusp at t=infinity and a local inflection.
+    kLocalCusp,       // Cusp at a non-infinite parameter value with an inflection at t=infinity.
+    kCuspAtInfinity,  // Cusp with a cusp at t=infinity and a local inflection.
     kQuadratic,
     kLineOrPoint
 };
 
+static inline bool SkCubicIsDegenerate(SkCubicType type) {
+    switch (type) {
+        case SkCubicType::kSerpentine:
+        case SkCubicType::kLoop:
+        case SkCubicType::kLocalCusp:
+        case SkCubicType::kCuspAtInfinity:
+            return false;
+        case SkCubicType::kQuadratic:
+        case SkCubicType::kLineOrPoint:
+            return true;
+    }
+    SK_ABORT("Invalid SkCubicType");
+    return true;
+}
+
+static inline const char* SkCubicTypeName(SkCubicType type) {
+    switch (type) {
+        case SkCubicType::kSerpentine: return "kSerpentine";
+        case SkCubicType::kLoop: return "kLoop";
+        case SkCubicType::kLocalCusp: return "kLocalCusp";
+        case SkCubicType::kCuspAtInfinity: return "kCuspAtInfinity";
+        case SkCubicType::kQuadratic: return "kQuadratic";
+        case SkCubicType::kLineOrPoint: return "kLineOrPoint";
+    }
+    SK_ABORT("Invalid SkCubicType");
+    return "";
+}
+
 /** Returns the cubic classification.
 
-    d[] is filled with the cubic inflection function coefficients. Furthermore, since d0 is always
-    zero for integral curves, if the cubic type is kSerpentine, kLoop, or kLocalCusp then d[0] will
-    instead contain the cubic discriminant: 3*d2^2 - 4*d1*d3.
+    t[],s[] are set to the two homogeneous parameter values at which points the lines L & M
+    intersect with K, sorted from smallest to largest and oriented so positive values of the
+    implicit are on the "left" side. For a serpentine curve they are the inflection points. For a
+    loop they are the double point. For a local cusp, they are both equal and denote the cusp point.
+    For a cusp at an infinite parameter value, one will be the local inflection point and the other
+    +inf (t,s = 1,0). If the curve is degenerate (i.e. quadratic or linear) they are both set to a
+    parameter value of +inf (t,s = 1,0).
 
-    See "Resolution Independent Curve Rendering using Programmable Graphics Hardware",
-    4.2 Curve Categorization
+    d[] is filled with the cubic inflection function coefficients. See "Resolution Independent
+    Curve Rendering using Programmable Graphics Hardware", 4.2 Curve Categorization:
+
+    If the input points contain infinities or NaN, the return values are undefined.
+
     https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
 */
-SkCubicType SkClassifyCubic(const SkPoint p[4], SkScalar d[4]);
+SkCubicType SkClassifyCubic(const SkPoint p[4], double t[2] = nullptr, double s[2] = nullptr,
+                            double d[4] = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -236,13 +272,13 @@ struct SkConic {
      *  return the power-of-2 number of quads needed to approximate this conic
      *  with a sequence of quads. Will be >= 0.
      */
-    int computeQuadPOW2(SkScalar tol) const;
+    int SK_API computeQuadPOW2(SkScalar tol) const;
 
     /**
      *  Chop this conic into N quads, stored continguously in pts[], where
      *  N = 1 << pow2. The amount of storage needed is (1 + 2 * N)
      */
-    int SK_WARN_UNUSED_RESULT chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
+    int SK_API SK_WARN_UNUSED_RESULT chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
 
     bool findXExtrema(SkScalar* t) const;
     bool findYExtrema(SkScalar* t) const;

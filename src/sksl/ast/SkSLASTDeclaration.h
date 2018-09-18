@@ -22,11 +22,13 @@ struct ASTDeclaration : public ASTPositionNode {
         kInterfaceBlock_Kind,
         kExtension_Kind,
         kPrecision_Kind,
-        kModifiers_Kind
+        kModifiers_Kind,
+        kSection_Kind,
+        kEnum_Kind
     };
 
-    ASTDeclaration(Position position, Kind kind)
-    : INHERITED(position)
+    ASTDeclaration(int offset, Kind kind)
+    : INHERITED(offset)
     , fKind(kind) {}
 
     Kind fKind;

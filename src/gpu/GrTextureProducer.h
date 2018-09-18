@@ -8,18 +8,22 @@
 #ifndef GrTextureProducer_DEFINED
 #define GrTextureProducer_DEFINED
 
-#include "GrSamplerParams.h"
 #include "GrResourceKey.h"
+#include "GrSamplerState.h"
+#include "SkImageInfo.h"
 
-class GrColorSpaceXform;
-class GrResourceProvider;
+class GrContext;
+class GrFragmentProcessor;
 class GrTexture;
 class GrTextureProxy;
+class SkColorSpace;
+class SkMatrix;
+struct SkRect;
 
 /**
  * Different GPUs and API extensions have different requirements with respect to what texture
  * sampling parameters may be used with textures of various types. This class facilitates making
- * texture compatible with a given GrSamplerParams. There are two immediate subclasses defined
+ * texture compatible with a given GrSamplerState. There are two immediate subclasses defined
  * below. One is a base class for sources that are inherently texture-backed (e.g. a texture-backed
  * SkImage). It supports subsetting the original texture. The other is for use cases where the
  * source can generate a texture that represents some content (e.g. cpu pixels, SkPicture, ...).
@@ -27,9 +31,9 @@ class GrTextureProxy;
 class GrTextureProducer : public SkNoncopyable {
 public:
     struct CopyParams {
-        GrSamplerParams::FilterMode fFilter;
-        int                         fWidth;
-        int                         fHeight;
+        GrSamplerState::Filter fFilter;
+        int fWidth;
+        int fHeight;
     };
 
     enum FilterConstraint {
@@ -57,13 +61,42 @@ public:
      * @param filterOrNullForBicubic           If non-null indicates the filter mode. If null means
      *                                         use bicubic filtering.
      **/
-    virtual sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                    const SkMatrix& textureMatrix,
-                                    const SkRect& constraintRect,
-                                    FilterConstraint filterConstraint,
-                                    bool coordsLimitedToConstraintRect,
-                                    const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                    SkColorSpace* dstColorSpace) = 0;
+    virtual std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect& constraintRect,
+            FilterConstraint filterConstraint,
+            bool coordsLimitedToConstraintRect,
+            const GrSamplerState::Filter* filterOrNullForBicubic,
+            SkColorSpace* dstColorSpace) = 0;
+
+    /**
+     *  Returns a texture that is safe for use with the params.
+     *
+     * If the size of the returned texture does not match width()/height() then the contents of the
+     * original may have been scaled to fit the texture or the original may have been copied into
+     * a subrect of the copy. 'scaleAdjust' must be  applied to the normalized texture coordinates
+     * in order to correct for the latter case.
+     *
+     * If the GrSamplerState is known to clamp and use kNearest or kBilerp filter mode then the
+     * proxy will always be unscaled and nullptr can be passed for scaleAdjust. There is a weird
+     * contract that if scaleAdjust is not null it must be initialized to {1, 1} before calling
+     * this method. (TODO: Fix this and make this function always initialize scaleAdjust).
+     *
+     * Places the color space of the texture in (*proxyColorSpace).
+     */
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* proxyColorSpace,
+                                                   SkScalar scaleAdjust[2]);
+
+    sk_sp<GrTextureProxy> refTextureProxyForParams(GrSamplerState::Filter filter,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* proxyColorSpace,
+                                                   SkScalar scaleAdjust[2]) {
+        return this->refTextureProxyForParams(
+                GrSamplerState(GrSamplerState::WrapMode::kClamp, filter), dstColorSpace,
+                proxyColorSpace, scaleAdjust);
+    }
 
     virtual ~GrTextureProducer() {}
 
@@ -88,7 +121,7 @@ protected:
         if (origKey.isValid()) {
             static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
             GrUniqueKey::Builder builder(copyKey, origKey, kDomain, 3);
-            builder[0] = copyParams.fFilter;
+            builder[0] = static_cast<uint32_t>(copyParams.fFilter);
             builder[1] = copyParams.fWidth;
             builder[2] = copyParams.fHeight;
         }
@@ -120,27 +153,29 @@ protected:
     };
 
     static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, sk_sp<GrTextureProxy> inputProxy,
-                                           const SkIRect* subset, const CopyParams& copyParams);
+                                           const CopyParams& copyParams,
+                                           bool dstWillRequireMipMaps);
 
-    static DomainMode DetermineDomainMode(
-        const SkRect& constraintRect,
-        FilterConstraint filterConstraint,
-        bool coordsLimitedToConstraintRect,
-        GrTextureProxy*,
-        const SkIRect* textureContentArea,
-        const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
-        SkRect* domainRect);
+    static DomainMode DetermineDomainMode(const SkRect& constraintRect,
+                                          FilterConstraint filterConstraint,
+                                          bool coordsLimitedToConstraintRect,
+                                          GrTextureProxy*,
+                                          const GrSamplerState::Filter* filterModeOrNullForBicubic,
+                                          SkRect* domainRect);
 
-    static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
-        GrResourceProvider*,
-        sk_sp<GrTextureProxy> proxy,
-        sk_sp<GrColorSpaceXform>,
-        const SkMatrix& textureMatrix,
-        DomainMode,
-        const SkRect& domain,
-        const GrSamplerParams::FilterMode* filterOrNullForBicubic);
+    static std::unique_ptr<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
+            sk_sp<GrTextureProxy> proxy,
+            const SkMatrix& textureMatrix,
+            DomainMode,
+            const SkRect& domain,
+            const GrSamplerState::Filter* filterOrNullForBicubic);
 
 private:
+    virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
+                                                             SkColorSpace* dstColorSpace,
+                                                             sk_sp<SkColorSpace>* proxyColorSpace,
+                                                             SkScalar scaleAdjust[2]) = 0;
+
     const int   fWidth;
     const int   fHeight;
     const bool  fIsAlphaOnly;

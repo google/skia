@@ -10,21 +10,10 @@ import gn_flavor
 import os
 
 class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
-
-  def install(self):
-    # Set up the device
-    self.m.run(self.m.step, 'setup_device', cmd=['ios.py'], infra_step=True)
-
-    # Install the app.
-    for app_name in ['dm', 'nanobench']:
-      app_package = self.m.vars.skia_out.join(self.m.vars.configuration,
-                                              '%s.app' % app_name)
-      self.m.run(self.m.step,
-                'install_' + app_name,
-                cmd=['ideviceinstaller', '-i', app_package],
-                infra_step=True)
-
+  def __init__(self, m):
+    super(iOSFlavorUtils, self).__init__(m)
     self.device_dirs = default_flavor.DeviceDirs(
+        bin_dir='[unused]',
         dm_dir='dm',
         perf_data_dir='perf',
         resource_dir='resources',
@@ -33,16 +22,28 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
         svg_dir='svgs',
         tmp_dir='tmp')
 
-  def compile(self, unused_target, **kwargs):
-    """ Build Skia with GN and sign the iOS apps"""
-    # Use the generic compile sets.
-    super(iOSFlavorUtils, self).compile(unused_target, **kwargs)
+  def install(self):
+    # Set up the device
+    self.m.run(self.m.step, 'setup_device', cmd=['ios.py'], infra_step=True)
 
-    # Sign the apps.
-    for app in ['dm', 'nanobench']:
-      self._py('package ' + app,
-              self.m.vars.skia_dir.join('gn', 'package_ios.py'),
-              args=[self.out_dir.join(app)], infra_step=True)
+    # Install the app.
+    for app_name in ['dm', 'nanobench']:
+      app_package = self.m.vars.skia_out.join('%s.app' % app_name)
+
+      def uninstall_app(attempt):
+        # If app ID changes, upgrade will fail, so try uninstalling.
+        self.m.run(self.m.step,
+                   'uninstall_' + app_name,
+                   cmd=['ideviceinstaller', '-U', 'com.google.%s' % app_name],
+                   infra_step=True,
+                   # App may not be installed.
+                   abort_on_failure=False, fail_build_on_failure=False)
+
+      num_attempts = 2
+      self.m.run.with_retry(self.m.step, 'install_' + app_name, num_attempts,
+                            cmd=['ideviceinstaller', '-i', app_package],
+                            between_attempts_fn=uninstall_app,
+                            infra_step=True)
 
   def step(self, name, cmd, env=None, **kwargs):
     bundle_id = 'com.google.%s' % cmd[0]
@@ -51,7 +52,8 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
                     map(str, cmd[1:]))
 
   def _run_ios_script(self, script, first, *rest):
-    full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_' + script)
+    full = self.m.path['start_dir'].join(
+        'skia', 'platform_tools', 'ios', 'bin', 'ios_' + script)
     self.m.run(self.m.step,
                name = '%s %s' % (script, first),
                cmd = [full, first] + list(rest),
@@ -74,7 +76,8 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
     self._run_ios_script('mkdir', path)
 
   def read_file_on_device(self, path, **kwargs):
-    full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_cat_file')
+    full = self.m.path['start_dir'].join(
+        'skia', 'platform_tools', 'ios', 'bin', 'ios_cat_file')
     rv = self.m.run(self.m.step,
                     name = 'cat_file %s' % path,
                     cmd = [full, path],

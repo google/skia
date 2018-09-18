@@ -162,8 +162,8 @@ private:
 
     enum {
         kStorageSize =  sizeof(SkDescriptor)
-                        + sizeof(SkDescriptor::Entry) + sizeof(SkScalerContext::Rec)    // for rec
-                        + sizeof(SkDescriptor::Entry) + sizeof(void*)                   // for typeface
+                        + sizeof(SkDescriptor::Entry) + sizeof(SkScalerContextRec) // for rec
+                        + sizeof(SkDescriptor::Entry) + sizeof(void*)              // for typeface
                         + 32   // slop for occational small extras
     };
     SkDescriptor*   fDesc;

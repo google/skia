@@ -124,7 +124,7 @@ private:
 #else
 class SK_API SkRefCnt : public SkRefCntBase {
     // "#include SK_REF_CNT_MIXIN_INCLUDE" doesn't work with this build system.
-    #if defined(GOOGLE3)
+    #if defined(SK_BUILD_FOR_GOOGLE3)
     public:
         void deref() const { this->unref(); }
     #endif
@@ -291,7 +291,9 @@ public:
      *  object.
      */
     sk_sp<T>& operator=(const sk_sp<T>& that) {
-        this->reset(SkSafeRef(that.get()));
+        if (this != &that) {
+            this->reset(SkSafeRef(that.get()));
+        }
         return *this;
     }
     template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
@@ -443,6 +445,10 @@ sk_sp<T> sk_make_sp(Args&&... args) {
  */
 template <typename T> sk_sp<T> sk_ref_sp(T* obj) {
     return sk_sp<T>(SkSafeRef(obj));
+}
+
+template <typename T> sk_sp<T> sk_ref_sp(const T* obj) {
+    return sk_sp<T>(const_cast<T*>(SkSafeRef(obj)));
 }
 
 #endif

@@ -1,0 +1,18 @@
+[
+  {
+    "cmd": [
+      "gsutil",
+      "-m",
+      "cp",
+      "-Z",
+      "/foo/file",
+      "gs://bar-bucket/file"
+    ],
+    "name": "upload test file"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

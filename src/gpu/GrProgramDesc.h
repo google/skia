@@ -100,18 +100,15 @@ public:
     }
 
     struct KeyHeader {
-        // Set to uniquely identify the sample pattern, or 0 if the shader doesn't use sample
-        // locations.
-        uint8_t                     fSamplePatternKey;
         // Set to uniquely idenitify any swizzling of the shader's output color(s).
-        uint8_t                     fOutputSwizzle;
-        uint8_t                     fColorFragmentProcessorCnt : 4;
-        uint8_t                     fCoverageFragmentProcessorCnt : 4;
+        uint8_t fOutputSwizzle;
+        uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
+        uint8_t fCoverageFragmentProcessorCnt;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
-        uint8_t                     fSurfaceOriginKey : 2;
-        uint8_t                     fSnapVerticesToPixelCenters : 1;
-        uint8_t                     fHasPointSize : 1;
-        uint8_t                     fPad : 4;
+        uint8_t fSurfaceOriginKey : 2;
+        bool fSnapVerticesToPixelCenters : 1;
+        bool fHasPointSize : 1;
+        uint8_t fPad : 4;
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 4);
 

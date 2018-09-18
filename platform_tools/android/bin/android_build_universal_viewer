@@ -1,0 +1,81 @@
+#! /bin/sh
+
+# Copyright 2018 Google Inc.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+make_gn() {
+    #TODO: make this more configurable
+    cat << EOF
+    target_cpu = "$ARCH"
+    is_debug = false
+    ndk = "$ANDROID_NDK"
+    ndk_api = 26
+EOF
+}
+
+main() {
+    APP="$1"
+    LIB="$2"
+
+    ANDROID_NDK="$(cd "$ANDROID_NDK"; pwd)"
+    ANDROID_HOME="$(cd "$ANDROID_HOME"; pwd)"
+
+    cd "$(dirname "$0")/../../.."
+
+    python tools/git-sync-deps
+    git clean -fxd platform_tools/android/apps/$APP
+    mkdir -p platform_tools/android/apps/${APP}/src/main/assets
+    cp -a resources platform_tools/android/apps/${APP}/src/main/assets/
+
+    for ARCH in arm arm64 x86 x64; do
+        BUILD=out/${APP}-$ARCH
+        mkdir -p "$BUILD"
+        make_gn > "${BUILD}/args.gn"
+        bin/gn gen $BUILD
+        ninja -C $BUILD $LIB
+        case $ARCH in
+            arm)    NATIVE=armeabi-v7a ;;
+            arm64)  NATIVE=arm64-v8a   ;;
+            x86)    NATIVE=x86         ;;
+            x64)    NATIVE=x86_64      ;;
+            *)      usage              ;;
+        esac
+        DST=platform_tools/android/apps/$APP/src/main/libs/$NATIVE
+        mkdir -p $DST
+        cp -a $BUILD/$LIB $DST/$LIB
+    done
+    (
+        cd platform_tools/android
+        apps/gradlew --daemon -p apps/$APP -P suppressNativeBuild :${APP}:assembleUniversalDebug
+    )
+
+    mkdir -p out/${APP}-universal
+    cp platform_tools/android/apps/$APP/build/outputs/apk/${APP}-universal-debug.apk \
+        out/${APP}-universal/$APP-universal-debug.apk
+    ls -l out/${APP}-universal/$APP-universal-debug.apk
+}
+
+usage() {
+    cat >&2 <<EOM
+The environment variables ANDROID_NDK and ANDROID_HOME must be set to the
+locations of the Android NDK and SDK.  Current values:
+
+    ANDROID_NDK="$ANDROID_NDK"
+    ANDROID_HOME="$ANDROID_HOME"
+
+Additionally, \`python\` and \`ninja\` should be in your path.
+
+EOM
+    exit 1
+}
+
+[ -d "$ANDROID_NDK"  ] || usage
+[ -d "$ANDROID_HOME" ] || usage
+command -v ninja  > /dev/null || usage
+command -v python > /dev/null || usage
+
+set -x # Verbose
+set -e # Exit immediately
+
+main viewer libviewer.so

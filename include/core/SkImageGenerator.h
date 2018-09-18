@@ -17,7 +17,7 @@
 class GrContext;
 class GrContextThreadSafeProxy;
 class GrTextureProxy;
-class GrSamplerParams;
+class GrSamplerState;
 class SkBitmap;
 class SkData;
 class SkMatrix;
@@ -41,7 +41,7 @@ public:
      *  If non-NULL is returned, the caller is responsible for calling
      *  unref() on the data when it is finished.
      */
-    SkData* refEncodedData() {
+    sk_sp<SkData> refEncodedData() {
         return this->onRefEncodedData();
     }
 
@@ -140,9 +140,16 @@ public:
      *  It must be non-NULL. The generator should only succeed if:
      *  - its internal context is the same
      *  - it can somehow convert its texture into one that is valid for the provided context.
+     *
+     *  If the willNeedMipMaps flag is true, the generator should try to create a TextureProxy that
+     *  at least has the mip levels allocated and the base layer filled in. If this is not possible,
+     *  the generator is allowed to return a non mipped proxy, but this will have some additional
+     *  overhead in later allocating mips and copying of the base layer.
      */
     sk_sp<GrTextureProxy> generateTexture(GrContext*, const SkImageInfo& info,
-                                          const SkIPoint& origin);
+                                          const SkIPoint& origin,
+                                          SkTransferFunctionBehavior behavior,
+                                          bool willNeedMipMaps);
 #endif
 
     /**
@@ -163,22 +170,27 @@ public:
                                                              sk_sp<SkColorSpace>);
 
 protected:
-    enum {
-        kNeedNewImageUniqueID = 0
-    };
+    static constexpr int kNeedNewImageUniqueID = 0;
 
     SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
 
-    virtual SkData* onRefEncodedData() { return nullptr; }
+    virtual sk_sp<SkData> onRefEncodedData() { return nullptr; }
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrContext*) const { return true; }
     virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }
     virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) { return false; }
 
 #if SK_SUPPORT_GPU
-    virtual bool onCanGenerateTexture() const { return false; }
-    virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
-                                                    const SkIPoint&);   // returns nullptr
+    enum class TexGenType {
+        kNone,           //image generator does not implement onGenerateTexture
+        kCheap,          //onGenerateTexture is implemented and it is fast (does not render offscreen)
+        kExpensive,      //onGenerateTexture is implemented and it is relatively slow
+    };
+
+    virtual TexGenType onCanGenerateTexture() const { return TexGenType::kNone; }
+    virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
+                                                    SkTransferFunctionBehavior,
+                                                    bool willNeedMipMaps);  // returns nullptr
 #endif
 
 private:

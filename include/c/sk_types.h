@@ -58,9 +58,11 @@ typedef enum {
     RGB_565_SK_COLORTYPE,
     ARGB_4444_SK_COLORTYPE,
     RGBA_8888_SK_COLORTYPE,
+    RGB_888X_SK_COLORTYPE,
     BGRA_8888_SK_COLORTYPE,
-    Index_8_SK_COLORTYPE,
-    Gray_8_SK_COLORTYPE,
+    RGBA_1010102_SK_COLORTYPE,
+    RGB_101010X_SK_COLORTYPE,
+    GRAY_8_SK_COLORTYPE,
     RGBA_F16_SK_COLORTYPE,
 } sk_colortype_t;
 
@@ -184,6 +186,7 @@ typedef enum {
 typedef struct sk_canvas_t sk_canvas_t;
 typedef struct sk_nodraw_canvas_t sk_nodraw_canvas_t;
 typedef struct sk_nway_canvas_t sk_nway_canvas_t;
+typedef struct sk_overdraw_canvas_t sk_overdraw_canvas_t;
 /**
     A sk_data_ holds an immutable data buffer.
 */
@@ -300,20 +303,22 @@ typedef struct {
 } sk_isize_t;
 
 typedef struct {
-    uint32_t fFlags;            // Bit field to identify which values are unknown
-    float    fTop;              // The greatest distance above the baseline for any glyph (will be <= 0)
-    float    fAscent;           // The recommended distance above the baseline (will be <= 0)
-    float    fDescent;          // The recommended distance below the baseline (will be >= 0)
-    float    fBottom;           // The greatest distance below the baseline for any glyph (will be >= 0)
-    float    fLeading;          // The recommended distance to add between lines of text (will be >= 0)
-    float    fAvgCharWidth;     // the average character width (>= 0)
-    float    fMaxCharWidth;     // the max character width (>= 0)
-    float    fXMin;             // The minimum bounding box x value for all glyphs
-    float    fXMax;             // The maximum bounding box x value for all glyphs
-    float    fXHeight;          // The height of an 'x' in px, or 0 if no 'x' in face
-    float    fCapHeight;        // The cap height (> 0), or 0 if cannot be determined.
-    float    fUnderlineThickness; // underline thickness, or 0 if cannot be determined
-    float    fUnderlinePosition; // underline position, or 0 if cannot be determined
+    uint32_t fFlags;
+    float    fTop;
+    float    fAscent;
+    float    fDescent;
+    float    fBottom;
+    float    fLeading;
+    float    fAvgCharWidth;
+    float    fMaxCharWidth;
+    float    fXMin;
+    float    fXMax;
+    float    fXHeight;
+    float    fCapHeight;
+    float    fUnderlineThickness;
+    float    fUnderlinePosition;
+    float    fStrikeoutThickness;
+    float    fStrikeoutPosition;
 } sk_fontmetrics_t;
 
 // Flags for fFlags member of sk_fontmetrics_t
@@ -330,7 +335,6 @@ typedef struct sk_string_t sk_string_t;
 */
 typedef struct sk_bitmap_t sk_bitmap_t;
 typedef struct sk_pixmap_t sk_pixmap_t;
-typedef struct sk_pixelserializer_t sk_pixelserializer_t;
 typedef struct sk_colorfilter_t sk_colorfilter_t;
 typedef struct sk_imagefilter_t sk_imagefilter_t;
 typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;
@@ -346,6 +350,8 @@ typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;
 typedef struct sk_typeface_t sk_typeface_t;
 typedef uint32_t sk_font_table_tag_t;
 typedef struct sk_fontmgr_t sk_fontmgr_t;
+typedef struct sk_fontstyle_t sk_fontstyle_t;
+typedef struct sk_fontstyleset_t sk_fontstyleset_t;
 /**
  *  Abstraction layer directly on top of an image codec.
  */
@@ -398,13 +404,6 @@ typedef enum {
     INVERSE_WINDING_SK_PATH_FILLTYPE,
     INVERSE_EVENODD_SK_PATH_FILLTYPE,
 } sk_path_filltype_t;
-
-typedef enum {
-    NORMAL_TYPEFACE_STYLE      = 0,
-    BOLD_TYPEFACE_STYLE        = 0x01,
-    ITALIC_TYPEFACE_STYLE      = 0x02,
-    BOLD_ITALIC_TYPEFACE_STYLE = 0x03
-} sk_typeface_style_t;
 
 typedef enum {
     UPRIGHT_SK_FONT_STYLE_SLANT = 0,
@@ -477,28 +476,32 @@ typedef enum {
     PKM_SK_ENCODED_FORMAT,
     KTX_SK_ENCODED_FORMAT,
     ASTC_SK_ENCODED_FORMAT,
-    DNG_SK_ENCODED_FORMAT
+    DNG_SK_ENCODED_FORMAT,
+    HEIF_SK_ENCODED_FORMAT,
 } sk_encoded_image_format_t;
 
 typedef enum {
-    TOP_LEFT_SK_CODEC_ORIGIN     = 1, // Default
-    TOP_RIGHT_SK_CODEC_ORIGIN    = 2, // Reflected across y-axis
-    BOTTOM_RIGHT_SK_CODEC_ORIGIN = 3, // Rotated 180
-    BOTTOM_LEFT_SK_CODEC_ORIGIN  = 4, // Reflected across x-axis
-    LEFT_TOP_SK_CODEC_ORIGIN     = 5, // Reflected across x-axis, Rotated 90 CCW
-    RIGHT_TOP_SK_CODEC_ORIGIN    = 6, // Rotated 90 CW
-    RIGHT_BOTTOM_SK_CODEC_ORIGIN = 7, // Reflected across x-axis, Rotated 90 CW
-    LEFT_BOTTOM_SK_CODEC_ORIGIN  = 8, // Rotated 90 CCW
-} sk_codec_origin_t;
+    TOP_LEFT_SK_ENCODED_ORIGIN     = 1, // Default
+    TOP_RIGHT_SK_ENCODED_ORIGIN    = 2, // Reflected across y-axis
+    BOTTOM_RIGHT_SK_ENCODED_ORIGIN = 3, // Rotated 180
+    BOTTOM_LEFT_SK_ENCODED_ORIGIN  = 4, // Reflected across x-axis
+    LEFT_TOP_SK_ENCODED_ORIGIN     = 5, // Reflected across x-axis, Rotated 90 CCW
+    RIGHT_TOP_SK_ENCODED_ORIGIN    = 6, // Rotated 90 CW
+    RIGHT_BOTTOM_SK_ENCODED_ORIGIN = 7, // Reflected across x-axis, Rotated 90 CW
+    LEFT_BOTTOM_SK_ENCODED_ORIGIN  = 8, // Rotated 90 CCW
+    DEFAULT_SK_ENCODED_ORIGIN      = TOP_LEFT_SK_ENCODED_ORIGIN,
+} sk_encodedorigin_t;
 
 typedef enum {
     SUCCESS_SK_CODEC_RESULT,
     INCOMPLETE_INPUT_SK_CODEC_RESULT,
+    ERROR_IN_INPUT_SK_CODEC_RESULT,
     INVALID_CONVERSION_SK_CODEC_RESULT,
     INVALID_SCALE_SK_CODEC_RESULT,
     INVALID_PARAMETERS_SK_CODEC_RESULT,
     INVALID_INPUT_SK_CODEC_RESULT,
     COULD_NOT_REWIND_SK_CODEC_RESULT,
+    INTERNAL_ERROR_SK_CODEC_RESULT,
     UNIMPLEMENTED_SK_CODEC_RESULT,
 } sk_codec_result_t;
 
@@ -516,7 +519,7 @@ typedef struct {
     sk_codec_zero_initialized_t fZeroInitialized;
     sk_irect_t* fSubset;
     int fFrameIndex;
-    bool fHasPriorFrame;
+    int fPriorFrame;
     sk_transfer_function_behavior_t fPremulBehavior;
 } sk_codec_options_t;
 
@@ -585,13 +588,6 @@ typedef enum {
 } sk_blurstyle_t;
 
 typedef enum {
-    NONE_SK_BLUR_MASK_FILTER_BLUR_FLAGS = 0x00,
-    IGNORE_TRANSFORM_SK_BLUR_MASK_FILTER_BLUR_FLAGS = 0x01,
-    HIGHT_QUALITY_SK_BLUR_MASK_FILTER_BLUR_FLAGS = 0x02,
-    ALL_SK_BLUR_MASK_FILTER_BLUR_FLAGS = 0x03,
-} sk_blurmaskfilter_blurflags_t;
-
-typedef enum {
     CW_SK_PATH_DIRECTION,
     CCW_SK_PATH_DIRECTION,
 } sk_path_direction_t;
@@ -619,15 +615,7 @@ typedef struct sk_colortable_t sk_colortable_t;
 typedef struct sk_pixelref_factory_t sk_pixelref_factory_t;
 
 typedef enum {
-    BOX_SK_BITMAP_SCALER_RESIZE_METHOD,
-    TRIANGLE_SK_BITMAP_SCALER_RESIZE_METHOD,
-    LANCZOS3_SK_BITMAP_SCALER_RESIZE_METHOD,
-    HAMMING_SK_BITMAP_SCALER_RESIZE_METHOD,
-    MITCHELL_SK_BITMAP_SCALER_RESIZE_METHOD,
-} sk_bitmapscaler_resizemethod_t;
-
-typedef enum {
-    TOP_LEFT_GR_SURFACE_ORIGIN = 1,
+    TOP_LEFT_GR_SURFACE_ORIGIN,
     BOTTOM_LEFT_GR_SURFACE_ORIGIN,
 } gr_surfaceorigin_t;
 
@@ -638,10 +626,11 @@ typedef enum {
     RGB_565_GR_PIXEL_CONFIG,
     RGBA_4444_GR_PIXEL_CONFIG,
     RGBA_8888_GR_PIXEL_CONFIG,
+    RGB_888_GR_PIXEL_CONFIG,
     BGRA_8888_GR_PIXEL_CONFIG,
     SRGBA_8888_GR_PIXEL_CONFIG,
     SBGRA_8888_GR_PIXEL_CONFIG,
-    RGBA_8888_SINT_GR_PIXEL_CONFIG,
+    RGBA_1010102_GR_PIXEL_CONFIG,
     RGBA_FLOAT_GR_PIXEL_CONFIG,
     RG_FLOAT_GR_PIXEL_CONFIG,
     ALPHA_HALF_GR_PIXEL_CONFIG,
@@ -670,70 +659,13 @@ typedef enum {
 
 typedef intptr_t gr_backendobject_t;
 
-typedef struct {
-    int fWidth;
-    int fHeight;
-    gr_pixelconfig_t fConfig;
-    gr_surfaceorigin_t fOrigin;
-    int fSampleCnt;
-    int fStencilBits;
-    gr_backendobject_t fRenderTargetHandle;
-} gr_backend_rendertarget_desc_t;
-
-typedef enum {
-    NONE_GR_BACKEND_TEXTURE_FLAGS = 0,
-    RENDER_TARGET_GR_BACKEND_TEXTURE_FLAGS = 1,
-} gr_backendtexture_flags_t;
-
-typedef struct {
-    gr_backendtexture_flags_t fFlags;
-    gr_surfaceorigin_t fOrigin;
-    int fWidth;
-    int fHeight;
-    gr_pixelconfig_t fConfig;
-    int fSampleCnt;
-    gr_backendobject_t fTextureHandle;
-} gr_backend_texture_desc_t;
+typedef struct gr_backendrendertarget_t gr_backendrendertarget_t;
+typedef struct gr_backendtexture_t gr_backendtexture_t;
 
 typedef struct gr_context_t gr_context_t;
 
 typedef enum {
-    NONE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS              = 0,
-    DASHLINE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS          = 1 << 0,
-    STENCIL_AND_COVER_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS = 1 << 1,
-    MSAA_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS              = 1 << 2,
-    AA_HAIRLINE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS       = 1 << 3,
-    AA_CONVEX_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS         = 1 << 4,
-    AA_LINEARIZING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS    = 1 << 5,
-    SMALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS             = 1 << 6,
-    TESSELLATING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS      = 1 << 7,
-    DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS           = 1 << 8,
-
-    ALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS               = DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS | (DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS - 1)
-} gr_contextoptions_gpupathrenderers_t;
-
-typedef struct {
-    bool fSuppressPrints;
-    int  fMaxTextureSizeOverride;
-    int  fMaxTileSizeOverride;
-    bool fSuppressDualSourceBlending;
-    int  fBufferMapThreshold;
-    bool fUseDrawInsteadOfPartialRenderTargetWrite;
-    bool fImmediateMode;
-    bool fUseShaderSwizzling;
-    bool fDoManualMipmapping;
-    bool fEnableInstancedRendering;
-    bool fAllowPathMaskCaching;
-    bool fRequireDecodeDisableForSRGB;
-    bool fDisableGpuYUVConversion;
-    bool fSuppressPathRendering;
-    bool fWireframeMode;
-    gr_contextoptions_gpupathrenderers_t fGpuPathRenderers;
-    float fGlyphCacheTextureMaximumBytes;
-    bool fAvoidStencilBuffers;
-} gr_context_options_t;
-
-typedef enum {
+    METAL_GR_BACKEND,
     OPENGL_GR_BACKEND,
     VULKAN_GR_BACKEND,
 } gr_backend_t;
@@ -744,6 +676,17 @@ typedef struct gr_glinterface_t gr_glinterface_t;
 
 typedef void (*gr_gl_func_ptr)(void);
 typedef gr_gl_func_ptr (*gr_gl_get_proc)(void* ctx, const char* name);
+
+typedef struct {
+    unsigned int fTarget;
+    unsigned int fID;
+    unsigned int fFormat;
+} gr_gl_textureinfo_t;
+
+typedef struct {
+    unsigned int fFBOID;
+    unsigned int fFormat;
+} gr_gl_framebufferinfo_t;
 
 typedef enum {
     DIFFERENCE_SK_PATHOP,
@@ -762,17 +705,19 @@ typedef enum {
 } sk_path_convexity_t;
 
 typedef enum {
-    DEFAULT_SK_LATTICE_FLAGS,
-    TRANSPARENT_SK_LATTICE_FLAGS = 1 << 0,
-} sk_lattice_flags_t;
+    DEFAULT_SK_LATTICE_RECT_TYPE,
+    TRANSPARENT_SK_LATTICE_RECT_TYPE,
+    FIXED_COLOR_SK_LATTICE_RECT_TYPE,
+} sk_lattice_recttype_t;
 
 typedef struct {
     const int* fXDivs;
     const int* fYDivs;
-    const sk_lattice_flags_t* fFlags;
+    const sk_lattice_recttype_t* fRectTypes;
     int fXCount;
     int fYCount;
     const sk_irect_t* fBounds;
+    const sk_color_t* fColors;
 } sk_lattice_t;
 
 typedef struct sk_pathmeasure_t sk_pathmeasure_t;
@@ -789,6 +734,8 @@ typedef void (*sk_data_release_proc)(const void* ptr, void* context);
 
 typedef void (*sk_image_raster_release_proc)(const void* addr, void* context);
 typedef void (*sk_image_texture_release_proc)(void* context);
+
+typedef void (*sk_surface_raster_release_proc)(void* addr, void* context);
 
 typedef enum {
     ALLOW_SK_IMAGE_CACHING_HINT,
@@ -822,27 +769,6 @@ typedef struct {
 } sk_document_pdf_metadata_t;
 
 typedef enum {
-    OPAQUE_SK_ENCODEDINFO_ALPHA,
-    UNPREMUL_SK_ENCODEDINFO_ALPHA,
-    BINARY_SK_ENCODEDINFO_ALPHA,
-} sk_encodedinfo_alpha_t;
-
-typedef enum {
-    GRAY_SK_ENCODEDINFO_COLOR,
-    GRAY_ALPHA_SK_ENCODEDINFO_COLOR,
-    PALETTE_SK_ENCODEDINFO_COLOR,
-    RGB_SK_ENCODEDINFO_COLOR,
-    RGBA_SK_ENCODEDINFO_COLOR,
-    BGR_SK_ENCODEDINFO_COLOR,
-    BGRX_SK_ENCODEDINFO_COLOR,
-    BGRA_SK_ENCODEDINFO_COLOR,
-    YUV_SK_ENCODEDINFO_COLOR,
-    YUVA_SK_ENCODEDINFO_COLOR,
-    INVERTED_CMYK_SK_ENCODEDINFO_COLOR,
-    YCCK_SK_ENCODEDINFO_COLOR,
-} sk_encodedinfo_color_t;
-
-typedef enum {
     SRGB_SK_COLORSPACE_NAMED,
     ADOBE_RGB_SK_COLORSPACE_NAMED,
     SRGB_LINEAR_SK_COLORSPACE_NAMED,
@@ -856,17 +782,18 @@ typedef struct {
     sk_alphatype_t   alphaType;
 } sk_imageinfo_t;
 
-typedef struct {
-    sk_encodedinfo_color_t fColor;
-    sk_encodedinfo_alpha_t fAlpha;
-    uint8_t fBitsPerComponent;
-} sk_encodedinfo_t;
+typedef enum {
+    KEEP_SK_CODEC_ANIMATION_DISPOSAL_METHOD               = 1,
+    RESTORE_BG_COLOR_SK_CODEC_ANIMATION_DISPOSAL_METHOD   = 2,
+    RESTORE_PREVIOUS_SK_CODEC_ANIMATION_DISPOSAL_METHOD   = 3,
+} sk_codecanimation_disposalmethod_t;
 
 typedef struct {
     int fRequiredFrame;
     int fDuration;
     bool fFullyReceived;
     sk_alphatype_t fAlphaType;
+    sk_codecanimation_disposalmethod_t fDisposalMethod;
 } sk_codec_frameinfo_t;
 
 typedef struct sk_xmlstreamwriter_t sk_xmlstreamwriter_t;
@@ -943,6 +870,7 @@ typedef struct {
     sk_pngencoder_filterflags_t fFilterFlags;
     int fZLibLevel;
     sk_transfer_function_behavior_t fUnpremulBehavior;
+    void* fComments;
 } sk_pngencoder_options_t;
 
 typedef enum {

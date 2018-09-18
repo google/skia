@@ -24,7 +24,7 @@ public:
     }
 
     void emitCode(EmitArgs& args) override {
-        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrPathProcessor& pathProc = args.fGP.cast<GrPathProcessor>();
 
         if (!pathProc.viewMatrix().hasPerspective()) {
@@ -37,14 +37,13 @@ public:
         // Setup uniform color
         const char* stagedLocalVarName;
         fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                         kVec4f_GrSLType,
-                                                         kDefault_GrSLPrecision,
+                                                         kHalf4_GrSLType,
                                                          "Color",
                                                          &stagedLocalVarName);
         fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
 
         // setup constant solid coverage
-        fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
     }
 
     void emitTransforms(GrGLSLVaryingHandler* varyingHandler,
@@ -52,12 +51,12 @@ public:
         int i = 0;
         while (const GrCoordTransform* coordTransform = transformHandler->nextCoordTransform()) {
             GrSLType varyingType =
-                    coordTransform->getMatrix().hasPerspective() ? kVec3f_GrSLType
-                                                                 : kVec2f_GrSLType;
+                    coordTransform->getMatrix().hasPerspective() ? kHalf3_GrSLType
+                                                                 : kHalf2_GrSLType;
 
             SkString strVaryingName;
             strVaryingName.printf("TransformedCoord_%d", i);
-            GrGLSLVertToFrag v(varyingType);
+            GrGLSLVarying v(varyingType);
             GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*) varyingHandler;
             fInstalledTransforms.push_back().fHandle =
                     glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(),
@@ -89,9 +88,9 @@ public:
             }
             fInstalledTransforms[t].fCurrentValue = m;
 
-            SkASSERT(fInstalledTransforms[t].fType == kVec2f_GrSLType ||
-                     fInstalledTransforms[t].fType == kVec3f_GrSLType);
-            unsigned components = fInstalledTransforms[t].fType == kVec2f_GrSLType ? 2 : 3;
+            SkASSERT(fInstalledTransforms[t].fType == kHalf2_GrSLType ||
+                     fInstalledTransforms[t].fType == kHalf3_GrSLType);
+            unsigned components = fInstalledTransforms[t].fType == kHalf2_GrSLType ? 2 : 3;
             pd.setPathFragmentInputTransform(fInstalledTransforms[t].fHandle, components, m);
             ++t;
         }
@@ -116,11 +115,10 @@ private:
 GrPathProcessor::GrPathProcessor(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
-        : fColor(color)
+        : INHERITED(kGrPathProcessor_ClassID)
+        , fColor(color)
         , fViewMatrix(viewMatrix)
-        , fLocalMatrix(localMatrix) {
-    this->initClassID<GrPathProcessor>();
-}
+        , fLocalMatrix(localMatrix) {}
 
 void GrPathProcessor::getGLSLProcessorKey(const GrShaderCaps& caps,
                                           GrProcessorKeyBuilder* b) const {

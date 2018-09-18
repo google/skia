@@ -7,17 +7,16 @@ import math
 
 
 DEPS = [
-  'depot_tools/gsutil',
-  'file',
+  'build',
+  'core',
+  'ct',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
-  'core',
-  'ct',
-  'flavor',
   'run',
   'skia_swarming',
   'vars',
@@ -38,20 +37,27 @@ TOOL_TO_DEFAULT_SKPS_PER_SLAVE = {
 }
 
 # The SKP repository to use.
-DEFAULT_SKPS_CHROMIUM_BUILD = 'c37e844a6f8708-eee762104c75bd'
+DEFAULT_SKPS_CHROMIUM_BUILD = '2b7e85eb251dc7-a3cf3659ed2c08'
+
+
+def make_path(api, *path):
+  """Return a Path object for the given path."""
+  key  = 'custom_%s' % '_'.join(path)
+  api.path.c.base_paths[key] = tuple(path)
+  return api.path[key]
 
 
 def RunSteps(api):
   # Figure out which repository to use.
   buildername = api.properties['buildername']
   if '1k' in buildername:
-    ct_page_type = '10k'
+    ct_page_type = 'All'
     num_pages = 1000
   elif '10k' in buildername:
-    ct_page_type = '10k'
+    ct_page_type = 'All'
     num_pages = 10000
   elif '100k' in buildername:
-    ct_page_type = '100k'
+    ct_page_type = 'All'
     num_pages = 100000
   elif '1m' in buildername:
     ct_page_type = 'All'
@@ -62,27 +68,29 @@ def RunSteps(api):
   # Figure out which tool to use.
   if 'DM' in buildername:
     skia_tool = 'dm'
-    build_target = 'dm'
   elif 'BENCH' in buildername:
     skia_tool = 'nanobench'
-    build_target = 'nanobench'
   elif 'IMG_DECODE' in buildername:
     skia_tool = 'get_images_from_skps'
-    build_target = 'tools'
   else:
     raise Exception('Do not recognise the buildername %s.' % buildername)
 
-  api.core.setup()
-  api.flavor.compile(build_target)
+  api.vars.setup()
+  checkout_root = make_path(api, '/', 'b', 'work')
+  gclient_cache = make_path(api, '/', 'b', 'cache')
+  got_revision = api.core.checkout_bot_update(checkout_root=checkout_root,
+                                              gclient_cache=gclient_cache)
+  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
+
+  out_dir = api.vars.build_dir.join('out', api.vars.configuration)
+  api.build(checkout_root=checkout_root, out_dir=out_dir)
 
   # Required paths.
-  infrabots_dir = api.vars.skia_dir.join('infra', 'bots')
+  infrabots_dir = checkout_root.join('skia', 'infra', 'bots')
   isolate_dir = infrabots_dir.join('ct')
   isolate_path = isolate_dir.join(CT_SKPS_ISOLATE)
 
-  api.run.copy_build_products(
-      api.flavor.out_dir,
-      isolate_dir)
+  api.build.copy_build_products(out_dir=out_dir, dst=isolate_dir)
   api.skia_swarming.setup(
       infrabots_dir.join('tools', 'luci-go'),
       swarming_rev='')
@@ -120,14 +128,18 @@ def RunSteps(api):
       "page_type": ct_page_type,
       "num_slaves": ct_num_slaves,
   }
-  skps_dir = api.vars.checkout_root.join('skps', buildername)
+  # Note: If this directory is changed, the corresponding places it is
+  # referenced also needs to change. As of 8/8/17 the other places are:
+  # * infra/bots/ct/ct_skps.isolate
+  # * infra/bots/ct/run_ct_skps.py
+  skps_dir = checkout_root.join('skps', skps_chromium_build,
+                                ct_page_type, str(ct_num_slaves))
   version_file = skps_dir.join(SKPS_VERSION_FILE)
   if api.path.exists(version_file):  # pragma: nocover
-    version_file_contents = api.file.read(
+    version_file_contents = api.file.read_text(
         "Read %s" % version_file,
         version_file,
-        test_data=expected_version_contents,
-        infra_step=True)
+        test_data=expected_version_contents)
     actual_version_contents = api.json.loads(version_file_contents)
     differences = (set(expected_version_contents.items()) ^
                    set(actual_version_contents.items()))
@@ -135,18 +147,18 @@ def RunSteps(api):
     if download_skps:
       # Delete and recreate the skps dir.
       api.run.rmtree(skps_dir)
-      api.file.makedirs(api.path.basename(skps_dir), skps_dir)
+      api.file.ensure_directory(
+          'makedirs %s' % api.path.basename(skps_dir), skps_dir)
 
   # If a blacklist file exists then specify SKPs to be blacklisted.
-  blacklists_dir = api.vars.skia_dir.join('infra', 'bots', 'ct', 'blacklists')
+  blacklists_dir = infrabots_dir.join('ct', 'blacklists')
   blacklist_file = blacklists_dir.join(
       '%s_%s_%s.json' % (skia_tool, ct_page_type, skps_chromium_build))
   blacklist_skps = []
   if api.path.exists(blacklist_file):  # pragma: nocover
-    blacklist_file_contents = api.file.read(
+    blacklist_file_contents = api.file.read_text(
         "Read %s" % blacklist_file,
-        blacklist_file,
-        infra_step=True)
+        blacklist_file)
     blacklist_skps = api.json.loads(blacklist_file_contents)['blacklisted_skps']
 
   for slave_num in range(1, ct_num_slaves + 1):
@@ -162,9 +174,12 @@ def RunSteps(api):
     extra_variables = {
         'SLAVE_NUM': str(slave_num),
         'TOOL_NAME': skia_tool,
-        'GIT_HASH': api.vars.got_revision,
+        'GIT_HASH': got_revision,
         'CONFIGURATION': api.vars.configuration,
         'BUILDER': buildername,
+        'CHROMIUM_BUILD': skps_chromium_build,
+        'PAGE_TYPE': ct_page_type,
+        'NUM_SLAVES': str(ct_num_slaves),
     }
     api.skia_swarming.create_isolated_gen_json(
         isolate_path, isolate_dir, 'linux', 'ct-%s-%s' % (skia_tool, slave_num),
@@ -172,10 +187,9 @@ def RunSteps(api):
 
   if download_skps:
     # Since we had to download SKPs create an updated version file.
-    api.file.write("Create %s" % version_file,
-                   version_file,
-                   api.json.dumps(expected_version_contents),
-                   infra_step=True)
+    api.file.write_text("Create %s" % version_file,
+                        version_file,
+                        api.json.dumps(expected_version_contents))
 
   # Batcharchive everything on the isolate server for efficiency.
   max_slaves_to_batcharchive = MAX_SLAVES_TO_BATCHARCHIVE
@@ -194,9 +208,15 @@ def RunSteps(api):
   tasks_to_swarm_hashes.sort()
 
   # Trigger all swarming tasks.
-  dimensions={'os': 'Ubuntu-14.04', 'cpu': 'x86-64', 'pool': 'Chrome'}
+  dimensions={'os': 'Ubuntu-14.04'}
   if 'GPU' in buildername:
-    dimensions['gpu'] = '10de:104a'
+    dimensions['cpu'] = 'x86-64-E3-1230_v5'
+    dimensions['gpu'] = '10de:1cb3-384.90'
+    # See crbug.com/700053
+    dimensions['pool'] = 'Chrome-GPU'
+  else:
+    dimensions['cpu'] = 'x86-64-Broadwell_GCE'
+    dimensions['pool'] = 'Chrome'
   tasks = api.skia_swarming.trigger_swarming_tasks(
       tasks_to_swarm_hashes, dimensions=dimensions, io_timeout=40*60)
 
@@ -211,17 +231,13 @@ def RunSteps(api):
         output_dir = api.skia_swarming.tasks_output_dir.join(
             task.title).join('0')
         utc = api.time.utcnow()
-        gs_dest_dir = 'ct/%s/%d/%02d/%02d/%02d/' % (
+        gs_dest_dir = 'gs://skia-perf/ct/%s/%d/%02d/%02d/%02d/' % (
             ct_page_type, utc.year, utc.month, utc.day, utc.hour)
-        for json_output in api.file.listdir('output dir', output_dir):
+        for json_output in api.file.listdir(
+            'listdir output dir', output_dir, test_data=['file 1', 'file 2']):
           with api.context(env=env):
-            api.gsutil.upload(
-                name='upload json output',
-                source=output_dir.join(json_output),
-                bucket='skia-perf',
-                dest=gs_dest_dir,
-                args=['-R']
-            )
+            cmd = ['gsutil', 'cp', '-R', json_output, gs_dest_dir]
+            api.step('upload json output', cmd=cmd, infra_step=True)
 
     except api.step.StepFailure as e:
       # Add SKP links for convenience.
@@ -245,7 +261,8 @@ def GenTests(api):
   yield(
     api.test('CT_DM_10k_SKPs') +
     api.properties(
-        buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs',
+        buildername=('Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-' +
+                     'CT_DM_10k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -258,8 +275,8 @@ def GenTests(api):
   yield(
     api.test('CT_IMG_DECODE_10k_SKPs') +
     api.properties(
-        buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
-                    '10k_SKPs',
+        buildername='Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-'
+                    'CT_IMG_DECODE_10k_SKPs',
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -272,7 +289,8 @@ def GenTests(api):
   yield(
     api.test('CT_DM_100k_SKPs') +
     api.properties(
-        buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs',
+        buildername=('Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-' +
+                     'CT_DM_100k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -285,8 +303,8 @@ def GenTests(api):
   yield(
     api.test('CT_IMG_DECODE_100k_SKPs') +
     api.properties(
-        buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
-                    '100k_SKPs',
+        buildername='Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-'
+                    'CT_IMG_DECODE_100k_SKPs',
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -299,8 +317,9 @@ def GenTests(api):
   yield(
     api.test('CT_GPU_BENCH_1k_SKPs') +
     api.properties(
-        buildername=
-            'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
+        buildername=(
+          'Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-'
+          'CT_BENCH_1k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -317,8 +336,8 @@ def GenTests(api):
   yield(
     api.test('CT_CPU_BENCH_10k_SKPs') +
     api.properties(
-        buildername=
-            'Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_10k_SKPs',
+        buildername=('Perf-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
+                     'CT_BENCH_10k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -335,8 +354,9 @@ def GenTests(api):
   yield(
     api.test('CT_GPU_BENCH_10k_SKPs') +
     api.properties(
-        buildername=
-            'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs',
+        buildername=(
+          'Perf-Ubuntu14-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-'
+          'CT_BENCH_10k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -353,7 +373,8 @@ def GenTests(api):
   yield(
     api.test('CT_DM_1m_SKPs') +
     api.properties(
-        buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs',
+        buildername=('Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-'
+                     'CT_DM_1m_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -366,8 +387,8 @@ def GenTests(api):
   yield (
     api.test('CT_DM_SKPs_UnknownBuilder') +
     api.properties(
-        buildername=
-            'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_UnknownRepo_SKPs',
+        buildername=('Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-' +
+                     'CT_DM_UnknownRepo_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -381,8 +402,8 @@ def GenTests(api):
   yield (
     api.test('CT_10k_SKPs_UnknownBuilder') +
     api.properties(
-        buildername=
-            'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_UnknownTool_10k_SKPs',
+        buildername=('Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-' +
+                     'CT_UnknownTool_10k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -397,7 +418,8 @@ def GenTests(api):
     api.test('CT_DM_1m_SKPs_slave3_failure') +
     api.step_data('ct-dm-3', retcode=1) +
     api.properties(
-        buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs',
+        buildername=('Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-' +
+                     'CT_DM_1m_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -412,7 +434,8 @@ def GenTests(api):
     api.step_data('ct-dm-1', retcode=1) +
     api.step_data('ct-dm-3', retcode=1) +
     api.properties(
-        buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs',
+        buildername=('Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All'+
+                     '-CT_DM_1m_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -422,7 +445,7 @@ def GenTests(api):
     )
   )
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs'
+  builder = 'Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_10k_SKPs'
   yield(
     api.test('CT_DM_10k_SKPs_Trybot') +
     api.properties(
@@ -440,8 +463,8 @@ def GenTests(api):
     )
   )
 
-  builder = ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
-             '10k_SKPs')
+  builder = ('Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-'
+             'CT_IMG_DECODE_10k_SKPs')
   yield(
     api.test('CT_IMG_DECODE_10k_SKPs_Trybot') +
     api.properties(

@@ -16,8 +16,8 @@ namespace SkSL {
  * Represents "true" or "false".
  */
 struct ASTBoolLiteral : public ASTExpression {
-    ASTBoolLiteral(Position position, bool value)
-    : INHERITED(position, kBool_Kind)
+    ASTBoolLiteral(int offset, bool value)
+    : INHERITED(offset, kBool_Kind)
     , fValue(value) {}
 
     String description() const override {

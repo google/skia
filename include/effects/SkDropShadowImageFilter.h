@@ -9,6 +9,7 @@
 #define SkDropShadowImageFilter_DEFINED
 
 #include "SkColor.h"
+#include "SkFlattenable.h"
 #include "SkImageFilter.h"
 #include "SkScalar.h"
 
@@ -29,20 +30,24 @@ public:
                                      const CropRect* cropRect = nullptr);
 
     SkRect computeFastBounds(const SkRect&) const override;
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDropShadowImageFilter)
+    void toString(SkString* str) const override;
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
-    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                               MapDirection, const SkIRect* inputRect) const override;
 
 private:
     SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor,
                             ShadowMode shadowMode, sk_sp<SkImageFilter> input,
                             const CropRect* cropRect);
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
 
     SkScalar fDx, fDy, fSigmaX, fSigmaY;
     SkColor fColor;

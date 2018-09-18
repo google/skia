@@ -7,12 +7,16 @@
 
 #include "SkImageFilterCache.h"
 
+#include <vector>
+
+#include "SkImageFilter.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
 #include "SkOpts.h"
 #include "SkRefCnt.h"
 #include "SkSpecialImage.h"
 #include "SkTDynamicHash.h"
+#include "SkTHash.h"
 #include "SkTInternalLList.h"
 
 #ifdef SK_BUILD_FOR_IOS
@@ -37,12 +41,13 @@ public:
         }
     }
     struct Value {
-        Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset)
-            : fKey(key), fImage(SkRef(image)), fOffset(offset) {}
+        Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter)
+            : fKey(key), fImage(SkRef(image)), fOffset(offset), fFilter(filter) {}
 
         Key fKey;
         sk_sp<SkSpecialImage> fImage;
         SkIPoint fOffset;
+        const SkImageFilter* fFilter;
         static const Key& GetKey(const Value& v) {
             return v.fKey;
         }
@@ -65,15 +70,21 @@ public:
         return nullptr;
     }
 
-    void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset) override {
+    void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter) override {
         SkAutoMutexAcquire mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             this->removeInternal(v);
         }
-        Value* v = new Value(key, image, offset);
+        Value* v = new Value(key, image, offset, filter);
         fLookup.add(v);
         fLRU.addToHead(v);
         fCurrentBytes += image->getSize();
+        if (auto* values = fImageFilterValues.find(filter)) {
+            values->push_back(v);
+        } else {
+            fImageFilterValues.set(filter, {v});
+        }
+
         while (fCurrentBytes > fMaxBytes) {
             Value* tail = fLRU.tail();
             SkASSERT(tail);
@@ -93,30 +104,52 @@ public:
         }
     }
 
-    void purgeByKeys(const Key keys[], int count) override {
+    void purgeByImageFilter(const SkImageFilter* filter) override {
         SkAutoMutexAcquire mutex(fMutex);
-        for (int i = 0; i < count; i++) {
-            if (Value* v = fLookup.find(keys[i])) {
-                this->removeInternal(v);
-            }
+        auto* values = fImageFilterValues.find(filter);
+        if (!values) {
+            return;
         }
+        for (Value* v : *values) {
+            // We set the filter to be null so that removeInternal() won't delete from values while
+            // we're iterating over it.
+            v->fFilter = nullptr;
+            this->removeInternal(v);
+        }
+        fImageFilterValues.remove(filter);
     }
 
     SkDEBUGCODE(int count() const override { return fLookup.count(); })
 private:
     void removeInternal(Value* v) {
         SkASSERT(v->fImage);
+        if (v->fFilter) {
+            if (auto* values = fImageFilterValues.find(v->fFilter)) {
+                if (values->size() == 1 && (*values)[0] == v) {
+                    fImageFilterValues.remove(v->fFilter);
+                } else {
+                    for (auto it = values->begin(); it != values->end(); ++it) {
+                        if (*it == v) {
+                            values->erase(it);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         fCurrentBytes -= v->fImage->getSize();
         fLRU.remove(v);
         fLookup.remove(v->fKey);
         delete v;
     }
 private:
-    SkTDynamicHash<Value, Key>            fLookup;
-    mutable SkTInternalLList<Value>       fLRU;
-    size_t                                fMaxBytes;
-    size_t                                fCurrentBytes;
-    mutable SkMutex                       fMutex;
+    SkTDynamicHash<Value, Key>                            fLookup;
+    mutable SkTInternalLList<Value>                       fLRU;
+    // Value* always points to an item in fLookup.
+    SkTHashMap<const SkImageFilter*, std::vector<Value*>> fImageFilterValues;
+    size_t                                                fMaxBytes;
+    size_t                                                fCurrentBytes;
+    mutable SkMutex                                       fMutex;
 };
 
 } // namespace

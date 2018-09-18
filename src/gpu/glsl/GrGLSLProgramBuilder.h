@@ -10,14 +10,13 @@
 
 #include "GrCaps.h"
 #include "GrGeometryProcessor.h"
-#include "GrGpu.h"
+#include "GrProgramDesc.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryShaderBuilder.h"
 #include "glsl/GrGLSLPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
 class GrShaderVar;
@@ -32,7 +31,6 @@ public:
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
     using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
-    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     virtual ~GrGLSLProgramBuilder() {}
 
@@ -56,10 +54,6 @@ public:
 
     const GrShaderVar& texelBufferVariable(TexelBufferHandle handle) const {
         return this->uniformHandler()->texelBufferVariable(handle);
-    }
-
-    const GrShaderVar& imageStorageVariable(ImageStorageHandle handle) const {
-        return this->uniformHandler()->imageStorageVariable(handle);
     }
 
     // Handles for program uniforms (other than per-effect uniforms)
@@ -104,8 +98,8 @@ public:
 
     BuiltinUniformHandles fUniformHandles;
 
-    GrGLSLPrimitiveProcessor* fGeometryProcessor;
-    GrGLSLXferProcessor* fXferProcessor;
+    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     GrGLSLFragProcs fFragmentProcessors;
 
 protected:
@@ -120,6 +114,8 @@ protected:
     void cleanupFragmentProcessors();
 
     void finalizeShaders();
+
+    bool fragColorIsInOut() const { return fFS.primaryColorOutputIsInOut(); }
 
 private:
     // reset is called by program creator between each processor's emit code.  It increments the
@@ -157,19 +153,15 @@ private:
                                     const SkString& input,
                                     SkString output);
     void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
-    void emitSamplersAndImageStorages(const GrResourceIOProcessor& processor,
-                                      SkTArray<SamplerHandle>* outTexSamplerHandles,
-                                      SkTArray<TexelBufferHandle>* outTexelBufferHandles,
-                                      SkTArray<ImageStorageHandle>* outImageStorageHandles);
+    void emitSamplers(const GrResourceIOProcessor& processor,
+                      SkTArray<SamplerHandle>* outTexSamplerHandles,
+                      SkTArray<TexelBufferHandle>* outTexelBufferHandles);
     SamplerHandle emitSampler(GrSLType samplerType, GrPixelConfig, const char* name,
                               GrShaderFlags visibility);
     TexelBufferHandle emitTexelBuffer(GrPixelConfig, const char* name, GrShaderFlags visibility);
-    ImageStorageHandle emitImageStorage(const GrResourceIOProcessor::ImageStorageAccess&,
-                                        const char* name);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
     void updateSamplerCounts(GrShaderFlags visibility);
     bool checkSamplerCounts();
-    bool checkImageStorageCounts();
 
 #ifdef SK_DEBUG
     void verify(const GrPrimitiveProcessor&);
@@ -182,9 +174,6 @@ private:
     int                         fNumVertexSamplers;
     int                         fNumGeometrySamplers;
     int                         fNumFragmentSamplers;
-    int                         fNumVertexImageStorages;
-    int                         fNumGeometryImageStorages;
-    int                         fNumFragmentImageStorages;
     SkSTArray<4, GrShaderVar>   fTransformedCoordVars;
 };
 

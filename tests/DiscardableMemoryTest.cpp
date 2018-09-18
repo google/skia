@@ -5,9 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "SkDiscardableMemory.h"
 #include "SkDiscardableMemoryPool.h"
-
+#include "SkRefCnt.h"
 #include "Test.h"
+
+#include <cstring>
+#include <memory>
 
 namespace {
 constexpr char kTestString[] = "HELLO, WORLD!";
@@ -57,4 +61,4 @@ DEF_TEST(DiscardableMemory_nonglobal, reporter) {
     std::unique_ptr<SkDiscardableMemory> dm(pool->create(kTestStringLength));
     test_dm(reporter, dm.get(), true);
 }
-    
+

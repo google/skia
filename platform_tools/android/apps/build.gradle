@@ -28,7 +28,7 @@ def setupSkiaLibraryBuild(project, appVariants, appName) {
         buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
 
         def copyNativeLib = project.task("${variant.name}_CopySkiaLib", type:Copy) {
-            def fromDir = "../../../../" + getVariantOutDir(project, variant).skiaOut
+            def fromDir = getVariantOutDir(project, variant).skiaOut
             def intoDir = getVariantOutDir(project, variant).androidOut
             from fromDir
             into intoDir
@@ -67,18 +67,12 @@ def getVariantOutDir(project, variant) {
     } else if (variant.name.startsWith("arm")) {
         variantPrefix = "arm"
         androidLibDir = "armeabi-v7a"
-    } else if (variant.name.startsWith("x86_64")) {
+    } else if (variant.name.startsWith("x64")) {
         variantPrefix = "x64"
         androidLibDir = "x86_64"
     } else if (variant.name.startsWith("x86")) {
         variantPrefix = "x86"
         androidLibDir = "x86"
-    } else if (variant.name.startsWith("mipsel")) {
-        variantPrefix = "mipsel"
-        androidLibDir = "mips"
-    } else if (variant.name.startsWith("mips64el")) {
-        variantPrefix = "mips64el"
-        androidLibDir = "mips64"
     }
 
     String skiaOutDir = null

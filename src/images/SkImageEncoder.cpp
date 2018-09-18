@@ -40,6 +40,7 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
             case SkEncodedImageFormat::kJPEG: {
                 SkJpegEncoder::Options opts;
                 opts.fQuality = quality;
+                opts.fBlendBehavior = SkTransferFunctionBehavior::kIgnore;
                 return SkJpegEncoder::Encode(dst, src, opts);
             }
             case SkEncodedImageFormat::kPNG: {
@@ -77,4 +78,14 @@ bool SkEncoder::encodeRows(int numRows) {
     }
 
     return true;
+}
+
+sk_sp<SkData> SkEncodePixmap(const SkPixmap& src, SkEncodedImageFormat format, int quality) {
+    SkDynamicMemoryWStream stream;
+    return SkEncodeImage(&stream, src, format, quality) ? stream.detachAsData() : nullptr;
+}
+
+sk_sp<SkData> SkEncodeBitmap(const SkBitmap& src, SkEncodedImageFormat format, int quality) {
+    SkPixmap pixmap;
+    return src.peekPixels(&pixmap) ? SkEncodePixmap(pixmap, format, quality) : nullptr;
 }

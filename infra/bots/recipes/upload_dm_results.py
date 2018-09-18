@@ -10,65 +10,50 @@ import calendar
 
 
 DEPS = [
-  'file',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/time',
+  'gsutil',
 ]
 
 
+GS_BUCKET_IMAGES = 'skia-infra-gm'
 DM_JSON = 'dm.json'
-UPLOAD_ATTEMPTS = 5
 VERBOSE_LOG = 'verbose.log'
-
-
-def cp(api, name, src, dst, extra_args=None):
-  cmd = ['gsutil', 'cp']
-  if extra_args:
-    cmd.extend(extra_args)
-  cmd.extend([src, dst])
-
-  name = 'upload %s' % name
-  for i in xrange(UPLOAD_ATTEMPTS):
-    step_name = name
-    if i > 0:
-      step_name += ' (attempt %d)' % (i+1)
-    try:
-      api.step(step_name, cmd=cmd)
-      break
-    except api.step.StepFailure:
-      if i == UPLOAD_ATTEMPTS - 1:
-        raise
 
 
 def RunSteps(api):
   builder_name = api.properties['buildername']
   revision = api.properties['revision']
 
-  results_dir = api.path['start_dir'].join('dm')
+  results_dir = api.path['start_dir'].join('test', 'dm')
 
   # Move dm.json and verbose.log to their own directory.
   json_file = results_dir.join(DM_JSON)
   log_file = results_dir.join(VERBOSE_LOG)
   tmp_dir = api.path['start_dir'].join('tmp_upload')
-  api.shutil.makedirs('tmp dir', tmp_dir, infra_step=True)
-  api.shutil.copy('copy dm.json', json_file, tmp_dir)
-  api.shutil.copy('copy verbose.log', log_file, tmp_dir)
-  api.shutil.remove('rm old dm.json', json_file)
-  api.shutil.remove('rm old verbose.log', log_file)
+  api.file.ensure_directory('makedirs tmp dir', tmp_dir)
+  api.file.copy('copy dm.json', json_file, tmp_dir)
+  api.file.copy('copy verbose.log', log_file, tmp_dir)
+  api.file.remove('rm old dm.json', json_file)
+  api.file.remove('rm old verbose.log', log_file)
 
   # Upload the images.
-  image_dest_path = 'gs://%s/dm-images-v1' % api.properties['gs_bucket']
-  files_to_upload = api.file.glob(
-      'find images',
-      results_dir.join('*'),
-      test_data=[results_dir.join('someimage.png')],
-      infra_step=True)
-  if len(files_to_upload) > 0:
-    cp(api, 'images', results_dir.join('*'), image_dest_path)
+  image_dest_path = 'gs://%s/dm-images-v1' % GS_BUCKET_IMAGES
+  for ext in ['.png', '.pdf']:
+    files_to_upload = api.file.glob_paths(
+        'find images',
+        results_dir,
+        '*%s' % ext,
+        test_data=['someimage.png'])
+    # For some reason, glob returns results_dir when it should return nothing.
+    files_to_upload = [f for f in files_to_upload if str(f).endswith(ext)]
+    if len(files_to_upload) > 0:
+      api.gsutil.cp('images', results_dir.join('*%s' % ext),
+                       image_dest_path, multithread=True)
 
   # Upload the JSON summary and verbose.log.
   now = api.time.utcnow()
@@ -92,16 +77,24 @@ def RunSteps(api):
   summary_dest_path = 'gs://%s/%s' % (api.properties['gs_bucket'],
                                       summary_dest_path)
 
-  cp(api, 'JSON and logs', tmp_dir.join('*'), summary_dest_path,
-     ['-z', 'json,log'])
+  api.gsutil.cp('JSON and logs', tmp_dir.join('*'), summary_dest_path,
+                   extra_args=['-z', 'json,log'])
 
 
 def GenTests(api):
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
+  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,
                    gs_bucket='skia-infra-gm',
+                   revision='abc123',
+                   path_config='kitchen')
+  )
+
+  yield (
+    api.test('alternate_bucket') +
+    api.properties(buildername=builder,
+                   gs_bucket='skia-infra-gm-alt',
                    revision='abc123',
                    path_config='kitchen')
   )
@@ -128,7 +121,6 @@ def GenTests(api):
     api.step_data('upload images (attempt 5)', retcode=1)
   )
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
   yield (
       api.test('trybot') +
       api.properties(

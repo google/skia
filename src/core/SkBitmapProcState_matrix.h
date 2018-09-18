@@ -9,8 +9,6 @@
 #include "SkMathPriv.h"
 
 #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
-#define AFFINE_FILTER_NAME      MAKENAME(_filter_affine)
-#define PERSP_FILTER_NAME       MAKENAME(_filter_persp)
 
 #define PACK_FILTER_X_NAME  MAKENAME(_pack_filter_x)
 #define PACK_FILTER_Y_NAME  MAKENAME(_pack_filter_y)
@@ -26,11 +24,6 @@
 // declare functions externally to suppress warnings.
 void SCALE_FILTER_NAME(const SkBitmapProcState& s,
                               uint32_t xy[], int count, int x, int y);
-void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
-                               uint32_t xy[], int count, int x, int y);
-void PERSP_FILTER_NAME(const SkBitmapProcState& s,
-                              uint32_t* SK_RESTRICT xy, int count,
-                              int x, int y);
 
 static inline uint32_t PACK_FILTER_Y_NAME(SkFixed f, unsigned max,
                                           SkFixed one PREAMBLE_PARAM_Y) {
@@ -85,60 +78,6 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     }
 }
 
-void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
-                               uint32_t xy[], int count, int x, int y) {
-    SkASSERT(s.fInvType & SkMatrix::kAffine_Mask);
-    SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
-                             SkMatrix::kScale_Mask |
-                             SkMatrix::kAffine_Mask)) == 0);
-
-    PREAMBLE(s);
-    const SkBitmapProcStateAutoMapper mapper(s, x, y);
-
-    SkFixed oneX = s.fFilterOneX;
-    SkFixed oneY = s.fFilterOneY;
-    SkFixed fx = mapper.fixedX();
-    SkFixed fy = mapper.fixedY();
-    SkFixed dx = s.fInvSx;
-    SkFixed dy = s.fInvKy;
-    unsigned maxX = s.fPixmap.width() - 1;
-    unsigned maxY = s.fPixmap.height() - 1;
-
-    do {
-        *xy++ = PACK_FILTER_Y_NAME(fy, maxY, oneY PREAMBLE_ARG_Y);
-        fy += dy;
-        *xy++ = PACK_FILTER_X_NAME(fx, maxX, oneX PREAMBLE_ARG_X);
-        fx += dx;
-    } while (--count != 0);
-}
-
-void PERSP_FILTER_NAME(const SkBitmapProcState& s,
-                              uint32_t* SK_RESTRICT xy, int count,
-                              int x, int y) {
-    SkASSERT(s.fInvType & SkMatrix::kPerspective_Mask);
-
-    PREAMBLE(s);
-    unsigned maxX = s.fPixmap.width() - 1;
-    unsigned maxY = s.fPixmap.height() - 1;
-    SkFixed oneX = s.fFilterOneX;
-    SkFixed oneY = s.fFilterOneY;
-
-    SkPerspIter   iter(s.fInvMatrix,
-                       SkIntToScalar(x) + SK_ScalarHalf,
-                       SkIntToScalar(y) + SK_ScalarHalf, count);
-
-    while ((count = iter.next()) != 0) {
-        const SkFixed* SK_RESTRICT srcXY = iter.getXY();
-        do {
-            *xy++ = PACK_FILTER_Y_NAME(srcXY[1] - (oneY >> 1), maxY,
-                                       oneY PREAMBLE_ARG_Y);
-            *xy++ = PACK_FILTER_X_NAME(srcXY[0] - (oneX >> 1), maxX,
-                                       oneX PREAMBLE_ARG_X);
-            srcXY += 2;
-        } while (--count != 0);
-    }
-}
-
 #undef MAKENAME
 #undef TILEX_PROCF
 #undef TILEY_PROCF
@@ -147,8 +86,6 @@ void PERSP_FILTER_NAME(const SkBitmapProcState& s,
 #endif
 
 #undef SCALE_FILTER_NAME
-#undef AFFINE_FILTER_NAME
-#undef PERSP_FILTER_NAME
 
 #undef PREAMBLE
 #undef PREAMBLE_PARAM_X

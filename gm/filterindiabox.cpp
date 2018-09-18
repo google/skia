@@ -10,7 +10,6 @@
 
 #include "Resources.h"
 #include "SkBitmapProcState.h"
-#include "SkBitmapScaler.h"
 #include "SkGradientShader.h"
 #include "SkImageEncoder.h"
 #include "SkStream.h"
@@ -75,7 +74,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1024, 768);
+        return SkISize::Make(680, 130);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -112,4 +111,4 @@ protected:
 //////////////////////////////////////////////////////////////////////////////
 
 
-DEF_GM( return new FilterIndiaBoxGM("box.gif"); )
+DEF_GM( return new FilterIndiaBoxGM("images/box.gif"); )

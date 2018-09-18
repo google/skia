@@ -6,10 +6,10 @@
  */
 
 #include "SkRefCnt.h"
-#include "SkThreadUtils.h"
 #include "SkTypes.h"
 #include "SkWeakRefCnt.h"
 #include "Test.h"
+#include <thread>
 
 static void bounce_ref(void* data) {
     SkRefCnt* ref = static_cast<SkRefCnt*>(data);
@@ -22,11 +22,8 @@ static void bounce_ref(void* data) {
 static void test_refCnt(skiatest::Reporter* reporter) {
     SkRefCnt* ref = new SkRefCnt();
 
-    SkThread thing1(bounce_ref, ref);
-    SkThread thing2(bounce_ref, ref);
-
-    SkAssertResult(thing1.start());
-    SkAssertResult(thing2.start());
+    std::thread thing1(bounce_ref, ref);
+    std::thread thing2(bounce_ref, ref);
 
     thing1.join();
     thing2.join();
@@ -55,15 +52,10 @@ static void bounce_weak_weak_ref(void* data) {
 static void test_weakRefCnt(skiatest::Reporter* reporter) {
     SkWeakRefCnt* ref = new SkWeakRefCnt();
 
-    SkThread thing1(bounce_ref, ref);
-    SkThread thing2(bounce_ref, ref);
-    SkThread thing3(bounce_weak_ref, ref);
-    SkThread thing4(bounce_weak_weak_ref, ref);
-
-    SkAssertResult(thing1.start());
-    SkAssertResult(thing2.start());
-    SkAssertResult(thing3.start());
-    SkAssertResult(thing4.start());
+    std::thread thing1(bounce_ref, ref);
+    std::thread thing2(bounce_ref, ref);
+    std::thread thing3(bounce_weak_ref, ref);
+    std::thread thing4(bounce_weak_weak_ref, ref);
 
     thing1.join();
     thing2.join();

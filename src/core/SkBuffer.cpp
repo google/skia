@@ -6,22 +6,27 @@
  */
 
 #include "SkBuffer.h"
-
+#include "SkMalloc.h"
 #include <string.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkRBuffer::read(void* buffer, size_t size) {
+const void* SkRBuffer::skip(size_t size) {
     if (fValid && size <= this->available()) {
-        if (buffer) {
-            memcpy(buffer, fPos, size);
-        }
+        const void* pos = fPos;
         fPos += size;
-        return true;
-    } else {
-        fValid = false;
-        return false;
+        return pos;
     }
+    fValid = false;
+    return nullptr;
+}
+
+bool SkRBuffer::read(void* buffer, size_t size) {
+    if (const void* src = this->skip(size)) {
+        sk_careful_memcpy(buffer, src, size);
+        return true;
+    }
+    return false;
 }
 
 bool SkRBuffer::skipToAlign4() {
@@ -35,7 +40,7 @@ bool SkRBuffer::skipToAlign4() {
         return false;
     }
 }
-    
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void* SkWBuffer::skip(size_t size) {
@@ -45,9 +50,10 @@ void* SkWBuffer::skip(size_t size) {
 }
 
 void SkWBuffer::writeNoSizeCheck(const void* buffer, size_t size) {
-    SkASSERT(fData == 0 || fStop == 0 || fPos + size <= fStop);
-    if (fData && buffer)
-        memcpy(fPos, buffer, size);
+    SkASSERT(fData == nullptr || fStop == nullptr || fPos + size <= fStop);
+    if (fData && buffer) {
+        sk_careful_memcpy(fPos, buffer, size);
+    }
     fPos += size;
 }
 

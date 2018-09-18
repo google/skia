@@ -40,10 +40,6 @@ void sk_rrect_get_radii(const sk_rrect_t* rrect, sk_rrect_corner_t corner, sk_ve
     }
 }
 
-bool sk_rrect_all_corners_circular(const sk_rrect_t* rrect, float tolerance) {
-    return AsRRect(rrect)->allCornersCircular(tolerance);
-}
-
 float sk_rrect_get_width(const sk_rrect_t* rrect) {
     return AsRRect(rrect)->width();
 }

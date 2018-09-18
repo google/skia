@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrSurface_DEFINED
 #define GrSurface_DEFINED
 
@@ -35,11 +34,6 @@ public:
      */
     SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
 
-    GrSurfaceOrigin origin() const {
-        SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
-        return fOrigin;
-    }
-
     /**
      * Retrieves the pixel config specified when the surface was created.
      * For render targets this can be kUnknown_GrPixelConfig
@@ -66,9 +60,50 @@ public:
 
     static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
     static size_t ComputeSize(GrPixelConfig config, int width, int height, int colorSamplesPerPixel,
-                              bool hasMIPMaps, bool useNextPow2 = false);
+                              GrMipMapped, bool useNextPow2 = false);
 
 protected:
+    void setDoesNotSupportMipMaps() {
+        SkASSERT(this->asTexture());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
+    }
+    bool doesNotSupportMipMaps() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kDoesNotSupportMipMaps;
+    }
+
+    void setIsGLTextureRectangleOrExternal() {
+        SkASSERT(this->asTexture());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
+        // If we are a GL rectangle or external texture, it also means that we do not support
+        // generating mip maps.
+        this->setDoesNotSupportMipMaps();
+    }
+    bool isGLTextureRectangleOrExternal() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
+    }
+
+    void setHasMixedSamples() {
+        SkASSERT(this->asRenderTarget());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
+    }
+    bool hasMixedSamples() const { return fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled; }
+
+    void setSupportsWindowRects() {
+        SkASSERT(this->asRenderTarget());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
+    }
+    bool supportsWindowRects() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport;
+    }
+
+    void setGLRTFBOIDIs0() {
+        SkASSERT(this->asRenderTarget());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    }
+    bool glRTFBOIDis0() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    }
+
     // Methods made available via GrSurfacePriv
     bool hasPendingRead() const;
     bool hasPendingWrite() const;
@@ -82,7 +117,9 @@ protected:
             , fConfig(desc.fConfig)
             , fWidth(desc.fWidth)
             , fHeight(desc.fHeight)
-            , fOrigin(desc.fOrigin) {}
+            , fSurfaceFlags(GrInternalSurfaceFlags::kNone) {
+    }
+
     ~GrSurface() override {}
 
 
@@ -90,10 +127,12 @@ protected:
     void onAbandon() override;
 
 private:
-    GrPixelConfig        fConfig;
-    int                  fWidth;
-    int                  fHeight;
-    GrSurfaceOrigin      fOrigin;
+    const char* getResourceType() const override { return "Surface"; }
+
+    GrPixelConfig          fConfig;
+    int                    fWidth;
+    int                    fHeight;
+    GrInternalSurfaceFlags fSurfaceFlags;
 
     typedef GrGpuResource INHERITED;
 };

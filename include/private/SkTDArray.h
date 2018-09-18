@@ -20,7 +20,7 @@ public:
         SkASSERT(src || count == 0);
 
         fReserve = fCount = 0;
-        fArray = NULL;
+        fArray = nullptr;
         if (count) {
             fArray = (T*)sk_malloc_throw(count * sizeof(T));
             memcpy(fArray, src, sizeof(T) * count);
@@ -73,22 +73,6 @@ public:
         SkTSwap(fCount, other.fCount);
     }
 
-    // The deleter that ought to be used for a std:: smart pointer that takes ownership from
-    // release().
-    struct Deleter {
-        void operator()(const void* p) { sk_free((void*)p); }
-    };
-
-    /** Return a ptr to the array of data, to be freed with sk_free. This also
-        resets the SkTDArray to be empty.
-     */
-    T* release() {
-        T* array = fArray;
-        fArray = NULL;
-        fReserve = fCount = 0;
-        return array;
-    }
-
     bool isEmpty() const { return fCount == 0; }
 
     /**
@@ -110,8 +94,8 @@ public:
 
     T*  begin() { return fArray; }
     const T*  begin() const { return fArray; }
-    T*  end() { return fArray ? fArray + fCount : NULL; }
-    const T*  end() const { return fArray ? fArray + fCount : NULL; }
+    T*  end() { return fArray ? fArray + fCount : nullptr; }
+    const T*  end() const { return fArray ? fArray + fCount : nullptr; }
 
     T&  operator[](int index) {
         SkASSERT(index < fCount);
@@ -132,7 +116,7 @@ public:
     void reset() {
         if (fArray) {
             sk_free(fArray);
-            fArray = NULL;
+            fArray = nullptr;
             fReserve = fCount = 0;
         } else {
             SkASSERT(fReserve == 0 && fCount == 0);
@@ -159,6 +143,7 @@ public:
     }
 
     void setReserve(int reserve) {
+        SkASSERT(reserve >= 0);
         if (reserve > fReserve) {
             this->resizeStorageToAtLeast(reserve);
         }
@@ -171,12 +156,12 @@ public:
     }
 
     T* append() {
-        return this->append(1, NULL);
+        return this->append(1, nullptr);
     }
-    T* append(int count, const T* src = NULL) {
+    T* append(int count, const T* src = nullptr) {
         int oldCount = fCount;
         if (count)  {
-            SkASSERT(src == NULL || fArray == NULL ||
+            SkASSERT(src == nullptr || fArray == nullptr ||
                     src + count <= fArray || fArray + oldCount <= src);
 
             this->adjustCount(count);
@@ -194,9 +179,9 @@ public:
     }
 
     T* insert(int index) {
-        return this->insert(index, 1, NULL);
+        return this->insert(index, 1, nullptr);
     }
-    T* insert(int index, int count, const T* src = NULL) {
+    T* insert(int index, int count, const T* src = nullptr) {
         SkASSERT(count);
         SkASSERT(index <= fCount);
         size_t oldCount = fCount;
@@ -222,18 +207,6 @@ public:
         if (index != newCount) {
             memcpy(fArray + index, fArray + newCount, sizeof(T));
         }
-    }
-
-    template <typename S> int select(S&& selector) const {
-        const T* iter = fArray;
-        const T* stop = fArray + fCount;
-
-        for (; iter < stop; iter++) {
-            if (selector(*iter)) {
-                return SkToInt(iter - fArray);
-            }
-        }
-        return -1;
     }
 
     int find(const T& elem) const {
@@ -345,8 +318,8 @@ public:
 
 #ifdef SK_DEBUG
     void validate() const {
-        SkASSERT((fReserve == 0 && fArray == NULL) ||
-                 (fReserve > 0 && fArray != NULL));
+        SkASSERT((fReserve == 0 && fArray == nullptr) ||
+                 (fReserve > 0 && fArray != nullptr));
         SkASSERT(fCount <= fReserve);
     }
 #endif
@@ -366,7 +339,14 @@ private:
      *  This is the same as calling setCount(count() + delta).
      */
     void adjustCount(int delta) {
-        this->setCount(fCount + delta);
+        SkASSERT(delta > 0);
+
+        // We take care to avoid overflow here.
+        // The sum of fCount and delta is at most 4294967294, which fits fine in uint32_t.
+        uint32_t count = (uint32_t)fCount + (uint32_t)delta;
+        SkASSERT_RELEASE( SkTFitsIn<int>(count) );
+
+        this->setCount(SkTo<int>(count));
     }
 
     /**
@@ -379,8 +359,14 @@ private:
      */
     void resizeStorageToAtLeast(int count) {
         SkASSERT(count > fReserve);
-        fReserve = count + 4;
-        fReserve += fReserve / 4;
+
+        // We take care to avoid overflow here.
+        // The maximum value we can get for reserve here is 2684354563, which fits in uint32_t.
+        uint32_t reserve = (uint32_t)count + 4;
+        reserve += reserve / 4;
+        SkASSERT_RELEASE( SkTFitsIn<int>(reserve) );
+
+        fReserve = SkTo<int>(reserve);
         fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
     }
 };

@@ -85,6 +85,8 @@ struct GrGLIRect {
     }
 
     void invalidate() {fLeft = fWidth = fBottom = fHeight = -1;}
+    bool isInvalid() const { return fLeft == -1 && fWidth == -1 && fBottom == -1
+        && fHeight == -1; }
 
     bool operator ==(const GrGLIRect& glRect) const {
         return 0 == memcmp(this, &glRect, sizeof(GrGLIRect));

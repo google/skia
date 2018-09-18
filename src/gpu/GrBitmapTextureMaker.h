@@ -9,6 +9,7 @@
 #define GrBitmapTextureMaker_DEFINED
 
 #include "GrTextureMaker.h"
+#include "SkBitmap.h"
 
 /** This class manages the conversion of SW-backed bitmaps to GrTextures. If the input bitmap is
     non-volatile the texture is cached using a key created from the pixels' image id and the
@@ -19,7 +20,8 @@ public:
 
 protected:
     sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                  SkColorSpace* dstColorSpace) override;
+                                                  SkColorSpace* dstColorSpace,
+                                                  AllowedTexGenType onlyIfFast) override;
 
     void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,
                      SkColorSpace* dstColorSpace) override;

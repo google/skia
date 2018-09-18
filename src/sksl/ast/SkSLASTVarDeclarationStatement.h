@@ -18,7 +18,7 @@ namespace SkSL {
  */
 struct ASTVarDeclarationStatement : public ASTStatement {
     ASTVarDeclarationStatement(std::unique_ptr<ASTVarDeclarations> decl)
-    : INHERITED(decl->fPosition, kVarDeclaration_Kind)
+    : INHERITED(decl->fOffset, kVarDeclaration_Kind)
     , fDeclarations(std::move(decl)) {}
 
     String description() const override {
