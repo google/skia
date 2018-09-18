@@ -242,6 +242,7 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
                                                        needsStencil)) {
             return nullptr;
         }
+        SkASSERT(!surface->getUniqueKey().isValid());
         return surface;
     }
 
@@ -349,11 +350,13 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
                 }
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
+            SkASSERT(!surface->getUniqueKey().isValid());
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
-            GrTextureProxy* tex = cur->proxy()->asTextureProxy();
-            if (tex && tex->getUniqueKey().isValid()) {
-                fResourceProvider->assignUniqueKeyToResource(tex->getUniqueKey(), surface.get());
-                SkASSERT(surface->getUniqueKey() == tex->getUniqueKey());
+            GrTextureProxy* texProxy = cur->proxy()->asTextureProxy();
+            if (texProxy && texProxy->getUniqueKey().isValid()) {
+                fResourceProvider->assignUniqueKeyToResource(texProxy->getUniqueKey(),
+                                                             surface.get());
+                SkASSERT(surface->getUniqueKey() == texProxy->getUniqueKey());
             }
 
 #if GR_ALLOCATION_SPEW
