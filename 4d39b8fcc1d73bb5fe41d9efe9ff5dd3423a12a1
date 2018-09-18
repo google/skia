@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5496c804_a87377de",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-09-18T20:39:28Z",
+      "side": 1,
+      "message": "Between the FPFactory, FP, and GLSLFP all managing different pieces of the data I evidently got myself confused about where this needed to live. It should be correct now.",
+      "parentUuid": "f7f45b8a_49bec3ee",
+      "range": {
+        "startLine": 207,
+        "startChar": 19,
+        "endLine": 207,
+        "endChar": 35
+      },
+      "revId": "4d39b8fcc1d73bb5fe41d9efe9ff5dd3423a12a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e17314a6_af28bd47",
         "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "4d39b8fcc1d73bb5fe41d9efe9ff5dd3423a12a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9780482_a07e833f",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-09-18T20:39:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e17314a6_af28bd47",
+      "range": {
+        "startLine": 204,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 1
+      },
+      "revId": "4d39b8fcc1d73bb5fe41d9efe9ff5dd3423a12a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
