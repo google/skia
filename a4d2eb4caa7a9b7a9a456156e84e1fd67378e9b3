@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f175168_8cf22215",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-18T17:53:10Z",
+      "side": 1,
+      "message": "I think the code should read 0.5f * fTextSize instead of 0.5f*fMaxTextSize, which is the current code. My reason is that factorForMaxDimensionToFit is the factor used to scale a glyph to fit in an atlas. This factor is multiplied times fTextSize to get a new smaller textSize. Using the same reasoning, we don\u0027t want that size to be smaller than half the original text size. Is this the correct reasoning? In my mind fMaxTextSize is the maximum dimension of a glyph, and not related to glyph size.",
+      "range": {
+        "startLine": 226,
+        "startChar": 8,
+        "endLine": 226,
+        "endChar": 62
+      },
+      "revId": "a4d2eb4caa7a9b7a9a456156e84e1fd67378e9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
