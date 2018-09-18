@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "117fcc02_88fb2c41",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-09-18T17:23:10Z",
+      "side": 1,
+      "message": "Why is this needed?",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 35
+      },
+      "revId": "5f559e61559a9665f843becc690f8bfdceace75f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94c22d15_b884d188",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-09-18T17:23:10Z",
+      "side": 1,
+      "message": "I don\u0027t think this is enough to uniquely identify the task, eg. if there are multiple attempts for a given issue+patchset.  Can we use a task ID?",
+      "range": {
+        "startLine": 72,
+        "startChar": 8,
+        "endLine": 72,
+        "endChar": 57
+      },
+      "revId": "5f559e61559a9665f843becc690f8bfdceace75f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62143276_5227aaaa",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-09-18T17:23:10Z",
+      "side": 1,
+      "message": "I don\u0027t understand this logic.  Can you explain?",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 15
+      },
+      "revId": "5f559e61559a9665f843becc690f8bfdceace75f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
