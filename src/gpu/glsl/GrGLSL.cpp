@@ -71,14 +71,7 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
         case kUShort_GrSLType:
             return "ushort";
         case kUShort2_GrSLType:
-            if (shaderCaps->integerSupport()) {
-                return "ushort2";
-            } else {
-                // uint2 (aka uvec2) isn't supported in GLSL ES 1.00/GLSL 1.20
-                // FIXME: this should be handled by the client code rather than relying on
-                // unconventional ushort2 behavior.
-                return "float2";
-            }
+            return "ushort2";
         case kUShort3_GrSLType:
             return "ushort3";
         case kUShort4_GrSLType:

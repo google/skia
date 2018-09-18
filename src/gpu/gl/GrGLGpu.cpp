@@ -1828,8 +1828,8 @@ void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
         for (int i = 0; i < fHWProgram->numVertexAttributes(); ++i) {
             const auto& attrib = fHWProgram->vertexAttribute(i);
             static constexpr int kDivisor = 0;
-            attribState->set(this, attrib.fLocation, vertexBuffer, attrib.fType, vertexStride,
-                             bufferOffset + attrib.fOffset, kDivisor);
+            attribState->set(this, attrib.fLocation, vertexBuffer, attrib.fCPUType, attrib.fGPUType,
+                             vertexStride, bufferOffset + attrib.fOffset, kDivisor);
         }
     }
     if (int instanceStride = fHWProgram->instanceStride()) {
@@ -1839,8 +1839,9 @@ void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
         for (int i = 0; i < fHWProgram->numInstanceAttributes(); ++i, ++attribIdx) {
             const auto& attrib = fHWProgram->instanceAttribute(i);
             static constexpr int kDivisor = 1;
-            attribState->set(this, attrib.fLocation, instanceBuffer, attrib.fType, instanceStride,
-                             bufferOffset + attrib.fOffset, kDivisor);
+            attribState->set(this, attrib.fLocation, instanceBuffer, attrib.fCPUType,
+                             attrib.fGPUType, instanceStride, bufferOffset + attrib.fOffset,
+                             kDivisor);
         }
     }
 }
@@ -3462,7 +3463,7 @@ void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencil
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
     attribs->enableVertexArrays(this, 1);
     attribs->set(this, 0, fStencilClipClearArrayBuffer.get(), kFloat2_GrVertexAttribType,
-                 2 * sizeof(GrGLfloat), 0);
+                 kFloat2_GrSLType, 2 * sizeof(GrGLfloat), 0);
 
     GrXferProcessor::BlendInfo blendInfo;
     blendInfo.reset();
@@ -3574,7 +3575,7 @@ void GrGLGpu::clearColorAsDraw(const GrFixedClip& clip, GrGLfloat r, GrGLfloat g
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
     attribs->enableVertexArrays(this, 1);
     attribs->set(this, 0, fClearProgramArrayBuffer.get(), kFloat2_GrVertexAttribType,
-                 2 * sizeof(GrGLfloat), 0);
+                 kFloat2_GrSLType, 2 * sizeof(GrGLfloat), 0);
 
     GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(dst);
     this->flushScissor(clip.scissorState(), glrt->getViewport(), origin);
@@ -3634,7 +3635,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
     attribs->enableVertexArrays(this, 1);
     attribs->set(this, 0, fCopyProgramArrayBuffer.get(), kFloat2_GrVertexAttribType,
-                 2 * sizeof(GrGLfloat), 0);
+                 kFloat2_GrSLType, 2 * sizeof(GrGLfloat), 0);
 
     // dst rect edges in NDC (-1 to 1)
     int dw = dst->width();
@@ -3833,7 +3834,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
     attribs->enableVertexArrays(this, 1);
     attribs->set(this, 0, fMipmapProgramArrayBuffer.get(), kFloat2_GrVertexAttribType,
-                 2 * sizeof(GrGLfloat), 0);
+                 kFloat2_GrSLType, 2 * sizeof(GrGLfloat), 0);
 
     // Set "simple" state once:
     GrXferProcessor::BlendInfo blendInfo;

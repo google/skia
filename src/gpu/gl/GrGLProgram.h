@@ -33,7 +33,8 @@ public:
      * Additionally, these store the attribute location.
      */
     struct Attribute {
-        GrVertexAttribType fType;
+        GrVertexAttribType fCPUType;
+        GrSLType fGPUType;
         size_t fOffset;
         GrGLint fLocation;
     };

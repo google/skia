@@ -136,7 +136,8 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
     fAttributes.reset(
             new GrGLProgram::Attribute[fVertexAttributeCnt + fInstanceAttributeCnt]);
     auto addAttr = [&](int i, const auto& a, size_t* stride) {
-        fAttributes[i].fType = a.cpuType();
+        fAttributes[i].fCPUType = a.cpuType();
+        fAttributes[i].fGPUType = a.gpuType();
         fAttributes[i].fOffset = *stride;
         *stride += a.sizeAlign4();
         fAttributes[i].fLocation = i;
