@@ -115,6 +115,16 @@ public:
                                       PromiseDoneProc promiseDoneProc,
                                       TextureContext textureContext);
 
+    sk_sp<SkImage> makeYUVPromiseTexture(SkYUVColorSpace yuvColorSpace,
+                                         const GrBackendFormat yuvaFormats[4],
+                                         int width,
+                                         int height,
+                                         GrSurfaceOrigin origin,
+                                         sk_sp<SkColorSpace> imageColorSpace,
+                                         TextureFulfillProc textureFulfillProc,
+                                         TextureReleaseProc textureReleaseProc,
+                                         PromiseDoneProc promiseDoneProc,
+                                         TextureContext textureContexts[4]);
 private:
     bool init();
 

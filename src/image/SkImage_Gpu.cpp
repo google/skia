@@ -14,6 +14,7 @@
 #include "GrBackendTextureImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
+#include "GrClip.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -131,6 +132,10 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
     GrTextureAdjuster adjuster(fContext.get(), fProxy, this->alphaType(), this->uniqueID(),
                                this->fColorSpace.get());
     return adjuster.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
+}
+
+bool SkImage_Gpu::asYUVATextureProxies(GrContext* context) const {
+    return false;
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -807,6 +812,20 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
                                    std::move(proxy), std::move(colorSpace), SkBudgeted::kNo);
+}
+
+sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVTexture(GrContext* context,
+                                                  SkYUVColorSpace yuvColorSpace,
+                                                  const GrBackendFormat yuvaFormats[4],
+                                                  int width,
+                                                  int height,
+                                                  GrSurfaceOrigin origin,
+                                                  sk_sp<SkColorSpace> imageColorSpace,
+                                                  TextureFulfillProc textureFulfillProc,
+                                                  TextureReleaseProc textureReleaseProc,
+                                                  PromiseDoneProc promiseDoneProc,
+                                                  TextureContext textureContexts[4]) {
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
