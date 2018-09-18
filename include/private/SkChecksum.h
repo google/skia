@@ -8,10 +8,10 @@
 #ifndef SkChecksum_DEFINED
 #define SkChecksum_DEFINED
 
+#include "../core/SkString.h"
+#include "../core/SkTypes.h"
 #include "../private/SkNoncopyable.h"
-#include "SkString.h"
 #include "SkTLogic.h"
-#include "SkTypes.h"
 
 // #include "SkOpts.h"
 // It's sort of pesky to be able to include SkOpts.h here, so we'll just re-declare what we need.

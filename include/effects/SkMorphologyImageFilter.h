@@ -8,10 +8,10 @@
 #ifndef SkMorphologyImageFilter_DEFINED
 #define SkMorphologyImageFilter_DEFINED
 
-#include "SkColor.h"
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
-#include "SkSize.h"
+#include "../core/SkColor.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkImageFilter.h"
+#include "../core/SkSize.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 class SK_API SkMorphologyImageFilter : public SkImageFilter {

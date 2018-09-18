@@ -8,10 +8,10 @@
 #ifndef GrOpList_DEFINED
 #define GrOpList_DEFINED
 
+#include "../core/SkRefCnt.h"
 #include "GrColor.h"
 #include "GrProxyRef.h"
 #include "GrTextureProxy.h"
-#include "SkRefCnt.h"
 #include "SkTDArray.h"
 
 class GrAuditTrail;

@@ -10,7 +10,7 @@
 #define GrVkTypes_DEFINED
 
 #include <functional>
-#include "GrTypes.h"
+#include "../GrTypes.h"
 #include "GrVkDefines.h"
 
 typedef intptr_t GrVkBackendMemory;

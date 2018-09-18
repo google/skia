@@ -8,13 +8,12 @@
 #ifndef SkFloatingPoint_DEFINED
 #define SkFloatingPoint_DEFINED
 
-#include "../private/SkFloatBits.h"
-#include "SkTypes.h"
-#include "SkSafe_math.h"
 #include <float.h>
 #include <math.h>
 #include <cstring>
-
+#include "../core/SkTypes.h"
+#include "../private/SkFloatBits.h"
+#include "SkSafe_math.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <xmmintrin.h>

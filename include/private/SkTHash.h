@@ -8,10 +8,10 @@
 #ifndef SkTHash_DEFINED
 #define SkTHash_DEFINED
 
-#include "SkChecksum.h"
-#include "SkTypes.h"
-#include "SkTemplates.h"
 #include <new>
+#include "../core/SkTypes.h"
+#include "SkChecksum.h"
+#include "SkTemplates.h"
 
 // Before trying to use SkTHashTable, look below to see if SkTHashMap or SkTHashSet works for you.
 // They're easier to use, usually perform the same, and have fewer sharp edges.

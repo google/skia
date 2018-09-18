@@ -8,7 +8,7 @@
 #ifndef SkAlphaThresholdFilter_DEFINED
 #define SkAlphaThresholdFilter_DEFINED
 
-#include "SkImageFilter.h"
+#include "../core/SkImageFilter.h"
 
 class SkRegion;
 

@@ -8,10 +8,10 @@
 #ifndef SkDropShadowImageFilter_DEFINED
 #define SkDropShadowImageFilter_DEFINED
 
-#include "SkColor.h"
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
-#include "SkScalar.h"
+#include "../core/SkColor.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkImageFilter.h"
+#include "../core/SkScalar.h"
 
 class SK_API SkDropShadowImageFilter : public SkImageFilter {
 public:

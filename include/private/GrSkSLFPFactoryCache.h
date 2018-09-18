@@ -8,7 +8,7 @@
 #ifndef GrSkSLFPFactoryCache_DEFINED
 #define GrSkSLFPFactoryCache_DEFINED
 
-#include "SkRefCnt.h"
+#include "../core/SkRefCnt.h"
 
 #include <vector>
 

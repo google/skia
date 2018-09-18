@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "../core/SkTypes.h"
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
-#include "SkCGUtils.h"
-#include "SkData.h"
-#include "SkEncodedOrigin.h"
-#include "SkImageGenerator.h"
-#include "SkTemplates.h"
+#include "../codec/SkEncodedOrigin.h"
+#include "../core/SkData.h"
+#include "../core/SkImageGenerator.h"
+#include "../private/SkTemplates.h"
+#include "../utils/mac/SkCGUtils.h"
 
 class SK_API SkImageGeneratorCG : public SkImageGenerator {
 public:

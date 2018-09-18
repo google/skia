@@ -8,8 +8,8 @@
 #ifndef GrCCClipPath_DEFINED
 #define GrCCClipPath_DEFINED
 
+#include "../core/SkPath.h"
 #include "GrTextureProxy.h"
-#include "SkPath.h"
 
 struct GrCCPerFlushResourceSpecs;
 class GrCCAtlas;

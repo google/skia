@@ -8,8 +8,8 @@
 #ifndef SkComposeImageFilter_DEFINED
 #define SkComposeImageFilter_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkImageFilter.h"
 
 class SK_API SkComposeImageFilter : public SkImageFilter {
 public:

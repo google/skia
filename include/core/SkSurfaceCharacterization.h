@@ -8,7 +8,7 @@
 #ifndef SkSurfaceCharacterization_DEFINED
 #define SkSurfaceCharacterization_DEFINED
 
-#include "GrTypes.h"
+#include "../gpu/GrTypes.h"
 
 #include "SkColorSpace.h"
 #include "SkRefCnt.h"
@@ -17,7 +17,7 @@
 class SkColorSpace;
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
+#include "../gpu/GrContext.h"
 
 /** \class SkSurfaceCharacterization
     A surface characterization contains all the information Ganesh requires to makes its internal

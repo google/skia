@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "../core/SkTypes.h"
 
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkData.h"
-#include "SkImageGenerator.h"
-#include "SkTemplates.h"
+#include "../core/SkData.h"
+#include "../core/SkImageGenerator.h"
+#include "../private/SkTemplates.h"
 #include "SkTScopedComPtr.h"
 
 #include <wincodec.h>

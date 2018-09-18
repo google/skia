@@ -9,9 +9,9 @@
 #ifndef SkTDArray_DEFINED
 #define SkTDArray_DEFINED
 
+#include "../core/SkTypes.h"
 #include "SkMalloc.h"
 #include "SkTo.h"
-#include "SkTypes.h"
 
 #include <initializer_list>
 #include <utility>

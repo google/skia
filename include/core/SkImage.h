@@ -18,10 +18,10 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
-#include "GrTypes.h"
+#include "../gpu/GrTypes.h"
 #include "SkFilterQuality.h"
-#include "SkImageInfo.h"
 #include "SkImageEncoder.h"
+#include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkShader.h"

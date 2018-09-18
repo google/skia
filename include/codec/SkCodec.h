@@ -8,19 +8,19 @@
 #ifndef SkCodec_DEFINED
 #define SkCodec_DEFINED
 
+#include "../core/SkColor.h"
+#include "../core/SkEncodedImageFormat.h"
+#include "../core/SkImageInfo.h"
+#include "../core/SkPixmap.h"
+#include "../core/SkSize.h"
+#include "../core/SkStream.h"
+#include "../core/SkTypes.h"
+#include "../core/SkYUVSizeInfo.h"
+#include "../private/SkEncodedInfo.h"
 #include "../private/SkNoncopyable.h"
 #include "../private/SkTemplates.h"
-#include "../private/SkEncodedInfo.h"
 #include "SkCodecAnimation.h"
-#include "SkColor.h"
-#include "SkEncodedImageFormat.h"
 #include "SkEncodedOrigin.h"
-#include "SkImageInfo.h"
-#include "SkPixmap.h"
-#include "SkSize.h"
-#include "SkStream.h"
-#include "SkTypes.h"
-#include "SkYUVSizeInfo.h"
 
 #include <vector>
 

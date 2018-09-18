@@ -8,9 +8,9 @@
 #ifndef SkXfermodeImageFilter_DEFINED
 #define SkXfermodeImageFilter_DEFINED
 
+#include "../core/SkBlendMode.h"
+#include "../core/SkImageFilter.h"
 #include "SkArithmeticImageFilter.h"
-#include "SkBlendMode.h"
-#include "SkImageFilter.h"
 
 /**
  * This filter takes a SkBlendMode, and uses it to composite the foreground over the background.

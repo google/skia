@@ -8,10 +8,10 @@
 #ifndef SkFixed_DEFINED
 #define SkFixed_DEFINED
 
+#include "../core/SkScalar.h"
+#include "../core/SkTypes.h"
 #include "SkSafe_math.h"
-#include "SkScalar.h"
 #include "SkTo.h"
-#include "SkTypes.h"
 
 /** \file SkFixed.h
 

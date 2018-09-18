@@ -8,9 +8,9 @@
 #ifndef SkEncodedInfo_DEFINED
 #define SkEncodedInfo_DEFINED
 
-#include "SkData.h"
-#include "SkImageInfo.h"
 #include "../../third_party/skcms/skcms.h"
+#include "../core/SkData.h"
+#include "../core/SkImageInfo.h"
 
 struct SkEncodedInfo {
 public:

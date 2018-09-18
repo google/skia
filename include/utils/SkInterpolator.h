@@ -9,9 +9,9 @@
 #ifndef SkInterpolator_DEFINED
 #define SkInterpolator_DEFINED
 
+#include "../core/SkScalar.h"
 #include "../private/SkNoncopyable.h"
 #include "../private/SkTo.h"
-#include "SkScalar.h"
 
 class SK_API SkInterpolatorBase : SkNoncopyable {
 public:

@@ -8,8 +8,8 @@
 #ifndef SkSpinlock_DEFINED
 #define SkSpinlock_DEFINED
 
-#include "SkTypes.h"
 #include <atomic>
+#include "../core/SkTypes.h"
 
 class SkSpinlock {
 public:

@@ -9,11 +9,11 @@
 #define SkTypes_DEFINED
 
 // IWYU pragma: begin_exports
-#include "SkPreConfig.h"
-#include "SkUserConfig.h"
-#include "SkPostConfig.h"
 #include <stddef.h>
 #include <stdint.h>
+#include "../config/SkUserConfig.h"
+#include "SkPostConfig.h"
+#include "SkPreConfig.h"
 // IWYU pragma: end_exports
 
 /** \file SkTypes.h

@@ -8,8 +8,8 @@
 #ifndef GrRenderTarget_DEFINED
 #define GrRenderTarget_DEFINED
 
+#include "../core/SkRect.h"
 #include "GrSurface.h"
-#include "SkRect.h"
 
 class GrCaps;
 class GrRenderTargetOpList;

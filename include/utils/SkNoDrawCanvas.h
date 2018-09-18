@@ -8,9 +8,9 @@
 #ifndef SkNoDrawCanvas_DEFINED
 #define SkNoDrawCanvas_DEFINED
 
-#include "SkCanvas.h"
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkVertices.h"
+#include "../core/SkCanvas.h"
+#include "../core/SkCanvasVirtualEnforcer.h"
+#include "../core/SkVertices.h"
 
 struct SkIRect;
 

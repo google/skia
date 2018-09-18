@@ -19,7 +19,7 @@
 #include "GrDriverBugWorkaroundsAutogen.h"
 #endif
 
-#include "SkTypes.h"
+#include "../core/SkTypes.h"
 
 #include <stdint.h>
 #include <vector>

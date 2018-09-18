@@ -8,9 +8,9 @@
 #ifndef SkPaintFilterCanvas_DEFINED
 #define SkPaintFilterCanvas_DEFINED
 
-#include "SkCanvasVirtualEnforcer.h"
+#include "../core/SkCanvasVirtualEnforcer.h"
+#include "../core/SkTLazy.h"
 #include "SkNWayCanvas.h"
-#include "SkTLazy.h"
 
 /** \class SkPaintFilterCanvas
 

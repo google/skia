@@ -8,9 +8,9 @@
 #ifndef SkToSRGBColorFilter_DEFINED
 #define SkToSRGBColorFilter_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkColorFilter.h"
-#include "SkRefCnt.h"
+#include "../core/SkColorFilter.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkRefCnt.h"
 
 class SkColorSpace;
 class SkRasterPipeline;

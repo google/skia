@@ -8,10 +8,10 @@
 #ifndef SkRemotableFontMgr_DEFINED
 #define SkRemotableFontMgr_DEFINED
 
+#include "../core/SkFontStyle.h"
+#include "../core/SkRefCnt.h"
+#include "../core/SkTypes.h"
 #include "../private/SkTemplates.h"
-#include "SkFontStyle.h"
-#include "SkRefCnt.h"
-#include "SkTypes.h"
 
 class SkDataTable;
 class SkStreamAsset;

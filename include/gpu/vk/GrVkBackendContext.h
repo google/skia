@@ -8,8 +8,8 @@
 #ifndef GrVkBackendContext_DEFINED
 #define GrVkBackendContext_DEFINED
 
+#include "../../core/SkRefCnt.h"
 #include "GrVkTypes.h"
-#include "SkRefCnt.h"
 #include "vk/GrVkMemoryAllocator.h"
 
 class GrVkExtensions;

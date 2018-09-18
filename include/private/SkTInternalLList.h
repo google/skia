@@ -8,8 +8,8 @@
 #ifndef SkTInternalLList_DEFINED
 #define SkTInternalLList_DEFINED
 
+#include "../core/SkTypes.h"
 #include "../private/SkNoncopyable.h"
-#include "SkTypes.h"
 
 /**
  * Helper class to automatically initialize the doubly linked list created pointers.

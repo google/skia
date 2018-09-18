@@ -8,7 +8,7 @@
 #ifndef SkTextOnPath_DEFINED
 #define SkTextOnPath_DEFINED
 
-#include "SkTypes.h"
+#include "../core/SkTypes.h"
 
 class SkCanvas;
 class SkMatrix;

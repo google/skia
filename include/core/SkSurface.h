@@ -22,7 +22,7 @@
 #include "SkImage.h"
 #include "SkSurfaceProps.h"
 
-#include "GrTypes.h"
+#include "../gpu/GrTypes.h"
 
 class SkCanvas;
 class SkDeferredDisplayList;

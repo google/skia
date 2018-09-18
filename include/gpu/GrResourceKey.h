@@ -9,12 +9,12 @@
 #define GrResourceKey_DEFINED
 
 #include <new>
+#include "../core/SkData.h"
+#include "../core/SkString.h"
 #include "../private/SkOnce.h"
 #include "../private/SkTemplates.h"
 #include "../private/SkTo.h"
 #include "GrTypes.h"
-#include "SkData.h"
-#include "SkString.h"
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
 

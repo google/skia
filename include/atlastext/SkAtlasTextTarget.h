@@ -9,9 +9,9 @@
 #define SkAtlasTextTarget_DEFINED
 
 #include <memory>
-#include "SkDeque.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
+#include "../core/SkDeque.h"
+#include "../core/SkRefCnt.h"
+#include "../core/SkScalar.h"
 
 class SkAtlasTextContext;
 class SkAtlasTextFont;

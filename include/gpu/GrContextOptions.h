@@ -8,11 +8,11 @@
 #ifndef GrContextOptions_DEFINED
 #define GrContextOptions_DEFINED
 
-#include "SkData.h"
-#include "SkTypes.h"
-#include "GrTypes.h"
+#include "../core/SkData.h"
+#include "../core/SkTypes.h"
 #include "../private/GrTypesPriv.h"
 #include "GrDriverBugWorkarounds.h"
+#include "GrTypes.h"
 
 #include <vector>
 

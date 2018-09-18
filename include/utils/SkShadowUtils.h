@@ -8,9 +8,9 @@
 #ifndef SkShadowUtils_DEFINED
 #define SkShadowUtils_DEFINED
 
-#include "SkColor.h"
-#include "SkPoint3.h"
-#include "SkScalar.h"
+#include "../core/SkColor.h"
+#include "../core/SkPoint3.h"
+#include "../core/SkScalar.h"
 #include "../private/SkShadowFlags.h"
 
 class SkCanvas;

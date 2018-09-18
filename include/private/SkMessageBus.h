@@ -8,12 +8,12 @@
 #ifndef SkMessageBus_DEFINED
 #define SkMessageBus_DEFINED
 
+#include "../core/SkTypes.h"
 #include "../private/SkNoncopyable.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
-#include "SkTypes.h"
 
 /**
  * Message must implement bool Message::shouldSend(uint32_t inboxID) const. Perhaps someday we

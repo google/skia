@@ -8,7 +8,7 @@
 #ifndef SkColorMatrix_DEFINED
 #define SkColorMatrix_DEFINED
 
-#include "SkScalar.h"
+#include "../core/SkScalar.h"
 
 class SK_API SkColorMatrix {
 public:

@@ -8,8 +8,8 @@
 #ifndef GrVkExtensions_DEFINED
 #define GrVkExtensions_DEFINED
 
+#include "../../core/SkString.h"
 #include "../../private/SkTArray.h"
-#include "SkString.h"
 #include "vk/GrVkTypes.h"
 
 /**

@@ -8,9 +8,9 @@
 #ifndef SkImageSource_DEFINED
 #define SkImageSource_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImage.h"
-#include "SkImageFilter.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkImage.h"
+#include "../core/SkImageFilter.h"
 
 class SK_API SkImageSource : public SkImageFilter {
 public:

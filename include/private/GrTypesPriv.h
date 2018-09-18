@@ -9,11 +9,11 @@
 #define GrTypesPriv_DEFINED
 
 #include <chrono>
+#include "../core/SkImageInfo.h"
+#include "../core/SkRefCnt.h"
+#include "../gpu/GrTypes.h"
 #include "GrSharedEnums.h"
-#include "GrTypes.h"
-#include "SkImageInfo.h"
 #include "SkImageInfoPriv.h"
-#include "SkRefCnt.h"
 #include "SkWeakRefCnt.h"
 
 class GrCaps;

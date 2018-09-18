@@ -8,10 +8,10 @@
 #ifndef SkAndroidCodec_DEFINED
 #define SkAndroidCodec_DEFINED
 
+#include "../core/SkEncodedImageFormat.h"
+#include "../core/SkStream.h"
+#include "../core/SkTypes.h"
 #include "SkCodec.h"
-#include "SkEncodedImageFormat.h"
-#include "SkStream.h"
-#include "SkTypes.h"
 
 /**
  *  Abstract interface defining image codec functionality that is necessary for

@@ -8,7 +8,7 @@
 #ifndef GrMockOptions_DEFINED
 #define GrMockOptions_DEFINED
 
-#include "GrTypes.h"
+#include "../GrTypes.h"
 #include "../private/GrTypesPriv.h"
 
 struct GrMockTextureInfo {

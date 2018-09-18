@@ -11,10 +11,10 @@
 #ifndef GrColor_DEFINED
 #define GrColor_DEFINED
 
-#include "GrTypes.h"
-#include "SkColor.h"
-#include "SkColorPriv.h"
-#include "SkUnPreMultiply.h"
+#include "../core/SkColor.h"
+#include "../core/SkColorPriv.h"
+#include "../core/SkUnPreMultiply.h"
+#include "../gpu/GrTypes.h"
 
 /**
  * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. Whether the color is

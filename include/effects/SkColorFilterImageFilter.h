@@ -8,8 +8,8 @@
 #ifndef SkColorFilterImageFilter_DEFINED
 #define SkColorFilterImageFilter_DEFINED
 
-#include "SkImageFilter.h"
-#include "SkColorFilter.h"
+#include "../core/SkColorFilter.h"
+#include "../core/SkImageFilter.h"
 
 class SK_API SkColorFilterImageFilter : public SkImageFilter {
 public:

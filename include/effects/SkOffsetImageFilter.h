@@ -8,9 +8,9 @@
 #ifndef SkOffsetImageFilter_DEFINED
 #define SkOffsetImageFilter_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
-#include "SkPoint.h"
+#include "../core/SkFlattenable.h"
+#include "../core/SkImageFilter.h"
+#include "../core/SkPoint.h"
 
 class SK_API SkOffsetImageFilter : public SkImageFilter {
 public:
