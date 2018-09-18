@@ -1,7 +1,4 @@
-SkSurface Reference
-===
 
-# <a name='Surface'>Surface</a>
 
 # <a name='SkSurface'>Class SkSurface</a>
 <a href='#SkSurface'>SkSurface</a> is responsible for managing the pixels that a canvas draws into. The pixels can be
@@ -17,25 +14,25 @@ of the requested dimensions are zero, then nullptr will be returned.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkSurface'>SkSurface</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
 </table>
 
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
 SkSurface related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
@@ -72,7 +69,7 @@ SkSurface related constants are defined by <code>enum</code>, <code>enum class</
   </tr>
 </table>
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkSurface global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -97,7 +94,7 @@ SkSurface global, <code>struct</code>, and <code>class</code> related member fun
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkSurface member functions read and modify the structure properties.
@@ -214,7 +211,7 @@ SkSurface member functions read and modify the structure properties.
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkSurface can be constructed or initialized by these functions, including C++ class constructors.
@@ -1226,6 +1223,8 @@ Notifies that <a href='#Surface'>Surface</a> contents will be changed by code ou
 Subsequent calls to <a href='#SkSurface_generationID'>generationID</a> return a different value.
 
 <a href='#SkSurface_notifyContentWillChange_mode'>mode</a> is normally passed as <a href='#SkSurface_kRetain_ContentChangeMode'>kRetain ContentChangeMode</a>.
+
+Private: Can we deprecate this?
 
 ### Parameters
 

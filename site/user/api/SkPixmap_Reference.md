@@ -1,7 +1,4 @@
-SkPixmap Reference
-===
 
-# <a name='Pixmap'>Pixmap</a>
 
 # <a name='SkPixmap'>Class SkPixmap</a>
 <a href='#Pixmap'>Pixmap</a> provides a utility to pair <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> with pixels and row bytes.
@@ -21,21 +18,21 @@ to manage pixel memory; <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is safe a
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkPixmap'>SkPixmap</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkPixmap global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -68,7 +65,7 @@ SkPixmap global, <code>struct</code>, and <code>class</code> related member func
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkPixmap can be constructed or initialized by these functions, including C++ class constructors.
@@ -85,7 +82,7 @@ SkPixmap can be constructed or initialized by these functions, including C++ cla
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkPixmap member functions read and modify the structure properties.

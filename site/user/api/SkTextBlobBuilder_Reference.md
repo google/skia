@@ -1,23 +1,6 @@
-SkTextBlobBuilder Reference
-===
 
-# <a name='Text_Blob_Builder'>Text Blob Builder</a>
 
 # <a name='SkTextBlobBuilder'>Class SkTextBlobBuilder</a>
-
-## <a name='Struct'>Struct</a>
-
-
-SkTextBlobBuilder uses C++ structs to declare the public data structures and interfaces.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>storage for <a href='undocumented#Glyph'>Glyphs</a> and <a href='undocumented#Glyph'>Glyph</a> positions</td>
-  </tr>
-</table>
-
 Helper class for constructing <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>.
 
 ## Overview
@@ -26,21 +9,21 @@ Helper class for constructing <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBl
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkTextBlobBuilder'>SkTextBlobBuilder</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Struct'>Struct Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Structs'>Struct Declarations</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded struct members</td>
   </tr>
 </table>
 
 
-## <a name='Class'>Class</a>
+## <a name='Classes'>Classes</a>
 
 
 SkTextBlobBuilder uses C++ classes to declare the public data structures and interfaces.
@@ -49,7 +32,7 @@ SkTextBlobBuilder uses C++ classes to declare the public data structures and int
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkTextBlobBuilder can be constructed or initialized by these functions, including C++ class constructors.
@@ -70,7 +53,7 @@ SkTextBlobBuilder can be constructed or initialized by these functions, includin
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkTextBlobBuilder member functions read and modify the structure properties.
@@ -115,7 +98,7 @@ determine the advance to subsequent <a href='undocumented#Glyph'>Glyphs</a>; by 
 the position on that baseline for each <a href='undocumented#Glyph'>Glyph</a> in run; or by providing <a href='SkPoint_Reference#Point'>Point</a>
 array, one per <a href='undocumented#Glyph'>Glyph</a>.
 
-## <a name='Member'>Member</a>
+## <a name='Members'>Members</a>
 
 
 SkTextBlobBuilder::RunBuffer members may be read and written directly without using a member function.

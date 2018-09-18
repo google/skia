@@ -1023,17 +1023,17 @@ public:
 
 class SubtopicKeys {
 public:
-    static constexpr const char* kClasses = "Class";
-    static constexpr const char* kConstants = "Constant";
-    static constexpr const char* kConstructors = "Constructor";
-    static constexpr const char* kDefines = "Define";
-    static constexpr const char* kMemberFunctions = "Member_Function";
-    static constexpr const char* kMembers = "Member";
-    static constexpr const char* kOperators = "Operator";
+    static constexpr const char* kClasses = "Classes";
+    static constexpr const char* kConstants = "Constants";
+    static constexpr const char* kConstructors = "Constructors";
+    static constexpr const char* kDefines = "Defines";
+    static constexpr const char* kMemberFunctions = "Member_Functions";
+    static constexpr const char* kMembers = "Members";
+    static constexpr const char* kOperators = "Operators";
     static constexpr const char* kOverview = "Overview";
-    static constexpr const char* kRelatedFunctions = "Related_Function";
-    static constexpr const char* kStructs = "Struct";
-    static constexpr const char* kTypedefs = "Typedef";
+    static constexpr const char* kRelatedFunctions = "Related_Functions";
+    static constexpr const char* kStructs = "Structs";
+    static constexpr const char* kTypedefs = "Typedefs";
 
     static const char* kGeneratedSubtopics[];
 };
@@ -1463,6 +1463,7 @@ public:
     Definition* findExample(string name) const;
     MarkType getMarkType(MarkLookup lookup) const;
     bool hasEndToken() const;
+    static bool IsExemplary(const Definition* );
     string memberName();
     string methodName();
     const Definition* parentSpace() const;
@@ -2350,6 +2351,8 @@ private:
 
     void subtopicOut(string name);
     void subtopicsOut(Definition* def);
+    void subtopicOut(const vector<Definition*>& data, const Definition* csParent,
+        const Definition* topicParent, bool showClones);
     void summaryOut(const Definition* def, MarkType , string name);
     string tableDataCodeDef(const Definition* def);
     string tableDataCodeDef(string def, string name);
@@ -2430,7 +2433,8 @@ public:
                 if (ptr && '(' ==  *ptr && strncmp(ptr, "(...", 4)) {
                     this->skipToEndBracket(')');
                     SkAssertResult(')' == this->next());
-                    this->skipExact("_const");
+                    this->skipExact("_const") || (BmhParser::Resolvable::kCode == resolvable
+                            && this->skipExact(" const"));
                     return;
                 }
             }

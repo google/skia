@@ -1,7 +1,3 @@
-SkImageInfo Reference
-===
-
-# <a name='Image_Info'>Image Info</a>
 <a href='#Image_Info'>Image Info</a> specifies the dimensions and encoding of the pixels in a <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>.
 The dimensions are integral width and height. The encoding is how pixel
 bits describe <a href='SkColor_Reference#Alpha'>Color Alpha</a>, transparency; <a href='SkColor_Reference#Color'>Color</a> components red, blue,
@@ -18,25 +14,25 @@ but <a href='SkImage_Reference#Image'>Image</a> and <a href='SkSurface_Reference
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkImageInfo'>SkImageInfo</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
 </table>
 
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
 SkImageInfo related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
@@ -978,16 +974,6 @@ Used by tests to iterate through all valid values.
 <a href='SkImage_Reference#SkImage_MakeFromYUVTexturesCopy'>SkImage::MakeFromYUVTexturesCopy</a> <a href='SkImage_Reference#SkImage_MakeFromNV12TexturesCopy'>SkImage::MakeFromNV12TexturesCopy</a>
 
 # <a name='SkImageInfo'>Struct SkImageInfo</a>
-
-## <a name='Constant'>Constant</a>
-
-
-SkImageInfo related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-</table>
-
 Describes pixel dimensions and encoding. <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, <a href='SkImage_Reference#Image'>Image</a>, PixMap, and <a href='SkSurface_Reference#Surface'>Surface</a>
 can be created from <a href='#Image_Info'>Image Info</a>. <a href='#Image_Info'>Image Info</a> can be retrieved from <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> and
 <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>, but not from <a href='SkImage_Reference#Image'>Image</a> and <a href='SkSurface_Reference#Surface'>Surface</a>. For example, <a href='SkImage_Reference#Image'>Image</a> and <a href='SkSurface_Reference#Surface'>Surface</a>
@@ -997,7 +983,7 @@ implementations may defer pixel depth, so may not completely specify <a href='#I
 how pixel bits describe <a href='SkColor_Reference#Alpha'>Color Alpha</a>, transparency; <a href='SkColor_Reference#Color'>Color</a> components red, blue,
 and green; and <a href='undocumented#Color_Space'>Color Space</a>, the range and linearity of colors.
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkImageInfo member functions read and modify the structure properties.
@@ -1150,7 +1136,7 @@ SkImageInfo member functions read and modify the structure properties.
   </tr>
 </table>
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkImageInfo global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -1235,7 +1221,7 @@ SkImageInfo global, <code>struct</code>, and <code>class</code> related member f
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkImageInfo can be constructed or initialized by these functions, including C++ class constructors.
@@ -2411,7 +2397,7 @@ offset within pixel array
 
 ---
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
 SkImageInfo operators inline class member functions with arithmetic equivalents.
@@ -2432,7 +2418,7 @@ SkImageInfo operators inline class member functions with arithmetic equivalents.
 ## operator==
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool operator==(const SkImageInfo& other) _const
+bool operator==(const SkImageInfo& other) const
 </pre>
 
 Compares <a href='#Image_Info'>Image Info</a> with <a href='#SkImageInfo_equal1_operator_other'>other</a>, and returns true if width, height, <a href='#Color_Type'>Color Type</a>,
@@ -2474,7 +2460,7 @@ info1 == info2
 ## operator!=
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool operator!=(const SkImageInfo& other) _const
+bool operator!=(const SkImageInfo& other) const
 </pre>
 
 Compares <a href='#Image_Info'>Image Info</a> with <a href='#SkImageInfo_notequal1_operator_other'>other</a>, and returns true if width, height, <a href='#Color_Type'>Color Type</a>,

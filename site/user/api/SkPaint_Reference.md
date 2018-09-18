@@ -1,7 +1,4 @@
-SkPaint Reference
-===
 
-# <a name='Paint'>Paint</a>
 
 # <a name='SkPaint'>Class SkPaint</a>
 <a href='#Paint'>Paint</a> controls options applied when drawing and measuring. <a href='#Paint'>Paint</a> collects all
@@ -36,33 +33,33 @@ Multiple colors are drawn either by using multiple paints or with objects like
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkPaint'>SkPaint</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Struct'>Struct Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Structs'>Struct Declarations</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded struct members</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkPaint global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -255,7 +252,7 @@ SkPaint global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
 </table>
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
 SkPaint related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
@@ -444,7 +441,7 @@ SkPaint related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-## <a name='Struct'>Struct</a>
+## <a name='Structs'>Structs</a>
 
 
 SkPaint uses C++ structs to declare the public data structures and interfaces.
@@ -457,7 +454,7 @@ SkPaint uses C++ structs to declare the public data structures and interfaces.
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkPaint can be constructed or initialized by these functions, including C++ class constructors.
@@ -482,7 +479,7 @@ SkPaint can be constructed or initialized by these functions, including C++ clas
   </tr>
 </table>
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
 SkPaint operators inline class member functions with arithmetic equivalents.
@@ -507,7 +504,7 @@ SkPaint operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkPaint member functions read and modify the structure properties.
@@ -4848,133 +4845,6 @@ Y-axis values above the baseline are negative, and below the baseline are positi
 
 # <a name='SkPaint_FontMetrics'>Struct SkPaint::FontMetrics</a>
 
-## <a name='Font_Metrics_Constant'>Constant</a>
-
-
-SkPaint::FontMetrics related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>valid <a href='#Font_Metrics'>Font Metrics</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'>kStrikeoutPositionIsValid Flag</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>set if <a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a> is valid</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag'>kStrikeoutThicknessIsValid Flag</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>set if <a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a> is valid</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag'>kUnderlinePositionIsValid Flag</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>set if <a href='#SkPaint_FontMetrics_fUnderlinePosition'>fUnderlinePosition</a> is valid</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag'>kUnderlineThicknessIsValid Flag</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>set if <a href='#SkPaint_FontMetrics_fUnderlineThickness'>fUnderlineThickness</a> is valid</td>
-  </tr>
-</table>
-
-## <a name='Font_Metrics_Member_Function'>Member_Function</a>
-
-
-SkPaint::FontMetrics member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns strikeout position if set</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns strikeout thickness if set</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns underline position if set</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns underline thickness if set</td>
-  </tr>
-</table>
-
-## <a name='Font_Metrics_Member'>Member</a>
-
-
-SkPaint::FontMetrics members may be read and written directly without using a member function.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fAscent'>fAscent</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>distance to reserve above baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fAvgCharWidth'>fAvgCharWidth</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>average character width</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fBottom'>fBottom</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>extent below baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fCapHeight'>fCapHeight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>height of an upper-case letter</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fDescent'>fDescent</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>distance to reserve below baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fFlags'>fFlags</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>is set to <a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a> when metrics are valid</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fLeading'>fLeading</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>distance to add between lines</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fMaxCharWidth'>fMaxCharWidth</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>maximum character width</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>strikeout position relative to baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>strikeout thickness</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fTop'>fTop</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>extent above baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fUnderlinePosition'>fUnderlinePosition</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>underline position relative to baseline</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fUnderlineThickness'>fUnderlineThickness</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>underline thickness</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fXHeight'>fXHeight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>height of lower-case 'x'</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fXMax'>fXMax</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>maximum x</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fXMin'>fXMin</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>minimum x</td>
-  </tr>
-</table>
-
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     struct <a href='#SkPaint_FontMetrics'>FontMetrics</a> {
         enum <a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a> {
@@ -6091,6 +5961,8 @@ alpha 0 nothing to draw: true
 
 ## <a name='Fast_Bounds'>Fast Bounds</a>
 
+Private: To be made private.
+
 <a href='#Fast_Bounds'>Fast Bounds</a> functions conservatively outset a drawing bounds by additional area
 <a href='#Paint'>Paint</a> may draw to.
 
@@ -6100,6 +5972,8 @@ alpha 0 nothing to draw: true
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a>() const
 </pre>
+
+Private: (to be made private)
 
 Returns true if <a href='#Paint'>Paint</a> does not include elements requiring extensive computation
 to compute <a href='undocumented#Device'>Device</a> bounds of drawn geometry. For instance, <a href='#Paint'>Paint</a> with <a href='undocumented#Path_Effect'>Path Effect</a>
@@ -6118,6 +5992,8 @@ true if <a href='#Paint'>Paint</a> allows for fast computation of bounds
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastBounds'>computeFastBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const
 </pre>
 
+Private: (to be made private)
+
 Only call this if <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a> returned true. This takes a
 raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
 effects in the paint (e.g. stroking). If needed, it uses the <a href='#SkPaint_computeFastBounds_storage'>storage</a>
@@ -6128,6 +6004,15 @@ The returned <a href='SkRect_Reference#Rect'>Rect</a> will either be <a href='#S
 should not rely on <a href='#SkPaint_computeFastBounds_storage'>storage</a> being set to the result, but should always
 use the returned value. It is legal for <a href='#SkPaint_computeFastBounds_orig'>orig</a> and <a href='#SkPaint_computeFastBounds_storage'>storage</a> to be the same
 <a href='SkRect_Reference#Rect'>Rect</a>.
+
+Private: For example:
+    if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
+        SkRect storage;
+        if (canvas->quickReject(paint.computeFastBounds(path.getBounds(), &storage))) {
+            return; // do not draw the path
+        }
+    }
+    // draw the path
 
 ### Parameters
 
@@ -6152,6 +6037,8 @@ fast computed bounds
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastStrokeBounds'>computeFastStrokeBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const
 </pre>
 
+Private: (to be made private)
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_computeFastStrokeBounds_orig'><code><strong>orig</strong></code></a></td>
@@ -6174,6 +6061,8 @@ fast computed bounds
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_doComputeFastBounds'>doComputeFastBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage, <a href='#SkPaint_Style'>Style</a> style) const
 </pre>
+
+Private: (to be made private)
 
 Computes the bounds, overriding the <a href='#Paint'>Paint</a> <a href='#SkPaint_Style'>Style</a>. This can be used to
 account for additional width required by stroking <a href='#SkPaint_doComputeFastBounds_orig'>orig</a>, without

@@ -1,7 +1,3 @@
-SkPath Reference
-===
-
-# <a name='Path'>Path</a>
 <a href='#Path'>Path</a> contains <a href='undocumented#Line'>Lines</a> and <a href='undocumented#Curve'>Curves</a> which can be stroked or filled. <a href='#Contour'>Contour</a> is
 composed of a series of connected <a href='undocumented#Line'>Lines</a> and <a href='undocumented#Curve'>Curves</a>. <a href='#Path'>Path</a> may contain zero,
 one, or more <a href='#Contour'>Contours</a>.
@@ -100,33 +96,33 @@ Internally, <a href='#Path'>Path</a> lazily computes metrics likes bounds and co
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Class'>Class Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Classes'>Class Declarations</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded class members</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkPath'>SkPath</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkPath global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -219,7 +215,7 @@ SkPath global, <code>struct</code>, and <code>class</code> related member functi
   </tr>
 </table>
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
 SkPath related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
@@ -352,7 +348,7 @@ SkPath related constants are defined by <code>enum</code>, <code>enum class</cod
   </tr>
 </table>
 
-## <a name='Class'>Class</a>
+## <a name='Classes'>Classes</a>
 
 
 SkPath uses C++ classes to declare the public data structures and interfaces.
@@ -369,7 +365,7 @@ SkPath uses C++ classes to declare the public data structures and interfaces.
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkPath can be constructed or initialized by these functions, including C++ class constructors.
@@ -398,7 +394,7 @@ SkPath can be constructed or initialized by these functions, including C++ class
   </tr>
 </table>
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
 SkPath operators inline class member functions with arithmetic equivalents.
@@ -417,13 +413,9 @@ SkPath operators inline class member functions with arithmetic equivalents.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_equal_operator'>operator==(const SkPath& a, const SkPath& b)</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>compares <a href='#Path'>Paths</a> for equality</td>
   </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_swap'>swap</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exchanges <a href='#Path'>Path</a> pair</td>
-  </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkPath member functions read and modify the structure properties.
@@ -5953,7 +5945,24 @@ To be deprecated soon.
 
 # <a name='SkPath_Iter'>Class SkPath::Iter</a>
 
-## <a name='Constructor'>Constructor</a>
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+class <a href='#SkPath_Iter_Iter'>Iter</a> {
+public:
+    <a href='#SkPath_Iter_Iter'>Iter()</a>;
+    <a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>;
+    void <a href='#SkPath_Iter_setPath'>setPath(const SkPath& path, bool forceClose)</a>;
+    <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)</a>;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight()</a> const;
+    bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine()</a> const;
+    bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour()</a> const;
+};
+</pre>
+
+Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
+Provides options to treat open <a href='#Contour'>Contours</a> as closed, and to ignore
+degenerate data.
+
+## <a name='Constructors'>Constructors</a>
 
 
 SkPath::Iter can be constructed or initialized by these functions, including C++ class constructors.
@@ -5966,7 +5975,7 @@ SkPath::Iter can be constructed or initialized by these functions, including C++
   </tr>
 </table>
 
-## <a name='Member_Function'>Member_Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkPath::Iter member functions read and modify the structure properties.
@@ -5998,23 +6007,6 @@ SkPath::Iter member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>resets <a href='#SkPath_Iter_Iter'>Iter</a> to <a href='#Path'>Path</a></td>
   </tr>
 </table>
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href='#SkPath_Iter_Iter'>Iter</a> {
-public:
-    <a href='#SkPath_Iter_Iter'>Iter()</a>;
-    <a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>;
-    void <a href='#SkPath_Iter_setPath'>setPath(const SkPath& path, bool forceClose)</a>;
-    <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)</a>;
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a> const;
-    bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a> const;
-    bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a> const;
-};
-</pre>
-
-Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
-Provides options to treat open <a href='#Contour'>Contours</a> as closed, and to ignore
-degenerate data.
 
 ### Example
 
@@ -6356,7 +6348,22 @@ with close(),    forceClose is true : isClosedContour returns true
 
 # <a name='SkPath_RawIter'>Class SkPath::RawIter</a>
 
-## <a name='Constructor'>Constructor</a>
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    class <a href='#SkPath_RawIter_RawIter'>RawIter</a> {
+    public:
+        <a href='#SkPath_RawIter_RawIter'>RawIter()</a>;
+        <a href='#SkPath_RawIter_copy_const_SkPath'>RawIter(const SkPath& path)</a>;
+        void <a href='#SkPath_RawIter_setPath'>setPath(const SkPath& path)</a>;
+        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next(SkPoint pts[4])</a>;
+        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek()</a> const;
+        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight()</a> const;
+    }
+</pre>
+
+Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
+<a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> are returned unaltered.
+
+## <a name='Constructors'>Constructors</a>
 
 
 SkPath::RawIter can be constructed or initialized by these functions, including C++ class constructors.
@@ -6369,7 +6376,7 @@ SkPath::RawIter can be constructed or initialized by these functions, including 
   </tr>
 </table>
 
-## <a name='Member_Function'>Member_Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkPath::RawIter member functions read and modify the structure properties.
@@ -6397,21 +6404,6 @@ SkPath::RawIter member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='#Path'>Path</a> to iterate over</td>
   </tr>
 </table>
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    class <a href='#SkPath_RawIter_RawIter'>RawIter</a> {
-    public:
-        <a href='#SkPath_RawIter_RawIter'>RawIter()</a>;
-        <a href='#SkPath_RawIter_copy_const_SkPath'>RawIter(const SkPath& path)</a>;
-        void <a href='#SkPath_RawIter_setPath'>setPath(const SkPath& path)</a>;
-        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next(SkPoint pts[4])</a>;
-        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek</a> const;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a> const;
-    }
-</pre>
-
-Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
-<a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> are returned unaltered.
 
 <a name='SkPath_RawIter_RawIter'></a>
 ## RawIter
