@@ -339,13 +339,12 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                       kAdopt_GrWrapOwnership, nullptr, nullptr);
 }
 
-sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
-                                                         SkYUVColorSpace colorSpace,
-                                                         const GrBackendTexture yuvaTextures[],
-                                                         SkYUVAIndex yuvaIndices[4],
-                                                         SkISize size,
-                                                         GrSurfaceOrigin origin,
-                                                         sk_sp<SkColorSpace> imageColorSpace) {
+sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
+        GrContext* ctx, SkYUVColorSpace colorSpace, const GrBackendTexture yuvaTextures[],
+        SkYUVAIndex yuvaIndices[4], SkISize size, GrSurfaceOrigin origin, SkBudgeted isBudgeted,
+        GrRenderTargetContext* renderTargetContext) {
+    SkASSERT(renderTargetContext);
+
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
 
     // Right now this still only deals with YUV and NV12 formats. Assuming that YUV has different
@@ -411,15 +410,6 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
     const int width = size.width();
     const int height = size.height();
 
-    // Needs to be a render target in order to draw to it for the yuv->rgb conversion.
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-            ctx->contextPriv().makeDeferredRenderTargetContext(
-                                SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
-                                std::move(imageColorSpace), 1, GrMipMapped::kNo, origin));
-    if (!renderTargetContext) {
-        return nullptr;
-    }
-
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     // TODO: Modify the fragment processor to sample from different channel instead of taking nv12
@@ -442,7 +432,62 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
                                    renderTargetContext->asTextureProxyRef(),
                                    renderTargetContext->colorSpaceInfo().refColorSpace(),
-                                   SkBudgeted::kYes);
+                                   isBudgeted);
+}
+
+sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
+                                                         SkYUVColorSpace colorSpace,
+                                                         const GrBackendTexture yuvaTextures[],
+                                                         SkYUVAIndex yuvaIndices[4],
+                                                         SkISize size,
+                                                         GrSurfaceOrigin origin,
+                                                         sk_sp<SkColorSpace> imageColorSpace) {
+    const int width = size.width();
+    const int height = size.height();
+
+    // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+            ctx->contextPriv().makeDeferredRenderTargetContext(
+                    SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
+                    std::move(imageColorSpace), 1, GrMipMapped::kNo, origin));
+    if (!renderTargetContext) {
+        return nullptr;
+    }
+
+    return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, colorSpace, yuvaTextures, yuvaIndices, size,
+                                                 origin, SkBudgeted::kYes,
+                                                 renderTargetContext.get());
+}
+
+sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
+        GrContext* ctx,
+        SkYUVColorSpace colorSpace,
+        const GrBackendTexture yuvaTextures[],
+        SkYUVAIndex yuvaIndices[4],
+        SkISize size,
+        GrSurfaceOrigin origin,
+        const GrBackendTexture backendTexture,
+        sk_sp<SkColorSpace> imageColorSpace) {
+    GrBackendTexture backendTextureCopy = backendTexture;
+
+    if (!validate_backend_texture(ctx, backendTextureCopy, &backendTextureCopy.fConfig, kRGBA_8888_SkColorType,
+                                  kPremul_SkAlphaType, nullptr)) {
+        return nullptr;
+    }
+
+    // Needs to create a render target with external texture
+    // in order to draw to it for the yuv->rgb conversion.
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+            ctx->contextPriv().makeBackendTextureRenderTargetContext(backendTextureCopy, origin, 1,
+                                                                     std::move(imageColorSpace)));
+
+    if (!renderTargetContext) {
+        return nullptr;
+    }
+
+    return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, colorSpace, yuvaTextures, yuvaIndices, size,
+                                                 origin, SkBudgeted::kNo,
+                                                 renderTargetContext.get());
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
@@ -460,6 +505,21 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
                                                      size, origin, std::move(imageColorSpace));
 }
 
+sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
+        GrContext* ctx, SkYUVColorSpace colorSpace, const GrBackendTexture yuvTextures[3],
+        GrSurfaceOrigin origin, const GrBackendTexture backendTexture,
+        sk_sp<SkColorSpace> imageColorSpace) {
+    SkYUVAIndex yuvaIndices[4] = {
+            SkYUVAIndex{0, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{2, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{-1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel}};
+    SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
+    return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
+            ctx, colorSpace, yuvTextures, yuvaIndices, size, origin, backendTexture,
+            std::move(imageColorSpace));
+}
+
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                  const GrBackendTexture nv12Textures[2],
                                                  GrSurfaceOrigin origin,
@@ -473,6 +533,24 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
     SkISize size{nv12Textures[0].width(), nv12Textures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyImpl(ctx, colorSpace, nv12Textures, yuvaIndices,
                                                      size, origin, std::move(imageColorSpace));
+}
+
+sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
+        GrContext* ctx,
+        SkYUVColorSpace colorSpace,
+        const GrBackendTexture nv12Textures[2],
+        GrSurfaceOrigin origin,
+        const GrBackendTexture backendTexture,
+        sk_sp<SkColorSpace> imageColorSpace) {
+    SkYUVAIndex yuvaIndices[4] = {
+            SkYUVAIndex{0, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{-1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel}};
+    SkISize size{nv12Textures[0].width(), nv12Textures[0].height()};
+    return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
+            ctx, colorSpace, nv12Textures, yuvaIndices, size, origin, backendTexture,
+            std::move(imageColorSpace));
 }
 
 static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,

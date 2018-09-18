@@ -31,7 +31,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(50, 175);
+        return SkISize::Make(50, 300);
     }
 
     void onOnceBeforeDraw() override {
@@ -114,6 +114,23 @@ protected:
         context->resetContext();
     }
 
+    void createExternalBackendTexture(GrContext* context, int width, int height,
+                                      GrBackendTexture externalBackendTexture[1]) {
+        if (context->abandoned()) {
+            return;
+        }
+
+        GrGpu* gpu = context->contextPriv().getGpu();
+        if (!gpu) {
+            return;
+        }
+
+        externalBackendTexture[0] = gpu->createTestingOnlyBackendTexture(
+                nullptr, width, height, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
+
+        context->resetContext();
+    }
+
     void deleteYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
         if (context->abandoned()) {
             return;
@@ -130,6 +147,19 @@ protected:
             if (yuvTextures[i].isValid()) {
                 gpu->deleteTestingOnlyBackendTexture(yuvTextures[i]);
             }
+        }
+
+        context->resetContext();
+    }
+
+    void deleteAllTextures(GrContext* context, GrBackendTexture yuvTextures[3],
+                           GrBackendTexture externalBackendTexture) {
+        this->deleteYUVTextures(context, yuvTextures);
+
+        GrGpu* gpu = context->contextPriv().getGpu();
+        gpu->testingOnly_flushGpuAndSync();
+        if (externalBackendTexture.isValid()) {
+            gpu->deleteTestingOnlyBackendTexture(externalBackendTexture);
         }
 
         context->resetContext();
@@ -161,6 +191,30 @@ protected:
             SkScalar x = kPad;
 
             canvas->drawImage(images[i].get(), x, y);
+        }
+
+        sk_sp<SkImage> image;
+        for (int space = kJPEG_SkYUVColorSpace, i = images.count();
+             space <= kLastEnum_SkYUVColorSpace; ++space, ++i) {
+            GrBackendTexture yuvTextures[3];
+            GrBackendTexture externalBackendTexture[1];
+            this->createYUVTextures(context, yuvTextures);
+            this->createExternalBackendTexture(context,
+                                               yuvTextures[0].width(),
+                                               yuvTextures[0].height(),
+                                               externalBackendTexture);
+            image = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
+                    context,
+                    static_cast<SkYUVColorSpace>(space),
+                    yuvTextures,
+                    kTopLeft_GrSurfaceOrigin,
+                    externalBackendTexture[0]);
+
+            SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
+            SkScalar x = kPad;
+
+            canvas->drawImage(image.get(), x, y);
+            this->deleteAllTextures(context, yuvTextures, externalBackendTexture[0]);
         }
      }
 

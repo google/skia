@@ -131,6 +131,18 @@ public:
                                                        GrSurfaceOrigin origin,
                                                        sk_sp<SkColorSpace> imageColorSpace);
 
+    /** Implementation of MakeFromYUVTexturesCopyWithExternalBackend and
+        MakeFromNV12TexturesCopyWithExternalBackend */
+    static sk_sp<SkImage> MakeFromYUVATexturesCopyWithExternalBackendImpl(
+            GrContext* ctx,
+            SkYUVColorSpace colorSpace,
+            const GrBackendTexture yuvaTextures[],
+            SkYUVAIndex yuvaIndices[4],
+            SkISize size,
+            GrSurfaceOrigin origin,
+            const GrBackendTexture backendTexture,
+            sk_sp<SkColorSpace> imageColorSpace);
+
     bool onIsValid(GrContext*) const override;
 
     void resetContext(sk_sp<GrContext> newContext) {
@@ -139,6 +151,11 @@ public:
     }
 
 private:
+    static sk_sp<SkImage> ConvertYUVATexturesToRGB(
+            GrContext* ctx, SkYUVColorSpace colorSpace, const GrBackendTexture yuvaTextures[],
+            SkYUVAIndex yuvaIndices[4], SkISize size, GrSurfaceOrigin origin,
+            SkBudgeted isBudgeted, GrRenderTargetContext* renderTargetContext);
+
     sk_sp<GrContext>      fContext;
     sk_sp<GrTextureProxy> fProxy;
     const SkAlphaType     fAlphaType;
