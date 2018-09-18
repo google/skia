@@ -1,7 +1,4 @@
-SkBitmap Reference
-===
 
-# <a name='Bitmap'>Bitmap</a>
 
 # <a name='SkBitmap'>Class SkBitmap</a>
 <a href='#Bitmap'>Bitmap</a> describes a two-dimensional raster pixel array. <a href='#Bitmap'>Bitmap</a> is built on
@@ -38,33 +35,33 @@ is useful to position one or more <a href='#Bitmap'>Bitmaps</a> within a shared 
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Class'>Class Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Classes'>Class Declarations</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded class members</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkBitmap'>SkBitmap</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkBitmap global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -101,7 +98,7 @@ SkBitmap global, <code>struct</code>, and <code>class</code> related member func
   </tr>
 </table>
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
 SkBitmap related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
@@ -118,7 +115,7 @@ SkBitmap related constants are defined by <code>enum</code>, <code>enum class</c
   </tr>
 </table>
 
-## <a name='Class'>Class</a>
+## <a name='Classes'>Classes</a>
 
 
 SkBitmap uses C++ classes to declare the public data structures and interfaces.
@@ -135,7 +132,7 @@ SkBitmap uses C++ classes to declare the public data structures and interfaces.
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkBitmap can be constructed or initialized by these functions, including C++ class constructors.
@@ -184,7 +181,7 @@ SkBitmap can be constructed or initialized by these functions, including C++ cla
   </tr>
 </table>
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
 SkBitmap operators inline class member functions with arithmetic equivalents.
@@ -201,7 +198,7 @@ SkBitmap operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkBitmap member functions read and modify the structure properties.
@@ -456,7 +453,16 @@ SkBitmap member functions read and modify the structure properties.
 
 # <a name='SkBitmap_Allocator'>Class SkBitmap::Allocator</a>
 
-## <a name='Member_Function'>Member_Function</a>
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    class <a href='#SkBitmap_Allocator'>Allocator</a> : public <a href='undocumented#SkRefCnt'>SkRefCnt</a> {
+    public:
+        virtual bool <a href='#SkBitmap_Allocator_allocPixelRef'>allocPixelRef(SkBitmap* bitmap)</a> = 0;
+    };
+</pre>
+
+Abstract subclass of <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a>.
+
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkBitmap::Allocator member functions read and modify the structure properties.
@@ -468,15 +474,6 @@ SkBitmap::Allocator member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixel memory</td>
   </tr>
 </table>
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    class <a href='#SkBitmap_Allocator'>Allocator</a> : public <a href='undocumented#SkRefCnt'>SkRefCnt</a> {
-    public:
-        virtual bool <a href='#SkBitmap_Allocator_allocPixelRef'>allocPixelRef(SkBitmap* bitmap)</a> = 0;
-    };
-</pre>
-
-Abstract subclass of <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a>.
 
 <a name='SkBitmap_Allocator_allocPixelRef'></a>
 ## allocPixelRef
@@ -508,7 +505,18 @@ true if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> was allocated
 
 # <a name='SkBitmap_HeapAllocator'>Class SkBitmap::HeapAllocator</a>
 
-## <a name='Member_Function'>Member_Function</a>
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    class <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a> : public <a href='#SkBitmap_Allocator'>Allocator</a> {
+    public:
+        bool <a href='#SkBitmap_HeapAllocator_allocPixelRef'>allocPixelRef(SkBitmap* bitmap)</a> override;
+    };
+</pre>
+
+Subclass of <a href='#SkBitmap_Allocator'>SkBitmap::Allocator</a> that returns a <a href='undocumented#Pixel_Ref'>Pixel Ref</a> that allocates its pixel
+memory from the heap. This is the default <a href='#SkBitmap_Allocator'>SkBitmap::Allocator</a> invoked by
+<a href='#SkBitmap_allocPixels'>allocPixels</a>.
+
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkBitmap::HeapAllocator member functions read and modify the structure properties.
@@ -520,17 +528,6 @@ SkBitmap::HeapAllocator member functions read and modify the structure propertie
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixel memory</td>
   </tr>
 </table>
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    class <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a> : public <a href='#SkBitmap_Allocator'>Allocator</a> {
-    public:
-        bool <a href='#SkBitmap_HeapAllocator_allocPixelRef'>allocPixelRef(SkBitmap* bitmap)</a> override;
-    };
-</pre>
-
-Subclass of <a href='#SkBitmap_Allocator'>SkBitmap::Allocator</a> that returns a <a href='undocumented#Pixel_Ref'>Pixel Ref</a> that allocates its pixel
-memory from the heap. This is the default <a href='#SkBitmap_Allocator'>SkBitmap::Allocator</a> invoked by
-<a href='#SkBitmap_allocPixels'>allocPixels</a>.
 
 <a name='SkBitmap_HeapAllocator_allocPixelRef'></a>
 ## allocPixelRef

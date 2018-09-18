@@ -37,27 +37,27 @@ is useful to position one or more Bitmaps within a shared pixel array.
     #Populate
 ##
 
-#Subtopic Related_Function
+#Subtopic Related_Functions
 #Populate
 ##
 
-#Subtopic Constant
+#Subtopic Constants
 #Populate
 ##
 
-#Subtopic Class
+#Subtopic Classes
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
-#Subtopic Operator
+#Subtopic Operators
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
@@ -73,6 +73,8 @@ is useful to position one or more Bitmaps within a shared pixel array.
 ##
 
 Abstract subclass of HeapAllocator.
+
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -111,6 +113,8 @@ or setPixelRef was called.
 Subclass of SkBitmap::Allocator that returns a Pixel_Ref that allocates its pixel
 memory from the heap. This is the default SkBitmap::Allocator invoked by
 allocPixels.
+
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1164,7 +1168,7 @@ consumption on Device.
 # ------------------------------------------------------------------------------
 
 #Method void reset()
-#In Constructor
+#In Constructors
 #Line # sets to default values, releases pixel ownership ##
 Resets to its initial state; all fields are set to zero, as if Bitmap had
 been initialized by SkBitmap().
@@ -2669,7 +2673,7 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 # ------------------------------------------------------------------------------
 
 #Method bool extractSubset(SkBitmap* dst, const SkIRect& subset) const
-#In Constructor
+#In Constructors
 #Line # creates Bitmap, sharing pixels if possible ##
 Shares Pixel_Ref with dst. Pixels are not copied; Bitmap and dst point
 to the same pixels; dst bounds() are set to the intersection of subset
@@ -3048,7 +3052,7 @@ For use by Android framework only.
 # ------------------------------------------------------------------------------
 
 #Method bool extractAlpha(SkBitmap* dst) const
-#In Constructor
+#In Constructors
 #Line # creates Bitmap containing Alpha of pixels ##
 Sets dst to Alpha described by pixels. Returns false if dst cannot be written to
 or dst pixels cannot be allocated.

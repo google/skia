@@ -1,123 +1,6 @@
-SkMatrix Reference
-===
 
-# <a name='Matrix'>Matrix</a>
 
 # <a name='SkMatrix'>Class SkMatrix</a>
-
-## <a name='Constant'>Constant</a>
-
-
-SkMatrix related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_ScaleToFit'>ScaleToFit</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>options to map <a href='SkRect_Reference#Rect'>Rects</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_TypeMask'>TypeMask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>bit field for <a href='#Matrix'>Matrix</a> complexity</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kAScaleX'>kAScaleX</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal scale factor</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kAScaleY'>kAScaleY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical scale factor</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kASkewX'>kASkewX</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal skew factor</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kASkewY'>kASkewY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical skew factor</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kATransX'>kATransX</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal translation</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kATransY'>kATransY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical translation</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kAffine_Mask'>kAffine Mask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>skew or rotate <a href='#Matrix'>Matrix</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kCenter_ScaleToFit'>kCenter ScaleToFit</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scales and aligns to center</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kEnd_ScaleToFit'>kEnd ScaleToFit</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scales and aligns to right and bottom</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kFill_ScaleToFit'>kFill ScaleToFit</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scales in x and y to fill destination <a href='SkRect_Reference#Rect'>Rect</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kIdentity_Mask'>kIdentity Mask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>identity <a href='#Matrix'>Matrix</a>; all bits clear</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMPersp0'>kMPersp0</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>input x perspective factor</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMPersp1'>kMPersp1</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>input y perspective factor</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMPersp2'>kMPersp2</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>perspective bias</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMScaleX'>kMScaleX</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal scale factor</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMScaleY'>kMScaleY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical scale factor</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMSkewX'>kMSkewX</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal skew factor</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMSkewY'>kMSkewY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical skew factor</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMTransX'>kMTransX</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>horizontal translation</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kMTransY'>kMTransY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>vertical translation</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kPerspective_Mask'>kPerspective Mask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>perspective <a href='#Matrix'>Matrix</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kScale_Mask'>kScale Mask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scale <a href='#Matrix'>Matrix</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kStart_ScaleToFit'>kStart ScaleToFit</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scales and aligns to left and top</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkMatrix_kTranslate_Mask'>kTranslate Mask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translation <a href='#Matrix'>Matrix</a></td>
-  </tr>
-</table>
-
 <a href='#Matrix'>Matrix</a> holds a 3x3 matrix for transforming coordinates. This allows mapping
 <a href='SkPoint_Reference#Point'>Points</a> and <a href='SkPoint_Reference#Vector'>Vectors</a> with translation, scaling, skewing, rotation, and
 perspective.
@@ -136,29 +19,29 @@ improve performance. <a href='#Matrix'>Matrix</a> is not thread safe unless <a h
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkMatrix'>SkMatrix</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
 </table>
 
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkMatrix member functions read and modify the structure properties.
@@ -499,7 +382,7 @@ SkMatrix member functions read and modify the structure properties.
   </tr>
 </table>
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkMatrix global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -532,7 +415,7 @@ SkMatrix global, <code>struct</code>, and <code>class</code> related member func
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkMatrix can be constructed or initialized by these functions, including C++ class constructors.
@@ -1648,7 +1531,7 @@ vertical translation</td>
 
 <a href='#SkMatrix_SetAffineIdentity'>SetAffineIdentity</a> <a href='#SkMatrix_asAffine'>asAffine</a> <a href='#SkMatrix_setAffine'>setAffine</a>
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
 SkMatrix operators inline class member functions with arithmetic equivalents.
@@ -1689,7 +1572,7 @@ SkMatrix operators inline class member functions with arithmetic equivalents.
 ## operator[]
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_array1_operator'>operator[](int index)</a> _const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_array1_operator'>operator[](int index)</a> const
 </pre>
 
 Returns one matrix value. Asserts if <a href='#SkMatrix_array_operator_index'>index</a> is out of range and SK_DEBUG is

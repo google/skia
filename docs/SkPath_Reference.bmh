@@ -189,27 +189,27 @@ SkPath::updateBoundsCache to make Path thread safe.
 #Populate
 ##
 
-#Subtopic Related_Function
+#Subtopic Related_Functions
 #Populate
 ##
 
-#Subtopic Constant
+#Subtopic Constants
 #Populate
 ##
 
-#Subtopic Class
+#Subtopic Classes
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
-#Subtopic Operator
+#Subtopic Operators
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
@@ -395,7 +395,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method SkPath()
-#In Constructor
+#In Constructors
 #Line # constructs with default values ##
 Constucts an empty Path. By default, Path has no Verbs, no Points, and no Weights.
 Fill_Type is set to kWinding_FillType.
@@ -417,7 +417,7 @@ path is empty
 # ------------------------------------------------------------------------------
 
 #Method SkPath(const SkPath& path)
-#In Constructor
+#In Constructors
 #Line # makes a shallow copy ##
 Constructs a copy of an existing path.
 Copy constructor makes two paths identical by value. Internally, path and
@@ -1219,7 +1219,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method SkPath& reset()
-#In Constructor
+#In Constructors
 #Line # removes Verb_Array, Point_Array, and Weights; frees memory ##
 Sets Path to its initial state.
 Removes Verb_Array, Point_Array, and Weights, and sets FillType to kWinding_FillType.
@@ -1243,7 +1243,7 @@ Internal storage associated with Path is released.
 # ------------------------------------------------------------------------------
 
 #Method SkPath& rewind()
-#In Constructor
+#In Constructors
 #Line # removes Verb_Array, Point_Array, and Weights, keeping memory ##
 Sets Path to its initial state, preserving internal storage.
 Removes Verb_Array, Point_Array, and Weights, and sets FillType to kWinding_FillType.
@@ -1864,7 +1864,7 @@ just right verb count: 3  move line line
 # ------------------------------------------------------------------------------
 
 #Method void swap(SkPath& other)
-#In Operator
+#In Operators
 #Line # exchanges Path pair ##
 Exchanges the Verb_Array, Point_Array, Weights, and Fill_Type with other.
 Cached state is also exchanged. swap() internally exchanges pointers, so
@@ -5400,6 +5400,8 @@ Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Provides options to treat open Contours as closed, and to ignore
 degenerate data.
 
+#Populate
+
 #Example
 #Height 128
 #Description
@@ -5793,6 +5795,8 @@ with close(),    forceClose is true : isClosedContour returns true
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
+
+#Populate
 
     #Method RawIter()
     #Line # constructs empty Path iterator ##
