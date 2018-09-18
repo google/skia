@@ -9,12 +9,15 @@
 #define GrSkSLFP_DEFINED
 
 #include "GrCaps.h"
-#include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrFragmentProcessor.h"
 #include "GrShaderCaps.h"
 #include "SkSLCompiler.h"
 #include "SkSLPipelineStageCodeGenerator.h"
 #include "SkRefCnt.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "../private/GrSkSLFPFactoryCache.h"
 
 #if GR_TEST_UTILS
@@ -25,9 +28,12 @@
 
 class GrContext;
 class GrSkSLFPFactory;
+class GrGLSLSkSLFP;
 
 class GrSkSLFP : public GrFragmentProcessor {
 public:
+    using UniformHandle = GrGLSLUniformHandler::UniformHandle;
+
     /**
      * Returns a new unique identifier. Each different SkSL fragment processor should call
      * NewIndex once, statically, and use this index for all calls to Make.
@@ -78,6 +84,18 @@ public:
 
     void addChild(std::unique_ptr<GrFragmentProcessor> child);
 
+    /**
+     * Sets a function to be called after the automatic handling of 'in uniform' variables is
+     * completed. This function should ensure that data is provided for all non-'in' uniform
+     * variables.
+     */
+    void setSetDataHook(void (*hook)(const GrGLSLProgramDataManager& pdman,
+                                     const GrGLSLSkSLFP& glslProc,
+                                     const GrSkSLFP& proc));
+
+    void* inputs() const { return fInputs.get(); }
+
+
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
@@ -110,6 +128,9 @@ private:
 
     size_t fInputSize;
 
+    void (*fSetDataHook)(const GrGLSLProgramDataManager&, const GrGLSLSkSLFP&,
+                         const GrSkSLFP&) = nullptr;
+
     mutable SkSL::String fKey;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
@@ -119,6 +140,46 @@ private:
     friend class GrGLSLSkSLFP;
 
     friend class GrSkSLFPFactory;
+};
+
+class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
+public:
+    GrGLSLSkSLFP(SkSL::Context* context, const std::vector<const SkSL::Variable*>* uniformVars,
+                 SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs);
+
+    GrSLType uniformType(const SkSL::Type& type);
+
+    /**
+     * Allocates a memory region of 'size' bytes and returns it. This memory will be freed when
+     * the GrGLSLSkSLFP is destroyed.
+     */
+    void* allocateExtraData(size_t size) const;
+
+    /**
+     * Returns the memory region previously allocated with allocateExtraData(), or null if none.
+     */
+    void* extraData() const;
+
+    void emitCode(EmitArgs& args) override;
+
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrFragmentProcessor& _proc) override;
+
+    UniformHandle uniformHandle(int index) const { return fUniformHandles[index]; }
+
+private:
+    const SkSL::Context& fContext;
+
+    const std::vector<const SkSL::Variable*>& fUniformVars;
+
+    // nearly-finished GLSL; still contains printf-style "%s" format tokens
+    const SkSL::String fGLSL;
+
+    std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
+
+    std::vector<UniformHandle> fUniformHandles;
+
+    mutable std::unique_ptr<uint8_t[]> fExtraData = nullptr;
 };
 
 /**
@@ -146,6 +207,8 @@ public:
     std::shared_ptr<SkSL::Program> fBaseProgram;
 
     std::vector<const SkSL::Variable*> fInputVars;
+
+    std::vector<const SkSL::Variable*> fUniformVars;
 
     std::vector<const SkSL::Variable*> fKeyVars;
 
