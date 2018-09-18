@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fe5db38_5d03af5b",
+        "filename": "gm/imagefromyuvtextures.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-18T01:58:01Z",
+      "side": 1,
+      "message": "I bumped this up so that the new test cases appear in the output image.",
+      "range": {
+        "startLine": 34,
+        "startChar": 33,
+        "endLine": 34,
+        "endChar": 36
+      },
+      "revId": "2d8cd6f4a7825356ec08dde37b038a731b2b059c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
