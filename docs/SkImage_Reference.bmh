@@ -652,7 +652,42 @@ should this be moved to chrome only?
 #NoExample
 ##
 
-#SeeAlso MakeFromNV12TexturesCopy
+#SeeAlso MakeFromYUVTexturesCopyWithExternalBackend MakeFromNV12TexturesCopy
+
+#Method ##
+
+#Method static sk_sp<SkImage> MakeFromYUVTexturesCopyWithExternalBackend(
+        GrContext* context, SkYUVColorSpace yuvColorSpace,
+        const GrBackendTexture yuvTextures[3], GrSurfaceOrigin surfaceOrigin,
+        const GrBackendTexture backendTexture, sk_sp<SkColorSpace> colorSpace = nullptr);
+#In Constructor
+#Line # creates Image from planar YUV_ColorSpace, stored in texture ##
+
+Creates Image from copy of yuvTextures, an array of textures on GPU.
+yuvTextures contain pixels for YUV planes of Image. Returned Image has the dimensions
+yuvTextures[0] and stores pixels in backendTexture. yuvColorSpace describes how YUV colors
+convert to RGB colors.
+
+#Param context        GPU_Context ##
+#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                            kRec709_SkYUVColorSpace
+##
+#Param yuvTextures    array of YUV textures on GPU ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param backendTexture the resource that stores the final pixels ##
+#Param colorSpace     range of colors; may be nullptr ##
+
+#Return               created SkImage, or nullptr ##
+
+# seems too complicated to create an example for this
+#ToDo
+should this be moved to chrome only?
+##
+
+#NoExample
+##
+
+#SeeAlso MakeFromYUVTexturesCopy MakeFromNV12TexturesCopy
 
 #Method ##
 
@@ -691,7 +726,47 @@ should this be moved to chrome only?
 #NoExample
 ##
 
-#SeeAlso MakeFromYUVTexturesCopy
+#SeeAlso MakeFromNV12TexturesCopyWithExternalBackend MakeFromYUVTexturesCopy
+
+#Method ##
+
+#Method static sk_sp<SkImage> MakeFromNV12TexturesCopyWithExternalBackend(
+            GrContext* context,
+            SkYUVColorSpace yuvColorSpace,
+            const GrBackendTexture nv12Textures[2],
+            GrSurfaceOrigin surfaceOrigin,
+            const GrBackendTexture backendTexture,
+            sk_sp<SkColorSpace> colorSpace = nullptr);
+#In Constructor
+#Line # creates Image from planar YUV_ColorSpace, stored in texture ##
+
+Creates Image from copy of nv12Textures, an array of textures on GPU.
+nv12Textures[0] contains pixels for YUV_Component_Y plane.
+nv12Textures[1] contains pixels for YUV_Component_U plane,
+followed by pixels for YUV_Component_V plane.
+Returned Image has the dimensions nv12Textures[2] and stores pixels in backendTexture.
+yuvColorSpace describes how YUV colors convert to RGB colors.
+
+#Param context  GPU_Context ##
+#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                              kRec709_SkYUVColorSpace
+##
+#Param nv12Textures  array of YUV textures on GPU ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param backendTexture the resource that stores the final pixels ##
+#Param colorSpace  range of colors; may be nullptr ##
+
+#Return created Image, or nullptr ##
+
+# seems too complicated to create an example for this
+#ToDo
+should this be moved to chrome only?
+##
+
+#NoExample
+##
+
+#SeeAlso MakeFromNV12TexturesCopy MakeFromYUVTexturesCopy
 
 #Method ##
 
