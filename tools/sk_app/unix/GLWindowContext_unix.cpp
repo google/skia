@@ -6,10 +6,11 @@
  * found in the LICENSE file.
  */
 
-#include <GL/gl.h>
 #include "../GLWindowContext.h"
 #include "WindowContextFactory_unix.h"
 #include "gl/GrGLInterface.h"
+
+#include <GL/gl.h>
 
 using sk_app::window_context_factory::XlibWindowInfo;
 using sk_app::DisplayParams;

@@ -8,7 +8,6 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#include <random>
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -22,6 +21,8 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "ops/GrMeshDrawOp.h"
 #include "ops/GrRectOpFactory.h"
+
+#include <random>
 
 namespace {
 class TestOp : public GrMeshDrawOp {

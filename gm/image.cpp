@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include <functional>
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "GrContext.h"
 #include "SkAutoPixmapStorage.h"
+#include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
-#include "SkCanvas.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "gm.h"
+#include "sk_tool_utils.h"
 
-#include "GrContext.h"
+#include <functional>
 
 static void drawContents(SkSurface* surface, SkColor fillC) {
     SkSize size = SkSize::Make(SkIntToScalar(surface->width()),

@@ -6,12 +6,13 @@
  * found in the LICENSE file.
  */
 
-#include <Windows.h>
-#include <GL/gl.h>
 #include "../GLWindowContext.h"
 #include "gl/GrGLInterface.h"
 #include "WindowContextFactory_win.h"
 #include "win/SkWGL.h"
+
+#include <Windows.h>
+#include <GL/gl.h>
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;

@@ -8,10 +8,11 @@
 #ifndef MemoryCache_DEFINED
 #define MemoryCache_DEFINED
 
-#include <unordered_map>
 #include "GrContextOptions.h"
 #include "SkChecksum.h"
 #include "SkData.h"
+
+#include <unordered_map>
 
 namespace sk_gpu_test {
 

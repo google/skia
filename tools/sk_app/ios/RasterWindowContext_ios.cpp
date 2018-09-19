@@ -6,14 +6,16 @@
  * found in the LICENSE file.
  */
 
-#include <OpenGLES/ES2/gl.h>
 #include "../GLWindowContext.h"
-#include "SDL.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "WindowContextFactory_ios.h"
 #include "gl/GrGLInterface.h"
 #include "sk_tool_utils.h"
+
+#include <OpenGLES/ES2/gl.h>
+
+#include "SDL.h"
 
 using sk_app::DisplayParams;
 using sk_app::window_context_factory::IOSWindowInfo;

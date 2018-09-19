@@ -12,8 +12,8 @@
 #include "SkRecords.h"
 #include "SkShader.h"
 #include "Test.h"
-#include <new>
 
+#include <new>
 
 // Sums the area of any DrawRect command it sees.
 class AreaSummer {

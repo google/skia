@@ -7,6 +7,7 @@
 #include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+
 #include <atomic>
 
 #define TEST(name) { name, #name }

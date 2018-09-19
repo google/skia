@@ -11,6 +11,7 @@
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
+
 #include <math.h>
 
 namespace skiagm {

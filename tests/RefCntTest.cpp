@@ -9,6 +9,7 @@
 #include "SkTypes.h"
 #include "SkWeakRefCnt.h"
 #include "Test.h"
+
 #include <thread>
 
 static void bounce_ref(void* data) {

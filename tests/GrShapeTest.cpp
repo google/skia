@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <initializer_list>
-#include <functional>
 #include "Test.h"
 #include "GrShape.h"
 #include "SkCanvas.h"
@@ -17,6 +15,8 @@
 #include "SkSurface.h"
 #include "SkClipOpPriv.h"
 
+#include <initializer_list>
+#include <functional>
 #include <utility>
 
 uint32_t GrShape::testingOnly_getOriginalGenerationID() const {

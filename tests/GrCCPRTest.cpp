@@ -24,6 +24,7 @@
 #include "sk_tool_utils.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "mock/GrMockTypes.h"
+
 #include <cmath>
 
 static constexpr int kCanvasSize = 100;

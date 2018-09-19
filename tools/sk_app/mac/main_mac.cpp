@@ -7,10 +7,11 @@
 
 #include "SkTypes.h"
 #include "SkTHash.h"
-#include "SDL.h"
 #include "Timer.h"
 #include "Window_mac.h"
 #include "../Application.h"
+
+#include "SDL.h"
 
 using sk_app::Application;
 

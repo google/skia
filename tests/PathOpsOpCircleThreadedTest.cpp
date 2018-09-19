@@ -8,6 +8,7 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkString.h"
+
 #include <atomic>
 
 static int loopNo = 4;

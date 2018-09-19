@@ -28,12 +28,12 @@
 #include "SkSLCompiler.h"
 #endif
 
+#include "sk_tool_utils.h"
+
 #include <iostream>
 #include <map>
 #include <regex>
 #include <signal.h>
-#include "sk_tool_utils.h"
-
 
 DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the "
         "contents will be used as the fuzz bytes. If a directory, all files "

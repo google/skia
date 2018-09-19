@@ -13,6 +13,7 @@
 #include "SkTemplates.h"
 
 #include "gUniqueGlyphIDs.h"
+
 #define gUniqueGlyphIDs_Sentinel    0xFFFF
 
 static int count_glyphs(const uint16_t start[]) {

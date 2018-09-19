@@ -7,13 +7,13 @@
 
 #include "Response.h"
 
-#include "microhttpd.h"
-
 #include "Request.h"
 
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkString.h"
+
+#include "microhttpd.h"
 
 DEFINE_string(source, "https://debugger-assets.skia.org", "Where to load the web UI from.");
 

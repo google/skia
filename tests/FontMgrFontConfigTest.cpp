@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include <fontconfig/fontconfig.h>
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkFontMgr.h"
 #include "SkFontMgr_fontconfig.h"
 #include "SkTypeface.h"
 #include "Test.h"
+
+#include <fontconfig/fontconfig.h>
 
 static bool bitmap_compare(const SkBitmap& ref, const SkBitmap& test) {
     for (int y = 0; y < test.height(); ++y) {
