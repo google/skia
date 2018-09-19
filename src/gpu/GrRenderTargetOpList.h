@@ -179,7 +179,7 @@ private:
     int                            fLastClipNumAnalyticFPs;
 
     // For ops/opList we have mean: 5 stdDev: 28
-    SkSTArray<5, RecordedOp, true> fRecordedOps;
+    SkSTArray<25, RecordedOp, true> fRecordedOps;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
