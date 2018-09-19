@@ -239,10 +239,10 @@ RandomParams::RandomParams(SkRandom* random) {
     SkScalar stop = 0.f;
     for (int i = 0; i < fColorCount; ++i) {
         if (fUseColors4f) {
-            fColors4f[i].fR = random->nextUScalar1();
-            fColors4f[i].fG = random->nextUScalar1();
-            fColors4f[i].fB = random->nextUScalar1();
-            fColors4f[i].fA = random->nextUScalar1();
+            fColors4f[i].r = random->nextUScalar1();
+            fColors4f[i].g = random->nextUScalar1();
+            fColors4f[i].b = random->nextUScalar1();
+            fColors4f[i].a = random->nextUScalar1();
         } else {
             fColors[i] = random->nextU();
         }

@@ -138,8 +138,8 @@ static SkColor blend(SkColor dst, SkColor src,
     SkColor4f d = SkColor4f::FromColor(dst),
               s = SkColor4f::FromColor(src);
 
-    mode( d.fR,  d.fG,  d.fB,
-         &s.fR, &s.fG, &s.fB);
+    mode( d.r,  d.g,  d.b,
+         &s.r, &s.g, &s.b);
 
     return s.toSkColor();
 }

@@ -525,7 +525,7 @@ public:
 
         @return  alpha ranging from zero, fully transparent, to 255, fully opaque
     */
-    uint8_t getAlpha() const { return sk_float_round2int(fColor4f.fA * 255); }
+    uint8_t getAlpha() const { return sk_float_round2int(fColor4f.a * 255); }
 
     /** Replaces alpha, leaving RGB
         unchanged. An out of range value triggers an assert in the debug

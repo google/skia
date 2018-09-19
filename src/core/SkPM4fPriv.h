@@ -56,7 +56,7 @@ static inline SkPM4f premul_in_dst_colorspace(SkColor4f color4f,
                            dstCS, kPremul_SkAlphaType)
         .apply(color4f.vec());
 
-    return {{color4f.fR, color4f.fG, color4f.fB, color4f.fA}};
+    return {{color4f.r, color4f.g, color4f.b, color4f.a}};
 }
 
 static inline SkPM4f premul_in_dst_colorspace(SkColor c, SkColorSpace* dstCS) {

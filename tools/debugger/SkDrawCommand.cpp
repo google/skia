@@ -481,10 +481,10 @@ Json::Value SkDrawCommand::MakeJsonColor(const SkColor color) {
 
 Json::Value SkDrawCommand::MakeJsonColor4f(const SkColor4f& color) {
     Json::Value result(Json::arrayValue);
-    result.append(Json::Value(color.fA));
-    result.append(Json::Value(color.fR));
-    result.append(Json::Value(color.fG));
-    result.append(Json::Value(color.fB));
+    result.append(Json::Value(color.a));
+    result.append(Json::Value(color.r));
+    result.append(Json::Value(color.g));
+    result.append(Json::Value(color.b));
     return result;
 }
 

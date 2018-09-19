@@ -57,10 +57,10 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
         SkColorGetB(c) * inv255,
         SkColorGetA(c) * inv255,
     }, nullptr);
-    return SkColorSetARGB(sk_float_round2int(c4.fA*255),
-                          sk_float_round2int(c4.fR*255),
-                          sk_float_round2int(c4.fG*255),
-                          sk_float_round2int(c4.fB*255));
+    return SkColorSetARGB(sk_float_round2int(c4.a*255),
+                          sk_float_round2int(c4.r*255),
+                          sk_float_round2int(c4.g*255),
+                          sk_float_round2int(c4.b*255));
 }
 
 #include "SkRasterPipeline.h"
@@ -71,7 +71,7 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSp
     SkRasterPipeline    pipeline(&alloc);
 
     pipeline.append_constant_color(&alloc, src);
-    this->onAppendStages(&pipeline, colorSpace, &alloc, c.fA == 1);
+    this->onAppendStages(&pipeline, colorSpace, &alloc, c.a == 1);
     SkJumper_MemoryCtx dstPtr = { &dst, 0 };
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);

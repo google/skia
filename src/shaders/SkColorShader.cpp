@@ -55,7 +55,7 @@ SkColorShader::ColorShaderContext::ColorShaderContext(const SkColorShader& shade
     fPMColor = SkPackARGB32(a, r, g, b);
 
     SkColor4f c4 = SkColor4f::FromColor(shader.fColor);
-    c4.fA *= rec.fPaint->getAlpha() / 255.0f;
+    c4.a *= rec.fPaint->getAlpha() / 255.0f;
     fPM4f = c4.premul();
 
     fFlags = kConstInY32_Flag;
@@ -110,8 +110,8 @@ static SkColor to_skcolor(SkColor4f color, SkColorSpace* cs) {
                                  sk_srgb_singleton(), kUnpremul_SkAlphaType};
     steps.apply(color.vec());
     color = color.pin();
-    return SkColorSetARGB(unit_to_byte(color.fA), unit_to_byte(color.fR),
-                          unit_to_byte(color.fG), unit_to_byte(color.fB));
+    return SkColorSetARGB(unit_to_byte(color.a), unit_to_byte(color.r),
+                          unit_to_byte(color.g), unit_to_byte(color.b));
 }
 
 SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space)
@@ -170,7 +170,7 @@ SkColor4Shader::Color4Context::Color4Context(const SkColor4Shader& shader,
     fPMColor = SkPackARGB32(a, r, g, b);
 
     SkColor4f c4 = shader.fColor4;
-    c4.fA *= rec.fPaint->getAlpha() * (1 / 255.0f);
+    c4.a *= rec.fPaint->getAlpha() * (1 / 255.0f);
     fPM4f = c4.premul();
 
     fFlags = kConstInY32_Flag;

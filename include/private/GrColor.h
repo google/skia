@@ -210,7 +210,7 @@ struct GrColor4f {
     }
 
     static GrColor4f FromSkColor4f(const SkColor4f& color) {
-        return GrColor4f(color.fR, color.fG, color.fB, color.fA);
+        return GrColor4f(color.r, color.g, color.b, color.a);
     }
 
     GrColor4f modulate(const GrColor4f& x) const {

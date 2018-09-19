@@ -64,14 +64,14 @@ static void mark_bad(SkCanvas* canvas) {
 
 static bool nearly_equal(SkColor4f x, SkColor4f y) {
     const float K = 0.01f;
-    return fabsf(x.fR - y.fR) < K
-        && fabsf(x.fG - y.fG) < K
-        && fabsf(x.fB - y.fB) < K
-        && fabsf(x.fA - y.fA) < K;
+    return fabsf(x.r - y.r) < K
+        && fabsf(x.g - y.g) < K
+        && fabsf(x.b - y.b) < K
+        && fabsf(x.a - y.a) < K;
 }
 
 static SkString fmt(SkColor4f c) {
-    return SkStringPrintf("%.2g %.2g %.2g %.2g", c.fR, c.fG, c.fB, c.fA);
+    return SkStringPrintf("%.2g %.2g %.2g %.2g", c.r, c.g, c.b, c.a);
 }
 
 static SkColor4f transform(SkColor4f c, SkColorSpace* src, SkColorSpace* dst) {

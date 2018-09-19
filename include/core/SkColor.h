@@ -240,10 +240,10 @@ struct SkPM4f;
     may be used with SkBlendMode so that the final component is in range.
 */
 struct SK_API SkColor4f {
-    float fR; //!< red component
-    float fG; //!< green component
-    float fB; //!< blue component
-    float fA; //!< alpha component
+    float r; //!< red component
+    float g; //!< green component
+    float b; //!< blue component
+    float a; //!< alpha component
 
     /** Compares SkColor4f with other, and returns true if all components are equivalent.
 
@@ -251,7 +251,7 @@ struct SK_API SkColor4f {
         @return       true if SkColor4f equals other
     */
     bool operator==(const SkColor4f& other) const {
-        return fA == other.fA && fR == other.fR && fG == other.fG && fB == other.fB;
+        return a == other.a && r == other.r && g == other.g && b == other.b;
     }
 
     /** Compares SkColor4f with other, and returns true if all components are not
@@ -268,13 +268,13 @@ struct SK_API SkColor4f {
 
         @return  components as read-only array
     */
-    const float* vec() const { return &fR; }
+    const float* vec() const { return &r; }
 
     /** Returns SkColor4f components as a read-only array.
 
         @return  components as read-only array
     */
-    float* vec() { return &fR; }
+    float* vec() { return &r; }
 
     /** Constructs and returns SkColor4f with each component pinned from zero to one.
 
@@ -304,7 +304,7 @@ struct SK_API SkColor4f {
         @return  SkColor4f with valid components
     */
     SkColor4f pin() const {
-        return Pin(fR, fG, fB, fA);
+        return Pin(r, g, b, a);
     }
 
     /** Internal use only.

@@ -169,7 +169,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     }
     for (int i = 0; i < desc.fCount; ++i) {
         origColors[i] = desc.fColors[i];
-        fColorsAreOpaque = fColorsAreOpaque && (desc.fColors[i].fA == 1);
+        fColorsAreOpaque = fColorsAreOpaque && (desc.fColors[i].a == 1);
     }
     if (dummyLast) {
         origColors += desc.fCount;
