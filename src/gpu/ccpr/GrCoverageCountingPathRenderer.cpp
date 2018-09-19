@@ -119,7 +119,10 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
                 // The stroker does not support conics yet.
                 return CanDrawPath::kNo;
             }
-            return CanDrawPath::kYes;
+            // Give the GrAAHairLinePathRenderer first claim on actual hairlines (not just thin
+            // strokes). For other thin strokes we prefer the more correct, slower CCPR stroker.
+            return (SkStrokeRec::kHairline_Style == stroke.getStyle())
+                    ? CanDrawPath::kAsBackup : CanDrawPath::kYes;
         }
 
         case SkStrokeRec::kStrokeAndFill_Style:
