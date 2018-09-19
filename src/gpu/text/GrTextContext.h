@@ -122,9 +122,9 @@ private:
                             const SkGlyphRunList& glyphRunList,
                             SkGlyphRunListPainter* glyphPainter);
 
-    static void AppendGlyph(GrTextBlob*, int runIndex, GrGlyphCache*,
-                            sk_sp<GrTextStrike>*, const SkGlyph&, GrGlyph::MaskStyle maskStyle,
-                            SkScalar sx, SkScalar sy,
+    static void AppendGlyph(GrTextBlob*, int runIndex,
+                            const sk_sp<GrTextStrike>&, const SkGlyph&,
+                            GrGlyph::MaskStyle maskStyle, SkScalar sx, SkScalar sy,
                             GrColor color, SkGlyphCache*, SkScalar textRatio,
                             bool needsTransform);
 
