@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "225b19ce_0d502bfb",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-09-19T17:57:49Z",
+      "side": 1,
+      "message": "No idea what I was trying to do there. Removed.",
+      "parentUuid": "71942404_5da8d3c8",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 35
+      },
+      "revId": "5f559e61559a9665f843becc690f8bfdceace75f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94c22d15_b884d188",
         "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
         "patchSetId": 2
