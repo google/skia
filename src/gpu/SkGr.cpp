@@ -622,3 +622,8 @@ GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilt
     }
     return textureFilterMode;
 }
+
+GrColor4s GrColor4f::toGrColor4s() const {
+    Sk4i c4i = Sk4i::Max(-32768, Sk4i::Min(Sk4f_round(Sk4f::Load(fRGBA) * 4096.0f), 32767));
+    return { c4i[0], c4i[1], c4i[2], c4i[3] };
+}

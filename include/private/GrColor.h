@@ -169,6 +169,17 @@ static inline GrColor GrUnpremulColor(GrColor color) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
+struct GrColor4s {
+    GrColor4s() {}
+    GrColor4s(int32_t r, int32_t g, int32_t b, int32_t a) {
+        fRGBA[0] = static_cast<int16_t>(r);
+        fRGBA[1] = static_cast<int16_t>(g);
+        fRGBA[2] = static_cast<int16_t>(b);
+        fRGBA[3] = static_cast<int16_t>(a);
+    }
+
+    int16_t fRGBA[4];
+};
 
 /**
 * Similarly, GrColor4f is 4 floats for R, G, B, A, in that order. And like GrColor, whether
@@ -242,6 +253,8 @@ struct GrColor4f {
                 static_cast<unsigned>(SkTPin(fRGBA[2], 0.0f,1.0f) * 255 + 0.5f),
                 static_cast<unsigned>(SkTPin(fRGBA[3], 0.0f,1.0f) * 255 + 0.5f));
     }
+
+    GrColor4s toGrColor4s() const;
 
     SkColor4f toSkColor4f() const {
         return SkColor4f { fRGBA[0], fRGBA[1], fRGBA[2], fRGBA[3] };
