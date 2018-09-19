@@ -112,7 +112,7 @@ bool GrDrawOpAtlas::Plot::addSubImage(int width, int height, const void* image, 
     // copy into the data buffer, swizzling as we go if this is ARGB data
     if (4 == fBytesPerPixel && kSkia8888_GrPixelConfig == kBGRA_8888_GrPixelConfig) {
         for (int i = 0; i < height; ++i) {
-            SkOpts::RGBA_to_BGRA(reinterpret_cast<uint32_t*>(dataPtr), imagePtr, width);
+            SkOpts::RGBA_to_BGRA((uint32_t*)dataPtr, (const uint32_t*)imagePtr, width);
             dataPtr += fBytesPerPixel * fWidth;
             imagePtr += rowBytes;
         }

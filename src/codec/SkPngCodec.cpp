@@ -293,10 +293,10 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
 #endif
 
         if (is_rgba(tableColorType)) {
-            SkOpts::RGB_to_RGB1(colorTable + numColorsWithAlpha, palette,
+            SkOpts::RGB_to_RGB1(colorTable + numColorsWithAlpha, (const uint8_t*)palette,
                     numColors - numColorsWithAlpha);
         } else {
-            SkOpts::RGB_to_BGR1(colorTable + numColorsWithAlpha, palette,
+            SkOpts::RGB_to_BGR1(colorTable + numColorsWithAlpha, (const uint8_t*)palette,
                     numColors - numColorsWithAlpha);
         }
     }
