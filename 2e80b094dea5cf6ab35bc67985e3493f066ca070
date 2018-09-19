@@ -22,6 +22,30 @@
       "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f99b6e41_944f5e44",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-19T20:54:56Z",
+      "side": 1,
+      "message": "\u003e Isn\u0027t there, essentially, no way that this can work in practice?\n\nI agree we need segmented font support for the general case.  This is a quick hack for \"client always returns the base @font-face (covering U+0000-00FF + whatever) and then prays for content to stay within this font\".\n\n\u003e I think this would require synthesizing a new font out of pieces of multiple fonts and possibly font subsets?\n\nIs that something doable at a different level?  E.g. is it possible to synthesize a single SkTypeface given that data?\n\n\u003e It seems like loadWebFont has to return something like a SegmentedFontData?\n\nAgreed.  Then, if we need to instantiate multiple SkTypefaces, the text layer logic needs to know how to split the string into multiple nodes, accounting for advances, etc.\n\nOr we could push all this down into SkShaper in some form.\n\nDefinitely not a trivial project, and beyond my font chops -- hence my hesitation to tackle it upfront.  Maybe base fonts are sufficient for video display adds, at least initially.\n\n\u003e Are we planning on providing a default loadWebFont implementation (which means pulling in a css parser)?\n\nI\u0027m fine with writing external sample code to demo this.  I wouldn\u0027t want it in Skia/Skottie though.",
+      "parentUuid": "8ea9d2df_50c810d1",
+      "range": {
+        "startLine": 133,
+        "startChar": 25,
+        "endLine": 133,
+        "endChar": 43
+      },
+      "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
