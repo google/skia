@@ -891,7 +891,6 @@ component("skia") {
       "src/ports/SkFontMgr_win_dw.cpp",
       "src/ports/SkFontMgr_win_dw_factory.cpp",
       "src/ports/SkImageEncoder_WIC.cpp",
-      "src/ports/SkImageGeneratorWIC.cpp",
       "src/ports/SkOSFile_win.cpp",
       "src/ports/SkOSLibrary_win.cpp",
       "src/ports/SkScalerContext_win_dw.cpp",
@@ -1368,6 +1367,10 @@ if (skia_enable_tools) {
       "tools/trace/SkEventTracingPriv.cpp",
       "tools/trace/SkEventTracingPriv.h",
     ]
+    if (is_win) {
+      sources += [ "tools/wic_image/SkImageGeneratorWIC.cpp" ]
+      public_include_dirs += [ "tools/wic_image" ]
+    }
     libs = []
     if (is_ios) {
       sources += [ "tools/ios_utils.m" ]
