@@ -8,14 +8,14 @@
 #ifndef SkPM4fPriv_DEFINED
 #define SkPM4fPriv_DEFINED
 
-#include "SkColorData.h"
-#include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkArenaAlloc.h"
-#include "SkPM4f.h"
-#include "SkRasterPipeline.h"
-#include "../jumper/SkJumper.h"
+#include "include/core/SkColorSpace.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkPM4f.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/jumper/SkJumper.h"
 
 // This file is mostly helper routines for doing color space management.
 // It probably wants a new name, and they likely don't need to be inline.

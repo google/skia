@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkDeferredDisplayListRecorder.h"
+#include "include/core/SkDeferredDisplayListRecorder.h"
 
-#include "SkDeferredDisplayList.h"
-#include "SkSurface.h"
-#include "SkSurfaceCharacterization.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceCharacterization.h"
+#include "include/private/SkDeferredDisplayList.h"
 
 #if !SK_SUPPORT_GPU
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization&) {}
@@ -40,13 +40,13 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
 
 #else
 
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrTexture.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
 
-#include "SkGr.h"
-#include "SkImage_Gpu.h"
-#include "SkSurface_Gpu.h"
+#include "src/gpu/SkGr.h"
+#include "src/image/SkImage_Gpu.h"
+#include "src/image/SkSurface_Gpu.h"
 
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c)
         : fCharacterization(c) {

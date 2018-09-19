@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkPM4fPriv.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkToSRGBColorFilter.h"
-#include "SkWriteBuffer.h"
+#include "include/effects/SkToSRGBColorFilter.h"
+#include "include/core/SkString.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-    #include "GrColorSpaceXform.h"
+#include "src/gpu/GrColorSpaceXform.h"
 #endif
 
 void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,

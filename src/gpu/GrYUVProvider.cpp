@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "GrYUVProvider.h"
-#include "GrClip.h"
-#include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetContext.h"
-#include "GrTextureProxy.h"
-#include "SkAutoMalloc.h"
-#include "SkCachedData.h"
-#include "SkRefCnt.h"
-#include "SkResourceCache.h"
-#include "SkYUVPlanesCache.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "src/gpu/GrYUVProvider.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkResourceCache.h"
+#include "src/core/SkYUVPlanesCache.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
 sk_sp<SkCachedData> init_provider(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo,
                                   void* planes[3]) {

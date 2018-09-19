@@ -7,12 +7,12 @@
 #ifndef SkIntersectionHelper_DEFINED
 #define SkIntersectionHelper_DEFINED
 
-#include "SkOpContour.h"
-#include "SkOpSegment.h"
-#include "SkPath.h"
+#include "include/core/SkPath.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkOpSegment.h"
 
 #ifdef SK_DEBUG
-#include "SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsPoint.h"
 #endif
 
 class SkIntersectionHelper {

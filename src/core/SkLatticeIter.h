@@ -8,9 +8,9 @@
 #ifndef SkLatticeIter_DEFINED
 #define SkLatticeIter_DEFINED
 
-#include "SkCanvas.h"
-#include "SkScalar.h"
-#include "SkTArray.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkTArray.h"
 
 struct SkIRect;
 struct SkRect;

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkTableColorFilter.h"
+#include "include/effects/SkTableColorFilter.h"
 
-#include "SkArenaAlloc.h"
-#include "SkBitmap.h"
-#include "SkColorData.h"
-#include "SkPM4f.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkTo.h"
-#include "SkUnPreMultiply.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkString.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkPM4f.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 static const uint8_t gIdentityTable[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -147,7 +147,7 @@ static const uint8_t gCountNibBits[] = {
     2, 3, 3, 4
 };
 
-#include "SkPackBits.h"
+#include "src/effects/SkPackBits.h"
 
 void SkTable_ColorFilter::flatten(SkWriteBuffer& buffer) const {
     uint8_t storage[5*256];
@@ -283,15 +283,15 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::onMakeComposed(sk_sp<SkColorFilter> in
 
 #if SK_SUPPORT_GPU
 
-#include "GrColorSpaceInfo.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrFragmentProcessor.h"
-#include "SkGr.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:

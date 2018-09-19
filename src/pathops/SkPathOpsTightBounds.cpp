@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkOpEdgeBuilder.h"
-#include "SkPathOpsCommon.h"
+#include "src/pathops/SkOpEdgeBuilder.h"
+#include "src/pathops/SkPathOpsCommon.h"
 
 bool TightBounds(const SkPath& path, SkRect* result) {
     SkPath::RawIter iter(path);

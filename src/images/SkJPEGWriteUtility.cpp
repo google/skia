@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkJPEGWriteUtility.h"
+#include "src/images/SkJPEGWriteUtility.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

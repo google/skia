@@ -8,13 +8,13 @@
 #ifndef SkColorSpaceXformer_DEFINED
 #define SkColorSpaceXformer_DEFINED
 
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkRasterPipeline.h"
-#include "SkRefCnt.h"
-#include "SkTHash.h"
-#include "../jumper/SkJumper.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTHash.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/jumper/SkJumper.h"
 
 class SkBitmap;
 class SkColorFilter;

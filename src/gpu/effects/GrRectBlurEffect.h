@@ -10,13 +10,13 @@
  **************************************************************************************************/
 #ifndef GrRectBlurEffect_DEFINED
 #define GrRectBlurEffect_DEFINED
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-#include "GrProxyProvider.h"
-#include "SkBlurMask.h"
-#include "SkScalar.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkScalar.h"
+#include "src/core/SkBlurMask.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrProxyProvider.h"
 class GrRectBlurEffect : public GrFragmentProcessor {
 public:
     static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProvider,

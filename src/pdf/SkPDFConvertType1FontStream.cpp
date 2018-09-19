@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFConvertType1FontStream.h"
+#include "src/pdf/SkPDFConvertType1FontStream.h"
 
-#include "SkTemplates.h"
-#include "SkTo.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 
 #include <ctype.h>
 

@@ -8,13 +8,13 @@
 #ifndef GrShape_DEFINED
 #define GrShape_DEFINED
 
-#include "GrStyle.h"
-#include "SkPath.h"
-#include "SkPathPriv.h"
-#include "SkRRect.h"
-#include "SkTemplates.h"
-#include "SkTLazy.h"
 #include <new>
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkTLazy.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkPathPriv.h"
+#include "src/gpu/GrStyle.h"
 
 /**
  * Represents a geometric shape (rrect or path) and the GrStyle that it should be rendered with.

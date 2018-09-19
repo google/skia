@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkBitmap.h"
-#include "SkMask.h"
+#include "include/core/SkBitmap.h"
+#include "src/core/SkMask.h"
 
 #ifndef ClearLow3Bits_DEFINED
 #define ClearLow3Bits_DEFINED

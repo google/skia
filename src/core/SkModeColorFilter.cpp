@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBlendModePriv.h"
-#include "SkBlitRow.h"
-#include "SkColorFilter.h"
-#include "SkColorData.h"
-#include "SkColorSpaceXformer.h"
-#include "SkModeColorFilter.h"
-#include "SkPM4f.h"
-#include "SkPM4fPriv.h"
-#include "SkRandom.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkUTF.h"
-#include "SkValidationUtils.h"
-#include "SkWriteBuffer.h"
+#include "src/core/SkModeColorFilter.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkString.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkBlitRow.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkPM4f.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkValidationUtils.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/utils/SkUTF.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -81,10 +81,10 @@ sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(SkColorSpaceXformer* xf
 
 ///////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
-#include "GrBlend.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
-#include "effects/GrConstColorProcessor.h"
-#include "SkGr.h"
+#include "include/gpu/GrBlend.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrConstColorProcessor.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
         GrContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const {

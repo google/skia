@@ -8,12 +8,11 @@
 #ifndef SkRegionPriv_DEFINED
 #define SkRegionPriv_DEFINED
 
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
 
-#include "SkAtomics.h"
-#include "SkMalloc.h"
-#include "SkTo.h"
-
+#include "include/private/SkAtomics.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
 
 #include <functional>
 

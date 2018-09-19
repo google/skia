@@ -8,13 +8,13 @@
 #ifndef SkImage_Base_DEFINED
 #define SkImage_Base_DEFINED
 
-#include "SkImage.h"
-#include "SkSurface.h"
 #include <atomic>
+#include "include/core/SkImage.h"
+#include "include/core/SkSurface.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTextureProxy.h"
-#include "SkTDArray.h"
+#include "include/private/GrTextureProxy.h"
+#include "include/private/SkTDArray.h"
 
 class GrTexture;
 #endif

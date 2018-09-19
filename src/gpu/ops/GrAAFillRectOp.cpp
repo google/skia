@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "GrColor.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrRectOpFactory.h"
-#include "GrResourceKey.h"
-#include "GrResourceProvider.h"
-#include "GrTypes.h"
-#include "SkMatrix.h"
-#include "SkMatrixPriv.h"
-#include "SkRect.h"
-#include "SkPointPriv.h"
-#include "ops/GrSimpleMeshDrawOpHelper.h"
 #include <new>
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/gpu/GrResourceKey.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrColor.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkPointPriv.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrRectOpFactory.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
@@ -421,7 +421,7 @@ std::unique_ptr<GrDrawOp> MakeAAFillWithLocalRect(GrContext* context,
 
 #if GR_TEST_UTILS
 
-#include "GrDrawOpTest.h"
+#include "src/gpu/GrDrawOpTest.h"
 
 GR_DRAW_OP_TEST_DEFINE(AAFillRectOp) {
     SkMatrix viewMatrix;

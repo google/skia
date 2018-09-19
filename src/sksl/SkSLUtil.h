@@ -10,15 +10,15 @@
 
 #include <cstdarg>
 #include <memory>
+#include "assert.h"
+#include "src/sksl/SkSLString.h"
+#include "src/sksl/SkSLStringStream.h"
 #include "stdlib.h"
 #include "string.h"
-#include "assert.h"
-#include "SkSLString.h"
-#include "SkSLStringStream.h"
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-#include "GrContextOptions.h"
-#include "GrShaderCaps.h"
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrShaderCaps.h"
 #endif
 
 #ifdef SKSL_STANDALONE

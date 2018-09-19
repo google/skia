@@ -13,7 +13,7 @@
 #include <inttypes.h>
 #include <stdarg.h>
 
-#include "SkJSONWriter.h"
+#include "src/utils/SkJSONWriter.h"
 
 void SkJSONWriter::appendS64(int64_t value) {
     this->beginValue();

@@ -5,9 +5,9 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkSampler.h"
+#include "src/gpu/vk/GrVkSampler.h"
 
-#include "GrVkGpu.h"
+#include "src/gpu/vk/GrVkGpu.h"
 
 static inline VkSamplerAddressMode wrap_mode_to_vk_sampler_address(
         GrSamplerState::WrapMode wrapMode) {

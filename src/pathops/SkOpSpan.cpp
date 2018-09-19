@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkOpCoincidence.h"
-#include "SkOpContour.h"
-#include "SkOpSegment.h"
-#include "SkPathWriter.h"
+#include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkPathWriter.h"
 
 bool SkOpPtT::alias() const {
     return this->span()->ptT() != this;

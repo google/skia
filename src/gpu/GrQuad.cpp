@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrQuad.h"
+#include "src/gpu/GrQuad.h"
 
 GrQuad::GrQuad(const SkRect& rect, const SkMatrix& m) {
     SkMatrix::TypeMask tm = m.getType();

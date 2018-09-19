@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage.h"
-#include "SkPDFBitmap.h"
-#include "SkPDFCanon.h"
-#include "SkPDFFont.h"
+#include "src/pdf/SkPDFCanon.h"
+#include "include/core/SkImage.h"
+#include "src/pdf/SkPDFBitmap.h"
+#include "src/pdf/SkPDFFont.h"
 
 SkPDFCanon::~SkPDFCanon() {}
 SkPDFCanon::SkPDFCanon() {}

@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkPictureShader.h"
+#include "src/shaders/SkPictureShader.h"
 
-#include "SkArenaAlloc.h"
-#include "SkBitmap.h"
-#include "SkBitmapProcShader.h"
-#include "SkCanvas.h"
-#include "SkColorSpaceXformCanvas.h"
-#include "SkImage.h"
-#include "SkImageShader.h"
-#include "SkMatrixUtils.h"
-#include "SkPicturePriv.h"
-#include "SkPictureImageGenerator.h"
-#include "SkReadBuffer.h"
-#include "SkResourceCache.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpaceXformCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkMatrixUtils.h"
+#include "src/core/SkPictureImageGenerator.h"
+#include "src/core/SkPicturePriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkResourceCache.h"
+#include "src/shaders/SkBitmapProcShader.h"
+#include "src/shaders/SkImageShader.h"
 
 #if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrColorSpaceInfo.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrFragmentProcessor.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #endif
 
 namespace {

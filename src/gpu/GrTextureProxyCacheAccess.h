@@ -8,7 +8,7 @@
 #ifndef GrTextureProxyCacheAccess_DEFINED
 #define GrTextureProxyCacheAccess_DEFINED
 
-#include "GrTextureProxy.h"
+#include "include/private/GrTextureProxy.h"
 
 /**
  * This class allows GrResourceCache increased privileged access to GrTextureProxy objects.

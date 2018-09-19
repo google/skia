@@ -14,15 +14,15 @@
 #include <unordered_set>
 #include <vector>
 
-#include "../private/SkTHash.h"
-#include "SkData.h"
-#include "SkDevice.h"
-#include "SkDrawLooper.h"
-#include "SkMakeUnique.h"
-#include "SkNoDrawCanvas.h"
-#include "SkRefCnt.h"
-#include "SkSerialProcs.h"
-#include "SkTypeface.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSerialProcs.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTHash.h"
+#include "include/utils/SkNoDrawCanvas.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkMakeUnique.h"
 
 class Serializer;
 enum SkAxisAlignment : uint32_t;

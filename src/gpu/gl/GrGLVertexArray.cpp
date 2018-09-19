@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLVertexArray.h"
-#include "GrGLBuffer.h"
-#include "GrGLGpu.h"
+#include "src/gpu/gl/GrGLVertexArray.h"
+#include "src/gpu/gl/GrGLBuffer.h"
+#include "src/gpu/gl/GrGLGpu.h"
 
 struct AttribLayout {
     bool        fNormalized;  // Only used by floating point types.

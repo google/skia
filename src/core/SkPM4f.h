@@ -8,8 +8,8 @@
 #ifndef SkPM4f_DEFINED
 #define SkPM4f_DEFINED
 
-#include "SkColorData.h"
-#include "SkNx.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkNx.h"
 
 static inline Sk4f swizzle_rb(const Sk4f& x) {
     return SkNx_shuffle<2, 1, 0, 3>(x);

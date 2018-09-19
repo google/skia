@@ -8,10 +8,10 @@
 #ifndef SkTrimImpl_DEFINED
 #define SkTrimImpl_DEFINED
 
-#include "SkFlattenablePriv.h"
-#include "SkPathEffect.h"
+#include "include/core/SkPathEffect.h"
+#include "src/core/SkFlattenablePriv.h"
 
-#include "SkTrimPathEffect.h"
+#include "include/effects/SkTrimPathEffect.h"
 
 class SkTrimPE : public SkPathEffect {
 public:

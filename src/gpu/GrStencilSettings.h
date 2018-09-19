@@ -9,8 +9,8 @@
 #ifndef GrStencilSettings_DEFINED
 #define GrStencilSettings_DEFINED
 
-#include "GrUserStencilSettings.h"
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
+#include "src/gpu/GrUserStencilSettings.h"
 
 class GrProcessorKeyBuilder;
 

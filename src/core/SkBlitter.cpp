@@ -5,24 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitter.h"
+#include "src/core/SkBlitter.h"
 
-#include "SkAntiRun.h"
-#include "SkArenaAlloc.h"
-#include "SkColor.h"
-#include "SkColorFilter.h"
-#include "SkMask.h"
-#include "SkMaskFilterBase.h"
-#include "SkPaintPriv.h"
-#include "SkReadBuffer.h"
-#include "SkRegionPriv.h"
-#include "SkShaderBase.h"
-#include "SkString.h"
-#include "SkTLazy.h"
-#include "SkTo.h"
-#include "SkUtils.h"
-#include "SkWriteBuffer.h"
-#include "SkXfermodeInterpretation.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTLazy.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAntiRun.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkRegionPriv.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/core/SkXfermodeInterpretation.h"
+#include "src/shaders/SkShaderBase.h"
 
 SkBlitter::~SkBlitter() {}
 
@@ -753,8 +753,8 @@ SkBlitter* SkBlitterClipper::apply(SkBlitter* blitter, const SkRegion* clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkColorShader.h"
-#include "SkColorData.h"
+#include "src/core/SkColorData.h"
+#include "src/shaders/SkColorShader.h"
 
 class Sk3DShader : public SkShaderBase {
 public:
@@ -925,7 +925,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkCoreBlitters.h"
+#include "src/core/SkCoreBlitters.h"
 
 // hack for testing, not to be exposed to clients
 bool gSkForceRasterPipelineBlitter;

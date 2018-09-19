@@ -8,8 +8,8 @@
 #ifndef SkOTTable_head_DEFINED
 #define SkOTTable_head_DEFINED
 
-#include "SkEndian.h"
-#include "SkOTTableTypes.h"
+#include "src/core/SkEndian.h"
+#include "src/sfnt/SkOTTableTypes.h"
 
 #pragma pack(push, 1)
 

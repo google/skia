@@ -8,8 +8,8 @@
 #ifndef GrVkTexture_DEFINED
 #define GrVkTexture_DEFINED
 
-#include "GrTexture.h"
-#include "GrVkImage.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/vk/GrVkImage.h"
 
 class GrVkGpu;
 class GrVkImageView;

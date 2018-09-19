@@ -8,7 +8,7 @@
 #ifndef SkCubicMap_DEFINED
 #define SkCubicMap_DEFINED
 
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
 
 /**
  *  Fast evaluation of a cubic ease-in / ease-out curve. This is defined as a parametric cubic

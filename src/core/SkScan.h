@@ -9,10 +9,10 @@
 #ifndef SkScan_DEFINED
 #define SkScan_DEFINED
 
-#include "SkCoverageDelta.h"
-#include "SkFixed.h"
-#include "SkRect.h"
 #include <atomic>
+#include "include/core/SkRect.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkCoverageDelta.h"
 
 class SkRasterClip;
 class SkRegion;

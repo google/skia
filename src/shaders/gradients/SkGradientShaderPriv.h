@@ -8,14 +8,14 @@
 #ifndef SkGradientShaderPriv_DEFINED
 #define SkGradientShaderPriv_DEFINED
 
-#include "SkGradientShader.h"
+#include "include/effects/SkGradientShader.h"
 
-#include "SkArenaAlloc.h"
-#include "SkMatrix.h"
-#include "SkPM4fPriv.h"
-#include "SkShaderBase.h"
-#include "SkTArray.h"
-#include "SkTemplates.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkColorSpace;
 class SkColorSpaceXformer;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkOSPath.h"
+#include "src/utils/SkOSPath.h"
 
 SkString SkOSPath::Join(const char *rootPath, const char *relativePath) {
     SkString result(rootPath);

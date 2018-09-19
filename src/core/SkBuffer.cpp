@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBuffer.h"
-#include "SkMalloc.h"
+#include "src/core/SkBuffer.h"
 #include <string.h>
+#include "include/private/SkMalloc.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

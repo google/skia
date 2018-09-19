@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLExtensions.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLExtensions.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #include <stdio.h>
 

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitRow.h"
-#include "SkBlitMask.h"
-#include "SkColorData.h"
-#include "SkOpts.h"
-#include "SkUtils.h"
+#include "src/core/SkBlitMask.h"
+#include "src/core/SkBlitRow.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkUtils.h"
 
 #define UNROLL
 

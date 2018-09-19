@@ -8,13 +8,13 @@
 #ifndef SkBlitRow_opts_DEFINED
 #define SkBlitRow_opts_DEFINED
 
-#include "Sk4px.h"
-#include "SkColorData.h"
-#include "SkMSAN.h"
+#include "src/core/Sk4px.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkMSAN.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #include "SkColor_opts_SSE2.h"
-    #include <immintrin.h>
+#include <immintrin.h>
+#include "src/opts/SkColor_opts_SSE2.h"
 #endif
 
 namespace SK_OPTS_NS {

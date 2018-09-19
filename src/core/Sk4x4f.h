@@ -8,7 +8,7 @@
 #ifndef Sk4x4f_DEFINED
 #define Sk4x4f_DEFINED
 
-#include "SkNx.h"
+#include "src/core/SkNx.h"
 
 namespace {
 

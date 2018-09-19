@@ -8,15 +8,15 @@
 #ifndef GrVkPipelineStateBuilder_DEFINED
 #define GrVkPipelineStateBuilder_DEFINED
 
-#include "GrPipeline.h"
-#include "GrProgramDesc.h"
-#include "GrVkPipelineState.h"
-#include "GrVkUniformHandler.h"
-#include "GrVkVaryingHandler.h"
-#include "SkSLCompiler.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/vk/GrVkPipelineState.h"
+#include "src/gpu/vk/GrVkUniformHandler.h"
+#include "src/gpu/vk/GrVkVaryingHandler.h"
+#include "src/sksl/SkSLCompiler.h"
 
-#include "vk/GrVkDefines.h"
+#include "include/gpu/vk/GrVkDefines.h"
 
 class GrVkGpu;
 class GrVkRenderPass;

@@ -7,9 +7,9 @@
 #ifndef SkSampler_DEFINED
 #define SkSampler_DEFINED
 
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkTypes.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkCodecPriv.h"
 
 class SkSampler : public SkNoncopyable {
 public:

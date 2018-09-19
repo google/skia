@@ -8,10 +8,10 @@
 #ifndef SkPipe_DEFINED
 #define SkPipe_DEFINED
 
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkPicture.h"
-#include "SkSerialProcs.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkSerialProcs.h"
 
 class SkCanvas;
 class SkTypeface;

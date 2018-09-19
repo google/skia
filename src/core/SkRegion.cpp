@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
 
-#include "SkAtomics.h"
-#include "SkMacros.h"
-#include "SkRegionPriv.h"
-#include "SkSafeMath.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
-#include "SkUTF.h"
+#include "include/private/SkAtomics.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkRegionPriv.h"
+#include "src/core/SkSafeMath.h"
+#include "src/utils/SkUTF.h"
 
 #include <utility>
 
@@ -1146,7 +1146,7 @@ bool SkRegion::op(const SkRegion& rgna, const SkRegion& rgnb, Op op) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkBuffer.h"
+#include "src/core/SkBuffer.h"
 
 size_t SkRegion::writeToMemory(void* storage) const {
     if (nullptr == storage) {

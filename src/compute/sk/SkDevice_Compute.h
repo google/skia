@@ -46,10 +46,10 @@ extern "C" {
 // C++
 //
 
-#include "SkDevice.h"
-#include "SkClipStackDevice.h"
-#include "SkContext_Compute.h"
-#include "SkTArray.h"
+#include "include/private/SkTArray.h"
+#include "src/compute/sk/SkContext_Compute.h"
+#include "src/core/SkClipStackDevice.h"
+#include "src/core/SkDevice.h"
 
 //
 //

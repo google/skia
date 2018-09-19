@@ -8,7 +8,7 @@
 #ifndef SkEmptyShader_DEFINED
 #define SkEmptyShader_DEFINED
 
-#include "SkShaderBase.h"
+#include "src/shaders/SkShaderBase.h"
 
 // TODO: move this to private, as there is a public factory on SkShader
 

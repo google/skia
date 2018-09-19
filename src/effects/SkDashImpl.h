@@ -8,7 +8,7 @@
 #ifndef SkDashImpl_DEFINED
 #define SkDashImpl_DEFINED
 
-#include "SkPathEffect.h"
+#include "include/core/SkPathEffect.h"
 
 class SkDashImpl : public SkPathEffect {
 public:

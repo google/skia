@@ -5,18 +5,18 @@
 * found in the LICENSE file.
 */
 
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
-#include "GrPipeline.h"
-#include "GrProcessorAnalysis.h"
-#include "effects/GrConstColorProcessor.h"
-#include "effects/GrPremulInputFragmentProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
-#include "effects/GrUnpremulInputFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrProcessorAnalysis.h"
+#include "src/gpu/effects/GrConstColorProcessor.h"
+#include "src/gpu/effects/GrPremulInputFragmentProcessor.h"
+#include "src/gpu/effects/GrUnpremulInputFragmentProcessor.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     if (this->classID() != that.classID()) {

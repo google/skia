@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrFixedClip.h"
+#include "src/gpu/GrFixedClip.h"
 
-#include "GrAppliedClip.h"
-#include "GrRenderTargetContext.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
 bool GrFixedClip::quickContains(const SkRect& rect) const {
     if (fWindowRectsState.enabled()) {

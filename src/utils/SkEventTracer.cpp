@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
-#include "SkEventTracer.h"
-#include "SkOnce.h"
+#include "include/utils/SkEventTracer.h"
+#include "include/private/SkAtomics.h"
+#include "include/private/SkOnce.h"
 
 #include <stdlib.h>
 

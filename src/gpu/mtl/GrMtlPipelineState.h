@@ -8,10 +8,10 @@
 #ifndef GrMtlPipelineState_DEFINED
 #define GrMtlPipelineState_DEFINED
 
-#include "GrMtlBuffer.h"
-#include "GrMtlPipelineStateDataManager.h"
-#include "GrTypesPriv.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/mtl/GrMtlBuffer.h"
+#include "src/gpu/mtl/GrMtlPipelineStateDataManager.h"
 
 #import <metal/metal.h>
 

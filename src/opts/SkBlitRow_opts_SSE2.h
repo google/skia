@@ -8,7 +8,7 @@
 #ifndef SkBlitRow_opts_SSE2_DEFINED
 #define SkBlitRow_opts_SSE2_DEFINED
 
-#include "SkBlitRow.h"
+#include "src/core/SkBlitRow.h"
 
 void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
                               const SkPMColor* SK_RESTRICT src,

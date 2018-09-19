@@ -5,8 +5,8 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkUniformBuffer.h"
-#include "GrVkGpu.h"
+#include "src/gpu/vk/GrVkUniformBuffer.h"
+#include "src/gpu/vk/GrVkGpu.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 

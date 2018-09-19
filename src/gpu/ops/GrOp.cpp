@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrOp.h"
+#include "src/gpu/ops/GrOp.h"
 
 int32_t GrOp::gCurrOpClassID = GrOp::kIllegalOpID;
 

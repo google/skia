@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrColorSpaceXform.h"
-#include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
-#include "SkMatrix44.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkMatrix44.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkAlphaType srcAT,
                                                  SkColorSpace* dst, SkAlphaType dstAT) {

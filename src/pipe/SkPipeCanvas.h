@@ -8,13 +8,13 @@
 #ifndef SkPipeCanvas_DEFINED
 #define SkPipeCanvas_DEFINED
 
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkDeduper.h"
-#include "SkImage.h"
-#include "SkNoDrawCanvas.h"
-#include "SkPipe.h"
-#include "SkTypeface.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkNoDrawCanvas.h"
+#include "src/core/SkDeduper.h"
+#include "src/core/SkPipe.h"
+#include "src/core/SkWriteBuffer.h"
 
 class SkPipeCanvas;
 class SkPipeWriter;

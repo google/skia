@@ -8,10 +8,9 @@
 #ifndef SKSL_BINARYEXPRESSION
 #define SKSL_BINARYEXPRESSION
 
-#include "SkSLExpression.h"
-#include "SkSLExpression.h"
-#include "../SkSLIRGenerator.h"
-#include "../SkSLLexer.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLLexer.h"
+#include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
 

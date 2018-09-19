@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitRow.h"
+#include "src/core/SkBlitRow.h"
 
 // Platform impl of Platform_procs with no overrides
 

@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvasVirtualEnforcer.h"
-#include "SkColorFilter.h"
-#include "SkColorSpaceXformCanvas.h"
-#include "SkColorSpaceXformer.h"
-#include "SkDrawShadowInfo.h"
-#include "SkGradientShader.h"
-#include "SkImageFilter.h"
-#include "SkImagePriv.h"
-#include "SkImage_Base.h"
-#include "SkMakeUnique.h"
-#include "SkNoDrawCanvas.h"
-#include "SkSurface.h"
-#include "SkTLazy.h"
+#include "include/core/SkColorSpaceXformCanvas.h"
+#include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTLazy.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkNoDrawCanvas.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkImagePriv.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/image/SkImage_Base.h"
 
 namespace {
     struct MaybePaint {

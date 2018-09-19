@@ -5,24 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "SkAlphaThresholdFilter.h"
+#include "include/effects/SkAlphaThresholdFilter.h"
 
-#include "SkBitmap.h"
-#include "SkColorSpaceXformer.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkWriteBuffer.h"
-#include "SkRegion.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkRegion.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrFixedClip.h"
-#include "GrRenderTargetContext.h"
-#include "GrTextureProxy.h"
-#include "effects/GrSimpleTextureEffect.h"
-#include "effects/GrAlphaThresholdFragmentProcessor.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/effects/GrAlphaThresholdFragmentProcessor.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #endif
 
 class SkAlphaThresholdFilterImpl : public SkImageFilter {

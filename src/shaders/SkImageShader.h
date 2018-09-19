@@ -8,10 +8,10 @@
 #ifndef SkImageShader_DEFINED
 #define SkImageShader_DEFINED
 
-#include "SkBitmapProcShader.h"
-#include "SkColorSpaceXformer.h"
-#include "SkImage.h"
-#include "SkShaderBase.h"
+#include "include/core/SkImage.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/shaders/SkBitmapProcShader.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkImageShader : public SkShaderBase {
 public:

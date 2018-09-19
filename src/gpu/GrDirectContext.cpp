@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
-#include "GrContextPriv.h"
-#include "GrGpu.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
 
-#include "effects/GrSkSLFP.h"
-#include "gl/GrGLGpu.h"
-#include "mock/GrMockGpu.h"
-#include "text/GrGlyphCache.h"
+#include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/mock/GrMockGpu.h"
+#include "src/gpu/text/GrGlyphCache.h"
 #ifdef SK_METAL
-#include "mtl/GrMtlTrampoline.h"
+#include "src/gpu/mtl/GrMtlTrampoline.h"
 #endif
 #ifdef SK_VULKAN
-#include "vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkGpu.h"
 #endif
 
 class SK_API GrDirectContext : public GrContext {

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphCache.h"
+#include "src/core/SkGlyphCache.h"
 
-#include "SkGraphics.h"
-#include "SkMutex.h"
-#include "SkOnce.h"
-#include "SkPath.h"
-#include "SkTemplates.h"
-#include "SkTypeface.h"
 #include <cctype>
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTemplates.h"
 
 namespace {
 size_t compute_path_size(const SkPath& path) {
@@ -298,8 +298,8 @@ const SkGlyph& SkGlyphCache::getGlyphMetrics(SkGlyphID glyphID, SkPoint position
     }
 }
 
-#include "../pathops/SkPathOpsCubic.h"
-#include "../pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 static bool quad_in_bounds(const SkScalar* pts, const SkScalar bounds[2]) {
     SkScalar min = SkTMin(SkTMin(pts[0], pts[2]), pts[4]);

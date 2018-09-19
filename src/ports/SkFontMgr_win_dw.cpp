@@ -4,25 +4,25 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkDWriteNTDDI_VERSION.h"
+#include "src/utils/win/SkDWriteNTDDI_VERSION.h"
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkDWrite.h"
-#include "SkDWriteFontFileStream.h"
-#include "SkEndian.h"
-#include "SkFontMgr.h"
-#include "SkHRESULT.h"
-#include "SkMakeUnique.h"
-#include "SkMutex.h"
-#include "SkStream.h"
-#include "SkTScopedComPtr.h"
-#include "SkTypeface.h"
-#include "SkTypefaceCache.h"
-#include "SkTypeface_win_dw.h"
-#include "SkTypes.h"
-#include "SkUTF.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMutex.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkTypefaceCache.h"
+#include "src/ports/SkTypeface_win_dw.h"
+#include "src/utils/SkUTF.h"
+#include "src/utils/win/SkDWrite.h"
+#include "src/utils/win/SkDWriteFontFileStream.h"
+#include "src/utils/win/SkHRESULT.h"
+#include "src/utils/win/SkTScopedComPtr.h"
 
 #include <dwrite.h>
 #include <dwrite_2.h>
@@ -1125,7 +1125,7 @@ SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-#include "SkTypeface_win.h"
+#include "include/ports/SkTypeface_win.h"
 
 SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
                                                   IDWriteFontCollection* collection) {
@@ -1169,7 +1169,7 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
                                              localeName, localeNameLen);
 }
 
-#include "SkFontMgr_indirect.h"
+#include "include/ports/SkFontMgr_indirect.h"
 SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
     sk_sp<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
     if (!impl) {

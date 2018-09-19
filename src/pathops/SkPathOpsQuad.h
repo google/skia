@@ -8,7 +8,7 @@
 #ifndef SkPathOpsQuad_DEFINED
 #define SkPathOpsQuad_DEFINED
 
-#include "SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsPoint.h"
 
 struct SkOpCurve;
 

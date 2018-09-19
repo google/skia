@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontConfigInterface.h"
-#include "SkFontConfigTypeface.h"
-#include "SkFontDescriptor.h"
-#include "SkFontMgr.h"
-#include "SkFontMgr_FontConfigInterface.h"
-#include "SkFontStyle.h"
-#include "SkMakeUnique.h"
-#include "SkMutex.h"
-#include "SkString.h"
-#include "SkTypeface.h"
-#include "SkTypefaceCache.h"
-#include "SkResourceCache.h"
+#include "include/ports/SkFontMgr_FontConfigInterface.h"
 #include <new>
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/ports/SkFontConfigInterface.h"
+#include "include/private/SkMutex.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkResourceCache.h"
+#include "src/core/SkTypefaceCache.h"
+#include "src/ports/SkFontConfigTypeface.h"
 
 SkStreamAsset* SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
     *ttcIndex =  this->getIdentity().fTTCIndex;

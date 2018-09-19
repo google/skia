@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkJpegInfo.h"
+#include "src/pdf/SkJpegInfo.h"
 
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 
 #ifndef SK_HAS_JPEG_LIBRARY
 

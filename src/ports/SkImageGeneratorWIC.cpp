@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageGeneratorWIC.h"
-#include "SkIStream.h"
-#include "SkStream.h"
+#include "include/ports/SkImageGeneratorWIC.h"
+#include "include/core/SkStream.h"
+#include "src/utils/win/SkIStream.h"
 
 // All Windows SDKs back to XPSP2 export the CLSID_WICImagingFactory symbol.
 // In the Windows8 SDK the CLSID_WICImagingFactory symbol is still exported

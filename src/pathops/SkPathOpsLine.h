@@ -7,7 +7,7 @@
 #ifndef SkPathOpsLine_DEFINED
 #define SkPathOpsLine_DEFINED
 
-#include "SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsPoint.h"
 
 struct SkDLine {
     SkDPoint fPts[2];

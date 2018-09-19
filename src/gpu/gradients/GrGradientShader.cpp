@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "GrGradientShader.h"
+#include "src/gpu/gradients/GrGradientShader.h"
 
-#include "GrClampedGradientEffect.h"
-#include "GrTiledGradientEffect.h"
+#include "src/gpu/gradients/GrClampedGradientEffect.h"
+#include "src/gpu/gradients/GrTiledGradientEffect.h"
 
-#include "GrLinearGradientLayout.h"
-#include "GrRadialGradientLayout.h"
-#include "GrSweepGradientLayout.h"
-#include "GrTwoPointConicalGradientLayout.h"
+#include "src/gpu/gradients/GrLinearGradientLayout.h"
+#include "src/gpu/gradients/GrRadialGradientLayout.h"
+#include "src/gpu/gradients/GrSweepGradientLayout.h"
+#include "src/gpu/gradients/GrTwoPointConicalGradientLayout.h"
 
-#include "GrDualIntervalGradientColorizer.h"
-#include "GrSingleIntervalGradientColorizer.h"
-#include "GrTextureGradientColorizer.h"
-#include "GrGradientBitmapCache.h"
+#include "src/gpu/gradients/GrDualIntervalGradientColorizer.h"
+#include "src/gpu/gradients/GrGradientBitmapCache.h"
+#include "src/gpu/gradients/GrSingleIntervalGradientColorizer.h"
+#include "src/gpu/gradients/GrTextureGradientColorizer.h"
 
-#include "SkGr.h"
-#include "GrColor.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrColor.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/SkGr.h"
 
 // Each cache entry costs 1K or 2K of RAM. Each bitmap will be 1x256 at either 32bpp or 64bpp.
 static const int kMaxNumCachedGradientBitmaps = 32;

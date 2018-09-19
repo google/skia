@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCubicMap.h"
-#include "SkNx.h"
+#include "src/core/SkCubicMap.h"
+#include "src/core/SkNx.h"
 
 //#define CUBICMAP_TRACK_MAX_ERROR
 
 #ifdef CUBICMAP_TRACK_MAX_ERROR
-#include "../../src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCubic.h"
 #endif
 
 static float eval_poly3(float a, float b, float c, float d, float t) {

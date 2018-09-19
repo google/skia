@@ -5,15 +5,15 @@
 * found in the LICENSE file.
 */
 
-#include "vk/GrVkPipelineStateBuilder.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrShaderCaps.h"
-#include "GrStencilSettings.h"
-#include "GrVkRenderTarget.h"
-#include "vk/GrVkDescriptorSetManager.h"
-#include "vk/GrVkGpu.h"
-#include "vk/GrVkRenderPass.h"
+#include "src/gpu/vk/GrVkPipelineStateBuilder.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/vk/GrVkDescriptorSetManager.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkRenderPass.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,

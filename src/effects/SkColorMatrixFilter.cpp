@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorMatrixFilter.h"
-#include "SkColorSpace.h"
-#include "SkColorSpaceXformer.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/core/SkColorSpace.h"
+#include "src/core/SkColorSpaceXformer.h"
 #if SK_SUPPORT_GPU
-    #include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #endif
 
 static SkScalar byte_to_scale(U8CPU byte) {

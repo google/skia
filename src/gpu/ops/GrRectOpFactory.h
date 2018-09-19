@@ -9,7 +9,7 @@
 #define GrRectOpFactory_DEFINED
 
 #include <memory>
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 enum class GrAAType : unsigned;
 class GrDrawOp;

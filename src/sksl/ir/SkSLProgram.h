@@ -11,12 +11,12 @@
 #include <vector>
 #include <memory>
 
-#include "SkSLBoolLiteral.h"
-#include "SkSLExpression.h"
-#include "SkSLIntLiteral.h"
-#include "SkSLModifiers.h"
-#include "SkSLProgramElement.h"
-#include "SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 // name of the render target width uniform
 #define SKSL_RTWIDTH_NAME "u_skRTWidth"

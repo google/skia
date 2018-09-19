@@ -5,28 +5,28 @@
 * found in the LICENSE file.
 */
 
-#include "SkShadowUtils.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorData.h"
-#include "SkDevice.h"
-#include "SkDrawShadowInfo.h"
-#include "SkFlattenablePriv.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
-#include "SkPM4f.h"
-#include "SkRandom.h"
-#include "SkRasterPipeline.h"
-#include "SkResourceCache.h"
-#include "SkShadowTessellator.h"
-#include "SkString.h"
-#include "SkTLazy.h"
-#include "SkVertices.h"
+#include "include/utils/SkShadowUtils.h"
 #include <new>
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTLazy.h"
+#include "include/core/SkVertices.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkFlattenablePriv.h"
+#include "src/core/SkPM4f.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkResourceCache.h"
+#include "src/utils/SkShadowTessellator.h"
 #if SK_SUPPORT_GPU
-#include "GrShape.h"
-#include "effects/GrBlurredEdgeFragmentProcessor.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/effects/GrBlurredEdgeFragmentProcessor.h"
 #endif
 
 /**

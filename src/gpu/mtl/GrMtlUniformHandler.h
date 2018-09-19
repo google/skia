@@ -8,9 +8,9 @@
 #ifndef GrMtlUniformHandler_DEFINED
 #define GrMtlUniformHandler_DEFINED
 
-#include "GrAllocator.h"
-#include "GrShaderVar.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrShaderVar.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 // TODO: this class is basically copy and pasted from GrVkUniformHandler so that we can have
 // some shaders working. The SkSL Metal code generator was written to work with GLSL generated for

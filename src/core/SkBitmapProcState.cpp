@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapCache.h"
-#include "SkBitmapController.h"
-#include "SkBitmapProcState.h"
-#include "SkColorData.h"
-#include "SkMacros.h"
-#include "SkPaint.h"
-#include "SkShader.h"   // for tilemodes
-#include "SkUtilsArm.h"
-#include "SkMipMap.h"
-#include "SkPixelRef.h"
-#include "SkImageEncoder.h"
-#include "SkResourceCache.h"
+#include "src/core/SkBitmapProcState.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkShader.h"  // for tilemodes
+#include "include/private/SkMacros.h"
+#include "src/core/SkBitmapCache.h"
+#include "src/core/SkBitmapController.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkResourceCache.h"
+#include "src/core/SkUtilsArm.h"
 
 #if defined(SK_ARM_HAS_NEON)
 // These are defined in src/opts/SkBitmapProcState_arm_neon.cpp

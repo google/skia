@@ -12,16 +12,16 @@
  * Functions to transform scanlines between packed-pixel formats.
  */
 
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkICC.h"
-#include "SkOpts.h"
-#include "SkPreConfig.h"
-#include "SkRasterPipeline.h"
-#include "SkUnPreMultiply.h"
-#include "SkUnPreMultiplyPriv.h"
-#include "../jumper/SkJumper.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkICC.h"
+#include "include/core/SkPreConfig.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkUnPreMultiplyPriv.h"
+#include "src/jumper/SkJumper.h"
 
 /**
  * Function template for transforming scanlines.

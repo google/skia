@@ -8,7 +8,7 @@
 #ifndef SKSL_UNRESOLVEDFUNCTION
 #define SKSL_UNRESOLVEDFUNCTION
 
-#include "SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
 namespace SkSL {
 

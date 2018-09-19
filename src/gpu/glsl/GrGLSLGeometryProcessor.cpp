@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 
-#include "GrCoordTransform.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGPArgs gpArgs;

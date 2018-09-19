@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
-#include "SkData.h"
-#include "SkFixed.h"
-#include "SkMakeUnique.h"
-#include "SkOSFile.h"
-#include "SkSafeMath.h"
-#include "SkStreamPriv.h"
-#include "SkString.h"
-#include "SkTFitsIn.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkData.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkSafeMath.h"
+#include "src/core/SkStreamPriv.h"
 
 #include <limits>
 

@@ -8,11 +8,11 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
-#include "GrPathRenderer.h"
-#include "GrPathRendererChain.h"
-#include "GrResourceCache.h"
-#include "SkTArray.h"
-#include "text/GrTextContext.h"
+#include "include/private/SkTArray.h"
+#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/GrPathRendererChain.h"
+#include "src/gpu/GrResourceCache.h"
+#include "src/gpu/text/GrTextContext.h"
 
 class GrContext;
 class GrCoverageCountingPathRenderer;

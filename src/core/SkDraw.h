@@ -10,14 +10,14 @@
 #ifndef SkDraw_DEFINED
 #define SkDraw_DEFINED
 
-#include "SkCanvas.h"
-#include "SkGlyphRunPainter.h"
-#include "SkMask.h"
-#include "SkPaint.h"
-#include "SkPixmap.h"
-#include "SkStrokeRec.h"
-#include "SkVertices.h"
-#include "SkScalerContext.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkVertices.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkScalerContext.h"
 
 class SkBitmap;
 class SkClipStack;

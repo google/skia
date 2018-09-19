@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage.h"
-#include "SkImageGenerator.h"
-#include "SkNextID.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkImage.h"
+#include "src/core/SkNextID.h"
 
 SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     : fInfo(info)
@@ -62,7 +62,7 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
 }
 
 #if SK_SUPPORT_GPU
-#include "GrTextureProxy.h"
+#include "include/private/GrTextureProxy.h"
 
 sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
                                                         const SkIPoint& origin,
@@ -83,10 +83,10 @@ sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext*, const SkIm
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkBitmap.h"
-#include "SkColorTable.h"
+#include "include/core/SkBitmap.h"
+#include "src/codec/SkColorTable.h"
 
-#include "SkGraphics.h"
+#include "include/core/SkGraphics.h"
 
 static SkGraphics::ImageGeneratorFromEncodedDataFactory gFactory;
 

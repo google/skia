@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrSemaphoreOp.h"
+#include "src/gpu/ops/GrSemaphoreOp.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
 
 class GrSignalSemaphoreOp final : public GrSemaphoreOp {
 public:

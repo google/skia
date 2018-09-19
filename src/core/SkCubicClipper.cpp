@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkCubicClipper.h"
-#include "SkGeometry.h"
+#include "src/core/SkCubicClipper.h"
+#include "src/core/SkGeometry.h"
 
 #include <utility>
 

@@ -8,8 +8,8 @@
 #ifndef SkRefSet_DEFINED
 #define SkRefSet_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkTArray.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTArray.h"
 
 template <typename T> class SkRefSet {
 public:

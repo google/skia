@@ -7,11 +7,11 @@
 #ifndef SkPDFDocument_DEFINED
 #define SkPDFDocument_DEFINED
 
-#include "SkCanvas.h"
-#include "SkDocument.h"
-#include "SkPDFCanon.h"
-#include "SkPDFFont.h"
-#include "SkPDFMetadata.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDocument.h"
+#include "src/pdf/SkPDFCanon.h"
+#include "src/pdf/SkPDFFont.h"
+#include "src/pdf/SkPDFMetadata.h"
 
 class SkPDFDevice;
 

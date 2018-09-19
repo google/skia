@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLType.h"
-#include "SkSLContext.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/SkSLContext.h"
 
 namespace SkSL {
 

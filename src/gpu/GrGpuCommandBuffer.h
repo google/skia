@@ -8,9 +8,9 @@
 #ifndef GrGpuCommandBuffer_DEFINED
 #define GrGpuCommandBuffer_DEFINED
 
-#include "GrColor.h"
-#include "GrPipeline.h"
-#include "ops/GrDrawOp.h"
+#include "include/private/GrColor.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
 class GrOpFlushState;
 class GrFixedClip;

@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkGaussFilter.h"
+#include "src/core/SkGaussFilter.h"
 
 #include <cmath>
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 static constexpr double kPi = 3.14159265358979323846264338327950288;
 

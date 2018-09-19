@@ -8,9 +8,9 @@
 #ifndef GrSurfaceProxyPriv_DEFINED
 #define GrSurfaceProxyPriv_DEFINED
 
-#include "GrSurfaceProxy.h"
+#include "include/private/GrSurfaceProxy.h"
 
-#include "GrResourceProvider.h"
+#include "src/gpu/GrResourceProvider.h"
 
 /** Class that adds methods to GrSurfaceProxy that are only intended for use internal to Skia.
     This class is purely a privileged window into GrSurfaceProxy. It should never have additional

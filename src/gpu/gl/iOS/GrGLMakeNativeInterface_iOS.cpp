@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLAssembleInterface.h"
 #include <dlfcn.h>
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
 
 class GLLoader {
 public:

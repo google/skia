@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-
-#include "GrGLUtil.h"
-#include "GrTypesPriv.h"
-#include "SkMatrix.h"
+#include "src/gpu/gl/GrGLUtil.h"
 #include <stdio.h>
+#include "include/core/SkMatrix.h"
+#include "include/private/GrTypesPriv.h"
 
 void GrGLClearErr(const GrGLInterface* gl) {
     while (GR_GL_NO_ERROR != gl->fFunctions.fGetError()) {}

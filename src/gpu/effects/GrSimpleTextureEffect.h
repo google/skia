@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrSimpleTextureEffect_DEFINED
 #define GrSimpleTextureEffect_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
     const SkMatrix44& matrix() const { return fMatrix; }

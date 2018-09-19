@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCCubicShader.h"
+#include "src/gpu/ccpr/GrCCCubicShader.h"
 
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 using Shader = GrCCCoverageProcessor::Shader;
 

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkRecord.h"
-#include "SkImage.h"
+#include "src/core/SkRecord.h"
 #include <algorithm>
+#include "include/core/SkImage.h"
 
 SkRecord::~SkRecord() {
     Destroyer destroyer;

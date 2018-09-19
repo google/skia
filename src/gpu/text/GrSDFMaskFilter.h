@@ -8,7 +8,7 @@
 #ifndef GrSDFMaskFilter_DEFINED
 #define GrSDFMaskFilter_DEFINED
 
-#include "SkMaskFilter.h"
+#include "include/core/SkMaskFilter.h"
 
 /** \class GrSDFMaskFilter
 

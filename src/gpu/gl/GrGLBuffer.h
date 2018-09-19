@@ -8,8 +8,8 @@
 #ifndef GrGLBuffer_DEFINED
 #define GrGLBuffer_DEFINED
 
-#include "GrBuffer.h"
-#include "gl/GrGLTypes.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/GrBuffer.h"
 
 class GrGLGpu;
 class GrGLCaps;

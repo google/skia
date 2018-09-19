@@ -8,7 +8,7 @@
 #ifndef SkColorSpaceXformPriv_DEFINED
 #define SkColorSpaceXformPriv_DEFINED
 
-#include "SkColorSpaceXform.h"
+#include "include/core/SkColorSpaceXform.h"
 
 std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform(SkColorSpace* src, SkColorSpace* dst);
 

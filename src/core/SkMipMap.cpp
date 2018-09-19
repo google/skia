@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkMipMap.h"
+#include "src/core/SkMipMap.h"
 
-#include "SkBitmap.h"
-#include "SkColorData.h"
-#include "SkHalf.h"
-#include "SkImageInfoPriv.h"
-#include "SkMathPriv.h"
-#include "SkNx.h"
-#include "SkPM4fPriv.h"
-#include "SkTo.h"
-#include "SkTypes.h"
 #include <new>
+#include "include/core/SkBitmap.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkHalf.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkNx.h"
+#include "src/core/SkPM4fPriv.h"
 
 //
 // ColorTypeFilter is the "Type" we pass to some downsample template functions.

@@ -7,11 +7,11 @@
 #ifndef SkEdgeBuilder_DEFINED
 #define SkEdgeBuilder_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkRect.h"
-#include "SkTDArray.h"
-#include "SkEdge.h"
-#include "SkAnalyticEdge.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkAnalyticEdge.h"
+#include "src/core/SkEdge.h"
 
 struct SkEdge;
 struct SkAnalyticEdge;

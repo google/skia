@@ -8,8 +8,8 @@
 #ifndef SkTTopoSort_DEFINED
 #define SkTTopoSort_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkTArray.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTArray.h"
 
 #ifdef SK_DEBUG
 template <typename T, typename Traits = T>

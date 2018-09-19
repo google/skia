@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPathProcessor.h"
+#include "src/gpu/ccpr/GrCCPathProcessor.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrTexture.h"
-#include "ccpr/GrCCPerFlushResources.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLVarying.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/ccpr/GrCCPerFlushResources.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 // Slightly undershoot an AA bloat radius of 0.5 so vertices that fall on integer boundaries don't
 // accidentally reach into neighboring path masks within the atlas.

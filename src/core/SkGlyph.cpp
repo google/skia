@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyph.h"
+#include "src/core/SkGlyph.h"
 
 void SkGlyph::initWithGlyphID(SkPackedGlyphID glyph_id) {
     fID             = glyph_id;

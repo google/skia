@@ -10,9 +10,9 @@
 #ifndef SkTraceEvent_DEFINED
 #define SkTraceEvent_DEFINED
 
-#include "SkAtomics.h"
-#include "SkEventTracer.h"
-#include "SkTraceEventCommon.h"
+#include "include/private/SkAtomics.h"
+#include "include/utils/SkEventTracer.h"
+#include "src/core/SkTraceEventCommon.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation specific tracing API definitions.

@@ -8,8 +8,8 @@
 #ifndef SkTwoPointConicalGradient_DEFINED
 #define SkTwoPointConicalGradient_DEFINED
 
-#include "SkColorSpaceXformer.h"
-#include "SkGradientShaderPriv.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/shaders/gradients/SkGradientShaderPriv.h"
 
 class SkTwoPointConicalGradient final : public SkGradientShaderBase {
 public:

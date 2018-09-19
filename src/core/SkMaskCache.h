@@ -8,12 +8,12 @@
 #ifndef SkMaskCache_DEFINED
 #define SkMaskCache_DEFINED
 
-#include "SkBlurTypes.h"
-#include "SkCachedData.h"
-#include "SkMask.h"
-#include "SkRect.h"
-#include "SkResourceCache.h"
-#include "SkRRect.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkResourceCache.h"
 
 class SkMaskCache {
 public:

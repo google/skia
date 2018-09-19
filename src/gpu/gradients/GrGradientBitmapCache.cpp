@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/gradients/GrGradientBitmapCache.h"
 
-#include "GrGradientBitmapCache.h"
-
-#include "SkMalloc.h"
-#include "SkFloatBits.h"
-#include "SkHalf.h"
-#include "SkPM4fPriv.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkMalloc.h"
+#include "src/core/SkHalf.h"
+#include "src/core/SkPM4fPriv.h"
 
 #include <functional>
 

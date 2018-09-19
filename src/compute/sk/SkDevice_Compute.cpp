@@ -9,8 +9,8 @@
 // C++
 //
 
-#include "SkDevice_Compute.h"
-#include "SkPM4f.h"
+#include "src/compute/sk/SkDevice_Compute.h"
+#include "src/core/SkPM4f.h"
 
 //
 //
@@ -22,10 +22,10 @@
 // C++
 //
 
-#include "SkImageInfo.h"
-#include "SkDraw.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkDraw.h"
 
 //
 // C

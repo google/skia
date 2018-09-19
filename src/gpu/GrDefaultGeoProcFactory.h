@@ -8,9 +8,9 @@
 #ifndef GrDefaultGeoProcFactory_DEFINED
 #define GrDefaultGeoProcFactory_DEFINED
 
-#include "GrColorSpaceXform.h"
-#include "GrGeometryProcessor.h"
-#include "GrShaderCaps.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrShaderCaps.h"
 
 constexpr int kMaxBones = 80; // Supports up to 80 bones per mesh.
 

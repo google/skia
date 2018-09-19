@@ -5,28 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "SkPerlinNoiseShader.h"
+#include "include/effects/SkPerlinNoiseShader.h"
 
-#include "SkArenaAlloc.h"
-#include "SkDither.h"
-#include "SkColorFilter.h"
-#include "SkMakeUnique.h"
-#include "SkReadBuffer.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkUnPreMultiply.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkDither.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrCoordTransform.h"
-#include "SkGr.h"
-#include "effects/GrConstColorProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrConstColorProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
 static const int kBlockSize = 256;

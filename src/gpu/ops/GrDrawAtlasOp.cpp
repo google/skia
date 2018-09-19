@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawAtlasOp.h"
-#include "GrDrawOpTest.h"
-#include "GrOpFlushState.h"
-#include "SkGr.h"
-#include "SkRSXform.h"
-#include "SkRandom.h"
-#include "SkRectPriv.h"
+#include "src/gpu/ops/GrDrawAtlasOp.h"
+#include "include/core/SkRSXform.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/SkGr.h"
 
 static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
                                           bool hasColors,

@@ -7,10 +7,10 @@
 #ifndef SkRecordedDrawable_DEFINED
 #define SkRecordedDrawable_DEFINED
 
-#include "SkBBoxHierarchy.h"
-#include "SkDrawable.h"
-#include "SkRecord.h"
-#include "SkRecorder.h"
+#include "include/core/SkDrawable.h"
+#include "src/core/SkBBoxHierarchy.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecorder.h"
 
 class SkRecordedDrawable : public SkDrawable {
 public:

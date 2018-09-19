@@ -8,10 +8,10 @@
 #ifndef GrCCDrawPathsOp_DEFINED
 #define GrCCDrawPathsOp_DEFINED
 
-#include "GrShape.h"
-#include "SkTInternalLList.h"
-#include "ccpr/GrCCSTLList.h"
-#include "ops/GrDrawOp.h"
+#include "include/private/SkTInternalLList.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/ccpr/GrCCSTLList.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
 struct GrCCPerFlushResourceSpecs;
 struct GrCCPerOpListPaths;

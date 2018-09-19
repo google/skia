@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLSymbolTable.h"
-#include "SkSLUnresolvedFunction.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 namespace SkSL {
 

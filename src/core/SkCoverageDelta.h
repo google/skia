@@ -8,11 +8,11 @@
 #ifndef SkCoverageDelta_DEFINED
 #define SkCoverageDelta_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkFixed.h"
-#include "SkMask.h"
-#include "SkTSort.h"
-#include "SkUtils.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkTSort.h"
+#include "src/core/SkUtils.h"
 
 // Future todo: maybe we can make fX and fDelta 16-bit long to speed it up a little bit.
 struct SkCoverageDelta {

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCachedData.h"
-#include "SkDiscardableMemory.h"
-#include "SkMalloc.h"
+#include "src/core/SkCachedData.h"
+#include "include/private/SkMalloc.h"
+#include "src/core/SkDiscardableMemory.h"
 
 //#define TRACK_CACHEDDATA_LIFETIME
 

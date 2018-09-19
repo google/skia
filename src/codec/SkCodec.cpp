@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "SkBmpCodec.h"
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkColorSpace.h"
-#include "SkData.h"
-#include "SkFrameHolder.h"
-#include "SkGifCodec.h"
-#include "SkHalf.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "src/codec/SkBmpCodec.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkFrameHolder.h"
+#include "src/codec/SkGifCodec.h"
+#include "src/core/SkHalf.h"
 #ifdef SK_HAS_HEIF_LIBRARY
-#include "SkHeifCodec.h"
+#include "src/codec/SkHeifCodec.h"
 #endif
-#include "SkIcoCodec.h"
-#include "SkJpegCodec.h"
+#include "src/codec/SkIcoCodec.h"
+#include "src/codec/SkJpegCodec.h"
 #ifdef SK_HAS_PNG_LIBRARY
-#include "SkPngCodec.h"
+#include "src/codec/SkPngCodec.h"
 #endif
-#include "SkRawCodec.h"
-#include "SkStream.h"
-#include "SkWbmpCodec.h"
-#include "SkWebpCodec.h"
+#include "include/core/SkStream.h"
+#include "src/codec/SkRawCodec.h"
+#include "src/codec/SkWbmpCodec.h"
+#include "src/codec/SkWebpCodec.h"
 
 struct DecoderProc {
     bool (*IsFormat)(const void*, size_t);

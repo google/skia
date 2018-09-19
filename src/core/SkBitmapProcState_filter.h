@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkColorData.h"
+#include "src/core/SkColorData.h"
 
 /*
     Filter_32_opaque

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkPatchUtils.h"
+#include "src/utils/SkPatchUtils.h"
 
-#include "SkColorData.h"
-#include "SkColorSpacePriv.h"
-#include "SkGeometry.h"
-#include "SkPM4f.h"
-#include "SkTo.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPM4f.h"
 
 namespace {
     enum CubicCtrlPts {
@@ -215,8 +215,8 @@ void SkPatchUtils::GetRightCubic(const SkPoint cubics[12], SkPoint points[4]) {
     points[3] = cubics[kRightP3_CubicCtrlPts];
 }
 
-#include "SkPM4fPriv.h"
-#include "SkColorSpaceXform.h"
+#include "include/core/SkColorSpaceXform.h"
+#include "src/core/SkPM4fPriv.h"
 
 struct SkRGBAf {
     float fVec[4];

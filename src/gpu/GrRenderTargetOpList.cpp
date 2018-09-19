@@ -5,19 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrRenderTargetOpList.h"
-#include "GrAuditTrail.h"
-#include "GrCaps.h"
-#include "GrGpu.h"
-#include "GrGpuCommandBuffer.h"
-#include "GrMemoryPool.h"
-#include "GrRect.h"
-#include "GrRenderTargetContext.h"
-#include "GrResourceAllocator.h"
-#include "ops/GrClearOp.h"
-#include "ops/GrCopySurfaceOp.h"
-#include "SkTraceEvent.h"
-
+#include "src/gpu/GrRenderTargetOpList.h"
+#include "include/private/GrAuditTrail.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrRect.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/ops/GrClearOp.h"
+#include "src/gpu/ops/GrCopySurfaceOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

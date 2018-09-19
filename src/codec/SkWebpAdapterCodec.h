@@ -7,8 +7,8 @@
 #ifndef SkWebpAdapterCodec_DEFINED
 #define SkWebpAdapterCodec_DEFINED
 
-#include "SkAndroidCodec.h"
-#include "SkWebpCodec.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "src/codec/SkWebpCodec.h"
 
 /**
  *  This class implements the functionality of SkAndroidCodec.  It uses an

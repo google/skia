@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrDualIntervalGradientColorizer_DEFINED
 #define GrDualIntervalGradientColorizer_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 class GrDualIntervalGradientColorizer : public GrFragmentProcessor {
 public:
     const GrColor4f& scale01() const { return fScale01; }

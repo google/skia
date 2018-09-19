@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkBitmap.h"
-#include "SkColorData.h"
-#include "SkColorSpaceXformer.h"
-#include "SkFlattenablePriv.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkWriteBuffer.h"
-#include "SkRect.h"
-#include "SkUnPreMultiply.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkFlattenablePriv.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrTextureProxy.h"
-#include "effects/GrMatrixConvolutionEffect.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 #endif
 
 // We need to be able to read at most SK_MaxS32 bytes, so divide that

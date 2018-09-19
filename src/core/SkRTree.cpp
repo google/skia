@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkRTree.h"
+#include "src/core/SkRTree.h"
 
 SkRTree::SkRTree(SkScalar aspectRatio)
     : fCount(0), fAspectRatio(isfinite(aspectRatio) ? aspectRatio : 1) {}

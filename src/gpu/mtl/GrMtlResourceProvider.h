@@ -8,8 +8,8 @@
 #ifndef GrMtlResourceProvider_DEFINED
 #define GrMtlResourceProvider_DEFINED
 
-#include "GrMtlCopyPipelineState.h"
-#include "SkTArray.h"
+#include "include/private/SkTArray.h"
+#include "src/gpu/mtl/GrMtlCopyPipelineState.h"
 
 #import <metal/metal.h>
 

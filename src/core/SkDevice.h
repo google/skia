@@ -8,11 +8,11 @@
 #ifndef SkDevice_DEFINED
 #define SkDevice_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkRegion.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkSurfaceProps.h"
 
 class SkBitmap;
 struct SkDrawShadowRec;

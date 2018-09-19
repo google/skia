@@ -26,9 +26,9 @@
 //
 //
 
-#include "SkSurface_Base.h"
-#include "GrContext.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrContext.h"
+#include "src/image/SkSurface_Base.h"
 
 // Yuqian: It doesn't seem right to me for SkSurface_Compute to depend on SkWindow.
 //         Maybe we should move MakeComputeBackedSurface(from SkWindow) to SkWindow.cpp.
@@ -38,7 +38,7 @@
 //
 //
 
-#include "SkContext_Compute.h"
+#include "src/compute/sk/SkContext_Compute.h"
 
 //
 //

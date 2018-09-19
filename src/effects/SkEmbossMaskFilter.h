@@ -8,8 +8,8 @@
 #ifndef SkEmbossMaskFilter_DEFINED
 #define SkEmbossMaskFilter_DEFINED
 
-#include "SkFlattenablePriv.h"
-#include "SkMaskFilterBase.h"
+#include "src/core/SkFlattenablePriv.h"
+#include "src/core/SkMaskFilterBase.h"
 
 /** \class SkEmbossMaskFilter
 

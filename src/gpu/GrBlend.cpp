@@ -5,8 +5,8 @@
 * found in the LICENSE file.
 */
 
-#include "GrBlend.h"
-#include "../private/GrColor.h"
+#include "include/gpu/GrBlend.h"
+#include "include/private/GrColor.h"
 
 /**
  * MaskedColor is used to evaluate the color and valid color component flags through the

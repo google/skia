@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformer.h"
-#include "SkColorSpaceXformPriv.h"
-#include "SkDrawLooper.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkImage_Base.h"
-#include "SkImageFilter.h"
-#include "SkImagePriv.h"
-#include "SkShaderBase.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformPriv.h"
+#include "src/core/SkImagePriv.h"
+#include "src/image/SkImage_Base.h"
+#include "src/shaders/SkShaderBase.h"
 
 SkColorSpaceXformer::SkColorSpaceXformer(sk_sp<SkColorSpace> dst)
     : fDst(std::move(dst))

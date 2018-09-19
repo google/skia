@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrTextureProducer.h"
-#include "GrClip.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetContext.h"
-#include "GrTextureProxy.h"
-#include "SkGr.h"
-#include "SkMipMap.h"
-#include "SkRectPriv.h"
-#include "effects/GrBicubicEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
-#include "effects/GrTextureDomain.h"
+#include "src/gpu/GrTextureProducer.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
                                                    sk_sp<GrTextureProxy> inputProxy,

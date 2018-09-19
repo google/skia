@@ -7,9 +7,9 @@
 #ifndef SkReduceOrder_DEFINED
 #define SkReduceOrder_DEFINED
 
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 struct SkConic;
 

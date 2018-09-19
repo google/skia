@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrYUVtoRGBEffect_DEFINED
 #define GrYUVtoRGBEffect_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> yProxy,

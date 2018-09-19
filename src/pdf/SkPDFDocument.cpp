@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFDocument.h"
+#include "src/pdf/SkPDFDocument.h"
 
-#include "SkMakeUnique.h"
-#include "SkPDFCanon.h"
-#include "SkPDFDevice.h"
-#include "SkPDFUtils.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/pdf/SkPDFCanon.h"
+#include "src/pdf/SkPDFDevice.h"
+#include "src/pdf/SkPDFUtils.h"
 
 #include <utility>
 

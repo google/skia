@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpacePriv.h"
-#include "SkConvertPixels.h"
-#include "SkHalf.h"
-#include "SkImageInfoPriv.h"
-#include "SkOpts.h"
-#include "SkPM4fPriv.h"
-#include "SkRasterPipeline.h"
-#include "SkUnPreMultiply.h"
-#include "SkUnPreMultiplyPriv.h"
-#include "../jumper/SkJumper.h"
+#include "src/core/SkConvertPixels.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkHalf.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkUnPreMultiplyPriv.h"
+#include "src/jumper/SkJumper.h"
 
 // Fast Path 1: The memcpy() case.
 static inline bool can_memcpy(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {

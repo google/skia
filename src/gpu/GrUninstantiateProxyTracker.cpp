@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrUninstantiateProxyTracker.h"
+#include "src/gpu/GrUninstantiateProxyTracker.h"
 
-#include "GrSurfaceProxy.h"
-#include "GrSurfaceProxyPriv.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 
 void GrUninstantiateProxyTracker::addProxy(GrSurfaceProxy* proxy) {
 #ifdef SK_DEBUG

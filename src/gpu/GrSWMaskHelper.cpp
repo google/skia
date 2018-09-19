@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrSWMaskHelper.h"
+#include "src/gpu/GrSWMaskHelper.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrShape.h"
-#include "GrSurfaceContext.h"
-#include "GrTextureProxy.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrSurfaceContext.h"
 
 /*
  * Convert a boolean operation into a transfer mode code

@@ -8,10 +8,10 @@
 #ifndef SkPaintPriv_DEFINED
 #define SkPaintPriv_DEFINED
 
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkTypeface.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkTypeface.h"
 
 class SkBitmap;
 class SkImage;

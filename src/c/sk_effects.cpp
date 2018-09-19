@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "sk_types_priv.h"
-#include "SkMatrix.h"
+#include "include/core/SkMatrix.h"
+#include "src/c/sk_types_priv.h"
 
 static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
@@ -14,8 +14,8 @@ static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
                    cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
 }
 
-#include "../../include/effects/SkGradientShader.h"
-#include "sk_shader.h"
+#include "include/c/sk_shader.h"
+#include "include/effects/SkGradientShader.h"
 
 const struct {
     sk_shader_tilemode_t    fC;
@@ -144,8 +144,8 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-#include "sk_maskfilter.h"
-#include "SkMaskFilter.h"
+#include "include/c/sk_maskfilter.h"
+#include "include/core/SkMaskFilter.h"
 
 const struct {
     sk_blurstyle_t  fC;

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpaceXformer.h"
-#include "SkRadialGradient.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "src/shaders/gradients/SkRadialGradient.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 namespace {
 
@@ -75,7 +75,7 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
 
 #if SK_SUPPORT_GPU
 
-#include "gradients/GrGradientShader.h"
+#include "src/gpu/gradients/GrGradientShader.h"
 
 std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
         const GrFPArgs& args) const {

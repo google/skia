@@ -8,12 +8,12 @@
 #ifndef SkRawAdapterCodec_DEFINED
 #define SkRawAdapterCodec_DEFINED
 
-#include "SkAndroidCodec.h"
-#include "SkCodec.h"
-#include "SkEncodedImageFormat.h"
-#include "SkRawCodec.h"
-#include "SkStream.h"
-#include "SkTypes.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkRawCodec.h"
 
 /**
  *  This class implements the functionality of SkAndroidCodec. It uses an

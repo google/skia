@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrDebugMarkerOp.h"
+#include "src/gpu/ops/GrDebugMarkerOp.h"
 
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpuCommandBuffer.h"
-#include "GrMemoryPool.h"
-#include "GrOpFlushState.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
 
 std::unique_ptr<GrOp> GrDebugMarkerOp::Make(GrContext* context,
                                             GrRenderTargetProxy* proxy,

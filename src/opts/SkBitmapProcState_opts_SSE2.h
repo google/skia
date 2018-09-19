@@ -8,7 +8,7 @@
 #ifndef SkBitmapProcState_opts_SSE2_DEFINED
 #define SkBitmapProcState_opts_SSE2_DEFINED
 
-#include "SkBitmapProcState.h"
+#include "src/core/SkBitmapProcState.h"
 
 void S32_opaque_D32_filter_DX_SSE2(const SkBitmapProcState& s,
                                    const uint32_t* xy,

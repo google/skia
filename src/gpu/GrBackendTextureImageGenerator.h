@@ -7,10 +7,10 @@
 #ifndef GrBackendTextureImageGenerator_DEFINED
 #define GrBackendTextureImageGenerator_DEFINED
 
-#include "SkImageGenerator.h"
+#include "include/core/SkImageGenerator.h"
 
-#include "GrBackendSurface.h"
-#include "SkMutex.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/SkMutex.h"
 
 class GrSemaphore;
 

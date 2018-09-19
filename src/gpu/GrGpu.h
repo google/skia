@@ -8,17 +8,17 @@
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
-#include "GrCaps.h"
-#include "GrGpuCommandBuffer.h"
-#include "GrProgramDesc.h"
-#include "GrSwizzle.h"
-#include "GrAllocator.h"
-#include "GrTextureProducer.h"
-#include "GrTypes.h"
-#include "GrXferProcessor.h"
-#include "SkPath.h"
-#include "SkTArray.h"
 #include <map>
+#include "include/core/SkPath.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkTArray.h"
+#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/GrTextureProducer.h"
+#include "src/gpu/GrXferProcessor.h"
 
 class GrBackendRenderTarget;
 class GrBackendSemaphore;

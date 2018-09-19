@@ -8,7 +8,7 @@
 #ifndef SkFlattenablePriv_DEFINED
 #define SkFlattenablePriv_DEFINED
 
-#include "SkFlattenable.h"
+#include "include/core/SkFlattenable.h"
 
 /*
  *  Flattening is straight-forward:

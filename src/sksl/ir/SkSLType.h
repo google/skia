@@ -8,14 +8,14 @@
 #ifndef SKIASL_TYPE
 #define SKIASL_TYPE
 
-#include "SkSLModifiers.h"
-#include "SkSLSymbol.h"
-#include "../SkSLPosition.h"
-#include "../SkSLUtil.h"
-#include "../spirv.h"
 #include <climits>
-#include <vector>
 #include <memory>
+#include <vector>
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLSymbol.h"
+#include "src/sksl/spirv.h"
 
 namespace SkSL {
 

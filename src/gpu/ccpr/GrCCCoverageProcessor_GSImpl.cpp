@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCCoverageProcessor.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
-#include "GrMesh.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 using InputType = GrGLSLGeometryBuilder::InputType;
 using OutputType = GrGLSLGeometryBuilder::OutputType;

@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-
-#include "GrGLStencilAttachment.h"
-#include "GrGLGpu.h"
-#include "SkTraceMemoryDump.h"
+#include "src/gpu/gl/GrGLStencilAttachment.h"
+#include "include/core/SkTraceMemoryDump.h"
+#include "src/gpu/gl/GrGLGpu.h"
 
 size_t GrGLStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();

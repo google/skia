@@ -5,16 +5,16 @@
 * found in the LICENSE file.
 */
 
-#include "GrGpuCommandBuffer.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
 
-#include "GrContext.h"
-#include "GrCaps.h"
-#include "GrFixedClip.h"
-#include "GrGpu.h"
-#include "GrMesh.h"
-#include "GrPrimitiveProcessor.h"
-#include "GrRenderTarget.h"
-#include "SkRect.h"
+#include "include/core/SkRect.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/GrPrimitiveProcessor.h"
 
 void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
     SkASSERT(fRenderTarget);

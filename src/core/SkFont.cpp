@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkFont.h"
+#include "include/core/SkFont.h"
 
-#include "SkTo.h"
-#include "SkTypeface.h"
-#include "SkUTF.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTo.h"
+#include "src/utils/SkUTF.h"
 
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType mt,
                uint32_t flags)
@@ -114,7 +114,7 @@ SkScalar SkFont::measureText(const void* text, size_t byteLength, SkTextEncoding
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkPaint.h"
+#include "include/core/SkPaint.h"
 
 sk_sp<SkFont> SkFont::Testing_CreateFromPaint(const SkPaint& paint) {
     uint32_t flags = 0;

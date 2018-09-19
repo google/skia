@@ -8,14 +8,14 @@
 #ifndef SkRemoteTypeface_DEFINED
 #define SkRemoteTypeface_DEFINED
 
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkDescriptor.h"
-#include "SkFontDescriptor.h"
-#include "SkFontStyle.h"
-#include "SkPaint.h"
-#include "SkRemoteGlyphCache.h"
-#include "SkScalerContext.h"
-#include "SkTypeface.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkRemoteGlyphCache.h"
+#include "src/core/SkScalerContext.h"
 
 class SkTypefaceProxy;
 class SkStrikeCache;

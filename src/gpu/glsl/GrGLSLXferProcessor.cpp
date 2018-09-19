@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "glsl/GrGLSLXferProcessor.h"
+#include "src/gpu/glsl/GrGLSLXferProcessor.h"
 
-#include "GrShaderCaps.h"
-#include "GrTexture.h"
-#include "GrXferProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 // This is only called for cases where we are doing LCD coverage and not using in shader blending.
 // For these cases we assume the the src alpha is 1, thus we can just use the max for the alpha

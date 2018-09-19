@@ -8,12 +8,12 @@
 #ifndef GrProxyProvider_DEFINED
 #define GrProxyProvider_DEFINED
 
-#include "GrCaps.h"
-#include "GrResourceKey.h"
-#include "GrTextureProxy.h"
-#include "GrTypes.h"
-#include "SkRefCnt.h"
-#include "SkTDynamicHash.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrResourceKey.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/core/SkTDynamicHash.h"
+#include "src/gpu/GrCaps.h"
 
 class GrResourceProvider;
 class GrSingleOwner;

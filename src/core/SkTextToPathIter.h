@@ -8,9 +8,8 @@
 #ifndef SkTextToPathIter_DEFINED
 #define SkTextToPathIter_DEFINED
 
-#include "SkPaint.h"
-#include "SkStrikeCache.h"
-
+#include "include/core/SkPaint.h"
+#include "src/core/SkStrikeCache.h"
 
 class SkTextBaseIter {
 protected:

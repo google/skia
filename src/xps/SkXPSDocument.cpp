@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkXPSDocument.h"
-#include "SkStream.h"
-#include "SkHRESULT.h"
+#include "include/core/SkStream.h"
+#include "src/utils/win/SkHRESULT.h"
+#include "src/xps/SkXPSDocument.h"
 
 SkXPSDocument::SkXPSDocument(SkWStream* stream,
                    SkScalar dpi,

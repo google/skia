@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 
 #define SCALE_FILTER_NAME       MAKENAME(_filter_DX_shaderproc)
 

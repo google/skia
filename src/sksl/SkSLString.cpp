@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLString.h"
+#include "src/sksl/SkSLString.h"
 
-#include "SkSLUtil.h"
-#include <algorithm>
 #include <errno.h>
 #include <limits.h>
+#include <algorithm>
 #include <locale>
 #include <sstream>
 #include <string>
+#include "src/sksl/SkSLUtil.h"
 
 namespace SkSL {
 

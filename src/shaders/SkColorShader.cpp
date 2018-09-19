@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkColorShader.h"
-#include "SkColorSpace.h"
-#include "SkPM4fPriv.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkUtils.h"
+#include "src/shaders/SkColorShader.h"
+#include "include/core/SkColorSpace.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkUtils.h"
 
 SkColorShader::SkColorShader(SkColor c) : fColor(c) {}
 
@@ -87,8 +87,8 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 
 #if SK_SUPPORT_GPU
 
-#include "SkGr.h"
-#include "effects/GrConstColorProcessor.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrConstColorProcessor.h"
 std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     GrColor4f color = SkColorToPremulGrColor4f(fColor, *args.fDstColorSpaceInfo);
@@ -203,10 +203,10 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 
 #if SK_SUPPORT_GPU
 
-#include "GrColorSpaceInfo.h"
-#include "GrColorSpaceXform.h"
-#include "SkGr.h"
-#include "effects/GrConstColorProcessor.h"
+#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrConstColorProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
         const GrFPArgs& args) const {

@@ -8,8 +8,8 @@
 #ifndef GrDashOp_DEFINED
 #define GrDashOp_DEFINED
 
-#include "GrTypes.h"
-#include "SkPathEffect.h"
+#include "include/core/SkPathEffect.h"
+#include "include/gpu/GrTypes.h"
 
 class GrContext;
 class GrDrawOp;

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLGLSL.h"
-#include "GrGLUtil.h"
+#include "src/gpu/gl/GrGLGLSL.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) {
     SkASSERT(generation);

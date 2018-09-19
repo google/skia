@@ -8,9 +8,9 @@
 #ifndef GrMtlGpuCommandBuffer_DEFINED
 #define GrMtlGpuCommandBuffer_DEFINED
 
-#include "GrGpuCommandBuffer.h"
-#include "GrMtlGpu.h"
-#include "GrMesh.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 #import <metal/metal.h>
 

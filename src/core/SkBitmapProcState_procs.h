@@ -86,7 +86,7 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
                                 SkASSERT(state.fAlphaScale == 256)
 #define RETURNDST(src)          src
 #define SRC_TO_FILTER(src)      src
-#include "SkBitmapProcState_sample.h"
+#include "src/core/SkBitmapProcState_sample.h"
 
 #undef FILTER_PROC
 #define FILTER_PROC(x, y, a, b, c, d, dst)   NAME_WRAP(Filter_32_alpha)(x, y, a, b, c, d, dst, alphaScale)
@@ -98,6 +98,6 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
 #define PREAMBLE(state)         unsigned alphaScale = state.fAlphaScale
 #define RETURNDST(src)          SkAlphaMulQ(src, alphaScale)
 #define SRC_TO_FILTER(src)      src
-#include "SkBitmapProcState_sample.h"
+#include "src/core/SkBitmapProcState_sample.h"
 
 #undef NAME_WRAP

@@ -8,8 +8,8 @@
 #ifndef SkBlitRow_DEFINED
 #define SkBlitRow_DEFINED
 
-#include "SkBitmap.h"
-#include "SkColor.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
 
 class SkBlitRow {
 public:

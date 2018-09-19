@@ -10,9 +10,9 @@
  **************************************************************************************************/
 #ifndef GrUnpremulInputFragmentProcessor_DEFINED
 #define GrUnpremulInputFragmentProcessor_DEFINED
-#include "SkTypes.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "include/core/SkTypes.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
 class GrUnpremulInputFragmentProcessor : public GrFragmentProcessor {
 public:
     GrColor4f constantOutputForConstantInput(GrColor4f input) const override {

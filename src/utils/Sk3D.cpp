@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Sk3D.h"
+#include "include/utils/Sk3D.h"
 
 static void set_col(SkMatrix44* m, int col, const SkPoint3& v) {
     m->set(0, col, v.fX);

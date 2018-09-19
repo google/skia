@@ -8,7 +8,7 @@
 #ifndef SkFDot6Constants_DEFINED
 #define SkFDot6Constants_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 static const int kInverseTableSize = 1024; // SK_FDot6One * 16
 

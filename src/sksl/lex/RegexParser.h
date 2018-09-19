@@ -8,7 +8,7 @@
 #ifndef SKSL_REGEXPARSER
 #define SKSL_REGEXPARSER
 
-#include "RegexNode.h"
+#include "src/sksl/lex/RegexNode.h"
 
 #include <stack>
 #include <string>

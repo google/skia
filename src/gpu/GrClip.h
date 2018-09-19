@@ -8,10 +8,10 @@
 #ifndef GrClip_DEFINED
 #define GrClip_DEFINED
 
-#include "GrAppliedClip.h"
-#include "GrRenderTargetContext.h"
-#include "SkRRect.h"
-#include "SkRect.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
 class GrContext;
 

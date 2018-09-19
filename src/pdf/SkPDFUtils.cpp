@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFUtils.h"
+#include "src/pdf/SkPDFUtils.h"
 
-#include "SkData.h"
-#include "SkFixed.h"
-#include "SkGeometry.h"
-#include "SkImage_Base.h"
-#include "SkPDFResourceDict.h"
-#include "SkPDFTypes.h"
-#include "SkStream.h"
-#include "SkString.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkGeometry.h"
+#include "src/image/SkImage_Base.h"
+#include "src/pdf/SkPDFResourceDict.h"
+#include "src/pdf/SkPDFTypes.h"
 
 #include <cmath>
 

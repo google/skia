@@ -8,12 +8,12 @@
 #ifndef GrMemoryPool_DEFINED
 #define GrMemoryPool_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 #ifdef SK_DEBUG
-#include "SkTHash.h"
+#include "include/private/SkTHash.h"
 #endif
 
 /**

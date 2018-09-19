@@ -8,12 +8,12 @@
 #ifndef GrXferProcessor_DEFINED
 #define GrXferProcessor_DEFINED
 
-#include "GrBlend.h"
-#include "GrColor.h"
-#include "GrNonAtomicRef.h"
-#include "GrProcessor.h"
-#include "GrProcessorAnalysis.h"
-#include "GrTypes.h"
+#include "include/gpu/GrBlend.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrColor.h"
+#include "src/gpu/GrNonAtomicRef.h"
+#include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrProcessorAnalysis.h"
 
 class GrGLSLXferProcessor;
 class GrProcessorSet;

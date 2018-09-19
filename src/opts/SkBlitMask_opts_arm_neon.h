@@ -8,8 +8,8 @@
 #ifndef SkBlitMask_opts_arm_neon_DEFINED
 #define SkBlitMask_opts_arm_neon_DEFINED
 
-#include "SkColor.h"
-#include "SkBlitMask.h"
+#include "include/core/SkColor.h"
+#include "src/core/SkBlitMask.h"
 
 extern void SkBlitLCD16OpaqueRow_neon(SkPMColor dst[], const uint16_t src[],
                                       SkColor color, int width,

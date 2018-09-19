@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Sk4px.h"
-#include "SkBlitMask.h"
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkOpts.h"
+#include "include/core/SkColor.h"
+#include "src/core/Sk4px.h"
+#include "src/core/SkBlitMask.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkOpts.h"
 
 SkBlitMask::BlitLCD16RowProc SkBlitMask::BlitLCD16RowFactory(bool isOpaque) {
     BlitLCD16RowProc proc = PlatformBlitRowProcs16(isOpaque);

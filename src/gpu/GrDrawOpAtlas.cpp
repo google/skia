@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawOpAtlas.h"
+#include "src/gpu/GrDrawOpAtlas.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrOpFlushState.h"
-#include "GrRectanizer.h"
-#include "GrProxyProvider.h"
-#include "GrResourceProvider.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
-#include "GrTracing.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRectanizer.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTracing.h"
 
 // When proxy allocation is deferred until flush time the proxies acting as atlases require
 // special handling. This is because the usage that can be determined from the ops themselves

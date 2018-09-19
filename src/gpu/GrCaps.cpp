@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrCaps.h"
+#include "src/gpu/GrCaps.h"
 
-#include "GrBackendSurface.h"
-#include "GrContextOptions.h"
-#include "GrWindowRectangles.h"
-#include "SkJSONWriter.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrWindowRectangles.h"
+#include "src/utils/SkJSONWriter.h"
 
 static const char* pixel_config_name(GrPixelConfig config) {
     switch (config) {

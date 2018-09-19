@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawVerticesOp.h"
-#include "GrCaps.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrOpFlushState.h"
-#include "SkGr.h"
-#include "SkRectPriv.h"
+#include "src/gpu/ops/GrDrawVerticesOp.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/SkGr.h"
 
 std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrContext* context,
                                                  GrPaint&& paint,
@@ -547,7 +547,7 @@ GrOp::CombineResult GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps&
 
 #if GR_TEST_UTILS
 
-#include "GrDrawOpTest.h"
+#include "src/gpu/GrDrawOpTest.h"
 
 static uint32_t seed_vertices(GrPrimitiveType type) {
     switch (type) {

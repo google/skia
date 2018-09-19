@@ -7,7 +7,7 @@
  *
  */
 
-#include "SkContext_Compute.h"
+#include "src/compute/sk/SkContext_Compute.h"
 
 //
 //

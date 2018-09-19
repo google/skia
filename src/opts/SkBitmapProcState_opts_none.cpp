@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcState.h"
+#include "src/core/SkBitmapProcState.h"
 
 /*  A platform may optionally overwrite any of these with accelerated
     versions. On input, these will already have valid function pointers,

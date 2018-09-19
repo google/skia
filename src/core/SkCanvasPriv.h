@@ -8,7 +8,7 @@
 #ifndef SkCanvasPriv_DEFINED
 #define SkCanvasPriv_DEFINED
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

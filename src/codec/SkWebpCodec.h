@@ -8,11 +8,11 @@
 #ifndef SkWebpCodec_DEFINED
 #define SkWebpCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkEncodedImageFormat.h"
-#include "SkFrameHolder.h"
-#include "SkImageInfo.h"
-#include "SkTypes.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkFrameHolder.h"
 
 #include <vector>
 

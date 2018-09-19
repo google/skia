@@ -8,7 +8,7 @@
 #ifndef SkPathPriv_DEFINED
 #define SkPathPriv_DEFINED
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
 class SkPathPriv {
 public:

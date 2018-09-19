@@ -8,7 +8,7 @@
 #ifndef SkGlyphRunPainter_DEFINED
 #define SkGlyphRunPainter_DEFINED
 
-#include "SkGlyphRun.h"
+#include "src/core/SkGlyphRun.h"
 
 #if SK_SUPPORT_GPU
 class GrColorSpaceInfo;

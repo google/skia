@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkCoverageDelta.h"
+#include "src/core/SkCoverageDelta.h"
 
 SkCoverageDeltaList::SkCoverageDeltaList(SkArenaAlloc* alloc, const SkIRect& bounds, bool forceRLE) {
     fAlloc              = alloc;

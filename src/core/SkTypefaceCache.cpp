@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-
-
-#include "SkTypefaceCache.h"
-#include "SkAtomics.h"
-#include "SkMutex.h"
+#include "src/core/SkTypefaceCache.h"
+#include "include/private/SkAtomics.h"
+#include "include/private/SkMutex.h"
 
 #define TYPEFACE_CACHE_LIMIT    1024
 

@@ -8,9 +8,9 @@
 #ifndef SkRemoteGlyphCacheImpl_DEFINED
 #define SkRemoteGlyphCacheImpl_DEFINED
 
-#include "SkDescriptor.h"
-#include "SkGlyphRun.h"
-#include "SkRemoteGlyphCache.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/core/SkRemoteGlyphCache.h"
 
 class SkStrikeServer::SkGlyphCacheState : public SkGlyphCacheInterface {
 public:

@@ -5,30 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "SkXfermodeImageFilter.h"
-#include "SkArithmeticImageFilter.h"
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkColorSpaceXformer.h"
-#include "SkFlattenablePriv.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
+#include "include/effects/SkXfermodeImageFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkArithmeticImageFilter.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkFlattenablePriv.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSpecialSurface.h"
+#include "src/core/SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
-#include "GrClip.h"
-#include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrRenderTargetContext.h"
-#include "GrTextureProxy.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
-#include "effects/GrConstColorProcessor.h"
-#include "effects/GrTextureDomain.h"
-#include "effects/GrSimpleTextureEffect.h"
-#include "SkGr.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrConstColorProcessor.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 #endif
-#include "SkClipOpPriv.h"
+#include "src/core/SkClipOpPriv.h"
 
 class SkXfermodeImageFilter_Base : public SkImageFilter {
 public:
@@ -251,7 +251,7 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                                    SkSpecialImage* source,

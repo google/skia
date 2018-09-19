@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkAutoBlitterChoose.h"
-#include "SkComposeShader.h"
-#include "SkDraw.h"
-#include "SkNx.h"
-#include "SkPM4fPriv.h"
-#include "SkRasterClip.h"
-#include "SkScan.h"
-#include "SkShaderBase.h"
-#include "SkString.h"
-#include "SkVertState.h"
+#include "include/core/SkString.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkAutoBlitterChoose.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkNx.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkScan.h"
+#include "src/core/SkVertState.h"
+#include "src/shaders/SkComposeShader.h"
+#include "src/shaders/SkShaderBase.h"
 
-#include "SkArenaAlloc.h"
-#include "SkCoreBlitters.h"
-#include "SkColorSpaceXform.h"
+#include "include/core/SkColorSpaceXform.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkCoreBlitters.h"
 
 struct Matrix43 {
     float fMat[12];    // column major

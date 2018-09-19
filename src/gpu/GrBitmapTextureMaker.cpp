@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrBitmapTextureMaker.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpuResourcePriv.h"
-#include "GrProxyProvider.h"
-#include "GrSurfaceContext.h"
-#include "SkBitmap.h"
-#include "SkGr.h"
-#include "SkMipMap.h"
-#include "SkPixelRef.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkPixelRef.h"
+#include "include/gpu/GrContext.h"
+#include "src/core/SkMipMap.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/SkGr.h"
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
 

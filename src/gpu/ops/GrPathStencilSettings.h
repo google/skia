@@ -8,7 +8,7 @@
 #ifndef GrPathStencilSettings_DEFINED
 #define GrPathStencilSettings_DEFINED
 
-#include "GrUserStencilSettings.h"
+#include "src/gpu/GrUserStencilSettings.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Stencil rules for paths

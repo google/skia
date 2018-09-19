@@ -8,8 +8,8 @@
 #ifndef GrUninstantiateProxyTracker_DEFINED
 #define GrUninstantiateProxyTracker_DEFINED
 
-#include "GrSurfaceProxy.h"
-#include "SkTArray.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/SkTArray.h"
 
 class GrUninstantiateProxyTracker {
 public:

@@ -8,13 +8,13 @@
 #ifndef SKSL_PARSER
 #define SKSL_PARSER
 
-#include <vector>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
-#include "SkSLErrorReporter.h"
-#include "ir/SkSLLayout.h"
-#include "SkSLLexer.h"
+#include <vector>
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLLexer.h"
+#include "src/sksl/ir/SkSLLayout.h"
 
 struct yy_buffer_state;
 #define YY_TYPEDEF_YY_BUFFER_STATE

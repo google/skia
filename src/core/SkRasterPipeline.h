@@ -8,15 +8,15 @@
 #ifndef SkRasterPipeline_DEFINED
 #define SkRasterPipeline_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkImageInfo.h"
-#include "SkNx.h"
-#include "SkPM4f.h"
-#include "SkTArray.h"
-#include "SkTypes.h"
 #include <functional>
 #include <vector>
-#include "../jumper/SkJumper.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkNx.h"
+#include "src/core/SkPM4f.h"
+#include "src/jumper/SkJumper.h"
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.

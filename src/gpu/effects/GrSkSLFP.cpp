@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrSkSLFP.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrTexture.h"
-#include "SkSLUtil.h"
+#include "src/gpu/effects/GrSkSLFP.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/sksl/SkSLUtil.h"
 
 GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl)
         : fName(name) {
@@ -396,8 +396,8 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 
 #if GR_TEST_UTILS
 
-#include "GrConstColorProcessor.h"
-#include "SkArithmeticImageFilter.h"
+#include "include/effects/SkArithmeticImageFilter.h"
+#include "src/gpu/effects/GrConstColorProcessor.h"
 
 extern const char* SKSL_ARITHMETIC_SRC;
 extern const char* SKSL_DITHER_SRC;

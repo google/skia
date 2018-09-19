@@ -8,11 +8,11 @@
 #ifndef GrVkDescriptorSetManager_DEFINED
 #define GrVkDescriptorSetManager_DEFINED
 
-#include "GrResourceHandle.h"
-#include "GrVkDescriptorPool.h"
-#include "SkRefCnt.h"
-#include "SkTArray.h"
-#include "vk/GrVkDefines.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/vk/GrVkDefines.h"
+#include "include/private/SkTArray.h"
+#include "src/gpu/GrResourceHandle.h"
+#include "src/gpu/vk/GrVkDescriptorPool.h"
 
 class GrVkDescriptorSet;
 class GrVkGpu;

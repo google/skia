@@ -8,7 +8,7 @@
 #ifndef GrCCConicShader_DEFINED
 #define GrCCConicShader_DEFINED
 
-#include "ccpr/GrCCCoverageProcessor.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
 /**
  * This class renders the coverage of closed conic curves using the techniques outlined in

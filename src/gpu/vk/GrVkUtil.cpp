@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkUtil.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
-#include "vk/GrVkGpu.h"
-#include "SkSLCompiler.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/sksl/SkSLCompiler.h"
 
 bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
     VkFormat dontCare;

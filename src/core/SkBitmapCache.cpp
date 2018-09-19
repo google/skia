@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
-#include "SkBitmapCache.h"
-#include "SkImage.h"
-#include "SkResourceCache.h"
-#include "SkMipMap.h"
-#include "SkPixelRef.h"
-#include "SkRect.h"
+#include "src/core/SkBitmapCache.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkAtomics.h"
+#include "src/core/SkMipMap.h"
+#include "src/core/SkResourceCache.h"
 
 /**
  *  Use this for bitmapcache and mipmapcache entries.
@@ -109,8 +109,8 @@ public:
 }
 
 //////////////////////
-#include "SkDiscardableMemory.h"
-#include "SkNextID.h"
+#include "src/core/SkDiscardableMemory.h"
+#include "src/core/SkNextID.h"
 
 void SkBitmapCache_setImmutableWithID(SkPixelRef* pr, uint32_t id) {
     pr->setImmutableWithID(id);

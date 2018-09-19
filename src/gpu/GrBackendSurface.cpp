@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrBackendSurface.h"
+#include "include/gpu/GrBackendSurface.h"
 
-#include "gl/GrGLUtil.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #ifdef SK_VULKAN
-#include "vk/GrVkImageLayout.h"
-#include "vk/GrVkTypes.h"
-#include "vk/GrVkUtil.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkImageLayout.h"
+#include "src/gpu/vk/GrVkUtil.h"
 #endif
 #ifdef SK_METAL
-#include "mtl/GrMtlTypes.h"
+#include "include/gpu/mtl/GrMtlTypes.h"
 #endif
 
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)

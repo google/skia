@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrColor.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrDrawOpTest.h"
-#include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrRectOpFactory.h"
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "SkRandom.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/GrColor.h"
+#include "include/utils/SkRandom.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrRectOpFactory.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 /*  create a triangle strip that strokes the specified rect. There are 8
     unique vertices, but we repeat the last 2 to close up. Alternatively we

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrCopySurfaceOp.h"
+#include "src/gpu/ops/GrCopySurfaceOp.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrMemoryPool.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMemoryPool.h"
 
 // returns true if the read/written rect intersects the src/dst and false if not.
 static bool clip_src_rect_and_dst_point(const GrSurfaceProxy* dst,

@@ -8,7 +8,7 @@
 #ifndef SKSL_ASTIDENTIFIER
 #define SKSL_ASTIDENTIFIER
 
-#include "SkSLASTExpression.h"
+#include "src/sksl/ast/SkSLASTExpression.h"
 
 namespace SkSL {
 

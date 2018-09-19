@@ -9,9 +9,9 @@
 #ifndef SkPtrSet_DEFINED
 #define SkPtrSet_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkFlattenable.h"
-#include "SkTDArray.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTDArray.h"
 
 /**
  *  Maintains a set of ptrs, assigning each a unique ID [1...N]. Duplicate ptrs

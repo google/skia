@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcState.h"
 #include "SkBitmapProcState_filter.h"
-#include "SkColorData.h"
-#include "SkPaint.h"
-#include "SkShader.h"   // for tilemodes
-#include "SkUtilsArm.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"  // for tilemodes
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkUtilsArm.h"
 
 // Required to ensure the table is part of the final binary.
 extern const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[];

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrAuditTrail.h"
-#include "ops/GrOp.h"
+#include "include/private/GrAuditTrail.h"
+#include "src/gpu/ops/GrOp.h"
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 

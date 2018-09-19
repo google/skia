@@ -8,9 +8,9 @@
 #ifndef GrVkUniformHandler_DEFINED
 #define GrVkUniformHandler_DEFINED
 
-#include "GrAllocator.h"
-#include "GrShaderVar.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrShaderVar.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class GrVkUniformHandler : public GrGLSLUniformHandler {
 public:

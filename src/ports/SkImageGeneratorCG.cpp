@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageGeneratorCG.h"
-#include "SkPixmapPriv.h"
+#include "include/ports/SkImageGeneratorCG.h"
+#include "src/core/SkPixmapPriv.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>

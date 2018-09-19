@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkDither.h"
+#include "src/core/SkDither.h"
 
 /*  The base dither matrix we use to derive optimized ones for 565 and 4444
 

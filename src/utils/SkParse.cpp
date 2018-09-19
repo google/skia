@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkParse.h"
+#include "include/utils/SkParse.h"
 
 #include <stdlib.h>
 

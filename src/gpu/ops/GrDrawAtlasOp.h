@@ -8,10 +8,10 @@
 #ifndef GrDrawAtlasOp_DEFINED
 #define GrDrawAtlasOp_DEFINED
 
-#include "GrColor.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrMeshDrawOp.h"
-#include "GrSimpleMeshDrawOpHelper.h"
+#include "include/private/GrColor.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 class GrDrawAtlasOp final : public GrMeshDrawOp {
 private:

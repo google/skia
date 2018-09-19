@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkFDot6Constants.h"
+#include "src/core/SkFDot6Constants.h"
 
 const int32_t gFDot6INVERSE[kInverseTableSize * 2] = {
     -4096, -4100, -4104, -4108, -4112, -4116, -4120, -4124, -4128, -4132, -4136,

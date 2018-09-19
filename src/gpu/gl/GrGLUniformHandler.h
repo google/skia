@@ -8,9 +8,9 @@
 #ifndef GrGLUniformHandler_DEFINED
 #define GrGLUniformHandler_DEFINED
 
-#include "glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
-#include "gl/GrGLProgramDataManager.h"
+#include "src/gpu/gl/GrGLProgramDataManager.h"
 
 class GrGLCaps;
 

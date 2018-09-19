@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrMemoryPool.h"
-#include "SkMalloc.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "include/private/SkMalloc.h"
 #ifdef SK_DEBUG
-#include "SkAtomics.h"
+#include "include/private/SkAtomics.h"
 #endif
-#include "ops/GrOp.h"
+#include "src/gpu/ops/GrOp.h"
 
 #ifdef SK_DEBUG
     #define VALIDATE this->validate()

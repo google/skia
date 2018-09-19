@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 
 #ifdef SK_BUILD_FOR_IOS
 #import <CoreFoundation/CoreFoundation.h>

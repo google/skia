@@ -8,9 +8,9 @@
 #ifndef SkBlitMask_DEFINED
 #define SkBlitMask_DEFINED
 
-#include "SkColor.h"
-#include "SkMask.h"
-#include "SkPixmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPixmap.h"
+#include "src/core/SkMask.h"
 
 class SkBlitMask {
 public:

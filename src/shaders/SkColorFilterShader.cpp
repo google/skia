@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkColorFilterShader.h"
-#include "SkColorSpaceXformer.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "src/shaders/SkColorFilterShader.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #endif
 
 SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFilter> filter)

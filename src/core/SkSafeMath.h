@@ -8,9 +8,9 @@
 #ifndef SkSafeMath_DEFINED
 #define SkSafeMath_DEFINED
 
-#include "SkTFitsIn.h"
-#include "SkTypes.h"
 #include <limits>
+#include "include/core/SkTypes.h"
+#include "include/private/SkTFitsIn.h"
 
 // SkSafeMath always check that a series of operations do not overflow.
 // This must be correct for all platforms, because this is a check for safety at runtime.

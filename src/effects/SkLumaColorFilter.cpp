@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkLumaColorFilter.h"
-#include "SkPM4f.h"
-#include "SkColorData.h"
-#include "SkRasterPipeline.h"
-#include "SkString.h"
+#include "include/effects/SkLumaColorFilter.h"
+#include "include/core/SkString.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkPM4f.h"
+#include "src/core/SkRasterPipeline.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "effects/GrLumaColorFilterEffect.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/effects/GrLumaColorFilterEffect.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
 
 void SkLumaColorFilter::onAppendStages(SkRasterPipeline* p,
