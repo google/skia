@@ -63,6 +63,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
     fHalfFloatVertexAttributeSupport = false;
+    fDynamicStateArrayGeometryProcessorTextureSupport = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
     fAdvBlendEqBlacklist = 0;
@@ -176,6 +177,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Fence sync support", fFenceSyncSupport);
     writer->appendBool("Cross context texture support", fCrossContextTextureSupport);
     writer->appendBool("Half float vertex attribute support", fHalfFloatVertexAttributeSupport);
+    writer->appendBool("Specify GeometryProcessor textures as a dynamic state array",
+                       fDynamicStateArrayGeometryProcessorTextureSupport);
 
     writer->appendBool("Blacklist Coverage Counting Path Renderer [workaround]",
                        fBlacklistCoverageCounting);
