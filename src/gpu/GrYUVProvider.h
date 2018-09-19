@@ -8,9 +8,9 @@
 #ifndef GrYUVProvider_DEFINED
 #define GrYUVProvider_DEFINED
 
-#include "GrTypes.h"
-#include "SkImageInfo.h"
-#include "SkYUVSizeInfo.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkYUVSizeInfo.h"
+#include "include/gpu/GrTypes.h"
 
 class GrContext;
 struct GrSurfaceDesc;

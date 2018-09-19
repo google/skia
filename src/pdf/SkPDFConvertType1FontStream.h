@@ -8,8 +8,8 @@
 #ifndef SkPDFConvertType1FontStream_DEFINED
 #define SkPDFConvertType1FontStream_DEFINED
 
-#include "SkData.h"
-#include "SkStream.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
 
 /*
   "A standard Type 1 font program, as described in the Adobe Type 1

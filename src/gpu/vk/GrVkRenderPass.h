@@ -8,11 +8,11 @@
 #ifndef GrVkRenderPass_DEFINED
 #define GrVkRenderPass_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
-#include "GrVkResource.h"
+#include "src/gpu/vk/GrVkResource.h"
 
-#include "vk/GrVkDefines.h"
+#include "include/gpu/vk/GrVkDefines.h"
 
 class GrProcessorKeyBuilder;
 class GrVkGpu;

@@ -9,9 +9,9 @@
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
-#include "GrGLProgramDataManager.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/gl/GrGLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class GrGLSLFragmentProcessor;
 class GrGLSLPrimitiveProcessor;

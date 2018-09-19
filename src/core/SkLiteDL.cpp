@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkDrawShadowInfo.h"
-#include "SkImage.h"
-#include "SkImageFilter.h"
-#include "SkLiteDL.h"
-#include "SkMath.h"
-#include "SkPicture.h"
-#include "SkRegion.h"
-#include "SkRSXform.h"
-#include "SkTextBlob.h"
-#include "SkVertices.h"
+#include "src/core/SkLiteDL.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkVertices.h"
+#include "src/core/SkDrawShadowInfo.h"
 
 #ifndef SKLITEDL_PAGE
     #define SKLITEDL_PAGE 4096

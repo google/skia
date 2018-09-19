@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkJpegDecoderMgr.h"
+#include "src/codec/SkJpegDecoderMgr.h"
 
-#include "SkJpegUtility.h"
+#include "src/codec/SkJpegUtility.h"
 
 /*
  * Print information, warning, and error messages

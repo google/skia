@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBitmapController.h"
-#include "SkBitmapProcShader.h"
-#include "SkBitmapProvider.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkEmptyShader.h"
-#include "SkImage_Base.h"
-#include "SkImageShader.h"
-#include "SkPM4fPriv.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "../jumper/SkJumper.h"
+#include "src/shaders/SkImageShader.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkBitmapController.h"
+#include "src/core/SkBitmapProvider.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/image/SkImage_Base.h"
+#include "src/jumper/SkJumper.h"
+#include "src/shaders/SkBitmapProcShader.h"
+#include "src/shaders/SkEmptyShader.h"
 
 /**
  *  We are faster in clamp, so always use that tiling when we can.
@@ -178,12 +178,12 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 
 #if SK_SUPPORT_GPU
 
-#include "GrColorSpaceInfo.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "SkGr.h"
-#include "effects/GrBicubicEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 
 static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkShader::TileMode tileMode) {
     switch (tileMode) {
@@ -253,7 +253,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkImagePriv.h"
+#include "src/core/SkImagePriv.h"
 
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
                                    SkShader::TileMode tmy, const SkMatrix* localMatrix,

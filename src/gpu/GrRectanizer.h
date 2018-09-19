@@ -8,7 +8,7 @@
 #ifndef GrRectanizer_DEFINED
 #define GrRectanizer_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 struct SkIPoint16;
 

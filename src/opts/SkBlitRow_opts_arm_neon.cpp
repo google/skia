@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitRow_opts_arm_neon.h"
+#include "src/opts/SkBlitRow_opts_arm_neon.h"
 
-#include "SkBlitMask.h"
-#include "SkBlitRow.h"
-#include "SkColorData.h"
-#include "SkDither.h"
-#include "SkMathPriv.h"
-#include "SkUTF.h"
+#include "src/core/SkBlitMask.h"
+#include "src/core/SkBlitRow.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkDither.h"
+#include "src/core/SkMathPriv.h"
+#include "src/utils/SkUTF.h"
 
-#include "SkColor_opts_neon.h"
 #include <arm_neon.h>
+#include "src/opts/SkColor_opts_neon.h"
 
 /* Neon version of S32_Blend_BlitRow32()
  * portable version is in src/core/SkBlitRow_D32.cpp

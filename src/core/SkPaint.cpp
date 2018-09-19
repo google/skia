@@ -5,42 +5,42 @@
  * found in the LICENSE file.
  */
 
-#include "SkPaint.h"
+#include "include/core/SkPaint.h"
 
-#include "SkColorFilter.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
-#include "SkData.h"
-#include "SkDraw.h"
-#include "SkFontDescriptor.h"
-#include "SkGlyphCache.h"
-#include "SkGraphics.h"
-#include "SkImageFilter.h"
-#include "SkMaskFilter.h"
-#include "SkMaskGamma.h"
-#include "SkMutex.h"
-#include "SkOpts.h"
-#include "SkPaintDefaults.h"
-#include "SkPaintPriv.h"
-#include "SkPathEffect.h"
-#include "SkReadBuffer.h"
-#include "SkSafeRange.h"
-#include "SkScalar.h"
-#include "SkScalerContext.h"
-#include "SkShader.h"
-#include "SkShaderBase.h"
-#include "SkStringUtils.h"
-#include "SkStroke.h"
-#include "SkStrokeRec.h"
-#include "SkSurfacePriv.h"
-#include "SkTLazy.h"
-#include "SkTextBlob.h"
-#include "SkTextBlobPriv.h"
-#include "SkTextFormatParams.h"
-#include "SkTextToPathIter.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkData.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkTLazy.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkGlyphCache.h"
+#include "src/core/SkMaskGamma.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkPaintDefaults.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSafeRange.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkStringUtils.h"
+#include "src/core/SkStroke.h"
+#include "src/core/SkSurfacePriv.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/core/SkTextFormatParams.h"
+#include "src/core/SkTextToPathIter.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkShaderBase.h"
 
 static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
     return cond ? bits | mask : bits & ~mask;
@@ -401,8 +401,8 @@ SkScalar SkPaint::MaxCacheSize2(SkScalar maxLimit) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkGlyphCache.h"
-#include "SkUtils.h"
+#include "src/core/SkGlyphCache.h"
+#include "src/core/SkUtils.h"
 
 int SkPaint::countText(const void* text, size_t byteLength) const {
     SkASSERT(text != nullptr);
@@ -934,7 +934,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkDraw.h"
+#include "src/core/SkDraw.h"
 
 void SkPaint::getTextPath(const void* textData, size_t length,
                           SkScalar x, SkScalar y, SkPath* path) const {
@@ -1119,7 +1119,7 @@ SkColor SkPaint::computeLuminanceColor() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
 static uintptr_t asint(const void* p) {
     return reinterpret_cast<uintptr_t>(p);

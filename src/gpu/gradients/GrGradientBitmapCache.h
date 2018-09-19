@@ -9,10 +9,10 @@
 #ifndef GrGradientBitmapCache_DEFINED
 #define GrGradientBitmapCache_DEFINED
 
-#include "SkBitmap.h"
-#include "SkMutex.h"
-#include "SkNoncopyable.h"
-#include "GrColor.h"
+#include "include/core/SkBitmap.h"
+#include "include/private/GrColor.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkNoncopyable.h"
 
 class GrGradientBitmapCache : SkNoncopyable {
 public:

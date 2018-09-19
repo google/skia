@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLTestInterface.h"
+#include "src/gpu/gl/GrGLTestInterface.h"
 
 namespace {
 template <typename R, typename... A>

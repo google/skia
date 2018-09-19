@@ -12,7 +12,7 @@
 //
 //
 
-#include "hs_cl_target.h"
+#include "src/compute/hs/cl/hs_cl_target.h"
 
 //
 //

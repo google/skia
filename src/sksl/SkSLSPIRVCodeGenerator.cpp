@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLSPIRVCodeGenerator.h"
+#include "src/sksl/SkSLSPIRVCodeGenerator.h"
 
-#include "GLSL.std.450.h"
+#include "src/sksl/GLSL.std.450.h"
 
-#include "ir/SkSLExpressionStatement.h"
-#include "ir/SkSLExtension.h"
-#include "ir/SkSLIndexExpression.h"
-#include "ir/SkSLVariableReference.h"
-#include "SkSLCompiler.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLExtension.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 
 namespace SkSL {
 

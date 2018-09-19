@@ -8,8 +8,8 @@
 #ifndef GrCCSTLList_DEFINED
 #define GrCCSTLList_DEFINED
 
-#include "SkArenaAlloc.h"
 #include <new>
+#include "include/private/SkArenaAlloc.h"
 
 /**
  * A singly-linked list whose head element is a local class member. This is required by

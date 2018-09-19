@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathOpsTSect.h"
+#include "src/pathops/SkPathOpsTSect.h"
 
 int SkIntersections::intersect(const SkDQuad& quad1, const SkDQuad& quad2) {
     SkTSect<SkDQuad, SkDQuad> sect1(quad1

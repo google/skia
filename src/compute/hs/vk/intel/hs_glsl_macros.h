@@ -12,7 +12,7 @@
 //
 //
 
-#include "../hs_glsl_macros.h"
+#include "src/compute/hs/vk/amd/hs_glsl_macros.h"
 
 //
 // Waiting for Intel's to provide an equivalent to their OpenCL

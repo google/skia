@@ -7,10 +7,10 @@
 #ifndef SkMaskSwizzler_DEFINED
 #define SkMaskSwizzler_DEFINED
 
-#include "SkMasks.h"
-#include "SkSampler.h"
-#include "SkSwizzler.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkMasks.h"
+#include "src/codec/SkSampler.h"
+#include "src/codec/SkSwizzler.h"
 
 /*
  *

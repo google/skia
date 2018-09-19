@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrStencilSettings.h"
 
-#include "GrStencilSettings.h"
-
-#include "GrProcessor.h"
+#include "src/gpu/GrProcessor.h"
 
 constexpr const GrUserStencilSettings gUnused(
     GrUserStencilSettings::StaticInit<

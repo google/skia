@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrClearStencilClipOp.h"
+#include "src/gpu/ops/GrClearStencilClipOp.h"
 
-#include "GrGpuCommandBuffer.h"
-#include "GrMemoryPool.h"
+#include "src/gpu/GrGpuCommandBuffer.h"
+#include "src/gpu/GrMemoryPool.h"
 
 std::unique_ptr<GrOp> GrClearStencilClipOp::Make(GrContext* context,
                                                  const GrFixedClip& clip,

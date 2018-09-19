@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkJumper.h"
-#include "SkOpts.h"
-#include "SkRasterPipeline.h"
-#include "SkTemplates.h"
+#include "src/jumper/SkJumper.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipeline.h"
 
 SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) const {
 #ifndef SK_JUMPER_DISABLE_8BIT

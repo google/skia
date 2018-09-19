@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrOnFlushResourceProvider.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrDrawingManager.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetContext.h"
-#include "GrSurfaceProxy.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
         const GrSurfaceDesc& desc,

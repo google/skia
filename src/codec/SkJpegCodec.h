@@ -8,11 +8,11 @@
 #ifndef SkJpegCodec_DEFINED
 #define SkJpegCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkImageInfo.h"
-#include "SkSwizzler.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTemplates.h"
+#include "src/codec/SkSwizzler.h"
 
 class JpegDecoderMgr;
 

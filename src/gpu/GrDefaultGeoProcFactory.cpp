@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
 
-#include "GrCaps.h"
-#include "SkRefCnt.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLUtil.h"
+#include "include/core/SkRefCnt.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLUtil.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 /*
  * The default Geometry Processor simply takes position and multiplies it by the uniform view

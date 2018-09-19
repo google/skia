@@ -12,17 +12,17 @@
 #include <memory>
 #include <vector>
 
-#include "SkDistanceFieldGen.h"
-#include "SkGlyph.h"
-#include "SkMask.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkScalerContext.h"
-#include "SkSpan.h"
-#include "SkSurfaceProps.h"
-#include "SkTemplates.h"
-#include "SkTextBlobPriv.h"
-#include "SkTypes.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkSpan.h"
+#include "src/core/SkTextBlobPriv.h"
 
 class SkArenaAlloc;
 class SkBaseDevice;

@@ -9,9 +9,9 @@
 #define GrDrawOp_DEFINED
 
 #include <functional>
-#include "GrDeferredUpload.h"
-#include "GrOp.h"
-#include "GrPipeline.h"
+#include "src/gpu/GrDeferredUpload.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrAppliedClip;
 

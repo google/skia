@@ -12,8 +12,8 @@
 //
 //
 
-#include "block_pool_cl.h"
-#include "extent_cl_12.h"
+#include "src/compute/skc/platforms/cl_12/block_pool_cl.h"
+#include "src/compute/skc/platforms/cl_12/extent_cl_12.h"
 
 //
 // device side block pool

@@ -5,18 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrRenderTarget.h"
 
-#include "GrRenderTarget.h"
-
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrGpu.h"
-#include "GrRenderTargetOpList.h"
-#include "GrRenderTargetPriv.h"
-#include "GrStencilAttachment.h"
-#include "GrStencilSettings.h"
-#include "SkRectPriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetOpList.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/GrStencilSettings.h"
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
                                GrStencilAttachment* stencil)

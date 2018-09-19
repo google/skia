@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcState_opts_SSSE3.h"
-#include "SkColorData.h"
-#include "SkPaint.h"
-#include "SkUTF.h"
+#include "src/opts/SkBitmapProcState_opts_SSSE3.h"
+#include "include/core/SkPaint.h"
+#include "src/core/SkColorData.h"
+#include "src/utils/SkUTF.h"
 
 #include <tmmintrin.h>  // SSSE3
 

@@ -8,7 +8,7 @@
 #ifndef SkPipeFormat_DEFINED
 #define SkPipeFormat_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #define kDefinePicture_ExtPipeVerb  SkSetFourByteTag('s', 'k', 'p', 'i')
 

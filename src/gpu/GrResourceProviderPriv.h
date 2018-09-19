@@ -8,7 +8,7 @@
 #ifndef GrResourceProviderPriv_DEFINED
 #define GrResourceProviderPriv_DEFINED
 
-#include "GrResourceProvider.h"
+#include "src/gpu/GrResourceProvider.h"
 
 /** Class that adds methods to GrResourceProvider that are only intended for use internal to Skia.
     This class is purely a privileged window into GrResourceProvider. It should never have

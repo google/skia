@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkKeyedImage.h"
+#include "src/pdf/SkKeyedImage.h"
 
-#include "SkImage_Base.h"
+#include "src/image/SkImage_Base.h"
 
 SkBitmapKey SkBitmapKeyFromImage(const SkImage* image) {
     if (!image) {

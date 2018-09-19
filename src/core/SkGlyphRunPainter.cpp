@@ -5,27 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphRunPainter.h"
+#include "src/core/SkGlyphRunPainter.h"
 
 #if SK_SUPPORT_GPU
-#include "GrColorSpaceInfo.h"
-#include "GrRenderTargetContext.h"
-#include "SkGr.h"
-#include "text/GrTextBlobCache.h"
-#include "text/GrTextContext.h"
+#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/text/GrTextBlobCache.h"
+#include "src/gpu/text/GrTextContext.h"
 #endif
 
-#include "SkColorFilter.h"
-#include "SkDevice.h"
-#include "SkDistanceFieldGen.h"
-#include "SkDraw.h"
-#include "SkFindAndPlaceGlyph.h"
-#include "SkGlyphCache.h"
-#include "SkMaskFilter.h"
-#include "SkPaintPriv.h"
-#include "SkPathEffect.h"
-#include "SkRasterClip.h"
-#include "SkStrikeCache.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPathEffect.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkFindAndPlaceGlyph.h"
+#include "src/core/SkGlyphCache.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkStrikeCache.h"
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 SkGlyphRunListPainter::SkGlyphRunListPainter(
@@ -586,7 +586,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
 
 #if GR_TEST_UTILS
 
-#include "GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
 std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context,
                                                               GrTextContext* textContext,

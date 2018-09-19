@@ -14,7 +14,7 @@
 // so we're unneccesarily reloading the types and OpenCL header
 //
 
-#include "types.h"
+#include "src/compute/skc/types.h"
 
 #if (__OPENCL_C_VERSION__ <= 120 /*CL_VERSION_1_2*/)
 

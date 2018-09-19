@@ -8,14 +8,14 @@
 #ifndef SkFindAndPositionGlyph_DEFINED
 #define SkFindAndPositionGlyph_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkGlyph.h"
-#include "SkGlyphCache.h"
-#include "SkMatrixPriv.h"
-#include "SkPaint.h"
-#include "SkTemplates.h"
-#include "SkUTF.h"
 #include <utility>
+#include "include/core/SkPaint.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkGlyphCache.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/utils/SkUTF.h"
 
 class SkFindAndPlaceGlyph {
 public:

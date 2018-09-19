@@ -9,7 +9,7 @@
 //
 //
 
-#include "SkImage_Compute.h"
+#include "src/compute/sk/SkImage_Compute.h"
 
 //
 //

@@ -8,7 +8,7 @@
 #ifndef SkOpPE_DEFINED
 #define SkOpPE_DEFINED
 
-#include "SkOpPathEffect.h"
+#include "include/effects/SkOpPathEffect.h"
 
 class SkOpPE : public SkPathEffect {
 public:

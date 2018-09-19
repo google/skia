@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkRawAdapterCodec.h"
+#include "src/codec/SkRawAdapterCodec.h"
+#include "include/codec/SkCodec.h"
+#include "src/codec/SkCodecPriv.h"
 
 SkRawAdapterCodec::SkRawAdapterCodec(SkRawCodec* codec, ExifOrientationBehavior behavior)
     : INHERITED(codec, behavior)

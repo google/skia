@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBmpCodec.h"
-#include "SkBmpMaskCodec.h"
-#include "SkBmpRLECodec.h"
-#include "SkBmpStandardCodec.h"
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkStream.h"
+#include "src/codec/SkBmpCodec.h"
+#include "include/core/SkStream.h"
+#include "src/codec/SkBmpMaskCodec.h"
+#include "src/codec/SkBmpRLECodec.h"
+#include "src/codec/SkBmpStandardCodec.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/core/SkColorData.h"
 
 /*
  * Defines the version and type of the second bitmap header

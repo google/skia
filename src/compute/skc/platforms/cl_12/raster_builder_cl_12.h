@@ -13,9 +13,9 @@
 //
 //
 
-#include "types.h"
-#include "macros.h"
-#include "common.h"
+#include "src/compute/skc/common.h"
+#include "src/compute/skc/macros.h"
+#include "src/compute/skc/types.h"
 
 //
 // FIXME -- these magic numbers will be replaced with tile.h constants

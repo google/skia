@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkMakeUnique.h"
-#include "SkPixmap.h"
-#include "SkPixmapPriv.h"
-#include "SkRawAdapterCodec.h"
-#include "SkSampledCodec.h"
-#include "SkWebpAdapterCodec.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkPixmap.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkRawAdapterCodec.h"
+#include "src/codec/SkSampledCodec.h"
+#include "src/codec/SkWebpAdapterCodec.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkPixmapPriv.h"
 
 static bool is_valid_sample_size(int sampleSize) {
     // FIXME: As Leon has mentioned elsewhere, surely there is also a maximum sampleSize?

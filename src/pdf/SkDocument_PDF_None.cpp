@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkDocument.h"
+#include "include/core/SkDocument.h"
 
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
     return nullptr;

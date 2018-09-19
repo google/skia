@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrBuffer.h"
-#include "GrGpu.h"
-#include "GrCaps.h"
+#include "src/gpu/GrBuffer.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpu.h"
 
 GrBuffer* GrBuffer::CreateCPUBacked(GrGpu* gpu, size_t sizeInBytes, GrBufferType intendedType,
                                     const void* data) {

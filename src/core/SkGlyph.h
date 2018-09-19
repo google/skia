@@ -8,12 +8,12 @@
 #ifndef SkGlyph_DEFINED
 #define SkGlyph_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkChecksum.h"
-#include "SkFixed.h"
-#include "SkMask.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMask.h"
 
 class SkPath;
 class SkGlyphCache;

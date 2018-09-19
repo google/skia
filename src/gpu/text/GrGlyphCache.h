@@ -8,12 +8,12 @@
 #ifndef GrAtlasGlyphCache_DEFINED
 #define GrAtlasGlyphCache_DEFINED
 
-#include "GrDrawOpAtlas.h"
-#include "GrGlyph.h"
-#include "SkArenaAlloc.h"
-#include "SkGlyphCache.h"
-#include "SkMasks.h"
-#include "SkTDynamicHash.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/codec/SkMasks.h"
+#include "src/core/SkGlyphCache.h"
+#include "src/core/SkTDynamicHash.h"
+#include "src/gpu/GrDrawOpAtlas.h"
+#include "src/gpu/GrGlyph.h"
 
 class GrGlyphCache;
 class GrAtlasManager;

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontConfigInterface.h"
-#include "SkFontDescriptor.h"
-#include "SkFontHost_FreeType_common.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
+#include "include/ports/SkFontConfigInterface.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/ports/SkFontHost_FreeType_common.h"
 
 class SkFontDescriptor;
 

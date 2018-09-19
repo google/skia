@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkOpEdgeBuilder.h"
-#include "SkPathOpsCommon.h"
-#include "SkRect.h"
 #include <algorithm>
 #include <vector>
+#include "include/core/SkRect.h"
+#include "src/pathops/SkOpEdgeBuilder.h"
+#include "src/pathops/SkPathOpsCommon.h"
 
 using std::vector;
 

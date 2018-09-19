@@ -12,12 +12,12 @@
 //
 //
 
-#include "skc.h"
-#include "runtime.h"
-#include "cq_pool_cl.h"
-#include "handle_pool_cl_12.h"
-#include "block_pool_cl_12.h"
-#include "allocator_device_cl.h"
+#include "src/compute/skc/platforms/cl_12/allocator_device_cl.h"
+#include "src/compute/skc/platforms/cl_12/block_pool_cl_12.h"
+#include "src/compute/skc/platforms/cl_12/cq_pool_cl.h"
+#include "src/compute/skc/platforms/cl_12/handle_pool_cl_12.h"
+#include "src/compute/skc/runtime.h"
+#include "src/compute/skc/skc.h"
 
 //
 // FIXME -- two parts:

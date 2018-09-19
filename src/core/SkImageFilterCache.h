@@ -8,8 +8,8 @@
 #ifndef SkImageFilterCache_DEFINED
 #define SkImageFilterCache_DEFINED
 
-#include "SkMatrix.h"
-#include "SkRefCnt.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRefCnt.h"
 
 struct SkIPoint;
 class SkImageFilter;

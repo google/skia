@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpaceXformer.h"
-#include "SkFloatingPoint.h"
-#include "SkPM4fPriv.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkSweepGradient.h"
-#include "SkWriteBuffer.h"
+#include "src/shaders/gradients/SkSweepGradient.h"
+#include "include/private/SkFloatingPoint.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 SkSweepGradient::SkSweepGradient(const SkPoint& center, SkScalar t0, SkScalar t1,
                                  const Descriptor& desc)
@@ -85,7 +85,7 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
 
 #if SK_SUPPORT_GPU
 
-#include "gradients/GrGradientShader.h"
+#include "src/gpu/gradients/GrGradientShader.h"
 
 std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
         const GrFPArgs& args) const {

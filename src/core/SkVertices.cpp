@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkVertices.h"
+#include "include/core/SkVertices.h"
 
-#include "SkAtomics.h"
-#include "SkData.h"
-#include "SkReader32.h"
-#include "SkSafeMath.h"
-#include "SkSafeRange.h"
-#include "SkTo.h"
-#include "SkWriter32.h"
 #include <new>
+#include "include/core/SkData.h"
+#include "include/private/SkAtomics.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkReader32.h"
+#include "src/core/SkSafeMath.h"
+#include "src/core/SkSafeRange.h"
+#include "src/core/SkWriter32.h"
 
 static int32_t gNextID = 1;
 static int32_t next_id() {

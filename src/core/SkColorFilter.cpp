@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkColorFilter.h"
-#include "SkColorSpaceXformer.h"
-#include "SkNx.h"
-#include "SkPM4f.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
-#include "SkTDArray.h"
-#include "SkUnPreMultiply.h"
-#include "SkWriteBuffer.h"
-#include "../jumper/SkJumper.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkNx.h"
+#include "src/core/SkPM4f.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #endif
 
 bool SkColorFilter::asColorMode(SkColor*, SkBlendMode*) const {
@@ -63,7 +63,7 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
                           sk_float_round2int(c4.fB*255));
 }
 
-#include "SkRasterPipeline.h"
+#include "src/core/SkRasterPipeline.h"
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSpace) const {
     SkPM4f dst, src = c.premul();
 
@@ -190,7 +190,7 @@ sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) con
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-#include "../gpu/effects/GrSRGBEffect.h"
+#include "src/gpu/effects/GrSRGBEffect.h"
 #endif
 
 class SkSRGBGammaColorFilter : public SkColorFilter {
@@ -272,7 +272,7 @@ sk_sp<SkColorFilter> SkColorFilter::MakeSRGBToLinearGamma() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkModeColorFilter.h"
+#include "src/core/SkModeColorFilter.h"
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeColorFilter)

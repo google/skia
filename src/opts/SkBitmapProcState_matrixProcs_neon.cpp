@@ -4,11 +4,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcState.h"
-#include "SkBitmapProcState_utils.h"
-#include "SkShader.h"
-#include "SkTo.h"
-#include "SkUtilsArm.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkBitmapProcState_utils.h"
+#include "src/core/SkUtilsArm.h"
 
 #include <arm_neon.h>
 
@@ -128,7 +128,7 @@ static inline int32x4_t sbpsm_repeat_tile4_low_bits(int32x4_t fx, unsigned max) 
 #define EXTRACT_LOW_BITS(v, max)        (((v) >> 12) & 0xF)
 #define EXTRACT_LOW_BITS_NEON4(v, max)  sbpsm_clamp_tile4_low_bits(v)
 #define CHECK_FOR_DECAL
-#include "SkBitmapProcState_matrix_neon.h"
+#include "src/opts/SkBitmapProcState_matrix_neon.h"
 
 #define MAKENAME(suffix)                RepeatX_RepeatY ## suffix ## _neon
 #define TILEX_PROCF(fx, max)            SK_USHIFT16(((fx) & 0xFFFF) * ((max) + 1))
@@ -139,9 +139,7 @@ static inline int32x4_t sbpsm_repeat_tile4_low_bits(int32x4_t fx, unsigned max) 
 #define TILEY_PROCF_NEON4(fy, max)      sbpsm_repeat_tile4(fy, max)
 #define EXTRACT_LOW_BITS(v, max)        ((((v) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
 #define EXTRACT_LOW_BITS_NEON4(v, max)  sbpsm_repeat_tile4_low_bits(v, max)
-#include "SkBitmapProcState_matrix_neon.h"
-
-
+#include "src/opts/SkBitmapProcState_matrix_neon.h"
 
 void decal_nofilter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
     if (count >= 8) {

@@ -13,9 +13,9 @@
     #define CHECK_FOR_565_OVERFLOW
 #endif
 
-#include "SkColor.h"
-#include "SkColorPriv.h"
-#include "SkTo.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/private/SkTo.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

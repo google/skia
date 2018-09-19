@@ -23,7 +23,7 @@
 //
 //
 
-#include "skc.h"
+#include "src/compute/skc/skc.h"
 
 //
 // CONTEXT CREATION

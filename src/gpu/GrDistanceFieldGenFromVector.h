@@ -8,7 +8,7 @@
 #ifndef GrDistanceFieldGenFromVector_DEFINED
 #define GrDistanceFieldGenFromVector_DEFINED
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
 class SkMatrix;
 

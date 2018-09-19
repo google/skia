@@ -8,8 +8,8 @@
 #ifndef SKSL_CFGGENERATOR
 #define SKSL_CFGGENERATOR
 
-#include "ir/SkSLExpression.h"
-#include "ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
 
 #include <set>
 #include <stack>

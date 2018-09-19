@@ -6,9 +6,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpaceXformer.h"
-#include "SkLights.h"
-#include "SkReadBuffer.h"
+#include "include/core/SkLights.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkReadBuffer.h"
 
 sk_sp<SkLights> SkLights::MakeFromBuffer(SkReadBuffer& buf) {
     Builder builder;

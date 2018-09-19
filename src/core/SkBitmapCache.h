@@ -8,8 +8,8 @@
 #ifndef SkBitmapCache_DEFINED
 #define SkBitmapCache_DEFINED
 
-#include "SkBitmap.h"
-#include "SkMipMap.h"
+#include "include/core/SkBitmap.h"
+#include "src/core/SkMipMap.h"
 
 class SkImage;
 class SkResourceCache;

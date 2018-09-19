@@ -8,9 +8,9 @@
 #ifndef SkFloatUtils_DEFINED
 #define SkFloatUtils_DEFINED
 
-#include "SkTypes.h"
-#include <limits.h>
 #include <float.h>
+#include <limits.h>
+#include "include/core/SkTypes.h"
 
 template <size_t size>
 class SkTypeWithSize {

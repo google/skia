@@ -12,7 +12,7 @@
 //
 //
 
-#include "allocator_host.h"
+#include "src/compute/skc/allocator_host.h"
 
 //
 // HOST MEMORY ALLOCATION

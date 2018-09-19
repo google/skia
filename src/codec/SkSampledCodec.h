@@ -7,8 +7,8 @@
 #ifndef SkSampledCodec_DEFINED
 #define SkSampledCodec_DEFINED
 
-#include "SkAndroidCodec.h"
-#include "SkCodec.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
 
 /**
  *  This class implements the functionality of SkAndroidCodec.  Scaling will

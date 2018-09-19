@@ -8,15 +8,15 @@
 #ifndef GrDrawVerticesOp_DEFINED
 #define GrDrawVerticesOp_DEFINED
 
-#include "GrColor.h"
-#include "GrMeshDrawOp.h"
-#include "GrRenderTargetContext.h"
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "GrTypes.h"
-#include "SkMatrix.h"
-#include "SkRect.h"
-#include "SkTDArray.h"
-#include "SkVertices.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkVertices.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrColor.h"
+#include "include/private/SkTDArray.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 class GrOpFlushState;
 class SkVertices;

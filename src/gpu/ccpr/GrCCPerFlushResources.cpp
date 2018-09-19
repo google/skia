@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPerFlushResources.h"
+#include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
-#include "GrClip.h"
-#include "GrMemoryPool.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrSurfaceContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrShape.h"
-#include "SkMakeUnique.h"
-#include "ccpr/GrCCPathCache.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrSurfaceContextPriv.h"
+#include "src/gpu/ccpr/GrCCPathCache.h"
 
 using FillBatchID = GrCCFiller::BatchID;
 using StrokeBatchID = GrCCStroker::BatchID;

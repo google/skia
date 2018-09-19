@@ -8,7 +8,7 @@
 #ifndef SkNx_sse_DEFINED
 #define SkNx_sse_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
     #include <smmintrin.h>

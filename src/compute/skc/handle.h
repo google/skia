@@ -12,7 +12,7 @@
 //
 //
 
-#include "types.h"
+#include "src/compute/skc/types.h"
 
 //
 // Add defensive high guard-bit flags to the opaque path and raster

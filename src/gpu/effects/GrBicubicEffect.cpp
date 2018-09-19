@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrBicubicEffect.h"
+#include "src/gpu/effects/GrBicubicEffect.h"
 
-#include "GrTexture.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class GrGLBicubicEffect : public GrGLSLFragmentProcessor {
 public:

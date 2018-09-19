@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrAtlasManager.h"
+#include "src/gpu/text/GrAtlasManager.h"
 
-#include "GrGlyph.h"
-#include "GrGlyphCache.h"
+#include "src/gpu/GrGlyph.h"
+#include "src/gpu/text/GrGlyphCache.h"
 
 GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* glyphCache,
                                size_t maxTextureBytes,
@@ -67,15 +67,15 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
 }
 
 #ifdef SK_DEBUG
-#include "GrContextPriv.h"
-#include "GrSurfaceProxy.h"
-#include "GrSurfaceContext.h"
-#include "GrTextureProxy.h"
+#include "include/private/GrSurfaceProxy.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrSurfaceContext.h"
 
-#include "SkBitmap.h"
-#include "SkImageEncoder.h"
-#include "SkStream.h"
 #include <stdio.h>
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkStream.h"
 
 /**
   * Write the contents of the surface proxy to a PNG. Returns true if successful.

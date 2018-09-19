@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLGpuCommandBuffer.h"
+#include "src/gpu/gl/GrGLGpuCommandBuffer.h"
 
-#include "GrFixedClip.h"
-#include "GrRenderTargetPriv.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 
 void GrGLGpuRTCommandBuffer::begin() {
     if (GrLoadOp::kClear == fColorLoadAndStoreInfo.fLoadOp) {

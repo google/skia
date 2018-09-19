@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpaceXform.h"
-#include "SkColorSpaceXformPriv.h"
-#include "SkData.h"
-#include "SkMakeUnique.h"
+#include "include/core/SkColorSpaceXform.h"
 #include "../../third_party/skcms/skcms.h"
+#include "include/core/SkData.h"
+#include "src/core/SkColorSpaceXformPriv.h"
+#include "src/core/SkMakeUnique.h"
 
 std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* src, SkColorSpace* dst) {
     return SkMakeColorSpaceXform(src, dst);

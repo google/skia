@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkOverdrawColorFilter.h"
-#include "SkPM4f.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "../jumper/SkJumper.h"
+#include "include/effects/SkOverdrawColorFilter.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkPM4f.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
-#include "effects/GrSkSLFP.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 
 GR_FP_SRC_STRING SKSL_OVERDRAW_SRC = R"(
 layout(ctype=SkPMColor) in uniform half4 color0;

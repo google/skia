@@ -12,8 +12,8 @@
 //
 //
 
-#include "handle.h"
-#include "scheduler.h"
+#include "src/compute/skc/handle.h"
+#include "src/compute/skc/scheduler.h"
 
 //
 // The requirement is that every grid struct begin with an skc_grid_t

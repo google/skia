@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLVariableReference.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 
-#include "SkSLConstructor.h"
-#include "SkSLFloatLiteral.h"
-#include "SkSLIRGenerator.h"
-#include "SkSLSetting.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLFloatLiteral.h"
+#include "src/sksl/ir/SkSLSetting.h"
 
 namespace SkSL {
 

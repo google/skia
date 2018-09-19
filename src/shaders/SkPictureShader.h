@@ -8,8 +8,8 @@
 #ifndef SkPictureShader_DEFINED
 #define SkPictureShader_DEFINED
 
-#include "SkShaderBase.h"
 #include <atomic>
+#include "src/shaders/SkShaderBase.h"
 
 class SkArenaAlloc;
 class SkBitmap;

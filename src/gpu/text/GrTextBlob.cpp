@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "GrTextBlob.h"
-#include "GrBlurUtils.h"
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrShape.h"
-#include "GrStyle.h"
-#include "GrTextTarget.h"
-#include "SkColorFilter.h"
-#include "SkGlyphCache.h"
-#include "SkMaskFilterBase.h"
-#include "SkPaintPriv.h"
-#include "SkTextToPathIter.h"
-#include "ops/GrAtlasTextOp.h"
+#include "src/gpu/text/GrTextBlob.h"
 #include <new>
+#include "include/core/SkColorFilter.h"
+#include "include/gpu/GrContext.h"
+#include "src/core/SkGlyphCache.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkTextToPathIter.h"
+#include "src/gpu/GrBlurUtils.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrStyle.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/text/GrTextTarget.h"
 
 sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
     // We allocate size for the GrTextBlob itself, plus size for the vertices array,

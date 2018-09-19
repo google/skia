@@ -7,9 +7,9 @@
 #ifndef SkPictureImageGenerator_DEFINED
 #define SkPictureImageGenerator_DEFINED
 
-#include "SkImageGenerator.h"
-#include "SkPaint.h"
-#include "SkTLazy.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkTLazy.h"
 
 class SkPictureImageGenerator : public SkImageGenerator {
 public:

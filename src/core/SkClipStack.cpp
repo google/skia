@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
-#include "SkCanvas.h"
-#include "SkClipStack.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkClipOpPriv.h"
+#include "src/core/SkClipStack.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkAtomics.h"
+#include "src/core/SkClipOpPriv.h"
 
 #include <new>
 

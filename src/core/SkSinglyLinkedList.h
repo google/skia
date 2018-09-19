@@ -9,8 +9,8 @@
 
 #include <utility>
 
-#include "SkMakeUnique.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkMakeUnique.h"
 
 template <typename T> class SkSinglyLinkedList {
     struct Node;

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidFrameworkUtils.h"
-#include "SkCanvas.h"
-#include "SkDevice.h"
+#include "include/android/SkAndroidFrameworkUtils.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkDevice.h"
 
 #if SK_SUPPORT_GPU
-#include "GrStyle.h"
-#include "GrClip.h"
-#include "GrRenderTargetContext.h"
-#include "GrUserStencilSettings.h"
-#include "effects/GrDisableColorXP.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrStyle.h"
+#include "src/gpu/GrUserStencilSettings.h"
+#include "src/gpu/effects/GrDisableColorXP.h"
 #endif //SK_SUPPORT_GPU
 
 #ifdef SK_BUILD_FOR_ANDROID

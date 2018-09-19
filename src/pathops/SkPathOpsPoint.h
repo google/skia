@@ -7,8 +7,8 @@
 #ifndef SkPathOpsPoint_DEFINED
 #define SkPathOpsPoint_DEFINED
 
-#include "SkPathOpsTypes.h"
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
+#include "src/pathops/SkPathOpsTypes.h"
 
 inline bool AlmostEqualUlps(const SkPoint& pt1, const SkPoint& pt2) {
     return AlmostEqualUlps(pt1.fX, pt2.fX) && AlmostEqualUlps(pt1.fY, pt2.fY);

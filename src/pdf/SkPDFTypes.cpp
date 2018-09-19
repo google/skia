@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFTypes.h"
+#include "src/pdf/SkPDFTypes.h"
 
-#include "SkData.h"
-#include "SkDeflate.h"
-#include "SkMakeUnique.h"
-#include "SkPDFUtils.h"
-#include "SkStream.h"
-#include "SkStreamPriv.h"
-#include "SkTo.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkStreamPriv.h"
+#include "src/pdf/SkDeflate.h"
+#include "src/pdf/SkPDFUtils.h"
 
 #include <new>
 

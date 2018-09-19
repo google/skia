@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcShader.h"
-#include "SkColorFilter.h"
-#include "SkColorFilterShader.h"
-#include "SkColorShader.h"
-#include "SkComposeShader.h"
-#include "SkEmptyShader.h"
-#include "SkFlattenablePriv.h"
-#include "SkImageShader.h"
-#include "SkLocalMatrixShader.h"
-#include "SkMatrixImageFilter.h"
-#include "SkOnce.h"
-#include "SkPathEffect.h"
-#include "SkPictureShader.h"
-#include "SkRecordedDrawable.h"
-#include "SkShaderBase.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPathEffect.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkFlattenablePriv.h"
+#include "src/core/SkMatrixImageFilter.h"
+#include "src/core/SkRecordedDrawable.h"
+#include "src/shaders/SkBitmapProcShader.h"
+#include "src/shaders/SkColorFilterShader.h"
+#include "src/shaders/SkColorShader.h"
+#include "src/shaders/SkComposeShader.h"
+#include "src/shaders/SkEmptyShader.h"
+#include "src/shaders/SkImageShader.h"
+#include "src/shaders/SkLocalMatrixShader.h"
+#include "src/shaders/SkPictureShader.h"
+#include "src/shaders/SkShaderBase.h"
 
 /*
  *  Registers all of the required effects subclasses for picture deserialization.

@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrShaderCaps.h"
 
-#include "GrShaderCaps.h"
-
-#include "GrContextOptions.h"
-#include "SkJSONWriter.h"
+#include "include/gpu/GrContextOptions.h"
+#include "src/utils/SkJSONWriter.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

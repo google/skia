@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitMask.h"
+#include "src/core/SkBlitMask.h"
 
 SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
     return nullptr;

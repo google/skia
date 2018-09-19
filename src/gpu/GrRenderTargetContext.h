@@ -8,18 +8,18 @@
 #ifndef GrRenderTargetContext_DEFINED
 #define GrRenderTargetContext_DEFINED
 
-#include "../private/GrRenderTargetProxy.h"
-#include "GrColor.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrPaint.h"
-#include "GrSurfaceContext.h"
-#include "GrTypesPriv.h"
-#include "GrXferProcessor.h"
-#include "SkCanvas.h"
-#include "SkRefCnt.h"
-#include "SkSurfaceProps.h"
-#include "text/GrTextTarget.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrColor.h"
+#include "include/private/GrRenderTargetProxy.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/text/GrTextTarget.h"
 
 class GrBackendSemaphore;
 class GrCCPRAtlas;

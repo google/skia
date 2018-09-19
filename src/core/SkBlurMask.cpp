@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMask.h"
+#include "src/core/SkBlurMask.h"
 
-#include "SkColorPriv.h"
-#include "SkEndian.h"
-#include "SkMaskBlurFilter.h"
-#include "SkMath.h"
-#include "SkMathPriv.h"
-#include "SkTemplates.h"
-#include "SkTo.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkMath.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkMaskBlurFilter.h"
+#include "src/core/SkMathPriv.h"
 
 // This constant approximates the scaling done in the software path's
 // "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).

@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "common/macros.h"
+#include "src/compute/skc/macros.h"
 
 //
 // This structure packages all of the parameters and SPIR-V kernels

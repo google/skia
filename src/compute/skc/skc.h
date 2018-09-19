@@ -13,9 +13,9 @@
 //
 //
 
-#include "skc_err.h"
-#include "skc_types.h"
-#include "skc_styling.h"
+#include "src/compute/skc/skc_err.h"
+#include "src/compute/skc/skc_styling.h"
+#include "src/compute/skc/skc_types.h"
 
 //
 // CONTEXT

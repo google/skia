@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSharedMutex.h"
+#include "src/core/SkSharedMutex.h"
 
-#include "SkAtomics.h"
-#include "SkTypes.h"
-#include "SkSemaphore.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkAtomics.h"
+#include "include/private/SkSemaphore.h"
 
 #if !defined(__has_feature)
     #define __has_feature(x) 0
@@ -72,8 +72,8 @@
 
 #ifdef SK_DEBUG
 
-    #include "SkThreadID.h"
-    #include "SkTDArray.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkThreadID.h"
 
     class SkSharedMutex::ThreadIDSet {
     public:

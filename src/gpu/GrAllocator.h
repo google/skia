@@ -8,12 +8,12 @@
 #ifndef GrAllocator_DEFINED
 #define GrAllocator_DEFINED
 
-#include "GrConfig.h"
-#include "GrTypes.h"
-#include "SkNoncopyable.h"
-#include "SkTArray.h"
-#include "SkTypes.h"
 #include <new>
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrConfig.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
 
 class GrAllocator : SkNoncopyable {
 public:

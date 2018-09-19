@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkStrokeRec.h"
-#include "SkPaintDefaults.h"
+#include "include/core/SkStrokeRec.h"
+#include "src/core/SkPaintDefaults.h"
 
 // must be < 0, since ==0 means hairline, and >0 means normal stroke
 #define kStrokeRec_FillStyleWidth     (-SK_Scalar1)
@@ -94,7 +94,7 @@ void SkStrokeRec::setStrokeStyle(SkScalar width, bool strokeAndFill) {
     }
 }
 
-#include "SkStroke.h"
+#include "src/core/SkStroke.h"
 
 #ifdef SK_DEBUG
     // enables tweaking these values at runtime from Viewer

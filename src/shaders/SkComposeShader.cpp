@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBlendModePriv.h"
-#include "SkComposeShader.h"
-#include "SkColorFilter.h"
-#include "SkColorData.h"
-#include "SkColorShader.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkString.h"
-#include "../jumper/SkJumper.h"
+#include "src/shaders/SkComposeShader.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkString.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/jumper/SkJumper.h"
+#include "src/shaders/SkColorShader.h"
 
 sk_sp<SkShader> SkShader::MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode mode,
                                       float lerpT) {
@@ -113,8 +113,8 @@ bool SkComposeShader::onAppendStages(const StageRec& rec) const {
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrConstColorProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/GrConstColorProcessor.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 
 /////////////////////////////////////////////////////////////////////
 

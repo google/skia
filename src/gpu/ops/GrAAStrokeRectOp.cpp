@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrDefaultGeoProcFactory.h"
-#include "GrOpFlushState.h"
-#include "GrRectOpFactory.h"
-#include "GrResourceKey.h"
-#include "GrResourceProvider.h"
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "SkPointPriv.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/gpu/GrResourceKey.h"
+#include "src/core/SkPointPriv.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/ops/GrRectOpFactory.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
@@ -619,7 +619,7 @@ std::unique_ptr<GrDrawOp> MakeAAStroke(GrContext* context,
 
 #if GR_TEST_UTILS
 
-#include "GrDrawOpTest.h"
+#include "src/gpu/GrDrawOpTest.h"
 
 GR_DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
     bool miterStroke = random->nextBool();

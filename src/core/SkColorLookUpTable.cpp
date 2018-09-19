@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorLookUpTable.h"
-#include "SkColorSpaceXformPriv.h"
-#include "SkFloatingPoint.h"
+#include "src/core/SkColorLookUpTable.h"
+#include "include/private/SkFloatingPoint.h"
+#include "src/core/SkColorSpaceXformPriv.h"
 
 SkColorLookUpTable::SkColorLookUpTable(uint8_t inputChannels, const uint8_t limits[]) {
     fInputChannels = inputChannels;

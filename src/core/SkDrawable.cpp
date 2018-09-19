@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
-#include "SkCanvas.h"
-#include "SkDrawable.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkAtomics.h"
 
 static int32_t next_generation_id() {
     static int32_t gCanvasDrawableGenerationID;
@@ -70,7 +70,7 @@ void SkDrawable::notifyDrawingChanged() {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkPictureRecorder.h"
+#include "include/core/SkPictureRecorder.h"
 
 SkPicture* SkDrawable::onNewPictureSnapshot() {
     SkPictureRecorder recorder;

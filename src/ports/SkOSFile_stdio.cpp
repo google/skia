@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkOSFile.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkOSFile.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -20,11 +20,11 @@
 #include <direct.h>
 #include <io.h>
 #include <vector>
-#include "SkUTF.h"
+#include "src/utils/SkUTF.h"
 #endif
 
 #ifdef SK_BUILD_FOR_IOS
-#include "SkOSFile_ios.h"
+#include "src/ports/SkOSFile_ios.h"
 #endif
 
 #ifdef _WIN32

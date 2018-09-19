@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkColorSpacePriv.h"
-#include "SkEndian.h"
-#include "SkFixed.h"
-#include "SkICC.h"
-#include "SkICCPriv.h"
-#include "SkMD5.h"
-#include "SkUtils.h"
+#include "include/core/SkICC.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkICCPriv.h"
+#include "src/core/SkMD5.h"
+#include "src/core/SkUtils.h"
 
 static constexpr char kDescriptionTagBodyPrefix[12] =
         { 'G', 'o', 'o', 'g', 'l', 'e', '/', 'S', 'k', 'i', 'a' , '/'};

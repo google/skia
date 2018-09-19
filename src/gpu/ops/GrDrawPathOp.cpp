@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawPathOp.h"
-#include "GrAppliedClip.h"
-#include "GrMemoryPool.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetPriv.h"
-#include "SkTemplates.h"
+#include "src/gpu/ops/GrDrawPathOp.h"
+#include "include/private/SkTemplates.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 
 GrDrawPathOpBase::GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&& paint,
                                    GrPathRendering::FillType fill, GrAAType aaType)

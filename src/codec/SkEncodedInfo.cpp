@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkEncodedInfo.h"
+#include "include/private/SkEncodedInfo.h"
 
 std::unique_ptr<SkEncodedInfo::ICCProfile> SkEncodedInfo::ICCProfile::Make(sk_sp<SkData> data) {
     if (data) {

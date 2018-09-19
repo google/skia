@@ -13,8 +13,8 @@
 //
 //
 
-#include "types.h"
-#include "macros.h"
+#include "src/compute/skc/macros.h"
+#include "src/compute/skc/types.h"
 
 //
 // Hard requirements:

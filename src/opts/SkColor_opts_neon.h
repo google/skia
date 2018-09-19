@@ -8,8 +8,8 @@
 #ifndef SkColor_opts_neon_DEFINED
 #define SkColor_opts_neon_DEFINED
 
-#include "SkTypes.h"
-#include "SkColorData.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkColorData.h"
 
 #include <arm_neon.h>
 

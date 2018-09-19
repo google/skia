@@ -13,7 +13,7 @@
 //
 //
 
-#include "gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
 
 //
 //
@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#include "skc.h"
+#include "src/compute/skc/skc.h"
 
 #ifdef __cplusplus
 }

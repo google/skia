@@ -8,7 +8,7 @@
 #ifndef GrCCClipProcessor_DEFINED
 #define GrCCClipProcessor_DEFINED
 
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 
 class GrCCClipPath;
 

@@ -6,7 +6,7 @@
  */
 
 #include <arm_neon.h>
-#include "SkColorData.h"
+#include "src/core/SkColorData.h"
 
 /*
  * Filter_32_opaque

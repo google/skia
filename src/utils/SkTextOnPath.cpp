@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathMeasure.h"
-#include "SkCanvas.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathMeasure.h"
 
-#include "SkTextToPathIter.h"
+#include "src/core/SkTextToPathIter.h"
 
 static void morphpoints(SkPoint dst[], const SkPoint src[], int count,
                         SkPathMeasure& meas, const SkMatrix& matrix) {

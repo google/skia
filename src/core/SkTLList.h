@@ -8,12 +8,12 @@
 #ifndef SkTLList_DEFINED
 #define SkTLList_DEFINED
 
-#include "SkMalloc.h"
-#include "SkTInternalLList.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
 #include <new>
 #include <utility>
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTInternalLList.h"
+#include "include/private/SkTemplates.h"
 
 /** Doubly-linked list of objects. The objects' lifetimes are controlled by the list. I.e. the
     the list creates the objects and they are deleted upon removal. This class block-allocates

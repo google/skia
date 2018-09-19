@@ -7,7 +7,7 @@
 #ifndef SkBlitRow_opts_arm_neon_DEFINED
 #define SkBlitRow_opts_arm_neon_DEFINED
 
-#include "SkBlitRow.h"
+#include "src/core/SkBlitRow.h"
 
 extern const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm_neon[];
 

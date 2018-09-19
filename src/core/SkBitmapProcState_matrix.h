@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkMath.h"
-#include "SkMathPriv.h"
+#include "include/core/SkMath.h"
+#include "src/core/SkMathPriv.h"
 
 #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
 

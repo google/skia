@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "GrLatticeOp.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrDrawOpTest.h"
-#include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrResourceProvider.h"
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "SkBitmap.h"
-#include "SkLatticeIter.h"
-#include "SkMatrixPriv.h"
-#include "SkPointPriv.h"
-#include "SkRect.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLVarying.h"
+#include "src/gpu/ops/GrLatticeOp.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkLatticeIter.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkPointPriv.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {
 
@@ -343,8 +343,8 @@ std::unique_ptr<GrDrawOp> MakeNonAA(GrContext* context,
 };
 
 #if GR_TEST_UTILS
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
 
 /** Randomly divides subset into count divs. */
 static void init_random_divs(int divs[], int count, int subsetStart, int subsetStop,

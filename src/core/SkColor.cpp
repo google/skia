@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkFixed.h"
+#include "include/core/SkColor.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkColorData.h"
 
 SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPremultiplyARGBInline(a, r, g, b);
@@ -104,8 +104,8 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkPM4fPriv.h"
-#include "SkHalf.h"
+#include "src/core/SkHalf.h"
+#include "src/core/SkPM4fPriv.h"
 
 SkPM4f SkPM4f::FromPMColor(SkPMColor c) {
     return From4f(swizzle_rb_if_bgra(Sk4f_fromL32(c)));

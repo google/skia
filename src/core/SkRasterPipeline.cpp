@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkRasterPipeline.h"
-#include "SkPM4f.h"
-#include "SkPM4fPriv.h"
-#include "../jumper/SkJumper.h"
+#include "src/core/SkRasterPipeline.h"
 #include <algorithm>
+#include "src/core/SkPM4f.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/jumper/SkJumper.h"
 
 SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
     this->reset();

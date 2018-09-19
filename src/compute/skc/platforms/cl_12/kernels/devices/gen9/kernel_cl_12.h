@@ -15,7 +15,7 @@
 // THESE WILL GO AWAY AS THE TYPING GET POLISHED AND SIMPLIFIED
 //
 
-#include "block.h"
+#include "src/compute/skc/block.h"
 
 //
 // HOW TO SELECT A SUBBLOCK AND BLOCK SIZES:

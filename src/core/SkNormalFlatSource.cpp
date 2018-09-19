@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkNormalFlatSource.h"
+#include "src/core/SkNormalFlatSource.h"
 
-#include "SkArenaAlloc.h"
-#include "SkNormalSource.h"
-#include "SkPoint3.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkPoint3.h"
+#include "include/private/SkArenaAlloc.h"
+#include "src/core/SkNormalSource.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 class NormalFlatFP : public GrFragmentProcessor {
 public:

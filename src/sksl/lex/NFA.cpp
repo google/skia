@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "NFA.h"
+#include "src/sksl/lex/NFA.h"
 
 int NFA::match(std::string s) const {
     std::vector<int> states = fStartStates;

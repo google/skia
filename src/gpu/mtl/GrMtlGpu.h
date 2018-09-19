@@ -8,14 +8,14 @@
 #ifndef GrMtlGpu_DEFINED
 #define GrMtlGpu_DEFINED
 
-#include "GrGpu.h"
-#include "GrRenderTarget.h"
-#include "GrSemaphore.h"
-#include "GrTexture.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrSemaphore.h"
 
-#include "GrMtlCaps.h"
-#include "GrMtlCopyManager.h"
-#include "GrMtlResourceProvider.h"
+#include "src/gpu/mtl/GrMtlCaps.h"
+#include "src/gpu/mtl/GrMtlCopyManager.h"
+#include "src/gpu/mtl/GrMtlResourceProvider.h"
 
 #import <Metal/Metal.h>
 

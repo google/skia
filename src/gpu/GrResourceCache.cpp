@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GrResourceCache.h"
+#include "src/gpu/GrResourceCache.h"
 
-#include "GrCaps.h"
-#include "GrGpuResourceCacheAccess.h"
-#include "GrProxyProvider.h"
-#include "GrTexture.h"
-#include "GrTextureProxyCacheAccess.h"
-#include "GrTracing.h"
-#include "SkGr.h"
-#include "SkMessageBus.h"
-#include "SkOpts.h"
-#include "SkTSort.h"
-#include "SkTo.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/SkMessageBus.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkTSort.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpuResourceCacheAccess.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrTextureProxyCacheAccess.h"
+#include "src/gpu/GrTracing.h"
+#include "src/gpu/SkGr.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 

@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkGpuDevice.h"
-#include "GrBlurUtils.h"
-#include "GrCaps.h"
-#include "GrColorSpaceXform.h"
-#include "GrRenderTargetContext.h"
-#include "GrShape.h"
-#include "GrStyle.h"
-#include "GrTextureAdjuster.h"
-#include "GrTextureMaker.h"
-#include "SkDraw.h"
-#include "SkGr.h"
-#include "SkMaskFilterBase.h"
-#include "effects/GrBicubicEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
-#include "effects/GrTextureDomain.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/gpu/GrBlurUtils.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrShape.h"
+#include "src/gpu/GrStyle.h"
+#include "src/gpu/GrTextureAdjuster.h"
+#include "src/gpu/GrTextureMaker.h"
+#include "src/gpu/SkGpuDevice.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 static inline bool use_shader(bool textureIsAlphaOnly, const SkPaint& paint) {
     return textureIsAlphaOnly && paint.getShader();

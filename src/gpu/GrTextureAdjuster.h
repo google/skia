@@ -8,9 +8,9 @@
 #ifndef GrTextureAdjuster_DEFINED
 #define GrTextureAdjuster_DEFINED
 
-#include "GrTextureProducer.h"
-#include "GrTextureProxy.h"
-#include "SkTLazy.h"
+#include "include/core/SkTLazy.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/GrTextureProducer.h"
 
 /**
  * Base class for sources that start out as textures. Optionally allows for a content area subrect.

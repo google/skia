@@ -12,7 +12,7 @@
 //
 //
 
-#include "types.h"
+#include "src/compute/skc/types.h"
 
 //
 // STYLING

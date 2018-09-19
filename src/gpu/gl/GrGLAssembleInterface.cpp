@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-
-#include "gl/GrGLAssembleInterface.h"
-#include "GrGLUtil.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)
 #define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F #S)

@@ -8,7 +8,7 @@
 #ifndef GrPathProcessor_DEFINED
 #define GrPathProcessor_DEFINED
 
-#include "GrPrimitiveProcessor.h"
+#include "src/gpu/GrPrimitiveProcessor.h"
 
 /*
  * The path equivalent of the GP.  For now this just manages color. In the long term we plan on

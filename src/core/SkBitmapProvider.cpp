@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProvider.h"
-#include "SkImage_Base.h"
-#include "SkPixelRef.h"
+#include "src/core/SkBitmapProvider.h"
+#include "include/core/SkPixelRef.h"
+#include "src/image/SkImage_Base.h"
 
 int SkBitmapProvider::width() const {
     return fImage->width();

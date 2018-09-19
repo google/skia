@@ -5,6 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkFlattenable.h"
+#include "include/core/SkFlattenable.h"
 
 void SkFlattenable::PrivateInitializer::InitEffects() {}

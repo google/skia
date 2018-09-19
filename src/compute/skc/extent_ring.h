@@ -12,8 +12,8 @@
 //
 //
 
-#include "types.h"
-#include "runtime.h"
+#include "src/compute/skc/runtime.h"
+#include "src/compute/skc/types.h"
 
 //
 // The "ring" is a specialized extent designed to accumulate complete

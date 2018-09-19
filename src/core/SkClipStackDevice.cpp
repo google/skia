@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkClipStackDevice.h"
-#include "SkDraw.h"
-#include "SkRasterClip.h"
+#include "src/core/SkClipStackDevice.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkRasterClip.h"
 
 SkIRect SkClipStackDevice::devClipBounds() const {
     SkIRect r = fClipStack.bounds(this->imageInfo().bounds()).roundOut();

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphRun.h"
+#include "src/core/SkGlyphRun.h"
 
-#include "SkGlyphCache.h"
-#include "SkPaint.h"
-#include "SkPaintPriv.h"
-#include "SkStrikeCache.h"
-#include "SkTextBlob.h"
-#include "SkTextBlobPriv.h"
-#include "SkTo.h"
-#include "SkUtils.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkTextBlob.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkGlyphCache.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/core/SkUtils.h"
 
 namespace {
 static SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {

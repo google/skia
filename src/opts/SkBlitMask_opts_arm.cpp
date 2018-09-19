@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkBlitMask.h"
-#include "SkUtilsArm.h"
-#include "SkBlitMask_opts_arm_neon.h"
+#include "include/core/SkColor.h"
+#include "src/core/SkBlitMask.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkUtilsArm.h"
+#include "src/opts/SkBlitMask_opts_arm_neon.h"
 
 SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
     if (isOpaque) {

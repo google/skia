@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkStrikeCache.h"
+#include "src/core/SkStrikeCache.h"
 
 #include <cctype>
 
-#include "SkGlyphCache.h"
-#include "SkGraphics.h"
-#include "SkMutex.h"
-#include "SkTemplates.h"
-#include "SkTraceMemoryDump.h"
-#include "SkTypeface.h"
-#include "SkPaintPriv.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkTraceMemoryDump.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkGlyphCache.h"
+#include "src/core/SkPaintPriv.h"
 
 SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
     static auto* cache = new SkStrikeCache;

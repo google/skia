@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitMask.h"
-#include "SkColor_opts_neon.h"
+#include "src/core/SkBlitMask.h"
+#include "src/opts/SkColor_opts_neon.h"
 
 void SkBlitLCD16OpaqueRow_neon(SkPMColor dst[], const uint16_t src[],
                                         SkColor color, int width,

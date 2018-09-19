@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFBitmap.h"
+#include "src/pdf/SkPDFBitmap.h"
 
-#include "SkColorData.h"
-#include "SkData.h"
-#include "SkDeflate.h"
-#include "SkImage.h"
-#include "SkJpegInfo.h"
-#include "SkPDFCanon.h"
-#include "SkPDFTypes.h"
-#include "SkPDFUtils.h"
-#include "SkStream.h"
-#include "SkTo.h"
-#include "SkUnPreMultiply.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkColorData.h"
+#include "src/pdf/SkDeflate.h"
+#include "src/pdf/SkJpegInfo.h"
+#include "src/pdf/SkPDFCanon.h"
+#include "src/pdf/SkPDFTypes.h"
+#include "src/pdf/SkPDFUtils.h"
 
 bool image_compute_is_opaque(const SkImage* image) {
     if (image->isOpaque()) {

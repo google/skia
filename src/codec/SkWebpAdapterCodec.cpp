@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkWebpAdapterCodec.h"
+#include "src/codec/SkWebpAdapterCodec.h"
+#include "include/codec/SkCodec.h"
+#include "src/codec/SkCodecPriv.h"
 
 SkWebpAdapterCodec::SkWebpAdapterCodec(SkWebpCodec* codec, ExifOrientationBehavior behavior)
     : INHERITED(codec, behavior)

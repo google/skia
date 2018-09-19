@@ -9,8 +9,8 @@
 
 #include <math.h>
 
-#include "SkColorSpace.h"
-#include "SkFixed.h"
+#include "include/core/SkColorSpace.h"
+#include "include/private/SkFixed.h"
 
 #define SkColorSpacePrintf(...)
 

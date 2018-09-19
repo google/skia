@@ -8,14 +8,14 @@
 #ifndef GrVkImage_DEFINED
 #define GrVkImage_DEFINED
 
-#include "GrVkResource.h"
+#include "src/gpu/vk/GrVkResource.h"
 
-#include "GrTypesPriv.h"
-#include "GrVkImageLayout.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/vk/GrVkImageLayout.h"
 
-#include "vk/GrVkDefines.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkDefines.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 class GrVkGpu;
 

@@ -12,9 +12,9 @@
 //
 //
 
-#include "skc.h"
-#include "assert_state.h"
-#include "extent_ring.h" // note that these structs are *not* opaque
+#include "src/compute/skc/assert_state.h"
+#include "src/compute/skc/extent_ring.h"  // note that these structs are *not* opaque
+#include "src/compute/skc/skc.h"
 
 //
 //

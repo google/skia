@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "DFA.h"
-#include "DFAState.h"
-#include "NFA.h"
-#include "NFAState.h"
+#include "src/sksl/lex/DFA.h"
+#include "src/sksl/lex/DFAState.h"
+#include "src/sksl/lex/NFA.h"
+#include "src/sksl/lex/NFAState.h"
 
 #include <algorithm>
 #include <climits>

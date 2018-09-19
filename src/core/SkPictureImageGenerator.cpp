@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage_Base.h"
-#include "SkCanvas.h"
-#include "SkColorSpaceXformCanvas.h"
-#include "SkMakeUnique.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPicture.h"
-#include "SkPictureImageGenerator.h"
-#include "SkSurface.h"
+#include "src/core/SkPictureImageGenerator.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpaceXformCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/image/SkImage_Base.h"
 
 std::unique_ptr<SkImageGenerator>
 SkPictureImageGenerator::Make(const SkISize& size, sk_sp<SkPicture> picture, const SkMatrix* matrix,

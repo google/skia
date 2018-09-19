@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkMemory.h"
+#include "src/gpu/vk/GrVkMemory.h"
 
-#include "GrVkGpu.h"
-#include "GrVkUtil.h"
-#include "vk/GrVkMemoryAllocator.h"
+#include "include/gpu/vk/GrVkMemoryAllocator.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 using AllocationPropertyFlags = GrVkMemoryAllocator::AllocationPropertyFlags;
 using BufferUsage = GrVkMemoryAllocator::BufferUsage;

@@ -6,8 +6,8 @@
  */
 
 #include <fstream>
-#include "SkSLCompiler.h"
-#include "SkSLFileOutputStream.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLFileOutputStream.h"
 
 // Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
 // filename prefix and suffix (e.g. "Gr" and ".fp"), returns the "base name" of the

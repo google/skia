@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkFramebuffer.h"
+#include "src/gpu/vk/GrVkFramebuffer.h"
 
-#include "GrVkGpu.h"
-#include "GrVkImageView.h"
-#include "GrVkRenderPass.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImageView.h"
+#include "src/gpu/vk/GrVkRenderPass.h"
 
 GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
                                          int width, int height,

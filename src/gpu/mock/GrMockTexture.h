@@ -7,12 +7,12 @@
 #ifndef GrMockTexture_DEFINED
 #define GrMockTexture_DEFINED
 
-#include "GrMockGpu.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrTexture.h"
-#include "GrTexturePriv.h"
-#include "mock/GrMockTypes.h"
+#include "include/gpu/GrRenderTarget.h"
+#include "include/gpu/GrTexture.h"
+#include "include/gpu/mock/GrMockTypes.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/mock/GrMockGpu.h"
 
 class GrMockTexture : public GrTexture {
 public:

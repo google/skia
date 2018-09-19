@@ -8,10 +8,10 @@
 #ifndef GrQuad_DEFINED
 #define GrQuad_DEFINED
 
-#include "SkMatrix.h"
-#include "SkNx.h"
-#include "SkPoint.h"
-#include "SkPoint3.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "src/core/SkNx.h"
 
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The

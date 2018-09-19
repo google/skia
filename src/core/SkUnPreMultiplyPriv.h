@@ -8,8 +8,8 @@
 #ifndef SkUnPreMultiplyPriv_DEFINED
 #define SkUnPreMultiplyPriv_DEFINED
 
-#include "SkColor.h"
-#include "SkUnPreMultiply.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkUnPreMultiply.h"
 
 template <bool kSwapRB>
 void SkUnpremultiplyRow(uint32_t* dst, const uint32_t* src, int count) {

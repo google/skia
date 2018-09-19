@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkOffsetImageFilter.h"
-#include "SkColorSpaceXformer.h"
-#include "SkCanvas.h"
-#include "SkFlattenablePriv.h"
-#include "SkImageFilterPriv.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPointPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
+#include "include/effects/SkOffsetImageFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkFlattenablePriv.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSpecialSurface.h"
+#include "src/core/SkWriteBuffer.h"
 
 static SkIPoint map_offset_vector(const SkMatrix& ctm, const SkVector& offset) {
     SkVector vec = ctm.mapVector(offset.fX, offset.fY);

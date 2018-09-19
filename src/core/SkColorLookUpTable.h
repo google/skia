@@ -8,9 +8,9 @@
 #ifndef SkColorLookUpTable_DEFINED
 #define SkColorLookUpTable_DEFINED
 
-#include "SkNx.h"
-#include "SkRefCnt.h"
-#include "SkTemplates.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkNx.h"
 
 // TODO: scope inside SkColorLookUpTable
 static constexpr uint8_t kMaxColorChannels = 4;

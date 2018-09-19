@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLTestInterface.h"
-#include "GrNonAtomicRef.h"
-#include "SkMutex.h"
-#include "SkTDArray.h"
-#include "SkTo.h"
-#include "gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTo.h"
+#include "src/gpu/GrNonAtomicRef.h"
+#include "src/gpu/gl/GrGLTestInterface.h"
 
 #include <type_traits>
 

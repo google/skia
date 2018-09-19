@@ -13,7 +13,7 @@
 //
 //
 
-#include "block.h"
+#include "src/compute/skc/block.h"
 
 //
 // The raster "head" structure aliases a block.

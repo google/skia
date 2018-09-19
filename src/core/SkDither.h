@@ -9,7 +9,7 @@
 #ifndef SkDither_DEFINED
 #define SkDither_DEFINED
 
-#include "SkColorData.h"
+#include "src/core/SkColorData.h"
 
 #define SK_DitherValueMax4444   15
 #define SK_DitherValueMax565    7

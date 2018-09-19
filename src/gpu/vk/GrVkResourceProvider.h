@@ -8,19 +8,19 @@
 #ifndef GrVkResourceProvider_DEFINED
 #define GrVkResourceProvider_DEFINED
 
-#include "GrResourceHandle.h"
-#include "GrVkDescriptorPool.h"
-#include "GrVkDescriptorSetManager.h"
-#include "GrVkPipelineStateBuilder.h"
-#include "GrVkRenderPass.h"
-#include "GrVkResource.h"
-#include "GrVkUtil.h"
-#include "SkLRUCache.h"
-#include "SkTArray.h"
-#include "SkTDynamicHash.h"
-#include "SkTInternalLList.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTInternalLList.h"
+#include "src/core/SkLRUCache.h"
+#include "src/core/SkTDynamicHash.h"
+#include "src/gpu/GrResourceHandle.h"
+#include "src/gpu/vk/GrVkDescriptorPool.h"
+#include "src/gpu/vk/GrVkDescriptorSetManager.h"
+#include "src/gpu/vk/GrVkPipelineStateBuilder.h"
+#include "src/gpu/vk/GrVkRenderPass.h"
+#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
-#include "vk/GrVkDefines.h"
+#include "include/gpu/vk/GrVkDefines.h"
 
 class GrPipeline;
 class GrPrimitiveProcessor;

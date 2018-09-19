@@ -8,10 +8,10 @@
 #ifndef SKSL_HCODEGENERATOR
 #define SKSL_HCODEGENERATOR
 
-#include "SkSLCodeGenerator.h"
-#include "SkSLSectionAndParameterHelper.h"
-#include "ir/SkSLType.h"
-#include "ir/SkSLVariable.h"
+#include "src/sksl/SkSLCodeGenerator.h"
+#include "src/sksl/SkSLSectionAndParameterHelper.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 #include <cctype>
 

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCClipProcessor.h"
+#include "src/gpu/ccpr/GrCCClipProcessor.h"
 
-#include "GrCCClipPath.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
-#include "SkMakeUnique.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrCCClipPath.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, MustCheckBounds mustCheckBounds,
                                      SkPath::FillType overrideFillType)

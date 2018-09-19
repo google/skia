@@ -5,24 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "SkPipeCanvas.h"
+#include "src/pipe/SkPipeCanvas.h"
 
-#include "SkAutoMalloc.h"
-#include "SkCanvasPriv.h"
-#include "SkColorFilter.h"
-#include "SkDrawLooper.h"
-#include "SkDrawShadowInfo.h"
-#include "SkDrawable.h"
-#include "SkImageFilter.h"
-#include "SkMaskFilter.h"
-#include "SkPathEffect.h"
-#include "SkPipeFormat.h"
-#include "SkRSXform.h"
-#include "SkShader.h"
-#include "SkStream.h"
-#include "SkTextBlobPriv.h"
-#include "SkTo.h"
-#include "SkTypeface.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/pipe/SkPipeFormat.h"
 
 template <typename T> void write_rrect(T* writer, const SkRRect& rrect) {
     char tmp[SkRRect::kSizeInMemory];
@@ -912,7 +912,7 @@ int SkPipeDeduper::findOrDefineFactory(SkFlattenable* flattenable) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkPipe.h"
+#include "src/core/SkPipe.h"
 
 class SkPipeSerializer::Impl {
 public:

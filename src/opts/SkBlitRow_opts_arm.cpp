@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitRow.h"
-#include "SkUtilsArm.h"
+#include "src/core/SkBlitRow.h"
+#include "src/core/SkUtilsArm.h"
 
-#include "SkBlitRow_opts_arm_neon.h"
+#include "src/opts/SkBlitRow_opts_arm_neon.h"
 
 extern const SkBlitRow::Proc32 sk_blitrow_platform_32_procs_arm[] = {
     nullptr, nullptr, nullptr, nullptr,

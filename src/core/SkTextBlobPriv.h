@@ -8,7 +8,7 @@
 #ifndef SkTextBlobPriv_DEFINED
 #define SkTextBlobPriv_DEFINED
 
-#include "SkTextBlob.h"
+#include "include/core/SkTextBlob.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

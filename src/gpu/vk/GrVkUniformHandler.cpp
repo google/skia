@@ -5,8 +5,8 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkUniformHandler.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/vk/GrVkUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we

@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkDWrite.h"
-#include "SkHRESULT.h"
-#include "SkOnce.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "include/private/SkOnce.h"
+#include "src/utils/win/SkDWrite.h"
+#include "src/utils/win/SkHRESULT.h"
 
 #include <dwrite.h>
 

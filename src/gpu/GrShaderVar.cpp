@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-
-#include "GrShaderVar.h"
-#include "GrShaderCaps.h"
+#include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrShaderCaps.h"
 
 static const char* type_modifier_string(GrShaderVar::TypeModifier t) {
     switch (t) {

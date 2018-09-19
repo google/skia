@@ -12,10 +12,10 @@
 //
 //
 
-#include "macros.h"
-#include "handle.h"
-#include "extent_cl_12.h"
-#include "device_cl_12.h"
+#include "src/compute/skc/handle.h"
+#include "src/compute/skc/macros.h"
+#include "src/compute/skc/platforms/cl_12/device_cl_12.h"
+#include "src/compute/skc/platforms/cl_12/extent_cl_12.h"
 
 //
 // FIXME -- THIS DOCUMENTATION IS STALE NOW THAT A REFERENCE COUNT REP

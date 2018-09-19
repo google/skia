@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkCanvasPriv.h"
-#include "SkDeduper.h"
-#include "SkDrawShadowInfo.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkPipe.h"
-#include "SkPipeFormat.h"
-#include "SkReadBuffer.h"
-#include "SkRefSet.h"
-#include "SkRSXform.h"
-#include "SkTextBlobPriv.h"
-#include "SkTypeface.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkVertices.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkDeduper.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkPipe.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/pipe/SkPipeFormat.h"
+#include "src/pipe/SkRefSet.h"
 
 class SkPipeReader;
 

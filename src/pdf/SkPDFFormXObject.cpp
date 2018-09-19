@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkPDFFormXObject.h"
-#include "SkPDFUtils.h"
+#include "src/pdf/SkPDFFormXObject.h"
+#include "src/pdf/SkPDFUtils.h"
 
 sk_sp<SkPDFObject> SkPDFMakeFormXObject(std::unique_ptr<SkStreamAsset> content,
                                         sk_sp<SkPDFArray> mediaBox,

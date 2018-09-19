@@ -8,8 +8,8 @@
 #ifndef SKSL_DOSTATEMENT
 #define SKSL_DOSTATEMENT
 
-#include "SkSLExpression.h"
-#include "SkSLStatement.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 namespace SkSL {
 

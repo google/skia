@@ -8,8 +8,8 @@
 #ifndef SkBitmapProcState_MatrixTemplates_DEFINED
 #define SkBitmapProcState_MatrixTemplates_DEFINED
 
-#include "SkMath.h"
-#include "SkMathPriv.h"
+#include "include/core/SkMath.h"
+#include "src/core/SkMathPriv.h"
 
 template <typename TileProc, bool tryDecal>
 void NoFilterProc_Scale(const SkBitmapProcState& s, uint32_t xy[],

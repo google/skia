@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkBufferView.h"
-#include "GrVkGpu.h"
-#include "GrVkUtil.h"
+#include "src/gpu/vk/GrVkBufferView.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
 const GrVkBufferView* GrVkBufferView::Create(const GrVkGpu* gpu, VkBuffer buffer, VkFormat format,
                                              VkDeviceSize offset, VkDeviceSize range) {

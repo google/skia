@@ -8,9 +8,9 @@
 #ifndef SkLightingShader_DEFINED
 #define SkLightingShader_DEFINED
 
-#include "SkFlattenablePriv.h"
-#include "SkLights.h"
-#include "SkShader.h"
+#include "include/core/SkLights.h"
+#include "include/core/SkShader.h"
+#include "src/core/SkFlattenablePriv.h"
 
 class SkBitmap;
 class SkMatrix;

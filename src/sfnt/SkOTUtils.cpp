@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkOTUtils.h"
+#include "src/sfnt/SkOTUtils.h"
 
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkData.h"
-#include "SkEndian.h"
-#include "SkOTTableTypes.h"
-#include "SkOTTable_head.h"
-#include "SkOTTable_name.h"
-#include "SkSFNTHeader.h"
-#include "SkStream.h"
-#include "SkTo.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkEndian.h"
+#include "src/sfnt/SkOTTableTypes.h"
+#include "src/sfnt/SkOTTable_head.h"
+#include "src/sfnt/SkOTTable_name.h"
+#include "src/sfnt/SkSFNTHeader.h"
 
 extern const uint8_t SK_OT_GlyphData_NoOutline[] = {
     0x0,0x0, //SkOTTableGlyphData::numberOfContours

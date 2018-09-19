@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkTSearch.h"
 
-#include "SkTSearch.h"
-
-#include "SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 #include <ctype.h>
 

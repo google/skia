@@ -8,11 +8,11 @@
 #ifndef SkDescriptor_DEFINED
 #define SkDescriptor_DEFINED
 
-#include "SkMacros.h"
-#include "SkNoncopyable.h"
-#include "SkOpts.h"
-#include "SkTo.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkOpts.h"
 
 #include <memory>
 #include <new>
@@ -133,7 +133,7 @@ private:
     SkDescriptor() {}
 };
 
-#include "SkScalerContext.h"
+#include "src/core/SkScalerContext.h"
 
 class SkAutoDescriptor : SkNoncopyable {
 public:

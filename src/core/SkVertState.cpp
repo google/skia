@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkVertState.h"
+#include "src/core/SkVertState.h"
 
 bool VertState::Triangles(VertState* state) {
     int index = state->fCurrIndex;

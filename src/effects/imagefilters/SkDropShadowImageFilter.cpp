@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkDropShadowImageFilter.h"
+#include "include/effects/SkDropShadowImageFilter.h"
 
-#include "SkBlurImageFilter.h"
-#include "SkCanvas.h"
-#include "SkColorSpaceXformer.h"
-#include "SkFlattenablePriv.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkBlurImageFilter.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkFlattenablePriv.h"
+#include "src/core/SkImageFilterPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSpecialSurface.h"
+#include "src/core/SkWriteBuffer.h"
 
 sk_sp<SkImageFilter> SkDropShadowImageFilter::Make(SkScalar dx, SkScalar dy,
                                                    SkScalar sigmaX, SkScalar sigmaY,

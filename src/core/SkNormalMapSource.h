@@ -8,7 +8,7 @@
 #ifndef SkNormalMapSource_DEFINED
 #define SkNormalMapSource_DEFINED
 
-#include "SkNormalSource.h"
+#include "src/core/SkNormalSource.h"
 
 class SkNormalMapSourceImpl : public SkNormalSource {
 public:

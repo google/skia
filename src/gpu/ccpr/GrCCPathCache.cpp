@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPathCache.h"
+#include "src/gpu/ccpr/GrCCPathCache.h"
 
-#include "GrShape.h"
-#include "SkNx.h"
+#include "src/core/SkNx.h"
+#include "src/gpu/GrShape.h"
 
 // The maximum number of cache entries we allow in our own cache.
 static constexpr int kMaxCacheCount = 1 << 16;

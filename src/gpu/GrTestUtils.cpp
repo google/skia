@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrTestUtils.h"
-#include "GrColorSpaceInfo.h"
-#include "GrProcessorUnitTest.h"
-#include "GrStyle.h"
-#include "SkDashPathPriv.h"
-#include "SkMakeUnique.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkRectPriv.h"
-#include "SkRRect.h"
+#include "src/gpu/GrTestUtils.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrProcessorUnitTest.h"
+#include "src/gpu/GrStyle.h"
+#include "src/utils/SkDashPathPriv.h"
 
 #if GR_TEST_UTILS
 

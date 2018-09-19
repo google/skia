@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrAtlasManager.h"
-#include "GrTextBlob.h"
-#include "GrTextTarget.h"
-#include "SkDistanceFieldGen.h"
-#include "SkGlyphCache.h"
-#include "ops/GrAtlasTextOp.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkGlyphCache.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/text/GrAtlasManager.h"
+#include "src/gpu/text/GrTextBlob.h"
+#include "src/gpu/text/GrTextTarget.h"
 
 using Regenerator = GrTextBlob::VertexRegenerator;
 

@@ -8,9 +8,9 @@
 #ifndef SKSL_FORSTATEMENT
 #define SKSL_FORSTATEMENT
 
-#include "SkSLExpression.h"
-#include "SkSLStatement.h"
-#include "SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 namespace SkSL {
 

@@ -8,7 +8,7 @@
 #ifndef SkBitmapProcState_utils_DEFINED
 #define SkBitmapProcState_utils_DEFINED
 
-#include "SkTo.h"
+#include "include/private/SkTo.h"
 
 // Helper to ensure that when we shift down, we do it w/o sign-extension
 // so the caller doesn't have to manually mask off the top 16 bits

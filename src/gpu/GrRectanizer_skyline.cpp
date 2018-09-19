@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrRectanizer_skyline.h"
-#include "SkIPoint16.h"
+#include "src/gpu/GrRectanizer_skyline.h"
+#include "src/core/SkIPoint16.h"
 
 bool GrRectanizerSkyline::addRect(int width, int height, SkIPoint16* loc) {
     if ((unsigned)width > (unsigned)this->width() ||

@@ -8,10 +8,10 @@
 #ifndef GrGLUtil_DEFINED
 #define GrGLUtil_DEFINED
 
-#include "gl/GrGLInterface.h"
-#include "GrGLDefines.h"
-#include "GrStencilSettings.h"
-#include "GrTypesPriv.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/gl/GrGLDefines.h"
 
 class SkMatrix;
 

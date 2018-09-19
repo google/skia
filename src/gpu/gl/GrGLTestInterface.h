@@ -8,8 +8,8 @@
 #ifndef GrGLTestInterface_DEFINED
 #define GrGLTestInterface_DEFINED
 
-#include "gl/GrGLInterface.h"
-#include "GrGLDefines.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/gpu/gl/GrGLDefines.h"
 
 /**
  * Base class for interfaces used for Skia testing. We would like to move this to tools/gpu/gl

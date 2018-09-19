@@ -29,7 +29,7 @@
 // scheduler.
 //
 
-#include "types.h"
+#include "src/compute/skc/types.h"
 
 //
 // It's practical for the subbuf_id to be either 16 bits or maybe even

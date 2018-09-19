@@ -8,7 +8,7 @@
 #ifndef GrMatrixConvolutionEffect_DEFINED
 #define GrMatrixConvolutionEffect_DEFINED
 
-#include "GrTextureDomain.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 // A little bit less than the minimum # uniforms required by DX9SM2 (32).
 // Allows for a 5x5 kernel (or 25x1, for that matter).

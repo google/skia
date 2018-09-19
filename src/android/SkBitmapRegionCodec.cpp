@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
-#include "SkBitmapRegionCodec.h"
-#include "SkBitmapRegionDecoderPriv.h"
-#include "SkCodecPriv.h"
-#include "SkPixelRef.h"
+#include "src/android/SkBitmapRegionCodec.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkPixelRef.h"
+#include "src/android/SkBitmapRegionDecoderPriv.h"
+#include "src/codec/SkCodecPriv.h"
 
 SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
     : INHERITED(codec->getInfo().width(), codec->getInfo().height())

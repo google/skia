@@ -7,15 +7,15 @@
 #ifndef SkGlyphCache_DEFINED
 #define SkGlyphCache_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkDescriptor.h"
-#include "SkGlyph.h"
-#include "SkGlyphRun.h"
-#include "SkPaint.h"
-#include "SkTHash.h"
-#include "SkScalerContext.h"
-#include "SkTemplates.h"
 #include <memory>
+#include "include/core/SkPaint.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTHash.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/core/SkScalerContext.h"
 
 /** \class SkGlyphCache
 

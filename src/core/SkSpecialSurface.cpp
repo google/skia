@@ -5,12 +5,12 @@
  * found in the LICENSE file
  */
 
-#include "SkCanvas.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkSurfacePriv.h"
+#include "src/core/SkSpecialSurface.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSurfacePriv.h"
 
- ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 class SkSpecialSurface_Base : public SkSpecialSurface {
 public:
     SkSpecialSurface_Base(const SkIRect& subset, const SkSurfaceProps* props)
@@ -59,7 +59,7 @@ sk_sp<SkSpecialImage> SkSpecialSurface::makeImageSnapshot() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#include "SkMallocPixelRef.h"
+#include "include/core/SkMallocPixelRef.h"
 
 class SkSpecialSurface_Raster : public SkSpecialSurface_Base {
 public:
@@ -117,8 +117,8 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
-#include "GrContext.h"
-#include "SkGpuDevice.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/SkGpuDevice.h"
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:

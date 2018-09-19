@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkSpinlock.h"
+#include "include/private/SkSpinlock.h"
 
 void SkSpinlock::contendedAcquire() {
     // To act as a mutex, we need an acquire barrier when we acquire the lock.

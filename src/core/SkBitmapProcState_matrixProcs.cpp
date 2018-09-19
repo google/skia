@@ -13,12 +13,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcState.h"
-#include "SkBitmapProcState_utils.h"
-#include "SkShader.h"
-#include "SkTo.h"
-#include "SkUtils.h"
-#include "SkUtilsArm.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkBitmapProcState_utils.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkUtilsArm.h"
 
 /*  returns 0...(n-1) given any x (positive or negative).
 
@@ -42,7 +42,7 @@ static inline int sk_int_mod(int x, int n) {
 void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 
-#include "SkBitmapProcState_matrix_template.h"
+#include "src/core/SkBitmapProcState_matrix_template.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,7 @@ extern const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs_neon[];
 #define TILEY_PROCF(fy, max)     SkClampMax((fy) >> 16, max)
 #define EXTRACT_LOW_BITS(v, max) (((v) >> 12) & 0xF)
 #define CHECK_FOR_DECAL
-#include "SkBitmapProcState_matrix.h"
+#include "src/core/SkBitmapProcState_matrix.h"
 
 struct ClampTileProcs {
     static unsigned X(const SkBitmapProcState&, SkFixed fx, int max) {
@@ -89,7 +89,7 @@ static SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
 #define TILEX_PROCF(fx, max)     SK_USHIFT16((unsigned)((fx) & 0xFFFF) * ((max) + 1))
 #define TILEY_PROCF(fy, max)     SK_USHIFT16((unsigned)((fy) & 0xFFFF) * ((max) + 1))
 #define EXTRACT_LOW_BITS(v, max) (((unsigned)((v) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
-#include "SkBitmapProcState_matrix.h"
+#include "src/core/SkBitmapProcState_matrix.h"
 
 struct RepeatTileProcs {
     static unsigned X(const SkBitmapProcState&, SkFixed fx, int max) {
@@ -118,7 +118,7 @@ static SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs[] = {
 #define TILEX_PROCF(fx, max)    SK_USHIFT16(tileProcX(fx) * ((max) + 1))
 #define TILEY_PROCF(fy, max)    SK_USHIFT16(tileProcY(fy) * ((max) + 1))
 #define EXTRACT_LOW_BITS(v, max) (((v * (max + 1)) >> 12) & 0xF)
-#include "SkBitmapProcState_matrix.h"
+#include "src/core/SkBitmapProcState_matrix.h"
 
 struct GeneralTileProcs {
     static unsigned X(const SkBitmapProcState& s, SkFixed fx, int max) {

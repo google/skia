@@ -8,7 +8,7 @@
 #ifndef SkUtilsArm_DEFINED
 #define SkUtilsArm_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if defined(SK_ARM_HAS_NEON)
     #define SK_ARM_NEON_WRAP(x) (x ## _neon)

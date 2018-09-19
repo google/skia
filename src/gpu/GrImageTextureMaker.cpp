@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrImageTextureMaker.h"
-#include "SkGr.h"
-#include "SkImage_Lazy.h"
+#include "src/gpu/GrImageTextureMaker.h"
+#include "src/gpu/SkGr.h"
+#include "src/image/SkImage_Lazy.h"
 
 GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* client,
                                          SkImage::CachingHint chint)

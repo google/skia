@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkJSON.h"
+#include "src/utils/SkJSON.h"
 
-#include "SkMalloc.h"
-#include "SkStream.h"
-#include "SkString.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/private/SkMalloc.h"
 
 #include <cmath>
 #include <tuple>

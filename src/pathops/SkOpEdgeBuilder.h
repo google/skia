@@ -7,8 +7,8 @@
 #ifndef SkOpEdgeBuilder_DEFINED
 #define SkOpEdgeBuilder_DEFINED
 
-#include "SkOpContour.h"
-#include "SkPathWriter.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkPathWriter.h"
 
 class SkOpEdgeBuilder {
 public:

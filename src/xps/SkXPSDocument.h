@@ -8,13 +8,13 @@
 #ifndef SkXPSDocument_DEFINED
 #define SkXPSDocument_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_BUILD_FOR_WIN
 
-#include "SkDocument.h"
-#include "SkXPSDevice.h"
-#include "SkTScopedComPtr.h"
+#include "include/core/SkDocument.h"
+#include "src/utils/win/SkTScopedComPtr.h"
+#include "src/xps/SkXPSDevice.h"
 
 #include <XpsObjectModel.h>
 

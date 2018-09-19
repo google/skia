@@ -12,8 +12,8 @@
 #include <memory>
 #include <tuple>
 
-#include "SkMask.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkMask.h"
 
 // Implement a single channel Gaussian blur. The specifics for implementation are taken from:
 // https://drafts.fxtf.org/filters/#feGaussianBlurElement

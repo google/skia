@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcState_opts_SSE2.h"
-#include "SkBitmapProcState_opts_SSSE3.h"
-#include "SkBlitMask.h"
-#include "SkBlitRow.h"
-#include "SkBlitRow_opts_SSE2.h"
-#include "SkCpu.h"
-
+#include "src/core/SkBlitMask.h"
+#include "src/core/SkBlitRow.h"
+#include "src/core/SkCpu.h"
+#include "src/opts/SkBitmapProcState_opts_SSE2.h"
+#include "src/opts/SkBitmapProcState_opts_SSSE3.h"
+#include "src/opts/SkBlitRow_opts_SSE2.h"
 
 /*
  *****************************************

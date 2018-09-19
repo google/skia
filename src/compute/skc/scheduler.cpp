@@ -18,9 +18,8 @@
 
 extern "C" {
 
-#include "scheduler.h"
-#include "runtime_cl_12.h" // FIXME -- all allocations are extent structures
-
+#include "src/compute/skc/scheduler.h"
+#include "src/compute/skc/platforms/cl_12/runtime_cl_12.h"  // FIXME -- all allocations are extent structures
 }
 
 //

@@ -14,11 +14,11 @@
 
 #include <CL/opencl.h>
 
-#include "composition.h"
-#include "assert_state.h"
-#include "grid.h"
-#include "extent_cl_12.h"
-#include "extent_ring.h"
+#include "src/compute/skc/assert_state.h"
+#include "src/compute/skc/composition.h"
+#include "src/compute/skc/extent_ring.h"
+#include "src/compute/skc/grid.h"
+#include "src/compute/skc/platforms/cl_12/extent_cl_12.h"
 
 //
 // composition states

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "src/opts/SkBlitRow_opts_SSE2.h"
 #include <emmintrin.h>
-#include "SkBitmapProcState_opts_SSE2.h"
-#include "SkBlitRow_opts_SSE2.h"
-#include "SkColorData.h"
-#include "SkColor_opts_SSE2.h"
-#include "SkDither.h"
-#include "SkMSAN.h"
-#include "SkUTF.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkDither.h"
+#include "src/core/SkMSAN.h"
+#include "src/opts/SkBitmapProcState_opts_SSE2.h"
+#include "src/opts/SkColor_opts_SSE2.h"
+#include "src/utils/SkUTF.h"
 
 /* SSE2 version of S32_Blend_BlitRow32()
  * portable version is in core/SkBlitRow_D32.cpp

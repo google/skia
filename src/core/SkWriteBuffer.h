@@ -8,10 +8,10 @@
 #ifndef SkWriteBuffer_DEFINED
 #define SkWriteBuffer_DEFINED
 
-#include "SkData.h"
-#include "SkSerialProcs.h"
-#include "SkWriter32.h"
-#include "../private/SkTHash.h"
+#include "include/core/SkData.h"
+#include "include/core/SkSerialProcs.h"
+#include "include/private/SkTHash.h"
+#include "src/core/SkWriter32.h"
 
 class SkDeduper;
 class SkFactorySet;

@@ -8,8 +8,8 @@
 #ifndef SKSL_CONTEXT
 #define SKSL_CONTEXT
 
-#include "ir/SkSLType.h"
-#include "ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
 

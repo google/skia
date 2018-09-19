@@ -8,9 +8,9 @@
 #ifndef SkColorShader_DEFINED
 #define SkColorShader_DEFINED
 
-#include "SkColorSpaceXformer.h"
-#include "SkShaderBase.h"
-#include "SkPM4f.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkPM4f.h"
+#include "src/shaders/SkShaderBase.h"
 
 /** \class SkColorShader
     A Shader that represents a single color. In general, this effect can be

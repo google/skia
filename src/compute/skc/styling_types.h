@@ -13,9 +13,9 @@
 //
 //
 
-#include "types.h"
-#include "macros.h"
-#include "skc_styling.h"
+#include "src/compute/skc/macros.h"
+#include "src/compute/skc/skc_styling.h"
+#include "src/compute/skc/types.h"
 
 //
 //

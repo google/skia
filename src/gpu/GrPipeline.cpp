@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrPipeline.h"
+#include "src/gpu/GrPipeline.h"
 
-#include "GrAppliedClip.h"
-#include "GrCaps.h"
-#include "GrGpu.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetOpList.h"
-#include "GrXferProcessor.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetOpList.h"
+#include "src/gpu/GrXferProcessor.h"
 
-#include "ops/GrOp.h"
+#include "src/gpu/ops/GrOp.h"
 
 GrPipeline::GrPipeline(const InitArgs& args,
                        GrProcessorSet&& processors,

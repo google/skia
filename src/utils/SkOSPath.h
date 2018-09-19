@@ -8,7 +8,7 @@
 #ifndef SkOSPath_DEFINED
 #define SkOSPath_DEFINED
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 
 /**
  *  Functions for modifying SkStrings which represent paths on the filesystem.

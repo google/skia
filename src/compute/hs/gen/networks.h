@@ -16,7 +16,7 @@
 //
 //
 
-#include "gen.h"
+#include "src/compute/hs/gen/gen.h"
 
 //
 //

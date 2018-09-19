@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkTexture.h"
+#include "src/gpu/vk/GrVkTexture.h"
 
-#include "GrTexturePriv.h"
-#include "GrVkGpu.h"
-#include "GrVkImageView.h"
-#include "GrVkTextureRenderTarget.h"
-#include "GrVkUtil.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImageView.h"
+#include "src/gpu/vk/GrVkTextureRenderTarget.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 

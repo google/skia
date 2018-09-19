@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrProgramDesc.h"
+#include "src/gpu/GrProgramDesc.h"
 
-#include "GrPipeline.h"
-#include "GrPrimitiveProcessor.h"
-#include "GrProcessor.h"
-#include "GrRenderTargetPriv.h"
-#include "GrShaderCaps.h"
-#include "GrTexturePriv.h"
-#include "SkChecksum.h"
-#include "SkTo.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkTo.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrPrimitiveProcessor.h"
+#include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 enum {
     kSamplerOrImageTypeKeyBits = 4

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrTextureMaker.h"
+#include "src/gpu/GrTextureMaker.h"
 
-#include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
 
 sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSamplerState& params,
                                                                  SkColorSpace* dstColorSpace,

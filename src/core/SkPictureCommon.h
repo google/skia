@@ -12,10 +12,10 @@
 //   SkTextHunter   -- SkRecord visitor that returns true when the op draws text.
 //   SkPathCounter  -- SkRecord visitor that counts paths that draw slowly on the GPU.
 
-#include "SkPathEffect.h"
-#include "SkRecords.h"
-#include "SkShader.h"
-#include "SkTLogic.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkTLogic.h"
+#include "src/core/SkRecords.h"
 
 // TODO: might be nicer to have operator() return an int (the number of slow paths) ?
 struct SkPathCounter {

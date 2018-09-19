@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkUtils.h"
+#include "src/core/SkUtils.h"
 
 // declare functions externally to suppress warnings.
 void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,

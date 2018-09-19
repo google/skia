@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkTLS.h"
+#include "src/core/SkTLS.h"
 
 // enable to help debug TLS storage
 //#define SK_TRACE_TLS_LIFETIME
 
 
 #ifdef SK_TRACE_TLS_LIFETIME
-    #include "SkAtomics.h"
-    static int32_t gTLSRecCount;
+#include "include/private/SkAtomics.h"
+static int32_t gTLSRecCount;
 #endif
 
 struct SkTLSRec {

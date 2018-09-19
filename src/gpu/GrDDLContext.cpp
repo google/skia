@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "GrCaps.h"
-#include "GrContextPriv.h"
-#include "GrContextThreadSafeProxyPriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 
 /**
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and

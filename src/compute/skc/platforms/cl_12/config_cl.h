@@ -12,7 +12,7 @@
 //
 //
 
-#include "block_pool_cl.h"
+#include "src/compute/skc/platforms/cl_12/block_pool_cl.h"
 
 //
 // FIXME -- define individual structs before defining skc_config

@@ -9,9 +9,9 @@
 //
 //
 
-#include "SkSurface_Compute.h"
-#include "SkDevice_Compute.h"
-#include "SkImage_Compute.h"
+#include "src/compute/sk/SkSurface_Compute.h"
+#include "src/compute/sk/SkDevice_Compute.h"
+#include "src/compute/sk/SkImage_Compute.h"
 
 //
 //
@@ -23,8 +23,8 @@
 // C++
 //
 
-#include "gl/GrGLGpu.h"
-#include "SkSurface_Gpu.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/image/SkSurface_Gpu.h"
 
 //
 //

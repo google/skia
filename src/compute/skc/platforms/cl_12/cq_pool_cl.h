@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "types.h"
+#include "src/compute/skc/types.h"
 
 //
 // Why we need to wrap command queue creation:

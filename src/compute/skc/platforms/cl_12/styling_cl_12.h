@@ -14,10 +14,10 @@
 
 #include <CL/opencl.h>
 
-#include "styling.h"
-#include "grid.h"
-#include "extent_cl_12.h"
-#include "assert_state.h"
+#include "src/compute/skc/assert_state.h"
+#include "src/compute/skc/grid.h"
+#include "src/compute/skc/platforms/cl_12/extent_cl_12.h"
+#include "src/compute/skc/styling.h"
 
 //
 // styling states

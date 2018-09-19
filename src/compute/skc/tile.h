@@ -13,7 +13,7 @@
 //
 //
 
-#include "macros.h"
+#include "src/compute/skc/macros.h"
 
 //
 // Hard requirements:

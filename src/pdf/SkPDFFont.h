@@ -9,11 +9,11 @@
 #ifndef SkPDFFont_DEFINED
 #define SkPDFFont_DEFINED
 
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkBitSet.h"
-#include "SkStrikeCache.h"
-#include "SkPDFTypes.h"
-#include "SkTypeface.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/pdf/SkPDFTypes.h"
+#include "src/utils/SkBitSet.h"
 
 class SkPDFCanon;
 class SkPDFFont;

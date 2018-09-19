@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
-#include "SkData.h"
-#include "SkOpts.h"
+#include "include/core/SkColorSpace.h"
 #include "../../third_party/skcms/skcms.h"
+#include "include/core/SkData.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkOpts.h"
 
 // TODO: this is kind of ridiculous
 static_assert(sizeof(SkColorSpace) == 45*4, "");

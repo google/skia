@@ -12,8 +12,8 @@
 //
 //
 
-#include "skc.h"
-#include "types.h"
+#include "src/compute/skc/skc.h"
+#include "src/compute/skc/types.h"
 
 //
 // FIXME -- relax the const correctness

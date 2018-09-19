@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLAssembleInterface.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 // Define this to get a prototype for glXGetProcAddress on some systems
 #define GLX_GLXEXT_PROTOTYPES 1

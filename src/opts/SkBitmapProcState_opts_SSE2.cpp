@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcState_opts_SSE2.h"
-#include "SkBitmapProcState_utils.h"
-#include "SkColorData.h"
-#include "SkPaint.h"
-#include "SkTo.h"
-#include "SkUTF.h"
+#include "src/opts/SkBitmapProcState_opts_SSE2.h"
+#include "include/core/SkPaint.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBitmapProcState_utils.h"
+#include "src/core/SkColorData.h"
+#include "src/utils/SkUTF.h"
 
 #include <emmintrin.h>
 

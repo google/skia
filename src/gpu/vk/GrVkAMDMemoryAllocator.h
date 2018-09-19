@@ -8,7 +8,7 @@
 #ifndef GrVkAMDMemoryAllocator_DEFINED
 #define GrVkAMDMemoryAllocator_DEFINED
 
-#include "vk/GrVkMemoryAllocator.h"
+#include "include/gpu/vk/GrVkMemoryAllocator.h"
 
 #include "GrVulkanMemoryAllocator.h"
 

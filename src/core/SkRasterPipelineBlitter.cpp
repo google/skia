@@ -5,22 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "../jumper/SkJumper.h"
-#include "SkArenaAlloc.h"
-#include "SkBlendModePriv.h"
-#include "SkBlitter.h"
-#include "SkColor.h"
-#include "SkColorFilter.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformer.h"
-#include "SkOpts.h"
-#include "SkPM4f.h"
-#include "SkPM4fPriv.h"
-#include "SkRasterPipeline.h"
-#include "SkShader.h"
-#include "SkShaderBase.h"
-#include "SkTo.h"
-#include "SkUtils.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkArenaAlloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkColorSpaceXformer.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkPM4f.h"
+#include "src/core/SkPM4fPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkUtils.h"
+#include "src/jumper/SkJumper.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkRasterPipelineBlitter final : public SkBlitter {
 public:

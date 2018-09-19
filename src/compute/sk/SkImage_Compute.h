@@ -28,14 +28,14 @@
 
 // #include "GrContext.h"
 // #include "SkRefCnt.h"
-#include "SkImage.h"
-#include "gl/GrGLGpu.h"
+#include "include/core/SkImage.h"
+#include "src/gpu/gl/GrGLGpu.h"
 
 //
 //
 //
 
-#include "SkContext_Compute.h"
+#include "src/compute/sk/SkContext_Compute.h"
 
 //
 //

@@ -13,7 +13,7 @@
 //
 //
 
-#include "block.h"
+#include "src/compute/skc/block.h"
 
 //
 // A tag type that fits into the block id tag bitfield

@@ -12,8 +12,8 @@
 //
 //
 
-#include "skc.h"
-#include "assert_state.h"
+#include "src/compute/skc/assert_state.h"
+#include "src/compute/skc/skc.h"
 
 //
 // SURFACE

@@ -8,8 +8,8 @@
 #ifndef SkPathOpsCubic_DEFINED
 #define SkPathOpsCubic_DEFINED
 
-#include "SkPath.h"
-#include "SkPathOpsPoint.h"
+#include "include/core/SkPath.h"
+#include "src/pathops/SkPathOpsPoint.h"
 
 struct SkDCubicPair;
 

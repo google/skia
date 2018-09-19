@@ -8,9 +8,9 @@
 #ifndef GrGLSLProgramDataManager_DEFINED
 #define GrGLSLProgramDataManager_DEFINED
 
-#include "GrResourceHandle.h"
-#include "SkNoncopyable.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkNoncopyable.h"
+#include "src/gpu/GrResourceHandle.h"
 
 class SkMatrix;
 class SkMatrix44;

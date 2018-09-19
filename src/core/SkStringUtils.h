@@ -8,7 +8,7 @@
 #ifndef SkStringUtils_DEFINED
 #define SkStringUtils_DEFINED
 
-#include "SkScalar.h"
+#include "include/core/SkScalar.h"
 
 class SkString;
 

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrGaussianConvolutionFragmentProcessor.h"
+#include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
 
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrTextureProxy.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 // For brevity
 using UniformHandle = GrGLSLProgramDataManager::UniformHandle;

@@ -8,7 +8,7 @@
 #ifndef SkDWriteToPath_DEFINED
 #define SkDWriteToPath_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 class SkPath;
 

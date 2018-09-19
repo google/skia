@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkMask.h"
+#include "src/core/SkMask.h"
 
-#include "SkMalloc.h"
-#include "SkSafeMath.h"
-#include "SkTo.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkSafeMath.h"
 
 /** returns the product if it is positive and fits in 31 bits. Otherwise this
     returns 0.

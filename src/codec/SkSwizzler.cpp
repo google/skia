@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkHalf.h"
-#include "SkOpts.h"
-#include "SkSwizzler.h"
-#include "SkTemplates.h"
+#include "src/codec/SkSwizzler.h"
+#include "include/private/SkTemplates.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/core/SkColorData.h"
+#include "src/core/SkHalf.h"
+#include "src/core/SkOpts.h"
 
 static void copy(void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
         const SkPMColor ctable[]) {

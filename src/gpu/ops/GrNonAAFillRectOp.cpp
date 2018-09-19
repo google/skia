@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "GrAppliedClip.h"
-#include "GrColor.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrDrawOpTest.h"
-#include "GrMeshDrawOp.h"
-#include "GrOpFlushState.h"
-#include "GrPrimitiveProcessor.h"
-#include "GrQuad.h"
-#include "GrRectOpFactory.h"
-#include "GrResourceProvider.h"
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "SkMatrixPriv.h"
+#include "include/private/GrColor.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrPrimitiveProcessor.h"
+#include "src/gpu/GrQuad.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrRectOpFactory.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 static const int kVertsPerRect = 4;
 static const int kIndicesPerRect = 6;

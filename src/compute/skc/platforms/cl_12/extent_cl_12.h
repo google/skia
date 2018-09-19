@@ -14,8 +14,8 @@
 
 #include <CL/opencl.h>
 
-#include "suballocator.h"
-#include "extent_ring.h"
+#include "src/compute/skc/extent_ring.h"
+#include "src/compute/skc/suballocator.h"
 
 //
 // Legend:
