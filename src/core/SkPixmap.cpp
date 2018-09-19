@@ -80,6 +80,29 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     return true;
 }
 
+float SkPixmap::getAlphaf(int x, int y) const {
+    SkASSERT(this->addr());
+    SkASSERT((unsigned)x < (unsigned)this->width());
+    SkASSERT((unsigned)y < (unsigned)this->height());
+
+    float value = 0;
+    const void* srcPtr = this->addr(x, y);
+    switch (this->colorType()) {
+        case kRGBA_F16_SkColorType:
+            value = SkHalfToFloat(static_cast<const uint16_t*>(srcPtr)[3]);
+            break;
+        case kRGBA_F32_SkColorType:
+            value = static_cast<const float*>(srcPtr)[3];
+            break;
+        default: {
+            uint8_t alpha[1];
+            SkConvert_to_alpha8(alpha, 0, this->info().makeWH(1, 1), srcPtr, 0);
+            value = alpha[0] * (1.0f/255);
+        }
+    }
+    return value;
+}
+
 bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                           int x, int y) const {
     if (!SkImageInfoValidConversion(dstInfo, fInfo)) {

@@ -86,8 +86,8 @@ void swizzle_and_multiply(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
 }
 
 // Fast Path 3: Alpha 8 dsts.
-static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& srcInfo,
-                              const void* src, size_t srcRB) {
+void SkConvert_to_alpha8(uint8_t* dst, size_t dstRB,
+                         const SkImageInfo& srcInfo, const void* src, size_t srcRB) {
     if (srcInfo.isOpaque()) {
         for (int y = 0; y < srcInfo.height(); ++y) {
            memset(dst, 0xFF, srcInfo.width());
@@ -97,6 +97,14 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
     }
 
     switch (srcInfo.colorType()) {
+        case kAlpha_8_SkColorType:
+            for (int y = 0; y < srcInfo.height(); y++) {
+                memcpy(dst, src, srcInfo.width());
+                src = SkTAddOffset<const char>(src, srcRB);
+                dst = SkTAddOffset<uint8_t>(dst, dstRB);
+            }
+            break;
+
         case kBGRA_8888_SkColorType:
         case kRGBA_8888_SkColorType: {
             auto src32 = (const uint32_t*) src;
@@ -232,7 +240,7 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
 
     // Fast Path 3: Alpha 8 dsts.
     if (kAlpha_8_SkColorType == dstInfo.colorType()) {
-        convert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB);
+        SkConvert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB);
         return;
     }
 
