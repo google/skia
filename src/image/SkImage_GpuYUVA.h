@@ -1,12 +1,12 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef SkImage_Gpu_DEFINED
-#define SkImage_Gpu_DEFINED
+#ifndef SkImage_GpuYUVA_DEFINED
+#define SkImage_GpuYUVA_DEFINED
 
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
@@ -16,14 +16,13 @@
 #include "SkImage_Base.h"
 
 class GrTexture;
-
 class SkBitmap;
 
-class SkImage_Gpu : public SkImage_Base {
+class SkImage_GpuYUVA : public SkImage_Base {
 public:
-    SkImage_Gpu(sk_sp<GrContext>, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
-                sk_sp<SkColorSpace>, SkBudgeted);
-    ~SkImage_Gpu() override;
+    SkImage_GpuYUVA(sk_sp<GrContext>, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
+                    sk_sp<SkColorSpace>, SkBudgeted);
+    ~SkImage_GpuYUVA() override;
 
     SkImageInfo onImageInfo() const override;
     SkColorType onColorType() const override;
@@ -34,10 +33,10 @@ public:
 
     GrContext* context() const override { return fContext.get(); }
     GrTextureProxy* peekProxy() const override {
-        return fProxy.get();
+        return nullptr; /// $$$ fProxy.get();
     }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override {
-        return fProxy;
+        return nullptr; /// $$$ fProxy;
     }
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
@@ -46,7 +45,7 @@ public:
 
     sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();
-        return fProxy;
+        return nullptr; /// $$$ fProxy;
     }
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
@@ -63,7 +62,6 @@ public:
 
     typedef ReleaseContext TextureContext;
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
-    typedef void (*YUVATextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture[]);
     typedef void (*PromiseDoneProc)(TextureContext textureContext);
 
     /**
@@ -123,19 +121,6 @@ public:
                                              PromiseDoneProc promiseDoneProc,
                                              TextureContext textureContext);
 
-    static sk_sp<SkImage> MakePromiseYUVTexture(GrContext* context,
-                                                SkYUVColorSpace yuvColorSpace,
-                                                const GrBackendFormat yuvaFormats[],
-                                                const SkYUVAIndex yuvaIndices[4],
-                                                int width,
-                                                int height,
-                                                GrSurfaceOrigin origin,
-                                                sk_sp<SkColorSpace> imageColorSpace,
-                                                YUVATextureFulfillProc yuvaTextureFulfillProc,
-                                                TextureReleaseProc textureReleaseProc,
-                                                PromiseDoneProc promiseDoneProc,
-                                                TextureContext textureContext);
-
     /** Implementation of MakeFromYUVTexturesCopy and MakeFromNV12TexturesCopy */
     static sk_sp<SkImage> MakeFromYUVATexturesCopyImpl(GrContext* ctx,
                                                        SkYUVColorSpace colorSpace,
@@ -145,18 +130,6 @@ public:
                                                        GrSurfaceOrigin origin,
                                                        sk_sp<SkColorSpace> imageColorSpace);
 
-    /** Implementation of MakeFromYUVTexturesCopyWithExternalBackend and
-        MakeFromNV12TexturesCopyWithExternalBackend */
-    static sk_sp<SkImage> MakeFromYUVATexturesCopyWithExternalBackendImpl(
-            GrContext* ctx,
-            SkYUVColorSpace colorSpace,
-            const GrBackendTexture yuvaTextures[],
-            SkYUVAIndex yuvaIndices[4],
-            SkISize size,
-            GrSurfaceOrigin origin,
-            const GrBackendTexture backendTexture,
-            sk_sp<SkColorSpace> imageColorSpace);
-
     bool onIsValid(GrContext*) const override;
 
     void resetContext(sk_sp<GrContext> newContext) {
@@ -165,13 +138,8 @@ public:
     }
 
 private:
-    static sk_sp<SkImage> ConvertYUVATexturesToRGB(
-            GrContext* ctx, SkYUVColorSpace colorSpace, const GrBackendTexture yuvaTextures[],
-            SkYUVAIndex yuvaIndices[4], SkISize size, GrSurfaceOrigin origin,
-            SkBudgeted isBudgeted, GrRenderTargetContext* renderTargetContext);
-
     sk_sp<GrContext>      fContext;
-    sk_sp<GrTextureProxy> fProxy;
+    sk_sp<GrTextureProxy> fProxies[4];
     const SkAlphaType     fAlphaType;
     const SkBudgeted      fBudgeted;
     sk_sp<SkColorSpace>   fColorSpace;

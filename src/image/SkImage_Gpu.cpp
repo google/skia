@@ -14,6 +14,7 @@
 #include "GrBackendTextureImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
+#include "GrClip.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -131,6 +132,10 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
     GrTextureAdjuster adjuster(fContext.get(), fProxy, this->alphaType(), this->uniqueID(),
                                this->fColorSpace.get());
     return adjuster.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
+}
+
+bool SkImage_Gpu::asYUVATextureProxies(GrContext* context) const {
+    return false;
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -496,10 +501,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
                                                 sk_sp<SkColorSpace> imageColorSpace) {
     // TODO: SkImageSourceChannel input is being ingored right now. Setup correctly in the future.
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{2, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{-1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel}};
+            SkYUVAIndex{0, SkImageSourceChannel::kA_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kA_SkImageSourceChannel},
+            SkYUVAIndex{2, SkImageSourceChannel::kA_SkImageSourceChannel},
+            SkYUVAIndex{-1, SkImageSourceChannel::kA_SkImageSourceChannel}};
     SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyImpl(ctx, colorSpace, yuvTextures, yuvaIndices,
                                                      size, origin, std::move(imageColorSpace));
@@ -510,10 +515,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
         GrSurfaceOrigin origin, const GrBackendTexture backendTexture,
         sk_sp<SkColorSpace> imageColorSpace) {
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{2, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{-1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel}};
+            SkYUVAIndex{0, SkImageSourceChannel::kA_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kA_SkImageSourceChannel},
+            SkYUVAIndex{2, SkImageSourceChannel::kA_SkImageSourceChannel},
+            SkYUVAIndex{-1, SkImageSourceChannel::kA_SkImageSourceChannel}};
     SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
             ctx, colorSpace, yuvTextures, yuvaIndices, size, origin, backendTexture,
@@ -526,10 +531,10 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
                                                  sk_sp<SkColorSpace> imageColorSpace) {
     // TODO: SkImageSourceChannel input is being ingored right now. Setup correctly in the future.
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{-1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel}};
+            SkYUVAIndex{0, SkImageSourceChannel::kA_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kA_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kA_SkImageSourceChannel},
+            SkYUVAIndex{-1, SkImageSourceChannel::kA_SkImageSourceChannel}};
     SkISize size{nv12Textures[0].width(), nv12Textures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyImpl(ctx, colorSpace, nv12Textures, yuvaIndices,
                                                      size, origin, std::move(imageColorSpace));
@@ -807,6 +812,21 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
                                    std::move(proxy), std::move(colorSpace), SkBudgeted::kNo);
+}
+
+sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVTexture(GrContext* context,
+                                                  SkYUVColorSpace yuvColorSpace,
+                                                  const GrBackendFormat yuvaFormats[],
+                                                  const SkYUVAIndex yuvaIndices[4],
+                                                  int width,
+                                                  int height,
+                                                  GrSurfaceOrigin origin,
+                                                  sk_sp<SkColorSpace> imageColorSpace,
+                                                  YUVATextureFulfillProc yuvaTextureFulfillProc,
+                                                  TextureReleaseProc textureReleaseProc,
+                                                  PromiseDoneProc promiseDoneProc,
+                                                  TextureContext textureContext) {
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
