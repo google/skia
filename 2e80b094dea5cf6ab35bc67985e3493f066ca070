@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ea9d2df_50c810d1",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-19T20:24:05Z",
+      "side": 1,
+      "message": "Isn\u0027t there, essentially, no way that this can work in practice? I think this would require synthesizing a new font out of pieces of multiple fonts and possibly font subsets? It seems like loadWebFont has to return something like a SegmentedFontData? Are we planning on providing a default loadWebFont implementation (which means pulling in a css parser)?",
+      "range": {
+        "startLine": 133,
+        "startChar": 25,
+        "endLine": 133,
+        "endChar": 43
+      },
+      "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
