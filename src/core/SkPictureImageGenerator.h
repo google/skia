@@ -8,6 +8,7 @@
 #define SkPictureImageGenerator_DEFINED
 
 #include "SkImageGenerator.h"
+#include "SkPaint.h"
 #include "SkTLazy.h"
 
 class SkPictureImageGenerator : public SkImageGenerator {

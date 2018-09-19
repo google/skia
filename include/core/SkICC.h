@@ -9,6 +9,7 @@
 #define SkICC_DEFINED
 
 #include "SkData.h"
+#include "SkMatrix44.h"
 #include "SkRefCnt.h"
 
 struct SkColorSpaceTransferFn;

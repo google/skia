@@ -9,6 +9,7 @@
 #define SkArenaAllocList_DEFINED
 
 #include "SkArenaAlloc.h"
+#include "SkTypes.h"
 
 /**
  * A singly linked list of Ts stored in a SkArenaAlloc. The arena rather than the list owns
