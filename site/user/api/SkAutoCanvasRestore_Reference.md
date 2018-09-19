@@ -1,8 +1,6 @@
 SkAutoCanvasRestore Reference
 ===
 
-# <a name='Automatic_Canvas_Restore'>Automatic Canvas Restore</a>
-
 # <a name='SkAutoCanvasRestore'>Class SkAutoCanvasRestore</a>
 Stack helper class calls <a href='SkCanvas_Reference#SkCanvas_restoreToCount'>SkCanvas::restoreToCount</a> when <a href='#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>
 goes out of scope. Use this to guarantee that the canvas is restored to a known
@@ -14,17 +12,17 @@ state.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkAutoCanvasRestore'>SkAutoCanvasRestore</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
 </table>
 
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkAutoCanvasRestore can be constructed or initialized by these functions, including C++ class constructors.
@@ -41,7 +39,7 @@ SkAutoCanvasRestore can be constructed or initialized by these functions, includ
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkAutoCanvasRestore member functions read and modify the structure properties.

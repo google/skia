@@ -4,22 +4,34 @@
 
 #Struct SkIPoint
 
+#Code
+struct SkIPoint {
+    int32_t fX;
+    int32_t fY;
+
+    static constexpr SkIPoint Make(int32_t x, int32_t y);
+    int32_t x() const;
+    int32_t y() const;
+    bool isZero() const;
+    void set(int32_t x, int32_t y);
+    SkIPoint operator-() const;
+    void operator+=(const SkIVector& v);
+    void operator-=(const SkIVector& v);
+    bool equals(int32_t x, int32_t y) const;
+    friend bool operator==(const SkIPoint& a, const SkIPoint& b);
+    friend bool operator!=(const SkIPoint& a, const SkIPoint& b);
+    friend SkIVector operator-(const SkIPoint& a, const SkIPoint& b);
+    friend SkIPoint operator+(const SkIPoint& a, const SkIVector& b);
+};
+##
+
 SkIPoint holds two 32-bit integer coordinates.
 
-#Subtopic Overview
 #Populate
-##
 
-#Subtopic Related_Function
+#Subtopic Members
 #Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
-#Subtopic Member
-#Populate
+#Subtopic Members ##
 
 #Member int32_t  fX
 #Line # x-axis value ##
@@ -31,17 +43,15 @@ x-axis value used by IPoint.
 y-axis value used by IPoint.
 ##
 
-#Subtopic Member ##
-
 # ------------------------------------------------------------------------------
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
-##
+#Subtopic Constructors ##
 
 #Method static constexpr SkIPoint Make(int32_t x, int32_t y)
 
-#In Constructor
+#In Constructors
 #Line # constructs from integer inputs ##
 Sets fX to x, fY to y.
 
@@ -63,12 +73,13 @@ pt1 == pt2
 
 #Method ##
 
+
 # ------------------------------------------------------------------------------
 
 #Subtopic Property
 #Line # member values ##
 #Populate
-##
+#Subtopic Property ##
 
 #Method int32_t x() const
 #In Property
@@ -160,7 +171,7 @@ pt1 == pt2
 #Method ##
 
 # ------------------------------------------------------------------------------
-#Subtopic Operator
+#Subtopic Operators
 #Populate
 ##
 
@@ -264,7 +275,7 @@ Subtracts IVector v from IPoint. Sets IPoint to: #Formula # (fX - v.fX, fY - v.f
 # ------------------------------------------------------------------------------
 
 #Method bool equals(int32_t x, int32_t y) const
-#In Operator
+#In Operators
 #Line # returns true if members are equal ##
 Returns true if IPoint is equivalent to IPoint constructed from (x, y).
 
