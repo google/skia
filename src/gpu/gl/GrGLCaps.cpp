@@ -586,6 +586,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fHalfFloatVertexAttributeSupport = true;
     }
 
+    fDynamicStateArrayGeometryProcessorTextureSupport = true;
+
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(4, 1)) {
             fProgramBinarySupport = true;

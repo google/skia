@@ -21,8 +21,8 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     : INHERITED(contextOptions) {
 
     /**************************************************************************
-    * GrDrawTargetCaps fields
-    **************************************************************************/
+     * GrCaps fields
+     **************************************************************************/
     fMipMapSupport = true;   // always available in Vulkan
     fSRGBSupport = true;   // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
@@ -42,6 +42,8 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fMaxRenderTargetSize = 4096; // minimum required by spec
     fMaxTextureSize = 4096; // minimum required by spec
+
+    fDynamicStateArrayGeometryProcessorTextureSupport = true;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -340,7 +342,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     if (kImagination_VkVendor == properties.vendorID) {
         fShaderCaps->fAtan2ImplementedAsAtanYOverX = true;
     }
-
 }
 
 int get_max_sample_count(VkSampleCountFlags flags) {
