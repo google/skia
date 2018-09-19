@@ -1,19 +1,7 @@
 SkPoint Reference
 ===
 
-# <a name='Point'>Point</a>
-
 # <a name='SkPoint'>Struct SkPoint</a>
-
-## <a name='Typedef'>Typedef</a>
-
-
-SkPoint  <code>typedef</code> define a data type.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-</table>
-
 <a href='#SkPoint'>SkPoint</a> holds two 32-bit floating point coordinates.
 
 ## Overview
@@ -22,29 +10,29 @@ SkPoint  <code>typedef</code> define a data type.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkPoint'>SkPoint</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member'>Members</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Members'>Members</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkPoint global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -69,7 +57,7 @@ SkPoint global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkPoint member functions read and modify the structure properties.
@@ -178,7 +166,7 @@ SkPoint member functions read and modify the structure properties.
   </tr>
 </table>
 
-## <a name='Member'>Member</a>
+## <a name='Members'>Members</a>
 
 
 
@@ -239,7 +227,7 @@ infinities and NaN.
   </tr>
 
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
 SkPoint can be constructed or initialized by these functions, including C++ class constructors.
@@ -942,7 +930,7 @@ true if (x, y) length is not zero or nearly zero
 
 ---
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
 SkPoint operators inline class member functions with arithmetic equivalents.
@@ -1099,7 +1087,7 @@ pt: nan, -nan  negate: -nan, nan
 ## operator-
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPoint'>SkPoint</a> operator-() _const
+<a href='#SkPoint'>SkPoint</a> operator-() const
 </pre>
 
 Returns <a href='#Point'>Point</a> changing the signs of <a href='#SkPoint_fX'>fX</a> and <a href='#SkPoint_fY'>fY</a>.
@@ -1185,7 +1173,7 @@ Subtracts <a href='#Vector'>Vector</a> <a href='#SkPoint_subtractfrom_operator_v
 ## operator*
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPoint'>SkPoint</a> operator*(SkScalar scale) _const
+<a href='#SkPoint'>SkPoint</a> operator*(SkScalar scale) const
 </pre>
 
 Returns <a href='#Point'>Point</a> multiplied by scale.
