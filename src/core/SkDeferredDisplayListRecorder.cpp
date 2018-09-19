@@ -38,10 +38,15 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
     return nullptr;
 }
 
+sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVPromiseTexture(const GrBackendFormat backendFormats[4]) {
+    return nullptr;
+}
+
 #else
 
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
+#include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 
 #include "SkGr.h"
@@ -201,6 +206,36 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                            textureReleaseProc,
                                            promiseDoneProc,
                                            textureContext);
+}
+
+sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVPromiseTexture(
+        SkYUVColorSpace yuvColorSpace,
+        const GrBackendFormat yuvaFormats[],
+        const SkYUVAIndex yuvaIndices[4],
+        int width,
+        int height,
+        GrSurfaceOrigin origin,
+        sk_sp<SkColorSpace> imageColorSpace,
+        YUVATextureFulfillProc yuvaTextureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContext) {
+    if (!fContext) {
+        return nullptr;
+    }
+
+    return SkImage_Gpu::MakePromiseYUVTexture(fContext.get(),
+                                              yuvColorSpace,
+                                              yuvaFormats,
+                                              yuvaIndices,
+                                              width,
+                                              height,
+                                              origin,
+                                              std::move(imageColorSpace),
+                                              yuvaTextureFulfillProc,
+                                              textureReleaseProc,
+                                              promiseDoneProc,
+                                              textureContext);
 }
 
 #endif

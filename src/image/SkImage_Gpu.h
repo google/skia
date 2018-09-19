@@ -8,17 +8,16 @@
 #ifndef SkImage_Gpu_DEFINED
 #define SkImage_Gpu_DEFINED
 
-#include "GrClip.h"
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrSurfaceProxyPriv.h"
-#include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
-#include "SkSurface.h"
 
 class GrTexture;
+
+class SkBitmap;
 
 class SkImage_Gpu : public SkImage_Base {
 public:
@@ -35,18 +34,19 @@ public:
 
     GrContext* context() const override { return fContext.get(); }
     GrTextureProxy* peekProxy() const override {
-        return fProxy.get();
+        return fProxy1.get();
     }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override {
-        return fProxy;
+        return fProxy1;
     }
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
+    bool asYUVATextureProxies(GrContext*) const override;
 
     sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();
-        return fProxy;
+        return fProxy1;
     }
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
@@ -63,6 +63,7 @@ public:
 
     typedef ReleaseContext TextureContext;
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
+    typedef void (*YUVATextureFulfillProc)(TextureContext textureContext, GrBackendTexture outTexture[]);
     typedef void (*PromiseDoneProc)(TextureContext textureContext);
 
     /**
@@ -122,11 +123,24 @@ public:
                                              PromiseDoneProc promiseDoneProc,
                                              TextureContext textureContext);
 
+    static sk_sp<SkImage> MakePromiseYUVTexture(GrContext* context,
+                                                SkYUVColorSpace yuvColorSpace,
+                                                const GrBackendFormat yuvaFormats[],
+                                                const SkYUVAIndex yuvaIndices[4],
+                                                int width,
+                                                int height,
+                                                GrSurfaceOrigin origin,
+                                                sk_sp<SkColorSpace> imageColorSpace,
+                                                YUVATextureFulfillProc yuvaTextureFulfillProc,
+                                                TextureReleaseProc textureReleaseProc,
+                                                PromiseDoneProc promiseDoneProc,
+                                                TextureContext textureContext);
+
     /** Implementation of MakeFromYUVTexturesCopy and MakeFromNV12TexturesCopy */
     static sk_sp<SkImage> MakeFromYUVATexturesCopyImpl(GrContext* ctx,
                                                        SkYUVColorSpace colorSpace,
                                                        const GrBackendTexture yuvaTextures[],
-                                                       SkYUVAIndex yuvaIndices[4],
+                                                       const SkYUVAIndex yuvaIndices[4],
                                                        SkISize size,
                                                        GrSurfaceOrigin origin,
                                                        sk_sp<SkColorSpace> imageColorSpace);
@@ -153,11 +167,11 @@ public:
 private:
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(
             GrContext* ctx, SkYUVColorSpace colorSpace, const GrBackendTexture yuvaTextures[],
-            SkYUVAIndex yuvaIndices[4], SkISize size, GrSurfaceOrigin origin,
+            const SkYUVAIndex yuvaIndices[4], SkISize size, GrSurfaceOrigin origin,
             SkBudgeted isBudgeted, GrRenderTargetContext* renderTargetContext);
 
     sk_sp<GrContext>      fContext;
-    sk_sp<GrTextureProxy> fProxy;
+    sk_sp<GrTextureProxy> fProxy1;
     const SkAlphaType     fAlphaType;
     const SkBudgeted      fBudgeted;
     sk_sp<SkColorSpace>   fColorSpace;

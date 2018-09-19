@@ -22,6 +22,7 @@ class GrContext;
 class SkCanvas;
 class SkImage;
 class SkSurface;
+struct SkYUVAIndex;
 
 /*
  * This class is intended to be used as:
@@ -55,6 +56,7 @@ public:
     typedef void* TextureContext;
     typedef void (*TextureReleaseProc)(TextureContext textureContext);
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
+    typedef void (*YUVATextureFulfillProc)(TextureContext textureContext, GrBackendTexture outTextures[]);
     typedef void (*PromiseDoneProc)(TextureContext textureContext);
 
     /**
@@ -76,7 +78,7 @@ public:
         In other words we will never call textureFulfillProc or textureReleaseProc multiple times
         for the same textureContext before calling the other.
 
-        We we call the promiseDoneProc when we will no longer call the textureFulfillProc again. We
+        We call the promiseDoneProc when we will no longer call the textureFulfillProc again. We
         pass in the textureContext as a parameter to the promiseDoneProc. We also guarantee that
         there will be no outstanding textureReleaseProcs that still need to be called when we call
         the textureDoneProc. Thus when the textureDoneProc gets called the client is able to cleanup
@@ -115,6 +117,22 @@ public:
                                       PromiseDoneProc promiseDoneProc,
                                       TextureContext textureContext);
 
+    /**
+        This entry point operates the same as 'makePromiseTexture' except that its
+        textureFulfillProc will accept up to four separate backend textures that it interprets
+        as YUVA planes.
+     */
+    sk_sp<SkImage> makeYUVPromiseTexture(SkYUVColorSpace yuvColorSpace,
+                                         const GrBackendFormat yuvaFormats[],
+                                         const SkYUVAIndex yuvaIndices[4],
+                                         int imageWidth,
+                                         int imageHeight,
+                                         GrSurfaceOrigin origin,
+                                         sk_sp<SkColorSpace> imageColorSpace,
+                                         YUVATextureFulfillProc textureFulfillProc,
+                                         TextureReleaseProc textureReleaseProc,
+                                         PromiseDoneProc promiseDoneProc,
+                                         TextureContext textureContext);
 private:
     bool init();
 
