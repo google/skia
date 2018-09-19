@@ -218,10 +218,7 @@ default_configs = [
   "//gn:no_rtti",
 ]
 if (!is_debug) {
-  default_configs += [
-    "//gn:optimize",
-    "//gn:NDEBUG",
-  ]
+  default_configs += [ "//gn:release" ]
 }
 if (!is_official_build) {
   default_configs += [
