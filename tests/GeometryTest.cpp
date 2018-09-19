@@ -9,6 +9,7 @@
 #include "SkPointPriv.h"
 #include "SkRandom.h"
 #include "Test.h"
+
 #include <array>
 #include <numeric>
 

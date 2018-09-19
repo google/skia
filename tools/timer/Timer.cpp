@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "Timer.h"
+
 #include <stdio.h>
 
 SkString HumanizeMs(double ms) {

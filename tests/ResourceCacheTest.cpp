@@ -7,7 +7,6 @@
 
 #include "SkTypes.h"
 
-#include <thread>
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrContextFactory.h"
@@ -26,6 +25,8 @@
 #include "SkMipMap.h"
 #include "SkSurface.h"
 #include "Test.h"
+
+#include <thread>
 
 static const int gWidth = 640;
 static const int gHeight = 480;

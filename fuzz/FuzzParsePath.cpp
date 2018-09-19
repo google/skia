@@ -8,6 +8,7 @@
 #include "Fuzz.h"
 #include "SkString.h"
 #include "SkParsePath.h"
+
 #include <stdlib.h>
 
 // Most of this is taken from random_parse_path.cpp and adapted to use the Fuzz

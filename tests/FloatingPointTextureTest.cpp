@@ -12,7 +12,6 @@
  * have been selected to require 32 bits of precision and full IEEE conformance
  */
 
-#include <float.h>
 #include "Test.h"
 
 #include "GrContext.h"
@@ -21,6 +20,8 @@
 #include "GrTextureProxy.h"
 #include "ProxyUtils.h"
 #include "SkHalf.h"
+
+#include <float.h>
 
 static const int DEV_W = 100, DEV_H = 100;
 

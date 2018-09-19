@@ -12,6 +12,7 @@
 #include "SkICC.h"
 #include "SkString.h"
 #include "Test.h"
+
 #include "../third_party/skcms/skcms.h"
 
 DEF_TEST(WriteICCProfile, r) {

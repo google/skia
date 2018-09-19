@@ -6,14 +6,16 @@
  * found in the LICENSE file.
  */
 
-#include <OpenGL/gl.h>
 #include "../GLWindowContext.h"
-#include "SDL.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "WindowContextFactory_mac.h"
 #include "gl/GrGLInterface.h"
 #include "sk_tool_utils.h"
+
+#include <OpenGL/gl.h>
+
+#include "SDL.h"
 
 using sk_app::DisplayParams;
 using sk_app::window_context_factory::MacWindowInfo;

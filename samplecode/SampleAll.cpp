@@ -4,36 +4,37 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Sample.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
+
+#include "DecodeFile.h"
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
+#include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
+#include "SkCanvas.h"
 #include "SkColorMatrixFilter.h"
 #include "SkColorPriv.h"
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
 #include "SkDiscretePathEffect.h"
 #include "SkEmbossMaskFilter.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkGradientShader.h"
 #include "SkMath.h"
 #include "SkPath.h"
-#include "SkPictureRecorder.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkCornerPathEffect.h"
 #include "SkPathMeasure.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkRandom.h"
+#include "SkReadBuffer.h"
+#include "SkRegion.h"
+#include "SkShader.h"
 #include "SkTextOnPath.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
+#include "SkWriteBuffer.h"
 
 #include <math.h>
-#include "DecodeFile.h"
 
 class Dot2DPathEffect : public Sk2DPathEffect {
 public:

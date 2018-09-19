@@ -7,8 +7,9 @@
 
 #include "SkScaleToSides.h"
 
-#include <algorithm>
 #include "Test.h"
+
+#include <algorithm>
 
 DEF_TEST(ScaleToSides, reporter) {
     double interestingValues[] = {

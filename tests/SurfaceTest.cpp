@@ -5,9 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <functional>
-#include <initializer_list>
-#include <vector>
 #include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -29,6 +26,10 @@
 #include "SkSurface_Gpu.h"
 #include "SkUtils.h"
 #include "Test.h"
+
+#include <functional>
+#include <initializer_list>
+#include <vector>
 
 #include "sk_tool_utils.h"
 

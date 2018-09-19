@@ -50,6 +50,7 @@ static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "Resources.h"
@@ -187,6 +188,7 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SkGradientShader.h"
+
 template <typename T> class SkTRefArray : public SkTDArray<T> {
 public:
     ~SkTRefArray() { this->unrefAll(); }

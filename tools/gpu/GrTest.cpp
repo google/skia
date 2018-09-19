@@ -29,6 +29,7 @@
 #include "ops/GrMeshDrawOp.h"
 #include "text/GrGlyphCache.h"
 #include "text/GrTextBlobCache.h"
+
 #include <algorithm>
 
 bool GrSurfaceProxy::isWrapped_ForTesting() const {

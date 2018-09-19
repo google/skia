@@ -8,11 +8,12 @@
 #ifndef Window_unix_DEFINED
 #define Window_unix_DEFINED
 
-#include <X11/Xlib.h>
-#include <GL/glx.h>
 #include "../Window.h"
 #include "SkChecksum.h"
 #include "SkTDynamicHash.h"
+
+#include <GL/glx.h>
+#include <X11/Xlib.h>
 
 typedef Window XWindow;
 

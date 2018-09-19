@@ -14,6 +14,7 @@
 #include "../include/core/SkString.h"
 #include "../include/core/SkPictureRecorder.h"
 #include "../src/core/SkBlendModePriv.h"
+
 #include <cstring>
 
 // Verify that replay of a recording into a clipped canvas
