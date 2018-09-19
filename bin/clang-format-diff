@@ -1,0 +1,15 @@
+#! /bin/sh
+# Copyright 2018 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+
+# TODO: test this on Windows.
+
+ROOTDIR="$(cd "$(dirname "$0")/.."; pwd)"
+DIFFAGAINST="${1:-HEAD}"
+BINARY="${ROOTDIR}/bin/clang-format"
+
+case "$(uname)" in Linux|Darwin) ;; *) BINARY="${BINARY}.exe";; esac
+
+git diff -U0 --no-color "$DIFFAGAINST" | \
+  python "${ROOTDIR}/buildtools/clang_format/script/clang-format-diff.py" -p1 -i -b "$BINARY"
+
