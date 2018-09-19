@@ -16,87 +16,102 @@
 #include "SkUnPreMultiplyPriv.h"
 #include "../jumper/SkJumper.h"
 
-// Fast Path 1: The memcpy() case.
-static inline bool can_memcpy(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
+static bool rect_memcpy(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
+                        const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
+                        const SkColorSpaceXformSteps& steps) {
+    // We can copy the pixels when no color type, alpha type, or color space changes.
     if (dstInfo.colorType() != srcInfo.colorType()) {
         return false;
     }
-
-    if (kAlpha_8_SkColorType == dstInfo.colorType()) {
-        return true;
-    }
-
-    if (dstInfo.alphaType() != srcInfo.alphaType() &&
-        kOpaque_SkAlphaType != dstInfo.alphaType() &&
-        kOpaque_SkAlphaType != srcInfo.alphaType())
-    {
-        // We need to premultiply or unpremultiply.
+    if (dstInfo.colorType() != kAlpha_8_SkColorType
+            && steps.flags.mask() != 0b00000) {
         return false;
     }
 
-    return !dstInfo.colorSpace() ||
-           SkColorSpace::Equals(dstInfo.colorSpace(), srcInfo.colorSpace());
+    SkRectMemcpy(dstPixels, dstRB,
+                 srcPixels, srcRB, dstInfo.minRowBytes(), dstInfo.height());
+    return true;
 }
 
-// Fast Path 2: Simple swizzles and premuls.
-enum AlphaVerb {
-    kNothing_AlphaVerb,
-    kPremul_AlphaVerb,
-    kUnpremul_AlphaVerb,
-};
-
-template <bool kSwapRB>
-static void wrap_unpremultiply(uint32_t* dst, const void* src, int count) {
-    SkUnpremultiplyRow<kSwapRB>(dst, (const uint32_t*) src, count);
-}
-
-void swizzle_and_multiply(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                          const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
-    void (*proc)(uint32_t* dst, const void* src, int count);
-    const bool swapRB = dstInfo.colorType() != srcInfo.colorType();
-    AlphaVerb alphaVerb = kNothing_AlphaVerb;
-    if (kPremul_SkAlphaType == dstInfo.alphaType() &&
-        kUnpremul_SkAlphaType == srcInfo.alphaType())
-    {
-        alphaVerb = kPremul_AlphaVerb;
-    } else if (kUnpremul_SkAlphaType == dstInfo.alphaType() &&
-               kPremul_SkAlphaType == srcInfo.alphaType()) {
-        alphaVerb = kUnpremul_AlphaVerb;
+static bool swizzle_and_multiply(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
+                                 const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
+                                 const SkColorSpaceXformSteps& steps) {
+    auto is_8888 = [](SkColorType ct) {
+        return ct == kRGBA_8888_SkColorType || ct == kBGRA_8888_SkColorType;
+    };
+    if (!is_8888(dstInfo.colorType()) ||
+        !is_8888(srcInfo.colorType()) ||
+        steps.flags.linearize || steps.flags.gamut_transform || steps.flags.encode) {
+        return false;
     }
 
-    switch (alphaVerb) {
-        case kNothing_AlphaVerb:
-            // If we do not need to swap or multiply, we should hit the memcpy case.
-            SkASSERT(swapRB);
-            proc = SkOpts::RGBA_to_BGRA;
-            break;
-        case kPremul_AlphaVerb:
-            proc = swapRB ? SkOpts::RGBA_to_bgrA : SkOpts::RGBA_to_rgbA;
-            break;
-        case kUnpremul_AlphaVerb:
-            proc = swapRB ? wrap_unpremultiply<true> : wrap_unpremultiply<false>;
-            break;
+    // It'd be kind of silly for us to both...
+    SkASSERT(!(steps.flags.premul && steps.flags.unpremul));
+
+    const bool swapRB = dstInfo.colorType() != srcInfo.colorType();
+
+    void (*fn)(uint32_t*, const uint32_t*, int) = nullptr;
+
+    if (steps.flags.premul) {
+        fn = swapRB ? SkOpts::RGBA_to_bgrA
+                    : SkOpts::RGBA_to_rgbA;
+    } else if (steps.flags.unpremul) {
+        fn = swapRB ? SkUnpremultiplyRow<true>
+                    : SkUnpremultiplyRow<false>;
+    } else {
+        // If we're not swizzling, we ought to have used rect_memcpy().
+        SkASSERT(swapRB);
+        fn = SkOpts::RGBA_to_BGRA;
     }
 
     for (int y = 0; y < dstInfo.height(); y++) {
-        proc((uint32_t*) dstPixels, srcPixels, dstInfo.width());
+        fn((uint32_t*)dstPixels, (const uint32_t*)srcPixels, dstInfo.width());
         dstPixels = SkTAddOffset<void>(dstPixels, dstRB);
         srcPixels = SkTAddOffset<const void>(srcPixels, srcRB);
     }
+    return true;
 }
 
-// Fast Path 3: Alpha 8 dsts.
-static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& srcInfo,
-                              const void* src, size_t srcRB) {
-    if (srcInfo.isOpaque()) {
-        for (int y = 0; y < srcInfo.height(); ++y) {
-           memset(dst, 0xFF, srcInfo.width());
-           dst = SkTAddOffset<uint8_t>(dst, dstRB);
-        }
-        return;
+static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size_t dstRB,
+                              const SkImageInfo& srcInfo, const void*  src, size_t srcRB,
+                              const SkColorSpaceXformSteps&) {
+    if (dstInfo.colorType() != kAlpha_8_SkColorType) {
+        return false;
     }
+    auto dst = (uint8_t*)vdst;
 
     switch (srcInfo.colorType()) {
+        case kUnknown_SkColorType:
+        case kAlpha_8_SkColorType: {
+            // Unknown should never happen.
+            // Alpha8 should have been handled by rect_memcpy().
+            SkASSERT(false);
+            return false;
+        }
+
+        case kGray_8_SkColorType:
+        case kRGB_565_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kRGB_101010x_SkColorType: {
+            for (int y = 0; y < srcInfo.height(); ++y) {
+               memset(dst, 0xFF, srcInfo.width());
+               dst = SkTAddOffset<uint8_t>(dst, dstRB);
+            }
+            return true;
+        }
+
+        case kARGB_4444_SkColorType: {
+            auto src16 = (const uint16_t*) src;
+            for (int y = 0; y < srcInfo.height(); y++) {
+                for (int x = 0; x < srcInfo.width(); x++) {
+                    dst[x] = SkPacked4444ToA32(src16[x]);
+                }
+                dst = SkTAddOffset<uint8_t>(dst, dstRB);
+                src16 = SkTAddOffset<const uint16_t>(src16, srcRB);
+            }
+            return true;
+        }
+
         case kBGRA_8888_SkColorType:
         case kRGBA_8888_SkColorType: {
             auto src32 = (const uint32_t*) src;
@@ -107,43 +122,21 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
                 dst = SkTAddOffset<uint8_t>(dst, dstRB);
                 src32 = SkTAddOffset<const uint32_t>(src32, srcRB);
             }
-            break;
+            return true;
         }
+
         case kRGBA_1010102_SkColorType: {
             auto src32 = (const uint32_t*) src;
             for (int y = 0; y < srcInfo.height(); y++) {
                 for (int x = 0; x < srcInfo.width(); x++) {
-                    switch (src32[x] >> 30) {
-                        case 0:
-                            dst[x] = 0;
-                            break;
-                        case 1:
-                            dst[x] = 0x55;
-                            break;
-                        case 2:
-                            dst[x] = 0xAA;
-                            break;
-                        case 3:
-                            dst[x] = 0xFF;
-                            break;
-                    }
+                    dst[x] = (src32[x] >> 30) * 0x55;
                 }
                 dst = SkTAddOffset<uint8_t>(dst, dstRB);
                 src32 = SkTAddOffset<const uint32_t>(src32, srcRB);
             }
-            break;
+            return true;
         }
-        case kARGB_4444_SkColorType: {
-            auto src16 = (const uint16_t*) src;
-            for (int y = 0; y < srcInfo.height(); y++) {
-                for (int x = 0; x < srcInfo.width(); x++) {
-                    dst[x] = SkPacked4444ToA32(src16[x]);
-                }
-                dst = SkTAddOffset<uint8_t>(dst, dstRB);
-                src16 = SkTAddOffset<const uint16_t>(src16, srcRB);
-            }
-            break;
-        }
+
         case kRGBA_F16_SkColorType: {
             auto src64 = (const uint64_t*) src;
             for (int y = 0; y < srcInfo.height(); y++) {
@@ -153,8 +146,9 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
                 dst = SkTAddOffset<uint8_t>(dst, dstRB);
                 src64 = SkTAddOffset<const uint64_t>(src64, srcRB);
             }
-            break;
+            return true;
         }
+
         case kRGBA_F32_SkColorType: {
             auto rgba = (const float*)src;
             for (int y = 0; y < srcInfo.height(); y++) {
@@ -164,25 +158,22 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
                 dst  = SkTAddOffset<uint8_t>(dst, dstRB);
                 rgba = SkTAddOffset<const float>(rgba, srcRB);
             }
-        } break;
-        default:
-            SkASSERT(false);
-            break;
+            return true;
+        }
     }
+    return false;
 }
 
 // Default: Use the pipeline.
 static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
-                                  const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB) {
+                                  const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
+                                  const SkColorSpaceXformSteps& steps) {
 
     SkJumper_MemoryCtx src = { (void*)srcRow, (int)(srcRB / srcInfo.bytesPerPixel()) },
                        dst = { (void*)dstRow, (int)(dstRB / dstInfo.bytesPerPixel()) };
 
     SkRasterPipeline_<256> pipeline;
     pipeline.append_load(srcInfo.colorType(), &src);
-
-    SkColorSpaceXformSteps steps{srcInfo.colorSpace(), srcInfo.alphaType(),
-                                 dstInfo.colorSpace(), dstInfo.alphaType()};
     steps.apply(&pipeline);
 
     // We'll dither if we're decreasing precision below 32-bit.
@@ -202,40 +193,18 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     pipeline.run(0,0, srcInfo.width(), srcInfo.height());
 }
 
-static bool swizzle_and_multiply_color_type(SkColorType ct) {
-    switch (ct) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            return true;
-        default:
-            return false;
-    }
-}
-
-void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+void SkConvertPixels(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
                      const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
     SkASSERT(dstInfo.dimensions() == srcInfo.dimensions());
     SkASSERT(SkImageInfoValidConversion(dstInfo, srcInfo));
 
-    // Fast Path 1: The memcpy() case.
-    if (can_memcpy(dstInfo, srcInfo)) {
-        SkRectMemcpy(dstPixels, dstRB, srcPixels, srcRB, dstInfo.minRowBytes(), dstInfo.height());
-        return;
-    }
+    SkColorSpaceXformSteps steps{srcInfo.colorSpace(), srcInfo.alphaType(),
+                                 dstInfo.colorSpace(), dstInfo.alphaType()};
 
-    // Fast Path 2: Simple swizzles and premuls.
-    if (swizzle_and_multiply_color_type(srcInfo.colorType()) &&
-        swizzle_and_multiply_color_type(dstInfo.colorType()) && !dstInfo.colorSpace()) {
-        swizzle_and_multiply(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
-        return;
+    for (auto fn : {rect_memcpy, swizzle_and_multiply, convert_to_alpha8}) {
+        if (fn(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps)) {
+            return;
+        }
     }
-
-    // Fast Path 3: Alpha 8 dsts.
-    if (kAlpha_8_SkColorType == dstInfo.colorType()) {
-        convert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB);
-        return;
-    }
-
-    // Default: Use the pipeline.
-    convert_with_pipeline(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
+    convert_with_pipeline(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps);
 }
