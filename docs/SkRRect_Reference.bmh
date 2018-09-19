@@ -20,22 +20,22 @@ If corner curves overlap, radii are proportionally reduced to fit within bounds.
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
-#Subtopic Operator
+#Subtopic Operators
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method SkRRect()
-#In Constructor
+#In Constructors
 #Line # creates with zeroed bounds and corner radii ##
 
 Initializes bounds at (0, 0), the origin, with zero width and height.
@@ -61,7 +61,7 @@ Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 # ------------------------------------------------------------------------------
 
 #Method SkRRect(const SkRRect& rrect)
-#In Constructor
+#In Constructors
 #Line # copies bounds and corner radii ##
 
 Initializes to copy of rrect bounds and corner radii.
@@ -90,7 +90,7 @@ Initializes to copy of rrect bounds and corner radii.
 # ------------------------------------------------------------------------------
 
 #Method SkRRect& operator=(const SkRRect& rrect)
-#In Operator
+#In Operators
 #Line # copies bounds and corner radii ##
 
 Copies rrect bounds and corner radii.
@@ -623,7 +623,7 @@ otherwise, sets type to kEmpty_Type.
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeEmpty()
-#In Constructor
+#In Constructors
 #Line # creates with zeroed bounds and corner radii ##
 
 Initializes bounds at (0, 0), the origin, with zero width and height.
@@ -653,7 +653,7 @@ Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeRect(const SkRect& r)
-#In Constructor
+#In Constructors
 #Line # copies bounds and zeroes corner radii ##
 
 Initializes to copy of r bounds and zeroes corner radii.
@@ -679,7 +679,7 @@ Initializes to copy of r bounds and zeroes corner radii.
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeOval(const SkRect& oval)
-#In Constructor
+#In Constructors
 #Line # creates Oval to fit bounds ##
 
 Sets bounds to oval, x-axis radii to half oval.width(), and all y-axis radii
@@ -708,7 +708,7 @@ Otherwise, sets to kOval_Type.
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
-#In Constructor
+#In Constructors
 #Line # creates rounded rectangle ##
 
 Sets to rounded rectangle with the same radii for all four corners.
@@ -1040,7 +1040,7 @@ Result is identical to rect().
 # ------------------------------------------------------------------------------
 
 #Method bool operator==(const SkRRect& a, const SkRRect& b)
-#In Operator
+#In Operators
 #Line # returns true if members are equal ##
 Returns true if bounds and radii in a are equal to bounds and radii in b.
 
@@ -1074,7 +1074,7 @@ contain zeroes width different signs.
 # ------------------------------------------------------------------------------
 
 #Method bool operator!=(const SkRRect& a, const SkRRect& b)
-#In Operator
+#In Operators
 #Line # returns true if members are unequal ##
 Returns true if bounds and radii in a are not equal to bounds and radii in b.
 
