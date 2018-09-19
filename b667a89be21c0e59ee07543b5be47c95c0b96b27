@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7d62dde_87d7636d",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-19T17:32:25Z",
+      "side": 1,
+      "message": "Is this really \u0027loadFont\u0027 or just \u0027load\u0027? I know it\u0027s just being used for fonts at the moment, but there doesn\u0027t seem to be anything particularly font related about this particular declaration.",
+      "range": {
+        "startLine": 50,
+        "startChar": 30,
+        "endLine": 50,
+        "endChar": 34
+      },
+      "revId": "b667a89be21c0e59ee07543b5be47c95c0b96b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
