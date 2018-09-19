@@ -101,7 +101,8 @@ class CheckoutApi(recipe_api.RecipeApi):
         gclient_cfg.target_os.add('android')
 
       skia_dep_path = 'src/third_party/skia'
-      gclient_cfg.patch_projects['skia'] = (skia_dep_path, 'HEAD')
+      gclient_cfg.repo_path_map['https://skia.googlesource.com/skia'] = (
+          skia_dep_path, 'HEAD')
       gclient_cfg.revisions[skia_dep_path] = self.m.properties['revision']
       m[skia_dep_path] = 'got_revision'
       patch_root = skia_dep_path
