@@ -1182,6 +1182,7 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     if (srcPaint.getPathEffect()
         || srcPaint.getMaskFilter()
         || srcPaint.isVerticalText()
+        || this->ctm().hasPerspective()
         || SkPaint::kFill_Style != srcPaint.getStyle()) {
         // Stroked Text doesn't work well with Type3 fonts.
         return draw_glyph_run_as_path(this, glyphRun, offset);
