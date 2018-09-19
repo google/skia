@@ -670,13 +670,14 @@ public:
     }
 
     static sk_sp<SkPicture> ReadSVGPicture(const char* path) {
-        SkFILEStream stream(path);
-        if (!stream.isValid()) {
+        sk_sp<SkData> data(SkData::MakeFromFileName(path));
+        if (!data) {
             SkDebugf("Could not read %s.\n", path);
             return nullptr;
         }
 
 #ifdef SK_XML
+        SkMemoryStream stream(std::move(data));
         sk_sp<SkSVGDOM> svgDom = SkSVGDOM::MakeFromStream(stream);
         if (!svgDom) {
             SkDebugf("Could not parse %s.\n", path);

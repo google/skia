@@ -1209,23 +1209,25 @@ SVGSrc::SVGSrc(Path path)
     : fName(SkOSPath::Basename(path.c_str()))
     , fScale(1) {
 
-  SkFILEStream stream(path.c_str());
-  if (!stream.isValid()) {
-      return;
-  }
-  fDom = SkSVGDOM::MakeFromStream(stream);
-  if (!fDom) {
-      return;
-  }
+    sk_sp<SkData> data(SkData::MakeFromFileName(path.c_str()));
+    if (!data) {
+        return;
+    }
 
-  const SkSize& sz = fDom->containerSize();
-  if (sz.isEmpty()) {
-      // no intrinsic size
-      fDom->setContainerSize(kDefaultSVGSize);
-  } else {
-      fScale = SkTMax(1.f, SkTMax(kMinimumSVGSize.width()  / sz.width(),
-                                  kMinimumSVGSize.height() / sz.height()));
-  }
+    SkMemoryStream stream(std::move(data));
+    fDom = SkSVGDOM::MakeFromStream(stream);
+    if (!fDom) {
+        return;
+    }
+
+    const SkSize& sz = fDom->containerSize();
+    if (sz.isEmpty()) {
+        // no intrinsic size
+        fDom->setContainerSize(kDefaultSVGSize);
+    } else {
+        fScale = SkTMax(1.f, SkTMax(kMinimumSVGSize.width()  / sz.width(),
+                                    kMinimumSVGSize.height() / sz.height()));
+    }
 }
 
 Error SVGSrc::draw(SkCanvas* canvas) const {
