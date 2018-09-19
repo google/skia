@@ -785,29 +785,36 @@ static bool gather_srcs() {
     for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
         push_src("gm", "", new GMSrc(f));
     }
-
+    info("Gathered GMs %d\n", gSrcs.count());
     gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
+    info("Gathered SKPs %d\n", gSrcs.count());
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
+    info("Gathered MSKPs %d\n", gSrcs.count());
 #if defined(SK_ENABLE_SKOTTIE)
     gather_file_srcs<SkottieSrc>(FLAGS_lotties, "json", "lottie");
+    info("Gathered LOTTIEs %d\n", gSrcs.count());
 #endif
 #if defined(SK_XML)
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
+    info("Gathered SVGs %d\n", gSrcs.count());
 #endif
 
     SkTArray<SkString> images;
     if (!CollectImages(FLAGS_images, &images)) {
         return false;
     }
+    info("Collected images (%d)\n", images.count());
 
     for (auto image : images) {
         push_codec_srcs(image);
     }
+    info("Gathered codec_srcs %d\n", gSrcs.count());
 
     SkTArray<SkString> colorImages;
     if (!CollectImages(FLAGS_colorImages, &colorImages)) {
         return false;
     }
+    info("Collected color images (%d)\n", colorImages.count());
 
     for (auto colorImage : colorImages) {
         ColorCodecSrc* src = new ColorCodecSrc(colorImage, ColorCodecSrc::kBaseline_Mode,
@@ -824,6 +831,7 @@ static bool gather_srcs() {
         src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_sRGB_Mode, kRGBA_F16_SkColorType);
         push_src("colorImage", "color_codec_sRGB_kF16", src);
     }
+    info("Gathered color_codec_srcs %d\n", gSrcs.count());
 
     return true;
 }
@@ -1389,10 +1397,11 @@ int main(int argc, char** argv) {
     }
     gather_gold();
     gather_uninteresting_hashes();
-
+    info("%s\n", "About to gather srcs");
     if (!gather_srcs()) {
         return 1;
     }
+    info("%s\n", "Gathered srcs");
     // TODO(dogben): This is a bit ugly. Find a cleaner way to do this.
     bool defaultConfigs = true;
     for (int i = 0; i < argc; i++) {
@@ -1402,13 +1411,20 @@ int main(int argc, char** argv) {
             break;
         }
     }
+    info("%s\n", "About to gather sinks");
     if (!gather_sinks(grCtxOptions, defaultConfigs)) {
         return 1;
     }
+    info("%s\n", "Gathered sinks");
     gather_tests();
+    info("%s\n", "Gathered tests");
     gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
     info("%d srcs * %d sinks + %d tests == %d tasks\n",
          gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
+
+    if (true) {
+        return 1;
+    }
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
     SkTaskGroup parallel;
