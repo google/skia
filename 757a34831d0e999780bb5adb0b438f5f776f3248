@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0d6ac37_f06a855b",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-19T23:24:21Z",
+      "side": 1,
+      "message": "Since this is modifying a global setting, I\u0027m not sure if that\u0027s okay with the test framework. Is it enough if I reset it at the end?",
+      "range": {
+        "startLine": 626,
+        "startChar": 4,
+        "endLine": 626,
+        "endChar": 70
+      },
+      "revId": "757a34831d0e999780bb5adb0b438f5f776f3248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
