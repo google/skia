@@ -16,44 +16,48 @@
 #include "SkUnPreMultiplyPriv.h"
 #include "../jumper/SkJumper.h"
 
-// Fast Path 1: The memcpy() case.
-static inline bool can_memcpy(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
-    if (dstInfo.colorType() != srcInfo.colorType()) {
+static bool rect_memcpy(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
+                        const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
+                        const SkColorSpaceXformSteps& steps) {
+    // We can copy the pixels unchanged if no color type,
+    // alpha type, or color space conversion is needed.
+    if (dstInfo().colorType() != srcInfo.colorType()
+            || steps.flags.mask() != 0b00000) {
         return false;
     }
 
-    if (kAlpha_8_SkColorType == dstInfo.colorType()) {
-        return true;
-    }
-
-    if (dstInfo.alphaType() != srcInfo.alphaType() &&
-        kOpaque_SkAlphaType != dstInfo.alphaType() &&
-        kOpaque_SkAlphaType != srcInfo.alphaType())
-    {
-        // We need to premultiply or unpremultiply.
-        return false;
-    }
-
-    return !dstInfo.colorSpace() ||
-           SkColorSpace::Equals(dstInfo.colorSpace(), srcInfo.colorSpace());
+    SkRectMemcpy(dstPixels, dstRB,
+                 srcPixels, srcRB, dstInfo.minRowBytes(), dstInfo.height());
+    return true;
 }
-
-// Fast Path 2: Simple swizzles and premuls.
-enum AlphaVerb {
-    kNothing_AlphaVerb,
-    kPremul_AlphaVerb,
-    kUnpremul_AlphaVerb,
-};
 
 template <bool kSwapRB>
 static void wrap_unpremultiply(uint32_t* dst, const void* src, int count) {
     SkUnpremultiplyRow<kSwapRB>(dst, (const uint32_t*) src, count);
 }
 
-void swizzle_and_multiply(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                          const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
-    void (*proc)(uint32_t* dst, const void* src, int count);
+bool swizzle_and_multiply(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
+                          const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
+                          const SkColorSpaceXformSteps& steps) {
+
+    auto is_8888 = [](SkColorType ct) {
+        return ct == kRGBA_8888_SkColorType || ct == kBGRA_8888_SkColorType;
+    };
+
+    if (!is_8888(dstInfo) ||
+        !is_8888(srcInfo) ||
+        steps.flags.linearize ||
+        steps.flags.gamut_transform ||
+        steps.flags.encode) {
+        return false;
+    }
+
+    SkASSERT(!(steps.premul && steps.unpremul));
+
+    void (*proc)(uint32_t* dst, const void* src, int count) = nullptr;
+
     const bool swapRB = dstInfo.colorType() != srcInfo.colorType();
+
     AlphaVerb alphaVerb = kNothing_AlphaVerb;
     if (kPremul_SkAlphaType == dstInfo.alphaType() &&
         kUnpremul_SkAlphaType == srcInfo.alphaType())
@@ -85,8 +89,7 @@ void swizzle_and_multiply(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
     }
 }
 
-// Fast Path 3: Alpha 8 dsts.
-static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& srcInfo,
+static void convert_to_alpha8(uint8_t*    dst, size_t dstRB, const SkImageInfo& srcInfo,
                               const void* src, size_t srcRB) {
     if (srcInfo.isOpaque()) {
         for (int y = 0; y < srcInfo.height(); ++y) {
@@ -173,7 +176,8 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
 
 // Default: Use the pipeline.
 static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
-                                  const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB) {
+                                  const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
+                                  const SkColorSpaceXformSteps& steps) {
 
     SkJumper_MemoryCtx src = { (void*)srcRow, (int)(srcRB / srcInfo.bytesPerPixel()) },
                        dst = { (void*)dstRow, (int)(dstRB / dstInfo.bytesPerPixel()) };
@@ -181,8 +185,6 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     SkRasterPipeline_<256> pipeline;
     pipeline.append_load(srcInfo.colorType(), &src);
 
-    SkColorSpaceXformSteps steps{srcInfo.colorSpace(), srcInfo.alphaType(),
-                                 dstInfo.colorSpace(), dstInfo.alphaType()};
     steps.apply(&pipeline);
 
     // We'll dither if we're decreasing precision below 32-bit.
@@ -202,40 +204,27 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     pipeline.run(0,0, srcInfo.width(), srcInfo.height());
 }
 
-static bool swizzle_and_multiply_color_type(SkColorType ct) {
-    switch (ct) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            return true;
-        default:
-            return false;
-    }
-}
-
-void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+void SkConvertPixels(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
                      const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
     SkASSERT(dstInfo.dimensions() == srcInfo.dimensions());
     SkASSERT(SkImageInfoValidConversion(dstInfo, srcInfo));
 
-    // Fast Path 1: The memcpy() case.
-    if (can_memcpy(dstInfo, srcInfo)) {
-        SkRectMemcpy(dstPixels, dstRB, srcPixels, srcRB, dstInfo.minRowBytes(), dstInfo.height());
+    SkColorSpaceXformSteps steps{srcInfo.colorSpace(), srcInfo.alphaType(),
+                                 dstInfo.colorSpace(), dstInfo.alphaType()};
+
+    if (srcInfo.colorType() == dstInfo.colorType()
+            && steps.flags.mask() == 0b00000) {
         return;
     }
 
-    // Fast Path 2: Simple swizzles and premuls.
-    if (swizzle_and_multiply_color_type(srcInfo.colorType()) &&
-        swizzle_and_multiply_color_type(dstInfo.colorType()) && !dstInfo.colorSpace()) {
-        swizzle_and_multiply(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
+    if (rect_memcpy         (dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps)) {
         return;
     }
-
-    // Fast Path 3: Alpha 8 dsts.
-    if (kAlpha_8_SkColorType == dstInfo.colorType()) {
-        convert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB);
+    if (swizzle_and_multiply(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps)) {
         return;
     }
-
-    // Default: Use the pipeline.
-    convert_with_pipeline(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
+    if (convert_to_alpha8   (dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps)) {
+        return;
+    }
+    convert_with_pipeline   (dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps);
 }
