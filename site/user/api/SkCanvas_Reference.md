@@ -1,8 +1,6 @@
 SkCanvas Reference
 ===
 
-# <a name='Canvas'>Canvas</a>
-
 # <a name='SkCanvas'>Class SkCanvas</a>
 <a href='#Canvas'>Canvas</a> provides an interface for drawing, and how the drawing is clipped and transformed.
 <a href='#Canvas'>Canvas</a> contains a stack of <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a> values.
@@ -31,33 +29,33 @@ This approach may be deprecated in the future.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkCanvas'>SkCanvas</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Functions'>Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Functions'>Related Functions</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Struct'>Struct Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Structs'>Struct Declarations</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded struct members</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedef'>Typedef Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedefs'>Typedef Declarations</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>types defined by other types</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
 SkCanvas global, <code>struct</code>, and <code>class</code> related member functions share a topic.
@@ -114,7 +112,7 @@ SkCanvas global, <code>struct</code>, and <code>class</code> related member func
   </tr>
 </table>
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
 SkCanvas related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
@@ -171,7 +169,7 @@ SkCanvas related constants are defined by <code>enum</code>, <code>enum class</c
   </tr>
 </table>
 
-## <a name='Struct'>Struct</a>
+## <a name='Structs'>Structs</a>
 
 
 SkCanvas uses C++ structs to declare the public data structures and interfaces.
@@ -188,7 +186,7 @@ SkCanvas uses C++ structs to declare the public data structures and interfaces.
   </tr>
 </table>
 
-## <a name='Typedef'>Typedef</a>
+## <a name='Typedefs'>Typedefs</a>
 
 
 SkCanvas  <code>typedef</code> define a data type.
@@ -201,7 +199,7 @@ SkCanvas  <code>typedef</code> define a data type.
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 Create the desired type of <a href='SkSurface_Reference#Surface'>Surface</a> to obtain its <a href='#Canvas'>Canvas</a> when possible. Useful
 when no <a href='SkSurface_Reference#Surface'>Surface</a> is required, and some helpers implicitly create <a href='undocumented#Raster_Surface'>Raster Surface</a>.
@@ -249,7 +247,7 @@ SkCanvas can be constructed or initialized by these functions, including C++ cla
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
 SkCanvas member functions read and modify the structure properties.
@@ -856,6 +854,8 @@ storage of <a href='undocumented#Raster_Surface'>Raster Surface</a></td>
 ---
 
 ## <a name='SkCanvas_ColorBehavior'>Enum SkCanvas::ColorBehavior</a>
+
+Private: Android framework only.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum class <a href='#SkCanvas_ColorBehavior'>ColorBehavior</a> {
@@ -2303,7 +2303,28 @@ scalePaint blends <a href='#Layer'>Layer</a> back with transparency.
 
 # <a name='SkCanvas_SaveLayerRec'>Struct SkCanvas::SaveLayerRec</a>
 
-## <a name='Layer_SaveLayerRec_Member_Function'>Member_Function</a>
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+struct <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a> {
+    SaveLayerRec*();
+    <a href='#SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star'>SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)</a>;
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    SaveLayerFlags saveLayerFlags);
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    const SkImage* clipMask, const SkMatrix* clipMatrix,
+                    SaveLayerFlags saveLayerFlags);
+
+    const <a href='SkRect_Reference#SkRect'>SkRect</a>*           <a href='#SkCanvas_SaveLayerRec_fBounds'>fBounds</a>;
+    const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>*          <a href='#SkCanvas_SaveLayerRec_fPaint'>fPaint</a>;
+    const <a href='undocumented#SkImageFilter'>SkImageFilter</a>*    <a href='#SkCanvas_SaveLayerRec_fBackdrop'>fBackdrop</a>;
+    const <a href='SkImage_Reference#SkImage'>SkImage</a>*          <a href='#SkCanvas_SaveLayerRec_fClipMask'>fClipMask</a>;
+    const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>*         <a href='#SkCanvas_SaveLayerRec_fClipMatrix'>fClipMatrix</a>;
+    <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a>          <a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a>;
+};
+</pre>
+
+<a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a> contains the state used to create the <a href='#Layer'>Layer</a>.
+
+## <a name='Layer_SaveLayerRec_Member_Functions'>Member Functions</a>
 
 
 SkCanvas::SaveLayerRec member functions read and modify the structure properties.
@@ -2316,45 +2337,37 @@ SkCanvas::SaveLayerRec member functions read and modify the structure properties
   </tr>
 </table>
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    struct <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a> {
-        <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a>*(...
+## <a name='Layer_SaveLayerRec_Members'>Members</a>
 
-        const <a href='SkRect_Reference#SkRect'>SkRect</a>*           <a href='#SkCanvas_SaveLayerRec_fBounds'>fBounds</a>;
-        const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>*          <a href='#SkCanvas_SaveLayerRec_fPaint'>fPaint</a>;
-        const <a href='undocumented#SkImageFilter'>SkImageFilter</a>*    <a href='#SkCanvas_SaveLayerRec_fBackdrop'>fBackdrop</a>;
-        <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a>          <a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a>;
-    };
-</pre>
 
-<a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a> contains the state used to create the <a href='#Layer'>Layer</a>.
-
-## <a name='Layer_SaveLayerRec_Overview'>Layer SaveLayerRec Overview</a>
-
+SkCanvas::SaveLayerRec members may be read and written directly without using a member function.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec_Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkCanvas_SaveLayerRec'>SkCanvas::SaveLayerRec</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fBackdrop'>fBackdrop</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>applies <a href='undocumented#Image_Filter'>Image Filter</a> to prior <a href='#Layer'>Layer</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec_Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fBounds'>fBounds</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>hints at <a href='#Layer'>Layer</a> size limit</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec_Member'>Members</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fClipMask'>fClipMask</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>clips <a href='#Layer'>Layer</a> with <a href='undocumented#Mask_Alpha'>Mask Alpha</a></td>
   </tr>
-</table>
-
-
-## <a name='Layer_SaveLayerRec_Member'>Layer SaveLayerRec Member</a>
-
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fClipMatrix'>fClipMatrix</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>transforms <a href='undocumented#Mask_Alpha'>Mask Alpha</a> used to clip</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fPaint'>fPaint</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>modifies overlay</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>preserves LCD <a href='undocumented#Text'>Text</a>, creates with prior <a href='#Layer'>Layer</a> contents</td>
+  </tr>
 </table>
 
 ### Members
@@ -2425,7 +2438,7 @@ up by four. After drawing another red circle without scaling on top, the <a href
 transferred to the main canvas.
 </div></fiddle-embed></div>
 
-## <a name='Layer_SaveLayerRec_Constructor'>Layer SaveLayerRec Constructor</a>
+## <a name='Layer_SaveLayerRec_Constructors'>Layer SaveLayerRec Constructors</a>
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
@@ -3101,6 +3114,8 @@ The maximum clip affects only future clipping operations; it is not retroactive.
 The clip restriction is not recorded in pictures.
 
 Pass an empty <a href='#SkCanvas_androidFramework_setDeviceClipRestriction_rect'>rect</a> to disable maximum clip.
+
+Private: This private API is for use by Android framework only.
 
 ### Parameters
 
@@ -5491,17 +5506,17 @@ remaining space, if any.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image_Lattice_Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image_Lattice_Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image_Lattice_Member'>Members</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image_Lattice_Members'>Members</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
   </tr>
 </table>
 
 
-## <a name='Draw_Image_Lattice_Constant'>Draw Image Lattice Constant</a>
+## <a name='Draw_Image_Lattice_Constants'>Draw Image Lattice Constants</a>
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
@@ -5548,7 +5563,7 @@ draws one of fColors into lattice rectangle</td>
   </tr>
 </table>
 
-## <a name='Draw_Image_Lattice_Member'>Draw Image Lattice Member</a>
+## <a name='Draw_Image_Lattice_Members'>Draw Image Lattice Members</a>
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
