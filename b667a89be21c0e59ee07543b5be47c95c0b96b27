@@ -22,6 +22,30 @@
       "revId": "b667a89be21c0e59ee07543b5be47c95c0b96b27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c33a7c7f_beacc3eb",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-19T19:35:14Z",
+      "side": 1,
+      "message": "Normal (image) resources are specified as (path,name).  Web font paths are specified as (URL). \n Not only that, but the URL doesn\u0027t point to actual (woff) font data, but to some style sheet-like unicode range directory.  See e.g. https://fonts.googleapis.com/css?family\u003dRoboto\n\nSo it looks like clients need to know they\u0027re loading a web font in order to a) handle the indirection and b) select the right woff from the list.\n\nRenamed to loadWebFont() to clarify (since this is really WF specific).",
+      "parentUuid": "d7d62dde_87d7636d",
+      "range": {
+        "startLine": 50,
+        "startChar": 30,
+        "endLine": 50,
+        "endChar": 34
+      },
+      "revId": "b667a89be21c0e59ee07543b5be47c95c0b96b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
