@@ -455,7 +455,7 @@ config("no_rtti") {
   }
 }
 
-config("release") {
+config("optimize") {
   if (is_win) {
     cflags = [
       "/O2",
@@ -484,6 +484,9 @@ config("release") {
       ldflags += [ "-O3" ]
     }
   }
+}
+
+config("NDEBUG") {
   defines = [ "NDEBUG" ]
 }
 
