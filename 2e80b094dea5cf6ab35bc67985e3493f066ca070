@@ -70,6 +70,30 @@
       "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16f24bad_9c99376b",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-19T21:38:19Z",
+      "side": 1,
+      "message": "Possibly - but that means writing a custom fontmgr.\n\nThere might be ways to fetch full web fonts - e.g. https://fonts.google.com/download?family\u003dRoboto downloads\n\nArchive:  ../Roboto.zip\n  inflating: LICENSE.txt             \n  inflating: Roboto-Thin.ttf         \n  inflating: Roboto-ThinItalic.ttf   \n  inflating: Roboto-Light.ttf        \n  inflating: Roboto-LightItalic.ttf  \n  inflating: Roboto-Regular.ttf      \n  inflating: Roboto-Italic.ttf       \n  inflating: Roboto-Medium.ttf       \n  inflating: Roboto-MediumItalic.ttf  \n  inflating: Roboto-Bold.ttf         \n  inflating: Roboto-BoldItalic.ttf   \n  inflating: Roboto-Black.ttf        \n  inflating: Roboto-BlackItalic.ttf  \n\nI\u0027m assuming those cover all the codepoints available in Roboto?\n\nSo one option would be to require the client to do whatever it needs to do to turn web font URLs into single font data payloads.\n\nMaybe there are magic URLs that point directly to specific ttf files?  Heck, Google fonts can be grabbed directly from https://github.com/google/fonts/ (and I bet they\u0027re stored in G3 also).",
+      "parentUuid": "2d30d1e2_e01a48f0",
+      "range": {
+        "startLine": 133,
+        "startChar": 25,
+        "endLine": 133,
+        "endChar": 43
+      },
+      "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
