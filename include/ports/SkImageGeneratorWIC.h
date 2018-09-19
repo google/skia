@@ -11,10 +11,8 @@
 
 #include "SkData.h"
 #include "SkImageGenerator.h"
-#include "SkTemplates.h"
-#include "SkTScopedComPtr.h"
 
-#include <wincodec.h>
+#include <memory>
 
 /*
  * Any Windows program that uses COM must initialize the COM library by calling
@@ -30,29 +28,8 @@
  * For more information on initializing COM, please see:
  * https://msdn.microsoft.com/en-us/library/windows/desktop/ff485844.aspx
  */
-class SK_API SkImageGeneratorWIC : public SkImageGenerator {
-public:
-    static std::unique_ptr<SkImageGenerator> MakeFromEncodedWIC(sk_sp<SkData>);
-
-protected:
-    sk_sp<SkData> onRefEncodedData() override;
-
-    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options&)
-    override;
-
-private:
-    /*
-     * Takes ownership of the imagingFactory
-     * Takes ownership of the imageSource
-     */
-    SkImageGeneratorWIC(const SkImageInfo& info, IWICImagingFactory* imagingFactory,
-            IWICBitmapSource* imageSource, sk_sp<SkData>);
-
-    SkTScopedComPtr<IWICImagingFactory> fImagingFactory;
-    SkTScopedComPtr<IWICBitmapSource>   fImageSource;
-    sk_sp<SkData>                       fData;
-
-    typedef SkImageGenerator INHERITED;
-};
+namespace SkImageGeneratorWIC {
+SK_API std::unique_ptr<SkImageGenerator> MakeFromEncodedWIC(sk_sp<SkData>);
+}
 
 #endif // SK_BUILD_FOR_WIN
