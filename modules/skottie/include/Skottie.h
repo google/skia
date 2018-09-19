@@ -26,6 +26,10 @@ namespace sksg { class Scene;  }
 
 namespace skottie {
 
+/**
+ * ResourcePrivider allows Skottie embedders to control loading of external
+ * Skottie resources -- e.g. images, fonts, nested animations.
+ */
 class SK_API ResourceProvider : public SkRefCnt {
 public:
     ResourceProvider() = default;
@@ -33,7 +37,17 @@ public:
     ResourceProvider(const ResourceProvider&) = delete;
     ResourceProvider& operator=(const ResourceProvider&) = delete;
 
-    virtual sk_sp<SkData> load(const char resource_path[], const char resource_name[]) const = 0;
+    /**
+     * Load a resource (image, nested animation) specified by |path| + |name|, and
+     * return as an SkData.
+     */
+    virtual sk_sp<SkData> load(const char resource_path[],
+                               const char resource_name[]) const;
+
+    /**
+     * Load a web font from |url| and return as an SkData.
+     */
+    virtual sk_sp<SkData> loadFont(const char url[]) const;
 };
 
 class SK_API Animation : public SkRefCnt {
