@@ -265,7 +265,7 @@ public:
             ? kRGBA_F16_SkColorType : kN32_SkColorType;
         SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
                                              sk_ref_sp(colorSpace));
-        return SkSpecialSurface::MakeRaster(info, nullptr);
+        return SkSpecialSurface::MakeRaster(info, &this->props());
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
@@ -305,7 +305,7 @@ public:
             ? kRGBA_F16_SkColorType : kN32_SkColorType;
         SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
                                              sk_ref_sp(colorSpace));
-        return SkSurface::MakeRaster(info);
+        return SkSurface::MakeRaster(info, &this->props());
     }
 
 private:
@@ -433,9 +433,9 @@ public:
             return nullptr;
         }
 
-        return SkSpecialSurface::MakeRenderTarget(
-            fContext, size.width(), size.height(),
-            SkColorType2GrPixelConfig(outProps.colorType()), sk_ref_sp(outProps.colorSpace()));
+        return SkSpecialSurface::MakeRenderTarget(fContext, size.width(), size.height(),
+                                                  SkColorType2GrPixelConfig(outProps.colorType()),
+                                                  sk_ref_sp(outProps.colorSpace()), this->props());
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {

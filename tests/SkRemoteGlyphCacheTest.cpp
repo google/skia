@@ -7,8 +7,11 @@
 
 #include "Resources.h"
 #include "SkDraw.h"
+#include "SkFontLCDConfig.h"
 #include "SkGraphics.h"
 #include "SkMutex.h"
+#include "SkPictureImageFilter.h"
+#include "SkPictureRecorder.h"
 #include "SkRemoteGlyphCache.h"
 #include "SkRemoteGlyphCacheImpl.h"
 #include "SkStrikeCache.h"
@@ -75,6 +78,7 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
     font.setTextSize(1u);
     font.setAntiAlias(true);
     font.setSubpixelText(true);
+    font.setLCDRenderText(true);
 
     SkTextBlobBuilder builder;
     SkRect bounds = SkRect::MakeWH(10, 10);
@@ -130,6 +134,29 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint
     bitmap.allocN32Pixels(width, height);
     surface->readPixels(bitmap, 0, 0);
     return bitmap;
+}
+
+SkBitmap RasterBlobAsPictureFilter(sk_sp<SkTextBlob> blob, int width, int height,
+                                   GrContext* context, const SkSurfaceProps& props) {
+  const SkImageInfo info =
+              SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);
+  auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, &props);
+
+  SkPictureRecorder recorder;
+  auto* canvas = recorder.beginRecording(10, 10);
+  canvas->drawTextBlob(blob.get(), 0, 0, SkPaint());
+  auto picture = recorder.finishRecordingAsPicture();
+
+  SkPaint filter_paint;
+  filter_paint.setImageFilter(SkPictureImageFilter::Make(picture));
+  surface->getCanvas()->saveLayer(nullptr, &filter_paint);
+  surface->getCanvas()->clear(SK_ColorWHITE);
+  surface->getCanvas()->restore();
+
+  SkBitmap bitmap;
+  bitmap.allocN32Pixels(width, height);
+  surface->readPixels(bitmap, 0, 0);
+  return bitmap;
 }
 
 DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
@@ -583,6 +610,43 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
 
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
+    compare_blobs(expected, actual, reporter);
+    REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+    SkStrikeCache::ValidateGlyphCacheDataSize();
+
+    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
+    discardableManager->unlockAndDeleteAll();
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawFilterWithTextLCD, reporter, ctxInfo) {
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager, false);
+    // Initialize LCD config so that default SkSurfaceProps assume LCD is enabled.
+    SkFontLCDConfig::SetSubpixelOrder(SkFontLCDConfig::kRGB_LCDOrder);
+
+    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto serverTfData = server.serializeTypeface(serverTf.get());
+
+    int glyphCount = 10;
+    auto serverBlob = buildTextBlob(serverTf, glyphCount);
+    // Use unknown geometry to disable LCD text.
+    const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    SkTextBlobCacheDiffCanvas text_canvas(10, 10, SkMatrix::I(), props, &server,
+                                          MakeSettings(ctxInfo.grContext()));
+    text_canvas.drawTextBlob(serverBlob.get(), 0, 0, SkPaint());
+
+    std::vector<uint8_t> serverStrikeData;
+    server.writeStrikeData(&serverStrikeData);
+
+    // Client.
+    auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
+    REPORTER_ASSERT(reporter,
+                    client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+    auto clientBlob = buildTextBlob(clientTf, glyphCount);
+
+    SkBitmap expected = RasterBlobAsPictureFilter(serverBlob, 10, 10, ctxInfo.grContext(), props);
+    SkBitmap actual = RasterBlobAsPictureFilter(clientBlob, 10, 10, ctxInfo.grContext(), props);
     compare_blobs(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
     SkStrikeCache::ValidateGlyphCacheDataSize();

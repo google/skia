@@ -82,9 +82,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
         if (!ctxInfo.grContext()->contextPriv().caps()->isConfigRenderable(config)) {
             continue;
         }
-        sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.grContext(),
-                                                                        kSmallerSize, kSmallerSize,
-                                                                        config, nullptr));
+        sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(
+                ctxInfo.grContext(), kSmallerSize, kSmallerSize, config, nullptr,
+                SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)));
         test_surface(surf, reporter, 0);
     }
 }
