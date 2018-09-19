@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a652ab43_d321e30b",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-19T18:17:30Z",
+      "side": 1,
+      "message": "I haven\u0027t thought through all the details, but do you think this is possible?\n\nGrSkSLFP::Make() is templated on the type of extra data, \"ExtraData\" (or maybe \"State\"). When we allocate the GrGLSLSkSLFP (needs more acronyms/abbreviations) we automatically allocated sizeof(GrGLSLSkSLFP) + sizeof(ExtraData) and then placement new the GrGLSLSkSLFP into that memory. The hook callback is passed to Make() and takes a ExtraData*.\n\nIf something like that made this easier to use we could consider a similar scheme for the input struct.",
+      "revId": "069cca6662591c97e1853fe74b49b5aca5fdecc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
