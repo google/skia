@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkCGUtils.h"
+#include "SkEncodedOrigin.h"
 #include "SkImageGeneratorCG.h"
 #include "SkPixmapPriv.h"
+#include "SkTemplates.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>
@@ -18,9 +21,28 @@
 #include <MobileCoreServices/MobileCoreServices.h>
 #endif
 
+namespace {
+class ImageGeneratorCG : public SkImageGenerator {
+public:
+    /* Takes ownership of the imageSrc */
+    ImageGeneratorCG(const SkImageInfo&, const void* imageSrc, sk_sp<SkData> data, SkEncodedOrigin);
+
+protected:
+    sk_sp<SkData> onRefEncodedData() override;
+
+    bool onGetPixels(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&) override;
+
+private:
+    SkAutoTCallVProc<const void, CFRelease> fImageSrc;
+    sk_sp<SkData>                           fData;
+    const SkEncodedOrigin                   fOrigin;
+
+    typedef SkImageGenerator INHERITED;
+};
+
 static CGImageSourceRef data_to_CGImageSrc(SkData* data) {
     CGDataProviderRef cgData = CGDataProviderCreateWithData(data, data->data(), data->size(),
-            nullptr);
+                                                            nullptr);
     if (!cgData) {
         return nullptr;
     }
@@ -28,6 +50,8 @@ static CGImageSourceRef data_to_CGImageSrc(SkData* data) {
     CGDataProviderRelease(cgData);
     return imageSrc;
 }
+
+}  // namespace
 
 std::unique_ptr<SkImageGenerator> SkImageGeneratorCG::MakeFromEncodedCG(sk_sp<SkData> data) {
     CGImageSourceRef imageSrc = data_to_CGImageSrc(data.get());
@@ -79,24 +103,25 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorCG::MakeFromEncodedCG(sk_sp<Sk
     //        though I think it makes sense to wait until we understand how
     //        we want to communicate it to the generator.
 
-    return std::unique_ptr<SkImageGenerator>(new SkImageGeneratorCG(info, autoImageSrc.release(),
-                                                                    std::move(data), origin));
+    return std::unique_ptr<SkImageGenerator>(new ImageGeneratorCG(info, autoImageSrc.release(),
+                                                                  std::move(data), origin));
 }
 
-SkImageGeneratorCG::SkImageGeneratorCG(const SkImageInfo& info, const void* imageSrc,
-                                       sk_sp<SkData> data, SkEncodedOrigin origin)
+ImageGeneratorCG::ImageGeneratorCG(const SkImageInfo& info, const void* imageSrc,
+                                   sk_sp<SkData> data, SkEncodedOrigin origin)
     : INHERITED(info)
     , fImageSrc(imageSrc)
     , fData(std::move(data))
     , fOrigin(origin)
 {}
 
-sk_sp<SkData> SkImageGeneratorCG::onRefEncodedData() {
+sk_sp<SkData> ImageGeneratorCG::onRefEncodedData() {
     return fData;
 }
 
-bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-        const Options&) {
+bool ImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                   const Options&)
+{
     if (kN32_SkColorType != info.colorType()) {
         // FIXME: Support other colorTypes.
         return false;
@@ -115,7 +140,7 @@ bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size
     }
 
     CGImageRef image = CGImageSourceCreateImageAtIndex((CGImageSourceRef) fImageSrc.get(), 0,
-            nullptr);
+                                                       nullptr);
     if (!image) {
         return false;
     }
