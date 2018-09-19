@@ -12,7 +12,8 @@
 #include "SkUnPreMultiply.h"
 
 template <bool kSwapRB>
-void SkUnpremultiplyRow(uint32_t* dst, const uint32_t* src, int count) {
+void SkUnpremultiplyRow(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
     const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
 
     for (int i = 0; i < count; i++) {
