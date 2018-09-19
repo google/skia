@@ -17,8 +17,8 @@
     fprintf(fOut, __VA_ARGS__)
 
 const char* SubtopicKeys::kGeneratedSubtopics[] = {
-    kClasses, kConstants, kConstructors, kDefines,
-    kMemberFunctions, kMembers, kOperators, kRelatedFunctions, kStructs, kTypedefs,
+    kConstants, kDefines, kTypedefs, kMembers, kClasses, kStructs, kConstructors,
+    kOperators, kMemberFunctions, kRelatedFunctions
 };
 
 const char* kConstTableStyle =
@@ -46,10 +46,10 @@ const char* kSubConstTableHeader =  "  <tr>" kTH_Left   "Const</th>"            
                                              kTH_Left   "Details</th>"                          "\n"
                                              kTH_Left   "Description</th>" "</tr>";
 const char* kAllMemberTableHeader = "  <tr>" kTH_Left   "Type</th>"                             "\n"
-                                             kTH_Left   "Name</th>"                             "\n"
+                                             kTH_Left   "Member</th>"                           "\n"
                                              kTH_Left   "Description</th>" "</tr>";
 const char* kSubMemberTableHeader = "  <tr>" kTH_Left   "Type</th>"                             "\n"
-                                             kTH_Left   "Name</th>"                             "\n"
+                                             kTH_Left   "Member</th>"                           "\n"
                                              kTH_Left   "Details</th>"                          "\n"
                                              kTH_Left   "Description</th>" "</tr>";
 const char* kTopicsTableHeader    = "  <tr>" kTH_Left   "Topic</th>"                            "\n"
@@ -225,8 +225,8 @@ void MdOut::addPopulators() {
     fPopulators[SubtopicKeys::kDefines].fDetails =
             /* SkImageInfo */ "uses preprocessor definitions to inline code and constants,"
             " and to abstract platform-specific functionality.";
-    fPopulators[SubtopicKeys::kMemberFunctions].fName = "Functions";
-    fPopulators[SubtopicKeys::kMemberFunctions].fOneLiner = "global and class member functions";
+    fPopulators[SubtopicKeys::kMemberFunctions].fName = "Member Functions";
+    fPopulators[SubtopicKeys::kMemberFunctions].fOneLiner = "static and local functions";
     fPopulators[SubtopicKeys::kMemberFunctions].fDetails =
             /* SkImageInfo */ "member functions read and modify the structure properties.";
     fPopulators[SubtopicKeys::kMembers].fName = "Members";
@@ -251,7 +251,7 @@ void MdOut::addPopulators() {
             /* SkImageInfo */ "uses C++ structs to declare the public data"
             " structures and interfaces.";
     fPopulators[SubtopicKeys::kTypedefs].fName = "Typedef Declarations";
-    fPopulators[SubtopicKeys::kTypedefs].fOneLiner = "types defined by other types";
+    fPopulators[SubtopicKeys::kTypedefs].fOneLiner = "types defined in terms of other types";
     fPopulators[SubtopicKeys::kTypedefs].fDetails =
             /* SkImageInfo */ " <code>typedef</code> define a data type.";
 }
@@ -356,6 +356,13 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             continue;
         }
         ref = string(start, t.fChar - start);
+        if (BmhParser::Resolvable::kCode == resolvable) {
+            const char spaceConst[] = " const";
+            size_t spacePos = ref.rfind(spaceConst);
+            if (string::npos != spacePos && spacePos == ref.length() - sizeof(spaceConst) + 1) {
+                ref = ref.substr(0, spacePos) + "_const";
+            }
+        }
         if (const Definition* def = this->isDefined(t, ref, resolvable)) {
             if (MarkType::kExternal == def->fMarkType) {
                 (void) this->anchorRef("undocumented#" + ref, "");   // for anchor validate
@@ -373,7 +380,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 t.next();
                 string fullRef = string(start, t.fChar - start);
                 // if _2 etc alternates are defined, look for paren match
-                // may ignore () if ref is all lower case
+                // may ignore () if ref is all lower case and resolvable is not code
                 // otherwise flag as error
                 int suffix = '2';
                 bool foundMatch = false;
@@ -1193,7 +1200,8 @@ string MdOut::linkRef(string leadingSpaces, const Definition* def,
     if (!globalEnumMember) {
         std::replace(refOut.begin(), refOut.end(), '_', ' ');
     }
-    if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)) {
+    if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)
+            && BmhParser::Resolvable::kCode != resolvable) {
         refOut = refOut.substr(0, refOut.length() - 2);
     }
     string result = leadingSpaces + this->anchorRef(buildup, refOut);
@@ -1263,40 +1271,13 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         case MarkType::kClass:
         case MarkType::kStruct: {
             fRoot = def->asRoot();
-            this->mdHeaderOut(1);
+        //    this->mdHeaderOut(1);
             if (MarkType::kStruct == def->fMarkType) {
-                this->htmlOut(anchorDef(def->fFiddle, "Struct " + def->fName));
+                this->htmlOut(anchorDef(def->fFiddle, ""));
             } else {
-                this->htmlOut(anchorDef(this->linkName(def), "Class " + def->fName));
+                this->htmlOut(anchorDef(this->linkName(def), ""));
             }
-            this->lf(1);
-            if (string::npos != fRoot->fFileName.find("undocumented")) {
-                break;
-            }
-            // if class or struct contains constants, and doesn't contain subtopic kConstant, add it
-            // and add a child populate
-            const Definition* subtopic = def->subtopicParent();
-            const Definition* topic = def->topicParent();
-            for (auto item : SubtopicKeys::kGeneratedSubtopics) {
-                string subname;
-                if (subtopic != topic) {
-                    subname = subtopic->fName + '_';
-                }
-                subname += item;
-                if (fRoot->populator(item).fMembers.size()
-                        && !std::any_of(fRoot->fChildren.begin(), fRoot->fChildren.end(),
-                        [subname](const Definition* child) {
-                            return MarkType::kSubtopic == child->fMarkType
-                                    && subname == child->fName;
-                        } )) {
-                    // generate subtopic
-                    this->mdHeaderOut(2);
-                    this->htmlOut(anchorDef(subname, item));
-                    this->lf(2);
-                    // generate populate
-                    this->subtopicOut(item);
-                }
-            }
+        //    this->lf(1);
             } break;
         case MarkType::kCode:
             this->lfAlways(2);
@@ -1325,10 +1306,11 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             if (TableState::kNone == fTableState) {
                 SkASSERT(!*prior || (isConst && MarkType::kConst != (*prior)->fMarkType)
                         || (!isConst && MarkType::kMember != (*prior)->fMarkType));
-                this->mdHeaderOut(3);
-                FPRINTF("%s", this->fPopulators[isConst ? SubtopicKeys::kConstants :
-                        SubtopicKeys::kMembers].fName.c_str());
-                this->lfAlways(2);
+                if (isConst) {
+                    this->mdHeaderOut(3);
+                    FPRINTF("%s", this->fPopulators[SubtopicKeys::kConstants].fName.c_str());
+                    this->lfAlways(2);
+                }
                 FPRINTF("%s", kTableDeclaration);
                 fTableState = TableState::kRow;
                 fOddRow = true;
@@ -1637,16 +1619,61 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             break;
         case MarkType::kPlatform:
             break;
-        case MarkType::kPopulate: {
-            SkASSERT(MarkType::kSubtopic == def->fParent->fMarkType);
-            string name = def->fParent->fName;
-            if (string::npos != name.find(SubtopicKeys::kOverview)) {
-                this->subtopicsOut(def->fParent);
+        case MarkType::kPopulate:
+            if (MarkType::kSubtopic == def->fParent->fMarkType) {
+                string name = def->fParent->fName;
+                if (string::npos != name.find(SubtopicKeys::kOverview)) {
+                    this->subtopicsOut(def->fParent);
+                } else {
+                    this->subtopicOut(name);
+                }
             } else {
-                this->subtopicOut(name);
+                Definition* parent = def->fParent;
+                SkASSERT(MarkType::kClass == parent->fMarkType
+                        || MarkType::kStruct == parent->fMarkType);
+ //               SkASSERT(parent->csParent());
+                if (!parent->csParent()) {
+                    this->subtopicsOut(def->fParent);
+                }
+                // if class or struct contains constants, and doesn't contain subtopic kConstant,
+                //add it and add a child populate
+                const Definition* subtopic = parent->subtopicParent();
+                const Definition* topic = parent->topicParent();
+                for (auto item : SubtopicKeys::kGeneratedSubtopics) {
+                    if (SubtopicKeys::kRelatedFunctions == item) {
+                        continue;
+                    }
+                    if (SubtopicKeys::kMemberFunctions == item) {
+                        continue;
+                    }
+                    string subname;
+                    if (subtopic != topic) {
+                        subname = subtopic->fName + '_';
+                    }
+                    subname += item;
+                    if (fRoot->populator(item).fMembers.size()
+                            && !std::any_of(fRoot->fChildren.begin(), fRoot->fChildren.end(),
+                            [subname](const Definition* child) {
+                                return MarkType::kSubtopic == child->fMarkType
+                                        && subname == child->fName;
+                            } )) {
+                        // generate subtopic
+                        this->mdHeaderOut(2);
+                        string itemStr(item);
+                        std::replace(itemStr.begin(), itemStr.end(), '_', ' ');
+                        this->htmlOut(anchorDef(subname, itemStr));
+                        this->lf(2);
+                        // generate populate
+                        this->subtopicOut(item);
+                    }
+                }
             }
-            } break;
+            break;
         case MarkType::kPrivate:
+            this->writeString("Private:");
+            this->writeSpace();
+            this->writeBlock(def->length(), def->fContentStart);
+            this->lf(2);
             break;
         case MarkType::kReturn:
             this->mdHeaderOut(3);
@@ -1738,9 +1765,9 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             if (!isUndocumented) {
                 this->populateTables(def, fRoot);
             }
-            this->mdHeaderOut(1);
-            this->htmlOut(anchorDef(this->linkName(def), printable));
-            this->lf(1);
+//            this->mdHeaderOut(1);
+//            this->htmlOut(anchorDef(this->linkName(def), printable));
+//            this->lf(1);
             } break;
         case MarkType::kTypedef:
             this->mdHeaderOut(2);
@@ -2131,9 +2158,18 @@ void MdOut::subtopicsOut(Definition* def) {
     this->lfAlways(1);
     fOddRow = true;
     for (auto item : SubtopicKeys::kGeneratedSubtopics) {
+        if (SubtopicKeys::kMemberFunctions == item) {
+            continue;
+        }
         for (auto entry : fRoot->populator(item).fMembers) {
             if ((csParent && entry->csParent() == csParent)
                     || entry->subtopicParent() == subtopicParent) {
+                if (SubtopicKeys::kRelatedFunctions == item) {
+                    if (!subtopicRowOut(entry->fName, entry)) {
+                        return;
+                    }
+                    continue;
+                }
                 auto popItem = fPopulators.find(item);
                 string description = popItem->second.fOneLiner;
                 if (SubtopicKeys::kConstructors == item) {
@@ -2179,15 +2215,54 @@ void MdOut::subtopicOut(string name) {
         this->anchorDef(name, name);
         this->lfAlways(1);
     }
+    if (SubtopicKeys::kMembers == name) {
+        return; // members output their own table
+    }
+    const RootDefinition::SubtopicContents& tableContents = fRoot->populator(name.c_str());
+    if (SubtopicKeys::kTypedefs == name && fSubtopic && MarkType::kTopic == fSubtopic->fMarkType) {
+        topicParent = fSubtopic;
+    }
+    this->subtopicOut(tableContents.fMembers, csParent, topicParent, tableContents.fShowClones);
+}
+
+bool MdOut::subtopicRowOut(string keyName, const Definition* entry) {
+    const Definition* oneLiner = nullptr;
+    for (auto child : entry->fChildren) {
+        if (MarkType::kLine == child->fMarkType) {
+            oneLiner = child;
+            break;
+        }
+    }
+    if (!oneLiner) {
+        TextParser parser(entry->fFileName, entry->fStart,
+                entry->fContentStart, entry->fLineCount);
+        return parser.reportError<bool>("missing #Line");
+    }
+    TextParser dummy(entry); // for reporting errors, which we won't do
+    if (!this->isDefined(dummy, keyName, BmhParser::Resolvable::kOut)) {
+        keyName = entry->fName;
+        size_t doubleColon = keyName.find("::");
+        SkASSERT(string::npos != doubleColon);
+        keyName = keyName.substr(doubleColon + 2);
+    }
+    this->rowOut(keyName.c_str(), string(oneLiner->fContentStart,
+            oneLiner->fContentEnd - oneLiner->fContentStart), false);
+    return true;
+}
+
+void MdOut::subtopicOut(const vector<Definition*>& data, const Definition* csParent,
+        const Definition* topicParent, bool showClones) {
     FPRINTF("%s", kTableDeclaration);
     this->lfAlways(1);
     FPRINTF("%s", kTopicsTableHeader);
     this->lfAlways(1);
     fOddRow = true;
     std::map<string, const Definition*> items;
-    const RootDefinition::SubtopicContents& tableContents = fRoot->populator(name.c_str());
-    auto& data = tableContents.fMembers;
     for (auto entry : data) {
+        if (!BmhParser::IsExemplary(entry)) {
+            continue;
+        }
+        const Definition* entryParent = entry->topicParent();
         if (entry->csParent() != csParent && entry->topicParent() != topicParent) {
             continue;
         }
@@ -2204,30 +2279,10 @@ void MdOut::subtopicOut(string name) {
         if (entry.second->fDeprecated) {
             continue;
         }
-        const Definition* oneLiner = nullptr;
-        for (auto child : entry.second->fChildren) {
-            if (MarkType::kLine == child->fMarkType) {
-                oneLiner = child;
-                break;
-            }
+        if (!this->subtopicRowOut(entry.first, entry.second)) {
+            return;
         }
-        if (!oneLiner) {
-            TextParser parser(entry.second->fFileName, entry.second->fStart,
-                    entry.second->fContentStart, entry.second->fLineCount);
-            parser.reportError("missing #Line");
-            continue;
-        }
-        string keyName = entry.first;
-        TextParser dummy(entry.second); // for reporting errors, which we won't do
-        if (!this->isDefined(dummy, keyName, BmhParser::Resolvable::kOut)) {
-            keyName = entry.second->fName;
-            size_t doubleColon = keyName.find("::");
-            SkASSERT(string::npos != doubleColon);
-            keyName = keyName.substr(doubleColon + 2);
-        }
-        this->rowOut(keyName.c_str(), string(oneLiner->fContentStart,
-                oneLiner->fContentEnd - oneLiner->fContentStart), false);
-        if (tableContents.fShowClones && entry.second->fCloned) {
+        if (showClones && entry.second->fCloned) {
             int cloneNo = 2;
             string builder = entry.second->fName;
             if ("()" == builder.substr(builder.length() - 2)) {
