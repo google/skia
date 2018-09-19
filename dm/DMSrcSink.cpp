@@ -32,7 +32,6 @@
 #include "SkExecutor.h"
 #include "SkImageGenerator.h"
 #include "SkImageGeneratorCG.h"
-#include "SkImageGeneratorWIC.h"
 #include "SkImageInfoPriv.h"
 #include "SkLiteDL.h"
 #include "SkLiteRecorder.h"
@@ -58,6 +57,7 @@
 #include "SkSwizzler.h"
 #include "SkTLogic.h"
 #include "SkTaskGroup.h"
+#include "wic_image/SkImageGeneratorWIC.h"
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
     #include "SkHRESULT.h"

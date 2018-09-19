@@ -15,7 +15,7 @@
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     #include "SkImageGeneratorCG.h"
 #elif defined(SK_BUILD_FOR_WIN)
-    #include "SkImageGeneratorWIC.h"
+    #include "wic_image/SkImageGeneratorWIC.h"
 #endif
 
 static bool gMyFactoryWasCalled;
