@@ -94,6 +94,30 @@
       "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66f7a8e2_66cb5b30",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-19T22:07:25Z",
+      "side": 1,
+      "message": "I suppose that if one pretends to be a non-fancy user agent in order to get simple css and that works I suppose that could work for now. However, it would be nice to have some documentation on \u0027loadWebFont\u0027 to point out this limitation. Other than that it seems fine for now.",
+      "parentUuid": "16f24bad_9c99376b",
+      "range": {
+        "startLine": 133,
+        "startChar": 25,
+        "endLine": 133,
+        "endChar": 43
+      },
+      "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
