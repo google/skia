@@ -46,6 +46,30 @@
       "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d30d1e2_e01a48f0",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-19T21:16:20Z",
+      "side": 1,
+      "message": "Can it work for loadWebFont to return an SkFontMgr? That could handle the collection of fonts and even the matching requirements I think.",
+      "parentUuid": "f99b6e41_944f5e44",
+      "range": {
+        "startLine": 133,
+        "startChar": 25,
+        "endLine": 133,
+        "endChar": 43
+      },
+      "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
