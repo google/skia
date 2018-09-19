@@ -22,6 +22,30 @@
       "revId": "beb8300d19ef0575a85c74cd361e7088d99d8002",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03cf7494_e792af7f",
+        "filename": "gm/imagefromyuvtextures.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8459
+      },
+      "writtenOn": "2018-09-19T00:56:18Z",
+      "side": 0,
+      "message": "Sorry about this. But it is weired that when I run the viewer, I can still get the correct image and not hit the crash.",
+      "parentUuid": "66a4403c_cd8c8689",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 43
+      },
+      "revId": "beb8300d19ef0575a85c74cd361e7088d99d8002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
