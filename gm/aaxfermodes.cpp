@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "GrColor.h"
 #include "sk_tool_utils.h"
 #include "SkColorPriv.h"
 #include "SkPath.h"
@@ -199,7 +198,7 @@ protected:
                          fLabelPaint.getTextSize() / 4, fLabelPaint);
     }
 
-    void setupShapePaint(SkCanvas* canvas, GrColor color, SkBlendMode mode, SkPaint* paint) {
+    void setupShapePaint(SkCanvas* canvas, SkColor color, SkBlendMode mode, SkPaint* paint) {
         paint->setColor(color);
 
         if (mode == SkBlendMode::kPlus) {
