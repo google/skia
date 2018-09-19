@@ -11,9 +11,10 @@
 #include "SkSurfaceCharacterization.h"
 
 #if SK_SUPPORT_GPU
-#include <map>
 #include "GrCCPerOpListPaths.h"
 #include "GrOpList.h"
+
+#include <map>
 #endif
 
 class SkSurface;

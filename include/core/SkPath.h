@@ -21,6 +21,7 @@
 #include "SkMatrix.h"
 #include "../private/SkPathRef.h"
 #include "../private/SkTo.h"
+
 #include <initializer_list>
 
 class SkAutoPathBoundsUpdate;

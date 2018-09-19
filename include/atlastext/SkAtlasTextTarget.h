@@ -8,10 +8,11 @@
 #ifndef SkAtlasTextTarget_DEFINED
 #define SkAtlasTextTarget_DEFINED
 
-#include <memory>
 #include "SkDeque.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
+
+#include <memory>
 
 class SkAtlasTextContext;
 class SkAtlasTextFont;

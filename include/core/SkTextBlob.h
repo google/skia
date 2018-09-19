@@ -22,6 +22,7 @@
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkRefCnt.h"
+
 #include <atomic>
 
 struct SkSerialProcs;
