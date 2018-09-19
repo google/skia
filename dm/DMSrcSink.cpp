@@ -6,8 +6,6 @@
  */
 
 #include "DMSrcSink.h"
-#include <cmath>
-#include <functional>
 #include "../src/jumper/SkJumper.h"
 #include "DDLPromiseImageHelper.h"
 #include "DDLTileHelper.h"
@@ -76,6 +74,9 @@
     #include "SkSVGDOM.h"
     #include "SkXMLWriter.h"
 #endif
+
+#include <cmath>
+#include <functional>
 
 #include "../third_party/skcms/skcms.h"
 

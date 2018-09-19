@@ -1177,6 +1177,7 @@ DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::k
 
 #include "SkPathOps.h"
 #include "SkPathPriv.h"
+
 DEF_BENCH( return new TightBoundsBench([](const SkPath& path){ return path.computeTightBounds();},
                                        "priv"); )
 DEF_BENCH( return new TightBoundsBench([](const SkPath& path) {

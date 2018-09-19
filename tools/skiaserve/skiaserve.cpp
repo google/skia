@@ -11,9 +11,9 @@
 #include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
 
-#include "microhttpd.h"
-
 #include "urlhandlers/UrlHandler.h"
+
+#include "microhttpd.h"
 
 #include <errno.h>
 

@@ -7,12 +7,11 @@
 
 #include "SkGlyphRun.h"
 
+#include "SkTextBlob.h"
+#include "Test.h"
+
 #include <algorithm>
 #include <memory>
-
-#include "SkTextBlob.h"
-
-#include "Test.h"
 
 DEF_TEST(GlyphRunGlyphIDSetBasic, reporter) {
     SkGlyphID glyphs[] = {100, 3, 240, 3, 234};

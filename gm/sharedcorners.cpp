@@ -10,6 +10,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint.h"
+
 #include <array>
 #include <vector>
 

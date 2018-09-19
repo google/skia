@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "GrContextFactory.h"
+#include "GrTypes.h"
 #include "SkBitmap.h"
 #include "SkDevice.h"
+#include "SkGpuDevice.h"
 #include "SkImage.h"
 #include "SkImageInfo.h"
 #include "SkRect.h"
@@ -14,11 +17,8 @@
 #include "SkSpecialImage.h"
 #include "SkTypes.h"
 #include "Test.h"
-class SkColorSpace;
 
-#include "GrContextFactory.h"
-#include "GrTypes.h"
-#include "SkGpuDevice.h"
+class SkColorSpace;
 class GrContext;
 
 class DeviceTestingAccess {

@@ -7,12 +7,12 @@
 
 #include "Test.h"
 
+#include "SkString.h"
+#include "SkStringUtils.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <thread>
-
-#include "SkString.h"
-#include "SkStringUtils.h"
 
 static const char* gThirtyWideDecimal = "%30d";
 

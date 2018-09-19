@@ -12,10 +12,10 @@
 
 #include "vk/VkTestUtils.h"
 
-#include <X11/Xlib-xcb.h>
-
 #include "WindowContextFactory_unix.h"
 #include "../VulkanWindowContext.h"
+
+#include <X11/Xlib-xcb.h>
 
 namespace sk_app {
 

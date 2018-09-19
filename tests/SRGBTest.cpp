@@ -9,8 +9,9 @@
 #include "SkRasterPipeline.h"
 #include "SkTypes.h"
 #include "Test.h"
-#include <math.h>
 #include "../src/jumper/SkJumper.h"
+
+#include <math.h>
 
 DEF_TEST(sk_pipeline_srgb_roundtrip, r) {
     uint32_t reds[256];

@@ -10,6 +10,7 @@
 
 #include "SkTypes.h"
 #include "SkExchange.h"
+
 #include <chrono>
 
 namespace sk_gpu_test {

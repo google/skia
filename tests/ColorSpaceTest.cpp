@@ -16,8 +16,9 @@
 #include "SkStream.h"
 #include "SkTypes.h"
 #include "Test.h"
-#include "png.h"
+
 #include "../third_party/skcms/skcms.h"
+#include "png.h"
 
 #include <memory>
 #include <utility>

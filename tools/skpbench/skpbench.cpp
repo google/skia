@@ -5,12 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <stdlib.h>
-#include <algorithm>
-#include <array>
-#include <chrono>
-#include <cmath>
-#include <vector>
 #include "DDLPromiseImageHelper.h"
 #include "DDLTileHelper.h"
 #include "GpuTimer.h"
@@ -41,6 +35,12 @@
 #include "../experimental/svg/model/SkSVGDOM.h"
 #endif
 
+#include <stdlib.h>
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <cmath>
+#include <vector>
 
 /**
  * This is a minimalist program whose sole purpose is to open a .skp or .svg file, benchmark it on a

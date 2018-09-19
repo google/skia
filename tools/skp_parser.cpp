@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include <iostream>
-
 #include "SkDebugCanvas.h"
 #include "SkNullCanvas.h"
 #include "SkPicture.h"
 #include "SkStream.h"
+
+#include <iostream>
 
 #ifdef SK_BUILD_FOR_WIN
 #include <fcntl.h>
