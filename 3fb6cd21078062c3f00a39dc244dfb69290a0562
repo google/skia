@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20f83e57_45034671",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-19T19:25:25Z",
+      "side": 1,
+      "message": "const sk_sp\u003cGrTextStrike\u003e\u0026 ? Just to make it clear that this isn\u0027t supposed to change what \u0027strike\u0027 points at.",
+      "range": {
+        "startLine": 180,
+        "startChar": 21,
+        "endLine": 180,
+        "endChar": 41
+      },
+      "revId": "3fb6cd21078062c3f00a39dc244dfb69290a0562",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
