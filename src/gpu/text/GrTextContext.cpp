@@ -243,7 +243,7 @@ void GrTextContext::FallbackGlyphRunHelper::drawGlyphs(
         SkExclusiveStrikePtr cache =
                 blob->setupCache(runIndex, props, scalerContextFlags, fallbackPaint, &matrix);
 
-        sk_sp<GrTextStrike> currStrike;
+        sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
         auto glyphPos = fFallbackPos.begin();
         for (auto glyphID : fFallbackTxt) {
             const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
@@ -252,10 +252,10 @@ void GrTextContext::FallbackGlyphRunHelper::drawGlyphs(
                 glyphPos->fX = SkScalarFloorToScalar(glyphPos->fX);
                 glyphPos->fY = SkScalarFloorToScalar(glyphPos->fY);
             }
-            GrTextContext::AppendGlyph(blob, runIndex, glyphCache, &currStrike,
-                                          glyph, GrGlyph::kCoverage_MaskStyle,
-                                          glyphPos->fX, glyphPos->fY, textColor,
-                                          cache.get(), textRatio, fUseTransformedFallback);
+            GrTextContext::AppendGlyph(blob, runIndex, currStrike,
+                                       glyph, GrGlyph::kCoverage_MaskStyle,
+                                       glyphPos->fX, glyphPos->fY, textColor,
+                                       cache.get(), textRatio, fUseTransformedFallback);
             glyphPos++;
         }
     }
