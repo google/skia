@@ -9,6 +9,7 @@
 
 #include <limits>
 
+#include "SkNx.h"
 #include "SkPointPriv.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
@@ -47,9 +48,8 @@ int SkGetPolygonWinding(const SkPoint* polygonVerts, int polygonSize) {
     // compute area and use sign to determine winding
     SkScalar quadArea = 0;
     SkVector v0 = polygonVerts[1] - polygonVerts[0];
-    for (int curr = 1; curr < polygonSize - 1; ++curr) {
-        int next = (curr + 1) % polygonSize;
-        SkVector v1 = polygonVerts[next] - polygonVerts[0];
+    for (int curr = 2; curr < polygonSize; ++curr) {
+        SkVector v1 = polygonVerts[curr] - polygonVerts[0];
         quadArea += v0.cross(v1);
         v0 = v1;
     }
@@ -1425,22 +1425,56 @@ static bool point_in_triangle(const SkPoint& p0, const SkPoint& p1, const SkPoin
 // Data structure to track reflex vertices and check whether any are inside a given triangle
 class ReflexHash {
 public:
+    ReflexHash(const SkRect& bounds, int vertexCount)
+        : fBounds(bounds) {
+        // We want vertexCount grid cells, roughly distributed to match the bounds ratio
+        fHCount = SkScalarRoundToInt(SkScalarSqrt(vertexCount*bounds.width()/bounds.height()));
+        fVCount = vertexCount/fHCount;
+        fGridConversion.set((fHCount - 0.001f)/bounds.width(), (fVCount - 0.001f)/bounds.height());
+        fGrid.setCount(fHCount*fVCount);
+        for (int i = 0; i < fGrid.count(); ++i) {
+            fGrid[i].reset();
+        }
+    }
+
     void add(TriangulationVertex* v) {
-        fReflexList.addToTail(v);
+        int index = hash(v);
+        fGrid[index].addToTail(v);
     }
 
     void remove(TriangulationVertex* v) {
-        fReflexList.remove(v);
+        int index = hash(v);
+        fGrid[index].remove(v);
     }
 
     bool checkTriangle(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
                        uint16_t ignoreIndex0, uint16_t ignoreIndex1) {
-        for (SkTInternalLList<TriangulationVertex>::Iter reflexIter = fReflexList.begin();
-             reflexIter != fReflexList.end(); ++reflexIter) {
-            TriangulationVertex* reflexVertex = *reflexIter;
-            if (reflexVertex->fIndex != ignoreIndex0 && reflexVertex->fIndex != ignoreIndex1 &&
-                point_in_triangle(p0, p1, p2, reflexVertex->fPosition)) {
-                return true;
+        Sk4s min, max;
+        min = max = Sk4s(p0.fX, p0.fY, p0.fX, p0.fY);
+        Sk4s xy(p1.fX, p1.fY, p2.fX, p2.fY);
+        min = Sk4s::Min(min, xy);
+        max = Sk4s::Max(max, xy);
+        SkRect triBounds;
+        triBounds.set(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
+                      SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
+        int h0 = (triBounds.fLeft - fBounds.fLeft)*fGridConversion.fX;
+        int h1 = (triBounds.fRight - fBounds.fLeft)*fGridConversion.fX;
+        int v0 = (triBounds.fTop - fBounds.fTop)*fGridConversion.fY;
+        int v1 = (triBounds.fBottom - fBounds.fTop)*fGridConversion.fY;
+
+        for (int v = v0; v <= v1; ++v) {
+            for (int h = h0; h <= h1; ++h) {
+                int i = v * fHCount + h;
+                for (SkTInternalLList<TriangulationVertex>::Iter reflexIter = fGrid[i].begin();
+                     reflexIter != fGrid[i].end(); ++reflexIter) {
+                    TriangulationVertex* reflexVertex = *reflexIter;
+                    if (reflexVertex->fIndex != ignoreIndex0 &&
+                        reflexVertex->fIndex != ignoreIndex1 &&
+                        point_in_triangle(p0, p1, p2, reflexVertex->fPosition)) {
+                        return true;
+                    }
+                }
+
             }
         }
 
@@ -1448,8 +1482,18 @@ public:
     }
 
 private:
-    // TODO: switch to an actual spatial hash
-    SkTInternalLList<TriangulationVertex> fReflexList;
+    int hash(TriangulationVertex* vert) {
+        int h = (vert->fPosition.fX - fBounds.fLeft)*fGridConversion.fX;
+        int v = (vert->fPosition.fY - fBounds.fTop)*fGridConversion.fY;
+        return v*fHCount + h;
+    }
+
+    SkRect fBounds;
+    int fHCount;
+    int fVCount;
+    // converts distance from the origin to a grid location (when cast to int)
+    SkVector fGridConversion;
+    SkTDArray<SkTInternalLList<TriangulationVertex>> fGrid;
 };
 
 // Check to see if a reflex vertex has become a convex vertex after clipping an ear
@@ -1478,6 +1522,9 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
         return false;
     }
 
+    // get bounds
+    SkRect bounds;
+    bounds.setBounds(polygonVerts, polygonSize);
     // get winding direction
     // TODO: we do this for all the polygon routines -- might be better to have the client
     // compute it and pass it in
@@ -1489,7 +1536,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     // Classify initial vertices into a list of convex vertices and a hash of reflex vertices
     // TODO: possibly sort the convexList in some way to get better triangles
     SkTInternalLList<TriangulationVertex> convexList;
-    ReflexHash reflexHash;
+    ReflexHash reflexHash(bounds, polygonSize);
     SkAutoSTMalloc<64, TriangulationVertex> triangulationVertices(polygonSize);
     int prevIndex = polygonSize - 1;
     int currIndex = 0;
