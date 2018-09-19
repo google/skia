@@ -75,7 +75,6 @@ void GrGLProgram::abandon() {
 void GrGLProgram::updateUniformsAndTextureBindings(const GrPrimitiveProcessor& primProc,
                                                    const GrPipeline& pipeline,
                                                    const GrTextureProxy* const primProcTextures[]) {
-    SkASSERT(primProcTextures || !primProc.numTextureSamplers());
     this->setRenderTargetState(primProc, pipeline.proxy());
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
@@ -84,13 +83,12 @@ void GrGLProgram::updateUniformsAndTextureBindings(const GrPrimitiveProcessor& p
     // We must bind to texture units in the same order in which we set the uniforms in
     // GrGLProgramDataManager. That is, we bind textures for processors in this order:
     // primProc, fragProcs, XP.
-    int nextTexSamplerIdx = 0;
     fPrimitiveProcessor->setData(fProgramDataManager, primProc,
                                  GrFragmentProcessor::CoordTransformIter(pipeline));
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        auto* tex = static_cast<GrGLTexture*>(primProcTextures[i]->peekTexture());
-        fGpu->bindTexture(nextTexSamplerIdx++, primProc.textureSampler(i).samplerState(), tex);
+    if (primProcTextures) {
+        this->updatePrimitiveProcessorTextureBindings(primProc, primProcTextures);
     }
+    int nextTexSamplerIdx = primProc.numTextureSamplers();
 
     this->setFragmentData(pipeline, &nextTexSamplerIdx);
 
@@ -104,6 +102,14 @@ void GrGLProgram::updateUniformsAndTextureBindings(const GrPrimitiveProcessor& p
                           static_cast<GrGLTexture*>(dstTexture));
     }
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);
+}
+
+void GrGLProgram::updatePrimitiveProcessorTextureBindings(const GrPrimitiveProcessor& primProc,
+                                                          const GrTextureProxy* const proxies[]) {
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+        auto* tex = static_cast<GrGLTexture*>(proxies[i]->peekTexture());
+        fGpu->bindTexture(i, primProc.textureSampler(i).samplerState(), tex);
+    }
 }
 
 void GrGLProgram::setFragmentData(const GrPipeline& pipeline, int* nextTexSamplerIdx) {
