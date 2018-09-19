@@ -1128,6 +1128,7 @@ void SkCanvas::internalRestore() {
     if (layer) {
         if (fMCRec) {
             const SkIPoint& origin = layer->fDevice->getOrigin();
+            layer->fDevice->setImmutable();
             this->internalDrawDevice(layer->fDevice.get(), origin.x(), origin.y(),
                                      layer->fPaint.get(),
                                      layer->fClipImage.get(), layer->fClipMatrix);

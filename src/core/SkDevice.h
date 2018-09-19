@@ -240,6 +240,7 @@ protected:
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     virtual sk_sp<SkSpecialImage> snapSpecial();
+    virtual void setImmutable() {}
 
     bool readPixels(const SkPixmap&, int x, int y);
 
