@@ -8,6 +8,10 @@
 #include "SkImageGeneratorWIC.h"
 #include "SkIStream.h"
 #include "SkStream.h"
+#include "SkTScopedComPtr.h"
+#include "SkTemplates.h"
+
+#include <wincodec.h>
 
 // All Windows SDKs back to XPSP2 export the CLSID_WICImagingFactory symbol.
 // In the Windows8 SDK the CLSID_WICImagingFactory symbol is still exported
@@ -17,6 +21,30 @@
 #if defined(CLSID_WICImagingFactory)
     #undef CLSID_WICImagingFactory
 #endif
+
+namespace {
+class ImageGeneratorWIC : public SkImageGenerator {
+public:
+    /*
+     * Takes ownership of the imagingFactory
+     * Takes ownership of the imageSource
+     */
+    ImageGeneratorWIC(const SkImageInfo& info, IWICImagingFactory* imagingFactory,
+            IWICBitmapSource* imageSource, sk_sp<SkData>);
+protected:
+    sk_sp<SkData> onRefEncodedData() override;
+
+    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options&)
+    override;
+
+private:
+    SkTScopedComPtr<IWICImagingFactory> fImagingFactory;
+    SkTScopedComPtr<IWICBitmapSource>   fImageSource;
+    sk_sp<SkData>                       fData;
+
+    typedef SkImageGenerator INHERITED;
+};
+}  // namespace
 
 std::unique_ptr<SkImageGenerator> SkImageGeneratorWIC::MakeFromEncodedWIC(sk_sp<SkData> data) {
     // Create Windows Imaging Component ImagingFactory.
@@ -122,11 +150,11 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorWIC::MakeFromEncodedWIC(sk_sp<
     //        we can support more output formats.
     SkImageInfo info = SkImageInfo::MakeS32(width, height, alphaType);
     return std::unique_ptr<SkImageGenerator>(
-            new SkImageGeneratorWIC(info, imagingFactory.release(), imageSource.release(),
+            new ImageGeneratorWIC(info, imagingFactory.release(), imageSource.release(),
                                     std::move(data)));
 }
 
-SkImageGeneratorWIC::SkImageGeneratorWIC(const SkImageInfo& info,
+ImageGeneratorWIC::ImageGeneratorWIC(const SkImageInfo& info,
         IWICImagingFactory* imagingFactory, IWICBitmapSource* imageSource, sk_sp<SkData> data)
     : INHERITED(info)
     , fImagingFactory(imagingFactory)
@@ -134,11 +162,11 @@ SkImageGeneratorWIC::SkImageGeneratorWIC(const SkImageInfo& info,
     , fData(std::move(data))
 {}
 
-sk_sp<SkData> SkImageGeneratorWIC::onRefEncodedData() {
+sk_sp<SkData> ImageGeneratorWIC::onRefEncodedData() {
     return fData;
 }
 
-bool SkImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+bool ImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
         const Options&) {
     if (kN32_SkColorType != info.colorType()) {
         return false;
