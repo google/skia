@@ -47,7 +47,7 @@ static void test_imagegenerator_factory(skiatest::Reporter* reporter) {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     SkGraphics::SetImageGeneratorFromEncodedDataFactory(SkImageGeneratorCG::MakeFromEncodedCG);
 #elif defined(SK_BUILD_FOR_WIN)
-    SkGraphics::SetImageGeneratorFromEncodedDataFactory(SkImageGeneratorWIC::MakeFromEncodedWIC);
+    SkGraphics::SetImageGeneratorFromEncodedDataFactory(MakeImageGeneratorFromEncodedWIC);
 #endif
 
     SkGraphics::SetImageGeneratorFromEncodedDataFactory(prev);

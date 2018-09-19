@@ -894,7 +894,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
             gen = SkImageGeneratorCG::MakeFromEncodedCG(encoded);
 #elif defined(SK_BUILD_FOR_WIN)
-            gen = SkImageGeneratorWIC::MakeFromEncodedWIC(encoded);
+            gen = MakeImageGeneratorFromEncodedWIC(std::move(encoded));
 #endif
             if (!gen) {
                 return "Could not create platform image generator.";

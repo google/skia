@@ -6,8 +6,17 @@
  */
 
 #include "SkImageGeneratorWIC.h"
+
+#ifdef SK_BUILD_FOR_WIN
+
+#include "SkData.h"
 #include "SkIStream.h"
+#include "SkImageGenerator.h"
 #include "SkStream.h"
+#include "SkTScopedComPtr.h"
+#include "SkTemplates.h"
+
+#include <wincodec.h>
 
 // All Windows SDKs back to XPSP2 export the CLSID_WICImagingFactory symbol.
 // In the Windows8 SDK the CLSID_WICImagingFactory symbol is still exported
@@ -18,7 +27,67 @@
     #undef CLSID_WICImagingFactory
 #endif
 
-std::unique_ptr<SkImageGenerator> SkImageGeneratorWIC::MakeFromEncodedWIC(sk_sp<SkData> data) {
+namespace {
+struct SkImageGeneratorWIC : public SkImageGenerator {
+    SkTScopedComPtr<IWICImagingFactory> fImagingFactory;
+    SkTScopedComPtr<IWICBitmapSource>   fImageSource;
+    sk_sp<SkData>                       fData;
+
+    /* Takes ownership of the imagingFactory and imageSource.  */
+    SkImageGeneratorWIC(const SkImageInfo& info,
+                        IWICImagingFactory* imagingFactory,
+                        IWICBitmapSource* imageSource,
+                        sk_sp<SkData> data)
+        : SkImageGenerator(info)
+        , fImagingFactory(imagingFactory)
+        , fImageSource(imageSource)
+        , fData(std::move(data)) {}
+
+    sk_sp<SkData> onRefEncodedData() override { return fData; }
+    bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) override;
+};
+}
+
+
+bool SkImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                      const Options&) {
+    if (kN32_SkColorType != info.colorType()) {
+        return false;
+    }
+
+    // Create a format converter.
+    SkTScopedComPtr<IWICFormatConverter> formatConverter;
+    HRESULT hr = fImagingFactory->CreateFormatConverter(&formatConverter);
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    GUID format = GUID_WICPixelFormat32bppPBGRA;
+    if (kUnpremul_SkAlphaType == info.alphaType()) {
+        format = GUID_WICPixelFormat32bppBGRA;
+    }
+
+    hr = formatConverter->Initialize(fImageSource.get(), format, WICBitmapDitherTypeNone, nullptr,
+            0.0, WICBitmapPaletteTypeCustom);
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    // Treat the format converter as an image source.
+    SkTScopedComPtr<IWICBitmapSource> formatConverterSrc;
+    hr = formatConverter->QueryInterface(IID_PPV_ARGS(&formatConverterSrc));
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    // Set the destination pixels.
+    hr = formatConverterSrc->CopyPixels(nullptr, (UINT) rowBytes, (UINT) rowBytes * info.height(),
+            (BYTE*) pixels);
+
+    return SUCCEEDED(hr);
+}
+
+std::unique_ptr<SkImageGenerator> MakeImageGeneratorFromEncodedWIC(sk_sp<SkData> data) {
     // Create Windows Imaging Component ImagingFactory.
     SkTScopedComPtr<IWICImagingFactory> imagingFactory;
     HRESULT hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER,
@@ -126,52 +195,4 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorWIC::MakeFromEncodedWIC(sk_sp<
                                     std::move(data)));
 }
 
-SkImageGeneratorWIC::SkImageGeneratorWIC(const SkImageInfo& info,
-        IWICImagingFactory* imagingFactory, IWICBitmapSource* imageSource, sk_sp<SkData> data)
-    : INHERITED(info)
-    , fImagingFactory(imagingFactory)
-    , fImageSource(imageSource)
-    , fData(std::move(data))
-{}
-
-sk_sp<SkData> SkImageGeneratorWIC::onRefEncodedData() {
-    return fData;
-}
-
-bool SkImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-        const Options&) {
-    if (kN32_SkColorType != info.colorType()) {
-        return false;
-    }
-
-    // Create a format converter.
-    SkTScopedComPtr<IWICFormatConverter> formatConverter;
-    HRESULT hr = fImagingFactory->CreateFormatConverter(&formatConverter);
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    GUID format = GUID_WICPixelFormat32bppPBGRA;
-    if (kUnpremul_SkAlphaType == info.alphaType()) {
-        format = GUID_WICPixelFormat32bppBGRA;
-    }
-
-    hr = formatConverter->Initialize(fImageSource.get(), format, WICBitmapDitherTypeNone, nullptr,
-            0.0, WICBitmapPaletteTypeCustom);
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // Treat the format converter as an image source.
-    SkTScopedComPtr<IWICBitmapSource> formatConverterSrc;
-    hr = formatConverter->QueryInterface(IID_PPV_ARGS(&formatConverterSrc));
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // Set the destination pixels.
-    hr = formatConverterSrc->CopyPixels(nullptr, (UINT) rowBytes, (UINT) rowBytes * info.height(),
-            (BYTE*) pixels);
-
-    return SUCCEEDED(hr);
-}
+#endif  // SK_BUILD_FOR_WIN
