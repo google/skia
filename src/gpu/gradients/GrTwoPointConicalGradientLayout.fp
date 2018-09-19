@@ -32,7 +32,13 @@ layout(tracked) in uniform half2 focalParams;
 }
 
 void main() {
-    half2 p = sk_TransformedCoords2D[0];
+    // p typed as a float2 is intentional; while a half2 is adequate for most normal cases in the
+    // two point conic gradient's coordinate system, when the gradient is composed with a local
+    // perspective matrix, certain out-of-bounds regions become ill behaved on mobile devices.
+    // On desktops, they are properly clamped after the fact, but on many Adreno GPUs the
+    // calculations of t and x_t below overflow and produce an incorrect interpolant (which then
+    // renders the wrong border color sporadically). Increasing p's precition alleviates that issue.
+    float2 p = sk_TransformedCoords2D[0];
     half t = -1;
     half v = 1; // validation flag, set to negative to discard fragment later
 

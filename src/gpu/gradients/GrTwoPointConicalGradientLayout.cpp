@@ -43,25 +43,25 @@ public:
                                                            kDefault_GrSLPrecision, "focalParams");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
-                "half2 p = half2(%s);\nhalf t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case "
-                "1:\n        {\n            half r0_2 = %s.y;\n            t = r0_2 - p.y * p.y;\n "
-                "           if (t >= 0.0) {\n                t = float(p.x) + sqrt(float(t));\n    "
-                "        } else {\n                v = -1.0;\n            }\n        }\n        "
+                "float2 p = %s;\nhalf t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n      "
+                "  {\n            half r0_2 = %s.y;\n            t = float(r0_2) - p.y * p.y;\n    "
+                "        if (t >= 0.0) {\n                t = half(p.x + sqrt(float(t)));\n        "
+                "    } else {\n                v = -1.0;\n            }\n        }\n        "
                 "break;\n    case 0:\n        {\n            half r0 = %s.x;\n            @if (%s) "
-                "{\n                t = length(p) - r0;\n            } else {\n                t = "
-                "-length(p) - r0;\n         ",
+                "{\n                t = half(length(p) - float(r0));\n            } else {\n       "
+                "         t = half(-length(p",
                 sk_TransformedCoords2D_0.c_str(), (int)_outer.type(),
                 args.fUniformHandler->getUniformCStr(fFocalParamsVar),
                 args.fUniformHandler->getUniformCStr(fFocalParamsVar),
                 (_outer.isRadiusIncreasing() ? "true" : "false"));
         fragBuilder->codeAppendf(
-                "   }\n        }\n        break;\n    case 2:\n        {\n            half invR1 = "
-                "%s.x;\n            half fx = %s.y;\n            half x_t = -1.0;\n            @if "
-                "(%s) {\n                x_t = dot(p, p) / p.x;\n            } else if (%s) {\n    "
-                "            x_t = length(p) - p.x * invR1;\n            } else {\n                "
-                "half temp = p.x * p.x - p.y * p.y;\n                if (temp >= 0.0) {\n          "
-                "          @if (%s || !%s) {\n                        x_t = "
-                "half(-sqrt(float(temp)) - float(p.x * invR1",
+                ") - float(r0));\n            }\n        }\n        break;\n    case 2:\n        "
+                "{\n            half invR1 = %s.x;\n            half fx = %s.y;\n            half "
+                "x_t = -1.0;\n            @if (%s) {\n                x_t = half(dot(p, p) / "
+                "p.x);\n            } else if (%s) {\n                x_t = half(length(p) - p.x * "
+                "float(invR1));\n            } else {\n                half temp = half(p.x * p.x "
+                "- p.y * p.y);\n                if (temp >= 0.0) {\n                    @if (%s || "
+                "!%s) {\n                      ",
                 args.fUniformHandler->getUniformCStr(fFocalParamsVar),
                 args.fUniformHandler->getUniformCStr(fFocalParamsVar),
                 (_outer.isFocalOnCircle() ? "true" : "false"),
@@ -69,22 +69,22 @@ public:
                 (_outer.isSwapped() ? "true" : "false"),
                 (_outer.isRadiusIncreasing() ? "true" : "false"));
         fragBuilder->codeAppendf(
-                "));\n                    } else {\n                        x_t = "
-                "half(sqrt(float(temp)) - float(p.x * invR1));\n                    }\n            "
-                "    }\n            }\n            @if (!%s) {\n                if (float(x_t) <= "
-                "0.0) {\n                    v = -1.0;\n                }\n            }\n         "
-                "   @if (%s) {\n                @if (%s) {\n                    t = x_t;\n         "
-                "       } else {\n                    t = x_t + fx;\n                }\n           "
-                " } else {\n                @if (%s) {",
+                "  x_t = half(-sqrt(float(temp)) - p.x * float(invR1));\n                    } "
+                "else {\n                        x_t = half(sqrt(float(temp)) - p.x * "
+                "float(invR1));\n                    }\n                }\n            }\n         "
+                "   @if (!%s) {\n                if (float(x_t) <= 0.0) {\n                    v = "
+                "-1.0;\n                }\n            }\n            @if (%s) {\n                "
+                "@if (%s) {\n                    t = x_t;\n                } else {\n              "
+                "      t = x_t + fx;\n                }",
                 (_outer.isWellBehaved() ? "true" : "false"),
                 (_outer.isRadiusIncreasing() ? "true" : "false"),
-                (_outer.isNativelyFocal() ? "true" : "false"),
                 (_outer.isNativelyFocal() ? "true" : "false"));
         fragBuilder->codeAppendf(
-                "\n                    t = -x_t;\n                } else {\n                    t "
-                "= -x_t + fx;\n                }\n            }\n            @if (%s) {\n          "
-                "      t = 1.0 - t;\n            }\n        }\n        break;\n}\n%s = half4(t, v, "
-                "0.0, 0.0);\n",
+                "\n            } else {\n                @if (%s) {\n                    t = "
+                "-x_t;\n                } else {\n                    t = -x_t + fx;\n             "
+                "   }\n            }\n            @if (%s) {\n                t = 1.0 - t;\n       "
+                "     }\n        }\n        break;\n}\n%s = half4(t, v, 0.0, 0.0);\n",
+                (_outer.isNativelyFocal() ? "true" : "false"),
                 (_outer.isSwapped() ? "true" : "false"), args.fOutputColor);
     }
 
