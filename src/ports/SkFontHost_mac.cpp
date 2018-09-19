@@ -71,15 +71,8 @@ CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
 
 class SkScalerContext_Mac;
 
-struct CFSafeRelease {
-    void operator()(CFTypeRef cfTypeRef) {
-      if (cfTypeRef) {
-          CFRelease(cfTypeRef);
-      }
-    }
-};
 template <typename CFRef> using UniqueCFRef =
-        std::unique_ptr<skstd::remove_pointer_t<CFRef>, CFSafeRelease>;
+        std::unique_ptr<skstd::remove_pointer_t<CFRef>, CFRelease>;
 
 static UniqueCFRef<CFStringRef> make_CFString(const char str[]) {
     return UniqueCFRef<CFStringRef>(CFStringCreateWithCString(nullptr, str, kCFStringEncodingUTF8));
