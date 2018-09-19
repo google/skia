@@ -17,6 +17,7 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
+
 #include <atomic>
 
 struct SkIRect;
