@@ -71,10 +71,10 @@ SkExclusiveStrikePtr GrTextBlob::setupCache(int runIndex,
 }
 
 void GrTextBlob::appendGlyph(int runIndex,
-                                  const SkRect& positions,
-                                  GrColor color,
-                                  sk_sp<GrTextStrike> strike,
-                                  GrGlyph* glyph, bool preTransformed) {
+                             const SkRect& positions,
+                             GrColor color,
+                             const sk_sp<GrTextStrike>& strike,
+                             GrGlyph* glyph, bool preTransformed) {
 
     Run& run = fRuns[runIndex];
     GrMaskFormat format = glyph->fMaskFormat;
@@ -82,9 +82,9 @@ void GrTextBlob::appendGlyph(int runIndex,
     Run::SubRunInfo* subRun = &run.fSubRunInfo.back();
     if (run.fInitialized && subRun->maskFormat() != format) {
         subRun = &run.push_back();
-        subRun->setStrike(std::move(strike));
+        subRun->setStrike(strike);
     } else if (!run.fInitialized) {
-        subRun->setStrike(std::move(strike));
+        subRun->setStrike(strike);
     }
 
     run.fInitialized = true;

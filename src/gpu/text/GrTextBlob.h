@@ -177,7 +177,7 @@ public:
     void appendGlyph(int runIndex,
                      const SkRect& positions,
                      GrColor color,
-                     sk_sp<GrTextStrike> strike,
+                     const sk_sp<GrTextStrike>& strike,
                      GrGlyph* glyph, bool preTransformed);
 
     // Appends a glyph to the blob as a path only.
