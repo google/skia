@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33219e47_44edfcaf",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-19T17:06:29Z",
+      "side": 1,
+      "message": "Is this necessary (does the clang-format want this)?  I\u0027d like to avoid the practice of putting \u0027related headers\u0027 first. The justification is that each header will be listed first in at least one compilation unit, but this is an ungainly hack that doesn\u0027t quite work (we just need a target to build headers).",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 19
+      },
+      "revId": "0b0f5561b7873841092a7931f223cc4e75784510",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
