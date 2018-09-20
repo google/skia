@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04ed1c1c_f7048b3f",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-20T18:29:14Z",
+      "side": 1,
+      "message": "I\u0027m not sure if a negative scale is valid. It doesn\u0027t seem like it should be.",
+      "range": {
+        "startLine": 309,
+        "startChar": 8,
+        "endLine": 309,
+        "endChar": 36
+      },
+      "revId": "362ff90bcbc916fe588ac04d2f0da376cd3c81a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
