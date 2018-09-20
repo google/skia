@@ -48,7 +48,7 @@ static inline uint32_t Sk4f_toL32(const Sk4f& px) {
     return l32;
 }
 
-static inline SkPM4f premul_in_dst_colorspace(SkColor4f color4f,
+static inline SkColor4f premul_in_dst_colorspace(SkColor4f color4f,
                                               SkColorSpace* srcCS, SkColorSpace* dstCS) {
     // TODO: In the very common case of srcCS being sRGB,
     // can we precompute an sRGB -> dstCS SkColorSpaceXformSteps for each device and use it here?
@@ -56,10 +56,10 @@ static inline SkPM4f premul_in_dst_colorspace(SkColor4f color4f,
                            dstCS, kPremul_SkAlphaType)
         .apply(color4f.vec());
 
-    return {{color4f.fR, color4f.fG, color4f.fB, color4f.fA}};
+    return color4f;
 }
 
-static inline SkPM4f premul_in_dst_colorspace(SkColor c, SkColorSpace* dstCS) {
+static inline SkColor4f premul_in_dst_colorspace(SkColor c, SkColorSpace* dstCS) {
     SkColor4f color4f;
     swizzle_rb(Sk4f_fromL32(c)).store(color4f.vec());
 
