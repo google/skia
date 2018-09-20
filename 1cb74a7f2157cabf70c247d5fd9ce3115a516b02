@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f6973a99_c948ce12",
+        "filename": "gm/analytic_gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-20T17:20:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5405c847_8b64e5f0",
+      "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b900090f_18f39fbb",
         "filename": "gm/analytic_gradients.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92109de2_2baf01d6",
+        "filename": "gm/analytic_gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-20T17:20:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b900090f_18f39fbb",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 0
+      },
+      "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -89,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "d63dbe7e_92a425e6",
+        "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-20T17:20:09Z",
+      "side": 1,
+      "message": "I\u0027ve switched them to untracked. I would be interested in pursuing the unique shader ID later, because I think it could be used to avoid rebuilding the entire FP graph needed for a gradient each frame, which goes beyond using the GrGLSLFragmentProcessor\u0027s key to find the cached compiled shader.",
+      "parentUuid": "bfe8a98d_f9599da0",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 0
+      },
+      "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9310a85_70d98982",
         "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
         "patchSetId": 2
@@ -109,6 +175,30 @@
       "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fea8d1da_2affbaa1",
+        "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-20T17:20:09Z",
+      "side": 1,
+      "message": "Will not be hoisting the conversion due to complications with color spaces. Made a note as to why this code isn\u0027t shared, since it has to be done after the dst space.",
+      "parentUuid": "c9310a85_70d98982",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 0
+      },
+      "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
