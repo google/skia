@@ -167,6 +167,14 @@ void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
 
 } // namespace internal
 
+sk_sp<SkData> ResourceProvider::load(const char[], const char[]) const {
+    return nullptr;
+}
+
+sk_sp<SkData> ResourceProvider::loadWebFont(const char[]) const {
+    return nullptr;
+}
+
 Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvider> rp) {
     fResourceProvider = std::move(rp);
     return *this;

@@ -7,6 +7,7 @@
 
 #include "SkottiePriv.h"
 
+#include "SkData.h"
 #include "SkFontMgr.h"
 #include "SkMakeUnique.h"
 #include "SkottieAdapter.h"
@@ -92,6 +93,7 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
     //                "fClass": "",
     //                "fFamily": "Roboto",
     //                "fName": "Roboto-Regular",
+    //                "fPath": "https://fonts.googleapis.com/css?family=Roboto",
     //                "fPath": "",
     //                "fStyle": "Regular",
     //                "fWeight": "",
@@ -109,6 +111,7 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                 const skjson::StringValue* jname   = (*jfont)["fName"];
                 const skjson::StringValue* jfamily = (*jfont)["fFamily"];
                 const skjson::StringValue* jstyle  = (*jfont)["fStyle"];
+                const skjson::StringValue* jpath   = (*jfont)["fPath"];
 
                 if (!jname   || !jname->size() ||
                     !jfamily || !jfamily->size() ||
@@ -118,8 +121,22 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                 }
 
                 const auto& fmgr = fLazyFontMgr.get();
-                sk_sp<SkTypeface> tf(fmgr->matchFamilyStyle(jfamily->begin(),
-                                                            FontStyle(jstyle->begin())));
+
+                // Typeface fallback order:
+                //   1) external web font, if a path/url is provided
+                //   2) system font (family/style)
+                //   3) system default
+
+                sk_sp<SkTypeface> tf;
+
+                if (jpath) {
+                    tf = fmgr->makeFromData(fResourceProvider->loadWebFont(jpath->begin()));
+                }
+
+                if (!tf) {
+                    tf.reset(fmgr->matchFamilyStyle(jfamily->begin(), FontStyle(jstyle->begin())));
+                }
+
                 if (!tf) {
                     LOG("!! Could not create typeface for %s|%s\n",
                         jfamily->begin(), jstyle->begin());

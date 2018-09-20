@@ -26,6 +26,10 @@ namespace sksg { class Scene;  }
 
 namespace skottie {
 
+/**
+ * ResourceProvider allows Skottie embedders to control loading of external
+ * Skottie resources -- e.g. images, fonts, nested animations.
+ */
 class SK_API ResourceProvider : public SkRefCnt {
 public:
     ResourceProvider() = default;
@@ -33,7 +37,24 @@ public:
     ResourceProvider(const ResourceProvider&) = delete;
     ResourceProvider& operator=(const ResourceProvider&) = delete;
 
-    virtual sk_sp<SkData> load(const char resource_path[], const char resource_name[]) const = 0;
+    /**
+     * Load a resource (image, nested animation) specified by |path| + |name|, and
+     * return as an SkData.
+     */
+    virtual sk_sp<SkData> load(const char resource_path[],
+                               const char resource_name[]) const;
+
+    /**
+     * Load a web font from |url| and return as an SkData.
+     *
+     * -- Note --
+     *
+     *   This mechanism assumes monolithic fonts (single data blob).  Some web font providers may
+     *   serve multiple font blobs, segmented for various unicode ranges, depending on user agent
+     *   capabilities (woff, woff2).  In that case, the embedder would need to advertise no user
+     *   agent capabilities when fetching the URL, in order to receive full font data.
+     */
+    virtual sk_sp<SkData> loadWebFont(const char url[]) const;
 };
 
 class SK_API Animation : public SkRefCnt {
