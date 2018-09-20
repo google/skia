@@ -351,18 +351,21 @@ void SkImage_Lazy::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey,
 }
 
 class Generator_GrYUVProvider : public GrYUVProvider {
-    SkImageGenerator* fGen;
-
 public:
     Generator_GrYUVProvider(SkImageGenerator* gen) : fGen(gen) {}
 
-    uint32_t onGetID() override { return fGen->uniqueID(); }
+private:
+    uint32_t onGetID() const override { return fGen->uniqueID(); }
     bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
         return fGen->queryYUV8(sizeInfo, colorSpace);
     }
     bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
         return fGen->getYUV8Planes(sizeInfo, planes);
     }
+
+    SkImageGenerator* fGen;
+
+    typedef GrYUVProvider INHERITED;
 };
 
 static void set_key_on_proxy(GrProxyProvider* proxyProvider,
@@ -382,6 +385,21 @@ static void set_key_on_proxy(GrProxyProvider* proxyProvider,
         proxyProvider->assignUniqueKeyToProxy(key, proxy);
     }
 }
+
+sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVSizeInfo* yuvSizeInfo,
+                                            SkYUVColorSpace* yuvColorSpace,
+                                            const void* planes[3]) {
+    ScopedGenerator generator(fSharedGenerator);
+    Generator_GrYUVProvider provider(generator);
+
+    sk_sp<SkCachedData> data = provider.getPlanes(yuvSizeInfo, yuvColorSpace, planes);
+    if (!data) {
+        return nullptr;
+    }
+
+    return data;
+}
+
 
 /*
  *  We have 4 ways to try to return a texture (in sorted order)
