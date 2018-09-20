@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<title>CanvasKit (Skia via Web Assembly)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  svg, canvas {
+    border: 1px dashed #AAA;
+  }
+
+  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos {
+    width: 300px;
+    height: 300px;
+  }
+
+</style>
+
+<h2> CanvasKit draws Paths to WebGL</h2>
+<canvas id=patheffect width=300 height=300></canvas>
+<canvas id=paths width=200 height=200></canvas>
+
+<h2> Skottie </h2>
+<canvas id=sk_legos width=300 height=300></canvas>
+<canvas id=sk_drinks width=500 height=500></canvas>
+<canvas id=sk_party width=800 height=800></canvas>
+
+<!-- Doesn't work yet. -->
+<button id=lego_btn>Take a picture of the legos</button>
+
+<script type="text/javascript" src="/node_modules/canvas-kit/bin/skia.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  var CanvasKit = null;
+  var legoJSON = null;
+  var drinksJSON = null;
+  var confettiJSON = null;
+  CanvasKitInit({
+    locateFile: (file) => '/node_modules/canvas-kit/bin/'+file,
+  }).then((CK) => {
+    CanvasKit = CK;
+    DrawingExample(CanvasKit);
+    PathExample(CanvasKit);
+    // Set bounds to fix the 4:3 resolution of the legos
+    SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON);
+    SkottieExample(CanvasKit, 'sk_party', confettiJSON);
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
+    resp.text().then((str) => {
+      legoJSON = str;
+      SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
+    resp.text().then((str) => {
+      drinksJSON = str;
+      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON);
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
+    resp.text().then((str) => {
+      confettiJSON = str;
+      SkottieExample(CanvasKit, 'sk_party', confettiJSON);
+    });
+  });
+
+  // crashes the lego drawing
+  const btn = document.getElementById('lego_btn');
+  btn.addEventListener('click', () => {
+    const surface = CanvasKit.getWebGLSurface('sk_legos');
+    if (!surface) {
+      console.log('Could not get lego surface');
+    }
+
+    const img = surface.makeImageSnapshot()
+    if (!img) { return }
+    const png = img.encodeToData()
+    if (!png) { return }
+    const pngBytes = CanvasKit.getSkDataBytes(png);
+    // See https://stackoverflow.com/a/12713326
+    let b64encoded = btoa(String.fromCharCode.apply(null, pngBytes));
+    console.log("base64 encoded image", b64encoded);
+  });
+
+  function DrawingExample(CanvasKit) {
+    const surface = CanvasKit.getWebGLSurface('patheffect');
+    if (!surface) {
+      console.log('Could not make surface');
+    }
+    const context = CanvasKit.currentContext();
+
+    const canvas = surface.getCanvas();
+
+    const paint = new CanvasKit.SkPaint();
+
+    const textPaint = new CanvasKit.SkPaint();
+    textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
+   // textPaint.setStrokeWidth(2);
+    textPaint.setTextSize(30);
+    textPaint.setAntiAlias(true);
+
+    let i = 0;
+
+    let X = 128;
+    let Y = 128;
+
+    function drawFrame() {
+      const path = starPath(CanvasKit, X, Y);
+      CanvasKit.setCurrentContext(context);
+      const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], i/5);
+      i++;
+
+      paint.setPathEffect(dpe);
+      paint.setStyle(CanvasKit.PaintStyle.STROKE);
+      paint.setStrokeWidth(5.0 + -3 * Math.cos(i/30));
+      paint.setAntiAlias(true);
+      paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
+
+      canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
+
+      canvas.drawPath(path, paint);
+      canvas.drawText('Try mousing over!', 10, 280, textPaint);
+      canvas.flush();
+      dpe.delete();
+      path.delete();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+    // Make
+    document.getElementById('patheffect').addEventListener('mousemove', (e) => {
+      X = e.offsetX;
+      Y = e.offsetY;
+    });
+
+    // A client would need to delete this if it didn't go on for ever.
+    //paint.delete();
+  }
+
+  function PathExample(CanvasKit) {
+    const surface = CanvasKit.getWebGLSurface('paths');
+    if (!surface) {
+      console.log('Could not make surface');
+    }
+    const context = CanvasKit.currentContext();
+
+    const canvas = surface.getCanvas();
+
+    function drawFrame() {
+      CanvasKit.setCurrentContext(context);
+      const paint = new CanvasKit.SkPaint();
+      paint.setStrokeWidth(1.0);
+      paint.setAntiAlias(true);
+      paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+      paint.setStyle(CanvasKit.PaintStyle.STROKE);
+
+      const path = new CanvasKit.SkPath();
+      path.moveTo(20, 5);
+      path.lineTo(30, 20);
+      path.lineTo(40, 10);
+      path.lineTo(50, 20);
+      path.lineTo(60, 0);
+      path.lineTo(20, 5);
+
+      path.moveTo(20, 80);
+      path.cubicTo(90, 10, 160, 150, 190, 10);
+
+      path.moveTo(36, 148);
+      path.quadTo(66, 188, 120, 136);
+      path.lineTo(36, 148);
+
+      path.moveTo(150, 180);
+      path.arcTo(150, 100, 50, 200, 20);
+      path.lineTo(160, 160);
+
+      path.moveTo(20, 120);
+      path.lineTo(20, 120);
+
+      canvas.drawPath(path, paint);
+
+      canvas.flush();
+
+      path.delete();
+      paint.delete();
+      // Intentionally just draw frame once
+    }
+    window.requestAnimationFrame(drawFrame);
+  }
+
+  function starPath(CanvasKit, X=128, Y=128, R=116) {
+    let p = new CanvasKit.SkPath();
+    p.moveTo(X + R, Y);
+    for (let i = 1; i < 8; i++) {
+      let a = 2.6927937 * i;
+      p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
+    }
+    return p;
+  }
+
+  function fps(frameTimes) {
+    let total = 0;
+    for (let ft of frameTimes) {
+      total += ft;
+    }
+    return frameTimes.length / total;
+  }
+
+  function SkottieExample(CanvasKit, id, jsonStr, bounds) {
+    if (!CanvasKit || !jsonStr) {
+      return;
+    }
+    const animation = CanvasKit.MakeAnimation(jsonStr);
+    const duration = animation.duration() * 1000;
+    const size = animation.size();
+    let c = document.getElementById(id);
+    bounds = bounds || {fLeft: 0, fTop: 0, fRight: size.w, fBottom: size.h};
+
+    const surface = CanvasKit.getWebGLSurface(id);
+    if (!surface) {
+      console.log('Could not make surface');
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+
+    let firstFrame = new Date().getTime();
+
+    function drawFrame() {
+      let now = new Date().getTime();
+      let seek = ((now - firstFrame) / duration) % 1.0;
+      CanvasKit.setCurrentContext(context);
+      animation.seek(seek);
+
+      animation.render(canvas, bounds);
+      canvas.flush();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+    //animation.delete();
+  }
+
+</script>
