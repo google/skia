@@ -1,11 +1,21 @@
 CanvasKit - Skia + WebAssembly
 ==========================
 
-We are experimenting with building Skia for Web Assembly, drawing to
-a hardware-accelerated backend.
+Skia now offers a WebAssembly build for easy deployment of our graphics APIs on the web.
 
-Currently, an SkSurface encapsulates a WebGL context, allowing for
-direct drawing to an html canvas.
+CanvasKit provides a playground for testing new Canvas and SVG platform APIs, enabling fast-paced development and accelerating features on the web platform. It can also be used as a deployment mechanism for custom web apps requiring cutting-edge features.  
+
+
+Features
+--------
+
+  - WebGL context encapsulated as an SkSurface, allowing for direct drawing to an HTML canvas
+  - The breadth of Skia library APIs are accessible
+  - Draws to a hardware-accelerated backend
+  - Security tested with Skia's fuzzers
+
+Samples
+-------
 
 <style>
   #demo canvas {
@@ -13,7 +23,7 @@ direct drawing to an html canvas.
   }
 
   #patheffect {
-    width: 400px;
+    width: 400px
     height: 400px;
   }
 
@@ -186,15 +196,19 @@ direct drawing to an html canvas.
 })();
 </script>
 
-Lottie files courtesy of the lottie-files community:
+Lottie files courtesy of the lottiefiles.com community:
 
   - [Lego Loader](https://www.lottiefiles.com/410-lego-loader)
   - [I'm thirsty](https://www.lottiefiles.com/77-im-thirsty)
   - [Confetti](https://www.lottiefiles.com/1370-confetti)
 
-Download from npm
------------------
 
-This isn't quite ready for prime time yet.
+Test server
+-----------
+Test your code on our CanvasKit [Fiddle](https://jsfiddle.skia.org/canvaskit)
+
+Download
+--------
+Work is underway on an npm download.
 
 Check back soon.
