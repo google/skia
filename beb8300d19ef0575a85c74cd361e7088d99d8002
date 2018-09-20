@@ -70,6 +70,30 @@
       "revId": "beb8300d19ef0575a85c74cd361e7088d99d8002",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb5c66e5_378848ac",
+        "filename": "gm/imagefromyuvtextures.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-20T13:21:03Z",
+      "side": 0,
+      "message": "Oh no problem. The issue is that our dm test application has a mode where it puts the GrContext into \"abandoned\" mode (which happens in Chrome when say the GPU process crashes). In that mode the GrContext continues to exist but won\u0027t draw anything (and this GrGpu object is deleted).\n\nresetContext() is just meant to indicate to the GrContext that the GL state had been manipulated externally.",
+      "parentUuid": "4acc1117_ac91c73b",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 43
+      },
+      "revId": "beb8300d19ef0575a85c74cd361e7088d99d8002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
