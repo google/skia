@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50c9c5c0_6ab30eb7",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-20T18:45:05Z",
+      "side": 1,
+      "message": "probably just as clear to write 1/255.0f instead of one_over_255?",
+      "range": {
+        "startLine": 121,
+        "startChar": 61,
+        "endLine": 121,
+        "endChar": 73
+      },
+      "revId": "276cbed1d7ae92d13c5831fc15d043ad89faee96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1ab9743_46eb84ac",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-20T18:45:05Z",
+      "side": 1,
+      "message": "I think you can probably merge the two switches into one so that neither needs the default?  I betcha the fast_getaddr() won\u0027t happen unless it\u0027s one of the cases where it\u0027s needed.",
+      "range": {
+        "startLine": 135,
+        "startChar": 7,
+        "endLine": 136,
+        "endChar": 28
+      },
+      "revId": "276cbed1d7ae92d13c5831fc15d043ad89faee96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
