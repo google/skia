@@ -50,7 +50,7 @@ DEF_TEST(Color4f_premul, reporter) {
         SkColor4f c4 {
             rand.nextUScalar1(), rand.nextUScalar1(), rand.nextUScalar1(), 1
         };
-        SkPM4f pm4 = c4.premul();
+        SkPM4f pm4 = c4.toPM4f();
         REPORTER_ASSERT(reporter, pm4.a() == c4.fA);
         REPORTER_ASSERT(reporter, pm4.r() == c4.fA * c4.fR);
         REPORTER_ASSERT(reporter, pm4.g() == c4.fA * c4.fG);
@@ -59,7 +59,7 @@ DEF_TEST(Color4f_premul, reporter) {
         // We compare with a tolerance, in case our premul multiply is implemented at slightly
         // different precision than the test code.
         c4.fA = rand.nextUScalar1();
-        pm4 = c4.premul();
+        pm4 = c4.toPM4f();
         REPORTER_ASSERT(reporter, pm4.fVec[SK_A_INDEX] == c4.fA);
         REPORTER_ASSERT(reporter, nearly_equal(pm4.r(), c4.fA * c4.fR));
         REPORTER_ASSERT(reporter, nearly_equal(pm4.g(), c4.fA * c4.fG));
