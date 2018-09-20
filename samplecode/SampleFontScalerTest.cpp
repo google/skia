@@ -10,7 +10,6 @@
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkCornerPathEffect.h"
-#include "SkDither.h"
 #include "SkFontStyle.h"
 #include "SkPath.h"
 #include "SkPathMeasure.h"

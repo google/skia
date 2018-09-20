@@ -102,8 +102,6 @@ skia_core_sources = [
   "$_src/lazy/SkDiscardableMemoryPool.cpp",
   "$_src/core/SkDistanceFieldGen.cpp",
   "$_src/core/SkDistanceFieldGen.h",
-  "$_src/core/SkDither.cpp",
-  "$_src/core/SkDither.h",
   "$_src/core/SkDocument.cpp",
   "$_src/core/SkDraw.cpp",
   "$_src/core/SkDraw_vertices.cpp",

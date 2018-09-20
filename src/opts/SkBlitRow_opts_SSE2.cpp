@@ -10,7 +10,6 @@
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkColorData.h"
 #include "SkColor_opts_SSE2.h"
-#include "SkDither.h"
 #include "SkMSAN.h"
 #include "SkUTF.h"
 

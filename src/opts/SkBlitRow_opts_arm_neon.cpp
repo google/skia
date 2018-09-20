@@ -10,7 +10,6 @@
 #include "SkBlitMask.h"
 #include "SkBlitRow.h"
 #include "SkColorData.h"
-#include "SkDither.h"
 #include "SkMathPriv.h"
 #include "SkUTF.h"
 

@@ -8,7 +8,6 @@
 #include "SkPerlinNoiseShader.h"
 
 #include "SkArenaAlloc.h"
-#include "SkDither.h"
 #include "SkColorFilter.h"
 #include "SkMakeUnique.h"
 #include "SkReadBuffer.h"
