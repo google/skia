@@ -46,6 +46,30 @@
       "revId": "beb8300d19ef0575a85c74cd361e7088d99d8002",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4acc1117_ac91c73b",
+        "filename": "gm/imagefromyuvtextures.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8459
+      },
+      "writtenOn": "2018-09-20T01:20:56Z",
+      "side": 0,
+      "message": "Sorry for make noise here but I think I find the reason, since the resetContext just mark the context as dirty,https://cs.chromium.org/chromium/src/third_party/skia/src/gpu/GrContext.cpp?g\u003d0\u0026l\u003d285\nthe context may still remain alive \"luckilly\" during the time I run my viewer.",
+      "parentUuid": "03cf7494_e792af7f",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 43
+      },
+      "revId": "beb8300d19ef0575a85c74cd361e7088d99d8002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
