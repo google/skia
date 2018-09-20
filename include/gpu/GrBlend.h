@@ -9,8 +9,7 @@
 #ifndef GrBlend_DEFINED
 #define GrBlend_DEFINED
 
-#include "GrTypes.h"
-#include "../private/SkTLogic.h"
+#include "SkTypes.h"
 
 /**
  * Equations for alpha-blending.

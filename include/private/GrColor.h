@@ -95,28 +95,11 @@ static inline void GrColorIsPMAssert(GrColor SkDEBUGCODE(c)) {
 #endif
 }
 
-/** Inverts each color channel. */
-static inline GrColor GrInvertColor(GrColor c) {
-    U8CPU a = GrColorUnpackA(c);
-    U8CPU r = GrColorUnpackR(c);
-    U8CPU g = GrColorUnpackG(c);
-    U8CPU b = GrColorUnpackB(c);
-    return GrColorPackRGBA(0xff - r, 0xff - g, 0xff - b, 0xff - a);
-}
-
 static inline GrColor GrColorMul(GrColor c0, GrColor c1) {
     U8CPU r = SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1));
     U8CPU g = SkMulDiv255Round(GrColorUnpackG(c0), GrColorUnpackG(c1));
     U8CPU b = SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1));
     U8CPU a = SkMulDiv255Round(GrColorUnpackA(c0), GrColorUnpackA(c1));
-    return GrColorPackRGBA(r, g, b, a);
-}
-
-static inline GrColor GrColorSatAdd(GrColor c0, GrColor c1) {
-    unsigned r = SkTMin<unsigned>(GrColorUnpackR(c0) + GrColorUnpackR(c1), 0xff);
-    unsigned g = SkTMin<unsigned>(GrColorUnpackG(c0) + GrColorUnpackG(c1), 0xff);
-    unsigned b = SkTMin<unsigned>(GrColorUnpackB(c0) + GrColorUnpackB(c1), 0xff);
-    unsigned a = SkTMin<unsigned>(GrColorUnpackA(c0) + GrColorUnpackA(c1), 0xff);
     return GrColorPackRGBA(r, g, b, a);
 }
 
@@ -269,26 +252,5 @@ struct GrColor4f {
         return GrColor4f(fRGBA[0] * invAlpha, fRGBA[1] * invAlpha, fRGBA[2] * invAlpha, a);
     }
 };
-
-/**
- * Flags used for bitfields of color components. They are defined so that the bit order reflects the
- * GrColor shift order.
- */
-enum GrColorComponentFlags {
-    kR_GrColorComponentFlag = 1 << (GrColor_SHIFT_R / 8),
-    kG_GrColorComponentFlag = 1 << (GrColor_SHIFT_G / 8),
-    kB_GrColorComponentFlag = 1 << (GrColor_SHIFT_B / 8),
-    kA_GrColorComponentFlag = 1 << (GrColor_SHIFT_A / 8),
-
-    kNone_GrColorComponentFlags = 0,
-
-    kRGB_GrColorComponentFlags = (kR_GrColorComponentFlag | kG_GrColorComponentFlag |
-                                  kB_GrColorComponentFlag),
-
-    kRGBA_GrColorComponentFlags = (kR_GrColorComponentFlag | kG_GrColorComponentFlag |
-                                   kB_GrColorComponentFlag | kA_GrColorComponentFlag)
-};
-
-GR_MAKE_BITFIELD_OPS(GrColorComponentFlags)
 
 #endif
