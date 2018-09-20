@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81de11aa_553db774",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-20T21:40:02Z",
+      "side": 1,
+      "message": "What\u0027s your convention in the GPU backend for things like this?\n\nIt\u0027s kind of ambiguous what the function expects as inputs and outputs now, unless you look at the implementation.  Do you give the functions names?  Just not get confused?\n\nAm I weird to think that we really want 3 types, like\n\n  struct SkRGBA4f {  ..... most things .... };\n\n  struct SkColor4f : public SkRGBA4f { SkPM4f premul() const; };\n  struct SkPM4f    : public SkRGBA4f { SkColor4f unpremul() const; };\n\nor am I just clinging on to the old ways?",
+      "range": {
+        "startLine": 51,
+        "startChar": 17,
+        "endLine": 51,
+        "endChar": 27
+      },
+      "revId": "f72853696e37a8a3ac4d56c5e11fe51800d81f63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
