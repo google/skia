@@ -65,6 +65,30 @@
     },
     {
       "key": {
+        "uuid": "bfe8a98d_f9599da0",
+        "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-20T13:51:31Z",
+      "side": 1,
+      "message": "We could make each SkGradientShader have a unique ID assume that if the ID isn\u0027t the same we need to resend all the data. It\u0027d catch the common case of repeatedly using the same shader.",
+      "parentUuid": "224f431d_a1c950a2",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 0
+      },
+      "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9310a85_70d98982",
         "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
         "patchSetId": 2
