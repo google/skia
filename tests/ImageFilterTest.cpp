@@ -721,6 +721,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     const int tileSize = 8;
 
     SkPaint textPaint;
+    sk_tool_utils::set_portable_typeface(&textPaint);
     textPaint.setTextSize(SkIntToScalar(height));
     textPaint.setColor(SK_ColorWHITE);
 
@@ -730,6 +731,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     for (int scale = 1; scale <= 2; ++scale) {
         for (int i = 0; i < filters.count(); ++i) {
             SkPaint combinedPaint;
+            sk_tool_utils::set_portable_typeface(&combinedPaint);
             combinedPaint.setTextSize(SkIntToScalar(height));
             combinedPaint.setColor(SK_ColorWHITE);
             combinedPaint.setImageFilter(sk_ref_sp(filters.getFilter(i)));
