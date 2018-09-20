@@ -297,158 +297,162 @@ SkBitmap member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns readable pixel address as 8-bit pointer</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getAlphaf'>getAlphaf</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkColor_Reference#Alpha'>Alpha</a> normalized from zero to one</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getBounds'>getBounds</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkBitmap_width'>width</a> and <a href='#SkBitmap_height'>height</a> as Rectangle</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getColor'>getColor</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns one pixel as <a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='SkColor_Reference#Color'>Color</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getGenerationID'>getGenerationID</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns unique ID</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getPixels'>getPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns address of pixels</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getSubset'>getSubset</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds offset by origin</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Mip_Map'>Mip Map</a> support present; Android only</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_height'>height</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel row count</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_info'>info</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkImageInfo_Reference#Image_Info'>Image Info</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_installPixels'>installPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='undocumented#Pixel_Ref'>Pixel Ref</a>, with optional release function</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_isImmutable'>isImmutable</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if pixels will not change</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_isNull'>isNull</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_isOpaque'>isOpaque</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> describes opaque pixels</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_isVolatile'>isVolatile</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if pixels should not be cached</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_notifyPixelsChanged'>notifyPixelsChanged</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>marks pixels as changed, altering the unique ID</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_peekPixels'>peekPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> if possible</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_pixelRef'>pixelRef</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Pixel_Ref'>Pixel Ref</a>, or nullptr</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_pixelRefOrigin'>pixelRefOrigin</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns offset within <a href='undocumented#Pixel_Ref'>Pixel Ref</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_pixmap'>pixmap</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkPixmap_Reference#Pixmap'>Pixmap</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_readPixels'>readPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies and converts pixels</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_readyToDraw'>readyToDraw</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if address of pixels is not nullptr</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_refColorSpace'>refColorSpace</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> <a href='undocumented#Color_Space'>Color Space</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_reset'>reset</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to default values, releases pixel ownership</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_rowBytes'>rowBytes</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns interval between rows in bytes</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_rowBytesAsPixels'>rowBytesAsPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns interval between rows in pixels</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setAlphaType'>setAlphaType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> of shared pixels</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='undocumented#Mip_Map'>Mip Map</a> support present; Android only</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setImmutable'>setImmutable</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>marks that pixels will not change</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setInfo'>setInfo</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets height, width, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, and so on, releasing pixels</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setIsVolatile'>setIsVolatile</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>marks if pixels should not be cached</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setPixelRef'>setPixelRef</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='undocumented#Pixel_Ref'>Pixel Ref</a> and offset</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setPixels'>setPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='undocumented#Pixel_Ref'>Pixel Ref</a> without an offset</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_shiftPerPixel'>shiftPerPixel</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bit shift from pixels to bytes</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_swap'>swap</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exchanges <a href='#Bitmap'>Bitmap</a> pair</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocN32Pixels'>tryAllocN32Pixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible ARGB pixels if possible</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixels from <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> if possible</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixels from <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> with options if possible</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_validate'>validate</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>asserts if <a href='#Bitmap'>Bitmap</a> is invalid (debug only)</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_width'>width</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_writePixels'>writePixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies and converts pixels</td>
   </tr>
@@ -882,86 +886,90 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns readable pixel address as 8-bit pointer</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getAlphaf'>getAlphaf</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkColor_Reference#Alpha'>Alpha</a> normalized from zero to one</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getBounds'>getBounds</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkBitmap_width'>width</a> and <a href='#SkBitmap_height'>height</a> as Rectangle</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getBounds'>getBounds(SkRect* bounds)</a> const</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getBounds_2'>getBounds(SkIRect* bounds)</a> const</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getColor'>getColor</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns one pixel as <a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='SkColor_Reference#Color'>Color</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getPixels'>getPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns address of pixels</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getSubset'>getSubset</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds offset by origin</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Mip_Map'>Mip Map</a> support present; Android only</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_height'>height</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel row count</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_info'>info</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkImageInfo_Reference#Image_Info'>Image Info</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_isImmutable'>isImmutable</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if pixels will not change</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_isNull'>isNull</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_isOpaque'>isOpaque</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> describes opaque pixels</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_isVolatile'>isVolatile</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if pixels should not be cached</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_pixelRef'>pixelRef</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Pixel_Ref'>Pixel Ref</a>, or nullptr</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_pixelRefOrigin'>pixelRefOrigin</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns offset within <a href='undocumented#Pixel_Ref'>Pixel Ref</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_pixmap'>pixmap</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkPixmap_Reference#Pixmap'>Pixmap</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_refColorSpace'>refColorSpace</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> <a href='undocumented#Color_Space'>Color Space</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_rowBytes'>rowBytes</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns interval between rows in bytes</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_rowBytesAsPixels'>rowBytesAsPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns interval between rows in pixels</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_shiftPerPixel'>shiftPerPixel</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bit shift from pixels to bytes</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_width'>width</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
@@ -3320,7 +3328,38 @@ Unpremultiplied:
 
 ### See Also
 
-<a href='#SkBitmap_getAddr'>getAddr</a> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup>
+<a href='#SkBitmap_getAlphaf'>getAlphaf</a> <a href='#SkBitmap_getAddr'>getAddr</a> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup>
+
+---
+
+<a name='SkBitmap_getAlphaf'></a>
+## getAlphaf
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+float <a href='#SkBitmap_getAlphaf'>getAlphaf</a>(int x, int y) const
+</pre>
+
+Looks up the pixel at (<a href='#SkBitmap_getAlphaf_x'>x</a>,<a href='#SkBitmap_getAlphaf_y'>y</a>) and return its alpha component, normalized to [0..1].
+This is roughly equivalent to <code>SkGetColorA(getColor()\)</code>, but can be more efficent
+(and more precise if the pixels store more than 8 bits per component).
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkBitmap_getAlphaf_x'><code><strong>x</strong></code></a></td>
+    <td>column index, zero or greater, and less than <a href='#SkBitmap_width'>width</a></td>
+  </tr>
+  <tr>    <td><a name='SkBitmap_getAlphaf_y'><code><strong>y</strong></code></a></td>
+    <td>row index, zero or greater, and less than <a href='#SkBitmap_height'>height</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+alpha converted to normalized float
+
+### See Also
+
+<a href='#SkBitmap_getColor'>getColor</a>
 
 ---
 

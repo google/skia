@@ -2513,9 +2513,30 @@ Unpremultiplied:
 ##
 ##
 
-#SeeAlso getAddr readPixels
+#SeeAlso getAlphaf getAddr readPixels
 
 ##
+
+#Method float getAlphaf(int x, int y) const
+#In Property
+#Line # returns Alpha normalized from zero to one ##
+
+Looks up the pixel at (x,y) and return its alpha component, normalized to [0..1].
+This is roughly equivalent to #Formula # SkGetColorA(getColor()) ##, but can be more efficent
+(and more precise if the pixels store more than 8 bits per component).
+
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
+
+#Return   alpha converted to normalized float ##
+
+#NoExample
+##
+
+#SeeAlso getColor
+
+##
+
 
 # ------------------------------------------------------------------------------
 
