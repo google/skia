@@ -846,6 +846,18 @@ public:
         return this->pixmap().getColor(x, y);
     }
 
+    /** Look up the pixel at (x,y) and return its alpha component, normalized to [0..1].
+        This is roughly equivalent to SkGetColorA(getColor()), but can be more efficent
+        (and more precise if the pixels store more than 8 bits per component).
+
+        @param x  column index, zero or greater, and less than width()
+        @param y  row index, zero or greater, and less than height()
+        @return   alpha converted to normalized float
+     */
+    float getAlphaf(int x, int y) const {
+        return this->pixmap().getAlphaf(x, y);
+    }
+
     /** Returns pixel address at (x, y).
 
         Input is not validated: out of bounds values of x or y, or kUnknown_SkColorType,
