@@ -166,14 +166,16 @@ private:
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
                                                            int width, int height,
                                                            GrPixelConfig config,
-                                                           sk_sp<SkColorSpace> colorSpace) {
+                                                           sk_sp<SkColorSpace> colorSpace,
+                                                           const SkSurfaceProps* props) {
     if (!context) {
         return nullptr;
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
         context->contextPriv().makeDeferredRenderTargetContext(
-                SkBackingFit::kApprox, width, height, config, std::move(colorSpace)));
+                SkBackingFit::kApprox, width, height, config, std::move(colorSpace), 1,
+                GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, props));
     if (!renderTargetContext) {
         return nullptr;
     }
