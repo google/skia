@@ -70,6 +70,7 @@ skia_utils_sources = [
   #mac
   "$_include/utils/mac/SkCGUtils.h",
   "$_src/utils/mac/SkCreateCGImageRef.cpp",
+  "$_src/utils/mac/SkUniqueCFRef.h",
 
   #windows
   "$_src/utils/win/SkAutoCoInitialize.h",
