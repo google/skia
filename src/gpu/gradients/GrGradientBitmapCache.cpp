@@ -12,6 +12,7 @@
 #include "SkFloatBits.h"
 #include "SkHalf.h"
 #include "SkPM4fPriv.h"
+#include "SkTemplates.h"
 
 #include <functional>
 
