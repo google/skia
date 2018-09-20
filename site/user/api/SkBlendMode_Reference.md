@@ -1,7 +1,6 @@
 SkBlendMode Reference
 ===
 
-# <a name='Blend_Mode'>Blend Mode</a>
 
 ## Overview
 
@@ -9,40 +8,164 @@ SkBlendMode Reference
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Porter_Duff'>Porter Duff</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>classic color blend algorithms</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Lighten_Darken'>Lighten Darken</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>color blends to lighten or darken result</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Modulate_Blend'>Modulate Blend</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>multiply color components</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Blends'>Color Blends</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-separable blend modes</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Clear'>Clear</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>makes destination pixels transparent</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src'>Src</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces destination, ignoring <a href='SkColor_Reference#Alpha'>Alpha</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst'>Dst</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>preserves destination, ignoring source</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src_Over'>Src Over</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>blends source with destination</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst_Over'>Dst Over</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>blends destination with source</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src_In'>Src In</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>source trimmed inside destination</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst_In'>Dst In</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>destination trimmed by source</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src_Out'>Src Out</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>source trimmed outside destination</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst_Out'>Dst Out</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>destination trimmed outside source</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src_Atop'>Src Atop</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>source inside destination over destination</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst_Atop'>Dst Atop</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>destination inside source over source</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Xor'>Xor</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>each of source and destination trimmed outside the other</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Plus'>Plus</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sum of colors</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Modulate'>Modulate</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>product of <a href='undocumented#Premultiply'>Premultiplied</a> colors; darkens destination</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Screen'>Screen</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>multiply inverse of pixels, inverting result; brightens destination</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Overlay'>Overlay</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>multiply or screen, depending on destination</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Darken'>Darken</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>darker of source and destination</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Lighten'>Lighten</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>lighter of source and destination</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Dodge'>Color Dodge</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>brighten destination to reflect source</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Burn'>Color Burn</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>darken destination to reflect source</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Hard_Light'>Hard Light</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>multiply or screen, depending on source</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Soft_Light'>Soft Light</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>lighten or darken, depending on source</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Difference'>Difference</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>subtract darker from lighter with higher contrast</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Exclusion'>Exclusion</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>subtract darker from lighter with lower contrast</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Multiply'>Multiply</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>multiply source with destination, darkening image</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Hue'>Hue</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>hue of source with saturation and luminosity of destination</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Saturation'>Saturation</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>saturation of source with hue and luminosity of destination</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color'>Color</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>hue and saturation of source with luminosity of destination</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Luminosity'>Luminosity</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>luminosity of source with hue and saturation of destination</td>
   </tr>
 </table>
 
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
-SkBlendMode member functions read and modify the structure properties.
+SkBlendMode uses member functions to read and modify structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_Name'>SkBlendMode Name</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns mode as C string</td>
   </tr>
 </table>
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
-SkBlendMode related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
+SkBlendMode defines related constants are using <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constant</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode'>SkBlendMode</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>algorithm combining source and destination pixels</td>
