@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d37ddef1_0043501b",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-20T20:14:08Z",
+      "side": 1,
+      "message": "This does not take advantage of the fact the s must be a power of 2 as per the c++ spec. Does this compile to code similar to the (s + (N-1)) \u0026 ~(N-1)?",
+      "range": {
+        "startLine": 25,
+        "startChar": 11,
+        "endLine": 25,
+        "endChar": 32
+      },
+      "revId": "75d6db7c79f98638966c995fbec655ced7af1622",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
