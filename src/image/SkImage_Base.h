@@ -22,6 +22,8 @@ class GrTexture;
 #include <new>
 
 class GrSamplerState;
+class SkCachedData;
+struct SkYUVSizeInfo;
 
 enum {
     kNeedNewImageUniqueID = 0
@@ -56,6 +58,7 @@ public:
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&,
                                                     SkColorSpace*, sk_sp<SkColorSpace>*,
                                                     SkScalar scaleAdjust[2]) const = 0;
+    virtual bool asYUVATextureProxies(GrContext*) const = 0;
     virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
         return nullptr;
     }
@@ -72,6 +75,7 @@ public:
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
+    virtual sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*, const void* planes[3]);
     virtual sk_sp<SkData> onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*) const;

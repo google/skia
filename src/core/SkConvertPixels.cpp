@@ -56,13 +56,15 @@ static bool swizzle_and_multiply(const SkImageInfo& dstInfo,       void* dstPixe
         fn = swapRB ? SkOpts::RGBA_to_bgrA
                     : SkOpts::RGBA_to_rgbA;
     } else if (steps.flags.unpremul) {
+#if 0
         fn = swapRB
-            ? +[](uint32_t* dst, const void* src, int count) {
+            ? [](uint32_t* dst, const void* src, int count) {
                 SkUnpremultiplyRow<true>(dst,(const uint32_t*)src,count);
               }
-            : +[](uint32_t* dst, const void* src, int count) {
+            : [](uint32_t* dst, const void* src, int count) {
                 SkUnpremultiplyRow<false>(dst,(const uint32_t*)src,count);
               };
+#endif
     } else {
         // If we're not swizzling, we ought to have used rect_memcpy().
         SkASSERT(swapRB);
