@@ -167,7 +167,7 @@ SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
     return c4;
 }
 
-SkPM4f SkColor4f::premul() const {
+SkPM4f SkColor4f::toPM4f() const {
     auto rgba = Sk4f::Load(this->vec());
     return SkPM4f::From4f(rgba * Sk4f(rgba[3], rgba[3], rgba[3], 1));
 }

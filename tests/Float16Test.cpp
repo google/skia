@@ -49,7 +49,7 @@ DEF_TEST(color_half_float, reporter) {
     SkColor4f c4 { 1, 0.5f, 0.25f, 0.5f };
     pm.erase(c4);
 
-    SkPM4f origpm4 = c4.premul();
+    SkPM4f origpm4 = c4.toPM4f();
     for (int y = 0; y < pm.height(); ++y) {
         for (int x = 0; x < pm.width(); ++x) {
             SkPM4f pm4 = SkPM4f::FromF16(pm.addrF16(x, y));
