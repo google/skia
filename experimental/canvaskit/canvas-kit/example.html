@@ -1,83 +1,51 @@
-CanvasKit - Skia + WebAssembly
-==============================
-
-Skia now offers a WebAssembly build for easy deployment of our graphics APIs on
-the web.
-
-CanvasKit provides a playground for testing new Canvas and SVG platform APIs,
-enabling fast-paced development on the web platform.
-It can also be used as a deployment mechanism for custom web apps requiring
-cutting-edge features, like Skia's [Lottie
-animation](https://skia.org/user/modules/skottie) support.
-
-
-Features
---------
-
-  - WebGL context encapsulated as an SkSurface, allowing for direct drawing to
-    an HTML canvas
-  - Core set of Skia canvas/paint/path/text APIs available, see bindings
-  - Draws to a hardware-accelerated backend
-  - Security tested with Skia's fuzzers
-
-Samples
--------
+<!DOCTYPE html>
+<title>CanvasKit (Skia via Web Assembly)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  #demo canvas {
+  svg, canvas {
     border: 1px dashed #AAA;
-    margin: 2px;
   }
 
-  #patheffect, #ink {
-    width: 400px;
-    height: 400px;
-  }
-
-  #sk_legos, #sk_drinks,#sk_party {
+  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos {
     width: 300px;
     height: 300px;
   }
 
 </style>
 
-<div id=demo>
-  <h3>An Interactive Path (try mousing over)</h3>
-  <canvas id=patheffect width=400 height=400></canvas>
-  <canvas id=ink width=400 height=400></canvas>
+<h2> CanvasKit draws Paths to WebGL</h2>
+<canvas id=patheffect width=300 height=300></canvas>
+<canvas id=paths width=200 height=200></canvas>
+<canvas id=ink width=300 height=300></canvas>
 
-  <h3>Skottie</h3>
-  <canvas id=sk_legos width=300 height=300></canvas>
-  <canvas id=sk_drinks width=500 height=500></canvas>
-  <canvas id=sk_party width=800 height=800></canvas>
-</div>
+<h2> Skottie </h2>
+<canvas id=sk_legos width=300 height=300></canvas>
+<canvas id=sk_drinks width=500 height=500></canvas>
+<canvas id=sk_party width=800 height=800></canvas>
+
+<!-- Doesn't work yet. -->
+<button id=lego_btn>Take a picture of the legos</button>
+
+<script type="text/javascript" src="/node_modules/canvas-kit/bin/skia.js"></script>
 
 <script type="text/javascript" charset="utf-8">
-(function() {
-  // Tries to load the WASM version if supported, shows error otherwise
-  let s = document.createElement('script');
-  var locate_file = '';
-  if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
-    console.log('WebAssembly is supported!');
-    locate_file = 'https://storage.googleapis.com/skia-cdn/canvaskit-wasm/0.0.2/bin/';
-  } else {
-    console.log('WebAssembly is not supported (yet) on this browser.');
-    document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";
-    return;
-  }
-  s.src = locate_file + 'skia.js';
-  s.onload = () => {
+
   var CanvasKit = null;
   var legoJSON = null;
   var drinksJSON = null;
   var confettiJSON = null;
   CanvasKitInit({
-    locateFile: (file) => locate_file + file,
+    locateFile: (file) => '/node_modules/canvas-kit/bin/'+file,
   }).then((CK) => {
+    CK.initFonts();
     CanvasKit = CK;
     DrawingExample(CanvasKit);
+    PathExample(CanvasKit);
     InkExample(CanvasKit);
-     // Set bounds to fix the 4:3 resolution of the legos
+    // Set bounds to fix the 4:3 resolution of the legos
     SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
     SkottieExample(CanvasKit, 'sk_drinks', drinksJSON);
     SkottieExample(CanvasKit, 'sk_party', confettiJSON);
@@ -86,7 +54,7 @@ Samples
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
     resp.text().then((str) => {
       legoJSON = str;
-      SkottieExample(CanvasKit, 'sk_legos', legoJSON);
+      SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
     });
   });
 
@@ -104,6 +72,24 @@ Samples
     });
   });
 
+  // crashes the lego drawing
+  const btn = document.getElementById('lego_btn');
+  btn.addEventListener('click', () => {
+    const surface = CanvasKit.getWebGLSurface('sk_legos');
+    if (!surface) {
+      console.log('Could not get lego surface');
+    }
+
+    const img = surface.makeImageSnapshot()
+    if (!img) { return }
+    const png = img.encodeToData()
+    if (!png) { return }
+    const pngBytes = CanvasKit.getSkDataBytes(png);
+    // See https://stackoverflow.com/a/12713326
+    let b64encoded = btoa(String.fromCharCode.apply(null, pngBytes));
+    console.log("base64 encoded image", b64encoded);
+  });
+
   function DrawingExample(CanvasKit) {
     const surface = CanvasKit.getWebGLSurface('patheffect');
     if (!surface) {
@@ -114,6 +100,11 @@ Samples
     const canvas = surface.getCanvas();
 
     const paint = new CanvasKit.SkPaint();
+
+    const textPaint = new CanvasKit.SkPaint();
+    textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
+    textPaint.setTextSize(30);
+    textPaint.setAntiAlias(true);
 
     let i = 0;
 
@@ -135,6 +126,7 @@ Samples
       canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
       canvas.drawPath(path, paint);
+      canvas.drawText('Try mousing over!', 10, 280, textPaint);
       canvas.flush();
       dpe.delete();
       path.delete();
@@ -142,7 +134,7 @@ Samples
     }
     window.requestAnimationFrame(drawFrame);
 
-    // Make animation interactive
+    // Make
     document.getElementById('patheffect').addEventListener('mousemove', (e) => {
       X = e.offsetX;
       Y = e.offsetY;
@@ -151,6 +143,57 @@ Samples
     // A client would need to delete this if it didn't go on for ever.
     //paint.delete();
   }
+
+  function PathExample(CanvasKit) {
+    const surface = CanvasKit.getWebGLSurface('paths');
+    if (!surface) {
+      console.log('Could not make surface');
+    }
+    const context = CanvasKit.currentContext();
+
+    const canvas = surface.getCanvas();
+
+    function drawFrame() {
+      CanvasKit.setCurrentContext(context);
+      const paint = new CanvasKit.SkPaint();
+      paint.setStrokeWidth(1.0);
+      paint.setAntiAlias(true);
+      paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+      paint.setStyle(CanvasKit.PaintStyle.STROKE);
+
+      const path = new CanvasKit.SkPath();
+      path.moveTo(20, 5);
+      path.lineTo(30, 20);
+      path.lineTo(40, 10);
+      path.lineTo(50, 20);
+      path.lineTo(60, 0);
+      path.lineTo(20, 5);
+
+      path.moveTo(20, 80);
+      path.cubicTo(90, 10, 160, 150, 190, 10);
+
+      path.moveTo(36, 148);
+      path.quadTo(66, 188, 120, 136);
+      path.lineTo(36, 148);
+
+      path.moveTo(150, 180);
+      path.arcTo(150, 100, 50, 200, 20);
+      path.lineTo(160, 160);
+
+      path.moveTo(20, 120);
+      path.lineTo(20, 120);
+
+      canvas.drawPath(path, paint);
+
+      canvas.flush();
+
+      path.delete();
+      paint.delete();
+      // Intentionally just draw frame once
+    }
+    window.requestAnimationFrame(drawFrame);
+  }
+
 
   function InkExample(CanvasKit) {
     const surface = CanvasKit.getWebGLSurface('ink');
@@ -166,7 +209,6 @@ Samples
     paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
     paint.setStyle(CanvasKit.PaintStyle.STROKE);
     paint.setStrokeWidth(4.0);
-    // This effect smooths out the drawn lines a bit.
     paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(50));
 
     let path = new CanvasKit.SkPath();
@@ -218,6 +260,14 @@ Samples
     return p;
   }
 
+  function fps(frameTimes) {
+    let total = 0;
+    for (let ft of frameTimes) {
+      total += ft;
+    }
+    return frameTimes.length / total;
+  }
+
   function SkottieExample(CanvasKit, id, jsonStr, bounds) {
     if (!CanvasKit || !jsonStr) {
       return;
@@ -248,23 +298,8 @@ Samples
       window.requestAnimationFrame(drawFrame);
     }
     window.requestAnimationFrame(drawFrame);
+
     //animation.delete();
   }
-  }
-  document.head.appendChild(s);
-})();
+
 </script>
-
-Lottie files courtesy of the lottiefiles.com community:
-[Lego Loader](https://www.lottiefiles.com/410-lego-loader), [I'm
-thirsty](https://www.lottiefiles.com/77-im-thirsty),
-[Confetti](https://www.lottiefiles.com/1370-confetti)
-
-
-Test server
------------
-Test your code on our [CanvasKit Fiddle](https://jsfiddle.skia.org/canvaskit)
-
-Download
---------
-Work is underway on an npm download. Check back soon.

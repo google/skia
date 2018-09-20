@@ -399,7 +399,8 @@ optional("fontmgr_android") {
 }
 
 optional("fontmgr_custom") {
-  enabled = is_linux && skia_use_freetype && !skia_use_fontconfig
+  enabled = (is_linux || target_cpu == "wasm") && skia_use_freetype &&
+            !skia_use_fontconfig
 
   deps = [
     ":typeface_freetype",
@@ -929,7 +930,7 @@ component("skia") {
     ]
   }
 
-  if (is_linux) {
+  if (is_linux || target_cpu == "wasm") {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
     if (skia_use_egl) {
       libs += [ "GLESv2" ]

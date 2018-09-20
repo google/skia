@@ -103,6 +103,7 @@ static bool less_or_equal_ulps(float a, float b, int epsilon) {
     return aBits < bBits + epsilon;
 }
 
+#ifndef SKOTTIE_HACK
 // equality using the same error term as between
 bool AlmostBequalUlps(float a, float b) {
     const int UlpsEpsilon = 2;
@@ -227,6 +228,7 @@ double SkDCubeRoot(double x) {
     }
     return result;
 }
+#endif
 
 SkOpGlobalState::SkOpGlobalState(SkOpContourHead* head,
                                  SkArenaAlloc* allocator
