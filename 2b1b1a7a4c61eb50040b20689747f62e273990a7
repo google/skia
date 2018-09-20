@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8738d8a7_4b63c7b1",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-20T18:37:43Z",
+      "side": 1,
+      "message": "Can you add an assert to setTextScaleX in SkPaint too?",
+      "range": {
+        "startLine": 309,
+        "startChar": 21,
+        "endLine": 309,
+        "endChar": 34
+      },
+      "revId": "2b1b1a7a4c61eb50040b20689747f62e273990a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
