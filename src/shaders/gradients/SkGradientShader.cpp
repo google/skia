@@ -317,7 +317,7 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
 
     auto prepareColor = [premulGrad, &xformedColors](int i) {
         SkColor4f c = xformedColors.fColors[i];
-        return premulGrad ? c.premul()
+        return premulGrad ? c.toPM4f()
                           : SkPM4f::From4f(Sk4f::Load(&c));
     };
 
