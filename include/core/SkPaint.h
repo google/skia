@@ -25,6 +25,8 @@
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
+test
+
 class GrTextBlob;
 class SkAutoDescriptor;
 class SkColorFilter;

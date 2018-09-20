@@ -1,0 +1,41 @@
+[
+  {
+    "cmd": [
+      "python",
+      "[START_DIR]/skia/infra/bots/android_compile/trigger_wait_ac_task.py",
+      "--issue",
+      "1234",
+      "--patchset",
+      "1"
+    ],
+    "name": "Trigger and wait for task on android compile server",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cat",
+      "gs://android-compile-tasks/1234-1.json"
+    ],
+    "name": "Get task log links",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"nopatch_log\": \"link2\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"withpatch_log\": \"link1\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LINK@withpatch compilation log link@link1@@@",
+      "@@@STEP_LINK@nopatch compilation log link@link2@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "reason": "Step('Trigger and wait for task on android compile server') failed with return_code 1",
+    "recipe_result": null,
+    "status_code": 1
+  }
+]
