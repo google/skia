@@ -6,7 +6,6 @@
 */
 
 #include "SkHighContrastFilter.h"
-#include "SkPM4f.h"
 #include "SkArenaAlloc.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"

@@ -12,7 +12,6 @@
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
 #include "SkModeColorFilter.h"
-#include "SkPM4f.h"
 #include "SkPM4fPriv.h"
 #include "SkRandom.h"
 #include "SkRasterPipeline.h"

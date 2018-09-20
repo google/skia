@@ -9,7 +9,6 @@
 #include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkShader.h"
-#include "SkPM4f.h"
 
 enum SrcType {
     //! A WxH image with a rectangle in the lower right.

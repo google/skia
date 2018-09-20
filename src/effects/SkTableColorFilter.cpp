@@ -10,7 +10,6 @@
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkColorData.h"
-#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
