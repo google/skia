@@ -15,6 +15,7 @@
 #include "SkClusterator.h"
 #include "SkData.h"
 #include "SkDeflate.h"
+#include "SkDocument.h"
 #include "SkGlyphRun.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilterPriv.h"
@@ -22,7 +23,6 @@
 #include "SkMatrix.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
 #include "SkPDFFont.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
@@ -165,7 +165,7 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
 // and there is no assert on input data in Debug mode.
 static void test_issue1083() {
     SkDynamicMemoryWStream outStream;
-    sk_sp<SkDocument> doc(SkPDF::MakeDocument(&outStream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
     SkPaint paint;
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
@@ -394,7 +394,7 @@ sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
 DEF_TEST(SkPDF_ImageFilter, reporter) {
     REQUIRE_PDF_DOCUMENT(SkPDF_ImageFilter, reporter);
     SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc(SkPDF::MakeDocument(&stream));
+    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
     sk_sp<DummyImageFilter> filter(DummyImageFilter::Make());

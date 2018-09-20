@@ -6,21 +6,23 @@ SkDocument and SkCanvas APIs.
 
 <!--?prettify lang=cc?-->
 
-    #include "SkPDFDocument.h"
+    #include "SkDocument.h"
 
     void WritePDF(SkWStream* outputStream,
                   const char* documentTitle,
                   void (*writePage)(SkCanvas*, int page),
                   int numberOfPages,
                   SkSize pageSize) {
-        SkPDF::Metadata metadata;
+        SkDocument::PDFMetadata metadata;
         metadata.fTitle = documentTitle;
         metadata.fCreator = "Example WritePDF() Function";
         SkTime::DateTime now;
         SkTime::GetDateTime(&now);
-        metadata.fCreation = now;
-        metadata.fModified = now;
-        sk_sp<SkDocument> pdfDocument = SkPDF::MakeDocument(
+        metadata.fCreation.fEnabled  = true;
+        metadata.fCreation.fDateTime = now;
+        metadata.fModified.fEnabled  = true;
+        metadata.fModified.fDateTime = now;
+        sk_sp<SkDocument> pdfDocument = SkDocument::MakePDF(
                 outputStream, SK_ScalarDefaultRasterDPI, metadata,
                 nullptr, true);
         assert(pdfDocument);

@@ -4,14 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "SkCanvas.h"
-#include "SkPDFDocument.h"
+#include "SkDocument.h"
 #include "SkStream.h"
 #include "Test.h"
 
 static void run_test(SkWStream* out, SkBlendMode mode, U8CPU alpha) {
-    sk_sp<SkDocument> pdfDoc(SkPDF::MakeDocument(out));
+    sk_sp<SkDocument> pdfDoc(SkDocument::MakePDF(out));
     SkCanvas* c = pdfDoc->beginPage(612.0f, 792.0f);
     SkPaint black;
     SkPaint background;

@@ -8,22 +8,22 @@
 #ifndef SkPDFMetadata_DEFINED
 #define SkPDFMetadata_DEFINED
 
-#include "SkPDFDocument.h"
+#include "SkDocument.h"
 
 class SkPDFObject;
 
 namespace SkPDFMetadata {
-sk_sp<SkPDFObject> MakeDocumentInformationDict(const SkPDF::Metadata&);
+sk_sp<SkPDFObject> MakeDocumentInformationDict(const SkDocument::PDFMetadata&);
 
 struct UUID {
     uint8_t fData[16];
 };
 
-UUID CreateUUID(const SkPDF::Metadata&);
+UUID CreateUUID(const SkDocument::PDFMetadata&);
 
 sk_sp<SkPDFObject> MakePdfId(const UUID& doc, const UUID& instance);
 
-sk_sp<SkPDFObject> MakeXMPObject(const SkPDF::Metadata&,
+sk_sp<SkPDFObject> MakeXMPObject(const SkDocument::PDFMetadata&,
                                  const UUID& doc,
                                  const UUID& instance);
 }

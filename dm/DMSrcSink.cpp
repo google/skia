@@ -49,7 +49,6 @@
 #include "SkPictureRecorder.h"
 #include "SkPipe.h"
 #include "SkPngEncoder.h"
-#include "SkPDFDocument.h"
 #include "SkRandom.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
@@ -63,7 +62,6 @@
     #include "SkAutoCoInitialize.h"
     #include "SkHRESULT.h"
     #include "SkTScopedComPtr.h"
-    #include "SkXPSDocument.h"
     #include <XpsObjectModel.h>
 #endif
 
@@ -1614,15 +1612,15 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
 }
 
 Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    SkPDF::Metadata metadata;
+    SkDocument::PDFMetadata metadata;
     metadata.fTitle = src.name();
     metadata.fSubject = "rendering correctness test";
     metadata.fCreator = "Skia/DM";
     metadata.fRasterDPI = fRasterDpi;
     metadata.fPDFA = fPDFA;
-    sk_sp<SkDocument> doc = SkPDF::MakeDocument(dst, metadata);
+    sk_sp<SkDocument> doc = SkDocument::MakePDF(dst, metadata);
     if (!doc) {
-        return "SkPDF::MakeDocument() returned nullptr";
+        return "SkDocument::MakePDF() returned nullptr";
     }
     return draw_skdocument(src, doc.get(), dst);
 }
@@ -1650,9 +1648,9 @@ Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     if (!factory) {
         return "Failed to create XPS Factory.";
     }
-    sk_sp<SkDocument> doc(SkXPS::MakeDocument(dst, factory.get()));
+    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst, factory.get()));
     if (!doc) {
-        return "SkXPS::MAkeDocument() returned nullptr";
+        return "SkDocument::MakeXPS() returned nullptr";
     }
     return draw_skdocument(src, doc.get(), dst);
 }
