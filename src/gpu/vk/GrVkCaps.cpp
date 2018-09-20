@@ -547,12 +547,12 @@ void GrVkCaps::initStencilFormat(const GrVkInterface* interface, VkPhysicalDevic
         gD32S8 = { VK_FORMAT_D32_SFLOAT_S8_UINT, 8,                64,               true };
 
     if (stencil_format_supported(interface, physDev, VK_FORMAT_S8_UINT)) {
-        fPreferedStencilFormat = gS8;
+        fPreferredStencilFormat = gS8;
     } else if (stencil_format_supported(interface, physDev, VK_FORMAT_D24_UNORM_S8_UINT)) {
-        fPreferedStencilFormat = gD24S8;
+        fPreferredStencilFormat = gD24S8;
     } else {
         SkASSERT(stencil_format_supported(interface, physDev, VK_FORMAT_D32_SFLOAT_S8_UINT));
-        fPreferedStencilFormat = gD32S8;
+        fPreferredStencilFormat = gD32S8;
     }
 }
 
