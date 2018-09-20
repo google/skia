@@ -8,23 +8,21 @@
 #ifndef SkDocument_DEFINED
 #define SkDocument_DEFINED
 
-#include "SkBitmap.h"
-#include "SkPicture.h"
-#include "SkRect.h"
 #include "SkRefCnt.h"
+#include "SkScalar.h"
 #include "SkString.h"
 #include "SkTime.h"
 
 class SkCanvas;
 class SkWStream;
+struct SkRect;
 
 #ifdef SK_BUILD_FOR_WIN
 struct IXpsOMObjectFactory;
 #endif
 
-/** SK_ScalarDefaultDPI is 72 DPI.
-*/
-#define SK_ScalarDefaultRasterDPI           72.0f
+/** SK_ScalarDefaultDPI is 72 dots per inch. */
+static constexpr SkScalar SK_ScalarDefaultRasterDPI = 72.0f;
 
 /**
  *  High-level API for creating a document-based canvas. To use..
