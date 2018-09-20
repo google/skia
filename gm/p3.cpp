@@ -141,7 +141,7 @@ static void compare_pixel(const char* label,
     }
 }
 
-DEF_SIMPLE_GM(p3, canvas, 450, 800) {
+DEF_SIMPLE_GM(p3, canvas, 450, 1000) {
     auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                     SkColorSpace::kDCIP3_D65_Gamut);
 
@@ -208,7 +208,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 800) {
 
     canvas->translate(0,80);
 
-    // Draw a gradient from P3 red to P3 green, and check the corners.
+    // Draw a gradient from P3 red to P3 green interpolating in unpremul, and check the corners.
     {
 
         SkPoint points[] = {{10.5,10.5}, {69.5,69.5}};
@@ -218,6 +218,35 @@ DEF_SIMPLE_GM(p3, canvas, 450, 800) {
         paint.setShader(SkGradientShader::MakeLinear(points, colors, p3,
                                                      nullptr, SK_ARRAY_COUNT(colors),
                                                      SkShader::kClamp_TileMode));
+        canvas->drawRect({10,10,70,70}, paint);
+        canvas->save();
+            compare_pixel("gradient P3 red",
+                          canvas, 10,10,
+                          {1,0,0,1}, p3.get());
+
+            canvas->translate(180, 0);
+
+            compare_pixel("gradient P3 green",
+                          canvas, 69,69,
+                          {0,1,0,1}, p3.get());
+        canvas->restore();
+    }
+
+    canvas->translate(0,80);
+
+    // Draw a gradient from P3 red to P3 green interpolating in premul, and check the corners.
+    {
+
+        SkPoint points[] = {{10.5,10.5}, {69.5,69.5}};
+        SkColor4f colors[] = {{1,0,0,1}, {0,1,0,1}};
+
+        SkPaint paint;
+        paint.setShader(
+                SkGradientShader::MakeLinear(points, colors, p3,
+                                             nullptr, SK_ARRAY_COUNT(colors),
+                                             SkShader::kClamp_TileMode,
+                                             SkGradientShader::kInterpolateColorsInPremul_Flag,
+                                             nullptr/*local matrix*/));
         canvas->drawRect({10,10,70,70}, paint);
         canvas->save();
             compare_pixel("gradient P3 red",
