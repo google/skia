@@ -17,7 +17,6 @@
 #include "SkRandom.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
-#include "SkDither.h"
 
 // exercise scale/linear/devkern
 struct Setting {
