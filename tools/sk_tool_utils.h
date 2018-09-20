@@ -88,12 +88,9 @@ namespace sk_tool_utils {
      *
      *  If the colorType is half-float, then maxDiff is interpreted as 0..255 --> 0..1
      */
-    bool equal_pixels(const SkPixmap&, const SkPixmap&, unsigned maxDiff = 0,
-                      bool respectColorSpaces = false);
-    bool equal_pixels(const SkBitmap&, const SkBitmap&, unsigned maxDiff = 0,
-                      bool respectColorSpaces = false);
-    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff = 0,
-                      bool respectColorSpaces = false);
+    bool equal_pixels(const SkPixmap&, const SkPixmap&, unsigned maxDiff = 0);
+    bool equal_pixels(const SkBitmap&, const SkBitmap&, unsigned maxDiff = 0);
+    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff = 0);
 
     /** Returns a newly created CheckerboardShader. */
     sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size);

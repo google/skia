@@ -38,5 +38,5 @@ DEF_TEST(AlphaEncodedInfo, r) {
     result = codec->getPixels(bm2.pixmap());
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
-    REPORTER_ASSERT(r, sk_tool_utils::equal_pixels(bm.pixmap(), bm2.pixmap(), 0, true));
+    REPORTER_ASSERT(r, sk_tool_utils::equal_pixels(bm.pixmap(), bm2.pixmap()));
 }
