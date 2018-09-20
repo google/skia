@@ -18,16 +18,23 @@
 #include "SkPaintPriv.h"
 #include "SkTextToPathIter.h"
 #include "ops/GrAtlasTextOp.h"
+
 #include <new>
+
+template <size_t N> static size_t sk_align(size_t s) {
+    return ((s + (N-1)) / N) * N;
+}
 
 sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
     // We allocate size for the GrTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
-    size_t size = sizeof(GrTextBlob) +
-                  verticesCount +
-                  glyphCount * sizeof(GrGlyph**) +
-                  sizeof(GrTextBlob::Run) * runCount;
+
+    size_t   blob = 0;
+    size_t vertex = sk_align<alignof(char)>           (blob + sizeof(GrTextBlob) * 1);
+    size_t glyphs = sk_align<alignof(GrGlyph*)>       (vertex + sizeof(char) * verticesCount);
+    size_t   runs = sk_align<alignof(GrTextBlob::Run)>(glyphs + sizeof(GrGlyph*) * glyphCount);
+    size_t   size =                                   (runs + sizeof(GrTextBlob::Run) * runCount);
 
     void* allocation = ::operator new (size);
 
@@ -39,9 +46,9 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
     cacheBlob->fSize = size;
 
     // setup offsets for vertices / glyphs
-    cacheBlob->fVertices = sizeof(GrTextBlob) + reinterpret_cast<char*>(cacheBlob.get());
-    cacheBlob->fGlyphs = reinterpret_cast<GrGlyph**>(cacheBlob->fVertices + verticesCount);
-    cacheBlob->fRuns = reinterpret_cast<GrTextBlob::Run*>(cacheBlob->fGlyphs + glyphCount);
+    cacheBlob->fVertices = SkTAddOffset<char>(cacheBlob.get(), vertex);
+    cacheBlob->fGlyphs = SkTAddOffset<GrGlyph*>(cacheBlob.get(), glyphs);
+    cacheBlob->fRuns = SkTAddOffset<GrTextBlob::Run>(cacheBlob.get(), runs);
 
     // Initialize runs
     for (int i = 0; i < runCount; i++) {
