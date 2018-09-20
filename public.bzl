@@ -611,7 +611,6 @@ def base_defines(os_conditions):
         "SK_HAS_JPEG_LIBRARY",
         # remove once we've fixed call-sites
         "SK_SUPPORT_LEGACY_DOCUMENT_FACTORY",
-
     ] + skia_select(
         os_conditions,
         [
