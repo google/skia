@@ -10,7 +10,6 @@
 //
 
 #include "SkDevice_Compute.h"
-#include "SkPM4f.h"
 
 //
 //
@@ -276,9 +275,9 @@ void SkDevice_Compute::path_rasterize_and_place(const SkPaint&   paint,
     cmds[SK_ARRAY_COUNT(cmds)-1] = SKC_STYLING_CMD_OP_BLEND_OVER | SKC_STYLING_CMD_OP_IS_FINAL;
 
     {
-        SkPM4f rgba = SkColor4f::FromColor(paint.getColor()).premul();
+        SkColor4f rgba = paint.getColor4f().premul();
 
-        skc_styling_layer_fill_solid_encoder(cmds+1, rgba.fVec);
+        skc_styling_layer_fill_solid_encoder(cmds+1, rgba.vec());
 
         skc_styling_group_layer(fStyling, fGroupID, fGroupLayerID, SKC_STYLING_CMDS(cmds));
     }
