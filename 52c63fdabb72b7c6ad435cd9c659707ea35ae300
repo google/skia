@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03bdab39_b4bc1a09",
+        "filename": "tests/EncodedInfoTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-20T16:41:51Z",
+      "side": 0,
+      "message": "The only instance of \u0027respectColorSpaces\u0027 being true. This was checking that two nullptrs were equal.",
+      "range": {
+        "startLine": 41,
+        "startChar": 81,
+        "endLine": 41,
+        "endChar": 85
+      },
+      "revId": "52c63fdabb72b7c6ad435cd9c659707ea35ae300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "109a09cc_e2533c80",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 766,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-20T16:41:51Z",
+      "side": 0,
+      "message": "The only instance of a non-zero maxDiff. This test passes with this set to zero, and the comment on line 709 claims that the results \u0027match exactly\u0027.",
+      "range": {
+        "startLine": 766,
+        "startChar": 72,
+        "endLine": 766,
+        "endChar": 74
+      },
+      "revId": "52c63fdabb72b7c6ad435cd9c659707ea35ae300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02fc3dfb_42fd6a24",
+        "filename": "tools/sk_tool_utils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-20T16:41:51Z",
+      "side": 0,
+      "message": "Aliasing F16 pixels to F32 (including reading off the end of the buffer).",
+      "range": {
+        "startLine": 565,
+        "startChar": 0,
+        "endLine": 571,
+        "endChar": 49
+      },
+      "revId": "52c63fdabb72b7c6ad435cd9c659707ea35ae300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36d3e8dd_4e57bd85",
+        "filename": "tools/sk_tool_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-20T16:41:51Z",
+      "side": 0,
+      "message": "Aliasing F16 pixels to F32 (including reading off the end of the buffer).",
+      "range": {
+        "startLine": 565,
+        "startChar": 0,
+        "endLine": 573,
+        "endChar": 0
+      },
+      "revId": "52c63fdabb72b7c6ad435cd9c659707ea35ae300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
