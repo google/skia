@@ -66,22 +66,6 @@ public:
     operator T*() const { return this->get(); }
 };
 
-/** \class SkAutoTCallIProc
-
-Call a function when this goes out of scope. The template uses two
-parameters, the object, and a function that is to be called in the destructor.
-If release() is called, the object reference is set to null. If the object
-reference is null when the destructor is called, we do not call the
-function.
-*/
-template <typename T, int (*P)(T*)> class SkAutoTCallIProc
-    : public std::unique_ptr<T, SkFunctionWrapper<int, T, P>> {
-public:
-    SkAutoTCallIProc(T* obj): std::unique_ptr<T, SkFunctionWrapper<int, T, P>>(obj) {}
-
-    operator T*() const { return this->get(); }
-};
-
 /** Allocate an array of T elements, and free the array in the destructor
  */
 template <typename T> class SkAutoTArray  {
