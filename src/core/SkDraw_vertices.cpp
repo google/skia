@@ -10,7 +10,6 @@
 #include "SkComposeShader.h"
 #include "SkDraw.h"
 #include "SkNx.h"
-#include "SkPM4fPriv.h"
 #include "SkRasterClip.h"
 #include "SkScan.h"
 #include "SkShaderBase.h"
@@ -98,7 +97,7 @@ private:
 };
 
 static bool SK_WARN_UNUSED_RESULT
-update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPM4f colors[],
+update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkColor4f colors[],
                        int index0, int index1, int index2, Matrix43* result) {
     SkMatrix m, im;
     m.reset();
@@ -115,9 +114,9 @@ update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPM4f
     SkMatrix dstToUnit;
     dstToUnit.setConcat(im, ctmInv);
 
-    Sk4f c0 = colors[index0].to4f(),
-         c1 = colors[index1].to4f(),
-         c2 = colors[index2].to4f();
+    Sk4f c0 = Sk4f::Load(colors[index0].vec()),
+         c1 = Sk4f::Load(colors[index1].vec()),
+         c2 = Sk4f::Load(colors[index2].vec());
 
     Matrix43 colorm;
     (c1 - c0).store(&colorm.fMat[0]);
@@ -136,14 +135,12 @@ update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPM4f
 // - convert colors into dst colorspace before interpolation (matches gradients)
 // - apply per-color alpha before interpolation (matches old version of vertices)
 //
-static SkPM4f* convert_colors(const SkColor src[], int count, SkColorSpace* deviceCS,
-                              SkArenaAlloc* alloc) {
-    SkPM4f* dst = alloc->makeArray<SkPM4f>(count);
+static SkColor4f* convert_colors(const SkColor src[], int count, SkColorSpace* deviceCS,
+                                 SkArenaAlloc* alloc) {
+    SkColor4f* dst = alloc->makeArray<SkColor4f>(count);
     if (!deviceCS) {
         for (int i = 0; i < count; ++i) {
-            SkColor4f color4f;
-            swizzle_rb(Sk4f_fromL32(src[i])).store(&color4f);
-            dst[i] = color4f.premul();
+            dst[i] = SkColor4f::FromColor(src[i]).premul();
         }
     } else {
         auto srcCS = SkColorSpace::MakeSRGB();
@@ -210,7 +207,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     constexpr size_t kDefVertexCount = 16;
     constexpr size_t kOuterSize = sizeof(SkTriColorShader) +
                                  sizeof(SkComposeShader) +
-                                 (2 * sizeof(SkPoint) + sizeof(SkPM4f)) * kDefVertexCount;
+                                 (2 * sizeof(SkPoint) + sizeof(SkColor4f)) * kDefVertexCount;
     SkSTArenaAlloc<kOuterSize> outerAlloc;
 
     // deform vertices using the skeleton if it is passed in
@@ -271,7 +268,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     VertState::Proc vertProc = state.chooseProc(vmode);
 
     if (colors || textures) {
-        SkPM4f*     dstColors = nullptr;
+        SkColor4f*  dstColors = nullptr;
         Matrix43*   matrix43 = nullptr;
 
         if (colors) {

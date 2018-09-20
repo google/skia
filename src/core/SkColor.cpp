@@ -167,7 +167,7 @@ SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
     return c4;
 }
 
-SkPM4f SkColor4f::premul() const {
+SkPM4f SkColor4f::toPM4f() const {
     auto src = Sk4f::Load(this->pin().vec());
     float srcAlpha = src[3];  // need the pinned version of our alpha
     src = src * Sk4f(srcAlpha, srcAlpha, srcAlpha, 1);
