@@ -305,6 +305,11 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 void SkBaseDevice::drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform) {
     const SkMatrix originalCTM = this->ctm();
+    if (!originalCTM.isFinite() || !SkScalarIsFinite(run->paint().getTextSize()) ||
+        !SkScalarIsFinite(run->paint().getTextScaleX()) ||
+        !SkScalarIsFinite(run->paint().getTextSkewX())) {
+        return;
+    }
     sk_sp<SkShader> shader = sk_ref_sp(run->mutablePaint()->getShader());
     auto perGlyph = [this, &xform, &originalCTM, shader] (
             SkGlyphRun* glyphRun, SkPaint* runPaint) {
