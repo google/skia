@@ -12,9 +12,16 @@
 namespace {
 
 Sk4f pack_color(const SkColor4f& c4f, bool premul, const Sk4f& component_scale) {
-    const Sk4f pm4f = premul
+    Sk4f pm4f = premul
         ? c4f.premul().to4f()
         : Sk4f{c4f.fR, c4f.fG, c4f.fB, c4f.fA};
+
+    if (premul) {
+        // If the stops are premul, we clamp them to gamut now.
+        // If the stops are unpremul, the colors will eventually go through Sk4f_toL32(),
+        // which ends up clamping to gamut then.
+        pm4f = Sk4f::Max(0, Sk4f::Min(pm4f, pm4f[3]));
+    }
 
     return pm4f * component_scale;
 }
