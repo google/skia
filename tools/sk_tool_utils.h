@@ -81,19 +81,13 @@ namespace sk_tool_utils {
     void write_pixels(SkSurface*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
 
     /**
-     *  Returns true iff all of the pixels between the two images differ by <= the maxDiff value
-     *  per component.
+     *  Returns true iff all of the pixels between the two images are identical.
      *
      *  If the configs differ, return false.
-     *
-     *  If the colorType is half-float, then maxDiff is interpreted as 0..255 --> 0..1
      */
-    bool equal_pixels(const SkPixmap&, const SkPixmap&, unsigned maxDiff = 0,
-                      bool respectColorSpaces = false);
-    bool equal_pixels(const SkBitmap&, const SkBitmap&, unsigned maxDiff = 0,
-                      bool respectColorSpaces = false);
-    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff = 0,
-                      bool respectColorSpaces = false);
+    bool equal_pixels(const SkPixmap&, const SkPixmap&);
+    bool equal_pixels(const SkBitmap&, const SkBitmap&);
+    bool equal_pixels(const SkImage* a, const SkImage* b);
 
     /** Returns a newly created CheckerboardShader. */
     sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size);
