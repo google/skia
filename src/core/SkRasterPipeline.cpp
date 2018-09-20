@@ -6,8 +6,6 @@
  */
 
 #include "SkRasterPipeline.h"
-#include "SkPM4f.h"
-#include "SkPM4fPriv.h"
 #include "../jumper/SkJumper.h"
 #include <algorithm>
 

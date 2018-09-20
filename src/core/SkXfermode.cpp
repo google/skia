@@ -10,7 +10,6 @@
 #include "SkMathPriv.h"
 #include "SkOnce.h"
 #include "SkOpts.h"
-#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
