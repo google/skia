@@ -5,11 +5,11 @@
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
-#Subtopic Constant
+#Subtopic Constants
 #Populate
 ##
 
@@ -39,6 +39,7 @@ to the client to ensure that the result is within the range of zero to one,
 and therefore well-defined.
 
 #Subtopic Porter_Duff
+#Line # classic color blend algorithms ##
 
 #A Compositing Digital Images # https://graphics.pixar.com/library/Compositing/paper.pdf ##
 describes Porter_Duff modes SkBlendMode::kClear through SkBlendMode::kXor.
@@ -56,6 +57,7 @@ transparent source pixels, leaving the destination outside the geometry untouche
 ##
 
 #Subtopic Lighten_Darken
+#Line # color blends to lighten or darken result ##
 
 Modes SkBlendMode::kPlus and SkBlendMode::kScreen use
 simple arithmetic to lighten or darken the destination. Modes 
@@ -69,6 +71,8 @@ algorithms to lighten or darken; sometimes one mode does both, as described by
 ##
 
 #Subtopic Modulate_Blend
+#Line # multiply color components ##
+
 SkBlendMode::kModulate is a mashup of SkBlendMode::kSrcATop and SkBlendMode::kMultiply.
 It multiplies all components, including Alpha; unlike SkBlendMode::kMultiply, if either
 source or destination is transparent, result is transparent. SkBlendMode::kModulate
@@ -80,6 +84,7 @@ values to compute the product.
 ##
 
 #Subtopic Color_Blends
+#Line # non-separable blend modes ##
 
 Modes SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor, and
 SkBlendMode::kLuminosity convert source and destination pixels using all

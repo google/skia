@@ -1,10 +1,7 @@
 SkCanvas Reference
 ===
 
-# <a name='Canvas'>Canvas</a>
-
-# <a name='SkCanvas'>Class SkCanvas</a>
-<a href='#Canvas'>Canvas</a> provides an interface for drawing, and how the drawing is clipped and transformed.
+<a name='SkCanvas'></a><a href='#Canvas'>Canvas</a> provides an interface for drawing, and how the drawing is clipped and transformed.
 <a href='#Canvas'>Canvas</a> contains a stack of <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a> values.
 
 <a href='#Canvas'>Canvas</a> and <a href='SkPaint_Reference#Paint'>Paint</a> together provide the state to draw into <a href='SkSurface_Reference#Surface'>Surface</a> or <a href='undocumented#Device'>Device</a>.
@@ -31,39 +28,79 @@ This approach may be deprecated in the future.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkCanvas'>SkCanvas</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedefs'>Typedef Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>types defined in terms of other types</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Struct'>Struct Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Structs'>Struct Declarations</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded struct members</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedef'>Typedef Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>types defined by other types</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkCanvas'>SkCanvas</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Property'>Property</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>metrics and attributes</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Utility'>Utility</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>rarely called management functions</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Pixels'>Pixels</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>read and write pixel values</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#State_Stack'>State Stack</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>stack of state for hierarchical drawing</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer'>Layer</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>temporary <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> to draw into</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec'>Layer SaveLayerRec</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>contains the state used to create the <a href='#Layer'>Layer</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Matrix'>Matrix</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>coordinate transformation</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Clip'>Clip</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>stack of clipping <a href='SkPath_Reference#Path'>Paths</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw'>Draw</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws into <a href='#Canvas'>Canvas</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image'>Draw Image</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws <a href='SkImage_Reference#Image'>Image</a> to <a href='#Canvas'>Canvas</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image_Lattice'>Draw Image Lattice</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>divides <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> or <a href='SkImage_Reference#Image'>Image</a> into a rectangular grid</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Text'>Draw Text</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws text into <a href='#Canvas'>Canvas</a></td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
-SkCanvas global, <code>struct</code>, and <code>class</code> related member functions share a topic.
+SkCanvas defines related functions that share a topic.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Related Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Clip'>Clip</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>stack of clipping <a href='SkPath_Reference#Path'>Paths</a></td>
@@ -114,13 +151,13 @@ SkCanvas global, <code>struct</code>, and <code>class</code> related member func
   </tr>
 </table>
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
-SkCanvas related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
+SkCanvas defines related constants are using <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constant</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_ColorBehavior_kLegacy'>ColorBehavior::kLegacy</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>placeholder</td>
@@ -171,13 +208,13 @@ SkCanvas related constants are defined by <code>enum</code>, <code>enum class</c
   </tr>
 </table>
 
-## <a name='Struct'>Struct</a>
+## <a name='Structs'>Structs</a>
 
 
-SkCanvas uses C++ structs to declare the public data structures and interfaces.
+SkCanvas uses <code>struct</code> to declare the public data structures and interfaces.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Struct</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_Lattice'>Lattice</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>divides <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> or <a href='SkImage_Reference#Image'>Image</a> into a rectangular grid</td>
@@ -188,29 +225,29 @@ SkCanvas uses C++ structs to declare the public data structures and interfaces.
   </tr>
 </table>
 
-## <a name='Typedef'>Typedef</a>
+## <a name='Typedefs'>Typedefs</a>
 
 
-SkCanvas  <code>typedef</code> define a data type.
+SkCanvas uses <code>typedef</code> to define a data type.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Typedef</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>options for <a href='#SkCanvas_SaveLayerRec'>SaveLayerRec</a></td>
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 Create the desired type of <a href='SkSurface_Reference#Surface'>Surface</a> to obtain its <a href='#Canvas'>Canvas</a> when possible. Useful
 when no <a href='SkSurface_Reference#Surface'>Surface</a> is required, and some helpers implicitly create <a href='undocumented#Raster_Surface'>Raster Surface</a>.
 
 
-SkCanvas can be constructed or initialized by these functions, including C++ class constructors.
+SkCanvas can be constructed or initialized by these functions, including <code>class</code> constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constructor</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_MakeRasterDirect'>MakeRasterDirect</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates from <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> and <a href='undocumented#Storage'>Pixel Storage</a></td>
@@ -249,13 +286,13 @@ SkCanvas can be constructed or initialized by these functions, including C++ cla
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
-SkCanvas member functions read and modify the structure properties.
+SkCanvas uses member functions to read and modify structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_MakeRasterDirect'>MakeRasterDirect</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates from <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> and <a href='undocumented#Storage'>Pixel Storage</a></td>
@@ -857,6 +894,8 @@ storage of <a href='undocumented#Raster_Surface'>Raster Surface</a></td>
 
 ## <a name='SkCanvas_ColorBehavior'>Enum SkCanvas::ColorBehavior</a>
 
+Private: Android framework only.
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum class <a href='#SkCanvas_ColorBehavior'>ColorBehavior</a> {
         <a href='#SkCanvas_ColorBehavior_kLegacy'>kLegacy</a>,
@@ -989,8 +1028,8 @@ transparent letters.
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_getBaseLayerSize'>getBaseLayerSize</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns size of base <a href='#Layer'>Layer</a> in global coordinates</td>
@@ -1131,8 +1170,8 @@ isRGB:1
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_accessTopLayerPixels'>accessTopLayerPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable pixel access if available</td>
@@ -1364,8 +1403,8 @@ context = skia
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_peekPixels'>peekPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Canvas'>Canvas</a> has direct access to its pixels</td>
@@ -1375,28 +1414,29 @@ context = skia
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies and converts rectangle of pixels from <a href='#Canvas'>Canvas</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_readPixels'>readPixels(const SkImageInfo& dstInfo, void* dstPixels, size t dstRowBytes, int srcX, int srcY)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_readPixels'>bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_readPixels_2'>readPixels(const SkPixmap& pixmap, int srcX, int srcY)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_readPixels_2'>bool readPixels(const SkPixmap& pixmap, int srcX, int srcY)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_readPixels_3'>readPixels(const SkBitmap& bitmap, int srcX, int srcY)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_readPixels_3'>bool readPixels(const SkBitmap& bitmap, int srcX, int srcY)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_writePixels'>writePixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies and converts rectangle of pixels to <a href='#Canvas'>Canvas</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_writePixels'>writePixels(const SkImageInfo& info, const void* pixels, size t rowBytes, int x, int y)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_writePixels'>bool writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes, int x, int y)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_writePixels_2'>writePixels(const SkBitmap& bitmap, int x, int y)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_writePixels_2'>bool writePixels(const SkBitmap& bitmap, int x, int y)</a></td>
   </tr>
 </table>
 
@@ -2301,67 +2341,36 @@ scalePaint blends <a href='#Layer'>Layer</a> back with transparency.
 
 ## <a name='Layer_SaveLayerRec'>Layer SaveLayerRec</a>
 
-# <a name='SkCanvas_SaveLayerRec'>Struct SkCanvas::SaveLayerRec</a>
-
-## <a name='Layer_SaveLayerRec_Member_Function'>Member_Function</a>
-
-
-SkCanvas::SaveLayerRec member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a></td>
-  </tr>
-</table>
+<a name='SkCanvas_SaveLayerRec'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    struct <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a> {
-        <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a>*(...
+struct <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a> {
+    SaveLayerRec*();
+    <a href='#SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star'>SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)</a>;
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    SaveLayerFlags saveLayerFlags);
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    const SkImage* clipMask, const SkMatrix* clipMatrix,
+                    SaveLayerFlags saveLayerFlags);
 
-        const <a href='SkRect_Reference#SkRect'>SkRect</a>*           <a href='#SkCanvas_SaveLayerRec_fBounds'>fBounds</a>;
-        const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>*          <a href='#SkCanvas_SaveLayerRec_fPaint'>fPaint</a>;
-        const <a href='undocumented#SkImageFilter'>SkImageFilter</a>*    <a href='#SkCanvas_SaveLayerRec_fBackdrop'>fBackdrop</a>;
-        <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a>          <a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a>;
-    };
+    const <a href='SkRect_Reference#SkRect'>SkRect</a>*           <a href='#SkCanvas_SaveLayerRec_fBounds'>fBounds</a>;
+    const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>*          <a href='#SkCanvas_SaveLayerRec_fPaint'>fPaint</a>;
+    const <a href='undocumented#SkImageFilter'>SkImageFilter</a>*    <a href='#SkCanvas_SaveLayerRec_fBackdrop'>fBackdrop</a>;
+    const <a href='SkImage_Reference#SkImage'>SkImage</a>*          <a href='#SkCanvas_SaveLayerRec_fClipMask'>fClipMask</a>;
+    const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>*         <a href='#SkCanvas_SaveLayerRec_fClipMatrix'>fClipMatrix</a>;
+    <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a>          <a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a>;
+};
 </pre>
 
 <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a> contains the state used to create the <a href='#Layer'>Layer</a>.
 
-## <a name='Layer_SaveLayerRec_Overview'>Layer SaveLayerRec Overview</a>
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec_Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkCanvas_SaveLayerRec'>SkCanvas::SaveLayerRec</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec_Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec_Member'>Members</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
-  </tr>
-</table>
+## <a name='Layer_SaveLayerRec_Members'>Members</a>
 
 
-## <a name='Layer_SaveLayerRec_Member'>Layer SaveLayerRec Member</a>
-
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-</table>
-
-### Members
-
+SkCanvas::SaveLayerRec contains members that may be read and written directly without using a member function.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Name</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>const&nbsp;SkRect*</td>
@@ -2425,12 +2434,12 @@ up by four. After drawing another red circle without scaling on top, the <a href
 transferred to the main canvas.
 </div></fiddle-embed></div>
 
-## <a name='Layer_SaveLayerRec_Constructor'>Layer SaveLayerRec Constructor</a>
+## <a name='Layer_SaveLayerRec_Constructors'>Layer SaveLayerRec Constructors</a>
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
 </table>
 
 <a name='SkCanvas_SaveLayerRec_SaveLayerRec'></a>
@@ -3102,6 +3111,8 @@ The clip restriction is not recorded in pictures.
 
 Pass an empty <a href='#SkCanvas_androidFramework_setDeviceClipRestriction_rect'>rect</a> to disable maximum clip.
 
+Private: This private API is for use by Android framework only.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_androidFramework_setDeviceClipRestriction_rect'><code><strong>rect</strong></code></a></td>
@@ -3618,8 +3629,8 @@ device bounds empty = true
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_clear'>clear</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>fills <a href='#Clip'>Clip</a> with <a href='SkColor_Reference#Color'>Color</a></td>
@@ -3629,12 +3640,12 @@ device bounds empty = true
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>associates a <a href='SkRect_Reference#Rect'>Rect</a> with a key-value pair</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAnnotation'>drawAnnotation(const SkRect& rect, const char key[], SkData* value)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAnnotation'>void drawAnnotation(const SkRect& rect, const char key[], SkData* value)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAnnotation_2'>drawAnnotation(const SkRect& rect, const char key[], const sk sp&lt;SkData&gt;& value)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAnnotation_2'>void drawAnnotation(const SkRect& rect, const char key[], const sk_sp<SkData>& value)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawArc'>drawArc</a></td>
@@ -3645,32 +3656,38 @@ device bounds empty = true
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws sprites using <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>, and <a href='SkPaint_Reference#Paint'>Paint</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAtlas'>drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect, const SkPaint* paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAtlas'>void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
+                   const SkPaint* paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAtlas_2'>drawAtlas(const sk sp&lt;SkImage&gt;& atlas, const SkRSXform xform[], const SkRect tex[], const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect, const SkPaint* paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAtlas_2'>void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
+                   const SkPaint* paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAtlas_3'>drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count, const SkRect* cullRect, const SkPaint* paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAtlas_3'>void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count,
+                   const SkRect* cullRect, const SkPaint* paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAtlas_4'>drawAtlas(const sk sp&lt;SkImage&gt;& atlas, const SkRSXform xform[], const SkRect tex[], int count, const SkRect* cullRect, const SkPaint* paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawAtlas_4'>void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   int count, const SkRect* cullRect, const SkPaint* paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawCircle'>drawCircle</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws <a href='undocumented#Circle'>Circle</a> using <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>, and <a href='SkPaint_Reference#Paint'>Paint</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawCircle'>drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawCircle'>void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawCircle_2'>drawCircle(SkPoint center, SkScalar radius, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawCircle_2'>void drawCircle(SkPoint center, SkScalar radius, const SkPaint& paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawColor'>drawColor</a></td>
@@ -3685,12 +3702,12 @@ device bounds empty = true
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws <a href='undocumented#Drawable'>Drawable</a>, encapsulated drawing commands</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawDrawable'>drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawDrawable'>void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawDrawable_2'>drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawDrawable_2'>void drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawIRect'>drawIRect</a></td>
@@ -3701,12 +3718,12 @@ device bounds empty = true
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws line segment between two points</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawLine'>drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawLine'>void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawLine_2'>drawLine(SkPoint p0, SkPoint p1, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawLine_2'>void drawLine(SkPoint p0, SkPoint p1, const SkPaint& paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawOval'>drawOval</a></td>
@@ -3721,12 +3738,14 @@ device bounds empty = true
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws <a href='undocumented#Coons_Patch'>Coons Patch</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPatch'>drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPatch'>void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                   const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPatch_2'>drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4], const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPatch_2'>void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                   const SkPoint texCoords[4], const SkPaint& paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPath'>drawPath</a></td>
@@ -3737,32 +3756,32 @@ device bounds empty = true
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws <a href='SkPicture_Reference#Picture'>Picture</a> using <a href='#Clip'>Clip</a> and <a href='#Matrix'>Matrix</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPicture'>drawPicture(const SkPicture* picture)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPicture'>void drawPicture(const SkPicture* picture)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPicture_2'>drawPicture(const sk sp&lt;SkPicture&gt;& picture)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPicture_2'>void drawPicture(const sk_sp<SkPicture>& picture)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPicture_3'>drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPicture_3'>void drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPicture_4'>drawPicture(const sk sp&lt;SkPicture&gt;& picture, const SkMatrix* matrix, const SkPaint* paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPicture_4'>void drawPicture(const sk_sp<SkPicture>& picture, const SkMatrix* matrix, const SkPaint* paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPoint'>drawPoint</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws point at (x, y) position</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPoint'>drawPoint(SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPoint'>void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPoint_2'>drawPoint(SkPoint p, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPoint_2'>void drawPoint(SkPoint p, const SkPaint& paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPoints'>drawPoints</a></td>
@@ -3789,20 +3808,22 @@ device bounds empty = true
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws <a href='undocumented#Vertices'>Vertices</a>, a triangle mesh</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices'>drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices'>void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_2'>drawVertices(const sk sp&lt;SkVertices&gt;& vertices, SkBlendMode mode, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_2'>void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_3'>drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[], int boneCount, SkBlendMode mode, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_3'>void drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
+                          int boneCount, SkBlendMode mode, const SkPaint& paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_4'>drawVertices(const sk sp&lt;SkVertices&gt;& vertices, const SkVertices::Bone bones[], int boneCount, SkBlendMode mode, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_4'>void drawVertices(const sk_sp<SkVertices>& vertices, const SkVertices::Bone bones[],
+                          int boneCount, SkBlendMode mode, const SkPaint& paint)</a></td>
   </tr>
 </table>
 
@@ -5461,7 +5482,7 @@ and below <a href='#SkCanvas_drawBitmapNine_center'>center</a> to fill the remai
 
 ## <a name='Draw_Image_Lattice'>Draw Image Lattice</a>
 
-# <a name='SkCanvas_Lattice'>Struct SkCanvas::Lattice</a>
+<a name='SkCanvas_Lattice'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     struct <a href='#SkCanvas_Lattice'>Lattice</a> {
@@ -5491,22 +5512,22 @@ remaining space, if any.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image_Lattice_Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image_Lattice_Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image_Lattice_Member'>Members</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Image_Lattice_Members'>Members</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
   </tr>
 </table>
 
 
-## <a name='Draw_Image_Lattice_Constant'>Draw Image Lattice Constant</a>
+## <a name='Draw_Image_Lattice_Constants'>Draw Image Lattice Constants</a>
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
 </table>
 
 ## <a name='SkCanvas_Lattice_RectType'>Enum SkCanvas::Lattice::RectType</a>
@@ -5548,19 +5569,16 @@ draws one of fColors into lattice rectangle</td>
   </tr>
 </table>
 
-## <a name='Draw_Image_Lattice_Member'>Draw Image Lattice Member</a>
+## <a name='Draw_Image_Lattice_Members'>Draw Image Lattice Members</a>
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-</table>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
+</table><table style='border-collapse: collapse; width: 62.5em'>
 
-### Members
-
-<table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Name</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>const&nbsp;int*</td>
@@ -5758,8 +5776,8 @@ are scaled if needed to take up the remaining space; the center is transparent.
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawPosText'>drawPosText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws text at array of (x, y) positions</td>
@@ -5773,12 +5791,12 @@ are scaled if needed to take up the remaining space; the center is transparent.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws null terminated string at (x, y) using font advance</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawString'>drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawString'>void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawString_2'>drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawString_2'>void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawText'>drawText</a></td>
@@ -5789,12 +5807,12 @@ are scaled if needed to take up the remaining space; the center is transparent.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>draws text with arrays of positions and <a href='SkPaint_Reference#Paint'>Paint</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawTextBlob'>drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawTextBlob'>void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawTextBlob_2'>drawTextBlob(const sk sp&lt;SkTextBlob&gt;& blob, SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawTextBlob_2'>void drawTextBlob(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y, const SkPaint& paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawTextRSXform'>drawTextRSXform</a></td>

@@ -1,10 +1,7 @@
 SkBitmap Reference
 ===
 
-# <a name='Bitmap'>Bitmap</a>
-
-# <a name='SkBitmap'>Class SkBitmap</a>
-<a href='#Bitmap'>Bitmap</a> describes a two-dimensional raster pixel array. <a href='#Bitmap'>Bitmap</a> is built on
+<a name='SkBitmap'></a><a href='#Bitmap'>Bitmap</a> describes a two-dimensional raster pixel array. <a href='#Bitmap'>Bitmap</a> is built on
 <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>, containing integer width and height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> and <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>
 describing the pixel format, and <a href='undocumented#Color_Space'>Color Space</a> describing the range of colors.
 <a href='#Bitmap'>Bitmap</a> points to <a href='undocumented#Pixel_Ref'>Pixel Ref</a>, which describes the physical array of pixels.
@@ -38,39 +35,59 @@ is useful to position one or more <a href='#Bitmap'>Bitmaps</a> within a shared 
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Class'>Class Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded class members</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Classes'>Class Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded class members</td>
+  </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkBitmap'>SkBitmap</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Row_Bytes'>Row Bytes</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>interval from one row to the next</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Property'>Property</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>metrics and attributes</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Allocate'>Allocate</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates storage for pixels</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Pixels'>Pixels</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>read and write pixel values</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Set'>Set</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>updates values and attributes</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw'>Draw</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets pixels to <a href='SkColor_Reference#Color'>Color</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Utility'>Utility</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>rarely called management functions</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
-SkBitmap global, <code>struct</code>, and <code>class</code> related member functions share a topic.
+SkBitmap defines related functions that share a topic.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Related Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Allocate'>Allocate</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates storage for pixels</td>
@@ -101,13 +118,13 @@ SkBitmap global, <code>struct</code>, and <code>class</code> related member func
   </tr>
 </table>
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
-SkBitmap related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
+SkBitmap defines related constants are using <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constant</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_AllocFlags'>AllocFlags</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>zero pixel memory</td>
@@ -118,13 +135,13 @@ SkBitmap related constants are defined by <code>enum</code>, <code>enum class</c
   </tr>
 </table>
 
-## <a name='Class'>Class</a>
+## <a name='Classes'>Classes</a>
 
 
-SkBitmap uses C++ classes to declare the public data structures and interfaces.
+SkBitmap uses <code>class</code> to declare the public data structures and interfaces.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Class</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_Allocator'>Allocator</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>abstract subclass of <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a></td>
@@ -135,13 +152,13 @@ SkBitmap uses C++ classes to declare the public data structures and interfaces.
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
-SkBitmap can be constructed or initialized by these functions, including C++ class constructors.
+SkBitmap can be constructed or initialized by these functions, including <code>class</code> constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constructor</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_empty_constructor'>SkBitmap()</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs with default values</td>
@@ -159,16 +176,18 @@ SkBitmap can be constructed or initialized by these functions, including C++ cla
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='#Bitmap'>Bitmap</a> containing <a href='SkColor_Reference#Alpha'>Alpha</a> of pixels</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_extractAlpha'>extractAlpha(SkBitmap* dst)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_extractAlpha'>bool extractAlpha(SkBitmap* dst) const</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_extractAlpha_2'>extractAlpha(SkBitmap* dst, const SkPaint* paint, SkIPoint* offset)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_extractAlpha_2'>bool extractAlpha(SkBitmap* dst, const SkPaint* paint,
+                      SkIPoint* offset) const</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_extractAlpha_3'>extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator, SkIPoint* offset)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_extractAlpha_3'>bool extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator,
+                      SkIPoint* offset) const</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_extractSubset'>extractSubset</a></td>
@@ -184,13 +203,13 @@ SkBitmap can be constructed or initialized by these functions, including C++ cla
   </tr>
 </table>
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
-SkBitmap operators inline class member functions with arithmetic equivalents.
+SkBitmap defines member functions with arithmetic equivalents.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Operator</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_move_operator'>operator=(SkBitmap&& src)</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>takes ownership of pixels</td>
@@ -201,13 +220,13 @@ SkBitmap operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
-SkBitmap member functions read and modify the structure properties.
+SkBitmap uses member functions to read and modify structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_ComputeIsOpaque'>ComputeIsOpaque</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if all pixels are opaque</td>
@@ -454,20 +473,7 @@ SkBitmap member functions read and modify the structure properties.
   </tr>
 </table>
 
-# <a name='SkBitmap_Allocator'>Class SkBitmap::Allocator</a>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkBitmap::Allocator member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_Allocator_allocPixelRef'>allocPixelRef</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixel memory</td>
-  </tr>
-</table>
+<a name='SkBitmap_Allocator'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkBitmap_Allocator'>Allocator</a> : public <a href='undocumented#SkRefCnt'>SkRefCnt</a> {
@@ -506,20 +512,7 @@ true if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> was allocated
 
 ---
 
-# <a name='SkBitmap_HeapAllocator'>Class SkBitmap::HeapAllocator</a>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkBitmap::HeapAllocator member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_HeapAllocator_allocPixelRef'>allocPixelRef</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixel memory</td>
-  </tr>
-</table>
+<a name='SkBitmap_HeapAllocator'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a> : public <a href='#SkBitmap_Allocator'>Allocator</a> {
@@ -831,8 +824,8 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_alphaType'>alphaType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a></td>
@@ -886,12 +879,12 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkBitmap_width'>width</a> and <a href='#SkBitmap_height'>height</a> as Rectangle</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getBounds'>getBounds(SkRect* bounds)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getBounds'>void getBounds(SkRect* bounds) const</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getBounds_2'>getBounds(SkIRect* bounds)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getBounds_2'>void getBounds(SkIRect* bounds) const</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_getColor'>getColor</a></td>
@@ -2121,8 +2114,8 @@ Instructs <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> and <a
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocN32Pixels'>allocN32Pixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates compatible ARGB pixels, or aborts</td>
@@ -2132,20 +2125,20 @@ Instructs <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> and <a
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixels from <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>, or aborts</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels'>allocPixels(const SkImageInfo& info, size t rowBytes)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels'>void allocPixels(const SkImageInfo& info, size_t rowBytes)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels_2'>allocPixels(const SkImageInfo& info)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels_2'>void allocPixels(const SkImageInfo& info)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels_3'>allocPixels</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels_3'>void allocPixels()</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels_4'>allocPixels(Allocator* allocator)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixels_4'>void allocPixels(Allocator* allocator)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_allocPixelsFlags'>allocPixelsFlags</a></td>
@@ -2156,16 +2149,17 @@ Instructs <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> and <a
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='undocumented#Pixel_Ref'>Pixel Ref</a>, with optional release function</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_installPixels'>installPixels(const SkImageInfo& info, void* pixels, size t rowBytes, void (*releaseProc)</a> (void* addr, void* context) , void* context)</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_installPixels'>bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                       void (*releaseProc)(void* addr, void* context), void* context)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_installPixels_2'>installPixels(const SkImageInfo& info, void* pixels, size t rowBytes)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_installPixels_2'>bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_installPixels_3'>installPixels(const SkPixmap& pixmap)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_installPixels_3'>bool installPixels(const SkPixmap& pixmap)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocN32Pixels'>tryAllocN32Pixels</a></td>
@@ -2176,20 +2170,20 @@ Instructs <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> and <a
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixels from <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> if possible</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels'>tryAllocPixels(const SkImageInfo& info, size t rowBytes)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels'>bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, size_t rowBytes)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels_2'>tryAllocPixels(const SkImageInfo& info)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels_2'>bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels_3'>tryAllocPixels</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels_3'>bool SK_WARN_UNUSED_RESULT tryAllocPixels()</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels_4'>tryAllocPixels(Allocator* allocator)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixels_4'>bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a></td>
@@ -2704,8 +2698,8 @@ To be deprecated soon.
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_notifyPixelsChanged'>notifyPixelsChanged</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>marks pixels as changed, altering the unique ID</td>
@@ -2719,16 +2713,17 @@ To be deprecated soon.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies and converts pixels</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_readPixels'>readPixels(const SkImageInfo& dstInfo, void* dstPixels, size t dstRowBytes, int srcX, int srcY)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_readPixels'>bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY) const</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_readPixels_2'>readPixels(const SkPixmap& dst, int srcX, int srcY)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_readPixels_2'>bool readPixels(const SkPixmap& dst, int srcX, int srcY) const</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_readPixels_3'>readPixels(const SkPixmap& dst)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_readPixels_3'>bool readPixels(const SkPixmap& dst) const</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setPixels'>setPixels</a></td>
@@ -2739,12 +2734,12 @@ To be deprecated soon.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies and converts pixels</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_writePixels'>writePixels(const SkPixmap& src, int dstX, int dstY)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_writePixels'>bool writePixels(const SkPixmap& src, int dstX, int dstY)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_writePixels_2'>writePixels(const SkPixmap& src)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_writePixels_2'>bool writePixels(const SkPixmap& src)</a></td>
   </tr>
 </table>
 
@@ -2971,8 +2966,8 @@ subset origin: 32, 64
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_setAlphaType'>setAlphaType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> of shared pixels</td>
@@ -3124,8 +3119,8 @@ Marks that pixels in <a href='undocumented#Pixel_Ref'>Pixel Ref</a> have changed
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_erase'>erase</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>writes <a href='SkColor_Reference#Color'>Color</a> to rectangle of pixels</td>
@@ -4111,8 +4106,8 @@ x---x-
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_ComputeIsOpaque'>ComputeIsOpaque</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if all pixels are opaque</td>
