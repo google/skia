@@ -105,3 +105,47 @@ private:
     typedef Benchmark INHERITED;
 };
 DEF_BENCH( return new PixmapOrientBench(); )
+
+
+typedef sk_sp<SkColorSpace> (*CSMaker)();
+
+class GetAlphafBench : public Benchmark {
+    SkString fName;
+public:
+    GetAlphafBench(CSMaker maker, const char label[]) {
+        fName.printf("getalphaf_%s", label);
+    }
+
+protected:
+    void onDelayedSetup() override {
+        fBM.allocN32Pixels(1024, 1024);
+        fBM.eraseColor(0x88112233);
+    }
+
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        for (int i = 0; i < loops; ++i) {
+            for (int y = 0; y < fBM.height(); ++y) {
+                for (int x = 0; x < fBM.width(); ++x) {
+                    fBM.getAlphaf(x, y);
+                }
+            }
+        }
+    }
+
+private:
+    SkBitmap fBM;
+
+    typedef Benchmark INHERITED;
+};
+DEF_BENCH( return new GetAlphafBench(nullptr, "null"); )
+DEF_BENCH( return new GetAlphafBench([](){ return SkColorSpace::MakeSRGB(); }, "srgb"); )
+DEF_BENCH( return new GetAlphafBench([](){ return SkColorSpace::MakeSRGBLinear(); }, "linear"); )
+
