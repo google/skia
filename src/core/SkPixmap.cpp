@@ -79,6 +79,57 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     return true;
 }
 
+// This is the same as SkPixmap::addr(x,y), but this version gets inlined, while the public
+// method does not. Perhaps we could bloat it so it can be inlined, but that would grow code-size
+// everywhere, instead of just here (on behalf of getAlphaf()).
+static const void* fast_getaddr(const SkPixmap& pm, int x, int y) {
+    x <<= SkColorTypeShiftPerPixel(pm.colorType());
+    return static_cast<const char*>(pm.addr()) + y * pm.rowBytes() + x;
+}
+
+float SkPixmap::getAlphaf(int x, int y) const {
+    SkASSERT(this->addr());
+    SkASSERT((unsigned)x < (unsigned)this->width());
+    SkASSERT((unsigned)y < (unsigned)this->height());
+
+    float value = 0;
+    const void* srcPtr = fast_getaddr(*this, x, y);
+
+    switch (this->colorType()) {
+        case kUnknown_SkColorType:
+            return 0;
+        case kGray_8_SkColorType:
+        case kRGB_565_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kRGB_101010x_SkColorType:
+            return 1;
+        case kAlpha_8_SkColorType:
+            value = static_cast<const uint8_t*>(srcPtr)[0] * (1.0f/255);
+            break;
+        case kARGB_4444_SkColorType: {
+            uint16_t u16 = static_cast<const uint16_t*>(srcPtr)[0];
+            value = SkGetPackedA4444(u16) * (1.0f/15);
+        } break;
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            value = static_cast<const uint8_t*>(srcPtr)[3] * (1.0f/255);
+            break;
+        case kRGBA_1010102_SkColorType: {
+            uint32_t u32 = static_cast<const uint32_t*>(srcPtr)[0];
+            value = (u32 >> 30) * (1.0f/3);
+        } break;
+        case kRGBA_F16_SkColorType: {
+            uint64_t px;
+            memcpy(&px, srcPtr, sizeof(px));
+            value = SkHalfToFloat_finite_ftz(px)[3];
+        } break;
+        case kRGBA_F32_SkColorType:
+            value = static_cast<const float*>(srcPtr)[3];
+            break;
+    }
+    return value;
+}
+
 bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                           int x, int y) const {
     if (!SkImageInfoValidConversion(dstInfo, fInfo)) {
