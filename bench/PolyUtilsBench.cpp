@@ -177,6 +177,59 @@ private:
     typedef PolyUtilsBench INHERITED;
 };
 
+// familiar videogame character
+class NotchPolyUtilsBench : public PolyUtilsBench {
+public:
+    NotchPolyUtilsBench(PolyUtilsBench::Type type) : INHERITED(type) {}
+
+    void appendName(SkString* name) override {
+        name->append("notch");
+    }
+    void makePoly(SkTDArray<SkPoint>* poly) override {
+        // create 3/4 circle with many vertices
+        const SkScalar c = SkIntToScalar(45);
+        const SkScalar r = SkIntToScalar(20);
+        const int n = 1000;
+        SkScalar rad = 0;
+        const SkScalar drad = 3 * SK_ScalarPI / (2*n);
+        for (int i = 0; i < n; i++) {
+            SkScalar cosV, sinV = SkScalarSinCos(rad, &cosV);
+            *poly->push() = SkPoint::Make(c + cosV * r, c + sinV * r);
+            rad += drad;
+        }
+        // and the mouth
+        *poly->push() = SkPoint::Make(45, 45);
+    }
+private:
+    typedef PolyUtilsBench INHERITED;
+};
+
+class IceCreamPolyUtilsBench : public PolyUtilsBench {
+public:
+    IceCreamPolyUtilsBench(PolyUtilsBench::Type type) : INHERITED(type) {}
+
+    void appendName(SkString* name) override {
+        name->append("icecream");
+    }
+    void makePoly(SkTDArray<SkPoint>* poly) override {
+        // create 3/4 circle with many vertices
+        const SkScalar c = SkIntToScalar(45);
+        const SkScalar r = SkIntToScalar(20);
+        const int n = 1000;
+        SkScalar rad = 0;
+        const SkScalar drad = 3 * SK_ScalarPI / (2*n);
+        for (int i = 0; i < n; i++) {
+            SkScalar cosV, sinV = SkScalarSinCos(rad, &cosV);
+            *poly->push() = SkPoint::Make(c + cosV * r, c + sinV * r);
+            rad += drad;
+        }
+        // and the tip of the cone
+        *poly->push() = SkPoint::Make(90, 0);
+    }
+private:
+    typedef PolyUtilsBench INHERITED;
+};
+
 DEF_BENCH(return new StarPolyUtilsBench(PolyUtilsBench::Type::kConvexCheck);)
 DEF_BENCH(return new StarPolyUtilsBench(PolyUtilsBench::Type::kSimpleCheck);)
 DEF_BENCH(return new StarPolyUtilsBench(PolyUtilsBench::Type::kInsetConvex);)
@@ -192,3 +245,14 @@ DEF_BENCH(return new IntersectingPolyUtilsBench(PolyUtilsBench::Type::kSimpleChe
 DEF_BENCH(return new IntersectingPolyUtilsBench(PolyUtilsBench::Type::kInsetConvex);)
 DEF_BENCH(return new IntersectingPolyUtilsBench(PolyUtilsBench::Type::kOffsetSimple);)
 DEF_BENCH(return new IntersectingPolyUtilsBench(PolyUtilsBench::Type::kTessellateSimple);)
+DEF_BENCH(return new NotchPolyUtilsBench(PolyUtilsBench::Type::kConvexCheck);)
+DEF_BENCH(return new NotchPolyUtilsBench(PolyUtilsBench::Type::kSimpleCheck);)
+DEF_BENCH(return new NotchPolyUtilsBench(PolyUtilsBench::Type::kInsetConvex);)
+DEF_BENCH(return new NotchPolyUtilsBench(PolyUtilsBench::Type::kOffsetSimple);)
+DEF_BENCH(return new NotchPolyUtilsBench(PolyUtilsBench::Type::kTessellateSimple);)
+DEF_BENCH(return new IceCreamPolyUtilsBench(PolyUtilsBench::Type::kConvexCheck);)
+DEF_BENCH(return new IceCreamPolyUtilsBench(PolyUtilsBench::Type::kSimpleCheck);)
+DEF_BENCH(return new IceCreamPolyUtilsBench(PolyUtilsBench::Type::kInsetConvex);)
+DEF_BENCH(return new IceCreamPolyUtilsBench(PolyUtilsBench::Type::kOffsetSimple);)
+DEF_BENCH(return new IceCreamPolyUtilsBench(PolyUtilsBench::Type::kTessellateSimple);)
+
