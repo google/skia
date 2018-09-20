@@ -172,7 +172,7 @@ public:
     struct StageRec {
         SkRasterPipeline*   fPipeline;
         SkArenaAlloc*       fAlloc;
-        SkColorSpace*       fDstCS;         // may be nullptr
+        SkImageInfo         fDstInfo;
         const SkPaint&      fPaint;
         const SkMatrix*     fLocalM;        // may be nullptr
         SkMatrix            fCTM;

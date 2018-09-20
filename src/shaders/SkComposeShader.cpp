@@ -89,6 +89,8 @@ bool SkComposeShader::onAppendStages(const StageRec& rec) const {
     if (!as_SB(fSrc)->appendStages(rec)) {
         return false;
     }
+    rec.fPipeline->append_gamut_clamp_if_narrow(rec.fDstInfo);
+
     // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
     // since fShaderB will overwrite them.
     rec.fPipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
@@ -96,6 +98,8 @@ bool SkComposeShader::onAppendStages(const StageRec& rec) const {
     if (!as_SB(fDst)->appendStages(rec)) {
         return false;
     }
+    rec.fPipeline->append_gamut_clamp_if_narrow(rec.fDstInfo);
+
     // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode/lerp
     // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
     // reverse the two shader invocations, and avoid this move...

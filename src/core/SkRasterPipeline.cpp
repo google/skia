@@ -266,3 +266,12 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkJumper_MemoryCtx* ct
                                        break;
     }
 }
+
+void SkRasterPipeline::append_gamut_clamp_if_narrow(const SkImageInfo& info) {
+    if (info.colorType() != kRGBA_F16_SkColorType &&
+        info.colorType() != kRGBA_F32_SkColorType &&
+        info.alphaType() == kPremul_SkAlphaType)
+    {
+        p->append(SkRasterPipeline::clamp_gamut);
+    }
+}

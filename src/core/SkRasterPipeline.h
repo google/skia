@@ -159,6 +159,8 @@ public:
     void append_load_dst(SkColorType, const SkJumper_MemoryCtx*);
     void append_store   (SkColorType, const SkJumper_MemoryCtx*);
 
+    void append_gamut_clamp_if_narrow(const SkImageInfo&);
+
     bool empty() const { return fStages == nullptr; }
 
 

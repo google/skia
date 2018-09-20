@@ -374,7 +374,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     };
 
     auto append_misc = [&] {
-        // TODO: if ref.fDstCS isn't null, we'll premul here then immediately unpremul
+        // TODO: if rec.fDstInfo.colorSpace() isn't null we'll premul here then immediately unpremul
         // to do the color space transformation.  Might be possible to streamline.
         if (info.colorType() == kAlpha_8_SkColorType) {
             // The color for A8 images comes from the (sRGB) paint color.
@@ -392,7 +392,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
                                          : SkRasterPipeline::clamp_a);
         }
 
-        if (rec.fDstCS) {
+        if (rec.fDstInfo.colorSpace()) {
             // If color managed, convert from premul source all the way to premul dst color space.
             auto srcCS = info.colorSpace();
             if (!srcCS || info.colorType() == kAlpha_8_SkColorType) {
@@ -400,8 +400,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
                 // A8 images get their r,g,b from the paint color, so they're also sRGB.
                 srcCS = sk_srgb_singleton();
             }
-            alloc->make<SkColorSpaceXformSteps>(srcCS     , kPremul_SkAlphaType,
-                                                rec.fDstCS, kPremul_SkAlphaType)
+            alloc->make<SkColorSpaceXformSteps>(srcCS                    , kPremul_SkAlphaType,
+                                                rec.fDstInfo.colorSpace(), kPremul_SkAlphaType)
                 ->apply(p);
         }
 

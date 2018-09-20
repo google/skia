@@ -239,12 +239,12 @@ sk_sp<SkShader> SkShader::MakeColorShader(const SkColor4f& color, sk_sp<SkColorS
 
 bool SkColorShader::onAppendStages(const StageRec& rec) const {
     rec.fPipeline->append_constant_color(rec.fAlloc,
-            premul_in_dst_colorspace(fColor, rec.fDstCS));
+            premul_in_dst_colorspace(fColor, rec.fDstInfo.colorSpace()));
     return true;
 }
 
 bool SkColor4Shader::onAppendStages(const StageRec& rec) const {
     rec.fPipeline->append_constant_color(rec.fAlloc,
-            premul_in_dst_colorspace(fColor4, fColorSpace.get(), rec.fDstCS));
+            premul_in_dst_colorspace(fColor4, fColorSpace.get(), rec.fDstInfo.colorSpace()));
     return true;
 }

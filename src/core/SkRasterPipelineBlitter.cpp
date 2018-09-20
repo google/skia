@@ -90,15 +90,7 @@ static void append_color_pipeline(SkRasterPipeline* p,
                                   const SkRasterPipeline& colorPipeline,
                                   SkImageInfo dstInfo) {
     p->extend(colorPipeline);
-
-    // TODO: can we refine this condition further to avoid clamps when we're known in-gamut?
-    // When opaque we could _probably_ get away without a clamp, but for consistency we keep it.
-    if (dstInfo.colorType() != kRGBA_F16_SkColorType &&
-        dstInfo.colorType() != kRGBA_F32_SkColorType &&
-        dstInfo.alphaType() == kPremul_SkAlphaType)
-    {
-        p->append(SkRasterPipeline::clamp_gamut);
-    }
+    p->append_gamut_clamp_if_narrow(dstInfo);
 }
 
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
