@@ -25,14 +25,14 @@ steps:
     env:
       - 'ROOT=/workspace/__skottie_staging'
       - 'SKIP_BUILD=1'
-    args: ['make', 'release']
+    args: ['make', 'release_ci']
     timeout: 600s
   - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/debugger'
     env:
       - 'ROOT=/workspace/__debugger_staging'
       - 'SKIP_BUILD=1'
-    args: ['make', 'release']
+    args: ['make', 'release_ci']
     timeout: 600s
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA', '/workspace/__fiddler_staging']
