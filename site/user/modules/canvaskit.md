@@ -1,11 +1,27 @@
 CanvasKit - Skia + WebAssembly
-==========================
+==============================
 
-We are experimenting with building Skia for Web Assembly, drawing to
-a hardware-accelerated backend.
+Skia now offers a WebAssembly build for easy deployment of our graphics APIs on
+the web.
 
-Currently, an SkSurface encapsulates a WebGL context, allowing for
-direct drawing to an html canvas.
+CanvasKit provides a playground for testing new Canvas and SVG platform APIs,
+enabling fast-paced development on the web platform.
+It can also be used as a deployment mechanism for custom web apps requiring
+cutting-edge features, like Skia's [Lottie
+animation](https://skia.org/user/modules/skottie) support.  
+
+
+Features
+--------
+
+  - WebGL context encapsulated as an SkSurface, allowing for direct drawing to
+    an HTML canvas
+  - Core set of Skia canvas/paint/path/text APIs available, see bindings
+  - Draws to a hardware-accelerated backend
+  - Security tested with Skia's fuzzers
+
+Samples
+-------
 
 <style>
   #demo canvas {
@@ -13,7 +29,7 @@ direct drawing to an html canvas.
   }
 
   #patheffect {
-    width: 400px;
+    width: 400px
     height: 400px;
   }
 
@@ -23,17 +39,17 @@ direct drawing to an html canvas.
   }
 
   #sk_legos {
-    width: 400px;
+    width: 300px;
     height: 300px;
   }
 </style>
 
 <div id=demo>
-  <h2>An Interactive Path (try mousing over)</h2>
+  <h3>An Interactive Path (try mousing over)</h3>
   <canvas id=patheffect width=400 height=400></canvas>
 
-  <h2>Skottie</h2>
-  <canvas id=sk_legos width=800 height=600></canvas>
+  <h3>Skottie</h3>
+  <canvas id=sk_legos width=600 height=600></canvas>
   <canvas id=sk_drinks width=500 height=500></canvas>
   <canvas id=sk_party width=800 height=800></canvas>
 </div>
@@ -186,15 +202,16 @@ direct drawing to an html canvas.
 })();
 </script>
 
-Lottie files courtesy of the lottie-files community:
+Lottie files courtesy of the lottiefiles.com community:
+[Lego Loader](https://www.lottiefiles.com/410-lego-loader), [I'm
+thirsty](https://www.lottiefiles.com/77-im-thirsty),
+[Confetti](https://www.lottiefiles.com/1370-confetti)
 
-  - [Lego Loader](https://www.lottiefiles.com/410-lego-loader)
-  - [I'm thirsty](https://www.lottiefiles.com/77-im-thirsty)
-  - [Confetti](https://www.lottiefiles.com/1370-confetti)
 
-Download from npm
------------------
+Test server
+-----------
+Test your code on our [CanvasKit Fiddle](https://jsfiddle.skia.org/canvaskit)
 
-This isn't quite ready for prime time yet.
-
-Check back soon.
+Download
+--------
+Work is underway on an npm download. Check back soon.

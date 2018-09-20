@@ -4,17 +4,6 @@ PathKit - Geometry in the Browser
 Skia has made its [SkPath](../api/SkPath_Reference) object and many related methods
 available to JS clients (e.g. Web Browsers) using WebAssembly and asm.js.
 
-Download the library
---------------------
-
-See the the npm page for either the [WebAssembly](https://www.npmjs.com/package/pathkit-wasm) version
-or the [asm.js](https://www.npmjs.com/package/pathkit-asmjs) version
-for details on downloading and getting started.
-
-WebAssembly has faster load times and better overall performance but is
-currently supported by only Chrome and Firefox (with a flag).
-The asm.js version should run anywhere JavaScript does.
-
 Features
 --------
 
@@ -220,6 +209,17 @@ The best place to look for examples on how to use PathKit would be in the
 [example.html](https://github.com/google/skia/blob/master/modules/pathkit/npm-wasm/example.html#L45),
 which comes in the npm package.
 
+
+Download the library
+--------------------
+
+See the the npm page for either the [WebAssembly](https://www.npmjs.com/package/pathkit-wasm) version
+or the [asm.js](https://www.npmjs.com/package/pathkit-asmjs) version
+for details on downloading and getting started.
+
+WebAssembly has faster load times and better overall performance but is
+currently supported by Chrome, Firefox, Edge, and Safari.
+The asm.js version should run anywhere JavaScript does.
 
 API
 ----
