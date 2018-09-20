@@ -263,3 +263,78 @@ DEF_TEST(Bitmap_erase, r) {
         REPORTER_ASSERT(r, bm.getColor(0,0) != 0x00000000);
     }
 }
+
+static void check_alphas(skiatest::Reporter* reporter, const SkBitmap& bm,
+                         bool (*pred)(float expected, float actual)) {
+    SkASSERT(bm.width() == 16);
+    SkASSERT(bm.height() == 16);
+
+    int alpha = 0;
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            float expected = alpha / 255.0f;
+            float actual = bm.getAlphaf(x, y);
+            REPORTER_ASSERT(reporter, pred(expected, actual));
+            alpha += 1;
+        }
+    }
+}
+
+DEF_TEST(getalphaf, reporter) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(16, 16);
+    SkBitmap bm;
+    bm.allocPixels(info);
+
+    int alpha = 0;
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            *bm.getAddr32(x, y) = alpha++ << 24;
+        }
+    }
+
+    auto nearly = [](float expected, float actual) -> bool {
+        return SkScalarNearlyEqual(expected, actual);
+    };
+    auto nearly4bit = [](float expected, float actual) -> bool {
+        expected = sk_float_floor(expected * 15 + 0.5) / 15.0f;
+        return SkScalarNearlyEqual(expected, actual);
+    };
+    auto nearly2bit = [](float expected, float actual) -> bool {
+        expected = sk_float_floor(expected * 3 + 0.5) / 3.0f;
+        return SkScalarNearlyEqual(expected, actual);
+    };
+    auto opaque = [](float expected, float actual) -> bool {
+        return actual == 1.0f;
+    };
+
+    const struct {
+        SkColorType fColorType;
+        bool (*fPred)(float, float);
+    } recs[] = {
+        { kRGB_565_SkColorType,     opaque },
+        { kGray_8_SkColorType,      opaque },
+        { kRGB_888x_SkColorType,    opaque },
+        { kRGB_101010x_SkColorType, opaque },
+
+        { kAlpha_8_SkColorType,     nearly },
+        { kRGBA_8888_SkColorType,   nearly },
+        { kBGRA_8888_SkColorType,   nearly },
+        { kRGBA_F16_SkColorType,    nearly },
+        { kRGBA_F32_SkColorType,    nearly },
+
+        { kRGBA_1010102_SkColorType, nearly2bit },
+
+        { kARGB_4444_SkColorType,   nearly4bit },
+    };
+
+    for (const auto& rec : recs) {
+        SkBitmap tmp;
+        tmp.allocPixels(bm.info().makeColorType(rec.fColorType));
+        if (bm.readPixels(tmp.pixmap())) {
+            check_alphas(reporter, tmp, rec.fPred);
+        } else {
+            SkDebugf("can't readpixels\n");
+        }
+    }
+}
+
