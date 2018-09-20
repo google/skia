@@ -779,7 +779,7 @@ void SkPDFDevice::drawRect(const SkRect& rect,
     SkRect r = rect;
     r.sort();
 
-    if (paint.getPathEffect() || paint.getMaskFilter()) {
+    if (paint.getPathEffect() || paint.getMaskFilter() || this->ctm().hasPerspective()) {
         SkPath path;
         path.addRect(r);
         this->drawPath(path, paint, true);
