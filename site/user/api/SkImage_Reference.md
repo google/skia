@@ -1,73 +1,7 @@
 SkImage Reference
 ===
 
-# <a name='Image'>Image</a>
-
-# <a name='SkImage'>Class SkImage</a>
-
-## <a name='Constant'>Constant</a>
-
-
-SkImage related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth_kF16'>BitDepth::kF16</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uses 16-bit float per <a href='SkColor_Reference#Color'>Color</a> component</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth_kU8'>BitDepth::kU8</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uses 8-bit unsigned int per <a href='SkColor_Reference#Color'>Color</a> component</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth'>BitDepth</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>options for <a href='#SkImage_MakeFromPicture'>MakeFromPicture</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_CachingHint'>CachingHint</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>options for <a href='#SkImage_readPixels'>readPixels</a> and <a href='#SkImage_scalePixels'>scalePixels</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allows internally caching decoded and copied pixels</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>disallows internally caching decoded and copied pixels</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_kRO_LegacyBitmapMode'>kRO LegacyBitmapMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returned bitmap is read-only and immutable</td>
-  </tr>
-</table>
-
-## <a name='Typedef'>Typedef</a>
-
-
-SkImage  <code>typedef</code> define a data type.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>parameter type for <a href='#SkImage_MakeBackendTextureFromSkImage'>MakeBackendTextureFromSkImage</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>parameter type for <a href='#SkImage_MakeFromRaster'>MakeFromRaster</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_ReleaseContext'>ReleaseContext</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>parameter type for <a href='#SkImage_MakeFromRaster'>MakeFromRaster</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_TextureReleaseProc'>TextureReleaseProc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>parameter type for <a href='#SkImage_MakeFromTexture'>MakeFromTexture</a></td>
-  </tr>
-</table>
-
-<a href='#Image'>Image</a> describes a two dimensional array of pixels to draw. The pixels may be
+<a name='SkImage'></a><a href='#Image'>Image</a> describes a two dimensional array of pixels to draw. The pixels may be
 decoded in a <a href='undocumented#Raster_Bitmap'>Raster Bitmap</a>, encoded in a <a href='SkPicture_Reference#Picture'>Picture</a> or compressed data stream,
 or located in GPU memory as a <a href='undocumented#GPU_Texture'>GPU Texture</a>.
 
@@ -107,35 +41,51 @@ drawing.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedefs'>Typedef Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>types defined in terms of other types</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkImage'>SkImage</a></td>
   </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Raster_Image'>Raster Image</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixels decoded in <a href='undocumented#Raster_Bitmap'>Raster Bitmap</a></td>
+  </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Texture_Image'>Texture Image</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pixels located on GPU</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Lazy_Image'>Lazy Image</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>deferred pixel buffer</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedef'>Typedef Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>types defined by other types</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Property'>Property</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>values and attributes</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Pixels'>Pixels</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>read and write pixel values</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Utility'>Utility</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>rarely called management functions</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
-SkImage global, <code>struct</code>, and <code>class</code> related member functions share a topic.
+SkImage defines related functions that share a topic.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Related Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Lazy_Image'>Lazy Image</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>deferred pixel buffer</td>
@@ -162,13 +112,13 @@ SkImage global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
-SkImage can be constructed or initialized by these functions, including C++ class constructors.
+SkImage can be constructed or initialized by these functions, including <code>class</code> constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constructor</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeBackendTextureFromSkImage'>MakeBackendTextureFromSkImage</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='undocumented#GPU_Texture'>GPU Texture</a> from <a href='#Image'>Image</a></td>
@@ -222,12 +172,24 @@ SkImage can be constructed or initialized by these functions, including C++ clas
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='#Image'>Image</a> from <a href='undocumented#GPU_Texture'>GPU Texture</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeFromTexture'>MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, SkColorType colorType, SkAlphaType alphaType, sk sp&lt;SkColorSpace&gt; colorSpace)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeFromTexture'>static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeFromTexture_2'>MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, SkColorType colorType, SkAlphaType alphaType, sk sp&lt;SkColorSpace&gt; colorSpace, TextureReleaseProc textureReleaseProc, ReleaseContext releaseContext)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeFromTexture_2'>static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace,
+                                          TextureReleaseProc textureReleaseProc,
+                                          ReleaseContext releaseContext)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeFromYUVTexturesCopy'>MakeFromYUVTexturesCopy</a></td>
@@ -266,12 +228,13 @@ SkImage can be constructed or initialized by these functions, including C++ clas
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='undocumented#Shader'>Shader</a>, <a href='SkPaint_Reference#Paint'>Paint</a> element that can tile <a href='#Image'>Image</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_makeShader'>makeShader(SkShader::TileMode tileMode1, SkShader::TileMode tileMode2, const SkMatrix* localMatrix = nullptr)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_makeShader'>sk_sp<SkShader> makeShader(SkShader::TileMode tileMode1, SkShader::TileMode tileMode2,
+                               const SkMatrix* localMatrix = nullptr) const</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_makeShader_2'>makeShader(const SkMatrix* localMatrix = nullptr)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_makeShader_2'>sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_makeSubset'>makeSubset</a></td>
@@ -287,13 +250,13 @@ SkImage can be constructed or initialized by these functions, including C++ clas
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
-SkImage member functions read and modify the structure properties.
+SkImage uses member functions to read and modify structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_MakeBackendTextureFromSkImage'>MakeBackendTextureFromSkImage</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates <a href='undocumented#GPU_Texture'>GPU Texture</a> from <a href='#Image'>Image</a></td>
@@ -371,8 +334,8 @@ SkImage member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns as <a href='undocumented#Raster_Bitmap'>Raster Bitmap</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_bounds'>bounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkImage_width'>width</a> and <a href='#SkImage_height'>height</a> as Rectangle</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_bounds'>bounds</a>()</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkImage_width'>width</a>() and <a href='#SkImage_height'>height</a>() as Rectangle</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_colorSpace'>colorSpace</a></td>
@@ -383,8 +346,8 @@ SkImage member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkImageInfo_Reference#Color_Type'>Color Type</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_dimensions'>dimensions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkImage_width'>width</a> and <a href='#SkImage_height'>height</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_dimensions'>dimensions</a>()</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkImage_width'>width</a>() and <a href='#SkImage_height'>height</a>()</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_encodeToData'>encodeToData</a></td>
@@ -395,7 +358,7 @@ SkImage member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns GPU reference to <a href='#Image'>Image</a> as texture</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_height'>height</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_height'>height</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel row count</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -471,7 +434,7 @@ SkImage member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns identifier for <a href='#Image'>Image</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_width'>width</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_width'>width</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
 </table>
@@ -979,7 +942,7 @@ When <a href='#Image'>Image</a> is no longer referenced, <a href='#SkImage_MakeC
 asynchronously.
 
 <a href='undocumented#Texture'>Texture</a> created from <a href='#SkImage_MakeCrossContextFromPixmap_pixmap'>pixmap</a> is uploaded to match <a href='SkSurface_Reference#Surface'>Surface</a> created with
-<a href='#SkImage_MakeCrossContextFromPixmap_dstColorSpace'>dstColorSpace</a>. <a href='undocumented#Color_Space'>Color Space</a> of <a href='#Image'>Image</a> is determined by <a href='#SkImage_MakeCrossContextFromPixmap_pixmap'>pixmap</a>.<a href='#SkImage_colorSpace'>colorSpace</a>.
+<a href='#SkImage_MakeCrossContextFromPixmap_dstColorSpace'>dstColorSpace</a>. <a href='undocumented#Color_Space'>Color Space</a> of <a href='#Image'>Image</a> is determined by <a href='#SkImage_MakeCrossContextFromPixmap_pixmap'>pixmap</a>.<a href='#SkImage_colorSpace'>colorSpace</a>().
 
 <a href='#Image'>Image</a> is returned referring to GPU back-end if <a href='#SkImage_MakeCrossContextFromPixmap_context'>context</a> is not nullptr,
 format of data is recognized and supported, and if <a href='#SkImage_MakeCrossContextFromPixmap_context'>context</a> supports moving
@@ -1401,15 +1364,15 @@ created <a href='#Image'>Image</a>, or nullptr
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_alphaType'>alphaType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_bounds'>bounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkImage_width'>width</a> and <a href='#SkImage_height'>height</a> as Rectangle</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_bounds'>bounds</a>()</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkImage_width'>width</a>() and <a href='#SkImage_height'>height</a>() as Rectangle</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_colorSpace'>colorSpace</a></td>
@@ -1420,15 +1383,15 @@ created <a href='#Image'>Image</a>, or nullptr
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkImageInfo_Reference#Color_Type'>Color Type</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_dimensions'>dimensions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkImage_width'>width</a> and <a href='#SkImage_height'>height</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_dimensions'>dimensions</a>()</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkImage_width'>width</a>() and <a href='#SkImage_height'>height</a>()</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_getBackendTexture'>getBackendTexture</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns GPU reference to <a href='#Image'>Image</a> as texture</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_height'>height</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_height'>height</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel row count</td>
   </tr>
   <tr>
@@ -1460,7 +1423,7 @@ created <a href='#Image'>Image</a>, or nullptr
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns identifier for <a href='#Image'>Image</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_width'>width</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_width'>width</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
 </table>
@@ -1484,7 +1447,7 @@ pixel width in <a href='#Image'>Image</a>
 
 ### See Also
 
-<a href='#SkImage_dimensions'>dimensions</a> <a href='#SkImage_height'>height</a>
+<a href='#SkImage_dimensions'>dimensions</a>() <a href='#SkImage_height'>height</a>()
 
 ---
 
@@ -1507,7 +1470,7 @@ pixel height in <a href='#Image'>Image</a>
 
 ### See Also
 
-<a href='#SkImage_dimensions'>dimensions</a> <a href='#SkImage_width'>width</a>
+<a href='#SkImage_dimensions'>dimensions</a>() <a href='#SkImage_width'>width</a>()
 
 ---
 
@@ -1518,11 +1481,11 @@ pixel height in <a href='#Image'>Image</a>
 <a href='undocumented#SkISize'>SkISize</a> <a href='#SkImage_dimensions'>dimensions</a>() const
 </pre>
 
-Returns <a href='undocumented#ISize'>ISize</a> { <a href='#SkImage_width'>width</a>, <a href='#SkImage_height'>height</a> }.
+Returns <a href='undocumented#ISize'>ISize</a> { <a href='#SkImage_width'>width</a>(), <a href='#SkImage_height'>height</a>() }.
 
 ### Return Value
 
-integral size of <a href='#SkImage_width'>width</a> and <a href='#SkImage_height'>height</a>
+integral size of <a href='#SkImage_width'>width</a>() and <a href='#SkImage_height'>height</a>()
 
 ### Example
 
@@ -1538,7 +1501,7 @@ dimensionsAsBounds == bounds
 
 ### See Also
 
-<a href='#SkImage_height'>height</a> <a href='#SkImage_width'>width</a> <a href='#SkImage_bounds'>bounds</a>
+<a href='#SkImage_height'>height</a>() <a href='#SkImage_width'>width</a>() <a href='#SkImage_bounds'>bounds</a>()
 
 ---
 
@@ -1549,11 +1512,11 @@ dimensionsAsBounds == bounds
 <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkImage_bounds'>bounds</a>() const
 </pre>
 
-Returns <a href='SkIRect_Reference#IRect'>IRect</a> { 0, 0, <a href='#SkImage_width'>width</a>, <a href='#SkImage_height'>height</a> }.
+Returns <a href='SkIRect_Reference#IRect'>IRect</a> { 0, 0, <a href='#SkImage_width'>width</a>(), <a href='#SkImage_height'>height</a>() }.
 
 ### Return Value
 
-integral rectangle from origin to <a href='#SkImage_width'>width</a> and <a href='#SkImage_height'>height</a>
+integral rectangle from origin to <a href='#SkImage_width'>width</a>() and <a href='#SkImage_height'>height</a>()
 
 ### Example
 
@@ -1561,7 +1524,7 @@ integral rectangle from origin to <a href='#SkImage_width'>width</a> and <a href
 
 ### See Also
 
-<a href='#SkImage_dimensions'>dimensions</a>
+<a href='#SkImage_dimensions'>dimensions</a>()
 
 ---
 
@@ -1840,8 +1803,8 @@ transforming <a href='#Image'>Image</a> before <a href='SkCanvas_Reference#Matri
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_peekPixels'>peekPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> if possible</td>
@@ -1851,12 +1814,14 @@ transforming <a href='#Image'>Image</a> before <a href='SkCanvas_Reference#Matri
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies and converts pixels</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_readPixels'>readPixels(const SkImageInfo& dstInfo, void* dstPixels, size t dstRowBytes, int srcX, int srcY, CachingHint cachingHint = kAllow CachingHint)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_readPixels'>bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_readPixels_2'>readPixels(const SkPixmap& dst, int srcX, int srcY, CachingHint cachingHint = kAllow CachingHint)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_readPixels_2'>bool readPixels(const SkPixmap& dst, int srcX, int srcY,
+                    CachingHint cachingHint = kAllow_CachingHint) const</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_scalePixels'>scalePixels</a></td>
@@ -2078,7 +2043,7 @@ bool <a href='#SkImage_readPixels'>readPixels</a>(const <a href='SkImageInfo_Ref
 </pre>
 
 Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from <a href='#Image'>Image</a> to <a href='#SkImage_readPixels_dstPixels'>dstPixels</a>. Copy starts at offset (<a href='#SkImage_readPixels_srcX'>srcX</a>, <a href='#SkImage_readPixels_srcY'>srcY</a>),
-and does not exceed <a href='#Image'>Image</a> (<a href='#SkImage_width'>width</a>, <a href='#SkImage_height'>height</a>).
+and does not exceed <a href='#Image'>Image</a> (<a href='#SkImage_width'>width</a>(), <a href='#SkImage_height'>height</a>()).
 
 <a href='#SkImage_readPixels_dstInfo'>dstInfo</a> specifies width, height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, and <a href='undocumented#Color_Space'>Color Space</a> of
 destination. <a href='#SkImage_readPixels_dstRowBytes'>dstRowBytes</a> specifics the gap from one destination row to the next.
@@ -2101,8 +2066,8 @@ match. If <a href='#Image'>Image</a> <a href='undocumented#Color_Space'>Color Sp
 false if pixel conversion is not possible.
 
 <a href='#SkImage_readPixels_srcX'>srcX</a> and <a href='#SkImage_readPixels_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
-false if <a href='#SkImage_width'>width</a> or <a href='#SkImage_height'>height</a> is zero or negative.
-Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_width'>width</a></code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_height'>height</a></code>.
+false if <a href='#SkImage_width'>width</a>() or <a href='#SkImage_height'>height</a>() is zero or negative.
+Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_width'>width</a>(\)</code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_height'>height</a>(\)</code>.
 
 If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, pixels may be retained locally.
 If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a>, pixels are not added to the local cache.
@@ -2119,10 +2084,10 @@ If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImag
     <td>destination row length</td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_srcX'><code><strong>srcX</strong></code></a></td>
-    <td>column index whose absolute value is less than <a href='#SkImage_width'>width</a></td>
+    <td>column index whose absolute value is less than <a href='#SkImage_width'>width</a>()</td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_srcY'><code><strong>srcY</strong></code></a></td>
-    <td>row index whose absolute value is less than <a href='#SkImage_height'>height</a></td>
+    <td>row index whose absolute value is less than <a href='#SkImage_height'>height</a>()</td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_cachingHint'><code><strong>cachingHint</strong></code></a></td>
     <td>one of: <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a></td>
@@ -2150,7 +2115,7 @@ bool <a href='#SkImage_readPixels'>readPixels</a>(const <a href='SkPixmap_Refere
 </pre>
 
 Copies a <a href='SkRect_Reference#Rect'>Rect</a> of pixels from <a href='#Image'>Image</a> to <a href='#SkImage_readPixels_2_dst'>dst</a>. Copy starts at (<a href='#SkImage_readPixels_2_srcX'>srcX</a>, <a href='#SkImage_readPixels_2_srcY'>srcY</a>), and
-does not exceed <a href='#Image'>Image</a> (<a href='#SkImage_width'>width</a>, <a href='#SkImage_height'>height</a>).
+does not exceed <a href='#Image'>Image</a> (<a href='#SkImage_width'>width</a>(), <a href='#SkImage_height'>height</a>()).
 
 <a href='#SkImage_readPixels_2_dst'>dst</a> specifies width, height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, <a href='undocumented#Color_Space'>Color Space</a>, pixel storage,
 and row bytes of destination. <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='SkPixmap_Reference#SkPixmap'>rowBytes</a> specifics the gap from one destination
@@ -2173,8 +2138,8 @@ match. If <a href='#Image'>Image</a> <a href='undocumented#Color_Space'>Color Sp
 false if pixel conversion is not possible.
 
 <a href='#SkImage_readPixels_2_srcX'>srcX</a> and <a href='#SkImage_readPixels_2_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
-false if <a href='#SkImage_width'>width</a> or <a href='#SkImage_height'>height</a> is zero or negative.
-Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_width'>width</a></code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_height'>height</a></code>.
+false if <a href='#SkImage_width'>width</a>() or <a href='#SkImage_height'>height</a>() is zero or negative.
+Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_width'>width</a>(\)</code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_height'>height</a>(\)</code>.
 
 If <a href='#SkImage_readPixels_2_cachingHint'>cachingHint</a> is <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, pixels may be retained locally.
 If <a href='#SkImage_readPixels_2_cachingHint'>cachingHint</a> is <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a>, pixels are not added to the local cache.
@@ -2185,10 +2150,10 @@ If <a href='#SkImage_readPixels_2_cachingHint'>cachingHint</a> is <a href='#SkIm
     <td>destination <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>: <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>, pixels, row bytes</td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_2_srcX'><code><strong>srcX</strong></code></a></td>
-    <td>column index whose absolute value is less than <a href='#SkImage_width'>width</a></td>
+    <td>column index whose absolute value is less than <a href='#SkImage_width'>width</a>()</td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_2_srcY'><code><strong>srcY</strong></code></a></td>
-    <td>row index whose absolute value is less than <a href='#SkImage_height'>height</a></td>
+    <td>row index whose absolute value is less than <a href='#SkImage_height'>height</a>()</td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_2_cachingHint'><code><strong>cachingHint</strong></code></a></td>
     <td>one of: <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a></td>
@@ -2217,7 +2182,7 @@ bool <a href='#SkImage_scalePixels'>scalePixels</a>(const <a href='SkPixmap_Refe
                  <a href='#SkImage_CachingHint'>CachingHint</a> cachingHint = <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>) const
 </pre>
 
-Copies <a href='#Image'>Image</a> to <a href='#SkImage_scalePixels_dst'>dst</a>, scaling pixels to fit <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_width'>width</a> and <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_height'>height</a>, and
+Copies <a href='#Image'>Image</a> to <a href='#SkImage_scalePixels_dst'>dst</a>, scaling pixels to fit <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_width'>width</a>() and <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_height'>height</a>(), and
 converting pixels to match <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_colorType'>colorType</a> and <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_alphaType'>alphaType</a>. Returns true if
 pixels are copied. Returns false if <a href='#SkImage_scalePixels_dst'>dst</a>.addr() is nullptr, or <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='SkPixmap_Reference#SkPixmap'>rowBytes</a> is
 less than <a href='#SkImage_scalePixels_dst'>dst</a> <a href='SkImageInfo_Reference#SkImageInfo_minRowBytes'>SkImageInfo::minRowBytes</a>.
@@ -2229,7 +2194,7 @@ If <a href='#Image'>Image</a> <a href='SkImageInfo_Reference#Alpha_Type'>Alpha T
 match. If <a href='#Image'>Image</a> <a href='undocumented#Color_Space'>Color Space</a> is nullptr, <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_colorSpace'>colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
 
-Scales the image, with <a href='#SkImage_scalePixels_filterQuality'>filterQuality</a>, to match <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_width'>width</a> and <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_height'>height</a>.
+Scales the image, with <a href='#SkImage_scalePixels_filterQuality'>filterQuality</a>, to match <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_width'>width</a>() and <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_height'>height</a>().
 <a href='#SkImage_scalePixels_filterQuality'>filterQuality</a> <a href='undocumented#kNone_SkFilterQuality'>kNone_SkFilterQuality</a> is fastest, typically implemented with
 <a href='undocumented#Nearest_Neighbor'>Filter Quality Nearest Neighbor</a>. <a href='undocumented#kLow_SkFilterQuality'>kLow_SkFilterQuality</a> is typically implemented with
 <a href='undocumented#Bilerp'>Filter Quality Bilerp</a>. <a href='undocumented#kMedium_SkFilterQuality'>kMedium_SkFilterQuality</a> is typically implemented with
@@ -2373,19 +2338,19 @@ encoded <a href='#Image'>Image</a>, or nullptr
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_encodeToData'>encodeToData</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns encoded <a href='#Image'>Image</a> as <a href='undocumented#SkData'>SkData</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_encodeToData'>encodeToData(SkEncodedImageFormat encodedImageFormat, int quality)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_encodeToData'>sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_encodeToData_2'>encodeToData</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_encodeToData_2'>sk_sp<SkData> encodeToData() const</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_refEncodedData'>refEncodedData</a></td>
@@ -2400,7 +2365,7 @@ encoded <a href='#Image'>Image</a>, or nullptr
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeSubset'>makeSubset</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& subset) const
 </pre>
 
-Returns <a href='#SkImage_makeSubset_subset'>subset</a> of <a href='#Image'>Image</a>. <a href='#SkImage_makeSubset_subset'>subset</a> must be fully contained by <a href='#Image'>Image</a> <a href='#SkImage_dimensions'>dimensions</a>.
+Returns <a href='#SkImage_makeSubset_subset'>subset</a> of <a href='#Image'>Image</a>. <a href='#SkImage_makeSubset_subset'>subset</a> must be fully contained by <a href='#Image'>Image</a> <a href='#SkImage_dimensions'>dimensions</a>().
 The implementation may share pixels, or may copy them.
 
 Returns nullptr if <a href='#SkImage_makeSubset_subset'>subset</a> is empty, or <a href='#SkImage_makeSubset_subset'>subset</a> is not contained by bounds, or

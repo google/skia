@@ -1,10 +1,7 @@
 SkIRect Reference
 ===
 
-# <a name='IRect'>IRect</a>
-
-# <a name='SkIRect'>Struct SkIRect</a>
-<a href='#SkIRect'>SkIRect</a> holds four 32-bit integer coordinates describing the upper and
+<a name='SkIRect'></a><a href='#SkIRect'>SkIRect</a> holds four 32-bit integer coordinates describing the upper and
 lower bounds of a rectangle. <a href='#SkIRect'>SkIRect</a> may be created from outer bounds or
 from position, width, and height. <a href='#SkIRect'>SkIRect</a> describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
@@ -16,35 +13,51 @@ its top, it is considered empty.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkIRect'>SkIRect</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member'>Members</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Members'>Members</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkIRect'>SkIRect</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading functions</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Property'>Property</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values, center, validity</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Set'>Set</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces all values</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Inset_Outset_Offset'>Inset Outset Offset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves sides</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Intersection'>Intersection</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to shared bounds</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Join'>Join</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Sorting'>Sorting</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orders sides</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
-SkIRect global, <code>struct</code>, and <code>class</code> related member functions share a topic.
+SkIRect defines related functions that share a topic.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Related Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Inset_Outset_Offset'>Inset Outset Offset</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves sides</td>
@@ -71,13 +84,13 @@ SkIRect global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
-SkIRect member functions read and modify the structure properties.
+SkIRect uses member functions to read and modify structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_EmptyIRect'>EmptyIRect</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns immutable bounds of (0, 0, 0, 0)</td>
@@ -111,15 +124,15 @@ SkIRect member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from int input returning (x, y, width, height)</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_adjust'>adjust</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_adjust'>adjust</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides independently relative to their original locations</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_bottom'>bottom</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_bottom'>bottom</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns larger bounds in y, if sorted</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_contains'>contains</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_contains'>contains</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkIPoint_Reference#IPoint'>IPoint</a> (x, y) is equal or inside</td>
   </tr>
   <tr>
@@ -127,7 +140,7 @@ SkIRect member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if contains unsorted <a href='#IRect'>IRect</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_height'>height</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_height'>height</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in y</td>
   </tr>
   <tr>
@@ -135,11 +148,11 @@ SkIRect member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in y as int64_t</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_inset'>inset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_inset'>inset</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_intersect'>intersect</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_intersect'>intersect</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to shared area; returns true if not empty</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -155,11 +168,11 @@ SkIRect member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if width or height are zero or negative</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_join'>join</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_join'>join</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_left'>left</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_left'>left</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns smaller bounds in x, if sorted</td>
   </tr>
   <tr>
@@ -179,7 +192,7 @@ SkIRect member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#IRect'>IRect</a>, ordering sides from smaller to larger</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_offset'>offset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_offset'>offset</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates sides without changing width and height</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -187,15 +200,15 @@ SkIRect member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates to (x, y) without changing width and height</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_outset'>outset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_outset'>outset</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_right'>right</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_right'>right</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns larger bounds in x, if sorted</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_set'>set</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_set'>set</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to (left, top, right, bottom)</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -211,19 +224,19 @@ SkIRect member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to (x, y, width, height)</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_size'>size</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_size'>size</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#ISize'>ISize</a> (width, height)</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_sort'>sort</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_sort'>sort</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orders sides from smaller to larger</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_top'>top</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_top'>top</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns smaller bounds in y, if sorted</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_width'>width</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_width'>width</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in x</td>
   </tr>
   <tr>
@@ -231,16 +244,16 @@ SkIRect member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in y as int64_t</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_x'>x</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_x'>x</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds left</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_y'>y</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_y'>y</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds top</td>
   </tr>
 </table>
 
-## <a name='Member'>Member</a>
+## <a name='Members'>Members</a>
 
 
 
@@ -248,7 +261,7 @@ SkIRect member functions read and modify the structure properties.
 
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Name</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>int32_t</td>
@@ -273,33 +286,10 @@ SkIRect member functions read and modify the structure properties.
 </table>
 
 
-SkIRect members may be read and written directly without using a member function.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_fBottom'>fBottom</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>larger y-axis bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_fLeft'>fLeft</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller x-axis bounds</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_fRight'>fRight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>larger x-axis bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_fTop'>fTop</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller y-axis bounds</td>
-  </tr>
-</table>
-
-### Members
-
+SkIRect contains members that may be read and written directly without using a member function.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Name</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>int32_t</td>
@@ -335,13 +325,13 @@ When equal to or less than <a href='#SkIRect_fTop'>fTop</a>, <a href='#IRect'>IR
   </tr>
 
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
-SkIRect can be constructed or initialized by these functions, including C++ class constructors.
+SkIRect can be constructed or initialized by these functions, including <code>class</code> constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constructor</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_EmptyIRect'>EmptyIRect</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns immutable bounds of (0, 0, 0, 0)</td>
@@ -470,8 +460,8 @@ all equal
 static constexpr <a href='#SkIRect'>SkIRect</a> SK_WARN_UNUSED_RESULT <a href='#SkIRect_MakeSize'>MakeSize</a>(const <a href='undocumented#SkISize'>SkISize</a>& size)
 </pre>
 
-Returns constructed <a href='#IRect'>IRect</a> set to (0, 0, size.<a href='#SkIRect_width'>width</a>, size.<a href='#SkIRect_height'>height</a>).
-Does not validate input; size.<a href='#SkIRect_width'>width</a> or size.<a href='#SkIRect_height'>height</a> may be negative.
+Returns constructed <a href='#IRect'>IRect</a> set to (0, 0, size.<a href='#SkIRect_width'>width</a>(), size.<a href='#SkIRect_height'>height</a>()).
+Does not validate input; size.<a href='#SkIRect_width'>width</a>() or size.<a href='#SkIRect_height'>height</a>() may be negative.
 
 ### Parameters
 
@@ -482,7 +472,7 @@ Does not validate input; size.<a href='#SkIRect_width'>width</a> or size.<a href
 
 ### Return Value
 
-bounds (0, 0, size.<a href='#SkIRect_width'>width</a>, size.<a href='#SkIRect_height'>height</a>)
+bounds (0, 0, size.<a href='#SkIRect_width'>width</a>(), size.<a href='#SkIRect_height'>height</a>())
 
 ### Example
 
@@ -605,14 +595,14 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_bottom'>bottom</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_bottom'>bottom</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns larger bounds in y, if sorted</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_height'>height</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_height'>height</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in y</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -628,23 +618,23 @@ rect: -10, 35, 5, 60  isEmpty: false
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if width or height are zero or negative</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_left'>left</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_left'>left</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns smaller bounds in x, if sorted</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_right'>right</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_right'>right</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns larger bounds in x, if sorted</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_size'>size</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_size'>size</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#ISize'>ISize</a> (width, height)</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_top'>top</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_top'>top</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns smaller bounds in y, if sorted</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_width'>width</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_width'>width</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in x</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -652,11 +642,11 @@ rect: -10, 35, 5, 60  isEmpty: false
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in y as int64_t</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_x'>x</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_x'>x</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds left</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_y'>y</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_y'>y</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds top</td>
   </tr>
 </table>
@@ -669,7 +659,7 @@ int32_t <a href='#SkIRect_left'>left</a>() const
 </pre>
 
 Returns left edge of <a href='#IRect'>IRect</a>, if sorted.
-Call <a href='#SkIRect_sort'>sort</a> to reverse <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if needed.
+Call <a href='#SkIRect_sort'>sort</a>() to reverse <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if needed.
 
 ### Return Value
 
@@ -690,7 +680,7 @@ sorted.fLeft: 10 sorted.left(): 10
 
 ### See Also
 
-<a href='#SkIRect_fLeft'>fLeft</a> <a href='#SkIRect_x'>x</a> <a href='SkRect_Reference#SkRect_left'>SkRect::left()</a>
+<a href='#SkIRect_fLeft'>fLeft</a> <a href='#SkIRect_x'>x</a>() <a href='SkRect_Reference#SkRect_left'>SkRect::left</a>()
 
 ---
 
@@ -702,7 +692,7 @@ int32_t <a href='#SkIRect_top'>top</a>() const
 </pre>
 
 Returns top edge of <a href='#IRect'>IRect</a>, if sorted. Call <a href='#SkIRect_isEmpty'>isEmpty</a> to see if <a href='#IRect'>IRect</a> may be invalid,
-and <a href='#SkIRect_sort'>sort</a> to reverse <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if needed.
+and <a href='#SkIRect_sort'>sort</a>() to reverse <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if needed.
 
 ### Return Value
 
@@ -723,7 +713,7 @@ sorted.fTop: 5 sorted.top(): 5
 
 ### See Also
 
-<a href='#SkIRect_fTop'>fTop</a> <a href='#SkIRect_y'>y</a> <a href='SkRect_Reference#SkRect_top'>SkRect::top()</a>
+<a href='#SkIRect_fTop'>fTop</a> <a href='#SkIRect_y'>y</a>() <a href='SkRect_Reference#SkRect_top'>SkRect::top</a>()
 
 ---
 
@@ -735,7 +725,7 @@ int32_t <a href='#SkIRect_right'>right</a>() const
 </pre>
 
 Returns right edge of <a href='#IRect'>IRect</a>, if sorted.
-Call <a href='#SkIRect_sort'>sort</a> to reverse <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if needed.
+Call <a href='#SkIRect_sort'>sort</a>() to reverse <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if needed.
 
 ### Return Value
 
@@ -756,7 +746,7 @@ sorted.fRight: 15 sorted.right(): 15
 
 ### See Also
 
-<a href='#SkIRect_fRight'>fRight</a> <a href='SkRect_Reference#SkRect_right'>SkRect::right()</a>
+<a href='#SkIRect_fRight'>fRight</a> <a href='SkRect_Reference#SkRect_right'>SkRect::right</a>()
 
 ---
 
@@ -768,7 +758,7 @@ int32_t <a href='#SkIRect_bottom'>bottom</a>() const
 </pre>
 
 Returns bottom edge of <a href='#IRect'>IRect</a>, if sorted. Call <a href='#SkIRect_isEmpty'>isEmpty</a> to see if <a href='#IRect'>IRect</a> may be invalid,
-and <a href='#SkIRect_sort'>sort</a> to reverse <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if needed.
+and <a href='#SkIRect_sort'>sort</a>() to reverse <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if needed.
 
 ### Return Value
 
@@ -789,7 +779,7 @@ sorted.fBottom: 25 sorted.bottom(): 25
 
 ### See Also
 
-<a href='#SkIRect_fBottom'>fBottom</a> <a href='SkRect_Reference#SkRect_bottom'>SkRect::bottom()</a>
+<a href='#SkIRect_fBottom'>fBottom</a> <a href='SkRect_Reference#SkRect_bottom'>SkRect::bottom</a>()
 
 ---
 
@@ -801,7 +791,7 @@ int32_t <a href='#SkIRect_x'>x</a>() const
 </pre>
 
 Returns left edge of <a href='#IRect'>IRect</a>, if sorted. Call <a href='#SkIRect_isEmpty'>isEmpty</a> to see if <a href='#IRect'>IRect</a> may be invalid,
-and <a href='#SkIRect_sort'>sort</a> to reverse <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if needed.
+and <a href='#SkIRect_sort'>sort</a>() to reverse <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if needed.
 
 ### Return Value
 
@@ -822,7 +812,7 @@ sorted.fLeft: 10 sorted.x(): 10
 
 ### See Also
 
-<a href='#SkIRect_fLeft'>fLeft</a> <a href='#SkIRect_left'>left</a> <a href='#SkIRect_y'>y</a> <a href='SkRect_Reference#SkRect_x'>SkRect::x()</a>
+<a href='#SkIRect_fLeft'>fLeft</a> <a href='#SkIRect_left'>left</a>() <a href='#SkIRect_y'>y</a>() <a href='SkRect_Reference#SkRect_x'>SkRect::x</a>()
 
 ---
 
@@ -834,7 +824,7 @@ int32_t <a href='#SkIRect_y'>y</a>() const
 </pre>
 
 Returns top edge of <a href='#IRect'>IRect</a>, if sorted. Call <a href='#SkIRect_isEmpty'>isEmpty</a> to see if <a href='#IRect'>IRect</a> may be invalid,
-and <a href='#SkIRect_sort'>sort</a> to reverse <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if needed.
+and <a href='#SkIRect_sort'>sort</a>() to reverse <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if needed.
 
 ### Return Value
 
@@ -855,7 +845,7 @@ sorted.fTop: 5 sorted.y(): 5
 
 ### See Also
 
-<a href='#SkIRect_fTop'>fTop</a> <a href='#SkIRect_top'>top</a> <a href='#SkIRect_x'>x</a> <a href='SkRect_Reference#SkRect_y'>SkRect::y()</a>
+<a href='#SkIRect_fTop'>fTop</a> <a href='#SkIRect_top'>top</a>() <a href='#SkIRect_x'>x</a>() <a href='SkRect_Reference#SkRect_y'>SkRect::y</a>()
 
 ---
 
@@ -888,7 +878,7 @@ large width: -5
 
 ### See Also
 
-<a href='#SkIRect_height'>height</a> <a href='#SkIRect_width64'>width64</a> <a href='#SkIRect_height64'>height64</a> <a href='SkRect_Reference#SkRect_width'>SkRect::width()</a>
+<a href='#SkIRect_height'>height</a>() <a href='#SkIRect_width64'>width64</a>() <a href='#SkIRect_height64'>height64</a>() <a href='SkRect_Reference#SkRect_width'>SkRect::width</a>()
 
 ---
 
@@ -900,7 +890,7 @@ int64_t <a href='#SkIRect_width64'>width64</a>() const
 </pre>
 
 Returns span on the x-axis. This does not check if <a href='#IRect'>IRect</a> is sorted, so the
-result may be negative. This is safer than calling <a href='#SkIRect_width'>width</a> since <a href='#SkIRect_width'>width</a> might
+result may be negative. This is safer than calling <a href='#SkIRect_width'>width</a>() since <a href='#SkIRect_width'>width</a>() might
 overflow in its calculation.
 
 ### Return Value
@@ -921,7 +911,7 @@ width: -5 width64: 4294967291
 
 ### See Also
 
-<a href='#SkIRect_width'>width</a> <a href='#SkIRect_height'>height</a> <a href='#SkIRect_height64'>height64</a> <a href='SkRect_Reference#SkRect_width'>SkRect::width()</a>
+<a href='#SkIRect_width'>width</a>() <a href='#SkIRect_height'>height</a>() <a href='#SkIRect_height64'>height64</a>() <a href='SkRect_Reference#SkRect_width'>SkRect::width</a>()
 
 ---
 
@@ -954,7 +944,7 @@ large height: -5
 
 ### See Also
 
-<a href='#SkIRect_width'>width</a> <a href='SkRect_Reference#SkRect_height'>SkRect::height()</a>
+<a href='#SkIRect_width'>width</a>() <a href='SkRect_Reference#SkRect_height'>SkRect::height</a>()
 
 ---
 
@@ -966,7 +956,7 @@ int64_t <a href='#SkIRect_height64'>height64</a>() const
 </pre>
 
 Returns span on the y-axis. This does not check if <a href='#IRect'>IRect</a> is sorted, so the
-result may be negative. This is safer than calling <a href='#SkIRect_height'>height</a> since <a href='#SkIRect_height'>height</a> might
+result may be negative. This is safer than calling <a href='#SkIRect_height'>height</a>() since <a href='#SkIRect_height'>height</a>() might
 overflow in its calculation.
 
 ### Return Value
@@ -987,7 +977,7 @@ height: -5 height64: 4294967291
 
 ### See Also
 
-<a href='#SkIRect_width'>width</a> <a href='#SkIRect_height'>height</a> <a href='#SkIRect_width64'>width64</a> <a href='SkRect_Reference#SkRect_height'>SkRect::height()</a>
+<a href='#SkIRect_width'>width</a>() <a href='#SkIRect_height'>height</a>() <a href='#SkIRect_width64'>width64</a>() <a href='SkRect_Reference#SkRect_height'>SkRect::height</a>()
 
 ---
 
@@ -1021,7 +1011,7 @@ outset rect: 20, 30, 80, 90  size: 60, 60
 
 ### See Also
 
-<a href='#SkIRect_height'>height</a> <a href='#SkIRect_width'>width</a> <a href='#SkIRect_MakeSize'>MakeSize</a>
+<a href='#SkIRect_height'>height</a>() <a href='#SkIRect_width'>width</a>() <a href='#SkIRect_MakeSize'>MakeSize</a>
 
 ---
 
@@ -1032,11 +1022,11 @@ outset rect: 20, 30, 80, 90  size: 60, 60
 bool <a href='#SkIRect_isEmpty'>isEmpty</a>() const
 </pre>
 
-Returns true if <a href='#SkIRect_width'>width</a> or <a href='#SkIRect_height'>height</a> .
+Returns true if <a href='#SkIRect_width'>width</a>() or <a href='#SkIRect_height'>height</a>() .
 
 ### Return Value
 
-true if <a href='#SkIRect_width'>width</a> or <a href='#SkIRect_height'>height</a> are zero or negative
+true if <a href='#SkIRect_width'>width</a>() or <a href='#SkIRect_height'>height</a>() are zero or negative
 
 ### Example
 
@@ -1067,12 +1057,12 @@ bool <a href='#SkIRect_isEmpty64'>isEmpty64</a>() const
 </pre>
 
 Returns true if <a href='#SkIRect_fLeft'>fLeft</a> is equal to or greater than <a href='#SkIRect_fRight'>fRight</a>, or if <a href='#SkIRect_fTop'>fTop</a> is equal
-to or greater than <a href='#SkIRect_fBottom'>fBottom</a>. Call <a href='#SkIRect_sort'>sort</a> to reverse rectangles with negative
-<a href='#SkIRect_width64'>width64</a> or <a href='#SkIRect_height64'>height64</a>.
+to or greater than <a href='#SkIRect_fBottom'>fBottom</a>. Call <a href='#SkIRect_sort'>sort</a>() to reverse rectangles with negative
+<a href='#SkIRect_width64'>width64</a>() or <a href='#SkIRect_height64'>height64</a>().
 
 ### Return Value
 
-true if <a href='#SkIRect_width64'>width64</a> or <a href='#SkIRect_height64'>height64</a> are zero or negative
+true if <a href='#SkIRect_width64'>width64</a>() or <a href='#SkIRect_height64'>height64</a>() are zero or negative
 
 ### Example
 
@@ -1095,13 +1085,13 @@ sorted: {20, 40, 20, 50} is empty
 
 ---
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
-SkIRect operators inline class member functions with arithmetic equivalents.
+SkIRect defines member functions with arithmetic equivalents.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Operator</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_notequal_operator'>operator!=(const SkIRect& a, const SkIRect& b)</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if members are unequal</td>
@@ -1200,10 +1190,10 @@ test != sorted
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_set'>set</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_set'>set</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to (left, top, right, bottom)</td>
   </tr>
   <tr>
@@ -1393,30 +1383,30 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_adjust'>adjust</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_adjust'>adjust</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides independently relative to their original locations</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_inset'>inset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_inset'>inset</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_offset'>offset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_offset'>offset</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates sides without changing width and height</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_offset'>offset(int32 t dx, int32 t dy)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_offset'>void offset(int32_t dx, int32_t dy)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_offsetTo'>offsetTo</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates to (x, y) without changing width and height</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_outset'>outset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_outset'>outset</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
   </tr>
 </table>
@@ -1464,7 +1454,7 @@ rect: 25, 82, 35, 92  isEmpty: false
 
 ### See Also
 
-<a href='#SkIRect_offset'>offset</a><sup><a href='#SkIRect_offset_2'>[2]</a></sup> <a href='#SkIRect_makeInset'>makeInset</a> <a href='#SkIRect_makeOutset'>makeOutset</a> <a href='SkRect_Reference#SkRect_makeOffset'>SkRect::makeOffset</a>
+<a href='#SkIRect_offset'>offset</a><sup><a href='#SkIRect_offset_2'>[2]</a></sup>() <a href='#SkIRect_makeInset'>makeInset</a> <a href='#SkIRect_makeOutset'>makeOutset</a> <a href='SkRect_Reference#SkRect_makeOffset'>SkRect::makeOffset</a>
 
 ---
 
@@ -1511,7 +1501,7 @@ rect: 25, 82, 5, 28  isEmpty: true
 
 ### See Also
 
-<a href='#SkIRect_inset'>inset</a> <a href='#SkIRect_makeOffset'>makeOffset</a> <a href='#SkIRect_makeOutset'>makeOutset</a> <a href='SkRect_Reference#SkRect_makeInset'>SkRect::makeInset</a>
+<a href='#SkIRect_inset'>inset</a>() <a href='#SkIRect_makeOffset'>makeOffset</a> <a href='#SkIRect_makeOutset'>makeOutset</a> <a href='SkRect_Reference#SkRect_makeInset'>SkRect::makeInset</a>
 
 ---
 
@@ -1558,7 +1548,7 @@ rect: -5, 18, 35, 92  isEmpty: false
 
 ### See Also
 
-<a href='#SkIRect_outset'>outset</a> <a href='#SkIRect_makeOffset'>makeOffset</a> <a href='#SkIRect_makeInset'>makeInset</a> <a href='SkRect_Reference#SkRect_makeOutset'>SkRect::makeOutset</a>
+<a href='#SkIRect_outset'>outset</a>() <a href='#SkIRect_makeOffset'>makeOffset</a> <a href='#SkIRect_makeInset'>makeInset</a> <a href='SkRect_Reference#SkRect_makeOutset'>SkRect::makeOutset</a>
 
 ---
 
@@ -1656,10 +1646,10 @@ are unchanged.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIRect_offsetTo_newX'><code><strong>newX</strong></code></a></td>
-    <td>stored in <a href='#SkIRect_fLeft'>fLeft</a>, preserving <a href='#SkIRect_width'>width</a></td>
+    <td>stored in <a href='#SkIRect_fLeft'>fLeft</a>, preserving <a href='#SkIRect_width'>width</a>()</td>
   </tr>
   <tr>    <td><a name='SkIRect_offsetTo_newY'><code><strong>newY</strong></code></a></td>
-    <td>stored in <a href='#SkIRect_fTop'>fTop</a>, preserving <a href='#SkIRect_height'>height</a></td>
+    <td>stored in <a href='#SkIRect_fTop'>fTop</a>, preserving <a href='#SkIRect_height'>height</a>()</td>
   </tr>
 </table>
 
@@ -1778,8 +1768,8 @@ describes an area: <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkI
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_Intersects'>Intersects</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if areas overlap</td>
@@ -1789,28 +1779,29 @@ describes an area: <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkI
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if areas overlap skips empty check</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_contains'>contains</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_contains'>contains</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkIPoint_Reference#IPoint'>IPoint</a> (x, y) is equal or inside</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_contains'>contains(int32 t x, int32 t y)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_contains'>bool contains(int32_t x, int32_t y) const</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if contains unsorted <a href='#IRect'>IRect</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck(int32 t left, int32 t top, int32 t right, int32 t bottom)</a> const</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_containsNoEmptyCheck'>bool containsNoEmptyCheck(int32_t left, int32_t top,
+                              int32_t right, int32_t bottom) const</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_intersect'>intersect</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_intersect'>intersect</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to shared area; returns true if not empty</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_intersect'>intersect(const SkIRect& r)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_intersect'>bool intersect(const SkIRect& r)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_intersectNoEmptyCheck'>intersectNoEmptyCheck</a></td>
@@ -1833,7 +1824,7 @@ If <a href='#SkIRect_adjust_dR'>dR</a> is positive, narrows <a href='#IRect'>IRe
 If <a href='#SkIRect_adjust_dB'>dB</a> is positive, shrinks <a href='#IRect'>IRect</a> on the bottom. If negative, lengthens it on the bottom.
 
 The resulting <a href='#IRect'>IRect</a> is not checked for validity. Thus, if the resulting <a href='#IRect'>IRect</a> left is
-greater than right, the <a href='#IRect'>IRect</a> will be considered empty. Call <a href='#SkIRect_sort'>sort</a> after this call
+greater than right, the <a href='#IRect'>IRect</a> will be considered empty. Call <a href='#SkIRect_sort'>sort</a>() after this call
 if that is not the desired behavior.
 
 ### Parameters
@@ -2424,19 +2415,19 @@ intersection
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_join'>join</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_join'>join</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_join'>join(int32 t left, int32 t top, int32 t right, int32 t bottom)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_join'>void join(int32_t left, int32_t top, int32_t right, int32_t bottom)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_join_2'>join(const SkIRect& r)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_join_2'>void join(const SkIRect& r)</a></td>
   </tr>
 </table>
 
@@ -2528,10 +2519,10 @@ join: 10, 20, 55, 65
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_sort'>sort</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkIRect_sort'>sort</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orders sides from smaller to larger</td>
   </tr>
 </table>
@@ -2545,7 +2536,7 @@ void <a href='#SkIRect_sort'>sort</a>()
 
 Swaps <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if <a href='#SkIRect_fLeft'>fLeft</a> is greater than <a href='#SkIRect_fRight'>fRight</a>; and swaps
 <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if <a href='#SkIRect_fTop'>fTop</a> is greater than <a href='#SkIRect_fBottom'>fBottom</a>. Result may be empty,
-and <a href='#SkIRect_width'>width</a> and <a href='#SkIRect_height'>height</a> will be zero or positive.
+and <a href='#SkIRect_width'>width</a>() and <a href='#SkIRect_height'>height</a>() will be zero or positive.
 
 ### Example
 
@@ -2575,7 +2566,7 @@ sorted: 20, 10, 30, 50
 
 Returns <a href='#IRect'>IRect</a> with <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> swapped if <a href='#SkIRect_fLeft'>fLeft</a> is greater than <a href='#SkIRect_fRight'>fRight</a>; and
 with <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> swapped if <a href='#SkIRect_fTop'>fTop</a> is greater than <a href='#SkIRect_fBottom'>fBottom</a>. Result may be empty;
-and <a href='#SkIRect_width'>width</a> and <a href='#SkIRect_height'>height</a> will be zero or positive.
+and <a href='#SkIRect_width'>width</a>() and <a href='#SkIRect_height'>height</a>() will be zero or positive.
 
 ### Return Value
 
