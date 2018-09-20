@@ -62,7 +62,8 @@ public:
     static sk_sp<SkSpecialSurface> MakeRenderTarget(GrContext*,
                                                     int width, int height,
                                                     GrPixelConfig config,
-                                                    sk_sp<SkColorSpace> colorSpace);
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    const SkSurfaceProps* = nullptr);
 #endif
 
     /**
