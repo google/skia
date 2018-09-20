@@ -1398,6 +1398,7 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
       "modules/skottie",
+      "modules/skottie:gm",
       "modules/sksg",
     ]
     public_deps = [

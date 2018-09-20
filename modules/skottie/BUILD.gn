@@ -84,3 +84,24 @@ source_set("tool") {
     ":skottie",
   ]
 }
+
+source_set("gm") {
+  if (skia_enable_skottie) {
+    testonly = true
+
+    # would be nice to have a gm_config
+    include_dirs = [ "../../gm" ]
+
+    configs += [ "../..:skia_private" ]
+    sources = [
+      "gm/SkottieGM.cpp",
+    ]
+
+    deps = [
+      ":skottie",
+      "../..:gpu_tool_utils",
+      "../..:skia",
+      "../..:tool_utils",
+    ]
+  }
+}
