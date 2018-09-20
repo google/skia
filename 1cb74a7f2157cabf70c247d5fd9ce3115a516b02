@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5405c847_8b64e5f0",
+        "filename": "gm/analytic_gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-20T13:49:16Z",
+      "side": 1,
+      "message": "\u003d SK_ARRAY_COUNT(COLORS);",
+      "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b900090f_18f39fbb",
+        "filename": "gm/analytic_gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-20T13:49:16Z",
+      "side": 1,
+      "message": "Not necessary, but a suggestion: If you translate the canvas to the upper-left of each rectangle before you draw it, then the gradient points become simpler (and static for all cells). Even without that, y can technically be anything (so just zero?).",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 0
+      },
+      "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "224f431d_a1c950a2",
+        "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-20T13:49:16Z",
+      "side": 1,
+      "message": "My gut feeling is that having this many tracked uniforms especially when they\u0027re all four-channel floats) makes for a lot of logic in setData. If we had a way to group the tracking (hash all of the uniform data?) then it might be worth it, but I think I\u0027d just send all of these down every time.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 0
+      },
+      "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9310a85_70d98982",
+        "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-20T13:49:16Z",
+      "side": 1,
+      "message": "AFAIK, raster does use the interval representation (at least in one of its gradient implementations). See Sk4fGradientBase.cpp. And if we\u0027re going to be using the same representation, then I agree we should hoist the conversion.",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 0
+      },
+      "revId": "1cb74a7f2157cabf70c247d5fd9ce3115a516b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
