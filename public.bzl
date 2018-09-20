@@ -399,6 +399,7 @@ INCLUDES = [
     "include/codec",
     "include/config",
     "include/core",
+    "include/docs",
     "include/effects",
     "include/encode",
     "include/gpu",
