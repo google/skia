@@ -118,6 +118,30 @@
       "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c521c7fa_3323104c",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-20T01:44:47Z",
+      "side": 1,
+      "message": "Thanks, added more comments.",
+      "parentUuid": "66f7a8e2_66cb5b30",
+      "range": {
+        "startLine": 133,
+        "startChar": 25,
+        "endLine": 133,
+        "endChar": 43
+      },
+      "revId": "2e80b094dea5cf6ab35bc67985e3493f066ca070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
