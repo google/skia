@@ -1,89 +1,7 @@
 SkRRect Reference
 ===
 
-# <a name='RRect'>RRect</a>
-
-# <a name='SkRRect'>Class SkRRect</a>
-
-## <a name='Constant'>Constant</a>
-
-
-SkRRect related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Corner'>Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>corner radii order</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Type'>Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>specialization of <a href='#RRect'>Round Rect</a> geometry</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kComplex_Type'>kComplex Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height with arbitrary radii</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kEmpty_Type'>kEmpty Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>zero width or height</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLastType'>kLastType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>largest <a href='#SkRRect_Type'>Type</a> value</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLowerLeft_Corner'>kLowerLeft Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>index of bottom-left corner radii</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kLowerRight_Corner'>kLowerRight Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>index of bottom-right corner radii</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height with axis-aligned radii</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kOval_Type'>kOval Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height filled with radii</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kRect_Type'>kRect Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height, and zeroed radii</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kSimple_Type'>kSimple Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>non-zero width and height with equal radii</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>storage space for <a href='#RRect'>Round Rect</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kUpperLeft_Corner'>kUpperLeft Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>index of top-left corner radii</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kUpperRight_Corner'>kUpperRight Corner</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>index of top-right corner radii</td>
-  </tr>
-</table>
-
-## <a name='Related_Function'>Related_Function</a>
-
-
-SkRRect global, <code>struct</code>, and <code>class</code> related member functions share a topic.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Type'>Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>specialization of <a href='#RRect'>Round Rect</a> geometry</td>
-  </tr>
-</table>
-
-<a href='#SkRRect'>SkRRect</a> describes a rounded rectangle with a bounds and a pair of radii for each corner.
+<a name='SkRRect'></a><a href='#SkRRect'>SkRRect</a> describes a rounded rectangle with a bounds and a pair of radii for each corner.
 The bounds and radii can be set so that <a href='#SkRRect'>SkRRect</a> describes: a rectangle with sharp corners;
 a <a href='undocumented#Circle'>Circle</a>; an <a href='undocumented#Oval'>Oval</a>; or a rectangle with one or more rounded corners.
 
@@ -101,35 +19,31 @@ If corner curves overlap, radii are proportionally reduced to fit within bounds.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkRRect'>SkRRect</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading functions</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_Type'>Type</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>specialization of <a href='#RRect'>Round Rect</a> geometry</td>
   </tr>
 </table>
 
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
-SkRRect can be constructed or initialized by these functions, including C++ class constructors.
+SkRRect can be constructed or initialized by these functions, including <code>class</code> constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constructor</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeEmpty'>MakeEmpty</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates with zeroed bounds and corner radii</td>
@@ -160,13 +74,13 @@ SkRRect can be constructed or initialized by these functions, including C++ clas
   </tr>
 </table>
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
-SkRRect operators inline class member functions with arithmetic equivalents.
+SkRRect defines member functions with arithmetic equivalents.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Operator</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if members are unequal</td>
@@ -181,13 +95,13 @@ SkRRect operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
-SkRRect member functions read and modify the structure properties.
+SkRRect uses member functions to read and modify structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_MakeEmpty'>MakeEmpty</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>creates with zeroed bounds and corner radii</td>

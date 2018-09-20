@@ -1,7 +1,5 @@
 SkColor Reference
 ===
-
-# <a name='Color'>Color</a>
 Types, consts, functions, and macros for colors.
 
 ## Overview
@@ -10,31 +8,43 @@ Types, consts, functions, and macros for colors.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Define'>Defines</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Defines'>Defines</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>preprocessor definitions of functions, values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedefs'>Typedef Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>types defined in terms of other types</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Functions'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>routines to read, write, and manipulate <a href='#SkColor'>SkColor</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedef'>Typedef Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>types defined by other types</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha'>Alpha</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>transparency of <a href='#Color'>Color</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_Constants'>Alpha Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constants for <a href='#Alpha'>Alpha</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#HSV'>HSV</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>hue saturation value color representation</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#PMColor'>PMColor</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>color components premultiplied by <a href='#Alpha'>Alpha</a></td>
   </tr>
 </table>
 
 
-## <a name='Define'>Define</a>
+## <a name='Defines'>Defines</a>
 
 
 SkColor uses preprocessor definitions to inline code and constants, and to abstract platform-specific functionality.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Define</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColorGetA'>SkColorGetA</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Alpha'>Alpha</a> component</td>
@@ -61,13 +71,13 @@ SkColor uses preprocessor definitions to inline code and constants, and to abstr
 the represent transparency and color values. The use of <a href='#Color'>Color</a> constants is not
 required.
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
-SkColor related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
+SkColor defines related constants are using <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constant</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_AlphaOPAQUE'>SK AlphaOPAQUE</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>fully opaque <a href='#SkAlpha'>SkAlpha</a></td>
@@ -126,12 +136,12 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-## <a name='Function'>Function</a>
+## <a name='Functions'>Functions</a>
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColorSetA'>SkColorSetA</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Color'>Color</a> with transparency</td>
@@ -149,8 +159,8 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#HSV'>HSV</a> with <a href='#Alpha'>Alpha</a> to RGB</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkHSVToColor'>SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkHSVToColor'>SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPreMultiplyARGB'>SkPreMultiplyARGB</a></td>
@@ -166,13 +176,13 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-## <a name='Typedef'>Typedef</a>
+## <a name='Typedefs'>Typedefs</a>
 
 
-SkColor  <code>typedef</code> define a data type.
+SkColor uses <code>typedef</code> to define a data type.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Typedef</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkAlpha'>SkAlpha</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines <a href='#Alpha'>Alpha</a> as eight bits</td>
