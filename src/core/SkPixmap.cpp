@@ -80,6 +80,61 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     return true;
 }
 
+static const void* fast_getaddr(const SkPixmap& pm, int x, int y) {
+    x <<= SkColorTypeShiftPerPixel(pm.colorType());
+    return static_cast<const char*>(pm.addr()) + y * pm.rowBytes() + x;
+}
+
+float SkPixmap::getAlphaf(int x, int y) const {
+    SkASSERT(this->addr());
+    SkASSERT((unsigned)x < (unsigned)this->width());
+    SkASSERT((unsigned)y < (unsigned)this->height());
+
+    // Catch the easy ones first
+    switch (this->colorType()) {
+        case kUnknown_SkColorType:
+            return 0;
+        case kRGB_565_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kRGB_101010x_SkColorType:
+        case kGray_8_SkColorType:
+            return 1;
+        default:
+            break;
+    }
+
+    const float one_over_255 = 1.0f/255;
+    const void* srcPtr = fast_getaddr(*this, x, y);
+
+    float value = 0;
+    switch (this->colorType()) {
+        case kRGBA_F16_SkColorType:
+            value = SkHalfToFloat(static_cast<const uint16_t*>(srcPtr)[3]);
+            break;
+        case kRGBA_F32_SkColorType:
+            value = static_cast<const float*>(srcPtr)[3];
+            break;
+        case kAlpha_8_SkColorType:
+            value = static_cast<const uint8_t*>(srcPtr)[0] * one_over_255;
+            break;
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            value = static_cast<const uint8_t*>(srcPtr)[3] * one_over_255;
+            break;
+        case kARGB_4444_SkColorType: {
+            unsigned u16 = static_cast<const uint16_t*>(srcPtr)[0];
+            value = SkGetPackedA4444(u16) * (1.0f/15);
+        } break;
+        case kRGBA_1010102_SkColorType: {
+            unsigned u32 = static_cast<const uint32_t*>(srcPtr)[0];
+            value = (u32 & 3) * (1.0f/3);
+        } break;
+        default:
+            SkASSERT(false);
+    }
+    return value;
+}
+
 bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                           int x, int y) const {
     if (!SkImageInfoValidConversion(dstInfo, fInfo)) {

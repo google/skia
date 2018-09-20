@@ -70,5 +70,8 @@ public:
     }
 };
 
+void SkConvert_to_alpha8(uint8_t* dst, size_t dstRB,
+                         const SkImageInfo& srcInfo, const void* src, size_t srcRB);
+
 #endif
 
