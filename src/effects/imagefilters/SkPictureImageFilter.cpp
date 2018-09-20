@@ -99,10 +99,16 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
 
     SkASSERT(!bounds.isEmpty());
 
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
+    // Given the standard usage of the picture image filter (i.e., to render content at a fixed
+    // resolution that, most likely, differs from the screen's) disable LCD text.
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size(),
+                                                     kPremul_SkAlphaType, &props));
     if (!surf) {
         return nullptr;
     }
+
+    SkASSERT(kUnknown_SkPixelGeometry == surf->props().pixelGeometry());
 
     SkCanvas* canvas = surf->getCanvas();
     SkASSERT(canvas);
