@@ -149,74 +149,78 @@ SkPixmap member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets pointer to portion of original</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_getAlphaf'>getAlphaf</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkColor_Reference#Alpha'>Alpha</a> normalized from zero to one</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_getColor'>getColor</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns one pixel as <a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='SkColor_Reference#Color'>Color</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_height'>height</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel row count</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_info'>info</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkImageInfo_Reference#Image_Info'>Image Info</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_isOpaque'>isOpaque</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> describes opaque pixels</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_readPixels'>readPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies and converts pixels</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_reset'>reset</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>reuses existing <a href='#Pixmap'>Pixmap</a> with replacement values</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_rowBytes'>rowBytes</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns interval between rows in bytes</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_rowBytesAsPixels'>rowBytesAsPixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns interval between rows in pixels</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_scalePixels'>scalePixels</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>scales and converts pixels</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_setColorSpace'>setColorSpace</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> <a href='undocumented#Color_Space'>Color Space</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_shiftPerPixel'>shiftPerPixel</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bit shift from pixels to bytes</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_width'>width</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pixel column count</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_writable_addr'>writable addr</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable pixel address as void pointer</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_writable_addr16'>writable addr16</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable pixel address as 16-bit pointer</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_writable_addr32'>writable addr32</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable pixel address as 32-bit pointer</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_writable_addr64'>writable addr64</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable pixel address as 64-bit pointer</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_writable_addr8'>writable addr8</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable pixel address as 8-bit pointer</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPixmap_writable_addrF16'>writable addrF16</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable pixel component address as 16-bit pointer</td>
   </tr>
@@ -1035,7 +1039,38 @@ Unpremultiplied:
 
 ### See Also
 
-<a href='#SkPixmap_addr'>addr</a><sup><a href='#SkPixmap_addr_2'>[2]</a></sup> <a href='#SkPixmap_readPixels'>readPixels</a><sup><a href='#SkPixmap_readPixels_2'>[2]</a></sup><sup><a href='#SkPixmap_readPixels_3'>[3]</a></sup><sup><a href='#SkPixmap_readPixels_4'>[4]</a></sup>
+<a href='#SkPixmap_getAlphaf'>getAlphaf</a> <a href='#SkPixmap_addr'>addr</a><sup><a href='#SkPixmap_addr_2'>[2]</a></sup> <a href='#SkPixmap_readPixels'>readPixels</a><sup><a href='#SkPixmap_readPixels_2'>[2]</a></sup><sup><a href='#SkPixmap_readPixels_3'>[3]</a></sup><sup><a href='#SkPixmap_readPixels_4'>[4]</a></sup>
+
+---
+
+<a name='SkPixmap_getAlphaf'></a>
+## getAlphaf
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+float <a href='#SkPixmap_getAlphaf'>getAlphaf</a>(int x, int y) const
+</pre>
+
+Looks up the pixel at (<a href='#SkPixmap_getAlphaf_x'>x</a>,<a href='#SkPixmap_getAlphaf_y'>y</a>) and return its alpha component, normalized to [0..1].
+This is roughly equivalent to <code>SkGetColorA(getColor()\)</code>, but can be more efficent
+(and more precise if the pixels store more than 8 bits per component).
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkPixmap_getAlphaf_x'><code><strong>x</strong></code></a></td>
+    <td>column index, zero or greater, and less than <a href='#SkPixmap_width'>width</a></td>
+  </tr>
+  <tr>    <td><a name='SkPixmap_getAlphaf_y'><code><strong>y</strong></code></a></td>
+    <td>row index, zero or greater, and less than <a href='#SkPixmap_height'>height</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+alpha converted to normalized float
+
+### See Also
+
+<a href='#SkPixmap_getColor'>getColor</a>
 
 ---
 
