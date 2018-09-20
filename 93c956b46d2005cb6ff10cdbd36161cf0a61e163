@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1c54423_2c55eb47",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 2333,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-20T18:20:07Z",
+      "side": 1,
+      "message": "static void set_node_id(SkCanvas* dst, int nodeID) {\n    sk_sp\u003cSkData\u003e payload \u003d SkData::MakeWithCopy(\u0026nodeID, sizeof(nodeID));\n    const char* key \u003d SkPDF::GetNodeIdKey();\n    dst-\u003edrawAnnotation({0, 0, 0, 0}, key, payload.get());\n}",
+      "revId": "93c956b46d2005cb6ff10cdbd36161cf0a61e163",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d40c4a34_b2828e8d",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-20T18:20:07Z",
+      "side": 1,
+      "message": "this:\n\n    if (0 \u003d\u003d strcmp(key, SkPDF::GetNodeIdKey()) {\n        int nodeID;\n        if (value.size() !\u003d sizeof(nodeID)) { return; }\n        memcpy(\u0026nodeID, value.data(), sizeof(nodeID));\n        fNodeId \u003d nodeId;\n        return;\n    }",
+      "revId": "93c956b46d2005cb6ff10cdbd36161cf0a61e163",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
