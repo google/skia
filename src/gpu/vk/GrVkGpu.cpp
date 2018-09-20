@@ -1030,7 +1030,7 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 
     int samples = rt->numStencilSamples();
 
-    const GrVkCaps::StencilFormat& sFmt = this->vkCaps().preferedStencilFormat();
+    const GrVkCaps::StencilFormat& sFmt = this->vkCaps().preferredStencilFormat();
 
     GrVkStencilAttachment* stencil(GrVkStencilAttachment::Create(this,
                                                                  width,

@@ -99,10 +99,10 @@ public:
     }
 
     /**
-     * Returns both a supported and most prefered stencil format to use in draws.
+     * Returns both a supported and most preferred stencil format to use in draws.
      */
-    const StencilFormat& preferedStencilFormat() const {
-        return fPreferedStencilFormat;
+    const StencilFormat& preferredStencilFormat() const {
+        return fPreferredStencilFormat;
     }
 
     // Returns whether the device supports the ability to extend VkPhysicalDeviceProperties struct.
@@ -213,7 +213,7 @@ private:
     };
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
 
-    StencilFormat fPreferedStencilFormat;
+    StencilFormat fPreferredStencilFormat;
 
     bool fMustDoCopiesFromOrigin = false;
     bool fMustSubmitCommandsBeforeCopyOp = false;
