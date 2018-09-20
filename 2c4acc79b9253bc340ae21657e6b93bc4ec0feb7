@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e6d06671_02e19d04",
+        "filename": "site/user/modules/canvaskit.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-09-20T20:34:57Z",
+      "side": 1,
+      "message": "eliminated phrase for clarity this iteration",
+      "parentUuid": "7de9ddd4_842616ac",
+      "range": {
+        "startLine": 8,
+        "startChar": 36,
+        "endLine": 8,
+        "endChar": 48
+      },
+      "revId": "2c4acc79b9253bc340ae21657e6b93bc4ec0feb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bcad1bb8_8cc8bfb7",
         "filename": "site/user/modules/canvaskit.md",
         "patchSetId": 6
@@ -108,6 +132,30 @@
       "revId": "2c4acc79b9253bc340ae21657e6b93bc4ec0feb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76410ae8_fb40158f",
+        "filename": "site/user/modules/pathkit.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-09-20T20:34:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3223379_d0b1a217",
+      "range": {
+        "startLine": 221,
+        "startChar": 19,
+        "endLine": 221,
+        "endChar": 61
+      },
+      "revId": "2c4acc79b9253bc340ae21657e6b93bc4ec0feb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
