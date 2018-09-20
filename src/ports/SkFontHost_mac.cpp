@@ -19,6 +19,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#include "mac/SkUniqueCFRef.h"
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkAutoMalloc.h"
 #include "SkCGUtils.h"
@@ -45,6 +46,7 @@
 #include "SkTo.h"
 #include "SkTypefaceCache.h"
 #include "SkTypeface_mac.h"
+#include "SkUTF.h"
 #include "SkUtils.h"
 
 #include <dlfcn.h>
@@ -70,16 +72,6 @@ CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
 }
 
 class SkScalerContext_Mac;
-
-struct CFSafeRelease {
-    void operator()(CFTypeRef cfTypeRef) {
-      if (cfTypeRef) {
-          CFRelease(cfTypeRef);
-      }
-    }
-};
-template <typename CFRef> using UniqueCFRef =
-        std::unique_ptr<skstd::remove_pointer_t<CFRef>, CFSafeRelease>;
 
 static UniqueCFRef<CFStringRef> make_CFString(const char str[]) {
     return UniqueCFRef<CFStringRef>(CFStringCreateWithCString(nullptr, str, kCFStringEncodingUTF8));
