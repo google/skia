@@ -16,6 +16,24 @@
       "revId": "b89e79573df295a57aa28706ea766ae1ae0ece3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f076db63_fc699035",
+        "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-21T19:46:34Z",
+      "side": 1,
+      "message": "SkSL only has c types for SkRect and GrColor4f. There is the SkVector4 type should probably be included in the c type mapping. Made a new bug for it: https://bugs.chromium.org/p/skia/issues/detail?id\u003d8405",
+      "parentUuid": "04b2e2eb_ff0caecf",
+      "revId": "b89e79573df295a57aa28706ea766ae1ae0ece3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
