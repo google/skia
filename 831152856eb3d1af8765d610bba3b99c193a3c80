@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "319849b5_ba6f5157",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1595,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-21T17:53:34Z",
+      "side": 1,
+      "message": "I would jam this in the for loop",
+      "range": {
+        "startLine": 1595,
+        "startChar": 8,
+        "endLine": 1595,
+        "endChar": 30
+      },
+      "revId": "831152856eb3d1af8765d610bba3b99c193a3c80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
