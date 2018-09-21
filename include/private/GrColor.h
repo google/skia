@@ -192,7 +192,8 @@ struct GrColor4f {
         return result;
     }
 
-    static GrColor4f FromSkColor4f(const SkColor4f& color) {
+    template <SkAlphaType kAT>
+    static GrColor4f FromRGBA4f(const SkRGBA4f<kAT>& color) {
         return GrColor4f(color.fR, color.fG, color.fB, color.fA);
     }
 
@@ -226,8 +227,9 @@ struct GrColor4f {
                 static_cast<unsigned>(SkTPin(fRGBA[3], 0.0f,1.0f) * 255 + 0.5f));
     }
 
-    SkColor4f toSkColor4f() const {
-        return SkColor4f { fRGBA[0], fRGBA[1], fRGBA[2], fRGBA[3] };
+    template <SkAlphaType kAT>
+    SkRGBA4f<kAT> asRGBA4f() const {
+        return SkRGBA4f<kAT> { fRGBA[0], fRGBA[1], fRGBA[2], fRGBA[3] };
     }
 
     GrColor4f opaque() const {

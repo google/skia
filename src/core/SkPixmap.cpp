@@ -314,7 +314,7 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     }
 
     if (pm.colorType() == kRGBA_F32_SkColorType) {
-        const SkColor4f rgba = color.premul();
+        const SkPMColor4f rgba = color.premul();
         for (int y = 0; y < pm.height(); ++y) {
             auto row = (float*)pm.writable_addr(0, y);
             for (int x = 0; x < pm.width(); ++x) {
