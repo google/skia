@@ -22,6 +22,8 @@ class GrTexture;
 #include <new>
 
 class GrSamplerState;
+class SkCachedData;
+struct SkYUVSizeInfo;
 
 enum {
     kNeedNewImageUniqueID = 0
@@ -72,6 +74,7 @@ public:
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
+    virtual sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*, const void* planes[3]);
     virtual sk_sp<SkData> onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*) const;
