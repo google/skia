@@ -2,19 +2,24 @@
 
 #Class SkAutoCanvasRestore
 
+#Code
+class SkAutoCanvasRestore {
+public:
+    SkAutoCanvasRestore(SkCanvas* canvas, bool doSave);
+    ~SkAutoCanvasRestore();
+    void restore();
+};
+##
+
 Stack helper class calls SkCanvas::restoreToCount when SkAutoCanvasRestore
 goes out of scope. Use this to guarantee that the canvas is restored to a known
 state.
 
-#Subtopic Overview
+#Subtopic Constructors
 #Populate
 ##
 
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
