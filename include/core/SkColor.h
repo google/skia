@@ -307,11 +307,28 @@ struct SK_API SkColor4f {
         return Pin(fR, fG, fB, fA);
     }
 
+    /** Returns SkColor4f with all components premultiplied by alpha.
+
+        @return  premultiplied color
+    */
+    SkColor4f premul() const {
+        return { fR * fA, fG * fA, fB * fA, fA };
+    }
+
+    SkColor4f unpremul() const {
+        if (fA == 0.0f) {
+            return { 0, 0, 0, 0 };
+        } else {
+            float invAlpha = 1 / fA;
+            return { fR * invAlpha, fG * invAlpha, fB * invAlpha, fA };
+        }
+    }
+
     /** Internal use only.
 
         @return  premultiplied color
     */
-    SkPM4f premul() const;
+    SkPM4f toPM4f() const;
 };
 
 #endif

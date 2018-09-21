@@ -55,8 +55,8 @@ static SkColor4f xferColor(const SkColor4f& src, const SkColor4f& dst, SkBlendMo
         case SkBlendMode::kDst:
             return dst;
         default: {
-            SkPM4f pmS = src.premul();
-            SkPM4f pmD = dst.premul();
+            SkColor4f pmS = src.premul();
+            SkColor4f pmD = dst.premul();
             return SkBlendMode_Apply(mode, pmS, pmD).unpremul();
         }
     }

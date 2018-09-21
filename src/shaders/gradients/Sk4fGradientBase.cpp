@@ -13,7 +13,7 @@ namespace {
 
 Sk4f pack_color(const SkColor4f& c4f, bool premul, const Sk4f& component_scale) {
     Sk4f pm4f = premul
-        ? c4f.premul().to4f()
+        ? c4f.toPM4f().to4f()
         : Sk4f{c4f.fR, c4f.fG, c4f.fB, c4f.fA};
 
     if (premul) {

@@ -7,6 +7,7 @@
 
 #include "SkHighContrastFilter.h"
 #include "SkArenaAlloc.h"
+#include "SkColorData.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"

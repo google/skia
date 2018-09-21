@@ -133,22 +133,6 @@ uint64_t SkPM4f::toF16() const {
     return value;
 }
 
-SkPM4f SkPM4f::FromF16(const uint16_t half[4]) {
-    return {{
-        SkHalfToFloat(half[0]),
-        SkHalfToFloat(half[1]),
-        SkHalfToFloat(half[2]),
-        SkHalfToFloat(half[3])
-    }};
-}
-
-#ifdef SK_DEBUG
-void SkPM4f::assertIsUnit() const {
-    auto c4 = Sk4f::Load(fVec);
-    SkASSERT((c4 >= Sk4f(0)).allTrue() && (c4 <= Sk4f(1)).allTrue());
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkColor4f SkColor4f::FromColor(SkColor bgra) {
@@ -167,7 +151,7 @@ SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
     return c4;
 }
 
-SkPM4f SkColor4f::premul() const {
+SkPM4f SkColor4f::toPM4f() const {
     auto rgba = Sk4f::Load(this->vec());
     return SkPM4f::From4f(rgba * Sk4f(rgba[3], rgba[3], rgba[3], 1));
 }

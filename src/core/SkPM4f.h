@@ -58,42 +58,20 @@ struct SK_API SkPM4f {
     float b() const { return fVec[B]; }
     float a() const { return fVec[A]; }
 
-    static SkPM4f FromPremulRGBA(float r, float g, float b, float a) {
-        SkPM4f p;
-        p.fVec[R] = r;
-        p.fVec[G] = g;
-        p.fVec[B] = b;
-        p.fVec[A] = a;
-        return p;
-    }
-
     static SkPM4f From4f(const Sk4f& x) {
         SkPM4f pm;
         x.store(pm.fVec);
         return pm;
     }
-    static SkPM4f FromF16(const uint16_t[4]);
     static SkPM4f FromPMColor(SkPMColor);
 
     Sk4f to4f() const { return Sk4f::Load(fVec); }
-    Sk4f to4f_rgba() const { return this->to4f(); }
-    Sk4f to4f_bgra() const { return swizzle_rb(this->to4f()); }
     Sk4f to4f_pmorder() const { return swizzle_rb_if_bgra(this->to4f()); }
-
-    SkPMColor toPMColor() const {
-        return Sk4f_toL32(swizzle_rb_if_bgra(this->to4f()));
-    }
 
     void toF16(uint16_t[4]) const;
     uint64_t toF16() const; // 4 float16 values packed into uint64_t
 
     SkColor4f unpremul() const;
-
-#ifdef SK_DEBUG
-    void assertIsUnit() const;
-#else
-    void assertIsUnit() const {}
-#endif
 };
 
 #endif

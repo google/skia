@@ -113,7 +113,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
 #else
     SkColorSpace* dstCS = dst.colorSpace();
 #endif
-    SkPM4f paintColor = premul_in_dst_colorspace(paint.getColor4f(), sk_srgb_singleton(), dstCS);
+    SkColor4f paintColor = premul_in_dst_colorspace(paint.getColor4f(), sk_srgb_singleton(), dstCS);
 
     auto shader = as_SB(paint.getShader());
 
@@ -121,14 +121,14 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     if (!shader) {
         // Having no shader makes things nice and easy... just use the paint color.
         shaderPipeline.append_constant_color(alloc, paintColor);
-        bool is_opaque    = paintColor.a() == 1.0f,
+        bool is_opaque    = paintColor.fA == 1.0f,
              is_constant  = true;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, nullptr,
                                                is_opaque, is_constant);
     }
 
-    bool is_opaque    = shader->isOpaque() && paintColor.a() == 1.0f;
+    bool is_opaque    = shader->isOpaque() && paintColor.fA == 1.0f;
     bool is_constant  = shader->isConstant();
 
     // Check whether the shader prefers to run in burst mode.
@@ -140,9 +140,9 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     }
 
     if (shader->appendStages({&shaderPipeline, alloc, dstCS, paint, nullptr, ctm})) {
-        if (paintColor.a() != 1.0f) {
+        if (paintColor.fA != 1.0f) {
             shaderPipeline.append(SkRasterPipeline::scale_1_float,
-                                  alloc->make<float>(paintColor.a()));
+                                  alloc->make<float>(paintColor.fA));
         }
         return SkRasterPipelineBlitter::Create(dst, paint, alloc, shaderPipeline, nullptr,
                                                is_opaque, is_constant);
@@ -216,14 +216,14 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // A pipeline that's still constant here can collapse back into a constant color.
     if (is_constant) {
-        SkPM4f constantColor;
+        SkColor4f constantColor;
         SkJumper_MemoryCtx constantColorPtr = { &constantColor, 0 };
         colorPipeline->append(SkRasterPipeline::store_f32, &constantColorPtr);
         colorPipeline->run(0,0,1,1);
         colorPipeline->reset();
         colorPipeline->append_constant_color(alloc, constantColor);
 
-        is_opaque = constantColor.a() == 1.0f;
+        is_opaque = constantColor.fA == 1.0f;
     }
 
     // We can strength-reduce SrcOver into Src when opaque.

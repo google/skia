@@ -9,7 +9,6 @@
 #include "SkColorFilter.h"
 #include "SkColorSpaceXformer.h"
 #include "SkNx.h"
-#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkRefCnt.h"
@@ -65,7 +64,7 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
 
 #include "SkRasterPipeline.h"
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSpace) const {
-    SkPM4f dst, src = c.premul();
+    SkColor4f dst, src = c.premul();
 
     SkSTArenaAlloc<128> alloc;
     SkRasterPipeline    pipeline(&alloc);
