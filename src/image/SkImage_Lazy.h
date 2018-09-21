@@ -55,8 +55,8 @@ public:
                                             const GrSamplerState&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
-#endif
     sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*, const void* planes[3]) override;
+#endif
     sk_sp<SkData> onRefEncoded() const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
