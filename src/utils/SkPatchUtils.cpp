@@ -215,45 +215,9 @@ void SkPatchUtils::GetRightCubic(const SkPoint cubics[12], SkPoint points[4]) {
     points[3] = cubics[kRightP3_CubicCtrlPts];
 }
 
-#include "SkPM4fPriv.h"
 #include "SkColorSpaceXform.h"
 
-struct SkRGBAf {
-    float fVec[4];
-
-    static SkRGBAf From4f(const Sk4f& x) {
-        SkRGBAf c;
-        x.store(c.fVec);
-        return c;
-    }
-
-    static SkRGBAf FromBGRA32(SkColor c) {
-        return From4f(swizzle_rb(SkNx_cast<float>(Sk4b::Load(&c)) * (1/255.0f)));
-    }
-
-    Sk4f to4f() const {
-        return Sk4f::Load(fVec);
-    }
-
-    SkColor toBGRA32() const {
-        SkColor color;
-        SkNx_cast<uint8_t>(swizzle_rb(this->to4f()) * Sk4f(255) + Sk4f(0.5f)).store(&color);
-        return color;
-    }
-
-    SkRGBAf premul() const {
-        float a = fVec[3];
-        return From4f(this->to4f() * Sk4f(a, a, a, 1));
-    }
-
-    SkRGBAf unpremul() const {
-        float a = fVec[3];
-        float inv = a ? 1/a : 0;
-        return From4f(this->to4f() * Sk4f(inv, inv, inv, 1));
-    }
-};
-
-static void skcolor_to_float(SkRGBAf dst[], const SkColor src[], int count, SkColorSpace* dstCS,
+static void skcolor_to_float(SkColor4f dst[], const SkColor src[], int count, SkColorSpace* dstCS,
                              bool doPremul) {
     // Source is always sRGB SkColor.
     auto srcCS = sk_srgb_singleton();
@@ -264,7 +228,7 @@ static void skcolor_to_float(SkRGBAf dst[], const SkColor src[], int count, SkCo
                                             count, op));
 }
 
-static void float_to_skcolor(SkColor dst[], const SkRGBAf src[], int count, SkColorSpace* srcCS) {
+static void float_to_skcolor(SkColor dst[], const SkColor4f src[], int count, SkColorSpace* srcCS) {
     // Destination is always sRGB SkColor.
     auto dstCS = sk_srgb_singleton();
     SkAssertResult(SkColorSpaceXform::Apply(dstCS, SkColorSpaceXform::kBGRA_8888_ColorFormat, dst,
@@ -272,7 +236,7 @@ static void float_to_skcolor(SkColor dst[], const SkRGBAf src[], int count, SkCo
                                             count, SkColorSpaceXform::kPreserve_AlphaOp));
 }
 
-static void unpremul(SkRGBAf array[], int count) {
+static void unpremul(SkColor4f array[], int count) {
     for (int i = 0; i < count; ++i) {
         array[i] = array[i].unpremul();
     }
@@ -322,8 +286,8 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
     }
 
     SkSTArenaAlloc<2048> alloc;
-    SkRGBAf* cornerColors = srcColors ? alloc.makeArray<SkRGBAf>(4) : nullptr;
-    SkRGBAf* tmpColors = srcColors ? alloc.makeArray<SkRGBAf>(vertexCount) : nullptr;
+    SkColor4f* cornerColors = srcColors ? alloc.makeArray<SkColor4f>(4) : nullptr;
+    SkColor4f* tmpColors = srcColors ? alloc.makeArray<SkColor4f>(vertexCount) : nullptr;
 
     SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vertexCount, indexCount, flags);
     SkPoint* pos = builder.positions();
@@ -391,12 +355,13 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
             pos[dataIndex] = s0 + s1 - s2;
 
             if (cornerColors) {
-                bilerp(u, v, cornerColors[kTopLeft_Corner].to4f(),
-                             cornerColors[kTopRight_Corner].to4f(),
-                             cornerColors[kBottomLeft_Corner].to4f(),
-                             cornerColors[kBottomRight_Corner].to4f()).store(tmpColors[dataIndex].fVec);
+                bilerp(u, v, Sk4f::Load(cornerColors[kTopLeft_Corner].vec()),
+                             Sk4f::Load(cornerColors[kTopRight_Corner].vec()),
+                             Sk4f::Load(cornerColors[kBottomLeft_Corner].vec()),
+                             Sk4f::Load(cornerColors[kBottomRight_Corner].vec()))
+                    .store(tmpColors[dataIndex].vec());
                 if (is_opaque) {
-                    tmpColors[dataIndex].fVec[3] = 1;
+                    tmpColors[dataIndex].fA = 1;
                 }
             }
 
