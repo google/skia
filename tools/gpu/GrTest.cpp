@@ -6,6 +6,7 @@
  */
 
 #include "GrBackendSurface.h"
+#include "GrClip.h"
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"

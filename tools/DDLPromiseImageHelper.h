@@ -12,6 +12,8 @@
 #include "SkTArray.h"
 
 #include "GrBackendSurface.h"
+#include "SkCachedData.h"
+#include "SkYUVSizeInfo.h"
 
 class GrContext;
 class SkDeferredDisplayListRecorder;
@@ -35,7 +37,7 @@ class SkPicture;
 //    This class is then reset - dropping all of its refs on the PromiseImageCallbackContexts
 //
 //    Each done callback unrefs its PromiseImageCallbackContext so, once all the promise images
-//       are done the PromiseImageCallbackContext is freed and its GrBackendTexture removed
+//       are done, the PromiseImageCallbackContext is freed and its GrBackendTexture removed
 //       from VRAM
 //
 // Note: if DDLs are going to be replayed multiple times, the reset call can be delayed until
@@ -43,6 +45,7 @@ class SkPicture;
 class DDLPromiseImageHelper {
 public:
     DDLPromiseImageHelper() { }
+    ~DDLPromiseImageHelper();
 
     // Convert the SkPicture into SkData replacing all the SkImages with an index.
     sk_sp<SkData> deflateSKP(const SkPicture* inputPicture);
@@ -58,10 +61,10 @@ public:
     void reset() { fImageInfo.reset(); }
 
 private:
-    // This class acts as a proxy for the single GrBackendTexture representing an image.
+    // This class acts as a proxy for a GrBackendTexture that is part of an image.
     // Whenever a promise image is created for the image, the promise image receives a ref to
-    // this object. Once all the promise images receive their done callbacks this object
-    // is deleted - removing the GrBackendTexture from VRAM.
+    // potentially several of these objects. Once all the promise images receive their done
+    // callbacks this object is deleted - removing the GrBackendTexture from VRAM.
     // Note that while the DDLs are being created in the threads, the PromiseImageHelper holds
     // a ref on all the PromiseImageCallbackContexts. However, once all the threads are done
     // it drops all of its refs (via "reset").
@@ -72,6 +75,7 @@ private:
         ~PromiseImageCallbackContext();
 
         void setBackendTexture(const GrBackendTexture& backendTexture) {
+            SkASSERT(!fBackendTexture.isValid());
             fBackendTexture = backendTexture;
         }
 
@@ -91,10 +95,85 @@ private:
     // is all dropped via "reset".
     class PromiseImageInfo {
     public:
-        int                                fIndex;                // index in the 'fImageInfo' array
-        uint32_t                           fOriginalUniqueID;     // original ID for deduping
-        SkBitmap                           fBitmap;               // CPU-side cache of the contents
-        sk_sp<PromiseImageCallbackContext> fCallbackContext;
+        PromiseImageInfo(int index, uint32_t originalUniqueID, const SkImageInfo& ii)
+                : fIndex(index)
+                , fOriginalUniqueID(originalUniqueID)
+                , fImageInfo(ii) {
+        }
+        ~PromiseImageInfo() {}
+
+        int index() const { return fIndex; }
+        uint32_t originalUniqueID() const { return fOriginalUniqueID; }
+        bool isYUV() const { return SkToBool(fYUVData.get()); }
+
+        int overallWidth() const { return fImageInfo.width(); }
+        int overallHeight() const { return fImageInfo.height(); }
+        SkColorType overallColorType() const { return fImageInfo.colorType(); }
+        SkAlphaType overallAlphaType() const { return fImageInfo.alphaType(); }
+        sk_sp<SkColorSpace> refOverallColorSpace() const { return fImageInfo.refColorSpace(); }
+
+        SkYUVColorSpace yuvColorSpace() const {
+            SkASSERT(this->isYUV());
+            return fYUVColorSpace;
+        }
+        const SkPixmap& yuvPixmap(int index) const {
+            SkASSERT(this->isYUV());
+            SkASSERT(index >= 0 && index < 3);
+            return fYUVPlanes[index];
+        }
+        const SkBitmap& normalBitmap() const {
+            SkASSERT(!this->isYUV());
+            return fBitmap;
+        }
+
+        void setCallbackContext(int index, sk_sp<PromiseImageCallbackContext> callbackContext) {
+            SkASSERT(index >= 0 && index < (this->isYUV() ? 3 : 1));
+            fCallbackContexts[index] = callbackContext;
+        }
+        PromiseImageCallbackContext* callbackContext(int index) {
+            SkASSERT(index >= 0 && index < (this->isYUV() ? 3 : 1));
+            return fCallbackContexts[index].get();
+        }
+        sk_sp<PromiseImageCallbackContext> refCallbackContext(int index) const {
+            SkASSERT(index >= 0 && index < (this->isYUV() ? 3 : 1));
+            return fCallbackContexts[index];
+        }
+
+        const GrCaps* caps() const { return fCallbackContexts[0]->caps(); }
+
+        const GrBackendTexture& backendTexture(int index) const {
+            SkASSERT(index >= 0 && index < (this->isYUV() ? 3 : 1));
+            return fCallbackContexts[index]->backendTexture();
+        }
+
+        void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
+
+        void setYUVData(sk_sp<SkCachedData> yuvData, SkYUVColorSpace cs) {
+            fYUVData = yuvData;
+            fYUVColorSpace = cs;
+        }
+        void addYUVPlane(int index, const SkImageInfo& ii, const void* plane, size_t widthBytes) {
+            SkASSERT(this->isYUV());
+            SkASSERT(index >= 0 && index < 3);
+            fYUVPlanes[index].reset(ii, plane, widthBytes);
+        }
+
+    private:
+        const int                          fIndex;                // index in the 'fImageInfo' array
+        const uint32_t                     fOriginalUniqueID;     // original ID for deduping
+
+        const SkImageInfo                  fImageInfo;            // info for the overarching image
+
+        // CPU-side cache of a normal SkImage's contents
+        SkBitmap                           fBitmap;
+
+        // CPU-side cache of a YUV SkImage's contents
+        sk_sp<SkCachedData>                fYUVData;       // when !null, this is a YUV image
+        SkYUVColorSpace                    fYUVColorSpace = kJPEG_SkYUVColorSpace;
+        SkPixmap                           fYUVPlanes[3];
+
+        // Up to 3 for a YUV image. Only one for a normal image.
+        sk_sp<PromiseImageCallbackContext> fCallbackContexts[3];
     };
 
     // This stack-based context allows each thread to re-inflate the image indices into
