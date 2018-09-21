@@ -67,26 +67,6 @@ void RecordingBench::onDraw(int loops, SkCanvas*) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkPipe.h"
-#include "SkStream.h"
-
-PipingBench::PipingBench(const char* name, const SkPicture* pic) : INHERITED(name, pic) {
-    fName.prepend("pipe_");
-}
-
-void PipingBench::onDraw(int loops, SkCanvas*) {
-    SkDynamicMemoryWStream stream;
-    SkPipeSerializer serializer;
-
-    while (loops --> 0) {
-        fSrc->playback(serializer.beginWrite(fSrc->cullRect(), &stream));
-        serializer.endWrite();
-        stream.reset();
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "SkSerialProcs.h"
 
 DeserializePictureBench::DeserializePictureBench(const char* name, sk_sp<SkData> data)
