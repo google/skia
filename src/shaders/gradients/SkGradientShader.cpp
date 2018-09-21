@@ -229,7 +229,7 @@ static void add_stop_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f Fs, Sk
 }
 
 static void add_const_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f color) {
-    add_stop_color(ctx, stop, SkPM4f::FromPremulRGBA(0,0,0,0), color);
+    add_stop_color(ctx, stop, {{ 0, 0, 0, 0 }}, color);
 }
 
 // Calculate a factor F and a bias B so that color = F*t + B when t is in range of
@@ -317,7 +317,7 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
 
     auto prepareColor = [premulGrad, &xformedColors](int i) {
         SkColor4f c = xformedColors.fColors[i];
-        return premulGrad ? c.premul()
+        return premulGrad ? c.toPM4f()
                           : SkPM4f::From4f(Sk4f::Load(&c));
     };
 
