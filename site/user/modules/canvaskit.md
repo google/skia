@@ -45,10 +45,15 @@ Samples
   <h3>An Interactive Path (try mousing over)</h3>
   <canvas id=patheffect width=400 height=400></canvas>
   <canvas id=ink width=400 height=400></canvas>
+  <a href="jsfiddle.skia.org/canvaskit">JSFiddle</a>
+  <span id=spacer></span>
+  <a href="jsfiddle.skia.org/canvaskit">JSFiddle</a>
 
-  <h3>Skottie</h3>
+  <h3>Skottie (click for fiddles)</h3>
   <canvas id=sk_legos width=300 height=300></canvas>
-  <canvas id=sk_drinks width=500 height=500></canvas>
+  <a href="https://jsfiddle.skia.org/canvaskit/3141a68eafdc7bb575e3f915249ae3dd58c4283779887788e213bdad1eef7dda">
+    <canvas id=sk_drinks width=500 height=500></canvas>
+  </a>
   <canvas id=sk_party width=800 height=800></canvas>
 </div>
 
@@ -144,6 +149,9 @@ Samples
 
     // Make animation interactive
     document.getElementById('patheffect').addEventListener('mousemove', (e) => {
+      if (!e.buttons) {
+        return;
+      }
       X = e.offsetX;
       Y = e.offsetY;
     });
