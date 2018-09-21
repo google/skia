@@ -42,17 +42,6 @@ private:
     typedef PictureCentricBench INHERITED;
 };
 
-class PipingBench : public PictureCentricBench {
-public:
-    PipingBench(const char* name, const SkPicture*);
-
-protected:
-    void onDraw(int loops, SkCanvas*) override;
-
-private:
-    typedef PictureCentricBench INHERITED;
-};
-
 class DeserializePictureBench : public Benchmark {
 public:
     DeserializePictureBench(const char* name, sk_sp<SkData> encodedPicture);

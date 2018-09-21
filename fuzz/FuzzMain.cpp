@@ -18,7 +18,6 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPicturePriv.h"
-#include "SkPipe.h"
 #include "SkReadBuffer.h"
 #include "SkStream.h"
 #include "SkSurface.h"
@@ -55,7 +54,6 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "image_scale\n"
                                          "json\n"
                                          "path_deserialize\n"
-                                         "pipe\n"
                                          "region_deserialize\n"
                                          "region_set_path\n"
                                          "skp\n"
@@ -82,7 +80,6 @@ static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_region_set_path(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
-static void fuzz_skpipe(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
 
 static void print_api_names();
@@ -186,7 +183,7 @@ static int fuzz_file(SkString path, SkString type) {
         return 0;
     }
     if (type.equals("pipe")) {
-        fuzz_skpipe(bytes);
+        SkDebugf("I would prefer not to.\n");
         return 0;
     }
 #if defined(SK_ENABLE_SKOTTIE)
@@ -606,21 +603,6 @@ static void fuzz_skp(sk_sp<SkData> bytes) {
     canvas.drawPicture(pic);
     SkDebugf("[terminated] Success! Decoded and rendered an SkPicture!\n");
     dump_png(bitmap);
-}
-
-static void fuzz_skpipe(sk_sp<SkData> bytes) {
-    SkPipeDeserializer d;
-    SkDebugf("Decoding\n");
-    sk_sp<SkPicture> pic(d.readPicture(bytes.get()));
-    if (!pic) {
-        SkDebugf("[terminated] Couldn't decode picture via SkPipe.\n");
-        return;
-    }
-    SkDebugf("Rendering\n");
-    SkBitmap bitmap;
-    SkCanvas canvas(bitmap);
-    canvas.drawPicture(pic);
-    SkDebugf("[terminated] Success! Decoded and rendered an SkPicture from SkPipe!\n");
 }
 
 static void fuzz_color_deserialize(sk_sp<SkData> bytes) {

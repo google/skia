@@ -433,6 +433,8 @@ DM_SRCS_ALL = struct(
     include = [
         "dm/*.cpp",
         "dm/*.h",
+        "experimental/pipe/*.cpp",
+        "experimental/pipe/*.h",
         "experimental/svg/model/*.cpp",
         "experimental/svg/model/*.h",
         "gm/*.cpp",
@@ -526,6 +528,7 @@ def dm_srcs(os_conditions):
 DM_INCLUDES = [
     "dm",
     "gm",
+    "experimental/pipe",
     "experimental/svg/model",
     "src/codec",
     "src/core",
