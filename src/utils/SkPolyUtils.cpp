@@ -9,6 +9,7 @@
 
 #include <limits>
 
+#include "SkNx.h"
 #include "SkPointPriv.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
@@ -47,9 +48,8 @@ int SkGetPolygonWinding(const SkPoint* polygonVerts, int polygonSize) {
     // compute area and use sign to determine winding
     SkScalar quadArea = 0;
     SkVector v0 = polygonVerts[1] - polygonVerts[0];
-    for (int curr = 1; curr < polygonSize - 1; ++curr) {
-        int next = (curr + 1) % polygonSize;
-        SkVector v1 = polygonVerts[next] - polygonVerts[0];
+    for (int curr = 2; curr < polygonSize; ++curr) {
+        SkVector v1 = polygonVerts[curr] - polygonVerts[0];
         quadArea += v0.cross(v1);
         v0 = v1;
     }
@@ -1395,6 +1395,17 @@ struct TriangulationVertex {
     uint16_t   fNextIndex;
 };
 
+static void compute_triangle_bounds(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
+                                    SkRect* bounds) {
+    Sk4s min, max;
+    min = max = Sk4s(p0.fX, p0.fY, p0.fX, p0.fY);
+    Sk4s xy(p1.fX, p1.fY, p2.fX, p2.fY);
+    min = Sk4s::Min(min, xy);
+    max = Sk4s::Max(max, xy);
+    bounds->set(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
+                SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
+}
+
 // test to see if point p is in triangle p0p1p2.
 // for now assuming strictly inside -- if on the edge it's outside
 static bool point_in_triangle(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
@@ -1425,22 +1436,57 @@ static bool point_in_triangle(const SkPoint& p0, const SkPoint& p1, const SkPoin
 // Data structure to track reflex vertices and check whether any are inside a given triangle
 class ReflexHash {
 public:
+    ReflexHash(const SkRect& bounds, int vertexCount)
+            : fBounds(bounds)
+            , fNumVerts(0) {
+        // We want vertexCount grid cells, roughly distributed to match the bounds ratio
+        fHCount = SkScalarRoundToInt(SkScalarSqrt(vertexCount*bounds.width()/bounds.height()));
+        fVCount = vertexCount/fHCount;
+        fGridConversion.set((fHCount - 0.001f)/bounds.width(), (fVCount - 0.001f)/bounds.height());
+        fGrid.setCount(fHCount*fVCount);
+        for (int i = 0; i < fGrid.count(); ++i) {
+            fGrid[i].reset();
+        }
+    }
+
     void add(TriangulationVertex* v) {
-        fReflexList.addToTail(v);
+        int index = hash(v);
+        fGrid[index].addToTail(v);
+        ++fNumVerts;
     }
 
     void remove(TriangulationVertex* v) {
-        fReflexList.remove(v);
+        int index = hash(v);
+        fGrid[index].remove(v);
+        --fNumVerts;
     }
 
     bool checkTriangle(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
-                       uint16_t ignoreIndex0, uint16_t ignoreIndex1) {
-        for (SkTInternalLList<TriangulationVertex>::Iter reflexIter = fReflexList.begin();
-             reflexIter != fReflexList.end(); ++reflexIter) {
-            TriangulationVertex* reflexVertex = *reflexIter;
-            if (reflexVertex->fIndex != ignoreIndex0 && reflexVertex->fIndex != ignoreIndex1 &&
-                point_in_triangle(p0, p1, p2, reflexVertex->fPosition)) {
-                return true;
+                       uint16_t ignoreIndex0, uint16_t ignoreIndex1) const {
+        if (!fNumVerts) {
+            return false;
+        }
+
+        SkRect triBounds;
+        compute_triangle_bounds(p0, p1, p2, &triBounds);
+        int h0 = (triBounds.fLeft - fBounds.fLeft)*fGridConversion.fX;
+        int h1 = (triBounds.fRight - fBounds.fLeft)*fGridConversion.fX;
+        int v0 = (triBounds.fTop - fBounds.fTop)*fGridConversion.fY;
+        int v1 = (triBounds.fBottom - fBounds.fTop)*fGridConversion.fY;
+
+        for (int v = v0; v <= v1; ++v) {
+            for (int h = h0; h <= h1; ++h) {
+                int i = v * fHCount + h;
+                for (SkTInternalLList<TriangulationVertex>::Iter reflexIter = fGrid[i].begin();
+                     reflexIter != fGrid[i].end(); ++reflexIter) {
+                    TriangulationVertex* reflexVertex = *reflexIter;
+                    if (reflexVertex->fIndex != ignoreIndex0 &&
+                        reflexVertex->fIndex != ignoreIndex1 &&
+                        point_in_triangle(p0, p1, p2, reflexVertex->fPosition)) {
+                        return true;
+                    }
+                }
+
             }
         }
 
@@ -1448,8 +1494,19 @@ public:
     }
 
 private:
-    // TODO: switch to an actual spatial hash
-    SkTInternalLList<TriangulationVertex> fReflexList;
+    int hash(TriangulationVertex* vert) const {
+        int h = (vert->fPosition.fX - fBounds.fLeft)*fGridConversion.fX;
+        int v = (vert->fPosition.fY - fBounds.fTop)*fGridConversion.fY;
+        return v*fHCount + h;
+    }
+
+    SkRect fBounds;
+    int fHCount;
+    int fVCount;
+    int fNumVerts;
+    // converts distance from the origin to a grid location (when cast to int)
+    SkVector fGridConversion;
+    SkTDArray<SkTInternalLList<TriangulationVertex>> fGrid;
 };
 
 // Check to see if a reflex vertex has become a convex vertex after clipping an ear
@@ -1478,6 +1535,9 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
         return false;
     }
 
+    // get bounds
+    SkRect bounds;
+    bounds.setBounds(polygonVerts, polygonSize);
     // get winding direction
     // TODO: we do this for all the polygon routines -- might be better to have the client
     // compute it and pass it in
@@ -1486,36 +1546,52 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
         return false;
     }
 
-    // Classify initial vertices into a list of convex vertices and a hash of reflex vertices
-    // TODO: possibly sort the convexList in some way to get better triangles
-    SkTInternalLList<TriangulationVertex> convexList;
-    ReflexHash reflexHash;
+    // Set up vertices
     SkAutoSTMalloc<64, TriangulationVertex> triangulationVertices(polygonSize);
     int prevIndex = polygonSize - 1;
-    int currIndex = 0;
-    int nextIndex = 1;
-    SkVector v0 = polygonVerts[currIndex] - polygonVerts[prevIndex];
-    SkVector v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
-    for (int i = 0; i < polygonSize; ++i) {
+    SkVector v0 = polygonVerts[0] - polygonVerts[prevIndex];
+    for (int currIndex = 0; currIndex < polygonSize; ++currIndex) {
+        int nextIndex = (currIndex + 1) % polygonSize;
+
         SkDEBUGCODE(memset(&triangulationVertices[currIndex], 0, sizeof(TriangulationVertex)));
         triangulationVertices[currIndex].fPosition = polygonVerts[currIndex];
         triangulationVertices[currIndex].fIndex = currIndex;
         triangulationVertices[currIndex].fPrevIndex = prevIndex;
         triangulationVertices[currIndex].fNextIndex = nextIndex;
+        SkVector v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
         if (winding*v0.cross(v1) > SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
             triangulationVertices[currIndex].fVertexType = TriangulationVertex::VertexType::kConvex;
-            convexList.addToTail(&triangulationVertices[currIndex]);
         } else {
-            // We treat near collinear vertices as reflex
             triangulationVertices[currIndex].fVertexType = TriangulationVertex::VertexType::kReflex;
-            reflexHash.add(&triangulationVertices[currIndex]);
         }
 
         prevIndex = currIndex;
-        currIndex = nextIndex;
-        nextIndex = (currIndex + 1) % polygonSize;
         v0 = v1;
-        v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
+    }
+
+    // Classify initial vertices into a list of convex vertices and a hash of reflex vertices
+    // TODO: possibly sort the convexList in some way to get better triangles
+    SkTInternalLList<TriangulationVertex> convexList;
+    ReflexHash reflexHash(bounds, polygonSize);
+    prevIndex = polygonSize - 1;
+    for (int currIndex = 0; currIndex < polygonSize; prevIndex = currIndex, ++currIndex) {
+        TriangulationVertex::VertexType currType = triangulationVertices[currIndex].fVertexType;
+        if (TriangulationVertex::VertexType::kConvex == currType) {
+            int nextIndex = (currIndex + 1) % polygonSize;
+            TriangulationVertex::VertexType prevType = triangulationVertices[prevIndex].fVertexType;
+            TriangulationVertex::VertexType nextType = triangulationVertices[nextIndex].fVertexType;
+            // We prioritize clipping vertices with neighboring reflex vertices.
+            // The intent here is that it will cull reflex vertices more quickly.
+            if (TriangulationVertex::VertexType::kReflex == prevType ||
+                TriangulationVertex::VertexType::kReflex == nextType) {
+                convexList.addToHead(&triangulationVertices[currIndex]);
+            } else {
+                convexList.addToTail(&triangulationVertices[currIndex]);
+            }
+        } else {
+            // We treat near collinear vertices as reflex
+            reflexHash.add(&triangulationVertices[currIndex]);
+        }
     }
 
     // The general concept: We are trying to find three neighboring vertices where
