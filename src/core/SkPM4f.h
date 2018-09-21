@@ -74,4 +74,6 @@ struct SK_API SkPM4f {
     SkColor4f unpremul() const;
 };
 
+using SkPMColor4f = SkRGBA4f<kPremul_SkAlphaType>;
+
 #endif
