@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "268ea385_f2a3fd66",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-21T18:06:33Z",
+      "side": 1,
+      "message": "So specifying the identity matrix is effectively a no-op at the moment, but the SkScalerContextFlags used to be set to a specific value since they won\u0027t affect the path in order to try to increase cache hits?\n\nBut the intent of the change is to always create the same cache no matter which path we go down? If so, does it make sense to make that more explicit?",
+      "range": {
+        "startLine": 511,
+        "startChar": 39,
+        "endLine": 511,
+        "endChar": 73
+      },
+      "revId": "1f2f8fbfe865563bf969136cdf34971da6aac4b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
