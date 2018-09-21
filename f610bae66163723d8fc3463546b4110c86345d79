@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6162dae9_a59e7b70",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-21T13:45:50Z",
+      "side": 0,
+      "message": "This can never fail.",
+      "range": {
+        "startLine": 300,
+        "startChar": 20,
+        "endLine": 300,
+        "endChar": 54
+      },
+      "revId": "f610bae66163723d8fc3463546b4110c86345d79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bfed352_8eabd268",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1024,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-21T13:45:50Z",
+      "side": 0,
+      "message": "Steps (plus the check for null effect below) handles all of this now.",
+      "range": {
+        "startLine": 1016,
+        "startChar": 0,
+        "endLine": 1024,
+        "endChar": 0
+      },
+      "revId": "f610bae66163723d8fc3463546b4110c86345d79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
