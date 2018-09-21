@@ -97,11 +97,19 @@ SkColor4f member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_premul'>premul</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Premultiply'>Premultiplied</a> color; internal use only</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Premultiply'>Premultiplied</a> color</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_toPM4f'>toPM4f</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>is for internal use only</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_toSkColor'>toSkColor</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns closest <a href='SkColor_Reference#Color'>Color</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_unpremul'>unpremul</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Unpremultiply'>Unpremultiplied</a> color</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColor4f_vec'>vec</a></td>
@@ -422,12 +430,50 @@ Returns <a href='#Color4f'>Color4f</a> with all components in the range from zer
 ## premul
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPM4f'>SkPM4f</a> <a href='#SkColor4f_premul'>premul</a>() const
+<a href='#SkColor4f'>SkColor4f</a> <a href='#SkColor4f_premul'>premul</a>() const
 </pre>
+
+Returns <a href='#SkColor4f'>SkColor4f</a> with all components premultiplied by <a href='SkColor_Reference#Alpha'>Alpha</a>.
 
 ### Return Value
 
 <a href='undocumented#Premultiply'>Premultiplied</a> color
+
+### See Also
+
+<a href='#SkColor4f_unpremul'>unpremul</a>
+
+---
+
+<a name='SkColor4f_unpremul'></a>
+## unpremul
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkColor4f'>SkColor4f</a> <a href='#SkColor4f_unpremul'>unpremul</a>() const
+</pre>
+
+Returns <a href='#SkColor4f'>SkColor4f</a> with all components independent of <a href='SkColor_Reference#Alpha'>Alpha</a>.
+
+### Return Value
+
+<a href='undocumented#Unpremultiply'>Unpremultiplied</a> color
+
+### See Also
+
+<a href='#SkColor4f_premul'>premul</a>
+
+---
+
+<a name='SkColor4f_toPM4f'></a>
+## toPM4f
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkPM4f'>SkPM4f</a> <a href='#SkColor4f_toPM4f'>toPM4f</a>() const
+</pre>
+
+### Return Value
+
+premultiplied color
 
 ---
 
