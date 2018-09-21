@@ -27,6 +27,7 @@
 #include "SkottieAdapter.h"
 #include "SkottieJson.h"
 #include "SkottiePriv.h"
+#include "SkottieProperty.h"
 #include "SkottieValue.h"
 
 #include <cmath>
@@ -83,7 +84,9 @@ sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix(const skjson::ObjectValue& t,
                 adapter->setSkewAxis(sa);
             }, 0.0f);
 
-    return bound ? matrix : parentMatrix;
+    const auto dispatched = this->dispatchTransformProperty(adapter);
+
+    return (bound || dispatched) ? matrix : parentMatrix;
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jtransform,
@@ -94,16 +97,15 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValu
 
     auto opacityNode = sksg::OpacityEffect::Make(childNode);
 
-    if (!this->bindProperty<ScalarValue>(jtransform["o"], ascope,
+    const auto bound = this->bindProperty<ScalarValue>(jtransform["o"], ascope,
         [opacityNode](const ScalarValue& o) {
             // BM opacity is [0..100]
             opacityNode->setOpacity(o * 0.01f);
-        }, 100.0f)) {
-        // We can ignore static full opacity.
-        return childNode;
-    }
+        }, 100.0f);
+    const auto dispatched = this->dispatchOpacityProperty(opacityNode);
 
-    return std::move(opacityNode);
+    // We can ignore constant full opacity.
+    return (bound || dispatched) ? std::move(opacityNode) : childNode;
 }
 
 sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath,
@@ -124,19 +126,23 @@ sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcol
                                                  AnimatorScope* ascope,
                                                  const char prop_name[]) const {
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
+
     this->bindProperty<VectorValue>(jcolor[prop_name], ascope,
         [color_node](const VectorValue& c) {
             color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
         });
+    this->dispatchColorProperty(color_node);
 
     return color_node;
 }
 
 AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
+                                   sk_sp<PropertyObserver> pobserver,
                                    Animation::Builder::Stats* stats,
                                    float duration, float framerate)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
+    , fPropertyObserver(std::move(pobserver))
     , fStats(stats)
     , fDuration(duration)
     , fFrameRate(framerate) {}
@@ -165,6 +171,50 @@ void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
     }
 }
 
+bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c) const {
+    if (fPropertyObserver &&
+        (fPropertyObserverContext.fMask & PropertyObserver::kColor_PropertyType)) {
+        fPropertyObserver->onColorProperty(fPropertyObserverContext.fName,
+                                           skstd::make_unique<ColorPropertyProxy>(c));
+        return true;
+    }
+
+    return false;
+}
+
+bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>& o) const {
+    if (fPropertyObserver &&
+        (fPropertyObserverContext.fMask & PropertyObserver::kOpacity_PropertyType)) {
+        fPropertyObserver->onOpacityProperty(fPropertyObserverContext.fName,
+                                             skstd::make_unique<OpacityPropertyProxy>(o));
+        return true;
+    }
+
+    return false;
+}
+
+bool AnimationBuilder::dispatchTransformProperty(const sk_sp<TransformAdapter>& t) const {
+    if (fPropertyObserver &&
+        (fPropertyObserverContext.fMask & PropertyObserver::kTransform_PropertyType)) {
+        fPropertyObserver->onTransformProperty(fPropertyObserverContext.fName,
+                                               skstd::make_unique<TransformPropertyProxy>(t));
+        return true;
+    }
+
+    return false;
+}
+
+void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* observer,
+                                                          const skjson::ObjectValue& obj) {
+    if (const skjson::StringValue* name = obj["nm"]) {
+        fBuilder->fPropertyObserverContext.fName = name->begin();
+        fBuilder->fPropertyObserverContext.fMask =
+                observer->accept(fBuilder->fPropertyObserverContext.fName);
+    } else {
+        fBuilder->fPropertyObserverContext.fName = nullptr;
+    }
+}
+
 } // namespace internal
 
 sk_sp<SkData> ResourceProvider::load(const char[], const char[]) const {
@@ -175,6 +225,9 @@ sk_sp<SkData> ResourceProvider::loadWebFont(const char[]) const {
     return nullptr;
 }
 
+Animation::Builder::Builder()  = default;
+Animation::Builder::~Builder() = default;
+
 Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvider> rp) {
     fResourceProvider = std::move(rp);
     return *this;
@@ -182,6 +235,11 @@ Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvid
 
 Animation::Builder& Animation::Builder::setFontManager(sk_sp<SkFontMgr> fmgr) {
     fFontMgr = std::move(fmgr);
+    return *this;
+}
+
+Animation::Builder& Animation::Builder::setPropertyObserver(sk_sp<PropertyObserver> pobserver) {
+    fPropertyObserver = std::move(pobserver);
     return *this;
 }
 
@@ -243,7 +301,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
 
     SkASSERT(resolvedProvider);
     internal::AnimationBuilder builder(std::move(resolvedProvider), fFontMgr,
-                                       &fStats, duration, fps);
+                                       std::move(fPropertyObserver), &fStats, duration, fps);
     auto scene = builder.parse(json);
 
     const auto t2 = SkTime::GetMSecs();
