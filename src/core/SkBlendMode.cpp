@@ -121,7 +121,7 @@ void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
     p->append(stage);
 }
 
-SkColor4f SkBlendMode_Apply(SkBlendMode mode, const SkColor4f& src, const SkColor4f& dst) {
+SkPMColor4f SkBlendMode_Apply(SkBlendMode mode, const SkPMColor4f& src, const SkPMColor4f& dst) {
     // special-case simple/common modes...
     switch (mode) {
         case SkBlendMode::kClear:   return { 0, 0, 0, 0 };
@@ -136,7 +136,7 @@ SkColor4f SkBlendMode_Apply(SkBlendMode mode, const SkColor4f& src, const SkColo
     }
 
     SkRasterPipeline_<256> p;
-    SkColor4f              src_storage = src,
+    SkPMColor4f            src_storage = src,
                            dst_storage = dst,
                            res_storage;
     SkJumper_MemoryCtx src_ctx = { &src_storage, 0 },
