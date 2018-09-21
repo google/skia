@@ -300,8 +300,7 @@ bool SkImage::isAlphaOnly() const {
 }
 
 sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
-    SkColorSpaceTransferFn fn;
-    if (!target || !target->isNumericalTransferFn(&fn)) {
+    if (!target) {
         return nullptr;
     }
 
@@ -313,11 +312,8 @@ sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    // TODO: Re-visit this! Keep existing color type?
-    SkColorType targetColorType = kN32_SkColorType;
-
     // TODO: We might consider making this a deferred conversion?
-    return as_IB(this)->onMakeColorSpace(std::move(target), targetColorType);
+    return as_IB(this)->onMakeColorSpace(std::move(target));
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
