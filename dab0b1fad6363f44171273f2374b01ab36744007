@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1c207d32_457bbd8b",
+        "filename": "src/gpu/GrColorSpaceXform.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-21T14:25:40Z",
+      "side": 1,
+      "message": "Done. Although I only added the dstAT to this variant (which is used in all the oddball code-paths). 90% of the uses of this effect are the version that\u0027s wrapping another FP below, which is only used in normal drawing pipeline setup.",
+      "parentUuid": "74b714a8_95c80286",
+      "range": {
+        "startLine": 56,
+        "startChar": 53,
+        "endLine": 56,
+        "endChar": 92
+      },
+      "revId": "dab0b1fad6363f44171273f2374b01ab36744007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e0d92fc9_19dedc2f",
         "filename": "src/image/SkImage.cpp",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8f322b58_51db3641",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-21T14:25:40Z",
+      "side": 1,
+      "message": "Or we treat it as sRGB, like most other places?",
+      "parentUuid": "e0d92fc9_19dedc2f",
+      "range": {
+        "startLine": 299,
+        "startChar": 8,
+        "endLine": 299,
+        "endChar": 15
+      },
+      "revId": "dab0b1fad6363f44171273f2374b01ab36744007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "de87896e_ddf18dcd",
         "filename": "src/image/SkImage_Raster.cpp",
         "patchSetId": 5
@@ -59,6 +107,30 @@
       "writtenOn": "2018-09-21T14:05:50Z",
       "side": 1,
       "message": "Is there any way to trim this logic down now?\n\nSeems like we could remove it entirely with the only side effect being a copy on nullptr-\u003esRGB conversions?  In an all-tagged world that seems fine?",
+      "range": {
+        "startLine": 348,
+        "startChar": 3,
+        "endLine": 355,
+        "endChar": 5
+      },
+      "revId": "dab0b1fad6363f44171273f2374b01ab36744007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e3e9cab_c6f60fc5",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-21T14:25:40Z",
+      "side": 1,
+      "message": "We could use steps to decide (even in the non-virtual base), and never hit these cases in the virtuals, right?",
+      "parentUuid": "de87896e_ddf18dcd",
       "range": {
         "startLine": 348,
         "startChar": 3,
