@@ -284,13 +284,43 @@ Returns Color4f with all components in the range from zero to one.
 
 # ------------------------------------------------------------------------------
 
-#Method SkPM4f premul() const
+#Method SkColor4f premul() const
 #In Utility
-#Line # returns Premultiplied color; internal use only ##
+#Line # returns Premultiplied color ##
+
+Returns SkColor4f with all components premultiplied by Alpha.
+
+#Return Premultiplied color ##
+
+#NoExample
+##
+
+#SeeAlso unpremul
+
+#Method ##
+
+#Method SkColor4f unpremul() const
+#In Utility
+#Line # returns Unpremultiplied color ##
+
+Returns SkColor4f with all components independent of Alpha.
+
+#Return Unpremultiplied color ##
+
+#NoExample
+##
+
+#SeeAlso premul
+
+#Method ##
+
+#Method SkPM4f toPM4f() const
+#Line # is for internal use only ##
+
 #Private
 Internal use only.
 ##
-#Return Premultiplied color ##
+#Return premultiplied color ##
 #Method ##
 
 #Struct SkColor4f ##
