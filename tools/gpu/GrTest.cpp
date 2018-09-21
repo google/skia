@@ -6,6 +6,7 @@
  */
 
 #include "GrBackendSurface.h"
+#include "GrClip.h"
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
@@ -135,13 +136,15 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 #endif
 
 GrBackendTexture GrGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                        SkColorType colorType, bool isRenderTarget,
-                                                        GrMipMapped mipMapped) {
+                                                        GrColorType colorType, bool isRenderTarget,
+                                                        GrMipMapped mipMapped, size_t rowBytes) {
+#if 0
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
     if (kUnknown_GrPixelConfig == config) {
         return GrBackendTexture();
     }
-    return this->createTestingOnlyBackendTexture(pixels, w, h, config, isRenderTarget, mipMapped);
+#endif
+    return this->createTestingOnlyBackendTexture(pixels, w, h, config, isRenderTarget, mipMapped, rowBytes);
 }
 
 #if GR_CACHE_STATS

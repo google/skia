@@ -1384,8 +1384,8 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
 }
 
 GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, int w, int h,
-                                                          GrPixelConfig config, bool isRenderTarget,
-                                                          GrMipMapped mipMapped) {
+                                                          GrColorType colorType, bool isRenderTarget,
+                                                          GrMipMapped mipMapped, size_t rowBytes) {
     this->handleDirtyContext();
 
     if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {

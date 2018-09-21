@@ -686,7 +686,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrGpu* gpu = context->contextPriv().getGpu();
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
+            nullptr, kSize, kSize, GrColorType::kRGBA_8888, false, GrMipMapped::kNo, 0);
     if (!backendTex.isValid()) {
         return;
     }
