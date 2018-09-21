@@ -9,9 +9,9 @@
 #define SkBlendModePriv_DEFINED
 
 #include "SkBlendMode.h"
+#include "SkColor.h"
 
 class SkRasterPipeline;
-struct SkColor4f;
 
 bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode);
 
