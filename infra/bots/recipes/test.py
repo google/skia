@@ -764,6 +764,8 @@ def dm_flags(api, bot):
     args.append('--blacklist')
     args.extend(blacklisted)
 
+  match.append('ClipCubic')
+
   if match:
     args.append('--match')
     args.extend(match)
