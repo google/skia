@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f623f951_a0a98365",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-21T19:04:54Z",
+      "side": 1,
+      "message": "Yeah, I needed this, although if I refactor the SkPatchUtils code, I can get rid of it.",
+      "revId": "e94ea219cf7c077cf5a6291f6fa5faa9a5ae9e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
