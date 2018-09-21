@@ -296,8 +296,7 @@ bool SkImage::isAlphaOnly() const {
 }
 
 sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
-    SkColorSpaceTransferFn fn;
-    if (!target || !target->isNumericalTransferFn(&fn)) {
+    if (!target) {
         return nullptr;
     }
 
