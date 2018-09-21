@@ -32,5 +32,4 @@ skia_opts = {
 # become 'permanent', they should be moved into Chrome's skia build file.
 skia_for_chromium_defines = [
   "SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS",
-  "SK_SUPPORT_LEGACY_DOCUMENT_FACTORY",
 ]
