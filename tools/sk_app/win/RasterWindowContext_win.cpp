@@ -40,14 +40,14 @@ RasterWindowContext_win::RasterWindowContext_win(HWND wnd, const DisplayParams& 
     : INHERITED(params)
     , fWnd(wnd) {
     RECT rect;
-    GetWindowRect(wnd, &rect);
+    GetClientRect(wnd, &rect);
     this->resize(rect.right - rect.left, rect.bottom - rect.top);
 }
 
 void RasterWindowContext_win::setDisplayParams(const DisplayParams& params) {
     fDisplayParams = params;
     RECT rect;
-    GetWindowRect(fWnd, &rect);
+    GetClientRect(fWnd, &rect);
     this->resize(rect.right - rect.left, rect.bottom - rect.top);
 }
 
