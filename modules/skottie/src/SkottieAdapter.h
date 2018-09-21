@@ -32,6 +32,9 @@ class TrimEffect;
 namespace skottie {
 
 #define ADAPTER_PROPERTY(p_name, p_type, p_default) \
+    const p_type& get##p_name() const {             \
+        return f##p_name;                           \
+    }                                               \
     void set##p_name(const p_type& p) {             \
         if (p == f##p_name) return;                 \
         f##p_name = p;                              \

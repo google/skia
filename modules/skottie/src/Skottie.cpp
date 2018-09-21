@@ -27,6 +27,7 @@
 #include "SkottieAdapter.h"
 #include "SkottieJson.h"
 #include "SkottiePriv.h"
+#include "SkottieProperty.h"
 #include "SkottieValue.h"
 
 #include <cmath>
@@ -133,10 +134,12 @@ sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcol
 }
 
 AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
+                                   sk_sp<PropertyObserver> pobserver,
                                    Animation::Builder::Stats* stats,
                                    float duration, float framerate)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
+    , fPropertyObserver(std::move(pobserver))
     , fStats(stats)
     , fDuration(duration)
     , fFrameRate(framerate) {}
@@ -175,6 +178,9 @@ sk_sp<SkData> ResourceProvider::loadWebFont(const char[]) const {
     return nullptr;
 }
 
+Animation::Builder::Builder()  = default;
+Animation::Builder::~Builder() = default;
+
 Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvider> rp) {
     fResourceProvider = std::move(rp);
     return *this;
@@ -182,6 +188,11 @@ Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvid
 
 Animation::Builder& Animation::Builder::setFontManager(sk_sp<SkFontMgr> fmgr) {
     fFontMgr = std::move(fmgr);
+    return *this;
+}
+
+Animation::Builder& Animation::Builder::setPropertyObserver(sk_sp<PropertyObserver> pobserver) {
+    fPropertyObserver = std::move(pobserver);
     return *this;
 }
 
@@ -243,7 +254,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
 
     SkASSERT(resolvedProvider);
     internal::AnimationBuilder builder(std::move(resolvedProvider), fFontMgr,
-                                       &fStats, duration, fps);
+                                       std::move(fPropertyObserver), &fStats, duration, fps);
     auto scene = builder.parse(json);
 
     const auto t2 = SkTime::GetMSecs();
