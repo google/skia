@@ -65,7 +65,8 @@ KeyWord IncludeParser::FindKey(const char* start, const char* end) {
     for (size_t index = 0; index < kKeyWordCount; ) {
         if (start[ch] > kKeyWords[index].fName[ch]) {
             ++index;
-            if (ch > 0 && kKeyWords[index - 1].fName[ch - 1] < kKeyWords[index].fName[ch - 1]) {
+            if (ch > 0 && (index == kKeyWordCount ||
+                    kKeyWords[index - 1].fName[ch - 1] < kKeyWords[index].fName[ch - 1])) {
                 return KeyWord::kNone;
             }
             continue;
