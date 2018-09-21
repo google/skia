@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04b2e2eb_ff0caecf",
+        "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-21T19:22:46Z",
+      "side": 1,
+      "message": "We don\u0027t have a good way of expressing \"four floats\" that isn\u0027t loaded with semantic baggage, huh?",
+      "revId": "b89e79573df295a57aa28706ea766ae1ae0ece3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
