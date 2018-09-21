@@ -425,6 +425,30 @@
     },
     {
       "key": {
+        "uuid": "ac786b71_340ea1f9",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-21T15:00:41Z",
+      "side": 1,
+      "message": "You also mentioned in the chromium review that a correct image should not reach this case. But that\u0027s not the concern here. This decoder is designed to be rather lenient, due to the fact that historically, there have been encoders which created images that do not conform to the spec. Here you\u0027ve made a behavior change for malformed images, and we want to make sure that behavior change is okay.",
+      "parentUuid": "e610535a_78e2a177",
+      "range": {
+        "startLine": 294,
+        "startChar": 13,
+        "endLine": 295,
+        "endChar": 33
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c4a9510_f23d1549",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
@@ -553,6 +577,30 @@
       "writtenOn": "2018-09-11T19:42:11Z",
       "side": 1,
       "message": "This array has gone from 4096 bytes to 4096 x 8 bytes \u003d 32 kilobytes (an increase of 28 kilobytes). This object only lasts for the duration of decoding a frame, and we\u0027ll only have one of these objects (per GIF file being decoded) at a time, so the memory increase should be fine? Still might be worth noting the increase in the commit message?",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 80
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c29089b_e710cc11",
+        "filename": "third_party/gif/SkGifImageReader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-21T15:00:41Z",
+      "side": 1,
+      "message": "Thoughts?",
+      "parentUuid": "a3844e5a_6d3eb379",
       "range": {
         "startLine": 130,
         "startChar": 4,

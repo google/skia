@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f830373_16dbb130",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-21T15:00:41Z",
+      "side": 1,
+      "message": "This looks to be only 3 spaces, instead of the expected 4.",
+      "range": {
+        "startLine": 241,
+        "startChar": 12,
+        "endLine": 241,
+        "endChar": 15
+      },
+      "revId": "3d1431ebfaf35d873c7dd315eab7d82a67e9b0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6368e73f_f62396a9",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-21T15:00:41Z",
+      "side": 1,
+      "message": "Again, this should be 4 spaces.",
+      "range": {
+        "startLine": 249,
+        "startChar": 12,
+        "endLine": 249,
+        "endChar": 15
+      },
+      "revId": "3d1431ebfaf35d873c7dd315eab7d82a67e9b0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85b07c7d_242bb837",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-21T15:00:41Z",
+      "side": 1,
+      "message": "4 spaces",
+      "range": {
+        "startLine": 256,
+        "startChar": 12,
+        "endLine": 256,
+        "endChar": 15
+      },
+      "revId": "3d1431ebfaf35d873c7dd315eab7d82a67e9b0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbc2aa9e_8c90af1e",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-21T15:00:41Z",
+      "side": 1,
+      "message": "Sorry, this sentence still doesn\u0027t make sense to me. I suggested something like \"rowIter can be set to firstchar\", but you just removed \"can be\", which makes it less clear to me.",
+      "range": {
+        "startLine": 276,
+        "startChar": 15,
+        "endLine": 276,
+        "endChar": 46
+      },
+      "revId": "3d1431ebfaf35d873c7dd315eab7d82a67e9b0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d426c79a_bce24d6d",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-21T15:00:41Z",
+      "side": 1,
+      "message": "Please add braces:\n\n                if (tempCode \u003d\u003d avail) {\n                    *rowIter++ \u003d firstchar;\n                }",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 298,
+        "endChar": 43
+      },
+      "revId": "3d1431ebfaf35d873c7dd315eab7d82a67e9b0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40baebe1_741dc7bc",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-21T15:00:41Z",
+      "side": 1,
+      "message": "I think this one can be constexpr, too?",
+      "range": {
+        "startLine": 935,
+        "startChar": 4,
+        "endLine": 935,
+        "endChar": 9
+      },
+      "revId": "3d1431ebfaf35d873c7dd315eab7d82a67e9b0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b75a56c_738eac01",
+        "filename": "third_party/gif/SkGifImageReader.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-21T15:00:41Z",
+      "side": 1,
+      "message": "nit: The 8 should line up with 3 and the others on the lines above.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 34
+      },
+      "revId": "3d1431ebfaf35d873c7dd315eab7d82a67e9b0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
