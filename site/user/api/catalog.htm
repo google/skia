@@ -6340,7 +6340,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkImageFilter> shadowFilter = SkDropShadowImageFilter::Make(\n                -10.0f * frame, 5.0f * frame, 3.0f, 3.0f, SK_ColorBLUE,\n                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,\n                nullptr);\n    sk_sp<SkImageFilter> offsetFilter = SkOffsetImageFilter::Make(40, 40, shadowFilter, nullptr);\n    SkIRect subset = image->bounds();\n    SkIRect clipBounds = image->bounds();\n    clipBounds.outset(60, 60);\n    SkIRect outSubset;\n    SkIPoint offset;\n    sk_sp<SkImage> filtered(image->makeWithFilter(offsetFilter.get(), subset, clipBounds,\n                            &outSubset, &offset));\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawLine(0, 0, offset.fX, offset.fY, paint);\n    canvas->translate(offset.fX, offset.fY);\n    canvas->drawImage(filtered, 0, 0);\n    canvas->drawRect(SkRect::Make(outSubset), paint);\n}",
     "width": 256,
     "height": 256,
-    "hash": "17547129251dd9607c381a3cc30cff15",
+    "hash": "85a76163138a2720ac003691d6363938",
     "file": "SkImage_Reference",
     "name": "SkImage::makeWithFilter"
 },

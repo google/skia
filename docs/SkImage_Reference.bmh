@@ -2001,6 +2001,7 @@ animation frames aligned with respect to each other.
 
 #Return filtered Image, or nullptr ##
 
+# Duration 5 breaks fiddlecli
 #Example
 #Description
 In each frame of the animation, filtered Image is drawn in a different location.
@@ -2008,7 +2009,7 @@ By translating canvas by returned offset, Image appears stationary.
 ##
 #Image 5
 #Platform gpu
-#Duration 5
+#Duration 1
     sk_sp<SkImageFilter> shadowFilter = SkDropShadowImageFilter::Make(
                 -10.0f * frame, 5.0f * frame, 3.0f, 3.0f, SK_ColorBLUE,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
