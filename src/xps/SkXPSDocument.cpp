@@ -84,11 +84,4 @@ sk_sp<SkDocument> SkXPS::MakeDocument(SkWStream* stream,
            ? sk_make_sp<SkXPSDocument>(stream, dpi, std::move(factory))
            : nullptr;
 }
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
-sk_sp<SkDocument> SkDocument::MakeXPS(SkWStream* stream,
-                                      IXpsOMObjectFactory* factoryPtr,
-                                      SkScalar dpi) {
-    return SkXPS::MakeDocument(stream, factoryPtr, dpi);
-}
-#endif  // SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
 #endif  // defined(SK_BUILD_FOR_WIN)

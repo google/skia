@@ -468,22 +468,6 @@ sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& 
 }
 
 #ifdef SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
-    SkPDF::Metadata meta;
-    meta.fTitle           = metadata.fTitle;
-    meta.fAuthor          = metadata.fAuthor;
-    meta.fSubject         = metadata.fSubject;
-    meta.fKeywords        = metadata.fKeywords;
-    meta.fCreator         = metadata.fCreator;
-    meta.fProducer        = metadata.fProducer;
-    meta.fRasterDPI       = SkTMax(metadata.fRasterDPI, 0.0f);
-    meta.fPDFA            = metadata.fPDFA;
-    meta.fEncodingQuality = SkTMax(metadata.fEncodingQuality, 0);
-    if (metadata.fCreation.fEnabled) { meta.fCreation = metadata.fCreation.fDateTime; }
-    if (metadata.fModified.fEnabled) { meta.fModified = metadata.fModified.fDateTime; }
-    return stream ? sk_make_sp<SkPDFDocument>(stream, std::move(meta)) : nullptr;
-}
-
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
     return SkPDF::MakeDocument(stream, SkPDF::Metadata());
 }
