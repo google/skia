@@ -22,6 +22,30 @@
       "revId": "f72853696e37a8a3ac4d56c5e11fe51800d81f63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8ffa1a0_be58169e",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-21T14:36:16Z",
+      "side": 1,
+      "message": "Some functions have Premul or Unpremul in their names, but mostly the ones that do conversion (we have both SkColorToPremulGrColor and SkColorToUnpremulGrColor). There\u0027s definitely some potential for confusion, but in most cases context makes it clear. In this case, I think this function should probably have a decorated name, now.\n\nThe three-class version isn\u0027t a bad idea, though - I think that would let us keep most of our simplicity, and some type safety. (Though Ganesh code that uses a single variable to mean one or the other would just need to do some casting/aliasing?)",
+      "parentUuid": "81de11aa_553db774",
+      "range": {
+        "startLine": 51,
+        "startChar": 17,
+        "endLine": 51,
+        "endChar": 27
+      },
+      "revId": "f72853696e37a8a3ac4d56c5e11fe51800d81f63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
