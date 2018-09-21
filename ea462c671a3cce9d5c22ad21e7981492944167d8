@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2961ecc2_580ae61d",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-21T15:24:54Z",
+      "side": 1,
+      "message": "I think there\u0027s another step that could make this all more user friendly: The hook function get passed here as a pointer to a func like\n\ntemplate\u003ctypename Inputs, typename ExtraData\u003e\nusing DataHookFn \u003d  void(const GrGLSLProgramDataManager\u0026 pdman, const GrGLSLSkSLFP\u0026 glslProc, const Inputs\u0026 inputs, const ExtraData\u0026 extraData);\n\nMake takes a DataHookFn\u003cInputs, ExtraData\u003e* hookFn param.\n\nYou could type-erase it by having the GrSkSLFP/GrGLSLSkFP take a pointer to this function type:\nvoid(const GrGLSLProgramDataManager\u0026 pdman,\n     const GrGLSLSkSLFP\u0026 glslProc,\n     const void* inputs\n     const void* extraData);\n\nwhich you define locally here as:\n\nauto genericFn \u003d [] (const GrGLSLProgramDataManager\u0026 pdman,\n                     const GrGLSLSkSLFP\u0026 glslProc,\n                     const void* inputs\n                     const void* extraData) {\n   (*hookFn)(pdman, glslProc, *reinterpret_cast\u003cconst Inputs*\u003e(inputs), *reinterpret_cast\u003cconst ExtraData*\u003e(extraData));\n};",
+      "revId": "ea462c671a3cce9d5c22ad21e7981492944167d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
