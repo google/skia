@@ -227,6 +227,10 @@ bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode ) const {
     return as_IB(this)->onAsLegacyBitmap(bitmap);
 }
 
+sk_sp<SkCachedData> SkImage_Base::getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*,const void*[3]) {
+    return nullptr;
+}
+
 bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap) const {
     // As the base-class, all we can do is make a copy (regardless of mode).
     // Subclasses that want to be more optimal should override.
