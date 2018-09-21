@@ -826,48 +826,49 @@ def test_steps(api):
     host_hashes_file = api.vars.tmp_dir.join(hash_filename)
     hashes_file = api.flavor.device_path_join(
         api.flavor.device_dirs.tmp_dir, hash_filename)
-    api.run(
-        api.python.inline,
-        'get uninteresting hashes',
-        program="""
-        import contextlib
-        import math
-        import socket
-        import sys
-        import time
-        import urllib2
+    if 'Lottie' not in api.vars.builder_name:
+      api.run(
+          api.python.inline,
+          'get uninteresting hashes',
+          program="""
+          import contextlib
+          import math
+          import socket
+          import sys
+          import time
+          import urllib2
 
-        HASHES_URL = sys.argv[1]
-        RETRIES = 5
-        TIMEOUT = 60
-        WAIT_BASE = 15
+          HASHES_URL = sys.argv[1]
+          RETRIES = 5
+          TIMEOUT = 60
+          WAIT_BASE = 15
 
-        socket.setdefaulttimeout(TIMEOUT)
-        for retry in range(RETRIES):
-          try:
-            with contextlib.closing(
-                urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:
-              hashes = w.read()
-              with open(sys.argv[2], 'w') as f:
-                f.write(hashes)
-                break
-          except Exception as e:
-            print 'Failed to get uninteresting hashes from %s:' % HASHES_URL
-            print e
-            if retry == RETRIES:
-              raise
-            waittime = WAIT_BASE * math.pow(2, retry)
-            print 'Retry in %d seconds.' % waittime
-            time.sleep(waittime)
-        """,
-        args=[api.properties['gold_hashes_url'], host_hashes_file],
-        abort_on_failure=False,
-        fail_build_on_failure=False,
-        infra_step=True)
+          socket.setdefaulttimeout(TIMEOUT)
+          for retry in range(RETRIES):
+            try:
+              with contextlib.closing(
+                  urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:
+                hashes = w.read()
+                with open(sys.argv[2], 'w') as f:
+                  f.write(hashes)
+                  break
+            except Exception as e:
+              print 'Failed to get uninteresting hashes from %s:' % HASHES_URL
+              print e
+              if retry == RETRIES:
+                raise
+              waittime = WAIT_BASE * math.pow(2, retry)
+              print 'Retry in %d seconds.' % waittime
+              time.sleep(waittime)
+          """,
+          args=[api.properties['gold_hashes_url'], host_hashes_file],
+          abort_on_failure=False,
+          fail_build_on_failure=False,
+          infra_step=True)
 
-    if api.path.exists(host_hashes_file):
-      api.flavor.copy_file_to_device(host_hashes_file, hashes_file)
-      use_hash_file = True
+      if api.path.exists(host_hashes_file):
+        api.flavor.copy_file_to_device(host_hashes_file, hashes_file)
+        use_hash_file = True
 
   # Run DM.
   properties = [
