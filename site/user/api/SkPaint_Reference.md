@@ -1,10 +1,7 @@
 SkPaint Reference
 ===
 
-# <a name='Paint'>Paint</a>
-
-# <a name='SkPaint'>Class SkPaint</a>
-<a href='#Paint'>Paint</a> controls options applied when drawing and measuring. <a href='#Paint'>Paint</a> collects all
+<a name='SkPaint'></a><a href='#Paint'>Paint</a> controls options applied when drawing and measuring. <a href='#Paint'>Paint</a> collects all
 options outside of the <a href='SkCanvas_Reference#Clip'>Canvas Clip</a> and <a href='SkCanvas_Reference#Matrix'>Canvas Matrix</a>.
 
 Various options apply to text, strokes and fills, and images.
@@ -36,39 +33,215 @@ Multiple colors are drawn either by using multiple paints or with objects like
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Structs'>Struct Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded struct members</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkPaint'>SkPaint</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading functions</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Initializers'>Initializers</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructors and initialization</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Struct'>Struct Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded struct members</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Management'>Management</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>paint copying, moving, comparing</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_Hinting'>Hinting</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>glyph outline adjustment</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_Flags'>Flags</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>attributes represented by single bits</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Anti_Alias'>Anti Alias</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>approximating coverage with transparency</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dither'>Dither</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>distributing color error</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Device_Text'>Device Text</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>increase precision of glyph position</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Linear_Text'>Linear Text</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>selects text rendering as <a href='undocumented#Glyph'>Glyph</a> or <a href='SkPath_Reference#Path'>Path</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Subpixel_Text'>Subpixel Text</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uses pixel transparency to represent fractional offset</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#LCD_Text'>LCD Text</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>text relying on the order of RGB stripes</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>custom sized bitmap <a href='undocumented#Glyph'>Glyphs</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Automatic_Hinting'>Automatic Hinting</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>always adjust glyph paths</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Vertical_Text'>Vertical Text</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orient text from top to bottom</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Fake_Bold'>Fake Bold</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>approximate font styles</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Full_Hinting_Spacing'>Full Hinting Spacing</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>glyph spacing affected by hinting</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Filter_Quality_Methods'>Filter Quality Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='undocumented#Filter_Quality'>Filter Quality</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Methods'>Color Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='SkColor_Reference#Color'>Color</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_Methods'>Alpha Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='SkColor_Reference#Alpha'>Alpha</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_Style'>Style</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>geometry filling, stroking</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Style_Fill'>Style Fill</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>fill and stroke</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Style_Stroke'>Style Stroke</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>lines and curves with width</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Style_Hairline'>Style Hairline</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>lines and curves with minimal width</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Stroke_Width'>Stroke Width</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>thickness perpendicular to geometry</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Miter_Limit'>Miter Limit</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>maximum length of stroked corners</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Stroke_Cap'>Stroke Cap</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>decorations at ends of open strokes</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Stroke_Join'>Stroke Join</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>decoration at corners of strokes</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Fill_Path'>Fill Path</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>make <a href='SkPath_Reference#Path'>Path</a> from <a href='undocumented#Path_Effect'>Path Effect</a>, stroking</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Shader_Methods'>Shader Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='undocumented#Shader'>Shader</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Filter_Methods'>Color Filter Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='undocumented#Color_Filter'>Color Filter</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Methods'>Blend Mode Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Path_Effect_Methods'>Path Effect Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='undocumented#Path_Effect'>Path Effect</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Mask_Filter_Methods'>Mask Filter Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='undocumented#Mask_Filter'>Mask Filter</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typeface_Methods'>Typeface Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='undocumented#Typeface'>Typeface</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Image_Filter_Methods'>Image Filter Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='undocumented#Image_Filter'>Image Filter</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Draw_Looper_Methods'>Draw Looper Methods</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='undocumented#Draw_Looper'>Draw Looper</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Text_Align'>Text Align</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>text placement relative to position</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Text_Size'>Text Size</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overall height in points</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Text_Scale_X'>Text Scale X</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>text horizontal scale</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Text_Skew_X'>Text Skew X</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>text horizontal slant</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Text_Encoding'>Text Encoding</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>text encoded as characters or <a href='undocumented#Glyph'>Glyphs</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Font_Metrics'>Font Metrics</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>common glyph dimensions</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Measure_Text'>Measure Text</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>width, height, bounds of text</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Text_Path'>Text Path</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>geometry of <a href='undocumented#Glyph'>Glyphs</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Text_Intercepts'>Text Intercepts</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>advanced underline, strike through</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Fast_Bounds'>Fast Bounds</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>approximate area required by <a href='#Paint'>Paint</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Utility'>Utility</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>rarely called management functions</td>
   </tr>
 </table>
 
 
-## <a name='Related_Function'>Related Function</a>
+## <a name='Related_Functions'>Related Functions</a>
 
 
-SkPaint global, <code>struct</code>, and <code>class</code> related member functions share a topic.
+SkPaint defines related functions that share a topic.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Related Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_Methods'>Alpha Methods</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>get and set <a href='SkColor_Reference#Alpha'>Alpha</a></td>
@@ -255,13 +428,13 @@ SkPaint global, <code>struct</code>, and <code>class</code> related member funct
   </tr>
 </table>
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
-SkPaint related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
+SkPaint defines related constants are using <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constant</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_Align'>Align</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>glyph locations relative to text position</td>
@@ -444,26 +617,26 @@ SkPaint related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-## <a name='Struct'>Struct</a>
+## <a name='Structs'>Structs</a>
 
 
-SkPaint uses C++ structs to declare the public data structures and interfaces.
+SkPaint uses <code>struct</code> to declare the public data structures and interfaces.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Struct</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics'>FontMetrics</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>values computed by <a href='undocumented#Font_Manager'>Font Manager</a> using <a href='undocumented#Typeface'>Typeface</a></td>
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
-SkPaint can be constructed or initialized by these functions, including C++ class constructors.
+SkPaint can be constructed or initialized by these functions, including <code>class</code> constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constructor</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_empty_constructor'>SkPaint()</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs with default values</td>
@@ -482,13 +655,13 @@ SkPaint can be constructed or initialized by these functions, including C++ clas
   </tr>
 </table>
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
-SkPaint operators inline class member functions with arithmetic equivalents.
+SkPaint defines member functions with arithmetic equivalents.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Operator</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_notequal_operator'>operator!=(const SkPaint& a, const SkPaint& b)</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>compares paints for inequality</td>
@@ -507,13 +680,13 @@ SkPaint operators inline class member functions with arithmetic equivalents.
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
-SkPaint member functions read and modify the structure properties.
+SkPaint uses member functions to read and modify structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_breakText'>breakText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns text that fits in a width</td>
@@ -767,7 +940,7 @@ SkPaint member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>references <a href='undocumented#Typeface'>Typeface</a>, font description</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_reset'>reset</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_reset'>reset</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to default values</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -4846,134 +5019,7 @@ Y-axis values above the baseline are negative, and below the baseline are positi
 
 <div><fiddle-embed name="2bfa3783719fcd769af177a1b244e171"></fiddle-embed></div>
 
-# <a name='SkPaint_FontMetrics'>Struct SkPaint::FontMetrics</a>
-
-## <a name='Font_Metrics_Constant'>Constant</a>
-
-
-SkPaint::FontMetrics related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>valid <a href='#Font_Metrics'>Font Metrics</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'>kStrikeoutPositionIsValid Flag</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>set if <a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a> is valid</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag'>kStrikeoutThicknessIsValid Flag</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>set if <a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a> is valid</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag'>kUnderlinePositionIsValid Flag</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>set if <a href='#SkPaint_FontMetrics_fUnderlinePosition'>fUnderlinePosition</a> is valid</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag'>kUnderlineThicknessIsValid Flag</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>set if <a href='#SkPaint_FontMetrics_fUnderlineThickness'>fUnderlineThickness</a> is valid</td>
-  </tr>
-</table>
-
-## <a name='Font_Metrics_Member_Function'>Member_Function</a>
-
-
-SkPaint::FontMetrics member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns strikeout position if set</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns strikeout thickness if set</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns underline position if set</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns underline thickness if set</td>
-  </tr>
-</table>
-
-## <a name='Font_Metrics_Member'>Member</a>
-
-
-SkPaint::FontMetrics members may be read and written directly without using a member function.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fAscent'>fAscent</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>distance to reserve above baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fAvgCharWidth'>fAvgCharWidth</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>average character width</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fBottom'>fBottom</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>extent below baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fCapHeight'>fCapHeight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>height of an upper-case letter</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fDescent'>fDescent</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>distance to reserve below baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fFlags'>fFlags</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>is set to <a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a> when metrics are valid</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fLeading'>fLeading</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>distance to add between lines</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fMaxCharWidth'>fMaxCharWidth</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>maximum character width</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>strikeout position relative to baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>strikeout thickness</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fTop'>fTop</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>extent above baseline</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fUnderlinePosition'>fUnderlinePosition</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>underline position relative to baseline</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fUnderlineThickness'>fUnderlineThickness</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>underline thickness</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fXHeight'>fXHeight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>height of lower-case 'x'</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fXMax'>fXMax</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>maximum x</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_FontMetrics_fXMin'>fXMin</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>minimum x</td>
-  </tr>
-</table>
+<a name='SkPaint_FontMetrics'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     struct <a href='#SkPaint_FontMetrics'>FontMetrics</a> {
@@ -5001,10 +5047,10 @@ SkPaint::FontMetrics members may be read and written directly without using a me
         <a href='undocumented#SkScalar'>SkScalar</a>    <a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a>;
         <a href='undocumented#SkScalar'>SkScalar</a>    <a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a>;
 
-        bool <a href='#SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness(SkScalar* thickness)</a> const;
-        bool <a href='#SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition(SkScalar* position)</a> const;
-        bool <a href='#SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness(SkScalar* thickness)</a> const;
-        bool <a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition(SkScalar* position)</a> const;
+        bool <a href='#SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const;
+        bool <a href='#SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const;
+        bool <a href='#SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const;
+        bool <a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const;
     };
 </pre>
 
@@ -5067,13 +5113,10 @@ set if fStrikeoutThickness is valid</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 set if fStrikeoutPosition is valid</td>
   </tr>
-</table>
+</table><table style='border-collapse: collapse; width: 62.5em'>
 
-### Members
-
-<table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Name</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uint32_t</td>
@@ -6091,6 +6134,8 @@ alpha 0 nothing to draw: true
 
 ## <a name='Fast_Bounds'>Fast Bounds</a>
 
+Private: To be made private.
+
 <a href='#Fast_Bounds'>Fast Bounds</a> functions conservatively outset a drawing bounds by additional area
 <a href='#Paint'>Paint</a> may draw to.
 
@@ -6100,6 +6145,8 @@ alpha 0 nothing to draw: true
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a>() const
 </pre>
+
+Private: (to be made private)
 
 Returns true if <a href='#Paint'>Paint</a> does not include elements requiring extensive computation
 to compute <a href='undocumented#Device'>Device</a> bounds of drawn geometry. For instance, <a href='#Paint'>Paint</a> with <a href='undocumented#Path_Effect'>Path Effect</a>
@@ -6118,6 +6165,8 @@ true if <a href='#Paint'>Paint</a> allows for fast computation of bounds
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastBounds'>computeFastBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const
 </pre>
 
+Private: (to be made private)
+
 Only call this if <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a> returned true. This takes a
 raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
 effects in the paint (e.g. stroking). If needed, it uses the <a href='#SkPaint_computeFastBounds_storage'>storage</a>
@@ -6128,6 +6177,15 @@ The returned <a href='SkRect_Reference#Rect'>Rect</a> will either be <a href='#S
 should not rely on <a href='#SkPaint_computeFastBounds_storage'>storage</a> being set to the result, but should always
 use the returned value. It is legal for <a href='#SkPaint_computeFastBounds_orig'>orig</a> and <a href='#SkPaint_computeFastBounds_storage'>storage</a> to be the same
 <a href='SkRect_Reference#Rect'>Rect</a>.
+
+Private: For example:
+    if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
+        SkRect storage;
+        if (canvas->quickReject(paint.computeFastBounds(path.getBounds(), &storage))) {
+            return; // do not draw the path
+        }
+    }
+    // draw the path
 
 ### Parameters
 
@@ -6152,6 +6210,8 @@ fast computed bounds
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastStrokeBounds'>computeFastStrokeBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const
 </pre>
 
+Private: (to be made private)
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_computeFastStrokeBounds_orig'><code><strong>orig</strong></code></a></td>
@@ -6174,6 +6234,8 @@ fast computed bounds
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_doComputeFastBounds'>doComputeFastBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage, <a href='#SkPaint_Style'>Style</a> style) const
 </pre>
+
+Private: (to be made private)
 
 Computes the bounds, overriding the <a href='#Paint'>Paint</a> <a href='#SkPaint_Style'>Style</a>. This can be used to
 account for additional width required by stroking <a href='#SkPaint_doComputeFastBounds_orig'>orig</a>, without
@@ -6202,8 +6264,8 @@ fast computed bounds
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_containsText'>containsText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if all text corresponds to <a href='undocumented#Glyph'>Glyphs</a></td>
