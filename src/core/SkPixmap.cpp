@@ -17,7 +17,6 @@
 #include "SkImageShader.h"
 #include "SkMask.h"
 #include "SkNx.h"
-#include "SkPM4f.h"
 #include "SkPixmapPriv.h"
 #include "SkReadPixelsRec.h"
 #include "SkSurface.h"
@@ -255,7 +254,8 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     const SkColor4f color = origColor.pin();
 
     if (pm.colorType() == kRGBA_F16_SkColorType) {
-        const uint64_t half4 = color.premul().toF16();
+        uint64_t half4;
+        SkFloatToHalf_finite_ftz(Sk4f::Load(color.premul().vec())).store(&half4);
         for (int y = 0; y < pm.height(); ++y) {
             sk_memset64(pm.writable_addr64(0, y), half4, pm.width());
         }
@@ -263,14 +263,14 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     }
 
     if (pm.colorType() == kRGBA_F32_SkColorType) {
-        const SkPM4f rgba = color.premul();
+        const SkColor4f rgba = color.premul();
         for (int y = 0; y < pm.height(); ++y) {
             auto row = (float*)pm.writable_addr(0, y);
             for (int x = 0; x < pm.width(); ++x) {
-                row[4*x+0] = rgba.r();
-                row[4*x+1] = rgba.g();
-                row[4*x+2] = rgba.b();
-                row[4*x+3] = rgba.a();
+                row[4*x+0] = rgba.fR;
+                row[4*x+1] = rgba.fG;
+                row[4*x+2] = rgba.fB;
+                row[4*x+3] = rgba.fA;
             }
         }
         return true;
