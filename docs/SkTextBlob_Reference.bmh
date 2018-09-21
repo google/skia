@@ -22,11 +22,11 @@ Once created, Text_Blob can not be modified.
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
@@ -129,7 +129,7 @@ for (int index = 0; index < 2; ++index) {
 
 #Method static sk_sp<SkTextBlob> MakeFromText(
             const void* text, size_t byteLength, const SkPaint& paint)
-#In Constructor
+#In Constructors
 #Line # constructs Text_Blob with one run ##
 
 Creates Text_Blob with a single run. text meaning depends on Paint_Text_Encoding;
@@ -163,7 +163,7 @@ paint contains attributes used to define the run text: #paint_font_metrics#.
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkPaint& paint)
-#In Constructor
+#In Constructors
 #Line # constructs Text_Blob with one run ##
 
 Creates Text_Blob with a single run. string meaning depends on Paint_Text_Encoding;
@@ -276,7 +276,7 @@ $$$#
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs& procs)
-#In Constructor
+#In Constructors
 #Line # constructs Text_Blob from memory ##
 
 Recreates Text_Blob that was serialized into data. Returns constructed Text_Blob

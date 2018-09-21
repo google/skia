@@ -16,18 +16,18 @@ or on a subsequent read request.
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method virtual ~SkStream()
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Example
@@ -41,7 +41,7 @@ or on a subsequent read request.
 # ------------------------------------------------------------------------------
 
 #Method SkStream()
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Return incomplete ##
