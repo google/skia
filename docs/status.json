@@ -5,7 +5,6 @@
                 "SkBitmap.h",
                 "SkBlendMode.h",
                 "SkCanvas.h",
-                "SkColor.h",
                 "SkImage.h",
                 "SkImageInfo.h",
                 "SkMatrix.h",
@@ -26,7 +25,6 @@
             "SkBlendMode_Reference.bmh",
             "SkCanvas_Reference.bmh",
             "SkColor_Reference.bmh",
-            "SkColor4f_Reference.bmh",
             "SkPaint_Reference.bmh",
             "SkPoint_Reference.bmh",
             "SkIRect_Reference.bmh",
@@ -51,10 +49,12 @@
     "InProgress": {
         "include": {
             "core": [
+                "SkColor.h",
                 "SkStream.h"
             ]
         },
         "docs": [
+            "SkColor4f_Reference.bmh",
             "SkDynamicMemoryWStream_Reference.bmh",
             "SkFILEStream_Reference.bmh",
             "SkFILEWStream_Reference.bmh",
