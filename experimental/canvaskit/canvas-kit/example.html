@@ -9,7 +9,7 @@
     border: 1px dashed #AAA;
   }
 
-  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos {
+  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos, #sk_onboarding {
     width: 300px;
     height: 300px;
   }
@@ -24,7 +24,8 @@
 <h2> Skottie </h2>
 <canvas id=sk_legos width=300 height=300></canvas>
 <canvas id=sk_drinks width=500 height=500></canvas>
-<canvas id=sk_party width=800 height=800></canvas>
+<canvas id=sk_party width=500 height=500></canvas>
+<canvas id=sk_onboarding width=500 height=500></canvas>
 
 <!-- Doesn't work yet. -->
 <button id=lego_btn>Take a picture of the legos</button>
@@ -37,6 +38,8 @@
   var legoJSON = null;
   var drinksJSON = null;
   var confettiJSON = null;
+  var onboardingJSON = null;
+  var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvas-kit/bin/'+file,
   }).then((CK) => {
@@ -47,8 +50,10 @@
     InkExample(CanvasKit);
     // Set bounds to fix the 4:3 resolution of the legos
     SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON);
-    SkottieExample(CanvasKit, 'sk_party', confettiJSON);
+    // Re-size to fit
+    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
+    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -61,14 +66,21 @@
   fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
     resp.text().then((str) => {
       drinksJSON = str;
-      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON);
+      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
     });
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
     resp.text().then((str) => {
       confettiJSON = str;
-      SkottieExample(CanvasKit, 'sk_party', confettiJSON);
+      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/onboarding.json').then((resp) => {
+    resp.text().then((str) => {
+      onboardingJSON = str;
+      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
     });
   });
 
@@ -211,9 +223,21 @@
     paint.setStrokeWidth(4.0);
     paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(50));
 
+    // Draw I N K
     let path = new CanvasKit.SkPath();
-    path.moveTo(30, 30);
-    path.lineTo(60, 80);
+    path.moveTo(80, 30);
+    path.lineTo(80, 80);
+
+    path.moveTo(100, 80);
+    path.lineTo(100, 15);
+    path.lineTo(130, 95);
+    path.lineTo(130, 30);
+
+    path.moveTo(150, 30);
+    path.lineTo(150, 80);
+    path.moveTo(170, 30);
+    path.lineTo(150, 55);
+    path.lineTo(170, 80);
 
     let paths = [path];
     let paints = [paint];
