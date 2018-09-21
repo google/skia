@@ -20,15 +20,12 @@ SkDocument and SkCanvas APIs.
         SkTime::GetDateTime(&now);
         metadata.fCreation = now;
         metadata.fModified = now;
-        sk_sp<SkDocument> pdfDocument = SkPDF::MakeDocument(
-                outputStream, SK_ScalarDefaultRasterDPI, metadata,
-                nullptr, true);
+        sk_sp<SkDocument> pdfDocument = SkPDF::MakeDocument(outputStream, metadata);
         assert(pdfDocument);
 
         for (int page = 0; page < numberOfPages; ++page) {
-            SkCanvas* pageCanvas =
-                    pdfDocument->beginPage(pageSize.width(),
-                                           pageSize.height());
+            SkCanvas* pageCanvas = pdfDocument->beginPage(pageSize.width(),
+                                                          pageSize.height());
             writePage(pageCanvas, page);
             pdfDocument->endPage();
         }
