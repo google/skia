@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7690e93_82dfdcfd",
+        "filename": "src/utils/SkPatchUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-21T20:46:26Z",
+      "side": 1,
+      "message": "Let\u0027s SkConvertPixels?",
+      "revId": "49cc80262424d3efe750fed2f69831951904ad42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
