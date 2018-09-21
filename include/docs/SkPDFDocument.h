@@ -86,7 +86,7 @@ struct Metadata {
 
     @returns NULL if there is an error, otherwise a newly created PDF-backed SkDocument.
 */
-sk_sp<SkDocument> MakeDocument(SkWStream* stream, const Metadata& metadata);
+SK_API sk_sp<SkDocument> MakeDocument(SkWStream* stream, const Metadata& metadata);
 
 static inline sk_sp<SkDocument> MakeDocument(SkWStream* stream) {
     return MakeDocument(stream, Metadata());
