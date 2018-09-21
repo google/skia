@@ -34,22 +34,59 @@ Samples
     height: 400px;
   }
 
-  #sk_legos, #sk_drinks,#sk_party {
+  #sk_legos, #sk_drinks, #sk_party, #sk_onboarding {
     width: 300px;
     height: 300px;
+  }
+
+  figure {
+    display: inline-block;
+    margin: 0;
+  }
+
+  figcaption > a {
+    margin: 2px 10px;
   }
 
 </style>
 
 <div id=demo>
-  <h3>An Interactive Path (try mousing over)</h3>
-  <canvas id=patheffect width=400 height=400></canvas>
-  <canvas id=ink width=400 height=400></canvas>
+  <h3>An Interactive Path (use your mouse)</h3>
+  <figure>
+    <canvas id=patheffect width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://jsfiddle.skia.org/canvaskit/12b9c5260a146275df95e5834278954eda4049277a99865ed560abd0eee5cafa"
+          target=_blank rel=noopener>
+        Star JSFiddle</a>
+    </figcaption>
+  </figure>
+  <figure>
+    <canvas id=ink width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://jsfiddle.skia.org/canvaskit/4279ce869f9a08b04288a81d740eef5b3d54191f30a4aea510a64596118a5d62"
+          target=_blank rel=noopener>
+        Ink JSFiddle</a>
+    </figcaption>
+  </figure>
 
-  <h3>Skottie</h3>
-  <canvas id=sk_legos width=300 height=300></canvas>
-  <canvas id=sk_drinks width=500 height=500></canvas>
-  <canvas id=sk_party width=800 height=800></canvas>
+  <h3>Skottie (click for fiddles)</h3>
+  <a href="https://jsfiddle.skia.org/canvaskit/00ad983919d3925499345202c2e8e28da1c127093593ae86e268e519c6c2b1bc"
+     target=_blank rel=noopener>
+    <canvas id=sk_legos width=300 height=300></canvas>
+  </a>
+  <a href="https://jsfiddle.skia.org/canvaskit/93a4d65d8b467053fbed26a6bc08968f9ff9f5986528ad9583e7fe2a0d98192f"
+     target=_blank rel=noopener>
+    <canvas id=sk_drinks width=500 height=500></canvas>
+  </a>
+  <a href="https://jsfiddle.skia.org/canvaskit/9d2ce26e5e14b6d72701466ee46c60aadecc3650ed709a57e35a04fc8f98366e"
+     target=_blank rel=noopener>
+    <canvas id=sk_party width=500 height=500></canvas>
+  </a>
+  <a href="https://jsfiddle.skia.org/canvaskit/13d92f4a7238425dcb68211010a1c313e18e429aae3a81ff630788307e31771e"
+     target=_blank rel=noopener>
+    <canvas id=sk_onboarding width=500 height=500></canvas>
+  </a>
+
 </div>
 
 <script type="text/javascript" charset="utf-8">
@@ -71,6 +108,8 @@ Samples
   var legoJSON = null;
   var drinksJSON = null;
   var confettiJSON = null;
+  var onboardingJSON = null;
+  var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
   CanvasKitInit({
     locateFile: (file) => locate_file + file,
   }).then((CK) => {
@@ -79,28 +118,37 @@ Samples
     InkExample(CanvasKit);
      // Set bounds to fix the 4:3 resolution of the legos
     SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON);
-    SkottieExample(CanvasKit, 'sk_party', confettiJSON);
+    // Re-size to fit
+    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
+    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
     resp.text().then((str) => {
       legoJSON = str;
-      SkottieExample(CanvasKit, 'sk_legos', legoJSON);
+      SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
     });
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
     resp.text().then((str) => {
       drinksJSON = str;
-      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON);
+      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
     });
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
     resp.text().then((str) => {
       confettiJSON = str;
-      SkottieExample(CanvasKit, 'sk_party', confettiJSON);
+      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/onboarding.json').then((resp) => {
+    resp.text().then((str) => {
+      onboardingJSON = str;
+      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
     });
   });
 
@@ -117,8 +165,8 @@ Samples
 
     let i = 0;
 
-    let X = 128;
-    let Y = 128;
+    let X = 200;
+    let Y = 200;
 
     function drawFrame() {
       const path = starPath(CanvasKit, X, Y);
@@ -144,6 +192,9 @@ Samples
 
     // Make animation interactive
     document.getElementById('patheffect').addEventListener('mousemove', (e) => {
+      if (!e.buttons) {
+        return;
+      }
       X = e.offsetX;
       Y = e.offsetY;
     });
@@ -169,9 +220,21 @@ Samples
     // This effect smooths out the drawn lines a bit.
     paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(50));
 
+    // Draw I N K
     let path = new CanvasKit.SkPath();
-    path.moveTo(30, 30);
-    path.lineTo(60, 80);
+    path.moveTo(80, 30);
+    path.lineTo(80, 80);
+
+    path.moveTo(100, 80);
+    path.lineTo(100, 15);
+    path.lineTo(130, 95);
+    path.lineTo(130, 30);
+
+    path.moveTo(150, 30);
+    path.lineTo(150, 80);
+    path.moveTo(170, 30);
+    path.lineTo(150, 55);
+    path.lineTo(170, 80);
 
     let paths = [path];
     let paints = [paint];
@@ -258,7 +321,8 @@ Samples
 Lottie files courtesy of the lottiefiles.com community:
 [Lego Loader](https://www.lottiefiles.com/410-lego-loader), [I'm
 thirsty](https://www.lottiefiles.com/77-im-thirsty),
-[Confetti](https://www.lottiefiles.com/1370-confetti)
+[Confetti](https://www.lottiefiles.com/1370-confetti),
+[Onboarding](https://www.lottiefiles.com/1134-onboarding-1)
 
 
 Test server
