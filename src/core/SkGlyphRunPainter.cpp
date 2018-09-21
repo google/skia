@@ -455,7 +455,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             {
 
                 auto cache = cacheBlob->setupCache(
-                        runIndex, props, flags, distanceFieldPaint, nullptr);
+                        runIndex, props, flags, distanceFieldPaint, &SkMatrix::I());
 
                 sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
 
@@ -508,7 +508,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             pathPaint.setPathEffect(nullptr);
 
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    pathPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
+                    pathPaint, &props, scalerContextFlags, &SkMatrix::I());
 
             auto perPath = [matrixScale, runIndex, cacheBlob, &cache]
                            (const SkGlyph& glyph, SkPoint position) {
