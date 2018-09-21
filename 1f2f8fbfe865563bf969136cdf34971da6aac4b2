@@ -22,6 +22,30 @@
       "revId": "1f2f8fbfe865563bf969136cdf34971da6aac4b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b90c1f3_617d5060",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-21T19:35:21Z",
+      "side": 1,
+      "message": "No, just here we should draw text as paths, but there may not be paths, in which case down the line we may need to scale a bitmap or something. In order to get that bitmap we need to hit the right cache.",
+      "parentUuid": "268ea385_f2a3fd66",
+      "range": {
+        "startLine": 511,
+        "startChar": 39,
+        "endLine": 511,
+        "endChar": 73
+      },
+      "revId": "1f2f8fbfe865563bf969136cdf34971da6aac4b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
