@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1b22883d_c416957a",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "yes, this is not required here.",
+      "parentUuid": "6055b439_d45540c5",
+      "range": {
+        "startLine": 248,
+        "startChar": 28,
+        "endLine": 248,
+        "endChar": 66
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e80baaf9_0759d05f",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b301d215_ec0a177c",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e80baaf9_0759d05f",
+      "range": {
+        "startLine": 253,
+        "startChar": 0,
+        "endLine": 253,
+        "endChar": 6
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4528ac4a_3cf0deca",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc41009b_67d8a5a0",
+      "range": {
+        "startLine": 267,
+        "startChar": 50,
+        "endLine": 267,
+        "endChar": 69
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bc250196_1860095f",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
@@ -91,6 +163,30 @@
       "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "992e5fee_967cc347",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc250196_1860095f",
+      "range": {
+        "startLine": 272,
+        "startChar": 13,
+        "endLine": 272,
+        "endChar": 29
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "4bbb6c37_86a3cdfa",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69b7cf16_e6c25e22",
+      "range": {
+        "startLine": 274,
+        "startChar": 16,
+        "endLine": 274,
+        "endChar": 21
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52d2d24d_2244ad9e",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
@@ -137,6 +257,30 @@
       "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19016f86_1e9eab2b",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "52d2d24d_2244ad9e",
+      "range": {
+        "startLine": 275,
+        "startChar": 45,
+        "endLine": 275,
+        "endChar": 54
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "ef2984c0_732f8f78",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb6959b4_1cd8ac7d",
+      "range": {
+        "startLine": 283,
+        "startChar": 48,
+        "endLine": 283,
+        "endChar": 49
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23c1b0c4_454c7541",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "19014831_df684e11",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23c1b0c4_454c7541",
+      "range": {
+        "startLine": 289,
+        "startChar": 6,
+        "endLine": 289,
+        "endChar": 19
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72b6ddde_205a6bf2",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
@@ -197,6 +389,30 @@
       "writtenOn": "2018-09-11T19:42:11Z",
       "side": 1,
       "message": "In the Chromium version\u0027s review, pkasting@ pointed out that this is different behavior from the old code, though perhaps only on mal-formed GIFs, and suggested that you \"creat[e] such a mal-formed GIF manually, deciding explicitly how to best decode it (might require testing other image viewers?), and then updating to match.\" Can you add a test image that demonstrates this?\n\n[1] https://chromium-review.googlesource.com/c/chromium/src/+/1122135/1/third_party/blink/renderer/platform/image-decoders/gif/gif_image_reader.cc#298",
+      "range": {
+        "startLine": 294,
+        "startChar": 13,
+        "endLine": 295,
+        "endChar": 33
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e610535a_78e2a177",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "after reaching max allowed code : 4095 avail is incremented to 4096 (while adding new entry): line 309, which is more than maximum code allowed. In a correct image you will always get clear code after that which will change the avail value back to \"avail \u003d clearCode + 2;\". Also it is not possible to have a code in stream having value 4096 instead of clear code because of the maximum code size allowed in GIF : 12 bits.even if the code is 13 bit we wont be decoding it because codesize is increased only when avail \u003c SK_MAX_DICTIONARY_ENTRIES.",
+      "parentUuid": "72b6ddde_205a6bf2",
       "range": {
         "startLine": 294,
         "startChar": 13,
@@ -252,6 +468,54 @@
       "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95de369d_1a9c0785",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d2a6352_b4f4f9e8",
+      "range": {
+        "startLine": 932,
+        "startChar": 17,
+        "endLine": 932,
+        "endChar": 29
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6406c6cc_4b1889a1",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-21T12:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c4a9510_f23d1549",
+      "range": {
+        "startLine": 932,
+        "startChar": 4,
+        "endLine": 932,
+        "endChar": 9
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
