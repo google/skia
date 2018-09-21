@@ -214,7 +214,7 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
             fColorSpace.get(),                     kUnpremul_SkAlphaType,
             args.fDstColorSpaceInfo->colorSpace(), kUnpremul_SkAlphaType);
 
-    GrColor4f color = GrColor4f::FromSkColor4f(fColor4);
+    GrColor4f color = GrColor4f::FromRGBA4f(fColor4);
     if (xform) {
         color = xform->apply(color);
     }

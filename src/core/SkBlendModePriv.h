@@ -9,9 +9,10 @@
 #define SkBlendModePriv_DEFINED
 
 #include "SkBlendMode.h"
+#include "SkColor.h"
+#include "SkPM4f.h"
 
 class SkRasterPipeline;
-struct SkColor4f;
 
 bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode);
 
@@ -39,7 +40,7 @@ enum class SkBlendModeCoeff {
 
 bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoeff* dst);
 
-SkColor4f SkBlendMode_Apply(SkBlendMode, const SkColor4f& src, const SkColor4f& dst);
+SkPMColor4f SkBlendMode_Apply(SkBlendMode, const SkPMColor4f& src, const SkPMColor4f& dst);
 
 #if SK_SUPPORT_GPU
 #include "GrXferProcessor.h"

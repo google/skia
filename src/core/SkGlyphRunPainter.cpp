@@ -288,9 +288,8 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithFallback(
 GrColor generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
     GrColor4f filteredColor = SkColor4fToUnpremulGrColor4f(paint.getColor4f(), colorSpaceInfo);
     if (paint.getColorFilter() != nullptr) {
-        filteredColor = GrColor4f::FromSkColor4f(
-                paint.getColorFilter()->filterColor4f(filteredColor.toSkColor4f(),
-                                                      colorSpaceInfo.colorSpace()));
+        filteredColor = GrColor4f::FromRGBA4f(paint.getColorFilter()->filterColor4f(
+                filteredColor.asRGBA4f<kUnpremul_SkAlphaType>(),colorSpaceInfo.colorSpace()));
     }
     return filteredColor.premul().toGrColor();
 }

@@ -120,7 +120,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
     SkColor4fXformer xformedColors(shader.fOrigColors4f, shader.fColorCount,
             shader.fColorSpace.get(), args.fDstColorSpaceInfo->colorSpace());
     for (int i = 0; i < shader.fColorCount; i++) {
-        colors[i] = GrColor4f::FromSkColor4f(xformedColors.fColors[i]);
+        colors[i] = GrColor4f::FromRGBA4f(xformedColors.fColors[i]);
         if (inputPremul) {
             colors[i] = colors[i].premul();
         }

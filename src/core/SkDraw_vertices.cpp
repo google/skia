@@ -10,6 +10,7 @@
 #include "SkComposeShader.h"
 #include "SkDraw.h"
 #include "SkNx.h"
+#include "SkPM4f.h"
 #include "SkRasterClip.h"
 #include "SkScan.h"
 #include "SkShaderBase.h"
@@ -97,7 +98,7 @@ private:
 };
 
 static bool SK_WARN_UNUSED_RESULT
-update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkColor4f colors[],
+update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPMColor4f colors[],
                        int index0, int index1, int index2, Matrix43* result) {
     SkMatrix m, im;
     m.reset();
@@ -135,9 +136,9 @@ update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkColo
 // - convert colors into dst colorspace before interpolation (matches gradients)
 // - apply per-color alpha before interpolation (matches old version of vertices)
 //
-static SkColor4f* convert_colors(const SkColor src[], int count, SkColorSpace* deviceCS,
+static SkPMColor4f* convert_colors(const SkColor src[], int count, SkColorSpace* deviceCS,
                                  SkArenaAlloc* alloc) {
-    SkColor4f* dst = alloc->makeArray<SkColor4f>(count);
+    SkPMColor4f* dst = alloc->makeArray<SkPMColor4f>(count);
     if (!deviceCS) {
         for (int i = 0; i < count; ++i) {
             dst[i] = SkColor4f::FromColor(src[i]).premul();
@@ -268,7 +269,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     VertState::Proc vertProc = state.chooseProc(vmode);
 
     if (colors || textures) {
-        SkColor4f*  dstColors = nullptr;
+        SkPMColor4f*  dstColors = nullptr;
         Matrix43*   matrix43 = nullptr;
 
         if (colors) {

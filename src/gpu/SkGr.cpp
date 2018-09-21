@@ -261,11 +261,11 @@ GrColor4f SkColorToPremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpace
 }
 
 GrColor4f SkColor4fToPremulGrColor4fLegacy(SkColor4f c) {
-    return GrColor4f::FromSkColor4f(c).premul();
+    return GrColor4f::FromRGBA4f(c.premul());
 }
 
 GrColor4f SkColor4fToUnpremulGrColor4f(SkColor4f c, const GrColorSpaceInfo& colorSpaceInfo) {
-    GrColor4f color = GrColor4f::FromSkColor4f(c);
+    GrColor4f color = GrColor4f::FromRGBA4f(c);
     if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
         color = xform->apply(color);
     }
@@ -455,8 +455,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     if (colorFilter) {
         if (applyColorFilterToPaintColor) {
-            grPaint->setColor4f(GrColor4f::FromSkColor4f(
-                    colorFilter->filterColor4f(origColor.toSkColor4f(),
+            grPaint->setColor4f(GrColor4f::FromRGBA4f(
+                    colorFilter->filterColor4f(origColor.asRGBA4f<kUnpremul_SkAlphaType>(),
                                                colorSpaceInfo.colorSpace())).premul());
         } else {
             auto cfFP = colorFilter->asFragmentProcessor(context, colorSpaceInfo);

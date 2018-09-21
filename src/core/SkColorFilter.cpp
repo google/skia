@@ -9,6 +9,7 @@
 #include "SkColorFilter.h"
 #include "SkColorSpaceXformer.h"
 #include "SkNx.h"
+#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkRefCnt.h"
@@ -64,12 +65,12 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
 
 #include "SkRasterPipeline.h"
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSpace) const {
-    SkColor4f dst, src = c.premul();
+    SkPMColor4f dst, src = c.premul();
 
     SkSTArenaAlloc<128> alloc;
     SkRasterPipeline    pipeline(&alloc);
 
-    pipeline.append_constant_color(&alloc, src);
+    pipeline.append_constant_color(&alloc, src.vec());
     this->onAppendStages(&pipeline, colorSpace, &alloc, c.fA == 1);
     SkJumper_MemoryCtx dstPtr = { &dst, 0 };
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
