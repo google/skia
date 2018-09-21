@@ -20,6 +20,9 @@
 #ifdef SK_METAL
 #include "mtl/MtlTestContext.h"
 #endif
+#ifdef SK_NXT
+#include "nxt/NXTTestContext.h"
+#endif
 #include "gl/null/NullGLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "mock/MockTestContext.h"
@@ -230,6 +233,16 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         case kMetal_GrBackend: {
             SkASSERT(!masterContext);
             testCtx.reset(CreatePlatformMtlTestContext(nullptr));
+            if (!testCtx) {
+                return ContextInfo();
+            }
+            break;
+        }
+#endif
+#ifdef SK_NXT
+        case kNXT_GrBackend: {
+            SkASSERT(!masterContext);
+            testCtx.reset(CreatePlatformNXTTestContext(nullptr));
             if (!testCtx) {
                 return ContextInfo();
             }
