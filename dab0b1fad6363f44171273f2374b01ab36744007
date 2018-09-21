@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74b714a8_95c80286",
+        "filename": "src/gpu/GrColorSpaceXform.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-21T14:05:50Z",
+      "side": 1,
+      "message": "As a follow up, I bet it makes us feel better to remove this default and plumb it through everywhere.  This is a holdover from the only-xform-to-premul days, right?",
+      "range": {
+        "startLine": 56,
+        "startChar": 53,
+        "endLine": 56,
+        "endChar": 92
+      },
+      "revId": "dab0b1fad6363f44171273f2374b01ab36744007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0d92fc9_19dedc2f",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-21T14:05:50Z",
+      "side": 1,
+      "message": "Almost feels like a `return this` or `SkAssert(false)` case, huh?",
+      "range": {
+        "startLine": 299,
+        "startChar": 8,
+        "endLine": 299,
+        "endChar": 15
+      },
+      "revId": "dab0b1fad6363f44171273f2374b01ab36744007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de87896e_ddf18dcd",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-21T14:05:50Z",
+      "side": 1,
+      "message": "Is there any way to trim this logic down now?\n\nSeems like we could remove it entirely with the only side effect being a copy on nullptr-\u003esRGB conversions?  In an all-tagged world that seems fine?",
+      "range": {
+        "startLine": 348,
+        "startChar": 3,
+        "endLine": 355,
+        "endChar": 5
+      },
+      "revId": "dab0b1fad6363f44171273f2374b01ab36744007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
