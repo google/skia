@@ -18,6 +18,7 @@
 #ifndef SkColor_DEFINED
 #define SkColor_DEFINED
 
+#include "SkImageInfo.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
 
@@ -229,93 +230,37 @@ SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 
 struct SkPM4f;
 
-/** \struct SkColor4f
-    Each component is stored as a 32-bit single precision floating point float value.
-    All values are allowed, but only the range from zero to one is meaningful.
+template <SkAlphaType kAT>
+struct SK_API SkRGBA4f {
+    float fR;
+    float fG;
+    float fB;
+    float fA;
 
-    Each component is independent of the others; fA alpha is not premultiplied
-    with fG green, fB blue, or fR red.
-
-    Values smaller than zero or larger than one are allowed. Values out of range
-    may be used with SkBlendMode so that the final component is in range.
-*/
-struct SK_API SkColor4f {
-    float fR; //!< red component
-    float fG; //!< green component
-    float fB; //!< blue component
-    float fA; //!< alpha component
-
-    /** Compares SkColor4f with other, and returns true if all components are equivalent.
-
-        @param other  SkColor4f to compare
-        @return       true if SkColor4f equals other
-    */
-    bool operator==(const SkColor4f& other) const {
+    bool operator==(const SkRGBA4f& other) const {
         return fA == other.fA && fR == other.fR && fG == other.fG && fB == other.fB;
     }
-
-    /** Compares SkColor4f with other, and returns true if all components are not
-        equivalent.
-
-        @param other  SkColor4f to compare
-        @return       true if SkColor4f is not equal to other
-    */
-    bool operator!=(const SkColor4f& other) const {
+    bool operator!=(const SkRGBA4f& other) const {
         return !(*this == other);
     }
 
-    /** Returns SkColor4f components as a read-only array.
-
-        @return  components as read-only array
-    */
     const float* vec() const { return &fR; }
+          float* vec()       { return &fR; }
 
-    /** Returns SkColor4f components as a read-only array.
+    static SkRGBA4f Pin(float r, float g, float b, float a);  // impl. depends on kAT
+    SkRGBA4f pin() const { return Pin(fR, fG, fB, fA); }
 
-        @return  components as read-only array
-    */
-    float* vec() { return &fR; }
+    static SkRGBA4f FromColor(SkColor);  // impl. depends on kAT
+    SkColor toSkColor() const;  // impl. depends on kAT
 
-    /** Constructs and returns SkColor4f with each component pinned from zero to one.
-
-        @param r  red component
-        @param g  green component
-        @param b  blue component
-        @param a  alpha component
-        @return   SkColor4f with valid components
-    */
-    static SkColor4f Pin(float r, float g, float b, float a);
-
-    /** Converts to closest SkColor4f.
-
-        @param SkColor  color with alpha, red, blue, and green components
-        @return         SkColor4f equivalent
-    */
-    static SkColor4f FromColor(SkColor);
-
-    /** Converts to closest SkColor.
-
-        @return  closest color
-    */
-    SkColor toSkColor() const;
-
-    /** Returns SkColor4f with all components in the range from zero to one.
-
-        @return  SkColor4f with valid components
-    */
-    SkColor4f pin() const {
-        return Pin(fR, fG, fB, fA);
-    }
-
-    /** Returns SkColor4f with all components premultiplied by alpha.
-
-        @return  premultiplied color
-    */
-    SkColor4f premul() const {
+    SkRGBA4f<kPremul_SkAlphaType> premul() const {
+        static_assert(kAT == kUnpremul_SkAlphaType, "");
         return { fR * fA, fG * fA, fB * fA, fA };
     }
 
-    SkColor4f unpremul() const {
+    SkRGBA4f<kUnpremul_SkAlphaType> unpremul() const {
+        static_assert(kAT == kPremul_SkAlphaType, "");
+
         if (fA == 0.0f) {
             return { 0, 0, 0, 0 };
         } else {
@@ -324,11 +269,16 @@ struct SK_API SkColor4f {
         }
     }
 
-    /** Internal use only.
+    template <SkAlphaType dstAT>
+    SkRGBA4f<dstAT> as() const {
+        static_assert(kAT != dstAT, "");
+        return { fR, fG, fB, fA };
+    }
 
-        @return  premultiplied color
-    */
-    SkPM4f toPM4f() const;
+    // TODO: remove?
+    SkPM4f toPM4f() const;  // impl. depends on kAT
 };
+
+using SkColor4f = SkRGBA4f<kUnpremul_SkAlphaType>;
 
 #endif

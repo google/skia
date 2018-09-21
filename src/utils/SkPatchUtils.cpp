@@ -11,6 +11,7 @@
 #include "SkColorData.h"
 #include "SkColorSpacePriv.h"
 #include "SkGeometry.h"
+#include "SkPM4f.h"
 #include "SkTo.h"
 
 namespace {
@@ -217,7 +218,7 @@ void SkPatchUtils::GetRightCubic(const SkPoint cubics[12], SkPoint points[4]) {
 
 #include "SkColorSpaceXform.h"
 
-static void skcolor_to_float(SkColor4f dst[], const SkColor src[], int count, SkColorSpace* dstCS,
+static void skcolor_to_float(SkPMColor4f dst[], const SkColor src[], int count, SkColorSpace* dstCS,
                              bool doPremul) {
     // Source is always sRGB SkColor.
     auto srcCS = sk_srgb_singleton();
@@ -228,17 +229,20 @@ static void skcolor_to_float(SkColor4f dst[], const SkColor src[], int count, Sk
                                             count, op));
 }
 
-static void float_to_skcolor(SkColor dst[], const SkColor4f src[], int count, SkColorSpace* srcCS) {
+static void float_to_skcolor(SkColor dst[], const SkPMColor4f src[], int count,
+                             SkColorSpace* srcCS) {
     // Destination is always sRGB SkColor.
+    // src colors are actually unpremul
     auto dstCS = sk_srgb_singleton();
     SkAssertResult(SkColorSpaceXform::Apply(dstCS, SkColorSpaceXform::kBGRA_8888_ColorFormat, dst,
                                             srcCS, SkColorSpaceXform::kRGBA_F32_ColorFormat,  src,
                                             count, SkColorSpaceXform::kPreserve_AlphaOp));
 }
 
-static void unpremul(SkColor4f array[], int count) {
+static void unpremul(SkPMColor4f array[], int count) {
+    // Technically, SkPMColor4f to SkColor4f, in-place
     for (int i = 0; i < count; ++i) {
-        array[i] = array[i].unpremul();
+        array[i] = array[i].unpremul().as<kPremul_SkAlphaType>();
     }
 }
 
@@ -286,8 +290,8 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
     }
 
     SkSTArenaAlloc<2048> alloc;
-    SkColor4f* cornerColors = srcColors ? alloc.makeArray<SkColor4f>(4) : nullptr;
-    SkColor4f* tmpColors = srcColors ? alloc.makeArray<SkColor4f>(vertexCount) : nullptr;
+    SkPMColor4f* cornerColors = srcColors ? alloc.makeArray<SkPMColor4f>(4) : nullptr;
+    SkPMColor4f* tmpColors = srcColors ? alloc.makeArray<SkPMColor4f>(vertexCount) : nullptr;
 
     SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vertexCount, indexCount, flags);
     SkPoint* pos = builder.positions();
