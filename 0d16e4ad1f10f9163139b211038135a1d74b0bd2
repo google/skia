@@ -449,6 +449,30 @@
     },
     {
       "key": {
+        "uuid": "f7c9345e_164208db",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-23T16:33:48Z",
+      "side": 1,
+      "message": "In that case, I can definitely test and keep this same as previous implementation.",
+      "parentUuid": "ac786b71_340ea1f9",
+      "range": {
+        "startLine": 294,
+        "startChar": 13,
+        "endLine": 295,
+        "endChar": 33
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c4a9510_f23d1549",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
@@ -601,6 +625,30 @@
       "side": 1,
       "message": "Thoughts?",
       "parentUuid": "a3844e5a_6d3eb379",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 80
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "488d8848_c5055fb3",
+        "filename": "third_party/gif/SkGifImageReader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-23T16:33:48Z",
+      "side": 1,
+      "message": "Sorry, I missed adding this in commit message.I will do that.",
+      "parentUuid": "1c29089b_e710cc11",
       "range": {
         "startLine": 130,
         "startChar": 4,
