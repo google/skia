@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "888d5fe0_52a513bc",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-23T07:31:12Z",
+      "side": 1,
+      "message": "Or, if you don\u0027t like this, compare this (patch set 13) to the next one (patch set 14).",
+      "revId": "9da2d889faeab8a1117a3374ad18d8b5a5f6d65a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
