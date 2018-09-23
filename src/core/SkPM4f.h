@@ -68,9 +68,6 @@ struct SK_API SkPM4f {
     Sk4f to4f() const { return Sk4f::Load(fVec); }
     Sk4f to4f_pmorder() const { return swizzle_rb_if_bgra(this->to4f()); }
 
-    void toF16(uint16_t[4]) const;
-    uint64_t toF16() const; // 4 float16 values packed into uint64_t
-
     SkColor4f unpremul() const;
 };
 

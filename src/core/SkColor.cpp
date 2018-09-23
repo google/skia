@@ -121,18 +121,6 @@ SkColor4f SkPM4f::unpremul() const {
     }
 }
 
-void SkPM4f::toF16(uint16_t half[4]) const {
-    for (int i = 0; i < 4; ++i) {
-        half[i] = SkFloatToHalf(fVec[i]);
-    }
-}
-
-uint64_t SkPM4f::toF16() const {
-    uint64_t value;
-    this->toF16(reinterpret_cast<uint16_t*>(&value));
-    return value;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <>
