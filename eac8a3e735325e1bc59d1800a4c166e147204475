@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6a593f7_d330ac08",
+        "filename": "BUILD.gn",
+        "patchSetId": 12
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-23T06:55:35Z",
+      "side": 1,
+      "message": "Actually, this is only necessary so that SkCodec.cpp can find Wuffs\u0027 .h file, because SkCodec.cpp #include\u0027s SkWuffsCodec.h. But it doesn\u0027t need to #include that file (see SkCodec.cpp in the latest patch set) so we don\u0027t need this BUILD.gn configuration here.\n\nSkWuffsCodec.cpp can already find both third_party/externals/wuffs, because of the `deps \u003d [ \"//third_party/wuffs\", ]` below and third_party/wuffs/BUILD.gn\u0027s public_include_dirs line. But that only applies to SkWuffsCodec.cpp, not SkCodec.cpp.",
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
