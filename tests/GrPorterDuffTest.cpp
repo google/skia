@@ -1062,7 +1062,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     }
 
     GrBackendTexture backendTex =
-        gpu->createTestingOnlyBackendTexture(nullptr, 100, 100, kRGBA_8888_GrPixelConfig,
+        gpu->createTestingOnlyBackendTexture(nullptr, 100, 100, GrColorType::kRGBA_8888,
                                              false, GrMipMapped::kNo);
 
     GrXferProcessor::DstProxy fakeDstProxy;

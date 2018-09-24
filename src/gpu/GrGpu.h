@@ -339,16 +339,17 @@ public:
     void dumpJSON(SkJSONWriter*) const;
 
 #if GR_TEST_UTILS
+    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
+                                                     SkColorType, bool isRenderTarget,
+                                                     GrMipMapped, size_t rowBytes = 0);
+
     /** Creates a texture directly in the backend API without wrapping it in a GrTexture. This is
         only to be used for testing (particularly for testing the methods that import an externally
         created texture into Skia. Must be matched with a call to deleteTestingOnlyTexture(). */
-    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h, SkColorType,
-                                                     bool isRenderTarget, GrMipMapped);
-    /** Older version based on GrPixelConfig. Currently the preferred one above devolves to this. */
     virtual GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                             GrPixelConfig config,
-                                                             bool isRenderTarget,
-                                                             GrMipMapped mipMapped) = 0;
+                                                             GrColorType, bool isRenderTarget,
+                                                             GrMipMapped, size_t rowBytes = 0) = 0;
+
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
     virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
     /**

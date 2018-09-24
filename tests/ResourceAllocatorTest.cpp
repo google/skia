@@ -24,7 +24,7 @@
 struct ProxyParams {
     int             fSize;
     bool            fIsRT;
-    GrPixelConfig   fConfig;
+    SkColorType     fColorType;
     SkBackingFit    fFit;
     int             fSampleCnt;
     GrSurfaceOrigin fOrigin;
@@ -32,11 +32,14 @@ struct ProxyParams {
 };
 
 static GrSurfaceProxy* make_deferred(GrProxyProvider* proxyProvider, const ProxyParams& p) {
+    GrColorType grCT = SkColorTypeToGrColorType(p.fColorType);
+    GrPixelConfig config = GrColorTypeToPixelConfig(grCT, GrSRGBEncoded::kNo);
+
     GrSurfaceDesc desc;
     desc.fFlags = p.fIsRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fWidth  = p.fSize;
     desc.fHeight = p.fSize;
-    desc.fConfig = p.fConfig;
+    desc.fConfig = config;
     desc.fSampleCnt = p.fSampleCnt;
 
     auto tmp = proxyProvider->createProxy(desc, p.fOrigin, p.fFit, SkBudgeted::kNo);
@@ -57,8 +60,11 @@ static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
     GrGpu* gpu = context->contextPriv().getGpu();
 
     *backendTex = gpu->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize,
-                                                       p.fConfig, false,
+                                                       p.fColorType, false,
                                                        GrMipMapped::kNo);
+    if (!backendTex->isValid()) {
+        return nullptr;
+    }
 
     auto tmp = proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin);
     if (!tmp) {
@@ -147,8 +153,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     // Non-RT GrSurfaces are never recycled on some platforms.
     bool kConditionallyShare = resourceProvider->caps()->reuseScratchTextures();
 
-    const GrPixelConfig kRGBA = kRGBA_8888_GrPixelConfig;
-    const GrPixelConfig kBGRA = kBGRA_8888_GrPixelConfig;
+    const SkColorType kRGBA = kRGBA_8888_SkColorType;
+    const SkColorType kBGRA = kBGRA_8888_SkColorType;
 
     const SkBackingFit kE = SkBackingFit::kExact;
     const SkBackingFit kA = SkBackingFit::kApprox;
@@ -174,8 +180,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         p2->completedRead();
     }
 
-    int k2 = ctxInfo.grContext()->contextPriv().caps()->getRenderTargetSampleCount(2, kRGBA);
-    int k4 = ctxInfo.grContext()->contextPriv().caps()->getRenderTargetSampleCount(4, kRGBA);
+    int k2 = ctxInfo.grContext()->contextPriv().caps()->getRenderTargetSampleCount(
+                                                                    2, kRGBA_8888_GrPixelConfig);
+    int k4 = ctxInfo.grContext()->contextPriv().caps()->getRenderTargetSampleCount(
+                                                                    4, kRGBA_8888_GrPixelConfig);
 
     //--------------------------------------------------------------------------------------------
     TestCase gNonOverlappingTests[] = {
