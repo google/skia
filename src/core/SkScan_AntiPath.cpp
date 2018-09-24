@@ -609,10 +609,9 @@ static inline SkScalar sqr(SkScalar x) {
 
 static void ComputeComplexity(const SkPath& path, SkScalar& avgLength, SkScalar& complexity) {
     int n = path.countPoints();
-    if (n < kSampleSize) {
+    if (n < kSampleSize || path.getBounds().isEmpty()) {
         // set to invalid value to indicate that we failed to compute
-        avgLength = -1;
-        complexity = -1;
+        avgLength = complexity = -1;
         return;
     }
 
@@ -626,6 +625,10 @@ static void ComputeComplexity(const SkPath& path, SkScalar& avgLength, SkScalar&
     avgLength = sumLength / (kSampleSize - 1);
 
     SkScalar diagonalSqr = sqr(path.getBounds().width()) + sqr(path.getBounds().height());
+    if (diagonalSqr == 0) {  // If path.width/height is tiny (e.g., 1e-44), its sqr becomes 0
+        avgLength = complexity = -1;
+        return;
+    }
 
     // If the path consists of random line segments, the number of intersections should be
     // proportional to this.
