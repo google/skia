@@ -7,7 +7,10 @@
 _src = get_path_info("src", "abspath")
 _include = get_path_info("include", "abspath")
 
-skia_skottie_public = [ "$_include/Skottie.h" ]
+skia_skottie_public = [
+  "$_include/Skottie.h",
+  "$_include/SkottieProperty.h",
+]
 
 skia_skottie_sources = [
   "$_src/Skottie.cpp",
@@ -20,6 +23,7 @@ skia_skottie_sources = [
   "$_src/SkottieLayerEffect.cpp",
   "$_src/SkottiePriv.h",
   "$_src/SkottiePrecompLayer.cpp",
+  "$_src/SkottieProperty.cpp",
   "$_src/SkottieShapeLayer.cpp",
   "$_src/SkottieTextLayer.cpp",
   "$_src/SkottieValue.cpp",

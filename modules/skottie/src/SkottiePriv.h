@@ -11,6 +11,7 @@
 #include "Skottie.h"
 
 #include "SkFontStyle.h"
+#include "SkottieProperty.h"
 #include "SkSGScene.h"
 #include "SkString.h"
 #include "SkTHash.h"
@@ -44,8 +45,8 @@ using AnimatorScope = sksg::AnimatorList;
 
 class AnimationBuilder final : public SkNoncopyable {
 public:
-    AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, Animation::Builder::Stats*,
-                    float duration, float framerate);
+    AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, sk_sp<PropertyObserver>,
+                     Animation::Builder::Stats*, float duration, float framerate);
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
 
@@ -77,6 +78,7 @@ public:
 
 private:
     struct AttachLayerContext;
+    struct AttachShapeContext;
 
     void parseAssets(const skjson::ArrayValue*);
     void parseFonts (const skjson::ObjectValue* jfonts,
@@ -87,6 +89,7 @@ private:
     sk_sp<sksg::RenderNode> attachLayerEffects(const skjson::ArrayValue& jeffects, AnimatorScope*,
                                                sk_sp<sksg::RenderNode>) const;
 
+    sk_sp<sksg::RenderNode> attachShape(const skjson::ArrayValue*, AttachShapeContext*) const;
     sk_sp<sksg::RenderNode> attachAssetRef(const skjson::ObjectValue&, AnimatorScope*,
         sk_sp<sksg::RenderNode>(AnimationBuilder::*)(const skjson::ObjectValue&,
                                                      AnimatorScope* ctx) const) const;
@@ -100,6 +103,10 @@ private:
     sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, AnimatorScope*) const;
     sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, AnimatorScope*) const;
     sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, AnimatorScope*) const;
+
+    bool dispatchColorProperty(const sk_sp<sksg::Color>&) const;
+    bool dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&) const;
+    bool dispatchTransformProperty(const sk_sp<TransformAdapter>&) const;
 
     // Delay resolving the fontmgr until it is actually needed.
     struct LazyResolveFontMgr {
@@ -119,11 +126,36 @@ private:
         sk_sp<SkFontMgr> fFontMgr;
     };
 
+    class AutoPropertyTracker {
+    public:
+        AutoPropertyTracker(const AnimationBuilder* builder, const skjson::ObjectValue& obj)
+            : fBuilder(builder)
+            , fPrevContext(builder->fPropertyObserverContext) {
+            if (fBuilder->fPropertyObserver) {
+                this->updateContext(builder->fPropertyObserver.get(), obj);
+            }
+        }
+
+        ~AutoPropertyTracker() {
+            if (fBuilder->fPropertyObserver) {
+                fBuilder->fPropertyObserverContext = fPrevContext;
+            }
+        }
+    private:
+        void updateContext(PropertyObserver*, const skjson::ObjectValue&);
+
+        const AnimationBuilder* fBuilder;
+        const char*             fPrevContext;
+    };
+
     sk_sp<ResourceProvider>    fResourceProvider;
     LazyResolveFontMgr         fLazyFontMgr;
+    sk_sp<PropertyObserver>    fPropertyObserver;
     Animation::Builder::Stats* fStats;
     const float                fDuration,
                                fFrameRate;
+
+    mutable const char*        fPropertyObserverContext;
 
     struct AssetInfo {
         const skjson::ObjectValue* fAsset;
