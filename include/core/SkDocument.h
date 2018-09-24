@@ -10,8 +10,6 @@
 
 #include "SkRefCnt.h"
 #include "SkScalar.h"
-#include "SkString.h"
-#include "SkTime.h"
 
 class SkCanvas;
 class SkWStream;
@@ -32,9 +30,6 @@ static constexpr SkScalar SK_ScalarDefaultRasterDPI = 72.0f;
  */
 class SK_API SkDocument : public SkRefCnt {
 public:
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
-    static sk_sp<SkDocument> MakePDF(SkWStream* stream);
-#endif  // SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
 
     /**
      *  Begin a new page for the document, returning the canvas that will draw

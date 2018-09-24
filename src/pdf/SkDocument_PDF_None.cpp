@@ -7,11 +7,5 @@
 
 #include "SkPDFDocument.h"
 
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
-    return nullptr;
-}
-#endif  // SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
-
 sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream*, const SkPDF::Metadata&) { return nullptr; }
 
