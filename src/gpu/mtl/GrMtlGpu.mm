@@ -385,7 +385,8 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
 #ifdef GR_TEST_UTILS
 bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int h, bool texturable,
                                                 bool renderable, GrMipMapped mipMapped,
-                                                const void* srcData, GrMtlTextureInfo* info) {
+                                                const void* srcData, size_t srcRowBytes,
+                                                GrMtlTextureInfo* info) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
@@ -450,7 +451,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int 
         [transferTexture replaceRegion: MTLRegionMake2D(0, 0, currentWidth, currentHeight)
                            mipmapLevel: mipLevel
                              withBytes: srcData
-                           bytesPerRow: rowBytes];
+                           bytesPerRow: srcRowBytes];
 
         [blitCmdEncoder copyFromTexture: transferTexture
                             sourceSlice: 0
@@ -473,14 +474,14 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int 
 }
 
 GrBackendTexture GrMtlGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                           GrPixelConfig config, bool isRT,
-                                                           GrMipMapped mipMapped) {
+                                                           GrColorType colorType, bool isRT,
+                                                           GrMipMapped mipMapped, size_t rowBytes) {
     if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();
     }
     GrMtlTextureInfo info;
     if (!this->createTestingOnlyMtlTextureInfo(config, w, h, true, isRT, mipMapped, pixels,
-                                               &info)) {
+                                               rowBytes, &info)) {
         return {};
     }
 
@@ -524,7 +525,7 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
     }
     GrMtlTextureInfo info;
     if (!this->createTestingOnlyMtlTextureInfo(config, w, h, false, true, GrMipMapped::kNo, nullptr,
-                                               &info)) {
+                                               0, &info)) {
         return {};
     }
 

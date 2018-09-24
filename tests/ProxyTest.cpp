@@ -252,7 +252,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 // Tests wrapBackendRenderTarget with a GrBackendTexture
                 {
                     GrBackendTexture backendTex =
-                            gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
+                            gpu->createTestingOnlyBackendTexture1(nullptr, kWidthHeight,
                                                                  kWidthHeight, colorType,
                                                                  true, GrMipMapped::kNo);
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTextureAsRenderTarget(
@@ -276,7 +276,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 // Tests wrapBackendTexture that is only renderable
                 {
                     GrBackendTexture backendTex =
-                            gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
+                            gpu->createTestingOnlyBackendTexture1(nullptr, kWidthHeight,
                                                                  kWidthHeight, colorType,
                                                                  true, GrMipMapped::kNo);
 
@@ -302,7 +302,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 {
                     // Internal offscreen texture
                     GrBackendTexture backendTex =
-                            gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
+                            gpu->createTestingOnlyBackendTexture1(nullptr, kWidthHeight,
                                                                  kWidthHeight, colorType,
                                                                  false, GrMipMapped::kNo);
 

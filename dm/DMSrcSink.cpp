@@ -1442,7 +1442,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                                                   &props);
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
-            backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
+            backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture1(
                     nullptr, info.width(), info.height(), info.colorType(), true, GrMipMapped::kNo);
             surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
                                                         kTopLeft_GrSurfaceOrigin, fSampleCount,

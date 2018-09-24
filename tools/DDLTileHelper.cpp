@@ -127,7 +127,7 @@ void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
 }
 
 void DDLTileHelper::createDDLsInParallel() {
-#if 1
+#if 0
     SkTaskGroup().batch(fTiles.count(), [&](int i) { fTiles[i].createDDL(); });
     SkTaskGroup().wait();
 #else
