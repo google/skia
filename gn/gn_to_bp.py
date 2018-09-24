@@ -222,8 +222,6 @@ gn_args = {
 }
 
 extra_userconfig_defines = [
-  # remove once we've fixed call-sites
-  'SK_SUPPORT_LEGACY_DOCUMENT_FACTORY',
 ]
 
 js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
