@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1fceaca_edf75f05",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T17:16:11Z",
+      "side": 1,
+      "message": "I don\u0027t think I understand what\u0027s going on here. It looks like you\u0027re doing the work that used to happen in the FallbackGlyphRunHelper. Why not just move that to SkGlyphRunPainter?",
+      "range": {
+        "startLine": 623,
+        "startChar": 12,
+        "endLine": 646,
+        "endChar": 0
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
