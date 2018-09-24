@@ -49,7 +49,6 @@ skia_gpu_processor_sources = [
   "$_src/gpu/gradients/GrDualIntervalGradientColorizer.fp",
   "$_src/gpu/gradients/GrSingleIntervalGradientColorizer.fp",
   "$_src/gpu/gradients/GrTextureGradientColorizer.fp",
-  "$_src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
   "$_src/gpu/gradients/GrLinearGradientLayout.fp",
   "$_src/gpu/gradients/GrRadialGradientLayout.fp",
   "$_src/gpu/gradients/GrSweepGradientLayout.fp",
