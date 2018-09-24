@@ -985,6 +985,73 @@ public:
     OveridePaintFilterCanvas(SkCanvas* canvas, SkPaint* paint, Viewer::SkPaintFields* fields)
         : SkPaintFilterCanvas(canvas), fPaint(paint), fPaintOverrides(fields)
     { }
+    const SkTextBlob* filterTextBlob(const SkPaint& paint, const SkTextBlob* blob,
+                                     sk_sp<SkTextBlob>* cache) {
+        bool blobWillChange = false;
+        for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
+            SkPaint blobPaint = paint;
+            it.applyFontToPaint(&blobPaint);
+            SkTCopyOnFirstWrite<SkPaint> filteredPaint(blobPaint);
+            bool shouldDraw = this->onFilter(&filteredPaint, kTextBlob_Type);
+            if (blobPaint != *filteredPaint || !shouldDraw) {
+                blobWillChange = true;
+                break;
+            }
+        }
+        if (!blobWillChange) {
+            return blob;
+        }
+
+        SkTextBlobBuilder builder;
+        for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
+            SkPaint blobPaint = paint;
+            it.applyFontToPaint(&blobPaint);
+            SkTCopyOnFirstWrite<SkPaint> filteredPaint(blobPaint);
+            bool shouldDraw = this->onFilter(&filteredPaint, kTextBlob_Type);
+            if (!shouldDraw) {
+                continue;
+            }
+
+            const SkTextBlobBuilder::RunBuffer& runBuffer
+                = it.positioning() == SkTextBlobRunIterator::kDefault_Positioning
+                    ? SkTextBlobBuilderPriv::AllocRunText(&builder, *filteredPaint,
+                        it.offset().x(),it.offset().y(), it.glyphCount(), it.textSize(), SkString())
+                : it.positioning() == SkTextBlobRunIterator::kHorizontal_Positioning
+                    ? SkTextBlobBuilderPriv::AllocRunTextPosH(&builder, *filteredPaint,
+                        it.offset().y(), it.glyphCount(), it.textSize(), SkString())
+                : it.positioning() == SkTextBlobRunIterator::kFull_Positioning
+                    ? SkTextBlobBuilderPriv::AllocRunTextPos(&builder, *filteredPaint,
+                        it.glyphCount(), it.textSize(), SkString())
+                : (SkASSERT_RELEASE(false), SkTextBlobBuilder::RunBuffer());
+            uint32_t glyphCount = it.glyphCount();
+            if (it.glyphs()) {
+                size_t glyphSize = sizeof(decltype(*it.glyphs()));
+                memcpy(runBuffer.glyphs, it.glyphs(), glyphCount * glyphSize);
+            }
+            if (it.pos()) {
+                size_t posSize = sizeof(decltype(*it.pos()));
+                uint8_t positioning = it.positioning();
+                memcpy(runBuffer.pos, it.pos(), glyphCount * positioning * posSize);
+            }
+            if (it.text()) {
+                size_t textSize = sizeof(decltype(*it.text()));
+                uint32_t textCount = it.textSize();
+                memcpy(runBuffer.utf8text, it.text(), textCount * textSize);
+            }
+            if (it.clusters()) {
+                size_t clusterSize = sizeof(decltype(*it.clusters()));
+                memcpy(runBuffer.clusters, it.clusters(), glyphCount * clusterSize);
+            }
+        }
+        *cache = builder.make();
+        return cache->get();
+    }
+    void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                        const SkPaint& paint) override {
+        sk_sp<SkTextBlob> cache;
+        this->SkPaintFilterCanvas::onDrawTextBlob(
+            this->filterTextBlob(paint, blob, &cache), x, y, paint);
+    }
     bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
         if (*paint == nullptr) {
             return true;
