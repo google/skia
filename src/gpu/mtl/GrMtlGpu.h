@@ -54,8 +54,8 @@ public:
 
 #ifdef GR_TEST_UTILS
     GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                     GrPixelConfig config, bool isRT,
-                                                     GrMipMapped) override;
+                                                     GrColorType colorType, bool isRT,
+                                                     GrMipMapped, size_t rowBytes) override;
 
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
@@ -179,7 +179,8 @@ private:
 #if GR_TEST_UTILS
     bool createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int h, bool texturable,
                                          bool renderable, GrMipMapped mipMapped,
-                                         const void* srcData, GrMtlTextureInfo* info);
+                                         const void* srcData, size_t rowBytes,
+                                         GrMtlTextureInfo* info);
 #endif
 
     sk_sp<GrMtlCaps> fMtlCaps;

@@ -209,10 +209,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     static const int kH = 100;
 
     backendTextures[0] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
-                                                              kRGBA_8888_GrPixelConfig,
+                                                              GrColorType::kRGBA_8888,
                                                               false, GrMipMapped::kNo);
     backendTextures[1] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
-                                                              kRGBA_8888_GrPixelConfig,
+                                                              GrColorType::kRGBA_8888,
                                                               false, GrMipMapped::kNo);
     REPORTER_ASSERT(reporter, backendTextures[0].isValid());
     REPORTER_ASSERT(reporter, backendTextures[1].isValid());
