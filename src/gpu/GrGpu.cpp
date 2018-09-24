@@ -366,3 +366,14 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const {
 
     writer->endObject();
 }
+
+#if GR_TEST_UTILS
+GrBackendTexture GrGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
+                                                        SkColorType colorType, bool isRenderTarget,
+                                                        GrMipMapped isMipped, size_t rowBytes) {
+    GrColorType grCT = SkColorTypeToGrColorType(colorType);
+
+    return this->createTestingOnlyBackendTexture(pixels, w, h, grCT, isRenderTarget, isMipped,
+                                                 rowBytes);
+}
+#endif
