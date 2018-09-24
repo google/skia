@@ -655,6 +655,9 @@ bool Definition::crossCheckInside(const char* start, const char* end,
     if (inc.startsWith("SK_API")) {
         inc.skipWord("SK_API");
     }
+    if (inc.startsWith("inline")) {
+        inc.skipWord("inline");
+    }
     if (inc.startsWith("friend")) {
         inc.skipWord("friend");
     }
@@ -800,8 +803,12 @@ string Definition::formatFunction(Format format) const {
             if (lastStart[0] != ' ') {
                 space_pad(&methodStr);
             }
-            methodStr += string(lastStart, (size_t) (lastEnd - lastStart));
-            written += (size_t) (lastEnd - lastStart);
+            string addon(lastStart, (size_t) (lastEnd - lastStart));
+            if ("_const" == addon) {
+                addon = "const";
+            }
+            methodStr += addon;
+            written += addon.length();
         }
         if (delimiter) {
             if (nextEnd - nextStart >= (ptrdiff_t) (limit - written)) {

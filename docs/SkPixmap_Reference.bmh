@@ -18,15 +18,15 @@ to manage pixel memory; Pixel_Ref is safe across threads.
 #Populate
 ##
 
-#Subtopic Related_Function
+#Subtopic Related_Functions
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
