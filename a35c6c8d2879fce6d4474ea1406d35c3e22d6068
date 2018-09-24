@@ -2,6 +2,190 @@
   "comments": [
     {
       "key": {
+        "uuid": "f17f4edf_3ea22679",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T20:54:24Z",
+      "side": 1,
+      "message": "transformations",
+      "range": {
+        "startLine": 419,
+        "startChar": 3,
+        "endLine": 419,
+        "endChar": 17
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9751937_1f477fc5",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T20:54:24Z",
+      "side": 1,
+      "message": "positions",
+      "range": {
+        "startLine": 428,
+        "startChar": 20,
+        "endLine": 428,
+        "endChar": 28
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fe4a2a9_fad5cbc1",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T20:54:24Z",
+      "side": 1,
+      "message": "handleTransformLater",
+      "range": {
+        "startLine": 446,
+        "startChar": 27,
+        "endLine": 446,
+        "endChar": 46
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60da93c4_c85710b2",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T20:54:24Z",
+      "side": 1,
+      "message": "Missing some words here?",
+      "range": {
+        "startLine": 470,
+        "startChar": 83,
+        "endLine": 470,
+        "endChar": 96
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f98e7901_63876dc5",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T20:54:24Z",
+      "side": 1,
+      "message": "I\u0027m not 100% sure, but I don\u0027t think so. We want a pure floor.",
+      "range": {
+        "startLine": 476,
+        "startChar": 17,
+        "endLine": 476,
+        "endChar": 83
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8033b9dd_c51851b4",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T20:54:24Z",
+      "side": 1,
+      "message": "matrix",
+      "range": {
+        "startLine": 486,
+        "startChar": 60,
+        "endLine": 486,
+        "endChar": 67
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d1b85ac_f9cf9d02",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T20:54:24Z",
+      "side": 1,
+      "message": "missing word?",
+      "range": {
+        "startLine": 486,
+        "startChar": 41,
+        "endLine": 486,
+        "endChar": 42
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "634eaa25_6d6bf81b",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T20:54:24Z",
+      "side": 1,
+      "message": "atlas, find",
+      "range": {
+        "startLine": 488,
+        "startChar": 11,
+        "endLine": 488,
+        "endChar": 22
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e1fceaca_edf75f05",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 13
@@ -46,6 +230,30 @@
       "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64d043db_9c29c6ba",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-24T20:54:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cafb674e_9635672d",
+      "range": {
+        "startLine": 623,
+        "startChar": 12,
+        "endLine": 646,
+        "endChar": 0
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
