@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae07ee0d_0ee6bf81",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8669
+      },
+      "writtenOn": "2018-09-24T21:01:04Z",
+      "side": 1,
+      "message": "This has an extra space, which confuses Bugdroid, so the CL landed message ended up on https://bugs.chromium.org/p/chromium/issues/detail?id\u003d10620#c10 instead of (presumably) https://bugs.chromium.org/p/oss-fuzz/issues/detail?id\u003d10620",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 20
+      },
+      "revId": "87a301158d9c72de4e0bda75867da027569d8793",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
