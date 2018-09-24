@@ -22,6 +22,30 @@
       "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cafb674e_9635672d",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-24T19:45:56Z",
+      "side": 1,
+      "message": "The stuff in painter needs to be \"system independent\" meaning that it can only work with paints positions and glyphids because it needs to be shared with the Renderer\u0027s different glyphs system. To me, this is the essence of the GPU specific end of things. The common stuff is in process_ARGB_fallback, and I am in the process of moving that function into the painter.",
+      "parentUuid": "e1fceaca_edf75f05",
+      "range": {
+        "startLine": 623,
+        "startChar": 12,
+        "endLine": 646,
+        "endChar": 0
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
