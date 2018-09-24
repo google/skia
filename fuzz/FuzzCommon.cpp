@@ -140,7 +140,7 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 path->addRoundRect(r, a, b, dir);
                 break;
             case 20:
-                fuzz->next(&rr);
+                FuzzNiceRRect(fuzz, &rr);
                 fuzz->nextRange(&ui, 0, 1);
                 dir = static_cast<SkPath::Direction>(ui);
                 path->addRRect(rr, dir);
@@ -148,7 +148,7 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
             case 21:
                 fuzz->nextRange(&ui, 0, 1);
                 dir = static_cast<SkPath::Direction>(ui);
-                fuzz->next(&rr, &ui);
+                FuzzNiceRRect(fuzz, &rr);
                 path->addRRect(rr, dir, ui);
                 break;
             case 22: {
@@ -267,6 +267,7 @@ void FuzzNiceRRect(Fuzz* fuzz, SkRRect* rr) {
         vec.fY *= 0.5f * r.height();
     }
     rr->setRectRadii(r, radii);
+    SkASSERT(rr->isValid());
 }
 
 void FuzzNiceMatrix(Fuzz* fuzz, SkMatrix* m) {
