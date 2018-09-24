@@ -568,8 +568,3 @@ sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& 
     return stream ? sk_make_sp<SkPDFDocument>(stream, std::move(meta)) : nullptr;
 }
 
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
-    return SkPDF::MakeDocument(stream, SkPDF::Metadata());
-}
-#endif  // SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
