@@ -18,7 +18,6 @@
 #include "GrDualIntervalGradientColorizer.h"
 #include "GrSingleIntervalGradientColorizer.h"
 #include "GrTextureGradientColorizer.h"
-#include "GrUnrolledBinaryGradientColorizer.h"
 #include "GrGradientBitmapCache.h"
 
 #include "SkGr.h"
@@ -100,17 +99,6 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const GrColor4f* colo
                                                      positions[offset + 1]);
     }
 
-    // The single and dual intervals are a specialized case of the unrolled binary search colorizer
-    // which can analytically render gradients of up to 8 intervals (up to 9 or 16 colors depending
-    // on how many hard stops are inserted).
-    std::unique_ptr<GrFragmentProcessor> unrolled = GrUnrolledBinaryGradientColorizer::Make(
-            colors + offset, positions + offset, count);
-    if (unrolled) {
-        return unrolled;
-    }
-
-    // Otherwise fall back to a rasterized gradient sampled by a texture, which can handle
-    // arbitrary gradients (the only downside being sampling resolution).
     return make_textured_colorizer(colors + offset, positions + offset, count, premul, args);
 }
 
