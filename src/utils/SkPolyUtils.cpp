@@ -1440,7 +1440,8 @@ public:
             : fBounds(bounds)
             , fNumVerts(0) {
         // We want vertexCount grid cells, roughly distributed to match the bounds ratio
-        fHCount = SkScalarRoundToInt(SkScalarSqrt(vertexCount*bounds.width()/bounds.height()));
+        SkScalar hCount = SkScalarSqrt(vertexCount*bounds.width()/bounds.height());
+        fHCount = SkTMax(SkTMin(SkScalarRoundToInt(hCount), vertexCount), 1);
         fVCount = vertexCount/fHCount;
         fGridConversion.set((fHCount - 0.001f)/bounds.width(), (fVCount - 0.001f)/bounds.height());
         fGrid.setCount(fHCount*fVCount);
