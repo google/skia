@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "ac516c43_854ab875",
+        "filename": "modules/skottie/include/SkottieProperty.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-24T18:43:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44a577a7_a9ea69f9",
+      "range": {
+        "startLine": 84,
+        "startChar": 19,
+        "endLine": 84,
+        "endChar": 33
+      },
+      "revId": "5a0e45221d4000a753a4d88ec04c1b38511b8182",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b402ba7e_294104c7",
         "filename": "modules/skottie/include/SkottieProperty.h",
         "patchSetId": 8
