@@ -60,11 +60,10 @@ const (
 	MACHINE_TYPE_LARGE = "n1-highcpu-64"
 
 	// Swarming output dirs.
-	OUTPUT_NONE     = "output_ignored" // This will result in outputs not being isolated.
-	OUTPUT_BUILD    = "build"
-	OUTPUT_COVERAGE = "coverage"
-	OUTPUT_TEST     = "test"
-	OUTPUT_PERF     = "perf"
+	OUTPUT_NONE  = "output_ignored" // This will result in outputs not being isolated.
+	OUTPUT_BUILD = "build"
+	OUTPUT_TEST  = "test"
+	OUTPUT_PERF  = "perf"
 
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
@@ -77,7 +76,6 @@ const (
 	SERVICE_ACCOUNT_UPDATE_META_CONFIG = "skia-update-meta-config@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPLOAD_BINARY      = "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPLOAD_CALMBENCH   = "skia-external-calmbench-upload@skia-swarming-bots.iam.gserviceaccount.com"
-	SERVICE_ACCOUNT_UPLOAD_COVERAGE    = "skia-external-coverage-uploade@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPLOAD_GM          = "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPLOAD_NANO        = "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
 )
@@ -91,13 +89,12 @@ var (
 
 	// General configuration information.
 	CONFIG struct {
-		GsBucketCoverage string   `json:"gs_bucket_coverage"`
-		GsBucketGm       string   `json:"gs_bucket_gm"`
-		GoldHashesURL    string   `json:"gold_hashes_url"`
-		GsBucketNano     string   `json:"gs_bucket_nano"`
-		GsBucketCalm     string   `json:"gs_bucket_calm"`
-		NoUpload         []string `json:"no_upload"`
-		Pool             string   `json:"pool"`
+		GsBucketGm    string   `json:"gs_bucket_gm"`
+		GoldHashesURL string   `json:"gold_hashes_url"`
+		GsBucketNano  string   `json:"gs_bucket_nano"`
+		GsBucketCalm  string   `json:"gs_bucket_calm"`
+		NoUpload      []string `json:"no_upload"`
+		Pool          string   `json:"pool"`
 	}
 
 	// alternateProject can be set in an init function to override the default project ID.
@@ -527,12 +524,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
 			if parts["model"] == "GCE" && d["cpu"] == "x86-64-Haswell_GCE" {
-				// Coverage gets slower with more cores.
-				if strings.Contains(parts["extra_config"], "Coverage") {
-					d["machine_type"] = MACHINE_TYPE_SMALL
-				} else {
-					d["machine_type"] = MACHINE_TYPE_MEDIUM
-				}
+				d["machine_type"] = MACHINE_TYPE_MEDIUM
 			}
 		} else {
 			if strings.Contains(parts["os"], "Win") {
@@ -1105,58 +1097,6 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	return name
 }
 
-func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
-	shards := 1
-	deps := []string{}
-
-	tf := parts["test_filter"]
-	if strings.Contains(tf, "Shard") {
-		// Expected Shard_NN
-		shardstr := strings.Split(tf, "_")[1]
-		var err error
-		shards, err = strconv.Atoi(shardstr)
-		if err != nil {
-			glog.Fatalf("Expected int for number of shards %q in %s: %s", shardstr, name, err)
-		}
-	}
-	for i := 0; i < shards; i++ {
-		n := strings.Replace(name, tf, fmt.Sprintf("shard_%02d_%02d", i, shards), 1)
-		task := kitchenTask(n, "test", "test_skia_bundled.isolate", "", swarmDimensions(parts), nil, OUTPUT_COVERAGE)
-		task.CipdPackages = append(task.CipdPackages, pkgs...)
-		task.Dependencies = append(task.Dependencies, compileTaskName)
-
-		task.Expiration = 20 * time.Hour
-		task.MaxAttempts = 1
-		timeout(task, 4*time.Hour)
-		if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
-			task.Dependencies = append(task.Dependencies, deps...)
-		}
-		b.MustAddTask(n, task)
-		deps = append(deps, n)
-	}
-
-	uploadName := fmt.Sprintf("%s%s%s", "Upload", jobNameSchema.Sep, name)
-	extraProps := map[string]string{
-		"gs_bucket": CONFIG.GsBucketCoverage,
-	}
-	// Use MACHINE_TYPE_LARGE because this does a bunch of computation before upload.
-	uploadTask := kitchenTask(uploadName, "upload_coverage_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_COVERAGE, linuxGceDimensions(MACHINE_TYPE_LARGE), extraProps, OUTPUT_NONE)
-	usesGit(uploadTask, uploadName)
-	uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
-	// We need clang_linux to get access to the llvm-profdata and llvm-cov binaries
-	// which are used to deal with the raw coverage data output by the Test step.
-	uploadTask.CipdPackages = append(uploadTask.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
-	uploadTask.CipdPackages = append(uploadTask.CipdPackages, pkgs...)
-	// A dependency on compileTaskName makes the TaskScheduler link the
-	// isolated output of the compile step to the input of the upload step,
-	// which gives us access to the instrumented binary. The binary is
-	// needed to figure out symbol names and line numbers.
-	uploadTask.Dependencies = append(uploadTask.Dependencies, compileTaskName)
-	uploadTask.Dependencies = append(uploadTask.Dependencies, deps...)
-	b.MustAddTask(uploadName, uploadTask)
-	return uploadName
-}
-
 // perf generates a Perf task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
@@ -1370,12 +1310,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Test bots.
 	if parts["role"] == "Test" {
-		if strings.Contains(parts["extra_config"], "Coverage") {
-			deps = append(deps, coverage(b, name, parts, compileTaskName, pkgs))
-		} else if !strings.Contains(name, "-CT_") {
+		if !strings.Contains(name, "-CT_") {
 			deps = append(deps, test(b, name, parts, compileTaskName, pkgs))
 		}
-
 	}
 
 	// Perf bots.
