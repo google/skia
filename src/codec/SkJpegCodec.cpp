@@ -436,7 +436,6 @@ bool SkJpegCodec::conversionSupported(const SkImageInfo& dstInfo, SkColorType sr
             }
             break;
         case kRGBA_F16_SkColorType:
-            SkASSERT(needsColorXform);
             fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             break;
         default:
