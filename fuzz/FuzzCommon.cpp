@@ -206,6 +206,8 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 SkASSERT(false);
                 break;
         }
+        SkASSERT(path->isValid());
+        SkASSERT(path->pathRefIsValid());
     }
 }
 
