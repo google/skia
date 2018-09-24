@@ -1616,7 +1616,15 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
     SkDEBUGCODE(this->validate();)
 
-    fRenderTargetContext->drawGlyphRunList(this->clip(), this->ctm(), glyphRunList);
+    // Check for valid input
+    const SkMatrix& ctm = this->ctm();
+    const SkPaint& paint = glyphRunList.paint();
+    if (!ctm.isFinite() || !SkScalarIsFinite(paint.getTextSize()) ||
+        !SkScalarIsFinite(paint.getTextScaleX()) || !SkScalarIsFinite(paint.getTextSkewX())) {
+        return;
+    }
+
+    fRenderTargetContext->drawGlyphRunList(this->clip(), ctm, glyphRunList);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
