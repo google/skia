@@ -200,7 +200,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::Make(GrVkGpu* gpu,
 }
 
 sk_sp<GrVkTextureRenderTarget>
-GrVkTextureRenderTarget::CreateNewTextureRenderTarget(GrVkGpu* gpu,
+GrVkTextureRenderTarget::MakeNewTextureRenderTarget(GrVkGpu* gpu,
                                                       SkBudgeted budgeted,
                                                       const GrSurfaceDesc& desc,
                                                       const GrVkImage::ImageDesc& imageDesc,
