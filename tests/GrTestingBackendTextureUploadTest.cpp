@@ -38,9 +38,13 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(srcBuffer,
                                                                        kWidth,
                                                                        kHeight,
-                                                                       config,
+                                                                       ct,
                                                                        renderTarget,
                                                                        mipMapped);
+    if (!backendTex.isValid()) {
+        return;
+    }
+
     sk_sp<GrTexture> wrappedTex;
     if (renderTarget) {
         wrappedTex = gpu->wrapRenderableBackendTexture(backendTex, 1,
@@ -67,7 +71,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTestingBackendTextureUploadTest, reporter, ctxInfo) {
-    for (auto colorType: {GrColorType::kRGBA_8888, GrColorType::kBGRA_8888}) {
+    for (auto colorType: { GrColorType::kRGBA_8888, GrColorType::kBGRA_8888 }) {
         for (bool renderable: {true, false}) {
             for (bool doDataUpload: {true, false}) {
                 testing_only_texture_test(reporter, ctxInfo.grContext(), colorType,
