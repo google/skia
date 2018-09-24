@@ -43,7 +43,7 @@ void RRectAdapter::apply() {
 TransformAdapter::TransformAdapter(sk_sp<sksg::Matrix> matrix)
     : fMatrixNode(std::move(matrix)) {}
 
-SkMatrix TransformAdapter::totalMatrix() const {
+void TransformAdapter::apply() {
     SkMatrix t = SkMatrix::MakeTrans(-fAnchorPoint.x(), -fAnchorPoint.y());
 
     t.postScale(fScale.x() / 100, fScale.y() / 100); // 100% based
@@ -51,11 +51,7 @@ SkMatrix TransformAdapter::totalMatrix() const {
     t.postTranslate(fPosition.x(), fPosition.y());
     // TODO: skew
 
-    return t;
-}
-
-void TransformAdapter::apply() {
-    fMatrixNode->setMatrix(this->totalMatrix());
+    fMatrixNode->setMatrix(t);
 }
 
 PolyStarAdapter::PolyStarAdapter(sk_sp<sksg::Path> wrapped_node, Type t)

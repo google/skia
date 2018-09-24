@@ -26,8 +26,6 @@ namespace sksg { class Scene;  }
 
 namespace skottie {
 
-class PropertyObserver;
-
 /**
  * ResourceProvider allows Skottie embedders to control loading of external
  * Skottie resources -- e.g. images, fonts, nested animations.
@@ -64,9 +62,6 @@ public:
 
     class Builder final {
     public:
-        Builder();
-        ~Builder();
-
         struct Stats {
             float  fTotalLoadTimeMS  = 0, // Total animation instantiation time.
                    fJsonParseTimeMS  = 0, // Time spent building a JSON DOM.
@@ -93,14 +88,6 @@ public:
         Builder& setFontManager(sk_sp<SkFontMgr>);
 
         /**
-         * Specify a PropertyObserver to receive callbacks during parsing.
-         *
-         * See SkottieProperty.h for more details.
-         *
-         */
-        Builder& setPropertyObserver(sk_sp<PropertyObserver>);
-
-        /**
          * Animation factories.
          */
         sk_sp<Animation> make(SkStream*);
@@ -110,7 +97,6 @@ public:
     private:
         sk_sp<ResourceProvider> fResourceProvider;
         sk_sp<SkFontMgr>        fFontMgr;
-        sk_sp<PropertyObserver> fPropertyObserver;
         Stats                   fStats;
     };
 
