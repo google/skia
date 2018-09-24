@@ -210,8 +210,6 @@ private:
 
     void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset);
 
-    void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
-
     void internalDrawImageRect(SkKeyedImage,
                                const SkRect* src,
                                const SkRect& dst,
