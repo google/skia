@@ -3921,8 +3921,9 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 
 #if GR_TEST_UTILS
 GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                          GrPixelConfig config, bool /*isRT*/,
-                                                          GrMipMapped mipMapped) {
+                                                          SkColorType colorType, bool /*isRT*/,
+                                                          GrMipMapped mipMapped,
+                                                          size_t rowBytes) {
     this->handleDirtyContext();
     if (!this->caps()->isConfigTexturable(config)) {
         return GrBackendTexture();  // invalid
@@ -3935,6 +3936,12 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
     // Currently we don't support uploading pixel data when mipped.
     if (pixels && GrMipMapped::kYes == mipMapped) {
         return GrBackendTexture();  // invalid
+    }
+
+    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    const size_t trimRowBytes = width * bpp;
+    if (!rowBytes) {
+        rowBytes = trimRowBytes;
     }
 
     GrGLTextureInfo info;

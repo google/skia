@@ -88,8 +88,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     GrGpu* gpu1 = context1->contextPriv().getGpu();
     static const int kSize = 100;
     backendTexture1 =
-        gpu1->createTestingOnlyBackendTexture(nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig,
-                                              false, GrMipMapped::kNo);
+        gpu1->createTestingOnlyBackendTexture(nullptr, kSize, kSize, kRGBA_8888_SkColorType,
+                                              false, GrMipMapped::kNo, 0);
 
     if (!backendTexture1.isValid() || !gpu1->isTestingOnlyBackendTexture(backendTexture1)) {
         ERRORF(reporter, "Error creating texture for EGL Image");

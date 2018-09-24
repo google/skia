@@ -27,6 +27,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
 
     GrGpu* gpu = context->contextPriv().getGpu();
 
+#if 0
     GrPixelConfig config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
     if (!gpu->caps()->isConfigTexturable(config)) {
         return;
@@ -34,13 +35,18 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     if (gpu->caps()->supportedReadPixelsColorType(config, ct) != ct) {
         return;
     }
+#endif
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(srcBuffer,
                                                                        kWidth,
                                                                        kHeight,
-                                                                       config,
+                                                                       ct,
                                                                        renderTarget,
-                                                                       mipMapped);
+                                                                       mipMapped, 0);
+    if (!backendTex.isValid()) {
+        return;
+    }
+
     sk_sp<GrTexture> wrappedTex;
     if (renderTarget) {
         wrappedTex = gpu->wrapRenderableBackendTexture(backendTex, 1,

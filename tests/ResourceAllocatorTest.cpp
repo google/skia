@@ -58,7 +58,7 @@ static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
 
     *backendTex = gpu->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize,
                                                        p.fConfig, false,
-                                                       GrMipMapped::kNo);
+                                                       GrMipMapped::kNo, 0);
 
     auto tmp = proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin);
     if (!tmp) {

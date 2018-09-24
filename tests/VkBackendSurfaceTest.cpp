@@ -29,9 +29,9 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(nullptr, 1, 1,
-                                                                       kRGBA_8888_GrPixelConfig,
+                                                                       kRGBA_8888_SkColorType,
                                                                        false,
-                                                                       GrMipMapped::kNo);
+                                                                       GrMipMapped::kNo, 0);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrVkImageInfo info;

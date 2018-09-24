@@ -76,8 +76,8 @@ public:
 
 #if GR_TEST_UTILS
     GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                     GrPixelConfig config, bool isRenderTarget,
-                                                     GrMipMapped) override;
+                                                     SkColorType colorType, bool isRenderTarget,
+                                                     GrMipMapped, size_t rowBytes) override;
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
     void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
 

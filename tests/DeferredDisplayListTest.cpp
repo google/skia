@@ -359,7 +359,7 @@ public:
                                         : GrMipMapped(fShouldCreateMipMaps);
 
         *backend = gpu->createTestingOnlyBackendTexture(nullptr, fWidth, fHeight,
-                                                        fConfig, true, mipmapped);
+                                                        fConfig, true, mipmapped, 0);
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
         }
@@ -686,7 +686,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrGpu* gpu = context->contextPriv().getGpu();
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
+            nullptr, kSize, kSize, kRGBA_8888_SkColorType, false, GrMipMapped::kNo, 0);
     if (!backendTex.isValid()) {
         return;
     }
