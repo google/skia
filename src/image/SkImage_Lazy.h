@@ -38,7 +38,7 @@ public:
         return fInfo;
     }
     SkColorType onColorType() const override {
-        return kUnknown_SkColorType;
+        return fInfo.colorType();
     }
     SkAlphaType onAlphaType() const override {
         return fInfo.alphaType();
