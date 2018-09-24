@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf411eda_c8e8faaa",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-24T23:18:11Z",
+      "side": 1,
+      "message": "You may want to check the results of these divides too?\n\nIt\u0027s possible to pick N and D where D !\u003d 0 but N/D \u003d\u003d infinity.",
+      "revId": "6739642b9b6e1820a4dd125414318176fbb29a0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
