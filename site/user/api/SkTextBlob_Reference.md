@@ -1,7 +1,5 @@
 SkTextBlob Reference
 ===
-
-# <a name='Text_Blob'>Text Blob</a>
 <a href='#Text_Blob'>Text Blob</a> holds one or more runs of text. Each run associates a string of <a href='undocumented#Glyph'>Glyphs</a>
 with a position and <a href='SkPaint_Reference#Paint'>Paint</a>. Each <a href='SkPaint_Reference#Paint'>Paint</a> contains attributes used
 to define the run text: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
@@ -21,23 +19,19 @@ Once created, <a href='#Text_Blob'>Text Blob</a> can not be modified.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkTextBlob'>SkTextBlob</a></td>
   </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
 </table>
 
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
-SkTextBlob can be constructed or initialized by these functions, including C++ class constructors.
+SkTextBlob can be constructed or initialized by these functions, including <code>class</code> constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constructor</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_Deserialize'>Deserialize</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> from memory</td>
@@ -52,13 +46,13 @@ SkTextBlob can be constructed or initialized by these functions, including C++ c
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
-SkTextBlob member functions read and modify the structure properties.
+SkTextBlob uses member functions to read and modify structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_Deserialize'>Deserialize</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> from memory</td>
@@ -72,11 +66,11 @@ SkTextBlob member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_bounds'>bounds</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_bounds'>bounds</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns conservative bounding box</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_serialize'>serialize</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_serialize'>serialize</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>writes <a href='#Text_Blob'>Text Blob</a> to memory</td>
   </tr>
   <tr>
@@ -85,63 +79,7 @@ SkTextBlob member functions read and modify the structure properties.
   </tr>
 </table>
 
-# <a name='SkTextBlob'>Class SkTextBlob</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkTextBlob can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_Deserialize'>Deserialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> from memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromString'>MakeFromString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromText'>MakeFromText</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkTextBlob member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_Deserialize'>Deserialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> from memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromString'>MakeFromString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromText'>MakeFromText</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_bounds'>bounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns conservative bounding box</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_serialize'>serialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>writes <a href='#Text_Blob'>Text Blob</a> to memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_uniqueID'>uniqueID</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns identifier for <a href='#Text_Blob'>Text Blob</a></td>
-  </tr>
-</table>
-
-<a href='#SkTextBlob'>SkTextBlob</a> combines multiple text runs into an immutable container. Each text
+<a name='SkTextBlob'></a><a href='#SkTextBlob'>SkTextBlob</a> combines multiple text runs into an immutable container. Each text
 run consists of <a href='undocumented#Glyph'>Glyphs</a>, <a href='SkPaint_Reference#Paint'>Paint</a>, and position. Only parts of <a href='SkPaint_Reference#Paint'>Paint</a> related to
 fonts and text rendering are used by run.
 

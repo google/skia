@@ -1,7 +1,5 @@
 SkRegion Reference
 ===
-
-# <a name='Region'>Region</a>
 <a href='#Region'>Region</a> is a compressed one bit mask. <a href='#Region'>Region</a> describes an aliased clipping area
 on integer boundaries. <a href='#Region'>Region</a> can also describe an array of integer rectangles.
 
@@ -13,8 +11,7 @@ in <a href='SkPath_Reference#Path'>Path</a> become integer rectangle edges. <a h
 intersection, difference, and so on. <a href='SkCanvas_Reference#Canvas'>Canvas</a> allows only intersection and
 difference; successive clips can only reduce available <a href='SkCanvas_Reference#Canvas'>Canvas</a> area.
 
-# <a name='SkRegion'>Class SkRegion</a>
-<a href='#SkRegion'>SkRegion</a> describes the set of pixels used to clip <a href='SkCanvas_Reference#Canvas'>Canvas</a>. <a href='#SkRegion'>SkRegion</a> is compact,
+<a name='SkRegion'></a><a href='#SkRegion'>SkRegion</a> describes the set of pixels used to clip <a href='SkCanvas_Reference#Canvas'>Canvas</a>. <a href='#SkRegion'>SkRegion</a> is compact,
 efficiently storing a single integer rectangle, or a run length encoded array
 of rectangles. <a href='#SkRegion'>SkRegion</a> may reduce the current <a href='SkCanvas_Reference#Clip'>Canvas Clip</a>, or may be drawn as
 one or more integer rectangles. <a href='#SkRegion'>SkRegion</a> iterator returns the scan lines or
@@ -26,35 +23,31 @@ rectangles contained by it, optionally intersecting a bounding rectangle.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Class'>Class Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded class members</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constants'>Constants</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
   </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Classes'>Class Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded class members</td>
+  </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructors'>Constructors</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkRegion'>SkRegion</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operators'>Operators</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading functions</td>
   </tr>
 </table>
 
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
-SkRegion related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
+SkRegion defines related constants are using <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constant</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='undocumented#Op'>Op</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>binary operator combining <a href='#Region'>Regions</a></td>
@@ -93,13 +86,13 @@ SkRegion related constants are defined by <code>enum</code>, <code>enum class</c
   </tr>
 </table>
 
-## <a name='Class'>Class</a>
+## <a name='Classes'>Classes</a>
 
 
-SkRegion uses C++ classes to declare the public data structures and interfaces.
+SkRegion uses <code>class</code> to declare the public data structures and interfaces.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Class</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Cliperator'>Cliperator</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>iterator returning <a href='SkIRect_Reference#IRect'>IRect</a> within clip</td>
@@ -114,13 +107,13 @@ SkRegion uses C++ classes to declare the public data structures and interfaces.
   </tr>
 </table>
 
-## <a name='Constructor'>Constructor</a>
+## <a name='Constructors'>Constructors</a>
 
 
-SkRegion can be constructed or initialized by these functions, including C++ class constructors.
+SkRegion can be constructed or initialized by these functions, including <code>class</code> constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constructor</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_empty_constructor'>SkRegion()</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs with default values</td>
@@ -134,7 +127,7 @@ SkRegion can be constructed or initialized by these functions, including C++ cla
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>makes a shallow copy</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_set'>set</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_set'>set</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>makes a shallow copy</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -150,12 +143,12 @@ SkRegion can be constructed or initialized by these functions, including C++ cla
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Region'>Region</a> matching <a href='SkIRect_Reference#IRect'>IRect</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_setRect'>setRect(const SkIRect& rect)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_setRect'>bool setRect(const SkIRect& rect)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_setRect_2'>setRect(int32 t left, int32 t top, int32 t right, int32 t bottom)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_setRect_2'>bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_setRects'>setRects</a></td>
@@ -171,13 +164,13 @@ SkRegion can be constructed or initialized by these functions, including C++ cla
   </tr>
 </table>
 
-## <a name='Operator'>Operator</a>
+## <a name='Operators'>Operators</a>
 
 
-SkRegion operators inline class member functions with arithmetic equivalents.
+SkRegion defines member functions with arithmetic equivalents.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Operator</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_notequal1_operator'>operator!=(const SkRegion& other) const</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>compares <a href='#Region'>Regions</a> for inequality</td>
@@ -191,24 +184,24 @@ SkRegion operators inline class member functions with arithmetic equivalents.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>compares <a href='#Region'>Regions</a> for equality</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_swap'>swap</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_swap'>swap</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exchanges <a href='#Region'>Region</a> pair</td>
   </tr>
 </table>
 
-## <a name='Member_Function'>Member Function</a>
+## <a name='Member_Functions'>Member Functions</a>
 
 
-SkRegion member functions read and modify the structure properties.
+SkRegion uses member functions to read and modify structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_computeRegionComplexity'>computeRegionComplexity</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns relative complexity</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_contains'>contains</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_contains'>contains</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if points are equal or inside</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -220,7 +213,7 @@ SkRegion member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns maximum and minimum of <a href='SkIRect_Reference#IRect'>IRect</a> array</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_intersects'>intersects</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_intersects'>intersects</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if areas overlap</td>
   </tr>
   <tr>
@@ -236,7 +229,7 @@ SkRegion member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Region'>Region</a> contains one <a href='SkIRect_Reference#IRect'>IRect</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_op'>op</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_op'>op</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>applies binary operator</td>
   </tr>
   <tr>
@@ -252,7 +245,7 @@ SkRegion member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>reads from buffer</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_set'>set</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_set'>set</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>makes a shallow copy</td>
   </tr>
   <tr>
@@ -276,7 +269,7 @@ SkRegion member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies <a href='#Region'>Region</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_swap'>swap</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_swap'>swap</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exchanges <a href='#Region'>Region</a> pair</td>
   </tr>
   <tr>
@@ -284,7 +277,7 @@ SkRegion member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exists for Android framework only</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_translate'>translate</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_translate'>translate</a>()</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates <a href='SkIPoint_Reference#IPoint'>IPoints</a> in <a href='#Region'>Region</a></td>
   </tr>
   <tr>
@@ -293,69 +286,19 @@ SkRegion member functions read and modify the structure properties.
   </tr>
 </table>
 
-# <a name='SkRegion_Iterator'>Class SkRegion::Iterator</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkRegion::Iterator can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_copy_const_SkRegion'>Iterator(const SkRegion& region)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Region'>Region</a> iterator</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkRegion::Iterator member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_Iterator'>Iterator()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Region'>Region</a> iterator</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_done'>done</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if data parsing is complete</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_next'>next</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>advances to next <a href='SkIRect_Reference#IRect'>IRect</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_rect'>rect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns part of <a href='#Region'>Region</a> as <a href='SkIRect_Reference#IRect'>IRect</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_reset'>reset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='#Region'>Region</a> to iterate</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_rewind'>rewind</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>points <a href='#SkRegion_Iterator_Iterator'>Iterator</a> to start</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_rgn'>rgn</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns original <a href='#Region'>Region</a></td>
-  </tr>
-</table>
+<a name='SkRegion_Iterator'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkRegion_Iterator_Iterator'>Iterator</a> {
     public:
         <a href='#SkRegion_Iterator_Iterator'>Iterator()</a>;
         <a href='#SkRegion_Iterator_copy_const_SkRegion'>Iterator(const SkRegion& region)</a>;
-        bool <a href='#SkRegion_Iterator_rewind'>rewind</a>;
-        void <a href='#SkRegion_Iterator_reset'>reset(const SkRegion& region)</a>;
-        bool <a href='#SkRegion_Iterator_done'>done</a> const;
-        void <a href='#SkRegion_Iterator_next'>next</a>;
-        const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkRegion_Iterator_rect'>rect</a>;
-        const <a href='#SkRegion'>SkRegion</a>* <a href='#SkRegion_Iterator_rgn'>rgn</a>;
+        bool <a href='#SkRegion_Iterator_rewind'>rewind</a>();
+        void <a href='#SkRegion_Iterator_reset'>reset</a>(const <a href='#SkRegion'>SkRegion</a>& region);
+        bool <a href='#SkRegion_Iterator_done'>done</a>() const;
+        void <a href='#SkRegion_Iterator_next'>next</a>();
+        const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkRegion_Iterator_rect'>rect</a>();
+        const <a href='#SkRegion'>SkRegion</a>* <a href='#SkRegion_Iterator_rgn'>rgn</a>();
     };
 </pre>
 
@@ -369,8 +312,8 @@ up <a href='#Region'>Region</a>.
 <a href='#SkRegion_Iterator_Iterator'>Iterator</a>()
 </pre>
 
-Initializes <a href='#SkRegion_Iterator_Iterator'>Iterator</a> with an empty <a href='#Region'>Region</a>. <a href='#SkRegion_Iterator_done'>done</a> on <a href='#SkRegion_Iterator_Iterator'>Iterator</a> returns true.
-Call <a href='#SkRegion_Iterator_reset'>reset</a> to initialized <a href='#SkRegion_Iterator_Iterator'>Iterator</a> at a later time.
+Initializes <a href='#SkRegion_Iterator_Iterator'>Iterator</a> with an empty <a href='#Region'>Region</a>. <a href='#SkRegion_Iterator_done'>done</a>() on <a href='#SkRegion_Iterator_Iterator'>Iterator</a> returns true.
+Call <a href='#SkRegion_Iterator_reset'>reset</a>() to initialized <a href='#SkRegion_Iterator_Iterator'>Iterator</a> at a later time.
 
 ### Return Value
 
@@ -624,49 +567,15 @@ iterated <a href='#Region'>Region</a>
 
 ---
 
-# <a name='SkRegion_Cliperator'>Class SkRegion::Cliperator</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkRegion::Cliperator can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Cliperator_const_SkRegion_const_SkIRect'>Cliperator(const SkRegion& region, const SkIRect& clip)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Region'>Region</a> iterator with clip</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkRegion::Cliperator member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Cliperator_done'>done</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if data parsing is complete</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Cliperator_next'>next</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>advances to next <a href='SkIRect_Reference#IRect'>IRect</a> within clip</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Cliperator_rect'>rect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns part of <a href='#Region'>Region</a> as <a href='SkIRect_Reference#IRect'>IRect</a> intersected with clip</td>
-  </tr>
-</table>
+<a name='SkRegion_Cliperator'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class SK_API <a href='#SkRegion_Cliperator'>Cliperator</a> {
     public:
         <a href='#SkRegion_Cliperator_const_SkRegion_const_SkIRect'>Cliperator(const SkRegion& region, const SkIRect& clip)</a>;
-        bool <a href='#SkRegion_Cliperator_done'>done</a>;
-        void <a href='#SkRegion_Cliperator_next'>next</a>;
-        const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkRegion_Cliperator_rect'>rect</a> const;
+        bool <a href='#SkRegion_Cliperator_done'>done</a>();
+        void <a href='#SkRegion_Cliperator_next'>next</a>();
+        const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkRegion_Cliperator_rect'>rect</a>() const;
     };
 </pre>
 
@@ -809,39 +718,13 @@ after set rect rect={1,2,3,3}
 
 ---
 
-# <a name='SkRegion_Spanerator'>Class SkRegion::Spanerator</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkRegion::Spanerator can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Spanerator_const_SkRegion_int_int_int'>Spanerator(const SkRegion& region, int y, int left, int right)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Region'>Region</a> iterator on scan line</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkRegion::Spanerator member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Spanerator_next'>next</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>advances to next span on horizontal line</td>
-  </tr>
-</table>
+<a name='SkRegion_Spanerator'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkRegion_Spanerator'>Spanerator</a> {
     public:
         <a href='#SkRegion_Spanerator_const_SkRegion_int_int_int'>Spanerator(const SkRegion& region, int y, int left, int right)</a>;
-        bool <a href='#SkRegion_Spanerator_next'>next(int* left, int* right)</a>;
+        bool <a href='#SkRegion_Spanerator_next'>next</a>(int* left, int* right);
     };
 </pre>
 
@@ -1118,7 +1001,7 @@ region2 bounds: {1,2,3,4}
 ## operator==
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool operator==(const SkRegion& other) _const
+bool operator==(const SkRegion& other) const
 </pre>
 
 Compares <a href='#Region'>Region</a> and <a href='#SkRegion_equal1_operator_other'>other</a>; returns true if they enclose exactly
@@ -1159,7 +1042,7 @@ set empty one == two
 ## operator!=
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool operator!=(const SkRegion& other) _const
+bool operator!=(const SkRegion& other) const
 </pre>
 
 Compares <a href='#Region'>Region</a> and <a href='#SkRegion_notequal1_operator_other'>other</a>; returns true if they do not enclose the same area.
@@ -1248,12 +1131,12 @@ region2 bounds: {1,2,3,4}
 void <a href='#SkRegion_swap'>swap</a>(<a href='#SkRegion'>SkRegion</a>& other)
 </pre>
 
-Exchanges <a href='SkIRect_Reference#IRect'>IRect</a> array of <a href='#Region'>Region</a> and <a href='#SkRegion_swap_other'>other</a>. <a href='#SkRegion_swap'>swap</a> internally exchanges pointers,
+Exchanges <a href='SkIRect_Reference#IRect'>IRect</a> array of <a href='#Region'>Region</a> and <a href='#SkRegion_swap_other'>other</a>. <a href='#SkRegion_swap'>swap</a>() internally exchanges pointers,
 so it is lightweight and does not allocate memory.
 
-<a href='#SkRegion_swap'>swap</a> usage has largely been replaced by <a href='#SkRegion_copy_operator'>operator=(const SkRegion& region)</a>.
+<a href='#SkRegion_swap'>swap</a>() usage has largely been replaced by <a href='#SkRegion_copy_operator'>operator=(const SkRegion& region)</a>.
 <a href='SkPath_Reference#Path'>Paths</a> do not copy their content on assignment until they are written to,
-making assignment as efficient as <a href='#SkRegion_swap'>swap</a>.
+making assignment as efficient as <a href='#SkRegion_swap'>swap</a>().
 
 ### Parameters
 
@@ -1619,7 +1502,7 @@ bool <a href='#SkRegion_setRects'>setRects</a>(const <a href='SkIRect_Reference#
 Constructs <a href='#Region'>Region</a> as the union of <a href='SkIRect_Reference#IRect'>IRect</a> in <a href='#SkRegion_setRects_rects'>rects</a> array. If <a href='#SkRegion_setRects_count'>count</a> is
 zero, constructs empty <a href='#Region'>Region</a>. Returns false if constructed <a href='#Region'>Region</a> is empty.
 
-May be faster than repeated calls to <a href='#SkRegion_op'>op</a>.
+May be faster than repeated calls to <a href='#SkRegion_op'>op</a>().
 
 ### Parameters
 
@@ -2446,6 +2329,8 @@ false if result is empty
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 char* <a href='#SkRegion_toString'>toString</a>()
 </pre>
+
+Private: Android framework only.
 
 ### Return Value
 

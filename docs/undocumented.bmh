@@ -590,6 +590,10 @@ FT_Load_Glyph
 ##
 #Topic ##
 
+#Topic Porter_Duff
+# temporary while separating blend mode ref from blend mode overview
+##
+
 #Topic PostScript
 #Substitute PostScript
 #Subtopic Arct
