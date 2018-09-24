@@ -121,25 +121,13 @@ public:
     // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
     // later being our representation of an object in the PDF file.
     struct GraphicStateEntry {
-        GraphicStateEntry();
-
-        // Compare the fields we care about when setting up a new content entry.
-        bool compareInitialState(const GraphicStateEntry& b);
-
-        SkMatrix fMatrix;
-        // We can't do set operations on Paths, though PDF natively supports
-        // intersect.  If the clip stack does anything other than intersect,
-        // we have to fall back to the region.  Treat fClipStack as authoritative.
-        // See https://bugs.skia.org/221
+        SkMatrix fMatrix = SkMatrix::I();
         SkClipStack fClipStack;
-
-        // When emitting the content entry, we will ensure the graphic state
-        // is set to these values first.
-        SkColor fColor;
-        SkScalar fTextScaleX;  // Zero means we don't care what the value is.
-        SkPaint::Style fTextFill;  // Only if TextScaleX is non-zero.
-        int fShaderIndex;
-        int fGraphicStateIndex;
+        SkColor fColor = SK_ColorBLACK;
+        SkScalar fTextScaleX = 1;  // Zero means we don't care what the value is.
+        SkPaint::Style fTextFill = SkPaint::kFill_Style;  // Only if TextScaleX is non-zero.
+        int fShaderIndex = -1;
+        int fGraphicStateIndex = -1;
     };
 
 protected:
