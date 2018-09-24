@@ -254,7 +254,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     GrBackendTexture backendTex =
                             gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
                                                                  kWidthHeight, colorType,
-                                                                 true, GrMipMapped::kNo);
+                                                                 true, GrMipMapped::kNo, 0);
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTextureAsRenderTarget(
                             backendTex, origin, supportedNumSamples);
                     if (!sProxy) {
@@ -278,7 +278,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     GrBackendTexture backendTex =
                             gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
                                                                  kWidthHeight, colorType,
-                                                                 true, GrMipMapped::kNo);
+                                                                 true, GrMipMapped::kNo, 0);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
                             backendTex, origin, supportedNumSamples);
@@ -304,7 +304,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     GrBackendTexture backendTex =
                             gpu->createTestingOnlyBackendTexture(nullptr, kWidthHeight,
                                                                  kWidthHeight, colorType,
-                                                                 false, GrMipMapped::kNo);
+                                                                 false, GrMipMapped::kNo, 0);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTexture(
                             backendTex, origin, kBorrow_GrWrapOwnership, nullptr, nullptr);

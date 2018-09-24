@@ -14,7 +14,7 @@
 #include "Test.h"
 #include "TestUtils.h"
 
-void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context, GrColorType ct,
+void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColorType ct,
                                bool renderTarget, bool doDataUpload, GrMipMapped mipMapped) {
     const int kWidth = 16;
     const int kHeight = 16;
@@ -27,20 +27,25 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
 
     GrGpu* gpu = context->contextPriv().getGpu();
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
+    GrColorType grCT = SkColorTypeToGrColorType(ct);
+    GrPixelConfig config = GrColorTypeToPixelConfig(grCT, GrSRGBEncoded::kNo);
     if (!gpu->caps()->isConfigTexturable(config)) {
         return;
     }
-    if (gpu->caps()->supportedReadPixelsColorType(config, ct) != ct) {
+    if (gpu->caps()->supportedReadPixelsColorType(config, grCT) != grCT) {
         return;
     }
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(srcBuffer,
                                                                        kWidth,
                                                                        kHeight,
-                                                                       config,
+                                                                       ct,
                                                                        renderTarget,
-                                                                       mipMapped);
+                                                                       mipMapped, 0);
+    if (!backendTex.isValid()) {
+        return;
+    }
+
     sk_sp<GrTexture> wrappedTex;
     if (renderTarget) {
         wrappedTex = gpu->wrapRenderableBackendTexture(backendTex, 1,
@@ -51,9 +56,9 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     }
     REPORTER_ASSERT(reporter, wrappedTex);
 
-    int rowBytes = GrColorTypeBytesPerPixel(ct) * kWidth;
+    int rowBytes = GrColorTypeBytesPerPixel(grCT) * kWidth;
     bool result = gpu->readPixels(wrappedTex.get(), 0, 0, kWidth,
-                                  kHeight, ct, dstBuffer, rowBytes);
+                                  kHeight, grCT, dstBuffer, rowBytes);
 
     if (!doDataUpload) {
         // createTestingOnlyBackendTexture will fill the texture with 0's if no data is provided, so
@@ -67,7 +72,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTestingBackendTextureUploadTest, reporter, ctxInfo) {
-    for (auto colorType: {GrColorType::kRGBA_8888, GrColorType::kBGRA_8888}) {
+    for (auto colorType: { kRGBA_8888_SkColorType, kBGRA_8888_SkColorType }) {
         for (bool renderable: {true, false}) {
             for (bool doDataUpload: {true, false}) {
                 testing_only_texture_test(reporter, ctxInfo.grContext(), colorType,

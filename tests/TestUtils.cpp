@@ -107,7 +107,7 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
         for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto src = sk_gpu_test::MakeTextureProxyFromData(
                     dstContext->surfPriv().getContext(), isRT, dstContext->width(),
-                    dstContext->height(), GrColorType::kRGBA_8888, origin, pixels.get(), 0);
+                    dstContext->height(), kRGBA_8888_SkColorType, origin, pixels.get(), 0);
             dstContext->copy(src.get());
             test_read_pixels(reporter, dstContext, pixels.get(), testName);
         }
