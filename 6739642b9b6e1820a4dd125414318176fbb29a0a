@@ -16,6 +16,24 @@
       "revId": "6739642b9b6e1820a4dd125414318176fbb29a0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a17522a_572582f1",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-24T23:21:01Z",
+      "side": 1,
+      "message": "(One way to get this all in one pass is to use sk_ieee_float_divide() to do the divides supressing warnings about divide by zero, but then check SkScalarIsFinite() on the results.)",
+      "parentUuid": "cf411eda_c8e8faaa",
+      "revId": "6739642b9b6e1820a4dd125414318176fbb29a0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
