@@ -26,12 +26,12 @@ static const int Y_SIZE = 13;
 
 static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, const uint8_t* actual,
                                 size_t actualRowBytes, const uint8_t* expected, SkString extraMsg,
-                                GrColorType colorType) {
+                                SkColorType colorType) {
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint8_t a = actual[y * actualRowBytes + x];
             uint8_t e = expected[y * w + x];
-            if (GrColorType::kRGBA_1010102 == colorType) {
+            if (kRGBA_1010102_SkColorType == colorType) {
                 // This config only preserves two bits of alpha
                 a >>= 6;
                 e >>= 6;
@@ -114,7 +114,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             SkString msg;
             msg.printf("rb:%d A8", SkToU32(rowBytes));
             validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
-                                alphaData, msg, GrColorType::kAlpha_8);
+                                alphaData, msg, kAlpha_8_SkColorType);
 
             // Now try writing to a single channel surface (if we could create one).
             if (surf) {
@@ -156,13 +156,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     }
 
     static constexpr struct {
-        GrColorType fColorType;
+        SkColorType fColorType;
         GrSRGBEncoded fSRGBEncoded;
     } kInfos[] = {
-            {GrColorType::kRGBA_8888, GrSRGBEncoded::kNo},
-            {GrColorType::kBGRA_8888, GrSRGBEncoded::kNo},
-            {GrColorType::kRGBA_8888, GrSRGBEncoded::kYes},
-            {GrColorType::kRGBA_1010102, GrSRGBEncoded::kNo},
+            {kRGBA_8888_SkColorType, GrSRGBEncoded::kNo},
+            {kBGRA_8888_SkColorType, GrSRGBEncoded::kNo},
+            {kRGBA_8888_SkColorType, GrSRGBEncoded::kYes},
+            {kRGBA_1010102_SkColorType, GrSRGBEncoded::kNo},
     };
 
     for (int y = 0; y < Y_SIZE; ++y) {

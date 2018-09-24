@@ -192,8 +192,15 @@ GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrR
 
 #if GR_TEST_UTILS
 GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                            GrPixelConfig config, bool isRT,
-                                                            GrMipMapped mipMapped) {
+                                                            SkColorType colorType, bool isRT,
+                                                            GrMipMapped mipMapped, size_t rowBytes) {
+
+    GrColorType grCT = SkColorTypeToGrColorType(colorType);
+    GrPixelConfig config = GrColorTypeToPixelConfig(grCT, GrSRGBEncoded::kNo);
+    if (!this->caps()->isConfigTexturable(config)) {
+        return GrBackendTexture();  // invalid
+    }
+
     GrMockTextureInfo info;
     info.fConfig = config;
     info.fID = NextExternalTextureID();

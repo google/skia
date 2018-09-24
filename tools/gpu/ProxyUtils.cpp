@@ -15,19 +15,20 @@
 namespace sk_gpu_test {
 
 sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, int width, int height,
-                                               GrColorType ct, GrSRGBEncoded srgbEncoded,
+                                               SkColorType colorType, GrSRGBEncoded srgbEncoded,
                                                GrSurfaceOrigin origin, const void* data,
                                                size_t rowBytes) {
     if (context->abandoned()) {
         return nullptr;
     }
 
-    auto config = GrColorTypeToPixelConfig(ct, srgbEncoded);
+    GrColorType grCT = SkColorTypeToGrColorType(colorType);
+
     sk_sp<GrTextureProxy> proxy;
     if (kBottomLeft_GrSurfaceOrigin == origin) {
         // We (soon will) only support using kBottomLeft with wrapped textures.
         auto backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
-                nullptr, width, height, config, isRT, GrMipMapped::kNo);
+                nullptr, width, height, colorType, isRT, GrMipMapped::kNo, 0);
         if (!backendTex.isValid()) {
             return nullptr;
         }
@@ -46,6 +47,11 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
         }
 
     } else {
+        GrPixelConfig config = GrColorTypeToPixelConfig(grCT, srgbEncoded);
+        if (!context->contextPriv().caps()->isConfigTexturable(config)) {
+            return nullptr;
+        }
+
         GrSurfaceDesc desc;
         desc.fConfig = config;
         desc.fWidth = width;
@@ -61,8 +67,8 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
     if (!sContext) {
         return nullptr;
     }
-    if (!context->contextPriv().writeSurfacePixels(sContext.get(), 0, 0, width, height, ct, nullptr,
-                                                   data, rowBytes)) {
+    if (!context->contextPriv().writeSurfacePixels(sContext.get(), 0, 0, width, height, grCT,
+                                                   nullptr, data, rowBytes)) {
         return nullptr;
     }
     return proxy;
