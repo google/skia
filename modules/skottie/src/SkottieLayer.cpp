@@ -408,8 +408,6 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
                                                      AttachLayerContext* layerCtx) const {
     if (!jlayer) return nullptr;
 
-    const AutoPropertyTracker apt(this, *jlayer);
-
     using LayerAttacher = sk_sp<sksg::RenderNode> (AnimationBuilder::*)(const skjson::ObjectValue&,
                                                                         AnimatorScope*) const;
     static constexpr LayerAttacher gLayerAttachers[] = {

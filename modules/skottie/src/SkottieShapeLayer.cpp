@@ -430,26 +430,26 @@ struct GeometryEffectRec {
     GeometryEffectAttacherT    fAttach;
 };
 
-} // namespace
-
-struct AnimationBuilder::AttachShapeContext {
-    AttachShapeContext(AnimatorScope* ascope,
+struct AttachShapeContext {
+    AttachShapeContext(const AnimationBuilder* abuilder,
+                       AnimatorScope* ascope,
                        std::vector<sk_sp<sksg::GeometryNode>>* geos,
                        std::vector<GeometryEffectRec>* effects,
                        size_t committedAnimators)
-        : fScope(ascope)
+        : fBuilder(abuilder)
+        , fScope(ascope)
         , fGeometryStack(geos)
         , fGeometryEffectStack(effects)
         , fCommittedAnimators(committedAnimators) {}
 
+    const AnimationBuilder*                 fBuilder;
     AnimatorScope*                          fScope;
     std::vector<sk_sp<sksg::GeometryNode>>* fGeometryStack;
     std::vector<GeometryEffectRec>*         fGeometryEffectStack;
     size_t                                  fCommittedAnimators;
 };
 
-sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* jshape,
-                                                      AttachShapeContext* ctx) const {
+sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShapeContext* ctx) {
     if (!jshape)
         return nullptr;
 
@@ -504,13 +504,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
     std::vector<sk_sp<sksg::GeometryNode>> geos;
     std::vector<sk_sp<sksg::RenderNode  >> draws;
     for (auto rec = recs.rbegin(); rec != recs.rend(); ++rec) {
-        const AutoPropertyTracker apt(this, rec->fJson);
-
         switch (rec->fInfo.fShapeType) {
         case ShapeType::kGeometry: {
             SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gGeometryAttachers));
             if (auto geo = gGeometryAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
-                                                                         this,
+                                                                         ctx->fBuilder,
                                                                          ctx->fScope)) {
                 geos.push_back(std::move(geo));
             }
@@ -520,7 +518,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
             SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
             if (!geos.empty()) {
                 geos = gGeometryEffectAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
-                                                                           this,
+                                                                           ctx->fBuilder,
                                                                            ctx->fScope,
                                                                            std::move(geos));
             }
@@ -531,11 +529,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
             ctx->fGeometryEffectStack->pop_back();
         } break;
         case ShapeType::kGroup: {
-            AttachShapeContext groupShapeCtx(ctx->fScope,
+            AttachShapeContext groupShapeCtx(ctx->fBuilder,
+                                             ctx->fScope,
                                              &geos,
                                              ctx->fGeometryEffectStack,
                                              ctx->fCommittedAnimators);
-            if (auto subgroup = this->attachShape(rec->fJson["it"], &groupShapeCtx)) {
+            if (auto subgroup = AttachShape(rec->fJson["it"], &groupShapeCtx)) {
                 draws.push_back(std::move(subgroup));
                 SkASSERT(groupShapeCtx.fCommittedAnimators >= ctx->fCommittedAnimators);
                 ctx->fCommittedAnimators = groupShapeCtx.fCommittedAnimators;
@@ -544,7 +543,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
         case ShapeType::kPaint: {
             SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gPaintAttachers));
             auto paint = gPaintAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
-                                                                    this,
+                                                                    ctx->fBuilder,
                                                                     ctx->fScope);
             if (!paint || geos.empty())
                 break;
@@ -554,7 +553,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
             // Apply all pending effects from the stack.
             for (auto it = ctx->fGeometryEffectStack->rbegin();
                  it != ctx->fGeometryEffectStack->rend(); ++it) {
-                drawGeos = it->fAttach(it->fJson, this, ctx->fScope, std::move(drawGeos));
+                drawGeos = it->fAttach(it->fJson, ctx->fBuilder, ctx->fScope, std::move(drawGeos));
             }
 
             // If we still have multiple geos, reduce using 'merge'.
@@ -589,17 +588,16 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
 
     sk_sp<sksg::Matrix> shape_matrix;
     if (jtransform) {
-        const AutoPropertyTracker apt(this, *jtransform);
-
         // This is tricky due to the interaction with ctx->fCommittedAnimators: we want any
         // animators related to tranform/opacity to be committed => they must be inserted in front
         // of the dangling/uncommitted ones.
         AnimatorScope local_scope;
 
-        if ((shape_matrix = this->attachMatrix(*jtransform, &local_scope, nullptr))) {
+        if ((shape_matrix = ctx->fBuilder->attachMatrix(*jtransform, &local_scope, nullptr))) {
             shape_wrapper = sksg::Transform::Make(std::move(shape_wrapper), shape_matrix);
         }
-        shape_wrapper = this->attachOpacity(*jtransform, &local_scope, std::move(shape_wrapper));
+        shape_wrapper = ctx->fBuilder->attachOpacity(*jtransform, &local_scope,
+                                                     std::move(shape_wrapper));
 
         ctx->fScope->insert(ctx->fScope->begin() + ctx->fCommittedAnimators,
                             std::make_move_iterator(local_scope.begin()),
@@ -617,12 +615,14 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
     return shape_wrapper;
 }
 
+} // namespace
+
 sk_sp<sksg::RenderNode> AnimationBuilder::attachShapeLayer(const skjson::ObjectValue& layer,
                                                            AnimatorScope* ascope) const {
     std::vector<sk_sp<sksg::GeometryNode>> geometryStack;
     std::vector<GeometryEffectRec> geometryEffectStack;
-    AttachShapeContext shapeCtx(ascope, &geometryStack, &geometryEffectStack, ascope->size());
-    auto shapeNode = this->attachShape(layer["shapes"], &shapeCtx);
+    AttachShapeContext shapeCtx(this, ascope, &geometryStack, &geometryEffectStack, ascope->size());
+    auto shapeNode = AttachShape(layer["shapes"], &shapeCtx);
 
     // Trim uncommitted animators: AttachShape consumes effects on the fly, and greedily attaches
     // geometries => at the end, we can end up with unused geometries, which are nevertheless alive
