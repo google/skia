@@ -1099,6 +1099,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                                   texelsShallowCopy[currentMipLevel].fPixels));
         }
     }
+    this->getContext()->keepAlive();
 
     restore_pixelstore_state(*interface, caps, restoreGLRowLength);
 
@@ -3210,6 +3211,8 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     GL_CALL(DeleteShader(vshader));
     GL_CALL(DeleteShader(fshader));
 
+    this->getContext()->keepAlive();
+
     return true;
 }
 
@@ -3367,6 +3370,8 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     GL_CALL(DeleteShader(vshader));
     GL_CALL(DeleteShader(fshader));
 
+    this->getContext()->keepAlive();
+
     return true;
 }
 
@@ -3436,6 +3441,8 @@ bool GrGLGpu::createStencilClipClearProgram() {
 
     GL_CALL(DeleteShader(vshader));
     GL_CALL(DeleteShader(fshader));
+
+    this->getContext()->keepAlive();
 
     return true;
 }
@@ -3550,6 +3557,8 @@ bool GrGLGpu::createClearColorProgram() {
 
     GL_CALL(DeleteShader(vshader));
     GL_CALL(DeleteShader(fshader));
+
+    this->getContext()->keepAlive();
 
     return true;
 }
@@ -3719,6 +3728,8 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurfaceOrigin dstOr
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     this->didWriteToSurface(dst, dstOrigin, &dstRect);
+
+    this->getContext()->keepAlive();
 }
 
 bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOrigin,

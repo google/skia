@@ -285,6 +285,12 @@ public:
 
     bool supportsDistanceFieldText() const;
 
+    void keepAlive() {
+        if (fKeepAliveReporter) {
+            fKeepAliveReporter->keepAlive();
+        }
+    }
+
 protected:
     GrContext(GrBackend, int32_t id = SK_InvalidGenID);
 
@@ -303,6 +309,7 @@ private:
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
     GrProxyProvider*                        fProxyProvider;
+    GrKeepAliveReporter*                    fKeepAliveReporter;
 
     // All the GrOp-derived classes use this pool.
     sk_sp<GrOpMemoryPool>                   fOpMemoryPool;

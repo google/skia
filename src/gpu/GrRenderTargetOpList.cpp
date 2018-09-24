@@ -158,6 +158,8 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     SkASSERT(fTarget.get()->peekRenderTarget());
     TRACE_EVENT0("skia", TRACE_FUNC);
 
+    flushState->gpu()->getContext()->keepAlive();
+
     // TODO: at the very least, we want the stencil store op to always be discard (at this
     // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
     GrGpuRTCommandBuffer* commandBuffer = create_command_buffer(

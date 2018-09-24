@@ -19,6 +19,11 @@
 class SkExecutor;
 
 #if SK_SUPPORT_GPU
+class GrKeepAliveReporter {
+public:
+    virtual void keepAlive() = 0;
+};
+
 struct GrContextOptions {
     enum class Enable {
         /** Forces an option to be disabled. */
@@ -242,6 +247,12 @@ struct GrContextOptions {
 #endif
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
+
+    /**
+     * Meant to be called periodically during "slow" operations to prevent
+     * incorrect hang detection.  Embedder responsible for object lifetime.
+     */
+    GrKeepAliveReporter* fKeepAliveReporter = nullptr;
 };
 #else
 struct GrContextOptions {

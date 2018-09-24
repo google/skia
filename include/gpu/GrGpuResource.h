@@ -259,6 +259,8 @@ public:
 
     static uint32_t CreateUniqueID();
 
+    void reportKeepAliveProgress();
+
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is
     // fully initialized (i.e. only from the constructors of the final class).
