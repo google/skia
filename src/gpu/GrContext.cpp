@@ -74,6 +74,7 @@ GrContext::GrContext(GrBackend backend, int32_t id)
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
     fGlyphCache = nullptr;
+    fKeepAliveReporter = nullptr;
 }
 
 bool GrContext::initCommon(const GrContextOptions& options) {
@@ -149,6 +150,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
     }
 
     fPersistentCache = options.fPersistentCache;
+    fKeepAliveReporter = options.fKeepAliveReporter;
 
     return true;
 }

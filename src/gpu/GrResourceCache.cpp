@@ -217,13 +217,13 @@ void GrResourceCache::releaseAll() {
     while(fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
-        back->cacheAccess().release();
+        releaseResource(back);
     }
 
     while (fPurgeableQueue.count()) {
         GrGpuResource* top = fPurgeableQueue.peek();
         SkASSERT(!top->wasDestroyed());
-        top->cacheAccess().release();
+        releaseResource(top);
     }
 
     SkASSERT(!fScratchMap.count());
@@ -318,7 +318,7 @@ void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const GrUniqueKey
         if (GrGpuResource* old = fUniqueHash.find(newKey)) {
             // If the old resource using the key is purgeable and is unreachable, then remove it.
             if (!old->resourcePriv().getScratchKey().isValid() && old->isPurgeable()) {
-                old->cacheAccess().release();
+                releaseResource(old);
             } else {
                 this->removeUniqueKey(old);
             }
@@ -425,7 +425,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     }
 
     SkDEBUGCODE(int beforeCount = this->getResourceCount();)
-    resource->cacheAccess().release();
+    releaseResource(resource);
     // We should at least free this resource, perhaps dependent resources as well.
     SkASSERT(this->getResourceCount() < beforeCount);
     this->validate();
@@ -468,7 +468,7 @@ void GrResourceCache::purgeAsNeeded() {
     while (stillOverbudget && fPurgeableQueue.count()) {
         GrGpuResource* resource = fPurgeableQueue.peek();
         SkASSERT(resource->isPurgeable());
-        resource->cacheAccess().release();
+        releaseResource(resource);
         stillOverbudget = this->overBudget();
     }
 
@@ -482,7 +482,7 @@ void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
         while (fPurgeableQueue.count()) {
             GrGpuResource* resource = fPurgeableQueue.peek();
             SkASSERT(resource->isPurgeable());
-            resource->cacheAccess().release();
+            releaseResource(resource);
         }
     } else {
         // Sort the queue
@@ -501,7 +501,7 @@ void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
         // Delete the scratch resources. This must be done as a separate pass
         // to avoid messing up the sorted order of the queue
         for (int i = 0; i < scratchResources.count(); i++) {
-            scratchResources.getAt(i)->cacheAccess().release();
+            releaseResource(scratchResources.getAt(i));
         }
     }
 
@@ -522,7 +522,7 @@ void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point pu
         }
         GrGpuResource* resource = fPurgeableQueue.peek();
         SkASSERT(resource->isPurgeable());
-        resource->cacheAccess().release();
+        releaseResource(resource);
     }
 }
 
@@ -551,7 +551,7 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
         // Delete the scratch resources. This must be done as a separate pass
         // to avoid messing up the sorted order of the queue
         for (int i = 0; i < scratchResources.count(); i++) {
-            scratchResources.getAt(i)->cacheAccess().release();
+            releaseResource(scratchResources.getAt(i));
         }
         stillOverbudget = tmpByteBudget < fBytes;
 

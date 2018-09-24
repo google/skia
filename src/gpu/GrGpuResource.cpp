@@ -210,3 +210,7 @@ uint32_t GrGpuResource::CreateUniqueID() {
     } while (id == SK_InvalidUniqueID);
     return id;
 }
+
+void GrGpuResource::reportKeepAliveProgress() {
+    this->getGpu()->getContext()->keepAlive();
+}

@@ -261,6 +261,11 @@ private:
     void refAndMakeResourceMRU(GrGpuResource*);
     /// @}
 
+    static inline void releaseResource(GrGpuResource* resource) {
+        resource->cacheAccess().release();
+        resource->reportKeepAliveProgress();
+    }
+
     void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage>&);
     void processFreedGpuResources();
     void addToNonpurgeableArray(GrGpuResource*);
