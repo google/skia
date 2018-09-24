@@ -184,26 +184,6 @@ void remove_color_filter(SkPaint* paint) {
     }
 }
 
-SkPDFDevice::GraphicStateEntry::GraphicStateEntry()
-    : fColor(SK_ColorBLACK)
-    , fTextScaleX(SK_Scalar1)
-    , fTextFill(SkPaint::kFill_Style)
-    , fShaderIndex(-1)
-    , fGraphicStateIndex(-1) {
-    fMatrix.reset();
-}
-
-bool SkPDFDevice::GraphicStateEntry::compareInitialState(
-        const GraphicStateEntry& cur) {
-    return fColor == cur.fColor &&
-           fShaderIndex == cur.fShaderIndex &&
-           fGraphicStateIndex == cur.fGraphicStateIndex &&
-           fMatrix == cur.fMatrix &&
-           fClipStack == cur.fClipStack &&
-           (fTextScaleX == 0 ||
-               (fTextScaleX == cur.fTextScaleX && fTextFill == cur.fTextFill));
-}
-
 class GraphicStackState {
 public:
     GraphicStackState(const SkClipStack& existingClipStack,
