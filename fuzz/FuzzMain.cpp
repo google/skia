@@ -218,6 +218,7 @@ static std::map<std::string, std::string> cf_api_map = {
     {"api_mock_gpu_canvas", "MockGPUCanvas"},
     {"api_null_canvas", "NullCanvas"},
     {"api_path_measure", "PathMeasure"},
+    {"api_pathop", "Pathop"},
     {"api_raster_n32_canvas", "RasterN32Canvas"},
     {"jpeg_encoder", "JPEGEncoder"},
     {"png_encoder", "PNGEncoder"},
@@ -235,6 +236,9 @@ static std::map<std::string, std::string> cf_map = {
     {"region_deserialize", "region_deserialize"},
     {"region_set_path", "region_set_path"},
     {"skjson", "json"},
+#if defined(SK_ENABLE_SKOTTIE)
+    {"skottie_json", "skottie_json"},
+#endif
     {"textblob_deserialize", "textblob"}
 };
 
