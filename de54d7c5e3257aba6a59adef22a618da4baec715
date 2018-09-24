@@ -22,6 +22,30 @@
       "revId": "de54d7c5e3257aba6a59adef22a618da4baec715",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c99fb065_1ebb7a83",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-24T16:53:22Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "43441744_98d67a27",
+      "range": {
+        "startLine": 80,
+        "startChar": 1,
+        "endLine": 80,
+        "endChar": 113
+      },
+      "revId": "de54d7c5e3257aba6a59adef22a618da4baec715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
