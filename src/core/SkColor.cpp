@@ -124,26 +124,26 @@ SkColor4f SkPM4f::unpremul() const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <>
-SkColor4f SkColor4f::FromColor(SkColor bgra) {
+SK_API SkColor4f SkColor4f::FromColor(SkColor bgra) {
     SkColor4f rgba;
     swizzle_rb(Sk4f_fromL32(bgra)).store(rgba.vec());
     return rgba;
 }
 
 template <>
-SkColor SkColor4f::toSkColor() const {
+SK_API SkColor SkColor4f::toSkColor() const {
     return Sk4f_toL32(swizzle_rb(Sk4f::Load(this->vec())));
 }
 
 template <>
-SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
+SK_API SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
     SkColor4f c4;
     Sk4f::Min(Sk4f::Max(Sk4f(r, g, b, a), Sk4f(0)), Sk4f(1)).store(c4.vec());
     return c4;
 }
 
 template <>
-SkPM4f SkColor4f::toPM4f() const {
+SK_API SkPM4f SkColor4f::toPM4f() const {
     auto rgba = Sk4f::Load(this->vec());
     return SkPM4f::From4f(rgba * Sk4f(rgba[3], rgba[3], rgba[3], 1));
 }

@@ -231,7 +231,7 @@ SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 struct SkPM4f;
 
 template <SkAlphaType kAT>
-struct SkRGBA4f {
+struct SK_API SkRGBA4f {
     float fR;
     float fG;
     float fB;
@@ -274,6 +274,5 @@ struct SkRGBA4f {
 };
 
 using SkColor4f = SkRGBA4f<kUnpremul_SkAlphaType>;
-template <> SK_API SkColor SkColor4f::toSkColor() const;
 
 #endif
