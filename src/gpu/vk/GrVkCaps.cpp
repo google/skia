@@ -32,7 +32,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fOversizedStencilSupport = false; //TODO: figure this out
     fInstanceAttribSupport = true;
 
-    fBlacklistCoverageCounting = true; // blacklisting ccpr until we work through a few issues.
     fFenceSyncSupport = true;   // always available in Vulkan
     fCrossContextTextureSupport = true;
     fHalfFloatVertexAttributeSupport = true;
@@ -498,8 +497,9 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
 
     shaderCaps->fShaderDerivativeSupport = true;
 
-    shaderCaps->fGeometryShaderSupport = features.features.geometryShader;
-    shaderCaps->fGSInvocationsSupport = shaderCaps->fGeometryShaderSupport;
+    // FIXME: http://skbug.com/7733: Disable geometry shaders until Intel/Radeon GMs draw correctly.
+    // shaderCaps->fGeometryShaderSupport =
+    //         shaderCaps->fGSInvocationsSupport = features.features.geometryShader;
 
     shaderCaps->fDualSourceBlendingSupport = features.features.dualSrcBlend;
 
