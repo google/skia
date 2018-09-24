@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
@@ -46,8 +45,8 @@ protected:
                 bY += 64;
             }
         }
-        auto jpegData(sk_tool_utils::EncodeImageToData(bmp, SkEncodedImageFormat::kJPEG, 100));
-        fImage = SkImage::MakeFromEncoded(jpegData);
+        auto jpegData = SkEncodeBitmap(bmp, SkEncodedImageFormat::kJPEG, 100);
+        fImage = SkImage::MakeFromEncoded(std::move(jpegData));
     }
 
     void onDraw(SkCanvas* canvas) override {

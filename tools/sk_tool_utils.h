@@ -238,12 +238,6 @@ namespace sk_tool_utils {
         return file.isValid() && SkEncodeImage(&file, src, f, q);
     }
 
-    template <typename T>
-    inline sk_sp<SkData> EncodeImageToData(const T& src, SkEncodedImageFormat f, int q) {
-        SkDynamicMemoryWStream buf;
-        return SkEncodeImage(&buf, src , f, q) ? buf.detachAsData() : nullptr;
-    }
-
     bool copy_to(SkBitmap* dst, SkColorType dstCT, const SkBitmap& src);
     void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
 }  // namespace sk_tool_utils
