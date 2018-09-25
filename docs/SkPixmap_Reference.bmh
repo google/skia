@@ -3,6 +3,62 @@
 
 #Class SkPixmap
 
+#Code
+class SkPixmap {
+public:
+    SkPixmap();
+    SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes);
+    void reset();
+    void reset(const SkImageInfo& info, const void* addr, size_t rowBytes);
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace);
+    bool reset(const SkMask& mask);
+    bool extractSubset(SkPixmap* subset, const SkIRect& area) const;
+    const SkImageInfo& info() const;
+    size_t rowBytes() const;
+    const void* addr() const;
+    int width() const;
+    int height() const;
+    SkColorType colorType() const;
+    SkAlphaType alphaType() const;
+    SkColorSpace* colorSpace() const;
+    bool isOpaque() const;
+    SkIRect bounds() const;
+    int rowBytesAsPixels() const;
+    int shiftPerPixel() const;
+    size_t computeByteSize() const;
+    bool computeIsOpaque() const;
+    SkColor getColor(int x, int y) const;
+    float getAlphaf(int x, int y) const;
+    const void* addr(int x, int y) const;
+    const uint8_t* addr8() const;
+    const uint16_t* addr16() const;
+    const uint32_t* addr32() const;
+    const uint64_t* addr64() const;
+    const uint16_t* addrF16() const;
+    const uint8_t* addr8(int x, int y) const;
+    const uint16_t* addr16(int x, int y) const;
+    const uint32_t* addr32(int x, int y) const;
+    const uint64_t* addr64(int x, int y) const;
+    const uint16_t* addrF16(int x, int y) const;
+    void* writable_addr() const;
+    void* writable_addr(int x, int y) const;
+    uint8_t* writable_addr8(int x, int y) const;
+    uint16_t* writable_addr16(int x, int y) const;
+    uint32_t* writable_addr32(int x, int y) const;
+    uint64_t* writable_addr64(int x, int y) const;
+    uint16_t* writable_addrF16(int x, int y) const;
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const;
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
+                    int srcY) const;
+    bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
+    bool readPixels(const SkPixmap& dst) const;
+    bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const;
+    bool erase(SkColor color, const SkIRect& subset) const;
+    bool erase(SkColor color) const;
+    bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const;
+};
+##
+
 Pixmap provides a utility to pair SkImageInfo with pixels and row bytes.
 Pixmap is a low level class which provides convenience functions to access
 raster destinations. Canvas can not draw Pixmap, nor does Pixmap provide
@@ -14,21 +70,6 @@ pixels referenced by Pixmap.
 Pixmap does not try to manage the lifetime of the pixel memory. Use Pixel_Ref
 to manage pixel memory; Pixel_Ref is safe across threads.
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
 
 #Subtopic Initialization
 #Line # sets fields for use ##
@@ -232,13 +273,13 @@ is not unique
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT reset(const SkMask& mask)
+#Method bool reset(const SkMask& mask)
 #Deprecated soon
 ##
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT extractSubset(SkPixmap* subset, const SkIRect& area) const
+#Method bool extractSubset(SkPixmap* subset, const SkIRect& area) const
 
 #In Initialization
 #Line # sets pointer to portion of original ##
