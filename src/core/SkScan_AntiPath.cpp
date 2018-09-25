@@ -609,10 +609,9 @@ static inline SkScalar sqr(SkScalar x) {
 
 static void ComputeComplexity(const SkPath& path, SkScalar& avgLength, SkScalar& complexity) {
     int n = path.countPoints();
-    if (n < kSampleSize) {
+    if (n < kSampleSize || path.getBounds().isEmpty()) {
         // set to invalid value to indicate that we failed to compute
-        avgLength = -1;
-        complexity = -1;
+        avgLength = complexity = -1;
         return;
     }
 
@@ -629,10 +628,14 @@ static void ComputeComplexity(const SkPath& path, SkScalar& avgLength, SkScalar&
 
     // If the path consists of random line segments, the number of intersections should be
     // proportional to this.
-    SkScalar intersections = sqr(n) * sqr(avgLength) / diagonalSqr;
+    SkScalar intersections = sk_ieee_float_divide(sqr(n) * sqr(avgLength), diagonalSqr);
 
     // The number of intersections per scanline should be proportional to this number.
-    complexity = intersections / path.getBounds().height();
+    complexity = sk_ieee_float_divide(intersections, path.getBounds().height());
+
+    if (sk_float_isnan(complexity)) {  // it may be possible to have 0.0 / 0.0; inf is fine for us.
+        complexity = -1;
+    }
 }
 
 static bool ShouldUseDAA(const SkPath& path, SkScalar avgLength, SkScalar complexity) {

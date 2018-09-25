@@ -195,7 +195,7 @@ struct SK_API SkIRect {
     */
     bool isEmpty64() const { return fRight <= fLeft || fBottom <= fTop; }
 
-    /** Returns true if width() or height() .
+    /** Returns true if width() or height() are zero or negative.
 
         @return  true if width() or height() are zero or negative
     */
