@@ -394,6 +394,26 @@ class GrCCPRTest_cache : public CCPRTest {
 };
 DEF_CCPR_TEST(GrCCPRTest_cache)
 
+class GrCCPRTest_unrefPerOpListPathsBeforeOps : public CCPRTest {
+    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
+        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
+        for (int i = 0; i < 10000; ++i) {
+            // Draw enough paths to make the arena allocator hit the heap.
+            ccpr.drawPath(fPath);
+        }
+
+        // Unref the GrCCPerOpListPaths object.
+        auto perOpListPathsMap = ccpr.ccpr()->detachPendingPaths();
+        perOpListPathsMap.clear();
+
+        // Now delete the Op and all its draws.
+        REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
+        ccpr.flush();
+        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
+    }
+};
+DEF_CCPR_TEST(GrCCPRTest_unrefPerOpListPathsBeforeOps)
+
 class CCPRRenderingTest {
 public:
     void run(skiatest::Reporter* reporter, GrContext* ctx, bool doStroke) const {

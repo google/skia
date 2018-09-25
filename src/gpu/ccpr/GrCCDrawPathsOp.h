@@ -109,10 +109,13 @@ private:
         SingleDraw* fNext = nullptr;
     };
 
+    // Declare fOwningPerOpListPaths first, before fDraws. The draws use memory allocated by
+    // fOwningPerOpListPaths, so it must not be unreffed until after fDraws is destroyed.
+    sk_sp<GrCCPerOpListPaths> fOwningPerOpListPaths;
+
     GrCCSTLList<SingleDraw> fDraws;
     SkDEBUGCODE(int fNumDraws = 1);
 
-    sk_sp<GrCCPerOpListPaths> fOwningPerOpListPaths;
     GrProcessorSet fProcessors;
 
     struct InstanceRange {

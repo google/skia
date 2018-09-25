@@ -9,6 +9,7 @@
 #define GrCCSTLList_DEFINED
 
 #include "SkArenaAlloc.h"
+#include "SkNoncopyable.h"
 #include <new>
 
 /**
@@ -16,7 +17,7 @@
  * GrCCDrawPathsOp because the owning opList is unknown at the time of creation, so we can't use its
  * associated allocator to create the first element.
  */
-template<typename T> class GrCCSTLList {
+template<typename T> class GrCCSTLList : SkNoncopyable {
 public:
     template <typename ...Args>
     GrCCSTLList(Args&&... args) : fHead(std::forward<Args>(args)...) {}
