@@ -5180,3 +5180,19 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         SkDebugf("max_free %zu\n", max_free);
     }
 }
+
+DEF_TEST(Path_setLastPt, r) {
+    // There was a time where SkPath::setLastPoint() didn't invalidate cached path bounds.
+    SkPath p;
+    p.moveTo(0,0);
+    p.moveTo(20,01);
+    p.moveTo(20,10);
+    p.moveTo(20,61);
+    REPORTER_ASSERT(r, p.getBounds() == SkRect::MakeLTRB(0,0, 20,61));
+
+    p.setLastPt(30,01);
+    REPORTER_ASSERT(r, p.getBounds() == SkRect::MakeLTRB(0,0, 30,10));  // was {0,0, 20,61}
+
+    REPORTER_ASSERT(r, p.isValid());
+    REPORTER_ASSERT(r, p.pathRefIsValid());
+}
