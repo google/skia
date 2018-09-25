@@ -445,6 +445,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int
 
     MTLOrigin origin = MTLOriginMake(0, 0, 0);
 
+
     SkASSERT(testTexture.pixelFormat == transferTexture.pixelFormat);
     SkASSERT(testTexture.sampleCount == transferTexture.sampleCount);
 
