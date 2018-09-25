@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2219856b_582dcbfa",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-25T17:59:21Z",
+      "side": 1,
+      "message": "I keep confusing this with fallbackARGB below. Maybe rename to argbFallbackHelper, and rename the function signature ARGBFallbackHelper? Or something similar, just to distinguish it from the fallback in drawGlyphRunAsPathWithARGBFallback().",
+      "range": {
+        "startLine": 621,
+        "startChar": 17,
+        "endLine": 621,
+        "endChar": 29
+      },
+      "revId": "1ad172761c080661259e9b3dd5006db1408b3dc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
