@@ -19,7 +19,7 @@ DEF_FUZZ(Pathop, fuzz) {
     fuzz->next(&stragglerOp);
     SkPath path;
 
-    BuildPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+    FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
     builder.add(path, static_cast<SkPathOp>(stragglerOp % (kLastOp + 1)));
 
     SkPath result;
