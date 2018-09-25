@@ -200,11 +200,11 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::Make(GrVkGpu* gpu,
 }
 
 sk_sp<GrVkTextureRenderTarget>
-GrVkTextureRenderTarget::CreateNewTextureRenderTarget(GrVkGpu* gpu,
-                                                      SkBudgeted budgeted,
-                                                      const GrSurfaceDesc& desc,
-                                                      const GrVkImage::ImageDesc& imageDesc,
-                                                      GrMipMapsStatus mipMapsStatus) {
+GrVkTextureRenderTarget::MakeNewTextureRenderTarget(GrVkGpu* gpu,
+                                                    SkBudgeted budgeted,
+                                                    const GrSurfaceDesc& desc,
+                                                    const GrVkImage::ImageDesc& imageDesc,
+                                                    GrMipMapsStatus mipMapsStatus) {
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT);
 

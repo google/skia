@@ -17,11 +17,11 @@ struct GrVkImageInfo;
 
 class GrVkTexture : public GrTexture, public virtual GrVkImage {
 public:
-    static sk_sp<GrVkTexture> CreateNewTexture(GrVkGpu*,
-                                               SkBudgeted budgeted,
-                                               const GrSurfaceDesc&,
-                                               const GrVkImage::ImageDesc&,
-                                               GrMipMapsStatus);
+    static sk_sp<GrVkTexture> MakeNewTexture(GrVkGpu*,
+                                             SkBudgeted budgeted,
+                                             const GrSurfaceDesc&,
+                                             const GrVkImage::ImageDesc&,
+                                             GrMipMapsStatus);
 
     static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*, const GrSurfaceDesc&,
                                                  GrWrapOwnership, const GrVkImageInfo&,

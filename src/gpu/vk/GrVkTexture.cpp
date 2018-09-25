@@ -64,10 +64,10 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
 }
 
-sk_sp<GrVkTexture> GrVkTexture::CreateNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
-                                                 const GrSurfaceDesc& desc,
-                                                 const GrVkImage::ImageDesc& imageDesc,
-                                                 GrMipMapsStatus mipMapsStatus) {
+sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
+                                               const GrSurfaceDesc& desc,
+                                               const GrVkImage::ImageDesc& imageDesc,
+                                               GrMipMapsStatus mipMapsStatus) {
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT);
 
     GrVkImageInfo info;
