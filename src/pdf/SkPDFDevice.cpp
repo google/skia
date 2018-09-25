@@ -388,44 +388,52 @@ void GraphicStackState::updateMatrix(const SkMatrix& matrix) {
     currentEntry()->fMatrix = matrix;
 }
 
+template <typename T>
+static inline bool update_value(const SkPDFDevice::GraphicStateEntry& state,
+                                SkPDFDevice::GraphicStateEntry* cur,
+                                T SkPDFDevice::GraphicStateEntry::*field) {
+    if (state.*field != cur->*field) {
+        cur->*field = state.*field;
+        return true;
+    }
+    return false;
+}
+
 void GraphicStackState::updateDrawingState(const SkPDFDevice::GraphicStateEntry& state) {
+    using GraphicStateEntry = SkPDFDevice::GraphicStateEntry;
+    GraphicStateEntry* cur = this->currentEntry();
+    SkWStream* out = fContentStream;
+
     // PDF treats a shader as a color, so we only set one or the other.
     if (state.fShaderIndex >= 0) {
-        if (state.fShaderIndex != currentEntry()->fShaderIndex) {
-            SkPDFUtils::ApplyPattern(state.fShaderIndex, fContentStream);
-            currentEntry()->fShaderIndex = state.fShaderIndex;
+        if (update_value(state, cur, &GraphicStateEntry::fShaderIndex)) {
+            SkPDFUtils::ApplyPattern(state.fShaderIndex, out);
         }
     } else {
-        if (state.fColor != currentEntry()->fColor ||
-                currentEntry()->fShaderIndex >= 0) {
-            emit_pdf_color(state.fColor, fContentStream);
-            fContentStream->writeText("RG ");
-            emit_pdf_color(state.fColor, fContentStream);
-            fContentStream->writeText("rg\n");
-            currentEntry()->fColor = state.fColor;
-            currentEntry()->fShaderIndex = -1;
+        if (update_value(state, cur, &GraphicStateEntry::fColor) || cur->fShaderIndex >= 0) {
+            emit_pdf_color(state.fColor, out);
+            out->writeText("RG ");
+            emit_pdf_color(state.fColor, out);
+            out->writeText("rg\n");
+            cur->fShaderIndex = -1;
         }
     }
 
-    if (state.fGraphicStateIndex != currentEntry()->fGraphicStateIndex) {
-        SkPDFUtils::ApplyGraphicState(state.fGraphicStateIndex, fContentStream);
-        currentEntry()->fGraphicStateIndex = state.fGraphicStateIndex;
+    if (update_value(state, cur, &GraphicStateEntry::fGraphicStateIndex)) {
+        SkPDFUtils::ApplyGraphicState(state.fGraphicStateIndex, out);
     }
 
     if (state.fTextScaleX) {
-        if (state.fTextScaleX != currentEntry()->fTextScaleX) {
-            SkScalar pdfScale = state.fTextScaleX * 100;
-            SkPDFUtils::AppendScalar(pdfScale, fContentStream);
-            fContentStream->writeText(" Tz\n");
-            currentEntry()->fTextScaleX = state.fTextScaleX;
+        if (update_value(state, cur, &GraphicStateEntry::fTextScaleX)) {
+            SkPDFUtils::AppendScalar(state.fTextScaleX * 100, out);
+            out->writeText(" Tz\n");
         }
-        if (state.fTextFill != currentEntry()->fTextFill) {
+        if (update_value(state, cur, &GraphicStateEntry::fTextFill)) {
             static_assert(SkPaint::kFill_Style == 0, "enum_must_match_value");
             static_assert(SkPaint::kStroke_Style == 1, "enum_must_match_value");
             static_assert(SkPaint::kStrokeAndFill_Style == 2, "enum_must_match_value");
-            fContentStream->writeDecAsText(state.fTextFill);
-            fContentStream->writeText(" Tr\n");
-            currentEntry()->fTextFill = state.fTextFill;
+            out->writeDecAsText(state.fTextFill);
+            out->writeText(" Tr\n");
         }
     }
 }
