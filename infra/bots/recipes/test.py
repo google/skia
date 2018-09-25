@@ -467,6 +467,7 @@ def dm_flags(api, bot):
 
   # Not expected to round trip encoding/decoding.
   bad_serialize_gms.append('all_bitmap_configs')
+  bad_serialize_gms.append('downsamplebitmap')
   bad_serialize_gms.append('makecolorspace')
 
   # This GM forces a path to be convex. That property doesn't survive
