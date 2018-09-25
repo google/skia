@@ -214,6 +214,11 @@ void GrGLClearErr(const GrGLInterface* gl);
     #define GR_GL_CHECK_ERROR_IMPL(IFACE, X)
 #endif
 
+#define GR_GL_KEEP_ALIVE(IFACE)                   \
+    if ((IFACE)->fKeepAliveReporter) {            \
+        (IFACE)->fKeepAliveReporter->keepAlive(); \
+    }
+
 // internal macro to conditionally log the gl call using SkDebugf based on
 // compile-time and run-time flags.
 #if GR_GL_LOG_CALLS
@@ -230,6 +235,7 @@ void GrGLClearErr(const GrGLInterface* gl);
     do {                                                        \
         GR_GL_CALL_NOERRCHECK(IFACE, X);                        \
         GR_GL_CHECK_ERROR_IMPL(IFACE, X);                       \
+        GR_GL_KEEP_ALIVE(IFACE);                                \
     } while (false)
 
 // Variant of above that always skips the error check. This is useful when
@@ -238,6 +244,7 @@ void GrGLClearErr(const GrGLInterface* gl);
     do {                                                        \
         (IFACE)->fFunctions.f##X;                               \
         GR_GL_LOG_CALLS_IMPL(X);                                \
+        GR_GL_KEEP_ALIVE(IFACE);                                \
     } while (false)
 
 // same as GR_GL_CALL but stores the return value of the gl call in RET
@@ -245,6 +252,7 @@ void GrGLClearErr(const GrGLInterface* gl);
     do {                                                        \
         GR_GL_CALL_RET_NOERRCHECK(IFACE, RET, X);               \
         GR_GL_CHECK_ERROR_IMPL(IFACE, X);                       \
+        GR_GL_KEEP_ALIVE(IFACE);                                \
     } while (false)
 
 // same as GR_GL_CALL_RET but always skips the error check.
@@ -252,6 +260,7 @@ void GrGLClearErr(const GrGLInterface* gl);
     do {                                                        \
         (RET) = (IFACE)->fFunctions.f##X;                       \
         GR_GL_LOG_CALLS_IMPL(X);                                \
+        GR_GL_KEEP_ALIVE(IFACE);                                \
     } while (false)
 
 // call glGetError without doing a redundant error check or logging.

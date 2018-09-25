@@ -17,6 +17,10 @@
 typedef void(*GrGLFuncPtr)();
 struct GrGLInterface;
 
+class GrKeepAliveReporter {
+public:
+    virtual void keepAlive() = 0;
+};
 
 /**
  * Rather than depend on platform-specific GL headers and libraries, we require
@@ -71,6 +75,10 @@ public:
     };
 
     GrGLExtensions fExtensions;
+
+    // Meant to be called periodically during "slow" operations to prevent
+    // incorrect hang detection.  Embedder responsible for object lifetime.
+    GrKeepAliveReporter* fKeepAliveReporter;
 
     bool hasExtension(const char ext[]) const { return fExtensions.has(ext); }
 

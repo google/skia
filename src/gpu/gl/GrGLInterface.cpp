@@ -14,6 +14,7 @@
 
 GrGLInterface::GrGLInterface() {
     fStandard = kNone_GrGLStandard;
+    fKeepAliveReporter = nullptr;
 }
 
 #ifdef SK_DEBUG
