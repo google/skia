@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "087c484d_005083b7",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-25T16:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f17f4edf_3ea22679",
+      "range": {
+        "startLine": 419,
+        "startChar": 3,
+        "endLine": 419,
+        "endChar": 17
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9751937_1f477fc5",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7693371f_f0112d7b",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-25T16:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9751937_1f477fc5",
+      "range": {
+        "startLine": 428,
+        "startChar": 20,
+        "endLine": 428,
+        "endChar": 28
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "22dffd2b_0caf93e4",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-25T16:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60da93c4_c85710b2",
+      "range": {
+        "startLine": 470,
+        "startChar": 83,
+        "endLine": 470,
+        "endChar": 96
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f98e7901_63876dc5",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 13
@@ -114,6 +186,30 @@
       "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8e561c1_f2c27561",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-25T16:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f98e7901_63876dc5",
+      "range": {
+        "startLine": 476,
+        "startChar": 17,
+        "endLine": 476,
+        "endChar": 83
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +259,54 @@
     },
     {
       "key": {
+        "uuid": "646c57f7_93a28721",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-25T16:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d1b85ac_f9cf9d02",
+      "range": {
+        "startLine": 486,
+        "startChar": 41,
+        "endLine": 486,
+        "endChar": 42
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a77a1d19_192fec22",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-25T16:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8033b9dd_c51851b4",
+      "range": {
+        "startLine": 486,
+        "startChar": 60,
+        "endLine": 486,
+        "endChar": 67
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "634eaa25_6d6bf81b",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 13
@@ -186,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "36c6e922_2b77371e",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-25T16:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "634eaa25_6d6bf81b",
+      "range": {
+        "startLine": 488,
+        "startChar": 11,
+        "endLine": 488,
+        "endChar": 22
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2cf3c0d9_375d869d",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 13
@@ -197,6 +365,30 @@
       "writtenOn": "2018-09-25T15:04:16Z",
       "side": 1,
       "message": "Can this be rolled into process_ARGB_fallback() or is the plan to have different ARGBFallbacks?",
+      "range": {
+        "startLine": 624,
+        "startChar": 17,
+        "endLine": 624,
+        "endChar": 29
+      },
+      "revId": "a35c6c8d2879fce6d4474ea1406d35c3e22d6068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07678a41_665492b9",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-25T16:01:26Z",
+      "side": 1,
+      "message": "There will be two, possibly three ARGBFallbacks. This is the first, the next one will be the Renderer side of Chrome, and last possible one will be the bitmap path.",
+      "parentUuid": "2cf3c0d9_375d869d",
       "range": {
         "startLine": 624,
         "startChar": 17,
