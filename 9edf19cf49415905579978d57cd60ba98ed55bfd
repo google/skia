@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ef601b8_baf30e88",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T15:16:00Z",
+      "side": 1,
+      "message": "I\u0027m guessing you didn\u0027t mean to switch to your personal email. I think we have a CLA for arm, and ARM is mentioned in the AUTHORS file [1], but your name isn\u0027t in there. So I think it would be better to use your @arm address.\n\n[1] https://skia.googlesource.com/skia/+/master/AUTHORS#",
+      "range": {
+        "startLine": 4,
+        "startChar": 12,
+        "endLine": 4,
+        "endChar": 62
+      },
+      "revId": "9edf19cf49415905579978d57cd60ba98ed55bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "742274f6_0aff0116",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T15:16:00Z",
+      "side": 1,
+      "message": "Let\u0027s mention the exception you mentioned (\"small images with gradient\").",
+      "revId": "9edf19cf49415905579978d57cd60ba98ed55bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b632837_01ac9d82",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T15:16:00Z",
+      "side": 1,
+      "message": "This might be a tad misleading. If the first frame is incomplete, we\u0027ll hang on to the SkGIFLZWContext until we finish the frame. I\u0027d recommend removing \"for a short duration\" so it just says \"which lasts only while decoding a frame.\"",
+      "range": {
+        "startLine": 16,
+        "startChar": 23,
+        "endLine": 16,
+        "endChar": 37
+      },
+      "revId": "9edf19cf49415905579978d57cd60ba98ed55bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a32f1f6_929e0603",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T15:16:00Z",
+      "side": 1,
+      "message": "I think this comment applies to the block down below (starting at 299)?",
+      "range": {
+        "startLine": 291,
+        "startChar": 0,
+        "endLine": 292,
+        "endChar": 51
+      },
+      "revId": "9edf19cf49415905579978d57cd60ba98ed55bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
