@@ -14,7 +14,7 @@
 
 void FuzzRegionSetPath(Fuzz* fuzz) {
     SkPath p;
-    FuzzPath(fuzz, &p, 1000);
+    FuzzNicePath(fuzz, &p, 1000);
     SkRegion r1;
     bool initR1;
     fuzz->next(&initR1);

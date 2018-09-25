@@ -15,7 +15,7 @@
 #include "SkRegion.h"
 
 // allows some float values for path points
-void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps);
+void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps);
 // allows all float values for path points
 void BuildPath(Fuzz* fuzz, SkPath* path, int last_verb);
 
