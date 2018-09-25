@@ -37,7 +37,6 @@
  SK_HAS_WEBP_LIBRARY # ditto
  SK_IGNORE_GPU_DITHER # ditto
  SK_PMCOLOR_BYTE_ORDER # ditto
- SK_WARN_UNUSED_RESULT # ditto
 
 # FreeType related
 FT_LOAD_TARGET_LIGHT
@@ -536,6 +535,11 @@ FT_Load_Glyph
 #Alias Patches ##
 #Topic ##
 
+# temporary while ref is separated from overview
+#Topic Path_Contour
+#Alias Contours ##
+##
+
 #Topic Path_Effect
     #Class SkPathEffect
     #Class ##
@@ -589,6 +593,10 @@ FT_Load_Glyph
 #Struct SkPoint3
 ##
 #Topic ##
+
+#Topic Porter_Duff
+# temporary while separating blend mode ref from blend mode overview
+##
 
 #Topic PostScript
 #Substitute PostScript
@@ -799,4 +807,8 @@ FT_Load_Glyph
 #Topic Xfermode_Image_Filter
 #Class SkXfermodeImageFilter
 ##
+##
+
+# temporary while ref is separated from overview
+#Topic Zero_Length_Contour
 ##

@@ -4,22 +4,53 @@
 
 #Struct SkPoint
 
+#Code
+struct SkPoint {
+    SkScalar fX;
+    SkScalar fY;
+
+    static constexpr SkPoint Make(SkScalar x, SkScalar y);
+    SkScalar x() const;
+    SkScalar y() const;
+    bool isZero() const;
+    void set(SkScalar x, SkScalar y);
+    void iset(int32_t x, int32_t y);
+    void iset(const SkIPoint& p);
+    void setAbs(const SkPoint& pt);
+    static void Offset(SkPoint points[], int count, const SkVector& offset);
+    static void Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy);
+    void offset(SkScalar dx, SkScalar dy);
+    SkScalar length() const;
+    SkScalar distanceToOrigin() const;
+    bool normalize();
+    bool setNormalize(SkScalar x, SkScalar y);
+    bool setLength(SkScalar length);
+    bool setLength(SkScalar x, SkScalar y, SkScalar length);
+    void scale(SkScalar scale, SkPoint* dst) const;
+    void scale(SkScalar value);
+    void negate();
+    SkPoint operator-() const;
+    void operator+=(const SkVector& v);
+    void operator-=(const SkVector& v);
+    SkPoint operator*(SkScalar scale) const;
+    SkPoint& operator*=(SkScalar scale);
+    bool isFinite() const;
+    bool equals(SkScalar x, SkScalar y) const;
+    friend bool operator==(const SkPoint& a, const SkPoint& b);
+    friend bool operator!=(const SkPoint& a, const SkPoint& b);
+    friend SkVector operator-(const SkPoint& a, const SkPoint& b);
+    friend SkPoint operator+(const SkPoint& a, const SkVector& b);
+    static SkScalar Length(SkScalar x, SkScalar y);
+    static SkScalar Normalize(SkVector* vec);
+    static SkScalar Distance(const SkPoint& a, const SkPoint& b);
+    static SkScalar DotProduct(const SkVector& a, const SkVector& b);
+    static SkScalar CrossProduct(const SkVector& a, const SkVector& b);
+    SkScalar cross(const SkVector& vec) const;
+    SkScalar dot(const SkVector& vec) const;
+};
+##
+
 SkPoint holds two 32-bit floating point coordinates.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
-#Subtopic Member
-#Populate
 
 #Member SkScalar  fX
 #Line # x-axis value ##
@@ -33,16 +64,14 @@ y-axis value used by both Point and Vector. May contain any value, including
 infinities and NaN.
 ##
 
-#Subtopic Member ##
-
 # ------------------------------------------------------------------------------
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
 #Method static constexpr SkPoint Make(SkScalar x, SkScalar y)
-#In Constructor
+#In Constructors
 #Line # constructs from SkScalar inputs ##
 Sets fX to x, fY to y. Used both to set Point and Vector.
 
@@ -555,13 +584,13 @@ true.
 
 # ------------------------------------------------------------------------------
 
-#Subtopic Operator
+#Subtopic Operators
 #Populate
 ##
 
 #Method void scale(SkScalar scale, SkPoint* dst) const
 #In Offset
-#In Operator
+#In Operators
 #Line # multiplies Point by scale factor ##
 Sets dst to Point times scale. dst may be Point to modify Point in place.
 
@@ -613,7 +642,7 @@ Scales Point in place by scale.
 # ------------------------------------------------------------------------------
 
 #Method void negate()
-#In Operator
+#In Operators
 #Line # reverses the sign of both members ##
 Changes the sign of fX and fY.
 
@@ -822,7 +851,7 @@ pt: nan, -1  finite: false
 # ------------------------------------------------------------------------------
 
 #Method bool equals(SkScalar x, SkScalar y) const
-#In Operator
+#In Operators
 #Line # returns true if Points are equal ##
 Returns true if Point is equivalent to Point constructed from (x, y).
 
@@ -1097,7 +1126,7 @@ Returns the Euclidean_Distance between a and b.
 # ------------------------------------------------------------------------------
 
 #Method static SkScalar DotProduct(const SkVector& a, const SkVector& b)
-#In Operator
+#In Operators
 #Line # returns dot product ##
 Returns the dot product of Vector a and Vector b.
 
@@ -1129,7 +1158,7 @@ Returns the dot product of Vector a and Vector b.
 # ------------------------------------------------------------------------------
 
 #Method static SkScalar CrossProduct(const SkVector& a, const SkVector& b)
-#In Operator
+#In Operators
 #Line # returns cross product ##
 Returns the cross product of Vector a and Vector b.
 
@@ -1169,7 +1198,7 @@ to zero. The cross product z-axis component is returned.
 # ------------------------------------------------------------------------------
 
 #Method SkScalar cross(const SkVector& vec) const
-#In Operator
+#In Operators
 #Line # returns cross product ##
 Returns the cross product of Vector and vec.
 
@@ -1208,7 +1237,7 @@ equal to zero. The cross product z-axis component is returned.
 # ------------------------------------------------------------------------------
 
 #Method SkScalar dot(const SkVector& vec) const
-#In Operator
+#In Operators
 #Line # returns dot product ##
 Returns the dot product of Vector and Vector vec.
 

@@ -1,7 +1,5 @@
 usingBookmaker
 ===
-
-# <a name='Bookmaker'>Bookmaker</a>
 <a href='#Bookmaker'>Bookmaker</a> generates markdown files to view documentation on skia.org, and generates includes for use in C++.
 <a href='#Bookmaker'>Bookmaker</a> reads canonical documentation from files suffixed with bmh in the docs directory. These bmh
 files describe how public interfaces work, and generate Skia fiddle examples to illustrate them.

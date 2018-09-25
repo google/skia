@@ -4,6 +4,70 @@
 
 #Struct SkIRect
 
+#Code
+struct SkIRect {
+    int32_t fLeft;
+    int32_t fTop;
+    int32_t fRight;
+    int32_t fBottom;
+
+    static constexpr SkIRect MakeEmpty();
+    static SkIRect MakeLargest();
+    static constexpr SkIRect MakeWH(int32_t w, int32_t h);
+    static constexpr SkIRect MakeSize(const SkISize& size);
+    static constexpr SkIRect MakeLTRB(int32_t l, int32_t t,
+                                      int32_t r, int32_t b);
+    static constexpr SkIRect MakeXYWH(int32_t x, int32_t y,
+                                      int32_t w, int32_t h);
+    int32_t left() const;
+    int32_t top() const;
+    int32_t right() const;
+    int32_t bottom() const;
+    int32_t x() const;
+    int32_t y() const;
+    int32_t width() const;
+    int32_t height() const;
+    SkISize size() const;
+    int64_t width64() const;
+    int64_t height64() const;
+    bool isEmpty64() const;
+    bool isEmpty() const;
+    friend bool operator==(const SkIRect& a, const SkIRect& b);
+    friend bool operator!=(const SkIRect& a, const SkIRect& b);
+    void setEmpty();
+    void set(int32_t left, int32_t top, int32_t right, int32_t bottom);
+    void setLTRB(int32_t left, int32_t top, int32_t right, int32_t bottom);
+    void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height);
+    SkIRect makeOffset(int32_t dx, int32_t dy) const;
+    SkIRect makeInset(int32_t dx, int32_t dy) const;
+    SkIRect makeOutset(int32_t dx, int32_t dy) const;
+    void offset(int32_t dx, int32_t dy);
+    void offset(const SkIPoint& delta);
+    void offsetTo(int32_t newX, int32_t newY);
+    void inset(int32_t dx, int32_t dy);
+    void outset(int32_t dx, int32_t dy);
+    void adjust(int32_t dL, int32_t dT, int32_t dR, int32_t dB);
+    bool contains(int32_t x, int32_t y) const;
+    bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const;
+    bool contains(const SkIRect& r) const;
+    bool contains(const SkRect& r) const;
+    bool containsNoEmptyCheck(int32_t left, int32_t top,
+                              int32_t right, int32_t bottom) const;
+    bool containsNoEmptyCheck(const SkIRect& r) const;
+    bool intersect(const SkIRect& r);
+    bool intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b);
+    bool intersect(const SkIRect& a, const SkIRect& b);
+    bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom);
+    static bool Intersects(const SkIRect& a, const SkIRect& b);
+    static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b);
+    void join(int32_t left, int32_t top, int32_t right, int32_t bottom);
+    void join(const SkIRect& r);
+    void sort();
+    SkIRect makeSorted() const;
+    static const SkIRect& EmptyIRect();
+};
+##
+
 SkIRect holds four 32-bit integer coordinates describing the upper and
 lower bounds of a rectangle. SkIRect may be created from outer bounds or
 from position, width, and height. SkIRect describes an area; if its right
@@ -14,15 +78,15 @@ its top, it is considered empty.
 #Populate
 ##
 
-#Subtopic Related_Function
+#Subtopic Related_Functions
 #Populate
 #Subtopic ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 #Subtopic ##
 
-#Subtopic Member
+#Subtopic Members
 #Populate
 
 #Member int32_t  fLeft
@@ -49,16 +113,16 @@ May contain any value. The larger of the vertical values when sorted.
 When equal to or less than fTop, IRect is empty.
 ##
 
-#Subtopic Member ##
+#Subtopic Members ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeEmpty()
+#Method static constexpr SkIRect MakeEmpty()
 
-#In Constructor
+#In Constructors
 #Line # returns bounds of (0, 0, 0, 0) ##
 Returns constructed IRect set to (0, 0, 0, 0).
 Many other rectangles are empty; if left is equal to or greater than right,
@@ -90,9 +154,9 @@ outset rect isEmpty: false
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h)
+#Method static constexpr SkIRect MakeWH(int32_t w, int32_t h)
 
-#In Constructor
+#In Constructors
 #Line # constructs from int input returning (0, 0, width, height) ##
 Returns constructed IRect set to (0, 0, w, h). Does not validate input; w or h
 may be negative.
@@ -120,9 +184,9 @@ all equal
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size)
+#Method static constexpr SkIRect MakeSize(const SkISize& size)
 
-#In Constructor
+#In Constructors
 #Line # constructs from ISize returning (0, 0, width, height) ##
 Returns constructed IRect set to (0, 0, size.width(), size.height()).
 Does not validate input; size.width() or size.height() may be negative.
@@ -149,9 +213,9 @@ floor width: 25  height: 35
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b)
+#Method static constexpr SkIRect MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b)
 
-#In Constructor
+#In Constructors
 #Line # constructs from int left, top, right, bottom ##
 Returns constructed IRect set to (l, t, r, b). Does not sort input; IRect may
 result in fLeft greater than fRight, or fTop greater than fBottom.
@@ -182,9 +246,9 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h)
+#Method static constexpr SkIRect MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h)
 
-#In Constructor
+#In Constructors
 #Line # constructs from int input returning (x, y, width, height) ##
 Returns constructed IRect set to: #Formula # (x, y, x + w, y + h) ##.
 Does not validate input; w or h may be negative.
@@ -213,7 +277,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 ##
 
-#Subtopic Constructor ##
+#Subtopic Constructors ##
 
 #Subtopic Property
 #Line # member values, center, validity ##
@@ -575,14 +639,14 @@ sorted: {20, 40, 20, 50} is empty
 
 ##
 
-#Subtopic Operator
+#Subtopic Operators
 #Populate
 
 # ------------------------------------------------------------------------------
 
 #Method bool operator==(const SkIRect& a, const SkIRect& b)
 
-#In Operator
+#In Operators
 #Line # returns true if members are equal ##
 Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are
 identical to corresponding members in b.
@@ -609,7 +673,7 @@ test == sorted
 
 #Method bool operator!=(const SkIRect& a, const SkIRect& b)
 
-#In Operator
+#In Operators
 #Line # returns true if members are unequal ##
 Returns true if any member in a: fLeft, fTop, fRight, and fBottom; is not
 identical to the corresponding member in b.
@@ -632,7 +696,7 @@ test != sorted
 
 ##
 
-#Subtopic Operator ##
+#Subtopic Operators ##
 
 # ------------------------------------------------------------------------------
 
@@ -1321,7 +1385,7 @@ be before or after the call to intersect.
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& a, const SkIRect& b)
+#Method bool intersect(const SkIRect& a, const SkIRect& b)
 
 #In Intersection
 Returns true if a intersects b, and sets IRect to intersection.
@@ -1350,7 +1414,7 @@ Returns false if either a or b is empty, leaving IRect unchanged.
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b)
+#Method bool intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b)
 
 #In Intersection
 #Line # sets to shared area; returns true if not empty skips empty check ##
@@ -1567,7 +1631,7 @@ sorted: 20, 10, 30, 50
 #Method SkIRect makeSorted() const
 
 #In Sorting
-#In Constructor
+#In Constructors
 #Line # constructs IRect, ordering sides from smaller to larger ##
 Returns IRect with fLeft and fRight swapped if fLeft is greater than fRight; and
 with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
@@ -1592,9 +1656,9 @@ sorted: 20, 10, 30, 50
 
 # ------------------------------------------------------------------------------
 
-#Method static const SkIRect& SK_WARN_UNUSED_RESULT EmptyIRect()
+#Method static const SkIRect& EmptyIRect()
 
-#In Constructor
+#In Constructors
 #Line # returns immutable bounds of (0, 0, 0, 0) ##
 Returns a reference to immutable empty IRect, set to (0, 0, 0, 0).
 
@@ -1612,7 +1676,7 @@ rect: 0, 0, 0, 0
 
 ##
 
-#Method static SkIRect SK_WARN_UNUSED_RESULT MakeLargest()
+#Method static SkIRect MakeLargest()
 #Deprecated
 ##
 

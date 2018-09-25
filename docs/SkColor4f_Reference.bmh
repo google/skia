@@ -3,6 +3,25 @@
 
 #Struct SkColor4f
 
+#Code
+struct SkColor4f {
+    float fR;
+    float fG;
+    float fB;
+    float fA;
+
+    bool operator==(const SkColor4f& other) const;
+    bool operator!=(const SkColor4f& other) const;
+    const float* vec() const;
+    float* vec();
+    static SkColor4f Pin(float r, float g, float b, float a);
+    static SkColor4f FromColor(SkColor);
+    SkColor toSkColor() const;
+    SkColor4f pin() const;
+    SkPM4f premul() const;
+};
+##
+
 Each component is stored as a 32-bit single precision floating point float value.
 All values are allowed, but only the range from zero to one is meaningful.
 
@@ -12,17 +31,11 @@ with fG green, fB blue, or fR red.
 Values smaller than zero or larger than one are allowed. Values out of range
 may be used with Blend_Mode so that the final component is in range.
 
-#Subtopic Overview
 #Populate
-##
 
-#Subtopic Operator
+#Subtopic Members
 #Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
+#Subtopic Members ##
 
 #Member float  fR
 #Line # red component ##
@@ -46,8 +59,12 @@ Single precision float for Alpha ranges from no Alpha (0.0) to full Alpha (1.0).
 
 # ------------------------------------------------------------------------------
 
+#Subtopic Operators
+#Populate
+##
+
 #Method bool operator==(const SkColor4f& other)_const
-#In Operator
+#In Operators
 #Line # compares Color4f for equality ##
 
 Compares Color4f with other, and returns true if all components are equivalent.
@@ -72,8 +89,8 @@ colorRed == colorNamedRed
 # ------------------------------------------------------------------------------
 
 #Method bool operator!=(const SkColor4f& other)_const
-#In Operator
-#Line # compares colors for inequality ##
+#In Operators
+#Line # compares Color4f for inequality ##
 
 Compares Color4f with other, and returns true if all components are not
 equivalent.
@@ -97,8 +114,13 @@ colorGray != colorNamedGray
 
 # ------------------------------------------------------------------------------
 
+#Subtopic Property_Functions
+#Line # member values ##
+#Populate
+#Subtopic Property_Functions ##
+
 #Method const float* vec() const
-#In Property
+#In Property_Functions
 #Line # returns array of components ##
 
 Returns Color4f components as a read-only array.
@@ -123,7 +145,7 @@ red=0.266667 green=0.533333 blue=0.8 alpha=0.533333
 # ------------------------------------------------------------------------------
 
 #Method float* vec()
-#In Property
+#In Property_Functions
 #Line # returns array of components ##
 
 Returns Color4f components as a writable array.
@@ -148,8 +170,13 @@ red=0.266667 green=0.533333 blue=0.8 alpha=0.533333
 
 # ------------------------------------------------------------------------------
 
+#Subtopic Utility_Functions
+#Line # less common functions ##
+#Populate
+#Subtopic Utility_Functions ##
+
 #Method static SkColor4f Pin(float r, float g, float b, float a)
-#In Utility
+#In Utility_Functions
 #Line # sets components to valid range ##
 
 Constructs and returns Color4f with each component pinned from zero to one.
@@ -190,7 +217,7 @@ Constructs and returns Color4f with each component pinned from zero to one.
 # ------------------------------------------------------------------------------
 
 #Method static SkColor4f FromColor(SkColor)
-#In Utility
+#In Utility_Functions
 #Line # sets components from Color ##
 
 Converts to closest Color4f.
@@ -220,7 +247,7 @@ red=77 green=101 blue=153 alpha=43
 # ------------------------------------------------------------------------------
 
 #Method SkColor toSkColor() const
-#In Utility
+#In Utility_Functions
 #Line # returns closest Color ##
 
 Converts to closest SkColor.
@@ -249,7 +276,7 @@ red=0.0705882 green=0.129412 blue=0.321569 alpha=0.168627
 # ------------------------------------------------------------------------------
 
 #Method SkColor4f pin() const
-#In Utility
+#In Utility_Functions
 #Line # sets components to valid range ##
 
 Returns Color4f with all components in the range from zero to one.
@@ -284,6 +311,7 @@ Returns Color4f with all components in the range from zero to one.
 
 # ------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 #Method SkColor4f premul() const
 #In Utility
 #Line # returns Premultiplied color ##
@@ -326,6 +354,11 @@ Internal use only.
 #Struct SkColor4f ##
 
 #Struct SkPM4f
+
+#Code
+struct SkPM4f;
+##
+
 #Private
 Internal use only.
 ##
