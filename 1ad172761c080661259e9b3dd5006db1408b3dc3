@@ -22,6 +22,30 @@
       "revId": "1ad172761c080661259e9b3dd5006db1408b3dc3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e09b97a9_253883be",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-25T18:08:48Z",
+      "side": 1,
+      "message": "I changed process_ARGB_Fallback to the helper. This is not the final form, I have a CL that move most of the double callback into painter which results in the single callback form.",
+      "parentUuid": "2219856b_582dcbfa",
+      "range": {
+        "startLine": 621,
+        "startChar": 17,
+        "endLine": 621,
+        "endChar": 29
+      },
+      "revId": "1ad172761c080661259e9b3dd5006db1408b3dc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
