@@ -63,7 +63,7 @@ Samples
   <figure>
     <canvas id=ink width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/4279ce869f9a08b04288a81d740eef5b3d54191f30a4aea510a64596118a5d62"
+      <a href="https://jsfiddle.skia.org/canvaskit/44af7fc80c021b317068952993425515dc33fa440ca2e292007637ce5c4619603"
           target=_blank rel=noopener>
         Ink JSFiddle</a>
     </figcaption>
