@@ -274,7 +274,26 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
     // order.
     auto nextCW  = [](const Sk4f& v) { return SkNx_shuffle<2, 0, 3, 1>(v); };
     auto nextCCW = [](const Sk4f& v) { return SkNx_shuffle<1, 3, 0, 2>(v); };
-
+    /*********************************************************************************************/
+#if 0
+    auto xnext = nextCCW(*x);
+    auto ynext = nextCCW(*y);
+    auto xdiff = xnext - *x;
+    auto ydiff = ynext - *y;
+    auto invLength = fma(xdiff, xdiff,  ydiff * ydiff).rsqrt() * 2.f;
+    xdiff *= invLength;
+    ydiff *= invLength;
+    *x += xdiff;
+    *y += ydiff;
+    *x -= nextCW(xdiff);
+    *y -= nextCW(ydiff);
+    xdiff *= 2.f;
+    ydiff *= 2.f;
+    *a = nextCW(xdiff);
+    *b = nextCW(ydiff);
+    *c = -fma(*a, *x, *b * *y);
+    /*********************************************************************************************/
+#else
     auto xnext = nextCCW(*x);
     auto ynext = nextCCW(*y);
     *a = ynext - *y;
@@ -306,6 +325,7 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
     auto ic = (fma(anext, *b, -bnext * *a)).invert();
     *x *= ic;
     *y *= ic;
+#endif
 }
 
 namespace {
