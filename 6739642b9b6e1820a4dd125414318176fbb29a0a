@@ -52,6 +52,24 @@
       "revId": "6739642b9b6e1820a4dd125414318176fbb29a0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab9dc924_c5752a3f",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-25T20:22:13Z",
+      "side": 1,
+      "message": "Ah, yeah, +inf will always be the biggest float (except sometimes when compared with NaN of course).  Maybe you just want to use sk_ieee_float_divide() instead of \u0027/\u0027 and not check anything, before or after?\n\nI take it you know sqr(n)*sqr(avgLength) is not zero?  No chance of producing NaN?",
+      "parentUuid": "0aadc234_5e18c1e5",
+      "revId": "6739642b9b6e1820a4dd125414318176fbb29a0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
