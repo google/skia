@@ -3196,7 +3196,15 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrContext* context,
 
     // Otherwise, if we have shader derivative support, render as device-independent
     if (shaderCaps->shaderDerivativeSupport()) {
-        return DIEllipseOp::Make(context, std::move(paint), viewMatrix, oval, style.strokeRec());
+        SkScalar a = viewMatrix[SkMatrix::kMScaleX];
+        SkScalar b = viewMatrix[SkMatrix::kMSkewX];
+        SkScalar c = viewMatrix[SkMatrix::kMSkewY];
+        SkScalar d = viewMatrix[SkMatrix::kMScaleY];
+        // Check for near-degenerate matrix
+        if (a*a + c*c > SK_ScalarNearlyZero && b*b + d*d > SK_ScalarNearlyZero) {
+            return DIEllipseOp::Make(context, std::move(paint), viewMatrix, oval,
+                                     style.strokeRec());
+        }
     }
 
     return nullptr;
