@@ -221,6 +221,14 @@ void SkPictureRecord::recordConcat(const SkMatrix& matrix) {
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::setNodeId(int node_id) {
+    // op + id
+    size_t size = 1 * kUInt32Size + sizeof(int);
+    size_t initialOffset = this->addDraw(SET_NODE_ID, &size);
+    fWriter.writeInt((int)node_id);
+    this->validate(initialOffset, size);
+}
+
 void SkPictureRecord::didSetMatrix(const SkMatrix& matrix) {
     this->validate(fWriter.bytesWritten(), 0);
     // op + matrix

@@ -53,6 +53,10 @@ SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds, SkMiniRecorder* m
     , fRecord(record)
     , fMiniRecorder(mr) {}
 
+void SkRecorder::setNodeId(int node_id) {
+    this->append<SkRecords::SetNodeId>(node_id);
+}
+
 void SkRecorder::reset(SkRecord* record, const SkRect& bounds,
                        DrawPictureMode dpm, SkMiniRecorder* mr) {
     this->forgetRecord();
