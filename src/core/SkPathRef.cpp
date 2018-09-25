@@ -891,14 +891,15 @@ bool SkPathRef::isValid() const {
 #ifdef SK_DEBUG
             if (fPoints[i].isFinite() &&
                 ((point < leftTop).anyTrue() || (point > rightBot).anyTrue())) {
-                SkDebugf("bounds: %f %f %f %f\n",
+                SkDebugf("bad SkPathRef bounds: %g %g %g %g\n",
                          fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
                 for (int j = 0; j < fPointCnt; ++j) {
                     if (i == j) {
-                        SkDebugf("*");
+                        SkDebugf("*** bounds do not contain: ");
                     }
-                    SkDebugf("%f %f\n", fPoints[j].fX, fPoints[j].fY);
+                    SkDebugf("%g %g\n", fPoints[j].fX, fPoints[j].fY);
                 }
+                return false;
             }
 #endif
 
