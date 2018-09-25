@@ -48,11 +48,12 @@ public:
         void reset();
 
     private:
-        sk_sp<SkSurface>                       fSurface;
-        SkSurfaceCharacterization              fCharacterization;
-        SkIRect                                fClip;    // in the device space of the dest canvas
-        sk_sp<SkPicture>                       fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>               fPromiseImages; // All the promise images in the
+        sk_sp<SkSurface>                               fSurface;
+        SkSurfaceCharacterization                      fCharacterization;
+        SkIRect                                        fClip;    // in the device space of the dest canvas
+        sk_sp<SkPicture>                               fReconstitutedPicture;
+        std::unique_ptr<SkDeferredDisplayListRecorder> fDDLRecorder;
+        SkTArray<sk_sp<SkImage>>                       fPromiseImages; // All the promise images in the
                                                                // reconstituted picture
         std::unique_ptr<SkDeferredDisplayList> fDisplayList;
     };
