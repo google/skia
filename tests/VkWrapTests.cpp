@@ -28,13 +28,14 @@ using sk_gpu_test::GrContextFactory;
 const int kW = 1024;
 const int kH = 1024;
 const GrPixelConfig kPixelConfig = kRGBA_8888_GrPixelConfig;
+const GrColorType kColorType = GrColorType::kRGBA_8888;
 
 void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     GrBackendTexture origBackendTex = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
-                                                                           kPixelConfig, false,
+                                                                           kColorType, false,
                                                                            GrMipMapped::kNo);
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));
@@ -81,7 +82,7 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     GrBackendTexture origBackendTex = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
-                                                                           kPixelConfig, true,
+                                                                           kColorType, true,
                                                                            GrMipMapped::kNo);
 
     GrVkImageInfo imageInfo;
@@ -123,7 +124,7 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     GrBackendTexture origBackendTex = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
-                                                                           kPixelConfig, true,
+                                                                           kColorType, true,
                                                                            GrMipMapped::kNo);
     GrVkImageInfo imageInfo;
     SkAssertResult(origBackendTex.getVkImageInfo(&imageInfo));

@@ -108,7 +108,7 @@ protected:
             yuvTextures[i] = gpu->createTestingOnlyBackendTexture(fYUVBmps[i].getPixels(),
                                                                   fYUVBmps[i].width(),
                                                                   fYUVBmps[i].height(),
-                                                                  kAlpha_8_GrPixelConfig,
+                                                                  GrColorType::kAlpha_8,
                                                                   false, GrMipMapped::kNo);
         }
         context->resetContext();
@@ -126,7 +126,7 @@ protected:
         }
 
         *resultTexture = gpu->createTestingOnlyBackendTexture(
-                nullptr, width, height, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
+                nullptr, width, height, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
 
         context->resetContext();
     }

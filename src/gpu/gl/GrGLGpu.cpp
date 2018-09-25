@@ -3921,9 +3921,12 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 
 #if GR_TEST_UTILS
 GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                          GrPixelConfig config, bool /*isRT*/,
-                                                          GrMipMapped mipMapped) {
+                                                          GrColorType colorType, bool /*isRT*/,
+                                                          GrMipMapped mipMapped,
+                                                          size_t rowBytes) {
     this->handleDirtyContext();
+
+    GrPixelConfig config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
     if (!this->caps()->isConfigTexturable(config)) {
         return GrBackendTexture();  // invalid
     }
@@ -3935,6 +3938,12 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
     // Currently we don't support uploading pixel data when mipped.
     if (pixels && GrMipMapped::kYes == mipMapped) {
         return GrBackendTexture();  // invalid
+    }
+
+    int bpp = GrColorTypeBytesPerPixel(colorType);
+    const size_t trimRowBytes = w * bpp;
+    if (!rowBytes) {
+        rowBytes = trimRowBytes;
     }
 
     GrGLTextureInfo info;
@@ -3949,6 +3958,12 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
     GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
     GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
     GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
+
+    bool restoreGLRowLength = false;
+    if (trimRowBytes != rowBytes && this->glCaps().unpackRowLengthSupport()) {
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
+        restoreGLRowLength = true;
+    }
 
     GrGLenum internalFormat;
     GrGLenum externalFormat;
@@ -3969,13 +3984,19 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
         mipLevels = SkMipMap::ComputeLevelCount(w, h) + 1;
     }
 
-    size_t bpp = GrBytesPerPixel(config);
     size_t baseLayerSize = bpp * w * h;
     SkAutoMalloc defaultStorage(baseLayerSize);
     if (!pixels) {
         // Fill in the texture with all zeros so we don't have random garbage
         pixels = defaultStorage.get();
         memset(defaultStorage.get(), 0, baseLayerSize);
+    } else if (trimRowBytes != rowBytes && !restoreGLRowLength) {
+        // We weren't able to use GR_GL_UNPACK_ROW_LENGTH so make a copy
+        char* copy = (char*) defaultStorage.get();
+        for (int y = 0; y < h; ++y) {
+            memcpy(&copy[y*trimRowBytes], &((const char*)pixels)[y*rowBytes], trimRowBytes);
+        }
+        pixels = copy;
     }
 
     int width = w;
@@ -3989,6 +4010,10 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
 
     // unbind the texture from the texture unit to avoid asserts
     GL_CALL(BindTexture(info.fTarget, 0));
+
+    if (restoreGLRowLength) {
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+    }
 
     GrBackendTexture beTex = GrBackendTexture(w, h, mipMapped, info);
     // Lots of tests don't go through Skia's public interface which will set the config so for

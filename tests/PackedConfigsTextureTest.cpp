@@ -113,7 +113,7 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
 
     for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, false, DEV_W, DEV_H,
-                                                           SkColorTypeToGrColorType(colorType),
+                                                           colorType,
                                                            origin, controlPixelData.begin(), 0);
         SkASSERT(proxy);
 

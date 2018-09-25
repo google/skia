@@ -359,7 +359,7 @@ public:
                                         : GrMipMapped(fShouldCreateMipMaps);
 
         *backend = gpu->createTestingOnlyBackendTexture(nullptr, fWidth, fHeight,
-                                                        fConfig, true, mipmapped);
+                                                        fColorType, true, mipmapped);
         if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
             return nullptr;
         }
@@ -686,7 +686,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrGpu* gpu = context->contextPriv().getGpu();
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-            nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
+            nullptr, kSize, kSize, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
     if (!backendTex.isValid()) {
         return;
     }
@@ -848,14 +848,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Exhaustively test colorType and pixelConfig compatibility.
+// Test colorType and pixelConfig compatibility.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
     for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
         SkColorType colorType = static_cast<SkColorType>(ct);
 
-        for (int config = 0; config < kGrPixelConfigCnt; ++config) {
+        for (int config = 0; config < kPrivateConfig1_GrPixelConfig; ++config) {
             GrPixelConfig pixelConfig = static_cast<GrPixelConfig>(config);
 
             SurfaceParameters params(context->contextPriv().caps());
