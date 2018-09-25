@@ -70,6 +70,24 @@
       "revId": "6739642b9b6e1820a4dd125414318176fbb29a0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30ce035b_fa60fb9c",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-09-25T21:58:20Z",
+      "side": 1,
+      "message": "It seems to be easier to just check NaN... Done.",
+      "parentUuid": "ab9dc924_c5752a3f",
+      "revId": "6739642b9b6e1820a4dd125414318176fbb29a0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
