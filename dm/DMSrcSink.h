@@ -248,6 +248,16 @@ private:
     Path fPath;
 };
 
+class BisectSrc : public SKPSrc {
+public:
+    explicit BisectSrc(Path path, const char* trail);
+
+    Error draw(SkCanvas*) const override;
+
+private:
+    SkString fTrail;
+};
+
 
 #if defined(SK_ENABLE_SKOTTIE)
 class SkottieSrc final : public Src {
