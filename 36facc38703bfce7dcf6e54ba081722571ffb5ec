@@ -757,6 +757,30 @@
     },
     {
       "key": {
+        "uuid": "28d7fff0_78fd8925",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Just curious - what inspired that change? I thought your intent was to keep Wuffs flexible, since different decoders/browsers have chosen different policies.\n\nhttps://github.com/google/wuffs/blob/master/test/data/artificial/gif-frame-out-of-bounds.gif.make-artificial.txt",
+      "parentUuid": "6e092306_57be412b",
+      "range": {
+        "startLine": 461,
+        "startChar": 56,
+        "endLine": 463,
+        "endChar": 51
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e0f05974_ef50daed",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -1193,6 +1217,30 @@
       "side": 1,
       "message": "For missing LZW blocks, I copy/pasted out a new Codec_GifTruncated3 test, based on this one (Codec_ossfuzz6274).\n\nFWIW, I\u0027m not sure if it\u0027s a great test. It still seems to pass if I comment out the SkSampler::Fill call in SkWuffsGifCodec::onStartIncrementalDecode, which is what I assume it\u0027s trying to test...",
       "parentUuid": "1ab5f30b_9369b3f9",
+      "range": {
+        "startLine": 1565,
+        "startChar": 0,
+        "endLine": 1566,
+        "endChar": 16
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b157967_023f27a5",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "You are correct; the test itself would pass. But we run our tests regularly (at each commit) with MSAN, which would complain if we didn\u0027t call Fill.",
+      "parentUuid": "1b38f214_e38af7e3",
       "range": {
         "startLine": 1565,
         "startChar": 0,

@@ -16,6 +16,24 @@
       "revId": "9da2d889faeab8a1117a3374ad18d8b5a5f6d65a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf4e6eb8_da85f95d",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "14\u0027s is cleaner.",
+      "parentUuid": "888d5fe0_52a513bc",
+      "revId": "9da2d889faeab8a1117a3374ad18d8b5a5f6d65a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

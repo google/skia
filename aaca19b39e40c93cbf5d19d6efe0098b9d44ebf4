@@ -606,6 +606,30 @@
       "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5601acc_ce73ee91",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8b1a6b0f_b8679871",
+      "range": {
+        "startLine": 1536,
+        "startChar": 0,
+        "endLine": 1537,
+        "endChar": 41
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

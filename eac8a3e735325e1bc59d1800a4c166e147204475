@@ -16,6 +16,575 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91afe051_04e93a92",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Google\u0027s style guide suggests using a default:\n\nhttps://google.github.io/styleguide/cppguide.html#Loops_and_Switch_Statements",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 51
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0056665_5cb3b769",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Nit: Skia calls other member methods with this-\u003e, e.g.\n\n  this-\u003esetXYWH(...);\n\nhttps://skia.org/dev/contrib/style",
+      "range": {
+        "startLine": 69,
+        "startChar": 4,
+        "endLine": 69,
+        "endChar": 11
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d76b189c_8d2faf42",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "FWIW, this is a little more lenient than we are today.",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 74
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8492dc0_d694b07c",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "I was confused by this until I learned that this method returns a const char* on error, and nullptr if everything is okay. How about something like the following:\n\n    const char* status \u003d decoder-\u003echeck_wuffs_version(...);\n    if (status) {\n        SkCodecPrintf(status);\n        *result \u003d SkCodec::kInternalError;\n        return nullptr;\n    }\n\nThat will also give us better debugging information when we have failures.\n\nSame suggestion for some other places where you check for !\u003d nullptr.",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 91
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f510ecae_3db91c28",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Why do you compare to INT_MAX?\n\n(Perhaps we should be consistent across our codecs; funneling them all through here would accomplish that, I suppose. Today we have some somewhat arbitrary limits for some, no limit for others.)",
+      "range": {
+        "startLine": 171,
+        "startChar": 25,
+        "endLine": 171,
+        "endChar": 40
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ede9b838_43f03283",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Why the limit of SIZE_MAX?",
+      "range": {
+        "startLine": 178,
+        "startChar": 23,
+        "endLine": 178,
+        "endChar": 31
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ec74e7c_242b822c",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "That\u0027s not the only way we could end up with transparency in a later frame. If the first frame is DisposeOverwritePrevious, I think that would be the same as kRestoreBGColor. And this doesn\u0027t affect GIF, but APNG and WEBP have an option to blend with the background color.",
+      "range": {
+        "startLine": 206,
+        "startChar": 54,
+        "endLine": 207,
+        "endChar": 57
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "920f829b_64ebdada",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "this-\u003edecodeFrameConfig();",
+      "range": {
+        "startLine": 320,
+        "startChar": 31,
+        "endLine": 320,
+        "endChar": 48
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e58a34ce_729e3418",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "this-\u003eframe(i);",
+      "range": {
+        "startLine": 422,
+        "startChar": 28,
+        "endLine": 422,
+        "endChar": 33
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e4e5945_af3b4402",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "this-\u003enumFullyReceived()",
+      "range": {
+        "startLine": 427,
+        "startChar": 61,
+        "endLine": 427,
+        "endChar": 77
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1e546b6_a5a93d8a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Does this need to be a separate method from onGetFrameCount?",
+      "range": {
+        "startLine": 451,
+        "startChar": 19,
+        "endLine": 451,
+        "endChar": 29
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3746dc83_89529ebf",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "this-\u003eseekFrame(i)\n\nAlso, I\u0027m concerned this won\u0027t work on resuming. When Chromium tries to continue decoding a frame, it first checks the frame count in case it has changed.",
+      "range": {
+        "startLine": 454,
+        "startChar": 8,
+        "endLine": 454,
+        "endChar": 17
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e8626e7_6194fe96",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "this-\u003edecodeFrameConfig()",
+      "range": {
+        "startLine": 461,
+        "startChar": 31,
+        "endLine": 461,
+        "endChar": 48
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d617712_6cb41944",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "It looks like this method will only be called once, so we cannot resume if and when we receive more data?",
+      "range": {
+        "startLine": 478,
+        "startChar": 4,
+        "endLine": 478,
+        "endChar": 26
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0c3e0e7_b189b3a6",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "What does this method return?",
+      "range": {
+        "startLine": 483,
+        "startChar": 33,
+        "endLine": 483,
+        "endChar": 51
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b8d1e01_7cd7093c",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "this-\u003eresetDecoder",
+      "range": {
+        "startLine": 489,
+        "startChar": 30,
+        "endLine": 489,
+        "endChar": 42
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f9d5e5b_acd321c1",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Should this update fPreviousBestNumFullyReceived? And then seekFrame can call this method?\n\nOtherwise it seems like fPreviousBestNumFullyReceived could be out of date, although it looks like no other method reads it.\n\nNow that I look at it further, it seems that seekFrame doesn\u0027t actually want the result. It\u0027s just deliberate that it does the updating, but this method still looks at the latest value. I don\u0027t understand why, though.",
+      "range": {
+        "startLine": 515,
+        "startChar": 23,
+        "endLine": 515,
+        "endChar": 39
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2cd90b3_995d83d4",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Can we share code with the original creation of fDecoder?",
+      "range": {
+        "startLine": 586,
+        "startChar": 0,
+        "endLine": 599,
+        "endChar": 5
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4029b7d_b79bf387",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Why do we need to reset the decoder if the status is incomplete?",
+      "range": {
+        "startLine": 611,
+        "startChar": 8,
+        "endLine": 611,
+        "endChar": 25
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37dd7456_6d0f3629",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "nit: Skia lines up the names of member variables, e.g.\n\n    uint64_t             fIOPosition;\n    SkEncodedInfo::Alpha fReportedAlpha;",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 40
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "018b2df9_8a782bc9",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "Can this be a pointer to const SkWuffsCodec? It looks like it just calls frame(int), which is const?",
+      "range": {
+        "startLine": 52,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 24
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88b2e454_400a325b",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "I don\u0027t think this is necessary. SkWuffsCodec declares friend class SkWuffsFrameHolder, which allows this class to access frame(int), but I don\u0027t think SkWuffsCodec ever access internal members of this class. Did I miss something?",
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c835af45_cff923c4",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "nit: Typically Skia lines up the names of member variables, e.g.\n\n    SkWuffsFrameHolder                  fFrameHolder;\n    std::unique_ptr\u003cSkStream\u003e           fStream;\n    std::unique_ptr\u003cwuffs_gif__decoder\u003e fDecoder;\n    std::unique_ptr\u003cuint8_t[]\u003e          fWorkbufPtr;\n    size_t                              fWorkbufLen;\n    std::unique_ptr\u003cuint8_t[]\u003e          fPixbufPtr;",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 42
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d06b8385_2749ea7c",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "It looks like this is const?",
+      "range": {
+        "startLine": 105,
+        "startChar": 4,
+        "endLine": 105,
+        "endChar": 12
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41ab110d_b93cbbe4",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "It looks like this is const?\n\nBut that doesn\u0027t cover the case where we initially do not have enough data to read the repeat count. I think we need to check it again when we receive more data?",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 22
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

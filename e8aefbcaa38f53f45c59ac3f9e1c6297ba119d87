@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b69d2a02_03ff1e4f",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-25T19:52:33Z",
+      "side": 1,
+      "message": "I think we should be using sk_calloc_can_fail and sk_free from SkMalloc.h",
+      "range": {
+        "startLine": 688,
+        "startChar": 24,
+        "endLine": 688,
+        "endChar": 30
+      },
+      "revId": "e8aefbcaa38f53f45c59ac3f9e1c6297ba119d87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
