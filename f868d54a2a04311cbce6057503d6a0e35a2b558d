@@ -46,6 +46,30 @@
       "revId": "f868d54a2a04311cbce6057503d6a0e35a2b558d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "111cd7ba_d487d1fe",
+        "filename": "src/pathops/SkOpAngle.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-25T17:25:54Z",
+      "side": 1,
+      "message": "If you can generate infinity and don\u0027t need to guard against them, it\u0027s probably best to just use sk_ieee_float_divide() directly and not check anything?  Basically, just suppress the warning if it\u0027s not relevant here?",
+      "parentUuid": "819aeb98_62b78502",
+      "range": {
+        "startLine": 583,
+        "startChar": 8,
+        "endLine": 583,
+        "endChar": 25
+      },
+      "revId": "f868d54a2a04311cbce6057503d6a0e35a2b558d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
