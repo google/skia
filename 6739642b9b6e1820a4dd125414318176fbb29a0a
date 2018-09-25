@@ -34,6 +34,24 @@
       "revId": "6739642b9b6e1820a4dd125414318176fbb29a0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0aadc234_5e18c1e5",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-09-25T20:10:44Z",
+      "side": 1,
+      "message": "I think that it\u0027s Ok for complexity to be inf so it\u0027s always greater than any of our threshold?",
+      "parentUuid": "0a17522a_572582f1",
+      "revId": "6739642b9b6e1820a4dd125414318176fbb29a0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
