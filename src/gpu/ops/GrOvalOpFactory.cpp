@@ -3149,6 +3149,16 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrContext* context,
                                                       const SkRect& oval,
                                                       const GrStyle& style,
                                                       const GrShaderCaps* shaderCaps) {
+    // Check for degenerate matrix
+    SkScalar a = viewMatrix[SkMatrix::kMScaleX];
+    SkScalar b = viewMatrix[SkMatrix::kMSkewX];
+    SkScalar c = viewMatrix[SkMatrix::kMSkewY];
+    SkScalar d = viewMatrix[SkMatrix::kMScaleY];
+    if (a*a + c*c <= SK_ScalarNearlyZero*SK_ScalarNearlyZero ||
+        b*b + d*d <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
+        return nullptr;
+    }
+
     // we can draw circles
     SkScalar width = oval.width();
     if (width > SK_ScalarNearlyZero && SkScalarNearlyEqual(width, oval.height()) &&
