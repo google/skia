@@ -393,7 +393,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
         }
         case 3: {
             SkPath path;
-            FuzzPath(fuzz, &path, 20);
+            FuzzNicePath(fuzz, &path, 20);
             SkScalar advance, phase;
             fuzz->next(&advance, &phase);
             SkPath1DPathEffect::Style style;
@@ -409,7 +409,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
         }
         case 5: {
             SkPath path;
-            FuzzPath(fuzz, &path, 20);
+            FuzzNicePath(fuzz, &path, 20);
             SkMatrix matrix;
             FuzzNiceMatrix(fuzz, &matrix);
             return SkPath2DPathEffect::Make(matrix, path);
@@ -1183,7 +1183,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             }
             case 21: {
                 SkPath path;
-                FuzzPath(fuzz, &path, 30);
+                FuzzNicePath(fuzz, &path, 30);
                 int op;
                 bool doAntiAlias;
                 fuzz->next(&doAntiAlias);
@@ -1273,7 +1273,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             case 32: {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 SkPath path;
-                FuzzPath(fuzz, &path, 60);
+                FuzzNicePath(fuzz, &path, 60);
                 canvas->drawPath(path, paint);
                 break;
             }
@@ -1530,7 +1530,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint_text_encoding(fuzz, &paint);
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
                 SkPath path;
-                FuzzPath(fuzz, &path, 20);
+                FuzzNicePath(fuzz, &path, 20);
                 SkScalar hOffset, vOffset;
                 fuzz->next(&hOffset, &vOffset);
                 SkDrawTextOnPathHV(text.begin(), SkToSizeT(text.count()), paint, path, hOffset,
@@ -1548,7 +1548,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz_paint_text_encoding(fuzz, &paint);
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
                 SkPath path;
-                FuzzPath(fuzz, &path, 20);
+                FuzzNicePath(fuzz, &path, 20);
                 SkDrawTextOnPath(text.begin(), SkToSizeT(text.count()), paint, path,
                                  useMatrix ? &matrix :nullptr, canvas);
                 break;

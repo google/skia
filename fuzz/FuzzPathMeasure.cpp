@@ -19,7 +19,7 @@ DEF_FUZZ(PathMeasure, fuzz) {
         fuzz->next(&distance[index]);
     }
     SkPath path;
-    BuildPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+    FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
     SkRect bounds = path.getBounds();
     SkScalar maxDim = SkTMax(bounds.width(), bounds.height());
     SkScalar resScale = maxDim / 1000;

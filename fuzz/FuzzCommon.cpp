@@ -22,9 +22,13 @@ static void fuzz_nice_float(Fuzz* fuzz, float* f, Args... rest) {
     fuzz_nice_float(fuzz, rest...);
 }
 
+static void fuzz_nice_rect(Fuzz* fuzz, SkRect* r) {
+    fuzz_nice_float(fuzz, &r->fLeft, &r->fTop, &r->fRight, &r->fBottom);
+    r->sort();
+}
 
 // allows some float values for path points
-void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
+void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
     if (maxOps <= 0) {
         return;
     }
@@ -91,14 +95,15 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 break;
             case 11:
                 fuzz_nice_float(fuzz, &a, &b);
-                fuzz->next(&r, &test);
+                fuzz_nice_rect(fuzz, &r);
+                fuzz->next(&test);
                 path->arcTo(r, a, b, test);
                 break;
             case 12:
                 path->close();
                 break;
             case 13:
-                fuzz->next(&r);
+                fuzz_nice_rect(fuzz, &r);
                 fuzz->nextRange(&ui, 0, 1);
                 dir = static_cast<SkPath::Direction>(ui);
                 path->addRect(r, dir);
@@ -106,19 +111,21 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
             case 14:
                 fuzz->nextRange(&ui, 0, 1);
                 dir = static_cast<SkPath::Direction>(ui);
-                fuzz->next(&r, &ui);
+                fuzz_nice_rect(fuzz, &r);
+                fuzz->next(&ui);
                 path->addRect(r, dir, ui);
                 break;
             case 15:
                 fuzz->nextRange(&ui, 0, 1);
                 dir = static_cast<SkPath::Direction>(ui);
-                fuzz->next(&r);
+                fuzz_nice_rect(fuzz, &r);
                 path->addOval(r, dir);
                 break;
             case 16:
                 fuzz->nextRange(&ui, 0, 1);
                 dir = static_cast<SkPath::Direction>(ui);
-                fuzz->next(&r, &ui);
+                fuzz_nice_rect(fuzz, &r);
+                fuzz->next(&ui);
                 path->addOval(r, dir, ui);
                 break;
             case 17:
@@ -128,13 +135,13 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 path->addCircle(a, b, c, dir);
                 break;
             case 18:
-                fuzz->next(&r);
+                fuzz_nice_rect(fuzz, &r);
                 fuzz_nice_float(fuzz, &a, &b);
                 path->addArc(r, a, b);
                 break;
             case 19:
                 fuzz_nice_float(fuzz, &a, &b);
-                fuzz->next(&r);
+                fuzz_nice_rect(fuzz, &r);
                 fuzz->nextRange(&ui, 0, 1);
                 dir = static_cast<SkPath::Direction>(ui);
                 path->addRoundRect(r, a, b, dir);
@@ -154,20 +161,20 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
             case 22: {
                 fuzz->nextRange(&ui, 0, 1);
                 SkPath::AddPathMode mode = static_cast<SkPath::AddPathMode>(ui);
-                fuzz->next(&m);
-                FuzzPath(fuzz, &p, maxOps-1);
+                FuzzNiceMatrix(fuzz, &m);
+                FuzzNicePath(fuzz, &p, maxOps-1);
                 path->addPath(p, m, mode);
                 break;
             }
             case 23: {
                 fuzz->nextRange(&ui, 0, 1);
                 SkPath::AddPathMode mode = static_cast<SkPath::AddPathMode>(ui);
-                fuzz->next(&m);
+                FuzzNiceMatrix(fuzz, &m);
                 path->addPath(*path, m, mode);
                 break;
             }
             case 24:
-                FuzzPath(fuzz, &p, maxOps-1);
+                FuzzNicePath(fuzz, &p, maxOps-1);
                 path->reverseAddPath(p);
                 break;
             case 25:
@@ -181,17 +188,17 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 path->offset(a, b, path);
                 break;
             case 28:
-                FuzzPath(fuzz, &p, maxOps-1);
+                FuzzNicePath(fuzz, &p, maxOps-1);
                 fuzz_nice_float(fuzz, &a, &b);
                 p.offset(a, b, path);
                 break;
             case 29:
-                fuzz->next(&m);
+                FuzzNiceMatrix(fuzz, &m);
                 path->transform(m, path);
                 break;
             case 30:
-                FuzzPath(fuzz, &p, maxOps-1);
-                fuzz->next(&m);
+                FuzzNicePath(fuzz, &p, maxOps-1);
+                FuzzNiceMatrix(fuzz, &m);
                 p.transform(m, path);
                 break;
             case 31:
@@ -206,13 +213,13 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 SkASSERT(false);
                 break;
         }
-        SkASSERT(path->isValid());
-        SkASSERT(path->pathRefIsValid());
+        SkASSERTF(       path->isValid(),        "path->isValid() failed at op %d, case %d", i, op);
+        SkASSERTF(path->pathRefIsValid(), "path->pathRefIsValid() failed at op %d, case %d", i, op);
     }
 }
 
 // allows all float values for path points
-void BuildPath(Fuzz* fuzz, SkPath* path, int last_verb) {
+void FuzzEvilPath(Fuzz* fuzz, SkPath* path, int last_verb) {
   while (!fuzz->exhausted()) {
     // Use a uint8_t to conserve bytes.  This makes our "fuzzed bytes footprint"
     // smaller, which leads to more efficient fuzzing.
@@ -259,9 +266,9 @@ void BuildPath(Fuzz* fuzz, SkPath* path, int last_verb) {
 
 void FuzzNiceRRect(Fuzz* fuzz, SkRRect* rr) {
     SkRect r;
+    fuzz_nice_rect(fuzz, &r);
+
     SkVector radii[4];
-    fuzz->next(&r);
-    r.sort();
     for (SkVector& vec : radii) {
         fuzz->nextRange(&vec.fX, 0.0f, 1.0f);
         vec.fX *= 0.5f * r.width();
