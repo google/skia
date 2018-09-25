@@ -3,23 +3,30 @@
 
 #Class SkTextBlobBuilder
 
+#Code
+class SkTextBlobBuilder {
+public:
+    SkTextBlobBuilder();
+    ~SkTextBlobBuilder();
+    sk_sp<SkTextBlob> make();
+
+    struct RunBuffer {
+        SkGlyphID* glyphs;
+        SkScalar*  pos;
+        char*      utf8text;
+        uint32_t*  clusters;
+    };
+
+    const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
+                              const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
+                                  const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunPos(const SkPaint& font, int count,
+                                 const SkRect* bounds = nullptr);
+};
+##
+
 Helper class for constructing SkTextBlob.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Class
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
 
 # ------------------------------------------------------------------------------
 
@@ -44,7 +51,7 @@ determine the advance to subsequent Glyphs; by specifying a baseline, and
 the position on that baseline for each Glyph in run; or by providing Point
 array, one per Glyph.
 
-#Subtopic Member
+#Subtopic Members
 #Populate
 ##
 
@@ -78,7 +85,7 @@ array, one per Glyph.
 # ------------------------------------------------------------------------------
 
 #Method SkTextBlobBuilder()
-#In Constructor
+#In Constructors
 #Line # constructs with default values ##
 
 Constructs empty Text_Blob_Builder. By default, Text_Blob_Builder has no runs.
@@ -101,7 +108,7 @@ blob equals nullptr
 # ------------------------------------------------------------------------------
 
 #Method ~SkTextBlobBuilder()
-#In Constructor
+#In Constructors
 #Line # deletes storage ##
 Deletes data allocated internally by Text_Blob_Builder.
 
@@ -115,7 +122,7 @@ Deletes data allocated internally by Text_Blob_Builder.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkTextBlob> make()
-#In Constructor
+#In Constructors
 #Line # constructs Text_Blob from bulider ##
 
 Returns Text_Blob built from runs of Glyphs added by builder. Returned

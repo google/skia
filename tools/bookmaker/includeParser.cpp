@@ -65,7 +65,8 @@ KeyWord IncludeParser::FindKey(const char* start, const char* end) {
     for (size_t index = 0; index < kKeyWordCount; ) {
         if (start[ch] > kKeyWords[index].fName[ch]) {
             ++index;
-            if (ch > 0 && kKeyWords[index - 1].fName[ch - 1] < kKeyWords[index].fName[ch - 1]) {
+            if (ch > 0 && (index == kKeyWordCount ||
+                    kKeyWords[index - 1].fName[ch - 1] < kKeyWords[index].fName[ch - 1])) {
                 return KeyWord::kNone;
             }
             continue;
@@ -101,6 +102,226 @@ void IncludeParser::addKeyword(KeyWord keyWord) {
         if (KeyWord::kEnum == fParent->fKeyWord) {
             fInEnum = true;
         }
+    }
+}
+
+static bool looks_like_method(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fLine, tp.fChar, tp.fLineCount);
+    t.skipSpace();
+    if (!t.skipExact("struct") && !t.skipExact("class") && !t.skipExact("enum class")
+            && !t.skipExact("enum")) {
+        return true;
+    }
+    t.skipSpace();
+    if (t.skipExact("SK_API")) {
+        t.skipSpace();
+    }
+    if (!isupper(t.peek())) {
+        return true;
+    }
+    return nullptr != t.strnchr('(', t.fEnd);
+}
+
+static bool looks_like_forward_declaration(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fChar, tp.lineEnd(), tp.fLineCount);
+    t.skipSpace();
+    if (!t.skipExact("struct") && !t.skipExact("class") && !t.skipExact("enum class")
+            && !t.skipExact("enum")) {
+        return false;
+    }
+    t.skipSpace();
+    if (t.skipExact("SK_API")) {
+        t.skipSpace();
+    }
+    if (!isupper(t.peek())) {
+        return false;
+    }
+    t.skipToNonAlphaNum();
+    if (t.eof() || ';' != t.next()) {
+        return false;
+    }
+    if (t.eof() || '\n' != t.next()) {
+        return false;
+    }
+    return t.eof();
+}
+
+static bool looks_like_constructor(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fLine, tp.lineEnd(), tp.fLineCount);
+    t.skipSpace();
+    if (!isupper(t.peek())) {
+        if (':' == t.next() && ' ' >= t.peek()) {
+            return true;
+        }
+        return false;
+    }
+    t.skipToNonAlphaNum();
+    if ('(' != t.peek()) {
+        return false;
+    }
+    if (!t.skipToEndBracket(')')) {
+        return false;
+    }
+    SkAssertResult(')' == t.next());
+    t.skipSpace();
+    return tp.fChar == t.fChar;
+}
+
+static bool looks_like_class_decl(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fLine, tp.fChar, tp.fLineCount);
+    t.skipSpace();
+    if (!t.skipExact("class")) {
+        return false;
+    }
+    t.skipSpace();
+    if (t.skipExact("SK_API")) {
+        t.skipSpace();
+    }
+    if (!isupper(t.peek())) {
+        return false;
+    }
+    t.skipToNonAlphaNum();
+    return !t.skipToEndBracket('(');
+}
+
+void IncludeParser::checkCode(const Definition& iDef, RootDefinition* bDef) const {
+    SkDebugf("");
+    bool inDebugCode = false;
+    int privateBrace = 0;
+    int braceCount = 0;
+    bool foundCode = false;
+    for (auto child : bDef->fChildren) {
+        if (MarkType::kCode != child->fMarkType) {
+            continue;
+        }
+        foundCode = true;
+        TextParser b(child);
+        TextParser i(&iDef);
+        do {
+            b.skipWhiteSpace();
+            i.skipWhiteSpace();
+            if (privateBrace) {
+                if (i.startsWith("};")) {
+                    if (privateBrace == braceCount) {
+                        privateBrace = 0;
+                    } else {
+                        i.skipExact("};");
+                        braceCount -= 1;
+                    }
+                    continue;
+                }
+                if (i.startsWith("public:")) {
+                    if (braceCount <= privateBrace) {
+                        privateBrace = 0;
+                        if (!b.startsWith("public:")) {
+                            i.skipExact("public:");
+                        }
+                    } else {
+                        i.skipExact("public:");
+                    }
+                } else {
+                    braceCount += i.skipToLineBalance('{', '}');
+                }
+                continue;
+            }
+            if (i.skipExact("inline")) {
+                continue;
+            }
+            if (i.skipExact("SK_WARN_UNUSED_RESULT")) {
+                continue;
+            }
+            if (i.skipExact("SK_ATTR_DEPRECATED")) {
+                i.skipToLineStart();
+                continue;
+            }
+            if (i.skipExact("SK_API")) {
+                continue;
+            }
+            if (i.skipExact("SkDEBUGCODE")) {
+                i.skipWhiteSpace();
+                if ('(' != i.next()) {
+                    i.reportError("expected open paren");
+                }
+                inDebugCode = true;
+            }
+            if ('{' == i.peek()) {
+                if (looks_like_method(i)) {
+                    if (!i.skipToBalancedEndBracket('{', '}')) {
+                        i.reportError("unbalanced open brace");
+                        return;
+                    }
+                } else if (looks_like_class_decl(i)) {
+                    privateBrace = braceCount + 1;
+                }
+            }
+            if (':' == i.peek() && looks_like_constructor(i)) {
+                i.skipToEndBracket('{');
+                continue;
+            }
+            if ('#' == i.peek()) {
+                i.skipToLineStart();
+                continue;
+            }
+            if (i.startsWith("//")) {
+                i.skipToLineStart();
+                continue;
+            }
+            if (i.startsWith("/*")) {
+                i.skipToEndBracket("*/");
+                i.skipToLineStart();
+                continue;
+            }
+            if (looks_like_forward_declaration(i)) {
+                i.skipToLineStart();
+                continue;
+            }
+            if (i.skipExact("private:") || i.skipExact("protected:")) {
+                if (!braceCount) {
+                    i.reportError("expect private in brace");
+                    return;
+                }
+                privateBrace = braceCount;
+                continue;
+            }
+            do {
+                if (i.peek() != b.peek()) {
+                    if (';' == b.peek()) {
+                        b.next();
+                        break;
+                    }
+                    if (')' == i.peek() && inDebugCode) {
+                        inDebugCode = false;
+                        i.next();
+                        break;
+                    }
+                    b.reportError("mismatch code block");
+                    return;
+                }
+                braceCount += '{' == i.peek();
+                braceCount -= '}' == i.peek();
+                if (braceCount < 0) {
+                    i.reportError("unbalanced close brace");
+                    return;
+                }
+                i.next();
+                b.next();
+                if (i.eof() && !b.eof()) {
+                    if (';' != b.next()) {
+                        b.reportError("expect semicolon");
+                        return;
+                    }
+                    b.skipWhiteSpace();
+                    if (!b.eof()) {
+                        b.reportError("expect eof");
+                        return;
+                    }
+                    break;
+                }
+            } while (' ' < i.peek() && ' ' < b.peek()); // always advance both
+        } while (!i.eof() && !b.eof());
+    }
+    if (!foundCode) {
+        bDef->reportError<void>("missing code block");
     }
 }
 
@@ -233,6 +454,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
         }
         RootDefinition* root = &finder->second;
         root->clearVisited();
+        this->checkCode(classMapper.second, root);
     }
     for (auto& classMapper : fIClassMap) {
         string className = classMapper.first;

@@ -3,6 +3,254 @@
 
 #Class SkCanvas
 
+#Code
+class SkCanvas {
+public:
+    static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels,
+                                                      size_t rowBytes,
+                                                      const SkSurfaceProps* props = nullptr);
+    static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
+                                                         size_t rowBytes);
+    SkCanvas();
+    SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr);
+    explicit SkCanvas(sk_sp<SkBaseDevice> device);
+    explicit SkCanvas(const SkBitmap& bitmap);
+
+    enum class ColorBehavior {
+        kLegacy,
+    };
+
+    SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior);
+    SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props);
+    virtual ~SkCanvas();
+    SkMetaData& getMetaData();
+    SkImageInfo imageInfo() const;
+    bool getProps(SkSurfaceProps* props) const;
+    void flush();
+    virtual SkISize getBaseLayerSize() const;
+    sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr);
+    virtual GrContext* getGrContext();
+    void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = nullptr);
+    SkRasterHandleAllocator::Handle accessTopRasterHandle() const;
+    bool peekPixels(SkPixmap* pixmap);
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY);
+    bool readPixels(const SkPixmap& pixmap, int srcX, int srcY);
+    bool readPixels(const SkBitmap& bitmap, int srcX, int srcY);
+    bool writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes, int x, int y);
+    bool writePixels(const SkBitmap& bitmap, int x, int y);
+    int save();
+    int saveLayer(const SkRect* bounds, const SkPaint* paint);
+    int saveLayer(const SkRect& bounds, const SkPaint* paint);
+    int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
+    int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
+
+    enum SaveLayerFlagsSet {
+        kPreserveLCDText_SaveLayerFlag  = 1 << 1,
+        kInitWithPrevious_SaveLayerFlag = 1 << 2,
+        kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag =
+                                          1 << 3,
+        kDontClipToLayer_Legacy_SaveLayerFlag =
+           kDontClipToLayer_PrivateSaveLayerFlag,
+    };
+
+    typedef uint32_t SaveLayerFlags;
+
+    struct SaveLayerRec {
+        SaveLayerRec();
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0);
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                     SaveLayerFlags saveLayerFlags);
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                     const SkImage* clipMask, const SkMatrix* clipMatrix,
+                     SaveLayerFlags saveLayerFlags);
+
+        const SkRect*        fBounds         = nullptr;
+        const SkPaint*       fPaint          = nullptr;
+        const SkImageFilter* fBackdrop       = nullptr;
+        const SkImage*       fClipMask       = nullptr;
+        const SkMatrix*      fClipMatrix     = nullptr;
+        SaveLayerFlags       fSaveLayerFlags = 0;
+    };
+
+    int saveLayer(const SaveLayerRec& layerRec);
+    void restore();
+    int getSaveCount() const;
+    void restoreToCount(int saveCount);
+    void translate(SkScalar dx, SkScalar dy);
+    void scale(SkScalar sx, SkScalar sy);
+    void rotate(SkScalar degrees);
+    void rotate(SkScalar degrees, SkScalar px, SkScalar py);
+    void skew(SkScalar sx, SkScalar sy);
+    void concat(const SkMatrix& matrix);
+    void setMatrix(const SkMatrix& matrix);
+    void resetMatrix();
+    void clipRect(const SkRect& rect, SkClipOp op, bool doAntiAlias);
+    void clipRect(const SkRect& rect, SkClipOp op);
+    void clipRect(const SkRect& rect, bool doAntiAlias = false);
+    void androidFramework_setDeviceClipRestriction(const SkIRect& rect);
+    void clipRRect(const SkRRect& rrect, SkClipOp op, bool doAntiAlias);
+    void clipRRect(const SkRRect& rrect, SkClipOp op);
+    void clipRRect(const SkRRect& rrect, bool doAntiAlias = false);
+    void clipPath(const SkPath& path, SkClipOp op, bool doAntiAlias);
+    void clipPath(const SkPath& path, SkClipOp op);
+    void clipPath(const SkPath& path, bool doAntiAlias = false);
+    void setAllowSimplifyClip(bool allow);
+    void clipRegion(const SkRegion& deviceRgn, SkClipOp op = SkClipOp::kIntersect);
+    bool quickReject(const SkRect& rect) const;
+    bool quickReject(const SkPath& path) const;
+    SkRect getLocalClipBounds() const;
+    bool getLocalClipBounds(SkRect* bounds) const;
+    SkIRect getDeviceClipBounds() const;
+    bool getDeviceClipBounds(SkIRect* bounds) const;
+    void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver);
+    void clear(SkColor color);
+    void discard();
+    void drawPaint(const SkPaint& paint);
+
+    enum PointMode {
+        kPoints_PointMode,
+        kLines_PointMode,
+        kPolygon_PointMode,
+    };
+
+    void drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint);
+    void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint);
+    void drawPoint(SkPoint p, const SkPaint& paint);
+    void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint);
+    void drawLine(SkPoint p0, SkPoint p1, const SkPaint& paint);
+    void drawRect(const SkRect& rect, const SkPaint& paint);
+    void drawIRect(const SkIRect& rect, const SkPaint& paint);
+    void drawRegion(const SkRegion& region, const SkPaint& paint);
+    void drawOval(const SkRect& oval, const SkPaint& paint);
+    void drawRRect(const SkRRect& rrect, const SkPaint& paint);
+    void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
+    void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint);
+    void drawCircle(SkPoint center, SkScalar radius, const SkPaint& paint);
+    void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+                 bool useCenter, const SkPaint& paint);
+    void drawRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, const SkPaint& paint);
+    void drawPath(const SkPath& path, const SkPaint& paint);
+    void drawImage(const SkImage* image, SkScalar left, SkScalar top,
+                   const SkPaint* paint = nullptr);
+    void drawImage(const sk_sp<SkImage>& image, SkScalar left, SkScalar top,
+                   const SkPaint* paint = nullptr);
+
+    enum SrcRectConstraint {
+        kStrict_SrcRectConstraint,
+        kFast_SrcRectConstraint,
+    };
+
+    void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
+                       const SkPaint* paint = nullptr);
+    void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
+                       const SkPaint* paint = nullptr);
+    void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
+                    const SkPaint* paint = nullptr);
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
+                        const SkPaint* paint,
+                        SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
+                        const SkPaint* paint,
+                        SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
+                        SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
+                        const SkPaint* paint = nullptr);
+
+    struct Lattice {
+        enum RectType : uint8_t {
+            kDefault     = 0,
+            kTransparent,
+            kFixedColor,
+        };
+
+        const int*      fXDivs;
+        const int*      fYDivs;
+        const RectType* fRectTypes;
+        int             fXCount;
+        int             fYCount;
+        const SkIRect*  fBounds;
+        const SkColor*  fColors;
+    };
+
+    void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
+                           const SkPaint* paint = nullptr);
+    void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                          const SkPaint* paint = nullptr);
+    void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
+                  const SkPaint& paint);
+    void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint);
+    void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint);
+    void drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
+                     const SkPaint& paint);
+    void drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[], SkScalar constY,
+                      const SkPaint& paint);
+    void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+                         const SkRect* cullRect, const SkPaint& paint);
+    void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint);
+    void drawTextBlob(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y, const SkPaint& paint);
+    void drawPicture(const SkPicture* picture);
+    void drawPicture(const sk_sp<SkPicture>& picture);
+    void drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint);
+    void drawPicture(const sk_sp<SkPicture>& picture, const SkMatrix* matrix,
+                     const SkPaint* paint);
+    void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint);
+    void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
+    void drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[], int boneCount,
+                      SkBlendMode mode, const SkPaint& paint);
+    void drawVertices(const sk_sp<SkVertices>& vertices, const SkVertices::Bone bones[],
+                      int boneCount, SkBlendMode mode, const SkPaint& paint);
+    void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                   const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
+    void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                   const SkPoint texCoords[4], const SkPaint& paint);
+    void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
+                   const SkPaint* paint);
+    void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
+                   const SkPaint* paint);
+    void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count,
+                   const SkRect* cullRect, const SkPaint* paint);
+    void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   int count, const SkRect* cullRect, const SkPaint* paint);
+    void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr);
+    void drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y);
+    void drawAnnotation(const SkRect& rect, const char key[], SkData* value);
+    void drawAnnotation(const SkRect& rect, const char key[], const sk_sp<SkData>& value);
+    virtual bool isClipEmpty() const;
+    virtual bool isClipRect() const;
+    const SkMatrix& getTotalMatrix() const;
+    virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
+    SkIRect internal_private_getTopLayerBounds() const;
+    void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                              const SkPaint* paint,
+                              SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                               const SkPaint* paint,
+                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void temporary_internal_getRgnClip(SkRegion* region);
+    void private_draw_shadow_rec(const SkPath&, const SkDrawShadowRec&);
+};
+##
+
 Canvas provides an interface for drawing, and how the drawing is clipped and transformed.
 Canvas contains a stack of Matrix and Clip values.
 
@@ -28,23 +276,23 @@ This approach may be deprecated in the future.
 #Populate
 ##
 
-#Subtopic Related_Function
+#Subtopic Related_Functions
 #Populate
 ##
 
-#Subtopic Constant
+#Subtopic Constants
 #Populate
 ##
 
-#Subtopic Struct
+#Subtopic Structs
 #Populate
 ##
 
-#Subtopic Typedef
+#Subtopic Typedefs
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 
 Create the desired type of Surface to obtain its Canvas when possible. Useful
 when no Surface is required, and some helpers implicitly create Raster_Surface.
@@ -52,7 +300,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
@@ -61,7 +309,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 #Method static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels,
                                                           size_t rowBytes,
                                                           const SkSurfaceProps* props = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Canvas that will draw directly into pixels.
@@ -136,7 +384,7 @@ void draw(SkCanvas* ) {
 
 #Method static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
                                                          size_t rowBytes)
-#In Constructor
+#In Constructors
 #Line # creates from image data and Pixel_Storage ##
 
 Allocates raster Canvas specified by inline image specification. Subsequent Canvas
@@ -669,7 +917,7 @@ smaller (due to clipping or saveLayer).
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Surface matching SkImageInfo and SkSurfaceProps ##
 Creates Surface matching info and props, and associates it with Canvas.
 Returns nullptr if no match found.
@@ -1756,25 +2004,27 @@ void draw(SkCanvas* canvas) {
 #Line # contains the state used to create the Layer ##
 
 #Code
-    struct SaveLayerRec {
-        SaveLayerRec*(...
+struct SaveLayerRec {
+    SaveLayerRec*();
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0);
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    SaveLayerFlags saveLayerFlags);
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    const SkImage* clipMask, const SkMatrix* clipMatrix,
+                    SaveLayerFlags saveLayerFlags);
 
-        const SkRect*           fBounds;
-        const SkPaint*          fPaint;
-        const SkImageFilter*    fBackdrop;
-        SaveLayerFlags          fSaveLayerFlags;
-    };
+    const SkRect*           fBounds;
+    const SkPaint*          fPaint;
+    const SkImageFilter*    fBackdrop;
+    const SkImage*          fClipMask;
+    const SkMatrix*         fClipMatrix;
+    SaveLayerFlags          fSaveLayerFlags;
+};
 ##
 
 SaveLayerRec contains the state used to create the Layer.
 
-#Subtopic Overview
 #Populate
-##
-
-#Subtopic Member
-#Populate
-##
 
 #Member const SkRect*           fBounds
 #Line # hints at Layer size limit ##
@@ -1841,7 +2091,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
@@ -4795,7 +5045,7 @@ remaining space, if any.
 #Populate
 ##
 
-#Subtopic Constant
+#Subtopic Constants
 #Populate
 ##
 
@@ -4825,7 +5075,7 @@ remaining space, if any.
         ##
     ##
 
-#Subtopic Member
+#Subtopic Members
 #Populate
 ##
 
@@ -5331,7 +5581,7 @@ Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
 
 Elements of paint: Anti_Alias, Blend_Mode, Color including Color_Alpha,
 Color_Filter, Paint_Dither, Draw_Looper, Mask_Filter, Path_Effect, Shader, and
-Paint_Style; apply to blob. If Paint contains SkPaint::kStroke_Style: 
+Paint_Style; apply to blob. If Paint contains SkPaint::kStroke_Style:
 Paint_Miter_Limit, Paint_Stroke_Cap, Paint_Stroke_Join, and Paint_Stroke_Width;
 apply to Path created from blob.
 
