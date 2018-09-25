@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e95a7842_6ee6c10a",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-25T13:28:14Z",
+      "side": 1,
+      "message": "extra \\n",
+      "range": {
+        "startLine": 448,
+        "startChar": 0,
+        "endLine": 449,
+        "endChar": 0
+      },
+      "revId": "ee894d5240f604e22dc6b741efc5f53ce4233efa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
