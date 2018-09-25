@@ -158,7 +158,6 @@ private:
     friend class ScopedContentEntry;
 
     SkMatrix fInitialTransform;
-    SkClipStack fExistingClipStack;
 
     std::vector<RectWithData> fLinkToURLs;
     std::vector<RectWithData> fLinkToDestinations;
@@ -186,7 +185,6 @@ private:
 
     void drawFormXObjectWithMask(int xObjectIndex,
                                  sk_sp<SkPDFObject> mask,
-                                 const SkClipStack& clipStack,
                                  SkBlendMode,
                                  bool invertClip);
 
@@ -194,7 +192,7 @@ private:
     // returns nullptr and does not create a content entry.
     // setUpContentEntry and finishContentEntry can be used directly, but
     // the preferred method is to use the ScopedContentEntry helper class.
-    ContentEntry* setUpContentEntry(const SkClipStack& clipStack,
+    ContentEntry* setUpContentEntry(const SkClipStack* clipStack,
                                     const SkMatrix& matrix,
                                     const SkPaint& paint,
                                     bool hasText,
@@ -203,7 +201,7 @@ private:
     bool isContentEmpty();
 
     void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
-                                            const SkClipStack& clipStack,
+                                            const SkClipStack* clipStack,
                                             const SkPaint& paint,
                                             bool hasText,
                                             GraphicStateEntry* entry);
