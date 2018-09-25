@@ -77,7 +77,8 @@ static double conic_eval_denominator(SkScalar w, double t) {
     double B = 2 * (w - 1);
     double C = 1;
     double A = -B;
-    return (A * t + B) * t + C;
+    double result = (A * t + B) * t + C;
+    return result ? result : 1;
 }
 
 bool SkDConic::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {

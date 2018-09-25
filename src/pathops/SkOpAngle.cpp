@@ -577,6 +577,9 @@ bool SkOpAngle::endsIntersect(SkOpAngle* rh) {
             maxY = SkTMax(maxY, curve[idx2].fY);
         }
         double maxWidth = SkTMax(maxX - minX, maxY - minY);
+        if (!maxWidth) {
+            return false;
+        }
         delta /= maxWidth;
         if (delta > 1e-3 && (useIntersect ^= true)) {  // FIXME: move this magic number
             sRayLonger = rayLonger;
@@ -637,6 +640,9 @@ bool SkOpAngle::endToSide(const SkOpAngle* rh, bool* inside) const {
         maxY = SkTMax(maxY, curve[idx2].fY);
     }
     double maxWidth = SkTMax(maxX - minX, maxY - minY);
+    if (!maxWidth) {
+        return false;
+    }
     endDist /= maxWidth;
     if (endDist < 5e-12) {  // empirically found
         return false;
