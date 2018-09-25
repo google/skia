@@ -22,6 +22,30 @@
       "revId": "f868d54a2a04311cbce6057503d6a0e35a2b558d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "819aeb98_62b78502",
+        "filename": "src/pathops/SkOpAngle.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-09-25T17:23:26Z",
+      "side": 1,
+      "message": "That may be, but many places in the code otherwise also generate infinity; I have not found it necessary to guard against them. Feel free to abandon this change if you prefer the sk_ieee_float_divide approach.",
+      "parentUuid": "51586a5a_fe91b346",
+      "range": {
+        "startLine": 583,
+        "startChar": 8,
+        "endLine": 583,
+        "endChar": 25
+      },
+      "revId": "f868d54a2a04311cbce6057503d6a0e35a2b558d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
