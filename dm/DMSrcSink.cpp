@@ -1139,6 +1139,66 @@ SkISize SKPSrc::size() const {
 
 Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
+BisectSrc::BisectSrc(Path path, const char* trail) : SKPSrc(path), fTrail(trail) {}
+
+Error BisectSrc::draw(SkCanvas* canvas) const {
+    struct FoundPath {
+        SkPath fPath;
+        SkPaint fPaint;
+        SkMatrix fViewMatrix;
+    };
+
+    class PathFinder : public SkCanvas {
+    public:
+        PathFinder(int width, int height) : SkCanvas(width, height, nullptr) {}
+
+        const SkTArray<FoundPath>& foundPaths() const { return fFoundPaths; }
+
+        void bisect(const char* trail) {
+            for (const char* ch = trail; *ch; ++ch) {
+                int midpt = fFoundPaths.count() / 2;
+                if ('l' == *ch) {
+                    fFoundPaths.pop_back_n(fFoundPaths.count() - midpt);
+                }
+                if ('X' == *ch) {
+                }
+            }
+        }
+
+    private:
+        void onDrawPath(const SkPath& path, const SkPaint& paint) {
+            fFoundPaths.push_back() = {path, paint, this->getTotalMatrix()};
+        }
+
+        SkTArray<FoundPath> fFoundPaths;
+    };
+
+    PathFinder pathFinder(canvas->getBaseLayerSize().width(), canvas->getBaseLayerSize().height());
+    Error err = this->SKPSrc::draw(&pathFinder);
+    if (!err.isEmpty()) {
+        return err;
+    }
+
+    int start = 0, end = pathFinder.foundPaths().count();
+    for (const char* ch = fTrail.c_str(); *ch; ++ch) {
+        int midpt = (start + end) / 2;
+        if ('l' == *ch) {
+            start = midpt;
+        } else if ('r' == *ch) {
+            end = midpt;
+        }
+    }
+
+    for (int i = start; i < end; ++i) {
+        const FoundPath& path = pathFinder.foundPaths()[i];
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->concat(path.fViewMatrix);
+        canvas->drawPath(path.fPath, path.fPaint);
+    }
+
+    return "";
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #if defined(SK_ENABLE_SKOTTIE)

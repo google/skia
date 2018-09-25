@@ -96,6 +96,8 @@ DEFINE_int32(shard,  0, "Which shard do I run?");
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
+DEFINE_string(bisect, "", "Pair of: SKP file to bisect, followed by l/r trail (e.g., 'lrll'");
+
 DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
 DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
@@ -794,6 +796,10 @@ static bool gather_srcs() {
 #if defined(SK_XML)
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
 #endif
+    if (!FLAGS_bisect.isEmpty()) {
+        push_src("bisect", "",
+                 new BisectSrc(FLAGS_bisect[0], FLAGS_bisect.count() > 1 ? FLAGS_bisect[1] : ""));
+    }
 
     SkTArray<SkString> images;
     if (!CollectImages(FLAGS_images, &images)) {
