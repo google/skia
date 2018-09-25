@@ -457,7 +457,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContex
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
+                nullptr, DEV_W, DEV_H, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
         if (!backendTex.isValid()) {
             continue;
         }
