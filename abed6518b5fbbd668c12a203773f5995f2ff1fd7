@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5eb2cecf_22d58261",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1733,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-25T14:28:52Z",
+      "side": 1,
+      "message": "nit: move to previous line",
+      "range": {
+        "startLine": 1733,
+        "startChar": 0,
+        "endLine": 1733,
+        "endChar": 35
+      },
+      "revId": "abed6518b5fbbd668c12a203773f5995f2ff1fd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
