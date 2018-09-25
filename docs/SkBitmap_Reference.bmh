@@ -3,6 +3,117 @@
 #Alias Bitmap_Reference ##
 
 #Class SkBitmap
+#Line # two-dimensional raster pixel array ##
+
+#Code
+class SkBitmap {
+public:
+    SkBitmap();
+    SkBitmap(const SkBitmap& src);
+    SkBitmap(SkBitmap&& src);
+    ~SkBitmap();
+    SkBitmap& operator=(const SkBitmap& src);
+    SkBitmap& operator=(SkBitmap&& src);
+    void swap(SkBitmap& other);
+    const SkPixmap& pixmap() const;
+    const SkImageInfo& info() const;
+    int width() const;
+    int height() const;
+    SkColorType colorType() const;
+    SkAlphaType alphaType() const;
+    SkColorSpace* colorSpace() const;
+    sk_sp<SkColorSpace> refColorSpace() const;
+    int bytesPerPixel() const;
+    int rowBytesAsPixels() const;
+    int shiftPerPixel() const;
+    bool empty() const;
+    bool isNull() const;
+    bool drawsNothing() const;
+    size_t rowBytes() const;
+    bool setAlphaType(SkAlphaType alphaType);
+    void* getPixels() const;
+    size_t computeByteSize() const;
+    bool isImmutable() const;
+    void setImmutable();
+    bool isOpaque() const;
+    bool isVolatile() const;
+    void setIsVolatile(bool isVolatile);
+    void reset();
+    static bool ComputeIsOpaque(const SkBitmap& bm);
+    void getBounds(SkRect* bounds) const;
+    void getBounds(SkIRect* bounds) const;
+    SkIRect bounds() const;
+    SkISize dimensions() const;
+    SkIRect getSubset() const;
+    bool setInfo(const SkImageInfo& imageInfo, size_t rowBytes = 0);
+
+    enum AllocFlags {
+        kZeroPixels_AllocFlag = 1 << 0,
+    };
+
+    bool tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags);
+    void allocPixelsFlags(const SkImageInfo& info, uint32_t flags);
+    bool tryAllocPixels(const SkImageInfo& info, size_t rowBytes);
+    void allocPixels(const SkImageInfo& info, size_t rowBytes);
+    bool tryAllocPixels(const SkImageInfo& info);
+    void allocPixels(const SkImageInfo& info);
+    bool tryAllocN32Pixels(int width, int height, bool isOpaque = false);
+    void allocN32Pixels(int width, int height, bool isOpaque = false);
+    bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                       void (*releaseProc)(void* addr, void* context), void* context);
+    bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
+    bool installPixels(const SkPixmap& pixmap);
+    bool installMaskPixels(const SkMask& mask);
+    void setPixels(void* pixels);
+    bool tryAllocPixels();
+    void allocPixels();
+    bool tryAllocPixels(Allocator* allocator);
+    void allocPixels(Allocator* allocator);
+    SkPixelRef* pixelRef() const;
+    SkIPoint pixelRefOrigin() const;
+    void setPixelRef(sk_sp<SkPixelRef> pixelRef, int dx, int dy);
+    bool readyToDraw() const;
+    uint32_t getGenerationID() const;
+    void notifyPixelsChanged() const;
+    void eraseColor(SkColor c) const;
+    void eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const;
+    void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const;
+    void erase(SkColor c, const SkIRect& area) const;
+    void eraseArea(const SkIRect& area, SkColor c) const;
+    SkColor getColor(int x, int y) const;
+    float getAlphaf(int x, int y) const;
+    void* getAddr(int x, int y) const;
+    uint32_t* getAddr32(int x, int y) const;
+    uint16_t* getAddr16(int x, int y) const;
+    uint8_t* getAddr8(int x, int y) const;
+    bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY) const;
+    bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
+    bool readPixels(const SkPixmap& dst) const;
+    bool writePixels(const SkPixmap& src, int dstX, int dstY);
+    bool writePixels(const SkPixmap& src);
+    bool hasHardwareMipMap() const;
+    void setHasHardwareMipMap(bool hasHardwareMipMap);
+    bool extractAlpha(SkBitmap* dst) const;
+    bool extractAlpha(SkBitmap* dst, const SkPaint* paint,
+                      SkIPoint* offset) const;
+    bool extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator,
+                      SkIPoint* offset) const;
+    bool peekPixels(SkPixmap* pixmap) const;
+    void validate() const;
+
+    class Allocator : public SkRefCnt {
+    public:
+        virtual bool allocPixelRef(SkBitmap* bitmap) = 0;
+    };
+
+    class HeapAllocator : public Allocator {
+    public:
+        bool allocPixelRef(SkBitmap* bitmap) override;
+    };
+};
+##
 
 Bitmap describes a two-dimensional raster pixel array. Bitmap is built on
 Image_Info, containing integer width and height, Color_Type and Alpha_Type
@@ -37,31 +148,12 @@ is useful to position one or more Bitmaps within a shared pixel array.
     #Populate
 ##
 
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Constant
-#Populate
-##
-
-#Subtopic Class
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Operator
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
 
 # ------------------------------------------------------------------------------
+
+#Subtopic Classes
+#Populate
+##
 
 #Class Allocator
 #Line # abstract subclass of HeapAllocator ##
@@ -73,6 +165,8 @@ is useful to position one or more Bitmaps within a shared pixel array.
 ##
 
 Abstract subclass of HeapAllocator.
+
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -112,6 +206,8 @@ Subclass of SkBitmap::Allocator that returns a Pixel_Ref that allocates its pixe
 memory from the heap. This is the default SkBitmap::Allocator invoked by
 allocPixels.
 
+#Populate
+
 # ------------------------------------------------------------------------------
 
 #Method bool allocPixelRef(SkBitmap* bitmap) override
@@ -148,6 +244,10 @@ pixel address = 0x560ddd0ac670
 #Class HeapAllocator ##
 
 # ------------------------------------------------------------------------------
+
+#Subtopic Constructors
+#Populate
+##
 
 #Method SkBitmap()
 
@@ -268,6 +368,10 @@ Decrements Pixel_Ref reference count, if Pixel_Ref is not nullptr.
 ##
 
 # ------------------------------------------------------------------------------
+
+#Subtopic Operators
+#Populate
+##
 
 #Method SkBitmap& operator=(const SkBitmap& src)
 
@@ -1164,7 +1268,7 @@ consumption on Device.
 # ------------------------------------------------------------------------------
 
 #Method void reset()
-#In Constructor
+#In Constructors
 #Line # sets to default values, releases pixel ownership ##
 Resets to its initial state; all fields are set to zero, as if Bitmap had
 been initialized by SkBitmap().
@@ -1424,6 +1528,10 @@ canvas->drawBitmap(bitmap, 0, 0);
 
 # ------------------------------------------------------------------------------
 
+#Subtopic Constants
+#Populate
+##
+
 #Enum AllocFlags
 #Line # zero pixel memory ##
 #Code
@@ -1452,7 +1560,7 @@ AllocFlags provides the option to zero pixel memory when allocated.
 #Line # allocates storage for pixels ##
 ##
 
-#Method bool SK_WARN_UNUSED_RESULT tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags)
+#Method bool tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags)
 #In Allocate
 #Line # allocates pixels from Image_Info with options if possible ##
 Sets Image_Info to info following the rules in setInfo and allocates pixel
@@ -1542,7 +1650,7 @@ canvas->drawBitmap(bitmap, 8, 8);
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, size_t rowBytes)
+#Method bool tryAllocPixels(const SkImageInfo& info, size_t rowBytes)
 #In Allocate
 #Line # allocates pixels from Image_Info if possible ##
 #ToDo  am I ever conflicted about setInfo rules. It needs to be able to be replicated
@@ -1628,7 +1736,7 @@ for (int y : { 0, 64, 128, 192 } ) {
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info)
+#Method bool tryAllocPixels(const SkImageInfo& info)
 
 Sets Image_Info to info following the rules in setInfo and allocates pixel
 memory.
@@ -1698,7 +1806,7 @@ for (int y : { 0, 64, 128, 192 } ) {
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false)
+#Method bool tryAllocN32Pixels(int width, int height, bool isOpaque = false)
 #In Allocate
 #Line # allocates compatible ARGB pixels if possible ##
 Sets Image_Info to width, height, and Native_Color_Type; and allocates
@@ -1974,7 +2082,7 @@ of Bitmap and Pixel_Ref.
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT tryAllocPixels()
+#Method bool tryAllocPixels()
 #In Allocate
 Allocates pixel memory with HeapAllocator, and replaces existing Pixel_Ref.
 The allocation size is determined by Image_Info width, height, and Color_Type.
@@ -2045,7 +2153,7 @@ Pixel_Ref with set2.
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator)
+#Method bool tryAllocPixels(Allocator* allocator)
 
 Allocates pixel memory with allocator, and replaces existing Pixel_Ref.
 The allocation size is determined by Image_Info width, height, and Color_Type.
@@ -2574,7 +2682,7 @@ addr interval == rowBytes
 
 # ------------------------------------------------------------------------------
 
-#Method inline uint32_t* getAddr32(int x, int y) const
+#Method uint32_t* getAddr32(int x, int y) const
 #In Property
 #Line # returns readable pixel address as 32-bit pointer ##
 Returns address at (x, y).
@@ -2609,7 +2717,7 @@ addr interval == rowBytes
 
 # ------------------------------------------------------------------------------
 
-#Method inline uint16_t* getAddr16(int x, int y) const
+#Method uint16_t* getAddr16(int x, int y) const
 #In Property
 #Line # returns readable pixel address as 16-bit pointer ##
 Returns address at (x, y).
@@ -2650,7 +2758,7 @@ addr interval == rowBytes
 
 # ------------------------------------------------------------------------------
 
-#Method inline uint8_t* getAddr8(int x, int y) const
+#Method uint8_t* getAddr8(int x, int y) const
 #In Property
 #Line # returns readable pixel address as 8-bit pointer ##
 Returns address at (x, y).
@@ -2690,7 +2798,7 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 # ------------------------------------------------------------------------------
 
 #Method bool extractSubset(SkBitmap* dst, const SkIRect& subset) const
-#In Constructor
+#In Constructors
 #Line # creates Bitmap, sharing pixels if possible ##
 Shares Pixel_Ref with dst. Pixels are not copied; Bitmap and dst point
 to the same pixels; dst bounds() are set to the intersection of subset
@@ -3069,7 +3177,7 @@ For use by Android framework only.
 # ------------------------------------------------------------------------------
 
 #Method bool extractAlpha(SkBitmap* dst) const
-#In Constructor
+#In Constructors
 #Line # creates Bitmap containing Alpha of pixels ##
 Sets dst to Alpha described by pixels. Returns false if dst cannot be written to
 or dst pixels cannot be allocated.
