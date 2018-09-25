@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98a7cd46_f6d28ae8",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3204,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-25T15:23:01Z",
+      "side": 1,
+      "message": "Would it be worth turning this into some predicate on SkMatrix?",
+      "revId": "90ba693fe005b520eb01cdaebe59314101f6cd74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
