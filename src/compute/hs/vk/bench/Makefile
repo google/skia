@@ -4,6 +4,7 @@
 
 SRC_C		=	../../../common/util.c			 \
 			../../../common/vk/assert_vk.c		 \
+			../../../common/vk/cache_vk.c		 \
 			../../../common/vk/host_alloc.c		 \
 			../hs_vk.c				 \
 			../intel/gen8/u32/hs_intel_gen8_u32.c	 \
@@ -24,8 +25,8 @@ OBJ_CPP		= 	$(addsuffix .o,$(basename $(notdir $(SRC_CPP))))
 #
 #
 
-GCC_OPT		=	-O2 -D NDEBUG
-GPP_OPT		=	-O2 -D NDEBUG -std=c++11
+GCC_OPT		=	-O2 -D NDEBUG -D HS_VK_VERBOSE_AMD
+GPP_OPT		=	-O2 -D NDEBUG -D HS_VK_VERBOSE_AMD -std=c++11
 
 #
 #

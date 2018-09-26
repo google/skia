@@ -216,7 +216,7 @@ struct skc_subgroup_smem
 //
 //
 
-#define SKC_PROJECT(x,y,xp,yp)                                          \
+#define SKC_PROJECT(tv,x,y,xp,yp)                                       \
   {                                                                     \
     float const d = native_recip(fma(x,tv->w0,fma(y,tv->w1,1.0f)));     \
     xp *= d;                                                            \
@@ -2161,10 +2161,10 @@ skc_rasterize_cubics(__global SKC_ATOMIC_UINT         volatile * const bp_atomic
 
   if (!is_affine)
     {
-      SKC_PROJECT(c0x,c0y,b0x,b0y);
-      SKC_PROJECT(c1x,c1y,t1x,t1y);
-      SKC_PROJECT(c2x,c2y,t2x,t2y);
-      SKC_PROJECT(c3x,c3y,t3x,t3y);
+      SKC_PROJECT(tv,c0x,c0y,b0x,b0y);
+      SKC_PROJECT(tv,c1x,c1y,t1x,t1y);
+      SKC_PROJECT(tv,c2x,c2y,t2x,t2y);
+      SKC_PROJECT(tv,c3x,c3y,t3x,t3y);
     }
 
   b0x = round(b0x);
@@ -2559,9 +2559,9 @@ skc_rasterize_quads(__global SKC_ATOMIC_UINT         volatile * const bp_atomics
 
   if (!is_affine)
     {
-      SKC_PROJECT(c0x,c0y,b0x,b0y);
-      SKC_PROJECT(c1x,c1y,t1x,t1y);
-      SKC_PROJECT(c2x,c2y,t2x,t2y);
+      SKC_PROJECT(tv,c0x,c0y,b0x,b0y);
+      SKC_PROJECT(tv,c1x,c1y,t1x,t1y);
+      SKC_PROJECT(tv,c2x,c2y,t2x,t2y);
     }
 
   b0x = round(b0x);
@@ -2831,8 +2831,8 @@ skc_rasterize_lines(__global SKC_ATOMIC_UINT         volatile * const bp_atomics
   bool const is_affine = (tv->w0 == 0.0f) && (tv->w1 == 0.0f);
 
   if (!is_affine) {
-    SKC_PROJECT(c0x,c0y,l0x,l0y);
-    SKC_PROJECT(c1x,c1y,l1x,l1y);
+    SKC_PROJECT(tv,c0x,c0y,l0x,l0y);
+    SKC_PROJECT(tv,c1x,c1y,l1x,l1y);
   }
 
   l0x = round(l0x);

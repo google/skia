@@ -29,7 +29,7 @@ HS_GEN=../../../../gen/hs_gen
 
 ## --- 64-bit keys
 
-$HS_GEN -v -a "glsl" -D HS_AMD_GCN -t 2 -w 64 -r 16 -s 65536 -S 65536 -b 16 -m 1 -M 1 -f 0 -F 0 -c 0 -C 0 -z
+$HS_GEN -v -a "glsl" -D HS_AMD_GCN -t 2 -w 64 -r 8 -s 32768 -S 32768 -b 16 -m 1 -M 1 -f 1 -F 1 -c 1 -C 1 -z
 
 ##
 ## remove trailing whitespace from generated files

@@ -1513,27 +1513,27 @@ main(int argc, char * argv[])
           break;
 
         case 'x':
-          hsg_config.thread.xtra   = atoi(optarg);
+          hsg_config.thread.xtra      = atoi(optarg);
           break;
 
         case 't':
-          hsg_config.type.words    = atoi(optarg);
+          hsg_config.type.words       = atoi(optarg);
           break;
 
         case 'f':
-          hsg_config.merge.flip.lo = atoi(optarg);
+          hsg_config.merge.flip.lo    = atoi(optarg);
           break;
 
         case 'F':
-          hsg_config.merge.flip.hi = atoi(optarg);
+          hsg_config.merge.flip.hi    = atoi(optarg);
           break;
 
         case 'c':
-          hsg_config.merge.half.lo = atoi(optarg);
+          hsg_config.merge.half.lo    = atoi(optarg);
           break;
 
         case 'C':
-          hsg_config.merge.half.hi = atoi(optarg);
+          hsg_config.merge.half.hi    = atoi(optarg);
           break;
 
         case 'p':
