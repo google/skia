@@ -8,7 +8,6 @@
 #include "SkColorFilter.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformer.h"
-#include "SkColorSpaceXformPriv.h"
 #include "SkDrawLooper.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"

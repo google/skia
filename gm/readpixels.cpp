@@ -10,35 +10,10 @@
 #include "SkCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXform.h"
-#include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
 #include "SkImage.h"
 #include "SkImageInfoPriv.h"
 #include "SkPictureRecorder.h"
-
-static void clamp_if_necessary(const SkImageInfo& info, void* pixels) {
-    if (kRGBA_F16_SkColorType != info.colorType()) {
-        return;
-    }
-
-    for (int y = 0; y < info.height(); y++) {
-        for (int x = 0; x < info.width(); x++) {
-            uint64_t pixel = ((uint64_t*) pixels)[y * info.width() + x];
-
-            Sk4f rgba = SkHalfToFloat_finite_ftz(pixel);
-            if (kUnpremul_SkAlphaType == info.alphaType()) {
-                rgba = Sk4f::Max(0.0f, Sk4f::Min(rgba, 1.0f));
-            } else {
-                SkASSERT(kPremul_SkAlphaType == info.alphaType());
-                rgba = Sk4f::Max(0.0f, Sk4f::Min(rgba, rgba[3]));
-            }
-            SkFloatToHalf_finite_ftz(rgba).store(&pixel);
-
-            ((uint64_t*) pixels)[y * info.width() + x] = pixel;
-        }
-    }
-}
 
 static const int kWidth = 64;
 static const int kHeight = 64;
@@ -128,20 +103,6 @@ static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorTyp
     if (!image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, hint)) {
         memset(data->writable_data(), 0, rowBytes * image->height());
     }
-
-    // SkImage must be premul, so manually premul the data if we unpremul'd during readPixels
-    if (kUnpremul_SkAlphaType == dstAlphaType) {
-        auto xform = SkColorSpaceXform::New(dstColorSpace.get(), dstColorSpace.get());
-        if (!xform->apply(select_xform_format(dstColorType), data->writable_data(),
-                          select_xform_format(dstColorType), data->data(),
-                          image->width() * image->height(), kPremul_SkAlphaType)) {
-            memset(data->writable_data(), 0, rowBytes * image->height());
-        }
-        dstInfo = dstInfo.makeAlphaType(kPremul_SkAlphaType);
-    }
-
-    // readPixels() does not always clamp F16.  The drawing code expects pixels in the 0-1 range.
-    clamp_if_necessary(dstInfo, data->writable_data());
 
     // Now that we have called readPixels(), dump the raw pixels into an srgb image.
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
