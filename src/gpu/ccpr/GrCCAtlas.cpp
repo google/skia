@@ -196,12 +196,12 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
         return nullptr;
     }
 
-    if (fUniqueKey.isValid()) {
-        onFlushRP->assignUniqueKeyToProxy(fUniqueKey, fTextureProxy.get());
-    }
-
-    SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
-    rtc->clear(&clearRect, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
+    // if (fUniqueKey.isValid()) {
+    //     onFlushRP->assignUniqueKeyToProxy(fUniqueKey, fTextureProxy.get());
+    // }
+    //
+    // SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
+    // rtc->clear(&clearRect, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
     return rtc;
 }
 

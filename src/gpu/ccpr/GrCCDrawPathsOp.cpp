@@ -420,6 +420,7 @@ inline void GrCCDrawPathsOp::recordInstance(GrTextureProxy* atlasProxy, int inst
 }
 
 void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
+    return;
     SkASSERT(fOwningPerOpListPaths);
 
     const GrCCPerFlushResources* resources = fOwningPerOpListPaths->fFlushResources.get();

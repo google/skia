@@ -415,10 +415,10 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
         }
 
         if (auto rtc = atlas->makeRenderTargetContext(onFlushRP, std::move(backingTexture))) {
-            auto op = RenderAtlasOp::Make(rtc->surfPriv().getContext(), sk_ref_sp(this),
-                                          atlas->getFillBatchID(), atlas->getStrokeBatchID(),
-                                          atlas->drawBounds());
-            rtc->addDrawOp(GrNoClip(), std::move(op));
+            // auto op = RenderAtlasOp::Make(rtc->surfPriv().getContext(), sk_ref_sp(this),
+            //                               atlas->getFillBatchID(), atlas->getStrokeBatchID(),
+            //                               atlas->drawBounds());
+            // rtc->addDrawOp(GrNoClip(), std::move(op));
             out->push_back(std::move(rtc));
         }
     }

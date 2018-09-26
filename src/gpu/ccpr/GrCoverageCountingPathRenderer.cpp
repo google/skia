@@ -64,6 +64,7 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
     const SkStrokeRec& stroke = shape.style().strokeRec();
     switch (stroke.getStyle()) {
         case SkStrokeRec::kFill_Style: {
+            return CanDrawPath::kNo;
             SkRect devBounds;
             args.fViewMatrix->mapRect(&devBounds, path.getBounds());
 
