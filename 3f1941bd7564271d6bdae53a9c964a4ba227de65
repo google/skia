@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24c8e736_4153761f",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-26T20:06:09Z",
+      "side": 1,
+      "message": "Why change this from \u0027content\u0027 to \u0027wStream\u0027? If it\u0027s really just generic \u0027out\u0027 works, if you want short and specific why not \u0027pdf\u0027 since this is literally the a stream of pdf being written. I see that \u0027append_clip\u0027 above uses \u0027wStream\u0027, but I\u0027d prefer it didn\u0027t. I\u0027d be fine with leaving it alone, but it seems disappointing to downgrade the name in a fairly unrelated change.",
+      "range": {
+        "startLine": 365,
+        "startChar": 70,
+        "endLine": 365,
+        "endChar": 77
+      },
+      "revId": "3f1941bd7564271d6bdae53a9c964a4ba227de65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
