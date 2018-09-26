@@ -1,0 +1,210 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96b17687_24713d61",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "Maybe make this longer with:\n\n\"The l/r trail specifies which half of the SKP\u0027s paths to continue drawing when binary searching\"\n\n?\n\nIs there a python script that goes with this capability? If so, do you want to check it in?",
+      "range": {
+        "startLine": 99,
+        "startChar": 27,
+        "endLine": 99,
+        "endChar": 90
+      },
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d30786e_23a35c2c",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "// An empty l/r trail string will draw all the paths \n\n?",
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfa0b613_efac4de1",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1142,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/\n\n?",
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fdc66c3_2e37e5f5",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1151,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "Maybe PathFindingCanvas?\n\n// This subclass of SkCanvas just extracts all the SkPaths (drawn via drawPath) from an SKP.\n\n?",
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7faab0a9_3a39aa60",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1157,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "Is this even used ?",
+      "range": {
+        "startLine": 1157,
+        "startChar": 8,
+        "endLine": 1157,
+        "endChar": 40
+      },
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcda17ba_205c768c",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1164,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "rm this ?",
+      "range": {
+        "startLine": 1163,
+        "startChar": 14,
+        "endLine": 1164,
+        "endChar": 17
+      },
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "836b3083_32613dac",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1169,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "override ?",
+      "range": {
+        "startLine": 1169,
+        "startChar": 13,
+        "endLine": 1169,
+        "endChar": 23
+      },
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6b36801_dbf8ae61",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "INHERITED ?",
+      "range": {
+        "startLine": 1177,
+        "startChar": 22,
+        "endLine": 1177,
+        "endChar": 28
+      },
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "180a8a05_594969dc",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "// This class extracts all the paths from an SKP and then removes unwanted paths according to the provided l/r trail. It then just draws the remaining paths. It is useful for finding a reduced repo case for path drawing bugs.\n\n?",
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d820058_8196f260",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T13:29:52Z",
+      "side": 1,
+      "message": "add the INHERITED typedef \u0026 use later ?",
+      "range": {
+        "startLine": 259,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 2
+      },
+      "revId": "8e9b9a32b71377128c68c4166b942c0af7ad7e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
