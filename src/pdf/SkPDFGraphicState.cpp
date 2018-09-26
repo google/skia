@@ -15,27 +15,9 @@
 #include "SkTo.h"
 
 static const char* as_pdf_blend_mode_name(SkBlendMode mode) {
-    // PDF32000.book section 11.3.5 "Blend Mode"
-    switch (mode) {
-        case SkBlendMode::kScreen:      return "Screen";
-        case SkBlendMode::kOverlay:     return "Overlay";
-        case SkBlendMode::kDarken:      return "Darken";
-        case SkBlendMode::kLighten:     return "Lighten";
-        case SkBlendMode::kColorDodge:  return "ColorDodge";
-        case SkBlendMode::kColorBurn:   return "ColorBurn";
-        case SkBlendMode::kHardLight:   return "HardLight";
-        case SkBlendMode::kSoftLight:   return "SoftLight";
-        case SkBlendMode::kDifference:  return "Difference";
-        case SkBlendMode::kExclusion:   return "Exclusion";
-        case SkBlendMode::kMultiply:    return "Multiply";
-        case SkBlendMode::kHue:         return "Hue";
-        case SkBlendMode::kSaturation:  return "Saturation";
-        case SkBlendMode::kColor:       return "Color";
-        case SkBlendMode::kLuminosity:  return "Luminosity";
-        // Other blendmodes are either unsupported or handled in
-        // SkPDFDevice::setUpContentEntry.
-        default:                        return "Normal";
-    }
+    const char* name = SkPDFUtils::BlendModeName(mode);
+    SkASSERT(name);
+    return name;
 }
 
 static int to_stroke_cap(uint8_t cap) {
@@ -61,27 +43,13 @@ static int to_stroke_join(uint8_t join) {
 // If a SkXfermode is unsupported in PDF, this function returns
 // SrcOver, otherwise, it returns that Xfermode as a Mode.
 static uint8_t pdf_blend_mode(SkBlendMode mode) {
-    switch (mode) {
-        case SkBlendMode::kSrcOver:
-        case SkBlendMode::kMultiply:
-        case SkBlendMode::kScreen:
-        case SkBlendMode::kOverlay:
-        case SkBlendMode::kDarken:
-        case SkBlendMode::kLighten:
-        case SkBlendMode::kColorDodge:
-        case SkBlendMode::kColorBurn:
-        case SkBlendMode::kHardLight:
-        case SkBlendMode::kSoftLight:
-        case SkBlendMode::kDifference:
-        case SkBlendMode::kExclusion:
-        case SkBlendMode::kHue:
-        case SkBlendMode::kSaturation:
-        case SkBlendMode::kColor:
-        case SkBlendMode::kLuminosity:
-            return SkToU8((unsigned)mode);
-        default:
-            return SkToU8((unsigned)SkBlendMode::kSrcOver);
+    if (!SkPDFUtils::BlendModeName(mode)
+        || SkBlendMode::kXor  == mode
+        || SkBlendMode::kPlus == mode)
+    {
+        mode = SkBlendMode::kSrcOver;
     }
+    return SkToU8((unsigned)mode);
 }
 
 sk_sp<SkPDFDict> SkPDFGraphicState::GetGraphicStateForPaint(SkPDFCanon* canon,
