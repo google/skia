@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70760560_49ccb6e2",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T21:05:38Z",
+      "side": 1,
+      "message": "// For each run in the GrTextBlob we\u0027re going to churn through all the glyphs.\n// For each glyph we check if it has already been transformed to device space (i.e.,\nits \u0027fPreTransformed\u0027 value is true) or ....\n\n?",
+      "revId": "8bd2b9aee783ae5ee1b75c3f480afce6720350fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ea209f0_478586af",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T21:05:38Z",
+      "side": 1,
+      "message": "You don\u0027t want to keep this outside of the loop?",
+      "range": {
+        "startLine": 298,
+        "startChar": 12,
+        "endLine": 298,
+        "endChar": 36
+      },
+      "revId": "8bd2b9aee783ae5ee1b75c3f480afce6720350fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "532eff6d_c8919063",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T21:05:38Z",
+      "side": 1,
+      "message": "runPaintFlags ? updatedPaintFlags ?",
+      "range": {
+        "startLine": 300,
+        "startChar": 21,
+        "endLine": 300,
+        "endChar": 31
+      },
+      "revId": "8bd2b9aee783ae5ee1b75c3f480afce6720350fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d678ee37_bb981614",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T21:05:38Z",
+      "side": 1,
+      "message": "Could we just nuke these once outside the loop?",
+      "range": {
+        "startLine": 301,
+        "startChar": 30,
+        "endLine": 301,
+        "endChar": 75
+      },
+      "revId": "8bd2b9aee783ae5ee1b75c3f480afce6720350fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f81c320_d1bfb3a8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T21:05:38Z",
+      "side": 1,
+      "message": "Can any of this actually change for any of the runs (i.e., can we do this work outside of the loop)?",
+      "range": {
+        "startLine": 332,
+        "startChar": 0,
+        "endLine": 335,
+        "endChar": 65
+      },
+      "revId": "8bd2b9aee783ae5ee1b75c3f480afce6720350fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
