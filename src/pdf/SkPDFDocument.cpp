@@ -231,12 +231,12 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
     // devices are created when saveLayer is called with an ImageFilter;  see
     // SkPDFDevice::onCreateDevice().
     SkISize pageSize = (SkSize{width, height} * fRasterScale).toRound();
-    SkMatrix initialTransform;
     // Skia uses the top left as the origin but PDF natively has the origin at the
     // bottom left. This matrix corrects for that, as well as the raster scale.
-    initialTransform.setScaleTranslate(fInverseRasterScale, -fInverseRasterScale,
-                                       0, fInverseRasterScale * pageSize.height());
-    fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this, initialTransform);
+    SkAffineMatrix initialAffine = {{fInverseRasterScale, 0,
+                                     0, -fInverseRasterScale,
+                                     0, fInverseRasterScale * pageSize.height()}};
+    fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this, &initialAffine);
     reset_object(&fCanvas, fPageDevice);
     fCanvas.scale(fRasterScale, fRasterScale);
     return &fCanvas;
