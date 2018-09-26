@@ -11,6 +11,67 @@
 
 namespace SkPDF {
 
+/** Table 333 in PDF 32000-1:2008
+*/
+enum class DocumentStructureType {
+    kDocument,
+    kPart,
+    kArt,         // Article
+    kSect,        // Section
+    kDiv,
+    kBlockQuote,
+    kCaption,
+    kTOC,         // Table of Contents
+    kTOCI,        // Table of Contents Item
+    kIndex,
+    kNonStruct,
+    kPrivate,
+    kH,           // Heading
+    kH1,          // Heading level 1
+    kH2,
+    kH3,
+    kH4,
+    kH5,
+    kH6,          // Heading level 6
+    kP,           // Paragraph
+    kL,           // List
+    kLI,          // List item
+    kLbl,         // List item label
+    kLBody,       // List item body
+    kTable,
+    kTR,
+    kTH,
+    kTD,
+    kTHead,
+    kTBody,
+    kTFoot,
+    kSpan,
+    kQuote,
+    kNote,
+    kReference,
+    kBibEntry,
+    kCode,
+    kLink,
+    kAnnot,
+    kRuby,
+    kWarichu,
+    kFigure,
+    kFormula,
+    kForm,        // Form control (not like an HTML FORM element)
+};
+
+/**
+ *  A node in a PDF structure tree, giving a semantic representation
+ *  of the content.  Each node ID is associated with content
+ *  by passing the SkCanvas and node ID to SkPDF::SetNodeId() when drawing.
+ */
+struct StructureElementNode {
+    const StructureElementNode* fChildren = nullptr;
+    size_t fChildCount;
+    int fNodeId;
+    DocumentStructureType fType;
+};
+
 /** Optional metadata to be passed into the PDF factory function.
 */
 struct Metadata {
@@ -73,7 +134,26 @@ struct Metadata {
         opaque, it will be encoded (using JPEG) with that quality setting.
     */
     int fEncodingQuality = 101;
+
+    /**
+     *  An optional tree of structured document tags that provide
+     *  a semantic representation of the content. The caller
+     *  should retain ownership.
+     */
+    const StructureElementNode* fStructureElementTreeRoot = nullptr;
 };
+
+/** Associate a node ID with subsequent drawing commands in an
+    SkCanvas.  The same node ID can appear in a StructureElementNode
+    in order to associate a document's structure element tree with
+    its content.
+
+    A node ID of zero indicates no node ID.
+
+    @param canvas  The canvas used to draw to the PDF.
+    @param nodeId  The node ID for subsequent drawing commands.
+*/
+SK_API void SetNodeId(SkCanvas* dst, int nodeID);
 
 /** Create a PDF-backed document, writing the results into a SkWStream.
 

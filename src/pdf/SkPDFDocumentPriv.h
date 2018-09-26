@@ -14,6 +14,9 @@
 #include "SkPDFMetadata.h"
 
 class SkPDFDevice;
+class SkPDFTag;
+
+const char* SkPDFGetNodeIdKey();
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
@@ -64,7 +67,14 @@ public:
     void registerFont(SkPDFFont* f) { fFonts.add(f); }
     const SkPDF::Metadata& metadata() const { return fMetadata; }
 
+    sk_sp<SkPDFDict> getPage(int pageIndex) const;
+    // Returns -1 if no mark ID.
+    int getMarkIdForNodeId(int nodeId);
+
 private:
+    sk_sp<SkPDFTag> recursiveBuildTagTree(const SkPDF::StructureElementNode& node,
+                                          sk_sp<SkPDFTag> parent);
+
     SkPDFObjectSerializer fObjectSerializer;
     SkPDFCanon fCanon;
     SkCanvas fCanvas;
@@ -77,6 +87,15 @@ private:
     SkPDF::Metadata fMetadata;
     SkScalar fRasterScale = 1;
     SkScalar fInverseRasterScale = 1;
+
+    // For tagged PDFs.
+
+    // The tag root, which owns its child tags and so on.
+    sk_sp<SkPDFTag> fTagRoot;
+    // Array of page -> array of marks mapping to tags.
+    SkTArray<SkTArray<sk_sp<SkPDFTag>>> fMarksPerPage;
+    // A mapping from node ID to tag for fast lookup.
+    SkTHashMap<int, sk_sp<SkPDFTag>> fNodeIdToTag;
 
     void reset();
 };

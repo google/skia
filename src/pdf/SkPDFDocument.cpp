@@ -11,11 +11,18 @@
 #include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
+#include "SkPDFTag.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkTo.h"
 
 #include <utility>
+
+// For use in SkCanvas::drawAnnotation
+const char* SkPDFGetNodeIdKey() {
+    static constexpr char key[] = "PDF_Node_Key";
+    return key;
+}
 
 SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
 
@@ -192,6 +199,9 @@ SkPDFDocument::SkPDFDocument(SkWStream* stream,
         fInverseRasterScale = kDpiForRasterScaleOne / fMetadata.fRasterDPI;
         fRasterScale        = fMetadata.fRasterDPI / kDpiForRasterScaleOne;
     }
+    if (fMetadata.fStructureElementTreeRoot) {
+        fTagRoot = recursiveBuildTagTree(*fMetadata.fStructureElementTreeRoot, nullptr);
+    }
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -265,6 +275,9 @@ void SkPDFDocument::onEndPage() {
     }
     this->serialize(contentObject);
     page->insertObjRef("Contents", std::move(contentObject));
+    // The StructParents unique identifier for each page is just its
+    // 0-based page index.
+    page->insertInt("StructParents", static_cast<int>(fPages.size()));
     fPages.emplace_back(std::move(page));
 }
 
@@ -423,6 +436,39 @@ static sk_sp<SkPDFArray> make_srgb_output_intents() {
     return intentArray;
 }
 
+sk_sp<SkPDFDict> SkPDFDocument::getPage(int pageIndex) const {
+    SkASSERT(pageIndex >= 0 && pageIndex < static_cast<int>(fPages.size()));
+    return fPages[pageIndex];
+}
+
+int SkPDFDocument::getMarkIdForNodeId(int nodeId) {
+    sk_sp<SkPDFTag>* tagPtr = fNodeIdToTag.find(nodeId);
+    if (tagPtr == nullptr) {
+        return -1;
+    }
+
+    sk_sp<SkPDFTag> tag = *tagPtr;
+    int pageIndex = static_cast<int>(fPages.size());
+    while (fMarksPerPage.count() < pageIndex + 1) {
+        fMarksPerPage.push_back();
+    }
+    int markId = fMarksPerPage[pageIndex].count();
+    tag->addMarkedContent(pageIndex, markId);
+    fMarksPerPage[pageIndex].push_back(std::move(tag));
+    return markId;
+}
+
+sk_sp<SkPDFTag> SkPDFDocument::recursiveBuildTagTree(
+        const SkPDF::StructureElementNode& node, sk_sp<SkPDFTag> parent) {
+    sk_sp<SkPDFTag> tag = sk_make_sp<SkPDFTag>(node.fNodeId, node.fType, parent);
+    fNodeIdToTag.set(tag->fNodeId, tag);
+    tag->fChildren.reserve(node.fChildCount);
+    for (size_t i = 0; i < node.fChildCount; i++) {
+        tag->appendChild(recursiveBuildTagTree(node.fChildren[i], tag));
+    }
+    return tag;
+}
+
 void SkPDFDocument::onClose(SkWStream* stream) {
     SkASSERT(fCanvas.imageInfo().dimensions().isZero());
     if (fPages.empty()) {
@@ -437,12 +483,61 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         // no one has ever asked for this feature.
         docCatalog->insertObject("OutputIntents", make_srgb_output_intents());
     }
-    SkASSERT(!fPages.empty());
-    docCatalog->insertObjRef("Pages", generate_page_tree(&fPages));
-    SkASSERT(fPages.empty());
+
+    std::vector<sk_sp<SkPDFDict>> pagesCopy(fPages);
+    SkASSERT(!pagesCopy.empty());
+    docCatalog->insertObjRef("Pages", generate_page_tree(&pagesCopy));
+    SkASSERT(pagesCopy.empty());
 
     if (fDests->size() > 0) {
         docCatalog->insertObjRef("Dests", std::move(fDests));
+    }
+
+    // Handle tagged PDFs.
+    if (fTagRoot) {
+        // In the document catalog, indicate that this PDF is tagged.
+        auto markInfo = sk_make_sp<SkPDFDict>("MarkInfo");
+        markInfo->insertBool("Marked", true);
+        docCatalog->insertObject("MarkInfo", markInfo);
+
+        // Prepare the tag tree, this automatically skips over any
+        // tags that weren't referenced from any marked content.
+        bool success = fTagRoot->prepareTagTreeToEmit(*this);
+        if (!success) {
+            SkDEBUGFAIL("PDF has tag tree but no marked content.");
+        }
+
+        // Build the StructTreeRoot.
+        auto structTreeRoot = sk_make_sp<SkPDFDict>("StructTreeRoot");
+        docCatalog->insertObjRef("StructTreeRoot", structTreeRoot);
+        structTreeRoot->insertObjRef("K", fTagRoot);
+        int pageCount = static_cast<int>(fPages.size());
+        structTreeRoot->insertInt("ParentTreeNextKey", pageCount);
+
+        // The parent of the tag root is the StructTreeRoot.
+        fTagRoot->insertObjRef("P", structTreeRoot);
+
+        // Build the parent tree, which is a mapping from the marked
+        // content IDs on each page to their corressponding tags.
+        auto parentTree = sk_make_sp<SkPDFDict>("ParentTree");
+        structTreeRoot->insertObjRef("ParentTree", parentTree);
+        structTreeRoot->insertInt("ParentTreeNextKey", pageCount);
+        auto parentTreeNums = sk_make_sp<SkPDFArray>();
+        parentTree->insertObject("Nums", parentTreeNums);
+        for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+            // Exit now if there are no more pages with marked content.
+            if (fMarksPerPage.count() <= pageIndex) {
+                break;
+            }
+
+            parentTreeNums->appendInt(pageIndex);
+            auto markToTagArray = sk_make_sp<SkPDFArray>();
+            parentTreeNums->appendObjRef(markToTagArray);
+
+            for (int i = 0; i < fMarksPerPage[pageIndex].count(); i++) {
+                markToTagArray->appendObjRef(fMarksPerPage[pageIndex][i]);
+            }
+        }
     }
 
     // Build font subsetting info before calling addObjectRecursively().
@@ -455,6 +550,12 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void SkPDF::SetNodeId(SkCanvas* canvas, int nodeID) {
+    sk_sp<SkData> payload = SkData::MakeWithCopy(&nodeID, sizeof(nodeID));
+    const char* key = SkPDFGetNodeIdKey();
+    canvas->drawAnnotation({0, 0, 0, 0}, key, payload.get());
+}
 
 sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& metadata) {
     SkPDF::Metadata meta = metadata;
