@@ -119,7 +119,7 @@ private:
         };
         sk_sp<GrBuffer> vertexBuffer(flushState->resourceProvider()->createBuffer(
                 sizeof(vertices), kVertex_GrBufferType, kStatic_GrAccessPattern,
-                GrResourceProvider::kNone_Flag, vertices));
+                GrResourceProvider::Flags::kNone, vertices));
         if (!vertexBuffer) {
             return;
         }

@@ -39,6 +39,24 @@ class SkTypeface;
  */
 class GrResourceProvider {
 public:
+    /** These flags govern which scratch resources we are allowed to return */
+    enum class Flags {
+        kNone            = 0x0,
+
+        /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
+         *  set when accessing resources during a GrOpList flush. This includes the execution of
+         *  GrOp objects. The reason is that these memory operations are done immediately and
+         *  will occur out of order WRT the operations being flushed.
+         *  Make this automatic: https://bug.skia.org/4156
+         */
+        kNoPendingIO     = 0x1,
+
+        /** Normally the caps may indicate a preference for client-side buffers. Set this flag when
+         *  creating a buffer to guarantee it resides in GPU memory.
+         */
+        kRequireGpuMemory = 0x2,
+    };
+
     GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*,
                        GrContextOptions::Enable explicitlyAllocateGPUResources);
 
@@ -61,18 +79,18 @@ public:
      * then result will be a render target. Format and sample count will always match the request.
      * The contents of the texture are undefined.
      */
-    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, uint32_t flags);
+    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, Flags);
 
     /** Create an exact fit texture with no initial data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, Flags = Flags::kNone);
 
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel texels[],
                                    int mipLevelCount);
 
     // Create a potentially loose fit texture with the provided data
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, SkBackingFit,
-                                   const GrMipLevel&);
+                                   const GrMipLevel&, Flags);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
@@ -169,24 +187,6 @@ public:
      */
     sk_sp<GrPath> createPath(const SkPath&, const GrStyle&);
 
-    /** These flags govern which scratch resources we are allowed to return */
-    enum Flags {
-        kNone_Flag            = 0x0,
-
-        /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
-         *  set when accessing resources during a GrOpList flush. This includes the execution of
-         *  GrOp objects. The reason is that these memory operations are done immediately and
-         *  will occur out of order WRT the operations being flushed.
-         *  Make this automatic: https://bug.skia.org/4156
-         */
-        kNoPendingIO_Flag     = 0x1,
-
-        /** Normally the caps may indicate a preference for client-side buffers. Set this flag when
-         *  creating a buffer to guarantee it resides in GPU memory.
-         */
-        kRequireGpuMemory_Flag = 0x2,
-    };
-
     /**
      * Returns a buffer.
      *
@@ -198,7 +198,7 @@ public:
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, uint32_t flags,
+    GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, Flags,
                            const void* data = nullptr);
 
 
@@ -258,13 +258,13 @@ private:
 
     // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
     // it returns null. If non-null, the resulting texture is always budgeted.
-    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
+    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, Flags);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
      * update the budgeting accordingly.
      */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, uint32_t flags);
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, Flags);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
@@ -297,5 +297,7 @@ private:
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrResourceProvider::Flags);
 
 #endif
