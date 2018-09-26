@@ -65,7 +65,8 @@ KeyWord IncludeParser::FindKey(const char* start, const char* end) {
     for (size_t index = 0; index < kKeyWordCount; ) {
         if (start[ch] > kKeyWords[index].fName[ch]) {
             ++index;
-            if (ch > 0 && kKeyWords[index - 1].fName[ch - 1] < kKeyWords[index].fName[ch - 1]) {
+            if (ch > 0 && (index == kKeyWordCount ||
+                    kKeyWords[index - 1].fName[ch - 1] < kKeyWords[index].fName[ch - 1])) {
                 return KeyWord::kNone;
             }
             continue;
@@ -102,6 +103,323 @@ void IncludeParser::addKeyword(KeyWord keyWord) {
             fInEnum = true;
         }
     }
+}
+
+static bool looks_like_method(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fLine, tp.fChar, tp.fLineCount);
+    t.skipSpace();
+    if (!t.skipExact("struct") && !t.skipExact("class") && !t.skipExact("enum class")
+            && !t.skipExact("enum")) {
+        return true;
+    }
+    t.skipSpace();
+    if (t.skipExact("SK_API")) {
+        t.skipSpace();
+    }
+    if (!isupper(t.peek())) {
+        return true;
+    }
+    return nullptr != t.strnchr('(', t.fEnd);
+}
+
+static bool looks_like_forward_declaration(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fChar, tp.lineEnd(), tp.fLineCount);
+    t.skipSpace();
+    if (!t.skipExact("struct") && !t.skipExact("class") && !t.skipExact("enum class")
+            && !t.skipExact("enum")) {
+        return false;
+    }
+    t.skipSpace();
+    if (t.skipExact("SK_API")) {
+        t.skipSpace();
+    }
+    if (!isupper(t.peek())) {
+        return false;
+    }
+    t.skipToNonAlphaNum();
+    if (t.eof() || ';' != t.next()) {
+        return false;
+    }
+    if (t.eof() || '\n' != t.next()) {
+        return false;
+    }
+    return t.eof();
+}
+
+static bool looks_like_constructor(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fLine, tp.lineEnd(), tp.fLineCount);
+    t.skipSpace();
+    if (!isupper(t.peek())) {
+        if (':' == t.next() && ' ' >= t.peek()) {
+            return true;
+        }
+        return false;
+    }
+    t.skipToNonAlphaNum();
+    if ('(' != t.peek()) {
+        return false;
+    }
+    if (!t.skipToEndBracket(')')) {
+        return false;
+    }
+    SkAssertResult(')' == t.next());
+    t.skipSpace();
+    return tp.fChar == t.fChar;
+}
+
+static bool looks_like_class_decl(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fLine, tp.fChar, tp.fLineCount);
+    t.skipSpace();
+    if (!t.skipExact("class")) {
+        return false;
+    }
+    t.skipSpace();
+    if (t.skipExact("SK_API")) {
+        t.skipSpace();
+    }
+    if (!isupper(t.peek())) {
+        return false;
+    }
+    t.skipToNonAlphaNum();
+    return !t.skipToEndBracket('(');
+}
+
+struct CheckCode {
+    enum class State {
+        kNone,
+        kClassDeclaration,
+        kConstructor,
+        kForwardDeclaration,
+        kMethod,
+    };
+    const char* fInDebugCode = nullptr;
+    int fPrivateBrace = 0;
+    int fBraceCount = 0;
+    int fIndent = 0;
+    int fDoubleReturn = 0;
+    State fState = State::kNone;
+    bool fPrivateProtected = false;
+    bool fWriteReturn = false;
+};
+
+static bool advance_include(TextParser& i, CheckCode& check) {
+    i.skipWhiteSpace(&check.fIndent, &check.fWriteReturn);
+    if (check.fPrivateBrace) {
+        if (i.startsWith("};")) {
+            if (check.fPrivateBrace == check.fBraceCount) {
+                check.fPrivateBrace = 0;
+                check.fDoubleReturn = true;
+            } else {
+                i.skipExact("};");
+                check.fBraceCount -= 1;
+            }
+            return false;
+        }
+        if (i.startsWith("public:")) {
+            if (check.fBraceCount <= check.fPrivateBrace) {
+                check.fPrivateBrace = 0;
+                if (check.fPrivateProtected) {
+                    i.skipExact("public:");
+                }
+            } else {
+                i.skipExact("public:");
+            }
+        } else {
+            check.fBraceCount += i.skipToLineBalance('{', '}');
+        }
+        return false;
+    } else if (i.startsWith("};")) {
+        check.fDoubleReturn = 2;
+    }
+    if (i.skipExact("inline ")) {
+        return false;
+    }
+    if (i.skipExact("SK_WARN_UNUSED_RESULT ")) {
+        return false;
+    }
+    if (i.skipExact("SK_ATTR_DEPRECATED")) {
+        i.skipToLineStart(&check.fIndent, &check.fWriteReturn);
+        return false;
+    }
+    if (i.skipExact("SK_API")) {
+        return false;
+    }
+    if (i.skipExact("SkDEBUGCODE")) {
+        i.skipWhiteSpace();
+        if ('(' != i.peek()) {
+            i.reportError("expected open paren");
+        }
+        TextParserSave save(&i);
+        SkAssertResult(i.skipToBalancedEndBracket('(', ')'));
+        check.fInDebugCode = i.fChar - 1;
+        save.restore();
+        SkAssertResult('(' == i.next());
+    }
+    if ('{' == i.peek()) {
+        if (looks_like_method(i)) {
+            check.fState = CheckCode::State::kMethod;
+            if (!i.skipToBalancedEndBracket('{', '}')) {
+                i.reportError("unbalanced open brace");
+            }
+            i.skipToLineStart(&check.fIndent, &check.fWriteReturn);
+            return false;
+        } else if (looks_like_class_decl(i)) {
+            check.fState = CheckCode::State::kClassDeclaration;
+            check.fPrivateBrace = check.fBraceCount + 1;
+            check.fPrivateProtected = false;
+        }
+    }
+    if (':' == i.peek() && looks_like_constructor(i)) {
+        check.fState = CheckCode::State::kConstructor;
+        i.skipToEndBracket('{');
+        return false;
+    }
+    if ('#' == i.peek()) {
+        i.skipToLineStart(&check.fIndent, &check.fWriteReturn);
+        return false;
+    }
+    if (i.startsWith("//")) {
+        i.skipToLineStart(&check.fIndent, &check.fWriteReturn);
+        return false;
+    }
+    if (i.startsWith("/*")) {
+        i.skipToEndBracket("*/");
+        i.skipToLineStart(&check.fIndent, &check.fWriteReturn);
+        return false;
+    }
+    if (looks_like_forward_declaration(i)) {
+        check.fState = CheckCode::State::kForwardDeclaration;
+        i.skipToLineStart(&check.fIndent, &check.fWriteReturn);
+        return false;
+    }
+    if (i.skipExact("private:") || i.skipExact("protected:")) {
+        if (!check.fBraceCount) {
+            i.reportError("expect private in brace");
+        }
+        check.fPrivateBrace = check.fBraceCount;
+        check.fPrivateProtected = true;
+        return false;
+    }
+    return true;
+}
+
+static void check_code_children(const Definition& iDef, Definition* bChild) {
+    TextParser b(bChild);
+    TextParser i(&iDef);
+    CheckCode check;
+    do {
+        if (!advance_include(i, check)) {
+            continue;
+        }
+        b.skipWhiteSpace();
+        do {
+            if (i.peek() != b.peek()) {
+                if (';' == b.peek()) {
+                    b.next();
+                    break;
+                }
+                if (check.fInDebugCode == i.fChar) {
+                    check.fInDebugCode = nullptr;
+                    i.next();
+                    break;
+                }
+                b.reportError("mismatch code block");
+                return;
+            }
+            check.fBraceCount += '{' == i.peek();
+            check.fBraceCount -= '}' == i.peek();
+            if (check.fBraceCount < 0) {
+                i.reportError("unbalanced close brace");
+                return;
+            }
+            i.next();
+            b.next();
+            if (i.eof() && !b.eof()) {
+                if (';' != b.next()) {
+                    b.reportError("expect semicolon");
+                    return;
+                }
+                b.skipWhiteSpace();
+                if (!b.eof()) {
+                    b.reportError("expect eof");
+                    return;
+                }
+                break;
+            }
+        } while (' ' < i.peek() && ' ' < b.peek()); // always advance both
+    } while (!i.eof() && !b.eof());
+}
+
+static void write_code_block(const Definition& iDef) {
+    TextParser i(&iDef);
+    CheckCode check;
+    char last;
+    do {
+        if (!advance_include(i, check)) {
+            continue;
+        }
+        do {
+            last = i.peek();
+            SkASSERT(' ' < last);
+            if (check.fInDebugCode == i.fChar) {
+                check.fInDebugCode = nullptr;
+                i.next();   // skip close paren
+                break;
+            }
+            if (CheckCode::State::kMethod == check.fState) {
+                SkDebugf(";");
+                check.fState = CheckCode::State::kNone;
+            }
+            if (check.fWriteReturn) {
+                SkDebugf("\n");
+                check.fWriteReturn = false;
+                if ((!--check.fDoubleReturn && !i.startsWith("};")) || i.startsWith("enum ")
+                        || (check.fIndent && (i.startsWith("class ") || i.startsWith("struct ")))) {
+                    SkDebugf("\n");
+                }
+            }
+            if (check.fIndent) {
+                SkDebugf("%*s", check.fIndent, "");
+                check.fIndent = 0;
+            }
+            SkDebugf("%c", last);
+            check.fWriteReturn = false;
+            check.fIndent = 0;
+            check.fBraceCount += '{' == last;
+            check.fBraceCount -= '}' == last;
+            if (check.fBraceCount < 0) {
+                i.reportError("unbalanced close brace");
+                return;
+            }
+            i.next();
+        } while (!i.eof() && ' ' < i.peek());
+    } while (!i.eof());
+    if (check.fWriteReturn) {
+        SkDebugf("\n");
+    }
+    if (';' == last) {
+        SkDebugf("};");
+    }
+    SkDebugf("\n");
+}
+
+static void check_code(const Definition& iDef, RootDefinition* bDef) {
+    for (auto child : bDef->fChildren) {
+        if (MarkType::kCode != child->fMarkType) {
+            continue;
+        }
+        check_code_children(iDef, child);
+        return;
+    }
+    const Definition* topic = bDef->topicParent();
+    for (auto child : topic->fChildren) {
+        if (MarkType::kCode != child->fMarkType) {
+            continue;
+        }
+        check_code_children(iDef, child);
+        return;
+    }
+    iDef.reportError<void>("bmh missing code block");
 }
 
 void IncludeParser::checkForMissingParams(const vector<string>& methodParams,
@@ -231,8 +549,14 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
             SkASSERT(string::npos != className.find("::"));
             continue;
         }
-        RootDefinition* root = &finder->second;
-        root->clearVisited();
+        if (fWriteCode) {
+            write_code_block(classMapper.second);
+            SkDebugf("\n");
+        } else {
+            RootDefinition* root = &finder->second;
+            root->clearVisited();
+            check_code(classMapper.second, root);
+        }
     }
     for (auto& classMapper : fIClassMap) {
         string className = classMapper.first;

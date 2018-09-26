@@ -3,6 +3,243 @@
 
 #Class SkPaint
 
+#Code
+class SkPaint {
+public:
+    SkPaint();
+    SkPaint(const SkPaint& paint);
+    SkPaint(SkPaint&& paint);
+    ~SkPaint();
+    SkPaint& operator=(const SkPaint& paint);
+    SkPaint& operator=(SkPaint&& paint);
+    friend bool operator==(const SkPaint& a, const SkPaint& b);
+    friend bool operator!=(const SkPaint& a, const SkPaint& b);
+    uint32_t getHash() const;
+    void reset();
+
+    enum Hinting {
+        kNo_Hinting     = 0,
+        kSlight_Hinting = 1,
+        kNormal_Hinting = 2,
+        kFull_Hinting   = 3,
+    };
+
+    Hinting getHinting() const;
+    void setHinting(Hinting hintingLevel);
+
+    enum Flags {
+        kAntiAlias_Flag          = 0x01,
+        kDither_Flag             = 0x04,
+        kFakeBoldText_Flag       = 0x20,
+        kLinearText_Flag         = 0x40,
+        kSubpixelText_Flag       = 0x80,
+        kLCDRenderText_Flag      = 0x200,
+        kEmbeddedBitmapText_Flag = 0x400,
+        kAutoHinting_Flag        = 0x800,
+        kVerticalText_Flag       = 0x1000,
+        kAllFlags                = 0xFFFF,
+    };
+
+    enum ReserveFlags {
+        kUnderlineText_ReserveFlag  = 0x08,
+        kStrikeThruText_ReserveFlag = 0x10,
+    };
+
+    uint32_t getFlags() const;
+    void setFlags(uint32_t flags);
+    bool isAntiAlias() const;
+    void setAntiAlias(bool aa);
+    bool isDither() const;
+    void setDither(bool dither);
+    bool isLinearText() const;
+    void setLinearText(bool linearText);
+    bool isSubpixelText() const;
+    void setSubpixelText(bool subpixelText);
+    bool isLCDRenderText() const;
+    void setLCDRenderText(bool lcdText);
+    bool isEmbeddedBitmapText() const;
+    void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
+    bool isAutohinted() const;
+    void setAutohinted(bool useAutohinter);
+    bool isVerticalText() const;
+    void setVerticalText(bool verticalText);
+    bool isFakeBoldText() const;
+    void setFakeBoldText(bool fakeBoldText);
+    bool isDevKernText() const;
+    void setDevKernText(bool);
+    SkFilterQuality getFilterQuality() const;
+    void setFilterQuality(SkFilterQuality quality);
+
+    enum Style {
+        kFill_Style,
+        kStroke_Style,
+        kStrokeAndFill_Style,
+    };
+
+    static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
+
+    Style getStyle() const;
+    void setStyle(Style style);
+    SkColor getColor() const;
+    SkColor4f getColor4f() const;
+    void setColor(SkColor color);
+    void setColor4f(const SkColor4f& color, SkColorSpace* colorSpace);
+    uint8_t getAlpha() const;
+    void setAlpha(U8CPU a);
+    void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
+    SkScalar getStrokeWidth() const;
+    void setStrokeWidth(SkScalar width);
+    SkScalar getStrokeMiter() const;
+    void setStrokeMiter(SkScalar miter);
+
+    enum Cap {
+        kButt_Cap,
+        kRound_Cap,
+        kSquare_Cap,
+        kLast_Cap    = kSquare_Cap,
+        kDefault_Cap = kButt_Cap,
+    };
+
+    static constexpr int kCapCount = kLast_Cap + 1;
+
+    enum Join {
+        kMiter_Join,
+        kRound_Join,
+        kBevel_Join,
+        kLast_Join    = kBevel_Join,
+        kDefault_Join = kMiter_Join,
+    };
+
+    static constexpr int kJoinCount = kLast_Join + 1;
+
+    Cap getStrokeCap() const;
+    void setStrokeCap(Cap cap);
+    Join getStrokeJoin() const;
+    void setStrokeJoin(Join join);
+    bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
+                     SkScalar resScale = 1) const;
+    bool getFillPath(const SkPath& src, SkPath* dst) const;
+    SkShader* getShader() const;
+    sk_sp<SkShader> refShader() const;
+    void setShader(sk_sp<SkShader> shader);
+    SkColorFilter* getColorFilter() const;
+    sk_sp<SkColorFilter> refColorFilter() const;
+    void setColorFilter(sk_sp<SkColorFilter> colorFilter);
+    SkBlendMode getBlendMode() const;
+    bool isSrcOver() const;
+    void setBlendMode(SkBlendMode mode);
+    SkPathEffect* getPathEffect() const;
+    sk_sp<SkPathEffect> refPathEffect() const;
+    void setPathEffect(sk_sp<SkPathEffect> pathEffect);
+    SkMaskFilter* getMaskFilter() const;
+    sk_sp<SkMaskFilter> refMaskFilter() const;
+    void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
+    SkTypeface* getTypeface() const;
+    sk_sp<SkTypeface> refTypeface() const;
+    void setTypeface(sk_sp<SkTypeface> typeface);
+    SkImageFilter* getImageFilter() const;
+    sk_sp<SkImageFilter> refImageFilter() const;
+    void setImageFilter(sk_sp<SkImageFilter> imageFilter);
+    SkDrawLooper* getDrawLooper() const;
+    sk_sp<SkDrawLooper> refDrawLooper() const;
+    SkDrawLooper* getLooper() const;
+    void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
+    void setLooper(sk_sp<SkDrawLooper> drawLooper);
+
+    enum Align {
+        kLeft_Align,
+        kCenter_Align,
+        kRight_Align,
+    };
+
+    static constexpr int kAlignCount = 3;
+
+    Align getTextAlign() const;
+    void setTextAlign(Align align);
+    SkScalar getTextSize() const;
+    void setTextSize(SkScalar textSize);
+    SkScalar getTextScaleX() const;
+    void setTextScaleX(SkScalar scaleX);
+    SkScalar getTextSkewX() const;
+    void setTextSkewX(SkScalar skewX);
+
+    enum TextEncoding {
+        kUTF8_TextEncoding,
+        kUTF16_TextEncoding,
+        kUTF32_TextEncoding,
+        kGlyphID_TextEncoding,
+    };
+
+    TextEncoding getTextEncoding() const;
+    void setTextEncoding(TextEncoding encoding);
+
+    struct FontMetrics {
+        enum FontMetricsFlags {
+            kUnderlineThicknessIsValid_Flag = 1 << 0,
+            kUnderlinePositionIsValid_Flag  = 1 << 1,
+            kStrikeoutThicknessIsValid_Flag = 1 << 2,
+            kStrikeoutPositionIsValid_Flag  = 1 << 3,
+        };
+
+        uint32_t fFlags;
+        SkScalar fTop;
+        SkScalar fAscent;
+        SkScalar fDescent;
+        SkScalar fBottom;
+        SkScalar fLeading;
+        SkScalar fAvgCharWidth;
+        SkScalar fMaxCharWidth;
+        SkScalar fXMin;
+        SkScalar fXMax;
+        SkScalar fXHeight;
+        SkScalar fCapHeight;
+        SkScalar fUnderlineThickness;
+        SkScalar fUnderlinePosition;
+        SkScalar fStrikeoutThickness;
+        SkScalar fStrikeoutPosition;
+
+        bool hasUnderlineThickness(SkScalar* thickness) const;
+        bool hasUnderlinePosition(SkScalar* position) const;
+        bool hasStrikeoutThickness(SkScalar* thickness) const;
+        bool hasStrikeoutPosition(SkScalar* position) const;
+    };
+
+    SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const;
+    SkScalar getFontSpacing() const;
+    int textToGlyphs(const void* text, size_t byteLength,
+                     SkGlyphID glyphs[]) const;
+    bool containsText(const void* text, size_t byteLength) const;
+    void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
+    int countText(const void* text, size_t byteLength) const;
+    SkScalar measureText(const void* text, size_t length, SkRect* bounds) const;
+    SkScalar measureText(const void* text, size_t length) const;
+    size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
+                      SkScalar* measuredWidth = nullptr) const;
+    int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
+                      SkRect bounds[] = nullptr) const;
+    void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
+                     SkPath* path) const;
+    void getPosTextPath(const void* text, size_t length,
+                        const SkPoint pos[], SkPath* path) const;
+    int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
+                          const SkScalar bounds[2], SkScalar* intervals) const;
+    int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
+                             const SkScalar bounds[2], SkScalar* intervals) const;
+    int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[],
+                              SkScalar constY, const SkScalar bounds[2], SkScalar* intervals) const;
+    int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
+                              SkScalar* intervals) const;
+    SkRect getFontBounds() const;
+    bool nothingToDraw() const;
+    bool canComputeFastBounds() const;
+    const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const;
+    const SkRect& computeFastStrokeBounds(const SkRect& orig,
+                                          SkRect* storage) const;
+    const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
+                                      Style style) const;
+};
+##
+
 Paint controls options applied when drawing and measuring. Paint collects all
 options outside of the Canvas_Clip and Canvas_Matrix.
 
@@ -33,31 +270,11 @@ Shader attached to Paint.
 #Populate
 ##
 
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Constant
-#Populate
-##
-
-#Subtopic Struct
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Operator
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
 # ------------------------------------------------------------------------------
+#Subtopic Constructors
+#Populate
+##
+
 #Subtopic Initializers
 #Line # constructors and initialization ##
 
@@ -231,6 +448,10 @@ objects containing Reference_Count go to zero, they are deleted.
 
 
 # ------------------------------------------------------------------------------
+#Subtopic Operators
+#Populate
+##
+
 #Subtopic Management
 #Line # paint copying, moving, comparing ##
 
@@ -394,6 +615,10 @@ The hash returned is platform and implementation specific.
 #Subtopic Management ##
 
 # ------------------------------------------------------------------------------
+#Subtopic Constants
+#Populate
+##
+
 #Subtopic Hinting
 #Line # glyph outline adjustment ##
 
@@ -4007,6 +4232,10 @@ void draw(SkCanvas* canvas) {
     canvas->drawString("cap-height",  -pt.fY,      pt.fX + 160, paint);
     canvas->drawString("bottom",      -pt.fY - 50, pt.fX + 15,  paint);
 }
+##
+
+#Subtopic Structs
+#Populate
 ##
 
 #Struct FontMetrics
