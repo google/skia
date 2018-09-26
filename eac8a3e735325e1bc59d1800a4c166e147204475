@@ -818,6 +818,30 @@
     },
     {
       "key": {
+        "uuid": "a2666d9d_12368319",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T04:44:06Z",
+      "side": 1,
+      "message": "I copy/pasted most of this into a comment on the fPreviousBestNumFullyReceived field declaration.",
+      "parentUuid": "367a8a97_c4cb277e",
+      "range": {
+        "startLine": 515,
+        "startChar": 23,
+        "endLine": 515,
+        "endChar": 39
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2cd90b3_995d83d4",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
