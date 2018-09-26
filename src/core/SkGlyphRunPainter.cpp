@@ -413,8 +413,6 @@ void GrTextContext::AppendGlyph(GrTextBlob* blob, int runIndex,
     }
 }
 
-enum NeedsTransform : bool {kTransformDone = false, kDoTransform = true };
-
 // Getting glyphs to the screen in a fallback situation can be complex. Here is the set of
 // transformations that have to happen. Normally, they would all be accommodated by the font
 // scaler, but the atlas has an upper limit to the glyphs it can handle. So the GPU is used to
@@ -437,33 +435,22 @@ enum NeedsTransform : bool {kTransformDone = false, kDoTransform = true };
 //   scale factor is used to increase the size of the destination rectangles. The destination
 //   rectangles are then scaled, rotated, etc. by the GPU using the view matrix.
 
-using ARGBFallback =
-    std::function<void(const SkPaint& fallbackPaint,  // The run paint maybe with a new text size
-            SkSpan<const SkGlyphID> fallbackGlyphIDs, // Colored glyphs that need to be handled
-            SkSpan<const SkPoint> fallbackPositions,  // Positions of above glyphs
-            SkScalar fallbackTextScale,               // Factor to go from text size to final size
-            const SkMatrix& glyphCacheMatrix,         // Transformation performed by the glyph cache
-            NeedsTransform handleTransformLater)>;
-
-static void ARGB_fallback_helper(
-        SkSpan<const SkGlyphID> glyphIDs,
-        SkSpan<const SkPoint> positions,
-        SkScalar maxGlyphDimension,
-        const SkPaint& runPaint,
-        const SkMatrix& viewMatrix,
-        SkScalar pathScale,
-        ARGBFallback fallback) {
-    SkASSERT(!glyphIDs.empty());
+void SkGlyphRunListPainter::processARGBFallback(
+        SkScalar maxGlyphDimension, const SkPaint& runPaint, SkPoint origin,
+        const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback) {
+    SkASSERT(!fARGBGlyphsIDs.empty());
 
     SkScalar maxScale = viewMatrix.getMaxScale();
 
     // This is a conservative estimate of the longest dimension among all the glyph widths and
     // heights.
-    SkScalar conservativeMaxGlyphDimension = maxGlyphDimension * pathScale * maxScale;
+    SkScalar conservativeMaxGlyphDimension = maxGlyphDimension * textScale * maxScale;
 
     // If the situation that the matrix is simple, and all the glyphs are small enough. Go fast!
     bool useFastPath =
             viewMatrix.isScaleTranslate() && conservativeMaxGlyphDimension <= maxGlyphDimension;
+
+    auto glyphIDs = SkSpan<const SkGlyphID>{fARGBGlyphsIDs};
 
     // A scaled and translated transform is the common case, and is handled directly in fallback.
     // Even if the transform is scale and translate, fallback must be careful to use glyphs that
@@ -471,15 +458,14 @@ static void ARGB_fallback_helper(
     // used to render the glyphs.
     if (useFastPath) {
         // Translate the positions to device space.
-        std::vector<SkPoint> transformedPositions{positions.begin(), positions.end()};
-        viewMatrix.mapPoints(transformedPositions.data(), transformedPositions.size());
-        for (SkPoint& point : transformedPositions) {
+        viewMatrix.mapPoints(fARGBPositions.data(), fARGBPositions.size());
+        for (SkPoint& point : fARGBPositions) {
             point.fX =  SkScalarFloorToScalar(point.fX);
             point.fY =  SkScalarFloorToScalar(point.fY);
         }
 
-        auto pos = SkSpan<const SkPoint>{transformedPositions};
-        fallback(runPaint, glyphIDs, pos, SK_Scalar1, viewMatrix, kTransformDone);
+        auto positions = SkSpan<const SkPoint>{fARGBPositions};
+        argbFallback(runPaint, glyphIDs, positions, SK_Scalar1, viewMatrix, kTransformDone);
 
     } else {
         // If the matrix is complicated or if scaling is used to fit the glyphs in the cache,
@@ -508,12 +494,11 @@ static void ARGB_fallback_helper(
         SkPaint fallbackPaint{runPaint};
         fallbackPaint.setTextSize(fallbackTextSize);
         SkScalar fallbackTextScale = runPaintTextSize / fallbackTextSize;
-
-        fallback(
-            fallbackPaint, glyphIDs, positions, fallbackTextScale, SkMatrix::I(), kDoTransform);
+        auto positions = SkSpan<const SkPoint>{fARGBPositions};
+        argbFallback(
+                fallbackPaint, glyphIDs, positions, fallbackTextScale, SkMatrix::I(), kDoTransform);
     }
 }
-
 
 void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                            GrGlyphCache* glyphCache,
@@ -622,7 +607,8 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                 [blob{cacheBlob}, runIndex, props, scalerContextFlags, glyphCache, filteredColor]
                 (const SkPaint& fallbackPaint, SkSpan<const SkGlyphID> glyphIDs,
                  SkSpan<const SkPoint> positions, SkScalar textScale,
-                 const SkMatrix& glyphCacheMatrix, NeedsTransform needsTransform) {
+                 const SkMatrix& glyphCacheMatrix,
+                 SkGlyphRunListPainter::NeedsTransform needsTransform) {
                     blob->initOverride(runIndex);
                     blob->setHasBitmap();
                     blob->setSubRunHasW(runIndex, glyphCacheMatrix.hasPerspective());
@@ -641,18 +627,8 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                     }
                 };
 
-            // Calculate paint, matrix, scale and positions for the fallback glyphs.
-            auto fallbackARGB = [&runPaint, &viewMatrix, textScale, argbFallback]
-                                (SkSpan<const SkGlyphID> glyphIDs,
-                                 SkSpan<const SkPoint>positions,
-                                 SkScalar maxGlyphDimension) {
-
-                ARGB_fallback_helper(glyphIDs, positions, maxGlyphDimension, runPaint,
-                                     viewMatrix, textScale, argbFallback);
-            };
-
             glyphPainter->drawGlyphRunAsPathWithARGBFallback(
-                    pathCache.get(), glyphRun, origin, perPath, fallbackARGB);
+                pathCache.get(), glyphRun, origin, viewMatrix, textScale, perPath, argbFallback);
         } else {
             // Ensure the blob is set for bitmaptext
             cacheBlob->setHasBitmap();
