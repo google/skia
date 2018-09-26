@@ -184,12 +184,18 @@ void remove_color_filter(SkPaint* paint) {
     }
 }
 
+static SkMatrix affine_to_matrix(SkAffineMatrix a) {
+    SkMatrix m;
+    m.setAffine(a.fMat);
+    return m;
+}
+
 class GraphicStackState {
 public:
     GraphicStackState(SkWStream* s) : fContentStream(s) {}
 
     void updateClip(const SkClipStack& clipStack, const SkIRect& bounds);
-    void updateMatrix(const SkMatrix& matrix);
+    void updateMatrix(const SkAffineMatrix& matrix);
     void updateDrawingState(const SkPDFDevice::GraphicStateEntry& state);
 
     void drainStack();
@@ -354,35 +360,29 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     append_clip(clipStack, bounds, fContentStream);
 }
 
-static void append_transform(const SkMatrix& matrix, SkWStream* content) {
-    SkScalar values[6];
-    if (!matrix.asAffine(values)) {
-        SkMatrix::SetAffineIdentity(values);
+static void append_transform(const SkAffineMatrix& matrix, SkWStream* wStream) {
+    for (SkScalar v : matrix.fMat) {
+        SkPDFUtils::AppendScalar(v, wStream);
+        wStream->writeText(" ");
     }
-    for (SkScalar v : values) {
-        SkPDFUtils::AppendScalar(v, content);
-        content->writeText(" ");
-    }
-    content->writeText("cm\n");
+    wStream->writeText("cm\n");
 }
 
-void GraphicStackState::updateMatrix(const SkMatrix& matrix) {
+void GraphicStackState::updateMatrix(const SkAffineMatrix& matrix) {
     if (matrix == currentEntry()->fMatrix) {
         return;
     }
-
-    if (currentEntry()->fMatrix.getType() != SkMatrix::kIdentity_Mask) {
+    if (currentEntry()->fMatrix != SkAffineMatrix()) {
         SkASSERT(fStackDepth > 0);
         SkASSERT(fEntries[fStackDepth].fClipStack ==
                  fEntries[fStackDepth -1].fClipStack);
         pop();
 
-        SkASSERT(currentEntry()->fMatrix.getType() == SkMatrix::kIdentity_Mask);
+        SkASSERT(currentEntry()->fMatrix == SkAffineMatrix());
     }
-    if (matrix.getType() == SkMatrix::kIdentity_Mask) {
+    if (matrix == SkAffineMatrix()) {
         return;
     }
-
     push();
     append_transform(matrix, fContentStream);
     currentEntry()->fMatrix = matrix;
@@ -533,10 +533,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc, const SkMatrix& transform)
+SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc,
+                         const SkAffineMatrix* transform)
     : INHERITED(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
-    , fInitialTransform(transform)
+    , fInitialTransform(transform ? *transform : SkAffineMatrix())
     , fDocument(doc)
 {
     SkASSERT(!pageSize.isEmpty());
@@ -1419,7 +1420,7 @@ sk_sp<SkPDFDict> SkPDFDevice::makeResourceDict() {
 
 std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
     SkDynamicMemoryWStream buffer;
-    if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
+    if (fInitialTransform != SkAffineMatrix()) {
         append_transform(fInitialTransform, &buffer);
     }
 
@@ -1510,14 +1511,16 @@ sk_sp<SkPDFArray> SkPDFDevice::getAnnotations() {
     }
     array = sk_make_sp<SkPDFArray>();
     array->reserve(count);
+    SkMatrix initialTransform = affine_to_matrix(fInitialTransform);
+
     for (const RectWithData& rectWithURL : fLinkToURLs) {
         SkRect r;
-        fInitialTransform.mapRect(&r, rectWithURL.rect);
+        initialTransform.mapRect(&r, rectWithURL.rect);
         array->appendObjRef(create_link_to_url(rectWithURL.data.get(), r));
     }
     for (const RectWithData& linkToDestination : fLinkToDestinations) {
         SkRect r;
-        fInitialTransform.mapRect(&r, linkToDestination.rect);
+        initialTransform.mapRect(&r, linkToDestination.rect);
         array->appendObjRef(
                 create_link_named_dest(linkToDestination.data.get(), r));
     }
@@ -1525,12 +1528,13 @@ sk_sp<SkPDFArray> SkPDFDevice::getAnnotations() {
 }
 
 void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
+    SkMatrix initialTransform = affine_to_matrix(fInitialTransform);
     for (const NamedDestination& dest : fNamedDestinations) {
         auto pdfDest = sk_make_sp<SkPDFArray>();
         pdfDest->reserve(5);
         pdfDest->appendObjRef(sk_ref_sp(page));
         pdfDest->appendName("XYZ");
-        SkPoint p = fInitialTransform.mapXY(dest.point.x(), dest.point.y());
+        SkPoint p = initialTransform.mapXY(dest.point.x(), dest.point.y());
         pdfDest->appendScalar(p.x());
         pdfDest->appendScalar(p.y());
         pdfDest->appendInt(0);  // Leave zoom unchanged
@@ -1541,8 +1545,8 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
 
 sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
     SkMatrix inverseTransform = SkMatrix::I();
-    if (!fInitialTransform.isIdentity()) {
-        if (!fInitialTransform.invert(&inverseTransform)) {
+    if (fInitialTransform != SkAffineMatrix()) {
+        if (!affine_to_matrix(fInitialTransform).invert(&inverseTransform)) {
             SkDEBUGFAIL("Layer initial transform should be invertible.");
             inverseTransform.reset();
         }
@@ -1782,7 +1786,14 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     NOT_IMPLEMENTED(paint.getMaskFilter() != nullptr, false);
     NOT_IMPLEMENTED(paint.getColorFilter() != nullptr, false);
 
-    entry->fMatrix = matrix;
+
+    SkAffineMatrix affine;
+    if (!matrix.asAffine(affine.fMat)) {
+        SkDebugf("SkPDF: bad matrix:\n");
+        matrix.dump();
+        SkMatrix::SetAffineIdentity(affine.fMat);
+    }
+    entry->fMatrix = affine;
     entry->fClipStack = clipStack ? *clipStack : SkClipStack();
     entry->fColor = SkColorSetA(paint.getColor(), 0xFF);
     entry->fShaderIndex = -1;
@@ -1806,7 +1817,8 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
             // PDF positions patterns relative to the initial transform, so
             // we need to apply the current transform to the shader parameters.
             SkMatrix transform = matrix;
-            transform.postConcat(fInitialTransform);
+            SkMatrix initialTransform = affine_to_matrix(fInitialTransform);
+            transform.postConcat(initialTransform);
 
             // PDF doesn't support kClamp_TileMode, so we simulate it by making
             // a pattern the size of the current clip.
@@ -1814,7 +1826,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
             // We need to apply the initial transform to bounds in order to get
             // bounds in a consistent coordinate system.
-            fInitialTransform.mapRect(&clipStackBounds);
+            initialTransform.mapRect(&clipStackBounds);
             SkIRect bounds;
             clipStackBounds.roundOut(&bounds);
 
@@ -2014,7 +2026,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         // Transform the bitmap in the new space, taking into
         // account the initial transform.
         SkMatrix total = transform;
-        total.postConcat(fInitialTransform);
+        total.postConcat(affine_to_matrix(fInitialTransform));
 
         SkPath physicalPerspectiveOutline;
         physicalPerspectiveOutline.addRect(imageBounds);

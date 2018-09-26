@@ -21,6 +21,7 @@
 #include "SkTextBlobPriv.h"
 #include "SkKeyedImage.h"
 
+#include <cstring>
 #include <vector>
 
 class SkGlyphRunList;
@@ -35,6 +36,31 @@ class SkPDFFont;
 class SkPDFObject;
 class SkPDFStream;
 class SkRRect;
+
+// 2x3 matrix stored column-major.
+// Same order as specified in PDF standard.
+// See PDF32000.book section 8.3.4 "Transformation Matrices"
+// The default value is the identity matrix.
+//
+// Here are examples of how to convert to and from SkMatrix:
+//    bool matrix_to_affine(const SkMatrix& m, SkAffineMatrix* a) {
+//        return m.asAffine(affine->fMat);
+//    }
+//    SkMatrix affine_to_matrix(SkAffineMatrix a) {
+//        SkMatrix m;
+//        m.setAffine(a.fMat);
+//        return m;
+//    }
+SK_BEGIN_REQUIRE_DENSE
+struct SkAffineMatrix {
+    SkScalar fMat[6] = {1, 0, 0, 1, 0, 0};
+};
+SK_END_REQUIRE_DENSE
+
+static inline bool operator==(const SkAffineMatrix& u, const SkAffineMatrix& v) {
+    return 0 == memcmp(&u, &v, sizeof(u));
+}
+static inline bool operator!=(const SkAffineMatrix& u, const SkAffineMatrix& v) { return !(u == v); }
 
 /**
  *  \class SkPDFDevice
@@ -55,7 +81,7 @@ public:
      *  @param initialTransform Transform to be applied to the entire page.
      */
     SkPDFDevice(SkISize pageSize, SkPDFDocument* document,
-                const SkMatrix& initialTransform = SkMatrix::I());
+                const SkAffineMatrix* optionalInitialTransform = nullptr);
 
     sk_sp<SkPDFDevice> makeCongruentDevice() {
         return sk_make_sp<SkPDFDevice>(this->imageInfo().dimensions(), fDocument);
@@ -121,7 +147,7 @@ public:
     // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
     // later being our representation of an object in the PDF file.
     struct GraphicStateEntry {
-        SkMatrix fMatrix = SkMatrix::I();
+        SkAffineMatrix fMatrix;
         SkClipStack fClipStack;
         SkColor fColor = SK_ColorBLACK;
         SkScalar fTextScaleX = 1;  // Zero means we don't care what the value is.
@@ -157,7 +183,7 @@ private:
     // order to get the right access levels without using friend.
     friend class ScopedContentEntry;
 
-    SkMatrix fInitialTransform;
+    SkAffineMatrix fInitialTransform;
 
     std::vector<RectWithData> fLinkToURLs;
     std::vector<RectWithData> fLinkToDestinations;
