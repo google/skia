@@ -222,28 +222,6 @@ static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
     return Op(clipPath, invPath, kIntersect_SkPathOp, outPath);
 }
 
-bool apply_clip(SkClipOp op, const SkPath& u, const SkPath& v, SkPath* r)  {
-    switch (op) {
-        case SkClipOp::kDifference:
-            return Op(u, v, kDifference_SkPathOp, r);
-        case SkClipOp::kIntersect:
-            return Op(u, v, kIntersect_SkPathOp, r);
-#ifdef SK_SUPPORT_DEPRECATED_CLIPOPS
-        case SkClipOp::kUnion_deprecated:
-            return Op(u, v, kUnion_SkPathOp, r);
-        case SkClipOp::kXOR_deprecated:
-            return Op(u, v, kXOR_SkPathOp, r);
-        case SkClipOp::kReverseDifference_deprecated:
-            return Op(u, v, kReverseDifference_SkPathOp, r);
-        case SkClipOp::kReplace_deprecated:
-            *r = v;
-            return true;
-#endif
-        default:
-            return false;
-    }
-}
-
 static SkRect rect_intersect(SkRect u, SkRect v) {
     if (u.isEmpty() || v.isEmpty()) { return {0, 0, 0, 0}; }
     return u.intersect(v) ? u : SkRect{0, 0, 0, 0};
