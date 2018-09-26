@@ -1011,7 +1011,7 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
     // interlaced scanline decoder may need to rewind.
     fSwizzler.reset(nullptr);
 
-    // If SkColorSpaceXform directly supports the encoded PNG format, we should skip format
+    // If skcms directly supports the encoded PNG format, we should skip format
     // conversion in the swizzler (or skip swizzling altogether).
     bool skipFormatConversion = false;
     switch (this->getEncodedInfo().color()) {

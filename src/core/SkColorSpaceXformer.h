@@ -19,7 +19,6 @@
 class SkBitmap;
 class SkColorFilter;
 class SkColorSpace;
-class SkColorSpaceXform;
 class SkImage;
 class SkImageFilter;
 class SkPaint;

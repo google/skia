@@ -6,14 +6,9 @@
  */
 
 #include "SkColorSpaceXform.h"
-#include "SkColorSpaceXformPriv.h"
 #include "SkData.h"
 #include "SkMakeUnique.h"
 #include "../../third_party/skcms/skcms.h"
-
-std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* src, SkColorSpace* dst) {
-    return SkMakeColorSpaceXform(src, dst);
-}
 
 bool SkColorSpaceXform::Apply(SkColorSpace* dstCS, ColorFormat dstFormat, void* dst,
                               SkColorSpace* srcCS, ColorFormat srcFormat, const void* src,
@@ -92,7 +87,7 @@ void SkColorSpace::toProfile(skcms_ICCProfile* profile) const {
     skcms_SetXYZD50(profile, &m);
 }
 
-std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform(SkColorSpace* src, SkColorSpace* dst) {
+std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* src, SkColorSpace* dst) {
     if (src && dst && dst->toXYZD50()) {
         // Construct skcms_ICCProfiles from each color space. For now, support A2B and XYZ.
         // Eventually, only need to support XYZ.

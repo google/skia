@@ -21,7 +21,6 @@
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace.h"
-#include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsGpu.h"

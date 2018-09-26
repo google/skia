@@ -8,7 +8,6 @@
 #include "../src/jumper/SkJumper.h"
 #include "Benchmark.h"
 #include "SkColor.h"
-#include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformer.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkMakeUnique.h"
@@ -16,14 +15,13 @@
 #include "SkRandom.h"
 #include "SkRasterPipeline.h"
 
-enum class Mode { xform, steps, pipeA, pipeB, xformer };
+enum class Mode { steps, pipeA, pipeB, xformer };
 
 struct ColorSpaceXformBench : public Benchmark {
     ColorSpaceXformBench(Mode mode) : fMode(mode) {}
 
     const Mode fMode;
 
-    std::unique_ptr<SkColorSpaceXform>                  fXform;
     std::unique_ptr<SkColorSpaceXformSteps>             fSteps;
     std::function<void(size_t, size_t, size_t, size_t)> fPipeA;
 
@@ -35,7 +33,6 @@ struct ColorSpaceXformBench : public Benchmark {
 
     const char* onGetName() override {
         switch (fMode) {
-            case Mode::xform  : return "ColorSpaceXformBench_xform";
             case Mode::steps  : return "ColorSpaceXformBench_steps";
             case Mode::pipeA  : return "ColorSpaceXformBench_pipeA";
             case Mode::pipeB  : return "ColorSpaceXformBench_pipeB";
@@ -51,7 +48,6 @@ struct ColorSpaceXformBench : public Benchmark {
                             dst = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                         SkColorSpace::kDCIP3_D65_Gamut);
 
-        fXform = SkColorSpaceXform::New(src.get(), dst.get());
         fSteps = skstd::make_unique<SkColorSpaceXformSteps>(src.get(), kOpaque_SkAlphaType,
                                                             dst.get(), kPremul_SkAlphaType);
 
@@ -76,12 +72,6 @@ struct ColorSpaceXformBench : public Benchmark {
             fPipeDst.pixels = &dst;
 
             switch (fMode) {
-                case Mode::xform: {
-                    fXform->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, &dst,
-                                  SkColorSpaceXform::kBGRA_8888_ColorFormat, &src,
-                                  1, kUnpremul_SkAlphaType);
-                } break;
-
                 case Mode::steps: {
                     float rgba[4];
                     swizzle_rb(Sk4f_fromL32(src)).store(rgba);
@@ -116,7 +106,6 @@ struct ColorSpaceXformBench : public Benchmark {
     }
 };
 
-DEF_BENCH(return new ColorSpaceXformBench{Mode::xform  };)
 DEF_BENCH(return new ColorSpaceXformBench{Mode::steps  };)
 DEF_BENCH(return new ColorSpaceXformBench{Mode::pipeA  };)
 DEF_BENCH(return new ColorSpaceXformBench{Mode::pipeB  };)
