@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f409f039_25a37539",
+        "filename": "gm/crbug_884166.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T21:09:23Z",
+      "side": 1,
+      "message": "Is this bigger than it needs to be?",
+      "range": {
+        "startLine": 12,
+        "startChar": 35,
+        "endLine": 12,
+        "endChar": 44
+      },
+      "revId": "18a6ef2524800b59fdc9aaa3d86738a0e2d30be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6afc02bc_d651da83",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1733,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-26T21:09:23Z",
+      "side": 1,
+      "message": "k ?",
+      "range": {
+        "startLine": 1733,
+        "startChar": 25,
+        "endLine": 1733,
+        "endChar": 26
+      },
+      "revId": "18a6ef2524800b59fdc9aaa3d86738a0e2d30be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
