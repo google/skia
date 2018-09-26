@@ -836,9 +836,9 @@ ts_transform_stack_tos_debug(struct ts_transform_stack * const ts)
 {
   union ts_transform_stack_3x3_u const * const t = ts_transform_stack_tos(ts);
 
-  printf("{ { %13.5f, %13.5f, %13.5f, },\n"
-         "  { %13.5f, %13.5f, %13.5f, },\n"
-         "  { %13.5f, %13.5f, %13.5f  } }\n",
+  printf("{ { %13.5f, %13.5f, %13.5f },\n"
+         "  { %13.5f, %13.5f, %13.5f },\n"
+         "  { %13.5f, %13.5f, %13.5f } }\n",
          t->a8[0],
          t->a8[1],
          t->a8[2],
@@ -882,9 +882,10 @@ main(int argc, char * argv[])
 {
   struct ts_transform_stack * const ts = ts_transform_stack_create(32);
 
-  ts_transform_float_t const w = 1600;
-  ts_transform_float_t const h = 1600;
+  ts_transform_float_t const w = 1000;
+  ts_transform_float_t const h = 1000;
 
+#if 1
   ts_transform_stack_push_scale(ts,TS_DEBUG_SCALE,TS_DEBUG_SCALE);
 
   // OpenGL'ism
@@ -893,6 +894,9 @@ main(int argc, char * argv[])
                                  0.0f,-1.0f,h);
   // multiply
   ts_transform_stack_concat(ts);
+#else
+  ts_transform_stack_push_identity(ts);
+#endif
 
   uint32_t const restore = ts_transform_stack_save(ts);
 
@@ -923,7 +927,7 @@ main(int argc, char * argv[])
                                               quad_dst));
   ts_transform_stack_concat(ts);
 
-  ts_debug(ts,quad_tst);
+  ts_debug(ts,quad_src);
 
   //
   // QUAD TO QUAD
@@ -936,7 +940,26 @@ main(int argc, char * argv[])
                                               quad_dst));
   ts_transform_stack_concat(ts);
 
-  ts_debug(ts,quad_tst);
+  ts_debug(ts,quad_src);
+
+  //
+  // DIRECT
+  //
+  ts_transform_stack_restore(ts,restore);
+
+  ts_transform_stack_push_matrix(ts,
+                                 0.87004626f, -0.35519487f,   72.14745f,
+                                 0.0f,         0.2600208f,    86.16314f,
+                                 0.0f,        -0.0029599573f, 1.0f);
+
+  ts_transform_stack_concat(ts);
+
+  ts_transform_float_t const quad_foo[8] = { -10,  10,
+                                             130,  10,
+                                             130,  110,
+                                             -10,  110 };
+
+  ts_debug(ts,quad_foo);
 
   return EXIT_SUCCESS;
 }

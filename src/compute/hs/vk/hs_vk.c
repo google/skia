@@ -8,6 +8,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "common/util.h"
 #include "common/macros.h"
@@ -700,6 +701,73 @@ hs_vk_sort(struct hs_vk const * const hs,
 //
 //
 
+#ifdef HS_VK_VERBOSE_AMD
+
+#include <stdio.h>
+
+static
+void
+hs_vk_verbose_amd(VkDevice device, struct hs_vk const * const hs)
+{
+  PFN_vkGetShaderInfoAMD vkGetShaderInfoAMD =
+    (PFN_vkGetShaderInfoAMD)
+    vkGetDeviceProcAddr(device,"vkGetShaderInfoAMD");
+
+  if (vkGetShaderInfoAMD == NULL)
+    return;
+
+  fprintf(stderr,
+          "                                   PHY   PHY  AVAIL AVAIL\n"
+          "VGPRs SGPRs LDS_MAX LDS/WG  SPILL VGPRs SGPRs VGPRs SGPRs       WORKGROUP_SIZE\n");
+
+  for (uint32_t ii=0; ii<hs->pipelines.count; ii++)
+    {
+      VkShaderStatisticsInfoAMD ssi_amd;
+      size_t                    ssi_amd_size = sizeof(ssi_amd);
+
+      if (vkGetShaderInfoAMD(hs->device,
+                             hs->pipelines.all[ii],
+                             VK_SHADER_STAGE_COMPUTE_BIT,
+                             VK_SHADER_INFO_TYPE_STATISTICS_AMD,
+                             &ssi_amd_size,
+                             &ssi_amd) != VK_SUCCESS)
+        return;
+
+      fprintf(stderr,
+              "%5" PRIu32 " "
+              "%5" PRIu32 "   "
+              "%5" PRIu32 " "
+
+              "%6zu "
+              "%6zu "
+
+              "%5" PRIu32 " "
+              "%5" PRIu32 " "
+              "%5" PRIu32 " "
+              "%5" PRIu32 " "
+
+              "( %6" PRIu32 ", " "%6" PRIu32 ", " "%6" PRIu32 ")\n",
+              ssi_amd.resourceUsage.numUsedVgprs,
+              ssi_amd.resourceUsage.numUsedSgprs,
+              ssi_amd.resourceUsage.ldsSizePerLocalWorkGroup,
+              ssi_amd.resourceUsage.ldsUsageSizeInBytes,    // size_t
+              ssi_amd.resourceUsage.scratchMemUsageInBytes, // size_t
+              ssi_amd.numPhysicalVgprs,
+              ssi_amd.numPhysicalSgprs,
+              ssi_amd.numAvailableVgprs,
+              ssi_amd.numAvailableSgprs,
+              ssi_amd.computeWorkGroupSize[0],
+              ssi_amd.computeWorkGroupSize[1],
+              ssi_amd.computeWorkGroupSize[2]);
+    }
+}
+
+#endif
+
+//
+//
+//
+
 struct hs_vk *
 hs_vk_create(struct hs_vk_target   const * const target,
              VkDevice                            device,
@@ -937,6 +1005,17 @@ hs_vk_create(struct hs_vk_target   const * const target,
   // TRANSPOSE
   hs->pipelines.transpose = pipeline_next;
   pipeline_next          += 1;
+
+  //
+  // optionally dump pipeline stats
+  //
+#ifdef HS_VK_VERBOSE_AMD
+  hs_vk_verbose_amd(device,hs);
+#endif
+
+  //
+  //
+  //
 
   return hs;
 }
