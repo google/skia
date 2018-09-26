@@ -42,6 +42,8 @@ bool SkPackedArrayEqual(T* u, T* v, size_t n) {
 
 namespace SkPDFUtils {
 
+const char* BlendModeName(SkBlendMode);
+
 sk_sp<SkPDFArray> RectToArray(const SkRect& rect);
 sk_sp<SkPDFArray> MatrixToArray(const SkMatrix& matrix);
 
