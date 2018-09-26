@@ -34,6 +34,24 @@
       "revId": "e43d52a38585c37c03355c185ae4f1f46d59bcc3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d0ce6d9_a5c07585",
+        "filename": "src/pdf/SkPDFDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-26T16:45:18Z",
+      "side": 1,
+      "message": "Mike: done.\n\n    // 2x3 matrix stored column-major.\n    // Same order as specified in PDF standard.\n    // See PDF32000.book section 8.3.4 \"Transformation Matrices\"\n    // The default value is the identity matrix.\n\nBen, here is more documentation on how to use this struct.  If Mike wants to modify the public API, that\u0027s great.  I\u0027ll even write the follow-on CL to do that.\n\n    // Here are examples of how to convert to and from SkMatrix:\n    //    bool matrix_to_affine(const SkMatrix\u0026 m, SkAffineMatrix* a) {\n    //        return m.asAffine(affine-\u003efMat);\n    //    }\n    //    SkMatrix affine_to_matrix(SkAffineMatrix a) {\n    //        SkMatrix m;\n    //        m.setAffine(a.fMat);\n    //        return m;\n    //    }\n\n(By the way, this is why I didn\u0027t call it SkPDFAffineMatrix:  it\u0027s more general than that.)",
+      "parentUuid": "306c7a6d_5ecd40e3",
+      "revId": "e43d52a38585c37c03355c185ae4f1f46d59bcc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
