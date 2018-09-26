@@ -8,7 +8,6 @@
 #ifndef DDLTileHelper_DEFINED
 #define DDLTileHelper_DEFINED
 
-#include "SkDeferredDisplayListRecorder.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceCharacterization.h"
@@ -49,14 +48,12 @@ public:
         void reset();
 
     private:
-        sk_sp<SkSurface>                               fSurface;
-        SkSurfaceCharacterization                      fCharacterization;
-        SkIRect                                        fClip;          // in the device space of
-                                                                       // the destination canvas
-        sk_sp<SkPicture>                               fReconstitutedPicture;
-        std::unique_ptr<SkDeferredDisplayListRecorder> fDDLRecorder;
-        SkTArray<sk_sp<SkImage>>                       fPromiseImages; // All the promise images in
-                                                                       // the reconstituted picture
+        sk_sp<SkSurface>                       fSurface;
+        SkSurfaceCharacterization              fCharacterization;
+        SkIRect                                fClip;    // in the device space of the dest canvas
+        sk_sp<SkPicture>                       fReconstitutedPicture;
+        SkTArray<sk_sp<SkImage>>               fPromiseImages; // All the promise images in the
+                                                               // reconstituted picture
         std::unique_ptr<SkDeferredDisplayList> fDisplayList;
     };
 
