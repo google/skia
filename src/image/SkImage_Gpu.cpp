@@ -875,21 +875,27 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
         slotUsed[yuvaIndices[i].fIndex] = true;
     }
 
-    GrPixelConfig configs[4] = { kUnknown_GrPixelConfig, kUnknown_GrPixelConfig,
-                                 kUnknown_GrPixelConfig, kUnknown_GrPixelConfig };
-    PromiseImageHelper promiseHelpers[4];
-    SkYUVAIndex localIndices[4];
+    // Temporarily work around an MSVC compiler bug. Copying the arrays directly into the lambda
+    // doesn't work on some older tool chains
+    struct {
+        GrPixelConfig fConfigs[4] = { kUnknown_GrPixelConfig, kUnknown_GrPixelConfig,
+                                      kUnknown_GrPixelConfig, kUnknown_GrPixelConfig };
+        PromiseImageHelper fPromiseHelpers[4];
+        SkYUVAIndex fLocalIndices[4];
+    } params;
+
+
     for (int i = 0; i < 4; ++i) {
-        localIndices[i] = yuvaIndices[i];
+        params.fLocalIndices[i] = yuvaIndices[i];
 
         if (slotUsed[i]) {
-            promiseHelpers[i].set(textureFulfillProc, textureReleaseProc,
-                                  promiseDoneProc, textureContexts[i]);
+            params.fPromiseHelpers[i].set(textureFulfillProc, textureReleaseProc,
+                                          promiseDoneProc, textureContexts[i]);
 
             // DDL TODO: This (the kAlpha_8) only works for non-NV12 YUV textures
             if (!context->contextPriv().caps()->getConfigFromBackendFormat(yuvaFormats[i],
                                                                            kAlpha_8_SkColorType,
-                                                                           &configs[i])) {
+                                                                           &params.fConfigs[i])) {
                 return nullptr;
             }
         }
@@ -899,12 +905,19 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = imageWidth;
     desc.fHeight = imageHeight;
-    desc.fConfig = configs[localIndices[0].fIndex]; // Hack since we're just returning the Y-plane
+    // Hack since we're just returning the Y-plane
+    desc.fConfig = params.fConfigs[params.fLocalIndices[0].fIndex];
     desc.fSampleCnt = 1;
 
+
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [=](GrResourceProvider* resourceProvider) mutable {
+            [params](GrResourceProvider* resourceProvider) mutable {
                 if (!resourceProvider) {
+                    for (int i = 0; i < 4; ++i) {
+                        if (params.fPromiseHelpers[i].isValid()) {
+                            params.fPromiseHelpers[i].reset();
+                        }
+                    }
                     return sk_sp<GrTexture>();
                 }
 
@@ -912,9 +925,9 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
                 // feed into the SkImage_GpuYUVA factory.
                 GrBackendTexture yuvaTextures[4];
                 for (int i = 0; i < 4; ++i) {
-                    if (promiseHelpers[i].isValid()) {
-                        sk_sp<GrTexture> tmp = promiseHelpers[i].getTexture(resourceProvider,
-                                                                            configs[i]);
+                    if (params.fPromiseHelpers[i].isValid()) {
+                        sk_sp<GrTexture> tmp = params.fPromiseHelpers[i].getTexture(
+                            resourceProvider, params.fConfigs[i]);
                         if (!tmp) {
                             return sk_sp<GrTexture>();
                         }
@@ -926,8 +939,9 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
                 // For the time being, simply return the Y-plane. The reason for this is that
                 // this lazy proxy is instantiated at flush time, after the sort, therefore
                 // we cannot be introducing a new opList (in order to render the YUV texture).
-                int yIndex = localIndices[0].fIndex;
-                return promiseHelpers[yIndex].getTexture(resourceProvider, configs[yIndex]);
+                int yIndex = params.fLocalIndices[0].fIndex;
+                return params.fPromiseHelpers[yIndex].getTexture(resourceProvider,
+                                                                 params.fConfigs[yIndex]);
 #else
                 GrGpu* gpu = resourceProvider->priv().gpu();
                 GrContext* context = gpu->getContext();
