@@ -46,16 +46,27 @@ public:
             SkPoint origin, const SkMatrix& deviceMatrix,
             PerGlyphT perGlyph, PerPathT perPath);
 
+    enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };
+
+    using ARGBFallback =
+    std::function<void(const SkPaint& fallbackPaint, // The run paint maybe with a new text size
+                       SkSpan<const SkGlyphID> fallbackGlyphIDs, // Colored glyphs
+                       SkSpan<const SkPoint> fallbackPositions,  // Positions of above glyphs
+                       SkScalar fallbackTextScale,               // Scale factor for glyph
+                       const SkMatrix& glyphCacheMatrix,         // Matrix of glyph cache
+                       NeedsTransform handleTransformLater)>;    // Positions / glyph transformed
+
     // Draw glyphs as paths with fallback to scaled ARGB glyphs if color is needed.
     // PerPath - perPath(const SkGlyph&, SkPoint position)
     // FallbackARGB - fallbackARGB(SkSpan<const SkGlyphID>, SkSpan<const SkPoint>)
     // For each glyph that is not ARGB call perPath. If the glyph is ARGB then store the glyphID
     // and the position in fallback vectors. After all the glyphs are processed, pass the
     // fallback glyphIDs and positions to fallbackARGB.
-    template <typename PerPath, typename FallbackARGB>
+    template <typename PerPath>
     void drawGlyphRunAsPathWithARGBFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-            SkPoint origin, PerPath perPath, FallbackARGB fallbackARGB);
+            SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
+            PerPath perPath, ARGBFallback fallbackARGB);
 
     template <typename PerSDFT, typename PerPathT, typename PerFallbackT>
     void drawGlyphRunAsSDFWithFallback(
@@ -67,6 +78,9 @@ private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
     bool ensureBitmapBuffers(size_t runSize);
 
+    void processARGBFallback(
+            SkScalar maxGlyphDimension, const SkPaint& runPaint, SkPoint origin,
+            const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback);
 
     template <typename EachGlyph>
     void forEachMappedDrawableGlyph(
@@ -91,6 +105,10 @@ private:
     const SkScalerContextFlags fScalerContextFlags;
     size_t fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+
+    // Vectors for tracking ARGB fallback information.
+    std::vector<SkGlyphID> fARGBGlyphsIDs;
+    std::vector<SkPoint>   fARGBPositions;
 };
 
 inline static SkRect rect_to_draw(
@@ -143,17 +161,17 @@ void SkGlyphRunListPainter::forEachMappedDrawableGlyph(
     }
 }
 
-template <typename PerPathT, typename FallbackARGB>
+template <typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
         SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun,
-        SkPoint origin, PerPathT perPath, FallbackARGB fallbackARGB) {
-    std::vector<SkGlyphID> fallbackGlyphIDs;
-    std::vector<SkPoint> fallbackPositions;
+        SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
+        PerPathT perPath, ARGBFallback argbFallback) {
+    fARGBGlyphsIDs.clear();
+    fARGBPositions.clear();
     SkScalar maxFallbackDimension{-SK_ScalarInfinity};
 
     auto eachGlyph =
-            [pathCache, origin, perPath{std::move(perPath)},
-             &fallbackGlyphIDs, &fallbackPositions, &maxFallbackDimension]
+            [this, pathCache, origin, perPath{std::move(perPath)}, &maxFallbackDimension]
             (SkGlyphID glyphID, SkPoint position) {
                 if (SkScalarsAreFinite(position.x(), position.y())) {
                     const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
@@ -163,8 +181,8 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
                         } else {
                             SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
                             maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
-                            fallbackGlyphIDs.push_back(glyphID);
-                            fallbackPositions.push_back(position);
+                            fARGBGlyphsIDs.push_back(glyphID);
+                            fARGBPositions.push_back(position);
                         }
                     }
                 }
@@ -172,10 +190,10 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
 
     glyphRun.forEachGlyphAndPosition(eachGlyph);
 
-    if (!fallbackGlyphIDs.empty()) {
-        fallbackARGB(SkSpan<const SkGlyphID>{fallbackGlyphIDs},
-                     SkSpan<const SkPoint>{fallbackPositions},
-                     maxFallbackDimension);
+    if (!fARGBGlyphsIDs.empty()) {
+        this->processARGBFallback(
+            maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale, argbFallback);
+
     }
 }
 
