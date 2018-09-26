@@ -165,7 +165,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     // Try directly creating the texture.
                     // Do this twice in an attempt to hit the cache on the second time through.
                     for (int i = 0; i < 2; ++i) {
-                        sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(
+                        auto proxy = proxyProvider->testingOnly_createInstantiatedProxy(
                                 desc, origin, fit, SkBudgeted::kYes);
                         if (!proxy) {
                             continue;
