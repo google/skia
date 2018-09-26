@@ -97,6 +97,8 @@ gm_sources = [
   "$_gm/crbug_691386.cpp",
   "$_gm/crbug_788500.cpp",
   "$_gm/crbug_847759.cpp",
+  "$_gm/crbug_884166.cpp",
+  "$_gm/crbug_887103.cpp",
   "$_gm/croppedrects.cpp",
   "$_gm/crosscontextimage.cpp",
   "$_gm/cubicpaths.cpp",
