@@ -132,6 +132,7 @@ def trigger_and_wait(options):
       ret = json.loads(output)
     except ValueError, e:
       print e
+      print output
       raise AndroidCompileException(INFRA_FAILURE_ERROR_MSG)
 
     if ret.get('infra_failure'):
