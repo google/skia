@@ -3137,12 +3137,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     SkASSERT(main);
     for (auto entry : fVariableMap) {
         const Variable* var = entry.first;
-        int builtin = var->fModifiers.fLayout.fBuiltin;
         if (var->fStorage == Variable::kGlobal_Storage &&
             ((var->fModifiers.fFlags & Modifiers::kIn_Flag) ||
-             (var->fModifiers.fFlags & Modifiers::kOut_Flag)) &&
-             builtin != SK_OUT_BUILTIN &&
-             builtin != SK_INVOCATIONID_BUILTIN) {
+             (var->fModifiers.fFlags & Modifiers::kOut_Flag))) {
             interfaceVars.insert(entry.second);
         }
     }
