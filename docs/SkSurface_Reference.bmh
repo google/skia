@@ -3,6 +3,103 @@
 
 #Class SkSurface
 
+#Code
+class SkSurface : public SkRefCnt {
+public:
+    static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels,
+                                             size_t rowBytes,
+                                             const SkSurfaceProps* surfaceProps = nullptr);
+    static sk_sp<SkSurface> MakeRasterDirectReleaseProc(const SkImageInfo& imageInfo, void* pixels,
+                                    size_t rowBytes,
+                                    void (*releaseProc)(void* pixels, void* context),
+                                    void* context, const SkSurfaceProps* surfaceProps = nullptr);
+    static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, size_t rowBytes,
+                                       const SkSurfaceProps* surfaceProps);
+    static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo,
+                                       const SkSurfaceProps* props = nullptr);
+    static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
+                                                const SkSurfaceProps* surfaceProps = nullptr);
+    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
+                                                   const GrBackendTexture& backendTexture,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   SkColorType colorType,
+                                                   sk_sp<SkColorSpace> colorSpace,
+                                                   const SkSurfaceProps* surfaceProps);
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
+                                                const GrBackendRenderTarget& backendRenderTarget,
+                                                GrSurfaceOrigin origin,
+                                                SkColorType colorType,
+                                                sk_sp<SkColorSpace> colorSpace,
+                                                const SkSurfaceProps* surfaceProps);
+    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,
+                                                            const GrBackendTexture& backendTexture,
+                                                            GrSurfaceOrigin origin,
+                                                            int sampleCnt,
+                                                            SkColorType colorType,
+                                                            sk_sp<SkColorSpace> colorSpace,
+                                                            const SkSurfaceProps* surfaceProps);
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& imageInfo,
+                                             int sampleCount, GrSurfaceOrigin surfaceOrigin,
+                                             const SkSurfaceProps* surfaceProps,
+                                             bool shouldCreateWithMips = false);
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& imageInfo, int sampleCount,
+                                             const SkSurfaceProps* props);
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& imageInfo);
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context,
+                                             const SkSurfaceCharacterization& characterization,
+                                             SkBudgeted budgeted);
+    static sk_sp<SkSurface> MakeNull(int width, int height);
+    int width() const;
+    int height() const;
+    uint32_t generationID();
+
+    enum ContentChangeMode {
+        kDiscard_ContentChangeMode,
+        kRetain_ContentChangeMode,
+    };
+
+    void notifyContentWillChange(ContentChangeMode mode);
+
+    enum BackendHandleAccess {
+        kFlushRead_BackendHandleAccess,
+        kFlushWrite_BackendHandleAccess,
+        kDiscardWrite_BackendHandleAccess,
+    };
+
+    static const BackendHandleAccess kFlushRead_TextureHandleAccess =
+        kFlushRead_BackendHandleAccess;
+    static const BackendHandleAccess kFlushWrite_TextureHandleAccess =
+        kFlushWrite_BackendHandleAccess;
+    static const BackendHandleAccess kDiscardWrite_TextureHandleAccess =
+        kDiscardWrite_BackendHandleAccess;
+
+    GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
+    GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
+    SkCanvas* getCanvas();
+    sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo);
+    sk_sp<SkImage> makeImageSnapshot();
+    void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint);
+    bool peekPixels(SkPixmap* pixmap);
+    bool readPixels(const SkPixmap& dst, int srcX, int srcY);
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY);
+    bool readPixels(const SkBitmap& dst, int srcX, int srcY);
+    void writePixels(const SkPixmap& src, int dstX, int dstY);
+    void writePixels(const SkBitmap& src, int dstX, int dstY);
+    const SkSurfaceProps& props() const;
+    void prepareForExternalIO();
+    void flush();
+    GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
+                                                   GrBackendSemaphore signalSemaphores[]);
+    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+    bool characterize(SkSurfaceCharacterization* characterization) const;
+    bool draw(SkDeferredDisplayList* deferredDisplayList);
+};
+##
+
 SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
 allocated either in CPU memory (a raster surface) or on the GPU (a GrRenderTarget surface).
 SkSurface takes care of allocating a SkCanvas that will draw into the surface. Call
@@ -14,27 +111,27 @@ of the requested dimensions are zero, then nullptr will be returned.
 #Populate
 ##
 
-#Subtopic Constant
+#Subtopic Constants
 #Populate
 ##
 
-#Subtopic Related_Function
+#Subtopic Related_Functions
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
 # ------------------------------------------------------------------------------
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
 #Method static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels,
                                              size_t rowBytes,
                                              const SkSurfaceProps* surfaceProps = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Surface from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
@@ -98,7 +195,7 @@ void draw(SkCanvas* ) {
                                     size_t rowBytes,
                                     void (*releaseProc)(void* pixels, void* context),
                                     void* context, const SkSurfaceProps* surfaceProps = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Surface from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
@@ -174,7 +271,7 @@ expected release context
 
 #Method static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, size_t rowBytes,
                                        const SkSurfaceProps* surfaceProps)
-#In Constructor
+#In Constructors
 #Line # creates Surface from SkImageInfo ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
@@ -291,7 +388,7 @@ void draw(SkCanvas* ) {
 
 #Method static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
                                                 const SkSurfaceProps* surfaceProps = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Surface from width, height matching output ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
@@ -354,7 +451,7 @@ void draw(SkCanvas* ) {
                                                    SkColorType colorType,
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps)
-#In Constructor
+#In Constructors
 #Line # creates Surface from GPU texture ##
 
 Wraps a GPU-backed texture into Surface. Caller must ensure the texture is
@@ -414,7 +511,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                 SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps)
-#In Constructor
+#In Constructors
 #Line # creates Surface from GPU render target ##
 
 Wraps a GPU-backed buffer into Surface. Caller must ensure backendRenderTarget
@@ -473,7 +570,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                             SkColorType colorType,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps)
-#In Constructor
+#In Constructors
 #Line # creates Surface from GPU back-end render target ##
 
 Wraps a GPU-backed texture into Surface. Caller must ensure backendTexture is
@@ -535,7 +632,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                              int sampleCount, GrSurfaceOrigin surfaceOrigin,
                                              const SkSurfaceProps* surfaceProps,
                                              bool shouldCreateWithMips = false)
-#In Constructor
+#In Constructors
 #Line # creates Surface pointing to new GPU memory buffer ##
 
 Returns Surface on GPU indicated by context. Allocates memory for
@@ -740,7 +837,7 @@ characterization. budgeted selects whether allocation for pixels is tracked by c
 
 #Method static sk_sp<SkSurface> MakeNull(int width, int height)
 
-#In Constructor
+#In Constructors
 #Line # creates Surface without backing pixels ##
 Returns Surface without backing pixels. Drawing to Canvas returned from Surface
 has no effect. Calling makeImageSnapshot() on returned Surface returns nullptr.
@@ -1080,7 +1177,7 @@ is deleted.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo)
-#In Constructor
+#In Constructors
 #Line # creates a compatible Surface ##
 Returns a compatible Surface, or nullptr. Returned Surface contains
 the same raster, GPU, or null properties as the original. Returned Surface
@@ -1121,7 +1218,7 @@ is incompatible with Surface.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkImage> makeImageSnapshot()
-#In Constructor
+#In Constructors
 #Line # creates Image capturing Surface contents ##
 Returns Image capturing Surface contents. Subsequent drawing to Surface contents
 are not captured. Image allocation is accounted for if Surface was created with
