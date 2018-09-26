@@ -157,6 +157,11 @@ public:
 
     bool onIsValid(GrContext*) const override;
 
+    void resetContext(sk_sp<GrContext> newContext) {
+        SkASSERT(fContext->uniqueID() == newContext->uniqueID());
+        fContext = newContext;
+    }
+
 private:
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(
             GrContext* ctx, SkYUVColorSpace colorSpace, const GrBackendTexture yuvaTextures[],

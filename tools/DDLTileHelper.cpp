@@ -24,22 +24,36 @@ DDLTileHelper::TileData::TileData(sk_sp<SkSurface> s, const SkIRect& clip)
 
 void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureData,
                                                     const DDLPromiseImageHelper& helper) {
-    SkASSERT(!fReconstitutedPicture && !fDDLRecorder);
+    SkASSERT(!fReconstitutedPicture);
 
-    // We need the tile's DDL recorder at this point so the created promise images will
-    // point at the correct GrContext
-    fDDLRecorder.reset(new SkDeferredDisplayListRecorder(fCharacterization));
+    // This is bending the DDLRecorder contract! The promise images in the SKP should be
+    // created by the same recorder used to create the matching DDL.
+    SkDeferredDisplayListRecorder recorder(fCharacterization);
 
-    fReconstitutedPicture = helper.reinflateSKP(fDDLRecorder.get(),
-                                                compressedPictureData,
-                                                &fPromiseImages);
+    fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
 }
 
 void DDLTileHelper::TileData::createDDL() {
     SkASSERT(fReconstitutedPicture);
     SkASSERT(!fDisplayList);
 
-    SkCanvas* subCanvas = fDDLRecorder->getCanvas();
+    SkDeferredDisplayListRecorder recorder(fCharacterization);
+
+    // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
+    // Maybe set it up in the ctor?
+    SkCanvas* subCanvas = recorder.getCanvas();
+
+    // Because we cheated in createTileSpecificSKP and used the wrong DDLRecorder, the GrContext's
+    // stored in fReconstitutedPicture's promise images are incorrect. Patch them with the correct
+    // one now.
+    for (int i = 0; i < fPromiseImages.count(); ++i) {
+        GrContext* newContext = subCanvas->getGrContext();
+
+        if (fPromiseImages[i]->isTextureBacked()) {
+            SkImage_Gpu* gpuImage = (SkImage_Gpu*) fPromiseImages[i].get();
+            gpuImage->resetContext(sk_ref_sp(newContext));
+        }
+    }
 
     subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
     subCanvas->translate(-fClip.fLeft, -fClip.fTop);
@@ -48,8 +62,7 @@ void DDLTileHelper::TileData::createDDL() {
     // but, more generally, clients will use arbitrary draw calls.
     subCanvas->drawPicture(fReconstitutedPicture);
 
-    fDisplayList = fDDLRecorder->detach();
-    fDDLRecorder.reset();
+    fDisplayList = recorder.detach();
 }
 
 void DDLTileHelper::TileData::draw() {
