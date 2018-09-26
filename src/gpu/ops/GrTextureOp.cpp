@@ -274,7 +274,48 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
     // order.
     auto nextCW  = [](const Sk4f& v) { return SkNx_shuffle<2, 0, 3, 1>(v); };
     auto nextCCW = [](const Sk4f& v) { return SkNx_shuffle<1, 3, 0, 2>(v); };
+    /*********************************************************************************************/
+#if 1
+    // Compute edge equations for the quad.
+    auto xnext = nextCCW(*x);
+    auto ynext = nextCCW(*y);
+    // xdiff and ydiff comprise the vectors pointing along each quad edge.
+    auto xdiff = xnext - *x;
+    auto ydiff = ynext - *y;
+    *c = fma(xnext, *y,  -ynext * *x);
 
+    // Normalize.
+    Sk4f invNormLengths = fma(xdiff, xdiff, ydiff * ydiff).rsqrt();
+    xdiff *= invNormLengths;
+    ydiff *= invNormLengths;
+    *c *= invNormLengths;
+
+    // Make sure the edge equations have their normals facing into the quad in device space.
+    auto test = fma(ydiff, nextCW(*x), fma(-xdiff, nextCW(*y), *c));
+    if ((test < Sk4f(0)).anyTrue()) {
+        *a = -ydiff;
+        *b = xdiff;
+        *c = -*c;
+    } else {
+        *a = ydiff;
+        *b = -xdiff;
+    }
+    // outset the edge equations so aa coverage evaluates to zero half a pixel away from the edge.
+    *c -= 0.5f;
+
+    // We *could* use the outset edge equations to compute new outset vertices. However, in the
+    // future we will sometimes be applying aa to some edges and not others. Consider a vertex at
+    // the intersection of an outset and non-outset edge. In the case where the non-outset edge is
+    // shared with another quad we want to ensure that the vertex is outset such that the two
+    // quads sharing the edge will compute the exact same vertex an therefore render water tight.
+    // To accomplish this we perform the outset of the vertex using the vector connecting the two
+    // vertices on the the shared edge.
+
+    // Outset each corner by half a pixel twice, once by each adjacent vector.
+    *x += 0.5f * (-xdiff + nextCW(xdiff));
+    *y += 0.5f * (-ydiff + nextCW(ydiff));
+    /*********************************************************************************************/
+#else
     auto xnext = nextCCW(*x);
     auto ynext = nextCCW(*y);
     *a = ynext - *y;
@@ -306,6 +347,7 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
     auto ic = (fma(anext, *b, -bnext * *a)).invert();
     *x *= ic;
     *y *= ic;
+#endif
 }
 
 namespace {
