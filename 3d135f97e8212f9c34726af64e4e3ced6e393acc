@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67beb66b_756fc83c",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-26T15:04:24Z",
+      "side": 1,
+      "message": "Since this method may update \u0027cur\u0027, isn\u0027t this parameter just a \u0027this\u0027 parameter? In other words, is there a reason not to make this a method on GraphicStateEntry? Is it important that GraphicStateEntry not have methods? It seems like this is just generating setters for GraphicStateEntry fields which return bool indicating if the value is changed or not, and it seems like things would read easier that way as well.",
+      "range": {
+        "startLine": 393,
+        "startChar": 32,
+        "endLine": 393,
+        "endChar": 67
+      },
+      "revId": "3d135f97e8212f9c34726af64e4e3ced6e393acc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
