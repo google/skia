@@ -22,6 +22,30 @@
       "revId": "e8aefbcaa38f53f45c59ac3f9e1c6297ba119d87",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2979d03_8f5f4d79",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done\n\nI now use malloc instead of calloc because of your other \"Can we share code with the original creation of fDecoder\" comment.",
+      "parentUuid": "b69d2a02_03ff1e4f",
+      "range": {
+        "startLine": 688,
+        "startChar": 24,
+        "endLine": 688,
+        "endChar": 30
+      },
+      "revId": "e8aefbcaa38f53f45c59ac3f9e1c6297ba119d87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

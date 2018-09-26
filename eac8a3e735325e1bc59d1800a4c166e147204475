@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "915c106c_47b484d9",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91afe051_04e93a92",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 51
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0056665_5cb3b769",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -62,6 +86,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ccb50b2_5730d1b6",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0056665_5cb3b769",
+      "range": {
+        "startLine": 69,
+        "startChar": 4,
+        "endLine": 69,
+        "endChar": 11
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "82a3d70f_47dd19ab",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "It is, but I think it\u0027s fine. I can already write a plain text file starting with \"GIF89a is a wonderful format\", but that\u0027s not a valid GIF file, even if it passes the previous (stricter) magic sniff test.",
+      "parentUuid": "d76b189c_8d2faf42",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 74
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8492dc0_d694b07c",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -108,6 +180,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe6e71de_8d1754ab",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8492dc0_d694b07c",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 91
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +230,30 @@
     },
     {
       "key": {
+        "uuid": "04d3ae02_081a416b",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Because the PNG spec has *u*int32_t width and height (https://www.w3.org/TR/2003/REC-PNG-20031110/#11IHDR), so a valid PNG image could be correctly parsed by Wuffs but should be rejected by Skia (which uses *signed* int\u0027s for width and height).\n\nYes, this CL is specifically about GIF, but the Wuffs image API aims to be format-agnostic, and allow uint32_t width and height, while always concious of integer overflow. And, in the future, it\u0027s possible to use Wuffs to decode PNGs (and other formats).",
+      "parentUuid": "f510ecae_3db91c28",
+      "range": {
+        "startLine": 171,
+        "startChar": 25,
+        "endLine": 171,
+        "endChar": 40
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ede9b838_43f03283",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -154,6 +274,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81a45b53_bf66bb58",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Calling \"malloc(workbuf_len)\" will implicitly truncate the argument from uint64_t to size_t. Obviously, on 32 bit systems, these aren\u0027t the same types, and part of the point of Wuffs is to be careful about overflow, especially re memory.",
+      "parentUuid": "ede9b838_43f03283",
+      "range": {
+        "startLine": 178,
+        "startChar": 23,
+        "endLine": 178,
+        "endChar": 31
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -180,6 +324,30 @@
     },
     {
       "key": {
+        "uuid": "6b7625dc_202dd7ac",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "OK, I dropped most of the comment.",
+      "parentUuid": "4ec74e7c_242b822c",
+      "range": {
+        "startLine": 206,
+        "startChar": 54,
+        "endLine": 207,
+        "endChar": 57
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "920f829b_64ebdada",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -200,6 +368,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13052bb1_782a8aa0",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "920f829b_64ebdada",
+      "range": {
+        "startLine": 320,
+        "startChar": 31,
+        "endLine": 320,
+        "endChar": 48
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -226,6 +418,30 @@
     },
     {
       "key": {
+        "uuid": "8706ef6d_0c4c2bc2",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e58a34ce_729e3418",
+      "range": {
+        "startLine": 422,
+        "startChar": 28,
+        "endLine": 422,
+        "endChar": 33
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e4e5945_af3b4402",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -246,6 +462,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1534dede_06b82519",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e4e5945_af3b4402",
+      "range": {
+        "startLine": 427,
+        "startChar": 61,
+        "endLine": 427,
+        "endChar": 77
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -272,6 +512,30 @@
     },
     {
       "key": {
+        "uuid": "33f79c5e_63fd3900",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "It doesn\u0027t need to be, I suppose, but I think that the control flow is clearer as a separate method, as readFrames can return early in a couple of places.",
+      "parentUuid": "d1e546b6_a5a93d8a",
+      "range": {
+        "startLine": 451,
+        "startChar": 19,
+        "endLine": 451,
+        "endChar": 29
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3746dc83_89529ebf",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -292,6 +556,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abcaa4ce_3a4082d7",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done re \"this-\u003eetc\".\n\nAs for resuming, I think it should be fine to call readFrames multiple times, on partial input. Is there a particular scenario you\u0027d like me to walk through? See also the code review comment below on \"fFramesComplete \u003d true\".",
+      "parentUuid": "3746dc83_89529ebf",
+      "range": {
+        "startLine": 454,
+        "startChar": 8,
+        "endLine": 454,
+        "endChar": 17
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -318,6 +606,30 @@
     },
     {
       "key": {
+        "uuid": "9f907349_2806b373",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e8626e7_6194fe96",
+      "range": {
+        "startLine": 461,
+        "startChar": 31,
+        "endLine": 461,
+        "endChar": 48
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d617712_6cb41944",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -341,6 +653,30 @@
     },
     {
       "key": {
+        "uuid": "975eb989_28efec7f",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "No, it will be called multiple times, until we either hit wuffs_base__warning__end_of_data (the explicit 0x3B \"Trailer\" byte in the GIF format) or we hit INT_MAX frames. For partial input, we\u0027ll get a wuffs_base__suspension__short_read status and return early (10 or so lines above) before hitting this line.",
+      "parentUuid": "7d617712_6cb41944",
+      "range": {
+        "startLine": 478,
+        "startChar": 4,
+        "endLine": 478,
+        "endChar": 26
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0c3e0e7_b189b3a6",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -352,6 +688,30 @@
       "writtenOn": "2018-09-25T19:52:33Z",
       "side": 1,
       "message": "What does this method return?",
+      "range": {
+        "startLine": 483,
+        "startChar": 33,
+        "endLine": 483,
+        "endChar": 51
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec45bc36_fb93970a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "I\u0027m sorry, but I don\u0027t understand the question. Are you asking about types? It returns a uint64_t. Are you asking about the semantics of the number? It returns, uh, the number of decoded frames: the number of frames that fDecoder has successfully decoded (or skipped over) as it runs forward through the stream of input data.",
+      "parentUuid": "f0c3e0e7_b189b3a6",
       "range": {
         "startLine": 483,
         "startChar": 33,
@@ -387,6 +747,30 @@
     },
     {
       "key": {
+        "uuid": "3c82e418_0e119f0a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b8d1e01_7cd7093c",
+      "range": {
+        "startLine": 489,
+        "startChar": 30,
+        "endLine": 489,
+        "endChar": 42
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f9d5e5b_acd321c1",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -398,6 +782,30 @@
       "writtenOn": "2018-09-25T19:52:33Z",
       "side": 1,
       "message": "Should this update fPreviousBestNumFullyReceived? And then seekFrame can call this method?\n\nOtherwise it seems like fPreviousBestNumFullyReceived could be out of date, although it looks like no other method reads it.\n\nNow that I look at it further, it seems that seekFrame doesn\u0027t actually want the result. It\u0027s just deliberate that it does the updating, but this method still looks at the latest value. I don\u0027t understand why, though.",
+      "range": {
+        "startLine": 515,
+        "startChar": 23,
+        "endLine": 515,
+        "endChar": 39
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "367a8a97_c4cb277e",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "The short answer is: this method has to be const, because onGetFrameInfo is const, so it cannot update fPreviousBestNumFullyReceived.\n\nThe long answer is: a Wuffs decoder runs sequentially through the input. As it proceeds, it sees (either explicitly decodes or implicitly skips) more and more frames.\n\nThe way Skia uses Wuffs, though, sometimes we seek backwards, starting a new run. Over time, there are multiple only-moves-forwards runs through the input, and some of them get further (see more frames) than others.\n\nThis method returns the highest number of frames seen, \"fully received\", either from the current run or from a previous run. We don\u0027t need to store the number of frames seen for all previous runs, only the best of all previous runs.\n\nWe don\u0027t update \"the best previous run\", aka fPreviousBestNumFullyReceived, here. We update it whenever we (potentially) seek backwards. Hence, we update it in seekFrame.\n\nI\u0027m happy to take suggestions of any comments that would make this clearer.",
+      "parentUuid": "9f9d5e5b_acd321c1",
       "range": {
         "startLine": 515,
         "startChar": 23,
@@ -433,6 +841,30 @@
     },
     {
       "key": {
+        "uuid": "e445d560_532f56d9",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2cd90b3_995d83d4",
+      "range": {
+        "startLine": 586,
+        "startChar": 0,
+        "endLine": 599,
+        "endChar": 5
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d4029b7d_b79bf387",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -453,6 +885,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d9ba610_0f5851ae",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "It\u0027s a Wuffs thing. If the status is incomplete, then the Wuffs decoder is suspended in a coroutine (i.e. waiting on I/O or halted on a non-recoverable error), and to keep its interal proof-of-safety invariants consistent, there\u0027s only two things you can safely do with a suspended Wuffs object: resume the coroutine, or nuke it from orbit (memset to zero and start again).\n\nA future version of Wuffs might add some mechanism to (safely) cancel a suspended coroutine, but that\u0027s probably not happening any time soon, in Wuffs v0.2.",
+      "parentUuid": "d4029b7d_b79bf387",
+      "range": {
+        "startLine": 611,
+        "startChar": 8,
+        "endLine": 611,
+        "endChar": 25
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -479,6 +935,30 @@
     },
     {
       "key": {
+        "uuid": "6c2c49cf_51324cea",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Added \"AlignConsecutiveDeclarations: true\" to calling clang-format:\n\nclang-format -i -style\u003d\"{BasedOnStyle: Chromium, AccessModifierOffset: -4, AlignConsecutiveDeclarations: true, ColumnLimit: 100, IndentWidth: 4}\" SkWuffsCodec.*",
+      "parentUuid": "37dd7456_6d0f3629",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 40
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "018b2df9_8a782bc9",
         "filename": "src/codec/SkWuffsCodec.h",
         "patchSetId": 12
@@ -502,6 +982,30 @@
     },
     {
       "key": {
+        "uuid": "79752c8a_e8d3b870",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "018b2df9_8a782bc9",
+      "range": {
+        "startLine": 52,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 24
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88b2e454_400a325b",
         "filename": "src/codec/SkWuffsCodec.h",
         "patchSetId": 12
@@ -516,6 +1020,24 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d525f49_c35afb45",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Yes, I can delete this line, after I move the init method from private to public.\n\nDone.",
+      "parentUuid": "88b2e454_400a325b",
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -542,6 +1064,30 @@
     },
     {
       "key": {
+        "uuid": "2085725d_1a90e4c1",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Ditto re clang-format.",
+      "parentUuid": "c835af45_cff923c4",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 42
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d06b8385_2749ea7c",
         "filename": "src/codec/SkWuffsCodec.h",
         "patchSetId": 12
@@ -565,6 +1111,30 @@
     },
     {
       "key": {
+        "uuid": "e531259b_c54ecbca",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d06b8385_2749ea7c",
+      "range": {
+        "startLine": 105,
+        "startChar": 4,
+        "endLine": 105,
+        "endChar": 12
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41ab110d_b93cbbe4",
         "filename": "src/codec/SkWuffsCodec.h",
         "patchSetId": 12
@@ -585,6 +1155,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b17a120c_65fbea89",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Done re const.\n\nAs for enough data to read the repeat count, in Wuffs terminology, decode_image_config does not return a nullptr status (and in this file, SkWuffsCodec_MakeFromStream doesn\u0027t call the SkWuffsCodec constructor until decode_image_config returns a nullptr status) until it has decoded the complete image_config. The image_config includes the obvious things like the image width and height, but also includes the repeat count.",
+      "parentUuid": "41ab110d_b93cbbe4",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 22
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

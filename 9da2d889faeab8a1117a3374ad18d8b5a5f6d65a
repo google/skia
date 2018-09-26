@@ -34,6 +34,24 @@
       "revId": "9da2d889faeab8a1117a3374ad18d8b5a5f6d65a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bab657c2_bf973853",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "bf4e6eb8_da85f95d",
+      "revId": "9da2d889faeab8a1117a3374ad18d8b5a5f6d65a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

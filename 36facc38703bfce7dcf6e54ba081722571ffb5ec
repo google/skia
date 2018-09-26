@@ -781,6 +781,30 @@
     },
     {
       "key": {
+        "uuid": "c326e612_af3bfe65",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "Sorry for the confusion. The intent was never to keep Wuffs flexible. Different decoders have chosen different policies, but Wuffs chooses one particular policy: what Chromium does. The difference between then and now is whether the Wuffs caller (program) or callee (library) is responsible for clipping. Before, it was caller. Now, it is callee.",
+      "parentUuid": "28d7fff0_78fd8925",
+      "range": {
+        "startLine": 461,
+        "startChar": 56,
+        "endLine": 463,
+        "endChar": 51
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e0f05974_ef50daed",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -1250,6 +1274,30 @@
       "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dafcb6cf_01ea55bf",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-26T03:54:22Z",
+      "side": 1,
+      "message": "OK I updated the comment in GifTest.cpp\u0027s Codec_GifTruncated3.",
+      "parentUuid": "7b157967_023f27a5",
+      "range": {
+        "startLine": 1565,
+        "startChar": 0,
+        "endLine": 1566,
+        "endChar": 16
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
