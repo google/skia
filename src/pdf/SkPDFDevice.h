@@ -168,6 +168,7 @@ private:
     std::vector<sk_sp<SkPDFObject>> fXObjectResources;
     std::vector<sk_sp<SkPDFObject>> fShaderResources;
     std::vector<sk_sp<SkPDFFont>> fFontResources;
+    int fNodeId;
 
     struct ContentEntry {
         GraphicStateEntry fState;
