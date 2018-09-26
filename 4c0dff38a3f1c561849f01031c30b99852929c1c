@@ -22,6 +22,29 @@
       "revId": "4c0dff38a3f1c561849f01031c30b99852929c1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a442d3a6_126b3b7b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-26T12:49:16Z",
+      "side": 1,
+      "message": "Also add \"Bug: chromium:859454\"?",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 13
+      },
+      "revId": "4c0dff38a3f1c561849f01031c30b99852929c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
