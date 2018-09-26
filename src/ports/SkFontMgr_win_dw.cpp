@@ -20,6 +20,7 @@
 #include "SkTScopedComPtr.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
+#include "SkTypeface_win.h"
 #include "SkTypeface_win_dw.h"
 #include "SkTypes.h"
 #include "SkUTF.h"
@@ -279,6 +280,9 @@ public:
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
             SkASSERT_RELEASE(nullptr == fFactory2.get());
         }
+        if (!SUCCEEDED(fFactory->QueryInterface(&fFactory3))) {
+            SkASSERT_RELEASE(nullptr == fFactory3.get());
+        }
         if (fFontFallback.get()) {
             // factory must be provided if fallback is non-null, else the fallback will not be used.
             SkASSERT(fFactory2.get());
@@ -313,8 +317,11 @@ private:
                                                  IDWriteFont* font,
                                                  IDWriteFontFamily* fontFamily) const;
 
+    sk_sp<SkTypeface> MakeDWriteFontFaceFromFile() const;
+
     SkTScopedComPtr<IDWriteFactory> fFactory;
     SkTScopedComPtr<IDWriteFactory2> fFactory2;
+    SkTScopedComPtr<IDWriteFactory3> fFactory3;
     SkTScopedComPtr<IDWriteFontFallback> fFontFallback;
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
     SkSMallocWCHAR fLocaleName;
@@ -366,6 +373,8 @@ static bool FindByDWriteFont(SkTypeface* cached, void* ctx) {
     bool same;
 
     //Check to see if the two fonts are identical.
+    if (!cshFace->fDWriteFont || !ctxFace->fDWriteFont) return false;
+
     HRB(are_same(cshFace->fDWriteFont.get(), ctxFace->fDWriteFont, same));
     if (same) {
         return true;
@@ -452,6 +461,12 @@ static bool FindByDWriteFont(SkTypeface* cached, void* ctx) {
 
     return wcscmp(cshFamilyName.get(), ctxFamilyName.get()) == 0 &&
            wcscmp(cshFaceName.get(), ctxFaceName.get()) == 0;
+}
+
+
+sk_sp<SkTypeface> SkCreateTypefaceFromIDWriteFontFace3(IDWriteFactory* factory, IDWriteFontFace3* fontFace) {
+  SkTypeface* face = DWriteFontTypeface::Create(factory, fontFace, nullptr, nullptr);
+  return sk_sp<SkTypeface>(face);
 }
 
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::makeTypefaceFromDWriteFont(
@@ -1046,8 +1061,52 @@ HRESULT SkFontMgr_DirectWrite::getDefaultFontFamily(IDWriteFontFamily** fontFami
     return S_OK;
 }
 
+sk_sp<SkTypeface> SkFontMgr_DirectWrite::MakeDWriteFontFaceFromFile() const {
+    IDWriteFontSet* fontSet;
+    HRESULT getFontSetResult = fFactory3->GetSystemFontSet(&fontSet);
+    uint32_t fontCount = fontSet->GetFontCount();
+    IDWriteFontSet* filteredFontSet;
+    // DWRITE_FONT_PROPERTY search_by = {DWRITE_FONT_PROPERTY_ID_FULL_NAME,
+    //                                   L"DejaVu Sans Mono Bold Oblique", nullptr};
+    DWRITE_FONT_PROPERTY search_by = {DWRITE_FONT_PROPERTY_ID_FULL_NAME,
+                                      L"Lovers Quarrel", nullptr};
+    IDWriteFontSet* fontSetFound;
+    HRESULT getMatchingResult = fontSet->GetMatchingFonts(&search_by, 1, &fontSetFound);
+    fontCount = fontSetFound->GetFontCount();
+    IDWriteFontFaceReference* fontFaceReference;
+    HRESULT getRefResult = fontSetFound->GetFontFaceReference(0, &fontFaceReference);
+    IDWriteFontFace3* pFontFace = NULL;
+    HRESULT createResult = fontFaceReference->CreateFontFace(&pFontFace);  
+
+    // SkTScopedComPtr<IDWriteFontFace> fontFace;
+    // IDWriteFontFace* pFontFace = NULL;
+    // IDWriteFontFile* pFontFiles = NULL;
+    // wchar_t fontPath[] = L"C:\\Windows\\Fonts\\wingding.ttf";
+    // HRN(fFactory2->CreateFontFileReference(fontPath, NULL, &pFontFiles));
+    // int isSupported = false;
+    // DWRITE_FONT_FILE_TYPE fontFileType;
+    // DWRITE_FONT_FACE_TYPE fontFaceType;
+    // uint32_t numberOfFaces;
+    // HRESULT analyzeResult = pFontFiles->Analyze(&isSupported, &fontFileType, &fontFaceType,
+    // &numberOfFaces); HRN(analyzeResult); IDWriteFontFile* fontFileArray[] = {pFontFiles}; HRESULT
+    // createResult = fFactory2->CreateFontFace(DWRITE_FONT_FACE_TYPE_TRUETYPE,
+    //                                1,  // file count
+    //                                fontFileArray,
+    //                                0,
+    //                                DWRITE_FONT_SIMULATIONS_NONE,
+    //                                &pFontFace);
+    // HRN(createResult);
+    // IDWriteFont* mappedFont;
+    // HRESULT mapResult = fFontCollection->GetFontFromFontFace(pFontFace, &mappedFont);
+    // HRN(mapResult);
+    return this->makeTypefaceFromDWriteFont(pFontFace, nullptr, nullptr);
+}
+
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::onLegacyMakeTypeface(const char familyName[],
                                                               SkFontStyle style) const {
+    if (SkString(familyName).equals("LOCALMATCHINGTEST")) {
+        return MakeDWriteFontFaceFromFile();
+    }
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
     if (familyName) {
         SkSMallocWCHAR wideFamilyName;
