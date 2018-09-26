@@ -1724,11 +1724,14 @@ void simplify_boundary(EdgeList* boundary, Comparator& c, SkArenaAlloc& alloc) {
     for (Edge* e = boundary->fHead; e != nullptr;) {
         Vertex* prev = prevEdge->fWinding == 1 ? prevEdge->fTop : prevEdge->fBottom;
         Vertex* next = e->fWinding == 1 ? e->fBottom : e->fTop;
-        double dist = e->dist(prev->fPoint);
+        double distPrev = e->dist(prev->fPoint);
+        double distNext = prevEdge->dist(next->fPoint);
+        double distPrevSq = distPrev * distPrev;
+        double distNextSq = distNext * distNext;
         SkVector normal;
         get_edge_normal(e, &normal);
-        double denom = 0.0625f;
-        if (prevNormal.dot(normal) < 0.0 && (dist * dist) <= denom) {
+        constexpr double qPixelSq = 0.25f * 0.25f;
+        if (prevNormal.dot(normal) < 0.0 && (distPrevSq <= qPixelSq || distNextSq <= qPixelSq)) {
             Edge* join = new_edge(prev, next, Edge::Type::kInner, c, alloc);
             if (prev->fPoint != next->fPoint) {
                 join->fLine.normalize();
