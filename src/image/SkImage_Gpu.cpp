@@ -903,8 +903,13 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
     desc.fSampleCnt = 1;
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [=](GrResourceProvider* resourceProvider) mutable {
+            [promiseHelpers, configs, localIndices](GrResourceProvider* resourceProvider) mutable {
                 if (!resourceProvider) {
+                    for (int i = 0; i < 4; ++i) {
+                        if (promiseHelpers[i].isValid()) {
+                            promiseHelpers[i].reset();
+                        }
+                    }
                     return sk_sp<GrTexture>();
                 }
 
