@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29fc818f_9228ee1e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-26T12:47:37Z",
+      "side": 1,
+      "message": "Instead, let\u0027s make this \"except for small images with a gradient, which show a slowdown.\" (Maybe worth looking at some other small images with a gradient, or large images with a gradient, and comparing? And/or mention how much the slowdown is?)",
+      "range": {
+        "startLine": 14,
+        "startChar": 50,
+        "endLine": 15,
+        "endChar": 51
+      },
+      "revId": "4c0dff38a3f1c561849f01031c30b99852929c1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

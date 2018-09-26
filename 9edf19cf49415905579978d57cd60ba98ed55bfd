@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "5792b109_f7d363f0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-26T12:47:37Z",
+      "side": 1,
+      "message": "\u003e I am not able to make change in Commit message by pushing it from PC and thats why I changed it though UI.\n\nOh right - I don\u0027t think our Gerrit instance is set up to let you change the commit message via \"git cl upload\". Or do you actually mean \"git push\"? I didn\u0027t know we could do that, although I think that\u0027s how AOSP works, so I would believe it\u0027s possible.\n\n\u003e This caused the issue because my google id tusharkhandelwal0211@gmail.com is linked to tushar.khandelwal@arm.com.\n\nWhat caused what issue? Is the issue that you cannot change your Commit message by pushing from your PC? Editing from the UI seems fine to me.\n\nPatch set 8 changed from your arm email address to your personal one. Patch set 9 changed back to @arm, and then patch set 11 capitalized your name again, bringing it back to the original. When did the issue start?\n\n\u003e Strangely, Now after changing my Primary mail id in settings the patch is no more visible in my gerrit view, also I am not able to push any update from my PC also.\n\nI haven\u0027t mucked with my Primary mail id; do you mean your preferred email address in https://skia-review.googlesource.com/settings/#EmailAddresses ? I would believe that if your email address that is logged into Gerrit doesn\u0027t match the one on the CL, it wouldn\u0027t be listed under your changes (I\u0027m guessing you mean here: https://skia-review.googlesource.com/dashboard/self when you say \"my gerrit view\"?), though if the one on the CL is linked, I would assume that it would be listed.",
+      "parentUuid": "652177bc_0818769c",
+      "range": {
+        "startLine": 4,
+        "startChar": 12,
+        "endLine": 4,
+        "endChar": 62
+      },
+      "revId": "9edf19cf49415905579978d57cd60ba98ed55bfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "742274f6_0aff0116",
         "filename": "/COMMIT_MSG",
         "patchSetId": 8
