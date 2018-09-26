@@ -542,6 +542,7 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc, const SkMatrix& t
     : INHERITED(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fInitialTransform(transform)
+    , fNodeId(0)
     , fDocument(doc)
 {
     SkASSERT(!pageSize.isEmpty());
@@ -566,6 +567,13 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
         return;
     }
     if (rect.isEmpty()) {
+        if (!strcmp(key, SkPDFGetNodeIdKey())) {
+            int64_t nodeID;
+            if (value->size() != sizeof(nodeID)) { return; }
+            memcpy(&nodeID, value->data(), sizeof(nodeID));
+            fNodeId = nodeID;
+            return;
+        }
         if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
             SkPoint transformedPoint;
             this->ctm().mapXY(rect.x(), rect.y(), &transformedPoint);
@@ -1192,6 +1200,19 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
         SkDynamicMemoryWStream* out = content.stream();
 
         out->writeText("BT\n");
+
+        int markId = -1;
+        if (fNodeId) {
+            markId = fDocument->getMarkIdForNodeId(fNodeId);
+        }
+
+        if (markId != -1) {
+            out->writeText("/P <</MCID ");
+            out->writeDecAsText(markId);
+            out->writeText(" >>BDC\n");
+        }
+        SK_AT_SCOPE_EXIT(if (markId != -1) out->writeText("EMC\n"));
+
         SK_AT_SCOPE_EXIT(out->writeText("ET\n"));
 
         const SkGlyphID maxGlyphID = SkToU16(typeface->countGlyphs() - 1);
