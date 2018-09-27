@@ -177,15 +177,17 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
             }
 
             const skcms_ICCProfile* encodedProfile = fCodec->getEncodedInfo().profile();
-            if (auto encodedSpace = SkColorSpace::Make(*encodedProfile)) {
-                // Leave the pixels in the encoded color space.  Color space conversion
-                // will be handled after decode time.
-                return encodedSpace;
-            }
+            if (encodedProfile) {
+                if (auto encodedSpace = SkColorSpace::Make(*encodedProfile)) {
+                    // Leave the pixels in the encoded color space.  Color space conversion
+                    // will be handled after decode time.
+                    return encodedSpace;
+                }
 
-            if (is_wide_gamut(*encodedProfile)) {
-                return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                             SkColorSpace::kDCIP3_D65_Gamut);
+                if (is_wide_gamut(*encodedProfile)) {
+                    return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                 SkColorSpace::kDCIP3_D65_Gamut);
+                }
             }
 
             return SkColorSpace::MakeSRGB();

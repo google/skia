@@ -510,7 +510,7 @@ skc_interop_transform(struct skc_interop        * interop,
                       struct ts_transform_stack * ts)
 {
 #if 1
-  // OpenGL'ism
+  // move the origin from the lower left to the top left
   ts_transform_stack_push_affine(ts,
                                  1.0f, 0.0f,0.0f,
                                  0.0f,-1.0f,(float)interop->height);
@@ -519,55 +519,11 @@ skc_interop_transform(struct skc_interop        * interop,
 #endif
 
 #if 0
-  float const w = (float)interop->width;
-  float const h = (float)interop->height;
-
-#if 0
-  ts_transform_float_t const quad_tst[8] = { 50,   50,
-                                             1550, 50,
-                                             1550, 1550,
-                                             50,   1550 };
-  float const quad_src[8] = {
-    0.0f,0.0f,
-    w,   0.0f,
-    w,   h,
-    0.0f,h
-  };
-#endif
-
-  float const quad_dst[8] = {
-    w/2 - w/8, 0.0f,
-    w/2 + w/8, 0.0f + h/8,
-    w,         h    - h/8,
-    0.0f,      h
-  };
-
-#if 1
-  ts_transform_type_e const ts_type =
-    ts_transform_stack_push_rect_to_quad(ts,
-                                         0,0,w,h,
-                                         quad_dst);
-#else
-  ts_transform_type_e const ts_type =
-    ts_transform_stack_push_quad_to_quad(ts,
-                                         quad_src,
-                                         quad_dst);
-#endif
-
+  ts_transform_stack_push_matrix(ts,
+                                 0.87004626f, -0.35519487f,   72.14745f,
+                                 0.0f,         0.2600208f,    86.16314f,
+                                 0.0f,        -0.0029599573f, 1.0f);
   ts_transform_stack_concat(ts);
-
-#if 0
-  for (int ii=0; ii<8; ii+=2)
-    {
-      ts_transform_float_t xp,yp;
-
-      ts_transform_stack_transform_xy(ts,
-                                      quad_tst[ii],quad_tst[ii+1],
-                                      &xp,&yp);
-
-      printf("( %.2f, %.2f )\n",xp,yp);
-    }
-#endif
 #endif
 
   // spinner...
@@ -588,7 +544,6 @@ skc_interop_transform(struct skc_interop        * interop,
                                     interop->translate.x,
                                     interop->translate.y);
   ts_transform_stack_concat(ts);
-
 }
 
 //

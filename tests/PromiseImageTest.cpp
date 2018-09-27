@@ -101,7 +101,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
 
     for (bool releaseImageEarly : {true, false}) {
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
+                nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
         REPORTER_ASSERT(reporter, backendTex.isValid());
 
         GrBackendFormat backendFormat = gpu->caps()->createFormatFromBackendTexture(backendTex);

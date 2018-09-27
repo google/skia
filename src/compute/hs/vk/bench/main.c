@@ -21,6 +21,7 @@
 #include "common/macros.h"
 #include "common/vk/assert_vk.h"
 #include "common/vk/host_alloc.h"
+#include "common/vk/cache_vk.h"
 
 //
 //
@@ -383,6 +384,12 @@ main(int argc, char const * argv[])
   uint32_t const device_id     = (argc <= 2) ? UINT32_MAX : strtoul(argv[2],NULL,16);
   uint32_t const key_val_words = (argc <= 3) ? 1          : strtoul(argv[3],NULL,0);
 
+  if ((key_val_words != 1) && (key_val_words != 2))
+    {
+      fprintf(stderr,"Key/Val Words must be 1 or 2\n");
+      exit(EXIT_FAILURE);
+    }
+
   //
   // create a Vulkan instances
   //
@@ -396,31 +403,39 @@ main(int argc, char const * argv[])
       .apiVersion            = VK_API_VERSION_1_1
   };
 
-#ifndef NDEBUG
-  char const * const validation_layers[] = {
+  char const * const instance_enabled_layers[] = {
     "VK_LAYER_LUNARG_standard_validation"
   };
-  char const * const enabled_extensions[] = {
+
+  char const * const instance_enabled_extensions[] = {
     VK_EXT_DEBUG_REPORT_EXTENSION_NAME
   };
+
+  uint32_t const instance_enabled_layer_count =
+#ifndef NDEBUG
+    ARRAY_LENGTH_MACRO(instance_enabled_layers)
+#else
+    0
 #endif
+    ;
+
+  uint32_t const instance_enabled_extension_count =
+#ifndef NDEBUG
+    ARRAY_LENGTH_MACRO(instance_enabled_extensions)
+#else
+    0
+#endif
+    ;
 
   VkInstanceCreateInfo const instance_info = {
     .sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
     .pNext                   = NULL,
     .flags                   = 0,
     .pApplicationInfo        = &app_info,
-#ifdef NDEBUG
-    .enabledLayerCount       = 0,
-    .ppEnabledLayerNames     = NULL,
-    .enabledExtensionCount   = 0,
-    .ppEnabledExtensionNames = NULL
-#else
-    .enabledLayerCount       = ARRAY_LENGTH_MACRO(validation_layers),
-    .ppEnabledLayerNames     = validation_layers,
-    .enabledExtensionCount   = ARRAY_LENGTH_MACRO(enabled_extensions),
-    .ppEnabledExtensionNames = enabled_extensions
-#endif
+    .enabledLayerCount       = instance_enabled_layer_count,
+    .ppEnabledLayerNames     = instance_enabled_layers,
+    .enabledExtensionCount   = instance_enabled_extension_count,
+    .ppEnabledExtensionNames = instance_enabled_extensions
   };
 
   VkInstance instance;
@@ -522,8 +537,8 @@ main(int argc, char const * argv[])
   uint32_t const count_step   = (argc <=  6) ? count_lo        : strtoul(argv[ 6],NULL,0);
   uint32_t const loops        = (argc <=  7) ? HS_BENCH_LOOPS  : strtoul(argv[ 7],NULL,0);
   uint32_t const warmup       = (argc <=  8) ? HS_BENCH_WARMUP : strtoul(argv[ 8],NULL,0);
-  bool     const linearize    = (argc <=  9) ? true            : strtoul(argv[ 9],NULL,0);
-  bool     const verify       = (argc <= 10) ? true            : strtoul(argv[10],NULL,0);
+  bool     const linearize    = (argc <=  9) ? true            : strtoul(argv[ 9],NULL,0) != 0;
+  bool     const verify       = (argc <= 10) ? true            : strtoul(argv[10],NULL,0) != 0;
 
   //
   // get the physical device's memory props
@@ -554,6 +569,25 @@ main(int argc, char const * argv[])
     .pQueuePriorities = queue_priorities
   };
 
+  //
+  // clumsily enable AMD GCN shader info extension
+  //
+  char const * const device_enabled_extensions[] = {
+#ifdef HS_VK_VERBOSE_AMD
+    VK_AMD_SHADER_INFO_EXTENSION_NAME
+#endif
+  };
+
+  uint32_t device_enabled_extension_count = 0;
+
+#ifdef HS_VK_VERBOSE_AMD
+  if (phy_device_props.vendorID == 0x1002)
+    device_enabled_extension_count = 1;
+#endif
+
+  //
+  //
+  //
   VkPhysicalDeviceFeatures device_features = { false };
 
   if (key_val_words == 2)
@@ -569,8 +603,8 @@ main(int argc, char const * argv[])
     .pQueueCreateInfos       = &queue_info,
     .enabledLayerCount       = 0,
     .ppEnabledLayerNames     = NULL,
-    .enabledExtensionCount   = 0,
-    .ppEnabledExtensionNames = NULL,
+    .enabledExtensionCount   = device_enabled_extension_count,
+    .ppEnabledExtensionNames = device_enabled_extensions,
     .pEnabledFeatures        = &device_features
   };
 
@@ -584,6 +618,13 @@ main(int argc, char const * argv[])
   VkQueue queue;
 
   vkGetDeviceQueue(device,0,0,&queue);
+
+  //
+  // get the pipeline cache
+  //
+  VkPipelineCache pipeline_cache;
+
+  vk_pipeline_cache_create(device,NULL,".vk_cache",&pipeline_cache);
 
   //
   // create a descriptor set pool
@@ -617,7 +658,7 @@ main(int argc, char const * argv[])
   struct hs_vk * hs = hs_vk_create(hs_target,
                                    device,
                                    NULL,
-                                   NULL);
+                                   pipeline_cache);
   //
   // create a HotSort descriptor set for this thread
   //
@@ -851,9 +892,11 @@ main(int argc, char const * argv[])
           "Keys, "
           "Keys Padded In, "
           "Keys Padded Out, "
-          "CPU Algorithm, "
+          "CPU, "
+          "Algorithm, "
           "CPU Msecs, "
           "CPU Mkeys/s, "
+          "GPU, "
           "Trials, "
           "Avg. Msecs, "
           "Min Msecs, "
@@ -991,14 +1034,14 @@ main(int argc, char const * argv[])
 
       if (verify)
         {
-          size_t const copy_vout_size = count_padded_in * key_val_words * sizeof(uint32_t);
+          size_t const size_padded_in = count_padded_in * key_val_words * sizeof(uint32_t);
 
           vkBeginCommandBuffer(cb,&cb_begin_info);
 
           VkBufferCopy const copy_vout = {
             .srcOffset = 0,
             .dstOffset = 0,
-            .size      = copy_vout_size
+            .size      = size_padded_in
           };
 
           vkCmdCopyBuffer(cb,
@@ -1018,25 +1061,28 @@ main(int argc, char const * argv[])
           vk(QueueWaitIdle(queue));
           vk(ResetCommandBuffer(cb,0));
 
+          size_t const size_sorted_h = count * key_val_words * sizeof(uint32_t);
+
           // copy and sort random data
-          memcpy(sorted_h,rand_h,copy_vout_size);
+          memcpy(sorted_h,rand_h,size_sorted_h);
+          memset((uint8_t*)sorted_h + size_sorted_h,-1,size_padded_in-size_sorted_h);
 
-          cpu_algo = hs_cpu_sort(sorted_h,key_val_words,count,&cpu_ns);
-
-          if (!linearize) {
-            hs_transpose_slabs(key_val_words,
-                               1u<<hs_target->config.slab.width_log2,
-                               hs_target->config.slab.height,
-                               sorted_h,
-                               count_padded_in);
-          }
+          cpu_algo = hs_cpu_sort(sorted_h,key_val_words,count_padded_in,&cpu_ns);
 
           void * sorted_map;
 
           vk(MapMemory(device,mem_sorted,0,VK_WHOLE_SIZE,0,&sorted_map));
 
+          if (!linearize) {
+            hs_transpose_slabs(key_val_words,
+                               1u<<hs_target->config.slab.width_log2,
+                               hs_target->config.slab.height,
+                               sorted_map,
+                               count_padded_in);
+          }
+
           // verify
-          verified = memcmp(sorted_h,sorted_map,count * key_val_words * sizeof(uint32_t)) == 0;
+          verified = memcmp(sorted_h,sorted_map,size_padded_in) == 0;
 
 #ifndef NDEBUG
           if (!verified)
@@ -1134,6 +1180,9 @@ main(int argc, char const * argv[])
   vkDestroyQueryPool(device,query_pool,NULL);
   vkFreeCommandBuffers(device,cmd_pool,1,&cb);
   vkDestroyCommandPool(device,cmd_pool,NULL);
+
+  vk_pipeline_cache_destroy(device,NULL,".vk_cache",pipeline_cache);
+
   vkDestroyDevice(device,NULL);
 
 #ifndef NDEBUG

@@ -91,8 +91,8 @@ std::unique_ptr<SkCodec> SkGifCodec::MakeFromStream(std::unique_ptr<SkStream> st
     // Use kPalette since Gifs are encoded with a color table.
     // FIXME: Gifs can actually be encoded with 4-bits per pixel. Using 8 works, but we could skip
     //        expanding to 8 bits and take advantage of the SkSwizzler to work from 4.
-    auto encodedInfo = SkEncodedInfo::MakeSRGB(reader->screenWidth(), reader->screenHeight(),
-                                               SkEncodedInfo::kPalette_Color, alpha, 8);
+    auto encodedInfo = SkEncodedInfo::Make(reader->screenWidth(), reader->screenHeight(),
+                                           SkEncodedInfo::kPalette_Color, alpha, 8);
     return std::unique_ptr<SkCodec>(new SkGifCodec(std::move(encodedInfo), reader.release()));
 }
 

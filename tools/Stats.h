@@ -18,7 +18,7 @@
 #endif
 
 struct Stats {
-    Stats(const SkTArray<double>& samples) {
+    Stats(const SkTArray<double>& samples, bool want_plot) {
         int n = samples.count();
         if (!n) {
             min = max = mean = var = median = 0;
@@ -50,7 +50,7 @@ struct Stats {
         median = sorted[n/2];
 
         // Normalize samples to [min, max] in as many quanta as we have distinct bars to print.
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; want_plot && i < n; i++) {
             if (min == max) {
                 // All samples are the same value.  Don't divide by zero.
                 plot.append(kBars[0]);

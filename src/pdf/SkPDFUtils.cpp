@@ -18,6 +18,32 @@
 
 #include <cmath>
 
+const char* SkPDFUtils::BlendModeName(SkBlendMode mode) {
+    // PDF32000.book section 11.3.5 "Blend Mode"
+    switch (mode) {
+        case SkBlendMode::kSrcOver:     return "Normal";
+        case SkBlendMode::kXor:         return "Normal";  // (unsupported mode)
+        case SkBlendMode::kPlus:        return "Normal";  // (unsupported mode)
+        case SkBlendMode::kScreen:      return "Screen";
+        case SkBlendMode::kOverlay:     return "Overlay";
+        case SkBlendMode::kDarken:      return "Darken";
+        case SkBlendMode::kLighten:     return "Lighten";
+        case SkBlendMode::kColorDodge:  return "ColorDodge";
+        case SkBlendMode::kColorBurn:   return "ColorBurn";
+        case SkBlendMode::kHardLight:   return "HardLight";
+        case SkBlendMode::kSoftLight:   return "SoftLight";
+        case SkBlendMode::kDifference:  return "Difference";
+        case SkBlendMode::kExclusion:   return "Exclusion";
+        case SkBlendMode::kMultiply:    return "Multiply";
+        case SkBlendMode::kHue:         return "Hue";
+        case SkBlendMode::kSaturation:  return "Saturation";
+        case SkBlendMode::kColor:       return "Color";
+        case SkBlendMode::kLuminosity:  return "Luminosity";
+        // Other blendmodes are handled in SkPDFDevice::setUpContentEntry.
+        default:                        return nullptr;
+    }
+}
+
 sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& r) {
     return SkPDFMakeArray(r.left(), r.top(), r.right(), r.bottom());
 }

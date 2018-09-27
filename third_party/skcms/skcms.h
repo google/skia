@@ -27,6 +27,10 @@ typedef struct skcms_Matrix3x3 {
     float vals[3][3];
 } skcms_Matrix3x3;
 
+// It is _not_ safe to alias the pointers to invert in-place.
+SKCMS_API bool            skcms_Matrix3x3_invert(const skcms_Matrix3x3*, skcms_Matrix3x3*);
+SKCMS_API skcms_Matrix3x3 skcms_Matrix3x3_concat(const skcms_Matrix3x3*, const skcms_Matrix3x3*);
+
 // A row-major 3x4 matrix (ie vals[row][col])
 typedef struct skcms_Matrix3x4 {
     float vals[3][4];
@@ -42,6 +46,10 @@ typedef struct skcms_Matrix3x4 {
 typedef struct skcms_TransferFunction {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
+
+SKCMS_API float skcms_TransferFunction_eval  (const skcms_TransferFunction*, float);
+SKCMS_API bool  skcms_TransferFunction_invert(const skcms_TransferFunction*,
+                                              skcms_TransferFunction*);
 
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef union skcms_Curve {
@@ -135,9 +143,6 @@ SKCMS_API bool skcms_TRCs_AreApproximateInverse(const skcms_ICCProfile* profile,
 // The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
 // will be used.
 SKCMS_API bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
-
-// No-op, to be removed.
-static inline void skcms_OptimizeForSpeed(skcms_ICCProfile* p) { (void)p; }
 
 SKCMS_API bool skcms_ApproximateCurve(const skcms_Curve* curve,
                                       skcms_TransferFunction* approx,

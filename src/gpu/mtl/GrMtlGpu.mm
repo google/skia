@@ -383,14 +383,17 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
 }
 
 #ifdef GR_TEST_UTILS
-bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int h, bool texturable,
-                                                bool renderable, GrMipMapped mipMapped,
-                                                const void* srcData, GrMtlTextureInfo* info) {
+bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int h, bool texturable,
+                                               bool renderable, GrMipMapped mipMapped,
+                                               const void* srcData, size_t srcRowBytes,
+                                               GrMtlTextureInfo* info) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
         SkASSERT(!srcData);
     }
+
+    GrPixelConfig config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
 
     MTLPixelFormat format;
     if (!GrPixelConfigToMTLFormat(config, &format)) {
@@ -435,8 +438,11 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int 
     desc.storageMode = MTLStorageModeShared;
 #endif
     id<MTLTexture> transferTexture = [fDevice newTextureWithDescriptor: desc];
-    auto colorType = GrPixelConfigToColorType(config);
-    int rowBytes = w * GrColorTypeBytesPerPixel(colorType);
+    size_t trimRowBytes = w * GrColorTypeBytesPerPixel(colorType);
+    if (!srcRowBytes) {
+        srcRowBytes = trimRowBytes;
+    }
+
     MTLOrigin origin = MTLOriginMake(0, 0, 0);
 
     SkASSERT(testTexture.pixelFormat == transferTexture.pixelFormat);
@@ -450,7 +456,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int 
         [transferTexture replaceRegion: MTLRegionMake2D(0, 0, currentWidth, currentHeight)
                            mipmapLevel: mipLevel
                              withBytes: srcData
-                           bytesPerRow: rowBytes];
+                           bytesPerRow: srcRowBytes];
 
         [blitCmdEncoder copyFromTexture: transferTexture
                             sourceSlice: 0
@@ -473,16 +479,18 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int 
 }
 
 GrBackendTexture GrMtlGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                           GrPixelConfig config, bool isRT,
-                                                           GrMipMapped mipMapped) {
+                                                           GrColorType colorType, bool isRT,
+                                                           GrMipMapped mipMapped, size_t rowBytes) {
     if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
         return GrBackendTexture();
     }
     GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(config, w, h, true, isRT, mipMapped, pixels,
-                                               &info)) {
+    if (!this->createTestingOnlyMtlTextureInfo(colorType, w, h, true, isRT, mipMapped, pixels,
+                                               rowBytes, &info)) {
         return {};
     }
+
+    GrPixelConfig config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
 
     GrBackendTexture backendTex(w, h, mipMapped, info);
     backendTex.fConfig = config;
@@ -518,15 +526,14 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
     if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
         return GrBackendRenderTarget();
     }
-    auto config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
-    if (kUnknown_GrPixelConfig == config) {
-        return {};
-    }
+
     GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(config, w, h, false, true, GrMipMapped::kNo, nullptr,
-                                               &info)) {
+    if (!this->createTestingOnlyMtlTextureInfo(ct, w, h, false, true, GrMipMapped::kNo, nullptr,
+                                               0, &info)) {
         return {};
     }
+
+    GrPixelConfig config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
 
     GrBackendRenderTarget backendRT(w, h, 1, info);
     backendRT.fConfig = config;

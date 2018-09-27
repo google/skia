@@ -8,6 +8,7 @@
 #include "SkArenaAlloc.h"
 #include "SkAutoBlitterChoose.h"
 #include "SkComposeShader.h"
+#include "SkConvertPixels.h"
 #include "SkDraw.h"
 #include "SkNx.h"
 #include "SkPM4f.h"
@@ -19,7 +20,6 @@
 
 #include "SkArenaAlloc.h"
 #include "SkCoreBlitters.h"
-#include "SkColorSpaceXform.h"
 
 struct Matrix43 {
     float fMat[12];    // column major
@@ -137,18 +137,13 @@ update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPMCo
 // - apply per-color alpha before interpolation (matches old version of vertices)
 //
 static SkPMColor4f* convert_colors(const SkColor src[], int count, SkColorSpace* deviceCS,
-                                 SkArenaAlloc* alloc) {
+                                   SkArenaAlloc* alloc) {
     SkPMColor4f* dst = alloc->makeArray<SkPMColor4f>(count);
-    if (!deviceCS) {
-        for (int i = 0; i < count; ++i) {
-            dst[i] = SkColor4f::FromColor(src[i]).premul();
-        }
-    } else {
-        auto srcCS = SkColorSpace::MakeSRGB();
-        SkColorSpaceXform::Apply(deviceCS   , SkColorSpaceXform::kRGBA_F32_ColorFormat, dst,
-                                 srcCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
-                                 count, SkColorSpaceXform::kPremul_AlphaOp);
-    }
+    SkImageInfo srcInfo = SkImageInfo::Make(count, 1, kBGRA_8888_SkColorType,
+                                            kUnpremul_SkAlphaType, SkColorSpace::MakeSRGB());
+    SkImageInfo dstInfo = SkImageInfo::Make(count, 1, kRGBA_F32_SkColorType,
+                                            kPremul_SkAlphaType, sk_ref_sp(deviceCS));
+    SkConvertPixels(dstInfo, dst, 0, srcInfo, src, 0);
     return dst;
 }
 

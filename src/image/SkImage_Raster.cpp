@@ -9,7 +9,6 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
-#include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkConvertPixels.h"
 #include "SkData.h"
@@ -76,12 +75,6 @@ public:
 
     SkImageInfo onImageInfo() const override {
         return fBitmap.info();
-    }
-    SkColorType onColorType() const override {
-        return fBitmap.colorType();
-    }
-    SkAlphaType onAlphaType() const override {
-        return fBitmap.alphaType();
     }
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;

@@ -123,15 +123,14 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                 const auto& fmgr = fLazyFontMgr.get();
 
                 // Typeface fallback order:
-                //   1) external web font, if a path/url is provided
+                //   1) externally-loaded font (provided by the embedder)
                 //   2) system font (family/style)
                 //   3) system default
 
-                sk_sp<SkTypeface> tf;
-
-                if (jpath) {
-                    tf = fmgr->makeFromData(fResourceProvider->loadWebFont(jpath->begin()));
-                }
+                sk_sp<SkTypeface> tf =
+                    fmgr->makeFromData(fResourceProvider->loadFont(jname->begin(),
+                                                                   jpath ? jpath->begin()
+                                                                         : nullptr));
 
                 if (!tf) {
                     tf.reset(fmgr->matchFamilyStyle(jfamily->begin(), FontStyle(jstyle->begin())));

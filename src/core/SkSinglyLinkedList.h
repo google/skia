@@ -61,6 +61,19 @@ public:
         fTail = dst->get();
         return &fTail->fData;
     }
+
+    class Iter {
+    public:
+        void operator++() { fNode = fNode->fNext.get(); }
+        T& operator*() { return fNode->fData; }
+        bool operator!=(const Iter& rhs) const { return fNode != rhs.fNode; }
+        Iter(Node* n) : fNode(n) {}
+    private:
+        Node* fNode;
+    };
+    Iter begin() { return Iter(fHead.get()); }
+    Iter end() { return Iter(nullptr); }
+
     class ConstIter {
     public:
         void operator++() { fNode = fNode->fNext.get(); }
