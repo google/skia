@@ -34,6 +34,9 @@ def zip(target_dir, zip_file, blacklist=None):  # pylint: disable=W0622
       d[:] = filtered(d, blacklist)
       for filename in filtered(f, blacklist):
         filepath = os.path.join(r, filename)
+        if os.path.islink(filepath):
+          print 'Skipping symlink %s' % filepath
+          continue
         zi = zipfile.ZipInfo(filepath)
         zi.filename = os.path.relpath(filepath, target_dir)
         if os.name == 'nt':
