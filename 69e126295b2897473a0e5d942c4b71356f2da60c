@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "138a1673_06b8a692",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-27T14:15:54Z",
+      "side": 1,
+      "message": "Doesn\u0027t this change make us call CGFontDefaultAllowsFontSmoothing() whenever we\u0027re building against headers that are aware Mojave exists?  Do we not need to do a runtime check that this call is available?  dlsym(), that sort of thing?\n\nIf we stick with this, we should probably explicitly include \u003cAvailabilityMacros.h\u003e, right?",
+      "revId": "69e126295b2897473a0e5d942c4b71356f2da60c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28f0a2a2_4a363330",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-27T14:15:54Z",
+      "side": 1,
+      "message": "This extern \"C\" can probably just go right on the declaration, given that there\u0027s only one?",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 10
+      },
+      "revId": "69e126295b2897473a0e5d942c4b71356f2da60c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1e9abe8_bb481198",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-27T14:15:54Z",
+      "side": 1,
+      "message": "(Typically Skia uses 4 space indents.)",
+      "revId": "69e126295b2897473a0e5d942c4b71356f2da60c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cc37be2_4c520aa7",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-27T14:15:54Z",
+      "side": 1,
+      "message": "Might be nice to #else the rest of the code.",
+      "revId": "69e126295b2897473a0e5d942c4b71356f2da60c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
