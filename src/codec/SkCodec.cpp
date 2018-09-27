@@ -624,9 +624,16 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
     bool needsColorXform = false;
     if (this->usesColorXform() && dstInfo.colorSpace()) {
         dstInfo.colorSpace()->toProfile(&fDstProfile);
-        if (kRGBA_F16_SkColorType == dstInfo.colorType()
-                || !skcms_ApproximatelyEqualProfiles(fEncodedInfo.profile(), &fDstProfile) ) {
+        if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
             needsColorXform = true;
+        } else {
+            const auto* srcProfile = fEncodedInfo.profile();
+            if (!srcProfile) {
+                srcProfile = skcms_sRGB_profile();
+            }
+            if (!skcms_ApproximatelyEqualProfiles(srcProfile, &fDstProfile) ) {
+                needsColorXform = true;
+            }
         }
     }
 
@@ -653,8 +660,8 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
 }
 
 void SkCodec::applyColorXform(void* dst, const void* src, int count) const {
+    // It is okay for srcProfile to be null. This will use sRGB.
     const auto* srcProfile = fEncodedInfo.profile();
-    SkASSERT(srcProfile);
     SkAssertResult(skcms_Transform(src, fSrcXformFormat, skcms_AlphaFormat_Unpremul, srcProfile,
                                    dst, fDstXformFormat, fDstXformAlphaFormat, &fDstProfile,
                                    count));

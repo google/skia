@@ -17,10 +17,6 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> SkEncodedInfo::ICCProfile::Make(sk_sp
     return nullptr;
 }
 
-std::unique_ptr<SkEncodedInfo::ICCProfile> SkEncodedInfo::ICCProfile::MakeSRGB() {
-    return std::unique_ptr<ICCProfile>(new ICCProfile(*skcms_sRGB_profile()));
-}
-
 std::unique_ptr<SkEncodedInfo::ICCProfile> SkEncodedInfo::ICCProfile::Make(
         const skcms_ICCProfile& profile) {
     return std::unique_ptr<ICCProfile>(new ICCProfile(profile));
