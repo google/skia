@@ -20,7 +20,7 @@ void finishWindow(sk_app::Window_unix* win) {
 }
 
 int main(int argc, char**argv) {
-
+    XInitThreads();
     Display* display = XOpenDisplay(nullptr);
 
     Application* app = Application::Create(argc, argv, (void*)display);
