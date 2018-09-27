@@ -43,6 +43,9 @@ typedef struct skcms_TransferFunction {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
+SKCMS_API bool skcms_TransferFunction_invert(const skcms_TransferFunction*,
+                                             skcms_TransferFunction*);
+
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef union skcms_Curve {
     struct {
@@ -135,9 +138,6 @@ SKCMS_API bool skcms_TRCs_AreApproximateInverse(const skcms_ICCProfile* profile,
 // The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
 // will be used.
 SKCMS_API bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
-
-// No-op, to be removed.
-static inline void skcms_OptimizeForSpeed(skcms_ICCProfile* p) { (void)p; }
 
 SKCMS_API bool skcms_ApproximateCurve(const skcms_Curve* curve,
                                       skcms_TransferFunction* approx,
