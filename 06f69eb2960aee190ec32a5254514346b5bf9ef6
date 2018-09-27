@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88c1632b_443b6fd1",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-27T14:44:27Z",
+      "side": 0,
+      "message": "I thought it was here that we were slicing off the noPendingIO flag?",
+      "range": {
+        "startLine": 92,
+        "startChar": 17,
+        "endLine": 92,
+        "endChar": 50
+      },
+      "revId": "06f69eb2960aee190ec32a5254514346b5bf9ef6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
