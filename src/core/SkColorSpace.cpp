@@ -11,9 +11,6 @@
 #include "SkOpts.h"
 #include "../../third_party/skcms/skcms.h"
 
-// TODO: this is kind of ridiculous
-static_assert(sizeof(SkColorSpace) == 45*4, "");
-
 bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
     skcms_Matrix3x3 toXYZ;
     if (!skcms_PrimariesToXYZD50(fRX, fRY, fGX, fGY, fBX, fBY, fWX, fWY, &toXYZ)) {
@@ -25,16 +22,28 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+static void colorspace_4x4_to_3x3(const SkMatrix44& m, float m33[9]) {
+    for (int r = 0; r < 3; r++)
+    for (int c = 0; c < 3; c++) {
+        m33[3*r+c] = m.get(r,c);
+    }
+}
+
 SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
                            const SkColorSpaceTransferFn* transferFn,
                            const SkMatrix44& toXYZD50)
         : fGammaNamed(gammaNamed)
         , fToXYZD50(toXYZD50)
-        , fToXYZD50Hash(SkOpts::hash_fn(toXYZD50.values(), 16 * sizeof(SkMScalar), 0))
-        , fFromXYZD50(SkMatrix44::kUninitialized_Constructor) {
-    SkASSERT(fGammaNamed != kNonStandard_SkGammaNamed || transferFn);
-    if (transferFn) {
-        fTransferFn = *transferFn;
+        , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
+{
+    colorspace_4x4_to_3x3(fToXYZD50, fToXYZD50_3x3);
+    fToXYZD50Hash = SkOpts::hash_fn(fToXYZD50_3x3, sizeof(fToXYZD50_3x3), 0);
+
+    switch (fGammaNamed) {
+        case kSRGB_SkGammaNamed:        fTransferFn =   gSRGB_TransferFn; break;
+        case k2Dot2Curve_SkGammaNamed:  fTransferFn =  g2Dot2_TransferFn; break;
+        case kLinear_SkGammaNamed:      fTransferFn = gLinear_TransferFn; break;
+        case kNonStandard_SkGammaNamed: fTransferFn =        *transferFn; break;
     }
 }
 
@@ -162,24 +171,7 @@ sk_sp<SkColorSpace> SkColorSpace::MakeSRGBLinear() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkColorSpace::isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
-    switch (fGammaNamed) {
-        case kSRGB_SkGammaNamed:
-            *coeffs = gSRGB_TransferFn;
-            break;
-        case k2Dot2Curve_SkGammaNamed:
-            *coeffs = g2Dot2_TransferFn;
-            break;
-        case kLinear_SkGammaNamed:
-            *coeffs = gLinear_TransferFn;
-            break;
-        case kNonStandard_SkGammaNamed:
-            *coeffs = fTransferFn;
-            break;
-        default:
-            SkDEBUGFAIL("Unknown named gamma");
-            return false;
-    }
-
+    *coeffs = fTransferFn;
     return true;
 }
 
@@ -189,7 +181,6 @@ bool SkColorSpace::toXYZD50(SkMatrix44* toXYZD50) const {
         *toXYZD50 = *matrix;
         return true;
     }
-
     return false;
 }
 
@@ -204,6 +195,34 @@ const SkMatrix44* SkColorSpace::fromXYZD50() const {
         }
     });
     return &fFromXYZD50;
+}
+
+void SkColorSpace::transferFn(float gabcdef[7]) const {
+    memcpy(gabcdef, &fTransferFn, 7*sizeof(float));
+}
+
+void SkColorSpace::gamutTransformTo(const SkColorSpace* dst, float src_to_dst[9]) const {
+    // Invert and cache the xyz->dst gamut.
+    dst->fFromXYZOnce_3x3([dst]{
+        skcms_Matrix3x3 toXYZD50,
+                      fromXYZD50;
+        memcpy(&toXYZD50, dst->fToXYZD50_3x3, 9*sizeof(float));
+
+        if (!skcms_Matrix3x3_invert(&toXYZD50, &fromXYZD50)) {
+            // If the dst gamut isn't invertible, we'll treat it as sRGB.
+            SkAssertResult(skcms_Matrix3x3_invert(&skcms_sRGB_profile()->toXYZD50, &fromXYZD50));
+        }
+        memcpy(dst->fFromXYZD50_3x3, &fromXYZD50, 9*sizeof(float));
+    });
+
+    skcms_Matrix3x3 toXYZD50,
+                  fromXYZD50;
+
+    memcpy(&  toXYZD50, this->  fToXYZD50_3x3, 9*sizeof(float));
+    memcpy(&fromXYZD50, dst ->fFromXYZD50_3x3, 9*sizeof(float));
+
+    skcms_Matrix3x3 srcToDst = skcms_Matrix3x3_concat(&fromXYZD50, &toXYZD50);
+    memcpy(src_to_dst, &srcToDst, 9*sizeof(float));
 }
 
 bool SkColorSpace::isSRGB() const {
