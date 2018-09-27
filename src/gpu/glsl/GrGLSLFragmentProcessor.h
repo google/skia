@@ -124,7 +124,8 @@ public:
 
     virtual void emitCode(EmitArgs&) = 0;
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor);
+    void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor,
+                 bool setChildren = true);
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 

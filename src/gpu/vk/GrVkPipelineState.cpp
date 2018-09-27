@@ -146,7 +146,8 @@ void GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
     while (fp && glslFP) {
-        glslFP->setData(fDataManager, *fp);
+        // Do not recurse to children in setData, the iterator already includes the children
+        glslFP->setData(fDataManager, *fp, /* setChildren */ false);
         fp = iter.next();
         glslFP = glslIter.next();
     }

@@ -118,7 +118,8 @@ void GrGLProgram::setFragmentData(const GrPipeline& pipeline, int* nextTexSample
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
     while (fp && glslFP) {
-        glslFP->setData(fProgramDataManager, *fp);
+        // Do not recurse to children in setData, the iterator already includes the children
+        glslFP->setData(fProgramDataManager, *fp, /* setChildren */ false);
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const GrFragmentProcessor::TextureSampler& sampler = fp->textureSampler(i);
             fGpu->bindTexture((*nextTexSamplerIdx)++, sampler.samplerState(),
