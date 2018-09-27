@@ -8,10 +8,15 @@
 #ifndef SkTypeface_win_DEFINED
 #define SkTypeface_win_DEFINED
 
+#include "SkRefCnt.h"
 #include "../private/SkLeanWindows.h"
 #include "SkTypeface.h"
 
 #ifdef SK_BUILD_FOR_WIN
+
+struct IDWriteFontFace3;
+struct IDWriteFactory;
+SK_API sk_sp<SkTypeface> SkCreateTypefaceFromIDWriteFontFace3(IDWriteFactory*, IDWriteFontFace3*);
 
 /**
  *  Like the other Typeface create methods, this returns a new reference to the

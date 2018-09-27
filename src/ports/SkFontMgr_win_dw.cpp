@@ -20,6 +20,7 @@
 #include "SkTScopedComPtr.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
+#include "SkTypeface_win.h"
 #include "SkTypeface_win_dw.h"
 #include "SkTypes.h"
 #include "SkUTF.h"
@@ -279,6 +280,9 @@ public:
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
             SkASSERT_RELEASE(nullptr == fFactory2.get());
         }
+        if (!SUCCEEDED(fFactory->QueryInterface(&fFactory3))) {
+            SkASSERT_RELEASE(nullptr == fFactory3.get());
+        }
         if (fFontFallback.get()) {
             // factory must be provided if fallback is non-null, else the fallback will not be used.
             SkASSERT(fFactory2.get());
@@ -315,6 +319,7 @@ private:
 
     SkTScopedComPtr<IDWriteFactory> fFactory;
     SkTScopedComPtr<IDWriteFactory2> fFactory2;
+    SkTScopedComPtr<IDWriteFactory3> fFactory3;
     SkTScopedComPtr<IDWriteFontFallback> fFontFallback;
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
     SkSMallocWCHAR fLocaleName;
@@ -365,7 +370,10 @@ static bool FindByDWriteFont(SkTypeface* cached, void* ctx) {
     ProtoDWriteTypeface* ctxFace = reinterpret_cast<ProtoDWriteTypeface*>(ctx);
     bool same;
 
-    //Check to see if the two fonts are identical.
+    // Check to see if the two fonts are identical.
+    // TODO: Check whether this is fair for the case where the typeface was created from IDWriteFontFace and we can drop out here?
+    if (!cshFace->fDWriteFont || !ctxFace->fDWriteFont) return false;
+
     HRB(are_same(cshFace->fDWriteFont.get(), ctxFace->fDWriteFont, same));
     if (same) {
         return true;
@@ -453,6 +461,7 @@ static bool FindByDWriteFont(SkTypeface* cached, void* ctx) {
     return wcscmp(cshFamilyName.get(), ctxFamilyName.get()) == 0 &&
            wcscmp(cshFaceName.get(), ctxFaceName.get()) == 0;
 }
+
 
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::makeTypefaceFromDWriteFont(
         IDWriteFontFace* fontFace,
@@ -1167,6 +1176,11 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
 
     return sk_make_sp<SkFontMgr_DirectWrite>(factory, collection, fallback,
                                              localeName, localeNameLen);
+}
+
+sk_sp<SkTypeface> SkCreateTypefaceFromIDWriteFontFace3(IDWriteFactory* factory, IDWriteFontFace3* fontFace) {
+  SkTypeface* face = DWriteFontTypeface::Create(factory, fontFace, nullptr, nullptr);
+  return sk_sp<SkTypeface>(face);
 }
 
 #include "SkFontMgr_indirect.h"

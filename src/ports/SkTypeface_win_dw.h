@@ -25,6 +25,8 @@ class SkFontDescriptor;
 struct SkScalerContextRec;
 
 static SkFontStyle get_style(IDWriteFont* font) {
+    if (!font) return SkFontStyle();
+
     int weight = font->GetWeight();
     int width = font->GetStretch();
     SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
@@ -50,10 +52,9 @@ private:
         , fFactory(SkRefComPtr(factory))
         , fDWriteFontCollectionLoader(SkSafeRefComPtr(fontCollectionLoader))
         , fDWriteFontFileLoader(SkSafeRefComPtr(fontFileLoader))
-        , fDWriteFontFamily(SkRefComPtr(fontFamily))
-        , fDWriteFont(SkRefComPtr(font))
-        , fDWriteFontFace(SkRefComPtr(fontFace))
-    {
+        , fDWriteFontFamily(SkSafeRefComPtr(fontFamily))
+        , fDWriteFont(SkSafeRefComPtr(font))
+        , fDWriteFontFace(SkRefComPtr(fontFace)) {
         if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace1))) {
             // IUnknown::QueryInterface states that if it fails, punk will be set to nullptr.
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
