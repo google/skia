@@ -76,11 +76,11 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkColorType SkImage::colorType() const {
-    return as_IB(this)->onColorType();
+    return as_IB(this)->onImageInfo().colorType();
 }
 
 SkAlphaType SkImage::alphaType() const {
-    return as_IB(this)->onAlphaType();
+    return as_IB(this)->onImageInfo().alphaType();
 }
 
 SkColorSpace* SkImage::colorSpace() const {

@@ -37,12 +37,6 @@ public:
     SkImageInfo onImageInfo() const override {
         return fInfo;
     }
-    SkColorType onColorType() const override {
-        return fInfo.colorType();
-    }
-    SkAlphaType onAlphaType() const override {
-        return fInfo.alphaType();
-    }
 
     SkIRect onGetSubset() const override {
         return SkIRect::MakeXYWH(fOrigin.fX, fOrigin.fY, fInfo.width(), fInfo.height());

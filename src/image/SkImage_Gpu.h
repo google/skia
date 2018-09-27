@@ -26,8 +26,6 @@ public:
     ~SkImage_Gpu() override;
 
     SkImageInfo onImageInfo() const override;
-    SkColorType onColorType() const override;
-    SkAlphaType onAlphaType() const override { return fAlphaType; }
 
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
