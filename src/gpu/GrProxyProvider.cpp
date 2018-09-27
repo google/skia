@@ -174,30 +174,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
     return result;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createInstantiatedProxy(const GrSurfaceDesc& desc,
-                                                               GrSurfaceOrigin origin,
-                                                               SkBackingFit fit,
-                                                               SkBudgeted budgeted,
-                                                               GrSurfaceDescFlags descFlags) {
-    sk_sp<GrTexture> tex;
-
-    if (SkBackingFit::kApprox == fit) {
-        tex = fResourceProvider->createApproxTexture(desc, descFlags);
-    } else {
-        tex = fResourceProvider->createTexture(desc, budgeted, descFlags);
-    }
-    if (!tex) {
-        return nullptr;
-    }
-
-    return this->createWrapped(std::move(tex), origin);
-}
-
 sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImage,
                                                           GrSurfaceDescFlags descFlags,
                                                           int sampleCnt,
                                                           SkBudgeted budgeted,
-                                                          SkBackingFit fit) {
+                                                          SkBackingFit fit,
+                                                          GrInternalSurfaceFlags surfaceFlags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(srcImage);
 
@@ -230,7 +212,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         }
     }
 
-    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
         if (fCaps->usesMixedSamples() && sampleCnt > 1) {
             surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
@@ -248,7 +229,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     desc.fConfig = config;
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, budgeted, srcImage, fit](GrResourceProvider* resourceProvider) {
+            [desc, budgeted, srcImage, fit, surfaceFlags](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     // Nothing to clean up here. Once the proxy (and thus lambda) is deleted the ref
                     // on srcImage will be released.
@@ -258,7 +239,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
                 SkAssertResult(srcImage->peekPixels(&pixMap));
                 GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
 
-                return resourceProvider->createTexture(desc, budgeted, fit, mipLevel);
+                auto resourceProviderFlags = GrResourceProvider::Flags::kNone;
+                if (surfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) {
+                    resourceProviderFlags |= GrResourceProvider::Flags::kNoPendingIO;
+                }
+                return resourceProvider->createTexture(desc, budgeted, fit, mipLevel,
+                                                       resourceProviderFlags);
             },
             desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrTextureType::k2D, surfaceFlags, fit,
             budgeted);

@@ -313,7 +313,7 @@ public:
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
                     return resourceProvider->createTexture(desc, SkBudgeted::kYes,
-                                                           GrResourceProvider::kNoPendingIO_Flag);
+                                                           GrResourceProvider::Flags::kNoPendingIO);
                 },
                 GrProxyProvider::Renderable::kYes,
                 kBottomLeft_GrSurfaceOrigin,

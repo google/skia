@@ -131,12 +131,12 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     desc.fConfig = fConfig;
     desc.fSampleCnt = sampleCnt;
 
-    GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::kNone_Flag;
-    if (fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO ||
+    GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::Flags::kNone;
+    if ((fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) ||
         resourceProvider->explicitlyAllocateGPUResources()) {
         // The explicit resource allocator requires that any resources it pulls out of the
         // cache have no pending IO.
-        resourceProviderFlags = GrResourceProvider::kNoPendingIO_Flag;
+        resourceProviderFlags = GrResourceProvider::Flags::kNoPendingIO;
     }
 
     sk_sp<GrSurface> surface;

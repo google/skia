@@ -45,13 +45,15 @@ static sk_sp<GrSurfaceProxy> make_offscreen_rt(GrProxyProvider* provider,
                                                GrSurfaceOrigin origin) {
     SkASSERT(kRenderTarget_GrSurfaceFlag == desc.fFlags);
 
-    return provider->createInstantiatedProxy(desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
+    return provider->testingOnly_createInstantiatedProxy(desc, origin, SkBackingFit::kExact,
+                                                         SkBudgeted::kYes);
 }
 
 static sk_sp<GrSurfaceProxy> make_texture(GrProxyProvider* provider,
                                           const GrSurfaceDesc& desc,
                                           GrSurfaceOrigin origin) {
-    return provider->createInstantiatedProxy(desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
+    return provider->testingOnly_createInstantiatedProxy(desc, origin, SkBackingFit::kExact,
+                                                         SkBudgeted::kYes);
 }
 
 // Test converting between RenderTargetProxies and TextureProxies for preinstantiated Proxies

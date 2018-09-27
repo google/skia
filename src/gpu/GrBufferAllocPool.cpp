@@ -373,7 +373,7 @@ GrBuffer* GrBufferAllocPool::getBuffer(size_t size) {
     auto resourceProvider = fGpu->getContext()->contextPriv().resourceProvider();
 
     // Shouldn't have to use this flag (https://bug.skia.org/4156)
-    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
+    static const auto kFlags = GrResourceProvider::Flags::kNoPendingIO;
     return resourceProvider->createBuffer(size, fBufferType, kDynamic_GrAccessPattern, kFlags);
 }
 
