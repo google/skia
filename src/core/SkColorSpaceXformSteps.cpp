@@ -35,11 +35,33 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     this->flags.premul          = srcAT != kOpaque_SkAlphaType && dstAT == kPremul_SkAlphaType;
 
     if (this->flags.gamut_transform) {
+#ifdef SK_LEGACY_COLORSPACE_XFORM_STEPS_GAMUT_MATRIX
         auto xform = SkMatrix44(*dst->fromXYZD50(), *src->toXYZD50());
         for (int r = 0; r < 3; r++)
         for (int c = 0; c < 3; c++) {
             this->src_to_dst_matrix[3*c+r] = xform.get(r,c);
         }
+#else
+        SkMatrix toXYZD50,
+               fromXYZD50;
+        src->  toXYZD50(&  toXYZD50);
+        dst->fromXYZD50(&fromXYZD50);
+
+        SkMatrix xform = SkMatrix::Concat(fromXYZD50, toXYZD50);
+
+        // xform[i] is row-major, but we want src_to_dst_matrix to be column major.
+        this->src_to_dst_matrix[0] = xform[0];
+        this->src_to_dst_matrix[3] = xform[1];
+        this->src_to_dst_matrix[6] = xform[2];
+
+        this->src_to_dst_matrix[1] = xform[3];
+        this->src_to_dst_matrix[4] = xform[4];
+        this->src_to_dst_matrix[7] = xform[5];
+
+        this->src_to_dst_matrix[2] = xform[6];
+        this->src_to_dst_matrix[5] = xform[7];
+        this->src_to_dst_matrix[8] = xform[8];
+#endif
     }
 
     // Fill out all the transfer functions we'll use:

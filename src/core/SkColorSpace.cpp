@@ -11,9 +11,6 @@
 #include "SkOpts.h"
 #include "../../third_party/skcms/skcms.h"
 
-// TODO: this is kind of ridiculous
-static_assert(sizeof(SkColorSpace) == 45*4, "");
-
 bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
     skcms_Matrix3x3 toXYZ;
     if (!skcms_PrimariesToXYZD50(fRX, fRY, fGX, fGY, fBX, fBY, fWX, fWY, &toXYZ)) {
@@ -25,12 +22,19 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+static SkMatrix colorspace_4x4_to_3x3(const SkMatrix44& m) {
+    return SkMatrix::MakeAll(m.get(0,0), m.get(0,1), m.get(0,2),
+                             m.get(1,0), m.get(1,1), m.get(1,2),
+                             m.get(2,0), m.get(2,1), m.get(2,2));
+}
+
 SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
                            const SkColorSpaceTransferFn* transferFn,
                            const SkMatrix44& toXYZD50)
         : fGammaNamed(gammaNamed)
         , fToXYZD50(toXYZD50)
-        , fToXYZD50Hash(SkOpts::hash_fn(toXYZD50.values(), 16 * sizeof(SkMScalar), 0))
+        , fToXYZD503x3(colorspace_4x4_to_3x3(toXYZD50))
+        , fToXYZD50Hash(SkOpts::hash_fn(&fToXYZD503x3[0], 9 * sizeof(SkScalar), 0))
         , fFromXYZD50(SkMatrix44::kUninitialized_Constructor) {
     SkASSERT(fGammaNamed != kNonStandard_SkGammaNamed || transferFn);
     if (transferFn) {
@@ -202,8 +206,18 @@ const SkMatrix44* SkColorSpace::fromXYZD50() const {
             srgbToxyzD50.set3x3RowMajorf(gSRGB_toXYZD50);
             srgbToxyzD50.invert(&fFromXYZD50);
         }
+        fFromXYZD503x3 = colorspace_4x4_to_3x3(fFromXYZD50);
     });
     return &fFromXYZD50;
+}
+
+void SkColorSpace::toXYZD50(SkMatrix* m) const {
+    *m = fToXYZD503x3;
+}
+
+void SkColorSpace::fromXYZD50(SkMatrix* m) const {
+    (void)this->fromXYZD50();  // Make sure fFromXYZD503x3 has been calculated.
+    *m = fFromXYZD503x3;
 }
 
 bool SkColorSpace::isSRGB() const {

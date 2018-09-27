@@ -9,6 +9,7 @@
 #define SkColorSpace_DEFINED
 
 #include "../private/SkOnce.h"
+#include "SkMatrix.h"
 #include "SkMatrix44.h"
 #include "SkRefCnt.h"
 
@@ -240,6 +241,10 @@ public:
      */
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
+
+    void   toXYZD50(SkMatrix*) const;
+    void fromXYZD50(SkMatrix*) const;
+
 private:
     SkColorSpace(SkGammaNamed gammaNamed,
                  const SkColorSpaceTransferFn* transferFn,
@@ -248,10 +253,13 @@ private:
 
     SkGammaNamed           fGammaNamed;    // TODO: 2-bit, pack more tightly?  or drop?
     SkColorSpaceTransferFn fTransferFn;
-    SkMatrix44             fToXYZD50;      // TODO: SkMatrix, or just 9 floats?
-    uint32_t               fToXYZD50Hash;  // TODO: Drop?
 
-    mutable SkMatrix44     fFromXYZD50;    // TODO: Maybe don't cache?
+    SkMatrix44             fToXYZD50;      // TODO: Drop
+    SkMatrix               fToXYZD503x3;
+    uint32_t               fToXYZD50Hash;  // TODO: Switch to whole-CS hash?
+
+    mutable SkMatrix44     fFromXYZD50;    // TODO: Drop
+    mutable SkMatrix       fFromXYZD503x3;
     mutable SkOnce         fFromXYZOnce;
 };
 
