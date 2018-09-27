@@ -14,10 +14,6 @@
 void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
                                       const GrFragmentProcessor& processor) {
     this->onSetData(pdman, processor);
-    SkASSERT(fChildProcessors.count() == processor.numChildProcessors());
-    for (int i = 0; i < fChildProcessors.count(); ++i) {
-        fChildProcessors[i]->setData(pdman, processor.childProcessor(i));
-    }
 }
 
 void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor, EmitArgs& args) {

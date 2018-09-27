@@ -124,6 +124,8 @@ public:
 
     virtual void emitCode(EmitArgs&) = 0;
 
+    // This does not recurse to any attached child processors. Recursing the entire processor tree
+    // is the responsibility of the caller.
     void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor);
 
     int numChildProcessors() const { return fChildProcessors.count(); }

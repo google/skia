@@ -81,7 +81,7 @@ void GrMtlPipelineState::setData(const GrPrimitiveProcessor& primProc,
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
     while (fp && glslFP) {
-       glslFP->setData(fDataManager, *fp);
+        glslFP->setData(fDataManager, *fp);
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const auto& sampler = fp->textureSampler(i);
             fSamplerBindings.emplace_back(sampler.samplerState(), sampler.peekTexture(),
