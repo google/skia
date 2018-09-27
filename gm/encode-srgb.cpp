@@ -43,7 +43,7 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
     sk_sp<SkData> data = GetResourceAsData(resource);
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(data);
     if (kRGBA_F16_SkColorType == colorType && !colorSpace) {
-        colorSpace = SkColorSpace::MakeSRGB();
+//        colorSpace = SkColorSpace::MakeSRGB();
     }
     SkImageInfo dstInfo = codec->getInfo().makeColorType(colorType)
                                           .makeAlphaType(alphaType)
@@ -101,31 +101,28 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(imageWidth * 2, imageHeight * 15);
+        return SkISize::Make(imageWidth, imageHeight * 3);
     }
 
     void onDraw(SkCanvas* canvas) override {
         const SkColorType colorTypes[] = {
-            kN32_SkColorType, kRGBA_F16_SkColorType, kGray_8_SkColorType, kRGB_565_SkColorType,
+            kRGBA_F16_SkColorType,
         };
         const SkAlphaType alphaTypes[] = {
             kUnpremul_SkAlphaType, kPremul_SkAlphaType, kOpaque_SkAlphaType,
         };
         const sk_sp<SkColorSpace> colorSpaces[] = {
-            nullptr, SkColorSpace::MakeSRGB(),
+            nullptr,
         };
 
         SkBitmap bitmap;
         for (SkColorType colorType : colorTypes) {
             for (SkAlphaType alphaType : alphaTypes) {
-                canvas->save();
                 for (sk_sp<SkColorSpace> colorSpace : colorSpaces) {
                     make(&bitmap, colorType, alphaType, colorSpace);
                     auto image = SkImage::MakeFromEncoded(encode_data(bitmap, fEncodedFormat));
                     canvas->drawImage(image.get(), 0.0f, 0.0f);
-                    canvas->translate((float) imageWidth, 0.0f);
                 }
-                canvas->restore();
                 canvas->translate(0.0f, (float) imageHeight);
             }
         }
