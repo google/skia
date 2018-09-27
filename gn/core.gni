@@ -9,6 +9,7 @@ _include = get_path_info("../include", "abspath")
 
 skia_core_sources = [
   "$_src/c/sk_paint.cpp",
+  "$_src/c/sk_path.cpp",
   "$_src/c/sk_surface.cpp",
   "$_src/c/sk_types_priv.h",
 

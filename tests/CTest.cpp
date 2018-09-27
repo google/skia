@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "sk_canvas.h"
 #include "sk_paint.h"
+#include "sk_path.h"
 #include "sk_shader.h"
 #include "sk_surface.h"
 #include "sk_types.h"
@@ -54,6 +55,24 @@ static void shader_test(skiatest::Reporter* reporter) {
     sk_surface_unref(surface);
 }
 
+static void test_path_bounds(skiatest::Reporter* reporter) {
+    sk_pathbuilder_t* builder = sk_pathbuilder_new();
+    sk_pathbuilder_move_to(builder, 10, 10);
+    sk_pathbuilder_line_to(builder, 20, 10);
+    sk_pathbuilder_conic_to(builder, 20, 20, 10, 20, 0.5f);
+    sk_pathbuilder_close(builder);
+
+    sk_path_t* path = sk_pathbuilder_detach_path(builder);
+    sk_pathbuilder_delete(builder);
+
+    sk_rect_t rect;
+    sk_path_get_bounds(path, &rect);
+    REPORTER_ASSERT(reporter, rect.left   == 10);
+    REPORTER_ASSERT(reporter, rect.top    == 10);
+    REPORTER_ASSERT(reporter, rect.right  == 20);
+    REPORTER_ASSERT(reporter, rect.bottom == 20);
+}
+
 static void test_c(skiatest::Reporter* reporter) {
     sk_colortype_t ct = sk_colortype_get_default_8888();
 
@@ -87,4 +106,5 @@ static void test_c(skiatest::Reporter* reporter) {
 DEF_TEST(C_API, reporter) {
     test_c(reporter);
     shader_test(reporter);
+    test_path_bounds(reporter);
 }

@@ -204,9 +204,16 @@ typedef struct sk_paint_t sk_paint_t;
 /**
     A sk_path_t encapsulates compound (multiple contour) geometric
     paths consisting of straight line segments, quadratic curves, and
-    cubic curves.
+    cubic curves. This is built from a sk_pathbuilder_t.
 */
 typedef struct sk_path_t sk_path_t;
+
+/**
+    pathbuilder is a factory that accumulates line/curve segments, and returns
+    a built sk_path_t (by calling detach).
+ */
+typedef struct sk_pathbuilder_t sk_pathbuilder_t;
+
 /**
     A sk_picture_t holds recorded canvas drawing commands to be played
     back at a later time.
