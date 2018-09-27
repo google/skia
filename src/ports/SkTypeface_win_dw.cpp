@@ -32,6 +32,9 @@
 #include "SkUtils.h"
 
 void DWriteFontTypeface::onGetFamilyName(SkString* familyName) const {
+    // TODO: Implement this on top of IDWriteFontFace3.
+    if (!fDWriteFontFamily)
+        return;
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
     HRV(fDWriteFontFamily->GetFamilyNames(&familyNames));
 
@@ -81,6 +84,9 @@ int DWriteFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                         uint16_t glyphs[], int glyphCount) const
 {
     if (nullptr == glyphs) {
+        // TODO: Implement this based on IDWriteFontFace::GetGlyphIndices.
+        if (!fDWriteFont) return glyphCount;
+
         EncodingProc next_ucs4_proc = find_encoding_proc(encoding);
         for (int i = 0; i < glyphCount; ++i) {
             const SkUnichar c = next_ucs4_proc(&chars);
@@ -350,7 +356,7 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
         SkTScopedComPtr<IDWriteFontResource> fontResource;
         HRN(fontFace5->GetFontResource(&fontResource));
         SkTScopedComPtr<IDWriteFontFace5> newFontFace5;
-        HRN(fontResource->CreateFontFace(fDWriteFont->GetSimulations(),
+        HRN(fontResource->CreateFontFace(fDWriteFontFace->GetSimulations(),
                                          fontAxisValue.get(),
                                          fontAxisCount,
                                          &newFontFace5));
@@ -478,22 +484,21 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     {
         SkTScopedComPtr<IDWriteLocalizedStrings> postScriptNames;
         BOOL exists = FALSE;
-        if (FAILED(fDWriteFont->GetInformationalStrings(
-                        DWRITE_INFORMATIONAL_STRING_POSTSCRIPT_NAME,
-                        &postScriptNames,
-                        &exists)) ||
+        // TODO: Implement retrieving PostScript Name from IDWriteFontFace3.
+        if (!fDWriteFont ||
+            FAILED(fDWriteFont->GetInformationalStrings(
+                    DWRITE_INFORMATIONAL_STRING_POSTSCRIPT_NAME, &postScriptNames, &exists)) ||
             !exists ||
-            FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &info->fPostScriptName)))
-        {
+            FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &info->fPostScriptName))) {
             SkDEBUGF("Unable to get postscript name for typeface %p\n", this);
         }
     }
 
     // SkAdvancedTypefaceMetrics::fFontName must actually be a family name.
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-    if (FAILED(fDWriteFontFamily->GetFamilyNames(&familyNames)) ||
-        FAILED(sk_get_locale_string(familyNames.get(), nullptr, &info->fFontName)))
-    {
+    // TODO: Implement this on IDWriteFontFace3 instead, when available.
+    if (!fDWriteFont || FAILED(fDWriteFontFamily->GetFamilyNames(&familyNames)) ||
+        FAILED(sk_get_locale_string(familyNames.get(), nullptr, &info->fFontName))) {
         SkDEBUGF("Unable to get family name for typeface 0x%p\n", this);
     }
     if (info->fPostScriptName.isEmpty()) {
