@@ -227,7 +227,7 @@ sk_sp<SkData> ResourceProvider::load(const char[], const char[]) const {
     return nullptr;
 }
 
-sk_sp<SkData> ResourceProvider::loadWebFont(const char[]) const {
+sk_sp<SkData> ResourceProvider::loadFont(const char[], const char[]) const {
     return nullptr;
 }
 

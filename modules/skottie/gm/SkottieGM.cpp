@@ -27,7 +27,7 @@ class FakeWebFontProvider final : public ResourceProvider {
 public:
     FakeWebFontProvider() : fFontData(GetResourceAsData(kWebFontResource)) {}
 
-    sk_sp<SkData> loadWebFont(const char[]) const {
+    sk_sp<SkData> loadFont(const char[], const char[]) const override {
         return fFontData;
     }
 

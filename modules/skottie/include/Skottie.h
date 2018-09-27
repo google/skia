@@ -47,7 +47,10 @@ public:
                                const char resource_name[]) const;
 
     /**
-     * Load a web font from |url| and return as an SkData.
+     * Load an external font and return as SkData.
+     *
+     * @param name  font name    ("fName" Lottie property)
+     * @param url   web font URL ("fPath" Lottie property)
      *
      * -- Note --
      *
@@ -56,7 +59,7 @@ public:
      *   capabilities (woff, woff2).  In that case, the embedder would need to advertise no user
      *   agent capabilities when fetching the URL, in order to receive full font data.
      */
-    virtual sk_sp<SkData> loadWebFont(const char url[]) const;
+    virtual sk_sp<SkData> loadFont(const char name[], const char url[]) const;
 };
 
 class SK_API Animation : public SkRefCnt {
