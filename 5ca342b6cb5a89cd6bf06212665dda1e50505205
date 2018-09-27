@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b2799ac4_6d216983",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-09-27T18:44:50Z",
+      "side": 1,
+      "message": "Oh, right, I meant to comment about this.  Maybe I\u0027m just being lazy, but it seems to me that we should only need one service account to update assets in Skia, as opposed to one per asset.  WDYT?",
+      "parentUuid": "1584c702_bb540bc5",
+      "revId": "5ca342b6cb5a89cd6bf06212665dda1e50505205",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "16e56bcd_7ceff32a",
         "filename": "infra/bots/update_go_deps.py",
         "patchSetId": 4
