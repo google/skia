@@ -22,6 +22,30 @@
       "revId": "f1935e83dc268f87382800513eb23e5ea58994d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59bd13b3_e195ce07",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-27T21:02:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "262dc52b_523871dc",
+      "range": {
+        "startLine": 434,
+        "startChar": 92,
+        "endLine": 434,
+        "endChar": 98
+      },
+      "revId": "f1935e83dc268f87382800513eb23e5ea58994d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
