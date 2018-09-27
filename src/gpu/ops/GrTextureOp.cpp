@@ -275,36 +275,37 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
     auto nextCW  = [](const Sk4f& v) { return SkNx_shuffle<2, 0, 3, 1>(v); };
     auto nextCCW = [](const Sk4f& v) { return SkNx_shuffle<1, 3, 0, 2>(v); };
 
-    // Compute edge equations for the quad.
     auto xnext = nextCCW(*x);
     auto ynext = nextCCW(*y);
-    // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
-    auto xdiff = xnext - *x;
-    auto ydiff = ynext - *y;
-    Sk4f invLengths = fma(xdiff, xdiff, ydiff * ydiff).rsqrt();
-    xdiff *= invLengths;
-    ydiff *= invLengths;
-
-    // Use above vectors to compute edge equations.
-    *c = fma(xnext, *y,  -ynext * *x) * invLengths;
+    *a = ynext - *y;
+    *b = *x - xnext;
+    *c = fma(xnext, *y,  -ynext * *x);
+    Sk4f invNormLengths = (*a * *a + *b * *b).rsqrt();
     // Make sure the edge equations have their normals facing into the quad in device space.
-    auto test = fma(ydiff, nextCW(*x), fma(-xdiff, nextCW(*y), *c));
+    auto test = fma(*a, nextCW(*x), fma(*b, nextCW(*y), *c));
     if ((test < Sk4f(0)).anyTrue()) {
-        *a = -ydiff;
-        *b = xdiff;
-        *c = -*c;
-    } else {
-        *a = ydiff;
-        *b = -xdiff;
+        invNormLengths = -invNormLengths;
     }
-    // Outset the edge equations so aa coverage evaluates to zero half a pixel away from the
-    // original quad edge.
-    *c += 0.5f;
+    *a *= invNormLengths;
+    *b *= invNormLengths;
+    *c *= invNormLengths;
 
-    // Outset the corners by half a pixel along each of the two adjacent vectors to ensure all
-    // pixel centers are covered.
-    *x += 0.5f * (-xdiff + nextCW(xdiff));
-    *y += 0.5f * (-ydiff + nextCW(ydiff));
+    // Here is the outset. This makes our edge equations compute coverage without requiring a
+    // half pixel offset and is also used to compute the bloated quad that will cover all
+    // pixels.
+    *c += Sk4f(0.5f);
+
+    // Reverse the process to compute the points of the bloated quad from the edge equations.
+    // This time the inputs don't have 1s as their third coord and we want to homogenize rather
+    // than normalize.
+    auto anext = nextCW(*a);
+    auto bnext = nextCW(*b);
+    auto cnext = nextCW(*c);
+    *x = fma(bnext, *c, -*b * cnext);
+    *y = fma(*a, cnext, -anext * *c);
+    auto ic = (fma(anext, *b, -bnext * *a)).invert();
+    *x *= ic;
+    *y *= ic;
 }
 
 namespace {
