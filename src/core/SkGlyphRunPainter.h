@@ -161,6 +161,8 @@ void SkGlyphRunListPainter::forEachMappedDrawableGlyph(
     }
 }
 
+// Beware! The following code will end up holding two glyph caches at the same time, but they
+// will not be the same cache (which would cause two separate caches to be created).
 template <typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
         SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun,
