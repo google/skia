@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cf07b89_38cc9c7f",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-27T20:17:46Z",
+      "side": 1,
+      "message": "cause?",
+      "range": {
+        "startLine": 165,
+        "startChar": 42,
+        "endLine": 165,
+        "endChar": 43
+      },
+      "revId": "4b5d369b515d1ec69cfe2c63ec5a756e75887a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2adb5cc4_9c3357d6",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-27T20:17:46Z",
+      "side": 1,
+      "message": "The \u0027canonical path text size\u0027 is a bit of a distant implementation detail we should actually fix, do we really want to mention it here? Also, an \u0027em\u0027 is probably not the right unit here, the text size is by definition 1em, I think you mean that 1em \u003d 64px?",
+      "range": {
+        "startLine": 166,
+        "startChar": 27,
+        "endLine": 166,
+        "endChar": 75
+      },
+      "revId": "4b5d369b515d1ec69cfe2c63ec5a756e75887a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
