@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a7fd888_1c3831e7",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2018-09-27T05:45:09Z",
+      "side": 1,
+      "message": "While reading through this code I found myself having to figure out what the variables actually are.\n\nA lot of that is from before your patch. We can make those more clear in a separate patch if you want. But some are new to this patch.\n\nIs |remaining| actually the amount of code length remaining?\n\nI was also unclear on rowIter, which has no comment in the header. I know it previously didn\u0027t have a comment either. But it would help a bunch if we could add that.\nIs rowIter the iterator into the rowBuffer? It seems like rowBuffer holds the decoded palette indices for the row currently being decoded.\n\nSame for |p| and |firstchar| below.",
+      "range": {
+        "startLine": 266,
+        "startChar": 12,
+        "endLine": 266,
+        "endChar": 47
+      },
+      "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94b4fa13_b7a4fa6f",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2018-09-27T05:45:09Z",
+      "side": 1,
+      "message": "We probably want to clear out the entire suffix table, right?",
+      "range": {
+        "startLine": 949,
+        "startChar": 8,
+        "endLine": 949,
+        "endChar": 25
+      },
+      "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
