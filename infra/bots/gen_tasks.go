@@ -73,6 +73,7 @@ const (
 	SERVICE_ACCOUNT_CT_SKPS            = "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_HOUSEKEEPER        = "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_RECREATE_SKPS      = "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
+	SERVICE_ACCOUNT_UPDATE_GO_DEPS     = "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPDATE_META_CONFIG = "skia-update-meta-config@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPLOAD_BINARY      = "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPLOAD_CALMBENCH   = "skia-external-calmbench-upload@skia-swarming-bots.iam.gserviceaccount.com"
@@ -311,7 +312,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -895,6 +896,18 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_GO_DEPS_NAME))
 	timeout(task, 4*time.Hour)
+	b.MustAddTask(name, task)
+	return name
+}
+
+// updateGoDEPS generates an UpdateGoDEPS task. Returns the name of the last
+// task in the generated chain of tasks, which the Job should add as a
+// dependency.
+func updateGoDEPS(b *specs.TasksCfgBuilder, name string) string {
+	dims := linuxGceDimensions(MACHINE_TYPE_LARGE)
+	task := kitchenTask(name, "update_go_deps", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPDATE_GO_DEPS, dims, nil, OUTPUT_NONE)
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
+	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	b.MustAddTask(name, task)
 	return name
 }
