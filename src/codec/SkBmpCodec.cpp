@@ -481,7 +481,7 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                 SkASSERT(!inIco || nullptr != stream->getMemoryBase());
 
                 // Set the image info and create a codec.
-                auto info = SkEncodedInfo::MakeSRGB(width, height, color, alpha, bitsPerComponent);
+                auto info = SkEncodedInfo::Make(width, height, color, alpha, bitsPerComponent);
                 codecOut->reset(new SkBmpStandardCodec(std::move(info),
                                                        std::unique_ptr<SkStream>(stream),
                                                        bitsPerPixel, numColors, bytesPerColor,
@@ -539,7 +539,7 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                     color = SkEncodedInfo::kBGR_Color;
                     alpha = SkEncodedInfo::kOpaque_Alpha;
                 }
-                auto info = SkEncodedInfo::MakeSRGB(width, height, color, alpha, 8);
+                auto info = SkEncodedInfo::Make(width, height, color, alpha, 8);
                 codecOut->reset(new SkBmpMaskCodec(std::move(info),
                                                    std::unique_ptr<SkStream>(stream), bitsPerPixel,
                                                    masks.release(), rowOrder));
@@ -570,7 +570,7 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                 // is uncommon, but we cannot be certain that an RLE bmp will be
                 // opaque or that we will be able to represent it with a palette.
                 // For that reason, we always indicate that we are kBGRA.
-                auto info = SkEncodedInfo::MakeSRGB(width, height, SkEncodedInfo::kBGRA_Color,
+                auto info = SkEncodedInfo::Make(width, height, SkEncodedInfo::kBGRA_Color,
                                                 SkEncodedInfo::kBinary_Alpha, 8);
                 codecOut->reset(new SkBmpRLECodec(std::move(info),
                                                   std::unique_ptr<SkStream>(stream), bitsPerPixel,

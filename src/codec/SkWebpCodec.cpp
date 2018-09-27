@@ -97,8 +97,8 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
             auto chunk = SkData::MakeWithCopy(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
             profile = SkEncodedInfo::ICCProfile::Make(std::move(chunk));
         }
-        if (!profile || profile->profile()->data_color_space != skcms_Signature_RGB) {
-            profile = SkEncodedInfo::ICCProfile::MakeSRGB();
+        if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
+            profile = nullptr;
         }
     }
 
@@ -178,7 +178,7 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
 }
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
-    SkISize dim = this->getInfo().dimensions();
+    SkISize dim = this->dimensions();
     // SkCodec treats zero dimensional images as errors, so the minimum size
     // that we will recommend is 1x1.
     dim.fWidth = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fWidth));
@@ -187,7 +187,7 @@ SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
 }
 
 bool SkWebpCodec::onDimensionsSupported(const SkISize& dim) {
-    const SkImageInfo& info = this->getInfo();
+    const SkEncodedInfo& info = this->getEncodedInfo();
     return dim.width() >= 1 && dim.width() <= info.width()
             && dim.height() >= 1 && dim.height() <= info.height();
 }
@@ -217,8 +217,7 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
         return false;
     }
 
-    SkIRect dimensions  = SkIRect::MakeSize(this->getInfo().dimensions());
-    if (!dimensions.contains(*desiredSubset)) {
+    if (!this->bounds().contains(*desiredSubset)) {
         return false;
     }
 
@@ -415,8 +414,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
                                          const Options& options, int* rowsDecodedPtr) {
     const int index = options.fFrameIndex;
     SkASSERT(0 == index || index < fFrameHolder.size());
-
-    const auto& srcInfo = this->getInfo();
     SkASSERT(0 == index || !options.fSubset);
 
     WebPDecoderConfig config;
@@ -439,8 +436,8 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // Get the frameRect.  libwebp will have already signaled an error if this is not fully
     // contained by the canvas.
     auto frameRect = SkIRect::MakeXYWH(frame.x_offset, frame.y_offset, frame.width, frame.height);
-    SkASSERT(srcInfo.bounds().contains(frameRect));
-    const bool frameIsSubset = frameRect != srcInfo.bounds();
+    SkASSERT(this->bounds().contains(frameRect));
+    const bool frameIsSubset = frameRect != this->bounds();
     if (independent && frameIsSubset) {
         SkSampler::Fill(dstInfo, dst, rowBytes, options.fZeroInitialized);
     }
@@ -451,7 +448,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     int subsetHeight = frameRect.height();
     if (options.fSubset) {
         SkIRect subset = *options.fSubset;
-        SkASSERT(this->getInfo().bounds().contains(subset));
+        SkASSERT(this->bounds().contains(subset));
         SkASSERT(SkIsAlign2(subset.fLeft) && SkIsAlign2(subset.fTop));
         SkASSERT(this->getValidSubset(&subset) && subset == *options.fSubset);
 
@@ -486,7 +483,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // Ignore the frame size and offset when determining if scaling is necessary.
     int scaledWidth = subsetWidth;
     int scaledHeight = subsetHeight;
-    SkISize srcSize = options.fSubset ? options.fSubset->size() : srcInfo.dimensions();
+    SkISize srcSize = options.fSubset ? options.fSubset->size() : this->dimensions();
     if (srcSize != dstInfo.dimensions()) {
         config.options.use_scaling = 1;
 

@@ -371,10 +371,10 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(png_structp png_pt
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_sRGB)) {
         // sRGB chunks also store a rendering intent: Absolute, Relative,
         // Perceptual, and Saturation.
-        // FIXME (msarett): Extract this information from the sRGB chunk once
+        // FIXME (scroggo): Extract this information from the sRGB chunk once
         //                  we are able to handle this information in
-        //                  SkColorSpace.
-        return SkEncodedInfo::ICCProfile::MakeSRGB();
+        //                  skcms_ICCProfile
+        return nullptr;
     }
 
     // Default to SRGB gamut.
@@ -422,7 +422,7 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(png_structp png_pt
 
     return SkEncodedInfo::ICCProfile::Make(skcmsProfile);
 #else // LIBPNG >= 1.6
-    return SkEncodedInfo::ICCProfile::MakeSRGB();
+    return nullptr;
 #endif // LIBPNG >= 1.6
 }
 
@@ -515,7 +515,7 @@ private:
     }
 
     Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
-        const int height = this->getInfo().height();
+        const int height = this->getEncodedInfo().height();
         png_set_progressive_read_fn(this->png_ptr(), this, nullptr, AllRowsCallback, nullptr);
         fDst = dst;
         fRowBytes = rowBytes;
@@ -654,7 +654,7 @@ private:
             if (fNumberPasses - 1 == pass && rowNum == fLastRow) {
                 // Last pass, and we have read all of the rows we care about.
                 fInterlacedComplete = true;
-                if (fLastRow != this->getInfo().height() - 1 ||
+                if (fLastRow != this->getEncodedInfo().height() - 1 ||
                         (this->swizzler() && this->swizzler()->sampleY() != 1)) {
                     // Fake error to stop decoding scanlines. Only stop if we're not decoding the
                     // whole image, in which case processing the rest of the image might be
@@ -667,7 +667,7 @@ private:
     }
 
     SkCodec::Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
-        const int height = this->getInfo().height();
+        const int height = this->getEncodedInfo().height();
         this->setUpInterlaceBuffer(height);
         png_set_progressive_read_fn(this->png_ptr(), this, nullptr, InterlacedRowCallback,
                                     nullptr);
@@ -929,10 +929,6 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
                 default:
                     break;
             }
-        }
-        if (!profile) {
-            // Treat unsupported/invalid color spaces as sRGB.
-            profile = SkEncodedInfo::ICCProfile::MakeSRGB();
         }
 
         if (encodedColorType == PNG_COLOR_TYPE_GRAY_ALPHA) {

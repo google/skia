@@ -139,8 +139,9 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(
         auto icc = SkData::MakeWithCopy(frameInfo.mIccData.get(), frameInfo.mIccSize);
         profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
     }
-    if (!profile || profile->profile()->data_color_space != skcms_Signature_RGB) {
-        profile = SkEncodedInfo::ICCProfile::MakeSRGB();
+    if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
+        // This will result in sRGB.
+        profile = nullptr;
     }
 
     SkEncodedInfo info = SkEncodedInfo::Make(frameInfo.mWidth, frameInfo.mHeight,
@@ -160,8 +161,8 @@ SkHeifCodec::SkHeifCodec(SkEncodedInfo&& info, HeifDecoder* heifDecoder, SkEncod
 {}
 
 
-bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, SkColorType /*srcColorType*/,
-                                      bool srcIsOpaque, bool needsColorXform) {
+bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaque,
+                                      bool needsColorXform) {
     SkASSERT(srcIsOpaque);
 
     if (kUnknown_SkAlphaType == dstInfo.alphaType()) {

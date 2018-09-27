@@ -32,7 +32,7 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
         // Subsets are not supported.
         return kUnimplemented;
     }
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+    if (dstInfo.dimensions() != this->dimensions()) {
         SkCodecPrintf("Error: scaling not supported.\n");
         return kInvalidScale;
     }
@@ -64,8 +64,8 @@ SkCodec::Result SkBmpMaskCodec::onPrepareToDecode(const SkImageInfo& dstInfo,
         }
     }
 
-    // Initialize the mask swizzler
-    fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(swizzlerInfo, this->getInfo(),
+    bool srcIsOpaque = this->getEncodedInfo().opaque();
+    fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(swizzlerInfo, srcIsOpaque,
             fMasks.get(), this->bitsPerPixel(), options));
     SkASSERT(fMaskSwizzler);
 
