@@ -12,11 +12,14 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
-                                      const GrFragmentProcessor& processor) {
+                                      const GrFragmentProcessor& processor,
+                                      bool setChildren) {
     this->onSetData(pdman, processor);
-    SkASSERT(fChildProcessors.count() == processor.numChildProcessors());
-    for (int i = 0; i < fChildProcessors.count(); ++i) {
-        fChildProcessors[i]->setData(pdman, processor.childProcessor(i));
+    if (setChildren) {
+        SkASSERT(fChildProcessors.count() == processor.numChildProcessors());
+        for (int i = 0; i < fChildProcessors.count(); ++i) {
+            fChildProcessors[i]->setData(pdman, processor.childProcessor(i), setChildren);
+        }
     }
 }
 
