@@ -16,9 +16,11 @@
 #include "GrMtlCaps.h"
 #include "GrMtlCopyManager.h"
 #include "GrMtlResourceProvider.h"
+#include "GrMtlStencilAttachment.h"
 
 #import <Metal/Metal.h>
 
+class GrMtlGpuRTCommandBuffer;
 class GrMtlTexture;
 class GrSemaphore;
 struct GrMtlBackendContext;
@@ -170,11 +172,13 @@ private:
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
-                                                                int height) override {
-        return nullptr;
-    }
+                                                                int height) override;
 
-    void clearStencil(GrRenderTarget* target, int clearValue) override  {}
+    void clearStencil(GrRenderTarget* target, int clearValue) override;
+
+    id<MTLDepthStencilState> disabledStencilState() const {
+        return fDisabledStencilState;
+    }
 
 #if GR_TEST_UTILS
     bool createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int h, bool texturable,
@@ -193,7 +197,13 @@ private:
     GrMtlCopyManager fCopyManager;
     GrMtlResourceProvider fResourceProvider;
 
+    id<MTLDepthStencilState> fDisabledStencilState;
+    int fStencilClearValue;
+
     typedef GrGpu INHERITED;
+
+    friend class GrMtlGpuRTCommandBuffer;
+    friend class GrMtlPipelineState;
 };
 
 #endif

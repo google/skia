@@ -11,6 +11,7 @@
 #include "GrMtlPipelineState.h"
 #include "GrMtlPipelineStateBuilder.h"
 #include "GrMtlRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 
 GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
         GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
@@ -27,9 +28,34 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
                                                     fRenderTarget->height());
         this->internalBegin();
         this->internalEnd();
+        const GrMtlStencilAttachment* stencil = static_cast<GrMtlStencilAttachment*>(
+                                                     rt->renderTargetPriv().getStencilAttachment());
+        if (stencil) {
+            fRenderPassDesc.stencilAttachment.texture = stencil->stencilView();
+        }
         fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
     } else {
         fCommandBufferInfo.fBounds.setEmpty();
+    }
+    switch (stencilInfo.fLoadOp) {
+        case GrLoadOp::kLoad:
+            fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
+            break;
+        case GrLoadOp::kClear:
+            fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionClear;
+            fRenderPassDesc.stencilAttachment.clearStencil = gpu->fStencilClearValue;
+            break;
+        case GrLoadOp::kDiscard:
+            fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionDontCare;
+            break;
+    }
+    switch (stencilInfo.fStoreOp) {
+        case GrStoreOp::kStore:
+            fRenderPassDesc.stencilAttachment.storeAction = MTLStoreActionStore;
+            break;
+        case GrStoreOp::kDiscard:
+            fRenderPassDesc.stencilAttachment.storeAction = MTLStoreActionDontCare;
+            break;
     }
 }
 
@@ -136,6 +162,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     pipelineState->bind(fActiveRenderCmdEncoder);
     pipelineState->setBlendConstants(fActiveRenderCmdEncoder, fRenderTarget->config(),
                                      pipeline.getXferProcessor());
+    pipelineState->setDepthStencilState(fActiveRenderCmdEncoder);
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
