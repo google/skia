@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1584c702_bb540bc5",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-09-27T17:36:12Z",
+      "side": 1,
+      "message": "Same service account as recreate-skps?",
+      "revId": "5ca342b6cb5a89cd6bf06212665dda1e50505205",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "16e56bcd_7ceff32a",
         "filename": "infra/bots/update_go_deps.py",
         "patchSetId": 4
@@ -22,6 +39,30 @@
       "revId": "5ca342b6cb5a89cd6bf06212665dda1e50505205",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f578ed3d_fff64d0d",
+        "filename": "infra/bots/update_go_deps.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-09-27T17:36:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "16e56bcd_7ceff32a",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 63
+      },
+      "revId": "5ca342b6cb5a89cd6bf06212665dda1e50505205",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
