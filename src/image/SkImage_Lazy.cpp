@@ -372,7 +372,6 @@ static void set_key_on_proxy(GrProxyProvider* proxyProvider,
                              GrTextureProxy* proxy, GrTextureProxy* originalProxy,
                              const GrUniqueKey& key) {
     if (key.isValid()) {
-        SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
         if (originalProxy && originalProxy->getUniqueKey().isValid()) {
             SkASSERT(originalProxy->getUniqueKey() == key);
             SkASSERT(GrMipMapped::kYes == proxy->mipMapped() &&
@@ -430,6 +429,10 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
     enum { kLockTexturePathCount = kRGBA_LockTexturePath + 1 };
 
     // Build our texture key.
+    // Even though some proxies created here may have a specific origin and use that origin, we do
+    // not include that in the key. Since SkImages are meant to be immutable, a given SkImage will
+    // always have an associated proxy that is always one origin or the other. It never can change
+    // origins. Thus we don't need to include that info in the key iteself.
     // TODO: This needs to include the dstColorSpace.
     GrUniqueKey key;
     this->makeCacheKeyFromOrigKey(origKey, &key);
