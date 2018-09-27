@@ -175,15 +175,13 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
             (SkGlyphID glyphID, SkPoint position) {
                 if (SkScalarsAreFinite(position.x(), position.y())) {
                     const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
-                    if (!glyph.isEmpty()) {
-                        if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
-                            perPath(glyph, origin + position);
-                        } else {
-                            SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
-                            maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
-                            fARGBGlyphsIDs.push_back(glyphID);
-                            fARGBPositions.push_back(position);
-                        }
+                    if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
+                        perPath(glyph, origin + position);
+                    } else {
+                        SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
+                        maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
+                        fARGBGlyphsIDs.push_back(glyphID);
+                        fARGBPositions.push_back(position);
                     }
                 }
             };

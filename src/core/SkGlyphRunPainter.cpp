@@ -248,6 +248,91 @@ void SkGlyphRunListPainter::drawUsingMasks(
     }
 }
 
+// Getting glyphs to the screen in a fallback situation can be complex. Here is the set of
+// transformations that have to happen. Normally, they would all be accommodated by the font
+// scaler, but the atlas has an upper limit to the glyphs it can handle. So the GPU is used to
+// make up the difference from the smaller atlas size to the larger size needed by the final
+// transform. Here are the transformations that are applied.
+//
+// final transform = [view matrix] * [text scale] * [text size]
+//
+// There are three cases:
+// * Go Fast - view matrix is scale and translate, and all the glyphs are small enough
+//   Just scale the positions, and have the glyph cache handle the view matrix transformation.
+//   The text scale is 1.
+// * It's complicated - view matrix is not scale and translate, and the glyphs are small enough
+//   The glyph cache does not handle the view matrix, but stores the glyphs at the text size
+//   specified by the run paint. The GPU handles the rotation, etc. specified by the view matrix.
+//   The text scale is 1.
+// * Too big - The glyphs are too big to fit in the atlas
+//   Reduce the text size so the glyphs will fit in the atlas, but don't apply any
+//   transformations from the view matrix. Calculate a text scale based on that reduction. This
+//   scale factor is used to increase the size of the destination rectangles. The destination
+//   rectangles are then scaled, rotated, etc. by the GPU using the view matrix.
+void SkGlyphRunListPainter::processARGBFallback(
+        SkScalar maxGlyphDimension, const SkPaint& runPaint, SkPoint origin,
+        const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback) {
+    SkASSERT(!fARGBGlyphsIDs.empty());
+
+    SkScalar maxScale = viewMatrix.getMaxScale();
+
+    // This is a conservative estimate of the longest dimension among all the glyph widths and
+    // heights.
+    SkScalar conservativeMaxGlyphDimension = maxGlyphDimension * textScale * maxScale;
+
+    // If the situation that the matrix is simple, and all the glyphs are small enough. Go fast!
+    bool useFastPath =
+            viewMatrix.isScaleTranslate() && conservativeMaxGlyphDimension <= maxGlyphDimension;
+
+    auto glyphIDs = SkSpan<const SkGlyphID>{fARGBGlyphsIDs};
+
+    // A scaled and translated transform is the common case, and is handled directly in fallback.
+    // Even if the transform is scale and translate, fallback must be careful to use glyphs that
+    // fit in the atlas. If a glyph will not fit in the atlas, then the general transform case is
+    // used to render the glyphs.
+    if (useFastPath) {
+        // Translate the positions to device space.
+        viewMatrix.mapPoints(fARGBPositions.data(), fARGBPositions.size());
+        for (SkPoint& point : fARGBPositions) {
+            point.fX =  SkScalarFloorToScalar(point.fX);
+            point.fY =  SkScalarFloorToScalar(point.fY);
+        }
+
+        auto positions = SkSpan<const SkPoint>{fARGBPositions};
+        argbFallback(runPaint, glyphIDs, positions, SK_Scalar1, viewMatrix, kTransformDone);
+
+    } else {
+        // If the matrix is complicated or if scaling is used to fit the glyphs in the cache,
+        // then this case is used.
+
+        // Subtract 2 to account for the bilerp pad around the glyph
+        SkScalar maxAtlasDimension = SkGlyphCacheCommon::kSkSideTooBigForAtlas - 2;
+
+        SkScalar runPaintTextSize = runPaint.getTextSize();
+
+        // Scale the text size down so the long side of all the glyphs will fit in the atlas.
+        SkScalar reducedTextSize =
+                (maxAtlasDimension / conservativeMaxGlyphDimension) * runPaintTextSize;
+
+        // If there's a glyph in the font that's particularly large, it's possible
+        // that fScaledFallbackTextSize may end up minimizing too much. We'd rather skip
+        // that glyph than make the others blurry, so we set a minimum size of half the
+        // maximum text size to avoid this case.
+        SkScalar fallbackTextSize =
+                SkScalarFloorToScalar(std::max(reducedTextSize, 0.5f * runPaintTextSize));
+
+        // Don't allow the text size to get too big. This will also improve glyph cache hit rate
+        // for larger text sizes.
+        fallbackTextSize = std::min(fallbackTextSize, 256.0f);
+
+        SkPaint fallbackPaint{runPaint};
+        fallbackPaint.setTextSize(fallbackTextSize);
+        SkScalar fallbackTextScale = runPaintTextSize / fallbackTextSize;
+        auto positions = SkSpan<const SkPoint>{fARGBPositions};
+        argbFallback(
+                fallbackPaint, glyphIDs, positions, fallbackTextScale, SkMatrix::I(), kDoTransform);
+    }
+}
 
 #if SK_SUPPORT_GPU
 
@@ -413,92 +498,6 @@ void GrTextContext::AppendGlyph(GrTextBlob* blob, int runIndex,
     }
 }
 
-// Getting glyphs to the screen in a fallback situation can be complex. Here is the set of
-// transformations that have to happen. Normally, they would all be accommodated by the font
-// scaler, but the atlas has an upper limit to the glyphs it can handle. So the GPU is used to
-// make up the difference from the smaller atlas size to the larger size needed by the final
-// transform. Here are the transformations that are applied.
-//
-// final transform = [view matrix] * [text scale] * [text size]
-//
-// There are three cases:
-// * Go Fast - view matrix is scale and translate, and all the glyphs are small enough
-//   Just scale the positions, and have the glyph cache handle the view matrix transformation.
-//   The text scale is 1.
-// * It's complicated - view matrix is not scale and translate, and the glyphs are small enough
-//   The glyph cache does not handle the view matrix, but stores the glyphs at the text size
-//   specified by the run paint. The GPU handles the rotation, etc. specified by the view matrix.
-//   The text scale is 1.
-// * Too big - The glyphs are too big to fit in the atlas
-//   Reduce the text size so the glyphs will fit in the atlas, but don't apply any
-//   transformations from the view matrix. Calculate a text scale based on that reduction. This
-//   scale factor is used to increase the size of the destination rectangles. The destination
-//   rectangles are then scaled, rotated, etc. by the GPU using the view matrix.
-
-void SkGlyphRunListPainter::processARGBFallback(
-        SkScalar maxGlyphDimension, const SkPaint& runPaint, SkPoint origin,
-        const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback) {
-    SkASSERT(!fARGBGlyphsIDs.empty());
-
-    SkScalar maxScale = viewMatrix.getMaxScale();
-
-    // This is a conservative estimate of the longest dimension among all the glyph widths and
-    // heights.
-    SkScalar conservativeMaxGlyphDimension = maxGlyphDimension * textScale * maxScale;
-
-    // If the situation that the matrix is simple, and all the glyphs are small enough. Go fast!
-    bool useFastPath =
-            viewMatrix.isScaleTranslate() && conservativeMaxGlyphDimension <= maxGlyphDimension;
-
-    auto glyphIDs = SkSpan<const SkGlyphID>{fARGBGlyphsIDs};
-
-    // A scaled and translated transform is the common case, and is handled directly in fallback.
-    // Even if the transform is scale and translate, fallback must be careful to use glyphs that
-    // fit in the atlas. If a glyph will not fit in the atlas, then the general transform case is
-    // used to render the glyphs.
-    if (useFastPath) {
-        // Translate the positions to device space.
-        viewMatrix.mapPoints(fARGBPositions.data(), fARGBPositions.size());
-        for (SkPoint& point : fARGBPositions) {
-            point.fX =  SkScalarFloorToScalar(point.fX);
-            point.fY =  SkScalarFloorToScalar(point.fY);
-        }
-
-        auto positions = SkSpan<const SkPoint>{fARGBPositions};
-        argbFallback(runPaint, glyphIDs, positions, SK_Scalar1, viewMatrix, kTransformDone);
-
-    } else {
-        // If the matrix is complicated or if scaling is used to fit the glyphs in the cache,
-        // then this case is used.
-
-        // Subtract 2 to account for the bilerp pad around the glyph
-        SkScalar maxAtlasDimension = SkGlyphCacheCommon::kSkSideTooBigForAtlas - 2;
-
-        SkScalar runPaintTextSize = runPaint.getTextSize();
-
-        // Scale the text size down so the long side of all the glyphs will fit in the atlas.
-        SkScalar reducedTextSize =
-                (maxAtlasDimension / conservativeMaxGlyphDimension) * runPaintTextSize;
-
-        // If there's a glyph in the font that's particularly large, it's possible
-        // that fScaledFallbackTextSize may end up minimizing too much. We'd rather skip
-        // that glyph than make the others blurry, so we set a minimum size of half the
-        // maximum text size to avoid this case.
-        SkScalar fallbackTextSize =
-                SkScalarFloorToScalar(std::max(reducedTextSize, 0.5f * runPaintTextSize));
-
-        // Don't allow the text size to get too big. This will also improve glyph cache hit rate
-        // for larger text sizes.
-        fallbackTextSize = std::min(fallbackTextSize, 256.0f);
-
-        SkPaint fallbackPaint{runPaint};
-        fallbackPaint.setTextSize(fallbackTextSize);
-        SkScalar fallbackTextScale = runPaintTextSize / fallbackTextSize;
-        auto positions = SkSpan<const SkPoint>{fARGBPositions};
-        argbFallback(
-                fallbackPaint, glyphIDs, positions, fallbackTextScale, SkMatrix::I(), kDoTransform);
-    }
-}
 
 void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                            GrGlyphCache* glyphCache,
@@ -595,10 +594,12 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             // Given a glyph that is not ARGB, draw it.
             auto perPath = [textScale, runIndex, cacheBlob, &pathCache]
                            (const SkGlyph& glyph, SkPoint position) {
-                const SkPath* path = pathCache->findPath(glyph);
-                if (path != nullptr) {
-                    cacheBlob->appendPathGlyph(
-                            runIndex, *path, position.fX, position.fY, textScale, false);
+                if (!glyph.isEmpty()) {
+                    const SkPath* path = pathCache->findPath(glyph);
+                    if (path != nullptr) {
+                        cacheBlob->appendPathGlyph(
+                                runIndex, *path, position.fX, position.fY, textScale, false);
+                    }
                 }
             };
 
