@@ -56,7 +56,7 @@ protected:
 
     bool onDimensionsSupported(const SkISize&) override;
 
-    bool conversionSupported(const SkImageInfo&, SkColorType, bool, bool) override;
+    bool conversionSupported(const SkImageInfo&, bool, bool) override;
 
 private:
     /*

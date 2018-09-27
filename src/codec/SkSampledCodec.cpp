@@ -18,7 +18,7 @@ SkSampledCodec::SkSampledCodec(SkCodec* codec, ExifOrientationBehavior behavior)
 {}
 
 SkISize SkSampledCodec::accountForNativeScaling(int* sampleSizePtr, int* nativeSampleSize) const {
-    SkISize preSampledSize = this->codec()->getInfo().dimensions();
+    SkISize preSampledSize = this->codec()->dimensions();
     int sampleSize = *sampleSizePtr;
     SkASSERT(sampleSize > 1);
 
@@ -78,7 +78,7 @@ SkCodec::Result SkSampledCodec::onGetAndroidPixels(const SkImageInfo& info, void
     codecOptions.fZeroInitialized = options.fZeroInitialized;
 
     SkIRect* subset = options.fSubset;
-    if (!subset || subset->size() == this->codec()->getInfo().dimensions()) {
+    if (!subset || subset->size() == this->codec()->dimensions()) {
         if (this->codec()->dimensionsSupported(info.dimensions())) {
             return this->codec()->getPixels(info, pixels, rowBytes, &codecOptions);
         }
