@@ -649,20 +649,14 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
         }
 
         std::unique_ptr<SkEncodedInfo::ICCProfile> profile;
-        switch (imageData.color_space) {
-            case ::piex::PreviewImageData::kSrgb:
-                profile = SkEncodedInfo::ICCProfile::MakeSRGB();
-                break;
-            case ::piex::PreviewImageData::kAdobeRgb: {
-                constexpr skcms_TransferFunction twoDotTwo =
-                        { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-                skcms_ICCProfile skcmsProfile;
-                skcms_Init(&skcmsProfile);
-                skcms_SetTransferFunction(&skcmsProfile, &twoDotTwo);
-                skcms_SetXYZD50(&skcmsProfile, &gAdobe_RGB_to_XYZD50);
-                profile = SkEncodedInfo::ICCProfile::Make(skcmsProfile);
-                break;
-            }
+        if (imageData.color_space == ::piex::PreviewImageData::kAdobeRgb) {
+            constexpr skcms_TransferFunction twoDotTwo =
+                    { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+            skcms_ICCProfile skcmsProfile;
+            skcms_Init(&skcmsProfile);
+            skcms_SetTransferFunction(&skcmsProfile, &twoDotTwo);
+            skcms_SetXYZD50(&skcmsProfile, &gAdobe_RGB_to_XYZD50);
+            profile = SkEncodedInfo::ICCProfile::Make(skcmsProfile);
         }
 
         //  Theoretically PIEX can return JPEG compressed image or uncompressed RGB image. We only
@@ -806,8 +800,8 @@ bool SkRawCodec::onDimensionsSupported(const SkISize& dim) {
 SkRawCodec::~SkRawCodec() {}
 
 SkRawCodec::SkRawCodec(SkDngImage* dngImage)
-    : INHERITED(SkEncodedInfo::MakeSRGB(dngImage->width(), dngImage->height(),
-                                        SkEncodedInfo::kRGB_Color,
-                                        SkEncodedInfo::kOpaque_Alpha, 8),
+    : INHERITED(SkEncodedInfo::Make(dngImage->width(), dngImage->height(),
+                                    SkEncodedInfo::kRGB_Color,
+                                    SkEncodedInfo::kOpaque_Alpha, 8),
                 skcms_PixelFormat_RGBA_8888, nullptr)
     , fDngImage(dngImage) {}

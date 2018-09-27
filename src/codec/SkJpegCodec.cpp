@@ -282,9 +282,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
 
 std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                      Result* result) {
-    return SkJpegCodec::MakeFromStream(std::move(stream), result,
-                                       // FIXME: This may not be used. Can we skip creating it?
-                                       SkEncodedInfo::ICCProfile::MakeSRGB());
+    return SkJpegCodec::MakeFromStream(std::move(stream), result, nullptr);
 }
 
 std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> stream,

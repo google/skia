@@ -17,7 +17,6 @@ public:
     class ICCProfile {
     public:
         static std::unique_ptr<ICCProfile> Make(sk_sp<SkData>);
-        static std::unique_ptr<ICCProfile> MakeSRGB();
         static std::unique_ptr<ICCProfile> Make(const skcms_ICCProfile&);
 
         const skcms_ICCProfile* profile() const { return &fProfile; }
@@ -97,11 +96,6 @@ public:
     static SkEncodedInfo Make(int width, int height, Color color, Alpha alpha,
             int bitsPerComponent) {
         return Make(width, height, color, alpha, bitsPerComponent, nullptr);
-    }
-
-    static SkEncodedInfo MakeSRGB(int width, int height, Color color, Alpha alpha,
-            int bitsPerComponent) {
-        return Make(width, height, color, alpha, bitsPerComponent, ICCProfile::MakeSRGB());
     }
 
     static SkEncodedInfo Make(int width, int height, Color color, Alpha alpha,

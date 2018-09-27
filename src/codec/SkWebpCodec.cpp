@@ -97,8 +97,8 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
             auto chunk = SkData::MakeWithCopy(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
             profile = SkEncodedInfo::ICCProfile::Make(std::move(chunk));
         }
-        if (!profile || profile->profile()->data_color_space != skcms_Signature_RGB) {
-            profile = SkEncodedInfo::ICCProfile::MakeSRGB();
+        if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
+            profile = nullptr;
         }
     }
 
