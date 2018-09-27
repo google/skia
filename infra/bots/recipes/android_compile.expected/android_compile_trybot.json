@@ -8,7 +8,7 @@
       "--patchset",
       "1"
     ],
-    "name": "Trigger and wait for task on android-compile.skia.org"
+    "name": "Trigger and wait for task on android compile server"
   },
   {
     "name": "$result",
