@@ -67,6 +67,14 @@
 // Set to make glyph bounding boxes visible.
 #define SK_SHOW_TEXT_BLIT_COVERAGE 0
 
+#if defined(MAC_OS_X_VERSION_10_14)
+extern "C" {
+// Private CoreGraphics function that returns the state of the "Use font smoothing when
+// available" option in System Preferences.
+bool CGFontDefaultAllowsFontSmoothing();
+} // extern "C"
+#endif
+
 CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
     return face ? (CTFontRef)face->internal_private_getCTFontRef() : nullptr;
 }
@@ -379,6 +387,9 @@ static constexpr const uint8_t kSpiderSymbol_ttf[] = {
  */
 static bool supports_LCD() {
     static bool gSupportsLCD = []{
+#if defined(MAC_OS_X_VERSION_10_14)
+      return CGFontDefaultAllowsFontSmoothing();
+#endif
         uint32_t bitmap[16][16] = {};
         SkUniqueCFRef<CGColorSpaceRef> colorspace(CGColorSpaceCreateDeviceRGB());
         SkUniqueCFRef<CGContextRef> cgContext(
