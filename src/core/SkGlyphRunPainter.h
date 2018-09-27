@@ -161,6 +161,11 @@ void SkGlyphRunListPainter::forEachMappedDrawableGlyph(
     }
 }
 
+// Beware! The following code will end up holding two glyph caches at the same time, but they
+// will not be the same cache (which would two seperate caches to be created). The cache that is
+// passed into this method uses the canonical path text size, which is 64em. The fallback glyph
+// cache will be constructed in argbFallback, and will have the text size of the run paint. Since
+// this is the path case, that text size will be much larger than 64em.
 template <typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
         SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun,
