@@ -22,6 +22,7 @@ class GrContext;
 class SkCanvas;
 class SkImage;
 class SkSurface;
+struct SkYUVAIndex;
 
 /*
  * This class is intended to be used as:
@@ -76,7 +77,7 @@ public:
         In other words we will never call textureFulfillProc or textureReleaseProc multiple times
         for the same textureContext before calling the other.
 
-        We we call the promiseDoneProc when we will no longer call the textureFulfillProc again. We
+        We call the promiseDoneProc when we will no longer call the textureFulfillProc again. We
         pass in the textureContext as a parameter to the promiseDoneProc. We also guarantee that
         there will be no outstanding textureReleaseProcs that still need to be called when we call
         the textureDoneProc. Thus when the textureDoneProc gets called the client is able to cleanup
@@ -115,6 +116,24 @@ public:
                                       PromiseDoneProc promiseDoneProc,
                                       TextureContext textureContext);
 
+    /**
+        This entry point operates the same as 'makePromiseTexture' except that its
+        textureFulfillProc can be called up to four times to fetch the required YUVA
+        planes (passing a different textureContext to each call). So, if the 'yuvaIndices'
+        indicate that only the first two backend textures are used, 'textureFulfillProc' will
+        be called with the first two 'textureContexts'.
+     */
+    sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
+                                          const GrBackendFormat yuvaFormats[],
+                                          const SkYUVAIndex yuvaIndices[4],
+                                          int imageWidth,
+                                          int imageHeight,
+                                          GrSurfaceOrigin imageOrigin,
+                                          sk_sp<SkColorSpace> imageColorSpace,
+                                          TextureFulfillProc textureFulfillProc,
+                                          TextureReleaseProc textureReleaseProc,
+                                          PromiseDoneProc promiseDoneProc,
+                                          TextureContext textureContexts[]);
 private:
     bool init();
 

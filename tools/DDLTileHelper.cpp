@@ -9,6 +9,7 @@
 
 #include "DDLPromiseImageHelper.h"
 #include "SkCanvas.h"
+#include "SkDeferredDisplayListPriv.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkImage_Gpu.h"
 #include "SkPicture.h"
@@ -31,10 +32,17 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
     SkDeferredDisplayListRecorder recorder(fCharacterization);
 
     fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
+
+    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
+    if (ddl.get()->priv().numOpLists()) {
+        // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
+        // reinflation of the SKPs contains opLists that means some image subset operation
+        // created a draw.
+        fReconstitutedPicture.reset();
+    }
 }
 
 void DDLTileHelper::TileData::createDDL() {
-    SkASSERT(fReconstitutedPicture);
     SkASSERT(!fDisplayList);
 
     SkDeferredDisplayListRecorder recorder(fCharacterization);
@@ -60,7 +68,9 @@ void DDLTileHelper::TileData::createDDL() {
 
     // Note: in this use case we only render a picture to the deferred canvas
     // but, more generally, clients will use arbitrary draw calls.
-    subCanvas->drawPicture(fReconstitutedPicture);
+    if (fReconstitutedPicture) {
+        subCanvas->drawPicture(fReconstitutedPicture);
+    }
 
     fDisplayList = recorder.detach();
 }
