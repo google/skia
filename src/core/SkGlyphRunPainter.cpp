@@ -595,10 +595,12 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             // Given a glyph that is not ARGB, draw it.
             auto perPath = [textScale, runIndex, cacheBlob, &pathCache]
                            (const SkGlyph& glyph, SkPoint position) {
-                const SkPath* path = pathCache->findPath(glyph);
-                if (path != nullptr) {
-                    cacheBlob->appendPathGlyph(
-                            runIndex, *path, position.fX, position.fY, textScale, false);
+                if (!glyph.isEmpty()) {
+                    const SkPath* path = pathCache->findPath(glyph);
+                    if (path != nullptr) {
+                        cacheBlob->appendPathGlyph(
+                                runIndex, *path, position.fX, position.fY, textScale, false);
+                    }
                 }
             };
 
