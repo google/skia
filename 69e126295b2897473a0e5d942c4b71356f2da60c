@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ec507abe_aa19438f",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8673
+      },
+      "writtenOn": "2018-09-27T15:45:09Z",
+      "side": 1,
+      "message": "If you annotate the function with:\n\n    API_AVAILABLE(macos(10.14))\n\n…it’ll get weakly linked automatically. But it still might be worth seeing if it’s available back to [whatever the Skia min version is] so that the other path can be deleted sooner/now.",
+      "parentUuid": "138a1673_06b8a692",
+      "revId": "69e126295b2897473a0e5d942c4b71356f2da60c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "28f0a2a2_4a363330",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 2
@@ -36,6 +54,23 @@
         "endLine": 71,
         "endChar": 10
       },
+      "revId": "69e126295b2897473a0e5d942c4b71356f2da60c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6724293_ae9064f9",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 8673
+      },
+      "writtenOn": "2018-09-27T15:45:09Z",
+      "side": 1,
+      "message": "This would turn into |if (@available(macOS 10.14, *)|.",
       "revId": "69e126295b2897473a0e5d942c4b71356f2da60c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
