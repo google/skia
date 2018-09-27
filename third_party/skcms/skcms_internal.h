@@ -23,7 +23,6 @@ extern "C" {
 
 // ~~~~ skcms_TransferFunction ~~~~
     float skcms_TransferFunction_eval  (const skcms_TransferFunction*, float);
-    bool  skcms_TransferFunction_invert(const skcms_TransferFunction*, skcms_TransferFunction*);
 
 // ~~~~ skcms_ICCProfile ~~~~
     bool skcms_GetCHAD(const skcms_ICCProfile* profile, skcms_Matrix3x3* m);
