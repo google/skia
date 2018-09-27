@@ -4,6 +4,34 @@
 
 #Class SkPicture
 
+#Code
+class SkPicture : public SkRefCnt {
+public:
+    static sk_sp<SkPicture> MakeFromStream(SkStream* stream,
+                                           const SkDeserialProcs* procs = nullptr);
+    static sk_sp<SkPicture> MakeFromData(const SkData* data,
+                                         const SkDeserialProcs* procs = nullptr);
+    static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
+                                         const SkDeserialProcs* procs = nullptr);
+
+    class AbortCallback {
+    public:
+        AbortCallback();
+        virtual ~AbortCallback();
+        virtual bool abort() = 0;
+    };
+
+    virtual void playback(SkCanvas* canvas, AbortCallback* callback = nullptr) const = 0;
+    virtual SkRect cullRect() const = 0;
+    uint32_t uniqueID() const;
+    sk_sp<SkData> serialize(const SkSerialProcs* procs = nullptr) const;
+    void serialize(SkWStream* stream, const SkSerialProcs* procs = nullptr) const;
+    static sk_sp<SkPicture> MakePlaceholder(SkRect cull);
+    virtual int approximateOpCount() const = 0;
+    virtual size_t approximateBytesUsed() const = 0;
+};
+##
+
 Picture records drawing commands made to Canvas. The command stream may be
 played in whole or in part at a later time.
 
@@ -14,18 +42,6 @@ Picture may contain any Canvas drawing command, as well as one or more
 Canvas_Matrix or Canvas_Clip. Picture has a cull Rect, which is used as
 a bounding box hint. To limit Picture bounds, use Canvas_Clip when
 recording or drawing Picture.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Class
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
 
 # ------------------------------------------------------------------------------
 
@@ -50,7 +66,7 @@ If AbortCallback::abort returns true, SkPicture::playback is interrupted.
 # ------------------------------------------------------------------------------
 
 #Method AbortCallback()
-#In Constructor
+#In Constructors
 #Line # defines default constructor ##
 Has no effect.
 
@@ -66,7 +82,7 @@ Has no effect.
 # ------------------------------------------------------------------------------
 
 #Method virtual ~AbortCallback()
-#In Constructor
+#In Constructors
 #Line # defines default destructor ##
 Has no effect.
 
@@ -136,7 +152,7 @@ void draw(SkCanvas* canvas) {
 
 #Method static sk_sp<SkPicture> MakeFromStream(SkStream* stream,
                                            const SkDeserialProcs* procs = nullptr)
-#In Constructor
+#In Constructors
 #Line # constructs Picture from stream ##
 
 Recreates Picture that was serialized into a stream. Returns constructed Picture
@@ -176,7 +192,7 @@ is called with a pointer to data, data byte length, and user context.
 
 #Method static sk_sp<SkPicture> MakeFromData(const SkData* data,
                                          const SkDeserialProcs* procs = nullptr)
-#In Constructor
+#In Constructors
 #Line # constructs Picture from data ##
 
 Recreates Picture that was serialized into data. Returns constructed Picture
@@ -414,7 +430,7 @@ is called with a pointer to Picture and user context.
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkPicture> MakePlaceholder(SkRect cull)
-#In Constructor
+#In Constructors
 #Line # constructs placeholder with unique identifier ##
 
 Returns a placeholder SkPicture. Result does not draw, and contains only

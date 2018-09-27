@@ -1657,7 +1657,22 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 if (MarkType::kTopic == parent->fMarkType ||
                                         MarkType::kSubtopic == parent->fMarkType) {
                                     const char* commentStart = root->fContentStart;
+                                    int index = 0;
                                     const char* commentEnd = root->fChildren[0]->fStart;
+                                    int line = 1;
+                                    do {
+                                        TextParser parser(root->fFileName, commentStart, commentEnd, line);
+                                        if (!parser.eof()) {
+                                            parser.skipWhiteSpace();
+                                        }
+                                        if (!parser.eof()) {
+                                            break;
+                                        }
+                                        commentStart = root->fChildren[index]->fTerminator;
+                                        ++index;
+                                        SkASSERT(index < root->fChildren.size());
+                                        commentEnd = root->fChildren[index]->fStart;
+                                    } while (true);
                                     this->structOut(root, *root, commentStart, commentEnd);
                                 } else {
                                     SkASSERT(0); // incomplete
@@ -2255,6 +2270,7 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                 } else if (!first) {
                     this->fChar = start;
                     this->fLine = start;
+                    this->fEnd = end;
                     this->reportError("reference unfound");
                     return "";
                 }
