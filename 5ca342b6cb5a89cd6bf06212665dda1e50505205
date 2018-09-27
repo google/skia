@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "57cc2a8f_e07b8e4c",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-09-27T18:57:43Z",
+      "side": 1,
+      "message": "Pro: X separate service accounts to update X assets seems like overkill.\nCon: Might have to give other permissions to that generic service account. Like skia-recreate-skps has access to one of chromium\u0027s buckets. But this should be rare.\n\nHaving one account SGTM. Would be great if that one account eventually had a better name than \u0027skia-recreate-skps@\u0027.",
+      "parentUuid": "b2799ac4_6d216983",
+      "revId": "5ca342b6cb5a89cd6bf06212665dda1e50505205",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "16e56bcd_7ceff32a",
         "filename": "infra/bots/update_go_deps.py",
         "patchSetId": 4
