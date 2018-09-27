@@ -57,16 +57,12 @@ SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaTyp
 SkImage_Gpu::~SkImage_Gpu() {}
 
 SkImageInfo SkImage_Gpu::onImageInfo() const {
-    return SkImageInfo::Make(fProxy->width(), fProxy->height(), this->onColorType(), fAlphaType,
-                             fColorSpace);
-}
-
-SkColorType SkImage_Gpu::onColorType() const {
-    SkColorType ct;
-    if (!GrPixelConfigToColorType(fProxy->config(), &ct)) {
-        ct = kUnknown_SkColorType;
+    SkColorType colorType;
+    if (!GrPixelConfigToColorType(fProxy->config(), &colorType)) {
+        colorType = kUnknown_SkColorType;
     }
-    return ct;
+
+    return SkImageInfo::Make(fProxy->width(), fProxy->height(), colorType, fAlphaType, fColorSpace);
 }
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace*, CachingHint chint) const {

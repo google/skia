@@ -37,8 +37,6 @@ public:
     // Implementors: if you can not return the value, return an invalid ImageInfo with w=0 & h=0
     // & unknown color space.
     virtual SkImageInfo onImageInfo() const = 0;
-    virtual SkColorType onColorType() const = 0;
-    virtual SkAlphaType onAlphaType() const = 0;
 
     virtual SkIRect onGetSubset() const {
         return { 0, 0, this->width(), this->height() };
