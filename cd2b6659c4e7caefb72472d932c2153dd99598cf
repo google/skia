@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c93f6a73_e5d55634",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-27T15:55:31Z",
+      "side": 1,
+      "message": "nit: alignment",
+      "range": {
+        "startLine": 323,
+        "startChar": 28,
+        "endLine": 323,
+        "endChar": 35
+      },
+      "revId": "cd2b6659c4e7caefb72472d932c2153dd99598cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af74434e_4cf3391a",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-27T15:55:31Z",
+      "side": 1,
+      "message": "nit: extra space",
+      "range": {
+        "startLine": 1420,
+        "startChar": 60,
+        "endLine": 1420,
+        "endChar": 61
+      },
+      "revId": "cd2b6659c4e7caefb72472d932c2153dd99598cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2e9ce09_56292860",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1425,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-27T15:55:31Z",
+      "side": 1,
+      "message": "This seems pretty straight forward, why not include such a change?",
+      "range": {
+        "startLine": 1425,
+        "startChar": 12,
+        "endLine": 1425,
+        "endChar": 72
+      },
+      "revId": "cd2b6659c4e7caefb72472d932c2153dd99598cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9bddf74_01e12eda",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1621,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-27T15:55:31Z",
+      "side": 1,
+      "message": "is this \n\nif (!(is_regular_pdf_blend_mode(blendMode) || blendMode \u003d\u003d SkBlendMode::kXor\n                                           || blendMode \u003d\u003d SkBlendMode::kPlus))\n?",
+      "range": {
+        "startLine": 1613,
+        "startChar": 8,
+        "endLine": 1621,
+        "endChar": 47
+      },
+      "revId": "cd2b6659c4e7caefb72472d932c2153dd99598cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24412a28_a4051507",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1641,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-27T15:55:31Z",
+      "side": 1,
+      "message": "It seems like these are \u0027unhandled\u0027? Should the list (xor, plus) be given a name as well, since it\u0027s used more than once?",
+      "range": {
+        "startLine": 1640,
+        "startChar": 48,
+        "endLine": 1641,
+        "endChar": 79
+      },
+      "revId": "cd2b6659c4e7caefb72472d932c2153dd99598cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
