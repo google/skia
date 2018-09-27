@@ -221,7 +221,9 @@
       "model",
       "Golo",
       "os",
-      "Win10"
+      "Win10",
+      "--match",
+      "desk_skbug6850fast.skp"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -236,13 +238,16 @@
       "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]\\[SWARM_OUT_DIR]"
+      "copy",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\nanobench_abc123_1337000001.json",
+      "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "makedirs perf_dir"
+    "name": "Read results"
+  },
+  {
+    "cmd": [],
+    "name": "faster"
   },
   {
     "name": "$result",

@@ -7,6 +7,7 @@
 
 
 import calendar
+import json
 import os
 
 
@@ -319,6 +320,9 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
+  if api.vars.builder_name == 'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE':
+    args.extend(['--match', 'desk_skbug6850fast.skp'])
+
   # See skia:2789.
   if 'AbandonGpuContext' in api.vars.extra_tokens:
     args.extend(['--abandonGpuContext'])
@@ -327,7 +331,132 @@ def perf_steps(api):
           abort_on_failure=False)
 
   # Copy results to swarming out dir.
-  if upload_perf_results(b):
+  if api.vars.builder_name == 'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE':
+    f = api.file.read_raw('Read results', json_path, test_data='''
+{
+   "gitHash" : "cfe1264d7465b0791073969ba6375dcca20afec9",
+   "results" : {
+      "desk_skbug6850fast.skp_1_1000_1000" : {
+         "angle_d3d11_es2" : {
+            "min_ms" : 0.2857127222232521,
+            "options" : {
+               "GL_RENDERER" : "ANGLE (NVIDIA Quadro P400 Direct3D11 vs_5_0 ps_5_0)",
+               "GL_SHADING_LANGUAGE_VERSION" : "OpenGL ES GLSL ES 1.00 (ANGLE 2.1.0.unknown hash)",
+               "GL_VENDOR" : "Google Inc.",
+               "GL_VERSION" : "OpenGL ES 2.0 (ANGLE 2.1.0.unknown hash)",
+               "bench_type" : "playback",
+               "clip" : "0 0 1000 1000",
+               "multi_picture_draw" : "false",
+               "name" : "desk_skbug6850fast.skp",
+               "scale" : "1",
+               "source_type" : "skp"
+            },
+            "samples" : [
+               0.2859631111431453,
+               0.2912547222545577,
+               0.2870648333078457,
+               0.2862134999595582,
+               0.2857127222232521,
+               0.2904701666492555,
+               0.2866308333145248,
+               0.2860298888861305,
+               0.2904701667009956,
+               0.2864972777768142
+            ]
+         },
+         "angle_d3d11_es2_msaa8" : {
+            "min_ms" : 0.9661585004068911,
+            "options" : {
+               "GL_RENDERER" : "ANGLE (NVIDIA Quadro P400 Direct3D11 vs_5_0 ps_5_0)",
+               "GL_SHADING_LANGUAGE_VERSION" : "OpenGL ES GLSL ES 1.00 (ANGLE 2.1.0.unknown hash)",
+               "GL_VENDOR" : "Google Inc.",
+               "GL_VERSION" : "OpenGL ES 2.0 (ANGLE 2.1.0.unknown hash)",
+               "bench_type" : "playback",
+               "clip" : "0 0 1000 1000",
+               "multi_picture_draw" : "false",
+               "name" : "desk_skbug6850fast.skp",
+               "scale" : "1",
+               "source_type" : "skp"
+            },
+            "samples" : [
+               1.077632499858737,
+               1.07222449965775,
+               1.07868399983272,
+               0.9661585004068911,
+               1.041726500261575,
+               1.117143999785185,
+               1.055397999938577,
+               1.06516300002113,
+               1.050139499828219,
+               1.048637500032783
+            ]
+         },
+         "angle_gl_es2" : {
+            "min_ms" : 0.2022557999938726,
+            "options" : {
+               "GL_RENDERER" : "ANGLE (NVIDIA Corporation Quadro P400/PCIe/SSE2 OpenGL 4.5 core)",
+               "GL_SHADING_LANGUAGE_VERSION" : "OpenGL ES GLSL ES 1.00 (ANGLE 2.1.0.unknown hash)",
+               "GL_VENDOR" : "Google Inc.",
+               "GL_VERSION" : "OpenGL ES 2.0 (ANGLE 2.1.0.unknown hash)",
+               "bench_type" : "playback",
+               "clip" : "0 0 1000 1000",
+               "multi_picture_draw" : "false",
+               "name" : "desk_skbug6850fast.skp",
+               "scale" : "1",
+               "source_type" : "skp"
+            },
+            "samples" : [
+               0.2022557999938726,
+               0.3593811333179474,
+               0.3542330666755636,
+               0.3510881333301465,
+               0.3591407333190242,
+               0.3528709332769116,
+               0.3512283333266775,
+               0.3708990667015314,
+               0.3524903333435456,
+               0.3510881333301465
+            ]
+         },
+         "angle_gl_es2_msaa8" : {
+            "min_ms" : 0.8586906666556994,
+            "options" : {
+               "GL_RENDERER" : "ANGLE (NVIDIA Corporation Quadro P400/PCIe/SSE2 OpenGL 4.5 core)",
+               "GL_SHADING_LANGUAGE_VERSION" : "OpenGL ES GLSL ES 1.00 (ANGLE 2.1.0.unknown hash)",
+               "GL_VENDOR" : "Google Inc.",
+               "GL_VERSION" : "OpenGL ES 2.0 (ANGLE 2.1.0.unknown hash)",
+               "bench_type" : "playback",
+               "clip" : "0 0 1000 1000",
+               "multi_picture_draw" : "false",
+               "name" : "desk_skbug6850fast.skp",
+               "scale" : "1",
+               "source_type" : "skp"
+            },
+            "samples" : [
+               0.8607939998619258,
+               0.8848814999995133,
+               0.8758174998996159,
+               0.8603431667822102,
+               0.8802243332999448,
+               0.8783713333929578,
+               0.8624966667654613,
+               0.8789221666132411,
+               0.8765184998822709,
+               0.8586906666556994
+            ]
+         }
+      }
+   },
+   "swarming_bot_id" : "build20-a9",
+   "swarming_task_id" : "40312c9ed6d97f11"
+}
+''')
+    data = json.loads(f)
+    if data['results']['desk_skbug6850fast.skp_1_1000_1000']['angle_d3d11_es2']['min_ms'] > 0.31:
+      api.step('slower', None)  # pragma: nocover
+    else:
+      api.step('faster', None)
+  elif upload_perf_results(b):
     api.file.ensure_directory(
         'makedirs perf_dir',
         api.flavor.host_dirs.perf_data_dir)
