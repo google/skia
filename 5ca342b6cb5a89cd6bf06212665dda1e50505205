@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16e56bcd_7ceff32a",
+        "filename": "infra/bots/update_go_deps.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-09-27T16:49:04Z",
+      "side": 1,
+      "message": "This is kind of goofy.  In order for this to work, we need a copy of the go deps.  Therefore, I included the old go_deps asset in this task, which will be used to run gen_tasks before and after creating the new go_deps asset.  An alternative would be to \"go get\" the infra code at the beginning, but that costs \u003e 10 minutes, and we couldn\u0027t share it with the create_and_upload.py script, which does the same thing but in a temporary dir.",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 63
+      },
+      "revId": "5ca342b6cb5a89cd6bf06212665dda1e50505205",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
