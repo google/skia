@@ -141,6 +141,30 @@
       "revId": "eb98e888a65883c64ce376d223e89938cd374410",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82fbb49a_6417d177",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-09-27T15:29:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe4101b9_ae6a89aa",
+      "range": {
+        "startLine": 111,
+        "startChar": 12,
+        "endLine": 111,
+        "endChar": 48
+      },
+      "revId": "eb98e888a65883c64ce376d223e89938cd374410",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
