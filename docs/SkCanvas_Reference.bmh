@@ -3,6 +3,10 @@
 
 #Class SkCanvas
 
+#Code
+#Populate
+##
+
 Canvas provides an interface for drawing, and how the drawing is clipped and transformed.
 Canvas contains a stack of Matrix and Clip values.
 
@@ -28,23 +32,23 @@ This approach may be deprecated in the future.
 #Populate
 ##
 
-#Subtopic Related_Function
+#Subtopic Related_Functions
 #Populate
 ##
 
-#Subtopic Constant
+#Subtopic Constants
 #Populate
 ##
 
-#Subtopic Struct
+#Subtopic Structs
 #Populate
 ##
 
-#Subtopic Typedef
+#Subtopic Typedefs
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 
 Create the desired type of Surface to obtain its Canvas when possible. Useful
 when no Surface is required, and some helpers implicitly create Raster_Surface.
@@ -52,7 +56,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 #Populate
 ##
 
-#Subtopic Member_Function
+#Subtopic Member_Functions
 #Populate
 ##
 
@@ -61,7 +65,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 #Method static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels,
                                                           size_t rowBytes,
                                                           const SkSurfaceProps* props = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Canvas that will draw directly into pixels.
@@ -136,7 +140,7 @@ void draw(SkCanvas* ) {
 
 #Method static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
                                                          size_t rowBytes)
-#In Constructor
+#In Constructors
 #Line # creates from image data and Pixel_Storage ##
 
 Allocates raster Canvas specified by inline image specification. Subsequent Canvas
@@ -669,7 +673,7 @@ smaller (due to clipping or saveLayer).
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Surface matching SkImageInfo and SkSurfaceProps ##
 Creates Surface matching info and props, and associates it with Canvas.
 Returns nullptr if no match found.
@@ -1756,25 +1760,27 @@ void draw(SkCanvas* canvas) {
 #Line # contains the state used to create the Layer ##
 
 #Code
-    struct SaveLayerRec {
-        SaveLayerRec*(...
+struct SaveLayerRec {
+    SaveLayerRec*();
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0);
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    SaveLayerFlags saveLayerFlags);
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    const SkImage* clipMask, const SkMatrix* clipMatrix,
+                    SaveLayerFlags saveLayerFlags);
 
-        const SkRect*           fBounds;
-        const SkPaint*          fPaint;
-        const SkImageFilter*    fBackdrop;
-        SaveLayerFlags          fSaveLayerFlags;
-    };
+    const SkRect*           fBounds;
+    const SkPaint*          fPaint;
+    const SkImageFilter*    fBackdrop;
+    const SkImage*          fClipMask;
+    const SkMatrix*         fClipMatrix;
+    SaveLayerFlags          fSaveLayerFlags;
+};
 ##
 
 SaveLayerRec contains the state used to create the Layer.
 
-#Subtopic Overview
 #Populate
-##
-
-#Subtopic Member
-#Populate
-##
 
 #Member const SkRect*           fBounds
 #Line # hints at Layer size limit ##
@@ -1841,7 +1847,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#Subtopic Constructor
+#Subtopic Constructors
 #Populate
 ##
 
@@ -4795,7 +4801,7 @@ remaining space, if any.
 #Populate
 ##
 
-#Subtopic Constant
+#Subtopic Constants
 #Populate
 ##
 
@@ -4825,7 +4831,7 @@ remaining space, if any.
         ##
     ##
 
-#Subtopic Member
+#Subtopic Members
 #Populate
 ##
 
@@ -5331,7 +5337,7 @@ Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
 
 Elements of paint: Anti_Alias, Blend_Mode, Color including Color_Alpha,
 Color_Filter, Paint_Dither, Draw_Looper, Mask_Filter, Path_Effect, Shader, and
-Paint_Style; apply to blob. If Paint contains SkPaint::kStroke_Style: 
+Paint_Style; apply to blob. If Paint contains SkPaint::kStroke_Style:
 Paint_Miter_Limit, Paint_Stroke_Cap, Paint_Stroke_Join, and Paint_Stroke_Width;
 apply to Path created from blob.
 
