@@ -136,7 +136,9 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
     } else {
         color = GrColorPackA4(paint.getAlpha());
     }
-    rtc->drawTexture(clip, std::move(proxy), filter, color, srcRect, dstRect, aa, constraint, ctm,
+    GrQuadAAFlags aaFlags = aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+    rtc->drawTexture(clip, std::move(proxy), filter, color, srcRect, dstRect,
+                     aaFlags, constraint, ctm,
                      std::move(textureXform), std::move(paintColorXform));
 }
 

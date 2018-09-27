@@ -751,7 +751,8 @@ static bool must_filter(const SkRect& src, const SkRect& dst, const SkMatrix& ct
 
 void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
                                         GrSamplerState::Filter filter, GrColor color,
-                                        const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
+                                        const SkRect& srcRect, const SkRect& dstRect,
+                                        GrQuadAAFlags aaFlags,
                                         SkCanvas::SrcRectConstraint constraint,
                                         const SkMatrix& viewMatrix,
                                         sk_sp<GrColorSpaceXform> textureColorSpaceXform,
@@ -763,7 +764,8 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
     if (filter != GrSamplerState::Filter::kNearest && !must_filter(srcRect, dstRect, viewMatrix)) {
         filter = GrSamplerState::Filter::kNearest;
     }
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(GrAA(aaFlags != GrQuadAAFlags::kNone),
+                                         GrAllowMixedSamples::kNo);
     if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
         // No need to use a texture domain with nearest filtering unless there is AA bloating.
         // Also, no need if the srcRect contains the entire texture.
@@ -780,7 +782,7 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
         return;
     }
     this->addDrawOp(clip, GrTextureOp::Make(fContext, std::move(proxy), filter, color,
-                                            clippedSrcRect, clippedDstRect, aaType, constraint,
+                                            clippedSrcRect, clippedDstRect, aaType, aaFlags, constraint,
                                             viewMatrix, std::move(textureColorSpaceXform),
                                             std::move(paintColorSpaceXform)));
 }
