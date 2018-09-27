@@ -1283,7 +1283,11 @@ int main(int argc, char** argv) {
                 write_canvas_png(target, pngFilename);
             }
 
-            Stats stats(samples);
+            // Building stats.plot often shows up in profiles,
+            // so skip building it when we're not going to print it anyway.
+            const bool want_plot = !FLAGS_quiet;
+
+            Stats stats(samples, want_plot);
             log->config(config);
             log->configOption("name", bench->getName());
             benchStream.fillCurrentOptions(log.get());
