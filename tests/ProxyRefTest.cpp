@@ -79,8 +79,8 @@ static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider) {
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return proxyProvider->createInstantiatedProxy(desc, kBottomLeft_GrSurfaceOrigin,
-                                                  SkBackingFit::kExact, SkBudgeted::kNo);
+    return proxyProvider->testingOnly_createInstantiatedProxy(
+            desc, kBottomLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kNo);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {

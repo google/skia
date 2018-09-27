@@ -312,7 +312,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     vertexBuffer.reset(rp->createBuffer(fVertexCount * vertexStride,
                                         kVertex_GrBufferType,
                                         kStatic_GrAccessPattern,
-                                        0));
+                                        GrResourceProvider::Flags::kNone));
     void* verts = vertexBuffer ? vertexBuffer->map() : nullptr;
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
@@ -325,7 +325,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
         indexBuffer.reset(rp->createBuffer(fIndexCount * sizeof(uint16_t),
                                            kIndex_GrBufferType,
                                            kStatic_GrAccessPattern,
-                                           0));
+                                           GrResourceProvider::Flags::kNone));
         indices = indexBuffer ? static_cast<uint16_t*>(indexBuffer->map()) : nullptr;
         if (!indices) {
             SkDebugf("Could not allocate indices\n");
