@@ -240,19 +240,30 @@ public:
      */
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
+    void       transferFn(float gabcdef[7]) const;
+    void    invTransferFn(float gabcdef[7]) const;
+    void gamutTransformTo(const SkColorSpace* dst, float src_to_dst_row_major[9]) const;
+
 private:
-    SkColorSpace(SkGammaNamed gammaNamed,
-                 const SkColorSpaceTransferFn* transferFn,
-                 const SkMatrix44& toXYZ);
     friend class SkColorSpaceSingletonFactory;
 
-    SkGammaNamed           fGammaNamed;    // TODO: 2-bit, pack more tightly?  or drop?
-    SkColorSpaceTransferFn fTransferFn;
-    SkMatrix44             fToXYZD50;      // TODO: SkMatrix, or just 9 floats?
-    uint32_t               fToXYZD50Hash;  // TODO: Drop?
+    SkColorSpace(SkGammaNamed gammaNamed,
+                 const float transferFn[7],
+                 const SkMatrix44& toXYZ);
 
-    mutable SkMatrix44     fFromXYZD50;    // TODO: Maybe don't cache?
-    mutable SkOnce         fFromXYZOnce;
+    void computeLazyDstFields() const;
+
+    SkGammaNamed           fGammaNamed;         // TODO: 2-bit, pack more tightly?  or drop?
+    uint32_t               fToXYZD50Hash;       // TODO: Switch to whole-CS hash?
+
+    float                  fTransferFn[7];
+    SkMatrix44             fToXYZD50;           // TODO: Drop
+    float                  fToXYZD50_3x3[9];    // row-major
+
+    mutable float          fInvTransferFn[7];
+    mutable SkMatrix44     fFromXYZD50;         // TODO: Drop
+    mutable float          fFromXYZD50_3x3[9];  // row-major
+    mutable SkOnce         fLazyDstFieldsOnce;
 };
 
 #endif
