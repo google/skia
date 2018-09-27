@@ -34,6 +34,7 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     this->flags.encode          = !dst->gammaIsLinear();
     this->flags.premul          = srcAT != kOpaque_SkAlphaType && dstAT == kPremul_SkAlphaType;
 
+#ifdef SK_LEGACY_COLORSPACE_XFORM_STEPS_IMPL
     if (this->flags.gamut_transform) {
         auto xform = SkMatrix44(*dst->fromXYZD50(), *src->toXYZD50());
         for (int r = 0; r < 3; r++)
@@ -48,6 +49,32 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     SkAssertResult(dst->isNumericalTransferFn(&dstTF));
     this->srcTF         = srcTF;
     this->dstTFInv      = dstTF.invert();
+#else
+    if (this->flags.gamut_transform) {
+        float row_major[9];  // TODO: switch src_to_dst_matrix to row-major
+        src->gamutTransformTo(dst, row_major);
+
+        this->src_to_dst_matrix[0] = row_major[0];
+        this->src_to_dst_matrix[1] = row_major[3];
+        this->src_to_dst_matrix[2] = row_major[6];
+
+        this->src_to_dst_matrix[3] = row_major[1];
+        this->src_to_dst_matrix[4] = row_major[4];
+        this->src_to_dst_matrix[5] = row_major[7];
+
+        this->src_to_dst_matrix[6] = row_major[2];
+        this->src_to_dst_matrix[7] = row_major[5];
+        this->src_to_dst_matrix[8] = row_major[8];
+    }
+
+    // Fill out all the transfer functions we'll use.
+    src->   transferFn(&this->srcTF   .fG);
+    dst->invTransferFn(&this->dstTFInv.fG);
+
+    SkColorSpaceTransferFn dstTF;
+    dst->transferFn(&dstTF.fG);
+#endif
+
     this->srcTF_is_sRGB = src->gammaCloseToSRGB();
     this->dstTF_is_sRGB = dst->gammaCloseToSRGB();
 
