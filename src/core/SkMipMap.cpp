@@ -13,7 +13,6 @@
 #include "SkImageInfoPriv.h"
 #include "SkMathPriv.h"
 #include "SkNx.h"
-#include "SkPM4fPriv.h"
 #include "SkTo.h"
 #include "SkTypes.h"
 #include <new>

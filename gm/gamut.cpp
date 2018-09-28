@@ -10,7 +10,6 @@
 
 #include "SkGradientShader.h"
 #include "SkImagePriv.h"
-#include "SkPM4fPriv.h"
 #include "SkSurface.h"
 #include "SkVertices.h"
 

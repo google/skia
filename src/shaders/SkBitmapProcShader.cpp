@@ -10,7 +10,6 @@
 #include "SkArenaAlloc.h"
 #include "SkBitmapProcState.h"
 #include "SkBitmapProvider.h"
-#include "SkPM4fPriv.h"
 #include "SkXfermodePriv.h"
 
 static bool only_scale_and_translate(const SkMatrix& matrix) {

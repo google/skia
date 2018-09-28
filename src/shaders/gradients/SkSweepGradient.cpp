@@ -7,7 +7,6 @@
 
 #include "SkColorSpaceXformer.h"
 #include "SkFloatingPoint.h"
-#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkSweepGradient.h"

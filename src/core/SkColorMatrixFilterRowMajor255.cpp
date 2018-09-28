@@ -8,7 +8,6 @@
 #include "SkColorMatrixFilterRowMajor255.h"
 #include "SkColorData.h"
 #include "SkNx.h"
-#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkRefCnt.h"

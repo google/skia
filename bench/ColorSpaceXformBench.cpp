@@ -11,7 +11,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkMakeUnique.h"
-#include "SkPM4fPriv.h"
+#include "SkPM4f.h"
 #include "SkRandom.h"
 #include "SkRasterPipeline.h"
 

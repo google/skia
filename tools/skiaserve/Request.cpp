@@ -8,7 +8,6 @@
 #include "Request.h"
 
 #include "SkPictureRecorder.h"
-#include "SkPM4fPriv.h"
 #include "sk_tool_utils.h"
 
 using namespace sk_gpu_test;

@@ -32,7 +32,6 @@
 #include "SkMutex.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
-#include "SkPM4fPriv.h"
 #include "SkPngEncoder.h"
 #include "SkScan.h"
 #include "SkSpinlock.h"

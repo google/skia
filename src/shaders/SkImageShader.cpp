@@ -14,7 +14,6 @@
 #include "SkEmptyShader.h"
 #include "SkImage_Base.h"
 #include "SkImageShader.h"
-#include "SkPM4fPriv.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "../jumper/SkJumper.h"
