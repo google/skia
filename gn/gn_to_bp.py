@@ -95,6 +95,7 @@ cc_library_static {
 
     defaults: ["skia_deps",
                "skia_pgo",
+               "skia_sanitizer",
     ],
 }
 
@@ -122,6 +123,14 @@ cc_defaults {
     pgo: {
         enable_profile_use: false,
     },
+}
+
+// enable Skia sanitizer for signed integer overflow
+cc_defaults {
+    name: "skia_sanitizer",
+    sanitize: {
+        misc_undefined: ["signed-integer-overflow"],
+    }
 }
 
 cc_defaults {
