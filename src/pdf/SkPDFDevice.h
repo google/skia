@@ -179,9 +179,10 @@ private:
         void pop();
         void drainStack();
         SkPDFDevice::GraphicStateEntry* currentEntry() { return &fEntries[fStackDepth]; }
-        // Conservative limit on save depth, see impl. notes in PDF 1.4 spec.
-        static const int kMaxStackDepth = 11;
-        SkPDFDevice::GraphicStateEntry fEntries[kMaxStackDepth + 1];
+
+        // Must use stack for matrix, and for clip, plus one for no matrix or clip.
+        static constexpr int kMaxStackDepth = 3;
+        SkPDFDevice::GraphicStateEntry fEntries[kMaxStackDepth];
         int fStackDepth = 0;
         SkDynamicMemoryWStream* fContentStream;
     };

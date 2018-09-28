@@ -188,14 +188,14 @@ void remove_color_filter(SkPaint* paint) {
 void SkPDFDevice::GraphicStackState::drainStack() {
     if (fContentStream) {
         while (fStackDepth) {
-            pop();
+            this->pop();
         }
     }
     SkASSERT(fStackDepth == 0);
 }
 
 void SkPDFDevice::GraphicStackState::push() {
-    SkASSERT(fStackDepth < kMaxStackDepth);
+    SkASSERT(fStackDepth + 1 < kMaxStackDepth);
     fContentStream->writeText("q\n");
     fStackDepth++;
     fEntries[fStackDepth] = fEntries[fStackDepth - 1];
@@ -328,14 +328,15 @@ void SkPDFDevice::GraphicStackState::updateClip(const SkClipStack* clipStack,
     }
 
     while (fStackDepth > 0) {
-        pop();
+        this->pop();
         if (clipStackGenID == currentEntry()->fClipStackGenID) {
             return;
         }
     }
+    SkASSERT(currentEntry()->fClipStackGenID == SkClipStack::kWideOpenGenID);
     if (clipStackGenID != SkClipStack::kWideOpenGenID) {
         SkASSERT(clipStack);
-        push();
+        this->push();
 
         currentEntry()->fClipStackGenID = clipStackGenID;
         append_clip(*clipStack, bounds, fContentStream);
@@ -363,7 +364,7 @@ void SkPDFDevice::GraphicStackState::updateMatrix(const SkMatrix& matrix) {
         SkASSERT(fStackDepth > 0);
         SkASSERT(fEntries[fStackDepth].fClipStackGenID ==
                  fEntries[fStackDepth -1].fClipStackGenID);
-        pop();
+        this->pop();
 
         SkASSERT(currentEntry()->fMatrix.getType() == SkMatrix::kIdentity_Mask);
     }
@@ -371,7 +372,7 @@ void SkPDFDevice::GraphicStackState::updateMatrix(const SkMatrix& matrix) {
         return;
     }
 
-    push();
+    this->push();
     append_transform(matrix, fContentStream);
     currentEntry()->fMatrix = matrix;
 }
