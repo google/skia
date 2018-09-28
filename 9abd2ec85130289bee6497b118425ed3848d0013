@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4401020f_13f1276f",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T19:14:06Z",
+      "side": 1,
+      "message": "Might read more clearly if you drop the ! and swap the if-else?",
+      "range": {
+        "startLine": 353,
+        "startChar": 12,
+        "endLine": 357,
+        "endChar": 13
+      },
+      "revId": "9abd2ec85130289bee6497b118425ed3848d0013",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b799f868_41d70817",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T19:14:06Z",
+      "side": 1,
+      "message": "Might read nice as\n\nif (const SkPath* glyphPath \u003d cache-\u003efindPath(glyph)) {\n   ...\n}",
+      "range": {
+        "startLine": 561,
+        "startChar": 28,
+        "endLine": 562,
+        "endChar": 55
+      },
+      "revId": "9abd2ec85130289bee6497b118425ed3848d0013",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
