@@ -380,7 +380,7 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
         auto glyphID = glyphs[index];
         const auto& glyph =
                 glyphCacheState->findGlyph(glyphID);
-        if (glyph.fMaskFormat != SkMask::kSDF_Format) {
+        if (glyph.fMaskFormat != SkMask::kSDF_Format && !glyph.isEmpty()) {
             // Note that we send data for the original glyph even in the case of fallback
             // since its glyph metrics will still be used on the client.
             fallbackTextHelper.appendGlyph(glyph, glyphID, emptyPosition);
