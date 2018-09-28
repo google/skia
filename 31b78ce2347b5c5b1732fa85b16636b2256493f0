@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9abdfd7d_12fc5929",
+        "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-28T12:53:09Z",
+      "side": 1,
+      "message": "We don\u0027t have full float on some GPUs. Should we check for that and us the texture implementation?",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 82
+      },
+      "revId": "31b78ce2347b5c5b1732fa85b16636b2256493f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
