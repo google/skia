@@ -76,6 +76,8 @@ public:
 
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
 
+    bool avoidWritePixelsFastPath() const { return fAvoidWritePixelsFastPath; }
+
     /**
      * Indicates the capabilities of the fixed function blend unit.
      */
@@ -331,6 +333,7 @@ protected:
     // Driver workaround
     bool fBlacklistCoverageCounting                  : 1;
     bool fAvoidStencilBuffers                        : 1;
+    bool fAvoidWritePixelsFastPath                   : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
