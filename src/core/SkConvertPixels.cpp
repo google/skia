@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorData.h"
 #include "SkColorSpacePriv.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkConvertPixels.h"
 #include "SkHalf.h"
 #include "SkImageInfoPriv.h"
 #include "SkOpts.h"
-#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
 #include "SkUnPreMultiplyPriv.h"

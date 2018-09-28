@@ -7,7 +7,6 @@
 
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
-#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"

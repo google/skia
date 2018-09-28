@@ -13,7 +13,6 @@
 #include "SkImageInfo.h"
 #include "SkNx.h"
 #include "SkPM4f.h"
-#include "SkPM4fPriv.h"
 #include "SkUtils.h"
 
 // Templates shared by various 4f gradient flavors.

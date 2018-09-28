@@ -11,7 +11,6 @@
 #include "SkColorSpaceXformSteps.h"
 #include "SkCoreBlitters.h"
 #include "SkOpts.h"
-#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkSpriteBlitter.h"
 #include "../jumper/SkJumper.h"

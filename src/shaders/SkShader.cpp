@@ -15,7 +15,6 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureShader.h"
-#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkScalar.h"

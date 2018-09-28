@@ -11,7 +11,6 @@
 #include "Resources.h"
 #include "SkBlendModePriv.h"
 #include "SkGradientShader.h"
-#include "SkPM4fPriv.h"
 
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;

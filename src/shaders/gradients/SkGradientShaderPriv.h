@@ -12,7 +12,7 @@
 
 #include "SkArenaAlloc.h"
 #include "SkMatrix.h"
-#include "SkPM4fPriv.h"
+#include "SkPM4f.h"
 #include "SkShaderBase.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"

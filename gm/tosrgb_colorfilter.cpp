@@ -7,7 +7,7 @@
 
 #include "gm.h"
 
-#include "SkPM4fPriv.h"
+#include "SkColorPriv.h"
 #include "SkToSRGBColorFilter.h"
 
 DEF_SIMPLE_GM_BG(tosrgb_colorfilter, canvas, 130, 130, SK_ColorBLACK) {
