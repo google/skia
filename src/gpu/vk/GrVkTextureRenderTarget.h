@@ -25,10 +25,10 @@ struct GrVkImageInfo;
 
 class GrVkTextureRenderTarget: public GrVkTexture, public GrVkRenderTarget {
 public:
-    static sk_sp<GrVkTextureRenderTarget> CreateNewTextureRenderTarget(GrVkGpu*, SkBudgeted,
-                                                                       const GrSurfaceDesc&,
-                                                                       const GrVkImage::ImageDesc&,
-                                                                       GrMipMapsStatus);
+    static sk_sp<GrVkTextureRenderTarget> MakeNewTextureRenderTarget(GrVkGpu*, SkBudgeted,
+                                                                     const GrSurfaceDesc&,
+                                                                     const GrVkImage::ImageDesc&,
+                                                                     GrMipMapsStatus);
 
     static sk_sp<GrVkTextureRenderTarget> MakeWrappedTextureRenderTarget(GrVkGpu*,
                                                                          const GrSurfaceDesc&,
