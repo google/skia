@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91e9a33c_f3cbc3d7",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 43
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-28T13:42:29Z",
+      "side": 1,
+      "message": "do we not have alpha here?",
+      "range": {
+        "startLine": 176,
+        "startChar": 61,
+        "endLine": 176,
+        "endChar": 62
+      },
+      "revId": "81aece98c33305380bcb65cf98103ad6191b6679",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
