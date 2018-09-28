@@ -158,25 +158,6 @@ static void emit_pdf_color(SkColor color, SkWStream* result) {
     result->writeText(" ");
 }
 
-static SkPaint calculate_text_paint(const SkPaint& paint) {
-    SkPaint result = paint;
-    if (result.isFakeBoldText()) {
-        SkScalar fakeBoldScale = SkScalarInterpFunc(result.getTextSize(),
-                                                    kStdFakeBoldInterpKeys,
-                                                    kStdFakeBoldInterpValues,
-                                                    kStdFakeBoldInterpLength);
-        SkScalar width = result.getTextSize() * fakeBoldScale;
-        if (result.getStyle() == SkPaint::kFill_Style) {
-            result.setStyle(SkPaint::kStrokeAndFill_Style);
-        } else {
-            width += result.getStrokeWidth();
-        }
-        result.setStrokeWidth(width);
-    }
-    return result;
-}
-
-
 // If the paint has a color filter, apply the color filter to the shader or the
 // paint color.  Remove the color filter.
 void remove_color_filter(SkPaint* paint) {
@@ -1023,15 +1004,11 @@ static SkUnichar map_glyph(const std::vector<SkUnichar>& glyphToUnicode, SkGlyph
     return glyph < glyphToUnicode.size() ? glyphToUnicode[SkToInt(glyph)] : -1;
 }
 
-static void draw_glyph_run_as_path(SkPDFDevice* dev, const SkGlyphRun& glyphRun, SkPoint offset) {
-    SkPath path;
-    SkASSERT(glyphRun.paint().getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
-    glyphRun.paint().getPosTextPath(glyphRun.shuntGlyphsIDs().data(),
-                                    glyphRun.shuntGlyphsIDs().size() * sizeof(SkGlyphID),
-                                    glyphRun.positions().data(),
-                                    &path);
-    path.offset(offset.x(), offset.y());
-    dev->drawPath(path, glyphRun.paint(), true);
+namespace {
+struct PositionedGlyph {
+    SkPoint fPos;
+    SkGlyphID fGlyph;
+};
 }
 
 static bool has_outline_glyph(SkGlyphID gid, SkGlyphCache* cache) {
@@ -1098,6 +1075,97 @@ static sk_sp<SkImage> image_from_mask(const SkMask& mask) {
     }
 }
 
+void draw_missing_glyphs(SkPDFDevice* dev, const SkPaint& paint, SkTypeface* typeface,
+                         const std::vector<PositionedGlyph>& missingGlyphs) {
+    if (missingGlyphs.size() == 0) {
+        return;
+    }
+    // Fall back on images.
+    SkPaint scaledGlyphCachePaint;
+    scaledGlyphCachePaint.setTextSize(paint.getTextSize());
+    scaledGlyphCachePaint.setTextScaleX(paint.getTextScaleX());
+    scaledGlyphCachePaint.setTextSkewX(paint.getTextSkewX());
+    scaledGlyphCachePaint.setTypeface(sk_ref_sp(typeface));
+    auto scaledGlyphCache = SkStrikeCache::FindOrCreateStrikeExclusive(scaledGlyphCachePaint);
+    SkTHashMap<SkPDFCanon::BitmapGlyphKey, SkPDFCanon::BitmapGlyph>* map =
+        &dev->getCanon()->fBitmapGlyphImages;
+    for (PositionedGlyph positionedGlyph : missingGlyphs) {
+        SkPDFCanon::BitmapGlyphKey key = {typeface->uniqueID(),
+                                          paint.getTextSize(),
+                                          paint.getTextScaleX(),
+                                          paint.getTextSkewX(),
+                                          positionedGlyph.fGlyph,
+                                          0};
+        SkImage* img = nullptr;
+        SkIPoint imgOffset = {0, 0};
+        if (SkPDFCanon::BitmapGlyph* ptr = map->find(key)) {
+            img = ptr->fImage.get();
+            imgOffset = ptr->fOffset;
+        } else {
+            (void)scaledGlyphCache->findImage(
+                    scaledGlyphCache->getGlyphIDMetrics(positionedGlyph.fGlyph));
+            SkMask mask;
+            scaledGlyphCache->getGlyphIDMetrics(positionedGlyph.fGlyph).toMask(&mask);
+            imgOffset = {mask.fBounds.x(), mask.fBounds.y()};
+            img = map->set(key, {image_from_mask(mask), imgOffset})->fImage.get();
+        }
+        if (img) {
+            SkPoint pt = positionedGlyph.fPos +
+                         SkPoint{(SkScalar)imgOffset.x(), (SkScalar)imgOffset.y()};
+            dev->drawImage(img, pt.x(), pt.y(), paint);
+        }
+    }
+}
+
+void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset) {
+    const SkPaint& paint = glyphRun.paint();
+    SkPath path;
+    SkASSERT(paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
+    paint.getPosTextPath(glyphRun.shuntGlyphsIDs().data(),
+                         glyphRun.shuntGlyphsIDs().size() * sizeof(SkGlyphID),
+                         glyphRun.positions().data(),
+                         &path);
+    path.offset(offset.x(), offset.y());
+    this->drawPath(path, paint, true);
+
+    SkGlyphRun tmp(glyphRun);
+    {
+        SkPaint transparent;
+        transparent.setTypeface(paint.getTypeface() ? paint.refTypeface()
+                                                    : SkTypeface::MakeDefault());
+        transparent.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        transparent.setColor(SK_ColorTRANSPARENT);
+        transparent.setTextSize(paint.getTextSize());
+        transparent.setTextAlign(paint.getTextAlign());
+        transparent.setTextScaleX(paint.getTextScaleX());
+        transparent.setTextSkewX(paint.getTextSkewX());
+        *tmp.mutablePaint() = std::move(transparent);
+    }
+    if (this->ctm().hasPerspective()) {
+        SkMatrix prevCTM = this->ctm();
+        this->setCTM(SkMatrix::I());
+        this->internalDrawGlyphRun(tmp, offset);
+        this->setCTM(prevCTM);
+    } else {
+        this->internalDrawGlyphRun(tmp, offset);
+    }
+
+    if (!tmp.paint().getTypeface()) {
+        return;
+    }
+    std::vector<PositionedGlyph> missingGlyphs;
+    int emSize;
+    auto glyphCache = SkPDFFont::MakeVectorCache(tmp.paint().getTypeface(), &emSize);
+    for (size_t i = 0; i < glyphRun.shuntGlyphsIDs().size(); ++i) {
+        SkGlyphID gid = glyphRun.shuntGlyphsIDs()[i];
+        if (!has_outline_glyph(gid, glyphCache.get())) {
+            SkPoint xy = glyphRun.positions()[i];
+            missingGlyphs.push_back({xy + offset, gid});
+        }
+    }
+    draw_missing_glyphs(this, paint, tmp.paint().getTypeface(), missingGlyphs);
+}
+
 void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset) {
 
     const SkGlyphID* glyphs = glyphRun.shuntGlyphsIDs().data();
@@ -1109,12 +1177,13 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     if (srcPaint.getPathEffect()
         || srcPaint.getMaskFilter()
         || srcPaint.isVerticalText()
+        || srcPaint.isFakeBoldText()
         || this->ctm().hasPerspective()
         || SkPaint::kFill_Style != srcPaint.getStyle()) {
         // Stroked Text doesn't work well with Type3 fonts.
-        return draw_glyph_run_as_path(this, glyphRun, offset);
+        this->drawGlyphRunAsPath(glyphRun, offset);
     }
-    SkPaint paint = calculate_text_paint(srcPaint);
+    SkPaint paint(srcPaint);
     remove_color_filter(&paint);
     replace_srcmode_on_opaque_paint(&paint);
     paint.setHinting(SkPaint::kNo_Hinting);
@@ -1147,10 +1216,6 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
 
     SkASSERT(paint.getTextAlign() == SkPaint::kLeft_Align);
     SkRect clipStackBounds = this->cs().bounds(this->bounds());
-    struct PositionedGlyph {
-        SkPoint fPos;
-        SkGlyphID fGlyph;
-    };
     std::vector<PositionedGlyph> missingGlyphs;
     {
         ScopedContentEntry content(this, paint, true);
@@ -1278,42 +1343,8 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
             }
         }
     }
-    if (missingGlyphs.size() > 0) {
-        // Fall back on images.
-        SkPaint scaledGlyphCachePaint;
-        scaledGlyphCachePaint.setTextSize(paint.getTextSize());
-        scaledGlyphCachePaint.setTextScaleX(paint.getTextScaleX());
-        scaledGlyphCachePaint.setTextSkewX(paint.getTextSkewX());
-        scaledGlyphCachePaint.setTypeface(sk_ref_sp(typeface));
-        auto scaledGlyphCache = SkStrikeCache::FindOrCreateStrikeExclusive(scaledGlyphCachePaint);
-        SkTHashMap<SkPDFCanon::BitmapGlyphKey, SkPDFCanon::BitmapGlyph>* map =
-            &this->getCanon()->fBitmapGlyphImages;
-        for (PositionedGlyph positionedGlyph : missingGlyphs) {
-            SkPDFCanon::BitmapGlyphKey key = {typeface->uniqueID(),
-                                              paint.getTextSize(),
-                                              paint.getTextScaleX(),
-                                              paint.getTextSkewX(),
-                                              positionedGlyph.fGlyph,
-                                              0};
-            SkImage* img = nullptr;
-            SkIPoint imgOffset = {0, 0};
-            if (SkPDFCanon::BitmapGlyph* ptr = map->find(key)) {
-                img = ptr->fImage.get();
-                imgOffset = ptr->fOffset;
-            } else {
-                (void)scaledGlyphCache->findImage(
-                        scaledGlyphCache->getGlyphIDMetrics(positionedGlyph.fGlyph));
-                SkMask mask;
-                scaledGlyphCache->getGlyphIDMetrics(positionedGlyph.fGlyph).toMask(&mask);
-                imgOffset = {mask.fBounds.x(), mask.fBounds.y()};
-                img = map->set(key, {image_from_mask(mask), imgOffset})->fImage.get();
-            }
-            if (img) {
-                SkPoint pt = positionedGlyph.fPos +
-                             SkPoint{(SkScalar)imgOffset.x(), (SkScalar)imgOffset.y()};
-                this->drawImage(img, pt.x(), pt.y(), srcPaint);
-            }
-        }
+    if (paint.getColor() != SK_ColorTRANSPARENT) {
+        draw_missing_glyphs(this, srcPaint, typeface, missingGlyphs);
     }
 }
 
