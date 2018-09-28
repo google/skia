@@ -42,9 +42,6 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
 
     sk_sp<SkData> data = GetResourceAsData(resource);
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(data);
-    if (kRGBA_F16_SkColorType == colorType && !colorSpace) {
-        colorSpace = SkColorSpace::MakeSRGB();
-    }
     SkImageInfo dstInfo = codec->getInfo().makeColorType(colorType)
                                           .makeAlphaType(alphaType)
                                           .makeColorSpace(colorSpace);

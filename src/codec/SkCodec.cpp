@@ -299,8 +299,13 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
         ? kSuccess : kInvalidConversion;
 }
 
-SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+SkCodec::Result SkCodec::getPixels(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
                                    const Options* options) {
+    SkImageInfo info = dstInfo;
+    if (!info.colorSpace()) {
+        info = info.makeColorSpace(SkColorSpace::MakeSRGB());
+    }
+
     if (kUnknown_SkColorType == info.colorType()) {
         return kInvalidConversion;
     }

@@ -110,10 +110,6 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
             numComponents = 1;
             break;
         case kRGBA_F16_SkColorType:
-            if (!srcInfo.colorSpace()) {
-                return false;
-            }
-
             if (kUnpremul_SkAlphaType != srcInfo.alphaType() ||
                 SkJpegEncoder::AlphaOption::kIgnore == options.fAlphaOption)
             {
