@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da0ea2b3_ec940785",
+        "filename": "src/core/SkPM4f.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T17:42:53Z",
+      "side": 1,
+      "message": "What do you think of naming these both operator* ?",
+      "range": {
+        "startLine": 76,
+        "startChar": 26,
+        "endLine": 76,
+        "endChar": 40
+      },
+      "revId": "5afefbfb8dc8a6202a20aa13fb07fdc08f5e83fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
