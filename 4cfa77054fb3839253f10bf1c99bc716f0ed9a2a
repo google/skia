@@ -16,6 +16,24 @@
       "revId": "4cfa77054fb3839253f10bf1c99bc716f0ed9a2a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32455db6_020a3d4c",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-09-28T16:23:52Z",
+      "side": 1,
+      "message": "fixed in the next patch set.",
+      "parentUuid": "aaad71ca_f5077322",
+      "revId": "4cfa77054fb3839253f10bf1c99bc716f0ed9a2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
