@@ -33,20 +33,20 @@ public:
         (void)bias23;
         auto threshold = _outer.threshold();
         (void)threshold;
-        fScale01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+        fScale01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                        kDefault_GrSLPrecision, "scale01");
-        fBias01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+        fBias01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                       kDefault_GrSLPrecision, "bias01");
-        fScale23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+        fScale23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                        kDefault_GrSLPrecision, "scale23");
-        fBias23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+        fBias23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                       kDefault_GrSLPrecision, "bias23");
-        fThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
+        fThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
                                                          kDefault_GrSLPrecision, "threshold");
         fragBuilder->codeAppendf(
-                "half t = %s.x;\nhalf4 scale, bias;\nif (float(t) < %s) {\n    scale = %s;\n    "
-                "bias = %s;\n} else {\n    scale = %s;\n    bias = %s;\n}\n%s = t * scale + "
-                "bias;\n",
+                "half t = %s.x;\nfloat4 scale, bias;\nif (t < %s) {\n    scale = %s;\n    bias = "
+                "%s;\n} else {\n    scale = %s;\n    bias = %s;\n}\n%s = half4(float(t) * scale + "
+                "bias);\n",
                 args.fInputColor, args.fUniformHandler->getUniformCStr(fThresholdVar),
                 args.fUniformHandler->getUniformCStr(fScale01Var),
                 args.fUniformHandler->getUniformCStr(fBias01Var),
