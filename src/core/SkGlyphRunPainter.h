@@ -68,11 +68,11 @@ public:
             SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
             PerPath perPath, ARGBFallback fallbackARGB);
 
-    template <typename PerSDFT, typename PerPathT, typename PerFallbackT>
-    void drawGlyphRunAsSDFWithFallback(
-            SkGlyphCache* cache, const SkGlyphRun& glyphRun,
-            SkPoint origin, SkScalar textRatio,
-            PerSDFT perSDF, PerPathT perPath, PerFallbackT perFallback);
+    template <typename PerSDFT, typename PerPathT>
+    void drawGlyphRunAsSDFWithARGBFallback(
+            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+            SkPoint origin, const SkMatrix& viewMatrix, SkScalar textRatio,
+            PerSDFT perSDF, PerPathT perPath, ARGBFallback perFallback);
 
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
