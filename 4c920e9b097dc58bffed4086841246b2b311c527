@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "61d4086c_68fb2783",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-28T18:33:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "171bf7ce_e610f7b4",
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3627f7c6_977e7dc3",
         "filename": "include/private/GrColor.h",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "writtenOn": "2018-09-28T17:40:15Z",
       "side": 1,
       "message": "This one isn\u0027t quite strictly _legal_ I think.  But I think it will work fine and, I take it it\u0027s time with us will be limited?\n\nIf it didn\u0027t have to be mutable, we could make one on the stack, memcpy, and return it, and it\u0027d  probably all work the same in the end.",
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fa85d4d_acde60b0",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-28T18:33:34Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m going to try and make this unnecessary...",
+      "parentUuid": "3627f7c6_977e7dc3",
       "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true

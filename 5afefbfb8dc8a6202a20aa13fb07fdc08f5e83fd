@@ -22,6 +22,30 @@
       "revId": "5afefbfb8dc8a6202a20aa13fb07fdc08f5e83fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09d09408_2107809f",
+        "filename": "src/core/SkPM4f.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-28T18:33:34Z",
+      "side": 1,
+      "message": "Yup, that will make several spots much more readable, too.",
+      "parentUuid": "da0ea2b3_ec940785",
+      "range": {
+        "startLine": 76,
+        "startChar": 26,
+        "endLine": 76,
+        "endChar": 40
+      },
+      "revId": "5afefbfb8dc8a6202a20aa13fb07fdc08f5e83fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
