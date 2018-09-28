@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6ef049e_34120d6d",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T19:41:25Z",
+      "side": 1,
+      "message": "This honestly might be clearer if you just make this a struct.  This is just a boilerplate constructor right?",
+      "revId": "bce3a449532a6d45a183feb2982c68b89f31a042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b406cb0_716b510b",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T19:41:25Z",
+      "side": 1,
+      "message": "just to feel cozy, might want to const this?",
+      "range": {
+        "startLine": 527,
+        "startChar": 72,
+        "endLine": 527,
+        "endChar": 74
+      },
+      "revId": "bce3a449532a6d45a183feb2982c68b89f31a042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
