@@ -53,19 +53,6 @@ typedef uint32_t sk_color_t;
 #define sk_color_get_b(c)               (((c) >>  0) & 0xFF)
 
 typedef enum {
-    UNKNOWN_SK_COLORTYPE,
-    RGBA_8888_SK_COLORTYPE,
-    BGRA_8888_SK_COLORTYPE,
-    ALPHA_8_SK_COLORTYPE,
-} sk_colortype_t;
-
-typedef enum {
-    OPAQUE_SK_ALPHATYPE,
-    PREMUL_SK_ALPHATYPE,
-    UNPREMUL_SK_ALPHATYPE,
-} sk_alphatype_t;
-
-typedef enum {
     INTERSECT_SK_CLIPTYPE,
     DIFFERENCE_SK_CLIPTYPE,
 } sk_cliptype_t;
@@ -77,18 +64,6 @@ typedef enum {
     RGB_V_SK_PIXELGEOMETRY,
     BGR_V_SK_PIXELGEOMETRY,
 } sk_pixelgeometry_t;
-
-/**
-    Return the default sk_colortype_t; this is operating-system dependent.
-*/
-SK_API sk_colortype_t sk_colortype_get_default_8888(void);
-
-typedef struct {
-    int32_t         width;
-    int32_t         height;
-    sk_colortype_t  colorType;
-    sk_alphatype_t  alphaType;
-} sk_imageinfo_t;
 
 typedef struct {
     sk_pixelgeometry_t pixelGeometry;
@@ -187,6 +162,17 @@ typedef struct sk_data_t sk_data_t;
     encoded data or other means.
 */
 typedef struct sk_image_t sk_image_t;
+
+/**
+ *  Describes the color components. See ICC Profiles.
+ */
+typedef struct sk_colorspace_t sk_colorspace_t;
+
+/**
+ *  Describes an image buffer : width, height, pixel type, colorspace, etc.
+ */
+typedef struct sk_imageinfo_t sk_imageinfo_t;
+
 /**
     A sk_maskfilter_t is an object that perform transformations on an
     alpha-channel mask before drawing it; it may be installed into a
