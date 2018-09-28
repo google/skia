@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aaad71ca_f5077322",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T16:17:14Z",
+      "side": 1,
+      "message": "Is this missing a brace? }",
+      "revId": "4cfa77054fb3839253f10bf1c99bc716f0ed9a2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
