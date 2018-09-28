@@ -28,7 +28,9 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
         }
         const GrFragmentProcessor* fp = processors[i];
         if (fKnowOutputColor &&
-            fp->hasConstantOutputForConstantInput(fLastKnownOutputColor, &fLastKnownOutputColor)) {
+            fp->hasConstantOutputForConstantInput(
+                fLastKnownOutputColor.asRGBA4f<kPremul_SkAlphaType>(),
+                &fLastKnownOutputColor.asRGBA4f<kPremul_SkAlphaType>())) {
             ++fProcessorsToEliminate;
             fIsOpaque = fLastKnownOutputColor.isOpaque();
             // We reset these since the caller is expected to not use the earlier fragment
