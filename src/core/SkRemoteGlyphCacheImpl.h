@@ -100,8 +100,7 @@ private:
     void processGlyphRunForMask(
             const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin);
 
-    void processGlyphRunForPaths(
-            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin);
+    void processGlyphRunForPaths(const SkGlyphRun& glyphRun, const SkMatrix& runMatrix);
 
 #if SK_SUPPORT_GPU
     bool maybeProcessGlyphRunForDFT(const SkGlyphRun& glyphRun, const SkMatrix& runMatrix);
