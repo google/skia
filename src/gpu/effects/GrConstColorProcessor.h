@@ -30,17 +30,18 @@ public:
         return flags;
     }
 
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
         switch (fMode) {
             case InputMode::kIgnore:
-                return fColor;
+                return fColor.asRGBA4f<kPremul_SkAlphaType>();
             case InputMode::kModulateA:
-                return fColor.mulByScalar(input.fRGBA[3]);
+                return fColor.mulByScalar(input.fA).asRGBA4f<kPremul_SkAlphaType>();
             case InputMode::kModulateRGBA:
-                return fColor.modulate(input);
+                return fColor.modulate(GrColor4f::FromRGBA4f(input))
+                        .asRGBA4f<kPremul_SkAlphaType>();
         }
         SK_ABORT("Unexpected mode");
-        return GrColor4f::TransparentBlack();
+        return {0, 0, 0, 0};
     }
     const GrColor4f& color() const { return fColor; }
     const InputMode& mode() const { return fMode; }

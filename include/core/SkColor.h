@@ -269,6 +269,12 @@ struct SkRGBA4f {
         }
     }
 
+    template <SkAlphaType dstAT>
+    SkRGBA4f<dstAT> reinterpret() const {
+        static_assert(dstAT != kAT, "");
+        return { fR, fG, fB, fA };
+    }
+
     // TODO: remove?
     SkPM4f toPM4f() const;  // impl. depends on kAT
 };

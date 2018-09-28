@@ -232,6 +232,11 @@ struct GrColor4f {
         return SkRGBA4f<kAT> { fRGBA[0], fRGBA[1], fRGBA[2], fRGBA[3] };
     }
 
+    template <SkAlphaType kAT>
+    SkRGBA4f<kAT>& asRGBA4f() {
+        return reinterpret_cast<SkRGBA4f<kAT>&>(*this);
+    }
+
     GrColor4f opaque() const {
         return GrColor4f(fRGBA[0], fRGBA[1], fRGBA[2], 1.0f);
     }

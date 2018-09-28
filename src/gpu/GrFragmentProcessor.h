@@ -10,6 +10,7 @@
 
 #include "GrProcessor.h"
 #include "GrProxyRef.h"
+#include "SkPM4f.h"
 
 class GrCoordTransform;
 class GrGLSLFragmentProcessor;
@@ -169,7 +170,7 @@ public:
      * (for all fragments). If true outputColor will contain the constant color produces for
      * inputColor.
      */
-    bool hasConstantOutputForConstantInput(GrColor4f inputColor, GrColor4f* outputColor) const {
+    bool hasConstantOutputForConstantInput(SkPMColor4f inputColor, SkPMColor4f* outputColor) const {
         if (fFlags & kConstantOutputForConstantInput_OptimizationFlag) {
             *outputColor = this->constantOutputForConstantInput(inputColor);
             return true;
@@ -298,8 +299,8 @@ protected:
      * constantOutputForConstantInput. It must only be called when
      * hasConstantOutputForConstantInput() is known to be true.
      */
-    static GrColor4f ConstantOutputForConstantInput(const GrFragmentProcessor& fp,
-                                                    GrColor4f input) {
+    static SkPMColor4f ConstantOutputForConstantInput(const GrFragmentProcessor& fp,
+                                                      const SkPMColor4f& input) {
         SkASSERT(fp.hasConstantOutputForConstantInput());
         return fp.constantOutputForConstantInput(input);
     }
@@ -351,9 +352,9 @@ protected:
     inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
-    virtual GrColor4f constantOutputForConstantInput(GrColor4f /* inputColor */) const {
+    virtual SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& /* inputColor */) const {
         SK_ABORT("Subclass must override this if advertising this optimization.");
-        return GrColor4f::TransparentBlack();
+        return { 0, 0, 0, 0 };
     }
 
     /** Returns a new instance of the appropriate *GL* implementation class

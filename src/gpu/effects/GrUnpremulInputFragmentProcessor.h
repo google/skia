@@ -15,8 +15,8 @@
 #include "GrCoordTransform.h"
 class GrUnpremulInputFragmentProcessor : public GrFragmentProcessor {
 public:
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
-        return input.unpremul();
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+        return input.unpremul().reinterpret<kPremul_SkAlphaType>();
     }
     static std::unique_ptr<GrFragmentProcessor> Make() {
         return std::unique_ptr<GrFragmentProcessor>(new GrUnpremulInputFragmentProcessor());

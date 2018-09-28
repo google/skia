@@ -16,7 +16,7 @@ void main() {
 }
 
 @class {
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
-        return input.unpremul();
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+        return input.unpremul().reinterpret<kPremul_SkAlphaType>();
     }
 }
