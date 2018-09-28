@@ -52,7 +52,7 @@ public:
      *  Returns a fragment processor that converts the input's color space from src to dst.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(SkColorSpace* src, SkAlphaType srcAT,
-                                                     SkColorSpace* dst);
+                                                     SkColorSpace* dst, SkAlphaType dstAT);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then converts
