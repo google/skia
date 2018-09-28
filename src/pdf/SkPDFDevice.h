@@ -154,9 +154,8 @@ private:
         SkPoint point;
     };
 
-    // TODO(vandebo): push most of SkPDFDevice's state into a core object in
-    // order to get the right access levels without using friend.
     friend class ScopedContentEntry;
+    friend class PDFTextHandler;
 
     SkMatrix fInitialTransform;
 
