@@ -1549,21 +1549,22 @@ sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
     return xobject;
 }
 
-void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
+void SkPDFDevice::drawFormXObjectWithMask(sk_sp<SkPDFObject> xObject,
                                           sk_sp<SkPDFObject> mask,
                                           SkBlendMode mode,
                                           bool invertClip) {
-    sk_sp<SkPDFDict> sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
-            std::move(mask), invertClip,
-            SkPDFGraphicState::kAlpha_SMaskMode, fDocument->canon());
-
     SkPaint paint;
     paint.setBlendMode(mode);
     ScopedContentEntry content(this, nullptr, SkMatrix::I(), paint);
     if (!content.entry()) {
         return;
     }
+    int xObjectIndex = find_or_add(&fXObjectResources, std::move(xObject));
+    sk_sp<SkPDFDict> sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
+            std::move(mask), invertClip,
+            SkPDFGraphicState::kAlpha_SMaskMode, fDocument->canon());
     int gStateResourceIndex = find_or_add(&fGraphicStateResources, std::move(sMaskGS));
+
     SkPDFUtils::ApplyGraphicState(gStateResourceIndex, content.stream());
     draw_form_xobject(xObjectIndex, content.stream());
     this->clearMaskOnGraphicState(content.stream());
@@ -1692,8 +1693,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
         // the shape of what's been drawn at all times. It's the intersection of
         // the non-transparent parts of the device and the outlines (shape) of
         // all images and devices drawn.
-        this->drawFormXObjectWithMask(find_or_add(&fXObjectResources, srcFormXObject), dst,
-                                      SkBlendMode::kSrcOver, true);
+        this->drawFormXObjectWithMask(srcFormXObject, dst, SkBlendMode::kSrcOver, true);
     } else {
         if (shape != nullptr) {
             // Draw shape into a form-xobject.
@@ -1704,12 +1704,10 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
             SkPDFDevice shapeDev(this->size(), fDocument, fInitialTransform);
             shapeDev.internalDrawPath(clipStack ? *clipStack : empty,
                                       SkMatrix::I(), *shape, filledPaint, true);
-            this->drawFormXObjectWithMask(find_or_add(&fXObjectResources, dst),
-                                          shapeDev.makeFormXObjectFromDevice(),
+            this->drawFormXObjectWithMask(dst, shapeDev.makeFormXObjectFromDevice(),
                                           SkBlendMode::kSrcOver, true);
         } else {
-            this->drawFormXObjectWithMask(find_or_add(&fXObjectResources, dst),
-                                          srcFormXObject, SkBlendMode::kSrcOver, true);
+            this->drawFormXObjectWithMask(dst, srcFormXObject, SkBlendMode::kSrcOver, true);
         }
     }
 
@@ -1742,20 +1740,17 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
     if (blendMode == SkBlendMode::kSrcIn ||
             blendMode == SkBlendMode::kSrcOut ||
             blendMode == SkBlendMode::kSrcATop) {
-        this->drawFormXObjectWithMask(find_or_add(&fXObjectResources, std::move(srcFormXObject)),
-                                      std::move(dst), SkBlendMode::kSrcOver,
-                                      blendMode == SkBlendMode::kSrcOut);
+        this->drawFormXObjectWithMask(std::move(srcFormXObject), std::move(dst),
+                                      SkBlendMode::kSrcOver, blendMode == SkBlendMode::kSrcOut);
         return;
     } else {
         SkBlendMode mode = SkBlendMode::kSrcOver;
-        int resourceID = find_or_add(&fXObjectResources, dst);
         if (blendMode == SkBlendMode::kModulate) {
-            this->drawFormXObjectWithMask(find_or_add(&fXObjectResources, srcFormXObject),
-                                          std::move(dst), SkBlendMode::kSrcOver, false);
+            this->drawFormXObjectWithMask(srcFormXObject, dst, SkBlendMode::kSrcOver, false);
             mode = SkBlendMode::kMultiply;
         }
-        this->drawFormXObjectWithMask(resourceID, std::move(srcFormXObject),
-                                      mode, blendMode == SkBlendMode::kDstOut);
+        this->drawFormXObjectWithMask(std::move(dst), std::move(srcFormXObject), mode,
+                                      blendMode == SkBlendMode::kDstOut);
         return;
     }
 }
