@@ -1,7 +1,5 @@
 SkColor Reference
 ===
-
-# <a name='Color'>Color</a>
 Types, consts, functions, and macros for colors.
 
 ## Overview
@@ -10,31 +8,43 @@ Types, consts, functions, and macros for colors.
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Define'>Defines</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Defines'>Defines</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>preprocessor definitions of functions, values</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedefs'>Typedef Declarations</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>types defined in terms of other types</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Functions'>Functions</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>routines to read, write, and manipulate <a href='#SkColor'>SkColor</a></td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Typedef'>Typedef Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>types defined by other types</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha'>Alpha</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>transparency of <a href='#Color'>Color</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_Constants'>Alpha Constants</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constants for <a href='#Alpha'>Alpha</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#HSV'>HSV</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>hue saturation value color representation</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#PMColor'>PMColor</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>color components premultiplied by <a href='#Alpha'>Alpha</a></td>
   </tr>
 </table>
 
 
-## <a name='Define'>Define</a>
+## <a name='Defines'>Defines</a>
 
 
 SkColor uses preprocessor definitions to inline code and constants, and to abstract platform-specific functionality.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Define</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColorGetA'>SkColorGetA</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Alpha'>Alpha</a> component</td>
@@ -61,13 +71,13 @@ SkColor uses preprocessor definitions to inline code and constants, and to abstr
 the represent transparency and color values. The use of <a href='#Color'>Color</a> constants is not
 required.
 
-## <a name='Constant'>Constant</a>
+## <a name='Constants'>Constants</a>
 
 
-SkColor related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
+SkColor defines related constants are using <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Constant</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_AlphaOPAQUE'>SK AlphaOPAQUE</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>fully opaque <a href='#SkAlpha'>SkAlpha</a></td>
@@ -126,12 +136,12 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-## <a name='Function'>Function</a>
+## <a name='Functions'>Functions</a>
 
 
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Function</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkColorSetA'>SkColorSetA</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Color'>Color</a> with transparency</td>
@@ -149,8 +159,8 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='#HSV'>HSV</a> with <a href='#Alpha'>Alpha</a> to RGB</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkHSVToColor'>SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>overloads</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkHSVToColor'>SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPreMultiplyARGB'>SkPreMultiplyARGB</a></td>
@@ -166,13 +176,13 @@ SkColor related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
 </table>
 
-## <a name='Typedef'>Typedef</a>
+## <a name='Typedefs'>Typedefs</a>
 
 
-SkColor  <code>typedef</code> define a data type.
+SkColor uses <code>typedef</code> to define a data type.
 <table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+<tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Typedef</th><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkAlpha'>SkAlpha</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines <a href='#Alpha'>Alpha</a> as eight bits</td>
@@ -267,7 +277,7 @@ color and alpha, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
 ## <a name='SkColorSetRGB'>Define SkColorSetRGB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorSetRGB'>SkColorSetRGB(r, g, b)</a>  <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, r, g, b)</a>
+    #define <a href='#SkColorSetRGB'>SkColorSetRGB</a>(r, g, b)  <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, r, g, b)
 </pre>
 
 Returns <a href='#Color'>Color</a> value from 8-bit component values, with <a href='#Alpha'>Alpha</a> set
@@ -301,7 +311,7 @@ color with opaque alpha
 ## <a name='SkColorGetA'>Define SkColorGetA</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetA'>SkColorGetA(color)</a>      (((color) >> 24) & 0xFF)
+    #define <a href='#SkColorGetA'>SkColorGetA</a>(color)      (((color) >> 24) & 0xFF)
 </pre>
 
 Returns <a href='#Alpha'>Alpha</a> byte from <a href='#Color'>Color</a> value.
@@ -324,7 +334,7 @@ Returns <a href='#Alpha'>Alpha</a> byte from <a href='#Color'>Color</a> value.
 ## <a name='SkColorGetR'>Define SkColorGetR</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetR'>SkColorGetR(color)</a>      (((color) >> 16) & 0xFF)
+    #define <a href='#SkColorGetR'>SkColorGetR</a>(color)      (((color) >> 16) & 0xFF)
 </pre>
 
 Returns red component of <a href='#Color'>Color</a>, from zero to 255.
@@ -351,7 +361,7 @@ red byte
 ## <a name='SkColorGetG'>Define SkColorGetG</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetG'>SkColorGetG(color)</a>      (((color) >>  8) & 0xFF)
+    #define <a href='#SkColorGetG'>SkColorGetG</a>(color)      (((color) >>  8) & 0xFF)
 </pre>
 
 Returns green component of <a href='#Color'>Color</a>, from zero to 255.
@@ -378,7 +388,7 @@ green byte
 ## <a name='SkColorGetB'>Define SkColorGetB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetB'>SkColorGetB(color)</a>      (((color) >>  0) & 0xFF)
+    #define <a href='#SkColorGetB'>SkColorGetB</a>(color)      (((color) >>  0) & 0xFF)
 </pre>
 
 Returns blue component of <a href='#Color'>Color</a>, from zero to 255.
@@ -460,8 +470,8 @@ from <a href='#SkColorSetA_a'>a</a>. <a href='#Alpha'>Alpha</a> component of <a 
 
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaTRANSPARENT'>SK AlphaTRANSPARENT</a> = 0x00;
-    constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaOPAQUE'>SK AlphaOPAQUE</a>      = 0xFF;
+    constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaTRANSPARENT'>SK_AlphaTRANSPARENT</a> = 0x00;
+    constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaOPAQUE'>SK_AlphaOPAQUE</a>      = 0xFF;
 </pre>
 
 <a href='#Alpha'>Alpha</a> constants are conveniences to represent fully transparent and fully
@@ -589,18 +599,18 @@ fully transparent; to 255, fully opaque.
 
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorTRANSPARENT'>SK ColorTRANSPARENT</a> = <a href='#SkColorSetARGB'>SkColorSetARGB(0x00, 0x00, 0x00, 0x00)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLACK'>SK ColorBLACK</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0x00, 0x00, 0x00)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorDKGRAY'>SK ColorDKGRAY</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0x44, 0x44, 0x44)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGRAY'>SK ColorGRAY</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0x88, 0x88, 0x88)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorLTGRAY'>SK ColorLTGRAY</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0xCC, 0xCC, 0xCC)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorWHITE'>SK ColorWHITE</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorRED'>SK ColorRED</a>         = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0xFF, 0x00, 0x00)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGREEN'>SK ColorGREEN</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLUE'>SK ColorBLUE</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorYELLOW'>SK ColorYELLOW</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0xFF, 0xFF, 0x00)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorCYAN'>SK ColorCYAN</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0x00, 0xFF, 0xFF)</a>;
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorMAGENTA'>SK ColorMAGENTA</a>     = <a href='#SkColorSetARGB'>SkColorSetARGB(0xFF, 0xFF, 0x00, 0xFF)</a>;
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorTRANSPARENT'>SK_ColorTRANSPARENT</a> = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0x00, 0x00, 0x00, 0x00);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLACK'>SK_ColorBLACK</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0x00, 0x00);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorDKGRAY'>SK_ColorDKGRAY</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x44, 0x44, 0x44);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGRAY'>SK_ColorGRAY</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x88, 0x88, 0x88);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorLTGRAY'>SK_ColorLTGRAY</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xCC, 0xCC, 0xCC);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorWHITE'>SK_ColorWHITE</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0xFF, 0xFF);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorRED'>SK_ColorRED</a>         = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0x00, 0x00);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGREEN'>SK_ColorGREEN</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0xFF, 0x00);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLUE'>SK_ColorBLUE</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0x00, 0xFF);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorYELLOW'>SK_ColorYELLOW</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0xFF, 0x00);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorCYAN'>SK_ColorCYAN</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0xFF, 0xFF);
+    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorMAGENTA'>SK_ColorMAGENTA</a>     = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0x00, 0xFF);
 </pre>
 
 <a href='#Color'>Color</a> names are provided as conveniences, but are not otherwise special.
