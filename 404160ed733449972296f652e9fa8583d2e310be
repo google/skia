@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd1818cd_1dd579fc",
+        "filename": "include/c/sk_types.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-28T14:54:32Z",
+      "side": 1,
+      "message": "Copy-pasta?",
+      "revId": "404160ed733449972296f652e9fa8583d2e310be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d2bc198_ca027e3b",
+        "filename": "include/c/sk_types.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-28T14:54:32Z",
+      "side": 1,
+      "message": "\u0027Describes\u0027",
+      "revId": "404160ed733449972296f652e9fa8583d2e310be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
