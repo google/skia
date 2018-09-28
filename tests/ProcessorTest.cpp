@@ -221,6 +221,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
 #include "SkCommandLineFlags.h"
 DEFINE_bool(randomProcessorTest, false, "Use non-deterministic seed for random processor tests?");
+DEFINE_uint32(processorSeed, 0, "Use specific seed for processor tests. Overridden by " \
+                                "--randomProcessorTest.");
 
 #if GR_TEST_UTILS
 
@@ -314,13 +316,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     auto resourceProvider = context->contextPriv().resourceProvider();
     using FPFactory = GrFragmentProcessorTestFactory;
 
-    uint32_t seed = 0;
+    uint32_t seed = FLAGS_processorSeed;
     if (FLAGS_randomProcessorTest) {
         std::random_device rd;
         seed = rd();
     }
     // If a non-deterministic bot fails this test, check the output to see what seed it used, then
-    // hard-code that value here:
+    // use --processorSeed <seed> (without --randomProcessorTest) to reproduce.
     SkRandom random(seed);
 
     // Make the destination context for the test.
