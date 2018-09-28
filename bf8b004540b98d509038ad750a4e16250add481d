@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a79800d0_2b41906a",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-28T13:29:38Z",
+      "side": 1,
+      "message": "overlength",
+      "revId": "bf8b004540b98d509038ad750a4e16250add481d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
