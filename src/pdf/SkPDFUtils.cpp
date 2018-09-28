@@ -208,8 +208,10 @@ void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
                            SkWStream* content) {
     if (style == SkPaint::kFill_Style) {
         content->writeText("f");
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     } else if (style == SkPaint::kStrokeAndFill_Style) {
         content->writeText("B");
+#endif
     } else if (style == SkPaint::kStroke_Style) {
         content->writeText("S");
     }

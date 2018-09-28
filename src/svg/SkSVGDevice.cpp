@@ -279,7 +279,11 @@ private:
 
 void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& resources) {
     SkPaint::Style style = paint.getStyle();
-    if (style == SkPaint::kFill_Style || style == SkPaint::kStrokeAndFill_Style) {
+    if (style == SkPaint::kFill_Style
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        || style == SkPaint::kStrokeAndFill_Style
+#endif
+        ) {
         this->addAttribute("fill", resources.fPaintServer);
 
         if (SK_AlphaOPAQUE != SkColorGetA(paint.getColor())) {
@@ -294,7 +298,11 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
         this->addAttribute("filter", resources.fColorFilter.c_str());
     }
 
-    if (style == SkPaint::kStroke_Style || style == SkPaint::kStrokeAndFill_Style) {
+    if (style == SkPaint::kStroke_Style
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        || style == SkPaint::kStrokeAndFill_Style
+#endif
+        ) {
         this->addAttribute("stroke", resources.fPaintServer);
 
         SkScalar strokeWidth = paint.getStrokeWidth();

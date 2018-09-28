@@ -11,6 +11,8 @@
 
 #define STROKE_WIDTH    SkIntToScalar(20)
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+
 static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
                       SkPaint::Join join, int doFill) {
     SkPaint paint;
@@ -111,6 +113,8 @@ private:
     typedef GM INHERITED;
 };
 DEF_GM(return new StrokeRectGM;)
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

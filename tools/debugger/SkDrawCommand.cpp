@@ -835,11 +835,13 @@ static void apply_paint_style(const SkPaint& paint, Json::Value* target) {
                 (*target)[SKDEBUGCANVAS_ATTRIBUTE_STYLE] = stroke;
                 break;
             }
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
             case SkPaint::kStrokeAndFill_Style: {
                 Json::Value strokeAndFill(SKDEBUGCANVAS_STYLE_STROKEANDFILL);
                 (*target)[SKDEBUGCANVAS_ATTRIBUTE_STYLE] = strokeAndFill;
                 break;
             }
+#endif
             default: SkASSERT(false);
         }
     }

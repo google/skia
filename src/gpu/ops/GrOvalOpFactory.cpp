@@ -931,9 +931,11 @@ public:
         if (arcParams) {
             // Arc support depends on the style.
             switch (recStyle) {
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
                 case SkStrokeRec::kStrokeAndFill_Style:
                     // This produces a strange result that this op doesn't implement.
                     return nullptr;
+#endif
                 case SkStrokeRec::kFill_Style:
                     // This supports all fills.
                     break;
@@ -971,7 +973,11 @@ public:
 
         bool isStrokeOnly =
                 SkStrokeRec::kStroke_Style == recStyle || SkStrokeRec::kHairline_Style == recStyle;
-        bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == recStyle;
+        bool hasStroke = isStrokeOnly
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+                || SkStrokeRec::kStrokeAndFill_Style == recStyle
+#endif
+                ;
 
         SkScalar innerRadius = -SK_ScalarHalf;
         SkScalar outerRadius = radius;
@@ -1898,7 +1904,11 @@ public:
         SkStrokeRec::Style style = stroke.getStyle();
         bool isStrokeOnly =
                 SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style;
-        bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == style;
+        bool hasStroke = isStrokeOnly
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        || SkStrokeRec::kStrokeAndFill_Style == style
+#endif
+        ;
 
         params.fInnerXRadius = 0;
         params.fInnerYRadius = 0;
@@ -3081,7 +3091,11 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrContext* context,
 
     bool isStrokeOnly =
             SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style;
-    bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == style;
+    bool hasStroke = isStrokeOnly
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+    || SkStrokeRec::kStrokeAndFill_Style == style
+#endif
+    ;
 
     bool isCircular = (xRadius == yRadius);
     if (hasStroke) {

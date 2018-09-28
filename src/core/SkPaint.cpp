@@ -1251,7 +1251,7 @@ bool SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer) {
     uint32_t tmp = buffer.readUInt();
     paint->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, SkPaint::kLast_Cap));
     paint->setStrokeJoin(safe.checkLE((tmp >> 16) & 0xFF, SkPaint::kLast_Join));
-    paint->setStyle(safe.checkLE((tmp >> 12) & 0xF, SkPaint::kStrokeAndFill_Style));
+    paint->setStyle(safe.checkLE((tmp >> 12) & 0xF, SkPaint::kLast_Style));
     paint->setTextEncoding(safe.checkLE((tmp >> 8) & 0xF, SkPaint::kGlyphID_TextEncoding));
     paint->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
 

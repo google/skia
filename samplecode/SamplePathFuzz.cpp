@@ -275,7 +275,7 @@ SkPaint makePaint() {
     bool antiAlias = fRand.nextBool();
     paint.setAntiAlias(antiAlias);
     SkPaint::Style style = fStrokeOnly ? SkPaint::kStroke_Style :
-        (SkPaint::Style) fRand.nextRangeU(SkPaint::kFill_Style, SkPaint::kStrokeAndFill_Style);
+        (SkPaint::Style) fRand.nextRangeU(SkPaint::kFill_Style, SkPaint::kLast_Style);
     paint.setStyle(style);
     SkColor color = (SkColor) fRand.nextU();
     paint.setColor(color);

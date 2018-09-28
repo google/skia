@@ -286,8 +286,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     enum_<SkPaint::Style>("PaintStyle")
         .value("FILL",              SkPaint::Style::kFill_Style)
-        .value("STROKE",            SkPaint::Style::kStroke_Style)
-        .value("STROKE_AND_FILL",   SkPaint::Style::kStrokeAndFill_Style);
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+        .value("STROKE_AND_FILL",   SkPaint::Style::kStrokeAndFill_Style)
+#endif
+        .value("STROKE",            SkPaint::Style::kStroke_Style);
 
     enum_<SkPath::FillType>("FillType")
         .value("WINDING",            SkPath::FillType::kWinding_FillType)

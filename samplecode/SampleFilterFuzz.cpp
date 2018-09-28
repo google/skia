@@ -168,7 +168,7 @@ static SkPaint::Hinting make_paint_hinting() {
 }
 
 static SkPaint::Style make_paint_style() {
-    return static_cast<SkPaint::Style>(R(SkPaint::kStrokeAndFill_Style+1));
+    return static_cast<SkPaint::Style>(R(SkPaint::kLast_Style+1));
 }
 
 static SkPaint::Cap make_paint_cap() {
