@@ -19,6 +19,10 @@
 
 // typeface
 
+sk_typeface_t* sk_typeface_create_default(void) {
+    return ToTypeface(SkTypeface::MakeDefault().release());
+}
+
 void sk_typeface_unref(sk_typeface_t* tf) {
     SkSafeUnref(AsTypeface(tf));
 }
