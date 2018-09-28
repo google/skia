@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "066f35c6_790ae9e8",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-28T15:43:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cf07b89_38cc9c7f",
+      "range": {
+        "startLine": 165,
+        "startChar": 42,
+        "endLine": 165,
+        "endChar": 43
+      },
+      "revId": "4b5d369b515d1ec69cfe2c63ec5a756e75887a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2adb5cc4_9c3357d6",
         "filename": "src/core/SkGlyphRunPainter.h",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-27T20:17:46Z",
       "side": 1,
       "message": "The \u0027canonical path text size\u0027 is a bit of a distant implementation detail we should actually fix, do we really want to mention it here? Also, an \u0027em\u0027 is probably not the right unit here, the text size is by definition 1em, I think you mean that 1em \u003d 64px?",
+      "range": {
+        "startLine": 166,
+        "startChar": 27,
+        "endLine": 166,
+        "endChar": 75
+      },
+      "revId": "4b5d369b515d1ec69cfe2c63ec5a756e75887a91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ab32c03_53f7c3e9",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-28T15:43:36Z",
+      "side": 1,
+      "message": "I got rid of the detail. Also, I think this warning will soon go away, because I figured out a new code organization that will not have this problem.",
+      "parentUuid": "2adb5cc4_9c3357d6",
       "range": {
         "startLine": 166,
         "startChar": 27,
