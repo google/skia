@@ -58,7 +58,7 @@ public:
                 const SkMatrix& initialTransform = SkMatrix::I());
 
     sk_sp<SkPDFDevice> makeCongruentDevice() {
-        return sk_make_sp<SkPDFDevice>(this->imageInfo().dimensions(), fDocument);
+        return sk_make_sp<SkPDFDevice>(this->size(), fDocument);
     }
 
     ~SkPDFDevice() override;
@@ -116,6 +116,7 @@ public:
 
     SkPDFCanon* getCanon() const;
 
+    SkISize size() const { return this->imageInfo().dimensions(); }
     SkIRect bounds() const { return this->imageInfo().bounds(); }
 
     // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
