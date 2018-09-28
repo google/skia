@@ -11,6 +11,7 @@
 #include "../private/SkOnce.h"
 #include "SkMatrix44.h"
 #include "SkRefCnt.h"
+#include <memory>
 
 class SkData;
 struct skcms_ICCProfile;
@@ -167,13 +168,7 @@ public:
      *  Describes color space gamut as a transformation to XYZ D50.
      *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
      */
-    const SkMatrix44* toXYZD50() const { return &fToXYZD50; }
-
-    /**
-     *  Describes color space gamut as a transformation from XYZ D50
-     *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
-     */
-    const SkMatrix44* fromXYZD50() const;
+    const SkMatrix44* toXYZD50() const;
 
     /**
      *  Returns a hash of the gamut transofmration to XYZ D50. Allows for fast equality checking
@@ -253,17 +248,18 @@ private:
 
     void computeLazyDstFields() const;
 
-    SkGammaNamed           fGammaNamed;         // TODO: 2-bit, pack more tightly?  or drop?
-    uint32_t               fToXYZD50Hash;       // TODO: Switch to whole-CS hash?
+    SkGammaNamed                        fGammaNamed;         // TODO: 2-bit, pack tightly?  drop?
+    uint32_t                            fToXYZD50Hash;       // TODO: Switch to whole-CS hash?
 
-    float                  fTransferFn[7];
-    SkMatrix44             fToXYZD50;           // TODO: Drop
-    float                  fToXYZD50_3x3[9];    // row-major
+    float                               fTransferFn[7];
+    float                               fToXYZD50_3x3[9];    // row-major
 
-    mutable float          fInvTransferFn[7];
-    mutable SkMatrix44     fFromXYZD50;         // TODO: Drop
-    mutable float          fFromXYZD50_3x3[9];  // row-major
-    mutable SkOnce         fLazyDstFieldsOnce;
+    mutable float                       fInvTransferFn[7];
+    mutable float                       fFromXYZD50_3x3[9];  // row-major
+    mutable SkOnce                      fLazyDstFieldsOnce;
+
+    mutable std::unique_ptr<SkMatrix44> fToXYZD50_4x4;        // TODO: remove toXZYD50() and these
+    mutable SkOnce                      fToXZYD50_4x4_Once;
 };
 
 #endif
