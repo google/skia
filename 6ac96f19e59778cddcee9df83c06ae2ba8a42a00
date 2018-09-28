@@ -22,6 +22,30 @@
       "revId": "6ac96f19e59778cddcee9df83c06ae2ba8a42a00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90689624_b21d2eae",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-28T14:35:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33f4591e_31576092",
+      "range": {
+        "startLine": 305,
+        "startChar": 8,
+        "endLine": 305,
+        "endChar": 52
+      },
+      "revId": "6ac96f19e59778cddcee9df83c06ae2ba8a42a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
