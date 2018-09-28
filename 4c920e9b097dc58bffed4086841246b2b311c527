@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b55c6fa_412849ed",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-28T16:25:03Z",
+      "side": 1,
+      "message": "I only needed to use this in two spots (Premul and Unpremul FPs). Might be better to just write code there that does this? eg:\n\nreturn SkColor4f(input.fR, input.fG, input.fB, input.fA).premul();",
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0b25cb1_d091f362",
+        "filename": "src/gpu/effects/GrConstColorProcessor.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-28T16:25:03Z",
+      "side": 1,
+      "message": "This would be cleaner if we:\n1) Stored fColor as SkPMColor4f\n2) Had the helpers that we\u0027re using here on SkRGBA4f",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 62
+      },
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
