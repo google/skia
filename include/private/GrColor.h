@@ -197,17 +197,6 @@ struct GrColor4f {
         return GrColor4f(color.fR, color.fG, color.fB, color.fA);
     }
 
-    GrColor4f modulate(const GrColor4f& x) const {
-        return GrColor4f(fRGBA[0] * x.fRGBA[0],
-                         fRGBA[1] * x.fRGBA[1],
-                         fRGBA[2] * x.fRGBA[2],
-                         fRGBA[3] * x.fRGBA[3]);
-    }
-
-    GrColor4f mulByScalar(float x) const {
-        return GrColor4f(fRGBA[0] * x, fRGBA[1] * x, fRGBA[2] * x, fRGBA[3] * x);
-    }
-
     bool operator==(const GrColor4f& other) const {
         return
             fRGBA[0] == other.fRGBA[0] &&
@@ -230,6 +219,11 @@ struct GrColor4f {
     template <SkAlphaType kAT>
     SkRGBA4f<kAT> asRGBA4f() const {
         return SkRGBA4f<kAT> { fRGBA[0], fRGBA[1], fRGBA[2], fRGBA[3] };
+    }
+
+    template <SkAlphaType kAT>
+    SkRGBA4f<kAT>& asRGBA4f() {
+        return reinterpret_cast<SkRGBA4f<kAT>&>(*this);
     }
 
     GrColor4f opaque() const {

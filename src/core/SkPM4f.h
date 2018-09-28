@@ -73,4 +73,12 @@ struct SK_API SkPM4f {
 
 using SkPMColor4f = SkRGBA4f<kPremul_SkAlphaType>;
 
+static inline SkPMColor4f PM4f_modulate(const SkPMColor4f& c0, const SkPMColor4f& c1) {
+    return { c0.fR * c1.fR, c0.fG * c1.fG, c0.fB * c1.fB, c0.fA * c1.fA };
+}
+
+static inline SkPMColor4f PM4f_mulByScalar(const SkPMColor4f& c, float x) {
+    return { c.fR * x, c.fG * x, c.fB * x, c.fA * x };
+}
+
 #endif
