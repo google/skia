@@ -64,6 +64,12 @@
 
 // Utility functions
 
+static SkPath to_path(const SkRect& r) {
+    SkPath p;
+    p.addRect(r);
+    return p;
+}
+
 // This function destroys the mask and either frees or takes the pixels.
 sk_sp<SkImage> mask_to_greyscale_image(SkMask* mask) {
     sk_sp<SkImage> img;
@@ -215,11 +221,7 @@ void SkPDFDevice::GraphicStackState::pop() {
 static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
                                    SkPath* outPath) {
     SkASSERT(invPath.isInverseFillType());
-
-    SkPath clipPath;
-    clipPath.addRect(bounds);
-
-    return Op(clipPath, invPath, kIntersect_SkPathOp, outPath);
+    return Op(to_path(bounds), invPath, kIntersect_SkPathOp, outPath);
 }
 
 static SkRect rect_intersect(SkRect u, SkRect v) {
@@ -276,10 +278,7 @@ static void append_clip(const SkClipStack& clipStack,
     SkPath clipPath;
     (void)clipStack.asPath(&clipPath);
 
-    SkPath clipBoundsPath;
-    clipBoundsPath.addRect(outsetBounds);
-
-    if (Op(clipPath, clipBoundsPath, kIntersect_SkPathOp, &clipPath)) {
+    if (Op(clipPath, to_path(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
         SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style, wStream);
         SkPath::FillType clipFill = clipPath.getFillType();
         NOT_IMPLEMENTED(clipFill == SkPath::kInverseEvenOdd_FillType, false);
@@ -545,8 +544,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
         return;
     }
     // Convert to path to handle non-90-degree rotations.
-    SkPath path;
-    path.addRect(rect);
+    SkPath path = to_path(rect);
     path.transform(this->ctm(), &path);
     SkPath clip;
     (void)this->cs().asPath(&clip);
@@ -710,9 +708,7 @@ void SkPDFDevice::drawRect(const SkRect& rect,
     r.sort();
 
     if (paint.getPathEffect() || paint.getMaskFilter() || this->ctm().hasPerspective()) {
-        SkPath path;
-        path.addRect(r);
-        this->drawPath(path, paint, true);
+        this->drawPath(to_path(r), paint, true);
         return;
     }
 
@@ -1380,11 +1376,8 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
         return;
     }
     if (content.needShape()) {
-        SkPath shape;
-        shape.addRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
-                                       SkIntToScalar(device->width()),
-                                       SkIntToScalar(device->height())));
-        content.setShape(shape);
+        SkISize dim = device->imageInfo().dimensions();
+        content.setShape(to_path(SkRect::Make(SkIRect::MakeXYWH(x, y, dim.width(), dim.height()))));
     }
     if (!content.needSource()) {
         return;
@@ -1980,8 +1973,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     }
     if (paint.getMaskFilter()) {
         paint.setShader(imageSubset.image()->makeShader(&transform));
-        SkPath path;
-        path.addRect(dst);  // handles non-integral clipping.
+        SkPath path = to_path(dst); // handles non-integral clipping.
         this->internalDrawPath(this->cs(), this->ctm(), path, paint, true);
         return;
     }
@@ -2005,9 +1997,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     if (transform.hasPerspective()) {
         // Transform the bitmap in the new space, without taking into
         // account the initial transform.
-        SkPath perspectiveOutline;
         SkRect imageBounds = SkRect::Make(imageSubset.image()->bounds());
-        perspectiveOutline.addRect(imageBounds);
+        SkPath perspectiveOutline = to_path(imageBounds);
         perspectiveOutline.transform(transform);
 
         // TODO(edisonn): perf - use current clip too.
@@ -2019,8 +2010,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         SkMatrix total = transform;
         total.postConcat(fInitialTransform);
 
-        SkPath physicalPerspectiveOutline;
-        physicalPerspectiveOutline.addRect(imageBounds);
+        SkPath physicalPerspectiveOutline = to_path(imageBounds);
         physicalPerspectiveOutline.transform(total);
 
         SkRect physicalPerspectiveBounds =
@@ -2083,8 +2073,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         return;
     }
     if (content.needShape()) {
-        SkPath shape;
-        shape.addRect(SkRect::Make(subset));
+        SkPath shape = to_path(SkRect::Make(subset));
         shape.transform(matrix);
         content.setShape(shape);
     }
