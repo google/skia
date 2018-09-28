@@ -248,6 +248,21 @@ private:
     Path fPath;
 };
 
+// This class extracts all the paths from an SKP and then removes unwanted paths according to the
+// provided l/r trail. It then just draws the remaining paths. (Non-path draws are thrown out.) It
+// is useful for finding a reduced repo case for path drawing bugs.
+class BisectSrc : public SKPSrc {
+public:
+    explicit BisectSrc(Path path, const char* trail);
+
+    Error draw(SkCanvas*) const override;
+
+private:
+    SkString fTrail;
+
+    typedef SKPSrc INHERITED;
+};
+
 
 #if defined(SK_ENABLE_SKOTTIE)
 class SkottieSrc final : public Src {

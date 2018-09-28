@@ -1140,6 +1140,58 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+BisectSrc::BisectSrc(Path path, const char* trail) : INHERITED(path), fTrail(trail) {}
+
+Error BisectSrc::draw(SkCanvas* canvas) const {
+    struct FoundPath {
+        SkPath fPath;
+        SkPaint fPaint;
+        SkMatrix fViewMatrix;
+    };
+
+    // This subclass of SkCanvas just extracts all the SkPaths (drawn via drawPath) from an SKP.
+    class PathFindingCanvas : public SkCanvas {
+    public:
+        PathFindingCanvas(int width, int height) : SkCanvas(width, height, nullptr) {}
+        const SkTArray<FoundPath>& foundPaths() const { return fFoundPaths; }
+
+    private:
+        void onDrawPath(const SkPath& path, const SkPaint& paint) override {
+            fFoundPaths.push_back() = {path, paint, this->getTotalMatrix()};
+        }
+
+        SkTArray<FoundPath> fFoundPaths;
+    };
+
+    PathFindingCanvas pathFinder(canvas->getBaseLayerSize().width(),
+                                 canvas->getBaseLayerSize().height());
+    Error err = this->INHERITED::draw(&pathFinder);
+    if (!err.isEmpty()) {
+        return err;
+    }
+
+    int start = 0, end = pathFinder.foundPaths().count();
+    for (const char* ch = fTrail.c_str(); *ch; ++ch) {
+        int midpt = (start + end) / 2;
+        if ('l' == *ch) {
+            start = midpt;
+        } else if ('r' == *ch) {
+            end = midpt;
+        }
+    }
+
+    for (int i = start; i < end; ++i) {
+        const FoundPath& path = pathFinder.foundPaths()[i];
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->concat(path.fViewMatrix);
+        canvas->drawPath(path.fPath, path.fPaint);
+    }
+
+    return "";
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 #if defined(SK_ENABLE_SKOTTIE)
 SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 

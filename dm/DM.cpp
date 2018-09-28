@@ -95,6 +95,12 @@ DEFINE_int32(shard,  0, "Which shard do I run?");
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
+DEFINE_string(bisect, "",
+        "Pair of: SKP file to bisect, followed by an l/r bisect trail string (e.g., 'lrll'). The "
+        "l/r trail specifies which half to keep at each step of a binary search through the SKP's "
+        "paths. An empty string performs no bisect. Only the SkPaths are bisected; all other draws "
+        "are thrown out. This is useful for finding a reduced repo case for path drawing bugs.");
+
 DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
 DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
@@ -793,6 +799,11 @@ static bool gather_srcs() {
 #if defined(SK_XML)
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
 #endif
+    if (!FLAGS_bisect.isEmpty()) {
+        // An empty l/r trail string will draw all the paths.
+        push_src("bisect", "",
+                 new BisectSrc(FLAGS_bisect[0], FLAGS_bisect.count() > 1 ? FLAGS_bisect[1] : ""));
+    }
 
     SkTArray<SkString> images;
     if (!CollectImages(FLAGS_images, &images)) {
