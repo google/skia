@@ -19,6 +19,41 @@
     },
     {
       "key": {
+        "uuid": "171bf7ce_e610f7b4",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T17:40:15Z",
+      "side": 1,
+      "message": "Yeah, I think this may fall under the \"make normal code look normal, make weird code look weird\" maxim.  Seems like adding reinterpret() is a tacit endorsement that this kind of indeterminate punning is a principled good idea (rather than say, a practical good idea in some odd corners).",
+      "parentUuid": "1b55c6fa_412849ed",
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3627f7c6_977e7dc3",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T17:40:15Z",
+      "side": 1,
+      "message": "This one isn\u0027t quite strictly _legal_ I think.  But I think it will work fine and, I take it it\u0027s time with us will be limited?\n\nIf it didn\u0027t have to be mutable, we could make one on the stack, memcpy, and return it, and it\u0027d  probably all work the same in the end.",
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0b25cb1_d091f362",
         "filename": "src/gpu/effects/GrConstColorProcessor.fp",
         "patchSetId": 1
@@ -36,6 +71,121 @@
         "endLine": 59,
         "endChar": 62
       },
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f100b5a_32019af0",
+        "filename": "src/gpu/effects/GrConstColorProcessor.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T17:40:15Z",
+      "side": 1,
+      "message": "What do you think of making more aggressive changes to avoid the need for the helpers and such?\n\n{\n  auto color \u003d Sk4f::Load(\u0026fColor);\n  switch (fMode) {\n    case InputMode::kIgnore:                                    break;\n    case InputMode::kModulateA:    color *\u003d input.fA;           break;\n    case InputMode::kModulateRGBA: color *\u003d Sk4f::Load(\u0026input); break;\n  }\n  SkPM4f output;\n  color.store(\u0026output);\n  return output;\n}\n\nI\u0027m starting to think we should centralize a couple SkBitCast() routines to make things like those last three lines terser.",
+      "parentUuid": "b0b25cb1_d091f362",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 62
+      },
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5166485_fb966744",
+        "filename": "src/gpu/effects/GrLumaColorFilterEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T17:40:15Z",
+      "side": 1,
+      "message": "It\u0027s a shame your formatting was auto-formatted away.",
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c846e721_566649e4",
+        "filename": "src/gpu/effects/GrPremulInputFragmentProcessor.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T17:40:15Z",
+      "side": 1,
+      "message": "Yeah, this does seem like a weird thing to do, and I think it might stand out even more as being a weird thing to do without the reinterpret helper.  (Same with the unpremul one.)\n\nAlternatively, it might be we really do want to use SkRGBA4f\u003ckUnknown_SkAlphaType\u003e throughout these routines, allowing both premul() and unpremul() there (and I guess auto-conversion from but not to SkColor4f and SkPMColor4f)?",
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46331540_18f91d43",
+        "filename": "src/gpu/effects/GrSRGBEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T17:40:15Z",
+      "side": 1,
+      "message": "I like this one.",
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e54e384c_fb83fd6f",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T17:40:15Z",
+      "side": 1,
+      "message": "1?\n\nNot sure I actually follow what\u0027s going on here... do we need to unpremul or anything like that?",
+      "range": {
+        "startLine": 150,
+        "startChar": 66,
+        "endLine": 150,
+        "endChar": 74
+      },
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cbac836_78bb25fc",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-28T17:40:15Z",
+      "side": 1,
+      "message": "This one is probably clearer if we add mulByScalar(), operator*(SkScalar), or use Sk4f.  It\u0027s hard to glance at this and tell whether it\u0027s modulating or just scaling by the alpha.",
       "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
