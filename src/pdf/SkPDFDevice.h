@@ -196,7 +196,7 @@ private:
     // Set alpha to true if making a transparency group form x-objects.
     sk_sp<SkPDFObject> makeFormXObjectFromDevice(bool alpha = false);
 
-    void drawFormXObjectWithMask(int xObjectIndex,
+    void drawFormXObjectWithMask(sk_sp<SkPDFObject> xObject,
                                  sk_sp<SkPDFObject> mask,
                                  SkBlendMode,
                                  bool invertClip);
