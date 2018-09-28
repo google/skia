@@ -22,6 +22,30 @@
       "revId": "31b78ce2347b5c5b1732fa85b16636b2256493f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0a643ad_d738277f",
+        "filename": "src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-28T15:23:36Z",
+      "side": 1,
+      "message": "That is a good idea; the new patch set adds logic for that in GrGradientShader.",
+      "parentUuid": "9abdfd7d_12fc5929",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 82
+      },
+      "revId": "31b78ce2347b5c5b1732fa85b16636b2256493f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
