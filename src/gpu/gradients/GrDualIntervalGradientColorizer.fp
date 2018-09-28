@@ -8,19 +8,19 @@
 // Models two intervals (so 4 colors), that are connected at a specific threshold point.
 
 // Bias and scale for 0 to threshold
-layout(ctype=GrColor4f, tracked) in uniform half4 scale01;
-layout(ctype=GrColor4f, tracked) in uniform half4 bias01;
+layout(ctype=GrColor4f, tracked) in uniform float4 scale01;
+layout(ctype=GrColor4f, tracked) in uniform float4 bias01;
 
 // Bias and scale for threshold to 1
-layout(ctype=GrColor4f, tracked) in uniform half4 scale23;
-layout(ctype=GrColor4f, tracked) in uniform half4 bias23;
+layout(ctype=GrColor4f, tracked) in uniform float4 scale23;
+layout(ctype=GrColor4f, tracked) in uniform float4 bias23;
 
-layout(tracked) in uniform float threshold;
+layout(tracked) in uniform half threshold;
 
 void main() {
     half t = sk_InColor.x;
 
-    half4 scale, bias;
+    float4 scale, bias;
     if (t < threshold) {
         scale = scale01;
         bias = bias01;
