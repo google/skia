@@ -624,10 +624,6 @@ def dm_flags(api, bot):
       match.extend(['~WritePixelsNonTextureMSAA_Gpu'])
       match.extend(['~WritePixelsMSAA_Gpu'])
 
-  if 'Vulkan' in bot and 'GalaxyS7_G930FD' in bot:
-    # skia:8064
-    match.append('~^WritePixelsNonTexture_Gpu$')
-
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
 

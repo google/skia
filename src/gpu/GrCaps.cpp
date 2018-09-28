@@ -94,6 +94,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fBufferMapThreshold = options.fBufferMapThreshold;
     fBlacklistCoverageCounting = false;
     fAvoidStencilBuffers = false;
+    fAvoidWritePixelsFastPath = false;
 
     fPreferVRAMUseOverFlushes = true;
 
