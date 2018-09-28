@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d023dd2_34f09366",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-09-28T21:00:03Z",
+      "side": 1,
+      "message": "Why make these public? Do intend to document them?",
+      "revId": "cfa315390f04ebcdfac3569758535aec9f63dc0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
