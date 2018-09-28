@@ -17,6 +17,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 // typeface
 
 SK_C_API sk_typeface_t* sk_typeface_create_default(void);
+SK_C_API sk_typeface_t* sk_typeface_ref_default(void);
 SK_C_API sk_typeface_t* sk_typeface_create_from_name_with_font_style(const char *familyName, sk_fontstyle_t* style);
 SK_C_API void sk_typeface_unref(sk_typeface_t*);
 SK_C_API sk_typeface_t* sk_typeface_create_from_file(const char* path, int index);

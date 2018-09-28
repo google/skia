@@ -111,6 +111,17 @@ sk_sp<SkTypeface> SkTypeface::MakeDefault() {
     return sk_ref_sp(GetDefaultTypeface());
 }
 
+sk_sp<SkTypeface> SkTypeface::RefDefault() {
+    static SkOnce once;
+    static sk_sp<SkTypeface> singleton;
+
+    once([]{
+        SkTypeface* tf = GetDefaultTypeface();
+        singleton = sk_ref_sp(tf);
+    });
+    return singleton;
+}
+
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
     if (nullptr == face) {
         face = GetDefaultTypeface();
