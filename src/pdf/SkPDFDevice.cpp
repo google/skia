@@ -522,6 +522,7 @@ void SkPDFDevice::reset() {
     fShaderResources = std::vector<sk_sp<SkPDFObject>>();
     fFontResources = std::vector<sk_sp<SkPDFFont>>();
     fContentEntries.reset();
+    fActiveStackState = GraphicStackState();
 }
 
 void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
@@ -1700,10 +1701,11 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
             filledPaint.setColor(SK_ColorBLACK);
             filledPaint.setStyle(SkPaint::kFill_Style);
             SkClipStack empty;
-            this->internalDrawPath(clipStack ? *clipStack : empty,
-                                   SkMatrix::I(), *shape, filledPaint, true);
+            SkPDFDevice shapeDev(this->size(), fDocument, fInitialTransform);
+            shapeDev.internalDrawPath(clipStack ? *clipStack : empty,
+                                      SkMatrix::I(), *shape, filledPaint, true);
             this->drawFormXObjectWithMask(find_or_add(&fXObjectResources, dst),
-                                          this->makeFormXObjectFromDevice(),
+                                          shapeDev.makeFormXObjectFromDevice(),
                                           SkBlendMode::kSrcOver, true);
         } else {
             this->drawFormXObjectWithMask(find_or_add(&fXObjectResources, dst),
@@ -1966,7 +1968,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
             return;
         }
         this->addSMaskGraphicState(std::move(maskDevice), content.stream());
-        SkPDFUtils::AppendRectangle(SkRect::Make(this->imageInfo().dimensions()), content.stream());
+        SkPDFUtils::AppendRectangle(SkRect::Make(this->size()), content.stream());
         SkPDFUtils::PaintPath(SkPaint::kFill_Style, SkPath::kWinding_FillType, content.stream());
         this->clearMaskOnGraphicState(content.stream());
         return;
