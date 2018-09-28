@@ -58,8 +58,9 @@ public:
                 const SkMatrix& initialTransform = SkMatrix::I());
 
     sk_sp<SkPDFDevice> makeCongruentDevice() {
-        return sk_make_sp<SkPDFDevice>(this->imageInfo().dimensions(), fDocument);
+        return sk_make_sp<SkPDFDevice>(this->size(), fDocument);
     }
+    SkISize size() const { return this->imageInfo().dimensions(); }
 
     ~SkPDFDevice() override;
 
