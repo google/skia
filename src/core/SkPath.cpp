@@ -2125,6 +2125,21 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
     return (Verb)verb;
 }
 
+#include "SkPathIter.h"
+
+SkPathIter::SkPathIter(const SkPath& path)
+    : fCurrPts(path.fPathRef->points())
+    , fNextPts(path.fPathRef->points() + 1)
+    , fConicW(path.fPathRef->conicWeights() - 1)
+    , fVerbs(path.fPathRef->verbs())
+    , fStopVerbs(path.fPathRef->verbsMemBegin())
+    , fPrevPtsPerVerb(0)
+{
+    if (fVerbs != fStopVerbs) {
+        SkASSERT(kMove_SkPathVerb == fVerbs[-1]);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkString.h"
