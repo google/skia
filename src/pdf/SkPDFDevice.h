@@ -245,6 +245,8 @@ private:
 
     void addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice, SkDynamicMemoryWStream*);
     void clearMaskOnGraphicState(SkDynamicMemoryWStream*);
+    void setGraphicState(sk_sp<SkPDFObject>, SkDynamicMemoryWStream*);
+    void drawFormXObject(sk_sp<SkPDFObject>, SkDynamicMemoryWStream*);
 
     bool hasEmptyClip() const { return this->cs().isEmpty(this->bounds()); }
 
