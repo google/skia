@@ -1170,9 +1170,17 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
-    auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), this->alphaType(),
-                                               target.get(),      this->alphaType());
+sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColorType) const {
+    sk_sp<SkColorSpace> srcSpace = fColorSpace;
+    if (!fColorSpace) {
+        if (target->isSRGB()) {
+            return sk_ref_sp(const_cast<SkImage*>((SkImage*)this));
+        }
+
+        srcSpace = SkColorSpace::MakeSRGB();
+    }
+
+    auto xform = GrColorSpaceXformEffect::Make(srcSpace.get(), this->alphaType(), target.get());
     if (!xform) {
         return sk_ref_sp(const_cast<SkImage_Gpu*>(this));
     }
@@ -1198,10 +1206,13 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
         return nullptr;
     }
 
+    SkAlphaType newAlphaType = (kUnpremul_SkAlphaType == fAlphaType) ? kPremul_SkAlphaType
+                                                                     : fAlphaType;
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
-                                   fAlphaType, renderTargetContext->asTextureProxyRef(),
+                                   newAlphaType, renderTargetContext->asTextureProxyRef(),
                                    std::move(target), fBudgeted);
+
 }
 
 bool SkImage_Gpu::onIsValid(GrContext* context) const {
