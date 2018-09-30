@@ -16,6 +16,24 @@
       "revId": "cfa315390f04ebcdfac3569758535aec9f63dc0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac89c9c2_d0a2f346",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-30T21:59:02Z",
+      "side": 1,
+      "message": "Yes, these will be the new public interface to the SkColorSpace class, and a good handful of the others will either go away over time or be reimplemented in terms of these.\n\nI don\u0027t think we\u0027d mind if the new APIs were used outside Skia directly, but they\u0027re probably not useful for anyone that\u0027s not doing something pretty sophisticated or weird with color management.  Most of the methods on SkColorSpace already fall into that class, really... they\u0027re public methods of the type, but except for the factory methods, it\u0027s probably a bad sign if you\u0027re using them outside Skia.",
+      "parentUuid": "5d023dd2_34f09366",
+      "revId": "cfa315390f04ebcdfac3569758535aec9f63dc0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
