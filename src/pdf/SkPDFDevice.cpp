@@ -798,13 +798,15 @@ static int find_or_add(std::vector<sk_sp<T>>* vec, sk_sp<U> object) {
     return index;
 }
 
+void SkPDFDevice::setGraphicState(sk_sp<SkPDFObject> gs, SkDynamicMemoryWStream* content) {
+    SkPDFUtils::ApplyGraphicState(find_or_add(&fGraphicStateResources, std::move(gs)), content);
+}
+
 void SkPDFDevice::addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice,
                                        SkDynamicMemoryWStream* contentStream) {
-    sk_sp<SkPDFObject> sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
+    this->setGraphicState(SkPDFGraphicState::GetSMaskGraphicState(
             maskDevice->makeFormXObjectFromDevice(true), false,
-            SkPDFGraphicState::kLuminosity_SMaskMode, this->getCanon());
-    int gStateResourceIndex = find_or_add(&fGraphicStateResources, std::move(sMaskGS));
-    SkPDFUtils::ApplyGraphicState(gStateResourceIndex, contentStream);
+            SkPDFGraphicState::kLuminosity_SMaskMode, this->getCanon()), contentStream);
 }
 
 void SkPDFDevice::clearMaskOnGraphicState(SkDynamicMemoryWStream* contentStream) {
@@ -814,8 +816,7 @@ void SkPDFDevice::clearMaskOnGraphicState(SkDynamicMemoryWStream* contentStream)
         noSMaskGS = sk_make_sp<SkPDFDict>("ExtGState");
         noSMaskGS->insertName("SMask", "None");
     }
-    int gStateResourceIndex = find_or_add(&fGraphicStateResources, noSMaskGS);
-    SkPDFUtils::ApplyGraphicState(gStateResourceIndex, contentStream);
+    this->setGraphicState(noSMaskGS, contentStream);
 }
 
 void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
@@ -1362,8 +1363,9 @@ void SkPDFDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int,
     // TODO: implement drawVertices
 }
 
-static void draw_form_xobject(int objectIndex, SkWStream* content) {
-    SkPDFWriteResourceName(content, SkPDFResourceType::kXObject, objectIndex);
+void SkPDFDevice::drawFormXObject(sk_sp<SkPDFObject> xObject, SkDynamicMemoryWStream* content) {
+    SkPDFWriteResourceName(content, SkPDFResourceType::kXObject,
+                           find_or_add(&fXObjectResources, std::move(xObject)));
     content->writeText(" Do\n");
 }
 
@@ -1414,10 +1416,7 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
     if (!content.needSource()) {
         return;
     }
-
-    int xObjectResourceIndex = find_or_add(&fXObjectResources,
-                                           pdfDevice->makeFormXObjectFromDevice());
-    draw_form_xobject(xObjectResourceIndex, content.stream());
+    this->drawFormXObject(pdfDevice->makeFormXObjectFromDevice(), content.stream());
 }
 
 sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
@@ -1590,14 +1589,10 @@ void SkPDFDevice::drawFormXObjectWithMask(sk_sp<SkPDFObject> xObject,
     if (!content.entry()) {
         return;
     }
-    int xObjectIndex = find_or_add(&fXObjectResources, std::move(xObject));
-    sk_sp<SkPDFDict> sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
-            std::move(mask), invertClip,
-            SkPDFGraphicState::kAlpha_SMaskMode, fDocument->canon());
-    int gStateResourceIndex = find_or_add(&fGraphicStateResources, std::move(sMaskGS));
-
-    SkPDFUtils::ApplyGraphicState(gStateResourceIndex, content.stream());
-    draw_form_xobject(xObjectIndex, content.stream());
+    this->setGraphicState(SkPDFGraphicState::GetSMaskGraphicState(
+            std::move(mask), invertClip, SkPDFGraphicState::kAlpha_SMaskMode,
+            fDocument->canon()), content.stream());
+    this->drawFormXObject(std::move(xObject), content.stream());
     this->clearMaskOnGraphicState(content.stream());
 }
 
@@ -1707,7 +1702,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
         if (shape == nullptr || blendMode == SkBlendMode::kDstOut ||
                 blendMode == SkBlendMode::kSrcATop) {
             ScopedContentEntry content(this, nullptr, SkMatrix::I(), stockPaint);
-            draw_form_xobject(find_or_add(&fXObjectResources, std::move(dst)), content.stream());
+            this->drawFormXObject(std::move(dst), content.stream());
             return;
         } else {
             blendMode = SkBlendMode::kClear;
@@ -1748,7 +1743,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
             blendMode == SkBlendMode::kDstATop) {
         ScopedContentEntry content(this, nullptr, SkMatrix::I(), stockPaint);
         if (content.entry()) {
-            draw_form_xobject(find_or_add(&fXObjectResources, srcFormXObject), content.stream());
+            this->drawFormXObject(srcFormXObject, content.stream());
         }
         if (blendMode == SkBlendMode::kSrc) {
             return;
@@ -1756,7 +1751,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
     } else if (blendMode == SkBlendMode::kSrcATop) {
         ScopedContentEntry content(this, nullptr, SkMatrix::I(), stockPaint);
         if (content.entry()) {
-            draw_form_xobject(find_or_add(&fXObjectResources, dst), content.stream());
+            this->drawFormXObject(dst, content.stream());
         }
     }
 
@@ -2133,8 +2128,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         SkASSERT((key != SkBitmapKey{{0, 0, 0, 0}, 0}));
         fDocument->canon()->fPDFBitmapMap.set(key, pdfimage);
     }
-    int xObjectResourceIndex = find_or_add(&fXObjectResources, std::move(pdfimage));
-    draw_form_xobject(xObjectResourceIndex, content.stream());
+    this->drawFormXObject(std::move(pdfimage), content.stream());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
