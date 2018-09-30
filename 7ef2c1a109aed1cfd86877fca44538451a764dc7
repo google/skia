@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e9e25343_a66a65f6",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-30T10:25:43Z",
+      "side": 1,
+      "message": "Yes you are right for both remaining and rowIter.\np is a temporary pointer to unwind the remaining code in the rowBuffer.\nfirstchar is the firstchar according to the LZW decoding algorithm.",
+      "parentUuid": "2a7fd888_1c3831e7",
+      "range": {
+        "startLine": 266,
+        "startChar": 12,
+        "endLine": 266,
+        "endChar": 47
+      },
+      "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "94b4fa13_b7a4fa6f",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-27T05:45:09Z",
       "side": 1,
       "message": "We probably want to clear out the entire suffix table, right?",
+      "range": {
+        "startLine": 949,
+        "startChar": 8,
+        "endLine": 949,
+        "endChar": 25
+      },
+      "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69176501_6bed4dbd",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 8590
+      },
+      "writtenOn": "2018-09-30T10:25:43Z",
+      "side": 1,
+      "message": "yes it contains the codes till clearcode.All future codes will be created using these codes.",
+      "parentUuid": "94b4fa13_b7a4fa6f",
       "range": {
         "startLine": 949,
         "startChar": 8,
