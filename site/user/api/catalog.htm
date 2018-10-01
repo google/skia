@@ -7513,10 +7513,10 @@
     "name": "SkPath::addRRect"
 },
     "SkPath_addRRect_2": {
-    "code": "#include \"SkTextOnPath.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRRect rrect;\n    rrect.setRectXY({40, 40, 215, 215}, 50, 50);\n    SkPath path;\n    path.addRRect(rrect);\n    canvas->drawPath(path, paint);\n    for (int start = 0; start < 8; ++start) {\n        SkPath textPath;\n        textPath.addRRect(rrect, SkPath::kCW_Direction, start);\n        SkMatrix matrix;\n        matrix.setTranslate(0, -5);\n        SkDrawTextOnPath(&\"01234567\"[start], 1, paint, textPath, &matrix, canvas);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRRect rrect;\n    rrect.setRectXY({40, 40, 215, 215}, 50, 50);\n    SkPath path;\n    path.addRRect(rrect);\n    canvas->drawPath(path, paint);\n    for (int start = 0; start < 8; ++start) {\n        SkPath textPath;\n        textPath.addRRect(rrect, SkPath::kCW_Direction, start);\n        SkPathMeasure pathMeasure(textPath, false);\n        SkPoint position;\n        SkVector tangent;\n        if (!pathMeasure.getPosTan(0, &position, &tangent)) {\n            continue;\n        }\n        SkRSXform rsxForm = SkRSXform::Make(tangent.fX, tangent.fY,\n               position.fX + tangent.fY * 5, position.fY - tangent.fX * 5);\n        canvas->drawTextRSXform(&\"01234567\"[start], 1, &rsxForm, nullptr, paint);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "0e6ca92d854035da29e89ad81d85ff85",
+    "hash": "888edd4c4a91ca62ceb01bce8ab675b2",
     "file": "SkPath_Reference",
     "name": "SkPath::addRRect_2"
 },
