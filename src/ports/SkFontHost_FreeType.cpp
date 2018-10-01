@@ -7,6 +7,7 @@
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
+#include "SkCallableTraits.h"
 #include "SkCanvas.h"
 #include "SkColorData.h"
 #include "SkDescriptor.h"
@@ -96,14 +97,19 @@ static SkScalar SkFT_FixedToScalar(FT_Fixed x) {
 
 //////////////////////////////////////////////////////////////////////////
 
+using FT_Alloc_size_t = SkCallableTraits<FT_Alloc_Func>::argument<1>::type;
+static_assert(std::is_same<FT_Alloc_size_t, long  >::value ||
+              std::is_same<FT_Alloc_size_t, size_t>::value,"");
+
 extern "C" {
-    static void* sk_ft_alloc(FT_Memory, long size) {
+    static void* sk_ft_alloc(FT_Memory, FT_Alloc_size_t size) {
         return sk_malloc_throw(size);
     }
     static void sk_ft_free(FT_Memory, void* block) {
         sk_free(block);
     }
-    static void* sk_ft_realloc(FT_Memory, long cur_size, long new_size, void* block) {
+    static void* sk_ft_realloc(FT_Memory, FT_Alloc_size_t cur_size,
+                                          FT_Alloc_size_t new_size, void* block) {
         return sk_realloc_throw(block, new_size);
     }
 };
