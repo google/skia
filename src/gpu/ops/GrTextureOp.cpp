@@ -167,8 +167,8 @@ public:
                                                 GrGLSLVarying::Scope::kVertToFrag);
                     if (kFloat3_GrVertexAttribType == textureGP.fPositions.cpuType()) {
                         args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
-                        // The distance from edge equation e to homogenous point p=sk_Position
-                        // is e.x*p.x/p.wx + e.y*p.y/p.w + e.z. However, we want screen space
+                        // The distance from edge equation e to homogeneous point p=sk_Position
+                        // is e.x*p.x/p.w + e.y*p.y/p.w + e.z. However, we want screen space
                         // interpolation of this distance. We can do this by multiplying the
                         // varying in the VS by p.w and then multiplying by sk_FragCoord.w in
                         // the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
@@ -199,6 +199,8 @@ public:
                     }
                     args.fFragBuilder->codeAppendf("%s = float4(saturate(mindist));",
                                                    args.fOutputCoverage);
+                    args.fFragBuilder->codeAppendf("if (mindist <= -0.5) { %s = float4(0.2, 0.2, 0.2, 1.0); %s = float4(1);}",
+                                                   args.fOutputColor, args.fOutputCoverage);
                 } else {
                     args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
                 }
@@ -268,7 +270,10 @@ private:
 // This computes the four edge equations for a quad, then outsets them and computes a new quad
 // as the intersection points of the outset edges. 'x' and 'y' contain the original points as input
 // and the outset points as output. 'a', 'b', and 'c' are the edge equation coefficients on output.
-static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk4f* b, Sk4f* c) {
+static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y, Sk4f* a,
+                                                   Sk4f* b, Sk4f* c) {
+    SkASSERT(GrQuadAAFlags::kNone != aaFlags);
+
     static constexpr auto fma = SkNx_fma<4, float>;
     // These rotate the points/edge values either clockwise or counterclockwise assuming tri strip
     // order.
@@ -281,7 +286,7 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
     // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
     auto xdiff = xnext - *x;
     auto ydiff = ynext - *y;
-    Sk4f invLengths = fma(xdiff, xdiff, ydiff * ydiff).rsqrt();
+    auto invLengths = fma(xdiff, xdiff, ydiff * ydiff).rsqrt();
     xdiff *= invLengths;
     ydiff *= invLengths;
 
@@ -303,8 +308,90 @@ static void compute_quad_edges_and_outset_vertices(Sk4f* x, Sk4f* y, Sk4f* a, Sk
 
     // Outset the corners by half a pixel along each of the two adjacent vectors to ensure all
     // pixel centers are covered.
-    *x += 0.5f * (-xdiff + nextCW(xdiff));
-    *y += 0.5f * (-ydiff + nextCW(ydiff));
+    if (aaFlags != GrQuadAAFlags::kAll) {
+        // This order is the same order the edges appear in xdiff/ydiff and therefore as the edges
+        // in a/b/c.
+        auto mask = Sk4f(GrQuadAAFlags::kLeft   & aaFlags ? 1.f : 0.f,
+                         GrQuadAAFlags::kBottom & aaFlags ? 1.f : 0.f,
+                         GrQuadAAFlags::kTop    & aaFlags ? 1.f : 0.f,
+                         GrQuadAAFlags::kRight  & aaFlags ? 1.f : 0.f);
+        // Make the edge equations for non-AA edges always evaluate to 1.
+        *a *= mask;
+        *b *= mask;
+        *c = mask * *c + (1.f - mask);
+        // Do the vertex outset.
+        mask *= 0.5f;
+        auto maskCW = nextCW(mask);
+        *x += maskCW * -xdiff + mask * nextCW(xdiff);
+        *y += maskCW * -ydiff + mask * nextCW(ydiff);
+    } else {
+        *x += 0.5f * (-xdiff + nextCW(xdiff));
+        *y += 0.5f * (-ydiff + nextCW(ydiff));
+    }
+}
+
+static void persp_compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f x, Sk4f y, Sk4f* a,
+                                                        Sk4f* b, Sk4f* c, Sk4f* dxCW, Sk4f* dxCCW, Sk4f* dyCW, Sk4f* dyCCW) {
+    SkASSERT(GrQuadAAFlags::kNone != aaFlags);
+
+    static constexpr auto fma = SkNx_fma<4, float>;
+    // These rotate the points/edge values either clockwise or counterclockwise assuming tri strip
+    // order.
+    auto nextCW  = [](const Sk4f& v) { return SkNx_shuffle<2, 0, 3, 1>(v); };
+    auto nextCCW = [](const Sk4f& v) { return SkNx_shuffle<1, 3, 0, 2>(v); };
+
+    // Compute edge equations for the quad.
+    auto xnext = nextCCW(x);
+    auto ynext = nextCCW(y);
+    // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
+    auto xdiff = xnext - x;
+    auto ydiff = ynext - y;
+    auto invLengths = fma(xdiff, xdiff, ydiff * ydiff).rsqrt();
+    xdiff *= invLengths;
+    ydiff *= invLengths;
+
+    // Use above vectors to compute edge equations.
+    *c = fma(xnext, y,  -ynext * x) * invLengths;
+    // Make sure the edge equations have their normals facing into the quad in device space.
+    auto test = fma(ydiff, nextCW(x), fma(-xdiff, nextCW(y), *c));
+    if ((test < Sk4f(0)).anyTrue()) {
+        *a = -ydiff;
+        *b = xdiff;
+        *c = -*c;
+    } else {
+        *a = ydiff;
+        *b = -xdiff;
+    }
+    // Outset the edge equations so aa coverage evaluates to zero half a pixel away from the
+    // original quad edge.
+    *c += 0.5f;
+
+    // Outset the corners by half a pixel along each of the two adjacent vectors to ensure all
+    // pixel centers are covered.
+    if (aaFlags != GrQuadAAFlags::kAll) {
+        // This order is the same order the edges appear in xdiff/ydiff and therefore as the edges
+        // in a/b/c.
+        auto mask = Sk4f(GrQuadAAFlags::kLeft   & aaFlags ? 1.f : 0.f,
+                         GrQuadAAFlags::kBottom & aaFlags ? 1.f : 0.f,
+                         GrQuadAAFlags::kTop    & aaFlags ? 1.f : 0.f,
+                         GrQuadAAFlags::kRight  & aaFlags ? 1.f : 0.f);
+        // Make the edge equations for non-AA edges always evaluate to 1.
+        *a *= mask;
+        *b *= mask;
+        *c = mask * *c + (1.f - mask);
+        // Do the vertex outset.
+        mask *= 0.5f;
+        auto maskCW = nextCW(mask);
+        *dxCCW = maskCW * -xdiff;
+        *dxCW  = mask * nextCW(xdiff);
+        *dyCCW = maskCW * -ydiff;
+        *dyCW  = mask * nextCW(ydiff);
+    } else {
+        *dxCCW = 0.5f * -xdiff;
+        *dxCW  = 0.5f * nextCW(xdiff);
+        *dyCCW = 0.5f * -ydiff;
+        *dyCW  = 0.5f * nextCW(ydiff);
+    }
 }
 
 namespace {
@@ -315,7 +402,9 @@ class VertexAAHandler;
 template<typename V> class VertexAAHandler<V, GrAA::kNo, SkPoint> {
 public:
     static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
-                                            const SkRect& texRect) {
+                                            GrQuadAAFlags aaFlags, const SkRect& texRect) {
+        // Should be kNone for non-AA and kAll for MSAA.
+        SkASSERT(aaFlags == GrQuadAAFlags::kNone || aaFlags == GrQuadAAFlags::kAll);
         SkASSERT((quad.w4f() == Sk4f(1.f)).allTrue());
         SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
         for (int i = 0; i < 4; ++i) {
@@ -327,7 +416,9 @@ public:
 template<typename V> class VertexAAHandler<V, GrAA::kNo, SkPoint3> {
 public:
     static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
-                                            const SkRect& texRect) {
+                                            GrQuadAAFlags aaFlags, const SkRect& texRect) {
+        // Should be kNone for non-AA and kAll for MSAA.
+        SkASSERT(aaFlags == GrQuadAAFlags::kNone || aaFlags == GrQuadAAFlags::kAll);
         SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
         for (int i = 0; i < 4; ++i) {
             vertices[i].fPosition = quad.point(i);
@@ -338,12 +429,12 @@ public:
 template<typename V> class VertexAAHandler<V, GrAA::kYes, SkPoint> {
 public:
     static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
-                                            const SkRect& texRect) {
+                                            GrQuadAAFlags aaFlags, const SkRect& texRect) {
         SkASSERT((quad.w4f() == Sk4f(1.f)).allTrue());
         auto x = quad.x4f();
         auto y = quad.y4f();
         Sk4f a, b, c;
-        compute_quad_edges_and_outset_vertices(&x, &y, &a, &b, &c);
+        compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c);
 
         for (int i = 0; i < 4; ++i) {
             vertices[i].fPosition = {x[i], y[i]};
@@ -377,7 +468,7 @@ private:
 template<typename V> class VertexAAHandler<V, GrAA::kYes, SkPoint3> {
 public:
     static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
-                                            const SkRect& texRect) {
+                                            GrQuadAAFlags aaFlags, const SkRect& texRect) {
         auto x = quad.x4f();
         auto y = quad.y4f();
         auto iw = quad.iw4f();
@@ -392,12 +483,104 @@ public:
         P.mapHomogeneousPoints(&weq, &weq, 1);
 
         Sk4f a, b, c;
-        compute_quad_edges_and_outset_vertices(&x, &y, &a, &b, &c);
+        Sk4f dxCW, dxCCW, dyCW, dyCCW;
+        persp_compute_quad_edges_and_outset_vertices(aaFlags, x, y, &a, &b, &c, &dxCW, &dxCCW, &dyCW, &dyCCW);
+        x = quad.x4f();
+        y = quad.y4f();
+        auto w = quad.w4f();
+        if ((GrQuadAAFlags::kLeft | GrQuadAAFlags::kRight) & aaFlags) {
+            Sk2f LX(x[0], x[1]);
+            Sk2f LY(y[0], y[1]);
+            Sk2f LW(w[0], w[1]);
 
-        // Compute new w values for the output vertices;
-        auto w = Sk4f(weq.fX) * x + Sk4f(weq.fY) * y + Sk4f(weq.fZ);
-        x *= w;
-        y *= w;
+            Sk2f RX(x[2], x[3]);
+            Sk2f RY(y[2], y[3]);
+            Sk2f RW(w[2], w[3]);
+
+            Sk2f lx = LX / LW;
+            Sk2f ly = LY / LW;
+            Sk2f rx = RX / RW;
+            Sk2f ry = RY / RW;
+            Sk2f vx = rx - lx;
+            Sk2f vy = ry - ly;
+            Sk2f len = SkNx_fma(vx, vx, vy * vy).sqrt();
+            Sk2f s = (len + 16.f) / len;
+            auto tempRX = RX;
+            auto tempRY = RY;
+            auto tempRW = RW;
+            if (GrQuadAAFlags::kRight & aaFlags) {
+                Sk2f t = (s * LW) / (s * LW + (1.f - s) * RW);
+                RX = LX + t * (RX - LX);
+                RY = LY + t * (RY - LY);
+                RW = LW + t * (RW - LW);
+            }
+            if (GrQuadAAFlags::kLeft & aaFlags) {
+                Sk2f t = (s * tempRW) / (s * tempRW + (1.f - s) * LW);
+                LX = tempRX + t * (LX - tempRX);
+                LY = tempRY + t * (LY - tempRY);
+                LW = tempRW + t * (LW - tempRW);
+            }
+            x.fVec[2] = RX.fVec[0];
+            y.fVec[2] = RY.fVec[0];
+            w.fVec[2] = RW.fVec[0];
+            x.fVec[3] = RX.fVec[1];
+            y.fVec[3] = RY.fVec[1];
+            w.fVec[3] = RW.fVec[1];
+
+            x.fVec[0] = LX.fVec[0];
+            y.fVec[0] = LY.fVec[0];
+            w.fVec[0] = LW.fVec[0];
+            x.fVec[1] = LX.fVec[1];
+            y.fVec[1] = LY.fVec[1];
+            w.fVec[1] = LW.fVec[1];
+        }
+
+        if ((GrQuadAAFlags::kTop | GrQuadAAFlags::kBottom) & aaFlags) {
+            Sk2f TX(x[0], x[2]);
+            Sk2f TY(y[0], y[2]);
+            Sk2f TW(w[0], w[2]);
+
+            Sk2f BX(x[1], x[3]);
+            Sk2f BY(y[1], y[3]);
+            Sk2f BW(w[1], w[3]);
+
+            Sk2f tx = TX / TW;
+            Sk2f ty = TY / TW;
+            Sk2f bx = BX / BW;
+            Sk2f by = BY / BW;
+            Sk2f vx = bx - tx;
+            Sk2f vy = by - ty;
+
+            Sk2f len = SkNx_fma(vx, vx, vy * vy).sqrt();
+            Sk2f s = (len + 16.f) / len;
+            auto tempBX = BX;
+            auto tempBY = BY;
+            auto tempBW = BW;
+            if (GrQuadAAFlags::kBottom & aaFlags) {
+                Sk2f t = (s * TW) / (s * TW + (1.f - s) * BW);
+                BX = TX + t * (BX - TX);
+                BY = TY + t * (BY - TY);
+                BW = TW + t * (BW - TW);
+            }
+            if (GrQuadAAFlags::kTop & aaFlags) {
+                Sk2f t = (s * tempBW) / (s * tempBW + (1.f - s) * TW);
+                TX = tempBX + t * (TX - tempBX);
+                TY = tempBY + t * (TY - tempBY);
+                TW = tempBW + t * (TW - tempBW);
+            }
+            x.fVec[0] = TX[0];
+            y.fVec[0] = TY[0];
+            w.fVec[0] = TW[0];
+            x.fVec[2] = TX[1];
+            y.fVec[2] = TY[1];
+            w.fVec[2] = TW[1];
+            x.fVec[1] = BX[0];
+            y.fVec[1] = BY[0];
+            w.fVec[1] = BW[0];
+            x.fVec[3] = BX[1];
+            y.fVec[3] = BY[1];
+            w.fVec[3] = BW[1];
+        }
 
         for (int i = 0; i < 4; ++i) {
             vertices[i].fPosition = {x[i], y[i], w[i]};
@@ -476,9 +659,10 @@ template <typename V> struct DomainAssigner<V, Domain::kNo> {
 }  // anonymous namespace
 
 template <typename V>
-static void tessellate_quad(const GrPerspQuad& devQuad, const SkRect& srcRect, GrColor color,
-                            GrSurfaceOrigin origin, GrSamplerState::Filter filter, V* vertices,
-                            SkScalar iw, SkScalar ih, Domain domain) {
+static void tessellate_quad(const GrPerspQuad& devQuad, GrQuadAAFlags aaFlags,
+                            const SkRect& srcRect, GrColor color, GrSurfaceOrigin origin,
+                            GrSamplerState::Filter filter, V* vertices, SkScalar iw, SkScalar ih,
+                            Domain domain) {
     SkRect texRect = {
             iw * srcRect.fLeft,
             ih * srcRect.fTop,
@@ -489,7 +673,7 @@ static void tessellate_quad(const GrPerspQuad& devQuad, const SkRect& srcRect, G
         texRect.fTop = 1.f - texRect.fTop;
         texRect.fBottom = 1.f - texRect.fBottom;
     }
-    VertexAAHandler<V>::AssignPositionsAndTexCoords(vertices, devQuad, texRect);
+    VertexAAHandler<V>::AssignPositionsAndTexCoords(vertices, devQuad, aaFlags, texRect);
     vertices[0].fColor = color;
     vertices[1].fColor = color;
     vertices[2].fColor = color;
@@ -510,16 +694,16 @@ public:
                                           const SkRect& srcRect,
                                           const SkRect& dstRect,
                                           GrAAType aaType,
+                                          GrQuadAAFlags aaFlags,
                                           SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                           sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
-        return pool->allocate<TextureOp>(std::move(proxy), filter, color,
-                                         srcRect, dstRect, aaType, constraint,
-                                         viewMatrix, std::move(textureColorSpaceXform),
-                                         std::move(paintColorSpaceXform));
+        return pool->allocate<TextureOp>(
+                std::move(proxy), filter, color, srcRect, dstRect, aaType, aaFlags, constraint,
+                viewMatrix, std::move(textureColorSpaceXform), std::move(paintColorSpaceXform));
     }
 
     ~TextureOp() override {
@@ -573,7 +757,7 @@ private:
     friend class ::GrOpMemoryPool;
 
     TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter, GrColor color,
-              const SkRect& srcRect, const SkRect& dstRect, GrAAType aaType,
+              const SkRect& srcRect, const SkRect& dstRect, GrAAType aaType, GrQuadAAFlags aaFlags,
               SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform,
               sk_sp<GrColorSpaceXform> paintColorSpaceXform)
@@ -584,7 +768,22 @@ private:
             , fFilter(filter)
             , fAAType(static_cast<unsigned>(aaType))
             , fFinalized(0) {
-        SkASSERT(aaType != GrAAType::kMixedSamples);
+        switch (aaType) {
+            case GrAAType::kNone:
+                aaFlags = GrQuadAAFlags::kNone;
+                break;
+            case GrAAType::kCoverage:
+                if (aaFlags == GrQuadAAFlags::kNone) {
+                    fAAType = static_cast<unsigned>(GrAAType::kNone);
+                }
+                break;
+            case GrAAType::kMSAA:
+                aaFlags = GrQuadAAFlags::kAll;
+                break;
+            case GrAAType::kMixedSamples:
+                SK_ABORT("Should not use mixed sample AA");
+                break;
+        }
         fPerspective = viewMatrix.hasPerspective();
         auto quad = GrPerspQuad(dstRect, viewMatrix);
         auto bounds = quad.bounds();
@@ -604,7 +803,7 @@ private:
             }
         }
 #endif
-        const auto& draw = fDraws.emplace_back(srcRect, quad, constraint, color);
+        const auto& draw = fDraws.emplace_back(srcRect, quad, aaFlags, constraint, color);
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
         fDomain = static_cast<bool>(draw.domain());
     }
@@ -620,8 +819,8 @@ private:
         float ih = 1.f / texture->height();
 
         for (const auto& draw : fDraws) {
-            tessellate_quad<Vertex>(draw.quad(), draw.srcRect(), draw.color(), origin, fFilter,
-                                    vertices, iw, ih, draw.domain());
+            tessellate_quad<Vertex>(draw.quad(), draw.aaFlags(), draw.srcRect(), draw.color(),
+                                    origin, fFilter, vertices, iw, ih, draw.domain());
             vertices += 4;
         }
     }
@@ -743,6 +942,8 @@ private:
                                        that->fPaintColorSpaceXform.get())) {
             return CombineResult::kCannotCombine;
         }
+        // TODO: Should we allow kNone and kCoverage to merge by upgrading kNone to kCoverage?
+        // If we allowed chaining the head op would have to pre-iterate to determine the aa-type.
         if (this->aaType() != that->aaType()) {
             return CombineResult::kCannotCombine;
         }
@@ -770,22 +971,27 @@ private:
 
     class Draw {
     public:
-        Draw(const SkRect& srcRect, const GrPerspQuad& quad, SkCanvas::SrcRectConstraint constraint,
-             GrColor color)
+        Draw(const SkRect& srcRect, const GrPerspQuad& quad, GrQuadAAFlags aaFlags,
+             SkCanvas::SrcRectConstraint constraint, GrColor color)
                 : fSrcRect(srcRect)
                 , fQuad(quad)
                 , fColor(color)
-                , fHasDomain(constraint == SkCanvas::kStrict_SrcRectConstraint) {}
+                , fHasDomain(constraint == SkCanvas::kStrict_SrcRectConstraint)
+                , fAAFlags(static_cast<unsigned>(aaFlags)) {
+            SkASSERT(fAAFlags == static_cast<unsigned>(aaFlags));
+        }
         const GrPerspQuad& quad() const { return fQuad; }
         const SkRect& srcRect() const { return fSrcRect; }
         GrColor color() const { return fColor; }
         Domain domain() const { return Domain(fHasDomain); }
+        GrQuadAAFlags aaFlags() const { return static_cast<GrQuadAAFlags>(fAAFlags); }
 
     private:
         SkRect fSrcRect;
         GrPerspQuad fQuad;
         GrColor fColor;
-        bool fHasDomain;
+        unsigned fHasDomain : 1;
+        unsigned fAAFlags : 4;
     };
     SkSTArray<1, Draw, true> fDraws;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
@@ -812,12 +1018,13 @@ std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                const SkRect& srcRect,
                                const SkRect& dstRect,
                                GrAAType aaType,
+                               GrQuadAAFlags aaFlags,
                                SkCanvas::SrcRectConstraint constraint,
                                const SkMatrix& viewMatrix,
                                sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
     return TextureOp::Make(context, std::move(proxy), filter, color, srcRect, dstRect, aaType,
-                           constraint, viewMatrix, std::move(textureColorSpaceXform),
+                           aaFlags, constraint, viewMatrix, std::move(textureColorSpaceXform),
                            std::move(paintColorSpaceXform));
 }
 
@@ -865,10 +1072,16 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     if (random->nextBool()) {
         aaType = (fsaaType == GrFSAAType::kUnifiedMSAA) ? GrAAType::kMSAA : GrAAType::kCoverage;
     }
+    GrQuadAAFlags aaFlags = GrQuadAAFlags::kNone;
+    aaFlags |= random->nextBool() ? GrQuadAAFlags::kLeft   : GrQuadAAFlags::kNone;
+    aaFlags |= random->nextBool() ? GrQuadAAFlags::kTop    : GrQuadAAFlags::kNone;
+    aaFlags |= random->nextBool() ? GrQuadAAFlags::kRight  : GrQuadAAFlags::kNone;
+    aaFlags |= random->nextBool() ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
     auto constraint = random->nextBool() ? SkCanvas::kStrict_SrcRectConstraint
                                          : SkCanvas::kFast_SrcRectConstraint;
     return GrTextureOp::Make(context, std::move(proxy), filter, color, srcRect, rect, aaType,
-                             constraint, viewMatrix, std::move(texXform), std::move(paintXform));
+                             aaFlags, constraint, viewMatrix, std::move(texXform),
+                             std::move(paintXform));
 }
 
 #endif
