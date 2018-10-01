@@ -79,8 +79,8 @@ union skc_group_parents
   skc_uint2  u32v2;
 
   struct {
-    skc_uint depth; // zero-based depth of this group
-    skc_uint base;  // index to sequence of group ids leading back to root
+    skc_uint depth;
+    skc_uint base;
   };
 };
 
