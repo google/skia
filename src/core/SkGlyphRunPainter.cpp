@@ -335,40 +335,6 @@ void SkGlyphRunListPainter::processARGBFallback(
 }
 
 #if SK_SUPPORT_GPU
-
-template <typename PerSDFT, typename PerPathT>
-void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
-        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-        SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
-        PerSDFT perSDF, PerPathT perPath, ARGBFallback argbFallback) {
-    fARGBGlyphsIDs.clear();
-    fARGBPositions.clear();
-    SkScalar maxFallbackDimension{-SK_ScalarInfinity};
-
-    const SkPoint* positionCursor = glyphRun.positions().data();
-    for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
-        const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, {0, 0});
-        SkPoint glyphPos = origin + *positionCursor++;
-        if (glyph.fMaskFormat == SkMask::kSDF_Format || glyph.isEmpty()) {
-            if (!SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
-                perSDF(glyph, glyphPos);
-            } else {
-                perPath(glyph, glyphPos);
-            }
-        } else {
-            SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
-            maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
-            fARGBGlyphsIDs.push_back(glyphID);
-            fARGBPositions.push_back(glyphPos);
-        }
-    }
-
-    if (!fARGBGlyphsIDs.empty()) {
-        this->processARGBFallback(
-            maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale, argbFallback);
-    }
-}
-
 // -- GrTextContext --------------------------------------------------------------------------------
 GrColor generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
     GrColor4f filteredColor = SkColor4fToUnpremulGrColor4f(paint.getColor4f(), colorSpaceInfo);

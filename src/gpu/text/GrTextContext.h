@@ -68,33 +68,6 @@ public:
                                        SkScalar* textRatio,
                                        SkScalerContextFlags* flags);
 
-    class FallbackGlyphRunHelper {
-    public:
-        FallbackGlyphRunHelper(
-                const SkMatrix& viewMatrix, const SkPaint& runPaint, SkScalar textRatio);
-
-        void appendGlyph(const SkGlyph& glyph, SkGlyphID glyphID, SkPoint glyphPos);
-        void drawGlyphs(
-                GrTextBlob* blob, int runIndex, GrGlyphCache* cache,
-                const SkSurfaceProps& props, const SkPaint& runPaint, GrColor filteredColor,
-                SkScalerContextFlags scalerContextFlags);
-
-        void initializeForDraw(SkPaint* paint, SkScalar* textRatio, SkMatrix* matrix) const;
-        const std::vector<SkGlyphID>& fallbackText() const { return fFallbackTxt; }
-
-    private:
-        std::vector<SkGlyphID> fFallbackTxt;
-        std::vector<SkPoint> fFallbackPos;
-
-        const SkMatrix& fViewMatrix;
-        SkScalar fTextSize;
-        SkScalar fMaxTextSize{SkGlyphCacheCommon::kSkSideTooBigForAtlas};
-        SkScalar fTextRatio;
-        SkScalar fTransformedFallbackTextSize;
-        SkScalar fMaxScale;
-        bool fUseTransformedFallback;
-    };
-
 private:
     GrTextContext(const Options& options);
 
