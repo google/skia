@@ -22,6 +22,7 @@ struct SkRect;
 class SkStream;
 
 namespace skjson { class ObjectValue; }
+
 namespace sksg { class Scene;  }
 
 namespace skottie {
@@ -60,6 +61,24 @@ public:
      *   agent capabilities when fetching the URL, in order to receive full font data.
      */
     virtual sk_sp<SkData> loadFont(const char name[], const char url[]) const;
+};
+
+/**
+ * A Logger subclass can be used to receive Animation::Builder parsing errors and warnings.
+ */
+class SK_API Logger : public SkRefCnt {
+public:
+    Logger() = default;
+    virtual ~Logger() = default;
+    Logger(const Logger&) = delete;
+    Logger& operator=(const Logger&) = delete;
+
+    enum class Level {
+        kWarning,
+        kError,
+    };
+
+    virtual void log(Level, const char message[], const char* json = nullptr);
 };
 
 class SK_API Animation : public SkRefCnt {
@@ -104,6 +123,11 @@ public:
         Builder& setPropertyObserver(sk_sp<PropertyObserver>);
 
         /**
+         * Register a Logger with this builder.
+         */
+        Builder& setLogger(sk_sp<Logger>);
+
+        /**
          * Animation factories.
          */
         sk_sp<Animation> make(SkStream*);
@@ -114,6 +138,7 @@ public:
         sk_sp<ResourceProvider> fResourceProvider;
         sk_sp<SkFontMgr>        fFontMgr;
         sk_sp<PropertyObserver> fPropertyObserver;
+        sk_sp<Logger>           fLogger;
         Stats                   fStats;
     };
 
