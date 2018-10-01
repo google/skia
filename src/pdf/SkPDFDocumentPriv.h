@@ -17,6 +17,8 @@ class SkPDFDevice;
 class SkPDFTag;
 
 const char* SkPDFGetNodeIdKey();
+const char* SkPDFGetRotationKey();
+const char* SkPDFGetCropBoxKey();
 
 struct SkPDFFileOffset {
     int fValue;
