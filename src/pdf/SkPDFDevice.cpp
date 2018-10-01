@@ -497,6 +497,16 @@ void SkPDFDevice::reset() {
 }
 
 void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    if (0 == strcmp(key, SkPDFGetRotationKey())) {
+        if (value && value->size() == sizeof(fRotation)) {
+            memcpy(&fRotation, value->data(), sizeof(fRotation));
+        }
+        return;
+    }
+    if (0 == strcmp(key, SkPDFGetCropBoxKey())) {
+        fCropBox = rect;
+        return;
+    }
     if (!value) {
         return;
     }
