@@ -22,6 +22,69 @@
       "revId": "0114741fe508b28f2be4691de3e066ccb6364184",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6308f05b_0926a8cb",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-01T17:26:25Z",
+      "side": 1,
+      "message": "return input.premul() * childColor (or similar)?",
+      "revId": "0114741fe508b28f2be4691de3e066ccb6364184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d57210d_35d471d1",
+        "filename": "src/gpu/GrSwizzle.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-01T17:26:25Z",
+      "side": 1,
+      "message": "would you like to add operator[](int) perhaps?",
+      "range": {
+        "startLine": 104,
+        "startChar": 27,
+        "endLine": 104,
+        "endChar": 37
+      },
+      "revId": "0114741fe508b28f2be4691de3e066ccb6364184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a34b0a73_21004598",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-01T17:26:25Z",
+      "side": 1,
+      "message": "return res * input.fA?",
+      "range": {
+        "startLine": 154,
+        "startChar": 15,
+        "endLine": 154,
+        "endChar": 94
+      },
+      "revId": "0114741fe508b28f2be4691de3e066ccb6364184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
