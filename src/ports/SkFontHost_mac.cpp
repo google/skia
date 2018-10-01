@@ -793,18 +793,8 @@ static UniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[
     }
 
     // CTFontTraits (symbolic)
-    CTFontSymbolicTraits ctFontTraits = 0;
-    if (style.weight() >= SkFontStyle::kBold_Weight) {
-        ctFontTraits |= kCTFontBoldTrait;
-    }
-    if (style.slant() != SkFontStyle::kUpright_Slant) {
-        ctFontTraits |= kCTFontItalicTrait;
-    }
-    UniqueCFRef<CFNumberRef> cfFontTraits(
-            CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits));
-    if (cfFontTraits) {
-        CFDictionaryAddValue(cfTraits.get(), kCTFontSymbolicTrait, cfFontTraits.get());
-    }
+    // macOS 14 and iOS 12 seem to behave badly when kCTFontSymbolicTrait is set.
+
     // CTFontTraits (weight)
     CGFloat ctWeight = fontstyle_to_ct_weight(style.weight());
     UniqueCFRef<CFNumberRef> cfFontWeight(
