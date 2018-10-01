@@ -64,11 +64,49 @@ fi
 OUTPUT="-o $BUILD_DIR/pathkit.js"
 source $EMSDK/emsdk_env.sh
 
-echo "Compiling"
-
 set -e
 
 mkdir -p $BUILD_DIR
+
+echo "Compiling bitcode"
+
+EMCC=`which emcc`
+EMCXX=`which em++`
+
+# Inspired by https://github.com/Zubnix/skia-wasm-port/blob/master/build_bindings.sh
+./bin/gn gen ${BUILD_DIR} \
+  --args="cc=\"${EMCC}\" \
+  cxx=\"${EMCXX}\" \
+  extra_cflags=[\"-DWEB_ASSEMBLY=1\"] \
+  is_debug=false \
+  is_official_build=true \
+  is_component_build=false \
+  target_cpu=\"none\" \
+  \
+  skia_use_egl=false \
+  skia_use_vulkan=false \
+  skia_use_libwebp=false \
+  skia_use_libpng=false \
+  skia_use_lua=false \
+  skia_use_dng_sdk=false \
+  skia_use_fontconfig=false \
+  skia_use_libjpeg_turbo=false \
+  skia_use_libheif=false \
+  skia_use_expat=false \
+  skia_use_vulkan=false \
+  skia_use_freetype=false \
+  skia_use_icu=false \
+  skia_use_expat=false \
+  skia_use_piex=false \
+  skia_use_zlib=false \
+  \
+  skia_enable_gpu=false \
+  skia_enable_fontmgr_empty=true \
+  skia_enable_pdf=false"
+
+ninja -C ${BUILD_DIR} libpathkit.a
+
+echo "Generating WASM"
 
 em++ $RELEASE_CONF -std=c++14 \
 -Iinclude/config \
@@ -99,46 +137,7 @@ $WASM_CONF \
 -s STRICT=1 \
 $OUTPUT \
 $BASE_DIR/pathkit_wasm_bindings.cpp \
-src/core/SkAnalyticEdge.cpp \
-src/core/SkArenaAlloc.cpp \
-src/core/SkCubicMap.cpp \
-src/core/SkEdge.cpp \
-src/core/SkEdgeBuilder.cpp \
-src/core/SkEdgeClipper.cpp \
-src/core/SkFDot6Constants.cpp \
-src/core/SkFlattenable.cpp \
-src/core/SkGeometry.cpp \
-src/core/SkLineClipper.cpp \
-src/core/SkMallocPixelRef.cpp \
-src/core/SkMath.cpp \
-src/core/SkMatrix.cpp \
-src/core/SkOpts.cpp \
-src/core/SkPaint.cpp \
-src/core/SkPath.cpp \
-src/core/SkPathEffect.cpp \
-src/core/SkPathMeasure.cpp \
-src/core/SkPathRef.cpp \
-src/core/SkPoint.cpp \
-src/core/SkRRect.cpp \
-src/core/SkRect.cpp \
-src/core/SkSemaphore.cpp \
-src/core/SkStream.cpp \
-src/core/SkString.cpp \
-src/core/SkStringUtils.cpp \
-src/core/SkStroke.cpp \
-src/core/SkStrokeRec.cpp \
-src/core/SkStrokerPriv.cpp \
-src/core/SkThreadID.cpp \
-src/core/SkUtils.cpp \
-src/effects/SkDashPathEffect.cpp \
-src/effects/SkTrimPathEffect.cpp \
-src/pathops/*.cpp \
-src/ports/SkDebug_stdio.cpp \
-src/ports/SkMemory_malloc.cpp \
-src/utils/SkDashPath.cpp \
-src/utils/SkParse.cpp \
-src/utils/SkParsePath.cpp \
-src/utils/SkUTF.cpp
+${BUILD_DIR}/libpathkit.a
 
 if [[ $@ == *serve* ]]; then
   pushd $BUILD_DIR
