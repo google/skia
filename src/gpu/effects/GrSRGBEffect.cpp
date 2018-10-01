@@ -19,7 +19,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         SkString srgbFuncName;
-        static const GrShaderVar gSrgbArgs[] = {
+        const GrShaderVar gSrgbArgs[] = {
             GrShaderVar("x", kHalf_GrSLType),
         };
         switch (srgbe.mode()) {
