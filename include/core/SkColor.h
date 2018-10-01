@@ -244,6 +244,14 @@ struct SkRGBA4f {
         return !(*this == other);
     }
 
+    SkRGBA4f operator*(float scale) const {
+        return { fR * scale, fG * scale, fB * scale, fA * scale };
+    }
+
+    SkRGBA4f operator*(const SkRGBA4f& scale) {
+        return { fR * scale.fR, fG * scale.fG, fB * scale.fB, fA * scale.fA };
+    }
+
     const float* vec() const { return &fR; }
           float* vec()       { return &fR; }
 
