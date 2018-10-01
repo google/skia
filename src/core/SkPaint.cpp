@@ -258,6 +258,10 @@ void SkPaint::setStyle(Style style) {
     }
 }
 
+SkColor SkPaint::getColor() const {
+    return fColor4f.toSkColor();
+}
+
 void SkPaint::setColor(SkColor color) {
     fColor4f = SkColor4f::FromColor(color);
 }
