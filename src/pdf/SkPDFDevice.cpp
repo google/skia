@@ -507,22 +507,31 @@ void SkPDFDevice::reset() {
 }
 
 void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
-    if (!value) {
-        return;
-    }
     if (rect.isEmpty()) {
         if (!strcmp(key, SkPDFGetNodeIdKey())) {
-            int nodeID;
-            if (value->size() != sizeof(nodeID)) { return; }
-            memcpy(&nodeID, value->data(), sizeof(nodeID));
-            fNodeId = nodeID;
+            if (value && value->size() == sizeof(fNodeId)) {
+                memcpy(&fNodeId, value->data(), sizeof(fNodeId));
+            }
             return;
         }
-        if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
+        if (!strcmp(key, SkPDFGetRotationKey())) {
+            if (value && value->size() == sizeof(fRotation)) {
+                memcpy(&fRotation, value->data(), sizeof(fRotation));
+            }
+            return;
+        }
+        if (value && !strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
             SkPoint transformedPoint;
             this->ctm().mapXY(rect.x(), rect.y(), &transformedPoint);
             fNamedDestinations.emplace_back(NamedDestination{sk_ref_sp(value), transformedPoint});
         }
+        return;
+    }
+    if (0 == strcmp(SkPDFGetCropBoxKey(), key)) {
+        fCropBox = rect;
+        return;
+    }
+    if (!value) {
         return;
     }
     // Convert to path to handle non-90-degree rotations.
