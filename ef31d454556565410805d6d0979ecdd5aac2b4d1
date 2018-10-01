@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "316e99da_17d264b8",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 979,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-01T17:46:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5f92dc2_3a565499",
+      "revId": "ef31d454556565410805d6d0979ecdd5aac2b4d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "20f75a87_07430b16",
         "filename": "modules/pathkit/compile.sh",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "ef31d454556565410805d6d0979ecdd5aac2b4d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78d8bdfb_dc91e2ac",
+        "filename": "modules/pathkit/compile.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-01T17:46:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20f75a87_07430b16",
+      "range": {
+        "startLine": 80,
+        "startChar": 19,
+        "endLine": 80,
+        "endChar": 33
+      },
+      "revId": "ef31d454556565410805d6d0979ecdd5aac2b4d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
