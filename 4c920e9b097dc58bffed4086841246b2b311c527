@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "9ddfc376_dc832d66",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-01T17:16:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1fa85d4d_acde60b0",
+      "revId": "4c920e9b097dc58bffed4086841246b2b311c527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b0b25cb1_d091f362",
         "filename": "src/gpu/effects/GrConstColorProcessor.fp",
         "patchSetId": 1
