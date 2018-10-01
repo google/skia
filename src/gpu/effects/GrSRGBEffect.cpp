@@ -96,16 +96,16 @@ static inline float linear_to_srgb(float linear) {
     return (linear <= 0.0031308) ? linear * 12.92f : 1.055f * powf(linear, 1.f / 2.4f) - 0.055f;
 }
 
-GrColor4f GrSRGBEffect::constantOutputForConstantInput(GrColor4f color) const {
-    color = color.unpremul();
+SkPMColor4f GrSRGBEffect::constantOutputForConstantInput(const SkPMColor4f& inColor) const {
+    SkColor4f color = inColor.unpremul();
     switch (fMode) {
         case Mode::kLinearToSRGB:
-            color = GrColor4f(linear_to_srgb(color.fRGBA[0]), linear_to_srgb(color.fRGBA[1]),
-                              linear_to_srgb(color.fRGBA[2]), color.fRGBA[3]);
+            color = { linear_to_srgb(color.fR), linear_to_srgb(color.fG), linear_to_srgb(color.fB),
+                      color.fA };
             break;
         case Mode::kSRGBToLinear:
-            color = GrColor4f(srgb_to_linear(color.fRGBA[0]), srgb_to_linear(color.fRGBA[1]),
-                              srgb_to_linear(color.fRGBA[2]), color.fRGBA[3]);
+            color = { srgb_to_linear(color.fR), srgb_to_linear(color.fG), srgb_to_linear(color.fB),
+                      color.fA };
             break;
     }
     return color.premul();

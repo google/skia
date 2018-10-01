@@ -213,7 +213,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
             return fSwizzle == sfp.fSwizzle;
         }
 
-        GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
+        SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
             return fSwizzle.applyTo(input);
         }
 
@@ -284,13 +284,11 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             return flags;
         }
 
-        GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
-            GrColor4f childColor = ConstantOutputForConstantInput(this->childProcessor(0),
-                                                                  GrColor4f::OpaqueWhite());
-            return GrColor4f(input.fRGBA[3] * input.fRGBA[0] * childColor.fRGBA[0],
-                             input.fRGBA[3] * input.fRGBA[1] * childColor.fRGBA[1],
-                             input.fRGBA[3] * input.fRGBA[2] * childColor.fRGBA[2],
-                             input.fRGBA[3] * childColor.fRGBA[3]);
+        SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+            SkPMColor4f childColor = ConstantOutputForConstantInput(this->childProcessor(0),
+                                                                    { 1, 1, 1, 1 });
+            SkPMColor4f premulInput = SkColor4f{ input.fR, input.fG, input.fB, input.fA }.premul();
+            return premulInput * childColor;
         }
 
         typedef GrFragmentProcessor INHERITED;
@@ -376,8 +374,9 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
             return fColor == that.cast<ReplaceInputFragmentProcessor>().fColor;
         }
 
-        GrColor4f constantOutputForConstantInput(GrColor4f) const override {
-            return ConstantOutputForConstantInput(this->childProcessor(0), fColor);
+        SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override {
+            return ConstantOutputForConstantInput(this->childProcessor(0),
+                                                  fColor.asRGBA4f<kPremul_SkAlphaType>());
         }
 
         GrColor4f fColor;
@@ -452,7 +451,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-        GrColor4f constantOutputForConstantInput(GrColor4f color) const override {
+        SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
+            SkPMColor4f color = inColor;
             int childCnt = this->numChildProcessors();
             for (int i = 0; i < childCnt; ++i) {
                 color = ConstantOutputForConstantInput(this->childProcessor(i), color);

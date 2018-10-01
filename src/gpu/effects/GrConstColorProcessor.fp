@@ -48,17 +48,18 @@ void main() {
         return flags;
     }
 
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+        SkPMColor4f color = fColor.asRGBA4f<kPremul_SkAlphaType>();
         switch (fMode) {
             case InputMode::kIgnore:
-                return fColor;
+                return color;
             case InputMode::kModulateA:
-                return fColor.mulByScalar(input.fRGBA[3]);
+                return color * input.fA;
             case InputMode::kModulateRGBA:
-                return fColor.modulate(input);
+                return color * input;
         }
         SK_ABORT("Unexpected mode");
-        return GrColor4f::TransparentBlack();
+        return { 0, 0, 0, 0 };
     }
 }
 

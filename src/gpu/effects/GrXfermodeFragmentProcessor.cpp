@@ -146,15 +146,12 @@ private:
         return fMode == cs.fMode;
     }
 
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
-        float alpha = input.fRGBA[3];
-        input = input.opaque();
-        GrColor4f srcColor = ConstantOutputForConstantInput(this->childProcessor(0), input);
-        GrColor4f dstColor = ConstantOutputForConstantInput(this->childProcessor(1), input);
-        SkPMColor4f src = srcColor.asRGBA4f<kPremul_SkAlphaType>();
-        SkPMColor4f dst = dstColor.asRGBA4f<kPremul_SkAlphaType>();
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+        SkPMColor4f opaqueInput = { input.fR, input.fG, input.fB, 1 };
+        SkPMColor4f src = ConstantOutputForConstantInput(this->childProcessor(0), opaqueInput);
+        SkPMColor4f dst = ConstantOutputForConstantInput(this->childProcessor(1), opaqueInput);
         SkPMColor4f res = SkBlendMode_Apply(fMode, src, dst);
-        return GrColor4f::FromRGBA4f(res).mulByScalar(alpha);
+        return res * input.fA;
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -403,19 +400,18 @@ private:
         return fMode == that.cast<ComposeOneFragmentProcessor>().fMode;
     }
 
-    GrColor4f constantOutputForConstantInput(GrColor4f inputColor) const override {
-        GrColor4f childColor =
-                ConstantOutputForConstantInput(this->childProcessor(0), GrColor4f::OpaqueWhite());
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inputColor) const override {
+        SkPMColor4f childColor = ConstantOutputForConstantInput(this->childProcessor(0),
+                                                                { 1, 1, 1, 1 });
         SkPMColor4f src, dst;
         if (kSrc_Child == fChild) {
-            src = childColor.asRGBA4f<kPremul_SkAlphaType>();
-            dst = inputColor.asRGBA4f<kPremul_SkAlphaType>();
+            src = childColor;
+            dst = inputColor;
         } else {
-            src = inputColor.asRGBA4f<kPremul_SkAlphaType>();
-            dst = childColor.asRGBA4f<kPremul_SkAlphaType>();
+            src = inputColor;
+            dst = childColor;
         }
-        SkPMColor4f res = SkBlendMode_Apply(fMode, src, dst);
-        return GrColor4f::FromRGBA4f(res);
+        return SkBlendMode_Apply(fMode, src, dst);
     }
 
 private:

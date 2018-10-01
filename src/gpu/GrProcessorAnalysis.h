@@ -9,6 +9,7 @@
 #define GrProcessorAnalysis_DEFINED
 
 #include "GrColor.h"
+#include "SkPM4f.h"
 
 class GrDrawOp;
 class GrFragmentProcessor;
@@ -123,14 +124,14 @@ public:
      */
     int initialProcessorsToEliminate(GrColor* newPipelineInputColor) const {
         if (fProcessorsToEliminate > 0) {
-            *newPipelineInputColor = fLastKnownOutputColor.toGrColor();
+            *newPipelineInputColor = GrColor4f::FromRGBA4f(fLastKnownOutputColor).toGrColor();
         }
         return fProcessorsToEliminate;
     }
 
     int initialProcessorsToEliminate(GrColor4f* newPipelineInputColor) const {
         if (fProcessorsToEliminate > 0) {
-            *newPipelineInputColor = fLastKnownOutputColor;
+            *newPipelineInputColor = GrColor4f::FromRGBA4f(fLastKnownOutputColor);
         }
         return fProcessorsToEliminate;
     }
@@ -140,7 +141,7 @@ public:
      */
     GrProcessorAnalysisColor outputColor() const {
         if (fKnowOutputColor) {
-            return fLastKnownOutputColor.toGrColor();
+            return GrColor4f::FromRGBA4f(fLastKnownOutputColor).toGrColor();
         }
         return fIsOpaque ? GrProcessorAnalysisColor::Opaque::kYes
                          : GrProcessorAnalysisColor::Opaque::kNo;
@@ -152,7 +153,7 @@ private:
     bool fUsesLocalCoords;
     bool fKnowOutputColor;
     int fProcessorsToEliminate;
-    GrColor4f fLastKnownOutputColor;
+    SkPMColor4f fLastKnownOutputColor;
 };
 
 #endif

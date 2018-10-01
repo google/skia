@@ -232,8 +232,8 @@ static GrColor input_texel_color(int i, int j) {
     return GrPremulColor(color);
 }
 
-static GrColor4f input_texel_color4f(int i, int j) {
-    return GrColor4f::FromGrColor(input_texel_color(i, j));
+static SkPMColor4f input_texel_color4f(int i, int j) {
+    return GrColor4f::FromGrColor(input_texel_color(i, j)).asRGBA4f<kPremul_SkAlphaType>();
 }
 
 void test_draw_op(GrContext* context,
@@ -426,14 +426,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                             passing = false;
                         }
                     }
-                    GrColor4f input4f = input_texel_color4f(x, y);
+                    SkPMColor4f input4f = input_texel_color4f(x, y);
                     GrColor4f output4f = GrColor4f::FromGrColor(output);
-                    GrColor4f expected4f;
+                    SkPMColor4f expected4f;
                     if (clone->hasConstantOutputForConstantInput(input4f, &expected4f)) {
-                        float rDiff = fabsf(output4f.fRGBA[0] - expected4f.fRGBA[0]);
-                        float gDiff = fabsf(output4f.fRGBA[1] - expected4f.fRGBA[1]);
-                        float bDiff = fabsf(output4f.fRGBA[2] - expected4f.fRGBA[2]);
-                        float aDiff = fabsf(output4f.fRGBA[3] - expected4f.fRGBA[3]);
+                        float rDiff = fabsf(output4f.fRGBA[0] - expected4f.fR);
+                        float gDiff = fabsf(output4f.fRGBA[1] - expected4f.fG);
+                        float bDiff = fabsf(output4f.fRGBA[2] - expected4f.fB);
+                        float aDiff = fabsf(output4f.fRGBA[3] - expected4f.fA);
                         static constexpr float kTol = 4 / 255.f;
                         if (rDiff > kTol || gDiff > kTol || bDiff > kTol || aDiff > kTol) {
                             ERRORF(reporter,
@@ -442,10 +442,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                                    "%f), actual: (%f, %f, %f, %f), expected(%f, %f, %f, %f)",
                                    clone->name(),
                                    SkTMax(rDiff, SkTMax(gDiff, SkTMax(bDiff, aDiff))), kTol,
-                                   input4f.fRGBA[0], input4f.fRGBA[1], input4f.fRGBA[2],
-                                   input4f.fRGBA[3], output4f.fRGBA[0], output4f.fRGBA[1],
-                                   output4f.fRGBA[2], output4f.fRGBA[3], expected4f.fRGBA[0],
-                                   expected4f.fRGBA[1], expected4f.fRGBA[2], expected4f.fRGBA[3]);
+                                   input4f.fR, input4f.fG, input4f.fB, input4f.fA,
+                                   output4f.fRGBA[0], output4f.fRGBA[1], output4f.fRGBA[2],
+                                   output4f.fRGBA[3],
+                                   expected4f.fR, expected4f.fG, expected4f.fB, expected4f.fA);
                             passing = false;
                         }
                     }

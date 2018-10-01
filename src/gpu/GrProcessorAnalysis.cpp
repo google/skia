@@ -19,7 +19,7 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
     fProcessorsToEliminate = 0;
     GrColor color;
     if ((fKnowOutputColor = input.isConstant(&color))) {
-        fLastKnownOutputColor = GrColor4f::FromGrColor(color);
+        fLastKnownOutputColor = GrColor4f::FromGrColor(color).asRGBA4f<kPremul_SkAlphaType>();
     }
     for (int i = 0; i < cnt; ++i) {
         if (fUsesLocalCoords && !fKnowOutputColor && !fCompatibleWithCoverageAsAlpha &&
@@ -30,7 +30,7 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
         if (fKnowOutputColor &&
             fp->hasConstantOutputForConstantInput(fLastKnownOutputColor, &fLastKnownOutputColor)) {
             ++fProcessorsToEliminate;
-            fIsOpaque = fLastKnownOutputColor.isOpaque();
+            fIsOpaque = fLastKnownOutputColor.fA >= 1.0f;
             // We reset these since the caller is expected to not use the earlier fragment
             // processors.
             fCompatibleWithCoverageAsAlpha = true;

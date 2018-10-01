@@ -48,8 +48,8 @@ private:
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
 
-    GrColor4f constantOutputForConstantInput(GrColor4f) const override {
-        return GrColor4f(0, 0, 1, 0);
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override {
+        return { 0, 0, 1, 0 };
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalFlatFP; }
 

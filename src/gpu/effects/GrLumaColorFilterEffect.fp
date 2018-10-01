@@ -8,11 +8,11 @@
 @class {
     #include "SkColorData.h"
 
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
-        float luma = SK_ITU_BT709_LUM_COEFF_R * input.fRGBA[0] +
-                     SK_ITU_BT709_LUM_COEFF_G * input.fRGBA[1] +
-                     SK_ITU_BT709_LUM_COEFF_B * input.fRGBA[2];
-        return GrColor4f(0, 0, 0, luma);
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+        float luma = SK_ITU_BT709_LUM_COEFF_R * input.fR +
+                     SK_ITU_BT709_LUM_COEFF_G * input.fG +
+                     SK_ITU_BT709_LUM_COEFF_B * input.fB;
+        return { 0, 0, 0, luma };
     }
 }
 

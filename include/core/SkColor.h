@@ -244,8 +244,26 @@ struct SkRGBA4f {
         return !(*this == other);
     }
 
+    SkRGBA4f operator*(float scale) const {
+        return { fR * scale, fG * scale, fB * scale, fA * scale };
+    }
+
+    SkRGBA4f operator*(const SkRGBA4f& scale) const {
+        return { fR * scale.fR, fG * scale.fG, fB * scale.fB, fA * scale.fA };
+    }
+
     const float* vec() const { return &fR; }
           float* vec()       { return &fR; }
+
+    float operator[](int index) const {
+        SkASSERT(index >= 0 && index < 4);
+        return this->vec()[index];
+    }
+
+    float& operator[](int index) {
+        SkASSERT(index >= 0 && index < 4);
+        return this->vec()[index];
+    }
 
     static SkRGBA4f Pin(float r, float g, float b, float a);  // impl. depends on kAT
     SkRGBA4f pin() const { return Pin(fR, fG, fB, fA); }
