@@ -1037,7 +1037,7 @@ BLEND_MODE(dstover)  { return mad(s, inv(da), d); }
 
 BLEND_MODE(modulate) { return s*d; }
 BLEND_MODE(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
-BLEND_MODE(plus_)    { return min(s + d, 1.0f); }  // We can clamp to either 1 or sa.
+BLEND_MODE(plus_)    { return s + d; }
 BLEND_MODE(screen)   { return s + d - s*d; }
 BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
 #undef BLEND_MODE
