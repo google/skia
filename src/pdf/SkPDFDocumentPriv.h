@@ -21,6 +21,8 @@ class SkPDFDevice;
 class SkExecutor;
 
 const char* SkPDFGetNodeIdKey();
+const char* SkPDFGetRotationKey();
+const char* SkPDFGetCropBoxKey();
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
