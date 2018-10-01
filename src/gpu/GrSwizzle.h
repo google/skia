@@ -9,6 +9,7 @@
 #define GrSwizzle_DEFINED
 
 #include "GrColor.h"
+#include "SkPM4f.h"
 #include "SkRandom.h"
 
 /** Represents a rgba swizzle. It can be converted either into a string or a eight bit int.
@@ -95,22 +96,22 @@ public:
     }
 
     /** Applies this swizzle to the input color and returns the swizzled color. */
-    GrColor4f applyTo(const GrColor4f& color) const {
+    SkPMColor4f applyTo(const SkPMColor4f& color) const {
         int idx;
         uint32_t key = fKey;
         // Index of the input color that should be mapped to output r.
         idx = (key & 3);
-        float outR = color.fRGBA[idx];
+        float outR = color[idx];
         key >>= 2;
         idx = (key & 3);
-        float outG = color.fRGBA[idx];
+        float outG = color[idx];
         key >>= 2;
         idx = (key & 3);
-        float outB = color.fRGBA[idx];
+        float outB = color[idx];
         key >>= 2;
         idx = (key & 3);
-        float outA = color.fRGBA[idx];
-        return GrColor4f(outR, outG, outB, outA);
+        float outA = color[idx];
+        return { outR, outG, outB, outA };
     }
 
     static GrSwizzle RGBA() { return GrSwizzle("rgba"); }
