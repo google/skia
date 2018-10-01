@@ -43,6 +43,10 @@ namespace GrGradientShader {
     struct RandomParams {
         static constexpr int kMaxRandomGradientColors = 5;
 
+        // Should be of similar magnitude to the draw area of the tests so that the gradient
+        // sampling is done at an appropriate scale.
+        static constexpr SkScalar kGradientScale = 256.0f;
+
         RandomParams(SkRandom* r);
 
         bool fUseColors4f;
