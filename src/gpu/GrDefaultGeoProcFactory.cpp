@@ -256,7 +256,7 @@ public:
                 // The bone matrices are passed in as 3x2 matrices in column-major order as groups
                 // of 3 float2s. This code takes those float2s and performs the matrix operation on
                 // a given matrix and float2.
-                static const GrShaderVar gApplyBoneArgs[] = {
+                const GrShaderVar gApplyBoneArgs[] = {
                     GrShaderVar("index", kByte_GrSLType),
                     GrShaderVar("vec", kFloat2_GrSLType),
                 };

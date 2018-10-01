@@ -114,7 +114,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
     // Any combination of these may be present, although some configurations are much more likely.
 
     auto emitTFFunc = [=](const char* name, GrGLSLProgramDataManager::UniformHandle uniform) {
-        static const GrShaderVar gTFArgs[] = { GrShaderVar("x", kHalf_GrSLType) };
+        const GrShaderVar gTFArgs[] = { GrShaderVar("x", kHalf_GrSLType) };
         const char* coeffs = uniformHandler->getUniformCStr(uniform);
         SkString body;
         // Temporaries to make evaluation line readable
@@ -146,7 +146,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
 
     SkString gamutXformFuncName;
     if (colorXformHelper->applyGamutXform()) {
-        static const GrShaderVar gGamutXformArgs[] = { GrShaderVar("color", kHalf4_GrSLType) };
+        const GrShaderVar gGamutXformArgs[] = { GrShaderVar("color", kHalf4_GrSLType) };
         const char* xform = uniformHandler->getUniformCStr(colorXformHelper->gamutXformUniform());
         SkString body;
         body.appendf("color.rgb = (%s * color.rgb);", xform);
@@ -157,7 +157,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
 
     // Now define a wrapper function that applies all the intermediate steps
     {
-        static const GrShaderVar gColorXformArgs[] = { GrShaderVar("color", kHalf4_GrSLType) };
+        const GrShaderVar gColorXformArgs[] = { GrShaderVar("color", kHalf4_GrSLType) };
         SkString body;
         if (colorXformHelper->applyUnpremul()) {
             body.append("half nonZeroAlpha = max(color.a, 0.00001);");
