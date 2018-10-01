@@ -21,6 +21,7 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "ops/GrMeshDrawOp.h"
 #include "ops/GrRectOpFactory.h"
+#include "TestUtils.h"
 
 #include <random>
 
@@ -310,6 +311,21 @@ sk_sp<GrTextureProxy> make_input_texture(GrProxyProvider* proxyProvider, int wid
                                              SkBudgeted::kYes, SkBackingFit::kExact);
 }
 
+bool log_surface_context(sk_sp<GrSurfaceContext> src, SkString* dst) {
+    SkImageInfo ii = SkImageInfo::Make(src->width(), src->height(), kRGBA_8888_SkColorType,
+                                       kPremul_SkAlphaType);
+    SkBitmap bm;
+    SkAssertResult(bm.tryAllocPixels(ii));
+    SkAssertResult(src->readPixels(ii, bm.getPixels(), bm.rowBytes(), 0, 0));
+
+    return bitmap_to_base64_data_uri(bm, dst);
+}
+
+bool log_surface_proxy(GrContext* context, sk_sp<GrSurfaceProxy> src, SkString* dst) {
+    sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(src));
+    return log_surface_context(sContext, dst);
+}
+
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
@@ -340,6 +356,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     auto inputTexture = make_input_texture(proxyProvider, kRenderSize, kRenderSize);
 
     std::unique_ptr<GrColor[]> readData(new GrColor[kRenderSize * kRenderSize]);
+    // Encoded images are very verbose and this tests many potential images, so only export the
+    // first failure (subsequent failures have a reasonable chance of being related).
+    bool loggedFirstFailure = false;
     // Because processor factories configure themselves in random ways, this is not exhaustive.
     for (int i = 0; i < FPFactory::Count(); ++i) {
         int timesToInvokeFactory = 5;
@@ -439,8 +458,23 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                         passing = false;
                     }
                     if (!passing) {
-                        ERRORF(reporter, "Seed: 0x%08x, Processor details: %s", seed,
-                               clone->dumpInfo().c_str());
+                        if (loggedFirstFailure) {
+                            // Do not export images
+                            ERRORF(reporter, "Seed: 0x%08x, Processor details: %s", seed,
+                                   clone->dumpInfo().c_str());
+                        } else {
+                            SkString input;
+                            log_surface_proxy(context, inputTexture, &input);
+                            SkString output;
+                            log_surface_context(rtc, &output);
+                            ERRORF(reporter, "Seed: 0x%08x, Processor details: %s\n\n"
+                                   "===========================================================\n\n"
+                                   "Input image: %s\n\n"
+                                   "===========================================================\n\n"
+                                   "Output image: %s\n", seed, clone->dumpInfo().c_str(),
+                                   input.c_str(), output.c_str());
+                            loggedFirstFailure = true;
+                        }
                     }
                 }
             }

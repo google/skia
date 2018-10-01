@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "SkBitmap.h"
 
 class GrSurfaceContext;
 class GrSurfaceProxy;
@@ -37,3 +38,7 @@ void fill_pixel_data(int width, int height, GrColor* data);
 // Checks srcBuffer and dstBuffer contain the same colors
 bool does_full_buffer_contain_correct_color(GrColor* srcBuffer, GrColor* dstBuffer, int width,
                                             int height);
+
+// Encodes the bitmap into a data:/image/png;base64,... url suitable to view in a browser after
+// printing to a log. If false is returned, dst holds an error message instead of a URI.
+bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst);
