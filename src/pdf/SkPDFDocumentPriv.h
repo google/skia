@@ -33,6 +33,8 @@ struct KeyHash;
 }
 
 const char* SkPDFGetNodeIdKey();
+const char* SkPDFGetRotationKey();
+const char* SkPDFGetCropBoxKey();
 
 // Logically part of SkPDFDocument, but separate to keep similar functionality together.
 class SkPDFOffsetMap {
