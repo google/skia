@@ -14,6 +14,7 @@
 #include "SkClipStackDevice.h"
 #include "SkData.h"
 #include "SkKeyedImage.h"
+#include "SkPDFDocument.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
@@ -116,6 +117,8 @@ public:
     std::unique_ptr<SkStreamAsset> content();
 
     SkPDFCanon* getCanon() const;
+    SkPDF::Rotation rotation() const { return fRotation; }
+    SkRect cropBox() const { return fCropBox; }
 
     SkISize size() const { return this->imageInfo().dimensions(); }
     SkIRect bounds() const { return this->imageInfo().bounds(); }
@@ -193,6 +196,8 @@ private:
     };
     GraphicStackState fActiveStackState;
     SkPDFDocument* fDocument;
+    SkRect fCropBox = {0, 0, 0, 0};
+    SkPDF::Rotation fRotation = SkPDF::Rotation::kPortrait;
 
     ////////////////////////////////////////////////////////////////////////////
 
