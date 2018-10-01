@@ -48,8 +48,11 @@ void main() {
 //////////////////////////////////////////////////////////////////////////////
 
 @test(d) {
-    SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
-                        {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
+    SkScalar scale = GrGradientShader::RandomParams::kGradientScale;
+    SkPoint points[] = {{d->fRandom->nextRangeScalar(0.0f, scale),
+                         d->fRandom->nextRangeScalar(0.0f, scale)},
+                        {d->fRandom->nextRangeScalar(0.0f, scale),
+                         d->fRandom->nextRangeScalar(0.0f, scale)}};
 
     GrGradientShader::RandomParams params(d->fRandom);
     auto shader = params.fUseColors4f ?

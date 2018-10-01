@@ -56,8 +56,10 @@ std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::clone() const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrLinearGradientLayout);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::TestCreate(GrProcessorTestData* d) {
-    SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
-                        {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
+    SkScalar scale = GrGradientShader::RandomParams::kGradientScale;
+    SkPoint points[] = {
+            {d->fRandom->nextRangeScalar(0.0f, scale), d->fRandom->nextRangeScalar(0.0f, scale)},
+            {d->fRandom->nextRangeScalar(0.0f, scale), d->fRandom->nextRangeScalar(0.0f, scale)}};
 
     GrGradientShader::RandomParams params(d->fRandom);
     auto shader = params.fUseColors4f
