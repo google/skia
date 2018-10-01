@@ -1794,7 +1794,7 @@ skc_kernel_render(__global   union  skc_layer_node   const * SKC_RESTRICT const 
 
   group.range.lo = 0;
   group.range.hi = SKC_UINT_MAX;
-  group.depth    = 0;
+  group.depth    = SKC_UINT_MAX;
   group.id       = SKC_UINT_MAX;
 
   //
@@ -1968,7 +1968,9 @@ skc_kernel_render(__global   union  skc_layer_node   const * SKC_RESTRICT const 
             cmd_next = layer_node_new.cmds;
 
             // if this is final then configure so groups get unwound, otherwise we're done
-            flags   |= ((flags & SKC_TILE_FLAGS_FLUSH_FINALIZE) ? SKC_TILE_FLAGS_FLUSH_UNWIND : SKC_TILE_FLAGS_FLUSH_COMPLETE);
+            flags   |= ((flags & SKC_TILE_FLAGS_FLUSH_FINALIZE)
+                        ? SKC_TILE_FLAGS_FLUSH_UNWIND
+                        : SKC_TILE_FLAGS_FLUSH_COMPLETE);
           }
         else if (!unwind && (layer_id_new >= group.range.lo && layer_id_new <= group.range.hi))
           {
@@ -1995,7 +1997,7 @@ skc_kernel_render(__global   union  skc_layer_node   const * SKC_RESTRICT const 
             cmd_next = groups[group.id].cmds.leave;
 
             // decrement group depth
-            if (--group.depth == 0)
+            if (--group.depth == SKC_UINT_MAX)
               {
                 flags |= SKC_TILE_FLAGS_FLUSH_COMPLETE;
               }
