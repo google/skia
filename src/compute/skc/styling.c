@@ -132,20 +132,19 @@ skc_styling_group_leave(skc_styling_t             styling,
 skc_err
 skc_styling_group_parents(skc_styling_t        styling,
                           skc_group_id         group_id,
-                          uint32_t             depth,
+                          uint32_t             n,
                           skc_group_id const * parents)
 {
   styling->unseal(styling->impl,true);
 
   styling->groups.extent[group_id].parents = (union skc_group_parents)
     {
-      .depth = depth,
+      .depth = n, // starts at 0
       .base  = styling->extras.count
     };
 
-  memcpy(styling->extras.extent + styling->extras.count,parents,depth * sizeof(*parents));
-
-  styling->extras.count += depth;
+  while (n-- > 0)
+    styling->extras.extent[styling->extras.count++].parent = parents[n];
 
   return SKC_ERR_SUCCESS;
 }

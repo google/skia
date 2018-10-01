@@ -250,10 +250,22 @@ skc_styling_group_leave(skc_styling_t             styling,
                         uint32_t                  n,
                         skc_styling_cmd_t const * cmds);
 
+//
+// n:
+//
+//   The number of parent groups above this group. The top of the
+//   hierarchy must start with a single enclosing group which has 0
+//   parents.
+//
+// parents:
+//
+//   The sequence of parent group ids leading from the top of
+//   hierarchy to the parent of 'group_id'.
+//
 skc_err
 skc_styling_group_parents(skc_styling_t        styling,
                           skc_group_id         group_id,
-                          uint32_t             depth,
+                          uint32_t             n,
                           skc_group_id const * parents);
 
 skc_err

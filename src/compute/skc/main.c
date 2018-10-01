@@ -17,9 +17,32 @@
 #include "common/cl/find_cl.h"
 #include "common/cl/assert_cl.h"
 
+#include "ts/transform_stack.h"
+
+//
+//
+//
+
+// #define SKC_TEST_SVG
+#ifdef  SKC_TEST_SVG
+//
+// SVG
+//
 #include "svg/svg_doc.h"
 #include "svg2skc/svg2skc.h"
-#include "ts/transform_stack.h"
+
+#define SKC_TEST(f,...) svg_doc_##f(svg_doc,__VA_ARGS__)
+
+void
+svg_doc_toggle(struct svg_doc * sd) { ; };
+
+#else
+
+#include "tests/groups/groups.h"
+
+#define SKC_TEST(f,...) groups_##f(__VA_ARGS__)
+
+#endif
 
 //
 //
@@ -83,12 +106,14 @@ main(int argc, char const * argv[])
   //
   // load test file
   //
+#ifdef SKC_TEST_SVG
   struct svg_doc * svg_doc = svg_doc_parse(argv[1],false);
 
   fprintf(stderr,"p/r/l = %u / %u / %u\n",
           svg_doc_path_count(svg_doc),
           svg_doc_raster_count(svg_doc),
           svg_doc_layer_count(svg_doc));
+#endif
 
   //
   // fire up GL
@@ -171,7 +196,7 @@ main(int argc, char const * argv[])
 
   err = skc_styling_create(context,
                            &styling,
-                           svg_doc_layer_count(svg_doc),
+                           SKC_TEST(layer_count),
                            1000,
                            2 * 1024 * 1024);
 
@@ -204,7 +229,7 @@ main(int argc, char const * argv[])
       if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_DEFINE_PATHS)
         {
           // decode paths
-          paths = svg_doc_paths_decode(svg_doc,path_builder);
+          paths = SKC_TEST(paths_decode,path_builder);
         }
 
       // rasterize the paths?
@@ -217,7 +242,7 @@ main(int argc, char const * argv[])
           skc_interop_transform(interop,ts);
 
           // decode rasters
-          rasters = svg_doc_rasters_decode(svg_doc,ts,paths,raster_builder);
+          rasters = SKC_TEST(rasters_decode,ts,paths,raster_builder);
 
           // restore the transform stack
           ts_transform_stack_restore(ts,ts_save);
@@ -233,7 +258,7 @@ main(int argc, char const * argv[])
           skc_composition_unseal(composition,true);
 
           // decode layers -- places rasters
-          svg_doc_layers_decode(svg_doc,rasters,composition,styling,true/*is_srgb*/);
+          SKC_TEST(layers_decode,rasters,composition,styling,true/*is_srgb*/);
 
           // seal the styling -- render will seal if not called
           skc_styling_seal(styling);
@@ -267,6 +292,8 @@ main(int argc, char const * argv[])
       // how many blocks are in use?
       if (key == 'I')
         skc_runtime_cl_12_debug(context);
+      else if (key == 'T')
+        SKC_TEST(toggle);
 
       // do we only want to run part of the pipeline?
       if ((key >= SKC_PIPELINE_START_AT_DEFINE_PATHS) && (key <= SKC_PIPELINE_START_AT_RENDER))
@@ -282,18 +309,18 @@ main(int argc, char const * argv[])
       if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_COMPOSITION)
         {
           // rewind the svg doc
-          svg_doc_rewind(svg_doc);
+          SKC_TEST(rewind);
 
           if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_DEFINE_PATHS)
             {
               // release the paths
-              svg_doc_paths_release(svg_doc,paths,context);
+              SKC_TEST(paths_release,context,paths);
             }
 
           if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_RASTERIZE)
             {
               // release the rasters
-              svg_doc_rasters_release(svg_doc,rasters,context);
+              SKC_TEST(rasters_release,context,rasters);
             }
         }
 
