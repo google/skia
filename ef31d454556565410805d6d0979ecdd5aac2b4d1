@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5f92dc2_3a565499",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 979,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-01T17:26:58Z",
+      "side": 1,
+      "message": "static_library?",
+      "revId": "ef31d454556565410805d6d0979ecdd5aac2b4d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20f75a87_07430b16",
+        "filename": "modules/pathkit/compile.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-01T17:26:58Z",
+      "side": 1,
+      "message": "DSK_BUILD_FOR_PATHKIT?\n\nDSK_DISABLE_READBUFFER?",
+      "range": {
+        "startLine": 80,
+        "startChar": 19,
+        "endLine": 80,
+        "endChar": 33
+      },
+      "revId": "ef31d454556565410805d6d0979ecdd5aac2b4d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
