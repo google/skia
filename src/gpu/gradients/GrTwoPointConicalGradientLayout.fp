@@ -225,10 +225,15 @@ void main() {
 //////////////////////////////////////////////////////////////////////////////
 
 @test(d) {
-    SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
-    SkPoint center2 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
-    SkScalar radius1 = d->fRandom->nextUScalar1();
-    SkScalar radius2 = d->fRandom->nextUScalar1();
+    SkScalar scale = GrGradientShader::RandomParams::kGradientScale;
+    SkScalar offset = scale / 32.0f;
+
+    SkPoint center1 = {d->fRandom->nextRangeScalar(0.0f, scale),
+                       d->fRandom->nextRangeScalar(0.0f, scale)};
+    SkPoint center2 = {d->fRandom->nextRangeScalar(0.0f, scale),
+                       d->fRandom->nextRangeScalar(0.0f, scale)};
+    SkScalar radius1 = d->fRandom->nextRangeScalar(0.0f, scale);
+    SkScalar radius2 = d->fRandom->nextRangeScalar(0.0f, scale);
 
     constexpr int   kTestTypeMask           = (1 << 2) - 1,
                     kTestNativelyFocalBit   = (1 << 2),
@@ -244,19 +249,19 @@ void main() {
         center2 = center1;
         // Make sure that the radii are different
         if (SkScalarNearlyZero(radius1 - radius2)) {
-            radius2 += .1f;
+            radius2 += offset;
         }
     } else if (type == static_cast<int>(Type::kStrip)) {
         radius1 = SkTMax(radius1, .1f); // Make sure that the radius is non-zero
         radius2 = radius1;
         // Make sure that the centers are different
         if (SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
-            center2.fX += .1f;
+            center2.fX += offset;
         }
     } else { // kFocal_Type
         // Make sure that the centers are different
         if (SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
-            center2.fX += .1f;
+            center2.fX += offset;
         }
 
         if (kTestNativelyFocalBit & mask) {
@@ -272,13 +277,13 @@ void main() {
 
         // Make sure that the radii are different
         if (SkScalarNearlyZero(radius1 - radius2)) {
-            radius2 += .1f;
+            radius2 += offset;
         }
     }
 
     if (SkScalarNearlyZero(radius1 - radius2) &&
             SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
-        radius2 += .1f; // make sure that we're not degenerated
+        radius2 += offset; // make sure that we're not degenerated
     }
 
     GrGradientShader::RandomParams params(d->fRandom);
