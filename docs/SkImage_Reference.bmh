@@ -3,6 +3,10 @@
 
 #Class SkImage
 
+#Code
+#Populate
+##
+
 Image describes a two dimensional array of pixels to draw. The pixels may be
 decoded in a Raster_Bitmap, encoded in a Picture or compressed data stream,
 or located in GPU memory as a GPU_Texture.
@@ -41,26 +45,10 @@ Image is drawn. Lazy_Image caches result if possible to speed up repeated
 drawing.
 ##
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& pixmap)
-#In Constructor
+#In Constructors
 #Line # creates Image from Pixmap and copied pixels ##
 Creates Image from Pixmap and copy of pixels. Since pixels are copied, Pixmap
 pixels may be modified or deleted without affecting Image.
@@ -106,7 +94,7 @@ contains a copy of the pixels.
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkImage> MakeRasterData(const SkImageInfo& info, sk_sp<SkData> pixels, size_t rowBytes)
-#In Constructor
+#In Constructors
 #Line # creates Image from Image_Info and shared pixels ##
 Creates Image from Image_Info, sharing pixels.
 
@@ -172,7 +160,7 @@ provided by caller when Image is created, and may be nullptr.
 #Method static sk_sp<SkImage> MakeFromRaster(const SkPixmap& pixmap,
                                          RasterReleaseProc rasterReleaseProc,
                                          ReleaseContext releaseContext)
-#In Constructor
+#In Constructors
 #Line # creates Image from Pixmap, with release ##
 
 Creates Image from pixmap, sharing Pixmap pixels. Pixels must remain valid and
@@ -226,7 +214,7 @@ after reset: 1
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap)
-#In Constructor
+#In Constructors
 #Line # creates Image from Bitmap, sharing or copying pixels ##
 Creates Image from bitmap, sharing or copying bitmap pixels. If the bitmap
 is marked immutable, and its pixel memory is shareable, it may be shared
@@ -277,7 +265,7 @@ memory does not alter the second Image.
 
 #Method static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator,
                                             const SkIRect* subset = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Image from a stream of data ##
 
 Creates Image from data returned by imageGenerator. Generated data is owned by Image and may not
@@ -317,7 +305,7 @@ The generator returning Picture cannot be shared; std::move transfers ownership 
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Image from encoded data ##
 Creates Image from encoded data.
 subset allows selecting a portion of the full image. Pass nullptr to select the entire image;
@@ -365,7 +353,7 @@ User function called when supplied texture may be deleted.
                                           SkColorType colorType,
                                           SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace)
-#In Constructor
+#In Constructors
 #Line # creates Image from GPU_Texture ##
 Creates Image from GPU_Texture associated with context. Caller is responsible for
 managing the lifetime of GPU_Texture.
@@ -474,7 +462,7 @@ for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
                                                       bool buildMips,
                                                       SkColorSpace* dstColorSpace,
                                                       bool limitToMaxTextureSize = false)
-#In Constructor
+#In Constructors
 #Line # creates Image from encoded data, and uploads to GPU ##
 
 Creates Image from encoded data. Image is uploaded to GPU back-end using context.
@@ -523,7 +511,7 @@ canvas->drawImage(image, 0, 0);
                                                       bool buildMips,
                                                       SkColorSpace* dstColorSpace,
                                                       bool limitToMaxTextureSize = false)
-#In Constructor
+#In Constructors
 #Line # creates Image from Pixmap, and uploads to GPU ##
 
 Creates Image from pixmap. Image is uploaded to GPU back-end using context.
@@ -576,7 +564,7 @@ if (source.peekPixels(&pixmap)) {
                                                  SkColorType colorType,
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Image from GPU_Texture, managed internally ##
 Creates Image from backendTexture associated with context. backendTexture and
 returned Image are managed internally, and are released when no longer needed.
@@ -627,7 +615,7 @@ Recognized formats vary by GPU back-end.
                                                   const GrBackendTexture yuvTextures[3],
                                                   GrSurfaceOrigin surfaceOrigin,
                                                   sk_sp<SkColorSpace> colorSpace = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Image from YUV_ColorSpace data in three planes ##
 
 Creates Image from copy of yuvTextures, an array of textures on GPU.
@@ -660,7 +648,7 @@ should this be moved to chrome only?
         GrContext* context, SkYUVColorSpace yuvColorSpace,
         const GrBackendTexture yuvTextures[3], GrSurfaceOrigin surfaceOrigin,
         const GrBackendTexture backendTexture, sk_sp<SkColorSpace> colorSpace = nullptr);
-#In Constructor
+#In Constructors
 #Line # creates Image from planar YUV_ColorSpace, stored in texture ##
 
 Creates Image from copy of yuvTextures, an array of textures on GPU.
@@ -698,7 +686,7 @@ should this be moved to chrome only?
                                                    const GrBackendTexture nv12Textures[2],
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Image from YUV_ColorSpace data in three planes ##
 
 Creates Image from copy of nv12Textures, an array of textures on GPU.
@@ -737,7 +725,7 @@ should this be moved to chrome only?
             GrSurfaceOrigin surfaceOrigin,
             const GrBackendTexture backendTexture,
             sk_sp<SkColorSpace> colorSpace = nullptr);
-#In Constructor
+#In Constructors
 #Line # creates Image from planar YUV_ColorSpace, stored in texture ##
 
 Creates Image from copy of nv12Textures, an array of textures on GPU.
@@ -806,7 +794,7 @@ Use 16 bits per ARGB component using half-precision floating point format.
                                           const SkMatrix* matrix, const SkPaint* paint,
                                           BitDepth bitDepth,
                                           sk_sp<SkColorSpace> colorSpace)
-#In Constructor
+#In Constructors
 #Line # creates Image from Picture ##
 
 Creates Image from picture. Returned Image width and height are set by dimensions.
@@ -857,7 +845,7 @@ with default Paint. colorSpace may be nullptr.
         SkAlphaType alphaType = kPremul_SkAlphaType,
         sk_sp<SkColorSpace> colorSpace = nullptr,
         GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin)
-#In Constructor
+#In Constructors
 #Line # creates Image from Android hardware buffer ##
 
 #Bug 7447
@@ -884,7 +872,6 @@ Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 
 # ------------------------------------------------------------------------------
 #Subtopic Property
-#Populate
 #Line # values and attributes ##
 ##
 
@@ -1203,7 +1190,7 @@ isOpaque = true
 
 #Method sk_sp<SkShader> makeShader(SkShader::TileMode tileMode1, SkShader::TileMode tileMode2,
                                const SkMatrix* localMatrix = nullptr) const
-#In Constructor
+#In Constructors
 #Line # creates Shader, Paint element that can tile Image ##
 
 Creates Shader from Image. Shader dimensions are taken from Image. Shader uses
@@ -1262,7 +1249,6 @@ canvas->drawPaint(paint);
 
 # ------------------------------------------------------------------------------
 #Subtopic Pixels
-#Populate
 #Line # read and write pixel values ##
 ##
 
@@ -1800,12 +1786,11 @@ Returns nullptr if Image contents are not encoded.
 
 # ------------------------------------------------------------------------------
 #Subtopic Utility
-#Populate
 #Line # rarely called management functions ##
 ##
 
 #Method sk_sp<SkImage> makeSubset(const SkIRect& subset) const
-#In Constructor
+#In Constructors
 #Line # creates Image containing part of original ##
 Returns subset of Image. subset must be fully contained by Image dimensions().
 The implementation may share pixels, or may copy them.
@@ -1838,7 +1823,7 @@ pixels in Image could not be read or copied.
 
 #Method sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
                                         GrMipMapped mipMapped = GrMipMapped::kNo) const
-#In Constructor
+#In Constructors
 #Line # creates Image matching Color_Space if possible ##
 Returns Image backed by GPU_Texture associated with context. Returned Image is
 compatible with Surface created with dstColorSpace. The returned Image respects
@@ -1888,7 +1873,7 @@ GrContext.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkImage> makeNonTextureImage() const
-#In Constructor
+#In Constructors
 #Line # creates Image without dependency on GPU_Texture ##
 Returns Raster_Image or Lazy_Image. Copies Image backed by GPU_Texture into
 CPU memory if needed. Returns original Image if decoded in Raster_Bitmap,
@@ -1930,7 +1915,7 @@ Returns nullptr if backed by GPU_Texture and copy fails.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkImage> makeRasterImage() const
-#In Constructor
+#In Constructors
 #Line # creates Image compatible with Raster_Surface if possible ##
 Returns Raster_Image. Copies Image backed by GPU_Texture into CPU memory,
 or decodes Image from Lazy_Image. Returns original Image if decoded in
@@ -1975,7 +1960,7 @@ Returns nullptr if copy, decode, or pixel read fails.
 #Method sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const
-#In Constructor
+#In Constructors
 #Line # creates filtered, clipped Image ##
 
 Creates filtered Image. filter processes original Image, potentially changing
@@ -2054,7 +2039,7 @@ no return value. Function is called when back-end texture is to be released.
                                               sk_sp<SkImage> image,
                                               GrBackendTexture* backendTexture,
                                               BackendTextureReleaseProc* backendTextureReleaseProc)
-#In Constructor
+#In Constructors
 #Line # creates GPU_Texture from Image ##
 
 Creates a GrBackendTexture from the provided SkImage. Returns true and
@@ -2137,7 +2122,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method bool asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode legacyBitmapMode = kRO_LegacyBitmapMode) const
-#In Constructor
+#In Constructors
 #Line # returns as Raster_Bitmap ##
 Creates raster Bitmap with same pixels as Image. If legacyBitmapMode is
 kRO_LegacyBitmapMode, returned bitmap is read-only and immutable.
@@ -2251,7 +2236,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const
-#In Constructor
+#In Constructors
 #Line # creates Image matching Color_Space if possible ##
 
 Creates Image in target Color_Space.

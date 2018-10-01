@@ -450,14 +450,17 @@ void IncludeWriter::enumHeaderOut(RootDefinition* root, const Definition& child)
     }
     Definition* codeBlock = nullptr;
     const char* commentStart = nullptr;
+    bool firstCodeBlocks = true;
     bool wroteHeader = false;
     bool lastAnchor = false;
     SkDEBUGCODE(bool foundConst = false);
     for (auto test : enumDef->fChildren) {
-        if (MarkType::kCode == test->fMarkType && !codeBlock) {
+        if (MarkType::kCode == test->fMarkType && firstCodeBlocks) {
             codeBlock = test;
             commentStart = codeBlock->fTerminator;
             continue;
+        } else if (codeBlock) {
+            firstCodeBlocks = false;
         }
         if (!codeBlock) {
             continue;
@@ -515,8 +518,8 @@ void IncludeWriter::enumHeaderOut(RootDefinition* root, const Definition& child)
             break;
         }
     }
-    SkASSERT(codeBlock);
-    SkASSERT(foundConst);
+ //   SkASSERT(codeBlock);
+ //   SkASSERT(foundConst);
     if (wroteHeader) {
         this->indentOut();
         this->lfcr();
@@ -1317,6 +1320,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     if (!def->fTokens.size()) {
         return true;
     }
+    if (179 == def->fLineCount) {
+        SkDebugf("");
+    }
     ParentPair pair = { def, prevPair };
     // write bulk of original include up to class, method, enum, etc., excepting preceding comment
     // find associated bmh object
@@ -1657,7 +1663,22 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 if (MarkType::kTopic == parent->fMarkType ||
                                         MarkType::kSubtopic == parent->fMarkType) {
                                     const char* commentStart = root->fContentStart;
+                                    int index = 0;
                                     const char* commentEnd = root->fChildren[0]->fStart;
+                                    int line = 1;
+                                    do {
+                                        TextParser parser(root->fFileName, commentStart, commentEnd, line);
+                                        if (!parser.eof()) {
+                                            parser.skipWhiteSpace();
+                                        }
+                                        if (!parser.eof()) {
+                                            break;
+                                        }
+                                        commentStart = root->fChildren[index]->fTerminator;
+                                        ++index;
+                                        SkASSERT(index < root->fChildren.size());
+                                        commentEnd = root->fChildren[index]->fStart;
+                                    } while (true);
                                     this->structOut(root, *root, commentStart, commentEnd);
                                 } else {
                                     SkASSERT(0); // incomplete
@@ -2255,6 +2276,7 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                 } else if (!first) {
                     this->fChar = start;
                     this->fLine = start;
+                    this->fEnd = end;
                     this->reportError("reference unfound");
                     return "";
                 }
@@ -2290,6 +2312,10 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
         }
         if (!substitute.length()) {
             for (auto child : rootDef->fChildren) {
+                if (MarkType::kSubstitute == child->fMarkType) {
+                    substitute = string(child->fContentStart, child->length());
+                    break;
+                }
                 // there may be more than one
                 // if so, it's a bug since it's unknown which is the right one
                 if (MarkType::kClass == child->fMarkType ||

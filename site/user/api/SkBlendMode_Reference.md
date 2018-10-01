@@ -1,286 +1,47 @@
 SkBlendMode Reference
 ===
 
-# <a name='Blend_Mode'>Blend Mode</a>
-
-## Overview
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
-  </tr>
-</table>
-
-
-## <a name='Member_Function'>Member Function</a>
-
-
-SkBlendMode member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_Name'>SkBlendMode Name</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns mode as C string</td>
-  </tr>
-</table>
-
-## <a name='Constant'>Constant</a>
-
-
-SkBlendMode related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode'>SkBlendMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>algorithm combining source and destination pixels</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kClear'>SkBlendMode::kClear</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces destination with zero: fully transparent</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kColor'>SkBlendMode::kColor</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>hue and saturation of source with luminosity of destination</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kColorBurn'>SkBlendMode::kColorBurn</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>darken destination to reflect source</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kColorDodge'>SkBlendMode::kColorDodge</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>brighten destination to reflect source</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kDarken'>SkBlendMode::kDarken</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>darker of source and destination</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kDifference'>SkBlendMode::kDifference</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>subtract darker from lighter with higher contrast</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kDst'>SkBlendMode::kDst</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>preserves destination</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kDstATop'>SkBlendMode::kDstATop</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>destination inside source blended with source</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kDstIn'>SkBlendMode::kDstIn</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>destination trimmed by source</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kDstOut'>SkBlendMode::kDstOut</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>destination trimmed outside source</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kDstOver'>SkBlendMode::kDstOver</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>destination over source</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kExclusion'>SkBlendMode::kExclusion</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>subtract darker from lighter with lower contrast</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kHardLight'>SkBlendMode::kHardLight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>multiply or screen, depending on source</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kHue'>SkBlendMode::kHue</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>hue of source with saturation and luminosity of destination</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kLastCoeffMode'>SkBlendMode::kLastCoeffMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>last <a href='#Porter_Duff'>Porter Duff</a> blend mode</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kLastMode'>SkBlendMode::kLastMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>last valid value</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kLastSeparableMode'>SkBlendMode::kLastSeparableMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>last blend mode operating separately on components</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kLighten'>SkBlendMode::kLighten</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>lighter of source and destination</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kLuminosity'>SkBlendMode::kLuminosity</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>luminosity of source with hue and saturation of destination</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>product of <a href='undocumented#Premultiply'>Premultiplied</a> colors; darkens destination</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>multiply source with destination, darkening image</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kOverlay'>SkBlendMode::kOverlay</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>multiply or screen, depending on destination</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kPlus'>SkBlendMode::kPlus</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sum of colors</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kSaturation'>SkBlendMode::kSaturation</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>saturation of source with hue and luminosity of destination</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kScreen'>SkBlendMode::kScreen</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>multiply inverse of pixels, inverting result; brightens destination</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kSoftLight'>SkBlendMode::kSoftLight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>lighten or darken, depending on source</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kSrc'>SkBlendMode::kSrc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces destination</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kSrcATop'>SkBlendMode::kSrcATop</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>source inside destination blended with destination</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kSrcIn'>SkBlendMode::kSrcIn</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>source trimmed inside destination</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kSrcOut'>SkBlendMode::kSrcOut</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>source trimmed outside destination</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>source over destination</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBlendMode_kXor'>SkBlendMode::kXor</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>each of source and destination trimmed outside the other</td>
-  </tr>
-</table>
-
-Describes how destination pixel is replaced with a combination of itself and
-source pixel. <a href='#Blend_Mode'>Blend Mode</a> may use source, destination, or both. <a href='#Blend_Mode'>Blend Mode</a> may
-operate on each <a href='#Color'>Color</a> component independently, or may allow all source pixel
-components to contribute to one destination pixel component.
-
-<a href='#Blend_Mode'>Blend Mode</a> does not use adjacent pixels to determine the outcome.
-
-<a href='#Blend_Mode'>Blend Mode</a> uses source and read destination <a href='SkColor_Reference#Alpha'>Alpha</a> to determine written
-destination <a href='SkColor_Reference#Alpha'>Alpha</a>; both source and destination <a href='SkColor_Reference#Alpha'>Alpha</a> may also affect written
-destination <a href='#Color'>Color</a> components.
-
-Regardless of how <a href='SkColor_Reference#Alpha'>Alpha</a> is encoded in source and destination pixel, nearly all
-<a href='SkImageInfo_Reference#Color_Type'>Color Types</a> treat it as ranging from zero to one. And, nearly all <a href='#Blend_Mode'>Blend Mode</a>
-algorithms limit the output so that all results are also zero to one.
-
-Two exceptions are <a href='#SkBlendMode_kPlus'>SkBlendMode::kPlus</a> and <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>.
-
-<a href='#SkBlendMode_kPlus'>SkBlendMode::kPlus</a> permits computing <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='#Color'>Color</a> component values larger
-than one. For <a href='SkImageInfo_Reference#Color_Type'>Color Types</a> other than <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>, resulting <a href='SkColor_Reference#Alpha'>Alpha</a>
-and component values are clamped to one.
-
-<a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a> permits values outside the zero to one range. It is up
-to the client to ensure that the result is within the range of zero to one,
-and therefore well-defined.
-
-## <a name='Porter_Duff'>Porter Duff</a>
-
-<a href='https://graphics.pixar.com/library/Compositing/paper.pdf'>Compositing Digital Images</a></a> describes <a href='#Porter_Duff'>Porter Duff</a> modes <a href='#SkBlendMode_kClear'>SkBlendMode::kClear</a> through <a href='#SkBlendMode_kXor'>SkBlendMode::kXor</a>.
-
-Drawing a bitmap with transparency using <a href='#Porter_Duff'>Porter Duff</a> compositing is free to clear
-the destination.
-
-![Porter_Duff](https://fiddle.skia.org/i/8c27fb2a58f63505cffa74c1c79e16ba_raster.png "")
-
-Draw geometry with transparency using <a href='#Porter_Duff'>Porter Duff</a> compositing does not combine
-transparent source pixels, leaving the destination outside the geometry untouched.
-
-![Porter_Duff](https://fiddle.skia.org/i/50ebbb0162bbf60524a196236d66c915_raster.png "")
-
-## <a name='Lighten_Darken'>Lighten Darken</a>
-
-Modes <a href='#SkBlendMode_kPlus'>SkBlendMode::kPlus</a> and <a href='#SkBlendMode_kScreen'>SkBlendMode::kScreen</a> use
-simple arithmetic to lighten or darken the destination. Modes
-<a href='#SkBlendMode_kOverlay'>SkBlendMode::kOverlay</a> through <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a> use more complicated
-algorithms to lighten or darken; sometimes one mode does both, as described by <a href='https://en.wikipedia.org/wiki/Blend_modes'>Blend Modes</a></a> .
-
-![Lighten_Darken](https://fiddle.skia.org/i/8e04f89252632da0fffe713f07f2296f_raster.png "")
-
-## <a name='Modulate_Blend'>Modulate Blend</a>
-
-<a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a> is a mashup of <a href='#SkBlendMode_kSrcATop'>SkBlendMode::kSrcATop</a> and <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a>.
-It multiplies all components, including <a href='SkColor_Reference#Alpha'>Alpha</a>; unlike <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a>, if either
-source or destination is transparent, result is transparent. <a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a>
-uses <a href='undocumented#Premultiply'>Premultiplied</a> values to compute the product; <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a> uses <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
-values to compute the product.
-
-![Modulate_Blend](https://fiddle.skia.org/i/d8abdd8fb56f9e69342d745d425c4a17_raster.png "")
-
-## <a name='Color_Blends'>Color Blends</a>
-
-Modes <a href='#SkBlendMode_kHue'>SkBlendMode::kHue</a>, <a href='#SkBlendMode_kSaturation'>SkBlendMode::kSaturation</a>, <a href='#SkBlendMode_kColor'>SkBlendMode::kColor</a>, and
-<a href='#SkBlendMode_kLuminosity'>SkBlendMode::kLuminosity</a> convert source and destination pixels using all
-components color information, using <a href='https://www.w3.org/TR/compositing-1/#blendingnonseparable'>non-separable blend modes</a></a> .
-
-![Color_Blends](https://fiddle.skia.org/i/03710c1770728da885fa4ac24a19d5d1_raster.png "")
-
-## <a name='SkBlendMode'>Enum SkBlendMode</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum class <a href='#SkBlendMode'>SkBlendMode</a> {
-        <a href='#SkBlendMode_kClear'>kClear</a>,
-        <a href='#SkBlendMode_kSrc'>kSrc</a>,
-        <a href='#SkBlendMode_kDst'>kDst</a>,
-        <a href='#SkBlendMode_kSrcOver'>kSrcOver</a>,
-        <a href='#SkBlendMode_kDstOver'>kDstOver</a>,
-        <a href='#SkBlendMode_kSrcIn'>kSrcIn</a>,
-        <a href='#SkBlendMode_kDstIn'>kDstIn</a>,
-        <a href='#SkBlendMode_kSrcOut'>kSrcOut</a>,
-        <a href='#SkBlendMode_kDstOut'>kDstOut</a>,
-        <a href='#SkBlendMode_kSrcATop'>kSrcATop</a>,
-        <a href='#SkBlendMode_kDstATop'>kDstATop</a>,
-        <a href='#SkBlendMode_kXor'>kXor</a>,
-        <a href='#SkBlendMode_kPlus'>kPlus</a>,
-        <a href='#SkBlendMode_kModulate'>kModulate</a>,
-        <a href='#SkBlendMode_kScreen'>kScreen</a>,
-        <a href='#SkBlendMode_kLastCoeffMode'>kLastCoeffMode</a> = <a href='#SkBlendMode_kScreen'>kScreen</a>,
-        <a href='#SkBlendMode_kOverlay'>kOverlay</a>,
-        <a href='#SkBlendMode_kDarken'>kDarken</a>,
-        <a href='#SkBlendMode_kLighten'>kLighten</a>,
-        <a href='#SkBlendMode_kColorDodge'>kColorDodge</a>,
-        <a href='#SkBlendMode_kColorBurn'>kColorBurn</a>,
-        <a href='#SkBlendMode_kHardLight'>kHardLight</a>,
-        <a href='#SkBlendMode_kSoftLight'>kSoftLight</a>,
-        <a href='#SkBlendMode_kDifference'>kDifference</a>,
-        <a href='#SkBlendMode_kExclusion'>kExclusion</a>,
-        <a href='#SkBlendMode_kMultiply'>kMultiply</a>,
-        <a href='#SkBlendMode_kLastSeparableMode'>kLastSeparableMode</a> = <a href='#SkBlendMode_kMultiply'>kMultiply</a>,
-        <a href='#SkBlendMode_kHue'>kHue</a>,
-        <a href='#SkBlendMode_kSaturation'>kSaturation</a>,
-        <a href='#SkBlendMode_kColor'>kColor</a>,
-        <a href='#SkBlendMode_kLuminosity'>kLuminosity</a>,
-        <a href='#SkBlendMode_kLastMode'>kLastMode</a> = <a href='#SkBlendMode_kLuminosity'>kLuminosity</a>,
-    };
+enum class <a href='#SkBlendMode'>SkBlendMode</a> {
+    <a href='#SkBlendMode_kClear'>kClear</a>,
+    <a href='#SkBlendMode_kSrc'>kSrc</a>,
+    <a href='#SkBlendMode_kDst'>kDst</a>,
+    <a href='#SkBlendMode_kSrcOver'>kSrcOver</a>,
+    <a href='#SkBlendMode_kDstOver'>kDstOver</a>,
+    <a href='#SkBlendMode_kSrcIn'>kSrcIn</a>,
+    <a href='#SkBlendMode_kDstIn'>kDstIn</a>,
+    <a href='#SkBlendMode_kSrcOut'>kSrcOut</a>,
+    <a href='#SkBlendMode_kDstOut'>kDstOut</a>,
+    <a href='#SkBlendMode_kSrcATop'>kSrcATop</a>,
+    <a href='#SkBlendMode_kDstATop'>kDstATop</a>,
+    <a href='#SkBlendMode_kXor'>kXor</a>,
+    <a href='#SkBlendMode_kPlus'>kPlus</a>,
+    <a href='#SkBlendMode_kModulate'>kModulate</a>,
+    <a href='#SkBlendMode_kScreen'>kScreen</a>,
+    <a href='#SkBlendMode_kLastCoeffMode'>kLastCoeffMode</a> = <a href='#SkBlendMode_kScreen'>kScreen</a>,
+    <a href='#SkBlendMode_kOverlay'>kOverlay</a>,
+    <a href='#SkBlendMode_kDarken'>kDarken</a>,
+    <a href='#SkBlendMode_kLighten'>kLighten</a>,
+    <a href='#SkBlendMode_kColorDodge'>kColorDodge</a>,
+    <a href='#SkBlendMode_kColorBurn'>kColorBurn</a>,
+    <a href='#SkBlendMode_kHardLight'>kHardLight</a>,
+    <a href='#SkBlendMode_kSoftLight'>kSoftLight</a>,
+    <a href='#SkBlendMode_kDifference'>kDifference</a>,
+    <a href='#SkBlendMode_kExclusion'>kExclusion</a>,
+    <a href='#SkBlendMode_kMultiply'>kMultiply</a>,
+    <a href='#SkBlendMode_kLastSeparableMode'>kLastSeparableMode</a> = <a href='#SkBlendMode_kMultiply'>kMultiply</a>,
+    <a href='#SkBlendMode_kHue'>kHue</a>,
+    <a href='#SkBlendMode_kSaturation'>kSaturation</a>,
+    <a href='#SkBlendMode_kColor'>kColor</a>,
+    <a href='#SkBlendMode_kLuminosity'>kLuminosity</a>,
+    <a href='#SkBlendMode_kLastMode'>kLastMode</a> = <a href='#SkBlendMode_kLuminosity'>kLuminosity</a>,
+};
+
+const char* <a href='#SkBlendMode_Name'>SkBlendMode_Name</a>(<a href='#SkBlendMode'>SkBlendMode</a> blendMode);
 </pre>
+
+## <a name='SkBlendMode'>Enum SkBlendMode</a>
 
 ### Constants
 
@@ -890,7 +651,7 @@ the product of <a href='undocumented#Unpremultiply'>Unpremultiplied</a> source a
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
 <a href='#SkBlendMode_kHue'>SkBlendMode::kHue</a> replaces destination with:
-<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, SetLuminosity(SetSaturation(S, Saturation(D)\), <a href='#Luminosity'>Luminosity(D)</a>\)\]</code>,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, SetLuminosity(SetSaturation(S, Saturation(D)\), <a href='#Luminosity'>Luminosity</a>(D\)\)\]</code>,
 source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
@@ -902,7 +663,7 @@ source hue, leaving destination luminosity and saturation unchanged.
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
 <a href='#SkBlendMode_kHue'>SkBlendMode::kHue</a> replaces destination with:
-<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, SetLuminosity(SetSaturation(D, Saturation(S)\), <a href='#Luminosity'>Luminosity(D)</a>\)\]</code>,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, SetLuminosity(SetSaturation(D, Saturation(S)\), <a href='#Luminosity'>Luminosity</a>(D\)\)\]</code>,
 source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
