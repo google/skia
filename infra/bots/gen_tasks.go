@@ -615,13 +615,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		}
 	}
 
-	if parts["cpu_or_gpu_value"] == "QuadroP400" {
-		// Specify "rack" dimension for consistent test results.
-		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
-		// for more context.
-		d["rack"] = "1"
-	}
-
 	rv := make([]string, 0, len(d))
 	for k, v := range d {
 		rv = append(rv, fmt.Sprintf("%s:%s", k, v))
@@ -1001,6 +994,12 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
 	task.MaxAttempts = 1
+	if parts["cpu_or_gpu_value"] == "QuadroP400" {
+		// Specify "rack" dimension for consistent test results.
+		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
+		// for more context.
+		task.Dimensions = append(task.Dimensions, "rack:1")
+	}
 	b.MustAddTask(name, task)
 
 	// Upload results if necessary.
@@ -1144,6 +1143,12 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	iid := internalHardwareLabel(parts)
 	if iid != nil {
 		task.Command = append(task.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
+	}
+	if parts["cpu_or_gpu_value"] == "QuadroP400" {
+		// Specify "rack" dimension for consistent test results.
+		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
+		// for more context.
+		task.Dimensions = append(task.Dimensions, "rack:1")
 	}
 	b.MustAddTask(name, task)
 
