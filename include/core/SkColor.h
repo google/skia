@@ -274,7 +274,5 @@ struct SkRGBA4f {
 };
 
 using SkColor4f = SkRGBA4f<kUnpremul_SkAlphaType>;
-template <> SK_API SkColor4f SkColor4f::FromColor(SkColor);
-template <> SK_API SkColor   SkColor4f::toSkColor() const;
 
 #endif
