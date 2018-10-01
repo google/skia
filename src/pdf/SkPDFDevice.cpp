@@ -506,40 +506,54 @@ void SkPDFDevice::reset() {
     fActiveStackState = GraphicStackState();
 }
 
+SkRect transform_rect(const SkRect& rect, const SkClipStack& cs, const SkMatrix& ctm) {
+    SkPath path = to_path(rect);
+    path.transform(ctm, &path);
+    SkPath clip;
+    (void)cs.asPath(&clip);
+    Op(clip, path, kIntersect_SkPathOp, &path);
+    return path.getBounds();
+}
+
+
 void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
-    if (!value) {
+    if (0 == strcmp(key, SkPDFGetNodeIdKey())) {
+        if (value && value->size() == sizeof(fNodeId)) {
+            memcpy(&fNodeId, value->data(), sizeof(fNodeId));
+        }
         return;
     }
-    if (rect.isEmpty()) {
-        if (!strcmp(key, SkPDFGetNodeIdKey())) {
-            int nodeID;
-            if (value->size() != sizeof(nodeID)) { return; }
-            memcpy(&nodeID, value->data(), sizeof(nodeID));
-            fNodeId = nodeID;
-            return;
+    if (0 == strcmp(key, SkPDFGetRotationKey())) {
+        if (value && value->size() == sizeof(fRotation)) {
+            memcpy(&fRotation, value->data(), sizeof(fRotation));
         }
-        if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
+        return;
+    }
+    if (0 == strcmp(key, SkPDFGetCropBoxKey())) {
+        fCropBox = rect;
+        return;
+    }
+    if (0 == strcmp(key, SkAnnotationKeys::Define_Named_Dest_Key())) {
+        if (value && rect.isEmpty()) {
             SkPoint transformedPoint;
             this->ctm().mapXY(rect.x(), rect.y(), &transformedPoint);
             fNamedDestinations.emplace_back(NamedDestination{sk_ref_sp(value), transformedPoint});
         }
         return;
     }
-    // Convert to path to handle non-90-degree rotations.
-    SkPath path = to_path(rect);
-    path.transform(this->ctm(), &path);
-    SkPath clip;
-    (void)this->cs().asPath(&clip);
-    Op(clip, path, kIntersect_SkPathOp, &path);
-    // PDF wants a rectangle only.
-    SkRect transformedRect = path.getBounds();
-    if (transformedRect.isEmpty()) {
+    if (0 == strcmp(key, SkAnnotationKeys::URL_Key())) {
+        SkRect transformedRect = transform_rect(rect, this->cs(), this->ctm());
+        if (value && !transformedRect.isEmpty()) {
+            fLinkToURLs.emplace_back(RectWithData{transformedRect, sk_ref_sp(value)});
+        }
         return;
     }
-    if (!strcmp(SkAnnotationKeys::URL_Key(), key)) {
-        fLinkToURLs.emplace_back(RectWithData{transformedRect, sk_ref_sp(value)});
-    } else if (!strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
-        fLinkToDestinations.emplace_back(RectWithData{transformedRect, sk_ref_sp(value)});
+    if (0 == strcmp(key, SkAnnotationKeys::Link_Named_Dest_Key())) {
+        SkRect transformedRect = transform_rect(rect, this->cs(), this->ctm());
+        if (value && !transformedRect.isEmpty()) {
+            fLinkToDestinations.emplace_back(RectWithData{transformedRect, sk_ref_sp(value)});
+        }
+        return;
     }
 }
 
