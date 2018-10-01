@@ -274,8 +274,6 @@ gm_sources = [
   "$_gm/scaledemoji.cpp",
   "$_gm/scaledemoji_rendering.cpp",
   "$_gm/shadermaskfilter.cpp",
-  "$_gm/shadertext.cpp",
-  "$_gm/shadertext2.cpp",
   "$_gm/shadertext3.cpp",
   "$_gm/shadows.cpp",
   "$_gm/shadowutils.cpp",

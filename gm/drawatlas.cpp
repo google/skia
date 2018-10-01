@@ -10,7 +10,6 @@
 #include "SkAutoMalloc.h"
 #include "SkCanvas.h"
 #include "SkRSXform.h"
-#include "SkTextOnPath.h"
 #include "SkSurface.h"
 #include "sk_tool_utils.h"
 
@@ -104,7 +103,7 @@ DEF_GM( return new DrawAtlasGM; )
 
 static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                               const SkPoint xy[], const SkPath& path, const SkPaint& paint,
-                              float baseline_offset, bool useRSX) {
+                              float baseline_offset) {
     SkPathMeasure meas(path, false);
 
     int count = paint.countText(text, length);
@@ -119,30 +118,26 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                                 SkTMax(SkScalarAbs(font.fTop), SkScalarAbs(font.fBottom)));
     const SkRect bounds = path.getBounds().makeOutset(max, max);
 
-    if (useRSX) {
-        paint.getTextWidths(text, length, widths);
+    paint.getTextWidths(text, length, widths);
 
-        for (int i = 0; i < count; ++i) {
-            // we want to position each character on the center of its advance
-            const SkScalar offset = SkScalarHalf(widths[i]);
-            SkPoint pos;
-            SkVector tan;
-            if (!meas.getPosTan(xy[i].x() + offset, &pos, &tan)) {
-                pos = xy[i];
-                tan.set(1, 0);
-            }
-            pos += SkVector::Make(-tan.fY, tan.fX) * baseline_offset;
-
-            xform[i].fSCos = tan.x();
-            xform[i].fSSin = tan.y();
-            xform[i].fTx   = pos.x() - tan.y() * xy[i].y() - tan.x() * offset;
-            xform[i].fTy   = pos.y() + tan.x() * xy[i].y() - tan.y() * offset;
+    for (int i = 0; i < count; ++i) {
+        // we want to position each character on the center of its advance
+        const SkScalar offset = SkScalarHalf(widths[i]);
+        SkPoint pos;
+        SkVector tan;
+        if (!meas.getPosTan(xy[i].x() + offset, &pos, &tan)) {
+            pos = xy[i];
+            tan.set(1, 0);
         }
+        pos += SkVector::Make(-tan.fY, tan.fX) * baseline_offset;
 
-        canvas->drawTextRSXform(text, length, &xform[0], &bounds, paint);
-    } else {
-        SkDrawTextOnPathHV(text, length, paint, path, 0, baseline_offset, canvas);
+        xform[i].fSCos = tan.x();
+        xform[i].fSSin = tan.y();
+        xform[i].fTx   = pos.x() - tan.y() * xy[i].y() - tan.x() * offset;
+        xform[i].fTy   = pos.y() + tan.x() * xy[i].y() - tan.y() * offset;
     }
+
+    canvas->drawTextRSXform(text, length, &xform[0], &bounds, paint);
 
     if (true) {
         SkPaint p;
@@ -158,7 +153,7 @@ static sk_sp<SkShader> make_shader() {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
 }
 
-static void drawTextPath(SkCanvas* canvas, bool useRSX, bool doStroke) {
+static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     const char text0[] = "ABCDFGHJKLMNOPQRSTUVWXYZ";
     const int N = sizeof(text0) - 1;
     SkPoint pos[N];
@@ -188,7 +183,7 @@ static void drawTextPath(SkCanvas* canvas, bool useRSX, bool doStroke) {
     for (auto d : dirs) {
         path.reset();
         path.addOval(SkRect::MakeXYWH(160, 160, 540, 540), d);
-        draw_text_on_path(canvas, text0, N, pos, path, paint, baseline_offset, useRSX);
+        draw_text_on_path(canvas, text0, N, pos, path, paint, baseline_offset);
     }
 
     paint.reset();
@@ -196,15 +191,11 @@ static void drawTextPath(SkCanvas* canvas, bool useRSX, bool doStroke) {
     canvas->drawPath(path, paint);
 }
 
-DEF_SIMPLE_GM(drawTextRSXform, canvas, 860, 860) {
+DEF_SIMPLE_GM(drawTextRSXform, canvas, 430, 860) {
     canvas->scale(0.5f, 0.5f);
     const bool doStroke[] = { false, true };
     for (auto st : doStroke) {
-        canvas->save();
-        drawTextPath(canvas, false, st);
-        canvas->translate(860, 0);
-        drawTextPath(canvas, true, st);
-        canvas->restore();
+        drawTextPath(canvas, st);
         canvas->translate(0, 860);
     }
 }
