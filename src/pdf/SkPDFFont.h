@@ -11,12 +11,10 @@
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitSet.h"
-#include "SkStrikeCache.h"
+#include "SkPDFCanon.h"
 #include "SkPDFTypes.h"
+#include "SkStrikeCache.h"
 #include "SkTypeface.h"
-
-class SkPDFCanon;
-class SkPDFFont;
 
 /** \class SkPDFFont
     A PDF Object class representing a font.  The font may have resources
@@ -84,6 +82,7 @@ public:
      *  @param glyphID   Specify which section of a large font is of interest.
      */
     static sk_sp<SkPDFFont> GetFontResource(SkPDFCanon* canon,
+                                            SkGlyphCache* cache,
                                             SkTypeface* typeface,
                                             SkGlyphID glyphID);
 

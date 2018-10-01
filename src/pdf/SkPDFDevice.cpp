@@ -937,12 +937,10 @@ class GlyphPositioner {
 public:
     GlyphPositioner(SkDynamicMemoryWStream* content,
                     SkScalar textSkewX,
-                    bool wideChars,
                     SkPoint origin)
         : fContent(content)
         , fCurrentMatrixOrigin(origin)
-        , fTextSkewX(textSkewX)
-        , fWideChars(wideChars) {
+        , fTextSkewX(textSkewX) {
     }
     ~GlyphPositioner() { this->flush(); }
     void flush() {
@@ -950,6 +948,10 @@ public:
             fContent->writeText("> Tj\n");
             fInText = false;
         }
+    }
+    void setWideChars(bool wide) {
+        this->flush();
+        fWideChars = wide;
     }
     void writeGlyph(SkPoint xy,
                     SkScalar advanceWidth,
@@ -995,7 +997,7 @@ private:
     SkPoint fCurrentMatrixOrigin;
     SkScalar fXAdvance = 0.0f;
     SkScalar fTextSkewX;
-    bool fWideChars;
+    bool fWideChars = true;
     bool fInText = false;
     bool fInitialized = false;
 };
@@ -1010,12 +1012,6 @@ struct PositionedGlyph {
     SkPoint fPos;
     SkGlyphID fGlyph;
 };
-}
-
-static bool has_outline_glyph(SkGlyphID gid, SkGlyphCache* cache) {
-    const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
-    const SkPath* path = cache->findPath(glyph);
-    return (path && !path->isEmpty()) || (glyph.fWidth == 0 && glyph.fHeight == 0);
 }
 
 static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkGlyphCache* cache,
@@ -1034,88 +1030,6 @@ static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkGlyphCache* cache,
 static bool contains(const SkRect& r, SkPoint p) {
    return r.left() <= p.x() && p.x() <= r.right() &&
           r.top()  <= p.y() && p.y() <= r.bottom();
-}
-
-static sk_sp<SkImage> image_from_mask(const SkMask& mask) {
-    if (!mask.fImage) {
-        return nullptr;
-    }
-    SkIRect bounds = mask.fBounds;
-    SkBitmap bm;
-    switch (mask.fFormat) {
-        case SkMask::kBW_Format:
-            bm.allocPixels(SkImageInfo::MakeA8(bounds.width(), bounds.height()));
-            for (int y = 0; y < bm.height(); ++y) {
-                for (int x8 = 0; x8 < bm.width(); x8 += 8) {
-                    uint8_t v = *mask.getAddr1(x8 + bounds.x(), y + bounds.y());
-                    int e = SkTMin(x8 + 8, bm.width());
-                    for (int x = x8; x < e; ++x) {
-                        *bm.getAddr8(x, y) = (v >> (x & 0x7)) & 0x1 ? 0xFF : 0x00;
-                    }
-                }
-            }
-            bm.setImmutable();
-            return SkImage::MakeFromBitmap(bm);
-        case SkMask::kA8_Format:
-            bm.installPixels(SkImageInfo::MakeA8(bounds.width(), bounds.height()),
-                             mask.fImage, mask.fRowBytes);
-            return SkMakeImageFromRasterBitmap(bm, kAlways_SkCopyPixelsMode);
-        case SkMask::kARGB32_Format:
-            bm.installPixels(SkImageInfo::MakeN32Premul(bounds.width(), bounds.height()),
-                             mask.fImage, mask.fRowBytes);
-            return SkMakeImageFromRasterBitmap(bm, kAlways_SkCopyPixelsMode);
-        case SkMask::k3D_Format:
-            SkASSERT(false);
-            return nullptr;
-        case SkMask::kLCD16_Format:
-            SkASSERT(false);
-            return nullptr;
-        default:
-            SkASSERT(false);
-            return nullptr;
-    }
-}
-
-void draw_missing_glyphs(SkPDFDevice* dev, const SkPaint& paint, SkTypeface* typeface,
-                         const std::vector<PositionedGlyph>& missingGlyphs) {
-    if (missingGlyphs.size() == 0) {
-        return;
-    }
-    // Fall back on images.
-    SkPaint scaledGlyphCachePaint;
-    scaledGlyphCachePaint.setTextSize(paint.getTextSize());
-    scaledGlyphCachePaint.setTextScaleX(paint.getTextScaleX());
-    scaledGlyphCachePaint.setTextSkewX(paint.getTextSkewX());
-    scaledGlyphCachePaint.setTypeface(sk_ref_sp(typeface));
-    auto scaledGlyphCache = SkStrikeCache::FindOrCreateStrikeExclusive(scaledGlyphCachePaint);
-    SkTHashMap<SkPDFCanon::BitmapGlyphKey, SkPDFCanon::BitmapGlyph>* map =
-        &dev->getCanon()->fBitmapGlyphImages;
-    for (PositionedGlyph positionedGlyph : missingGlyphs) {
-        SkPDFCanon::BitmapGlyphKey key = {typeface->uniqueID(),
-                                          paint.getTextSize(),
-                                          paint.getTextScaleX(),
-                                          paint.getTextSkewX(),
-                                          positionedGlyph.fGlyph,
-                                          0};
-        SkImage* img = nullptr;
-        SkIPoint imgOffset = {0, 0};
-        if (SkPDFCanon::BitmapGlyph* ptr = map->find(key)) {
-            img = ptr->fImage.get();
-            imgOffset = ptr->fOffset;
-        } else {
-            (void)scaledGlyphCache->findImage(
-                    scaledGlyphCache->getGlyphIDMetrics(positionedGlyph.fGlyph));
-            SkMask mask;
-            scaledGlyphCache->getGlyphIDMetrics(positionedGlyph.fGlyph).toMask(&mask);
-            imgOffset = {mask.fBounds.x(), mask.fBounds.y()};
-            img = map->set(key, {image_from_mask(mask), imgOffset})->fImage.get();
-        }
-        if (img) {
-            SkPoint pt = positionedGlyph.fPos +
-                         SkPoint{(SkScalar)imgOffset.x(), (SkScalar)imgOffset.y()};
-            dev->drawImage(img, pt.x(), pt.y(), paint);
-        }
-    }
 }
 
 void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset) {
@@ -1150,21 +1064,6 @@ void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset)
     } else {
         this->internalDrawGlyphRun(tmp, offset);
     }
-
-    if (!tmp.paint().getTypeface()) {
-        return;
-    }
-    std::vector<PositionedGlyph> missingGlyphs;
-    int emSize;
-    auto glyphCache = SkPDFFont::MakeVectorCache(tmp.paint().getTypeface(), &emSize);
-    for (size_t i = 0; i < glyphRun.shuntGlyphsIDs().size(); ++i) {
-        SkGlyphID gid = glyphRun.shuntGlyphsIDs()[i];
-        if (!has_outline_glyph(gid, glyphCache.get())) {
-            SkPoint xy = glyphRun.positions()[i];
-            missingGlyphs.push_back({xy + offset, gid});
-        }
-    }
-    draw_missing_glyphs(this, paint, tmp.paint().getTypeface(), missingGlyphs);
 }
 
 void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset) {
@@ -1217,7 +1116,6 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
 
     SkASSERT(paint.getTextAlign() == SkPaint::kLeft_Align);
     SkRect clipStackBounds = this->cs().bounds(this->bounds());
-    std::vector<PositionedGlyph> missingGlyphs;
     {
         ScopedContentEntry content(this, paint, true);
         if (!content.entry()) {
@@ -1243,15 +1141,11 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
 
         const SkGlyphID maxGlyphID = SkToU16(typeface->countGlyphs() - 1);
 
-        bool multiByteGlyphs = SkPDFFont::IsMultiByte(SkPDFFont::FontType(*metrics));
         if (clusterator.reversedChars()) {
             out->writeText("/ReversedChars BMC\n");
         }
         SK_AT_SCOPE_EXIT(if (clusterator.reversedChars()) { out->writeText("EMC\n"); } );
-        GlyphPositioner glyphPositioner(out,
-                                        paint.getTextSkewX(),
-                                        multiByteGlyphs,
-                                        offset);
+        GlyphPositioner glyphPositioner(out, paint.getTextSkewX(), offset);
         SkPDFFont* font = nullptr;
 
         while (SkClusterator::Cluster c = clusterator.next()) {
@@ -1300,7 +1194,8 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
                 if (!font || !font->hasGlyph(gid)) {
                     // Not yet specified font or need to switch font.
                     sk_sp<SkPDFFont> newFont =
-                            SkPDFFont::GetFontResource(fDocument->canon(), typeface, gid);
+                            SkPDFFont::GetFontResource(
+                                    fDocument->canon(), glyphCache.get(), typeface, gid);
                     SkASSERT(newFont);  // All preconditions for SkPDFFont::GetFontResource are met.
                     if (!newFont) {
                         return;
@@ -1310,13 +1205,12 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
                     int fontIndex = find_or_add(&fFontResources, std::move(newFont));
 
                     glyphPositioner.flush();
-
+                    glyphPositioner.setWideChars(font->multiByteGlyphs());
                     SkPDFWriteResourceName(out, SkPDFResourceType::kFont, fontIndex);
                     out->writeText(" ");
                     SkPDFUtils::AppendScalar(textSize, out);
                     out->writeText(" Tf\n");
 
-                    SkASSERT(font->multiByteGlyphs() == multiByteGlyphs);
                 }
                 SkPoint xy = glyphRun.positions()[index];
                 // Do a glyph-by-glyph bounds-reject if positions are absolute.
@@ -1332,20 +1226,14 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
                         continue;  // reject glyphs as out of bounds
                     }
                 }
-                if (!has_outline_glyph(gid, glyphCache.get())) {
-                    missingGlyphs.push_back({xy + offset, gid});
-                }
-
                 font->noteGlyphUsage(gid);
 
-                SkGlyphID encodedGlyph = multiByteGlyphs ? gid : font->glyphToPDFFontEncoding(gid);
+                SkGlyphID encodedGlyph = font->multiByteGlyphs()
+                                       ? gid : font->glyphToPDFFontEncoding(gid);
                 SkScalar advance = advanceScale * glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
                 glyphPositioner.writeGlyph(xy, advance, encodedGlyph);
             }
         }
-    }
-    if (paint.getColor() != SK_ColorTRANSPARENT) {
-        draw_missing_glyphs(this, srcPaint, typeface, missingGlyphs);
     }
 }
 

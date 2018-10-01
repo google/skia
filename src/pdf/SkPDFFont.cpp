@@ -9,13 +9,16 @@
 
 #include "SkData.h"
 #include "SkGlyphCache.h"
+#include "SkImagePriv.h"
 #include "SkMacros.h"
 #include "SkMakeUnique.h"
+#include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPDFConvertType1FontStream.h"
 #include "SkPDFDevice.h"
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
 #include "SkPDFMakeToUnicodeCmap.h"
+#include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
@@ -205,7 +208,14 @@ static SkGlyphID first_nonzero_glyph_for_single_byte_encoding(SkGlyphID gid) {
     return gid != 0 ? gid - (gid - 1) % 255 : 1;
 }
 
+static bool has_outline_glyph(SkGlyphID gid, SkGlyphCache* cache) {
+    const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
+    const SkPath* path = cache->findPath(glyph);
+    return (path && !path->isEmpty()) || (glyph.fWidth == 0 && glyph.fHeight == 0);
+}
+
 sk_sp<SkPDFFont> SkPDFFont::GetFontResource(SkPDFCanon* canon,
+                                            SkGlyphCache* cache,
                                             SkTypeface* face,
                                             SkGlyphID glyphID) {
     SkASSERT(canon);
@@ -215,6 +225,9 @@ sk_sp<SkPDFFont> SkPDFFont::GetFontResource(SkPDFCanon* canon,
                             // GetMetrics only returns null to signify a bad typeface.
     const SkAdvancedTypefaceMetrics& metrics = *fontMetrics;
     SkAdvancedTypefaceMetrics::FontType type = SkPDFFont::FontType(metrics);
+    if (!has_outline_glyph(glyphID, cache)) {
+        type = SkAdvancedTypefaceMetrics::kOther_Font;
+    }
     bool multibyte = SkPDFFont::IsMultiByte(type);
     SkGlyphID subsetCode = multibyte ? 0 : first_nonzero_glyph_for_single_byte_encoding(glyphID);
     uint64_t fontID = (static_cast<uint64_t>(SkTypeface::UniqueID(face)) << 16) | subsetCode;
@@ -636,6 +649,51 @@ private:
 };
 }
 
+struct ImageAndOffset {
+    sk_sp<SkImage> fImage;
+    SkIPoint fOffset;
+};
+static ImageAndOffset to_image(SkGlyphID gid, SkGlyphCache* cache) {
+    (void)cache->findImage(cache->getGlyphIDMetrics(gid));
+    SkMask mask;
+    cache->getGlyphIDMetrics(gid).toMask(&mask);
+    if (!mask.fImage) {
+        return {nullptr, {0, 0}};
+    }
+    SkIRect bounds = mask.fBounds;
+    SkBitmap bm;
+    switch (mask.fFormat) {
+        case SkMask::kBW_Format:
+            bm.allocPixels(SkImageInfo::MakeA8(bounds.width(), bounds.height()));
+            for (int y = 0; y < bm.height(); ++y) {
+                for (int x8 = 0; x8 < bm.width(); x8 += 8) {
+                    uint8_t v = *mask.getAddr1(x8 + bounds.x(), y + bounds.y());
+                    int e = SkTMin(x8 + 8, bm.width());
+                    for (int x = x8; x < e; ++x) {
+                        *bm.getAddr8(x, y) = (v >> (x & 0x7)) & 0x1 ? 0xFF : 0x00;
+                    }
+                }
+            }
+            bm.setImmutable();
+            return {SkImage::MakeFromBitmap(bm), {bounds.x(), bounds.y()}};
+        case SkMask::kA8_Format:
+            bm.installPixels(SkImageInfo::MakeA8(bounds.width(), bounds.height()),
+                             mask.fImage, mask.fRowBytes);
+            return {SkMakeImageFromRasterBitmap(bm, kAlways_SkCopyPixelsMode),
+                    {bounds.x(), bounds.y()}};
+        case SkMask::kARGB32_Format:
+            bm.installPixels(SkImageInfo::MakeN32Premul(bounds.width(), bounds.height()),
+                             mask.fImage, mask.fRowBytes);
+            return {SkMakeImageFromRasterBitmap(bm, kAlways_SkCopyPixelsMode),
+                    {bounds.x(), bounds.y()}};
+        case SkMask::k3D_Format:
+        case SkMask::kLCD16_Format:
+        default:
+            SkASSERT(false);
+            return {nullptr, {0, 0}};
+    }
+}
+
 static void add_type3_font_info(SkPDFCanon* canon,
                                 SkPDFDict* font,
                                 SkTypeface* typeface,
@@ -704,12 +762,35 @@ static void add_type3_font_info(SkPDFCanon* canon,
                     characterName, sk_make_sp<SkPDFStream>(
                             std::unique_ptr<SkStreamAsset>(content.detachAsStream())));
             } else {
-                if (!emptyStream) {
-                    emptyStream = sk_make_sp<SkPDFStream>(
-                            std::unique_ptr<SkStreamAsset>(
-                                    new SkMemoryStream((size_t)0)));
+                auto pimg = to_image(gID, cache.get());
+                if (!pimg.fImage) {
+                    if (!emptyStream) {
+                        emptyStream = sk_make_sp<SkPDFStream>(
+                                std::unique_ptr<SkStreamAsset>(
+                                        new SkMemoryStream((size_t)0)));
+                    }
+                    charProcs->insertObjRef(characterName, emptyStream);
+                } else {
+                    SkDynamicMemoryWStream content;
+                    SkPDFUtils::AppendScalar(SkFloatToScalar(glyph.fAdvanceX), &content);
+                    content.writeText(" 0 d0\n");
+                    content.writeDecAsText(pimg.fImage->width());
+                    content.writeText(" 0 0 ");
+                    content.writeDecAsText(-pimg.fImage->height());
+                    content.writeText(" ");
+                    content.writeDecAsText(pimg.fOffset.x());
+                    content.writeText(" ");
+                    content.writeDecAsText(pimg.fImage->height() + pimg.fOffset.y());
+                    content.writeText(" cm\n");
+                    content.writeText("/X Do\n");
+                    auto proc = sk_make_sp<SkPDFStream>(content.detachAsStream());
+                    auto d0 = sk_make_sp<SkPDFDict>();
+                    d0->insertObjRef("X", SkPDFCreateBitmapObject(std::move(pimg.fImage)));
+                    auto d1 = sk_make_sp<SkPDFDict>();
+                    d1->insertObject("XObject", std::move(d0));
+                    proc->dict()->insertObject("Resources", std::move(d1));
+                    charProcs->insertObjRef(characterName, std::move(proc));
                 }
-                charProcs->insertObjRef(characterName, emptyStream);
             }
         }
         encDiffs->appendName(characterName.c_str());
