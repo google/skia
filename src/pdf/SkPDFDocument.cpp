@@ -271,6 +271,10 @@ void SkPDFDocument::onEndPage() {
 
     auto page = SkPDFMakeDict("Page");
 
+    if (fPageDevice->rotation() != SkPDF::Rotation::kPortrait) {
+        page->insertInt("Rotate", 90 * (int)fPageDevice->rotation());
+    }
+    SkRect cropBox = fPageDevice->cropBox();
     SkSize mediaSize = fPageDevice->imageInfo().dimensions() * fInverseRasterScale;
     std::unique_ptr<SkStreamAsset> pageContent = fPageDevice->content();
     auto resourceDict = fPageDevice->makeResourceDict();
@@ -281,6 +285,9 @@ void SkPDFDocument::onEndPage() {
 
     page->insertObject("Resources", std::move(resourceDict));
     page->insertObject("MediaBox", SkPDFUtils::RectToArray(SkRect::MakeSize(mediaSize)));
+    if (cropBox != SkRect{0, 0, 0, 0}) {
+        page->insertObject("CropBox", SkPDFUtils::RectToArray(cropBox));
+    }
 
     if (annotations) {
         page->insertObject("Annots", std::move(annotations));
@@ -508,6 +515,18 @@ void SkPDFDocument::waitForJobs() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+const char* SkPDFGetRotationKey() { return "PDF_Set_Rotation"; }
+
+void SkPDF::SetRotationForPage(SkCanvas* canvas, SkPDF::Rotation rotation) {
+    sk_sp<SkData> payload = SkData::MakeWithCopy(&rotation, sizeof(rotation));
+    canvas->drawAnnotation({0, 0, 0, 0}, SkPDFGetRotationKey(), payload.get());
+}
+
+const char* SkPDFGetCropBoxKey() { return "PDF_Set_CropBox"; }
+
+void SkPDF::SetCropBoxForPage(SkCanvas* canvas, SkRect rect) {
+    canvas->drawAnnotation(rect, SkPDFGetCropBoxKey(), nullptr);
+}
 
 void SkPDF::SetNodeId(SkCanvas* canvas, int nodeID) {
     sk_sp<SkData> payload = SkData::MakeWithCopy(&nodeID, sizeof(nodeID));

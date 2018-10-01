@@ -161,6 +161,23 @@ struct Metadata {
     SkExecutor* fExecutor = nullptr;
 };
 
+/** Used by SkPDF::SetRotationForPage.
+*/
+enum class Rotation : uint8_t {
+    kPortrait = 0,          //!< No rotation.
+    kLandscape = 1,         //!< Rotate  90 degreees clockwise.
+    kInvertedPortrait = 2,  //!< Rotate 180 degreees clockwise.
+    kInvertedLandscape = 3, //!< Rotate 270 degreees clockwise.
+};
+
+/** Set the Rotation on the current page.  See PDF 32000-1:2008 §7.7.3.3.
+*/
+SK_API void SetRotationForPage(SkCanvas*, Rotation);
+
+/** Set the CropBox value on the current page.  See PDF 32000-1:2008 §7.7.3.3.
+*/
+SK_API void SetCropBoxForPage(SkCanvas*, SkRect);
+
 /** Associate a node ID with subsequent drawing commands in an
     SkCanvas.  The same node ID can appear in a StructureElementNode
     in order to associate a document's structure element tree with
