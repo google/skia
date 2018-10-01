@@ -933,7 +933,6 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
             return;
         }
 
-#ifndef SK_IGNORE_TINY_FREETYPE_SIZE_FIX
         // Adjust the matrix to reflect the actually chosen scale.
         // FreeType currently does not allow requesting sizes less than 1, this allow for scaling.
         // Don't do this at all sizes as that will interfere with hinting.
@@ -944,7 +943,6 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
             SkScalar y_ppem = upem * SkFT_FixedToScalar(ftmetrics.y_scale) / 64.0f;
             fMatrix22Scalar.preScale(fScale.x() / x_ppem, fScale.y() / y_ppem);
         }
-#endif
 
     } else if (FT_HAS_FIXED_SIZES(fFaceRec->fFace)) {
         fStrikeIndex = chooseBitmapStrike(fFaceRec->fFace.get(), scaleY);
