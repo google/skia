@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0050cd22_a824010a",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-01T16:49:02Z",
+      "side": 0,
+      "message": "Ignore these comments... just debugging a Gerrit issue.",
+      "revId": "e8e2bb1384ad4cc6a4cb0798b503b85aad70b94d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38751a74_29de681b",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-01T16:49:02Z",
+      "side": 0,
+      "message": "IIRC, this one is used by Chrome OS somewhere, and we broke the Chrome tree without it.  Hopefully I\u0027ve added the right bot to demonstrate... it was the one we used to test when I put SK_API on FromColor in https://skia-review.googlesource.com/c/skia/+/156246.\n\nIt does make sense that SkPaint::getColor() is probably the only big user of toSkColor(), so if we want to try taking it out of line in SkPaint that sounds good to me.",
+      "revId": "e8e2bb1384ad4cc6a4cb0798b503b85aad70b94d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
