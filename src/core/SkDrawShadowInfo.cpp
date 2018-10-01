@@ -33,6 +33,10 @@ bool GetSpotShadowTransform(const SkPoint3& lightPos, SkScalar lightRadius,
         shadowTransform->setScaleTranslate(scale, scale, translate.fX, translate.fY);
         shadowTransform->preConcat(ctm);
     } else {
+        if (SkScalarNearlyZero(pathBounds.width()) || SkScalarNearlyZero(pathBounds.height())) {
+            return false;
+        }
+
         // get rotated quad in 3D
         SkPoint pts[4];
         ctm.mapRectToQuad(pts, pathBounds);
