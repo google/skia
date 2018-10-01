@@ -182,6 +182,127 @@ private:
         return true;
     }
 };
-
 DEF_GM(return new AnimatedGifGM);
 
+
+class AnimCodecPlayer {
+    std::unique_ptr<SkCodec>        fCodec;
+    SkImageInfo                     fImageInfo;
+    std::vector<SkCodec::FrameInfo> fFrameInfos;
+    std::vector<sk_sp<SkImage> >    fImages;
+
+public:
+    AnimCodecPlayer(std::unique_ptr<SkCodec> codec);
+
+    SkISize dimensions();
+    int     countFrames();
+    sk_sp<SkImage> getFrame(int index);
+};
+
+AnimCodecPlayer::AnimCodecPlayer(std::unique_ptr<SkCodec> codec) : fCodec(std::move(codec)) {
+    fImageInfo = fCodec->getInfo();
+    fFrameInfos = fCodec->getFrameInfo();
+    fImages.resize(fFrameInfos.size());
+}
+
+SkISize AnimCodecPlayer::dimensions() {
+    return { fImageInfo.width(), fImageInfo.height() };
+}
+
+int AnimCodecPlayer::countFrames() {
+    return SkToInt(fFrameInfos.size());
+}
+
+sk_sp<SkImage> AnimCodecPlayer::getFrame(int index) {
+    SkASSERT((unsigned)index < (unsigned)this->countFrames());
+
+    if (fImages[index]) {
+        return fImages[index];
+    }
+
+    size_t rb = fImageInfo.minRowBytes();
+    size_t size = fImageInfo.computeByteSize(rb);
+    auto data = SkData::MakeUninitialized(size);
+
+    SkCodec::Options opts;
+    opts.fFrameIndex = index;
+
+    const int requiredFrame = fFrameInfos[index].fRequiredFrame;
+    if (requiredFrame != SkCodec::kNoFrame) {
+        auto requiredImage = fImages[requiredFrame];
+        SkPixmap requiredPM;
+        if (requiredImage && requiredImage->peekPixels(&requiredPM)) {
+            sk_careful_memcpy(data->writable_data(), requiredPM.addr(), size);
+            opts.fPriorFrame = requiredFrame;
+        }
+    }
+    if (SkCodec::kSuccess == fCodec->getPixels(fImageInfo, data->writable_data(), rb, &opts)) {
+        return fImages[index] = SkImage::MakeRasterData(fImageInfo, std::move(data), rb);
+    }
+    return nullptr;
+}
+
+static std::unique_ptr<SkCodec> load_codec(const char filename[]) {
+    auto data = SkData::MakeFromFileName(filename);
+    return SkCodec::MakeFromData(data);
+}
+
+class AnimCodecPlayerGM : public skiagm::GM {
+private:
+    AnimCodecPlayer fPlayer;
+
+public:
+    AnimCodecPlayerGM() : fPlayer(load_codec("/Users/reed/Downloads/claws.gif")) {
+    }
+
+private:
+    SkString onShortName() override {
+        return SkString("AnimCodecPlayer");
+    }
+
+    SkISize onISize() override {
+        return fPlayer.dimensions();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->drawImage(fPlayer.getFrame(0), 0, 0, nullptr);
+    }
+
+#if 0
+    bool onAnimate(const SkAnimTimer& timer) override {
+        if (!fCodec || fTotalFrames == 1) {
+            return false;
+        }
+
+        double secs = timer.msec() * .1;
+        if (fNextUpdate < double(0)) {
+            // This is a sentinel that we have not done any updates yet.
+            // I'm assuming this gets called *after* onOnceBeforeDraw, so our first frame should
+            // already have been retrieved.
+            SkASSERT(fFrame == 0);
+            fNextUpdate = secs + fFrameInfos[fFrame].fDuration;
+
+            return true;
+        }
+
+        if (secs < fNextUpdate) {
+            return true;
+        }
+
+        while (secs >= fNextUpdate) {
+            // Retrieve the next frame.
+            fFrame++;
+            if (fFrame == fTotalFrames) {
+                fFrame = 0;
+            }
+
+            // Note that we loop here. This is not safe if we need to draw the intermediate frame
+            // in order to draw correctly.
+            fNextUpdate += fFrameInfos[fFrame].fDuration;
+        }
+
+        return true;
+    }
+#endif
+};
+DEF_GM(return new AnimCodecPlayerGM);
