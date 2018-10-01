@@ -59,7 +59,6 @@
 #include "SkReadBuffer.h"
 #include "SkTableColorFilter.h"
 #include "SkTextBlob.h"
-#include "SkTextOnPath.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 
@@ -1525,32 +1524,11 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 break;
             }
             case 48: {
-                fuzz_paint(fuzz, &paint, depth - 1);
-                fuzz_paint_text(fuzz, &paint);
-                fuzz_paint_text_encoding(fuzz, &paint);
-                SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
-                SkPath path;
-                FuzzNicePath(fuzz, &path, 20);
-                SkScalar hOffset, vOffset;
-                fuzz->next(&hOffset, &vOffset);
-                SkDrawTextOnPathHV(text.begin(), SkToSizeT(text.count()), paint, path, hOffset,
-                                   vOffset, canvas);
+                // was drawtextonpath
                 break;
             }
             case 49: {
-                SkMatrix matrix;
-                bool useMatrix = make_fuzz_t<bool>(fuzz);
-                if (useMatrix) {
-                    FuzzNiceMatrix(fuzz, &matrix);
-                }
-                fuzz_paint(fuzz, &paint, depth - 1);
-                fuzz_paint_text(fuzz, &paint);
-                fuzz_paint_text_encoding(fuzz, &paint);
-                SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
-                SkPath path;
-                FuzzNicePath(fuzz, &path, 20);
-                SkDrawTextOnPath(text.begin(), SkToSizeT(text.count()), paint, path,
-                                 useMatrix ? &matrix :nullptr, canvas);
+                // was drawtextonpath
                 break;
             }
             case 50: {

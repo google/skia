@@ -17,7 +17,6 @@
 #include "SkRSXform.h"
 #include "SkSafeMath.h"
 #include "SkTextBlob.h"
-#include "SkTextOnPath.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
@@ -584,17 +583,14 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawText(text.text(), text.length(), ptr[0], ptr[1], *paint);
             }
         } break;
-        case DRAW_TEXT_ON_PATH_RETIRED_08_2018: {
+        case DRAW_TEXT_ON_PATH_RETIRED_08_2018_REMOVED_10_2018: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text(reader, paint);
-            const SkPath& path = fPictureData->getPath(reader);
+            /* ignored */ fPictureData->getPath(reader);
             SkMatrix matrix;
             reader->readMatrix(&matrix);
             BREAK_ON_READ_ERROR(reader);
-
-            if (paint && text.text()) {
-                SkDrawTextOnPath(text.text(), text.length(), *paint, path, &matrix, canvas);
-            }
+            // no longer supported, so we draw nothing
         } break;
         case DRAW_TEXT_RSXFORM: {
             const SkPaint* paint = fPictureData->getPaint(reader);
