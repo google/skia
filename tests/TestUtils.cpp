@@ -13,6 +13,8 @@
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
 #include "ProxyUtils.h"
+#include "SkBase64.h"
+#include "SkPngEncoder.h"
 
 void test_read_pixels(skiatest::Reporter* reporter,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
@@ -140,5 +142,40 @@ bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
         srcPtr += width;
         dstPtr += width;
     }
+    return true;
+}
+
+bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst) {
+    SkPixmap pm;
+    if (!bitmap.peekPixels(&pm)) {
+        dst->set("peekPixels failed");
+        return false;
+    }
+
+    // We're going to embed this PNG in a data URI, so make it as small as possible
+    SkPngEncoder::Options options;
+    options.fFilterFlags = SkPngEncoder::FilterFlag::kAll;
+    options.fZLibLevel = 9;
+
+    SkDynamicMemoryWStream wStream;
+    if (!SkPngEncoder::Encode(&wStream, pm, options)) {
+        dst->set("SkPngEncoder::Encode failed");
+        return false;
+    }
+
+    sk_sp<SkData> pngData = wStream.detachAsData();
+    size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
+
+    // The PNG can be almost arbitrarily large. We don't want to fill our logs with enormous URLs.
+    // Infra says these can be pretty big, as long as we're only outputting them on failure.
+    static const size_t kMaxBase64Length = 1024 * 1024;
+    if (len > kMaxBase64Length) {
+        dst->printf("Encoded image too large (%u bytes)", static_cast<uint32_t>(len));
+        return false;
+    }
+
+    dst->resize(len);
+    SkBase64::Encode(pngData->data(), pngData->size(), dst->writable_str());
+    dst->prepend("data:image/png;base64,");
     return true;
 }
