@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15c5d3e1_9fa0d04f",
+        "filename": "infra/bots/assets/android_ndk_darwin/create.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-01T16:48:05Z",
+      "side": 0,
+      "message": "Just testing I can send comments.",
+      "revId": "5dee1802aed9495edaa7e6d2711e38deda80a822",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
