@@ -1170,7 +1170,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColorType) const {
+sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
     sk_sp<SkColorSpace> srcSpace = fColorSpace;
     if (!fColorSpace) {
         if (target->isSRGB()) {
