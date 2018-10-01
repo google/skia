@@ -4414,11 +4414,6 @@ After appending, Path may be empty, or may contain: Rect, Oval, or Round_Rect.
 #Return reference to Path ##
 
 #Example
-###$
-$Function
-#include "SkTextOnPath.h"
-$$
-
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -4427,15 +4422,7 @@ void draw(SkCanvas* canvas) {
     SkPath path;
     path.addRRect(rrect);
     canvas->drawPath(path, paint);
-    for (int start = 0; start < 8; ++start) {
-        SkPath textPath;
-        textPath.addRRect(rrect, SkPath::kCW_Direction, start);
-        SkMatrix matrix;
-        matrix.setTranslate(0, -5);
-        SkDrawTextOnPath(&"01234567"[start], 1, paint, textPath, &matrix, canvas);
-    }
 }
-$$$#
 ##
 
 #SeeAlso addRoundRect SkCanvas::drawRRect
