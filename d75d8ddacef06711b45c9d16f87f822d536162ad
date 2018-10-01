@@ -22,6 +22,30 @@
       "revId": "d75d8ddacef06711b45c9d16f87f822d536162ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7134e851_fe8dc1a9",
+        "filename": "include/core/SkFlattenable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-01T19:55:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3601c9e_471a3598",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 14
+      },
+      "revId": "d75d8ddacef06711b45c9d16f87f822d536162ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
