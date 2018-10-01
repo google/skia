@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcdd9dbe_842dd87c",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-01T17:18:09Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 251,
+        "startChar": 44,
+        "endLine": 251,
+        "endChar": 47
+      },
+      "revId": "0114741fe508b28f2be4691de3e066ccb6364184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
