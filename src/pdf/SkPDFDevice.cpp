@@ -512,10 +512,15 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     }
     if (rect.isEmpty()) {
         if (!strcmp(key, SkPDFGetNodeIdKey())) {
-            int nodeID;
-            if (value->size() != sizeof(nodeID)) { return; }
-            memcpy(&nodeID, value->data(), sizeof(nodeID));
-            fNodeId = nodeID;
+            if (value->size() == sizeof(fNodeId)) {
+                memcpy(&fNodeId, value->data(), sizeof(fNodeId));
+            }
+            return;
+        }
+        if (!strcmp(key, SkPDFGetRotationIdKey())) {
+            if (value->size() == sizeof(fRotation)) {
+                memcpy(&fRotation, value->data(), sizeof(fRotation));
+            }
             return;
         }
         if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {

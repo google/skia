@@ -17,6 +17,7 @@ class SkPDFDevice;
 class SkPDFTag;
 
 const char* SkPDFGetNodeIdKey();
+const char* SkPDFGetRotationIdKey();
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.

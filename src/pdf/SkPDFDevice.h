@@ -20,6 +20,7 @@
 #include "SkStream.h"
 #include "SkTextBlobPriv.h"
 #include "SkKeyedImage.h"
+#include "SkPDFDocument.h"
 
 #include <vector>
 
@@ -115,6 +116,7 @@ public:
     std::unique_ptr<SkStreamAsset> content();
 
     SkPDFCanon* getCanon() const;
+    SkPDF::Rotation rotation() const { return fRotation; }
 
     SkISize size() const { return this->imageInfo().dimensions(); }
     SkIRect bounds() const { return this->imageInfo().bounds(); }
@@ -190,6 +192,7 @@ private:
     };
     GraphicStackState fActiveStackState;
     SkPDFDocument* fDocument;
+    SkPDF::Rotation fRotation = SkPDF::Rotation::kPortrait;
 
     ////////////////////////////////////////////////////////////////////////////
 

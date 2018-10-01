@@ -259,7 +259,9 @@ void SkPDFDocument::onEndPage() {
     SkASSERT(fPageDevice);
 
     auto page = sk_make_sp<SkPDFDict>("Page");
-
+    if (fPageDevice->rotation() != SkPDF::Rotation::kPortrait) {
+        page->insertInt("Rotate", 90 * (int)fPageDevice->rotation());
+    }
     SkSize mediaSize = fPageDevice->imageInfo().dimensions() * fInverseRasterScale;
     auto contentObject = sk_make_sp<SkPDFStream>(fPageDevice->content());
     auto resourceDict = fPageDevice->makeResourceDict();
@@ -550,6 +552,12 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+const char* SkPDFGetRotationIdKey() { return "PDF_Set_Rotation"; }
+
+void SkPDF::SetRotationForPDFPage(SkCanvas* canvas, SkPDF::Rotation rotation) {
+    sk_sp<SkData> payload = SkData::MakeWithCopy(&rotation, sizeof(rotation));
+    canvas->drawAnnotation({0, 0, 0, 0}, SkPDFGetRotationIdKey(), payload.get());
+}
 
 void SkPDF::SetNodeId(SkCanvas* canvas, int nodeID) {
     sk_sp<SkData> payload = SkData::MakeWithCopy(&nodeID, sizeof(nodeID));

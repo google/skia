@@ -143,6 +143,16 @@ struct Metadata {
     const StructureElementNode* fStructureElementTreeRoot = nullptr;
 };
 
+enum class Rotation : uint8_t {
+    kPortrait = 0,
+    kLandscape = 1,
+    kInvertedPortrait = 2,
+    kInvertedLandscape = 3,
+};
+
+// default is kPortrait  // FIXME: nice documentation
+SK_API void SetRotationForPDFPage(SkCanvas*, Rotation);
+
 /** Associate a node ID with subsequent drawing commands in an
     SkCanvas.  The same node ID can appear in a StructureElementNode
     in order to associate a document's structure element tree with
