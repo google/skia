@@ -18,8 +18,6 @@
 #include "SkTypeface.h"
 #include "SkUTF.h"
 
-#define LOG SkDebugf
-
 class SkFontMgr;
 
 namespace skjson {
@@ -39,14 +37,12 @@ namespace skottie {
 
 namespace internal {
 
-void LogJSON(const skjson::Value&, const char[]);
-
 using AnimatorScope = sksg::AnimatorList;
 
 class AnimationBuilder final : public SkNoncopyable {
 public:
     AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, sk_sp<PropertyObserver>,
-                     Animation::Builder::Stats*, float duration, float framerate);
+                     sk_sp<Logger>, Animation::Builder::Stats*, float duration, float framerate);
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
 
@@ -67,6 +63,8 @@ public:
                       const T& default_ignore) const {
         return this->bindProperty(jv, ascope, std::move(apply), &default_ignore);
     }
+
+    void log(Logger::Level, const skjson::Value*, const char fmt[], ...) const;
 
     sk_sp<sksg::Color> attachColor(const skjson::ObjectValue&, AnimatorScope*,
                                    const char prop_name[]) const;
@@ -151,6 +149,7 @@ private:
     sk_sp<ResourceProvider>    fResourceProvider;
     LazyResolveFontMgr         fLazyFontMgr;
     sk_sp<PropertyObserver>    fPropertyObserver;
+    sk_sp<Logger>              fLogger;
     Animation::Builder::Stats* fStats;
     const float                fDuration,
                                fFrameRate;

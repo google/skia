@@ -85,7 +85,7 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
 
         const skjson::StringValue* jmode = (*m)["mode"];
         if (!jmode || jmode->size() != 1) {
-            LogJSON((*m)["mode"], "!! Invalid mask mode");
+            abuilder->log(Logger::Level::kError, &(*m)["mode"], "Invalid mask mode.");
             continue;
         }
 
@@ -97,13 +97,13 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
 
         const auto* mask_info = GetMaskInfo(mode);
         if (!mask_info) {
-            LOG("?? Unsupported mask mode: '%c'\n", mode);
+            abuilder->log(Logger::Level::kWarning, nullptr, "Unsupported mask mode: '%c'.", mode);
             continue;
         }
 
         auto mask_path = abuilder->attachPath((*m)["pt"], ascope);
         if (!mask_path) {
-            LogJSON(*m, "!! Could not parse mask path");
+            abuilder->log(Logger::Level::kError, m, "Could not parse mask path.");
             continue;
         }
 
@@ -218,7 +218,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
 
     const auto data = fResourceProvider->load("", name);
     if (!data) {
-        LOG("!! Could not load: %s\n", name);
+        this->log(Logger::Level::kError, nullptr, "Could not load: %s.", name);
         return nullptr;
     }
 
@@ -227,7 +227,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
             .setFontManager(fLazyFontMgr.getMaybeNull())
             .make(static_cast<const char*>(data->data()), data->size());
     if (!animation) {
-        LOG("!! Could not parse nested animation: %s\n", name);
+        this->log(Logger::Level::kError, nullptr, "Could not parse nested animation: %s.", name);
         return nullptr;
     }
 
@@ -244,7 +244,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachAssetRef(
 
     const auto refId = ParseDefault<SkString>(jlayer["refId"], SkString());
     if (refId.isEmpty()) {
-        LOG("!! Layer missing refId\n");
+        this->log(Logger::Level::kError, nullptr, "Layer missing refId.");
         return nullptr;
     }
 
@@ -254,12 +254,13 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachAssetRef(
 
     const auto* asset_info = fAssets.find(refId);
     if (!asset_info) {
-        LOG("!! Asset not found: '%s'\n", refId.c_str());
+        this->log(Logger::Level::kError, nullptr, "Asset not found: '%s'.", refId.c_str());
         return nullptr;
     }
 
     if (asset_info->fIsAttaching) {
-        LOG("!! Asset cycle detected for: '%s'\n", refId.c_str());
+        this->log(Logger::Level::kError, nullptr,
+                  "Asset cycle detected for: '%s'", refId.c_str());
         return nullptr;
     }
 
@@ -280,7 +281,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachSolidLayer(const skjson::ObjectV
         !hex_str ||
         *hex_str->begin() != '#' ||
         !SkParse::FindHex(hex_str->begin() + 1, &c)) {
-        LogJSON(jlayer, "!! Could not parse solid layer");
+        this->log(Logger::Level::kError, &jlayer, "Could not parse solid layer.");
         return nullptr;
     }
 
@@ -307,7 +308,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
 
     const auto data = fResourceProvider->load(path_cstr, name_cstr);
     if (!data) {
-        LOG("!! Could not load image resource: %s/%s\n", path_cstr, name_cstr);
+        this->log(Logger::Level::kError, nullptr,
+                  "Could not load image resource: %s/%s.", path_cstr, name_cstr);
         return nullptr;
     }
 

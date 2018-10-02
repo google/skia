@@ -26,7 +26,7 @@ namespace internal {
 
 namespace {
 
-SkFontStyle FontStyle(const char* style) {
+SkFontStyle FontStyle(const AnimationBuilder* abuilder, const char* style) {
     static constexpr struct {
         const char*               fName;
         const SkFontStyle::Weight fWeight;
@@ -70,7 +70,7 @@ SkFontStyle FontStyle(const char* style) {
     }
 
     if (*style != '\0') {
-        LOG("?? Unknown font style: %s\n", style);
+        abuilder->log(Logger::Level::kWarning, nullptr, "Unknown font style: %s.", style);
     }
 
     return SkFontStyle(weight, SkFontStyle::kNormal_Width, slant);
@@ -116,7 +116,7 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                 if (!jname   || !jname->size() ||
                     !jfamily || !jfamily->size() ||
                     !jstyle  || !jstyle->size()) {
-                    LogJSON(*jfont, "!! Ignoring invalid font");
+                    this->log(Logger::Level::kError, jfont, "Invalid font.");
                     continue;
                 }
 
@@ -133,14 +133,16 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                                                                          : nullptr));
 
                 if (!tf) {
-                    tf.reset(fmgr->matchFamilyStyle(jfamily->begin(), FontStyle(jstyle->begin())));
+                    tf.reset(fmgr->matchFamilyStyle(jfamily->begin(),
+                                                    FontStyle(this, jstyle->begin())));
                 }
 
                 if (!tf) {
-                    LOG("!! Could not create typeface for %s|%s\n",
-                        jfamily->begin(), jstyle->begin());
+                    this->log(Logger::Level::kError, nullptr,
+                              "Could not create typeface for %s|%s.",
+                              jfamily->begin(), jstyle->begin());
                     // Last resort.
-                    tf = fmgr->legacyMakeTypeface(nullptr, FontStyle(jstyle->begin()));
+                    tf = fmgr->legacyMakeTypeface(nullptr, FontStyle(this, jstyle->begin()));
                     if (!tf) {
                         continue;
                     }
@@ -190,7 +192,7 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
             const auto  ch_len = jch->size();
 
             if (!jfamily || !jstyle || (SkUTF::CountUTF8(ch_ptr, ch_len) != 1)) {
-                LogJSON(*jchar, "!! Invalid glyph");
+                this->log(Logger::Level::kError, jchar, "Invalid glyph.");
                 continue;
             }
 
@@ -213,7 +215,8 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                     }
                 });
                 if (!current_font) {
-                    LOG("!! Font not found for codepoint (%d, %s, %s)\n", uni, family, style);
+                    this->log(Logger::Level::kError, nullptr,
+                              "Font not found for codepoint (%d, %s, %s).", uni, family, style);
                     continue;
                 }
             }
@@ -228,7 +231,7 @@ sk_sp<SkTypeface> AnimationBuilder::findFont(const SkString& font_name) const {
         return font->fTypeface;
     }
 
-    LOG("!! Unknown font: \"%s\"\n", font_name.c_str());
+    this->log(Logger::Level::kError, nullptr, "Unknown font: \"%s\".", font_name.c_str());
     return nullptr;
 }
 
@@ -263,13 +266,13 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
     // },
     const skjson::ObjectValue* jt = layer["t"];
     if (!jt) {
-        LogJSON(layer, "!! Missing text layer \"t\" property");
+        this->log(Logger::Level::kError, &layer, "Missing text layer \"t\" property.");
         return nullptr;
     }
 
     const skjson::ArrayValue* animated_props = (*jt)["a"];
     if (animated_props && animated_props->size() > 0) {
-        LOG("?? Unsupported animated text properties.\n");
+        this->log(Logger::Level::kWarning, nullptr, "Unsupported animated text properties.");
     }
 
     const skjson::ObjectValue* jd  = (*jt)["d"];

@@ -38,9 +38,26 @@ namespace skottie {
 
 namespace internal {
 
-void LogJSON(const skjson::Value& json, const char msg[]) {
-    const auto dump = json.toString();
-    LOG("%s: %s\n", msg, dump.c_str());
+void AnimationBuilder::log(Logger::Level lvl, const skjson::Value* json,
+                           const char fmt[], ...) const {
+    if (!fLogger) {
+        return;
+    }
+
+    char buff[1024];
+    va_list va;
+    va_start(va, fmt);
+    const auto len = vsprintf(buff, fmt, va);
+    va_end(va);
+
+    if (len < 0 || len >= SkToInt(sizeof(buff))) {
+        SkDebugf("!! Could not format log message !!\n");
+        return;
+    }
+
+    SkString jsonstr = json ? json->toString() : SkString();
+
+    fLogger->log(lvl, buff, jsonstr.c_str());
 }
 
 sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix(const skjson::ObjectValue& t,
@@ -137,12 +154,13 @@ sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcol
 }
 
 AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
-                                   sk_sp<PropertyObserver> pobserver,
+                                   sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
                                    Animation::Builder::Stats* stats,
                                    float duration, float framerate)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
     , fPropertyObserver(std::move(pobserver))
+    , fLogger(std::move(logger))
     , fStats(stats)
     , fDuration(duration)
     , fFrameRate(framerate) {}
@@ -231,6 +249,8 @@ sk_sp<SkData> ResourceProvider::loadFont(const char[], const char[]) const {
     return nullptr;
 }
 
+void Logger::log(Level, const char[], const char*) {}
+
 Animation::Builder::Builder()  = default;
 Animation::Builder::~Builder() = default;
 
@@ -249,16 +269,25 @@ Animation::Builder& Animation::Builder::setPropertyObserver(sk_sp<PropertyObserv
     return *this;
 }
 
+Animation::Builder& Animation::Builder::setLogger(sk_sp<Logger> logger) {
+    fLogger = std::move(logger);
+    return *this;
+}
+
 sk_sp<Animation> Animation::Builder::make(SkStream* stream) {
     if (!stream->hasLength()) {
         // TODO: handle explicit buffering?
-        LOG("!! cannot parse streaming content\n");
+        if (fLogger) {
+            fLogger->log(Logger::Level::kError, "Cannot parse streaming content.\n");
+        }
         return nullptr;
     }
 
     auto data = SkData::MakeFromStream(stream, stream->getLength());
     if (!data) {
-        SkDebugf("!! Failed to read the input stream.\n");
+        if (fLogger) {
+            fLogger->log(Logger::Level::kError, "Failed to read the input stream.\n");
+        }
         return nullptr;
     }
 
@@ -281,7 +310,9 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     const skjson::DOM dom(data, data_len);
     if (!dom.root().is<skjson::ObjectValue>()) {
         // TODO: more error info.
-        SkDebugf("!! Failed to parse JSON input.\n");
+        if (fLogger) {
+            fLogger->log(Logger::Level::kError, "Failed to parse JSON input.\n");
+        }
         return nullptr;
     }
     const auto& json = dom.root().as<skjson::ObjectValue>();
@@ -299,23 +330,29 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
 
     if (size.isEmpty() || version.isEmpty() || fps <= 0 ||
         !SkScalarIsFinite(inPoint) || !SkScalarIsFinite(outPoint) || !SkScalarIsFinite(duration)) {
-        LOG("!! invalid animation params (version: %s, size: [%f %f], frame rate: %f, "
-            "in-point: %f, out-point: %f)\n",
-            version.c_str(), size.width(), size.height(), fps, inPoint, outPoint);
+        if (fLogger) {
+            const auto msg = SkStringPrintf(
+                         "Invalid animation params (version: %s, size: [%f %f], frame rate: %f, "
+                         "in-point: %f, out-point: %f)\n",
+                         version.c_str(), size.width(), size.height(), fps, inPoint, outPoint);
+            fLogger->log(Logger::Level::kError, msg.c_str());
+        }
         return nullptr;
     }
 
     SkASSERT(resolvedProvider);
     internal::AnimationBuilder builder(std::move(resolvedProvider), fFontMgr,
-                                       std::move(fPropertyObserver), &fStats, duration, fps);
+                                       std::move(fPropertyObserver),
+                                       std::move(fLogger),
+                                       &fStats, duration, fps);
     auto scene = builder.parse(json);
 
     const auto t2 = SkTime::GetMSecs();
     fStats.fSceneParseTimeMS = t2 - t1;
     fStats.fTotalLoadTimeMS  = t2 - t0;
 
-    if (!scene) {
-        LOG("!! could not parse animation.\n");
+    if (!scene && fLogger) {
+        fLogger->log(Logger::Level::kError, "Could not parse animation.\n");
     }
 
     return sk_sp<Animation>(
