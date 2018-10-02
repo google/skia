@@ -85,7 +85,8 @@ public:
 class SkGlyphRun {
 public:
     SkGlyphRun() = default;
-    SkGlyphRun(const SkPaint& runPaint,
+    SkGlyphRun(const SkPaint& basePaint,
+               const SkRunFont& runFont,
                SkSpan<const uint16_t> denseIndices,
                SkSpan<const SkPoint> positions,
                SkSpan<const SkGlyphID> glyphIDs,
@@ -214,7 +215,8 @@ private:
             SkGlyphID* uniqueGlyphIDs);
 
     void makeGlyphRun(
-            const SkPaint& runPaint,
+            const SkPaint& basePaint,
+            const SkRunFont& runFont,
             SkSpan<const SkGlyphID> glyphIDs,
             SkSpan<const SkPoint> positions,
             SkSpan<const uint16_t> uniqueGlyphIDIndices,
@@ -225,19 +227,20 @@ private:
     void makeGlyphRunList(const SkPaint& paint, const SkTextBlob* blob, SkPoint origin);
 
     size_t simplifyDrawText(
-            const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, SkPoint origin,
-            uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs, SkPoint* positions,
+            const SkPaint& paint, const SkRunFont& runFont, SkSpan<const SkGlyphID> glyphIDs,
+            SkPoint origin,uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs,
+            SkPoint* positions,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
     size_t simplifyDrawPosTextH(
-            const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs,
+            const SkPaint& paint, const SkRunFont& runFont, SkSpan<const SkGlyphID> glyphIDs,
             const SkScalar* xpos, SkScalar constY,
             uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs, SkPoint* positions,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
     size_t simplifyDrawPosText(
-            const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos,
-            uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs,
+            const SkPaint& paint, const SkRunFont& runFont, SkSpan<const SkGlyphID> glyphIDs,
+            const SkPoint* pos, uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
 
