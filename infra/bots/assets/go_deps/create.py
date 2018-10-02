@@ -22,11 +22,11 @@ def create_asset(target_dir):
   subprocess.check_call(
       ['go', 'get', '-u', '-t', 'go.skia.org/infra/...'],
       env=env)
-  # There's a broken symlink which causes a lot of problems. Create the dir it
-  # points to.
-  missing_dir = os.path.join(target_dir, 'src', 'go.chromium.org', 'luci',
-                             'web', 'inc', 'bower_components')
-  os.mkdir(missing_dir)
+  # There's a broken symlink which causes a lot of problems. Delete it.
+  bad_symlink = os.path.join(
+      target_dir, 'src', 'go.chromium.org', 'luci', 'machine-db', 'appengine',
+      'frontend', 'bower_components')
+  os.remove(bad_symlink)
 
 
 def main():
