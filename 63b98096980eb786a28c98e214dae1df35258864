@@ -1,0 +1,410 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abdc1ac4_ac50115d",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "YUVA ?",
+      "range": {
+        "startLine": 208,
+        "startChar": 28,
+        "endLine": 208,
+        "endChar": 31
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dc7bf59_6f68d279",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "over length ?",
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27457160_0ac4470d",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "// If an alpha channel is present we always switch to kPremul. This is because, although the planar data is always un-premul, the final interleaved RGB image is/would-be premul.\n\n?",
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01cc1dd8_3754ea77",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "overlength",
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "270b9732_8f1ac69f",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "Don\u0027t we just need to update the YUVToRGBEffect to take an Alpha channel and write it back out to the flattened texture (and premul-ing things) ?",
+      "range": {
+        "startLine": 93,
+        "startChar": 9,
+        "endLine": 93,
+        "endChar": 58
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "438af4b5_b96e12d8",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "why do we need this ?",
+      "range": {
+        "startLine": 113,
+        "startChar": 9,
+        "endLine": 113,
+        "endChar": 31
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "109890ee_0c8c1c70",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "// At this point we flatten the YUV planes ...\n\n?",
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8602ebfc_ac118ceb",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "A ?",
+      "range": {
+        "startLine": 8,
+        "startChar": 22,
+        "endLine": 8,
+        "endChar": 23
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c214b6bf_69dde013",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "Does this need to be here ?",
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6a69e12_6dfaf79b",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "Dox ?",
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1eb8df88_d3557ab5",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "A?",
+      "range": {
+        "startLine": 17,
+        "startChar": 17,
+        "endLine": 17,
+        "endChar": 20
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35d8272c_65347804",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "I think we\u0027re usually omitting the 4 here (bc it is often fewer)",
+      "range": {
+        "startLine": 20,
+        "startChar": 49,
+        "endLine": 20,
+        "endChar": 50
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33e7d19e_09e43162",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "// These need to match the ones defined elsewhere ?",
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07ddace8_25d75871",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "This comment needs updating",
+      "range": {
+        "startLine": 55,
+        "startChar": 3,
+        "endLine": 55,
+        "endChar": 7
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cad83ef1_1b9b0ef8",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "context - to match above ?",
+      "range": {
+        "startLine": 111,
+        "startChar": 58,
+        "endLine": 111,
+        "endChar": 61
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94d90e79_f5766f85",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "yuvColorSpace - to match above ?",
+      "range": {
+        "startLine": 112,
+        "startChar": 63,
+        "endLine": 112,
+        "endChar": 73
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ac89ce2_93461daa",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "imageSize? Also why do we have size here and W/H above.",
+      "range": {
+        "startLine": 115,
+        "startChar": 55,
+        "endLine": 115,
+        "endChar": 59
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf259da7_f862febe",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "imageOrigin ?",
+      "range": {
+        "startLine": 116,
+        "startChar": 63,
+        "endLine": 116,
+        "endChar": 69
+      },
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bce00a2f_fe5390e1",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "// This array will usually only be sparsely populated. The actual non-null fields are dictated by the \u0027fYUVAIndices\u0027 indices.\n\n?",
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c985bc4_87a6f6f2",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-02T13:36:26Z",
+      "side": 1,
+      "message": "// This is only allocated ...\n\n?",
+      "revId": "63b98096980eb786a28c98e214dae1df35258864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
