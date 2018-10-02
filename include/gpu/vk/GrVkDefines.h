@@ -11,12 +11,8 @@
 
 #include "SkTypes.h"
 
-#ifdef SK_VULKAN
-
 #ifndef VULKAN_H_
 #include "../../../third_party/vulkan/SkiaVulkan.h"
-#endif
-
 #endif
 
 #endif
