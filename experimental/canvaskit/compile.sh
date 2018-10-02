@@ -20,10 +20,11 @@ pushd $BASE_DIR/../..
 
 source $EMSDK/emsdk_env.sh
 
-RELEASE_CONF="-Oz --closure 1 --llvm-lto 3"
-
+RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE"
+EXTRA_CFLAGS="\"-DSK_RELEASE\""
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
+  EXTRA_CFLAGS="\"-DSK_DEBUG\""
   RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
 fi
 
@@ -37,28 +38,30 @@ EMCXX=`which em++`
 ./bin/gn gen ${BUILD_DIR} \
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
-  extra_cflags_cc=[\"-frtti\",\"-s\",\"USE_FREETYPE=1\", \"-DIS_WEBGL=1\"] \
-  extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-DIS_WEBGL=1\"] \
+  extra_cflags_cc=[\"-frtti\"] \
+  extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-DIS_WEBGL=1\",
+    ${EXTRA_CFLAGS}
+  ] \
   is_debug=false \
   is_official_build=true \
   is_component_build=false \
   target_cpu=\"wasm\" \
   \
-  skia_use_egl=true \
-  skia_use_vulkan=false \
-  skia_use_libwebp=false \
-  skia_use_libpng=true \
-  skia_use_lua=false \
   skia_use_dng_sdk=false \
-  skia_use_fontconfig=false \
-  skia_use_libjpeg_turbo=false \
-  skia_use_libheif=false \
+  skia_use_egl=true \
   skia_use_expat=false \
-  skia_use_vulkan=false \
+  skia_use_expat=false \
+  skia_use_fontconfig=false \
   skia_use_freetype=true \
   skia_use_icu=false \
-  skia_use_expat=false \
+  skia_use_libheif=false \
+  skia_use_libjpeg_turbo=false \
+  skia_use_libpng=true \
+  skia_use_libwebp=false \
+  skia_use_lua=false \
   skia_use_piex=false \
+  skia_use_vulkan=false \
+  skia_use_vulkan=false \
   skia_use_zlib=true \
   \
   skia_enable_gpu=true \
@@ -68,27 +71,6 @@ EMCXX=`which em++`
 ninja -C ${BUILD_DIR} libskia.a
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
-
-# inspired by https://github.com/Zubnix/skia-wasm-port/blob/master/build_skia_wasm_bitcode.sh
-echo "Compiling bindings"
-${EMCC} \
-    $RELEASE_CONF \
-    -std=c++11 \
-    -Iinclude/c \
-    -Iinclude/codec \
-    -Iinclude/config \
-    -Iinclude/core \
-    -Iinclude/effects \
-    -Iinclude/gpu \
-    -Iinclude/gpu/gl \
-    -Iinclude/pathops \
-    -Iinclude/private \
-    -Iinclude/utils/ \
-    -Imodules/skottie/include \
-    -Isrc/core/ \
-    -Itools/fonts \
-    $BASE_DIR/canvaskit_bindings.cpp \
-    -o $BUILD_DIR/canvaskit_bindings.bc
 
 echo "Generating final wasm"
 
@@ -119,8 +101,7 @@ ${EMCC} \
     --bind \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
-    -DSKOTTIE_HACK \
-    $BUILD_DIR/canvaskit_bindings.bc \
+    $BASE_DIR/canvaskit_bindings.cpp \
     $BUILD_DIR/libskia.a \
     modules/skottie/src/Skottie.cpp \
     modules/skottie/src/SkottieAdapter.cpp \
@@ -129,6 +110,7 @@ ${EMCC} \
     modules/skottie/src/SkottieLayer.cpp \
     modules/skottie/src/SkottieLayerEffect.cpp \
     modules/skottie/src/SkottiePrecompLayer.cpp \
+    modules/skottie/src/SkottieProperty.cpp \
     modules/skottie/src/SkottieShapeLayer.cpp \
     modules/skottie/src/SkottieTextLayer.cpp \
     modules/skottie/src/SkottieValue.cpp \
@@ -136,7 +118,6 @@ ${EMCC} \
     src/core/SkCubicMap.cpp \
     src/core/SkTime.cpp \
     src/pathops/SkOpBuilder.cpp \
-    src/pathops/SkPathOpsTypes.cpp \
     tools/fonts/SkTestFontMgr.cpp \
     tools/fonts/SkTestTypeface.cpp \
     src/utils/SkJSON.cpp \

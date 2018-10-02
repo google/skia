@@ -138,7 +138,7 @@
       canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
       canvas.drawPath(path, paint);
-      canvas.drawText('Try mousing over!', 10, 280, textPaint);
+      canvas.drawText('Try Clicking!', 10, 280, textPaint);
       canvas.flush();
       dpe.delete();
       path.delete();
@@ -146,12 +146,17 @@
     }
     window.requestAnimationFrame(drawFrame);
 
-    // Make
-    document.getElementById('patheffect').addEventListener('mousemove', (e) => {
+    // Make animation interactive
+    let interact = (e) => {
+      if (!e.pressure) {
+        return;
+      }
       X = e.offsetX;
       Y = e.offsetY;
-    });
-
+    };
+    document.getElementById('patheffect').addEventListener('pointermove', interact);
+    document.getElementById('patheffect').addEventListener('pointerdown', interact);
+    preventScrolling(document.getElementById('patheffect'));
     // A client would need to delete this if it didn't go on for ever.
     //paint.delete();
   }
@@ -206,6 +211,13 @@
     window.requestAnimationFrame(drawFrame);
   }
 
+  function preventScrolling(canvas) {
+    canvas.addEventListener('touchmove', (e) => {
+      // Prevents touch events in the canvas from scrolling the canvas.
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  }
 
   function InkExample(CanvasKit) {
     const surface = CanvasKit.getWebGLSurface('ink');
@@ -254,8 +266,9 @@
     }
 
     let hold = false;
-    document.getElementById('ink').addEventListener('mousemove', (e) => {
-      if (!e.buttons) {
+    let interact = (e) => {
+      let type = e.type;
+      if (type === 'lostpointercapture' || type === 'pointerup' || !e.pressure ) {
         hold = false;
         return;
       }
@@ -270,7 +283,12 @@
         path.moveTo(e.offsetX, e.offsetY);
       }
       hold = true;
-    });
+    };
+    document.getElementById('ink').addEventListener('pointermove', interact);
+    document.getElementById('ink').addEventListener('pointerdown', interact);
+    document.getElementById('ink').addEventListener('lostpointercapture', interact);
+    document.getElementById('ink').addEventListener('pointerup', interact);
+    preventScrolling(document.getElementById('ink'));
     window.requestAnimationFrame(drawFrame);
   }
 
