@@ -341,7 +341,6 @@ gm_sources = [
   "$_gm/verttext.cpp",
   "$_gm/verttext2.cpp",
   "$_gm/verylargebitmap.cpp",
-  "$_gm/wacky_yuv_formats.cpp",
   "$_gm/windowrectangles.cpp",
   "$_gm/xfermodeimagefilter.cpp",
   "$_gm/xfermodes.cpp",
