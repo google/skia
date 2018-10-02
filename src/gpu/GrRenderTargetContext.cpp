@@ -1590,6 +1590,10 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "internalDrawPath", fContext);
 
+    if (!viewMatrix.isFinite() || !originalShape.bounds().isFinite()) {
+        return;
+    }
+
     SkIRect clipConservativeBounds;
     clip.getConservativeBounds(this->width(), this->height(), &clipConservativeBounds, nullptr);
 

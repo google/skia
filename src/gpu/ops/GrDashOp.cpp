@@ -793,6 +793,10 @@ std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrContext* context,
     // Scale corrections of intervals and stroke from view matrix
     calc_dash_scaling(&lineData.fParallelScale, &lineData.fPerpendicularScale, viewMatrix,
                       lineData.fPtsRot);
+    if (SkScalarNearlyZero(lineData.fParallelScale) ||
+        SkScalarNearlyZero(lineData.fPerpendicularScale)) {
+        return nullptr;
+    }
 
     SkScalar offInterval = intervals[1] * lineData.fParallelScale;
     SkScalar strokeWidth = lineData.fSrcStrokeWidth * lineData.fPerpendicularScale;
