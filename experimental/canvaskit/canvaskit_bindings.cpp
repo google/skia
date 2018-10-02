@@ -218,8 +218,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawPath", &SkCanvas::drawPath)
         .function("drawRect", &SkCanvas::drawRect)
         .function("drawText", optional_override([](SkCanvas& self, std::string text, SkScalar x, SkScalar y, const SkPaint& p) {
-            return; // Currently broken, some memory things seem off.
-            //self.drawText(text.c_str(), text.length(), x, y, p);
+            self.drawText(text.c_str(), text.length(), x, y, p);
         }))
         .function("flush", &SkCanvas::flush)
         .function("save", &SkCanvas::save)
