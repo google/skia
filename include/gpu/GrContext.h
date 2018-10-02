@@ -271,7 +271,7 @@ public:
     /**
      * An ID associated with this context, guaranteed to be unique.
      */
-    uint32_t uniqueID() { return fUniqueID; }
+    uint32_t uniqueID() const { return fUniqueID; }
 
     // Provides access to functions that aren't part of the public API.
     GrContextPriv contextPriv();
