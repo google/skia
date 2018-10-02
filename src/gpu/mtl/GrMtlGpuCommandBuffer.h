@@ -85,7 +85,7 @@ private:
 
     void onClear(const GrFixedClip& clip, GrColor color) override {}
 
-    void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override {}
+    void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override;
 
     MTLRenderPassDescriptor* createRenderPassDesc() const;
 

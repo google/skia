@@ -304,7 +304,6 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
     return mtlColorAttachment;
 }
 
-
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcessor& primProc,
                                                         const GrPipeline& pipeline,
                                                         GrProgramDesc* desc) {

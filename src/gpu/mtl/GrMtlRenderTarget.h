@@ -93,6 +93,8 @@ private:
                                          bool isWrapped);
 
     bool completeStencilAttachment() override;
+
+    void createFramebuffer(GrMtlGpu* gpu);
 };
 
 
