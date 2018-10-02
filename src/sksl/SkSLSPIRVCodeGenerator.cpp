@@ -2652,7 +2652,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     if (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag) {
         this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBufferBlock, fDecorationBuffer);
-    } else {
+    } else if (intf.fVariable.fModifiers.fLayout.fBuiltin == -1) {
         this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBlock, fDecorationBuffer);
     }
     SpvStorageClass_ storageClass = get_storage_class(intf.fVariable.fModifiers);
