@@ -85,7 +85,7 @@ public:
 class SkGlyphRun {
 public:
     SkGlyphRun() = default;
-    SkGlyphRun(const SkPaint& runPaint,
+    SkGlyphRun(SkPaint&& runPaint,
                SkSpan<const uint16_t> denseIndices,
                SkSpan<const SkPoint> positions,
                SkSpan<const SkGlyphID> glyphIDs,
