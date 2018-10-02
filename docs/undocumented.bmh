@@ -37,7 +37,6 @@
  SK_HAS_WEBP_LIBRARY # ditto
  SK_IGNORE_GPU_DITHER # ditto
  SK_PMCOLOR_BYTE_ORDER # ditto
- SK_WARN_UNUSED_RESULT # ditto
 
 # FreeType related
 FT_LOAD_TARGET_LIGHT
@@ -799,4 +798,8 @@ FT_Load_Glyph
 #Topic Xfermode_Image_Filter
 #Class SkXfermodeImageFilter
 ##
+##
+
+# temporary while ref is separated from overview
+#Topic Zero_Length_Contour
 ##
