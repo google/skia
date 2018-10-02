@@ -321,6 +321,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
         shaderCaps->fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3, 2) &&
             ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
+#ifdef SK_BUILD_FOR_MAC
+        // Radeon MacBooks hit a crash in glReadPixels() when using geometry shaders.
+        // http://skbug.com/8097
+        if (kATI_GrGLVendor == ctxInfo.vendor()) {
+            shaderCaps->fGeometryShaderSupport = false;
+        }
+#endif
         if (shaderCaps->fGeometryShaderSupport) {
             if (ctxInfo.glslGeneration() >= k400_GrGLSLGeneration) {
                 shaderCaps->fGSInvocationsSupport = true;
@@ -2692,14 +2699,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // https://github.com/flutter/flutter/issues/16718
     // https://bugreport.apple.com/web/?problemID=39948888
     fUnpackRowLengthSupport = false;
-#endif
-
-#ifdef SK_BUILD_FOR_MAC
-    // Radeon MacBooks hit a crash in glReadPixels() when using CCPR.
-    // http://skbug.com/8097
-    if (kATI_GrGLVendor == ctxInfo.vendor()) {
-        fBlacklistCoverageCounting = true;
-    }
 #endif
 
     // "shapes_mixed_10000_32x33" bench crashes PowerVRGX6250 in Release mode with ccpr.
