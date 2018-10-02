@@ -73,19 +73,6 @@ public:
     static std::unique_ptr<GrFragmentProcessor> PremulInput(std::unique_ptr<GrFragmentProcessor>);
 
     /**
-     *  Returns a fragment processor that calls the passed in fragment processor, and then premuls
-     *  the output.
-     */
-    static std::unique_ptr<GrFragmentProcessor> PremulOutput(std::unique_ptr<GrFragmentProcessor>);
-
-    /**
-     *  Returns a fragment processor that calls the passed in fragment processor, and then unpremuls
-     *  the output.
-     */
-    static std::unique_ptr<GrFragmentProcessor> UnpremulOutput(
-            std::unique_ptr<GrFragmentProcessor>);
-
-    /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
      *  the output.
      */

@@ -335,18 +335,15 @@ private:
     friend class GrContextPriv;
 
     /**
-     * These functions create premul <-> unpremul effects. If the second argument is 'true', they
-     * use the specialized round-trip effects from GrConfigConversionEffect, otherwise they
-     * create effects that do naive multiply or divide.
+     * These functions create premul <-> unpremul effects, using the specialized round-trip effects
+     * from GrConfigConversionEffect.
      */
-    std::unique_ptr<GrFragmentProcessor> createPMToUPMEffect(std::unique_ptr<GrFragmentProcessor>,
-                                                             bool useConfigConversionEffect);
-    std::unique_ptr<GrFragmentProcessor> createUPMToPMEffect(std::unique_ptr<GrFragmentProcessor>,
-                                                             bool useConfigConversionEffect);
+    std::unique_ptr<GrFragmentProcessor> createPMToUPMEffect(std::unique_ptr<GrFragmentProcessor>);
+    std::unique_ptr<GrFragmentProcessor> createUPMToPMEffect(std::unique_ptr<GrFragmentProcessor>);
 
     /**
-     * Returns true if createPMtoUPMEffect and createUPMToPMEffect will succeed for non-sRGB 8888
-     * configs. In other words, did we find a pair of round-trip preserving conversion effects?
+     * Returns true if createPMToUPMEffect and createUPMToPMEffect will succeed. In other words,
+     * did we find a pair of round-trip preserving conversion effects?
      */
     bool validPMUPMConversionExists();
 

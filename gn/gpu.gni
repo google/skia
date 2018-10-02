@@ -392,8 +392,6 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrSRGBEffect.h",
   "$_src/gpu/effects/GrTextureDomain.cpp",
   "$_src/gpu/effects/GrTextureDomain.h",
-  "$_src/gpu/effects/GrUnpremulInputFragmentProcessor.cpp",
-  "$_src/gpu/effects/GrUnpremulInputFragmentProcessor.h",
   "$_src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
   "$_src/gpu/effects/GrXfermodeFragmentProcessor.h",
   "$_src/gpu/effects/GrYUVtoRGBEffect.cpp",

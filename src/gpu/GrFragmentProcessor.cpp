@@ -12,7 +12,6 @@
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrPremulInputFragmentProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
-#include "effects/GrUnpremulInputFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -148,26 +147,6 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::PremulInput(
     }
     std::unique_ptr<GrFragmentProcessor> fpPipeline[] = { GrPremulInputFragmentProcessor::Make(),
                                                           std::move(fp) };
-    return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
-}
-
-std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::PremulOutput(
-        std::unique_ptr<GrFragmentProcessor> fp) {
-    if (!fp) {
-        return nullptr;
-    }
-    std::unique_ptr<GrFragmentProcessor> fpPipeline[] = { std::move(fp),
-                                                          GrPremulInputFragmentProcessor::Make() };
-    return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
-}
-
-std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::UnpremulOutput(
-        std::unique_ptr<GrFragmentProcessor> fp) {
-    if (!fp) {
-        return nullptr;
-    }
-    std::unique_ptr<GrFragmentProcessor> fpPipeline[] = { std::move(fp),
-                                                          GrUnpremulInputFragmentProcessor::Make() };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
