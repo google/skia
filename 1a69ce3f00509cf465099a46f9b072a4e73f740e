@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b62addfd_60fa3c12",
+        "filename": "infra/bots/assets/go_deps/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-10-02T20:45:09Z",
+      "side": 1,
+      "message": "Different symlink than last time?",
+      "revId": "1a69ce3f00509cf465099a46f9b072a4e73f740e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
