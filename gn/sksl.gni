@@ -44,7 +44,6 @@ skia_gpu_processor_sources = [
   "$_src/gpu/effects/GrRectBlurEffect.fp",
   "$_src/gpu/effects/GrRRectBlurEffect.fp",
   "$_src/gpu/effects/GrSimpleTextureEffect.fp",
-  "$_src/gpu/effects/GrUnpremulInputFragmentProcessor.fp",
   "$_src/gpu/effects/GrYUVtoRGBEffect.fp",
   "$_src/gpu/gradients/GrDualIntervalGradientColorizer.fp",
   "$_src/gpu/gradients/GrSingleIntervalGradientColorizer.fp",
