@@ -1033,9 +1033,12 @@ static bool contains(const SkRect& r, SkPoint p) {
 }
 
 void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset) {
-    const SkPaint& paint = glyphRun.paint();
+    SkPaint paint{glyphRun.paint()};
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextAlign(SkPaint::kLeft_Align);
     SkPath path;
     SkASSERT(paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
+
     paint.getPosTextPath(glyphRun.shuntGlyphsIDs().data(),
                          glyphRun.shuntGlyphsIDs().size() * sizeof(SkGlyphID),
                          glyphRun.positions().data(),
@@ -1070,7 +1073,10 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
 
     const SkGlyphID* glyphs = glyphRun.shuntGlyphsIDs().data();
     uint32_t glyphCount = SkToU32(glyphRun.shuntGlyphsIDs().size());
-    const SkPaint& srcPaint = glyphRun.paint();
+    SkPaint srcPaint{glyphRun.paint()};
+    srcPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    srcPaint.setTextAlign(SkPaint::kLeft_Align);
+
     if (!glyphCount || !glyphs || srcPaint.getTextSize() <= 0 || this->hasEmptyClip()) {
         return;
     }

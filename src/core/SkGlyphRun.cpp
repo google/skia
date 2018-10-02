@@ -28,7 +28,7 @@ static SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {
 }  // namespace
 
 // -- SkGlyphRun -----------------------------------------------------------------------------------
-SkGlyphRun::SkGlyphRun(SkPaint&& runPaint,
+SkGlyphRun::SkGlyphRun(const SkPaint& runPaint,
                        SkSpan<const uint16_t> denseIndices,
                        SkSpan<const SkPoint> positions,
                        SkSpan<const SkGlyphID> glyphIDs,
@@ -41,7 +41,7 @@ SkGlyphRun::SkGlyphRun(SkPaint&& runPaint,
         , fUniqueGlyphIDs{uniqueGlyphIDs}
         , fText{text}
         , fClusters{clusters}
-        , fRunPaint{std::move(runPaint)} {}
+        , fRunPaint{runPaint} {}
 
 void SkGlyphRun::eachGlyphToGlyphRun(SkGlyphRun::PerGlyph perGlyph) {
     SkPaint paint{fRunPaint};
@@ -371,12 +371,8 @@ void SkGlyphRunBuilder::makeGlyphRun(
 
     // Ignore empty runs.
     if (!glyphIDs.empty()) {
-        SkPaint glyphRunPaint{runPaint};
-        glyphRunPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        glyphRunPaint.setTextAlign(SkPaint::kLeft_Align);
-
         fGlyphRunListStorage.emplace_back(
-                std::move(glyphRunPaint),
+                runPaint,
                 uniqueGlyphIDIndices,
                 positions,
                 glyphIDs,
