@@ -22,6 +22,30 @@
       "revId": "03aaf4101fbe7e5b84f8f8a62dea4454051bb90b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ba73bb0_a4a5455d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-02T14:44:59Z",
+      "side": 1,
+      "message": "I added \"optionally\" because it still does when outsetCorners\u003d\u003dtrue (nonperspective case). I thought about making the caller do it, but we already have xdiff, ydiff, and mask in hand here.",
+      "parentUuid": "2e7b8c00_ead4ab6d",
+      "range": {
+        "startLine": 269,
+        "startChar": 8,
+        "endLine": 269,
+        "endChar": 54
+      },
+      "revId": "03aaf4101fbe7e5b84f8f8a62dea4454051bb90b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
