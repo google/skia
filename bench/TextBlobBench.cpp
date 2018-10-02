@@ -63,7 +63,8 @@ class TextBlobCachedBench : public SkTextBlobBench {
         SkPaint paint;
 
         auto blob = this->makeBlob();
-        for (int i = 0; i < loops; i++) {
+        auto bigLoops = loops * 1000;
+        for (int i = 0; i < bigLoops; i++) {
             // To ensure maximum caching, we just redraw the blob at the same place everytime
             canvas->drawTextBlob(blob, 0, 0, paint);
         }
@@ -78,7 +79,8 @@ class TextBlobFirstTimeBench : public SkTextBlobBench {
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
 
-        for (int i = 0; i < loops; i++) {
+        auto bigLoops = loops * 1000;
+        for (int i = 0; i < bigLoops; i++) {
             canvas->drawTextBlob(this->makeBlob(), 0, 0, paint);
         }
     }

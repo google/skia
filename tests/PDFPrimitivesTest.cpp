@@ -492,7 +492,7 @@ DEF_TEST(SkPDF_Primitives_Color, reporter) {
 static SkGlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* pos,
                            SkPaint paint, const uint32_t* clusters,
                            size_t utf8TextByteLength, const char* utf8Text) {
-    return SkGlyphRun(std::move(paint),
+    return SkGlyphRun(paint, SkRunFont{paint},
                       SkSpan<const uint16_t>{},  // No dense indices for now.
                       SkSpan<const SkPoint>{pos, len},
                       SkSpan<const SkGlyphID>{glyphs, len},

@@ -33,6 +33,8 @@ class SkData;
 class SkDescriptor;
 class SkDrawLooper;
 class SkGlyph;
+class SkGlyphRunBuilder;
+class SkGlyphRun;
 class SkGlyphRunListPainter;
 struct SkRect;
 class SkGlyphCache;
@@ -41,9 +43,11 @@ class SkMaskFilter;
 class SkPath;
 class SkPathEffect;
 struct SkPoint;
+class SkRunFont;
 class SkShader;
 class SkSurfaceProps;
 class SkTextBlob;
+class SkTextBlobRunIterator;
 class SkTypeface;
 
 /** \class SkPaint
@@ -1474,6 +1478,9 @@ public:
                                       Style style) const;
 
 private:
+    friend class SkGlyphRun;
+    friend class SkGlyphRunBuilder;
+    SkPaint(const SkPaint&, const SkRunFont&);
     typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**, const char*);
 
     sk_sp<SkTypeface>     fTypeface;
