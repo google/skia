@@ -2694,14 +2694,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     fUnpackRowLengthSupport = false;
 #endif
 
-#ifdef SK_BUILD_FOR_MAC
-    // Radeon MacBooks hit a crash in glReadPixels() when using CCPR.
-    // http://skbug.com/8097
-    if (kATI_GrGLVendor == ctxInfo.vendor()) {
-        fBlacklistCoverageCounting = true;
-    }
-#endif
-
     // "shapes_mixed_10000_32x33" bench crashes PowerVRGX6250 in Release mode with ccpr.
     // http://skbug.com/8098
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
