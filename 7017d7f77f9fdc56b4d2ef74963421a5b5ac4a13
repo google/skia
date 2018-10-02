@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08793d3c_721bac2d",
+        "filename": "gm/animatedGif.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-10-02T19:35:41Z",
+      "side": 1,
+      "message": "I think SkCodec::MakeFromData handles null data transparently.",
+      "range": {
+        "startLine": 194,
+        "startChar": 11,
+        "endLine": 194,
+        "endChar": 17
+      },
+      "revId": "7017d7f77f9fdc56b4d2ef74963421a5b5ac4a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
