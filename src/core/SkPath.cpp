@@ -1463,12 +1463,8 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
     pointTransform.setRotate(angle);
     pointTransform.preScale(rx, ry);
 
-#ifdef SK_SUPPORT_LEGACY_SVG_ARC_TO
-    int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (SK_ScalarPI / 2)));
-#else
     // the arc may be slightly bigger than 1/4 circle, so allow up to 1/3rd
     int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (2 * SK_ScalarPI / 3)));
-#endif
     SkScalar thetaWidth = thetaArc / segments;
     SkScalar t = SkScalarTan(0.5f * thetaWidth);
     if (!SkScalarIsFinite(t)) {
@@ -1476,14 +1472,13 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
     }
     SkScalar startTheta = theta1;
     SkScalar w = SkScalarSqrt(SK_ScalarHalf + SkScalarCos(thetaWidth) * SK_ScalarHalf);
-#ifndef SK_SUPPORT_LEGACY_SVG_ARC_TO
     auto scalar_is_integer = [](SkScalar scalar) -> bool {
         return scalar == SkScalarFloorToScalar(scalar);
     };
     bool expectIntegers = SkScalarNearlyZero(SK_ScalarPI/2 - SkScalarAbs(thetaWidth)) &&
         scalar_is_integer(rx) && scalar_is_integer(ry) &&
         scalar_is_integer(x) && scalar_is_integer(y);
-#endif
+
     for (int i = 0; i < segments; ++i) {
         SkScalar endTheta = startTheta + thetaWidth;
         SkScalar cosEndTheta, sinEndTheta = SkScalarSinCos(endTheta, &cosEndTheta);
@@ -1499,14 +1494,12 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
         outside their marks. A round rect may lose convexity as a result. If the input
         values are on integers, place the conic on integers as well.
          */
-#ifndef SK_SUPPORT_LEGACY_SVG_ARC_TO
         if (expectIntegers) {
             SkScalar* mappedScalars = &mapped[0].fX;
             for (unsigned index = 0; index < sizeof(mapped) / sizeof(SkScalar); ++index) {
                 mappedScalars[index] = SkScalarRoundToScalar(mappedScalars[index]);
             }
         }
-#endif
         this->conicTo(mapped[0], mapped[1], w);
         startTheta = endTheta;
     }
