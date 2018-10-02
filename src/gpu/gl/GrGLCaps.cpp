@@ -1756,7 +1756,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     bool hasFP16Textures = false;
     bool rgIsTexturable = false;
     bool hasFP32RenderTargets = false;
-    bool hasFP16RenderTargets = false;
+    enum class HalfFPRenderTargetSupport { kNone, kRGBAOnly, kAll };
+    HalfFPRenderTargetSupport halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kNone;
     // for now we don't support floating point MSAA on ES
     uint32_t fpRenderFlags = (kGL_GrGLStandard == standard) ? allRenderFlags : nonMSAARenderFlags;
 
@@ -1766,7 +1767,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             hasFP16Textures = true;
             rgIsTexturable = true;
             hasFP32RenderTargets = true;
-            hasFP16RenderTargets = true;
+            halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kAll;
         }
     } else {
         if (version >= GR_GL_VER(3, 0)) {
@@ -1786,14 +1787,15 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             // For now we only enable rendering to fp32 on desktop, because on ES we'd have to solve
             // many precision issues and no clients actually want this yet.
             // hasFP32RenderTargets = true;
-            hasFP16RenderTargets = true;
+            halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kAll;
         } else if (ctxInfo.hasExtension("GL_EXT_color_buffer_float")) {
             // For now we only enable rendering to fp32 on desktop, because on ES we'd have to
             // solve many precision issues and no clients actually want this yet.
             // hasFP32RenderTargets = true;
-            hasFP16RenderTargets = true;
+            halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kAll;
         } else if (ctxInfo.hasExtension("GL_EXT_color_buffer_half_float")) {
-            hasFP16RenderTargets = true;
+            // This extension only enables half float support rendering for RGBA.
+            halfFPRenderTargetSupport = HalfFPRenderTargetSupport::kRGBAOnly;
         }
     }
 
@@ -1833,7 +1835,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (textureRedSupport && hasFP16Textures) {
         redHalf.fFlags = ConfigInfo::kTextureable_Flag;
 
-        if (hasFP16RenderTargets) {
+        if (halfFPRenderTargetSupport == HalfFPRenderTargetSupport::kAll) {
             redHalf.fFlags |= fpRenderFlags;
         }
 
@@ -1856,7 +1858,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (hasFP16Textures) {
         fConfigTable[kRGBA_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
         // ES requires 3.2 or EXT_color_buffer_half_float.
-        if (hasFP16RenderTargets) {
+        if (halfFPRenderTargetSupport != HalfFPRenderTargetSupport::kNone) {
             fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= fpRenderFlags;
         }
     }
