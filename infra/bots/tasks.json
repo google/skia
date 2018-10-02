@@ -18035,7 +18035,7 @@
       ],
       "command": [
         "/bin/cp",
-        "-rL",
+        "-r",
         "android_ndk_linux",
         "${ISOLATED_OUTDIR}"
       ],
@@ -18053,12 +18053,12 @@
         {
           "name": "skia/bots/go_deps",
           "path": "go_deps",
-          "version": "version:1"
+          "version": "version:16"
         }
       ],
       "command": [
         "/bin/cp",
-        "-rL",
+        "-r",
         "go_deps",
         "${ISOLATED_OUTDIR}"
       ],
@@ -18081,7 +18081,7 @@
       ],
       "command": [
         "/bin/cp",
-        "-rL",
+        "-r",
         "skp",
         "${ISOLATED_OUTDIR}"
       ],
@@ -18104,7 +18104,7 @@
       ],
       "command": [
         "/bin/cp",
-        "-rL",
+        "-r",
         "svg",
         "${ISOLATED_OUTDIR}"
       ],
@@ -18127,7 +18127,7 @@
       ],
       "command": [
         "/bin/cp",
-        "-rL",
+        "-r",
         "skimage",
         "${ISOLATED_OUTDIR}"
       ],
@@ -18150,7 +18150,7 @@
       ],
       "command": [
         "/bin/cp",
-        "-rL",
+        "-r",
         "t",
         "${ISOLATED_OUTDIR}"
       ],
@@ -18173,7 +18173,7 @@
       ],
       "command": [
         "/bin/cp",
-        "-rL",
+        "-r",
         "win_vulkan_sdk",
         "${ISOLATED_OUTDIR}"
       ],

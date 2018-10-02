@@ -711,7 +711,7 @@ func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
 		CipdPackages: []*specs.CipdPackage{
 			b.MustGetCipdPackageFromAsset(asset.cipdPkg),
 		},
-		Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
+		Command:    []string{"/bin/cp", "-r", asset.path, "${ISOLATED_OUTDIR}"},
 		Dimensions: linuxGceDimensions(MACHINE_TYPE_SMALL),
 		Isolate:    relpath("empty.isolate"),
 	})
