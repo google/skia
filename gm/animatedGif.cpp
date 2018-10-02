@@ -182,6 +182,44 @@ private:
         return true;
     }
 };
-
 DEF_GM(return new AnimatedGifGM);
 
+
+#include "SkAnimCodecPlayer.h"
+
+static std::unique_ptr<SkCodec> load_codec(const char filename[]) {
+    auto data = SkData::MakeFromFileName(filename);
+    return SkCodec::MakeFromData(data);
+}
+
+class AnimCodecPlayerGM : public skiagm::GM {
+private:
+    SkAnimCodecPlayer fPlayer;
+    uint32_t          fBaseMSec = 0;
+
+public:
+    AnimCodecPlayerGM() : fPlayer(load_codec("/Users/reed/Downloads/claws.gif")) {
+    }
+
+private:
+    SkString onShortName() override {
+        return SkString("AnimCodecPlayer");
+    }
+
+    SkISize onISize() override {
+        return fPlayer.dimensions();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->drawImage(fPlayer.getFrame(), 0, 0, nullptr);
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) override {
+        if (fBaseMSec == 0) {
+            fBaseMSec = timer.msec();
+        }
+        (void)fPlayer.seek(timer.msec() - fBaseMSec);
+        return true;
+    }
+};
+DEF_GM(return new AnimCodecPlayerGM);
