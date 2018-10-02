@@ -31,7 +31,6 @@ SkClusterator::SkClusterator(const SkGlyphRun& run)
     , fGlyphCount(SkToU32(run.shuntGlyphsIDs().size()))
     , fTextByteLength(SkToU32(run.text().size()))
 {
-    SkASSERT(SkPaint::kGlyphID_TextEncoding == run.paint().getTextEncoding());
     if (fClusters) {
         SkASSERT(fUtf8Text && fTextByteLength > 0 && fGlyphCount > 0);
         fReversedChars = is_reversed(fClusters, fGlyphCount);
