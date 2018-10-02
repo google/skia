@@ -43,6 +43,7 @@ void Group::removeChild(const sk_sp<RenderNode>& node) {
     fChildren.erase(std::remove(fChildren.begin(), fChildren.end(), node), fChildren.end());
     SkASSERT(fChildren.size() == origSize - 1);
 
+    this->unobserveInval(node);
     this->invalidate();
 }
 
