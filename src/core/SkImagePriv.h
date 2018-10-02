@@ -105,7 +105,7 @@ enum SkImageSourceChannel {
     /** Describes the alpha channel; */
     kA_SkImageSourceChannel,
 
-    /** Utility value */
+    /** Describes the alpha channel; */
     kLastEnum_SkImageSourceChannel = kA_SkImageSourceChannel,
 };
 
