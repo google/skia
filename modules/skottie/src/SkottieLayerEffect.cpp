@@ -33,7 +33,8 @@ sk_sp<sksg::RenderNode> AttachFillLayerEffect(const skjson::ArrayValue* jeffect_
             color_node = abuilder->attachColor(*jprop, ascope, "v");
             break;
         default:
-            LOG("?? Ignoring unsupported fill effect poperty type: %d\n", ty);
+            abuilder->log(Logger::Level::kWarning, nullptr,
+                          "Ignoring unsupported fill effect poperty type: %d.", ty);
             break;
         }
     }
@@ -56,7 +57,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::Array
             layer = AttachFillLayerEffect((*jeffect)["ef"], this, ascope, std::move(layer));
             break;
         default:
-            LOG("?? Unsupported layer effect type: %d\n", ty);
+            this->log(Logger::Level::kWarning, nullptr, "Unsupported layer effect type: %d.", ty);
             break;
         }
     }
