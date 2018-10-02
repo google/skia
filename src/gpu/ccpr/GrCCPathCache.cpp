@@ -16,14 +16,18 @@ static constexpr int kMaxCacheCount = 1 << 16;
 GrCCPathCache::MaskTransform::MaskTransform(const SkMatrix& m, SkIVector* shift)
         : fMatrix2x2{m.getScaleX(), m.getSkewX(), m.getSkewY(), m.getScaleY()} {
     SkASSERT(!m.hasPerspective());
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     Sk2f translate = Sk2f(m.getTranslateX(), m.getTranslateY());
-    Sk2f floor = translate.floor();
-    (translate - floor).store(fSubpixelTranslate);
-    shift->set((int)floor[0], (int)floor[1]);
-    SkASSERT((float)shift->fX == floor[0]);
-    SkASSERT((float)shift->fY == floor[1]);
+    Sk2f transFloor;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // On Android framework we pre-round view matrix translates to integers for better caching.
+    transFloor = translate;
+#else
+    transFloor = translate.floor();
+    (translate - transFloor).store(fSubpixelTranslate);
 #endif
+    shift->set((int)transFloor[0], (int)transFloor[1]);
+    SkASSERT((float)shift->fX == transFloor[0]);  // Make sure transFloor had integer values.
+    SkASSERT((float)shift->fY == transFloor[1]);
 }
 
 inline static bool fuzzy_equals(const GrCCPathCache::MaskTransform& a,

@@ -149,7 +149,7 @@ GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
         , fColor(color) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     if (fShape.hasUnstyledKey()) {
-        // On AOSP we round view matrix translates to integer values for cachable paths. We do this
+        // On Android framework we round view matrix translates to integer values for cachable paths. We do this
         // to match HWUI's cache hit ratio, which doesn't consider the matrix when caching paths.
         fMatrix.setTranslateX(SkScalarRoundToScalar(fMatrix.getTranslateX()));
         fMatrix.setTranslateY(SkScalarRoundToScalar(fMatrix.getTranslateY()));
