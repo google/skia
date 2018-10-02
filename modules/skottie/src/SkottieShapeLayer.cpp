@@ -98,7 +98,7 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jsta
 
     const auto type = ParseDefault<size_t>(jstar["sy"], 0) - 1;
     if (type >= SK_ARRAY_COUNT(gTypes)) {
-        LogJSON(jstar, "!! Unknown polystar type");
+        abuilder->log(Logger::Level::kError, &jstar, "Unknown polystar type.");
         return nullptr;
     }
 
@@ -475,7 +475,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
 
         const auto* info = FindShapeInfo(*shape);
         if (!info) {
-            LogJSON((*shape)["ty"], "!! Unknown shape");
+            this->log(Logger::Level::kError, &(*shape)["ty"], "Unknown shape.");
             continue;
         }
 

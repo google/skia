@@ -11,13 +11,12 @@
 #include "SkMakeUnique.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "Skottie.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 
-#if defined(SK_ENABLE_SKOTTIE)
-#include "Skottie.h"
-#endif
+#include <vector>
 
 DEFINE_string2(input    , i, nullptr, "Input .json file.");
 DEFINE_string2(writePath, w, nullptr, "Output directory.  Frames are names [0-9]{6}.png.");
@@ -121,6 +120,39 @@ private:
     using INHERITED = Sink;
 };
 
+class Logger final : public skottie::Logger {
+public:
+    struct LogEntry {
+        SkString fMessage,
+                 fJSON;
+    };
+
+    void log(skottie::Logger::Level lvl, const char message[], const char json[]) override {
+        auto& log = lvl == skottie::Logger::Level::kError ? fErrors : fWarnings;
+        log.push_back({ SkString(message), json ? SkString(json) : SkString() });
+    }
+
+    void report() const {
+        SkDebugf("Animation loaded with %lu error%s, %lu warning%s.\n",
+                 fErrors.size(), fErrors.size() == 1 ? "" : "s",
+                 fWarnings.size(), fWarnings.size() == 1 ? "" : "s");
+
+        const auto& show = [](const LogEntry& log, const char prefix[]) {
+            SkDebugf("%s%s", prefix, log.fMessage.c_str());
+            if (!log.fJSON.isEmpty())
+                SkDebugf(" : %s", log.fJSON.c_str());
+            SkDebugf("\n");
+        };
+
+        for (const auto& err : fErrors)   show(err, "  !! ");
+        for (const auto& wrn : fWarnings) show(wrn, "  ?? ");
+    }
+
+private:
+    std::vector<LogEntry> fErrors,
+                          fWarnings;
+};
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -151,11 +183,17 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto anim = skottie::Animation::MakeFromFile(FLAGS_input[0]);
+    auto logger = sk_make_sp<Logger>();
+
+    auto anim = skottie::Animation::Builder()
+            .setLogger(logger)
+            .makeFromFile(FLAGS_input[0]);
     if (!anim) {
         SkDebugf("Could not load animation: '%s'.\n", FLAGS_input[0]);
         return 1;
     }
+
+    logger->report();
 
     static constexpr double kMaxFrames = 10000;
     const auto t0 = SkTPin(FLAGS_t0, 0.0, 1.0),
