@@ -291,8 +291,9 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
                                    std::move(colorSpace), SkBudgeted::kNo);
 }
 
-bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPixelConfig* config,
-                              SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs) {
+static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex,
+                                     GrPixelConfig* config, SkColorType ct, SkAlphaType at,
+                                     sk_sp<SkColorSpace> cs) {
     if (!tex.isValid()) {
         return false;
     }
