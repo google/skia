@@ -51,7 +51,21 @@ test-continuous-asmjs:
 # Build the library and run the tests using the docker image.  If developing locally,
 # test-docker-continuous is better, although if you make changes to the C++/WASM code,
 # you will need to manually call make npm-test to re-build.
-test-docker: npm-test
+test-docker:
+	mkdir -p ./npm-wasm/bin/test
+	mkdir -p ./npm-asmjs/bin/test
+	mkdir -p $$SKIA_ROOT/out/dockerbuild
+
+	docker run --rm -v $$SKIA_ROOT:/SRC -v $$SKIA_ROOT/out/dockerbuild:/OUT \
+gcr.io/skia-public/emsdk-release:1.38.6_jre /SRC/infra/pathkit/docker/build_pathkit.sh
+	cp ../../out/dockerbuild/pathkit.js   ./npm-wasm/bin/test/pathkit.js
+	cp ../../out/dockerbuild/pathkit.wasm ./npm-wasm/bin/test/pathkit.wasm
+
+	docker run --rm -v $$SKIA_ROOT:/SRC -v $$SKIA_ROOT/out/dockerbuild:/OUT \
+gcr.io/skia-public/emsdk-release:1.38.6_jre /SRC/infra/pathkit/docker/build_pathkit.sh asm.js
+	cp ../../out/dockerbuild/pathkit.js     ./npm-asmjs/bin/test/pathkit.js
+	cp ../../out/dockerbuild/pathkit.js.mem ./npm-asmjs/bin/test/pathkit.js.mem
+
 	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v4 \
 karma start /SRC/modules/pathkit/karma.conf.js --single-run
 	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC -e ASM_JS=1 gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v4 \
@@ -87,7 +101,7 @@ npm-debug:
 	./compile.sh debug
 	cp ../../out/pathkit/pathkit.js     ./npm-wasm/bin/debug/pathkit.js
 	cp ../../out/pathkit/pathkit.wasm   ./npm-wasm/bin/debug/pathkit.wasm
-	cp ../../out/pathkit/pathkit.js.map ./npm-wasm/bin/debug/pathkit.js.map
+	cp ../../out/pathkit/pathkit.wasm.map ./npm-wasm/bin/debug/pathkit.wasm.map
 	./compile.sh asm.js debug
 	cp ../../out/pathkit/pathkit.js     ./npm-asmjs/bin/debug/pathkit.js
 	cp ../../out/pathkit/pathkit.js.map ./npm-asmjs/bin/debug/pathkit.js.map
