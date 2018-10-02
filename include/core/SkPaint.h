@@ -205,7 +205,7 @@ public:
 
         @param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
     */
-    void setHinting(Hinting hintingLevel);
+    void setHinting(Hinting hintingLevel) { fBitfields.fHinting = hintingLevel; }
 
     /** \enum SkPaint::Flags
         The bit values stored in Flags.
@@ -246,7 +246,7 @@ public:
 
         @param flags  union of SkPaint::Flags for SkPaint
     */
-    void setFlags(uint32_t flags);
+    void setFlags(uint32_t flags) { fBitfields.fFlags = flags; }
 
     /** Returns true if pixels on the active edges of SkPath may be drawn with partial transparency.
 
@@ -456,7 +456,7 @@ public:
         @param quality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
                         kMedium_SkFilterQuality, kHigh_SkFilterQuality
     */
-    void setFilterQuality(SkFilterQuality quality);
+    void setFilterQuality(SkFilterQuality quality) { fBitfields.fFilterQuality = quality; }
 
     /** \enum SkPaint::Style
         Set Style to fill, stroke, or both fill and stroke geometry.
@@ -487,7 +487,7 @@ public:
 
         @param style  one of: kFill_Style, kStroke_Style, kStrokeAndFill_Style
     */
-    void setStyle(Style style);
+    void setStyle(Style style) { fBitfields.fStyle = style; }
 
     /** Retrieves alpha and RGB, unpremultiplied, packed into 32 bits.
         Use helpers SkColorGetA(), SkColorGetR(), SkColorGetG(), and SkColorGetB() to extract
@@ -560,7 +560,7 @@ public:
 
         @param width  zero thickness for hairline; greater than zero for pen thickness
     */
-    void setStrokeWidth(SkScalar width);
+    void setStrokeWidth(SkScalar width) { fWidth = width; }
 
     /** Returns the limit at which a sharp corner is drawn beveled.
 
@@ -574,7 +574,7 @@ public:
 
         @param miter  zero and greater miter limit
     */
-    void setStrokeMiter(SkScalar miter);
+    void setStrokeMiter(SkScalar miter) { fMiterLimit = limit; }
 
     /** \enum SkPaint::Cap
         Cap draws at the beginning and end of an open path contour.
@@ -627,7 +627,7 @@ public:
         @param cap  one of: kButt_Cap, kRound_Cap, kSquare_Cap;
                     has no effect if cap is not valid
     */
-    void setStrokeCap(Cap cap);
+    void setStrokeCap(Cap cap) { fBitfields.fCapType = SkToU8(ct); }
 
     /** Returns the geometry drawn at the corners of strokes.
 
@@ -640,7 +640,7 @@ public:
         @param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
                      otherwise, has no effect
     */
-    void setStrokeJoin(Join join);
+    void setStrokeJoin(Join join) { fBitfields.fJoinType = SkToU8(jt); }
 
     /** Returns the filled equivalent of the stroked path.
 
@@ -901,7 +901,7 @@ public:
 
         @param align  text placement relative to position
     */
-    void    setTextAlign(Align align);
+    void    setTextAlign(Align align) { fBitfields.fTextAlign = SkToU8(align); }
 
     /** Returns text size in points.
 
@@ -914,7 +914,7 @@ public:
 
         @param textSize  typographic height of text
     */
-    void setTextSize(SkScalar textSize);
+    void setTextSize(SkScalar textSize) { fTextSize = ts; }
 
     /** Returns text scale x.
         Default value is 1.
@@ -928,7 +928,7 @@ public:
 
         @param scaleX  text horizontal scale
     */
-    void setTextScaleX(SkScalar scaleX);
+    void setTextScaleX(SkScalar scaleX) { fTextScaleX = scaleX; }
 
     /** Returns text skew x.
         Default value is zero.
@@ -942,7 +942,7 @@ public:
 
         @param skewX  additional shear in x-axis relative to y-axis
     */
-    void setTextSkewX(SkScalar skewX);
+    void setTextSkewX(SkScalar skewX) { fTextSkewX = skewX; }
 
     /** \enum SkPaint::TextEncoding
         TextEncoding determines whether text specifies character codes and their encoded
@@ -987,7 +987,7 @@ public:
         @param encoding  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or
                          kGlyphID_TextEncoding
     */
-    void setTextEncoding(TextEncoding encoding);
+    void setTextEncoding(TextEncoding encoding) { fBitfields.fTextEncoding = encoding; }
 
     /** \struct SkPaint::FontMetrics
         FontMetrics is filled out by getFontMetrics(). FontMetrics contents reflect the values

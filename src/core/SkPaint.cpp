@@ -46,10 +46,6 @@ static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
     return cond ? bits | mask : bits & ~mask;
 }
 
-// define this to get a printf for out-of-range parameter in setters
-// e.g. setTextSize(-1)
-//#define SK_REPORT_API_RANGE_CHECK
-
 SkPaint::SkPaint() {
     fTextSize   = SkPaintDefaults_TextSize;
     fTextScaleX = SK_Scalar1;
@@ -200,18 +196,6 @@ void SkPaint::reset() {
     *this = init;
 }
 
-void SkPaint::setFilterQuality(SkFilterQuality quality) {
-    fBitfields.fFilterQuality = quality;
-}
-
-void SkPaint::setHinting(Hinting hintingLevel) {
-    fBitfields.fHinting = hintingLevel;
-}
-
-void SkPaint::setFlags(uint32_t flags) {
-    fBitfields.fFlags = flags;
-}
-
 void SkPaint::setAntiAlias(bool doAA) {
     this->setFlags(set_clear_mask(fBitfields.fFlags, doAA, kAntiAlias_Flag));
 }
@@ -248,16 +232,6 @@ void SkPaint::setFakeBoldText(bool doFakeBold) {
     this->setFlags(set_clear_mask(fBitfields.fFlags, doFakeBold, kFakeBoldText_Flag));
 }
 
-void SkPaint::setStyle(Style style) {
-    if ((unsigned)style < kStyleCount) {
-        fBitfields.fStyle = style;
-    } else {
-#ifdef SK_REPORT_API_RANGE_CHECK
-        SkDebugf("SkPaint::setStyle(%d) out of range\n", style);
-#endif
-    }
-}
-
 void SkPaint::setColor(SkColor color) {
     fColor4f = SkColor4f::FromColor(color);
 }
@@ -276,86 +250,6 @@ void SkPaint::setAlpha(U8CPU a) {
 
 void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     this->setColor(SkColorSetARGB(a, r, g, b));
-}
-
-void SkPaint::setStrokeWidth(SkScalar width) {
-    if (width >= 0) {
-        fWidth = width;
-    } else {
-#ifdef SK_REPORT_API_RANGE_CHECK
-        SkDebugf("SkPaint::setStrokeWidth() called with negative value\n");
-#endif
-    }
-}
-
-void SkPaint::setStrokeMiter(SkScalar limit) {
-    if (limit >= 0) {
-        fMiterLimit = limit;
-    } else {
-#ifdef SK_REPORT_API_RANGE_CHECK
-        SkDebugf("SkPaint::setStrokeMiter() called with negative value\n");
-#endif
-    }
-}
-
-void SkPaint::setStrokeCap(Cap ct) {
-    if ((unsigned)ct < kCapCount) {
-        fBitfields.fCapType = SkToU8(ct);
-    } else {
-#ifdef SK_REPORT_API_RANGE_CHECK
-        SkDebugf("SkPaint::setStrokeCap(%d) out of range\n", ct);
-#endif
-    }
-}
-
-void SkPaint::setStrokeJoin(Join jt) {
-    if ((unsigned)jt < kJoinCount) {
-        fBitfields.fJoinType = SkToU8(jt);
-    } else {
-#ifdef SK_REPORT_API_RANGE_CHECK
-        SkDebugf("SkPaint::setStrokeJoin(%d) out of range\n", jt);
-#endif
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void SkPaint::setTextAlign(Align align) {
-    if ((unsigned)align < kAlignCount) {
-        fBitfields.fTextAlign = SkToU8(align);
-    } else {
-#ifdef SK_REPORT_API_RANGE_CHECK
-        SkDebugf("SkPaint::setTextAlign(%d) out of range\n", align);
-#endif
-    }
-}
-
-void SkPaint::setTextSize(SkScalar ts) {
-    if (ts >= 0) {
-        fTextSize = ts;
-    } else {
-#ifdef SK_REPORT_API_RANGE_CHECK
-        SkDebugf("SkPaint::setTextSize() called with negative value\n");
-#endif
-    }
-}
-
-void SkPaint::setTextScaleX(SkScalar scaleX) {
-    fTextScaleX = scaleX;
-}
-
-void SkPaint::setTextSkewX(SkScalar skewX) {
-    fTextSkewX = skewX;
-}
-
-void SkPaint::setTextEncoding(TextEncoding encoding) {
-    if ((unsigned)encoding <= kGlyphID_TextEncoding) {
-        fBitfields.fTextEncoding = encoding;
-    } else {
-#ifdef SK_REPORT_API_RANGE_CHECK
-        SkDebugf("SkPaint::setTextEncoding(%d) out of range\n", encoding);
-#endif
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
