@@ -58,7 +58,15 @@ public:
      *
      *  If the flattenable is registered, there is no need to override.
      */
-    virtual const char* getTypeName() const { return FactoryToName(getFactory()); }
+    virtual const char* getTypeName() const {
+    #ifdef SK_DISABLE_READBUFFER
+        // Should not be reachable by PathKit WebAssembly Code.
+        SkASSERT(false);
+        return nullptr;
+    #else
+        return FactoryToName(getFactory());
+    #endif
+    }
 
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);

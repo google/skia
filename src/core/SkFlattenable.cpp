@@ -101,11 +101,6 @@ static void report_no_entries(const char* functionName) {
 #endif
 
 SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
-#ifdef WEB_ASSEMBLY
-    // Should not be reachable by WebAssembly Code.
-    SkASSERT(false);
-    return nullptr;
-#else
     InitializeFlattenablesIfNeeded();
     SkASSERT(std::is_sorted(gEntries, gEntries + gCount, EntryComparator()));
 #ifdef SK_DEBUG
@@ -115,15 +110,9 @@ SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
     if (pair.first == pair.second)
         return nullptr;
     return pair.first->fFactory;
-#endif
 }
 
 bool SkFlattenable::NameToType(const char name[], SkFlattenable::Type* type) {
-#ifdef WEB_ASSEMBLY
-    // Should not be reachable by WebAssembly Code.
-    SkASSERT(false);
-    return false;
-#else
     SkASSERT(type);
     InitializeFlattenablesIfNeeded();
     SkASSERT(std::is_sorted(gEntries, gEntries + gCount, EntryComparator()));
@@ -135,15 +124,9 @@ bool SkFlattenable::NameToType(const char name[], SkFlattenable::Type* type) {
         return false;
     *type = pair.first->fType;
     return true;
-#endif
 }
 
 const char* SkFlattenable::FactoryToName(Factory fact) {
-#ifdef WEB_ASSEMBLY
-    // Should not be reachable by WebAssembly Code.
-    SkASSERT(false);
-    return nullptr;
-#else
     InitializeFlattenablesIfNeeded();
 #ifdef SK_DEBUG
     report_no_entries(__FUNCTION__);
@@ -155,7 +138,6 @@ const char* SkFlattenable::FactoryToName(Factory fact) {
         }
     }
     return nullptr;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

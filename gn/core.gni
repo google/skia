@@ -481,8 +481,9 @@ skia_core_sources = [
   "$_include/private/SkTSearch.h",
   "$_include/private/SkTLogic.h",
   "$_include/private/SkWeakRefCnt.h",
+]
 
-  # Path ops
+skia_pathops_sources = [
   "$_include/pathops/SkPathOps.h",
 
   "$_src/pathops/SkAddIntersections.cpp",
@@ -544,5 +545,7 @@ skia_core_sources = [
   "$_src/pathops/SkPathWriter.h",
   "$_src/pathops/SkReduceOrder.h",
 ]
+
+skia_core_sources += skia_pathops_sources
 
 skia_core_defines = []  #  Used to be used by Chromium, but no longer.
