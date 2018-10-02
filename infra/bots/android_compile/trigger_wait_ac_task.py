@@ -136,6 +136,7 @@ def trigger_and_wait(options):
         raise AndroidCompileException('The %s file no longer exists.' % gs_file)
       try:
         ret = json.loads(output)
+        break
       except ValueError, e:
         print 'Received output that could not be converted to json: %s' % output
         print e
