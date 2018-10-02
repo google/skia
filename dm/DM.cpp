@@ -40,7 +40,6 @@
 #include "SkTaskGroup.h"
 #include "SkTypeface_win.h"
 #include "Test.h"
-#include "Timer.h"
 #include "ios_utils.h"
 #include "sk_tool_utils.h"
 
@@ -114,16 +113,11 @@ using sk_gpu_test::ContextInfo;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static const double kStartMs = SkTime::GetMSecs();
-
 static FILE* gVLog;
 
 template <typename... Args>
 static void vlog(const char* fmt, Args&&... args) {
     if (gVLog) {
-        char s[64];
-        HumanizeMs(s, 64, SkTime::GetMSecs() - kStartMs);
-        fprintf(gVLog, "%s\t", s);
         fprintf(gVLog, fmt, args...);
         fflush(gVLog);
     }
@@ -187,11 +181,10 @@ static void done(const char* config, const char* src, const char* srcOptions, co
 
         int curr = sk_tools::getCurrResidentSetSizeMB(),
             peak = sk_tools::getMaxResidentSetSizeMB();
-        SkString elapsed = HumanizeMs(SkTime::GetMSecs() - kStartMs);
 
         SkAutoMutexAcquire lock(gMutex);
-        info("\n%dMB RAM, %dMB peak, %s elapsed, %d queued, %d active:\n",
-             curr, peak, elapsed.c_str(), gPending - gRunning.count(), gRunning.count());
+        info("\n%dMB RAM, %dMB peak, %d queued, %d active:\n",
+             curr, peak, gPending - gRunning.count(), gRunning.count());
         for (auto& task : gRunning) {
             task.dump();
         }
