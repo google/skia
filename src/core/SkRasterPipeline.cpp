@@ -23,6 +23,7 @@ void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage != unbounded_uniform_color);  // Please use append_constant_color().
     SkASSERT(stage !=                 set_rgb);  // Please use append_set_rgb().
     SkASSERT(stage !=       unbounded_set_rgb);  // Please use append_set_rgb().
+    SkASSERT(stage !=             clamp_gamut);  // Please use append_gamut_clamp_if_normalized().
     this->unchecked_append(stage, ctx);
 }
 void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
@@ -264,5 +265,14 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkJumper_MemoryCtx* ct
         case kGray_8_SkColorType:      this->append(luminance_to_alpha);
                                        this->append(store_a8, ctx);
                                        break;
+    }
+}
+
+void SkRasterPipeline::append_gamut_clamp_if_normalized(const SkImageInfo& dstInfo) {
+    if (dstInfo.colorType() != kRGBA_F16_SkColorType &&
+        dstInfo.colorType() != kRGBA_F32_SkColorType &&
+        dstInfo.alphaType() == kPremul_SkAlphaType)
+    {
+        this->unchecked_append(SkRasterPipeline::clamp_gamut, nullptr);
     }
 }
