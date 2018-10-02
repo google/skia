@@ -182,6 +182,126 @@ private:
         return true;
     }
 };
-
 DEF_GM(return new AnimatedGifGM);
 
+
+class AnimCodecPlayer {
+    std::unique_ptr<SkCodec>        fCodec;
+    SkImageInfo                     fImageInfo;
+    std::vector<SkCodec::FrameInfo> fFrameInfos;
+    std::vector<sk_sp<SkImage> >    fImages;
+    int                             fCurrIndex = 0;
+    uint32_t                        fTotalDuration;
+
+public:
+    AnimCodecPlayer(std::unique_ptr<SkCodec> codec);
+
+    SkISize dimensions();
+    int     countFrames();
+    sk_sp<SkImage> getFrameAt(int index);
+    sk_sp<SkImage> getFrame() {
+        return this->getFrameAt(fCurrIndex);
+    }
+
+    // pass the time (relative to 0) to seek to. Sets the current index to the computed
+    // frame corresponding to that time.
+    void seek(uint32_t msec);
+};
+
+AnimCodecPlayer::AnimCodecPlayer(std::unique_ptr<SkCodec> codec) : fCodec(std::move(codec)) {
+    fImageInfo = fCodec->getInfo();
+    fFrameInfos = fCodec->getFrameInfo();
+    fImages.resize(fFrameInfos.size());
+
+    // change the interpretation of fDuration to a end-time for that frame
+    size_t dur = 0;
+    for (auto& f : fFrameInfos) {
+        dur += f.fDuration;
+        f.fDuration = dur;
+    }
+    fTotalDuration = dur;
+}
+
+SkISize AnimCodecPlayer::dimensions() {
+    return { fImageInfo.width(), fImageInfo.height() };
+}
+
+int AnimCodecPlayer::countFrames() {
+    return SkToInt(fFrameInfos.size());
+}
+
+sk_sp<SkImage> AnimCodecPlayer::getFrameAt(int index) {
+    SkASSERT((unsigned)index < (unsigned)this->countFrames());
+
+    if (fImages[index]) {
+        return fImages[index];
+    }
+
+    size_t rb = fImageInfo.minRowBytes();
+    size_t size = fImageInfo.computeByteSize(rb);
+    auto data = SkData::MakeUninitialized(size);
+
+    SkCodec::Options opts;
+    opts.fFrameIndex = index;
+
+    const int requiredFrame = fFrameInfos[index].fRequiredFrame;
+    if (requiredFrame != SkCodec::kNoFrame) {
+        auto requiredImage = fImages[requiredFrame];
+        SkPixmap requiredPM;
+        if (requiredImage && requiredImage->peekPixels(&requiredPM)) {
+            sk_careful_memcpy(data->writable_data(), requiredPM.addr(), size);
+            opts.fPriorFrame = requiredFrame;
+        }
+    }
+    if (SkCodec::kSuccess == fCodec->getPixels(fImageInfo, data->writable_data(), rb, &opts)) {
+        return fImages[index] = SkImage::MakeRasterData(fImageInfo, std::move(data), rb);
+    }
+    return nullptr;
+}
+
+void AnimCodecPlayer::seek(uint32_t msec) {
+    msec %= fTotalDuration;
+
+    auto lower = std::lower_bound(fFrameInfos.begin(), fFrameInfos.end(), msec,
+                                  [](const SkCodec::FrameInfo& info, uint32_t msec) {
+                                      return (uint32_t)info.fDuration < msec;
+                                  });
+    fCurrIndex = lower - fFrameInfos.begin();
+}
+
+static std::unique_ptr<SkCodec> load_codec(const char filename[]) {
+    auto data = SkData::MakeFromFileName(filename);
+    return SkCodec::MakeFromData(data);
+}
+
+class AnimCodecPlayerGM : public skiagm::GM {
+private:
+    AnimCodecPlayer fPlayer;
+    uint32_t        fBaseMSec = 0;
+
+public:
+    AnimCodecPlayerGM() : fPlayer(load_codec("/Users/reed/Downloads/claws.gif")) {
+    }
+
+private:
+    SkString onShortName() override {
+        return SkString("AnimCodecPlayer");
+    }
+
+    SkISize onISize() override {
+        return fPlayer.dimensions();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->drawImage(fPlayer.getFrame(), 0, 0, nullptr);
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) override {
+        if (fBaseMSec == 0) {
+            fBaseMSec = timer.msec();
+        }
+        fPlayer.seek(timer.msec() - fBaseMSec);
+        return true;
+    }
+};
+DEF_GM(return new AnimCodecPlayerGM);
