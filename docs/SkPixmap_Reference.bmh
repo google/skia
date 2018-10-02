@@ -3,6 +3,10 @@
 
 #Class SkPixmap
 
+#Code
+#Populate
+##
+
 Pixmap provides a utility to pair SkImageInfo with pixels and row bytes.
 Pixmap is a low level class which provides convenience functions to access
 raster destinations. Canvas can not draw Pixmap, nor does Pixmap provide
@@ -14,21 +18,6 @@ pixels referenced by Pixmap.
 Pixmap does not try to manage the lifetime of the pixel memory. Use Pixel_Ref
 to manage pixel memory; Pixel_Ref is safe across threads.
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
 
 #Subtopic Initialization
 #Line # sets fields for use ##
@@ -232,13 +221,13 @@ is not unique
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT reset(const SkMask& mask)
+#Method bool reset(const SkMask& mask)
 #Deprecated soon
 ##
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT extractSubset(SkPixmap* subset, const SkIRect& area) const
+#Method bool extractSubset(SkPixmap* subset, const SkIRect& area) const
 
 #In Initialization
 #Line # sets pointer to portion of original ##
@@ -1501,7 +1490,6 @@ is drawn after overwriting bottom half float color with top half float color.
 #Subtopic Writable_Address ##
 
 #Subtopic Pixels
-#Populate
 #Line # read and write pixel values ##
 ##
 
