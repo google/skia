@@ -4817,8 +4817,6 @@ DEF_TEST(NonFinitePathIteration, reporter) {
     REPORTER_ASSERT(reporter, verbs == 0);
 }
 
-
-#ifndef SK_SUPPORT_LEGACY_SVG_ARC_TO
 DEF_TEST(AndroidArc, reporter) {
     const char* tests[] = {
         "M50,0A50,50,0,0 1 100,50 L100,85 A15,15,0,0 1 85,100 L50,100 A50,50,0,0 1 50,0z",
@@ -4846,7 +4844,6 @@ DEF_TEST(AndroidArc, reporter) {
         }
     }
 }
-#endif
 
 /*
  *  Try a range of crazy values, just to ensure that we don't assert/crash.
