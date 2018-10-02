@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4719155e_6ec0b0ec",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-10-02T18:52:17Z",
+      "side": 0,
+      "message": "Looks like that paint must be changed so that getPosTextPath works correctly.",
+      "revId": "57b9d4071ba5ba03c9991fb351e6f66fbf75d268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
