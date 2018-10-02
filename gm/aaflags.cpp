@@ -131,6 +131,9 @@ private:
                     auto proxy = as_IB(fImage[x][y])
                                          ->asTextureProxyRef(ctx, GrSamplerState::ClampBilerp(),
                                                              nullptr, nullptr, nullptr);
+                    if (!proxy) {
+                        continue;
+                    }
                     auto srcR = proxy->getBoundsRect();
                     auto dstR = SkRect::MakeXYWH(x * kTileW, y * kTileH, kTileW, kTileH);
                     GrQuadAAFlags aaFlags = GrQuadAAFlags::kNone;
