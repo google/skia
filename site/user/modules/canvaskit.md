@@ -96,7 +96,7 @@ Samples
   var locate_file = '';
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported!');
-    locate_file = 'https://storage.googleapis.com/skia-cdn/canvaskit-wasm/0.0.2/bin/';
+    locate_file = 'https://storage.googleapis.com/skia-cdn/canvaskit-wasm/0.0.3/bin/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser.');
     document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";
@@ -152,6 +152,14 @@ Samples
     });
   });
 
+  function preventScrolling(canvas) {
+    canvas.addEventListener('touchmove', (e) => {
+      // Prevents touch events in the canvas from scrolling the canvas.
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  }
+
   function DrawingExample(CanvasKit) {
     const surface = CanvasKit.getWebGLSurface('patheffect');
     if (!surface) {
@@ -162,6 +170,11 @@ Samples
     const canvas = surface.getCanvas();
 
     const paint = new CanvasKit.SkPaint();
+
+    const textPaint = new CanvasKit.SkPaint();
+    textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
+    textPaint.setTextSize(30);
+    textPaint.setAntiAlias(true);
 
     let i = 0;
 
@@ -183,6 +196,7 @@ Samples
       canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
       canvas.drawPath(path, paint);
+      canvas.drawText('Try Clicking!', 10, 280, textPaint);
       canvas.flush();
       dpe.delete();
       path.delete();
@@ -191,13 +205,16 @@ Samples
     window.requestAnimationFrame(drawFrame);
 
     // Make animation interactive
-    document.getElementById('patheffect').addEventListener('mousemove', (e) => {
+    let interact = (e) => {
       if (!e.buttons) {
         return;
       }
       X = e.offsetX;
       Y = e.offsetY;
-    });
+    };
+    document.getElementById('patheffect').addEventListener('pointermove', interact);
+    document.getElementById('patheffect').addEventListener('pointerdown', interact);
+    preventScrolling(document.getElementById('patheffect'));
 
     // A client would need to delete this if it didn't go on for ever.
     //paint.delete();
@@ -251,8 +268,9 @@ Samples
     }
 
     let hold = false;
-    document.getElementById('ink').addEventListener('mousemove', (e) => {
-      if (!e.buttons) {
+    let interact = (e) => {
+      let type = e.type;
+      if (type === 'lostpointercapture' || type === 'pointerup' || !e.pressure ) {
         hold = false;
         return;
       }
@@ -267,7 +285,12 @@ Samples
         path.moveTo(e.offsetX, e.offsetY);
       }
       hold = true;
-    });
+    };
+    document.getElementById('ink').addEventListener('pointermove', interact);
+    document.getElementById('ink').addEventListener('pointerdown', interact);
+    document.getElementById('ink').addEventListener('lostpointercapture', interact);
+    document.getElementById('ink').addEventListener('pointerup', interact);
+    preventScrolling(document.getElementById('ink'));
     window.requestAnimationFrame(drawFrame);
   }
 
