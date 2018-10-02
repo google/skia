@@ -41,9 +41,11 @@ class SkMaskFilter;
 class SkPath;
 class SkPathEffect;
 struct SkPoint;
+class SkRunFont;
 class SkShader;
 class SkSurfaceProps;
 class SkTextBlob;
+class SkTextBlobRunIterator;
 class SkTypeface;
 
 /** \class SkPaint
@@ -1474,6 +1476,7 @@ public:
                                       Style style) const;
 
 private:
+    SkPaint(const SkPaint&, const SkRunFont&);
     typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**, const char*);
 
     sk_sp<SkTypeface>     fTypeface;
@@ -1559,6 +1562,7 @@ private:
     friend class SkScalerContext;  // for computeLuminanceColor()
     friend class SkTextBaseIter;
     friend class SkTextBlobCacheDiffCanvas;
+    friend class SkTextBlobRunIterator;
 };
 
 #endif

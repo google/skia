@@ -614,27 +614,27 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             auto perGlyph =
                 [cacheBlob, runIndex, &currStrike, filteredColor, cache{cache.get()}]
                 (const SkGlyph& glyph, SkPoint mappedPt) {
-                    if (!glyph.isEmpty()) {
-                        const void* glyphImage = cache->findImage(glyph);
-                        if (glyphImage != nullptr) {
-                            SkScalar sx = SkScalarFloorToScalar(mappedPt.fX),
-                                     sy = SkScalarFloorToScalar(mappedPt.fY);
-                            AppendGlyph(cacheBlob, runIndex, currStrike,
-                                        glyph, GrGlyph::kCoverage_MaskStyle, sx, sy,
-                                        filteredColor, cache, SK_Scalar1, false);
-                        }
+                    const void* glyphImage = cache->findImage(glyph);
+                    if (glyphImage != nullptr) {
+                        SkScalar sx = SkScalarFloorToScalar(mappedPt.fX),
+                                 sy = SkScalarFloorToScalar(mappedPt.fY);
+                        AppendGlyph(cacheBlob, runIndex, currStrike,
+                                    glyph, GrGlyph::kCoverage_MaskStyle, sx, sy,
+                                    filteredColor, cache, SK_Scalar1, false);
                     }
                 };
 
             auto perPath =
                 [cacheBlob, runIndex, cache{cache.get()}]
                 (const SkGlyph& glyph, SkPoint position) {
-                    const SkPath* glyphPath = cache->findPath(glyph);
-                    if (glyphPath != nullptr) {
-                        SkScalar sx = SkScalarFloorToScalar(position.fX),
-                                 sy = SkScalarFloorToScalar(position.fY);
-                        cacheBlob->appendPathGlyph(
-                                runIndex, *glyphPath, sx, sy, SK_Scalar1, true);
+                    if (!glyph.isEmpty()) {
+                        const SkPath* glyphPath = cache->findPath(glyph);
+                        if (glyphPath != nullptr) {
+                            SkScalar sx = SkScalarFloorToScalar(position.fX),
+                                    sy = SkScalarFloorToScalar(position.fY);
+                            cacheBlob->appendPathGlyph(
+                                    runIndex, *glyphPath, sx, sy, SK_Scalar1, true);
+                        }
                     }
                 };
 
