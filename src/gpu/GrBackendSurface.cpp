@@ -9,6 +9,11 @@
 
 #include "gl/GrGLUtil.h"
 
+#ifdef SK_DAWN
+#include "dawn/GrDawnTypes.h"
+#include "dawn/GrDawnUtil.h"
+#endif
+
 #ifdef SK_VULKAN
 #include "vk/GrVkImageLayout.h"
 #include "vk/GrVkTypes.h"
@@ -82,6 +87,19 @@ const GrPixelConfig* GrBackendFormat::getMockFormat() const {
     return nullptr;
 }
 
+#ifdef SK_DAWN
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   const GrDawnImageInfo& dawnInfo)
+        : fIsValid(true)
+        , fWidth(width)
+        , fHeight(height)
+        , fConfig(GrDawnFormatToPixelConfig(dawnInfo.fFormat))
+        , fMipMapped(GrMipMapped(dawnInfo.fLevelCount > 1))
+        , fBackend(kDawn_GrBackend)
+        , fDawnInfo(dawnInfo) {}
+#endif
+
 #ifdef SK_VULKAN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
@@ -141,6 +159,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fBackend(kMock_GrBackend)
         , fMockInfo(mockInfo) {}
 
+
 GrBackendTexture::~GrBackendTexture() {
     this->cleanup();
 }
@@ -153,7 +172,12 @@ void GrBackendTexture::cleanup() {
 #endif
 }
 
-GrBackendTexture::GrBackendTexture(const GrBackendTexture& that) : fIsValid(false) {
+GrBackendTexture::GrBackendTexture(const GrBackendTexture& that)
+    : fIsValid(false)
+#ifdef SK_DAWN
+    , fDawnInfo()
+#endif
+{
     *this = that;
 }
 
@@ -183,6 +207,11 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
             fMtlInfo = that.fMtlInfo;
             break;
 #endif
+#ifdef SK_DAWN
+        case kDawn_GrBackend:
+            fDawnInfo = that.fDawnInfo;
+            break;
+#endif
         case kMock_GrBackend:
             fMockInfo = that.fMockInfo;
             break;
@@ -192,6 +221,16 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     fIsValid = that.fIsValid;
     return *this;
 }
+
+#ifdef SK_DAWN
+bool GrBackendTexture::getDawnImageInfo(GrDawnImageInfo* outInfo) const {
+    if (this->isValid() && kDawn_GrBackend == fBackend) {
+        *outInfo = fDawnInfo;
+        return true;
+    }
+    return false;
+}
+#endif
 
 #ifdef SK_VULKAN
 bool GrBackendTexture::getVkImageInfo(GrVkImageInfo* outInfo) const {
@@ -283,6 +322,22 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_DAWN
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             int stencilBits,
+                                             const GrDawnImageInfo& dawnInfo)
+        : fIsValid(true)
+        , fWidth(width)
+        , fHeight(height)
+        , fSampleCnt(sampleCnt)
+        , fStencilBits(stencilBits)
+        , fConfig(GrDawnFormatToPixelConfig(dawnInfo.fFormat))
+        , fBackend(kDawn_GrBackend)
+        , fDawnInfo(dawnInfo) {}
+#endif
 
 #ifdef SK_VULKAN
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
@@ -411,6 +466,16 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     fIsValid = that.fIsValid;
     return *this;
 }
+
+#ifdef SK_DAWN
+bool GrBackendRenderTarget::getDawnImageInfo(GrDawnImageInfo* outInfo) const {
+    if (this->isValid() && kDawn_GrBackend == fBackend) {
+        *outInfo = fDawnInfo;
+        return true;
+    }
+    return false;
+}
+#endif
 
 #ifdef SK_VULKAN
 bool GrBackendRenderTarget::getVkImageInfo(GrVkImageInfo* outInfo) const {

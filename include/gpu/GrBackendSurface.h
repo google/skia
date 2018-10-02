@@ -12,6 +12,10 @@
 #include "gl/GrGLTypes.h"
 #include "mock/GrMockTypes.h"
 
+#ifdef SK_DAWN
+#include "dawn/GrDawnTypes.h"
+#endif
+
 #ifdef SK_VULKAN
 #include "vk/GrVkTypes.h"
 #include "../private/GrVkTypesPriv.h"
@@ -147,6 +151,12 @@ public:
                      const GrMtlTextureInfo& mtlInfo);
 #endif
 
+#ifdef SK_DAWN
+    GrBackendTexture(int width,
+                     int height,
+                     const GrDawnImageInfo& dawnInfo);
+#endif
+
     GrBackendTexture(int width,
                      int height,
                      GrMipMapped,
@@ -166,6 +176,12 @@ public:
     // If the backend API is GL, copies a snapshot of the GrGLTextureInfo struct into the passed in
     // pointer and returns true. Otherwise returns false if the backend API is not GL.
     bool getGLTextureInfo(GrGLTextureInfo*) const;
+
+#ifdef SK_DAWN
+    // If the backend API is Dawn, copies a snapshot of the GrDawnImageInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Dawn.
+    bool getDawnImageInfo(GrDawnImageInfo*) const;
+#endif
 
 #ifdef SK_VULKAN
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
@@ -211,6 +227,7 @@ private:
     friend class GrProxyProvider;
     friend class GrGpu;
     friend class GrGLGpu;
+    friend class GrDawnGpu;
     friend class GrVkGpu;
     friend class GrMtlGpu;
     friend class PromiseImageHelper;
@@ -240,6 +257,9 @@ private:
 
     union {
         GrGLTextureInfo fGLInfo;
+#ifdef SK_DAWN
+        GrDawnImageInfo  fDawnInfo;
+#endif
 #ifdef SK_VULKAN
         GrVkBackendSurfaceInfo fVkInfo;
 #endif
@@ -261,6 +281,14 @@ public:
                           int sampleCnt,
                           int stencilBits,
                           const GrGLFramebufferInfo& glInfo);
+
+#ifdef SK_DAWN
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          int stencilBits,
+                          const GrDawnImageInfo& dawnInfo);
+#endif
 
 #ifdef SK_VULKAN
     /** Deprecated, use version that does not take stencil bits. */
@@ -299,6 +327,12 @@ public:
     // If the backend API is GL, copies a snapshot of the GrGLFramebufferInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not GL.
     bool getGLFramebufferInfo(GrGLFramebufferInfo*) const;
+
+#ifdef SK_DAWN
+    // If the backend API is Dawn, copies a snapshot of the GrDawnImageInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Dawn.
+    bool getDawnImageInfo(GrDawnImageInfo*) const;
+#endif
 
 #ifdef SK_VULKAN
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
@@ -371,6 +405,9 @@ private:
 
     union {
         GrGLFramebufferInfo fGLInfo;
+#ifdef SK_DAWN
+        GrDawnImageInfo   fDawnInfo;
+#endif
 #ifdef SK_VULKAN
         GrVkBackendSurfaceInfo fVkInfo;
 #endif
