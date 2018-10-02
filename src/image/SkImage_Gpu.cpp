@@ -37,12 +37,15 @@
 #include "SkGr.h"
 #include "SkImageInfoPriv.h"
 #include "SkImage_Gpu.h"
+#include "SkImage_GpuShared.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
 #include "SkTraceEvent.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "gl/GrGLTexture.h"
+
+using namespace SkImage_GpuShared;
 
 SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace,
@@ -121,14 +124,8 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
                                                      SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* texColorSpace,
                                                      SkScalar scaleAdjust[2]) const {
-    if (context->uniqueID() != fContext->uniqueID()) {
-        SkASSERT(0);
-        return nullptr;
-    }
-
-    GrTextureAdjuster adjuster(fContext.get(), fProxy, this->alphaType(), this->uniqueID(),
-                               this->fColorSpace.get());
-    return adjuster.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
+    return AsTextureProxyRef(context, params, dstColorSpace, texColorSpace, scaleAdjust,
+                             fContext.get(), this, fAlphaType, fColorSpace.get());
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -246,28 +243,6 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
     return true;
 }
 
-sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
-    GrSurfaceDesc desc;
-    desc.fWidth = subset.width();
-    desc.fHeight = subset.height();
-    desc.fConfig = fProxy->config();
-
-    sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
-            desc, fProxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact, fBudgeted));
-    if (!sContext) {
-        return nullptr;
-    }
-
-    if (!sContext->copy(fProxy.get(), subset, SkIPoint::Make(0, 0))) {
-        return nullptr;
-    }
-
-    // MDB: this call is okay bc we know 'sContext' was kExact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
-                                   fAlphaType, sContext->asTextureProxyRef(),
-                                   fColorSpace, fBudgeted);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
@@ -291,22 +266,6 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
                                    std::move(colorSpace), SkBudgeted::kNo);
 }
 
-static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex,
-                                     GrPixelConfig* config, SkColorType ct, SkAlphaType at,
-                                     sk_sp<SkColorSpace> cs) {
-    if (!tex.isValid()) {
-        return false;
-    }
-    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
-    // create a fake image info here.
-    SkImageInfo info = SkImageInfo::Make(1, 1, ct, at, cs);
-    if (!SkImageInfoIsValid(info)) {
-        return false;
-    }
-
-    return ctx->contextPriv().caps()->validateBackendTexture(tex, ct, config);
-}
-
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
@@ -315,7 +274,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
         return nullptr;
     }
     GrBackendTexture texCopy = tex;
-    if (!validate_backend_texture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
+    if (!ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
         return nullptr;
     }
     return new_wrapped_texture_common(ctx, texCopy, origin, at, std::move(cs),
@@ -331,7 +290,7 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
         return nullptr;
     }
     GrBackendTexture texCopy = tex;
-    if (!validate_backend_texture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
+    if (!ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
         return nullptr;
     }
     return new_wrapped_texture_common(ctx, texCopy, origin, at, std::move(cs),
@@ -371,8 +330,8 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
             yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
             // TODO: Instead of using assumption about whether it is NV12 format to guess colorType,
             // actually use channel information here.
-            if (!validate_backend_texture(ctx, yuvaTexturesCopy[i], &yuvaTexturesCopy[i].fConfig,
-                                          ct, kPremul_SkAlphaType, nullptr)) {
+            if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[i], &yuvaTexturesCopy[i].fConfig,
+                                        ct, kPremul_SkAlphaType, nullptr)) {
                 return nullptr;
             }
         }
@@ -469,8 +428,8 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
         sk_sp<SkColorSpace> imageColorSpace) {
     GrBackendTexture backendTextureCopy = backendTexture;
 
-    if (!validate_backend_texture(ctx, backendTextureCopy, &backendTextureCopy.fConfig, kRGBA_8888_SkColorType,
-                                  kPremul_SkAlphaType, nullptr)) {
+    if (!ValidateBackendTexture(ctx, backendTextureCopy, &backendTextureCopy.fConfig,
+                                kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr)) {
         return nullptr;
     }
 
@@ -864,7 +823,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
     bool slotUsed[4] = { false, false, false, false };
     for (int i = 0; i < 4; ++i) {
         if (yuvaIndices[i].fIndex < 0) {
-            SkASSERT(3 == i); // We had better have YUV channels
+            SkASSERT(SkYUVAIndex::kA_Index == i); // We had better have YUV channels
             continue;
         }
 
@@ -903,7 +862,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
     desc.fWidth = imageWidth;
     desc.fHeight = imageHeight;
     // Hack since we're just returning the Y-plane
-    desc.fConfig = params.fConfigs[params.fLocalIndices[0].fIndex];
+    desc.fConfig = params.fConfigs[params.fLocalIndices[SkYUVAIndex::kY_Index].fIndex];
     desc.fSampleCnt = 1;
 
 
@@ -936,7 +895,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
                 // For the time being, simply return the Y-plane. The reason for this is that
                 // this lazy proxy is instantiated at flush time, after the sort, therefore
                 // we cannot be introducing a new opList (in order to render the YUV texture).
-                int yIndex = params.fLocalIndices[0].fIndex;
+                int yIndex = params.fLocalIndices[SkYUVAIndex::kY_Index].fIndex;
                 return params.fPromiseHelpers[yIndex].getTexture(resourceProvider,
                                                                  params.fConfigs[yIndex]);
 #else
