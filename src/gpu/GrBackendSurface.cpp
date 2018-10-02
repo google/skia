@@ -39,10 +39,13 @@ const GrGLenum* GrBackendFormat::getGLTarget() const {
     return nullptr;
 }
 
-#ifdef SK_VULKAN
 GrBackendFormat::GrBackendFormat(VkFormat vkFormat)
         : fBackend(kVulkan_GrBackend)
+#ifdef SK_VULKAN
         , fValid(true)
+#else
+        ,fValid(false)
+#endif
         , fVkFormat(vkFormat) {
 }
 
@@ -52,7 +55,6 @@ const VkFormat* GrBackendFormat::getVkFormat() const {
     }
     return nullptr;
 }
-#endif
 
 #ifdef SK_METAL
 GrBackendFormat::GrBackendFormat(GrMTLPixelFormat mtlFormat)
@@ -82,13 +84,17 @@ const GrPixelConfig* GrBackendFormat::getMockFormat() const {
     return nullptr;
 }
 
-#ifdef SK_VULKAN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo)
+#ifdef SK_VULKAN
         : GrBackendTexture(width, height, vkInfo,
                            sk_sp<GrVkImageLayout>(new GrVkImageLayout(vkInfo.fImageLayout))) {}
+#else
+        : fIsValid(false) {}
+#endif
 
+#ifdef SK_VULKAN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo,
@@ -173,11 +179,11 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
         case kOpenGL_GrBackend:
             fGLInfo = that.fGLInfo;
             break;
-#ifdef SK_VULKAN
         case kVulkan_GrBackend:
+#ifdef SK_VULKAN
             fVkInfo.assign(that.fVkInfo, this->isValid());
-            break;
 #endif
+            break;
 #ifdef SK_METAL
         case kMetal_GrBackend:
             fMtlInfo = that.fMtlInfo;
@@ -193,28 +199,39 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     return *this;
 }
 
-#ifdef SK_VULKAN
 bool GrBackendTexture::getVkImageInfo(GrVkImageInfo* outInfo) const {
+#ifdef SK_VULKAN
     if (this->isValid() && kVulkan_GrBackend == fBackend) {
         *outInfo = fVkInfo.snapImageInfo();
         return true;
     }
+#endif
     return false;
 }
 
 void GrBackendTexture::setVkImageLayout(VkImageLayout layout) {
+#ifdef SK_VULKAN
     if (this->isValid() && kVulkan_GrBackend == fBackend) {
         fVkInfo.setImageLayout(layout);
     }
+#endif
 }
 
+// We need a stubbed version of GrVkImageLayout for non vulkan builds
+#ifndef SK_VULKAN
+class GrVkImageLayout : public SkRefCnt {
+    GrVkImageLayout(VkImageLayout layout) {}
+};
+#endif
+
 sk_sp<GrVkImageLayout> GrBackendTexture::getGrVkImageLayout() const {
+#ifdef SK_VULKAN
     if (this->isValid() && kVulkan_GrBackend == fBackend) {
         return fVkInfo.getGrVkImageLayout();
     }
+#endif
     return nullptr;
 }
-#endif
 
 #ifdef SK_METAL
 bool GrBackendTexture::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
@@ -284,7 +301,6 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_VULKAN
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -299,9 +315,14 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
                                              const GrVkImageInfo& vkInfo)
+#ifdef SK_VULKAN
         : GrBackendRenderTarget(width, height, sampleCnt, vkInfo,
                                 sk_sp<GrVkImageLayout>(new GrVkImageLayout(vkInfo.fImageLayout))) {}
+#else
+        : fIsValid(false) {}
+#endif
 
+#ifdef SK_VULKAN
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -392,11 +413,11 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
         case kOpenGL_GrBackend:
             fGLInfo = that.fGLInfo;
             break;
-#ifdef SK_VULKAN
         case kVulkan_GrBackend:
+#ifdef SK_VULKAN
             fVkInfo.assign(that.fVkInfo, this->isValid());
-            break;
 #endif
+            break;
 #ifdef SK_METAL
         case kMetal_GrBackend:
             fMtlInfo = that.fMtlInfo;
@@ -412,28 +433,32 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     return *this;
 }
 
-#ifdef SK_VULKAN
 bool GrBackendRenderTarget::getVkImageInfo(GrVkImageInfo* outInfo) const {
+#ifdef SK_VULKAN
     if (this->isValid() && kVulkan_GrBackend == fBackend) {
         *outInfo = fVkInfo.snapImageInfo();
         return true;
     }
+#endif
     return false;
 }
 
 void GrBackendRenderTarget::setVkImageLayout(VkImageLayout layout) {
+#ifdef SK_VULKAN
     if (this->isValid() && kVulkan_GrBackend == fBackend) {
         fVkInfo.setImageLayout(layout);
     }
+#endif
 }
 
 sk_sp<GrVkImageLayout> GrBackendRenderTarget::getGrVkImageLayout() const {
+#ifdef SK_VULKAN
     if (this->isValid() && kVulkan_GrBackend == fBackend) {
         return fVkInfo.getGrVkImageLayout();
     }
+#endif
     return nullptr;
 }
-#endif
 
 #ifdef SK_METAL
 bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
