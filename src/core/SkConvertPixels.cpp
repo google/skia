@@ -177,6 +177,8 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     pipeline.append_load(srcInfo.colorType(), &src);
     steps.apply(&pipeline);
 
+    pipeline.append_gamut_clamp_if_normalized(dstInfo);
+
     // We'll dither if we're decreasing precision below 32-bit.
     float dither_rate = 0.0f;
     if (srcInfo.bytesPerPixel() > dstInfo.bytesPerPixel()) {
