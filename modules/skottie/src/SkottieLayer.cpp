@@ -291,8 +291,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachSolidLayer(const skjson::ObjectV
                             sksg::Color::Make(color));
 }
 
-sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectValue& jimage,
-                                                           AnimatorScope*) const {
+const AnimationBuilder::ImageAssetInfo*
+AnimationBuilder::loadImageAsset(const skjson::ObjectValue& jimage) const {
     const skjson::StringValue* name = jimage["p"];
     const skjson::StringValue* path = jimage["u"];
     if (!name) {
@@ -302,33 +302,90 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
     const auto name_cstr = name->begin(),
                path_cstr = path ? path->begin() : "";
     const auto res_id = SkStringPrintf("%s|%s", path_cstr, name_cstr);
-    if (auto* attached_image = fAssetCache.find(res_id)) {
-        return *attached_image;
+    if (auto* cached_info = fImageAssetCache.find(res_id)) {
+        return cached_info;
     }
 
-    const auto data = fResourceProvider->load(path_cstr, name_cstr);
-    if (!data) {
+    auto asset = fResourceProvider->loadImageAsset(path_cstr, name_cstr);
+    if (!asset) {
+        // Legacy API.  TODO: remove after clients get updated.
+        auto image = SkImage::MakeFromEncoded(fResourceProvider->load(path_cstr, name_cstr));
+
+        class StaticImageAsset final : public ImageAsset {
+        public:
+            explicit StaticImageAsset(sk_sp<SkImage> img) : fImage(std::move(img)) {}
+
+            bool isMultiFrame() override { return false; }
+
+            sk_sp<SkImage> getImage(float) override { return fImage; }
+
+        private:
+            sk_sp<SkImage> fImage;
+        };
+
+        if (image) {
+            asset = sk_make_sp<StaticImageAsset>(std::move(image));
+        }
+    }
+
+    if (!asset) {
         this->log(Logger::Level::kError, nullptr,
-                  "Could not load image resource: %s/%s.", path_cstr, name_cstr);
+                  "Could not load image asset: %s/%s.", path_cstr, name_cstr);
         return nullptr;
     }
 
-    auto image = SkImage::MakeFromEncoded(data);
+    const auto size = SkISize::Make(ParseDefault<int>(jimage["w"], 0),
+                                    ParseDefault<int>(jimage["h"], 0));
+    return fImageAssetCache.set(res_id, { std::move(asset), size });
+}
+
+sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectValue& jimage,
+                                                           AnimatorScope* ascope) const {
+    const auto* asset_info = this->loadImageAsset(jimage);
+    if (!asset_info) {
+        return nullptr;
+    }
+    SkASSERT(asset_info->fAsset);
+
+    auto image = asset_info->fAsset->getImage(0);
     if (!image) {
+        this->log(Logger::Level::kError, nullptr, "Could not load first image asset frame.");
         return nullptr;
     }
 
-    const auto width  = ParseDefault<int>(jimage["w"], image->width()),
-               height = ParseDefault<int>(jimage["h"], image->height());
+    auto image_node = sksg::Image::Make(image);
 
-    sk_sp<sksg::RenderNode> image_node = sksg::Image::Make(image);
-    if (width != image->width() || height != image->height()) {
-        image_node = sksg::Transform::Make(std::move(image_node),
-            SkMatrix::MakeScale(static_cast<float>(width)  / image->width(),
-                                static_cast<float>(height) / image->height()));
+    if (asset_info->fAsset->isMultiFrame()) {
+        class MultiFrameAnimator final : public sksg::Animator {
+        public:
+            MultiFrameAnimator(sk_sp<ImageAsset> asset, sk_sp<sksg::Image> image_node)
+                : fAsset(std::move(asset))
+                , fImageNode(std::move(image_node)) {}
+
+            void onTick(float t) override {
+                fImageNode->setImage(fAsset->getImage(t));
+            }
+
+        private:
+            sk_sp<ImageAsset>  fAsset;
+            sk_sp<sksg::Image> fImageNode;
+        };
+
+        ascope->push_back(skstd::make_unique<MultiFrameAnimator>(asset_info->fAsset, image_node));
     }
 
-    return *fAssetCache.set(res_id, std::move(image_node));
+    const auto asset_size = SkISize::Make(
+            asset_info->fSize.width()  > 0 ? asset_info->fSize.width()  : image->width(),
+            asset_info->fSize.height() > 0 ? asset_info->fSize.height() : image->height());
+
+    if (asset_size == image->bounds().size()) {
+        // No resize needed.
+        return image_node;
+    }
+
+    return sksg::Transform::Make(std::move(image_node),
+        SkMatrix::MakeScale(static_cast<float>(asset_size.width())  / image->width(),
+                            static_cast<float>(asset_size.height()) / image->height()));
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageLayer(const skjson::ObjectValue& jlayer,

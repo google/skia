@@ -77,6 +77,7 @@ public:
 private:
     struct AttachLayerContext;
     struct AttachShapeContext;
+    struct ImageAssetInfo;
 
     void parseAssets(const skjson::ArrayValue*);
     void parseFonts (const skjson::ObjectValue* jfonts,
@@ -91,6 +92,7 @@ private:
     sk_sp<sksg::RenderNode> attachAssetRef(const skjson::ObjectValue&, AnimatorScope*,
         sk_sp<sksg::RenderNode>(AnimationBuilder::*)(const skjson::ObjectValue&,
                                                      AnimatorScope* ctx) const) const;
+    const ImageAssetInfo* loadImageAsset(const skjson::ObjectValue&) const;
     sk_sp<sksg::RenderNode> attachImageAsset(const skjson::ObjectValue&, AnimatorScope*) const;
 
     sk_sp<sksg::RenderNode> attachNestedAnimation(const char* name, AnimatorScope* ascope) const;
@@ -170,14 +172,14 @@ private:
         bool matches(const char family[], const char style[]) const;
     };
 
-    // TODO: consolidate these two?
-    using AssetMap   = SkTHashMap<SkString, AssetInfo>;
-    using AssetCache = SkTHashMap<SkString, sk_sp<sksg::RenderNode>>;
-    using FontMap    = SkTHashMap<SkString, FontInfo>;
+    struct ImageAssetInfo {
+        sk_sp<ImageAsset> fAsset;
+        SkISize           fSize;
+    };
 
-    AssetMap           fAssets;
-    FontMap            fFonts;
-    mutable AssetCache fAssetCache;
+    SkTHashMap<SkString, AssetInfo>              fAssets;
+    SkTHashMap<SkString, FontInfo>               fFonts;
+    mutable SkTHashMap<SkString, ImageAssetInfo> fImageAssetCache;
 
     using INHERITED = SkNoncopyable;
 };
