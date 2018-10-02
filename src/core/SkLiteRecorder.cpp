@@ -159,6 +159,7 @@ void SkLiteRecorder::onDrawImageLattice(const SkImage* img,
     fDL->drawImageLattice(sk_ref_sp(img), lattice, dst, paint);
 }
 
+void SkLiteRecorder::onDrawImageSet(const ImageSetEntry[], int cnt) {}
 
 void SkLiteRecorder::onDrawPatch(const SkPoint cubics[12],
                                  const SkColor colors[4], const SkPoint texCoords[4],

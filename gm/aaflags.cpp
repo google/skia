@@ -7,12 +7,9 @@
 
 #include "gm.h"
 
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrRenderTargetContext.h"
 #include "SkGradientShader.h"
-#include "SkImage_Base.h"
 #include "SkSurface.h"
+#include "GrTypesPriv.h"
 
 namespace skiagm {
 
@@ -70,14 +67,6 @@ private:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* ctx = canvas->getGrContext();
-        if (!ctx) {
-            DrawGpuOnlyMessage(canvas);
-            return;
-        }
-        GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-        SkASSERT(rtc);
-
         SkScalar d = SkVector{kM * kTileW, kN * kTileH}.length();
         SkMatrix matrices[4];
         // rotation
@@ -104,56 +93,47 @@ private:
         dst[2] = {1.f / 3.f * kM * kTileW, 1 / 4.f * kN * kTileH - 25.f};
         matrices[3].setPolyToPoly(src, dst, 4);
         matrices[3].postTranslate(100.f, d);
+        SkCanvas::ImageSetEntry set[kM * kN];
+        for (int x = 0; x < kM; ++x) {
+            for (int y = 0; y < kN; ++y) {
+                set[y * kM + x].fAAFlags = GrQuadAAFlags::kNone;
+                if (x == 0) {
+                    set[y * kM + x].fAAFlags |= GrQuadAAFlags::kLeft;
+                }
+                if (x == kM - 1) {
+                    set[y * kM + x].fAAFlags |= GrQuadAAFlags::kRight;
+                }
+                if (y == 0) {
+                    set[y * kM + x].fAAFlags |= GrQuadAAFlags::kTop;
+                }
+                if (y == kN - 1) {
+                    set[y * kM + x].fAAFlags |= GrQuadAAFlags::kBottom;
+                }
+                set[y * kM + x].fSrcRect = SkRect::MakeWH(kTileW, kTileH);;
+                set[y * kM + x].fDstRect = SkRect::MakeXYWH(x * kTileW, y * kTileH, kTileW, kTileH);
+                set[y * kM + x].fImage = fImage[x][y].get();
+            }
+        }
         for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
-            // Draw grid of green "lines" at interior tile boundaries.
+            canvas->save();
+            canvas->concat(matrices[m]);
+#if 0
+            // Draw grid of green lines at interior tile boundaries.
             static constexpr SkScalar kLineOutset = 10.f;
-            static constexpr SkScalar kLineHalfW = 4.f;
-            auto color = GrColor4f(0.f, 1.f, 0.f, 1.f);
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            paint.setColor(SK_ColorGREEN);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(8.f);
             for (int x = 1; x < kM; ++x) {
-                GrPaint paint;
-                paint.setColor4f(color);
-                SkRect lineRect =
-                        SkRect::MakeLTRB(x * kTileW - kLineHalfW, -kLineOutset,
-                                         x * kTileW + kLineHalfW, kN * kTileH + kLineOutset);
-                rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kYes, matrices[m], lineRect);
+                canvas->drawLine(x * kTileW, -kLineOutset, x * kTileW, kN * kTileH + kLineOutset, paint);
             }
             for (int y = 1; y < kN; ++y) {
-                GrPaint paint;
-                paint.setColor4f(color);
-                SkRect lineRect =
-                        SkRect::MakeLTRB(-kLineOutset, y * kTileH - kLineHalfW,
-                                         kTileW * kM + kLineOutset, y * kTileH + kLineHalfW);
-                rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kYes, matrices[m], lineRect);
+                canvas->drawLine(-kLineOutset, y * kTileH, kTileW * kM + kLineOutset, y * kTileH, paint);
             }
-            static constexpr GrColor kColor = GrColor_WHITE;
-            for (int x = 0; x < kM; ++x) {
-                for (int y = 0; y < kN; ++y) {
-                    auto proxy = as_IB(fImage[x][y])
-                                         ->asTextureProxyRef(ctx, GrSamplerState::ClampBilerp(),
-                                                             nullptr, nullptr, nullptr);
-                    if (!proxy) {
-                        continue;
-                    }
-                    auto srcR = proxy->getBoundsRect();
-                    auto dstR = SkRect::MakeXYWH(x * kTileW, y * kTileH, kTileW, kTileH);
-                    GrQuadAAFlags aaFlags = GrQuadAAFlags::kNone;
-                    if (x == 0) {
-                        aaFlags |= GrQuadAAFlags::kLeft;
-                    }
-                    if (x == kM - 1) {
-                        aaFlags |= GrQuadAAFlags::kRight;
-                    }
-                    if (y == 0) {
-                        aaFlags |= GrQuadAAFlags::kTop;
-                    }
-                    if (y == kN - 1) {
-                        aaFlags |= GrQuadAAFlags::kBottom;
-                    }
-                    rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kBilerp, kColor,
-                                     srcR, dstR, aaFlags, SkCanvas::kFast_SrcRectConstraint,
-                                     matrices[m], nullptr, nullptr);
-                }
-            }
+#endif
+            canvas->experimentalDrawImageSet(set, kM * kN);
+            canvas->restore();
         }
     }
     static constexpr int kM = 4;

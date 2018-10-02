@@ -202,6 +202,15 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     }
 }
 
+void SkBaseDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int cnt) {
+    SkPaint paint;
+    paint.setFilterQuality(kLow_SkFilterQuality);
+    for (int i = 0; i < cnt; ++i) {
+        paint.setAntiAlias(images->fAAFlags != SkCanvas::EdgeAAFlags::kNone);
+        this->drawImageRect(images[i].fImage, &images[i].fSrcRect, images[i].fDstRect, paint, SkCanvas::kFast_SrcRectConstraint);
+    }
+}
+
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
                                      const SkCanvas::Lattice& lattice, const SkRect& dst,
                                      const SkPaint& paint) {

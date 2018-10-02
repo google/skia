@@ -171,6 +171,8 @@ public:
                                       dst, MaybePaint(paint, fXformer.get()));
         }
     }
+    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int cnt) override {}
+
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
                      const SkColor* colors, int count, SkBlendMode mode,
                      const SkRect* cull, const SkPaint* paint) override {

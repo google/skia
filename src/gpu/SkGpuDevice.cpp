@@ -1447,6 +1447,22 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
     this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
+#if SK_USE_GPU_IMAGE_SET
+void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int cnt) {
+        for (int i = 0; i < cnt; ++i) {
+        auto image = images[i].fImage;
+        sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(), nullptr, nullptr, nullptr);
+        if (proxy) {
+            fRenderTargetContext->drawTexture(this->clip(), std::move(proxy),
+                                              GrSamplerState::Filter::kBilerp, GrColor_WHITE,
+                                              images[i].fSrcRect, images[i].fDstRect,
+                                              images[i].fAAFlags, SkCanvas::kFast_SrcRectConstraint,
+                                              this->ctm(), nullptr, nullptr);
+        }
+    }
+}
+#endif
+
 static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
                                 const SkPaint& skPaint, const SkMatrix& matrix, SkBlendMode bmode,
                                 bool hasTexs, bool hasColors, GrPaint* grPaint) {

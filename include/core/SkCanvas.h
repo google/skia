@@ -1822,6 +1822,41 @@ public:
     void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                           const SkPaint* paint = nullptr);
 
+    /**
+     * Controls anti-aliasing of each edge of images in an image-set.
+     */
+    enum class EdgeAAFlags : unsigned {
+        kLeft   = 0b0001,
+        kTop    = 0b0010,
+        kRight  = 0b0100,
+        kBottom = 0b1000,
+
+        kNone   = 0b0000,
+        kAll    = 0b1111,
+
+        kTopLeft     = kTop    | kLeft,
+        kTopRight    = kTop    | kRight,
+        kBottomRight = kBottom | kRight,
+        kBottomLeft  = kBottom | kLeft,
+    };
+
+    /** This is used by the experimental API below. */
+    struct ImageSetEntry {
+        SkImage*    fImage;
+        SkRect      fSrcRect;
+        SkRect      fDstRect;
+        EdgeAAFlags fAAFlags;
+    };
+
+    /**
+     * This is an experimental API for the SkiaRenderer Chromium project. The signature will
+     * surely evolve if this is not removed. It currently offers no performance advantage over
+     * drawing images independently, though may in the future. The antialiasing flags are intended
+     * to allow control over each edge's AA status, to allow perfect seaming for tile sets. The
+     * current implementation only antialiases if all edges are flagged, however.
+     */
+    void experimentalDrawImageSet(const ImageSetEntry imageSet[], int cnt);
+
     /** Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
 
         text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
@@ -2447,6 +2482,8 @@ protected:
                                  const SkPaint* paint);
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
+
+    virtual void onDrawImageSet(const ImageSetEntry imageSet[], int cnt);
 
     virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
                               const SkPaint* paint);
