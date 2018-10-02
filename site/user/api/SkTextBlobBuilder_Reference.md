@@ -1,101 +1,34 @@
 SkTextBlobBuilder Reference
 ===
 
-# <a name='Text_Blob_Builder'>Text Blob Builder</a>
+<a name='SkTextBlobBuilder'></a>
 
-# <a name='SkTextBlobBuilder'>Class SkTextBlobBuilder</a>
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+class <a href='#SkTextBlobBuilder'>SkTextBlobBuilder</a> {
+public:
+    <a href='#SkTextBlobBuilder_empty_constructor'>SkTextBlobBuilder()</a>;
+    <a href='#SkTextBlobBuilder_destructor'>~SkTextBlobBuilder()</a>;
+    <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlobBuilder_make'>make</a>();
 
-## <a name='Struct'>Struct</a>
+    struct <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a> {
+        <a href='undocumented#SkGlyphID'>SkGlyphID</a>* glyphs;
+        <a href='undocumented#SkScalar'>SkScalar</a>* pos;
+        char* <a href='#SkTextBlobBuilder_RunBuffer_utf8text'>utf8text</a>;
+        uint32_t* clusters;
+    };
 
-
-SkTextBlobBuilder uses C++ structs to declare the public data structures and interfaces.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>storage for <a href='undocumented#Glyph'>Glyphs</a> and <a href='undocumented#Glyph'>Glyph</a> positions</td>
-  </tr>
-</table>
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
+                              const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
+                                  const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count,
+                                 const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
+};
+</pre>
 
 Helper class for constructing <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>.
 
-## Overview
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkTextBlobBuilder'>SkTextBlobBuilder</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Struct'>Struct Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded struct members</td>
-  </tr>
-</table>
-
-
-## <a name='Class'>Class</a>
-
-
-SkTextBlobBuilder uses C++ classes to declare the public data structures and interfaces.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-</table>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkTextBlobBuilder can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_empty_constructor'>SkTextBlobBuilder()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs with default values</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_make'>make</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> from bulider</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_destructor'>~SkTextBlobBuilder()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>deletes storage</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member Function</a>
-
-
-SkTextBlobBuilder member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_allocRun'>allocRun</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable glyph buffer at <a href='SkPoint_Reference#Point'>Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable glyph and <a href='SkPoint_Reference#Point'>Point</a> buffers</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns writable glyph and x-axis position buffers</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_make'>make</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> from bulider</td>
-  </tr>
-</table>
-
-# <a name='SkTextBlobBuilder_RunBuffer'>Struct SkTextBlobBuilder::RunBuffer</a>
+<a name='SkTextBlobBuilder_RunBuffer'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     struct <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a> {
@@ -113,38 +46,10 @@ Each run may position its <a href='undocumented#Glyph'>Glyphs</a> in one of thre
 by specifying where the first <a href='undocumented#Glyph'>Glyph</a> is drawn, and allowing <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> to
 determine the advance to subsequent <a href='undocumented#Glyph'>Glyphs</a>; by specifying a baseline, and
 the position on that baseline for each <a href='undocumented#Glyph'>Glyph</a> in run; or by providing <a href='SkPoint_Reference#Point'>Point</a>
-array, one per <a href='undocumented#Glyph'>Glyph</a>.
+array, one per <a href='undocumented#Glyph'>Glyph</a>.<table style='border-collapse: collapse; width: 62.5em'>
 
-## <a name='Member'>Member</a>
-
-
-SkTextBlobBuilder::RunBuffer members may be read and written directly without using a member function.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>clusters</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>reserved for future use</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>glyphs</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>storage for <a href='undocumented#Glyph'>Glyphs</a> in run</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>pos</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>storage for positions in run</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_RunBuffer_utf8text'>utf8text</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>reserved for future use</td>
-  </tr>
-</table>
-
-### Members
-
-<table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Name</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkGlyphID*</td>
