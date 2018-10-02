@@ -147,19 +147,14 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
     return context;
 }
 
-sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext) {
 #ifdef SK_VULKAN
+sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext) {
     GrContextOptions defaultOptions;
     return MakeVulkan(backendContext, defaultOptions);
-#else
-    return nullptr;
-#endif
 }
 
 sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
                                        const GrContextOptions& options) {
-#ifdef SK_VULKAN
-    GrContextOptions defaultOptions;
     sk_sp<GrContext> context(new GrDirectContext(kVulkan_GrBackend));
 
     context->fGpu = GrVkGpu::Make(backendContext, options, context.get());
@@ -172,10 +167,8 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
         return nullptr;
     }
     return context;
-#else
-    return nullptr;
-#endif
 }
+#endif
 
 #ifdef SK_METAL
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {

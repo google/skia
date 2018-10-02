@@ -1362,8 +1362,8 @@ if (skia_enable_tools) {
       deps += [ "//third_party/angle2" ]
       sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
     }
-    public_include_dirs += [ "third_party/vulkan" ]
     if (skia_use_vulkan) {
+      public_include_dirs += [ "third_party/vulkan" ]
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
       if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
