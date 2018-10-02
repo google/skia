@@ -124,11 +124,6 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!canvas->imageInfo().colorSpace()) {
-            // This gm is only interesting in color correct modes.
-            return;
-        }
-
         const SkAlphaType alphaTypes[] = {
                 kUnpremul_SkAlphaType,
                 kPremul_SkAlphaType,
