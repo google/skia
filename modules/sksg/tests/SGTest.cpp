@@ -191,9 +191,21 @@ static void inval_test2(skiatest::Reporter* reporter) {
     }
 }
 
+static void inval_group_remove(skiatest::Reporter* reporter) {
+    auto draw = sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeWH(100, 100)),
+                                 sksg::Color::Make(SK_ColorBLACK));
+    auto grp = sksg::Group::Make();
+
+    // Readding the child should not trigger asserts.
+    grp->addChild(draw);
+    grp->removeChild(draw);
+    grp->addChild(draw);
+}
+
 DEF_TEST(SGInvalidation, reporter) {
     inval_test1(reporter);
     inval_test2(reporter);
+    inval_group_remove(reporter);
 }
 
 #endif // !defined(SK_BUILD_FOR_GOOGLE3)
