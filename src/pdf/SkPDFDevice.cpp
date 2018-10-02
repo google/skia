@@ -1035,7 +1035,6 @@ static bool contains(const SkRect& r, SkPoint p) {
 void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset) {
     const SkPaint& paint = glyphRun.paint();
     SkPath path;
-    SkASSERT(paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
     paint.getPosTextPath(glyphRun.shuntGlyphsIDs().data(),
                          glyphRun.shuntGlyphsIDs().size() * sizeof(SkGlyphID),
                          glyphRun.positions().data(),
@@ -1114,7 +1113,6 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     SkScalar textScaleY = textSize / emSize;
     SkScalar textScaleX = advanceScale + paint.getTextSkewX() * textScaleY;
 
-    SkASSERT(paint.getTextAlign() == SkPaint::kLeft_Align);
     SkRect clipStackBounds = this->cs().bounds(this->bounds());
     {
         ScopedContentEntry content(this, paint, true);
