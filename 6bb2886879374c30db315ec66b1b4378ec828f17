@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c41736e7_198ef38f",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-10-03T16:39:10Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "50a71b92_182a854f",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 14
+      },
+      "revId": "6bb2886879374c30db315ec66b1b4378ec828f17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0b3393b6_8e067dad",
         "filename": "modules/skottie/include/Skottie.h",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-10-03T15:43:03Z",
       "side": 1,
       "message": "maybe float seconds?",
+      "range": {
+        "startLine": 63,
+        "startChar": 36,
+        "endLine": 63,
+        "endChar": 44
+      },
+      "revId": "6bb2886879374c30db315ec66b1b4378ec828f17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f36907a5_00bb3687",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-10-03T16:39:10Z",
+      "side": 1,
+      "message": "Updated to pass layer timeline info instead, and defer time computations to the client.",
+      "parentUuid": "0b3393b6_8e067dad",
       "range": {
         "startLine": 63,
         "startChar": 36,
