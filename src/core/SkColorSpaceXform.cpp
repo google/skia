@@ -71,22 +71,6 @@ bool SkColorSpaceXform_skcms::apply(ColorFormat dstFormat, void* dst,
                            dst, get_skcms_format(dstFormat), dstAlpha, &fDstProfile, count);
 }
 
-void SkColorSpace::toProfile(skcms_ICCProfile* profile) const {
-    SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
-    SkColorSpaceTransferFn tf;
-    SkAssertResult(this->toXYZD50(&toXYZ) && this->isNumericalTransferFn(&tf));
-
-    skcms_Matrix3x3 m = { {
-        { toXYZ.get(0, 0), toXYZ.get(0, 1), toXYZ.get(0, 2) },
-        { toXYZ.get(1, 0), toXYZ.get(1, 1), toXYZ.get(1, 2) },
-        { toXYZ.get(2, 0), toXYZ.get(2, 1), toXYZ.get(2, 2) },
-    } };
-
-    skcms_Init(profile);
-    skcms_SetTransferFunction(profile, (const skcms_TransferFunction*)&tf);
-    skcms_SetXYZD50(profile, &m);
-}
-
 std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* src, SkColorSpace* dst) {
     if (src && dst && dst->toXYZD50()) {
         // Construct skcms_ICCProfiles from each color space. For now, support A2B and XYZ.
