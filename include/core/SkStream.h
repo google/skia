@@ -278,9 +278,7 @@ public:
     static int SizeOfPackedUInt(size_t value);
 
 private:
-    SkWStream(SkWStream&&) = delete;
     SkWStream(const SkWStream&) = delete;
-    SkWStream& operator=(SkWStream&&) = delete;
     SkWStream& operator=(const SkWStream&) = delete;
 };
 
@@ -459,7 +457,9 @@ private:
 
 class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
-    SkDynamicMemoryWStream();
+    SkDynamicMemoryWStream() = default;
+    SkDynamicMemoryWStream(SkDynamicMemoryWStream&&);
+    SkDynamicMemoryWStream& operator=(SkDynamicMemoryWStream&&);
     ~SkDynamicMemoryWStream() override;
 
     bool write(const void* buffer, size_t size) override;
@@ -488,9 +488,9 @@ public:
     void padToAlign4();
 private:
     struct Block;
-    Block*  fHead;
-    Block*  fTail;
-    size_t  fBytesWrittenBeforeTail;
+    Block*  fHead = nullptr;
+    Block*  fTail = nullptr;
+    size_t  fBytesWrittenBeforeTail = 0;
 
 #ifdef SK_DEBUG
     void validate() const;
