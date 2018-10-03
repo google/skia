@@ -37,7 +37,7 @@ public:
 
     GrShaderCaps(const GrContextOptions&);
 
-    void dumpJSON(SkJSONWriter*) const;
+    SkDEBUGCODE(void dumpJSON(SkJSONWriter*) const;)
 
     bool supportsDistanceFieldText() const { return fShaderDerivativeSupport; }
 
