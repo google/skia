@@ -85,7 +85,6 @@ static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
     rect->outset(radius, radius);
 }
 
-#ifndef SK_SUPPORT_LEGACY_DASH_CULL_PATH
 // If line is zero-length, bump out the end by a tiny amount
 // to draw endcaps. The bump factor is sized so that
 // SkPoint::Distance() computes a non-zero length.
@@ -168,75 +167,12 @@ static bool between(SkScalar a, SkScalar b, SkScalar c) {
             || (SkScalarNearlyZero(a) && SkScalarNearlyZero(b) && SkScalarNearlyZero(c)));
     return (a - b) * (c - b) <= 0;
 }
-#endif
 
 // Only handles lines for now. If returns true, dstPath is the new (smaller)
 // path. If returns false, then dstPath parameter is ignored.
 static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
                       const SkRect* cullRect, SkScalar intervalLength,
                       SkPath* dstPath) {
-#ifdef SK_SUPPORT_LEGACY_DASH_CULL_PATH
-    if (nullptr == cullRect) {
-        return false;
-    }
-
-    SkPoint pts[2];
-    if (!srcPath.isLine(pts)) {
-        return false;
-    }
-
-    SkRect bounds = *cullRect;
-    outset_for_stroke(&bounds, rec);
-
-    SkScalar dx = pts[1].x() - pts[0].x();
-    SkScalar dy = pts[1].y() - pts[0].y();
-
-    // just do horizontal lines for now (lazy)
-    if (dy) {
-        return false;
-    }
-
-    SkScalar minX = pts[0].fX;
-    SkScalar maxX = pts[1].fX;
-
-    if (dx < 0) {
-        using std::swap;
-        swap(minX, maxX);
-    }
-
-    SkASSERT(minX <= maxX);
-    if (maxX < bounds.fLeft || minX > bounds.fRight) {
-        return false;
-    }
-
-    // Now we actually perform the chop, removing the excess to the left and
-    // right of the bounds (keeping our new line "in phase" with the dash,
-    // hence the (mod intervalLength).
-
-    if (minX < bounds.fLeft) {
-        minX = bounds.fLeft - SkScalarMod(bounds.fLeft - minX,
-                                          intervalLength);
-    }
-    if (maxX > bounds.fRight) {
-        maxX = bounds.fRight + SkScalarMod(maxX - bounds.fRight,
-                                           intervalLength);
-    }
-
-    SkASSERT(maxX >= minX);
-    if (dx < 0) {
-        using std::swap;
-        swap(minX, maxX);
-    }
-    pts[0].fX = minX;
-    pts[1].fX = maxX;
-
-    // If line is zero-length, bump out the end by a tiny amount
-    // to draw endcaps. The bump factor is sized so that
-    // SkPoint::Distance() computes a non-zero length.
-    if (minX == maxX) {
-        pts[1].fX += maxX * FLT_EPSILON * 32;  // 16 instead of 32 does not draw; length stays zero
-    }
-#else // !SK_SUPPORT_LEGACY_DASH_CULL_PATH
     SkPoint pts[4];
     if (nullptr == cullRect) {
         if (srcPath.isLine(pts) && pts[0] == pts[1]) {
@@ -282,7 +218,6 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
             return false;
         }
     }
-#endif
     dstPath->moveTo(pts[0]);
     dstPath->lineTo(pts[1]);
     return true;
