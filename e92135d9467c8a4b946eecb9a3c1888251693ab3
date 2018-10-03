@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "e898ea7b_a8b631a0",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-03T15:52:01Z",
+      "side": 1,
+      "message": "Yeah, if we write up some docs just above the typedef, does that work?  That hits two birds with one stone too... no need to talk about whether FromSkColor and toSkColor exist for PM types if they don\u0027t ever see mention of the PM type?",
+      "parentUuid": "263c31e8_cbc0ec16",
+      "revId": "e92135d9467c8a4b946eecb9a3c1888251693ab3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "65d196fb_3ba93759",
         "filename": "include/core/SkColor.h",
         "patchSetId": 1
