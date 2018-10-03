@@ -696,14 +696,16 @@ private:
                 if (GrAAType::kCoverage == this->aaType()) {
                     fAAType = static_cast<unsigned>(GrAAType::kNone);
                     aaFlags = GrQuadAAFlags::kNone;
-                    // We may have had a strict constraint with nearest filter solely due to
-                    // possible AA bloat. In that case it's no longer necessary.
-                    if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
-                        fFilter == GrSamplerState::Filter::kNearest) {
-                        constraint = SkCanvas::kFast_SrcRectConstraint;
-                    }
                 }
             }
+        }
+        // We may have had a strict constraint with nearest filter solely due to possible AA bloat.
+        // If we don't have (or determined we don't need) coverage AA then we can skip using a
+        // domain.
+        if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
+            fFilter == GrSamplerState::Filter::kNearest &&
+            this->aaType() != GrAAType::kCoverage) {
+            constraint = SkCanvas::kFast_SrcRectConstraint;
         }
         const auto& draw = fDraws.emplace_back(srcRect, quad, aaFlags, constraint, color);
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
