@@ -323,12 +323,12 @@ private:
         GrContext* gr = fTarget->getGrContext();
         // If fTarget is GPU-accelerated, we want to upload to a texture before applying the
         // transform. This way, we can get cache hits in the texture cache and the transform gets
-        // applied on the GPU. We can't do A2B transforms on the GPU, though, so force those down
-        // the slower CPU path.
-        if (gr && (!image->colorSpace() || image->colorSpace()->toXYZD50())) {
+        // applied on the GPU.
+        if (gr) {
             sk_sp<SkImage> textureImage = image->makeTextureImage(gr, nullptr);
-            if (textureImage)
+            if (textureImage) {
                 return fXformer->apply(textureImage.get());
+            }
         }
         // TODO: Extract a sub image corresponding to the src rect in order
         // to xform only the useful part of the image. Sub image could be reduced

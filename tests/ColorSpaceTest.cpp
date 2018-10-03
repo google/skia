@@ -34,7 +34,8 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
     REPORTER_ASSERT(r, nullptr != space);
     REPORTER_ASSERT(r, expectedGamma == space->gammaNamed());
 
-    const SkMatrix44& mat = *space->toXYZD50();
+    SkMatrix44 mat{SkMatrix44::kUninitialized_Constructor};
+    space->toXYZD50(&mat);
     const float src[] = {
         1, 0, 0, 1,
         0, 1, 0, 1,
@@ -398,7 +399,6 @@ DEF_TEST(ColorSpace_MatrixHash, r) {
     srgbMat.set3x3RowMajorf(gSRGB_toXYZD50);
     sk_sp<SkColorSpace> strange = SkColorSpace::MakeRGB(fn, srgbMat);
 
-    REPORTER_ASSERT(r, *srgb->toXYZD50() == *strange->toXYZD50());
     REPORTER_ASSERT(r, srgb->toXYZD50Hash() == strange->toXYZD50Hash());
 }
 

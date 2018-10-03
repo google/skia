@@ -396,7 +396,9 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                         ColorSpaceHeader::Pack(k0_Version, 0, gammaNamed,
                                                 ColorSpaceHeader::kMatrix_Flag);
                 memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
-                this->toXYZD50()->as3x4RowMajorf((float*) memory);
+                SkMatrix44 m44{SkMatrix44::kUninitialized_Constructor};
+                this->toXYZD50(&m44);
+                m44.as3x4RowMajorf((float*) memory);
             }
             return sizeof(ColorSpaceHeader) + 12 * sizeof(float);
         }
@@ -419,7 +421,9 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                 *(((float*) memory) + 6) = transferFn.fG;
                 memory = SkTAddOffset<void>(memory, 7 * sizeof(float));
 
-                this->toXYZD50()->as3x4RowMajorf((float*) memory);
+                SkMatrix44 m44{SkMatrix44::kUninitialized_Constructor};
+                this->toXYZD50(&m44);
+                m44.as3x4RowMajorf((float*) memory);
             }
 
             return sizeof(ColorSpaceHeader) + 19 * sizeof(float);
@@ -520,7 +524,9 @@ bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
         case k2Dot2Curve_SkGammaNamed:
         case kLinear_SkGammaNamed:
             if (src->toXYZD50Hash() == dst->toXYZD50Hash()) {
-                SkASSERT(*src->toXYZD50() == *dst->toXYZD50() && "Hash collision");
+                for (int i = 0; i < 9; i++) {
+                    SkASSERT(src->fToXYZD50_3x3[i] == dst->fToXYZD50_3x3[i] && "Hash collsion");
+                }
                 return true;
             }
             return false;
