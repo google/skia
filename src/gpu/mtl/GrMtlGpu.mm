@@ -12,6 +12,7 @@
 #include "GrMtlTexture.h"
 #include "GrMtlTextureRenderTarget.h"
 #include "GrMtlUtil.h"
+#include "GrRenderTargetPriv.h"
 #include "GrTexturePriv.h"
 #include "SkConvertPixels.h"
 #include "SkSLCompiler.h"
@@ -103,6 +104,9 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
     fCaps = fMtlCaps;
 
     fCmdBuffer = [fQueue commandBuffer];
+
+    MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
+    fDisabledStencilState = [fDevice newDepthStencilStateWithDescriptor:desc];
 }
 
 GrGpuRTCommandBuffer* GrMtlGpu::getCommandBuffer(
@@ -213,6 +217,38 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         tex->texturePriv().markMipMapsDirty();
     }
     return true;
+}
+
+GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
+                                                                      int width,
+                                                                      int height) {
+    SkASSERT(width >= rt->width());
+    SkASSERT(height >= rt->height());
+
+    int samples = rt->numStencilSamples();
+
+    const GrMtlCaps::StencilFormat& sFmt = this->mtlCaps().preferredStencilFormat();
+
+    GrMtlStencilAttachment* stencil(GrMtlStencilAttachment::Create(this,
+                                                                   width,
+                                                                   height,
+                                                                   samples,
+                                                                   sFmt));
+    fStats.incStencilAttachmentCreates();
+    return stencil;
+}
+
+void GrMtlGpu::clearStencil(GrRenderTarget* target, int clearValue) {
+    id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
+    MTLRenderPassDescriptor* passDesc = [MTLRenderPassDescriptor renderPassDescriptor];
+    MTLRenderPassStencilAttachmentDescriptor* stencilDesc =
+                                            [[MTLRenderPassStencilAttachmentDescriptor alloc] init];
+    stencilDesc.loadAction = MTLLoadActionClear;
+    stencilDesc.clearStencil = clearValue;
+    passDesc.stencilAttachment = stencilDesc;
+    id<MTLRenderCommandEncoder> encoder = [cmdBuffer renderCommandEncoderWithDescriptor:passDesc];
+    [encoder endEncoding];
+    [cmdBuffer commit];
 }
 
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
