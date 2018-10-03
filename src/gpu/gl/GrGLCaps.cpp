@@ -14,7 +14,6 @@
 #include "GrShaderCaps.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxyPriv.h"
-#include "SkJSONWriter.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
@@ -1063,6 +1062,8 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
     }
 }
 
+#ifdef SK_DEBUG
+#include "SkJSONWriter.h"
 void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
     // We are called by the base class, which has already called beginObject(). We choose to nest
@@ -1175,6 +1176,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->endArray();
     writer->endObject();
 }
+#endif
 
 bool GrGLCaps::bgraIsInternalFormat() const {
     return fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat == GR_GL_BGRA;

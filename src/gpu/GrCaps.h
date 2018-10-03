@@ -32,7 +32,7 @@ class GrCaps : public SkRefCnt {
 public:
     GrCaps(const GrContextOptions&);
 
-    void dumpJSON(SkJSONWriter*) const;
+    SkDEBUGCODE(void dumpJSON(SkJSONWriter*) const;)
 
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
@@ -368,7 +368,7 @@ protected:
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
-    virtual void onDumpJSON(SkJSONWriter*) const {}
+    SkDEBUGCODE(virtual void onDumpJSON(SkJSONWriter*) const {})
 
     // Backends should implement this if they have any extra requirements for use of window
     // rectangles for a specific GrBackendRenderTarget outside of basic support.

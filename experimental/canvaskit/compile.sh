@@ -25,9 +25,16 @@ EXTRA_CFLAGS="\"-DSK_RELEASE\""
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
+  RELEASE_CONF="-O2 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
 fi
 
+GN_GPU="skia_enable_gpu=true skia_enable_ccpr=false"
+WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1"
+if [[ $@ == *no_gpu* ]]; then
+  echo "Omitting the GPU backend"
+  GN_GPU="skia_enable_gpu=false"
+  WASM_GPU="-DSK_SUPPORT_GPU=0"
+fi
 
 echo "Compiling bitcode"
 
@@ -64,7 +71,7 @@ EMCXX=`which em++`
   skia_use_vulkan=false \
   skia_use_zlib=true \
   \
-  skia_enable_gpu=true \
+  ${GN_GPU} \
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
 
@@ -95,9 +102,8 @@ ${EMCC} \
     -Isrc/sfnt/ \
     -Itools/fonts \
     -Itools \
-    -lEGL \
-    -lGLESv2 \
     -std=c++11 \
+    $WASM_GPU \
     --bind \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
@@ -123,12 +129,12 @@ ${EMCC} \
     src/utils/SkJSON.cpp \
     src/utils/SkParse.cpp \
     -s ALLOW_MEMORY_GROWTH=1 \
-    -s TOTAL_MEMORY=64MB \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
+    -s TOTAL_MEMORY=32MB \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WASM=1 \
