@@ -63,7 +63,7 @@ public:
                                                   const GrStencilSettings&,
                                                   GrPrimitiveType,
                                                   Desc*,
-                                                  const GrVkRenderPass& renderPass);
+                                                  VkRenderPass compatibleRenderPass);
 
     const GrCaps* caps() const override;
 
@@ -80,7 +80,7 @@ private:
 
     GrVkPipelineState* finalize(const GrStencilSettings&,
                                 GrPrimitiveType primitiveType,
-                                const GrVkRenderPass& renderPass,
+                                VkRenderPass compatibleRenderPass,
                                 Desc*);
 
     bool createVkShaderModule(VkShaderStageFlagBits stage,

@@ -77,7 +77,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,
         GrPrimitiveType primitiveType,
-        const GrVkRenderPass& renderPass) {
+        VkRenderPass compatibleRenderPass) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
@@ -112,7 +112,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, primProc, pipeline, stencil, primitiveType, &desc, renderPass));
+                fGpu, primProc, pipeline, stencil, primitiveType, &desc, compatibleRenderPass));
         if (nullptr == pipelineState) {
             return nullptr;
         }

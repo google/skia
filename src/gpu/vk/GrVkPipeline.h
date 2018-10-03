@@ -31,7 +31,7 @@ public:
                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                 int shaderStageCount,
                                 GrPrimitiveType primitiveType,
-                                const GrVkRenderPass& renderPass,
+                                VkRenderPass compatibleRenderPass,
                                 VkPipelineLayout layout,
                                 VkPipelineCache cache);
 

@@ -500,7 +500,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& pri
                                    const GrPipeline& pipeline, const GrStencilSettings& stencil,
                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                    int shaderStageCount, GrPrimitiveType primitiveType,
-                                   const GrVkRenderPass& renderPass, VkPipelineLayout layout,
+                                   VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
                                    VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     SkSTArray<2, VkVertexInputBindingDescription, true> bindingDescs;
@@ -551,7 +551,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& pri
     pipelineCreateInfo.pColorBlendState = &colorBlendInfo;
     pipelineCreateInfo.pDynamicState = &dynamicInfo;
     pipelineCreateInfo.layout = layout;
-    pipelineCreateInfo.renderPass = renderPass.vkRenderPass();
+    pipelineCreateInfo.renderPass = compatibleRenderPass;
     pipelineCreateInfo.subpass = 0;
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = -1;
