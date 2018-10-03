@@ -28,7 +28,7 @@ SkBmpStandardCodec::SkBmpStandardCodec(SkEncodedInfo&& info, std::unique_ptr<SkS
     , fSwizzler(nullptr)
     , fIsOpaque(isOpaque)
     , fInIco(inIco)
-    , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->getInfo().width(), 1)) : 0)
+    , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->dimensions().width(), 1)) : 0)
 {}
 
 /*
@@ -42,7 +42,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         // Subsets are not supported.
         return kUnimplemented;
     }
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+    if (dstInfo.dimensions() != this->dimensions()) {
         SkCodecPrintf("Error: scaling not supported.\n");
         return kInvalidScale;
     }
@@ -265,7 +265,7 @@ int SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo, void* dst, size_t
         const size_t currPosition = this->stream()->getPosition();
 
         // Calculate how many bytes we must skip to reach the AND mask.
-        const int remainingScanlines = this->getInfo().height() - startScanline - height;
+        const int remainingScanlines = this->dimensions().height() - startScanline - height;
         const size_t bytesToSkip = remainingScanlines * this->srcRowBytes() +
                 startScanline * fAndMaskRowBytes;
         const size_t subStreamStartPosition = currPosition + bytesToSkip;
@@ -303,7 +303,7 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
     // We do not need to worry about sampling in the y-dimension because that
     // should be handled by SkSampledCodec.
     const int sampleX = fSwizzler->sampleX();
-    const int sampledWidth = get_scaled_dimension(this->getInfo().width(), sampleX);
+    const int sampledWidth = get_scaled_dimension(this->dimensions().width(), sampleX);
     const int srcStartX = get_start_coord(sampleX);
 
 

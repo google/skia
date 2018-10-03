@@ -203,15 +203,16 @@ SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     // We set the dimensions to the largest candidate image by default.
     // Regardless of the scale request, this is the largest image that we
     // will decode.
-    int origWidth = this->getInfo().width();
-    int origHeight = this->getInfo().height();
+    int origWidth = this->dimensions().width();
+    int origHeight = this->dimensions().height();
     float desiredSize = desiredScale * origWidth * origHeight;
     // At least one image will have smaller error than this initial value
     float minError = ((float) (origWidth * origHeight)) - desiredSize + 1.0f;
     int32_t minIndex = -1;
     for (int32_t i = 0; i < fEmbeddedCodecs->count(); i++) {
-        int width = fEmbeddedCodecs->operator[](i)->getInfo().width();
-        int height = fEmbeddedCodecs->operator[](i)->getInfo().height();
+        auto dimensions = fEmbeddedCodecs->operator[](i)->dimensions();
+        int width = dimensions.width();
+        int height = dimensions.height();
         float error = SkTAbs(((float) (width * height)) - desiredSize);
         if (error < minError) {
             minError = error;
@@ -220,7 +221,7 @@ SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     }
     SkASSERT(minIndex >= 0);
 
-    return fEmbeddedCodecs->operator[](minIndex)->getInfo().dimensions();
+    return fEmbeddedCodecs->operator[](minIndex)->dimensions();
 }
 
 int SkIcoCodec::chooseCodec(const SkISize& requestedSize, int startIndex) {
@@ -228,7 +229,7 @@ int SkIcoCodec::chooseCodec(const SkISize& requestedSize, int startIndex) {
 
     // FIXME: Cache the index from onGetScaledDimensions?
     for (int i = startIndex; i < fEmbeddedCodecs->count(); i++) {
-        if (fEmbeddedCodecs->operator[](i)->getInfo().dimensions() == requestedSize) {
+        if (fEmbeddedCodecs->operator[](i)->dimensions() == requestedSize) {
             return i;
         }
     }
