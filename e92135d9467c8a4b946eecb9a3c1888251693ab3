@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "263c31e8_cbc0ec16",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-03T15:50:14Z",
+      "side": 1,
+      "message": "If there\u0027s a way to continue documenting SkColor4f, I\u0027d definitely be in favor of that.",
+      "parentUuid": "da329703_f54e27bf",
+      "revId": "e92135d9467c8a4b946eecb9a3c1888251693ab3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "65d196fb_3ba93759",
         "filename": "include/core/SkColor.h",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2018-10-03T15:45:22Z",
       "side": 1,
       "message": "I don\u0027t think this has to necessarily be true, here or in FromColor().  I think we could pretty easily write SkPMColor4f::FromColor(), right?\n\n  return SkColor4f::FromColor(c).premul();\n\nAnd toSkColor is probably,\n\n  return this-\u003eunpremul().toSkColor();\n\n?",
+      "range": {
+        "startLine": 343,
+        "startChar": 45,
+        "endLine": 343,
+        "endChar": 89
+      },
+      "revId": "e92135d9467c8a4b946eecb9a3c1888251693ab3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a63ac8be_4e817b13",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-03T15:50:14Z",
+      "side": 1,
+      "message": "Yes, that\u0027s what I imagined. I was mostly trying to document the current behavior. Do you anticipate using the to/from with SkPMColor4f?",
+      "parentUuid": "65d196fb_3ba93759",
       "range": {
         "startLine": 343,
         "startChar": 45,
