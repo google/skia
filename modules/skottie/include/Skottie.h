@@ -18,6 +18,7 @@
 
 class SkCanvas;
 class SkData;
+class SkImage;
 struct SkRect;
 class SkStream;
 
@@ -28,6 +29,39 @@ namespace sksg { class Scene;  }
 namespace skottie {
 
 class PropertyObserver;
+
+/**
+ * Image asset proxy interface.
+ */
+class SK_API ImageAsset : public SkRefCnt {
+public:
+    ImageAsset() = default;
+    virtual ~ImageAsset() = default;
+    ImageAsset(const ImageAsset&) = delete;
+    ImageAsset& operator=(const ImageAsset&) = delete;
+
+    /**
+     * Returns true if the image asset is animated.
+     */
+    virtual bool isMultiFrame() = 0;
+
+    /**
+     * Returns the SkImage for given frame.
+     *
+     * If the image asset is static, getImage() is only called once, at animation load time.
+     * Otherwise, this gets invoked every time the animation time is adjusted (on every seek).
+     *
+     * Embedders should cache and serve the same SkImage whenever possible, for efficiency.
+     *
+     * For convenience, two related frame selector arguments are passed to the callback:
+     *
+     * @param frame_ms      the frame timestamp (ms), relative to the animation's timeline origin
+     *                      (i.e. Animation::seek(0)).
+     * @param frame_number  the (contiguous) frame number, within image layer's
+     *                      [inPoint, outPoint] domain.
+     */
+    virtual sk_sp<SkImage> getImage(uint32_t frame_ms, float frame_number) = 0;
+};
 
 /**
  * ResourceProvider allows Skottie embedders to control loading of external
@@ -41,11 +75,18 @@ public:
     ResourceProvider& operator=(const ResourceProvider&) = delete;
 
     /**
-     * Load a resource (image, nested animation) specified by |path| + |name|, and
-     * return as an SkData.
+     * Load a generic resource (currently only nested animations) specified by |path| + |name|,
+     * and return as an SkData.
      */
     virtual sk_sp<SkData> load(const char resource_path[],
                                const char resource_name[]) const;
+
+    /**
+     * Load an image asset specified by |path| + |name|, and returns the corresponding
+     * ImageAsset proxy.
+     */
+    virtual sk_sp<ImageAsset> loadImageAsset(const char resource_path[],
+                                             const char resource_name[]) const;
 
     /**
      * Load an external font and return as SkData.
