@@ -105,24 +105,7 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkHalf.h"
 #include "SkPM4f.h"
-
-SkPM4f SkPM4f::FromPMColor(SkPMColor c) {
-    return From4f(swizzle_rb_if_bgra(Sk4f_fromL32(c)));
-}
-
-SkColor4f SkPM4f::unpremul() const {
-    float alpha = fVec[A];
-    if (0 == alpha) {
-        return { 0, 0, 0, 0 };
-    } else {
-        float invAlpha = 1 / alpha;
-        return { fVec[R] * invAlpha, fVec[G] * invAlpha, fVec[B] * invAlpha, alpha };
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <>
 SkColor4f SkColor4f::FromColor(SkColor bgra) {
@@ -137,14 +120,15 @@ SkColor SkColor4f::toSkColor() const {
 }
 
 template <>
+SkPMColor4f SkPMColor4f::FromPMColor(SkPMColor c) {
+    SkPMColor4f color;
+    swizzle_rb_if_bgra(Sk4f_fromL32(c)).store(&color);
+    return color;
+}
+
+template <>
 SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
     SkColor4f c4;
     Sk4f::Min(Sk4f::Max(Sk4f(r, g, b, a), Sk4f(0)), Sk4f(1)).store(c4.vec());
     return c4;
-}
-
-template <>
-SkPM4f SkColor4f::toPM4f() const {
-    auto rgba = Sk4f::Load(this->vec());
-    return SkPM4f::From4f(rgba * Sk4f(rgba[3], rgba[3], rgba[3], 1));
 }

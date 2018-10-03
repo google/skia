@@ -94,7 +94,7 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSp
 class SkComposeColorFilter : public SkColorFilter {
 public:
     uint32_t getFlags() const override {
-        // Can only claim alphaunchanged and SkPM4f support if both our proxys do.
+        // Can only claim alphaunchanged support if both our proxys do.
         return fOuter->getFlags() & fInner->getFlags();
     }
 

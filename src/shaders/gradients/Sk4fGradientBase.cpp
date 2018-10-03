@@ -13,8 +13,8 @@ namespace {
 
 Sk4f pack_color(const SkColor4f& c4f, bool premul, const Sk4f& component_scale) {
     Sk4f pm4f = premul
-        ? c4f.toPM4f().to4f()
-        : Sk4f{c4f.fR, c4f.fG, c4f.fB, c4f.fA};
+        ? Sk4f::Load(c4f.premul().vec())
+        : Sk4f::Load(c4f.vec());
 
     if (premul) {
         // If the stops are premul, we clamp them to gamut now.
@@ -133,8 +133,8 @@ Sk4fGradientInterval::Sk4fGradientInterval(const Sk4f& c0, SkScalar t0,
     const Sk4f   dc = SkScalarIsFinite(dt) ? (c1 - c0) / dt : 0;
     const Sk4f bias = c0 - (SkScalarIsFinite(t0) ? t0 * dc : 0);
 
-    bias.store(&fCb.fVec);
-    dc.store(&fCg.fVec);
+    bias.store(fCb.vec());
+    dc.store(fCg.vec());
 }
 
 void Sk4fGradientIntervalBuffer::init(const SkGradientShaderBase& shader, SkColorSpace* dstCS,
@@ -156,7 +156,7 @@ void Sk4fGradientIntervalBuffer::init(const SkGradientShaderBase& shader, SkColo
     // this stage:
     //
     //   1) scale the color components depending on paint alpha and the requested
-    //      interpolation space (note: the interval color storage is SkPM4f, but
+    //      interpolation space (note: the interval color storage is SkPMColor4f, but
     //      that doesn't necessarily mean the colors are premultiplied; that
     //      property is tracked in fColorsArePremul)
     //

@@ -217,58 +217,58 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     desc.flatten(buffer);
 }
 
-static void add_stop_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f Fs, SkPM4f Bs) {
-    (ctx->fs[0])[stop] = Fs.r();
-    (ctx->fs[1])[stop] = Fs.g();
-    (ctx->fs[2])[stop] = Fs.b();
-    (ctx->fs[3])[stop] = Fs.a();
-    (ctx->bs[0])[stop] = Bs.r();
-    (ctx->bs[1])[stop] = Bs.g();
-    (ctx->bs[2])[stop] = Bs.b();
-    (ctx->bs[3])[stop] = Bs.a();
+static void add_stop_color(SkJumper_GradientCtx* ctx, size_t stop, SkPMColor4f Fs, SkPMColor4f Bs) {
+    (ctx->fs[0])[stop] = Fs.fR;
+    (ctx->fs[1])[stop] = Fs.fG;
+    (ctx->fs[2])[stop] = Fs.fB;
+    (ctx->fs[3])[stop] = Fs.fA;
+    (ctx->bs[0])[stop] = Bs.fR;
+    (ctx->bs[1])[stop] = Bs.fG;
+    (ctx->bs[2])[stop] = Bs.fB;
+    (ctx->bs[3])[stop] = Bs.fA;
 }
 
-static void add_const_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f color) {
-    add_stop_color(ctx, stop, {{ 0, 0, 0, 0 }}, color);
+static void add_const_color(SkJumper_GradientCtx* ctx, size_t stop, SkPMColor4f color) {
+    add_stop_color(ctx, stop, { 0, 0, 0, 0 }, color);
 }
 
 // Calculate a factor F and a bias B so that color = F*t + B when t is in range of
 // the stop. Assume that the distance between stops is 1/gapCount.
 static void init_stop_evenly(
-    SkJumper_GradientCtx* ctx, float gapCount, size_t stop, SkPM4f c_l, SkPM4f c_r) {
+    SkJumper_GradientCtx* ctx, float gapCount, size_t stop, SkPMColor4f c_l, SkPMColor4f c_r) {
     // Clankium's GCC 4.9 targeting ARMv7 is barfing when we use Sk4f math here, so go scalar...
-    SkPM4f Fs = {{
-        (c_r.r() - c_l.r()) * gapCount,
-        (c_r.g() - c_l.g()) * gapCount,
-        (c_r.b() - c_l.b()) * gapCount,
-        (c_r.a() - c_l.a()) * gapCount,
-    }};
-    SkPM4f Bs = {{
-        c_l.r() - Fs.r()*(stop/gapCount),
-        c_l.g() - Fs.g()*(stop/gapCount),
-        c_l.b() - Fs.b()*(stop/gapCount),
-        c_l.a() - Fs.a()*(stop/gapCount),
-    }};
+    SkPMColor4f Fs = {
+        (c_r.fR - c_l.fR) * gapCount,
+        (c_r.fG - c_l.fG) * gapCount,
+        (c_r.fB - c_l.fB) * gapCount,
+        (c_r.fA - c_l.fA) * gapCount,
+    };
+    SkPMColor4f Bs = {
+        c_l.fR - Fs.fR*(stop/gapCount),
+        c_l.fG - Fs.fG*(stop/gapCount),
+        c_l.fB - Fs.fB*(stop/gapCount),
+        c_l.fA - Fs.fA*(stop/gapCount),
+    };
     add_stop_color(ctx, stop, Fs, Bs);
 }
 
 // For each stop we calculate a bias B and a scale factor F, such that
 // for any t between stops n and n+1, the color we want is B[n] + F[n]*t.
 static void init_stop_pos(
-    SkJumper_GradientCtx* ctx, size_t stop, float t_l, float t_r, SkPM4f c_l, SkPM4f c_r) {
+    SkJumper_GradientCtx* ctx, size_t stop, float t_l, float t_r, SkPMColor4f c_l, SkPMColor4f c_r) {
     // See note about Clankium's old compiler in init_stop_evenly().
-    SkPM4f Fs = {{
-        (c_r.r() - c_l.r()) / (t_r - t_l),
-        (c_r.g() - c_l.g()) / (t_r - t_l),
-        (c_r.b() - c_l.b()) / (t_r - t_l),
-        (c_r.a() - c_l.a()) / (t_r - t_l),
-    }};
-    SkPM4f Bs = {{
-        c_l.r() - Fs.r()*t_l,
-        c_l.g() - Fs.g()*t_l,
-        c_l.b() - Fs.b()*t_l,
-        c_l.a() - Fs.a()*t_l,
-    }};
+    SkPMColor4f Fs = {
+        (c_r.fR - c_l.fR) / (t_r - t_l),
+        (c_r.fG - c_l.fG) / (t_r - t_l),
+        (c_r.fB - c_l.fB) / (t_r - t_l),
+        (c_r.fA - c_l.fA) / (t_r - t_l),
+    };
+    SkPMColor4f Bs = {
+        c_l.fR - Fs.fR*t_l,
+        c_l.fG - Fs.fG*t_l,
+        c_l.fB - Fs.fB*t_l,
+        c_l.fA - Fs.fA*t_l,
+    };
     ctx->ts[stop] = t_l;
     add_stop_color(ctx, stop, Fs, Bs);
 }
@@ -317,19 +317,19 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
 
     auto prepareColor = [premulGrad, &xformedColors](int i) {
         SkColor4f c = xformedColors.fColors[i];
-        return premulGrad ? c.toPM4f()
-                          : SkPM4f::From4f(Sk4f::Load(&c));
+        return premulGrad ? c.premul()
+                          : SkPMColor4f{ c.fR, c.fG, c.fB, c.fA };
     };
 
     // The two-stop case with stops at 0 and 1.
     if (fColorCount == 2 && fOrigPos == nullptr) {
-        const SkPM4f c_l = prepareColor(0),
-                     c_r = prepareColor(1);
+        const SkPMColor4f c_l = prepareColor(0),
+                          c_r = prepareColor(1);
 
         // See F and B below.
         auto ctx = alloc->make<SkJumper_EvenlySpaced2StopGradientCtx>();
-        (c_r.to4f() - c_l.to4f()).store(ctx->f);
-        (             c_l.to4f()).store(ctx->b);
+        (Sk4f::Load(c_r.vec()) - Sk4f::Load(c_l.vec())).store(ctx->f);
+        (                        Sk4f::Load(c_l.vec())).store(ctx->b);
         ctx->interpolatedInPremul = premulGrad;
 
         p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, ctx);
@@ -351,9 +351,9 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
             size_t stopCount = fColorCount;
             float gapCount = stopCount - 1;
 
-            SkPM4f c_l = prepareColor(0);
+            SkPMColor4f c_l = prepareColor(0);
             for (size_t i = 0; i < stopCount - 1; i++) {
-                SkPM4f c_r = prepareColor(i + 1);
+                SkPMColor4f c_r = prepareColor(i + 1);
                 init_stop_evenly(ctx, gapCount, i, c_l, c_r);
                 c_l = c_r;
             }
@@ -381,12 +381,12 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
 
             size_t stopCount = 0;
             float  t_l = fOrigPos[firstStop];
-            SkPM4f c_l = prepareColor(firstStop);
+            SkPMColor4f c_l = prepareColor(firstStop);
             add_const_color(ctx, stopCount++, c_l);
             // N.B. lastStop is the index of the last stop, not one after.
             for (int i = firstStop; i < lastStop; i++) {
                 float  t_r = fOrigPos[i + 1];
-                SkPM4f c_r = prepareColor(i + 1);
+                SkPMColor4f c_r = prepareColor(i + 1);
                 SkASSERT(t_l <= t_r);
                 if (t_l < t_r) {
                     init_stop_pos(ctx, stopCount, t_l, t_r, c_l, c_r);

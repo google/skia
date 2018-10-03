@@ -228,8 +228,6 @@ SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 */
 SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 
-struct SkPM4f;
-
 template <SkAlphaType kAT>
 struct SkRGBA4f {
     float fR;
@@ -271,6 +269,8 @@ struct SkRGBA4f {
     static SkRGBA4f FromColor(SkColor);  // impl. depends on kAT
     SkColor toSkColor() const;  // impl. depends on kAT
 
+    static SkRGBA4f FromPMColor(SkPMColor);  // impl. depends on kAT
+
     SkRGBA4f<kPremul_SkAlphaType> premul() const {
         static_assert(kAT == kUnpremul_SkAlphaType, "");
         return { fR * fA, fG * fA, fB * fA, fA };
@@ -286,9 +286,6 @@ struct SkRGBA4f {
             return { fR * invAlpha, fG * invAlpha, fB * invAlpha, fA };
         }
     }
-
-    // TODO: remove?
-    SkPM4f toPM4f() const;  // impl. depends on kAT
 };
 
 using SkColor4f = SkRGBA4f<kUnpremul_SkAlphaType>;

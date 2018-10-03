@@ -17,7 +17,7 @@ public:
     LinearGradient4fContext(const SkLinearGradient&, const ContextRec&);
 
     void shadeSpan(int x, int y, SkPMColor dst[], int count) override;
-    void shadeSpan4f(int x, int y, SkPM4f dst[], int count) override;
+    void shadeSpan4f(int x, int y, SkPMColor4f dst[], int count) override;
 
 private:
     using INHERITED = GradientShaderBase4fContext;

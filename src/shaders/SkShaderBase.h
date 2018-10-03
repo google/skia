@@ -13,6 +13,7 @@
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkNoncopyable.h"
+#include "SkPM4f.h"
 #include "SkShader.h"
 #include "SkTLazy.h"
 
@@ -98,7 +99,7 @@ public:
          */
         virtual void shadeSpan(int x, int y, SkPMColor[], int count) = 0;
 
-        virtual void shadeSpan4f(int x, int y, SkPM4f[], int count);
+        virtual void shadeSpan4f(int x, int y, SkPMColor4f[], int count);
 
         // Notification from blitter::blitMask in case we need to see the non-alpha channels
         virtual void set3DMask(const SkMask*) {}

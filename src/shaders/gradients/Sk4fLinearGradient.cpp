@@ -185,16 +185,16 @@ LinearGradient4fContext::shadeSpan(int x, int y, SkPMColor dst[], int count) {
 }
 
 void SkLinearGradient::
-LinearGradient4fContext::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
+LinearGradient4fContext::shadeSpan4f(int x, int y, SkPMColor4f dst[], int count) {
     SkASSERT(count > 0);
 
     // 4f dests are dithered at a later stage, if needed.
     static constexpr float bias0 = 0,
                            bias1 = 0;
     if (fColorsArePremul) {
-        this->shadePremulSpan<SkPM4f, ApplyPremul::False>(x, y, dst, count, bias0, bias1);
+        this->shadePremulSpan<SkPMColor4f, ApplyPremul::False>(x, y, dst, count, bias0, bias1);
     } else {
-        this->shadePremulSpan<SkPM4f, ApplyPremul::True >(x, y, dst, count, bias0, bias1);
+        this->shadePremulSpan<SkPMColor4f, ApplyPremul::True >(x, y, dst, count, bias0, bias1);
     }
 }
 
