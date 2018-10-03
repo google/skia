@@ -10,9 +10,13 @@
 
 #include <map>
 #include "GrCCPerOpListPaths.h"
+#include "GrCaps.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTargetOpList.h"
+#include "SkMatrix.h"
+#include "SkPath.h"
+#include "SkRect.h"
 #include "ccpr/GrCCPerFlushResources.h"
 
 class GrCCDrawPathsOp;
