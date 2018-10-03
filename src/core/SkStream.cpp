@@ -476,9 +476,23 @@ struct SkDynamicMemoryWStream::Block {
     }
 };
 
-SkDynamicMemoryWStream::SkDynamicMemoryWStream()
-    : fHead(nullptr), fTail(nullptr), fBytesWrittenBeforeTail(0)
-{}
+SkDynamicMemoryWStream::SkDynamicMemoryWStream(SkDynamicMemoryWStream&& other)
+    : fHead(other.fHead)
+    , fTail(other.fTail)
+    , fBytesWrittenBeforeTail(other.fBytesWrittenBeforeTail)
+{
+    other.fHead = nullptr;
+    other.fTail = nullptr;
+    other.fBytesWrittenBeforeTail = 0;
+}
+
+SkDynamicMemoryWStream& SkDynamicMemoryWStream::operator=(SkDynamicMemoryWStream&& other) {
+    if (this != &other) {
+        this->~SkDynamicMemoryWStream();
+        new (this) SkDynamicMemoryWStream(std::move(other));
+    }
+    return *this;
+}
 
 SkDynamicMemoryWStream::~SkDynamicMemoryWStream() {
     this->reset();
