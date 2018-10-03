@@ -30,7 +30,7 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
         if (fKnowOutputColor &&
             fp->hasConstantOutputForConstantInput(fLastKnownOutputColor, &fLastKnownOutputColor)) {
             ++fProcessorsToEliminate;
-            fIsOpaque = fLastKnownOutputColor.fA >= 1.0f;
+            fIsOpaque = fLastKnownOutputColor.isOpaque();
             // We reset these since the caller is expected to not use the earlier fragment
             // processors.
             fCompatibleWithCoverageAsAlpha = true;

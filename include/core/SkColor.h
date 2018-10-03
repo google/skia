@@ -230,52 +230,143 @@ SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 
 struct SkPM4f;
 
+/** \struct SkRGBA4f
+    RGBA color value, holding four floating point components. Color components are always in
+    a known order.
+
+    TODO: Not clear on how to document the template-ness of this type. Public clients are
+    likely to use SkColor4f, which is actually SkRGBA4f<kUnpremul_SkAlphaType>. It's possible
+    for clients to use SkRGBA4f<kPremul_SkAlphaType>, though we don't make that as easy -
+    we have a non-public typedef for that (SkPMColor4f).
+*/
 template <SkAlphaType kAT>
 struct SkRGBA4f {
-    float fR;
-    float fG;
-    float fB;
-    float fA;
+    float fR;  //!< red component
+    float fG;  //!< green component
+    float fB;  //!< blue component
+    float fA;  //!< alpha component
 
+    /** Compares SkRGBA4f with other, and returns true if all components are equal.
+
+        @param other  SkRGBA4f to compare
+        @return       true if SkRGBA4f equals other
+    */
     bool operator==(const SkRGBA4f& other) const {
         return fA == other.fA && fR == other.fR && fG == other.fG && fB == other.fB;
     }
+
+    /** Compares SkRGBA4f with other, and returns true if not all components are equal.
+
+        @param other  SkRGBA4f to compare
+        @return       true if SkRGBA4f is not equal to other
+    */
     bool operator!=(const SkRGBA4f& other) const {
         return !(*this == other);
     }
 
+    /** Returns SkRGBA4f multiplied by scale.
+
+        @param scale  value to multiply by
+        @return       SkRGBA4f as (fR * scale, fG * scale, fB * scale, fA * scale)
+    */
     SkRGBA4f operator*(float scale) const {
         return { fR * scale, fG * scale, fB * scale, fA * scale };
     }
 
+    /** Returns SkRGBA4f multiplied component-wise by scale.
+
+        @param scale  SkRGBA4f to multiply by
+        @return       SkRGBA4f as (fR * scale.fR, fG * scale.fG, fB * scale.fB, fA * scale.fA)
+    */
     SkRGBA4f operator*(const SkRGBA4f& scale) const {
         return { fR * scale.fR, fG * scale.fG, fB * scale.fB, fA * scale.fA };
     }
 
-    const float* vec() const { return &fR; }
-          float* vec()       { return &fR; }
+    /** Returns a pointer to components of SkRGBA4f, for array access.
 
+        @return       pointer to array [fR, fG, fB, fA]
+    */
+    const float* vec() const { return &fR; }
+
+    /** Returns a pointer to components of SkRGBA4f, for array access.
+
+        @return       pointer to array [fR, fG, fB, fA]
+    */
+    float* vec() { return &fR; }
+
+    /** Returns one component. Asserts if index is out of range and SK_DEBUG is defined.
+
+        @param index  one of: 0 (fR), 1 (fG), 2 (fB), 3 (fA)
+        @return       value corresponding to index
+    */
     float operator[](int index) const {
         SkASSERT(index >= 0 && index < 4);
         return this->vec()[index];
     }
 
+    /** Returns one component. Asserts if index is out of range and SK_DEBUG is defined.
+
+        @param index  one of: 0 (fR), 1 (fG), 2 (fB), 3 (fA)
+        @return       value corresponding to index
+    */
     float& operator[](int index) {
         SkASSERT(index >= 0 && index < 4);
         return this->vec()[index];
     }
 
+    /** Returns true if SkRGBA4f is an opaque color. Asserts if fA is out of range and
+        SK_DEBUG is defined.
+
+        @return       true if SkRGBA4f is opaque
+    */
+    bool isOpaque() const {
+        SkASSERT(fA <= 1.0f && fA >= 0.0f);
+        return fA == 1.0f;
+    }
+
+    /** Returns SkRGBA4f clamped to normalized range. Clamps a to [0, 1].
+        If SkRGBA4f is premultiplied, clamps r, g, and b to [0, fA].
+        If SkRGBA4f is unpremultiplied, clamps r, g, b to [0, 1].
+
+        @return       clamped SkRGBA4f
+    */
     static SkRGBA4f Pin(float r, float g, float b, float a);  // impl. depends on kAT
+
+    /** Returns SkRGBA4f clamped to normalized range. Clamps fA to [0, 1].
+        If SkRGBA4f is premultiplied, clamps fR, fG, and fB to [0, fA].
+        If SkRGBA4f is unpremultiplied, clamps fR, fG, fB to [0, 1].
+
+        @return       clamped SkRGBA4f
+    */
     SkRGBA4f pin() const { return Pin(fR, fG, fB, fA); }
 
+    /** Returns closest SkRGBA4f to SkColor. Only allowed if SkRGBA4f is unpremultiplied.
+
+        @return       SkColor as SkRGBA4f
+    */
     static SkRGBA4f FromColor(SkColor);  // impl. depends on kAT
+
+    /** Returns closest SkColor to SkRGBA4f. Only allowed if SkRGBA4f is unpremultiplied.
+
+        @return       color as SkColor
+    */
     SkColor toSkColor() const;  // impl. depends on kAT
 
+    /** Returns SkRGBA4f premultiplied by alpha. Asserts at compile time if SkRGBA4f is
+        already premultiplied.
+
+        @return       premultiplied color
+    */
     SkRGBA4f<kPremul_SkAlphaType> premul() const {
         static_assert(kAT == kUnpremul_SkAlphaType, "");
         return { fR * fA, fG * fA, fB * fA, fA };
     }
 
+    /** Returns SkRGBA4f unpremultiplied by alpha. Asserts at compile time if SkRGBA4f is
+        already unpremultiplied.
+
+        @return       unpremultiplied color
+    */
     SkRGBA4f<kUnpremul_SkAlphaType> unpremul() const {
         static_assert(kAT == kPremul_SkAlphaType, "");
 
@@ -287,7 +378,7 @@ struct SkRGBA4f {
         }
     }
 
-    // TODO: remove?
+    /** @deprecated */
     SkPM4f toPM4f() const;  // impl. depends on kAT
 };
 
