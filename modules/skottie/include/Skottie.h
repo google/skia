@@ -103,7 +103,7 @@ public:
     virtual void log(Level, const char message[], const char* json = nullptr);
 };
 
-class SK_API Animation : public SkRefCnt {
+class SK_API Animation : public SkNVRefCnt<Animation> {
 public:
 
     class Builder final {
@@ -173,7 +173,7 @@ public:
     static sk_sp<Animation> Make(SkStream*);
     static sk_sp<Animation> MakeFromFile(const char path[]);
 
-    ~Animation() override;
+    ~Animation();
 
     /**
      * Draws the current animation frame.
@@ -212,7 +212,7 @@ private:
                                  fOutPoint,
                                  fDuration;
 
-    typedef SkRefCnt INHERITED;
+    typedef SkNVRefCnt<Animation> INHERITED;
 };
 
 } // namespace skottie
