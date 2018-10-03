@@ -1442,12 +1442,12 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
             // color space of the noise. Either way, this case (and the GLSL) need to convert to
             // the destination.
             auto inner =
-                    GrConstColorProcessor::Make(GrColor4f::FromGrColor(0x80404040),
+                    GrConstColorProcessor::Make(GrColorToPMColor4f(0x80404040),
                                                 GrConstColorProcessor::InputMode::kModulateRGBA);
             return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
         }
         // Emit zero.
-        return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+        return GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT,
                                            GrConstColorProcessor::InputMode::kIgnore);
     }
 

@@ -90,7 +90,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
 
         GrPaint paint;
 
-        const GrColor4f color = { 1.0f, 0.0f, 0.0f, 1.0f };
+        const SkPMColor4f color = { 1.0f, 0.0f, 0.0f, 1.0f };
         auto fp = GrConstColorProcessor::Make(color, GrConstColorProcessor::InputMode::kIgnore);
         paint.addColorFragmentProcessor(std::move(fp));
 
@@ -110,7 +110,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
 
         GrPaint paint;
 
-        const GrColor4f color = { 0.0f, 1.0f, 0.0f, 1.0f };
+        const SkPMColor4f color = { 0.0f, 1.0f, 0.0f, 1.0f };
         auto fp = GrConstColorProcessor::Make(color, GrConstColorProcessor::InputMode::kIgnore);
         paint.addColorFragmentProcessor(std::move(fp));
 

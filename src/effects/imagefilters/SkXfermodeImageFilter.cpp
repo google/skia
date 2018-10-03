@@ -289,7 +289,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                              background->alphaType(),
                                              outputProperties.colorSpace());
     } else {
-        bgFP = GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+        bgFP = GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT,
                                            GrConstColorProcessor::InputMode::kIgnore);
     }
 

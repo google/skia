@@ -92,6 +92,7 @@ public:
         TRACKED,
         CTYPE,
         GRCOLOR4F,
+        SKPMCOLOR4F,
         SKRECT,
         SKIRECT,
         SKPMCOLOR,

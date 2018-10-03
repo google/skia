@@ -112,6 +112,14 @@ static inline void GrColorToRGBAFloat(GrColor color, float rgba[4]) {
     rgba[3] = GrColorUnpackA(color) * ONE_OVER_255;
 }
 
+/** Converts a GrColor to an SkPMColor4f */
+static inline SkRGBA4f<kPremul_SkAlphaType> GrColorToPMColor4f(GrColor color) {
+    GrColorIsPMAssert(color);
+    SkRGBA4f<kPremul_SkAlphaType> result;
+    GrColorToRGBAFloat(color, result.vec());
+    return result;
+}
+
 /** Normalizes and coverts an uint8_t to a float. [0, 255] -> [0.0, 1.0] */
 static inline float GrNormalizeByteToFloat(uint8_t value) {
     static const float ONE_OVER_255 = 1.f / 255.f;

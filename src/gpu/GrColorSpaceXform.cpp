@@ -54,6 +54,12 @@ GrColor4f GrColorSpaceXform::apply(const GrColor4f& srcColor) {
     return result;
 }
 
+SkColor4f GrColorSpaceXform::apply(const SkColor4f& srcColor) {
+    SkColor4f result = srcColor;
+    fSteps.apply(result.vec());
+    return result;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 class GrGLColorSpaceXformEffect : public GrGLSLFragmentProcessor {
