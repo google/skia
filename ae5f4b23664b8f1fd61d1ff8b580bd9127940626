@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bb462d5_d1d02235",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-03T12:55:21Z",
+      "side": 1,
+      "message": "This needs to go in applyDriverCorrectnessWorkarounds()",
+      "range": {
+        "startLine": 324,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 6
+      },
+      "revId": "ae5f4b23664b8f1fd61d1ff8b580bd9127940626",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
