@@ -28,6 +28,12 @@ def create_asset(target_dir):
       'frontend', 'bower_components')
   os.remove(bad_symlink)
 
+  # Install additional dependencies via the install_go_deps.sh script.
+  script = os.path.join(
+      target_dir, 'src', 'go.skia.org', 'infra', 'scripts',
+      'install_go_deps.sh')
+  subprocess.check_call(script, env=env)
+
 
 def main():
   parser = argparse.ArgumentParser()
