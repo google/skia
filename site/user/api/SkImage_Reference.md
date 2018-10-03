@@ -892,7 +892,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="c7be9423f7c2ef819523ba4d607d17b8" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="5af7b864b6ed8d96def81206124ac699" gpu="true"></fiddle-embed></div>
 
 ### See Also
 

@@ -3707,7 +3707,7 @@ so additional values choose a single solution. This construction is similar to <
 <a href='#SkPath_conicTo'>conicTo</a> can represent any <a href='#Arc'>Arc</a> with a sweep less than 180 degrees at any rotation. All <a href='#SkPath_arcTo'>arcTo</a>
 constructions are converted to <a href='#Conic'>Conic</a> data when added to <a href='#Path'>Path</a>.
 
-![Arc](https://fiddle.skia.org/i/fe909570a3c42269b447b061158177b9_raster.png "")
+![Arc](https://fiddle.skia.org/i/e17e48e9d2182e9afc0f5d26b72c60f0_raster.png "")
 
 <table>  <tr>
     <td><sup>1</sup> <a href='#SkPath_arcTo'>arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a></td>

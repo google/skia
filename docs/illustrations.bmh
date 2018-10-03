@@ -724,7 +724,7 @@ void draw(SkCanvas* canvas) {
 #Width 600
 #Function
 ###$
-#include "SkTextOnPath.h"
+
 struct data {
    const char* name;
    char super;
@@ -778,13 +778,16 @@ void draw(SkCanvas* canvas) {
        if (0 == col) {
           continue;
        }
-       canvas->drawLine(tl + col * 35, 100, tl + 100 + col * 35, 0, lp);
-       SkPath path;
-       path.moveTo(tl - 3 + col * 35, 103);
-       path.lineTo(tl + 124 + col * 35, -24);
+       canvas->drawLine( tl +        col * 35, 100,  tl + 100  + col * 35,   0, lp);
+       SkPoint pts[] = {{tl - 10.f + col * 35, 98}, {tl + 90.f + col * 35,  -2}};
+       SkVector v = pts[1] - pts[0];
+       v.normalize();
        SkMatrix matrix;
-       matrix.setTranslate(0, -9);
-       SkDrawTextOnPath(headers[col -1], strlen(headers[col -1]), bp, path, &matrix, canvas);
+       matrix.setSinCos(v.fY, v.fX, pts[0].fX, pts[0].fY);
+       canvas->save();
+       canvas->concat(matrix);
+       canvas->drawText(headers[col -1], strlen(headers[col -1]), pts[0].fX, pts[0].fY, bp);
+       canvas->restore();
     }
     for (unsigned row = 0; row <= SK_ARRAY_COUNT(dataSet); ++row) {
         if (0 == row) {

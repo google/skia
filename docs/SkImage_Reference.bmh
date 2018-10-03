@@ -453,7 +453,8 @@ if (!context) {
    return;
 }
 auto debugster = [](SkImage::ReleaseContext releaseContext) -> void {
-    *((int *) releaseContext) += 128;
+ // broken 
+ //   *((int *) releaseContext) += 128;
 };
 int x = 0;
 for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
