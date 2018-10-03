@@ -46,4 +46,7 @@ static inline uint32_t Sk4f_toL32(const Sk4f& px) {
 
 using SkPMColor4f = SkRGBA4f<kPremul_SkAlphaType>;
 
+constexpr SkPMColor4f SK_PMColor4fTRANSPARENT = { 0, 0, 0, 0 };
+constexpr SkPMColor4f SK_PMColor4fWHITE       = { 1, 1, 1, 1 };
+
 #endif

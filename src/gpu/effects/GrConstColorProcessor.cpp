@@ -44,14 +44,14 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrConstColorProcessor& _outer = _proc.cast<GrConstColorProcessor>();
         {
-            const GrColor4f& colorValue = _outer.color();
+            const SkPMColor4f& colorValue = _outer.color();
             if (fColorPrev != colorValue) {
                 fColorPrev = colorValue;
-                pdman.set4fv(fColorVar, 1, colorValue.fRGBA);
+                pdman.set4fv(fColorVar, 1, colorValue.vec());
             }
         }
     }
-    GrColor4f fColorPrev = GrColor4f::kIllegalConstructor;
+    SkPMColor4f fColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle fColorVar;
 };
 GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const {
@@ -78,7 +78,7 @@ std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::clone() const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
-    GrColor4f color;
+    SkPMColor4f color;
     int colorPicker = d->fRandom->nextULessThan(3);
     switch (colorPicker) {
         case 0: {
@@ -86,15 +86,15 @@ std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcess
             uint32_t r = d->fRandom->nextULessThan(a + 1);
             uint32_t g = d->fRandom->nextULessThan(a + 1);
             uint32_t b = d->fRandom->nextULessThan(a + 1);
-            color = GrColor4f::FromGrColor(GrColorPackRGBA(r, g, b, a));
+            color = GrColorToPMColor4f(GrColorPackRGBA(r, g, b, a));
             break;
         }
         case 1:
-            color = GrColor4f::TransparentBlack();
+            color = SK_PMColor4fTRANSPARENT;
             break;
         case 2:
             uint32_t c = d->fRandom->nextULessThan(0x100);
-            color = GrColor4f::FromGrColor(c | (c << 8) | (c << 16) | (c << 24));
+            color = GrColorToPMColor4f(c | (c << 8) | (c << 16) | (c << 24));
             break;
     }
     InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));

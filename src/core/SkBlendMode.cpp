@@ -124,7 +124,7 @@ void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
 SkPMColor4f SkBlendMode_Apply(SkBlendMode mode, const SkPMColor4f& src, const SkPMColor4f& dst) {
     // special-case simple/common modes...
     switch (mode) {
-        case SkBlendMode::kClear:   return { 0, 0, 0, 0 };
+        case SkBlendMode::kClear:   return SK_PMColor4fTRANSPARENT;
         case SkBlendMode::kSrc:     return src;
         case SkBlendMode::kDst:     return dst;
         case SkBlendMode::kSrcOver: {

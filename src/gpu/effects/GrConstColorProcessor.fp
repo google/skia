@@ -13,7 +13,7 @@ enum class InputMode {
     kLast = kModulateA
 };
 
-layout(ctype=GrColor4f, tracked) in uniform half4 color;
+layout(ctype=SkPMColor4f, tracked) in uniform half4 color;
 layout(key) in InputMode mode;
 
 @optimizationFlags {
@@ -37,7 +37,7 @@ void main() {
 @class {
     static const int kInputModeCnt = (int) InputMode::kLast + 1;
 
-    static OptimizationFlags OptFlags(GrColor4f color, InputMode mode) {
+    static OptimizationFlags OptFlags(const SkPMColor4f& color, InputMode mode) {
         OptimizationFlags flags = kConstantOutputForConstantInput_OptimizationFlag;
         if (mode != InputMode::kIgnore) {
             flags |= kCompatibleWithCoverageAsAlpha_OptimizationFlag;
@@ -49,22 +49,21 @@ void main() {
     }
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
-        SkPMColor4f color = fColor.asRGBA4f<kPremul_SkAlphaType>();
         switch (fMode) {
             case InputMode::kIgnore:
-                return color;
+                return fColor;
             case InputMode::kModulateA:
-                return color * input.fA;
+                return fColor * input.fA;
             case InputMode::kModulateRGBA:
-                return color * input;
+                return fColor * input;
         }
         SK_ABORT("Unexpected mode");
-        return { 0, 0, 0, 0 };
+        return SK_PMColor4fTRANSPARENT;
     }
 }
 
 @test(d) {
-    GrColor4f color;
+    SkPMColor4f color;
     int colorPicker = d->fRandom->nextULessThan(3);
     switch (colorPicker) {
         case 0: {
@@ -72,15 +71,15 @@ void main() {
             uint32_t r = d->fRandom->nextULessThan(a+1);
             uint32_t g = d->fRandom->nextULessThan(a+1);
             uint32_t b = d->fRandom->nextULessThan(a+1);
-            color = GrColor4f::FromGrColor(GrColorPackRGBA(r, g, b, a));
+            color = GrColorToPMColor4f(GrColorPackRGBA(r, g, b, a));
             break;
         }
         case 1:
-            color = GrColor4f::TransparentBlack();
+            color = SK_PMColor4fTRANSPARENT;
             break;
         case 2:
             uint32_t c = d->fRandom->nextULessThan(0x100);
-            color = GrColor4f::FromGrColor(c | (c << 8) | (c << 16) | (c << 24));
+            color = GrColorToPMColor4f(c | (c << 8) | (c << 16) | (c << 24));
             break;
     }
     InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));

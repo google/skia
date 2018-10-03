@@ -134,6 +134,8 @@ static String default_value(const Type& type) {
 static String default_value(const Variable& var) {
     if (var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kGrColor4f) {
         return "GrColor4f::kIllegalConstructor";
+    } else if (var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kSkPMColor4f) {
+        return "{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}";
     }
     return default_value(var.fType);
 }
@@ -180,6 +182,12 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
                 fFormatArgs.push_back(cppCode + ".fRGBA[1]");
                 fFormatArgs.push_back(cppCode + ".fRGBA[2]");
                 fFormatArgs.push_back(cppCode + ".fRGBA[3]");
+                break;
+            case Layout::CType::kSkPMColor4f:
+                fFormatArgs.push_back(cppCode + ".fR");
+                fFormatArgs.push_back(cppCode + ".fG");
+                fFormatArgs.push_back(cppCode + ".fB");
+                fFormatArgs.push_back(cppCode + ".fA");
                 break;
             case Layout::CType::kSkRect: // fall through
             case Layout::CType::kDefault:

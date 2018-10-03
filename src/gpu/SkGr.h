@@ -63,6 +63,9 @@ GrColor4f SkColorToPremulGrColor4f(SkColor, const GrColorSpaceInfo&);
 GrColor4f SkColor4fToPremulGrColor4fLegacy(SkColor4f);
 GrColor4f SkColor4fToUnpremulGrColor4f(SkColor4f, const GrColorSpaceInfo&);
 
+/** Similar, but using SkPMColor4f. */
+SkPMColor4f SkColorToPMColor4f(SkColor, const GrColorSpaceInfo&);
+
 ////////////////////////////////////////////////////////////////////////////////
 // Paint conversion
 

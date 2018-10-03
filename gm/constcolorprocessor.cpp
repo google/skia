@@ -103,7 +103,7 @@ protected:
                                                     skPaint, viewMatrix, &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
-                    GrColor4f color = GrColor4f::FromGrColor(kColors[procColor]);
+                    SkPMColor4f color = GrColorToPMColor4f(kColors[procColor]);
                     auto fp = GrConstColorProcessor::Make(color, mode);
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
