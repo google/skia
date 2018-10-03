@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f045d9b_5cd26591",
+        "filename": "src/gpu/mtl/GrMtlStencilAttachment.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-03T20:00:18Z",
+      "side": 1,
+      "message": "I assume this was copied from our other backends, but we might as well make this updated new one return an sk_sp and call it Make.",
+      "range": {
+        "startLine": 27,
+        "startChar": 35,
+        "endLine": 27,
+        "endChar": 41
+      },
+      "revId": "771b7c908f302a2794856890f176f200da8cf4f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

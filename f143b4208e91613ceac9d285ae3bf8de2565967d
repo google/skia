@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "742a3832_a4cc2ca9",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-03T20:00:18Z",
+      "side": 1,
+      "message": "are we gaining a whole lot by caching this? This is also only used in GrMtlPipelineState in one function so if caching it is worth it, it should probably live down there and not in GrMtlGpu",
+      "range": {
+        "startLine": 201,
+        "startChar": 28,
+        "endLine": 201,
+        "endChar": 50
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d562ed5_afda38d9",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-03T20:00:18Z",
+      "side": 1,
+      "message": "if we move the disabledstencilstate off of gpu are these friends needed still?",
+      "range": {
+        "startLine": 205,
+        "startChar": 5,
+        "endLine": 206,
+        "endChar": 36
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2151eace_a56b809a",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-03T20:00:18Z",
+      "side": 1,
+      "message": "why is this only set if the color load op is clear?",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 9
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3227afd_5d9b17d5",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-03T20:00:18Z",
+      "side": 1,
+      "message": "Do we need to set the commandbufferinfo.fBounds here like we do for color?",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 45,
+        "endChar": 30
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9916e89e_23d98f5d",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-03T20:00:18Z",
+      "side": 1,
+      "message": "delete this",
+      "range": {
+        "startLine": 97,
+        "startChar": 2,
+        "endLine": 97,
+        "endChar": 42
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d228ea57_2ba3dcd6",
+        "filename": "src/gpu/mtl/GrMtlStencilAttachment.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-03T20:00:18Z",
+      "side": 1,
+      "message": "2018",
+      "range": {
+        "startLine": 2,
+        "startChar": 15,
+        "endLine": 2,
+        "endChar": 16
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9b72945_8cf372c2",
+        "filename": "src/gpu/mtl/GrMtlStencilAttachment.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-03T20:00:18Z",
+      "side": 1,
+      "message": "8",
+      "range": {
+        "startLine": 2,
+        "startChar": 16,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
