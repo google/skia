@@ -8,6 +8,7 @@ _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
 skia_utils_sources = [
+  "$_include/utils/SkAnimCodecPlayer.h",
   "$_include/utils/SkFrontBufferedStream.h",
   "$_include/utils/SkCamera.h",
   "$_include/utils/SkCanvasStateUtils.h",
@@ -23,6 +24,7 @@ skia_utils_sources = [
   "$_include/utils/SkShadowUtils.h",
 
   "$_src/utils/Sk3D.cpp",
+  "$_src/utils/SkAnimCodecPlayer.cpp",
   "$_src/utils/SkBase64.cpp",
   "$_src/utils/SkBase64.h",
   "$_src/utils/SkBitSet.h",

@@ -182,6 +182,62 @@ private:
         return true;
     }
 };
-
 DEF_GM(return new AnimatedGifGM);
 
+
+#include "SkAnimCodecPlayer.h"
+#include "SkOSFile.h"
+#include "SkMakeUnique.h"
+
+static std::unique_ptr<SkCodec> load_codec(const char filename[]) {
+    return SkCodec::MakeFromData(SkData::MakeFromFileName(filename));
+}
+
+class AnimCodecPlayerGM : public skiagm::GM {
+private:
+    std::vector<std::unique_ptr<SkAnimCodecPlayer> > fPlayers;
+    uint32_t          fBaseMSec = 0;
+
+public:
+    AnimCodecPlayerGM() {
+        const char* root = "/skia/anim/";
+        SkOSFile::Iter iter(root);
+        SkString path;
+        while (iter.next(&path)) {
+            SkString completepath;
+            completepath.printf("%s%s", root, path.c_str());
+            auto codec = load_codec(completepath.c_str());
+            if (codec) {
+                fPlayers.push_back(skstd::make_unique<SkAnimCodecPlayer>(std::move(codec)));
+            }
+        }
+    }
+
+private:
+    SkString onShortName() override {
+        return SkString("AnimCodecPlayer");
+    }
+
+    SkISize onISize() override {
+        return { 1024, 768 };
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        canvas->scale(0.25f, 0.25f);
+        for (auto& p : fPlayers) {
+            canvas->drawImage(p->getFrame(), 0, 0, nullptr);
+            canvas->translate(p->dimensions().width(), 0);
+        }
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) override {
+        if (fBaseMSec == 0) {
+            fBaseMSec = timer.msec();
+        }
+        for (auto& p : fPlayers) {
+            (void)p->seek(timer.msec() - fBaseMSec);
+        }
+        return true;
+    }
+};
+DEF_GM(return new AnimCodecPlayerGM);
