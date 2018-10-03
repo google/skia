@@ -146,8 +146,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                                 found = true;
                                 break;
                             }
-                            if (var.fModifiers.fFlags & (Modifiers::kIn_Flag |
-                                                         Modifiers::kUniform_Flag)) {
+                            if (var.fModifiers.fFlags & Modifiers::kUniform_Flag) {
                                 ++index;
                             }
                         }

@@ -933,14 +933,13 @@ void IRGenerator::convertEnum(const ASTEnum& e) {
     ASTType enumType(e.fOffset, e.fTypeName, ASTType::kIdentifier_Kind, {});
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
-    std::shared_ptr<SymbolTable> symbols(new SymbolTable(fSymbolTable, &fErrors));
-    fSymbolTable = symbols;
+    AutoSymbolTable s(this);
+    std::shared_ptr<SymbolTable> symbols = fSymbolTable;
     for (size_t i = 0; i < e.fNames.size(); i++) {
         std::unique_ptr<Expression> value;
         if (e.fValues[i]) {
             value = this->convertExpression(*e.fValues[i]);
             if (!value) {
-                fSymbolTable = symbols->fParent;
                 return;
             }
             this->getConstantInt(*value, &currentValue);
@@ -956,7 +955,6 @@ void IRGenerator::convertEnum(const ASTEnum& e) {
     }
     fProgramElements->push_back(std::unique_ptr<ProgramElement>(new Enum(e.fOffset, e.fTypeName,
                                                                          symbols)));
-    fSymbolTable = symbols->fParent;
 }
 
 const Type* IRGenerator::convertType(const ASTType& type) {
