@@ -103,14 +103,14 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType typ
     // skip the draw or omit the clip element.
     if (!SkPathPriv::CheapComputeFirstDirection(path, &dir)) {
         if (GrProcessorEdgeTypeIsInverseFill(type)) {
-            return GrConstColorProcessor::Make(GrColor4f::OpaqueWhite(),
+            return GrConstColorProcessor::Make(SK_PMColor4fWHITE,
                                                GrConstColorProcessor::InputMode::kModulateRGBA);
         }
         // This could use kIgnore instead of kModulateRGBA but it would trigger a debug print
         // about a coverage processor not being compatible with the alpha-as-coverage optimization.
         // We don't really care about this unlikely case so we just use kModulateRGBA to suppress
         // the print.
-        return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+        return GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT,
                                            GrConstColorProcessor::InputMode::kModulateRGBA);
     }
 

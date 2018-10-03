@@ -265,7 +265,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
 
         SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
             SkPMColor4f childColor = ConstantOutputForConstantInput(this->childProcessor(0),
-                                                                    { 1, 1, 1, 1 });
+                                                                    SK_PMColor4fWHITE);
             SkPMColor4f premulInput = SkColor4f{ input.fR, input.fG, input.fB, input.fA }.premul();
             return premulInput * childColor;
         }
@@ -454,7 +454,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
     GrColorFragmentProcessorAnalysis info(inputColor, unique_ptr_address_as_pointer_address(series),
                                           cnt);
     SkTArray<std::unique_ptr<GrFragmentProcessor>> replacementSeries;
-    GrColor4f knownColor;
+    SkPMColor4f knownColor;
     int leadingFPsToEliminate = info.initialProcessorsToEliminate(&knownColor);
     if (leadingFPsToEliminate) {
         std::unique_ptr<GrFragmentProcessor> colorFP(

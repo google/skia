@@ -122,6 +122,7 @@ void Parser::InitLayoutMap() {
     TOKEN(TRACKED,                      "tracked");
     TOKEN(CTYPE,                        "ctype");
     TOKEN(GRCOLOR4F,                    "GrColor4f");
+    TOKEN(SKPMCOLOR4F,                  "SkPMColor4f");
     TOKEN(SKRECT,                       "SkRect");
     TOKEN(SKIRECT,                      "SkIRect");
     TOKEN(SKPMCOLOR,                    "SkPMColor");
@@ -730,6 +731,8 @@ Layout::CType Parser::layoutCType() {
             switch (found->second) {
                 case LayoutToken::GRCOLOR4F:
                     return Layout::CType::kGrColor4f;
+                case LayoutToken::SKPMCOLOR4F:
+                    return Layout::CType::kSkPMColor4f;
                 case LayoutToken::SKRECT:
                     return Layout::CType::kSkRect;
                 case LayoutToken::SKIRECT:

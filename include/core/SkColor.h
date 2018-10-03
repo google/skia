@@ -263,6 +263,11 @@ struct SkRGBA4f {
         return this->vec()[index];
     }
 
+    bool isOpaque() const {
+        SkASSERT(fA <= 1.0f && fA >= 0.0f);
+        return fA == 1.0f;
+    }
+
     static SkRGBA4f Pin(float r, float g, float b, float a);  // impl. depends on kAT
     SkRGBA4f pin() const { return Pin(fR, fG, fB, fA); }
 

@@ -129,9 +129,9 @@ public:
         return fProcessorsToEliminate;
     }
 
-    int initialProcessorsToEliminate(GrColor4f* newPipelineInputColor) const {
+    int initialProcessorsToEliminate(SkPMColor4f* newPipelineInputColor) const {
         if (fProcessorsToEliminate > 0) {
-            *newPipelineInputColor = GrColor4f::FromRGBA4f(fLastKnownOutputColor);
+            *newPipelineInputColor = fLastKnownOutputColor;
         }
         return fProcessorsToEliminate;
     }
