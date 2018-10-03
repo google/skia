@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6175af7_c6bf1931",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-03T18:46:23Z",
+      "side": 1,
+      "message": "We usually keep preprocessor lines unindented (or perhaps on their own indentation stack for nested #ifs)",
+      "revId": "4a111f60006ff254c860cf6cabfea9bc115c4dbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
