@@ -372,10 +372,14 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& dstInfo, void* pixels, siz
     return result;
 }
 
-SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* pixels,
+SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& dstInfo, void* pixels,
         size_t rowBytes, const SkCodec::Options* options) {
     fStartedIncrementalDecode = false;
 
+    SkImageInfo info = dstInfo;
+    if (!info.colorSpace()) {
+        info = info.makeColorSpace(SkColorSpace::MakeSRGB());
+    }
     if (kUnknown_SkColorType == info.colorType()) {
         return kInvalidConversion;
     }
@@ -441,10 +445,15 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* p
 }
 
 
-SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& info,
+SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options* options) {
     // Reset fCurrScanline in case of failure.
     fCurrScanline = -1;
+
+    SkImageInfo info = dstInfo;
+    if (!info.colorSpace()) {
+        info = info.makeColorSpace(SkColorSpace::MakeSRGB());
+    }
 
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
