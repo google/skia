@@ -190,16 +190,17 @@ DEF_TEST(AndroidCodec_P3, r) {
     REPORTER_ASSERT(r, !cs->isSRGB());
     REPORTER_ASSERT(r, cs->gammaCloseToSRGB());
 
-    const SkMatrix44* matrix = cs->toXYZD50();
+    SkMatrix44 matrix{SkMatrix44::kUninitialized_Constructor};
+    cs->toXYZD50(&matrix);
+
     SkMatrix44 expected(SkMatrix44::kUninitialized_Constructor);
     static constexpr float kExpected[] = {
         0.426254272f,  0.369018555f,  0.168914795f,
         0.226013184f,  0.685974121f,  0.0880126953f,
         0.0116729736f, 0.0950927734f, 0.71812439f,
     };
-
     expected.set3x3RowMajorf(kExpected);
-    REPORTER_ASSERT(r, *matrix == expected);
+    REPORTER_ASSERT(r, matrix == expected);
 }
 
 DEF_TEST(AndroidCodec_orientation, r) {
