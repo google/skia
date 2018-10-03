@@ -22,6 +22,30 @@
       "revId": "b4d895606f77c23bd34a1b57419723f6431e3386",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9058ac7e_f40a801e",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-03T19:02:50Z",
+      "side": 1,
+      "message": "Well the public parts of the public headers won\u0027t use it. This is a private ctor and we need to guard it because GrVkImageLayout is not defined in the public headers. This ctor will never be called in our cpp files if the flag isn\u0027t set.",
+      "parentUuid": "9332bb1d_08e506ec",
+      "range": {
+        "startLine": 210,
+        "startChar": 1,
+        "endLine": 210,
+        "endChar": 16
+      },
+      "revId": "b4d895606f77c23bd34a1b57419723f6431e3386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
