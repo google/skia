@@ -256,6 +256,56 @@ sk_sp<SkColorSpace> SkColorSpace::makeColorSpin() const {
     return sk_sp<SkColorSpace>(new SkColorSpace(fGammaNamed, fTransferFn, spin));
 }
 
+void SkColorSpace::toProfile(skcms_ICCProfile* profile) const {
+    skcms_TransferFunction tf;
+    skcms_Matrix3x3        toXYZD50;
+
+    memcpy(&tf,       fTransferFn,   7*sizeof(float));
+    memcpy(&toXYZD50, fToXYZD50_3x3, 9*sizeof(float));
+
+    skcms_Init               (profile);
+    skcms_SetTransferFunction(profile, &tf);
+    skcms_SetXYZD50          (profile, &toXYZD50);
+}
+
+sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile& profile) {
+    // TODO: move below ≈sRGB test?
+    if (!profile.has_toXYZD50 || !profile.has_trc) {
+        return nullptr;
+    }
+
+    if (skcms_ApproximatelyEqualProfiles(&profile, skcms_sRGB_profile())) {
+        return SkColorSpace::MakeSRGB();
+    }
+
+    // TODO: can we save this work and skip lazily inverting the matrix later?
+    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    toXYZD50.set3x3RowMajorf(&profile.toXYZD50.vals[0][0]);
+    if (!toXYZD50.invert(nullptr)) {
+        return nullptr;
+    }
+
+    // We can't work with tables or mismatched parametric curves,
+    // but if they all look close enough to sRGB, that's fine.
+    // TODO: should we maybe do this unconditionally to snap near-sRGB parametrics to sRGB?
+    const skcms_Curve* trc = profile.trc;
+    if (trc[0].table_entries != 0 ||
+        trc[1].table_entries != 0 ||
+        trc[2].table_entries != 0 ||
+        0 != memcmp(&trc[0].parametric, &trc[1].parametric, sizeof(trc[0].parametric)) ||
+        0 != memcmp(&trc[0].parametric, &trc[2].parametric, sizeof(trc[0].parametric)))
+    {
+        if (skcms_TRCs_AreApproximateInverse(&profile, skcms_sRGB_Inverse_TransferFunction())) {
+            return SkColorSpace::MakeRGB(kSRGB_SkGammaNamed, toXYZD50);
+        }
+        return nullptr;
+    }
+
+    SkColorSpaceTransferFn skia_tf;
+    memcpy(&skia_tf, &profile.trc[0].parametric, sizeof(skia_tf));
+    return SkColorSpace::MakeRGB(skia_tf, toXYZD50);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum Version {

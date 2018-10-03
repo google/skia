@@ -71,22 +71,6 @@ bool SkColorSpaceXform_skcms::apply(ColorFormat dstFormat, void* dst,
                            dst, get_skcms_format(dstFormat), dstAlpha, &fDstProfile, count);
 }
 
-void SkColorSpace::toProfile(skcms_ICCProfile* profile) const {
-    SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
-    SkColorSpaceTransferFn tf;
-    SkAssertResult(this->toXYZD50(&toXYZ) && this->isNumericalTransferFn(&tf));
-
-    skcms_Matrix3x3 m = { {
-        { toXYZ.get(0, 0), toXYZ.get(0, 1), toXYZ.get(0, 2) },
-        { toXYZ.get(1, 0), toXYZ.get(1, 1), toXYZ.get(1, 2) },
-        { toXYZ.get(2, 0), toXYZ.get(2, 1), toXYZ.get(2, 2) },
-    } };
-
-    skcms_Init(profile);
-    skcms_SetTransferFunction(profile, (const skcms_TransferFunction*)&tf);
-    skcms_SetXYZD50(profile, &m);
-}
-
 std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* src, SkColorSpace* dst) {
     if (src && dst && dst->toXYZD50()) {
         // Construct skcms_ICCProfiles from each color space. For now, support A2B and XYZ.
@@ -103,38 +87,4 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* src, SkC
         return skstd::make_unique<SkColorSpaceXform_skcms>(srcProfile, dstProfile);
     }
     return nullptr;
-}
-
-sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile& profile) {
-    if (!profile.has_toXYZD50 || !profile.has_trc) {
-        return nullptr;
-    }
-
-    if (skcms_ApproximatelyEqualProfiles(&profile, skcms_sRGB_profile())) {
-        return SkColorSpace::MakeSRGB();
-    }
-
-    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
-    toXYZD50.set3x3RowMajorf(&profile.toXYZD50.vals[0][0]);
-    if (!toXYZD50.invert(nullptr)) {
-        return nullptr;
-    }
-
-    const skcms_Curve* trc = profile.trc;
-    if (trc[0].table_entries ||
-        trc[1].table_entries ||
-        trc[2].table_entries ||
-        memcmp(&trc[0].parametric, &trc[1].parametric, sizeof(trc[0].parametric)) ||
-        memcmp(&trc[0].parametric, &trc[2].parametric, sizeof(trc[0].parametric)))
-    {
-        if (skcms_TRCs_AreApproximateInverse(&profile, skcms_sRGB_Inverse_TransferFunction())) {
-            return SkColorSpace::MakeRGB(kSRGB_SkGammaNamed, toXYZD50);
-        }
-        return nullptr;
-    }
-
-    SkColorSpaceTransferFn skia_tf;
-    memcpy(&skia_tf, &profile.trc[0].parametric, sizeof(skia_tf));
-
-    return SkColorSpace::MakeRGB(skia_tf, toXYZD50);
 }
