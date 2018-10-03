@@ -16,9 +16,12 @@
 #include "GrTexture.h"
 #include "GrTextureAdjuster.h"
 #include "SkImage_Gpu.h"
+#include "SkImage_GpuShared.h"
 #include "SkImage_GpuYUVA.h"
 #include "SkReadPixelsRec.h"
 #include "effects/GrYUVtoRGBEffect.h"
+
+using namespace SkImage_GpuShared;
 
 SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, uint32_t uniqueID,
                                  SkYUVColorSpace colorSpace, sk_sp<GrTextureProxy> proxies[],
@@ -37,7 +40,7 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, uint32_t uniqueID,
     memcpy(fYUVAIndices, yuvaIndices, 4*sizeof(SkYUVAIndex));
     // If an alpha channel is present we always switch to kPremul. This is because, although the
     // planar data is always un-premul, the final interleaved RGB image is/would-be premul.
-    if (-1 != yuvaIndices[3].fIndex) {
+    if (-1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex) {
         fImageAlphaType = kPremul_SkAlphaType;
     }
 }
@@ -51,31 +54,12 @@ SkImageInfo SkImage_GpuYUVA::onImageInfo() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-// need shared defs with SkImage_Gpu
-
-static bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex,
-                                     GrPixelConfig* config, SkColorType ct, SkAlphaType at,
-                                     sk_sp<SkColorSpace> cs) {
-    if (!tex.isValid()) {
-        return false;
-    }
-    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
-    // create a fake image info here.
-    SkImageInfo info = SkImageInfo::Make(1, 1, ct, at, cs);
-    if (!SkImageInfoIsValid(info)) {
-        return false;
-    }
-
-    return ctx->contextPriv().caps()->validateBackendTexture(tex, ct, config);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     if (!fRGBProxy) {
-        sk_sp<GrTextureProxy> yProxy = fProxies[fYUVAIndices[0].fIndex];
-        sk_sp<GrTextureProxy> uProxy = fProxies[fYUVAIndices[1].fIndex];
-        sk_sp<GrTextureProxy> vProxy = fProxies[fYUVAIndices[2].fIndex];
+        sk_sp<GrTextureProxy> yProxy = fProxies[fYUVAIndices[SkYUVAIndex::kY_Index].fIndex];
+        sk_sp<GrTextureProxy> uProxy = fProxies[fYUVAIndices[SkYUVAIndex::kU_Index].fIndex];
+        sk_sp<GrTextureProxy> vProxy = fProxies[fYUVAIndices[SkYUVAIndex::kV_Index].fIndex];
 
         if (!yProxy || !uProxy || !vProxy) {
             return nullptr;
@@ -85,7 +69,8 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         // TODO: Modify the fragment processor to sample from different channel
         // instead of taking nv12 bool.
-        bool nv12 = (fYUVAIndices[1].fIndex == fYUVAIndices[2].fIndex);
+        bool nv12 = (fYUVAIndices[SkYUVAIndex::kU_Index].fIndex ==
+                     fYUVAIndices[SkYUVAIndex::kV_Index].fIndex);
         // TODO: modify the YUVtoRGBEffect to do premul if fImageAlphaType is kPremul_AlphaType
         paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(std::move(yProxy), std::move(uProxy),
                                                                std::move(vProxy), fColorSpace,
@@ -122,14 +107,8 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrContext* context,
                                                          SkColorSpace* dstColorSpace,
                                                          sk_sp<SkColorSpace>* texColorSpace,
                                                          SkScalar scaleAdjust[2]) const {
-    if (context->uniqueID() != fContext->uniqueID()) {
-        SkASSERT(0);
-        return nullptr;
-    }
-
-    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(), this->alphaType(),
-                               this->uniqueID(), this->fImageColorSpace.get());
-    return adjuster.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
+    return AsTextureProxyRef(context, params, dstColorSpace, texColorSpace, scaleAdjust,
+                             fContext.get(), this, fImageAlphaType, fImageColorSpace.get());
 }
 
 bool SkImage_GpuYUVA::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
@@ -172,32 +151,6 @@ bool SkImage_GpuYUVA::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     return true;
 }
 
-sk_sp<SkImage> SkImage_GpuYUVA::onMakeSubset(const SkIRect& subset) const {
-    // Flatten the YUVA planes to a single texture
-    sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef();
-
-    GrSurfaceDesc desc;
-    desc.fWidth = subset.width();
-    desc.fHeight = subset.height();
-    desc.fConfig = proxy->config();
-
-    sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
-        desc, proxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact, fBudgeted));
-    if (!sContext) {
-        return nullptr;
-    }
-
-    if (!sContext->copy(proxy.get(), subset, SkIPoint::Make(0, 0))) {
-        return nullptr;
-    }
-
-    // MDB: this call is okay bc we know 'sContext' was kExact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
-                                   fImageAlphaType, sContext->asTextureProxyRef(),
-                                   fImageColorSpace, fBudgeted);
-}
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 //*** bundle this into a helper function used by this and SkImage_Gpu?
@@ -212,7 +165,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
 
     // Right now this still only deals with YUV and NV12 formats. Assuming that YUV has different
     // textures for U and V planes, while NV12 uses same texture for U and V planes.
-    bool nv12 = (yuvaIndices[1].fIndex == yuvaIndices[2].fIndex);
+    bool nv12 = (yuvaIndices[SkYUVAIndex::kU_Index].fIndex ==
+                 yuvaIndices[SkYUVAIndex::kV_Index].fIndex);
     auto ct = nv12 ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
 
     // We need to make a copy of the input backend textures because we need to preserve the result
@@ -221,7 +175,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
     for (int i = 0; i < 4; ++i) {
         // Validate that the yuvaIndices refer to valid backend textures.
         const SkYUVAIndex& yuvaIndex = yuvaIndices[i];
-        if (3 == i && yuvaIndex.fIndex == -1) {
+        if (SkYUVAIndex::kA_Index == i && yuvaIndex.fIndex == -1) {
             // Meaning the A plane isn't passed in.
             continue;
         }
@@ -234,8 +188,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
             yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
             // TODO: Instead of using assumption about whether it is NV12 format to guess colorType,
             // actually use channel information here.
-            if (!validate_backend_texture(ctx, yuvaTexturesCopy[i], &yuvaTexturesCopy[i].fConfig,
-                                          ct, kUnpremul_SkAlphaType, nullptr)) {
+            if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[i], &yuvaTexturesCopy[i].fConfig,
+                                        ct, kUnpremul_SkAlphaType, nullptr)) {
                 return nullptr;
             }
         }
@@ -251,7 +205,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
 
         // Safely ignore since this means we are missing the A plane.
         if (textureIndex == -1) {
-            SkASSERT(3 == i);
+            SkASSERT(SkYUVAIndex::kA_Index == i);
             continue;
         }
 
@@ -261,8 +215,9 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
                 proxyProvider->wrapBackendTexture(yuvaTexturesCopy[textureIndex], origin);
         }
     }
-    if (!tempTextureProxies[yuvaIndices[0].fIndex] || !tempTextureProxies[yuvaIndices[1].fIndex] ||
-        !tempTextureProxies[yuvaIndices[2].fIndex]) {
+    if (!tempTextureProxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex] ||
+        !tempTextureProxies[yuvaIndices[SkYUVAIndex::kU_Index].fIndex] ||
+        !tempTextureProxies[yuvaIndices[SkYUVAIndex::kV_Index].fIndex]) {
         return nullptr;
     }
 

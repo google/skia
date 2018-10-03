@@ -14,6 +14,7 @@
 #include "SkGr.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
+#include "SkImage_GpuShared.h"
 
 class GrTexture;
 
@@ -28,7 +29,10 @@ public:
     SkImageInfo onImageInfo() const override;
 
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
-    sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
+    sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const override {
+        return SkImage_GpuShared::OnMakeSubset(subset, fContext, this, fAlphaType, fColorSpace,
+                                               fBudgeted);
+    }
 
     GrContext* context() const override { return fContext.get(); }
     GrTextureProxy* peekProxy() const override {

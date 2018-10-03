@@ -542,6 +542,8 @@ skia_gpu_sources = [
 
   "$_src/image/SkImage_Gpu.h",
   "$_src/image/SkImage_Gpu.cpp",
+  "$_src/image/SkImage_GpuShared.h",
+  "$_src/image/SkImage_GpuShared.cpp",
   "$_src/image/SkImage_GpuYUVA.h",
   "$_src/image/SkImage_GpuYUVA.cpp",
   "$_src/image/SkSurface_Gpu.h",

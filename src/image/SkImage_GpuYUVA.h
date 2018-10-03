@@ -32,7 +32,10 @@ public:
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override {
         return false;
     }
-    sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
+    sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const override {
+        return SkImage_GpuShared::OnMakeSubset(subset, fContext, this, fImageAlphaType,
+                                               fImageColorSpace, fBudgeted);
+    }
 
     GrContext* context() const override { return fContext.get(); }
     GrTextureProxy* peekProxy() const override { return nullptr; }
