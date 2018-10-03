@@ -256,6 +256,18 @@ sk_sp<SkColorSpace> SkColorSpace::makeColorSpin() const {
     return sk_sp<SkColorSpace>(new SkColorSpace(fGammaNamed, fTransferFn, spin));
 }
 
+void SkColorSpace::toProfile(skcms_ICCProfile* profile) const {
+    skcms_TransferFunction tf;
+    skcms_Matrix3x3        toXYZD50;
+
+    memcpy(&tf,       fTransferFn,   7*sizeof(float));
+    memcpy(&toXYZD50, fToXYZD50_3x3, 9*sizeof(float));
+
+    skcms_Init               (profile);
+    skcms_SetTransferFunction(profile, &tf);
+    skcms_SetXYZD50          (profile, &toXYZD50);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum Version {
