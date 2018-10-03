@@ -49,7 +49,7 @@ public:
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
                                  GrPrimitiveType primitiveType,
-                                 const GrVkRenderPass& renderPass,
+                                 VkRenderPass compatibleRenderPass,
                                  VkPipelineLayout layout);
 
     GrVkCopyPipeline* findOrCreateCopyPipeline(const GrVkRenderTarget* dst,
@@ -104,7 +104,7 @@ public:
     GrVkPipelineState* findOrCreateCompatiblePipelineState(const GrPipeline&,
                                                            const GrPrimitiveProcessor&,
                                                            GrPrimitiveType,
-                                                           const GrVkRenderPass& renderPass);
+                                                           VkRenderPass compatibleRenderPass);
 
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
                                        const GrVkUniformHandler&,
@@ -174,7 +174,7 @@ private:
         GrVkPipelineState* refPipelineState(const GrPrimitiveProcessor&,
                                             const GrPipeline&,
                                             GrPrimitiveType,
-                                            const GrVkRenderPass& renderPass);
+                                            VkRenderPass compatibleRenderPass);
 
     private:
         enum {

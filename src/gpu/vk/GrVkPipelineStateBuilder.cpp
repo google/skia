@@ -22,7 +22,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         const GrStencilSettings& stencil,
         GrPrimitiveType primitiveType,
         Desc* desc,
-        const GrVkRenderPass& renderPass) {
+        VkRenderPass compatibleRenderPass) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
     GrVkPipelineStateBuilder builder(gpu, pipeline, primProc, desc);
@@ -31,7 +31,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         return nullptr;
     }
 
-    return builder.finalize(stencil, primitiveType, renderPass, desc);
+    return builder.finalize(stencil, primitiveType, compatibleRenderPass, desc);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
@@ -88,7 +88,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& stencil,
                                                       GrPrimitiveType primitiveType,
-                                                      const GrVkRenderPass& renderPass,
+                                                      VkRenderPass compatibleRenderPass,
                                                       Desc* desc) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
@@ -168,7 +168,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                                              shaderStageInfo,
                                                              numShaderStages,
                                                              primitiveType,
-                                                             renderPass,
+                                                             compatibleRenderPass,
                                                              pipelineLayout);
     GR_VK_CALL(fGpu->vkInterface(), DestroyShaderModule(fGpu->device(), vertShaderModule,
                                                         nullptr));

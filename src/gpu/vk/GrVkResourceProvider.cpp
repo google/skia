@@ -62,10 +62,10 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPrimitiveProcessor& p
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
                                                    GrPrimitiveType primitiveType,
-                                                   const GrVkRenderPass& renderPass,
+                                                   VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
     return GrVkPipeline::Create(fGpu, primProc, pipeline, stencil, shaderStageInfo,
-                                shaderStageCount, primitiveType, renderPass, layout,
+                                shaderStageCount, primitiveType, compatibleRenderPass, layout,
                                 fPipelineCache);
 }
 
@@ -179,11 +179,10 @@ GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSampler
 }
 
 GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
-                                                                 const GrPipeline& pipeline,
-                                                                 const GrPrimitiveProcessor& proc,
-                                                                 GrPrimitiveType primitiveType,
-                                                                 const GrVkRenderPass& renderPass) {
-    return fPipelineStateCache->refPipelineState(proc, pipeline, primitiveType, renderPass);
+        const GrPipeline& pipeline, const GrPrimitiveProcessor& proc, GrPrimitiveType primitiveType,
+        VkRenderPass compatibleRenderPass) {
+    return fPipelineStateCache->refPipelineState(proc, pipeline, primitiveType,
+                                                 compatibleRenderPass);
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,

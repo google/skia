@@ -589,11 +589,13 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     SkASSERT(cbInfo.fRenderPass);
 
+    VkRenderPass compatibleRenderPass = cbInfo.fRenderPass->vkRenderPass();
+
     GrVkPipelineState* pipelineState =
         fGpu->resourceProvider().findOrCreateCompatiblePipelineState(pipeline,
                                                                      primProc,
                                                                      primitiveType,
-                                                                     *cbInfo.fRenderPass);
+                                                                     compatibleRenderPass);
     if (!pipelineState) {
         return pipelineState;
     }
