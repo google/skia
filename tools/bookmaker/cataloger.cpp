@@ -51,10 +51,9 @@ bool Catalog::openCatalog(const char* inDir) {
 
 bool Catalog::openStatus(const char* statusFile) {
     StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
-    string unused;
     // FIXME: iterate through only chosen files by setting fDocsDir to iter
     // read one file to find directory
-    if (!iter.next(&unused)) {
+    if (!iter.next(nullptr, nullptr)) {
         return false;
     }
     return openCatalog(iter.baseDir().c_str());
