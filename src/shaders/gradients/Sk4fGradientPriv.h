@@ -32,7 +32,7 @@ struct PremulTraits<ApplyPremul::False> {
 template <>
 struct PremulTraits<ApplyPremul::True> {
     static Sk4f apply(const Sk4f& c) {
-        const float alpha = c[SkPM4f::A];
+        const float alpha = c[3];
         // FIXME: portable swizzle?
         return c * Sk4f(alpha, alpha, alpha, 1);
     }
@@ -40,7 +40,7 @@ struct PremulTraits<ApplyPremul::True> {
 
 // Struct encapsulating various dest-dependent ops:
 //
-//   - load()       Load a SkPM4f value into Sk4f.  Normally called once per interval
+//   - load()       Load a SkPMColor4f value into Sk4f.  Normally called once per interval
 //                  advance.  Also applies a scale and swizzle suitable for DstType.
 //
 //   - store()      Store one Sk4f to dest.  Optionally handles premul, color space
@@ -58,10 +58,11 @@ struct DstTraits<SkPMColor, premul> {
     using PM   = PremulTraits<premul>;
 
     // For L32, prescaling by 255 saves a per-pixel multiplication when premul is not needed.
-    static Sk4f load(const SkPM4f& c) {
+    static Sk4f load(const SkPMColor4f& c) {
+        Sk4f c4f = swizzle_rb_if_bgra(Sk4f::Load(c.vec()));
         return premul == ApplyPremul::False
-            ? c.to4f_pmorder() * Sk4f(255)
-            : c.to4f_pmorder();
+            ? c4f * Sk4f(255)
+            : c4f;
     }
 
     static void store(const Sk4f& c, SkPMColor* dst, const Sk4f& bias) {
@@ -102,27 +103,27 @@ struct DstTraits<SkPMColor, premul> {
 };
 
 template <ApplyPremul premul>
-struct DstTraits<SkPM4f, premul> {
+struct DstTraits<SkPMColor4f, premul> {
     using PM   = PremulTraits<premul>;
 
-    static Sk4f load(const SkPM4f& c) {
-        return c.to4f();
+    static Sk4f load(const SkPMColor4f& c) {
+        return Sk4f::Load(c.vec());
     }
 
-    static void store(const Sk4f& c, SkPM4f* dst, const Sk4f& /*bias*/) {
-        PM::apply(c).store(dst->fVec);
+    static void store(const Sk4f& c, SkPMColor4f* dst, const Sk4f& /*bias*/) {
+        PM::apply(c).store(dst->vec());
     }
 
-    static void store(const Sk4f& c, SkPM4f* dst, int n) {
+    static void store(const Sk4f& c, SkPMColor4f* dst, int n) {
         const Sk4f pmc = PM::apply(c);
         for (int i = 0; i < n; ++i) {
-            pmc.store(dst[i].fVec);
+            pmc.store(dst[i].vec());
         }
     }
 
     static void store4x(const Sk4f& c0, const Sk4f& c1,
                         const Sk4f& c2, const Sk4f& c3,
-                        SkPM4f* dst,
+                        SkPMColor4f* dst,
                         const Sk4f& bias0, const Sk4f& bias1) {
         store(c0, dst + 0, bias0);
         store(c1, dst + 1, bias1);

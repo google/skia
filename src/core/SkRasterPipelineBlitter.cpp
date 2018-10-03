@@ -81,7 +81,7 @@ private:
     float fCurrentCoverage = 0.0f;
     float fDitherRate      = 0.0f;
 
-    std::vector<SkPM4f> fShaderBuffer;
+    std::vector<SkPMColor4f> fShaderBuffer;
 
     typedef SkBlitter INHERITED;
 };

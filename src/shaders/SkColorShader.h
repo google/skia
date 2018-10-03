@@ -34,10 +34,10 @@ public:
 
         uint32_t getFlags() const override;
         void shadeSpan(int x, int y, SkPMColor span[], int count) override;
-        void shadeSpan4f(int x, int y, SkPM4f[], int count) override;
+        void shadeSpan4f(int x, int y, SkPMColor4f[], int count) override;
 
     private:
-        SkPM4f      fPM4f;
+        SkPMColor4f fPMColor4f;
         SkPMColor   fPMColor;
         uint32_t    fFlags;
 
@@ -89,10 +89,10 @@ public:
 
         uint32_t getFlags() const override;
         void shadeSpan(int x, int y, SkPMColor span[], int count) override;
-        void shadeSpan4f(int x, int y, SkPM4f[], int count) override;
+        void shadeSpan4f(int x, int y, SkPMColor4f[], int count) override;
 
     private:
-        SkPM4f      fPM4f;
+        SkPMColor4f fPMColor4f;
         SkPMColor   fPMColor;
         uint32_t    fFlags;
 
