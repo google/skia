@@ -18,6 +18,7 @@
 
 class SkCanvas;
 class SkData;
+class SkImage;
 struct SkRect;
 class SkStream;
 
@@ -30,22 +31,66 @@ namespace skottie {
 class PropertyObserver;
 
 /**
+ * Image asset proxy interface.
+ */
+class SK_API ImageAsset : public SkRefCnt {
+public:
+    /**
+     * Returns true if the image asset is animated.
+     */
+    virtual bool isMultiFrame() = 0;
+
+    struct LayerInfo {
+        float fInPoint,   // Layer "in point".  This is a contiguous frame number,
+                          // corresponding to the "ip" layer property.
+              fOutPoint,  // Layer "out point".  This is a contiguous frame number,
+                          // corresponding to the "op" layer property.
+              fFrameRate; // Layer frame rate (fps).
+    };
+
+    /**
+     * Returns the SkImage for a given frame.
+     *
+     * If the image asset is static, getImage() is only called once, at animation load time.
+     * Otherwise, this gets invoked every time the animation time is adjusted (on every seek).
+     *
+     * Embedders should cache and serve the same SkImage whenever possible, for efficiency.
+     *
+     * @param frame       The (contiguous) frame number, within image layer's
+     *                    [inPoint,outPoint] domain.
+     * @param layer_info  Image layer timing properties.  These are useful for mapping |frame|
+     *                    to something useful.  E.g.:
+     *
+     *     // Real time (ms), relative to Animation::seek(0) (timeline origin).
+     *     // Useful for driving the animated asset at its native speed.
+     *     auto t_ms = frame * 1000 / info.fFrameRate;
+     *
+     *     // Normalized time, relative to the layer's time span ([inPoint,outPoint] -> [0,1]).
+     *     // Useful for "stretching" the animated asset to the layer's duration.
+     *     auto t_normal = (frame - info.fInPoint) / (info.fOutPoint - info.fInPoint);
+     */
+    virtual sk_sp<SkImage> getImage(const LayerInfo& info, float frame) = 0;
+};
+
+/**
  * ResourceProvider allows Skottie embedders to control loading of external
  * Skottie resources -- e.g. images, fonts, nested animations.
  */
 class SK_API ResourceProvider : public SkRefCnt {
 public:
-    ResourceProvider() = default;
-    virtual ~ResourceProvider() = default;
-    ResourceProvider(const ResourceProvider&) = delete;
-    ResourceProvider& operator=(const ResourceProvider&) = delete;
-
     /**
-     * Load a resource (image, nested animation) specified by |path| + |name|, and
-     * return as an SkData.
+     * Load a generic resource (currently only nested animations) specified by |path| + |name|,
+     * and return as an SkData.
      */
     virtual sk_sp<SkData> load(const char resource_path[],
                                const char resource_name[]) const;
+
+    /**
+     * Load an image asset specified by |path| + |name|, and returns the corresponding
+     * ImageAsset proxy.
+     */
+    virtual sk_sp<ImageAsset> loadImageAsset(const char resource_path[],
+                                             const char resource_name[]) const;
 
     /**
      * Load an external font and return as SkData.
@@ -68,11 +113,6 @@ public:
  */
 class SK_API Logger : public SkRefCnt {
 public:
-    Logger() = default;
-    virtual ~Logger() = default;
-    Logger(const Logger&) = delete;
-    Logger& operator=(const Logger&) = delete;
-
     enum class Level {
         kWarning,
         kError,
