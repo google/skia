@@ -23,8 +23,7 @@ namespace GrTextureOp {
  * Creates an op that draws a sub-rectangle of a texture. The passed color is modulated by the
  * texture's color. 'srcRect' specifies the rectangle of the texture to draw. 'dstRect' specifies
  * the rectangle to draw in local coords which will be transformed by 'viewMatrix' to be in device
- * space. 'viewMatrix' must be affine. If GrAAType is kCoverage then AA is applied to the edges
- * indicated by GrQuadAAFlags. Otherwise, GrQuadAAFlags is ignored.
+ * space. 'viewMatrix' must be affine.
  */
 std::unique_ptr<GrDrawOp> Make(GrContext*,
                                sk_sp<GrTextureProxy>,
@@ -33,7 +32,6 @@ std::unique_ptr<GrDrawOp> Make(GrContext*,
                                const SkRect& srcRect,
                                const SkRect& dstRect,
                                GrAAType,
-                               GrQuadAAFlags,
                                SkCanvas::SrcRectConstraint,
                                const SkMatrix& viewMatrix,
                                sk_sp<GrColorSpaceXform> textureXform,

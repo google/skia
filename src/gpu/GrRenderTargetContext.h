@@ -135,7 +135,7 @@ public:
      * device space.
      */
     void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
-                     const SkRect& srcRect, const SkRect& dstRect, GrQuadAAFlags,
+                     const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
                      SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
                      sk_sp<GrColorSpaceXform> texXform, sk_sp<GrColorSpaceXform> colorXform);
 
