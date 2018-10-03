@@ -63,10 +63,8 @@ public:
     static sk_sp<GrContext> MakeGL(const GrContextOptions&);
     static sk_sp<GrContext> MakeGL();
 
-#ifdef SK_VULKAN
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&);
-#endif
 
 #ifdef SK_METAL
     /**
