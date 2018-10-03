@@ -7,8 +7,10 @@
 
 #include "gm.h"
 #include "Resources.h"
+#include "SkAnimCodecPlayer.h"
 #include "SkAnimTimer.h"
 #include "SkColor.h"
+#include "SkMakeUnique.h"
 #include "Skottie.h"
 #include "SkottieProperty.h"
 
@@ -88,7 +90,6 @@ private:
 DEF_GM(return new SkottieWebFontGM;)
 
 class SkottieColorizeGM : public skiagm::GM {
-public:
 protected:
     SkString onShortName() override {
         return SkString("skottie_colorize");
@@ -126,7 +127,6 @@ protected:
         return true;
     }
 
-protected:
     bool onHandleKey(SkUnichar uni) override {
         static constexpr SkColor kColors[] = {
             SK_ColorBLACK,
@@ -173,3 +173,81 @@ private:
 };
 
 DEF_GM(return new SkottieColorizeGM;)
+
+class SkottieMultiFrameGM : public skiagm::GM {
+public:
+protected:
+    SkString onShortName() override {
+        return SkString("skottie_multiframe");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(kSize, kSize);
+    }
+
+    void onOnceBeforeDraw() override {
+        if (auto stream = GetResourceAsStream("skottie/skottie_sample_multiframe.json")) {
+            fAnimation = Animation::Builder()
+                            .setResourceProvider(sk_make_sp<MultiFrameResourceProvider>())
+                            .make(stream.get());
+        }
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        if (!fAnimation) {
+            return;
+        }
+
+        auto dest = SkRect::MakeWH(kSize, kSize);
+        fAnimation->render(canvas, &dest);
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) override {
+        if (!fAnimation) {
+            return false;
+        }
+
+        const auto duration = fAnimation->duration();
+        fAnimation->seek(std::fmod(timer.secs(), duration) / duration);
+        return true;
+    }
+
+private:
+    class MultiFrameImageAsset final : public skottie::ImageAsset {
+    public:
+        MultiFrameImageAsset() {
+            if (auto codec = SkCodec::MakeFromData(GetResourceAsData("images/flightAnim.gif"))) {
+                fPlayer = skstd::make_unique<SkAnimCodecPlayer>(std::move(codec));
+            }
+        }
+
+        bool isMultiFrame() override { return fPlayer ? fPlayer->duration() > 0 : false; }
+
+        sk_sp<SkImage> getFrame(float t) override {
+            if (!fPlayer) {
+                return nullptr;
+            }
+
+            fPlayer->seek(static_cast<uint32_t>(t * 1000));
+            return fPlayer->getFrame();
+        }
+
+    private:
+        std::unique_ptr<SkAnimCodecPlayer> fPlayer;
+    };
+
+    class MultiFrameResourceProvider final : public skottie::ResourceProvider {
+    public:
+        sk_sp<ImageAsset> loadImageAsset(const char[], const char[]) const override {
+            return sk_make_sp<MultiFrameImageAsset>();
+        }
+    };
+
+    static constexpr SkScalar kSize = 800;
+
+    sk_sp<Animation> fAnimation;
+
+    using INHERITED = skiagm::GM;
+};
+
+DEF_GM(return new SkottieMultiFrameGM;)

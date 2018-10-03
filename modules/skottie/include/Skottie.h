@@ -18,6 +18,7 @@
 
 class SkCanvas;
 class SkData;
+class SkImage;
 struct SkRect;
 class SkStream;
 
@@ -30,22 +31,48 @@ namespace skottie {
 class PropertyObserver;
 
 /**
+ * Image asset proxy interface.
+ */
+class SK_API ImageAsset : public SkRefCnt {
+public:
+    /**
+     * Returns true if the image asset is animated.
+     */
+    virtual bool isMultiFrame() = 0;
+
+    /**
+     * Returns the SkImage for a given frame.
+     *
+     * If the image asset is static, getImage() is only called once, at animation load time.
+     * Otherwise, this gets invoked every time the animation time is adjusted (on every seek).
+     *
+     * Embedders should cache and serve the same SkImage whenever possible, for efficiency.
+     *
+     * @param t   Frame time code, in seconds, relative to the image layer timeline origin
+     *            (in-point).
+     */
+    virtual sk_sp<SkImage> getFrame(float t) = 0;
+};
+
+/**
  * ResourceProvider allows Skottie embedders to control loading of external
  * Skottie resources -- e.g. images, fonts, nested animations.
  */
 class SK_API ResourceProvider : public SkRefCnt {
 public:
-    ResourceProvider() = default;
-    virtual ~ResourceProvider() = default;
-    ResourceProvider(const ResourceProvider&) = delete;
-    ResourceProvider& operator=(const ResourceProvider&) = delete;
-
     /**
-     * Load a resource (image, nested animation) specified by |path| + |name|, and
-     * return as an SkData.
+     * Load a generic resource (currently only nested animations) specified by |path| + |name|,
+     * and return as an SkData.
      */
     virtual sk_sp<SkData> load(const char resource_path[],
                                const char resource_name[]) const;
+
+    /**
+     * Load an image asset specified by |path| + |name|, and returns the corresponding
+     * ImageAsset proxy.
+     */
+    virtual sk_sp<ImageAsset> loadImageAsset(const char resource_path[],
+                                             const char resource_name[]) const;
 
     /**
      * Load an external font and return as SkData.
@@ -68,11 +95,6 @@ public:
  */
 class SK_API Logger : public SkRefCnt {
 public:
-    Logger() = default;
-    virtual ~Logger() = default;
-    Logger(const Logger&) = delete;
-    Logger& operator=(const Logger&) = delete;
-
     enum class Level {
         kWarning,
         kError,

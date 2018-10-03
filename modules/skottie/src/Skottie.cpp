@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkFontMgr.h"
+#include "SkImage.h"
 #include "SkMakeUnique.h"
 #include "SkOSPath.h"
 #include "SkPaint.h"
@@ -243,6 +244,26 @@ void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* obse
 
 sk_sp<SkData> ResourceProvider::load(const char[], const char[]) const {
     return nullptr;
+}
+
+sk_sp<ImageAsset> ResourceProvider::loadImageAsset(const char path[], const char name[]) const {
+    // Legacy API fallback.  TODO: remove after clients get updated.
+    class StaticImageAsset final : public ImageAsset {
+    public:
+        explicit StaticImageAsset(sk_sp<SkImage> img) : fImage(std::move(img)) {}
+
+        bool isMultiFrame() override { return false; }
+
+        sk_sp<SkImage> getFrame(float) override { return fImage; }
+
+    private:
+        sk_sp<SkImage> fImage;
+    };
+
+    auto image = SkImage::MakeFromEncoded(this->load(path, name));
+
+    return image ? sk_make_sp<StaticImageAsset>(std::move(image))
+                 : nullptr;
 }
 
 sk_sp<SkData> ResourceProvider::loadFont(const char[], const char[]) const {

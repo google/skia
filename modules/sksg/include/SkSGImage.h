@@ -23,9 +23,10 @@ namespace sksg {
 class Image final : public RenderNode {
 public:
     static sk_sp<Image> Make(sk_sp<SkImage> image) {
-        return image ? sk_sp<Image>(new Image(std::move(image))) : nullptr;
+        return sk_sp<Image>(new Image(std::move(image)));
     }
 
+    SG_ATTRIBUTE(Image,     sk_sp<SkImage> , fImage    )
     SG_ATTRIBUTE(Quality  , SkFilterQuality, fQuality  )
     SG_ATTRIBUTE(AntiAlias, bool           , fAntiAlias)
 
@@ -37,9 +38,9 @@ protected:
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
-    const sk_sp<SkImage> fImage;
-    SkFilterQuality      fQuality   = kLow_SkFilterQuality;
-    bool                 fAntiAlias = true;
+    sk_sp<SkImage>  fImage;
+    SkFilterQuality fQuality   = kLow_SkFilterQuality;
+    bool            fAntiAlias = true;
 
     typedef RenderNode INHERITED;
 };
