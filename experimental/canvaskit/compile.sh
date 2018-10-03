@@ -123,7 +123,7 @@ ${EMCC} \
     src/utils/SkJSON.cpp \
     src/utils/SkParse.cpp \
     -s ALLOW_MEMORY_GROWTH=1 \
-    -s TOTAL_MEMORY=64MB \
+    -s TOTAL_MEMORY=32MB \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
     -s MODULARIZE=1 \

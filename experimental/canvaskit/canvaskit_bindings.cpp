@@ -197,6 +197,9 @@ namespace emscripten {
 EMSCRIPTEN_BINDINGS(Skia) {
     function("initFonts", &initFonts);
     function("_getWebGLSurface", &getWebGLSurface, allow_raw_pointers());
+    function("_getRasterN32PremulSurface", optional_override([](int width, int height)->sk_sp<SkSurface> {
+        return SkSurface::MakeRasterN32Premul(width, height, nullptr);
+    }), allow_raw_pointers());
     function("MakeSkCornerPathEffect", &SkCornerPathEffect::Make, allow_raw_pointers());
     function("MakeSkDiscretePathEffect", &SkDiscretePathEffect::Make, allow_raw_pointers());
     // Won't be called directly, there's a JS helper to deal with typed arrays.
@@ -280,6 +283,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("width", &SkSurface::width)
         .function("height", &SkSurface::height)
         .function("makeImageSnapshot", &SkSurface::makeImageSnapshot)
+        .function("_readPixels", optional_override([](SkSurface& self, int width, int height, uintptr_t /* uint8_t* */ cptr)->bool {
+            auto* dst = reinterpret_cast<uint8_t*>(cptr);
+            auto dstInfo = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+            return self.readPixels(dstInfo, dst, width*4, 0, 0);
+        }))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
 
 
