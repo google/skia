@@ -16,6 +16,24 @@
       "revId": "4a111f60006ff254c860cf6cabfea9bc115c4dbe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37cbb0fd_2f0fd709",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-03T20:05:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6175af7_c6bf1931",
+      "revId": "4a111f60006ff254c860cf6cabfea9bc115c4dbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
