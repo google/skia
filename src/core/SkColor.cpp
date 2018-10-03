@@ -148,3 +148,65 @@ SkPM4f SkColor4f::toPM4f() const {
     auto rgba = Sk4f::Load(this->vec());
     return SkPM4f::From4f(rgba * Sk4f(rgba[3], rgba[3], rgba[3], 1));
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static SkColor4f& as4f(Sk_Color4f& c4f) {
+    return *((SkColor4f*) &c4f);
+}
+
+static const SkColor4f& as4f(const Sk_Color4f& c4f) {
+    return *((const SkColor4f*) &c4f);
+}
+
+static Sk_Color4f& as_4f(SkColor4f& c4f) {
+    return *((Sk_Color4f*) &c4f);
+}
+
+bool Sk_Color4f::operator==(const Sk_Color4f& other) const {
+    return as4f(*this) == as4f(other);
+}
+
+bool Sk_Color4f::operator!=(const Sk_Color4f& other) const {
+    return as4f(*this) != as4f(other);
+}
+
+Sk_Color4f Sk_Color4f::operator*(float scale) const {
+    return as_4f(as4f(*this) * scale);
+}
+
+Sk_Color4f Sk_Color4f::operator*(const Sk_Color4f& scale) const {
+    return as_4f(as4f(*this) * as4f(scale));
+}
+
+const float* Sk_Color4f::vec() const {
+    return as4f(*this).vec();
+}
+
+float* Sk_Color4f::vec() {
+    return as4f(*this).vec();
+}
+
+float Sk_Color4f::operator[](int index) const {
+    return as4f(*this)[index];
+}
+
+float& Sk_Color4f::operator[](int index) {
+    return as4f(*this)[index];
+}
+
+Sk_Color4f Sk_Color4f::Pin(float r, float g, float b, float a) {
+    return as_4f(SkColor4f::Pin(r, g, b, a));
+}
+
+Sk_Color4f Sk_Color4f::pin() const {
+    return as_4f(as4f(*this).pin());
+}
+
+Sk_Color4f Sk_Color4f::FromColor(SkColor color) {
+    return as_4f(SkColor4f::FromColor(color));
+}
+
+SkColor Sk_Color4f::toSkColor() const {
+    return as4f(*this).toSkColor();
+}
