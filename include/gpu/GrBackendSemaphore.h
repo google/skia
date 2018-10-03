@@ -11,10 +11,7 @@
 #include "GrTypes.h"
 
 #include "gl/GrGLTypes.h"
-
-#ifdef SK_VULKAN
 #include "vk/GrVkTypes.h"
-#endif
 
 /**
  * Wrapper class for passing into and receiving data from Ganesh about a backend semaphore object.
@@ -31,13 +28,15 @@ public:
         fIsInitialized = true;
     }
 
-#ifdef SK_VULKAN
     void initVulkan(VkSemaphore semaphore) {
         fBackend = kVulkan_GrBackend;
         fVkSemaphore = semaphore;
+#ifdef SK_VULKAN
         fIsInitialized = true;
-    }
+#else
+        fIsInitialized = false;
 #endif
+    }
 
     bool isInitialized() const { return fIsInitialized; }
 
@@ -48,22 +47,18 @@ public:
         return fGLSync;
     }
 
-#ifdef SK_VULKAN
     VkSemaphore vkSemaphore() const {
         if (!fIsInitialized || kVulkan_GrBackend != fBackend) {
             return VK_NULL_HANDLE;
         }
         return fVkSemaphore;
     }
-#endif
 
 private:
     GrBackend fBackend;
     union {
         GrGLsync    fGLSync;
-#ifdef SK_VULKAN
         VkSemaphore fVkSemaphore;
-#endif
     };
     bool fIsInitialized;
 };
