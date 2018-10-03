@@ -37,7 +37,6 @@
 #include "SkGr.h"
 #include "SkImageInfoPriv.h"
 #include "SkImage_Gpu.h"
-#include "SkImage_GpuShared.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
@@ -45,17 +44,12 @@
 #include "effects/GrYUVtoRGBEffect.h"
 #include "gl/GrGLTexture.h"
 
-using namespace SkImage_GpuShared;
-
 SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace,
                          SkBudgeted budgeted)
-        : INHERITED(proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID)
-        , fContext(std::move(context))
-        , fProxy(std::move(proxy))
-        , fAlphaType(at)
-        , fBudgeted(budgeted)
-        , fColorSpace(std::move(colorSpace)) {}
+        : INHERITED(context, proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID,
+                    at, budgeted, colorSpace)
+        , fProxy(std::move(proxy)) {}
 
 SkImage_Gpu::~SkImage_Gpu() {}
 
@@ -117,15 +111,6 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace*, CachingHint chint) c
         this->notifyAddedToRasterCache();
     }
     return true;
-}
-
-sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
-                                                     const GrSamplerState& params,
-                                                     SkColorSpace* dstColorSpace,
-                                                     sk_sp<SkColorSpace>* texColorSpace,
-                                                     SkScalar scaleAdjust[2]) const {
-    return AsTextureProxyRef(context, params, dstColorSpace, texColorSpace, scaleAdjust,
-                             fContext.get(), this, fAlphaType, fColorSpace.get());
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -274,7 +259,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
         return nullptr;
     }
     GrBackendTexture texCopy = tex;
-    if (!ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
+    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
         return nullptr;
     }
     return new_wrapped_texture_common(ctx, texCopy, origin, at, std::move(cs),
@@ -290,7 +275,7 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
         return nullptr;
     }
     GrBackendTexture texCopy = tex;
-    if (!ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
+    if (!SkImage_GpuBase::ValidateBackendTexture(ctx, texCopy, &texCopy.fConfig, ct, at, cs)) {
         return nullptr;
     }
     return new_wrapped_texture_common(ctx, texCopy, origin, at, std::move(cs),
