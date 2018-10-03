@@ -101,7 +101,7 @@ SkWbmpCodec::SkWbmpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream)
     // Wbmp does not need a colorXform, so choose an arbitrary srcFormat.
     : INHERITED(std::move(info), skcms_PixelFormat(),
                 std::move(stream))
-    , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
+    , fSrcRowBytes(get_src_row_bytes(this->dimensions().width()))
     , fSwizzler(nullptr)
 {}
 
@@ -109,8 +109,8 @@ SkEncodedImageFormat SkWbmpCodec::onGetEncodedFormat() const {
     return SkEncodedImageFormat::kWBMP;
 }
 
-bool SkWbmpCodec::conversionSupported(const SkImageInfo& dst, SkColorType /*srcColor*/,
-                                      bool srcIsOpaque, bool /*needsXform*/) {
+bool SkWbmpCodec::conversionSupported(const SkImageInfo& dst, bool srcIsOpaque,
+                                      bool /*needsColorXform*/) {
     return valid_color_type(dst) && valid_alpha(dst.alphaType(), srcIsOpaque);
 }
 

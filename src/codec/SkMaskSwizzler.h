@@ -22,11 +22,10 @@ class SkMaskSwizzler : public SkSampler {
 public:
 
     /*
-     * Create a new swizzler
      * @param masks Unowned pointer to helper class
      */
     static SkMaskSwizzler* CreateMaskSwizzler(const SkImageInfo& dstInfo,
-                                              const SkImageInfo& srcInfo,
+                                              bool srcIsOpaque,
                                               SkMasks* masks,
                                               uint32_t bitsPerPixel,
                                               const SkCodec::Options& options);
