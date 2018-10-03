@@ -54,13 +54,13 @@ void SkOverdrawColorFilter::onAppendStages(SkRasterPipeline* p,
     ctx->colors = fColors;
     ctx->fn = [](SkJumper_CallbackCtx* arg, int active_pixels) {
         auto ctx = (Ctx*)arg;
-        auto pixels = (SkPM4f*)ctx->rgba;
+        auto pixels = (SkPMColor4f*)ctx->rgba;
         for (int i = 0; i < active_pixels; i++) {
-            uint8_t alpha = (int)(pixels[i].a() * 255);
+            uint8_t alpha = (int)(pixels[i].fA * 255);
             if (alpha >= kNumColors) {
                 alpha = kNumColors - 1;
             }
-            pixels[i] = SkPM4f::FromPMColor(ctx->colors[alpha]);
+            pixels[i] = SkPMColor4f::FromPMColor(ctx->colors[alpha]);
         }
     };
     p->append(SkRasterPipeline::callback, ctx);

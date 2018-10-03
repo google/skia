@@ -31,8 +31,8 @@ struct Sk4fGradientInterval {
     // Color bias and color gradient, such that for a t in this interval
     //
     //   C = fCb + t * fCg;
-    SkPM4f   fCb, fCg;
-    SkScalar fT0, fT1;
+    SkPMColor4f fCb, fCg;
+    SkScalar    fT0, fT1;
 };
 
 class Sk4fGradientIntervalBuffer {

@@ -142,14 +142,14 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
 
 SkShaderBase::Context::~Context() {}
 
-void SkShaderBase::Context::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
+void SkShaderBase::Context::shadeSpan4f(int x, int y, SkPMColor4f dst[], int count) {
     const int N = 128;
     SkPMColor tmp[N];
     while (count > 0) {
         int n = SkTMin(count, N);
         this->shadeSpan(x, y, tmp, n);
         for (int i = 0; i < n; ++i) {
-            dst[i] = SkPM4f::FromPMColor(tmp[i]);
+            dst[i] = SkPMColor4f::FromPMColor(tmp[i]);
         }
         dst += n;
         x += n;
@@ -232,7 +232,7 @@ bool SkShaderBase::onAppendStages(const StageRec& rec) const {
         auto c = (CallbackCtx*)self;
         int x = (int)c->rgba[0],
         y = (int)c->rgba[1];
-        c->ctx->shadeSpan4f(x,y, (SkPM4f*)c->rgba, active_pixels);
+        c->ctx->shadeSpan4f(x,y, (SkPMColor4f*)c->rgba, active_pixels);
     };
 
     if (cb->ctx) {

@@ -44,33 +44,6 @@ static inline uint32_t Sk4f_toL32(const Sk4f& px) {
     return l32;
 }
 
-/*
- *  The float values are 0...1 premultiplied in RGBA order (regardless of SkPMColor order)
- */
-struct SK_API SkPM4f {
-    enum {
-        R, G, B, A,
-    };
-    float fVec[4];
-
-    float r() const { return fVec[R]; }
-    float g() const { return fVec[G]; }
-    float b() const { return fVec[B]; }
-    float a() const { return fVec[A]; }
-
-    static SkPM4f From4f(const Sk4f& x) {
-        SkPM4f pm;
-        x.store(pm.fVec);
-        return pm;
-    }
-    static SkPM4f FromPMColor(SkPMColor);
-
-    Sk4f to4f() const { return Sk4f::Load(fVec); }
-    Sk4f to4f_pmorder() const { return swizzle_rb_if_bgra(this->to4f()); }
-
-    SkColor4f unpremul() const;
-};
-
 using SkPMColor4f = SkRGBA4f<kPremul_SkAlphaType>;
 
 #endif
