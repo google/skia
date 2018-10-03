@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfc83105_92a1294d",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-03T16:02:33Z",
+      "side": 1,
+      "message": "If this is moved to GrTextureOp we can miss some cases because of potential src rect clipping in crop_filled_rect on line 755.",
+      "range": {
+        "startLine": 747,
+        "startChar": 0,
+        "endLine": 750,
+        "endChar": 5
+      },
+      "revId": "1e4bb3a96468dbc53704f569598374e9c50e4124",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
