@@ -2704,12 +2704,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
-    // "shapes_mixed_10000_32x33" bench crashes PowerVRGX6250 in Release mode with ccpr.
-    // http://skbug.com/8098
-    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-        fBlacklistCoverageCounting = true;
-    }
-
     // CCPR edge AA is busted on Mesa, Sandy Bridge/Bay Trail.
     // http://skbug.com/8162
     if (kMesa_GrGLDriver == ctxInfo.driver() &&
