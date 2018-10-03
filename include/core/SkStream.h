@@ -486,6 +486,9 @@ public:
     /** Reset the stream to its original, empty, state. */
     void reset();
     void padToAlign4();
+
+    void prepend(std::unique_ptr<SkStreamAsset>);
+
 private:
     struct Block;
     Block*  fHead;

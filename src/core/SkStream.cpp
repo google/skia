@@ -541,6 +541,25 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
     return true;
 }
 
+void SkDynamicMemoryWStream::prepend(std::unique_ptr<SkStreamAsset> asset) {
+    size_t size = asset ? asset->getLength() : 0;
+    if (0 == size) {
+        return;
+    }
+    Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
+    block->init(size);
+    asset->read(block->start(), size);
+    block->fCurr = block->fStop;
+
+    if (fHead) {
+        fBytesWrittenBeforeTail += size;
+        block->fNext = fHead;
+        fHead = block;
+    } else {
+        fHead = fTail = block;
+    }
+}
+
 bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count) {
     if (offset + count > this->bytesWritten()) {
         return false; // test does not partially modify

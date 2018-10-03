@@ -171,6 +171,8 @@ void remove_color_filter(SkPaint* paint) {
     }
 }
 
+SkPDFDevice::GraphicStackState::GraphicStackState(SkDynamicMemoryWStream* s) : fContentStream(s) {
+}
 
 void SkPDFDevice::GraphicStackState::drainStack() {
     if (fContentStream) {
@@ -408,9 +410,7 @@ public:
                        const SkPaint& paint,
                        bool hasText = false)
         : fDevice(device)
-        , fContentEntry(nullptr)
         , fBlendMode(SkBlendMode::kSrcOver)
-        , fDstFormXObject(nullptr)
         , fClipStack(clipStack)
     {
         if (matrix.hasPerspective()) {
@@ -418,14 +418,14 @@ public:
             return;
         }
         fBlendMode = paint.getBlendMode();
-        fContentEntry =
+        fContentStream =
             fDevice->setUpContentEntry(clipStack, matrix, paint, hasText, &fDstFormXObject);
     }
     ScopedContentEntry(SkPDFDevice* dev, const SkPaint& paint, bool hasText = false)
         : ScopedContentEntry(dev, &dev->cs(), dev->ctm(), paint, hasText) {}
 
     ~ScopedContentEntry() {
-        if (fContentEntry) {
+        if (fContentStream) {
             SkPath* shape = &fShape;
             if (shape->isEmpty()) {
                 shape = nullptr;
@@ -434,8 +434,8 @@ public:
         }
     }
 
-    SkDynamicMemoryWStream* entry() { return fContentEntry; }
-    SkDynamicMemoryWStream* stream() { return fContentEntry; }
+    SkDynamicMemoryWStream* entry() { return fContentStream; }
+    SkDynamicMemoryWStream* stream() { return fContentStream; }
 
     /* Returns true when we explicitly need the shape of the drawing. */
     bool needShape() {
@@ -472,8 +472,8 @@ public:
     }
 
 private:
-    SkPDFDevice* fDevice;
-    SkDynamicMemoryWStream* fContentEntry;
+    SkPDFDevice* fDevice = nullptr;
+    SkDynamicMemoryWStream* fContentStream = nullptr;
     SkBlendMode fBlendMode;
     sk_sp<SkPDFObject> fDstFormXObject;
     SkPath fShape;
@@ -502,7 +502,7 @@ void SkPDFDevice::reset() {
     fXObjectResources = std::vector<sk_sp<SkPDFObject>>();
     fShaderResources = std::vector<sk_sp<SkPDFObject>>();
     fFontResources = std::vector<sk_sp<SkPDFFont>>();
-    fContentEntries.reset();
+    fContent.reset();
     fActiveStackState = GraphicStackState();
 }
 
@@ -1330,26 +1330,22 @@ std::unique_ptr<SkStreamAsset> SkPDFDevice::content() {
         fActiveStackState.drainStack();
         fActiveStackState = GraphicStackState();
     }
-
+    if (fContent.bytesWritten() == 0) {
+        return skstd::make_unique<SkMemoryStream>();
+    }
     SkDynamicMemoryWStream buffer;
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
         append_transform(fInitialTransform, &buffer);
     }
-    if (fContentEntries.back() && fContentEntries.back() == fContentEntries.front()) {
-        fContentEntries.front()->writeToAndReset(&buffer);
-    } else {
-        for (SkDynamicMemoryWStream& entry : fContentEntries) {
-            buffer.writeText("q\n");
-            entry.writeToAndReset(&buffer);
-            buffer.writeText("Q\n");
-        }
+    if (fNeedsExtraSave) {
+        buffer.writeText("q\n");
     }
-    fContentEntries.reset();
-    if (buffer.bytesWritten() > 0) {
-        return std::unique_ptr<SkStreamAsset>(buffer.detachAsStream());
-    } else {
-        return skstd::make_unique<SkMemoryStream>();
+    fContent.writeToAndReset(&buffer);
+    if (fNeedsExtraSave) {
+        buffer.writeText("Q\n");
     }
+    fNeedsExtraSave = false;
+    return std::unique_ptr<SkStreamAsset>(buffer.detachAsStream());
 }
 
 /* Draws an inverse filled path by using Path Ops to compute the positive
@@ -1526,15 +1522,13 @@ SkDynamicMemoryWStream* SkPDFDevice::setUpContentEntry(const SkClipStack* clipSt
 
     if (treat_as_regular_pdf_blend_mode(blendMode)) {
         if (!fActiveStackState.fContentStream) {
-            fActiveStackState = GraphicStackState(fContentEntries.emplace_back());
+            fActiveStackState = GraphicStackState(&fContent);
+        } else {
+            SkASSERT(fActiveStackState.fContentStream = &fContent);
         }
     } else {
         fActiveStackState.drainStack();
-        if (blendMode != SkBlendMode::kDstOver) {
-             fActiveStackState = GraphicStackState(fContentEntries.emplace_back());
-        } else {
-             fActiveStackState = GraphicStackState(fContentEntries.emplace_front());
-        }
+        fActiveStackState = GraphicStackState(&fContentBuffer);
     }
     SkASSERT(fActiveStackState.fContentStream);
     GraphicStateEntry entry;
@@ -1563,14 +1557,23 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
 
     if (blendMode == SkBlendMode::kDstOver) {
         SkASSERT(!dst);
-        if (fContentEntries.front()->bytesWritten() == 0) {
-            // For DstOver, an empty content entry was inserted before the rest
-            // of the content entries. If nothing was drawn, it needs to be
-            // removed.
-            fContentEntries.pop_front();
+        if (fContentBuffer.bytesWritten() != 0) {
+            if (fContent.bytesWritten() != 0) {
+                fContentBuffer.writeText("Q\nq\n");
+                fNeedsExtraSave = true;
+            }
+            fContent.prepend(fContentBuffer.detachAsStream());
         }
         return;
     }
+    if (fContentBuffer.bytesWritten() != 0) {
+        if (fContent.bytesWritten() != 0) {
+            fContent.writeText("Q\nq\n");
+            fNeedsExtraSave = true;
+        }
+        fContentBuffer.writeToAndReset(&fContent);
+    }
+
     if (!dst) {
         SkASSERT(blendMode == SkBlendMode::kSrc ||
                  blendMode == SkBlendMode::kSrcOut);
@@ -1578,7 +1581,6 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
     }
 
     SkASSERT(dst);
-    SkASSERT(fContentEntries.count() == 1);
     // Changing the current content into a form-xobject will destroy the clip
     // objects which is fine since the xobject will already be clipped. However
     // if source has shape, we need to clip it too, so a copy of the clip is
@@ -1602,7 +1604,6 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
             blendMode = SkBlendMode::kClear;
         }
     } else {
-        SkASSERT(fContentEntries.count() == 1);
         srcFormXObject = this->makeFormXObjectFromDevice();
     }
 
@@ -1676,11 +1677,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
 }
 
 bool SkPDFDevice::isContentEmpty() {
-    if (!fContentEntries.front() || fContentEntries.front()->bytesWritten() == 0) {
-        SkASSERT(fContentEntries.count() <= 1);
-        return true;
-    }
-    return false;
+    return fContent.bytesWritten() == 0 && fContentBuffer.bytesWritten() == 0;
 }
 
 void SkPDFDevice::populateGraphicStateEntryFromPaint(
