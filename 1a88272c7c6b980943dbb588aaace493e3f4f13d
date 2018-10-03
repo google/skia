@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8462aa32_9bd9807d",
+        "filename": "src/image/SkImage_GpuShared.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-03T12:53:19Z",
+      "side": 1,
+      "message": "This comment may no longer apply here",
+      "revId": "1a88272c7c6b980943dbb588aaace493e3f4f13d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b4e7635_6d44faaf",
+        "filename": "src/image/SkImage_GpuShared.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-03T12:53:19Z",
+      "side": 1,
+      "message": "Can we just pre-declare some of these ?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 25
+      },
+      "revId": "1a88272c7c6b980943dbb588aaace493e3f4f13d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
