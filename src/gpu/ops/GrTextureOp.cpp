@@ -676,7 +676,6 @@ private:
         fPerspective = viewMatrix.hasPerspective();
         auto quad = GrPerspQuad(dstRect, viewMatrix);
         auto bounds = quad.bounds();
-#ifndef SK_DONT_DROP_UNNECESSARY_AA_IN_TEXTURE_OP
         if (GrAAType::kCoverage == this->aaType() && viewMatrix.rectStaysRect()) {
             // Disable coverage AA when rect falls on integers in device space.
             auto is_int = [](float f) { return f == sk_float_floor(f); };
@@ -692,7 +691,6 @@ private:
                 }
             }
         }
-#endif
         const auto& draw = fDraws.emplace_back(srcRect, quad, aaFlags, constraint, color);
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
         fDomain = static_cast<bool>(draw.domain());
