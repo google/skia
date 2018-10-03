@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03fa4418_3644929a",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-03T21:54:31Z",
+      "side": 1,
+      "message": "I spent too much time thinking about this... see https://codesynthesis.com/~boris/blog//2012/04/04/when-provide-empty-destructor/ .\n\nI still feel better about the nice and straight forward leaving this as it is (with the definition in one known obvious place, no implementation in the header, no worry about dll boundaries). If you want to make this change, should this be \u0027\u003d default\u0027?",
+      "range": {
+        "startLine": 229,
+        "startChar": 4,
+        "endLine": 229,
+        "endChar": 27
+      },
+      "revId": "2fecb7ebde3467c6e3fad8033b690f90624b3f95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5fdc9c4_e812ccc5",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-03T21:54:31Z",
+      "side": 1,
+      "message": "Similar, should this be \u0027\u003d default\u0027?",
+      "range": {
+        "startLine": 460,
+        "startChar": 29,
+        "endLine": 460,
+        "endChar": 31
+      },
+      "revId": "2fecb7ebde3467c6e3fad8033b690f90624b3f95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
