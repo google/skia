@@ -4521,11 +4521,9 @@ DEF_TEST(Paths, reporter) {
     test_mask_overflow();
     test_path_crbugskia6003();
     test_fuzz_crbug_668907();
-#if !defined(SK_SUPPORT_LEGACY_DELTA_AA)
     test_skbug_6947();
     test_skbug_7015();
     test_skbug_7051();
-#endif
 
     SkSize::Make(3, 4);
 
