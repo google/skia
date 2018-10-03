@@ -245,6 +245,10 @@ sk_sp<SkData> ResourceProvider::load(const char[], const char[]) const {
     return nullptr;
 }
 
+sk_sp<ImageAsset> ResourceProvider::loadImageAsset(const char[], const char[]) const {
+    return nullptr;
+}
+
 sk_sp<SkData> ResourceProvider::loadFont(const char[], const char[]) const {
     return nullptr;
 }
