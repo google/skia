@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc755b80_7c514dd3",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-10-03T18:13:49Z",
+      "side": 0,
+      "message": "don\u0027t like this check",
+      "range": {
+        "startLine": 252,
+        "startChar": 18,
+        "endLine": 252,
+        "endChar": 23
+      },
+      "revId": "0b170e81be4e67c1cece5181327fcb91f6914bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
