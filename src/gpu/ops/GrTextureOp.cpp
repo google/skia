@@ -676,18 +676,32 @@ private:
         fPerspective = viewMatrix.hasPerspective();
         auto quad = GrPerspQuad(dstRect, viewMatrix);
         auto bounds = quad.bounds();
-        if (GrAAType::kCoverage == this->aaType() && viewMatrix.rectStaysRect()) {
+        // We expect our caller to have already caught this optimization.
+        SkASSERT(!srcRect.contains(fProxy->getWorstCaseBoundsRect()) ||
+                 constraint == SkCanvas::kFast_SrcRectConstraint);
+        if (viewMatrix.rectStaysRect()) {
+            // Disable filtering when there is no scaling or fractional translation.
             // Disable coverage AA when rect falls on integers in device space.
-            auto is_int = [](float f) { return f == sk_float_floor(f); };
-            if (is_int(bounds.fLeft) && is_int(bounds.fTop) && is_int(bounds.fRight) &&
-                is_int(bounds.fBottom)) {
-                fAAType = static_cast<unsigned>(GrAAType::kNone);
-                aaFlags = GrQuadAAFlags::kNone;
-                // We may have had a strict constraint with nearest filter soley due to possible AA
-                // bloat. In that case it's no longer necessary.
-                if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
-                    filter == GrSamplerState::Filter::kNearest) {
-                    constraint = SkCanvas::kFast_SrcRectConstraint;
+            if (SkScalarIsInt(bounds.fLeft) && SkScalarIsInt(bounds.fTop) &&
+                SkScalarIsInt(bounds.fRight) && SkScalarIsInt(bounds.fBottom)) {
+                if (viewMatrix.isScaleTranslate()) {
+                    if (bounds.width() == srcRect.width() && bounds.height() == srcRect.height()) {
+                        fFilter = GrSamplerState::Filter::kNearest;
+                    }
+                } else {
+                    if (bounds.width() == srcRect.height() && bounds.height() == srcRect.width()) {
+                        fFilter = GrSamplerState::Filter::kNearest;
+                    }
+                }
+                if (GrAAType::kCoverage == this->aaType()) {
+                    fAAType = static_cast<unsigned>(GrAAType::kNone);
+                    aaFlags = GrQuadAAFlags::kNone;
+                    // We may have had a strict constraint with nearest filter solely due to
+                    // possible AA bloat. In that case it's no longer necessary.
+                    if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
+                        fFilter == GrSamplerState::Filter::kNearest) {
+                        constraint = SkCanvas::kFast_SrcRectConstraint;
+                    }
                 }
             }
         }
