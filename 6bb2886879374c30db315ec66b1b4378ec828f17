@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50a71b92_182a854f",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-10-03T15:43:03Z",
+      "side": 1,
+      "message": "1. can/should these two \"deletes\" be private?\n2. do we need them (i.e. are they already enforced by SkRefCnt)?",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 14
+      },
+      "revId": "6bb2886879374c30db315ec66b1b4378ec828f17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b3393b6_8e067dad",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-10-03T15:43:03Z",
+      "side": 1,
+      "message": "maybe float seconds?",
+      "range": {
+        "startLine": 63,
+        "startChar": 36,
+        "endLine": 63,
+        "endChar": 44
+      },
+      "revId": "6bb2886879374c30db315ec66b1b4378ec828f17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
