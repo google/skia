@@ -9,7 +9,6 @@
 #include "GrShaderCaps.h"
 
 #include "GrContextOptions.h"
-#include "SkJSONWriter.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,6 +70,8 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
+#ifdef SK_DEBUG
+#include "SkJSONWriter.h"
 void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->beginObject();
 
@@ -132,6 +133,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
 
     writer->endObject();
 }
+#endif
 
 void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fDisableDriverCorrectnessWorkarounds) {
