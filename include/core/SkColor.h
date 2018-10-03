@@ -228,69 +228,53 @@ SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 */
 SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 
-struct SkPM4f;
+#include "../private/SkRGBA4f.h"
 
-template <SkAlphaType kAT>
-struct SkRGBA4f {
-    float fR;
-    float fG;
-    float fB;
-    float fA;
-
-    bool operator==(const SkRGBA4f& other) const {
-        return fA == other.fA && fR == other.fR && fG == other.fG && fB == other.fB;
-    }
-    bool operator!=(const SkRGBA4f& other) const {
-        return !(*this == other);
-    }
-
-    SkRGBA4f operator*(float scale) const {
-        return { fR * scale, fG * scale, fB * scale, fA * scale };
-    }
-
-    SkRGBA4f operator*(const SkRGBA4f& scale) const {
-        return { fR * scale.fR, fG * scale.fG, fB * scale.fB, fA * scale.fA };
-    }
-
-    const float* vec() const { return &fR; }
-          float* vec()       { return &fR; }
-
-    float operator[](int index) const {
-        SkASSERT(index >= 0 && index < 4);
-        return this->vec()[index];
-    }
-
-    float& operator[](int index) {
-        SkASSERT(index >= 0 && index < 4);
-        return this->vec()[index];
-    }
-
-    static SkRGBA4f Pin(float r, float g, float b, float a);  // impl. depends on kAT
-    SkRGBA4f pin() const { return Pin(fR, fG, fB, fA); }
-
-    static SkRGBA4f FromColor(SkColor);  // impl. depends on kAT
-    SkColor toSkColor() const;  // impl. depends on kAT
-
-    SkRGBA4f<kPremul_SkAlphaType> premul() const {
-        static_assert(kAT == kUnpremul_SkAlphaType, "");
-        return { fR * fA, fG * fA, fB * fA, fA };
-    }
-
-    SkRGBA4f<kUnpremul_SkAlphaType> unpremul() const {
-        static_assert(kAT == kPremul_SkAlphaType, "");
-
-        if (fA == 0.0f) {
-            return { 0, 0, 0, 0 };
-        } else {
-            float invAlpha = 1 / fA;
-            return { fR * invAlpha, fG * invAlpha, fB * invAlpha, fA };
-        }
-    }
-
-    // TODO: remove?
-    SkPM4f toPM4f() const;  // impl. depends on kAT
-};
-
+/** struct SkColor4f
+ *
+ *  RGBA color value holding four unpremultiplied floating point components in R,G,B,A order.
+ *
+ *  Public fields:
+ *     - fR: the red component
+ *     - fG: the green component
+ *     - fB: the blue component
+ *     - fA: the alpha component
+ *
+ *  Public methods:
+ *
+ *    Check equality or inequality:
+ *      bool operator==(const SkColor4f&) const;
+ *      bool operator!=(const SkColor4f&) const;
+ *
+ *    Return this color with all four components scaled by scale.
+ *      SkColor4f operator*(float scale) const;
+ *
+ *    Return this color with each component scaled by the corresponding component of scale.
+ *      SkColor4f operator*(SkColor4f scale) const;
+ *
+ *    Return a pointer to the four component float values.
+ *      const float* vec() const;
+ *            float* vec();
+ *
+ *    Return a particular component, indexing R,G,B,A by 0,1,2,3.
+ *      float  operator[](int) const;
+ *      float& operator[](int);
+ *
+ *    Check whether alpha is 1.
+ *      bool isOpaque() const;
+ *
+ *    Create an SkColor4f with each component pinned to [0,1].
+ *      static SkColor4f Pin(float r, float g, float b, float a);
+ *
+ *    Return an SkColor4f with this SkColor4f's components pinned to [0,1].
+ *      SkColor4f pin() const;
+ *
+ *    Create an SkColor4f from a 32-bit SkColor.
+ *      static SkColor4f FromColor(SkColor);
+ *
+ *    Return the closest SkColor to this SkColor4f.
+ *      SkColor toSkColor() const;
+ */
 using SkColor4f = SkRGBA4f<kUnpremul_SkAlphaType>;
 template <> SK_API SkColor4f SkColor4f::FromColor(SkColor);
 template <> SK_API SkColor   SkColor4f::toSkColor() const;
