@@ -169,9 +169,14 @@ public:
     virtual ~SkCodec();
 
     /**
-     *  Return the ImageInfo associated with this codec.
+     *  Return a reasonable SkImageInfo to decode into.
      */
-    const SkImageInfo& getInfo() const { return fSrcInfo; }
+    SkImageInfo getInfo() const { return fEncodedInfo.makeImageInfo(); }
+
+    SkISize dimensions() const { return {fEncodedInfo.width(), fEncodedInfo.height()}; }
+    SkIRect bounds() const {
+        return SkIRect::MakeWH(fEncodedInfo.width(), fEncodedInfo.height());
+    }
 
     /**
      *  Returns the image orientation stored in the EXIF data.
@@ -196,7 +201,7 @@ public:
         // Upscaling is not supported. Return the original size if the client
         // requests an upscale.
         if (desiredScale >= 1.0f) {
-            return this->getInfo().dimensions();
+            return this->dimensions();
         }
         return this->onGetScaledDimensions(desiredScale);
     }
@@ -679,7 +684,7 @@ protected:
 
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.
-        return this->getInfo().dimensions();
+        return this->dimensions();
     }
 
     // FIXME: What to do about subsets??
@@ -790,7 +795,6 @@ protected:
 
 private:
     const SkEncodedInfo                fEncodedInfo;
-    const SkImageInfo                  fSrcInfo;
     const XformFormat                  fSrcXformFormat;
     std::unique_ptr<SkStream>          fStream;
     bool                               fNeedsRewind;
@@ -819,8 +823,8 @@ private:
      *
      *  Will be called for the appropriate frame, prior to initializing the colorXform.
      */
-    virtual bool conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
-                                     bool srcIsOpaque, bool needsColorXform);
+    virtual bool conversionSupported(const SkImageInfo& dst, bool srcIsOpaque,
+                                     bool needsColorXform);
 
     bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha, bool srcIsOpaque);
 
@@ -834,7 +838,7 @@ private:
      *  This must return true for a size returned from getScaledDimensions.
      */
     bool dimensionsSupported(const SkISize& dim) {
-        return dim == fSrcInfo.dimensions() || this->onDimensionsSupported(dim);
+        return dim == this->dimensions() || this->onDimensionsSupported(dim);
     }
 
     /**

@@ -161,8 +161,8 @@ SkHeifCodec::SkHeifCodec(SkEncodedInfo&& info, HeifDecoder* heifDecoder, SkEncod
 {}
 
 
-bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, SkColorType /*srcColorType*/,
-                                      bool srcIsOpaque, bool needsColorXform) {
+bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaque,
+                                      bool needsColorXform) {
     SkASSERT(srcIsOpaque);
 
     if (kUnknown_SkAlphaType == dstInfo.alphaType()) {

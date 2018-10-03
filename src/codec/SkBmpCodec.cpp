@@ -605,7 +605,7 @@ SkBmpCodec::SkBmpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
     : INHERITED(std::move(info), kXformSrcColorFormat, std::move(stream))
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
-    , fSrcRowBytes(SkAlign4(compute_row_bytes(this->getEncodedInfo().width(), fBitsPerPixel)))
+    , fSrcRowBytes(SkAlign4(compute_row_bytes(this->dimensions().width(), fBitsPerPixel)))
     , fXformBuffer(nullptr)
 {}
 

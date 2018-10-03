@@ -515,7 +515,7 @@ private:
     }
 
     Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
-        const int height = this->getInfo().height();
+        const int height = this->dimensions().height();
         png_set_progressive_read_fn(this->png_ptr(), this, nullptr, AllRowsCallback, nullptr);
         fDst = dst;
         fRowBytes = rowBytes;
@@ -654,7 +654,7 @@ private:
             if (fNumberPasses - 1 == pass && rowNum == fLastRow) {
                 // Last pass, and we have read all of the rows we care about.
                 fInterlacedComplete = true;
-                if (fLastRow != this->getInfo().height() - 1 ||
+                if (fLastRow != this->dimensions().height() - 1 ||
                         (this->swizzler() && this->swizzler()->sampleY() != 1)) {
                     // Fake error to stop decoding scanlines. Only stop if we're not decoding the
                     // whole image, in which case processing the rest of the image might be
@@ -667,7 +667,7 @@ private:
     }
 
     SkCodec::Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
-        const int height = this->getInfo().height();
+        const int height = this->dimensions().height();
         this->setUpInterlaceBuffer(height);
         png_set_progressive_read_fn(this->png_ptr(), this, nullptr, InterlacedRowCallback,
                                     nullptr);

@@ -282,7 +282,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
             return result;
     }
 
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+    if (dstInfo.dimensions() != this->dimensions()) {
         return gif_error("Scaling not supported.\n", kInvalidScale);
     }
 
@@ -341,7 +341,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             //   cover all rows? If so, we do not have to fill here.)
             // - There is no color table for this frame. In that case will not
             //   draw anything, so we need to fill.
-            if (frameContext->frameRect() != this->getInfo().bounds()
+            if (frameContext->frameRect() != this->bounds()
                     || frameContext->interlaced() || !fCurrColorTableIsReal) {
                 // fill ignores the width (replaces it with the actual, scaled width).
                 // But we need to scale in Y.
@@ -423,8 +423,8 @@ void SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
     const int width = frameContext->width();
     const int xBegin = frameContext->xOffset();
     const int yBegin = frameContext->yOffset() + rowNumber;
-    const int xEnd = std::min(xBegin + width, this->getInfo().width());
-    const int yEnd = std::min(yBegin + rowNumber + repeatCount, this->getInfo().height());
+    const int xEnd = std::min(xBegin + width, this->dimensions().width());
+    const int yEnd = std::min(yBegin + rowNumber + repeatCount, this->dimensions().height());
     // FIXME: No need to make the checks on width/xBegin/xEnd for every row. We could instead do
     // this once in prepareToDecode.
     if (!width || (xBegin < 0) || (yBegin < 0) || (xEnd <= xBegin) || (yEnd <= yBegin))

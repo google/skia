@@ -65,8 +65,8 @@ static void test_path(skiatest::Reporter* r, const char* path,
         return;
     }
 
-    SkColorSpace* colorSpace = codec->getInfo().colorSpace();
-    test_space(r, colorSpace, red, green, blue, expectedGamma);
+    auto colorSpace = codec->getInfo().refColorSpace();
+    test_space(r, colorSpace.get(), red, green, blue, expectedGamma);
 }
 
 static constexpr float g_sRGB_XYZ[]{

@@ -41,7 +41,7 @@ protected:
         return SkEncodedImageFormat::kHEIF;
     }
 
-    bool conversionSupported(const SkImageInfo&, SkColorType, bool, bool) override;
+    bool conversionSupported(const SkImageInfo&, bool, bool) override;
 
 private:
     /*

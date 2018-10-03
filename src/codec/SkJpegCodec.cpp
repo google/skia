@@ -360,8 +360,8 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
     // Set up a fake decompress struct in order to use libjpeg to calculate output dimensions
     jpeg_decompress_struct dinfo;
     sk_bzero(&dinfo, sizeof(dinfo));
-    dinfo.image_width = this->getInfo().width();
-    dinfo.image_height = this->getInfo().height();
+    dinfo.image_width = this->dimensions().width();
+    dinfo.image_height = this->dimensions().height();
     dinfo.global_state = fReadyState;
     calc_output_dimensions(&dinfo, num, denom);
 
@@ -385,8 +385,8 @@ bool SkJpegCodec::onRewind() {
     return true;
 }
 
-bool SkJpegCodec::conversionSupported(const SkImageInfo& dstInfo, SkColorType srcCT,
-                                      bool srcIsOpaque, bool needsColorXform) {
+bool SkJpegCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaque,
+                                      bool needsColorXform) {
     SkASSERT(srcIsOpaque);
 
     if (kUnknown_SkAlphaType == dstInfo.alphaType()) {
@@ -467,8 +467,8 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
     // FIXME: Why is this necessary?
     jpeg_decompress_struct dinfo;
     sk_bzero(&dinfo, sizeof(dinfo));
-    dinfo.image_width = this->getInfo().width();
-    dinfo.image_height = this->getInfo().height();
+    dinfo.image_width = this->dimensions().width();
+    dinfo.image_height = this->dimensions().height();
     dinfo.global_state = fReadyState;
 
     // libjpeg-turbo can scale to 1/8, 1/4, 3/8, 1/2, 5/8, 3/4, 7/8, and 1/1
