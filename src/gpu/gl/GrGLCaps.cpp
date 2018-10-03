@@ -2336,11 +2336,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fClearTextureSupport = false;
     }
 
-    // On at least some MacBooks, GLSL 4.0 geometry shaders break if we use invocations.
 #ifdef SK_BUILD_FOR_MAC
-    if (shaderCaps->fGeometryShaderSupport) {
-        shaderCaps->fGSInvocationsSupport = false;
+    // Radeon MacBooks hit a crash in glReadPixels() when using geometry shaders.
+    // http://skbug.com/8097
+    if (kATI_GrGLVendor == ctxInfo.vendor()) {
+        shaderCaps->fGeometryShaderSupport = false;
     }
+    // On at least some MacBooks, GLSL 4.0 geometry shaders break if we use invocations.
+    shaderCaps->fGSInvocationsSupport = false;
 #endif
 
     // Qualcomm driver @103.0 has been observed to crash compiling ccpr geometry
@@ -2694,14 +2697,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // https://github.com/flutter/flutter/issues/16718
     // https://bugreport.apple.com/web/?problemID=39948888
     fUnpackRowLengthSupport = false;
-#endif
-
-#ifdef SK_BUILD_FOR_MAC
-    // Radeon MacBooks hit a crash in glReadPixels() when using CCPR.
-    // http://skbug.com/8097
-    if (kATI_GrGLVendor == ctxInfo.vendor()) {
-        fBlacklistCoverageCounting = true;
-    }
 #endif
 
     // "shapes_mixed_10000_32x33" bench crashes PowerVRGX6250 in Release mode with ccpr.
