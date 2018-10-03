@@ -336,7 +336,7 @@ public:
     };
 
     Stats* stats() { return &fStats; }
-    void dumpJSON(SkJSONWriter*) const;
+    SkDEBUGCODE(void dumpJSON(SkJSONWriter*) const;)
 
 #if GR_TEST_UTILS
     GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
@@ -470,7 +470,7 @@ private:
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
 
-    virtual void onDumpJSON(SkJSONWriter*) const {}
+    SkDEBUGCODE(virtual void onDumpJSON(SkJSONWriter*) const {})
 
     void resetContext() {
         this->onResetContext(fResetBits);
