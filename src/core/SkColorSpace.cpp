@@ -49,7 +49,7 @@ SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
         fToXYZD50_3x3[3*r+c] = toXYZD50.get(r,c);
     }
     SkASSERT(xyz_almost_equal(toXYZD50, fToXYZD50_3x3));
-    fToXYZD50Hash = SkOpts::hash_fn(fToXYZD50_3x3, sizeof(fToXYZD50_3x3), 0);
+    fToXYZD50Hash = SkOpts::hash_fn(fToXYZD50_3x3, 9*sizeof(float), 0);
 
     switch (fGammaNamed) {
         case kSRGB_SkGammaNamed:        transferFn = &  gSRGB_TransferFn.fG; break;
@@ -58,6 +58,7 @@ SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
         case kNonStandard_SkGammaNamed:                                      break;
     }
     memcpy(fTransferFn, transferFn, 7*sizeof(float));
+    fTransferFnHash = SkOpts::hash_fn(fTransferFn, 7*sizeof(float), 0);
 }
 
 
@@ -506,39 +507,25 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
     }
 }
 
-bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
-    if (src == dst) {
+bool SkColorSpace::Equals(const SkColorSpace* x, const SkColorSpace* y) {
+    if (x == y) {
         return true;
     }
 
-    if (!src || !dst) {
+    if (!x || !y) {
         return false;
     }
 
-    if (src->gammaNamed() != dst->gammaNamed()) {
-        return false;
+    if (x->hash() == y->hash()) {
+        for (int i = 0; i < 7; i++) {
+            SkASSERT(x->  fTransferFn[i] == y->  fTransferFn[i] && "Hash collsion");
+        }
+        for (int i = 0; i < 9; i++) {
+            SkASSERT(x->fToXYZD50_3x3[i] == y->fToXYZD50_3x3[i] && "Hash collsion");
+        }
+        return true;
     }
-
-    switch (src->gammaNamed()) {
-        case kSRGB_SkGammaNamed:
-        case k2Dot2Curve_SkGammaNamed:
-        case kLinear_SkGammaNamed:
-            if (src->toXYZD50Hash() == dst->toXYZD50Hash()) {
-                for (int i = 0; i < 9; i++) {
-                    SkASSERT(src->fToXYZD50_3x3[i] == dst->fToXYZD50_3x3[i] && "Hash collsion");
-                }
-                return true;
-            }
-            return false;
-        default:
-            // It is unlikely that we will reach this case.
-            // TODO: Simplify this case now that color spaces have one representation.
-            sk_sp<SkData> serializedSrcData = src->serialize();
-            sk_sp<SkData> serializedDstData = dst->serialize();
-            return serializedSrcData->size() == serializedDstData->size() &&
-                   0 == memcmp(serializedSrcData->data(), serializedDstData->data(),
-                               serializedSrcData->size());
-    }
+    return false;
 }
 
 SkColorSpaceTransferFn SkColorSpaceTransferFn::invert() const {
