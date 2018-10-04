@@ -80,12 +80,6 @@ public:
      *
      *  @return true on success.
      */
-    struct Options {};
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options* options);
-
-    /**
-     *  Simplified version of getPixels() that uses the default Options.
-     */
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
@@ -166,6 +160,7 @@ protected:
     SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
 
     virtual sk_sp<SkData> onRefEncodedData() { return nullptr; }
+    struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrContext*) const { return true; }
     virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }

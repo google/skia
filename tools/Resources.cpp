@@ -32,8 +32,7 @@ void SetResourcePath(const char* resource) {
 bool DecodeDataToBitmap(sk_sp<SkData> data, SkBitmap* dst) {
     std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::MakeFromEncoded(std::move(data)));
     return gen && dst->tryAllocPixels(gen->getInfo()) &&
-        gen->getPixels(gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes(),
-                       nullptr);
+        gen->getPixels(gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes());
 }
 
 std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource) {
