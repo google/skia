@@ -31,10 +31,6 @@ bool SkBitmapProvider::isVolatile() const {
     return bm ? bm->isVolatile() : false;
 }
 
-SkBitmapCacheDesc SkBitmapProvider::makeCacheDesc(int w, int h) const {
-    return SkBitmapCacheDesc::Make(fImage, w, h);
-}
-
 SkBitmapCacheDesc SkBitmapProvider::makeCacheDesc() const {
     return SkBitmapCacheDesc::Make(fImage);
 }
