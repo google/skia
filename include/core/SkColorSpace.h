@@ -165,12 +165,6 @@ public:
     bool toXYZD50(SkMatrix44* toXYZD50) const;
 
     /**
-     *  Describes color space gamut as a transformation to XYZ D50.
-     *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
-     */
-    const SkMatrix44* toXYZD50() const;
-
-    /**
      *  Returns a hash of the gamut transofmration to XYZ D50. Allows for fast equality checking
      *  of gamuts, at the (very small) risk of collision.
      *  Returns 0 if color gamut cannot be described in terms of XYZ D50.
@@ -257,9 +251,6 @@ private:
     mutable float                       fInvTransferFn[7];
     mutable float                       fFromXYZD50_3x3[9];  // row-major
     mutable SkOnce                      fLazyDstFieldsOnce;
-
-    mutable std::unique_ptr<SkMatrix44> fToXYZD50_4x4;        // TODO: remove toXZYD50() and these
-    mutable SkOnce                      fToXZYD50_4x4_Once;
 };
 
 #endif

@@ -195,14 +195,6 @@ void SkColorSpace::invTransferFn(float gabcdef[7]) const {
     memcpy(gabcdef, &fInvTransferFn, 7*sizeof(float));
 }
 
-const SkMatrix44* SkColorSpace::toXYZD50() const {
-    fToXZYD50_4x4_Once([this] {
-        fToXYZD50_4x4.reset(new SkMatrix44);
-        fToXYZD50_4x4->set3x3RowMajorf(fToXYZD50_3x3);
-    });
-    return fToXYZD50_4x4.get();
-}
-
 bool SkColorSpace::toXYZD50(SkMatrix44* toXYZD50) const {
     toXYZD50->set3x3RowMajorf(fToXYZD50_3x3);
     return true;
