@@ -52,6 +52,24 @@
       "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b0ac904_7d0239af",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-04T15:08:24Z",
+      "side": 1,
+      "message": "It\u0027s also kind of ambiguous what opaque() should do for SkPMColor4f?  I\u0027d kind of prefer to see it explicitly done so it\u0027s clear whether we unpremul before setting alpha to 1.",
+      "parentUuid": "2b38fd89_1ac5b1b0",
+      "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
