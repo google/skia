@@ -144,14 +144,20 @@ void GrCCCoverageProcessor::Shader::CalcCornerAttenuation(GrGLSLVertexGeoBuilder
                                                           const char* outputAttenuation) {
     // obtuseness = cos(corner_angle)  if corner_angle > 90 degrees
     //                              0  if corner_angle <= 90 degrees
+    //
+    // NOTE: leftDir and rightDir are normalized and point in the same direction the path was
+    // defined with, i.e., leftDir points into the corner and rightDir points away from the corner.
     s->codeAppendf("half obtuseness = max(dot(%s, %s), 0);", leftDir, rightDir);
 
-    // axis_alignedness = 1  when the leftDir/rightDir bisector is aligned with the x- or y-axis
-    //                    0  when the bisector falls on a 45 degree angle
-    //                    (i.e. 1 - tan(angle_to_nearest_axis))
-    s->codeAppendf("half2 abs_bisect = abs(%s - %s);", leftDir, rightDir);
-    s->codeAppend ("half axis_alignedness = 1 - min(abs_bisect.y, abs_bisect.x) / "
-                                               "max(abs_bisect.x, abs_bisect.y);");
+    // axis_alignedness = 1 - tan(angle_to_nearest_axis_from_corner_bisector)
+    //                    (i.e.,  1  when the corner bisector is aligned with the x- or y-axis
+    //                            0  when the corner bisector falls on a 45 degree angle
+    //                         0..1  when the corner bisector falls somewhere in between
+    s->codeAppendf("half2 abs_bisect_maybe_transpose = abs((0 == obtuseness) ? %s - %s : %s + %s);",
+                   leftDir, rightDir, leftDir, rightDir);
+    s->codeAppend ("half axis_alignedness = "
+                           "1 - min(abs_bisect_maybe_transpose.y, abs_bisect_maybe_transpose.x) / "
+                               "max(abs_bisect_maybe_transpose.x, abs_bisect_maybe_transpose.y);");
 
     // ninety_degreesness = sin^2(corner_angle)
     // sin^2 just because... it's always positive and the results looked better than plain sine... ?
