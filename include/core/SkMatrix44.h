@@ -400,16 +400,6 @@ public:
         this->mapScalars(vec, vec);
     }
 
-    SK_ATTR_DEPRECATED("use mapScalars")
-    void map(const SkScalar src[4], SkScalar dst[4]) const {
-        this->mapScalars(src, dst);
-    }
-
-    SK_ATTR_DEPRECATED("use mapScalars")
-    void map(SkScalar vec[4]) const {
-        this->mapScalars(vec, vec);
-    }
-
 #ifdef SK_MSCALAR_IS_DOUBLE
     void mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const;
 #elif defined SK_MSCALAR_IS_FLOAT
