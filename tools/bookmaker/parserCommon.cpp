@@ -84,7 +84,7 @@ bool ParserCommon::parseStatus(const char* statusFile, const char* suffix, Statu
     if (iter.empty()) {
         return false;
     }
-    for (string file; iter.next(&file); ) {
+    for (string file; iter.next(&file, nullptr); ) {
         SkString p = SkOSPath::Join(iter.baseDir().c_str(), file.c_str());
         const char* hunk = p.c_str();
         if (!this->parseFromFile(hunk)) {
@@ -135,6 +135,35 @@ bool ParserCommon::parseSetup(const char* path) {
     fFileName = string(path);
     fLineCount = 1;
     return true;
+}
+
+void ParserCommon::stringAppend(string& result, char ch) const {
+    if (fDebugWriteCodeBlock) {
+        SkDebugf("%c", ch);
+    }
+    result += ch;
+}
+
+void ParserCommon::stringAppend(string& result, string str) const {
+    string condense;
+    char last = result.size() ? result.back() : '\n';
+    for (auto c : str) {
+        if (' ' == c && ' ' == last) {
+            continue;
+        }
+        condense += c;
+        if ('\n' != last || ' ' != c) {
+            last = c;
+        }
+    }
+    if (fDebugWriteCodeBlock) {
+        SkDebugf("%s", condense.c_str());
+    }
+    result += condense;
+}
+
+void ParserCommon::stringAppend(string& result, const Definition* def) const {
+    this->stringAppend(result, string(def->fContentStart, def->length()));
 }
 
 bool ParserCommon::writeBlockIndent(int size, const char* data, bool ignoreIdent) {
@@ -387,8 +416,10 @@ string StatusIter::baseDir() {
 
 // FIXME: need to compare fBlockName against fFilter
 // need to compare fSuffix against next value returned
-bool StatusIter::next(string* str) {
+bool StatusIter::next(string* strPtr, StatusFilter *filter) {
+    string str;
     JsonStatus* status;
+    StatusFilter blockType = StatusFilter::kCompleted;
     do {
         do {
             if (fStack.empty()) {
@@ -402,7 +433,7 @@ bool StatusIter::next(string* str) {
         } while (true);
         if (1 == fStack.size()) {
             do {
-                StatusFilter blockType = StatusFilter::kUnknown;
+                blockType = StatusFilter::kUnknown;
                 for (unsigned index = 0; index < SK_ARRAY_COUNT(block_names); ++index) {
                     if (status->fIter.key().asString() == block_names[index]) {
                         blockType = (StatusFilter) index;
@@ -423,7 +454,8 @@ bool StatusIter::next(string* str) {
             JsonStatus block = {
                 *status->fIter,
                 status->fIter->begin(),
-                status->fIter.key().asString()
+                status->fIter.key().asString(),
+                blockType
             };
             fStack.emplace_back(block);
             status = &(&fStack.back())[-1];
@@ -431,9 +463,15 @@ bool StatusIter::next(string* str) {
             status = &fStack.back();
             continue;
         }
-        *str = status->fIter->asString();
+        str = status->fIter->asString();
+        if (strPtr) {
+            *strPtr = str;
+        }
+        if (filter) {
+            *filter = status->fStatusFilter;
+        }
         status->fIter++;
-        if (str->length() - strlen(fSuffix) == str->find(fSuffix)) {
+        if (str.length() - strlen(fSuffix) == str.find(fSuffix)) {
             return true;
         }
     } while (true);
@@ -452,7 +490,7 @@ bool JsonCommon::parseFromFile(const char* path) {
         SkDebugf("file %s:\n", path);
         return this->reportError<bool>("file not parsable");
     }
-    JsonStatus block = { fRoot, fRoot.begin(), "" };
+    JsonStatus block = { fRoot, fRoot.begin(), "", StatusFilter::kUnknown };
     fStack.emplace_back(block);
     return true;
 }
