@@ -11,8 +11,8 @@
 #include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "SkCachedData.h"
-#include "SkImagePriv.h"
 #include "SkImage_Base.h"
+#include "SkYUVAIndex.h"
 
 class GrTexture;
 
