@@ -70,6 +70,24 @@
       "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea07238a_505f70c9",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-04T15:15:30Z",
+      "side": 1,
+      "message": "Sorry, my question was dumb. I was conflating opaque() and isOpaque(), thinking you were talking about the latter.",
+      "parentUuid": "0b0ac904_7d0239af",
+      "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
