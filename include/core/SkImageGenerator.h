@@ -81,11 +81,6 @@ public:
      *  @return true on success.
      */
     struct Options {};
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options* options);
-
-    /**
-     *  Simplified version of getPixels() that uses the default Options.
-     */
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
