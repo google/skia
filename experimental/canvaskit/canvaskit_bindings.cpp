@@ -5,10 +5,13 @@
  * found in the LICENSE file.
  */
 
+#if SK_SUPPORT_GPU
 #include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrGLInterface.h"
 #include "GrGLTypes.h"
+#endif
+
 #include "SkCanvas.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
@@ -23,15 +26,19 @@
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
 #include "SkTestFontMgr.h"
+#if SK_INCLUDE_SKOTTIE
 #include "Skottie.h"
+#endif
 
 #include <iostream>
 #include <string>
-#include <GL/gl.h>
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
+#if SK_SUPPORT_GPU
+#include <GL/gl.h>
 #include <emscripten/html5.h>
+#endif
 
 using namespace emscripten;
 
@@ -42,6 +49,7 @@ void EMSCRIPTEN_KEEPALIVE initFonts() {
     gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
 }
 
+#if SK_SUPPORT_GPU
 // Wraps the WebGL context in an SkSurface and returns it.
 sk_sp<SkSurface> getWebGLSurface(std::string id, int width, int height) {
     // Context configurations
@@ -91,10 +99,13 @@ sk_sp<SkSurface> getWebGLSurface(std::string id, int width, int height) {
                                                                     colorType, nullptr, nullptr));
     return surface;
 }
+#endif
 
+#if SK_INCLUDE_SKOTTIE
 sk_sp<skottie::Animation> MakeAnimation(std::string json) {
     return skottie::Animation::Make(json.c_str(), json.length());
 }
+#endif
 
 //========================================================================================
 // Path things
@@ -196,7 +207,14 @@ namespace emscripten {
 // the compiler is happy.
 EMSCRIPTEN_BINDINGS(Skia) {
     function("initFonts", &initFonts);
+#if SK_SUPPORT_GPU
     function("_getWebGLSurface", &getWebGLSurface, allow_raw_pointers());
+    function("currentContext", &emscripten_webgl_get_current_context);
+    function("setCurrentContext", &emscripten_webgl_make_context_current);
+#endif
+    function("_getRasterN32PremulSurface", optional_override([](int width, int height)->sk_sp<SkSurface> {
+        return SkSurface::MakeRasterN32Premul(width, height, nullptr);
+    }), allow_raw_pointers());
     function("MakeSkCornerPathEffect", &SkCornerPathEffect::Make, allow_raw_pointers());
     function("MakeSkDiscretePathEffect", &SkDiscretePathEffect::Make, allow_raw_pointers());
     // Won't be called directly, there's a JS helper to deal with typed arrays.
@@ -280,6 +298,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("width", &SkSurface::width)
         .function("height", &SkSurface::height)
         .function("makeImageSnapshot", &SkSurface::makeImageSnapshot)
+        .function("_readPixels", optional_override([](SkSurface& self, int width, int height, uintptr_t /* uint8_t* */ cptr)->bool {
+            auto* dst = reinterpret_cast<uint8_t*>(cptr);
+            auto dstInfo = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+            return self.readPixels(dstInfo, dst, width*4, 0, 0);
+        }))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
 
 
@@ -317,6 +340,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("w",   &SkISize::fWidth)
         .field("h",   &SkISize::fHeight);
 
+#if SK_INCLUDE_SKOTTIE
     // Animation things (may eventually go in own library)
     class_<skottie::Animation>("Animation")
         .smart_ptr<sk_sp<skottie::Animation>>("sk_sp<Animation>")
@@ -334,7 +358,5 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers());
 
     function("MakeAnimation", &MakeAnimation);
-
-    function("currentContext", &emscripten_webgl_get_current_context);
-    function("setCurrentContext", &emscripten_webgl_make_context_current);
+#endif
 }

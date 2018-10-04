@@ -28,7 +28,6 @@
 #include "GrTexturePriv.h"
 #include "GrTextureProxyPriv.h"
 #include "GrTracing.h"
-#include "SkJSONWriter.h"
 #include "SkMathPriv.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -357,6 +356,8 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
                                             : GrSemaphoresSubmitted::kNo;
 }
 
+#ifdef SK_DEBUG
+#include "SkJSONWriter.h"
 void GrGpu::dumpJSON(SkJSONWriter* writer) const {
     writer->beginObject();
 
@@ -366,6 +367,7 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const {
 
     writer->endObject();
 }
+#endif
 
 #if GR_TEST_UTILS
 GrBackendTexture GrGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
