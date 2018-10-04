@@ -1,145 +1,21 @@
 SkTextBlob Reference
 ===
 
-# <a name='Text_Blob'>Text Blob</a>
-<a href='#Text_Blob'>Text Blob</a> holds one or more runs of text. Each run associates a string of <a href='undocumented#Glyph'>Glyphs</a>
-with a position and <a href='SkPaint_Reference#Paint'>Paint</a>. Each <a href='SkPaint_Reference#Paint'>Paint</a> contains attributes used
-to define the run text: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
-<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
-<a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
-and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
+<a name='SkTextBlob'></a>
 
-<a href='#Text_Blob'>Text Blob</a> runs of text use <a href='undocumented#ID'>Glyph ID</a> encoding; each run <a href='SkPaint_Reference#Paint'>Paint</a> must set
-<a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a> to <a href='SkPaint_Reference#SkPaint_kGlyphID_TextEncoding'>SkPaint::kGlyphID TextEncoding</a>.
-
-<a href='#Text_Blob'>Text Blob</a> is constructed with <a href='#SkTextBlob_MakeFromText'>SkTextBlob::MakeFromText</a> or <a href='SkTextBlobBuilder_Reference#Text_Blob_Builder'>Text Blob Builder</a>.
-Once created, <a href='#Text_Blob'>Text Blob</a> can not be modified.
-
-## Overview
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkTextBlob'>SkTextBlob</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-</table>
-
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkTextBlob can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_Deserialize'>Deserialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> from memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromString'>MakeFromString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromText'>MakeFromText</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member Function</a>
-
-
-SkTextBlob member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_Deserialize'>Deserialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> from memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromString'>MakeFromString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromText'>MakeFromText</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_bounds'>bounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns conservative bounding box</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_serialize'>serialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>writes <a href='#Text_Blob'>Text Blob</a> to memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_uniqueID'>uniqueID</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns identifier for <a href='#Text_Blob'>Text Blob</a></td>
-  </tr>
-</table>
-
-# <a name='SkTextBlob'>Class SkTextBlob</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkTextBlob can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_Deserialize'>Deserialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> from memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromString'>MakeFromString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromText'>MakeFromText</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkTextBlob member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_Deserialize'>Deserialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> from memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromString'>MakeFromString</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_MakeFromText'>MakeFromText</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Text_Blob'>Text Blob</a> with one run</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_bounds'>bounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns conservative bounding box</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_serialize'>serialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>writes <a href='#Text_Blob'>Text Blob</a> to memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlob_uniqueID'>uniqueID</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns identifier for <a href='#Text_Blob'>Text Blob</a></td>
-  </tr>
-</table>
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+class <a href='#SkTextBlob'>SkTextBlob</a> final : public SkNVRefCnt<<a href='#SkTextBlob'>SkTextBlob</a>> {
+public:
+    const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkTextBlob_bounds'>bounds</a>() const;
+    uint32_t <a href='#SkTextBlob_uniqueID'>uniqueID</a>() const;
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>( const void* text, size_t byteLength, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* string, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint);
+    size_t <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs, void* memory, size_t memory_size) const;
+    <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkData'>SkData</a>> <a href='#SkTextBlob_serialize_2'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs) const;
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_Deserialize'>Deserialize</a>(const void* data, size_t size,
+                                         const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>& procs);
+};
+</pre>
 
 <a href='#SkTextBlob'>SkTextBlob</a> combines multiple text runs into an immutable container. Each text
 run consists of <a href='undocumented#Glyph'>Glyphs</a>, <a href='SkPaint_Reference#Paint'>Paint</a>, and position. Only parts of <a href='SkPaint_Reference#Paint'>Paint</a> related to
