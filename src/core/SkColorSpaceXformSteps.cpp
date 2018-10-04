@@ -8,6 +8,7 @@
 #include "SkColorSpaceXformSteps.h"
 #include "SkColorSpacePriv.h"
 #include "SkRasterPipeline.h"
+#include "../../third_party/skcms/skcms.h"
 
 // TODO: explain
 
@@ -95,6 +96,20 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
 }
 
 void SkColorSpaceXformSteps::apply(float* rgba) const {
+#if defined(SK_LEGACY_TF_APPLY)
+    auto apply_tf = [](const skcms_TransferFunction* tf, float x) {
+        SkScalar s = SkScalarSignAsScalar(x);
+        x = sk_float_abs(x);
+        if (x >= tf->d) {
+            return s * (powf(tf->a * x + tf->b, tf->g) + tf->e);
+        } else {
+            return s * (tf->c * x + tf->f);
+        }
+    };
+#else
+    auto apply_tf = skcms_TransferFunction_eval;
+#endif
+
     if (flags.unpremul) {
         // I don't know why isfinite(x) stopped working on the Chromecast bots...
         auto is_finite = [](float x) { return x*0 == 0; };
@@ -105,9 +120,12 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
         rgba[2] *= invA;
     }
     if (flags.linearize) {
-        rgba[0] = srcTF(rgba[0]);
-        rgba[1] = srcTF(rgba[1]);
-        rgba[2] = srcTF(rgba[2]);
+        skcms_TransferFunction tf;
+        memcpy(&tf, &srcTF, 7*sizeof(float));
+
+        rgba[0] = apply_tf(&tf, rgba[0]);
+        rgba[1] = apply_tf(&tf, rgba[1]);
+        rgba[2] = apply_tf(&tf, rgba[2]);
     }
     if (flags.gamut_transform) {
         float temp[3] = { rgba[0], rgba[1], rgba[2] };
@@ -118,9 +136,12 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
         }
     }
     if (flags.encode) {
-        rgba[0] = dstTFInv(rgba[0]);
-        rgba[1] = dstTFInv(rgba[1]);
-        rgba[2] = dstTFInv(rgba[2]);
+        skcms_TransferFunction tf;
+        memcpy(&tf, &dstTFInv, 7*sizeof(float));
+
+        rgba[0] = apply_tf(&tf, rgba[0]);
+        rgba[1] = apply_tf(&tf, rgba[1]);
+        rgba[2] = apply_tf(&tf, rgba[2]);
     }
     if (flags.premul) {
         rgba[0] *= rgba[3];
