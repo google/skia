@@ -17,9 +17,9 @@ static const int kTileWidthHeight = 128;
 static const int kLabelWidth = 64;
 static const int kLabelHeight = 32;
 static const int kPad = 1;
-constexpr SkColor kGreen  = SkColorSetARGB(0xFF, 104, 240, 178);
-constexpr SkColor kBlue   = SkColorSetARGB(0xFF, 252, 167, 173);
-constexpr SkColor kYellow = SkColorSetARGB(0xFF, 117, 221, 255);
+constexpr SkColor kGreen  = SkColorSetARGB(0xFF, 178, 240, 104);
+constexpr SkColor kBlue   = SkColorSetARGB(0xFF, 173, 167, 252);
+constexpr SkColor kYellow = SkColorSetARGB(0xFF, 255, 221, 117);
 
 enum YUVFormat {
     // 4:4:4 formats, 32 bpp
@@ -148,8 +148,7 @@ static SkPath create_splat(const SkPoint& o, SkScalar innerRadius, SkScalar oute
 
 static SkBitmap make_bitmap(const SkPath& path, const SkTDArray<SkRect>& circles, bool opaque) {
 
-    SkImageInfo ii = SkImageInfo::Make(kTileWidthHeight, kTileWidthHeight,
-                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkImageInfo ii = SkImageInfo::MakeN32(kTileWidthHeight, kTileWidthHeight, kPremul_SkAlphaType);
 
     SkBitmap bm;
     bm.allocPixels(ii);
@@ -177,6 +176,97 @@ static SkBitmap make_bitmap(const SkPath& path, const SkTDArray<SkRect>& circles
     return bm;
 }
 
+static void convert_rgba_to_yuva_601_shared(SkColor col, uint8_t yuv[4],
+                                            uint8_t off, uint8_t range) {
+    static const float Kr = 0.299f;
+    static const float Kb = 0.114f;
+    static const float Kg = 1.0f - Kr - Kb;
+
+    float r = SkColorGetR(col) / 255.0f;
+    float g = SkColorGetG(col) / 255.0f;
+    float b = SkColorGetB(col) / 255.0f;
+
+    float Ey = Kr * r + Kg * g + Kb * b;
+    float Ecb = (b - Ey) / 1.402f;
+    float Ecr = (r - Ey) / 1.772;
+
+    yuv[0] = SkScalarRoundToInt( range * Ey + off );
+    yuv[1] = SkScalarRoundToInt( 224 * Ecb + 128 );
+    yuv[2] = SkScalarRoundToInt( 224 * Ecr + 128 );
+    yuv[3] = SkColorGetA(col);
+}
+
+static void convert_rgba_to_yuva_jpeg(SkColor col, uint8_t yuv[4]) {
+    // full swing from 0..255
+    convert_rgba_to_yuva_601_shared(col, yuv, 0, 255);
+}
+
+static void convert_rgba_to_yuva_601(SkColor col, uint8_t yuv[4]) {
+    // partial swing from 16..235
+    convert_rgba_to_yuva_601_shared(col, yuv, 16, 219);
+
+}
+
+static void convert_rgba_to_yuva_709(SkColor col, uint8_t yuv[4]) {
+    static const float Kr = 0.2126f;
+    static const float Kb = 0.0722f;
+    static const float Kg = 1.0f - Kr - Kb;
+
+    float r = SkColorGetR(col) / 255.0f;
+    float g = SkColorGetG(col) / 255.0f;
+    float b = SkColorGetB(col) / 255.0f;
+
+    float Ey = Kr * r + Kg * g + Kb * b;
+    float Ecb = (b - Ey) / 1.8556f;
+    float Ecr = (r - Ey) / 1.5748;
+
+    yuv[0] = SkScalarRoundToInt( 219 * Ey +  16 );
+    yuv[1] = SkScalarRoundToInt( 224 * Ecb + 128 );
+    yuv[2] = SkScalarRoundToInt( 224 * Ecr + 128 );
+
+    yuv[3] = SkColorGetA(col);
+}
+
+
+static SkPMColor convert_yuva_to_rgba_jpeg(uint8_t y, uint8_t u, uint8_t v, uint8_t a) {
+    int c = y;
+    int d = u - 128;
+    int e = v - 128;
+
+    uint8_t r = SkScalarPin(SkScalarRoundToInt( 1.0f * c                   +  1.402f    * e ),
+                            0, 255);
+    uint8_t g = SkScalarPin(SkScalarRoundToInt( 1.0f * c - (0.344136f * d) - (0.714136f * e)),
+                            0, 255);
+    uint8_t b = SkScalarPin(SkScalarRoundToInt( 1.0f * c +  1.773f    * d                   ),
+                            0, 255);
+
+    return SkPremultiplyARGBInline(a, r, g, b);
+}
+
+static SkPMColor convert_yuva_to_rgba_601(uint8_t y, uint8_t u, uint8_t v, uint8_t a) {
+    int c = y - 16;
+    int d = u - 128;
+    int e = v - 128;
+
+    uint8_t r = SkScalarPin(SkScalarRoundToInt( 1.164f * c                +  1.596f * e ), 0, 255);
+    uint8_t g = SkScalarPin(SkScalarRoundToInt( 1.164f * c - (0.391f * d) - (0.813f * e)), 0, 255);
+    uint8_t b = SkScalarPin(SkScalarRoundToInt( 1.164f * c +  2.018f * d                ), 0, 255);
+
+    return SkPremultiplyARGBInline(a, r, g, b);
+}
+
+static SkPMColor convert_yuva_to_rgba_709(uint8_t y, uint8_t u, uint8_t v, uint8_t a) {
+    int c = y - 16;
+    int d = u - 128;
+    int e = v - 128;
+
+    uint8_t r = SkScalarPin(SkScalarRoundToInt( 1.164f * c                +  1.793f * e ), 0, 255);
+    uint8_t g = SkScalarPin(SkScalarRoundToInt( 1.164f * c - (0.213f * d) - (0.533f * e)), 0, 255);
+    uint8_t b = SkScalarPin(SkScalarRoundToInt( 1.164f * c +  2.112f * d                ), 0, 255);
+
+    return SkPremultiplyARGBInline(a, r, g, b);
+}
+
 static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, PlaneData* planes) {
     SkASSERT(!(bm.width() % 2));
     SkASSERT(!(bm.height() % 2));
@@ -188,46 +278,25 @@ static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, Pl
     planes->fUQuarter.allocPixels(SkImageInfo::MakeA8(bm.width()/2, bm.height()/2));
     planes->fVQuarter.allocPixels(SkImageInfo::MakeA8(bm.width()/2, bm.height()/2));
 
-    float Kr, Kb, Z, S;
-
-    switch (yuvColorSpace) {
-    case kJPEG_SkYUVColorSpace:   // computer
-        Kr = 0.299f;
-        Kb = 0.114f;
-        Z = 0.0f;
-        S = 255.0f;
-        break;
-    case kRec601_SkYUVColorSpace: // SD
-        Kr = 0.299f;
-        Kb = 0.114f;
-        Z = 16.0f;
-        S = 219.f;
-        break;
-    case kRec709_SkYUVColorSpace: // HD
-        Kr = 0.2126f;
-        Kb = 0.0722f;
-        Z = 16.0f;
-        S = 219.0f;
-        break;
-    }
-
     for (int y = 0; y < bm.height(); ++y) {
         for (int x = 0; x < bm.width(); ++x) {
             SkColor col = bm.getColor(x, y);
-            uint8_t r = SkColorGetR(col);
-            uint8_t b = SkColorGetB(col);
-            uint8_t g = SkColorGetG(col);
 
-            float L = Kr * r + Kb * g + (1.0f - Kr - Kb) * b;
+            uint8_t yuva[4];
 
-            uint8_t Y, U, V;
-            Y =             SkScalarRoundToInt((219*(L-Z)/S + 16));
-            U = SkScalarPin(SkScalarRoundToInt((112*(b-L) / ((1-Kb)*S) + 128)), 0, 255);
-            V = SkScalarPin(SkScalarRoundToInt((112*(r-L) / ((1-Kr)*S) + 128)), 0, 255);
-            *planes->fYFull.getAddr8(x, y) = Y;
-            *planes->fUFull.getAddr8(x, y) = U;
-            *planes->fVFull.getAddr8(x, y) = V;
-            *planes->fAFull.getAddr8(x, y) = SkColorGetA(col);
+            if (kJPEG_SkYUVColorSpace == yuvColorSpace) {
+                convert_rgba_to_yuva_jpeg(col, yuva);
+            } else if (kRec601_SkYUVColorSpace == yuvColorSpace) {
+                convert_rgba_to_yuva_601(col, yuva);
+            } else {
+                SkASSERT(kRec709_SkYUVColorSpace == yuvColorSpace);
+                convert_rgba_to_yuva_709(col, yuva);
+            }
+
+            *planes->fYFull.getAddr8(x, y) = yuva[0];
+            *planes->fUFull.getAddr8(x, y) = yuva[1];
+            *planes->fVFull.getAddr8(x, y) = yuva[2];
+            *planes->fAFull.getAddr8(x, y) = yuva[3];
         }
     }
 
@@ -247,7 +316,7 @@ static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, Pl
             vAccum += *planes->fVFull.getAddr8(2*x, 2*y+1);
             vAccum += *planes->fVFull.getAddr8(2*x+1, 2*y+1);
 
-            *planes->fVQuarter.getAddr8(x, y) = uAccum / 4.0f;
+            *planes->fVQuarter.getAddr8(x, y) = vAccum / 4.0f;
         }
     }
 }
@@ -261,8 +330,8 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
         case AYUV_YUVFormat: {
             SkBitmap yuvaFull;
 
-            yuvaFull.allocPixels(SkImageInfo::Make(planes.fYFull.width(), planes.fYFull.height(),
-                                 kRGBA_8888_SkColorType, kUnpremul_SkAlphaType));
+            yuvaFull.allocPixels(SkImageInfo::MakeN32(planes.fYFull.width(), planes.fYFull.height(),
+                                                      kUnpremul_SkAlphaType));
 
             for (int y = 0; y < planes.fYFull.height(); ++y) {
                 for (int x = 0; x < planes.fYFull.width(); ++x) {
@@ -273,7 +342,7 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
                     uint8_t A = *planes.fAFull.getAddr8(x, y);
 
                     // NOT premul!
-                    *yuvaFull.getAddr32(x, y) = SkPackARGB32NoCheck(A, Y, U, V);
+                    *yuvaFull.getAddr32(x, y) = SkColorSetARGB(A, Y, U, V);
                 }
             }
 
@@ -284,7 +353,7 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             yuvaIndices[1].fIndex = 0;
             yuvaIndices[1].fChannel = SkColorChannel::kG;
             yuvaIndices[2].fIndex = 0;
-            yuvaIndices[2].fChannel = SkColorChannel::kG;
+            yuvaIndices[2].fChannel = SkColorChannel::kB;
             yuvaIndices[3].fIndex = 0;
             yuvaIndices[3].fChannel = SkColorChannel::kA;
             break;
@@ -292,14 +361,18 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
         case kNV12_YUVFormat: {
             SkBitmap uvQuarter;
 
-            // There isn't a RG color type. Approx w/ 2x wider A8.
-            uvQuarter.allocPixels(SkImageInfo::MakeA8(planes.fYFull.width(),
-                                                      planes.fYFull.height()/2));
+            // There isn't a RG color type. Approx w/ RGBA.
+            uvQuarter.allocPixels(SkImageInfo::MakeN32(planes.fYFull.width()/2,
+                                                       planes.fYFull.height()/2,
+                                                       kUnpremul_SkAlphaType));
 
             for (int y = 0; y < planes.fYFull.height()/2; ++y) {
                 for (int x = 0; x < planes.fYFull.width()/2; ++x) {
-                    *uvQuarter.getAddr8(2*x, y) = *planes.fUQuarter.getAddr8(x, y);
-                    *uvQuarter.getAddr8(2*x+1, y) = *planes.fVQuarter.getAddr8(x, y);
+                    uint8_t U = *planes.fUQuarter.getAddr8(x, y);
+                    uint8_t V = *planes.fVQuarter.getAddr8(x, y);
+
+                    // NOT premul!
+                    *uvQuarter.getAddr32(x, y) = SkColorSetARGB(0, U, V, 0);
                 }
             }
 
@@ -317,14 +390,18 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
         case kNV21_YUVFormat: {
             SkBitmap vuQuarter;
 
-            // There isn't a RG color type. Approx w/ 2x wider A8.
-            vuQuarter.allocPixels(SkImageInfo::MakeA8(planes.fYFull.width(),
-                                                      planes.fYFull.height()/2));
+            // There isn't a RG color type. Approx w/ RGBA.
+            vuQuarter.allocPixels(SkImageInfo::MakeN32(planes.fYFull.width()/2,
+                                                       planes.fYFull.height()/2,
+                                                       kUnpremul_SkAlphaType));
 
             for (int y = 0; y < planes.fYFull.height()/2; ++y) {
                 for (int x = 0; x < planes.fYFull.width()/2; ++x) {
-                    *vuQuarter.getAddr8(2*x, y) = *planes.fVQuarter.getAddr8(x, y);
-                    *vuQuarter.getAddr8(2*x+1, y) = *planes.fUQuarter.getAddr8(x, y);
+                    uint8_t U = *planes.fUQuarter.getAddr8(x, y);
+                    uint8_t V = *planes.fVQuarter.getAddr8(x, y);
+
+                    // NOT premul!
+                    *vuQuarter.getAddr32(x, y) = SkColorSetARGB(0, V, U, 0);
                 }
             }
 
@@ -378,6 +455,37 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
 
 }
 
+static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel  channel) {
+    uint8_t result;
+
+    int x = SkScalarFloorToInt(x1 * bm.width());
+    int y = SkScalarFloorToInt(y1 * bm.height());
+
+    if (kAlpha_8_SkColorType == bm.colorType()) {
+        SkASSERT(SkColorChannel::kA == channel);
+        result = *bm.getAddr8(x, y);
+    } else {
+        SkASSERT(kN32_SkColorType == bm.colorType());
+
+        switch (channel) {
+            case SkColorChannel::kR:
+                result = SkColorGetR(bm.getColor(x, y));
+                break;
+            case SkColorChannel::kG:
+                result = SkColorGetG(bm.getColor(x, y));
+                break;
+            case SkColorChannel::kB:
+                result = SkColorGetB(bm.getColor(x, y));
+                break;
+            case SkColorChannel::kA:
+                result = SkColorGetA(bm.getColor(x, y));
+                break;
+        }
+    }
+
+    return result;
+}
+
 class YUVGenerator : public SkImageGenerator {
 public:
     YUVGenerator(const SkImageInfo& ii,
@@ -417,25 +525,41 @@ protected:
             for (int y = 0; y < info.height(); ++y) {
                 for (int x = 0; x < info.width(); ++x) {
 
-                    uint8_t alpha = 255;
-                    if (fYUVAIndices[3].fIndex >= 0) {
-                        int alphaIndex = fYUVAIndices[3].fIndex;
-                        if (kAlpha_8_SkColorType == fYUVBitmaps[alphaIndex].colorType()) {
-                            alpha = *fYUVBitmaps[alphaIndex].getAddr8(x, y);
-                        } else {
-                            alpha = SkColorGetA(fYUVBitmaps[alphaIndex].getColor(x, y));
-                        }
-                    }
+                    float x1 = (x + 0.5f) / info.width();
+                    float y1 = (y + 0.5f) / info.height();
 
-                    uint8_t g;
-                    if (kAlpha_8_SkColorType == fYUVBitmaps[fYUVAIndices[0].fIndex].colorType()) {
-                        g = *fYUVBitmaps[fYUVAIndices[0].fIndex].getAddr8(x, y);
-                    } else {
-                        g = SkColorGetR(fYUVBitmaps[fYUVAIndices[0].fIndex].getColor(x, y));
+                    uint8_t Y = look_up(x1, y1,
+                                        fYUVBitmaps[fYUVAIndices[0].fIndex],
+                                        fYUVAIndices[0].fChannel);
+
+                    uint8_t U = look_up(x1, y1,
+                                        fYUVBitmaps[fYUVAIndices[1].fIndex],
+                                        fYUVAIndices[1].fChannel);
+
+
+                    uint8_t V = look_up(x1, y1,
+                                        fYUVBitmaps[fYUVAIndices[2].fIndex],
+                                        fYUVAIndices[2].fChannel);
+
+                    uint8_t A = 255;
+                    if (fYUVAIndices[3].fIndex >= 0) {
+                        A = look_up(x1, y1,
+                                    fYUVBitmaps[fYUVAIndices[3].fIndex],
+                                    fYUVAIndices[3].fChannel);
                     }
 
                     // Making premul here.
-                    *fFlattened.getAddr32(x, y) = SkPreMultiplyARGB(alpha, g, g, g);
+                    switch (fYUVColorSpace) {
+                        case kJPEG_SkYUVColorSpace:
+                            *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba_jpeg(Y, U, V, A);
+                            break;
+                        case kRec601_SkYUVColorSpace:
+                            *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba_601(Y, U, V, A);
+                            break;
+                        case kRec709_SkYUVColorSpace:
+                            *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba_709(Y, U, V, A);
+                            break;
+                    }
                 }
             }
         }
