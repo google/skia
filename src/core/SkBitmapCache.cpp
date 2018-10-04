@@ -54,38 +54,20 @@ static SkIRect get_bounds_from_image(const SkImage* image) {
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, int origWidth, int origHeight) {
     SkASSERT(imageID);
     SkASSERT(origWidth > 0 && origHeight > 0);
-    return { imageID, 0, 0, {0, 0, origWidth, origHeight} };
-}
-
-SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm, int scaledWidth, int scaledHeight) {
-    SkASSERT(bm.width() > 0 && bm.height() > 0);
-    SkASSERT(scaledWidth > 0 && scaledHeight > 0);
-    SkASSERT(scaledWidth != bm.width() || scaledHeight != bm.height());
-
-    return { bm.getGenerationID(), scaledWidth, scaledHeight, get_bounds_from_bitmap(bm) };
+    return { imageID, {0, 0, origWidth, origHeight} };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
     SkASSERT(bm.width() > 0 && bm.height() > 0);
     SkASSERT(bm.pixelRefOrigin() == SkIPoint::Make(0, 0));
 
-    return { bm.getGenerationID(), 0, 0, get_bounds_from_bitmap(bm) };
-}
-
-SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image, int scaledWidth, int scaledHeight) {
-    SkASSERT(image->width() > 0 && image->height() > 0);
-    SkASSERT(scaledWidth > 0 && scaledHeight > 0);
-
-    // If the dimensions are the same, should we set them to 0,0?
-    //SkASSERT(scaledWidth != image->width() || scaledHeight != image->height());
-
-    return { image->uniqueID(), scaledWidth, scaledHeight, get_bounds_from_image(image) };
+    return { bm.getGenerationID(), get_bounds_from_bitmap(bm) };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image) {
     SkASSERT(image->width() > 0 && image->height() > 0);
 
-    return { image->uniqueID(), 0, 0, get_bounds_from_image(image) };
+    return { image->uniqueID(), get_bounds_from_image(image) };
 }
 
 namespace {
@@ -99,8 +81,8 @@ public:
     }
 
     void dump() const {
-        SkDebugf("-- add [%d %d] %d [%d %d %d %d]\n",
-                 fDesc.fScaledWidth, fDesc.fScaledHeight, fDesc.fImageID,
+        SkDebugf("-- add %d [%d %d %d %d]\n",
+                 fDesc.fImageID,
              fDesc.fSubset.x(), fDesc.fSubset.y(), fDesc.fSubset.width(), fDesc.fSubset.height());
     }
 
@@ -135,14 +117,8 @@ public:
     {
         SkASSERT(!(fDM && fMalloc));    // can't have both
 
-        // We need an ID to return with the bitmap/pixelref.
-        // If they are not scaling, we can return the same ID as the key/desc
-        // If they are scaling, we need a new ID
-        if (desc.fScaledWidth == 0 && desc.fScaledHeight == 0) {
-            fPrUniqueID = desc.fImageID;
-        } else {
-            fPrUniqueID = SkNextID::ImageID();
-        }
+        // We need an ID to return with the bitmap/pixelref - return the same ID as the key/desc
+        fPrUniqueID = desc.fImageID;
         REC_TRACE(" Rec(%d): [%d %d] %d\n",
                   sk_atomic_inc(&gRecCounter), fInfo.width(), fInfo.height(), fPrUniqueID);
     }
@@ -278,16 +254,9 @@ void SkBitmapCache::PrivateDeleteRec(Rec* rec) { delete rec; }
 
 SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc, const SkImageInfo& info,
                                            SkPixmap* pmap) {
-    // Ensure that the caller is self-consistent:
-    //  - if they are scaling, the info matches the scaled size
-    //  - if they are not, the info matches the subset (i.e. the subset is the entire image)
-    if (desc.fScaledWidth == 0 && desc.fScaledHeight == 0) {
-        SkASSERT(info.width() == desc.fSubset.width());
-        SkASSERT(info.height() == desc.fSubset.height());
-    } else {
-        SkASSERT(info.width() == desc.fScaledWidth);
-        SkASSERT(info.height() == desc.fScaledHeight);
-    }
+    // Ensure that the info matches the subset (i.e. the subset is the entire image)
+    SkASSERT(info.width() == desc.fSubset.width());
+    SkASSERT(info.height() == desc.fSubset.height());
 
     const size_t rb = info.minRowBytes();
     size_t size = info.computeByteSize(rb);
@@ -386,8 +355,6 @@ private:
 
 const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmapCacheDesc& desc,
                                           SkResourceCache* localCache) {
-    SkASSERT(desc.fScaledWidth == 0);
-    SkASSERT(desc.fScaledHeight == 0);
     MipMapKey key(desc.fImageID, desc.fSubset);
     const SkMipMap* result;
 
