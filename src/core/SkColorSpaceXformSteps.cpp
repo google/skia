@@ -24,7 +24,8 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     if (!src) { src = sk_srgb_singleton(); }
     if (!dst) { dst = src; }
 
-    if (src == dst && srcAT == dstAT) {
+    if (src->hash() == dst->hash() && srcAT == dstAT) {
+        SkASSERT(SkColorSpace::Equals(src,dst));
         return;
     }
 
@@ -55,9 +56,6 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     src->   transferFn(&this->srcTF   .fG);
     dst->invTransferFn(&this->dstTFInv.fG);
 
-    SkColorSpaceTransferFn dstTF;
-    dst->transferFn(&dstTF.fG);
-
     this->srcTF_is_sRGB = src->gammaCloseToSRGB();
     this->dstTF_is_sRGB = dst->gammaCloseToSRGB();
 
@@ -65,7 +63,7 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     if ( this->flags.linearize       &&
         !this->flags.gamut_transform &&
          this->flags.encode          &&
-        0 == memcmp(&srcTF, &dstTF, sizeof(SkColorSpaceTransferFn)))
+         src->transferFnHash() == dst->transferFnHash())
     {
         this->flags.linearize  = false;
         this->flags.encode     = false;
