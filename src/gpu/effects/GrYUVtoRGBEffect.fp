@@ -88,7 +88,7 @@ layout(key) in bool nv12;
              (vProxy->height() != yProxy->height())) ?
             GrSamplerState::Filter::kBilerp :
             GrSamplerState::Filter::kNearest;
-        SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+        SkMatrix44 mat;
         switch (colorSpace) {
             case kJPEG_SkYUVColorSpace:
                 mat.setColMajorf(kJPEGConversionMatrix);

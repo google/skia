@@ -913,7 +913,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
     std::function<sk_sp<SkSurface>(const SkImageInfo&)> surfaceMaker) {
 
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
-    SkMatrix44 srgbMatrix{SkMatrix44::kUninitialized_Constructor};
+    SkMatrix44 srgbMatrix;
     srgbColorSpace->toXYZD50(&srgbMatrix);
 
     SkColorSpaceTransferFn oddGamma;

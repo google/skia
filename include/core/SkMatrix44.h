@@ -145,7 +145,7 @@ public:
         kIdentity_Constructor
     };
 
-    SkMatrix44(Uninitialized_Constructor) {}
+    SkMatrix44(Uninitialized_Constructor) {}  // ironically, cannot be constexpr
 
     constexpr SkMatrix44(Identity_Constructor)
         : fMat{{ 1, 0, 0, 0, },
@@ -155,8 +155,7 @@ public:
         , fTypeMask(kIdentity_Mask)
     {}
 
-    SK_ATTR_DEPRECATED("use the constructors that take an enum")
-    SkMatrix44() { this->setIdentity(); }
+    constexpr SkMatrix44() : SkMatrix44{kIdentity_Constructor} {}
 
     SkMatrix44(const SkMatrix44& src) {
         memcpy(fMat, src.fMat, sizeof(fMat));

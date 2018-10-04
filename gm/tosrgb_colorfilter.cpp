@@ -36,7 +36,7 @@ DEF_SIMPLE_GM_BG(tosrgb_colorfilter, canvas, 130, 130, SK_ColorBLACK) {
         0.25f, 0.20f,     // Bx, By
         0.3127f, 0.3290f, // Wx, Wy
     };
-    SkMatrix44 narrowGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 narrowGamutRGBMatrix;
     narrowPrimaries.toXYZD50(&narrowGamutRGBMatrix);
     auto narrow = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                         narrowGamutRGBMatrix);
