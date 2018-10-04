@@ -15,3 +15,5 @@ sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
 
 sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream*, const SkPDF::Metadata&) { return nullptr; }
 
+void SkPDF::SetNodeId(SkCanvas*, int) {}
+
