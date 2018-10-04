@@ -3216,17 +3216,6 @@ then <a href='#SkBitmap_eraseARGB_r'>r</a>, <a href='#SkBitmap_eraseARGB_g'>g</a
 
 ---
 
-<a name='SkBitmap_eraseRGB'></a>
-## eraseRGB
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkBitmap_eraseRGB'>eraseRGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b) const
-</pre>
-
-Deprecated.
-
----
-
 <a name='SkBitmap_erase'></a>
 ## erase
 
@@ -3257,7 +3246,7 @@ then RGB is ignored.
 
 ### See Also
 
-<a href='#SkBitmap_eraseColor'>eraseColor</a> <a href='#SkBitmap_eraseARGB'>eraseARGB</a> <a href='#SkBitmap_eraseRGB'>eraseRGB</a> <a href='SkCanvas_Reference#SkCanvas_drawRect'>SkCanvas::drawRect</a>
+<a href='#SkBitmap_eraseColor'>eraseColor</a> <a href='#SkBitmap_eraseARGB'>eraseARGB</a> <a href='SkCanvas_Reference#SkCanvas_drawRect'>SkCanvas::drawRect</a>
 
 ---
 
