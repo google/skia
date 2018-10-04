@@ -65,7 +65,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fProgramBinarySupport = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
-    fMaxInstancesPerDrawArraysWithoutCrashing = 0;
+    fMaxInstancesPerDrawWithoutCrashing = 0;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -156,7 +156,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // GL_PRIMITIVE_RESTART (where the client must call glPrimitiveRestartIndex) appears in 3.1.
     if (kGLES_GrGLStandard == standard) {
         // Primitive restart can cause a 3x slowdown on Adreno. Enable conservatively.
-        // TODO: Evaluate on PowerVR.
         // FIXME: Primitive restart would likely be a win on iOS if we had an enum value for it.
         if (kARM_GrGLVendor == ctxInfo.vendor()) {
             fUsePrimitiveRestart = version >= GR_GL_VER(3,0);
@@ -1150,8 +1149,8 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
                        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
     writer->appendBool("Intermediate texture for all updates of textures bound to FBOs",
                        fUseDrawInsteadOfAllRenderTargetWrites);
-    writer->appendBool("Max instances per glDrawArraysInstanced without crashing (or zero)",
-                       fMaxInstancesPerDrawArraysWithoutCrashing);
+    writer->appendBool("Max instances per draw without crashing (or zero)",
+                       fMaxInstancesPerDrawWithoutCrashing);
 
     writer->beginArray("configs");
 
@@ -2464,12 +2463,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDetachStencilFromMSAABuffersBeforeReadPixels = true;
     }
 
-    // Our Chromebook with kPowerVRRogue_GrGLRenderer seems to crash when glDrawArraysInstanced is
-    // given 1 << 15 or more instances.
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-        fMaxInstancesPerDrawArraysWithoutCrashing = 0x7fff;
+        // Our Chromebook with kPowerVRRogue_GrGLRenderer crashes on large instanced draws. The
+        // current minimum number of instances observed to crash is somewhere between 2^14 and 2^15.
+        // Keep the number of instances below 1000, just to be safe.
+        fMaxInstancesPerDrawWithoutCrashing = 999;
     } else if (fDriverBugWorkarounds.disallow_large_instanced_draw) {
-        fMaxInstancesPerDrawArraysWithoutCrashing = 0x4000000;
+        fMaxInstancesPerDrawWithoutCrashing = 0x4000000;
     }
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
@@ -2698,19 +2698,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // https://bugreport.apple.com/web/?problemID=39948888
     fUnpackRowLengthSupport = false;
 #endif
-
-    // "shapes_mixed_10000_32x33" bench crashes PowerVRGX6250 in Release mode with ccpr.
-    // http://skbug.com/8098
-    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-        fBlacklistCoverageCounting = true;
-    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
     if (options.fDisableDriverCorrectnessWorkarounds) {
         SkASSERT(!fDoManualMipmapping);
         SkASSERT(!fClearToBoundaryValuesIsBroken);
-        SkASSERT(0 == fMaxInstancesPerDrawArraysWithoutCrashing);
+        SkASSERT(0 == fMaxInstancesPerDrawWithoutCrashing);
         SkASSERT(!fDrawArraysBaseVertexIsBroken);
         SkASSERT(!fUseDrawToClearColor);
         SkASSERT(!fUseDrawToClearStencilClip);
