@@ -14,8 +14,7 @@ SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID)
 {}
 
-bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                                 const Options* opts) {
+bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
     if (kUnknown_SkColorType == info.colorType()) {
         return false;
     }
@@ -27,14 +26,7 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     }
 
     Options defaultOpts;
-    if (!opts) {
-        opts = &defaultOpts;
-    }
-    return this->onGetPixels(info, pixels, rowBytes, *opts);
-}
-
-bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-    return this->getPixels(info, pixels, rowBytes, nullptr);
+    return this->onGetPixels(info, pixels, rowBytes, defaultOpts);
 }
 
 bool SkImageGenerator::queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
