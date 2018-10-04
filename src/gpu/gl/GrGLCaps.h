@@ -338,7 +338,7 @@ public:
 
     bool doManualMipmapping() const { return fDoManualMipmapping; }
 
-    void onDumpJSON(SkJSONWriter*) const override;
+    SkDEBUGCODE(void onDumpJSON(SkJSONWriter*) const override;)
 
     bool rgba8888PixelsOpsAreSlow() const { return fRGBA8888PixelsOpsAreSlow; }
     bool partialFBOReadIsSlow() const { return fPartialFBOReadIsSlow; }

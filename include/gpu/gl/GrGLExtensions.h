@@ -68,7 +68,7 @@ public:
 
     void reset() { fStrings.reset(); }
 
-    void dumpJSON(SkJSONWriter*) const;
+    SkDEBUGCODE(void dumpJSON(SkJSONWriter*) const;)
 
 private:
     bool fInitialized = false;
