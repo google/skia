@@ -47,9 +47,14 @@ if [ -z "${APK_OUTPUT_DIR}" ]; then
 fi
 
 cd "$(dirname "$0")/../.."
-python tools/skqp/download_model
-if [ -z "$SKQP_EXTRA_MODELS" ]; then
-    python tools/skqp/remove_unneeded_assets
+
+if [ -f platform_tools/android/apps/skqp/src/main/assets/files.checksum ]; then
+    python tools/skqp/download_model
+    if [ -z "$SKQP_EXTRA_MODELS" ]; then
+        python tools/skqp/remove_unneeded_assets
+    fi
+else
+    printf '\n* * *\n\nSkQP models are missing!!!!\n\n* * *\n\n'
 fi
 
 python tools/skqp/setup_resources
@@ -84,11 +89,25 @@ for ARCH in $*; do
     cp -a $BUILD/$LIB $DST/$LIB
 done
 
+
+APK_BUILD_DIR=platform_tools/android/apps/$APP/build/outputs/apk
+rm -rf "$APK_BUILD_DIR"
 (
     cd platform_tools/android
     apps/gradlew -p apps/$APP -P suppressNativeBuild :$APP:assembleUniversalDebug
 )
 
 mkdir -p $APK_OUTPUT_DIR
-cp platform_tools/android/apps/$APP/build/outputs/apk/$APP-universal-debug.apk "${APK_OUTPUT_DIR}/"
 
+APK_BASENAME="$APP-universal-debug.apk"
+
+for APK_PATH in \
+    "$APK_BUILD_DIR/universal/debug/$APK_BASENAME" \
+    "$APK_BUILD_DIR/$APK_BASENAME" \
+    ; do
+    if [ -f "$APK_PATH" ]; then
+        cp "$APK_PATH" "${APK_OUTPUT_DIR}/$APK_BASENAME"
+        break
+    fi
+done
+ls -l  "${APK_OUTPUT_DIR}/$APK_BASENAME"
