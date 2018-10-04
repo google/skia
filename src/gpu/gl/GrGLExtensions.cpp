@@ -151,6 +151,7 @@ void GrGLExtensions::add(const char ext[]) {
     }
 }
 
+#ifdef SK_ENABLE_DUMP_GPU
 void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
     writer->beginArray();
     for (int i = 0; i < fStrings.count(); ++i) {
@@ -158,3 +159,6 @@ void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
     }
     writer->endArray();
 }
+#else
+void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const { }
+#endif

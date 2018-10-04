@@ -12,33 +12,6 @@
 #include "GrWindowRectangles.h"
 #include "SkJSONWriter.h"
 
-static const char* pixel_config_name(GrPixelConfig config) {
-    switch (config) {
-        case kUnknown_GrPixelConfig: return "Unknown";
-        case kAlpha_8_GrPixelConfig: return "Alpha8";
-        case kAlpha_8_as_Alpha_GrPixelConfig: return "Alpha8_asAlpha";
-        case kAlpha_8_as_Red_GrPixelConfig: return "Alpha8_asRed";
-        case kGray_8_GrPixelConfig: return "Gray8";
-        case kGray_8_as_Lum_GrPixelConfig: return "Gray8_asLum";
-        case kGray_8_as_Red_GrPixelConfig: return "Gray8_asRed";
-        case kRGB_565_GrPixelConfig: return "RGB565";
-        case kRGBA_4444_GrPixelConfig: return "RGBA444";
-        case kRGBA_8888_GrPixelConfig: return "RGBA8888";
-        case kRGB_888_GrPixelConfig: return "RGB888";
-        case kBGRA_8888_GrPixelConfig: return "BGRA8888";
-        case kSRGBA_8888_GrPixelConfig: return "SRGBA8888";
-        case kSBGRA_8888_GrPixelConfig: return "SBGRA8888";
-        case kRGBA_1010102_GrPixelConfig: return "RGBA1010102";
-        case kRGBA_float_GrPixelConfig: return "RGBAFloat";
-        case kRG_float_GrPixelConfig: return "RGFloat";
-        case kAlpha_half_GrPixelConfig: return "AlphaHalf";
-        case kAlpha_half_as_Red_GrPixelConfig: return "AlphaHalf_asRed";
-        case kRGBA_half_GrPixelConfig: return "RGBAHalf";
-    }
-    SK_ABORT("Invalid pixel config");
-    return "<invalid>";
-}
-
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
@@ -130,6 +103,35 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 
     fDriverBugWorkarounds.applyOverrides(options.fDriverBugWorkarounds);
+}
+
+
+#ifdef SK_ENABLE_DUMP_GPU
+static const char* pixel_config_name(GrPixelConfig config) {
+    switch (config) {
+        case kUnknown_GrPixelConfig: return "Unknown";
+        case kAlpha_8_GrPixelConfig: return "Alpha8";
+        case kAlpha_8_as_Alpha_GrPixelConfig: return "Alpha8_asAlpha";
+        case kAlpha_8_as_Red_GrPixelConfig: return "Alpha8_asRed";
+        case kGray_8_GrPixelConfig: return "Gray8";
+        case kGray_8_as_Lum_GrPixelConfig: return "Gray8_asLum";
+        case kGray_8_as_Red_GrPixelConfig: return "Gray8_asRed";
+        case kRGB_565_GrPixelConfig: return "RGB565";
+        case kRGBA_4444_GrPixelConfig: return "RGBA444";
+        case kRGBA_8888_GrPixelConfig: return "RGBA8888";
+        case kRGB_888_GrPixelConfig: return "RGB888";
+        case kBGRA_8888_GrPixelConfig: return "BGRA8888";
+        case kSRGBA_8888_GrPixelConfig: return "SRGBA8888";
+        case kSBGRA_8888_GrPixelConfig: return "SBGRA8888";
+        case kRGBA_1010102_GrPixelConfig: return "RGBA1010102";
+        case kRGBA_float_GrPixelConfig: return "RGBAFloat";
+        case kRG_float_GrPixelConfig: return "RGFloat";
+        case kAlpha_half_GrPixelConfig: return "AlphaHalf";
+        case kAlpha_half_as_Red_GrPixelConfig: return "AlphaHalf_asRed";
+        case kRGBA_half_GrPixelConfig: return "RGBAHalf";
+    }
+    SK_ABORT("Invalid pixel config");
+    return "<invalid>";
 }
 
 static SkString map_flags_to_string(uint32_t flags) {
@@ -235,6 +237,9 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
 
     writer->endObject();
 }
+#else
+void GrCaps::dumpJSON(SkJSONWriter* writer) const { }
+#endif
 
 bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) const {
     if (!this->isConfigTexturable(desc.fConfig)) {

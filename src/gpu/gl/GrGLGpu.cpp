@@ -25,7 +25,6 @@
 #include "SkAutoMalloc.h"
 #include "SkConvertPixels.h"
 #include "SkHalf.h"
-#include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkMipMap.h"
 #include "SkPixmap.h"
@@ -4309,6 +4308,8 @@ int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
     }
 }
 
+#ifdef SK_ENABLE_DUMP_GPU
+#include "SkJSONWriter.h"
 void GrGLGpu::onDumpJSON(SkJSONWriter* writer) const {
     // We are called by the base class, which has already called beginObject(). We choose to nest
     // all of our caps information in a named sub-object.
@@ -4329,3 +4330,4 @@ void GrGLGpu::onDumpJSON(SkJSONWriter* writer) const {
 
     writer->endObject();
 }
+#endif

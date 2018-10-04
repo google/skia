@@ -357,6 +357,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
                                             : GrSemaphoresSubmitted::kNo;
 }
 
+#ifdef SK_ENABLE_DUMP_GPU
 void GrGpu::dumpJSON(SkJSONWriter* writer) const {
     writer->beginObject();
 
@@ -366,6 +367,9 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const {
 
     writer->endObject();
 }
+#else
+void GrGpu::dumpJSON(SkJSONWriter* writer) const { }
+#endif
 
 #if GR_TEST_UTILS
 GrBackendTexture GrGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,

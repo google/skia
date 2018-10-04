@@ -121,6 +121,9 @@ config("skia_public") {
   }
   if (skia_enable_flutter_defines) {
     defines += flutter_defines
+
+    # Flutter always wants this https://github.com/flutter/flutter/issues/11402
+    defines += [ "SK_ENABLE_DUMP_GPU" ]
   }
   if (!skia_enable_gpu) {
     defines += [ "SK_SUPPORT_GPU=0" ]
@@ -638,6 +641,10 @@ optional("gpu") {
 
   if (skia_enable_atlas_text) {
     sources += skia_atlas_text_sources
+  }
+
+  if (is_debug) {
+    public_defines += [ "SK_ENABLE_DUMP_GPU" ]
   }
 }
 

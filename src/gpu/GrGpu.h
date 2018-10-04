@@ -468,7 +468,9 @@ private:
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
 
+#ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}
+#endif
 
     void resetContext() {
         this->onResetContext(fResetBits);
