@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a834948e_ea49e8ec",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c467f53_a548c92f",
+      "range": {
+        "startLine": 50,
+        "startChar": 20,
+        "endLine": 50,
+        "endChar": 27
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cfa73338_ff25de98",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "275d9e53_40b7ee71",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "This is a static method of SkImage, so SkImage_Gpu::INHERITED isn\u0027t visible.",
+      "parentUuid": "cfa73338_ff25de98",
+      "range": {
+        "startLine": 166,
+        "startChar": 9,
+        "endLine": 166,
+        "endChar": 24
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ffc0fae2_02b18c49",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "This is a static method of SkImage, so SkImage_Gpu::INHERITED isn\u0027t visible.",
+      "parentUuid": "07cd4a8d_30110fba",
+      "range": {
+        "startLine": 182,
+        "startChar": 9,
+        "endLine": 182,
+        "endChar": 24
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc8906e2_11d888fa",
         "filename": "src/image/SkImage_Gpu.h",
         "patchSetId": 5
@@ -85,6 +157,24 @@
       "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6392660a_7392a62c",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "No, they\u0027re slightly different.",
+      "parentUuid": "cc8906e2_11d888fa",
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "f0ee8c95_4570a0e2",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fc52312_f801f702",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 34
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d54899fa_f6aeb1a8",
         "filename": "src/image/SkImage_GpuBase.h",
         "patchSetId": 5
@@ -131,6 +245,30 @@
       "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "249cb0b8_e7040e07",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d54899fa_f6aeb1a8",
+      "range": {
+        "startLine": 22,
+        "startChar": 31,
+        "endLine": 22,
+        "endChar": 39
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "5304593f_6b4f945c",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d279bfc0_5e78d3ba",
+      "range": {
+        "startLine": 27,
+        "startChar": 60,
+        "endLine": 27,
+        "endChar": 64
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a99be225_a4d33530",
         "filename": "src/image/SkImage_GpuBase.h",
         "patchSetId": 5
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "d9c3d3b6_249396f8",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "Can\u0027t access it in the subclass methods if it\u0027s protected.",
+      "parentUuid": "a99be225_a4d33530",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 27
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fef8045_17c551de",
         "filename": "src/image/SkImage_GpuYUVA.cpp",
         "patchSetId": 5
@@ -200,6 +386,30 @@
       "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8fee492_accce092",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fef8045_17c551de",
+      "range": {
+        "startLine": 27,
+        "startChar": 20,
+        "endLine": 27,
+        "endChar": 27
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -246,6 +456,30 @@
       "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a2638df_d9ce0773",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T18:57:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5033f035_4f2edd04",
+      "range": {
+        "startLine": 32,
+        "startChar": 56,
+        "endLine": 32,
+        "endChar": 60
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
