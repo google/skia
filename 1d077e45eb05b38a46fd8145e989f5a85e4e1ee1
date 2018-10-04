@@ -2,6 +2,207 @@
   "comments": [
     {
       "key": {
+        "uuid": "7c467f53_a548c92f",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 50,
+        "startChar": 20,
+        "endLine": 50,
+        "endChar": 27
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfa73338_ff25de98",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": "INHERITED ?",
+      "range": {
+        "startLine": 166,
+        "startChar": 9,
+        "endLine": 166,
+        "endChar": 24
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07cd4a8d_30110fba",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": ".",
+      "range": {
+        "startLine": 182,
+        "startChar": 9,
+        "endLine": 182,
+        "endChar": 24
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc8906e2_11d888fa",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": "Can this move up too ?",
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fc52312_f801f702",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": "tab ?",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 34
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d54899fa_f6aeb1a8",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": "final ?",
+      "range": {
+        "startLine": 22,
+        "startChar": 31,
+        "endLine": 22,
+        "endChar": 39
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d279bfc0_5e78d3ba",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": "Is this pure virtual in the base ?",
+      "range": {
+        "startLine": 27,
+        "startChar": 60,
+        "endLine": 27,
+        "endChar": 64
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a99be225_a4d33530",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": "protected ?",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 27
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fef8045_17c551de",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 27,
+        "startChar": 20,
+        "endLine": 27,
+        "endChar": 27
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a376e090_1d97e416",
         "filename": "src/image/SkImage_GpuYUVA.cpp",
         "patchSetId": 5
@@ -18,6 +219,29 @@
         "startChar": 20,
         "endLine": 36,
         "endChar": 25
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5033f035_4f2edd04",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:36:11Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 32,
+        "startChar": 56,
+        "endLine": 32,
+        "endChar": 60
       },
       "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
