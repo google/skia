@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e845d932_21b26893",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-10-04T15:41:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33ecfd0c_972320c5",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 18
+      },
+      "revId": "ed3e457ec7ddaa795b2ad946e2d9e03c1ead01b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "80bfdf0e_210df6ad",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "ed3e457ec7ddaa795b2ad946e2d9e03c1ead01b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f69d22b9_f45a9498",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-10-04T15:41:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80bfdf0e_210df6ad",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 19
+      },
+      "revId": "ed3e457ec7ddaa795b2ad946e2d9e03c1ead01b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
