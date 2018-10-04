@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da237187_5de8e982",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-04T19:47:29Z",
+      "side": 1,
+      "message": "Totally a nit, but the pronoun corresponding to \u0027this\u0027 is \u0027that\u0027. The opposite of \u0027self\u0027 is \u0027other\u0027 and would be the right term to use in python.",
+      "range": {
+        "startLine": 479,
+        "startChar": 72,
+        "endLine": 479,
+        "endChar": 77
+      },
+      "revId": "64ef85667ea4b1b43c120b5be2810db9347c1c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
