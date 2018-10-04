@@ -2407,12 +2407,6 @@ then r, g, and b are ignored.
 
 # ------------------------------------------------------------------------------
 
-#Method void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const
-#Deprecated
-##
-
-# ------------------------------------------------------------------------------
-
 #Method void erase(SkColor c, const SkIRect& area) const
 #In Draw
 #Line # writes Color to rectangle of pixels ##
@@ -2440,7 +2434,7 @@ then RGB is ignored.
 
 ##
 
-#SeeAlso eraseColor eraseARGB eraseRGB SkCanvas::drawRect
+#SeeAlso eraseColor eraseARGB SkCanvas::drawRect
 
 ##
 
