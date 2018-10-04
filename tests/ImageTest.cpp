@@ -334,7 +334,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
  *  but we don't have that facility (at the moment) so we use a little internal knowledge
  *  of *how* the raster version is cached, and look for that.
  */
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
     const uint32_t uniqueID = image->uniqueID();
