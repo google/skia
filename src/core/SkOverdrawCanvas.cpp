@@ -272,6 +272,8 @@ void SkOverdrawCanvas::onDrawImageLattice(const SkImage* image, const Lattice& l
     }
 }
 
+void SkOverdrawCanvas::onDrawImageSet(const ImageSetEntry[], int cnt) {}
+
 void SkOverdrawCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                                     const SkPaint*) {
     fList[0]->onDrawRect(SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()), fPaint);

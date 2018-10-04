@@ -27,6 +27,8 @@ struct GrCachedLayer;
 
 class SkSpecialImage;
 
+#define SK_USE_GPU_IMAGE_SET 1
+
 /**
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
  *  canvas.
@@ -105,6 +107,9 @@ public:
                           const SkRect& dst, const SkPaint&) override;
     void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&,
                            const SkRect& dst, const SkPaint&) override;
+#if SK_USE_GPU_IMAGE_SET
+    void drawImageSet(const SkCanvas::ImageSetEntry[], int cnt) override;
+#endif
 
     void drawSpecial(SkSpecialImage*, int left, int top, const SkPaint& paint,
                      SkImage*, const SkMatrix&) override;

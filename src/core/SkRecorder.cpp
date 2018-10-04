@@ -253,6 +253,9 @@ void SkRecorder::onDrawImageLattice(const SkImage* image, const Lattice& lattice
            this->copy(lattice.fColors, flagCount), *lattice.fBounds, dst);
 }
 
+void SkRecorder::onDrawImageSet(const SkCanvas::ImageSetEntry[], int cnt) {
+}
+
 void SkRecorder::onDrawText(const void* text, size_t byteLength,
                             SkScalar x, SkScalar y, const SkPaint& paint) {
     this->append<SkRecords::DrawText>(

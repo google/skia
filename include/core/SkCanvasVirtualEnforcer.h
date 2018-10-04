@@ -58,6 +58,8 @@ protected:
     void onDrawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
                             const SkRect& dst, const SkPaint* paint) override = 0;
 
+    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int cnt) override = 0;
+
     void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
                       const SkPaint* paint) override = 0;
     void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,

@@ -574,6 +574,8 @@ void SkPipeCanvas::onDrawImageLattice(const SkImage* image, const Lattice& latti
     }
 }
 
+void SkPipeCanvas::onDrawImageSet(const ImageSetEntry[], int cnt) {}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkPipeCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,

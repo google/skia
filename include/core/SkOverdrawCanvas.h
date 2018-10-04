@@ -47,6 +47,7 @@ public:
                          SrcRectConstraint) override;
     void onDrawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*) override;
     void onDrawImageLattice(const SkImage*, const Lattice&, const SkRect&, const SkPaint*) override;
+    void onDrawImageSet(const ImageSetEntry[], int cnt) override;
     void onDrawBitmap(const SkBitmap&, SkScalar, SkScalar, const SkPaint*) override;
     void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
                           SrcRectConstraint) override;

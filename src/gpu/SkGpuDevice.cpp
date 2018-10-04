@@ -1447,6 +1447,39 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
     this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
+#if SK_USE_GPU_IMAGE_SET
+void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int cnt) {
+    SkASSERT(cnt > 0);
+    std::unique_ptr<GrRenderTargetContext::TextureSetEntry[]> textures(new GrRenderTargetContext::TextureSetEntry[cnt]);
+    int base = 0;
+    int n = 0;
+    for (int i = 0; i < cnt; ++i) {
+        auto image = images[i].fImage;
+        textures[i].fProxy = as_IB(image)->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(), nullptr, nullptr, nullptr);
+        textures[i].fSrcRect = images[i].fSrcRect;
+        textures[i].fDstRect = images[i].fDstRect;
+        textures[i].fAAFlags = images[i].fAAFlags;
+        // If we failed to make a proxy or our proxy can't be grouped with the previous proxies then
+        // draw the accumulated set and reset.
+        if (!textures[i].fProxy || (n > 0 && (textures[i].fProxy->textureType() != textures[base].fProxy->textureType() ||
+            textures[i].fProxy->config() != textures[base].fProxy->config()))) {
+            fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
+                                                  GrSamplerState::Filter::kBilerp, GrColor_WHITE,
+                                                  this->ctm(), nullptr, nullptr);
+            base = textures[i].fProxy ? i : i + 1;
+            n = 0;
+        } else {
+            ++n;
+        }
+    }
+    if (n > 0) {
+        fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
+                                             GrSamplerState::Filter::kBilerp, GrColor_WHITE,
+                                             this->ctm(), nullptr, nullptr);
+    }
+}
+#endif
+
 static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
                                 const SkPaint& skPaint, const SkMatrix& matrix, SkBlendMode bmode,
                                 bool hasTexs, bool hasColors, GrPaint* grPaint) {

@@ -357,6 +357,8 @@ void SkDebugCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center,
     this->addDrawCommand(new SkDrawImageNineCommand(image, center, dst, paint));
 }
 
+void SkDebugCanvas::onDrawImageSet(const SkCanvas::ImageSetEntry[], int cnt) {}
+
 void SkDebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawOvalCommand(oval, paint));
 }

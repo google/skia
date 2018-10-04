@@ -543,6 +543,10 @@ void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& la
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onDrawImageSet(const SkCanvas::ImageSetEntry[], int cnt) {
+}
+
+
 void SkPictureRecord::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                                  const SkPaint& paint) {
     // op + paint index + length + 'length' worth of chars + x + y

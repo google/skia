@@ -1809,6 +1809,14 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     }
 }
 
+void SkCanvas::experimentalDrawImageSet(const ImageSetEntry imageSet[], int cnt) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    RETURN_ON_NULL(imageSet);
+    RETURN_ON_FALSE(cnt);
+
+    this->onDrawImageSet(imageSet, cnt);
+}
+
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (bitmap.drawsNothing()) {
@@ -2407,6 +2415,18 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
         iter.fDevice->drawImageLattice(image, lattice, dst, looper.paint());
     }
 
+    LOOPER_END
+}
+
+#include "SkRectPriv.h"
+
+void SkCanvas::onDrawImageSet(const ImageSetEntry imageSet[], int cnt) {
+    SkPaint paint;
+    auto bounds = SkRectPriv::MakeLargeS32();
+    LOOPER_BEGIN(paint, &bounds);
+    while (iter.next()) {
+        iter.fDevice->drawImageSet(imageSet, cnt);
+    }
     LOOPER_END
 }
 
