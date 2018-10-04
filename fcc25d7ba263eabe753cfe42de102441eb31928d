@@ -88,6 +88,24 @@
       "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9afe9cf_0ce9190a",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-04T16:15:44Z",
+      "side": 1,
+      "message": "For what it\u0027s worth, I think I could probably get over my fears of SkRGBA4f::opaque() always returning (r,g,b,1) no matter the alpha type.",
+      "parentUuid": "ea07238a_505f70c9",
+      "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
