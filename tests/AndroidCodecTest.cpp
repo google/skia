@@ -191,7 +191,7 @@ DEF_TEST(AndroidCodec_P3, r) {
     REPORTER_ASSERT(r, cs->gammaCloseToSRGB());
 
     const SkMatrix44* matrix = cs->toXYZD50();
-    SkMatrix44 expected(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 expected;
     static constexpr float kExpected[] = {
         0.426254272f,  0.369018555f,  0.168914795f,
         0.226013184f,  0.685974121f,  0.0880126953f,

@@ -60,7 +60,7 @@ public:
 
         {
             // Render in a funny color space that converts green to yellow.
-            SkMatrix44 greenToYellow(SkMatrix44::kIdentity_Constructor);
+            SkMatrix44 greenToYellow;
             greenToYellow.setFloat(0, 1, 1.0f);
             sk_sp<SkColorSpace> gty = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                             greenToYellow);

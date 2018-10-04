@@ -392,7 +392,7 @@ static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
     }
 
     SkColorSpaceTransferFn fn;
-    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 toXYZD50;
     if (cs->isNumericalTransferFn(&fn) && cs->toXYZD50(&toXYZD50)) {
         return SkICC::WriteToICC(fn, toXYZD50);
     }
