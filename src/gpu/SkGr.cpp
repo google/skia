@@ -254,15 +254,6 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrColor4f SkColorToPremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
-    // We want to premultiply after color space conversion, so this is easy:
-    return SkColor4fToUnpremulGrColor4f(SkColor4f::FromColor(c), colorSpaceInfo).premul();
-}
-
-GrColor4f SkColor4fToPremulGrColor4fLegacy(SkColor4f c) {
-    return GrColor4f::FromRGBA4f(c.premul());
-}
-
 GrColor4f SkColor4fToUnpremulGrColor4f(SkColor4f c, const GrColorSpaceInfo& colorSpaceInfo) {
     GrColor4f color = GrColor4f::FromRGBA4f(c);
     if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
@@ -405,7 +396,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             // The geometry processor will insert the primitive color to start the color chain, so
             // the GrPaint color will be ignored.
 
-            GrColor4f shaderInput = origColor.opaque();
+            SkPMColor4f shaderInput = origColor.opaque().asRGBA4f<kPremul_SkAlphaType>();
             shaderFP = GrFragmentProcessor::OverrideInput(std::move(shaderFP), shaderInput);
             shaderFP = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(shaderFP),
                                                                          *primColorMode);

@@ -59,8 +59,6 @@ static inline GrColor SkColorToUnpremulGrColor(SkColor c) {
 
 /** Transform an SkColor (sRGB bytes) or SkColor4f (sRGB floats) to GrColor4f
     for the specified color space info. */
-GrColor4f SkColorToPremulGrColor4f(SkColor, const GrColorSpaceInfo&);
-GrColor4f SkColor4fToPremulGrColor4fLegacy(SkColor4f);
 GrColor4f SkColor4fToUnpremulGrColor4f(SkColor4f, const GrColorSpaceInfo&);
 
 /** Similar, but using SkPMColor4f. */
@@ -165,8 +163,6 @@ GR_STATIC_ASSERT((int)kISA_GrBlendCoeff == (int)SkBlendModeCoeff::kISA);
 GR_STATIC_ASSERT((int)kDA_GrBlendCoeff == (int)SkBlendModeCoeff::kDA);
 GR_STATIC_ASSERT((int)kIDA_GrBlendCoeff == (int)SkBlendModeCoeff::kIDA);
 //GR_STATIC_ASSERT(SkXfermode::kCoeffCount == 10);
-
-#define SkXfermodeCoeffToGrBlendCoeff(X) ((GrBlendCoeff)(X))
 
 ////////////////////////////////////////////////////////////////////////////////
 // Texture management
