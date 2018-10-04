@@ -49,7 +49,7 @@ SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
         fToXYZD50_3x3[3*r+c] = toXYZD50.get(r,c);
     }
     SkASSERT(xyz_almost_equal(toXYZD50, fToXYZD50_3x3));
-    fToXYZD50Hash = SkOpts::hash_fn(fToXYZD50_3x3, sizeof(fToXYZD50_3x3), 0);
+    fToXYZD50Hash = SkOpts::hash_fn(fToXYZD50_3x3, 9*sizeof(float), 0);
 
     switch (fGammaNamed) {
         case kSRGB_SkGammaNamed:        transferFn = &  gSRGB_TransferFn.fG; break;
@@ -58,6 +58,7 @@ SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
         case kNonStandard_SkGammaNamed:                                      break;
     }
     memcpy(fTransferFn, transferFn, 7*sizeof(float));
+    fTransferFnHash = SkOpts::hash_fn(fTransferFn, 7*sizeof(float), 0);
 }
 
 

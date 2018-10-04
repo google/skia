@@ -239,6 +239,9 @@ public:
     void    invTransferFn(float gabcdef[7]) const;
     void gamutTransformTo(const SkColorSpace* dst, float src_to_dst_row_major[9]) const;
 
+    uint32_t transferFnHash() const { return fTransferFnHash; }
+    uint64_t           hash() const { return (uint64_t)fTransferFnHash << 32 | fToXYZD50Hash; }
+
 private:
     friend class SkColorSpaceSingletonFactory;
 
@@ -249,7 +252,8 @@ private:
     void computeLazyDstFields() const;
 
     SkGammaNamed                        fGammaNamed;         // TODO: 2-bit, pack tightly?  drop?
-    uint32_t                            fToXYZD50Hash;       // TODO: Switch to whole-CS hash?
+    uint32_t                            fTransferFnHash;
+    uint32_t                            fToXYZD50Hash;
 
     float                               fTransferFn[7];
     float                               fToXYZD50_3x3[9];    // row-major
