@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a376e090_1d97e416",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T13:59:46Z",
+      "side": 1,
+      "message": "This isn\u0027t right -- I\u0027ll fix it in the next pass.",
+      "range": {
+        "startLine": 36,
+        "startChar": 20,
+        "endLine": 36,
+        "endChar": 25
+      },
+      "revId": "1d077e45eb05b38a46fd8145e989f5a85e4e1ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
