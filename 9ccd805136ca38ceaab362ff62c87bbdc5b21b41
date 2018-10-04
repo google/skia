@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4adfa5e_5c95ee52",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-04T18:31:05Z",
+      "side": 1,
+      "message": "I think this is a good compromise.",
+      "range": {
+        "startLine": 236,
+        "startChar": 4,
+        "endLine": 238,
+        "endChar": 17
+      },
+      "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
