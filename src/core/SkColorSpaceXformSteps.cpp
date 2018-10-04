@@ -8,6 +8,7 @@
 #include "SkColorSpaceXformSteps.h"
 #include "SkColorSpacePriv.h"
 #include "SkRasterPipeline.h"
+#include "../../third_party/skcms/skcms.h"
 
 // TODO: explain
 
@@ -93,9 +94,12 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
         rgba[2] *= invA;
     }
     if (flags.linearize) {
-        rgba[0] = srcTF(rgba[0]);
-        rgba[1] = srcTF(rgba[1]);
-        rgba[2] = srcTF(rgba[2]);
+        skcms_TransferFunction tf;
+        memcpy(&tf, &srcTF, 7*sizeof(float));
+
+        rgba[0] = skcms_TransferFunction_eval(&tf, rgba[0]);
+        rgba[1] = skcms_TransferFunction_eval(&tf, rgba[1]);
+        rgba[2] = skcms_TransferFunction_eval(&tf, rgba[2]);
     }
     if (flags.gamut_transform) {
         float temp[3] = { rgba[0], rgba[1], rgba[2] };
@@ -106,9 +110,12 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
         }
     }
     if (flags.encode) {
-        rgba[0] = dstTFInv(rgba[0]);
-        rgba[1] = dstTFInv(rgba[1]);
-        rgba[2] = dstTFInv(rgba[2]);
+        skcms_TransferFunction tf;
+        memcpy(&tf, &dstTFInv, 7*sizeof(float));
+
+        rgba[0] = skcms_TransferFunction_eval(&tf, rgba[0]);
+        rgba[1] = skcms_TransferFunction_eval(&tf, rgba[1]);
+        rgba[2] = skcms_TransferFunction_eval(&tf, rgba[2]);
     }
     if (flags.premul) {
         rgba[0] *= rgba[3];

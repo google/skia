@@ -47,11 +47,9 @@ struct SK_API SkColorSpacePrimaries {
  *  Contains the coefficients for a common transfer function equation, specified as
  *  a transformation from a curved space to linear.
  *
- *  LinearVal = C*InputVal + F        , for 0.0f <= InputVal <  D
- *  LinearVal = (A*InputVal + B)^G + E, for D    <= InputVal <= 1.0f
+ *  LinearVal = sign(InputVal) * (  C*|InputVal| + F       ), for 0.0f <= |InputVal| <  D
+ *  LinearVal = sign(InputVal) * ( (A*|InputVal| + B)^G + E), for D    <= |InputVal|
  *
- *  Function is undefined if InputVal is not in [ 0.0f, 1.0f ].
- *  Resulting LinearVals must be in [ 0.0f, 1.0f ].
  *  Function must be positive and increasing.
  */
 struct SK_API SkColorSpaceTransferFn {
@@ -62,20 +60,6 @@ struct SK_API SkColorSpaceTransferFn {
     float fD;
     float fE;
     float fF;
-
-    /**
-     * Transform a single float by this transfer function.
-     * For negative inputs, returns sign(x) * f(abs(x)).
-     */
-    float operator()(float x) const {
-        SkScalar s = SkScalarSignAsScalar(x);
-        x = sk_float_abs(x);
-        if (x >= fD) {
-            return s * (powf(fA * x + fB, fG) + fE);
-        } else {
-            return s * (fC * x + fF);
-        }
-    }
 };
 
 class SK_API SkColorSpace : public SkNVRefCnt<SkColorSpace> {
