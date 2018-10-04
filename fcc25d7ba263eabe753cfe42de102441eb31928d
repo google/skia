@@ -16,6 +16,24 @@
       "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "103c7b24_fe5ca02d",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-04T15:04:27Z",
+      "side": 1,
+      "message": "Why shouldn\u0027t opaque() be on SkRGBA4f? Isn\u0027t alpha \u003d\u003d 1.f always mean opaque in any color representation we plan to support? Or is the concern that opaqueness depends on SkBlendMode?",
+      "parentUuid": "af6aaae5_333d1e92",
+      "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
