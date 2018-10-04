@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af6aaae5_333d1e92",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-04T15:01:40Z",
+      "side": 1,
+      "message": "I *could* have written this as .opaque().premul(), but that seemed too cute. I also toyed with fully moving to SkColor4f/SkPMColor4f during paint conversion, but we really like our .opaque() helper, and I\u0027m not sure that ought to be on SkRGBA4f. Probably going to add a free-function:\n\ntemplate \u003cSkAlphaType kAT\u003e\nSkRGBA4f\u003ckAT\u003e SkRGBA4f_MakeOpaque(const SkRGBA4f\u003ckAT\u003e\u0026 c) {\n  return { c.fR, c.fG, c.fB, 1 };\n}",
+      "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
