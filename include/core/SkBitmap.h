@@ -801,13 +801,6 @@ public:
         this->eraseColor(SkColorSetARGB(a, r, g, b));
     }
 
-    /** Deprecated.
-    */
-    SK_ATTR_DEPRECATED("use eraseARGB or eraseColor")
-    void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const {
-        this->eraseARGB(0xFF, r, g, b);
-    }
-
     /** Replaces pixel values inside area with c. If area does not intersect bounds(),
         call has no effect.
 
