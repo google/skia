@@ -778,6 +778,18 @@ struct SK_API SkRect {
         return SkRect {x, y, x + w, y + h};
     }
 
+    /** Deprecated.
+    */
+    SK_ATTR_DEPRECATED("use Make()")
+    static SkRect SK_WARN_UNUSED_RESULT MakeFromIRect(const SkIRect& irect) {
+        SkRect r;
+        r.set(SkIntToScalar(irect.fLeft),
+              SkIntToScalar(irect.fTop),
+              SkIntToScalar(irect.fRight),
+              SkIntToScalar(irect.fBottom));
+        return r;
+    }
+
     /** Returns constructed SkIRect set to (0, 0, size.width(), size.height()).
         Does not validate input; size.width() or size.height() may be negative.
 

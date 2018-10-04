@@ -248,7 +248,7 @@ void SkDevice_Compute::path_rasterize_and_place(const SkPaint&   paint,
     skc_raster_clip_weakref_t clip_weakref = fClipWeakref;
 
     // TODO Support arbitrary path clip?
-    SkRect devClip = SkRect::Make(this->devClipBounds());
+    SkRect devClip = SkRect::MakeFromIRect(this->devClipBounds());
     const float clip[] = { devClip.fLeft, devClip.fTop, devClip.fRight, devClip.fBottom };
 
     //
