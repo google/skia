@@ -78,7 +78,7 @@ static bool bits_isonly(int value, int mask) {
 
 static void test_constructor(skiatest::Reporter* reporter) {
     // Allocate a matrix on the heap
-    SkMatrix44* placeholderMatrix = new SkMatrix44(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44* placeholderMatrix = new SkMatrix44;
     std::unique_ptr<SkMatrix44> deleteMe(placeholderMatrix);
 
     for (int row = 0; row < 4; ++row) {
