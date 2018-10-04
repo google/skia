@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3944e84b_676ce6d7",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-04T17:43:13Z",
+      "side": 1,
+      "message": "should we move this somewhere out of sight now?",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 22
+      },
+      "revId": "13c10b1b631a1d922bec90fbbef06c13fc9a660a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
