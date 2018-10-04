@@ -30,7 +30,6 @@
 #include "SkDeferredDisplayList.h"
 #include "SkGr.h"
 #include "SkImageInfoPriv.h"
-#include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkSurface_Gpu.h"
 #include "SkTaskGroup.h"
@@ -1128,7 +1127,8 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
+#ifdef SK_ENABLE_DUMP_GPU
+#include "SkJSONWriter.h"
 SkString GrContextPriv::dump() const {
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
@@ -1164,3 +1164,4 @@ SkString GrContextPriv::dump() const {
     stream.copyToAndReset(result.writable_str());
     return result;
 }
+#endif

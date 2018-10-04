@@ -71,6 +71,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
+#ifdef SK_ENABLE_DUMP_GPU
 void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->beginObject();
 
@@ -132,6 +133,9 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
 
     writer->endObject();
 }
+#else
+void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const { }
+#endif
 
 void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fDisableDriverCorrectnessWorkarounds) {
