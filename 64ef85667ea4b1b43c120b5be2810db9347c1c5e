@@ -22,6 +22,30 @@
       "revId": "64ef85667ea4b1b43c120b5be2810db9347c1c5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3d12cbc_d2ebf559",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-10-04T19:54:40Z",
+      "side": 1,
+      "message": "yes, but, \"this\" and \"that\" look too similar for my taste.",
+      "parentUuid": "da237187_5de8e982",
+      "range": {
+        "startLine": 479,
+        "startChar": 72,
+        "endLine": 479,
+        "endChar": 77
+      },
+      "revId": "64ef85667ea4b1b43c120b5be2810db9347c1c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
