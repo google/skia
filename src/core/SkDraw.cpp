@@ -15,7 +15,6 @@
 #include "SkColorData.h"
 #include "SkDevice.h"
 #include "SkDrawProcs.h"
-#include "SkFindAndPlaceGlyph.h"
 #include "SkMaskFilterBase.h"
 #include "SkMacros.h"
 #include "SkMatrix.h"

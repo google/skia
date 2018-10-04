@@ -15,7 +15,6 @@
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
-#include "SkFindAndPlaceGlyph.h"
 #include "SkGlyphRun.h"
 #include "SkGr.h"
 #include "SkGraphics.h"
