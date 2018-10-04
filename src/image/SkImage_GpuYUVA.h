@@ -11,7 +11,7 @@
 #include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "SkCachedData.h"
-#include "SkImage_Base.h"
+#include "SkImage_GpuBase.h"
 #include "SkYUVAIndex.h"
 
 class GrTexture;
@@ -20,7 +20,7 @@ class GrTexture;
 // Initially any direct rendering will be done by passing the individual planes to a shader.
 // Once any method requests a flattened image (e.g., onReadPixels), the flattened RGB
 // proxy will be stored and used for any future rendering.
-class SkImage_GpuYUVA : public SkImage_Base {
+class SkImage_GpuYUVA : public SkImage_GpuBase {
 public:
     SkImage_GpuYUVA(sk_sp<GrContext>, uint32_t uniqueID, SkYUVColorSpace,
                     sk_sp<GrTextureProxy> proxies[], SkYUVAIndex yuvaIndices[4], SkISize size,
@@ -29,39 +29,14 @@ public:
 
     SkImageInfo onImageInfo() const override;
 
-    bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override {
-        return false;
-    }
-    sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const override {
-        return SkImage_GpuShared::OnMakeSubset(subset, fContext, this, fImageAlphaType,
-                                               fImageColorSpace, fBudgeted);
-    }
-
-    GrContext* context() const override { return fContext.get(); }
-    GrTextureProxy* peekProxy() const override { return nullptr; }
+    GrTextureProxy* peekProxy() const override { return this->asTextureProxyRef().get(); }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override;
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&, SkColorSpace*,
-                                            sk_sp<SkColorSpace>*,
-                                            SkScalar scaleAdjust[2]) const override;
-
-    sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override {
-        return nullptr;
-    }
-
-    GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
-                                         GrSurfaceOrigin* origin) const override {
-        return GrBackendTexture(); // invalid
-    }
-
-    GrTexture* onGetTexture() const override { return nullptr; }
 
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
 
     sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*,
                                   const void* planes[3]) override { return nullptr; }
-
-    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override { return nullptr; }
 
     // These need to match the ones defined elsewhere
     typedef ReleaseContext TextureContext;
@@ -128,10 +103,7 @@ public:
                                                GrSurfaceOrigin imageOrigin,
                                                sk_sp<SkColorSpace> imageColorSpace);
 
-    bool onIsValid(GrContext*) const override { return false; }
-
 private:
-    sk_sp<GrContext>                 fContext;
     // This array will usually only be sparsely populated.
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
     sk_sp<GrTextureProxy>            fProxies[4];
@@ -140,13 +112,10 @@ private:
     // using the separate YUVA planes. From thence forth we will only use the
     // the RGBProxy.
     sk_sp<GrTextureProxy>            fRGBProxy;
-    const SkBudgeted                 fBudgeted;
-    const SkYUVColorSpace            fColorSpace;
+    const SkYUVColorSpace            fYUVColorSpace;
     GrSurfaceOrigin                  fOrigin;
-    SkAlphaType                      fImageAlphaType;
-    sk_sp<SkColorSpace>              fImageColorSpace;
 
-    typedef SkImage_Base INHERITED;
+    typedef SkImage_GpuBase INHERITED;
 };
 
 #endif
