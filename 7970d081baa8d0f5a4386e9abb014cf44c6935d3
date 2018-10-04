@@ -22,6 +22,30 @@
       "revId": "7970d081baa8d0f5a4386e9abb014cf44c6935d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ef224fc_23979e64",
+        "filename": "include/core/SkYUVAIndex.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-04T14:11:46Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "302e60ba_9dd9fb07",
+      "range": {
+        "startLine": 16,
+        "startChar": 11,
+        "endLine": 16,
+        "endChar": 26
+      },
+      "revId": "7970d081baa8d0f5a4386e9abb014cf44c6935d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
