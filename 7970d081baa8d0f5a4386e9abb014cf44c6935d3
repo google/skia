@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "302e60ba_9dd9fb07",
+        "filename": "include/core/SkYUVAIndex.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-04T14:09:58Z",
+      "side": 1,
+      "message": "Stick ColorChannel inside SkYUVAIndex (like the Index enum)?",
+      "range": {
+        "startLine": 16,
+        "startChar": 11,
+        "endLine": 16,
+        "endChar": 26
+      },
+      "revId": "7970d081baa8d0f5a4386e9abb014cf44c6935d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
