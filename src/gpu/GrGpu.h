@@ -470,7 +470,7 @@ private:
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
 
-    virtual void onDumpJSON(SkJSONWriter*) const {}
+    SkDEBUGCODE(virtual void onDumpJSON(SkJSONWriter*) const {})
 
     void resetContext() {
         this->onResetContext(fResetBits);
