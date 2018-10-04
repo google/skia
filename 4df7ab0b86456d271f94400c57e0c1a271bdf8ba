@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "daa92771_82ec4d5f",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-04T15:31:06Z",
+      "side": 1,
+      "message": "I think if we do that here, it should be null -\u003e sRGB for both. The src/dst naming here is misleading, because these are just lhs, rhs.",
+      "revId": "4df7ab0b86456d271f94400c57e0c1a271bdf8ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
