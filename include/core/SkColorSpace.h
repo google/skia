@@ -171,8 +171,9 @@ public:
     const SkMatrix44* toXYZD50() const;
 
     /**
-     *  Returns a hash of the gamut transformation to XYZ D50. Allows for fast equality checking
+     *  Returns a hash of the gamut transofmration to XYZ D50. Allows for fast equality checking
      *  of gamuts, at the (very small) risk of collision.
+     *  Returns 0 if color gamut cannot be described in terms of XYZ D50.
      */
     uint32_t toXYZD50Hash() const { return fToXYZD50Hash; }
 
@@ -232,14 +233,11 @@ public:
      *  If both are null, we return true.  If one is null and the other is not, we return false.
      *  If both are non-null, we do a deeper compare.
      */
-    static bool Equals(const SkColorSpace*, const SkColorSpace*);
+    static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
     void       transferFn(float gabcdef[7]) const;
     void    invTransferFn(float gabcdef[7]) const;
     void gamutTransformTo(const SkColorSpace* dst, float src_to_dst_row_major[9]) const;
-
-    uint32_t transferFnHash() const { return fTransferFnHash; }
-    uint64_t           hash() const { return (uint64_t)fTransferFnHash << 32 | fToXYZD50Hash; }
 
 private:
     friend class SkColorSpaceSingletonFactory;
@@ -251,8 +249,7 @@ private:
     void computeLazyDstFields() const;
 
     SkGammaNamed                        fGammaNamed;         // TODO: 2-bit, pack tightly?  drop?
-    uint32_t                            fTransferFnHash;
-    uint32_t                            fToXYZD50Hash;
+    uint32_t                            fToXYZD50Hash;       // TODO: Switch to whole-CS hash?
 
     float                               fTransferFn[7];
     float                               fToXYZD50_3x3[9];    // row-major

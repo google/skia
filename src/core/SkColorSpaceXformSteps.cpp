@@ -24,8 +24,7 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     if (!src) { src = sk_srgb_singleton(); }
     if (!dst) { dst = src; }
 
-    if (src->hash() == dst->hash() && srcAT == dstAT) {
-        SkASSERT(SkColorSpace::Equals(src,dst));
+    if (src == dst && srcAT == dstAT) {
         return;
     }
 
@@ -50,18 +49,14 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
         this->src_to_dst_matrix[6] = row_major[2];
         this->src_to_dst_matrix[7] = row_major[5];
         this->src_to_dst_matrix[8] = row_major[8];
-    } else {
-    #ifdef SK_DEBUG
-        SkMatrix44 srcM, dstM;
-        src->toXYZD50(&srcM);
-        dst->toXYZD50(&dstM);
-        SkASSERT(srcM == dstM && "Hash collision");
-    #endif
     }
 
     // Fill out all the transfer functions we'll use.
     src->   transferFn(&this->srcTF   .fG);
     dst->invTransferFn(&this->dstTFInv.fG);
+
+    SkColorSpaceTransferFn dstTF;
+    dst->transferFn(&dstTF.fG);
 
     this->srcTF_is_sRGB = src->gammaCloseToSRGB();
     this->dstTF_is_sRGB = dst->gammaCloseToSRGB();
@@ -70,15 +65,8 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     if ( this->flags.linearize       &&
         !this->flags.gamut_transform &&
          this->flags.encode          &&
-         src->transferFnHash() == dst->transferFnHash())
+        0 == memcmp(&srcTF, &dstTF, sizeof(SkColorSpaceTransferFn)))
     {
-    #ifdef SK_DEBUG
-        float dstTF[7];
-        dst->transferFn(dstTF);
-        for (int i = 0; i < 7; i++) {
-            SkASSERT( (&srcTF.fG)[i] == dstTF[i] && "Hash collision" );
-        }
-    #endif
         this->flags.linearize  = false;
         this->flags.encode     = false;
     }
