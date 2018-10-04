@@ -314,7 +314,7 @@ static bool parse_option_gpu_color(const SkString& value,
         *outColorType = kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();
     } else if (value.equals("narrow") || value.equals("enarrow")) {
-        SkMatrix44 narrow_gamut(SkMatrix44::kUninitialized_Constructor);
+        SkMatrix44 narrow_gamut;
         narrow_gamut.set3x3RowMajorf(gNarrow_toXYZD50);
         *outColorType = value.equals("narrow") ? kRGBA_8888_SkColorType : kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeRGB(k2Dot2Curve_SkGammaNamed, narrow_gamut);

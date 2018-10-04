@@ -84,7 +84,7 @@ protected:
             canvas->restore();
         };
 
-        SkMatrix44 tmp(SkMatrix44::kIdentity_Constructor);
+        SkMatrix44 tmp;
 
         proc(0x400000FF, m4);
         tmp.setTranslate(0, 0, 1);
@@ -103,9 +103,9 @@ protected:
         if (!fAnim) {
             return;
         }
-        SkMatrix44  camera(SkMatrix44::kIdentity_Constructor),
-                    perspective(SkMatrix44::kIdentity_Constructor),
-                    mv(SkMatrix44::kIdentity_Constructor);
+        SkMatrix44  camera,
+                    perspective,
+                    mv;
         SkMatrix    viewport;
 
         {

@@ -115,13 +115,13 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs,
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeRGB(RenderTargetGamma gamma, Gamut gamut) {
-    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 toXYZD50;
     to_xyz_d50(&toXYZD50, gamut);
     return SkColorSpace::MakeRGB(gamma, toXYZD50);
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs, Gamut gamut) {
-    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 toXYZD50;
     to_xyz_d50(&toXYZD50, gamut);
     return SkColorSpace::MakeRGB(coeffs, toXYZD50);
 }
@@ -129,7 +129,7 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs, 
 class SkColorSpaceSingletonFactory {
 public:
     static SkColorSpace* Make(SkGammaNamed gamma, const float to_xyz[9]) {
-        SkMatrix44 m44(SkMatrix44::kUninitialized_Constructor);
+        SkMatrix44 m44;
         m44.set3x3RowMajorf(to_xyz);
         (void)m44.getType();  // Force typemask to be computed to avoid races.
         return new SkColorSpace(gamma, nullptr, m44);
@@ -197,7 +197,7 @@ void SkColorSpace::invTransferFn(float gabcdef[7]) const {
 
 const SkMatrix44* SkColorSpace::toXYZD50() const {
     fToXZYD50_4x4_Once([this] {
-        fToXYZD50_4x4.reset(new SkMatrix44(SkMatrix44::kUninitialized_Constructor));
+        fToXYZD50_4x4.reset(new SkMatrix44);
         fToXYZD50_4x4->set3x3RowMajorf(fToXYZD50_3x3);
     });
     return fToXYZD50_4x4.get();
@@ -230,7 +230,7 @@ sk_sp<SkColorSpace> SkColorSpace::makeLinearGamma() const {
     if (this->gammaIsLinear()) {
         return sk_ref_sp(const_cast<SkColorSpace*>(this));
     }
-    SkMatrix44 m44(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 m44;
     this->toXYZD50(&m44);
     return SkColorSpace::MakeRGB(kLinear_SkGammaNamed, m44);
 }
@@ -239,16 +239,16 @@ sk_sp<SkColorSpace> SkColorSpace::makeSRGBGamma() const {
     if (this->gammaCloseToSRGB()) {
         return sk_ref_sp(const_cast<SkColorSpace*>(this));
     }
-    SkMatrix44 m44(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 m44;
     this->toXYZD50(&m44);
     return SkColorSpace::MakeRGB(kSRGB_SkGammaNamed, m44);
 }
 
 sk_sp<SkColorSpace> SkColorSpace::makeColorSpin() const {
-    SkMatrix44 spin(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 spin;
     spin.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
 
-    SkMatrix44 m44(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 m44;
     this->toXYZD50(&m44);
     spin.postConcat(m44);
 
@@ -279,7 +279,7 @@ sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile& profile) {
     }
 
     // TODO: can we save this work and skip lazily inverting the matrix later?
-    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 toXYZD50;
     toXYZD50.set3x3RowMajorf(&profile.toXYZD50.vals[0][0]);
     if (!toXYZD50.invert(nullptr)) {
         return nullptr;
@@ -396,7 +396,7 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                         ColorSpaceHeader::Pack(k0_Version, 0, gammaNamed,
                                                 ColorSpaceHeader::kMatrix_Flag);
                 memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
-                SkMatrix44 m44{SkMatrix44::kUninitialized_Constructor};
+                SkMatrix44 m44;
                 this->toXYZD50(&m44);
                 m44.as3x4RowMajorf((float*) memory);
             }
@@ -421,7 +421,7 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                 *(((float*) memory) + 6) = transferFn.fG;
                 memory = SkTAddOffset<void>(memory, 7 * sizeof(float));
 
-                SkMatrix44 m44{SkMatrix44::kUninitialized_Constructor};
+                SkMatrix44 m44;
                 this->toXYZD50(&m44);
                 m44.as3x4RowMajorf((float*) memory);
             }
@@ -469,7 +469,7 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
                 return nullptr;
             }
 
-            SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
+            SkMatrix44 toXYZ;
             toXYZ.set3x4RowMajorf((const float*) data);
             return SkColorSpace::MakeRGB((SkGammaNamed) header.fGammaNamed, toXYZ);
         }
@@ -497,7 +497,7 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
             transferFn.fG = *(((const float*) data) + 6);
             data = SkTAddOffset<const void>(data, 7 * sizeof(float));
 
-            SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
+            SkMatrix44 toXYZ;
             toXYZ.set3x4RowMajorf((const float*) data);
             return SkColorSpace::MakeRGB(transferFn, toXYZ);
         }

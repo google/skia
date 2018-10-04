@@ -1495,8 +1495,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) 
     sk_sp<SkData> p3Data = p3Buf.detachAsData();
     std::unique_ptr<SkCodec> p3Codec(SkCodec::MakeFromData(p3Data));
     REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());
-    SkMatrix44 mat0(SkMatrix44::kUninitialized_Constructor);
-    SkMatrix44 mat1(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 mat0, mat1;
     bool success = p3->toXYZD50(&mat0);
     REPORTER_ASSERT(r, success);
     success = p3Codec->getInfo().colorSpace()->toXYZD50(&mat1);

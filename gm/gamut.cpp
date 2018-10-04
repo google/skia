@@ -125,7 +125,7 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<std::unique_ptr<CellRende
         0.0000000f, 0.0517813f, 0.7734287f,  // -> Z
     };
 
-    SkMatrix44 wideGamutRGB_toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 wideGamutRGB_toXYZD50;
     wideGamutRGB_toXYZD50.set3x3RowMajorf(gWideGamutRGB_toXYZD50);
 
     // Use the original canvas' color type, but account for gamma requirements

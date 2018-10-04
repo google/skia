@@ -496,7 +496,7 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         return true;
     }
 
-    SkMatrix44 tmp(kUninitialized_Constructor);
+    SkMatrix44 tmp;
     // Use storage if it's available and distinct from this matrix.
     SkMatrix44* inverse = (storage && storage != this) ? storage : &tmp;
     if (this->isScaleTranslate()) {

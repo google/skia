@@ -34,7 +34,7 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
     REPORTER_ASSERT(r, nullptr != space);
     REPORTER_ASSERT(r, expectedGamma == space->gammaNamed());
 
-    SkMatrix44 mat{SkMatrix44::kUninitialized_Constructor};
+    SkMatrix44 mat;
     space->toXYZD50(&mat);
     const float src[] = {
         1, 0, 0, 1,
@@ -113,7 +113,7 @@ DEF_TEST(ColorSpaceSRGBCompare, r) {
     sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::MakeSRGB();
 
     // Create an sRGB color space by value
-    SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 srgbToxyzD50;
     srgbToxyzD50.set3x3RowMajorf(g_sRGB_XYZ);
     sk_sp<SkColorSpace> rgbColorSpace =
             SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, srgbToxyzD50);
@@ -147,7 +147,7 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
     REPORTER_ASSERT(r, namedColorSpace == viaSrgbColorSpace);
 
     // Create a linear sRGB color space by value
-    SkMatrix44 srgbToxyzD50(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 srgbToxyzD50;
     srgbToxyzD50.set3x3RowMajorf(g_sRGB_XYZ);
     sk_sp<SkColorSpace> rgbColorSpace =
         SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, srgbToxyzD50);
@@ -294,7 +294,7 @@ static inline bool matrix_almost_equal(const SkMatrix44& a, const SkMatrix44& b)
 
 static inline void check_primaries(skiatest::Reporter* r, const SkColorSpacePrimaries& primaries,
                                    const SkMatrix44& reference) {
-    SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 toXYZ;
     bool result = primaries.toXYZD50(&toXYZ);
     REPORTER_ASSERT(r, result);
     REPORTER_ASSERT(r, matrix_almost_equal(toXYZ, reference));
@@ -311,7 +311,7 @@ DEF_TEST(ColorSpace_Primaries, r) {
     srgb.fBY = 0.06f;
     srgb.fWX = 0.3127f;
     srgb.fWY = 0.3290f;
-    SkMatrix44 srgbToXYZ(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 srgbToXYZ;
     bool result = srgb.toXYZD50(&srgbToXYZ);
     REPORTER_ASSERT(r, result);
 
@@ -329,7 +329,7 @@ DEF_TEST(ColorSpace_Primaries, r) {
     proPhoto.fBY = 0.0001f;
     proPhoto.fWX = 0.34567f;
     proPhoto.fWY = 0.35850f;
-    SkMatrix44 proToXYZ(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 proToXYZ;
     proToXYZ.set3x3(0.7976749f, 0.2880402f, 0.0000000f,
                     0.1351917f, 0.7118741f, 0.0000000f,
                     0.0313534f, 0.0000857f, 0.8252100f);
@@ -345,7 +345,7 @@ DEF_TEST(ColorSpace_Primaries, r) {
     ntsc.fBY = 0.08f;
     ntsc.fWX = 0.31006f;
     ntsc.fWY = 0.31616f;
-    SkMatrix44 ntscToXYZ(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 ntscToXYZ;
     ntscToXYZ.set3x3(0.6343706f, 0.3109496f, -0.0011817f,
                      0.1852204f, 0.5915984f, 0.0555518f,
                      0.1446290f, 0.0974520f, 0.7708399f);
@@ -363,7 +363,7 @@ DEF_TEST(ColorSpace_Primaries, r) {
     p3.fWY = 0.3290f;
     space = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                   SkColorSpace::kDCIP3_D65_Gamut);
-    SkMatrix44 reference(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 reference;
     SkAssertResult(space->toXYZD50(&reference));
     check_primaries(r, p3, reference);
 
@@ -395,7 +395,7 @@ DEF_TEST(ColorSpace_MatrixHash, r) {
     fn.fF = 0.0f;
     fn.fG = 3.0f;
 
-    SkMatrix44 srgbMat(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 srgbMat;
     srgbMat.set3x3RowMajorf(gSRGB_toXYZD50);
     sk_sp<SkColorSpace> strange = SkColorSpace::MakeRGB(fn, srgbMat);
 
