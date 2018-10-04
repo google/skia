@@ -13,15 +13,14 @@
 #include "GrSurfaceProxyPriv.h"
 #include "SkGr.h"
 #include "SkImagePriv.h"
-#include "SkImage_Base.h"
-#include "SkImage_GpuShared.h"
+#include "SkImage_GpuBase.h"
 
 class GrTexture;
 
 class SkBitmap;
 struct SkYUVAIndex;
 
-class SkImage_Gpu : public SkImage_Base {
+class SkImage_Gpu : public SkImage_GpuBase {
 public:
     SkImage_Gpu(sk_sp<GrContext>, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
                 sk_sp<SkColorSpace>, SkBudgeted);
@@ -29,39 +28,17 @@ public:
 
     SkImageInfo onImageInfo() const override;
 
-    bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
-    sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const override {
-        return SkImage_GpuShared::OnMakeSubset(subset, fContext, this, fAlphaType, fColorSpace,
-                                               fBudgeted);
-    }
-
-    GrContext* context() const override { return fContext.get(); }
     GrTextureProxy* peekProxy() const override {
         return fProxy.get();
     }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override {
         return fProxy;
     }
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&, SkColorSpace*,
-                                            sk_sp<SkColorSpace>*,
-                                            SkScalar scaleAdjust[2]) const override;
-
-    sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override {
-        *uniqueID = this->uniqueID();
-        return fProxy;
-    }
-
-    GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
-                                         GrSurfaceOrigin* origin) const override;
-
-    GrTexture* onGetTexture() const override;
 
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
 
     sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
-
-    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
     typedef ReleaseContext TextureContext;
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
@@ -158,8 +135,6 @@ public:
             const GrBackendTexture backendTexture,
             sk_sp<SkColorSpace> imageColorSpace);
 
-    bool onIsValid(GrContext*) const override;
-
     void resetContext(sk_sp<GrContext> newContext) {
         SkASSERT(fContext->uniqueID() == newContext->uniqueID());
         fContext = newContext;
@@ -171,13 +146,9 @@ private:
             const SkYUVAIndex yuvaIndices[4], SkISize size, GrSurfaceOrigin origin,
             SkBudgeted isBudgeted, GrRenderTargetContext* renderTargetContext);
 
-    sk_sp<GrContext>      fContext;
     sk_sp<GrTextureProxy> fProxy;
-    const SkAlphaType     fAlphaType;
-    const SkBudgeted      fBudgeted;
-    sk_sp<SkColorSpace>   fColorSpace;
 
-    typedef SkImage_Base INHERITED;
+    typedef SkImage_GpuBase INHERITED;
 };
 
 #endif

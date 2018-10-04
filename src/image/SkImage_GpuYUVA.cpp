@@ -16,33 +16,27 @@
 #include "GrTexture.h"
 #include "GrTextureAdjuster.h"
 #include "SkImage_Gpu.h"
-#include "SkImage_GpuShared.h"
 #include "SkImage_GpuYUVA.h"
 #include "SkReadPixelsRec.h"
 #include "effects/GrYUVtoRGBEffect.h"
-
-using namespace SkImage_GpuShared;
 
 SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, uint32_t uniqueID,
                                  SkYUVColorSpace colorSpace, sk_sp<GrTextureProxy> proxies[],
                                  SkYUVAIndex yuvaIndices[4], SkISize size, GrSurfaceOrigin origin,
                                  sk_sp<SkColorSpace> imageColorSpace, SkBudgeted budgeted)
-        : INHERITED(size.width(), size.height(), uniqueID)
-        , fContext(std::move(context))
-        , fBudgeted(budgeted)
-        , fColorSpace(colorSpace)
-        , fOrigin(origin)
-        , fImageAlphaType(kOpaque_SkAlphaType)
-        , fImageColorSpace(std::move(imageColorSpace)) {
+        : INHERITED(std::move(context), size.width(), size.height(), uniqueID,
+                    // If an alpha channel is present we always switch to kPremul. This is because,
+                    // although the planar data is always un-premul, the final interleaved RGB image
+                    // is/would-be premul.
+                    -1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex ? kPremul_SkAlphaType
+                                                                    : kOpaque_SkAlphaType,
+                    budgeted, imageColorSpace)
+        , fYUVColorSpace(colorSpace)
+        , fOrigin(origin) {
     for (int i = 0; i < 4; ++i) {
         fProxies[i] = std::move(proxies[i]);
     }
     memcpy(fYUVAIndices, yuvaIndices, 4*sizeof(SkYUVAIndex));
-    // If an alpha channel is present we always switch to kPremul. This is because, although the
-    // planar data is always un-premul, the final interleaved RGB image is/would-be premul.
-    if (-1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex) {
-        fImageAlphaType = kPremul_SkAlphaType;
-    }
 }
 
 SkImage_GpuYUVA::~SkImage_GpuYUVA() {}
@@ -50,7 +44,7 @@ SkImage_GpuYUVA::~SkImage_GpuYUVA() {}
 SkImageInfo SkImage_GpuYUVA::onImageInfo() const {
     // Note: this is the imageInfo for the flattened image, not the YUV planes
     return SkImageInfo::Make(this->width(), this->height(), kRGBA_8888_SkColorType,
-                             fImageAlphaType, fImageColorSpace);
+                             fAlphaType, fColorSpace);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +67,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
                      fYUVAIndices[SkYUVAIndex::kV_Index].fIndex);
         // TODO: modify the YUVtoRGBEffect to do premul if fImageAlphaType is kPremul_AlphaType
         paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(std::move(yProxy), std::move(uProxy),
-                                                               std::move(vProxy), fColorSpace,
+                                                               std::move(vProxy), fYUVColorSpace,
                                                                nv12));
 
         const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
@@ -82,7 +76,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
         sk_sp<GrRenderTargetContext> renderTargetContext(
             fContext->contextPriv().makeDeferredRenderTargetContext(
                 SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig,
-                std::move(fImageColorSpace), 1, GrMipMapped::kNo, fOrigin));
+                std::move(fColorSpace), 1, GrMipMapped::kNo, fOrigin));
         if (!renderTargetContext) {
             return nullptr;
         }
@@ -100,15 +94,6 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     }
 
     return fRGBProxy;
-}
-
-sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrContext* context,
-                                                         const GrSamplerState& params,
-                                                         SkColorSpace* dstColorSpace,
-                                                         sk_sp<SkColorSpace>* texColorSpace,
-                                                         SkScalar scaleAdjust[2]) const {
-    return AsTextureProxyRef(context, params, dstColorSpace, texColorSpace, scaleAdjust,
-                             fContext.get(), this, fImageAlphaType, fImageColorSpace.get());
 }
 
 bool SkImage_GpuYUVA::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
@@ -133,13 +118,13 @@ bool SkImage_GpuYUVA::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     // TODO: this seems to duplicate code in GrTextureContext::onReadPixels and
     // GrRenderTargetContext::onReadPixels
     uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() && kPremul_SkAlphaType == fImageAlphaType) {
+    if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() && kPremul_SkAlphaType == fAlphaType) {
         // let the GPU perform this transformation for us
         flags = GrContextPriv::kUnpremul_PixelOpsFlag;
     }
 
     sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
-        proxy, fImageColorSpace);
+        proxy, fColorSpace);
     if (!sContext) {
         return false;
     }
