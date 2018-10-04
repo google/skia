@@ -34,6 +34,24 @@
       "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b38fd89_1ac5b1b0",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-04T15:06:01Z",
+      "side": 1,
+      "message": ".isOpaque (returns bool) is on SkRGBA4f. I guess we could add something like .opaque, although I think the name is probably too ambiguous. makeOpaque() would be better?",
+      "parentUuid": "103c7b24_fe5ca02d",
+      "revId": "fcc25d7ba263eabe753cfe42de102441eb31928d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
