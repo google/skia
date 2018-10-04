@@ -438,6 +438,7 @@ skia_core_sources = [
   "$_include/core/SkTypes.h",
   "$_include/core/SkUnPreMultiply.h",
   "$_include/core/SkVertices.h",
+  "$_include/core/SkYUVAIndex.h",
 
   "$_src/jumper/SkJumper.cpp",
 

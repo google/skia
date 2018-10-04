@@ -13,7 +13,7 @@
 #include "SkCachedData.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkImage_Base.h"
-#include "SkImagePriv.h"
+#include "SkYUVAIndex.h"
 #include "SkYUVSizeInfo.h"
 
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
@@ -151,10 +151,10 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         }
 
         SkYUVAIndex yuvaIndices[4] = {
-                SkYUVAIndex{0, SkImageSourceChannel::kA_SkImageSourceChannel},
-                SkYUVAIndex{1, SkImageSourceChannel::kA_SkImageSourceChannel},
-                SkYUVAIndex{2, SkImageSourceChannel::kA_SkImageSourceChannel},
-                SkYUVAIndex{-1, SkImageSourceChannel::kA_SkImageSourceChannel}
+                SkYUVAIndex{0, SkColorChannel::kA},
+                SkYUVAIndex{1, SkColorChannel::kA},
+                SkYUVAIndex{2, SkColorChannel::kA},
+                SkYUVAIndex{-1, SkColorChannel::kA}
         };
 
         int tempWidth = curImage.backendTexture(0).width();

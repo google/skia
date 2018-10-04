@@ -10,8 +10,8 @@
 
 #include "SkColorPriv.h"
 #include "SkImageGenerator.h"
-#include "SkImagePriv.h"
 #include "SkPath.h"
+#include "SkYUVAIndex.h"
 
 static const int kTileWidthHeight = 128;
 static const int kLabelWidth = 64;
@@ -280,13 +280,13 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             resultBMs[nextLayer++] = yuvaFull;
 
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = kB_SkImageSourceChannel;
+            yuvaIndices[0].fChannel = SkColorChannel::kR;
             yuvaIndices[1].fIndex = 0;
-            yuvaIndices[1].fChannel = kG_SkImageSourceChannel;
+            yuvaIndices[1].fChannel = SkColorChannel::kG;
             yuvaIndices[2].fIndex = 0;
-            yuvaIndices[2].fChannel = kR_SkImageSourceChannel;
+            yuvaIndices[2].fChannel = SkColorChannel::kG;
             yuvaIndices[3].fIndex = 0;
-            yuvaIndices[3].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[3].fChannel = SkColorChannel::kA;
             break;
         }
         case kNV12_YUVFormat: {
@@ -307,11 +307,11 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             resultBMs[nextLayer++] = uvQuarter;
 
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[0].fChannel = SkColorChannel::kA;
             yuvaIndices[1].fIndex = 1;
-            yuvaIndices[1].fChannel = kR_SkImageSourceChannel;
+            yuvaIndices[1].fChannel = SkColorChannel::kR;
             yuvaIndices[2].fIndex = 1;
-            yuvaIndices[2].fChannel = kG_SkImageSourceChannel;
+            yuvaIndices[2].fChannel = SkColorChannel::kG;
             break;
         }
         case kNV21_YUVFormat: {
@@ -332,11 +332,11 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             resultBMs[nextLayer++] = vuQuarter;
 
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[0].fChannel = SkColorChannel::kA;
             yuvaIndices[1].fIndex = 1;
-            yuvaIndices[1].fChannel = kG_SkImageSourceChannel;
+            yuvaIndices[1].fChannel = SkColorChannel::kG;
             yuvaIndices[2].fIndex = 1;
-            yuvaIndices[2].fChannel = kR_SkImageSourceChannel;
+            yuvaIndices[2].fChannel = SkColorChannel::kR;
             break;
         }
         case kI420_YUVFormat:
@@ -345,11 +345,11 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             resultBMs[nextLayer++] = planes.fVQuarter;
 
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[0].fChannel = SkColorChannel::kA;
             yuvaIndices[1].fIndex = 1;
-            yuvaIndices[1].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[1].fChannel = SkColorChannel::kA;
             yuvaIndices[2].fIndex = 2;
-            yuvaIndices[2].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[2].fChannel = SkColorChannel::kA;
             break;
         case kYV12_YUVFormat:
             resultBMs[nextLayer++] = planes.fYFull;
@@ -357,11 +357,11 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             resultBMs[nextLayer++] = planes.fUQuarter;
 
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[0].fChannel = SkColorChannel::kA;
             yuvaIndices[1].fIndex = 2;
-            yuvaIndices[1].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[1].fChannel = SkColorChannel::kA;
             yuvaIndices[2].fIndex = 1;
-            yuvaIndices[2].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[2].fChannel = SkColorChannel::kA;
             break;
     }
 
@@ -372,7 +372,7 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             resultBMs[nextLayer] = planes.fAFull;
 
             yuvaIndices[3].fIndex = nextLayer;
-            yuvaIndices[3].fChannel = kA_SkImageSourceChannel;
+            yuvaIndices[3].fChannel = SkColorChannel::kA;
         }
     }
 

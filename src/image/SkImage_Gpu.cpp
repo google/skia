@@ -42,6 +42,7 @@
 #include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
 #include "SkTraceEvent.h"
+#include "SkYUVAIndex.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "gl/GrGLTexture.h"
 
@@ -454,10 +455,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
                                                 sk_sp<SkColorSpace> imageColorSpace) {
     // TODO: SkImageSourceChannel input is being ingored right now. Setup correctly in the future.
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkImageSourceChannel::kA_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kA_SkImageSourceChannel},
-            SkYUVAIndex{2, SkImageSourceChannel::kA_SkImageSourceChannel},
-            SkYUVAIndex{-1, SkImageSourceChannel::kA_SkImageSourceChannel}};
+            SkYUVAIndex{0, SkColorChannel::kA},
+            SkYUVAIndex{1, SkColorChannel::kA},
+            SkYUVAIndex{2, SkColorChannel::kA},
+            SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyImpl(ctx, colorSpace, yuvTextures, yuvaIndices,
                                                      size, origin, std::move(imageColorSpace));
@@ -468,10 +469,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
         GrSurfaceOrigin origin, const GrBackendTexture backendTexture,
         sk_sp<SkColorSpace> imageColorSpace) {
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkImageSourceChannel::kA_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kA_SkImageSourceChannel},
-            SkYUVAIndex{2, SkImageSourceChannel::kA_SkImageSourceChannel},
-            SkYUVAIndex{-1, SkImageSourceChannel::kA_SkImageSourceChannel}};
+            SkYUVAIndex{0, SkColorChannel::kA},
+            SkYUVAIndex{1, SkColorChannel::kA},
+            SkYUVAIndex{2, SkColorChannel::kA},
+            SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
             ctx, colorSpace, yuvTextures, yuvaIndices, size, origin, backendTexture,
@@ -484,10 +485,10 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
                                                  sk_sp<SkColorSpace> imageColorSpace) {
     // TODO: SkImageSourceChannel input is being ingored right now. Setup correctly in the future.
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkImageSourceChannel::kA_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kA_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kA_SkImageSourceChannel},
-            SkYUVAIndex{-1, SkImageSourceChannel::kA_SkImageSourceChannel}};
+            SkYUVAIndex{0, SkColorChannel::kA},
+            SkYUVAIndex{1, SkColorChannel::kA},
+            SkYUVAIndex{1, SkColorChannel::kA},
+            SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{nv12Textures[0].width(), nv12Textures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyImpl(ctx, colorSpace, nv12Textures, yuvaIndices,
                                                      size, origin, std::move(imageColorSpace));
@@ -501,10 +502,10 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
         const GrBackendTexture backendTexture,
         sk_sp<SkColorSpace> imageColorSpace) {
     SkYUVAIndex yuvaIndices[4] = {
-            SkYUVAIndex{0, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
-            SkYUVAIndex{-1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel}};
+            SkYUVAIndex{0, SkColorChannel::kA},
+            SkYUVAIndex{1, SkColorChannel::kA},
+            SkYUVAIndex{1, SkColorChannel::kA},
+            SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{nv12Textures[0].width(), nv12Textures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
             ctx, colorSpace, nv12Textures, yuvaIndices, size, origin, backendTexture,
