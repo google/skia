@@ -418,7 +418,8 @@ private:
     friend void test_draw_op(GrContext*,
                              GrRenderTargetContext*,
                              std::unique_ptr<GrFragmentProcessor>,
-                             sk_sp<GrTextureProxy>);
+                             sk_sp<GrTextureProxy>,
+                             SkScalar);
 
     void internalClear(const GrFixedClip&, const GrColor, CanClearFullscreen);
 

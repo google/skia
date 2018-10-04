@@ -160,6 +160,7 @@ public:
         kShaderPDXferProcessor_ClassID,
         kSwizzleFragmentProcessor_ClassID,
         kTestFP_ClassID,
+        kOptimizationTestFP_ClassID,
         kTextureGeometryProcessor_ClassID,
         kFlatNormalsFP_ClassID,
         kMappedNormalsFP_ClassID,
