@@ -48,7 +48,7 @@ static inline T unaligned_load(const P* p) {
                 data += 24;
             }
             bytes %= 24;
-            hash = a^b^c;
+            hash = _mm_crc32_u32(a, _mm_crc32_u32(b, c));
         }
 
         SkASSERT(bytes < 24);
@@ -102,7 +102,7 @@ static inline T unaligned_load(const P* p) {
                 data += 12;
             }
             bytes %= 12;
-            hash = a^b^c;
+            hash = _mm_crc32_u32(a, _mm_crc32_u32(b, c));
         }
 
         SkASSERT(bytes < 12);
@@ -142,7 +142,7 @@ static inline T unaligned_load(const P* p) {
                 data += 24;
             }
             bytes %= 24;
-            hash = a^b^c;
+            hash = __crc32w(a, __crc32w(b, c));
         }
 
         SkASSERT(bytes < 24);
