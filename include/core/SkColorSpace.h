@@ -64,12 +64,6 @@ struct SK_API SkColorSpaceTransferFn {
     float fF;
 
     /**
-     * Produces a new parametric transfer function equation that is the mathematical inverse of
-     * this one.
-     */
-    SkColorSpaceTransferFn invert() const;
-
-    /**
      * Transform a single float by this transfer function.
      * For negative inputs, returns sign(x) * f(abs(x)).
      */
