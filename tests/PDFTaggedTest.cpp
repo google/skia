@@ -16,6 +16,7 @@ using PDFTag = SkPDF::StructureElementNode;
 // Add this to args.gn to output the PDF to a file:
 //   extra_cflags = [ "-DSK_PDF_TEST_TAGS_OUTPUT_PATH=\"/tmp/foo.pdf\"" ]
 DEF_TEST(SkPDF_tagged, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_tagged, r);
 #ifdef SK_PDF_TEST_TAGS_OUTPUT_PATH
     SkFILEWStream outputStream(SK_PDF_TEST_TAGS_OUTPUT_PATH);
 #else
