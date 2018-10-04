@@ -72,12 +72,7 @@ GrBackendRenderTarget SkSurface_Gpu::onGetBackendRenderTarget(BackendHandleAcces
     return rt->getBackendRenderTarget();
 }
 
-SkCanvas* SkSurface_Gpu::onNewCanvas() {
-    SkCanvas::InitFlags flags = SkCanvas::kDefault_InitFlags;
-    flags = static_cast<SkCanvas::InitFlags>(flags | SkCanvas::kConservativeRasterClip_InitFlag);
-
-    return new SkCanvas(fDevice, flags);
-}
+SkCanvas* SkSurface_Gpu::onNewCanvas() { return new SkCanvas(fDevice); }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     int sampleCount = fDevice->accessRenderTargetContext()->numColorSamples();
