@@ -97,8 +97,7 @@ private:
     virtual const GrShaderVar& samplerVariable(SamplerHandle) const = 0;
     virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
 
-    virtual SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrTextureType, GrSLPrecision,
-                                     const char* name) = 0;
+    virtual SamplerHandle addSampler(GrSwizzle, GrTextureType, GrSLPrecision, const char* name) = 0;
 
     virtual UniformHandle internalAddUniformArray(uint32_t visibility,
                                                   GrSLType type,
