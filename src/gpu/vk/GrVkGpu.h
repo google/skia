@@ -91,8 +91,6 @@ public:
                                                                 int width,
                                                                 int height) override;
 
-    void clearStencil(GrRenderTarget* target, int clearValue) override;
-
     GrGpuRTCommandBuffer* getCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,

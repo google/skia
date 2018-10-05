@@ -413,17 +413,6 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
             this->assignUniqueKeyToResource(sbKey, stencil.get());
             SkDEBUGCODE(newStencil = true;)
         }
-        if (rt->renderTargetPriv().attachStencilAttachment(std::move(stencil))) {
-#ifdef SK_DEBUG
-            // Fill the SB with an inappropriate value. opLists that use the
-            // SB should clear it properly.
-            if (newStencil) {
-                SkASSERT(rt->renderTargetPriv().getStencilAttachment()->isDirty());
-                this->gpu()->clearStencil(rt, 0xFFFF);
-                SkASSERT(rt->renderTargetPriv().getStencilAttachment()->isDirty());
-            }
-#endif
-        }
     }
     return SkToBool(rt->renderTargetPriv().getStencilAttachment());
 }
