@@ -64,7 +64,8 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle addSampler(GrSwizzle swizzle,
+    SamplerHandle addSampler(uint32_t visibility,
+                             GrSwizzle swizzle,
                              GrTextureType type,
                              GrSLPrecision precision,
                              const char* name) override;
