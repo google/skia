@@ -57,7 +57,7 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static const int kFPFactoryCount = 36;
+static const int kFPFactoryCount = 35;
 static const int kGPFactoryCount = 14;
 static const int kXPFactoryCount = 4;
 
@@ -120,7 +120,13 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void* GrProcessor::operator new(size_t size) { return MemoryPoolAccessor().pool()->allocate(size); }
+void* GrProcessor::Alloc(size_t size, size_t alignment) {
+    return MemoryPoolAccessor().pool()->allocate(size, alignment);
+}
+
+void* GrProcessor::operator new(size_t size) {
+    return Alloc(size, alignof(GrProcessor));
+}
 
 void GrProcessor::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);

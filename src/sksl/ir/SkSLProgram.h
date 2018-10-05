@@ -223,6 +223,14 @@ struct Program {
     , fInheritedElements(inheritedElements)
     , fElements(std::move(elements)) {}
 
+    ~Program() {
+        // destroy elements in reverse order, so references to variables are destroyed before the
+        // variables themselves
+        while (fElements.size()) {
+            fElements.pop_back();
+        }
+    }
+
     iterator begin() {
         if (fInheritedElements) {
             return iterator(fInheritedElements->begin(), fInheritedElements->end(),

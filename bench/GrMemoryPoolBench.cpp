@@ -21,7 +21,7 @@
 struct A {
     int gStuff[10];
 #if OVERRIDE_NEW
-    void* operator new (size_t size) { return gBenchPool.allocate(size); }
+    void* operator new (size_t size) { return gBenchPool.allocate(size, alignof(A)); }
     void operator delete (void* mem) { if (mem) { return gBenchPool.release(mem); } }
 #endif
     static GrMemoryPool gBenchPool;
@@ -83,7 +83,7 @@ private:
 struct B {
     int gStuff[10];
 #if OVERRIDE_NEW
-    void* operator new (size_t size) { return gBenchPool.allocate(size); }
+    void* operator new (size_t size) { return gBenchPool.allocate(size, alignof(B)); }
     void operator delete (void* mem) { if (mem) { return gBenchPool.release(mem); } }
 #endif
     static GrMemoryPool gBenchPool;
@@ -128,7 +128,7 @@ private:
 struct C {
     int gStuff[10];
 #if OVERRIDE_NEW
-    void* operator new (size_t size) { return gBenchPool.allocate(size); }
+    void* operator new (size_t size) { return gBenchPool.allocate(size, alignof(C)); }
     void operator delete (void* mem) { if (mem) { return gBenchPool.release(mem); } }
 #endif
     static GrMemoryPool gBenchPool;

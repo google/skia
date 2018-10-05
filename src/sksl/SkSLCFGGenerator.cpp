@@ -596,6 +596,11 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         case Statement::kSwitch_Kind: {
             SwitchStatement& ss = (SwitchStatement&) **s;
             this->addExpression(cfg, &ss.fValue, true);
+            for (const auto& c : ss.fCases) {
+                if (c->fValue) {
+                    this->addExpression(cfg, &c->fValue, true);
+                }
+            }
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
                                                          nullptr, s });
             BlockId start = cfg.fCurrent;
@@ -604,11 +609,6 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             for (const auto& c : ss.fCases) {
                 cfg.newBlock();
                 cfg.addExit(start, cfg.fCurrent);
-                if (c->fValue) {
-                    // technically this should go in the start block, but it doesn't actually matter
-                    // because it must be constant. Not worth running two loops for.
-                    this->addExpression(cfg, &c->fValue, true);
-                }
                 for (auto& caseStatement : c->fStatements) {
                     this->addStatement(cfg, &caseStatement);
                 }
