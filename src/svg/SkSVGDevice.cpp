@@ -864,6 +864,7 @@ void SkSVGDevice::drawBitmapRect(const SkBitmap& bm, const SkRect* srcOrNull,
     drawBitmapCommon(MxCp(&adjustedMatrix, cs), bm, paint);
 }
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
 class SVGTextBuilder : SkNoncopyable {
 public:
     SVGTextBuilder(SkPoint origin, const SkGlyphRun& glyphRun)
@@ -961,6 +962,7 @@ void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
         processGlyphRun(glyphRunList.origin(), glyphRun);
     }
 }
+#endif
 
 void SkSVGDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                                const SkPaint&) {

@@ -303,6 +303,7 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 #include "SkUtils.h"
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
 void SkBaseDevice::drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform) {
     const SkMatrix originalCTM = this->ctm();
     if (!originalCTM.isFinite() || !SkScalarIsFinite(run->paint().getTextSize()) ||
@@ -337,6 +338,7 @@ void SkBaseDevice::drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform) 
     run->mutablePaint()->setShader(shader);
     this->setCTM(originalCTM);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
