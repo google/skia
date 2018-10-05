@@ -542,22 +542,15 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 }
 
 void SkCanvas::init(sk_sp<SkBaseDevice> device) {
-    fAllowSimplifyClip = false;
-    fSaveCount = 1;
-    fMetaData = nullptr;
-
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec;
     fMCRec->fRasterClip.setDeviceClipRestriction(&fClipRestrictionRect);
-    fIsScaleTranslate = true;
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
     new (fDeviceCMStorage) DeviceCM(device, nullptr, fMCRec->fMatrix, nullptr, nullptr);
 
     fMCRec->fTopLayer = fMCRec->fLayer;
-
-    fSurfaceBase = nullptr;
 
     if (device) {
         // The root device and the canvas should always have the same pixel geometry
