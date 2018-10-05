@@ -174,8 +174,6 @@ private:
         return nullptr;
     }
 
-    void clearStencil(GrRenderTarget* target, int clearValue) override  {}
-
 #if GR_TEST_UTILS
     bool createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int h, bool texturable,
                                          bool renderable, GrMipMapped mipMapped,

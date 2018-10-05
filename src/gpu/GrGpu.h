@@ -382,8 +382,6 @@ public:
     virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                         int width,
                                                                         int height) = 0;
-    // clears target's entire stencil buffer to 0
-    virtual void clearStencil(GrRenderTarget* target, int clearValue) = 0;
 
     // Determines whether a texture will need to be rescaled in order to be used with the
     // GrSamplerState.

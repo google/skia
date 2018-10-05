@@ -1588,38 +1588,6 @@ void GrVkGpu::onFinishFlush(bool insertedSemaphore) {
     this->submitCommandBuffer(kSkip_SyncQueue);
 }
 
-void GrVkGpu::clearStencil(GrRenderTarget* target, int clearValue) {
-    if (!target) {
-        return;
-    }
-    GrStencilAttachment* stencil = target->renderTargetPriv().getStencilAttachment();
-    GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
-
-
-    VkClearDepthStencilValue vkStencilColor;
-    vkStencilColor.depth = 0.0f;
-    vkStencilColor.stencil = clearValue;
-
-    vkStencil->setImageLayout(this,
-                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                              VK_ACCESS_TRANSFER_WRITE_BIT,
-                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                              false);
-
-    VkImageSubresourceRange subRange;
-    memset(&subRange, 0, sizeof(VkImageSubresourceRange));
-    subRange.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
-    subRange.baseMipLevel = 0;
-    subRange.levelCount = 1;
-    subRange.baseArrayLayer = 0;
-    subRange.layerCount = 1;
-
-    // TODO: I imagine that most times we want to clear a stencil it will be at the beginning of a
-    // draw. Thus we should look into using the load op functions on the render pass to clear out
-    // the stencil there.
-    fCurrentCmdBuffer->clearDepthStencilImage(this, vkStencil, &vkStencilColor, 1, &subRange);
-}
-
 static int get_surface_sample_cnt(GrSurface* surf) {
     if (const GrRenderTarget* rt = surf->asRenderTarget()) {
         return rt->numColorSamples();

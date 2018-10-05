@@ -400,7 +400,6 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
             height = SkNextPow2(height);
         }
 #endif
-        SkDEBUGCODE(bool newStencil = false;)
         GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
                                                                rt->numStencilSamples(), &sbKey);
         auto stencil = this->findByUniqueKey<GrStencilAttachment>(sbKey);
@@ -411,19 +410,8 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
                 return false;
             }
             this->assignUniqueKeyToResource(sbKey, stencil.get());
-            SkDEBUGCODE(newStencil = true;)
         }
-        if (rt->renderTargetPriv().attachStencilAttachment(std::move(stencil))) {
-#ifdef SK_DEBUG
-            // Fill the SB with an inappropriate value. opLists that use the
-            // SB should clear it properly.
-            if (newStencil) {
-                SkASSERT(rt->renderTargetPriv().getStencilAttachment()->isDirty());
-                this->gpu()->clearStencil(rt, 0xFFFF);
-                SkASSERT(rt->renderTargetPriv().getStencilAttachment()->isDirty());
-            }
-#endif
-        }
+        rt->renderTargetPriv().attachStencilAttachment(std::move(stencil));
     }
     return SkToBool(rt->renderTargetPriv().getStencilAttachment());
 }

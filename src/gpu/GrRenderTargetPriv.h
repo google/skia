@@ -30,7 +30,7 @@ public:
      * currently attached GrStencilAttachment will be removed if one was previously attached. This
      * function returns false if there were any failure in attaching the GrStencilAttachment.
      */
-    bool attachStencilAttachment(sk_sp<GrStencilAttachment> stencil);
+    void attachStencilAttachment(sk_sp<GrStencilAttachment> stencil);
 
     int numStencilBits() const;
 
