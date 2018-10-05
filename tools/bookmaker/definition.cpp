@@ -39,7 +39,6 @@ enum class OpType : int8_t {
     kVoid,
     kBool,
     kChar,
-    kFloat,
     kInt,
     kScalar,
     kSizeT,
@@ -117,7 +116,9 @@ const struct OperatorParser {
                                     {{ BLANK,  OpType::kThis,   OpMod::kMove, }}},
     { DEFOP::kMultiply, "*", "multiply", BLANK, OpType::kThis, OpMod::kNone,         CONST,
                                     {{ BLANK,  OpType::kScalar, OpMod::kNone, }}},
-    { DEFOP::kMultiply, "*", "multiply1", BLANK, OpType::kThis, OpMod::kNone,         BLANK,
+    { DEFOP::kMultiply, "*", "multiply1", BLANK, OpType::kThis, OpMod::kNone,         CONST,
+                                    {{ CONST,  OpType::kThis,   OpMod::kReference, }}},
+    { DEFOP::kMultiply, "*", "multiply2", BLANK, OpType::kThis, OpMod::kNone,         BLANK,
                                     {{ CONST,  OpType::kThis,   OpMod::kReference, },
                                      { CONST,  OpType::kThis,   OpMod::kReference, }}},
     { DEFOP::kMultiplyBy, "*=", "multiplyby", BLANK,  OpType::kThis, OpMod::kReference, BLANK,
@@ -144,7 +145,10 @@ OpType lookup_type(string typeWord, string name) {
                          || (typeWord == "SkVector" && name == "SkPoint")) {
         return OpType::kThis;
     }
-    const char* keyWords[] = { "void", "bool", "char", "float", "int", "SkScalar", "size_t" };
+    if ("float" == typeWord || "double" == typeWord) {
+        return OpType::kScalar;
+    }
+    const char* keyWords[] = { "void", "bool", "char", "int", "SkScalar", "size_t" };
     for (unsigned i = 0; i < SK_ARRAY_COUNT(keyWords); ++i) {
         if (typeWord == keyWords[i]) {
             return (OpType) (i + 1);
@@ -655,6 +659,9 @@ bool Definition::crossCheckInside(const char* start, const char* end,
     if (inc.startsWith("SK_API")) {
         inc.skipWord("SK_API");
     }
+    if (inc.startsWith("inline")) {
+        inc.skipWord("inline");
+    }
     if (inc.startsWith("friend")) {
         inc.skipWord("friend");
     }
@@ -700,6 +707,9 @@ bool Definition::crossCheckInside(const char* start, const char* end,
         char defCh;
         do {
             defCh = def.next();
+            if (inc.skipExact("SK_WARN_UNUSED_RESULT")) {
+                inc.skipSpace();
+            }
             char incCh = inc.next();
             if (' ' >= defCh && ' ' >= incCh) {
                 break;
@@ -800,8 +810,12 @@ string Definition::formatFunction(Format format) const {
             if (lastStart[0] != ' ') {
                 space_pad(&methodStr);
             }
-            methodStr += string(lastStart, (size_t) (lastEnd - lastStart));
-            written += (size_t) (lastEnd - lastStart);
+            string addon(lastStart, (size_t) (lastEnd - lastStart));
+            if ("_const" == addon) {
+                addon = "const";
+            }
+            methodStr += addon;
+            written += addon.length();
         }
         if (delimiter) {
             if (nextEnd - nextStart >= (ptrdiff_t) (limit - written)) {
