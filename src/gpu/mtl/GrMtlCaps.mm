@@ -340,10 +340,7 @@ void GrMtlCaps::initShaderCaps() {
     // Metal supports unsigned integers.
     shaderCaps->fUnsignedSupport = true;
 
-    shaderCaps->fMaxVertexSamplers =
     shaderCaps->fMaxFragmentSamplers = 16;
-    // For now just cap at the per stage max. If we hit this limit we can come back to adjust this
-    shaderCaps->fMaxCombinedSamplers = shaderCaps->fMaxVertexSamplers;
 }
 
 void GrMtlCaps::initConfigTable() {
