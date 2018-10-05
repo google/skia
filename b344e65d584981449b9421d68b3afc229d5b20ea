@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbd24b5d_a7868527",
+        "filename": "modules/skottie/src/SkottieValue.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-10-05T15:16:52Z",
+      "side": 1,
+      "message": "maybe erroring if the size is neither 0 nor \u003d\u003d v.size() is more informative to the client.",
+      "range": {
+        "startLine": 148,
+        "startChar": 10,
+        "endLine": 148,
+        "endChar": 16
+      },
+      "revId": "b344e65d584981449b9421d68b3afc229d5b20ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
