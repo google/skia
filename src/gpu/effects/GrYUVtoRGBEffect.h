@@ -11,71 +11,94 @@
 #ifndef GrYUVtoRGBEffect_DEFINED
 #define GrYUVtoRGBEffect_DEFINED
 #include "SkTypes.h"
+
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+
+#include "SkYUVAIndex.h"
+
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> yProxy,
-                                                     sk_sp<GrTextureProxy> uProxy,
-                                                     sk_sp<GrTextureProxy> vProxy,
-                                                     SkYUVColorSpace colorSpace, bool nv12);
+    static std::unique_ptr<GrFragmentProcessor> Make1(const sk_sp<GrTextureProxy> proxies[],
+                                                     const SkYUVAIndex indices[4],
+                                                     SkYUVColorSpace yuvColorSpace);
     SkString dumpInfo() const override;
-    const SkMatrix44& ySamplerTransform() const { return fYSamplerTransform; }
-    const SkMatrix44& uSamplerTransform() const { return fUSamplerTransform; }
-    const SkMatrix44& vSamplerTransform() const { return fVSamplerTransform; }
+    const SkMatrix44& ySamplerTransform() const { return fYSamplerTransform1; }
+    const SkMatrix44& uSamplerTransform() const { return fUSamplerTransform1; }
+    const SkMatrix44& vSamplerTransform() const { return fVSamplerTransform1; }
+    const SkMatrix44& aSamplerTransform() const { return fASamplerTransform; }
+
     const SkMatrix44& colorSpaceMatrix() const { return fColorSpaceMatrix; }
-    bool nv12() const { return fNv12; }
-    static std::unique_ptr<GrFragmentProcessor> Make(
-            sk_sp<GrTextureProxy> ySampler, SkMatrix44 ySamplerTransform,
-            sk_sp<GrTextureProxy> uSampler, SkMatrix44 uSamplerTransform,
-            sk_sp<GrTextureProxy> vSampler, SkMatrix44 vSamplerTransform,
-            SkMatrix44 colorSpaceMatrix, bool nv12, GrSamplerState uvSamplerParams) {
+
+    static std::unique_ptr<GrFragmentProcessor> Make2(
+            sk_sp<GrTextureProxy> yProxy, const SkMatrix44& ySamplerTransform,
+            sk_sp<GrTextureProxy> uProxy, const SkMatrix44& uSamplerTransform, GrSamplerState::Filter uFilterMode,
+            sk_sp<GrTextureProxy> vProxy, const SkMatrix44& vSamplerTransform, GrSamplerState::Filter vFilterMode,
+            sk_sp<GrTextureProxy> aProxy, const SkMatrix44& aSamplerTransform, GrSamplerState::Filter aFilterMode,
+            const SkMatrix44& colorSpaceMatrix) {
         return std::unique_ptr<GrFragmentProcessor>(new GrYUVtoRGBEffect(
-                ySampler, ySamplerTransform, uSampler, uSamplerTransform, vSampler,
-                vSamplerTransform, colorSpaceMatrix, nv12, uvSamplerParams));
+                std::move(yProxy), ySamplerTransform,
+                std::move(uProxy), uSamplerTransform, uFilterMode,
+                std::move(vProxy), vSamplerTransform, vFilterMode,
+                std::move(aProxy), aSamplerTransform, aFilterMode,
+                colorSpaceMatrix));
     }
     GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "YUVtoRGBEffect"; }
 
 private:
-    GrYUVtoRGBEffect(sk_sp<GrTextureProxy> ySampler, SkMatrix44 ySamplerTransform,
-                     sk_sp<GrTextureProxy> uSampler, SkMatrix44 uSamplerTransform,
-                     sk_sp<GrTextureProxy> vSampler, SkMatrix44 vSamplerTransform,
-                     SkMatrix44 colorSpaceMatrix, bool nv12, GrSamplerState uvSamplerParams)
+    GrYUVtoRGBEffect(sk_sp<GrTextureProxy> ySampler1, const SkMatrix44& ySamplerTransform1,
+                     sk_sp<GrTextureProxy> uSampler1, const SkMatrix44& uSamplerTransform1, GrSamplerState::Filter uFilterMode,
+                     sk_sp<GrTextureProxy> vSampler1, const SkMatrix44& vSamplerTransform1, GrSamplerState::Filter vFilterMode,
+                     sk_sp<GrTextureProxy> aSampler, const SkMatrix44& aSamplerTransform, GrSamplerState::Filter aFilterMode,
+                     const SkMatrix44& colorSpaceMatrix)
             : INHERITED(kGrYUVtoRGBEffect_ClassID, kNone_OptimizationFlags)
-            , fYSampler(std::move(ySampler))
-            , fYSamplerTransform(ySamplerTransform)
-            , fUSampler(std::move(uSampler), uvSamplerParams)
-            , fUSamplerTransform(uSamplerTransform)
-            , fVSampler(std::move(vSampler), uvSamplerParams)
-            , fVSamplerTransform(vSamplerTransform)
+            , fYSampler1(std::move(ySampler1))
+            , fYSamplerTransform1(ySamplerTransform1)
+
+            , fUSampler1(std::move(uSampler1), GrSamplerState(GrSamplerState::WrapMode::kClamp, uFilterMode))
+            , fUSamplerTransform1(uSamplerTransform1)
+
+            , fVSampler1(std::move(vSampler1), GrSamplerState(GrSamplerState::WrapMode::kClamp, vFilterMode))
+            , fVSamplerTransform1(vSamplerTransform1)
+
+            , fASampler(std::move(aSampler), GrSamplerState(GrSamplerState::WrapMode::kClamp, aFilterMode))
+            , fASamplerTransform(aSamplerTransform)
+
             , fColorSpaceMatrix(colorSpaceMatrix)
-            , fNv12(nv12)
-            , fYSamplerCoordTransform(ySamplerTransform, fYSampler.proxy())
-            , fUSamplerCoordTransform(uSamplerTransform, fUSampler.proxy())
-            , fVSamplerCoordTransform(vSamplerTransform, fVSampler.proxy()) {
+
+            , fYSamplerCoordTransform1(ySamplerTransform1, fYSampler1.proxy())
+            , fUSamplerCoordTransform1(uSamplerTransform1, fUSampler1.proxy())
+            , fVSamplerCoordTransform1(vSamplerTransform1, fVSampler1.proxy())
+            , fASamplerCoordTransform(aSamplerTransform, fASampler.proxy()) {
         this->setTextureSamplerCnt(3);
-        this->addCoordTransform(&fYSamplerCoordTransform);
-        this->addCoordTransform(&fUSamplerCoordTransform);
-        this->addCoordTransform(&fVSamplerCoordTransform);
+        this->addCoordTransform(&fYSamplerCoordTransform1);
+        this->addCoordTransform(&fUSamplerCoordTransform1);
+        this->addCoordTransform(&fVSamplerCoordTransform1);
+        this->addCoordTransform(&fASamplerCoordTransform);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    TextureSampler fYSampler;
-    SkMatrix44 fYSamplerTransform;
-    TextureSampler fUSampler;
-    SkMatrix44 fUSamplerTransform;
-    TextureSampler fVSampler;
-    SkMatrix44 fVSamplerTransform;
+
+    TextureSampler fYSampler1;
+    SkMatrix44 fYSamplerTransform1;
+    TextureSampler fUSampler1;
+    SkMatrix44 fUSamplerTransform1;
+    TextureSampler fVSampler1;
+    SkMatrix44 fVSamplerTransform1;
+    TextureSampler fASampler;
+    SkMatrix44 fASamplerTransform;
+
     SkMatrix44 fColorSpaceMatrix;
-    bool fNv12;
-    GrCoordTransform fYSamplerCoordTransform;
-    GrCoordTransform fUSamplerCoordTransform;
-    GrCoordTransform fVSamplerCoordTransform;
+
+    GrCoordTransform fYSamplerCoordTransform1;
+    GrCoordTransform fUSamplerCoordTransform1;
+    GrCoordTransform fVSamplerCoordTransform1;
+    GrCoordTransform fASamplerCoordTransform;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
