@@ -55,6 +55,7 @@ const IncludeKey kKeyWords[] = {
     { "uintptr_t",  KeyWord::kUintPtr_t,    KeyProperty::kNumber         },
     { "union",      KeyWord::kUnion,        KeyProperty::kObject         },
     { "unsigned",   KeyWord::kUnsigned,     KeyProperty::kNumber         },
+    { "using",      KeyWord::kUsing,        KeyProperty::kObject         },
     { "void",       KeyWord::kVoid,         KeyProperty::kNumber         },
 };
 
@@ -65,7 +66,8 @@ KeyWord IncludeParser::FindKey(const char* start, const char* end) {
     for (size_t index = 0; index < kKeyWordCount; ) {
         if (start[ch] > kKeyWords[index].fName[ch]) {
             ++index;
-            if (ch > 0 && kKeyWords[index - 1].fName[ch - 1] < kKeyWords[index].fName[ch - 1]) {
+            if (ch > 0 && (index == kKeyWordCount ||
+                    kKeyWords[index - 1].fName[ch - 1] < kKeyWords[index].fName[ch - 1])) {
                 return KeyWord::kNone;
             }
             continue;
@@ -102,6 +104,394 @@ void IncludeParser::addKeyword(KeyWord keyWord) {
             fInEnum = true;
         }
     }
+}
+
+static bool looks_like_method(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fLine, tp.fChar, tp.fLineCount);
+    t.skipSpace();
+    if (!t.skipExact("struct") && !t.skipExact("class") && !t.skipExact("enum class")
+            && !t.skipExact("enum")) {
+        return true;
+    }
+    t.skipSpace();
+    if (t.skipExact("SK_API")) {
+        t.skipSpace();
+    }
+    if (!isupper(t.peek())) {
+        return true;
+    }
+    return nullptr != t.strnchr('(', t.fEnd);
+}
+
+static bool looks_like_forward_declaration(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fChar, tp.lineEnd(), tp.fLineCount);
+    t.skipSpace();
+    if (!t.skipExact("struct") && !t.skipExact("class") && !t.skipExact("enum class")
+            && !t.skipExact("enum")) {
+        return false;
+    }
+    t.skipSpace();
+    if (t.skipExact("SK_API")) {
+        t.skipSpace();
+    }
+    if (!isupper(t.peek())) {
+        return false;
+    }
+    t.skipToNonAlphaNum();
+    if (t.eof() || ';' != t.next()) {
+        return false;
+    }
+    if (t.eof() || '\n' != t.next()) {
+        return false;
+    }
+    return t.eof();
+}
+
+static bool looks_like_constructor(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fLine, tp.lineEnd(), tp.fLineCount);
+    t.skipSpace();
+    if (!isupper(t.peek())) {
+        if (':' == t.next() && ' ' >= t.peek()) {
+            return true;
+        }
+        return false;
+    }
+    t.skipToNonAlphaNum();
+    if ('(' != t.peek()) {
+        return false;
+    }
+    if (!t.skipToEndBracket(')')) {
+        return false;
+    }
+    SkAssertResult(')' == t.next());
+    t.skipSpace();
+    return tp.fChar == t.fChar;
+}
+
+static bool looks_like_class_decl(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fLine, tp.fChar, tp.fLineCount);
+    t.skipSpace();
+    if (!t.skipExact("class")) {
+        return false;
+    }
+    t.skipSpace();
+    if (t.skipExact("SK_API")) {
+        t.skipSpace();
+    }
+    if (!isupper(t.peek())) {
+        return false;
+    }
+    t.skipToNonAlphaNum();
+    return !t.skipToEndBracket('(');
+}
+
+static bool looks_like_const(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fChar, tp.lineEnd(), tp.fLineCount);
+    if (!t.startsWith("static constexpr ")) {
+        return false;
+    }
+    if (t.skipToEndBracket(" k")) {
+        SkAssertResult(t.skipExact(" k"));
+    } else if (t.skipToEndBracket(" SK_")) {
+        SkAssertResult(t.skipExact(" SK_"));
+    } else {
+        return false;
+    }
+    if (!isupper(t.peek())) {
+        return false;
+    }
+    return t.skipToEndBracket(" = ");
+}
+
+static bool looks_like_member(const TextParser& tp) {
+    TextParser t(tp.fFileName, tp.fChar, tp.lineEnd(), tp.fLineCount);
+    const char* end = t.anyOf("(;");
+    if (!end || '(' == *end) {
+        return false;
+    }
+    bool foundMember = false;
+    do {
+        const char* next = t.anyOf(" ;");
+        if (';' == *next) {
+            break;
+        }
+        t.skipTo(next);
+        t.skipSpace();
+        foundMember = 'f' == t.fChar[0] && isupper(t.fChar[1]);
+    } while (true);
+    return foundMember;
+}
+
+static void skip_constructor_initializers(TextParser& t) {
+    SkAssertResult(':' == t.next());
+    do {
+        t.skipWhiteSpace();
+        t.skipToNonAlphaNum();
+        t.skipWhiteSpace();
+        if ('{' == t.peek()) {
+            t.skipToBalancedEndBracket('{', '}');
+        }
+        do {
+            const char* limiter = t.anyOf("(,{");
+            t.skipTo(limiter);
+            if ('(' != t.peek()) {
+                break;
+            }
+            t.skipToBalancedEndBracket('(', ')');
+        } while (true);
+        if ('{' == t.peek()) {
+            return;
+        }
+        SkAssertResult(',' == t.next());
+    } while (true);
+}
+
+static const char kInline[] = "inline ";
+static const char kSK_API[] = "SK_API ";
+static const char kSK_WARN_UNUSED_RESULT[] = "SK_WARN_UNUSED_RESULT ";
+
+bool IncludeParser::advanceInclude(TextParser& i) {
+    i.skipWhiteSpace(&fCheck.fIndent, &fCheck.fWriteReturn);
+    if (fCheck.fPrivateBrace) {
+        if (i.startsWith("};")) {
+            if (fCheck.fPrivateBrace == fCheck.fBraceCount) {
+                fCheck.fPrivateBrace = 0;
+                fCheck.fDoubleReturn = true;
+            } else {
+                i.skipExact("};");
+                fCheck.fBraceCount -= 1;
+            }
+            return false;
+        }
+        if (i.startsWith("public:")) {
+            if (fCheck.fBraceCount <= fCheck.fPrivateBrace) {
+                fCheck.fPrivateBrace = 0;
+                if (fCheck.fPrivateProtected) {
+                    i.skipExact("public:");
+                }
+            } else {
+                i.skipExact("public:");
+            }
+        } else {
+            fCheck.fBraceCount += i.skipToLineBalance('{', '}');
+        }
+        return false;
+    } else if (i.startsWith("};")) {
+        fCheck.fDoubleReturn = 2;
+    }
+    if (i.skipExact(kInline)) {
+        fCheck.fSkipInline = true;
+        return false;
+    }
+    if (i.skipExact(kSK_API)) {
+        fCheck.fSkipAPI = true;
+        return false;
+    }
+    if (i.skipExact(kSK_WARN_UNUSED_RESULT)) {
+        fCheck.fSkipWarnUnused = true;
+        return false;
+    }
+    if (i.skipExact("SK_ATTR_DEPRECATED")) {
+        i.skipToLineStart(&fCheck.fIndent, &fCheck.fWriteReturn);
+        return false;
+    }
+    if (i.skipExact("SkDEBUGCODE")) {
+        i.skipWhiteSpace();
+        if ('(' != i.peek()) {
+            i.reportError("expected open paren");
+        }
+        TextParserSave save(&i);
+        SkAssertResult(i.skipToBalancedEndBracket('(', ')'));
+        fCheck.fInDebugCode = i.fChar - 1;
+        save.restore();
+        SkAssertResult('(' == i.next());
+    }
+    if ('{' == i.peek()) {
+        if (looks_like_method(i)) {
+            fCheck.fState = CheckCode::State::kMethod;
+            if (!i.skipToBalancedEndBracket('{', '}')) {
+                i.reportError("unbalanced open brace");
+            }
+            i.skipToLineStart(&fCheck.fIndent, &fCheck.fWriteReturn);
+            return false;
+        } else if (looks_like_class_decl(i)) {
+            fCheck.fState = CheckCode::State::kClassDeclaration;
+            fCheck.fPrivateBrace = fCheck.fBraceCount + 1;
+            fCheck.fPrivateProtected = false;
+        }
+    }
+    if (':' == i.peek() && looks_like_constructor(i)) {
+        fCheck.fState = CheckCode::State::kConstructor;
+        skip_constructor_initializers(i);
+        return false;
+    }
+    if ('#' == i.peek()) {
+        i.skipToLineStart(&fCheck.fIndent, &fCheck.fWriteReturn);
+        return false;
+    }
+    if (i.startsWith("//")) {
+        i.skipToLineStart(&fCheck.fIndent, &fCheck.fWriteReturn);
+        return false;
+    }
+    if (i.startsWith("/*")) {
+        i.skipToEndBracket("*/");
+        i.skipToLineStart(&fCheck.fIndent, &fCheck.fWriteReturn);
+        return false;
+    }
+    if (looks_like_forward_declaration(i)) {
+        fCheck.fState = CheckCode::State::kForwardDeclaration;
+        i.skipToLineStart(&fCheck.fIndent, &fCheck.fWriteReturn);
+        return false;
+    }
+    if (i.skipExact("private:") || i.skipExact("protected:")) {
+        if (!fCheck.fBraceCount) {
+            i.reportError("expect private in brace");
+        }
+        fCheck.fPrivateBrace = fCheck.fBraceCount;
+        fCheck.fPrivateProtected = true;
+        return false;
+    }
+    const char* funcEnd = i.anyOf("(\n");
+    if (funcEnd && '(' == funcEnd[0] && '_' == *i.anyOf("_(")
+            && (i.contains("internal_", funcEnd, nullptr)
+            || i.contains("private_", funcEnd, nullptr)
+            || i.contains("legacy_", funcEnd, nullptr)
+            || i.contains("temporary_", funcEnd, nullptr))) {
+        i.skipTo(funcEnd);
+        if (!i.skipToBalancedEndBracket('(', ')')) {
+            i.reportError("unbalanced open parent");
+        }
+        i.skipSpace();
+        i.skipExact("const ");
+        i.skipSpace();
+        if (';' == i.peek()) {
+            i.next();
+        }
+        fCheck.fState = CheckCode::State::kNone;
+        return false;
+    }
+    return true;
+}
+
+void IncludeParser::codeBlockAppend(string& result, char ch) const {
+    if (Elided::kYes == fElided && fCheck.fBraceCount) {
+        return;
+    }
+    this->stringAppend(result, ch);
+}
+
+void IncludeParser::codeBlockSpaces(string& result, int indent) const {
+    if (!indent) {
+        return;
+    }
+    if (Elided::kYes == fElided && fCheck.fBraceCount) {
+        return;
+    }
+    SkASSERT(indent > 0);
+    if (fDebugWriteCodeBlock) {
+        SkDebugf("%*c", indent, ' ');
+    }
+    result.append(indent, ' ');
+}
+
+string IncludeParser::writeCodeBlock(const Definition& iDef, MarkType markType) {
+    TextParser i(&iDef);
+    fElided = Elided::kNo;
+    const char* before = iDef.fContentStart;
+    while (' ' == *--before)
+        ;
+    int startIndent = iDef.fContentStart - before - 1;
+    return writeCodeBlock(i, markType, startIndent);
+}
+
+string IncludeParser::writeCodeBlock(TextParser& i, MarkType markType, int startIndent) {
+    string result;
+    char last;
+    int lastIndent = 0;
+    bool lastDoubleMeUp = false;
+    fCheck.reset();
+    this->codeBlockSpaces(result, startIndent);
+    do {
+        if (!this->advanceInclude(i)) {
+            continue;
+        }
+        do {
+            last = i.peek();
+            SkASSERT(' ' < last);
+            if (fCheck.fInDebugCode == i.fChar) {
+                fCheck.fInDebugCode = nullptr;
+                i.next();   // skip close paren
+                break;
+            }
+            if (CheckCode::State::kMethod == fCheck.fState) {
+                this->codeBlockAppend(result, ';');
+                fCheck.fState = CheckCode::State::kNone;
+            }
+            if (fCheck.fWriteReturn) {
+                this->codeBlockAppend(result, '\n');
+                bool doubleMeUp = i.startsWith("typedef ") || looks_like_const(i)
+                        || (!strncmp("struct ", i.fStart, 7) && looks_like_member(i));
+                if ((!--fCheck.fDoubleReturn && !i.startsWith("};")) || i.startsWith("enum ")
+                        || i.startsWith("typedef ") || doubleMeUp || fCheck.fTypedefReturn
+                        || (fCheck.fIndent && (i.startsWith("class ") || i.startsWith("struct ")))) {
+                    if (lastIndent > 0 && (!doubleMeUp || !lastDoubleMeUp)) {
+                        this->codeBlockAppend(result, '\n');
+                    }
+                    fCheck.fTypedefReturn = false;
+                    lastDoubleMeUp = doubleMeUp;
+                }
+                if (doubleMeUp) {
+                    fCheck.fTypedefReturn = true;
+                }
+                lastIndent = fCheck.fIndent;
+            }
+            if (fCheck.fIndent) {
+                size_t indent = fCheck.fIndent;
+                if (fCheck.fSkipInline && indent > sizeof(kInline)) {
+                    indent -= sizeof(kInline) - 1;
+                }
+                if (fCheck.fSkipAPI && indent > sizeof(kSK_API)) {
+                    indent -= sizeof(kSK_API) - 1;
+                }
+                if (fCheck.fSkipWarnUnused && indent > sizeof(kSK_WARN_UNUSED_RESULT)) {
+                    indent -= sizeof(kSK_WARN_UNUSED_RESULT) - 1;
+                }
+
+                this->codeBlockSpaces(result, indent);
+            }
+            this->codeBlockAppend(result, last);
+            fCheck.fWriteReturn = false;
+            fCheck.fIndent = 0;
+            fCheck.fBraceCount += '{' == last;
+            fCheck.fBraceCount -= '}' == last;
+            if (';' == last) {
+                fCheck.fSkipInline = false;
+                fCheck.fSkipAPI = false;
+                fCheck.fSkipWarnUnused = false;
+            }
+            if (fCheck.fBraceCount < 0) {
+                i.reportError("unbalanced close brace");
+                return result;
+            }
+            i.next();
+        } while (!i.eof() && ' ' < i.peek() && !i.startsWith("//"));
+    } while (!i.eof());
+    if (CheckCode::State::kMethod == fCheck.fState) {
+        this->codeBlockAppend(result, ';');
+    }
+    bool elidedTemplate = Elided::kYes == fElided && !strncmp(i.fStart, "template ", 9);
+    bool elidedTClass = elidedTemplate && MarkType::kClass == markType;
+    if (fCheck.fWriteReturn || elidedTClass) {
+        this->codeBlockAppend(result, '\n');
+    }
+    if ((MarkType::kFunction != markType && lastIndent > startIndent) || elidedTClass) {
+        this->codeBlockAppend(result, '}');
+    }
+    this->codeBlockAppend(result, ';');
+    if (MarkType::kFunction != markType || elidedTemplate) {
+        this->codeBlockAppend(result, '\n');
+    }
+    return result;
 }
 
 void IncludeParser::checkForMissingParams(const vector<string>& methodParams,
@@ -220,6 +610,22 @@ string IncludeParser::className() const {
     return result;
 }
 
+void IncludeParser::writeCodeBlock(const BmhParser& bmhParser) {
+    for (auto& classMapper : fIClassMap) {
+        string className = classMapper.first;
+        auto finder = bmhParser.fClassMap.find(className);
+        if (bmhParser.fClassMap.end() != finder) {
+            classMapper.second.fCode = this->writeCodeBlock(classMapper.second, MarkType::kClass);
+            continue;
+        }
+        SkASSERT(string::npos != className.find("::"));
+    }
+    for (auto& enumMapper : fIEnumMap) {
+            enumMapper.second->fCode = this->writeCodeBlock(*enumMapper.second,
+                    enumMapper.second->fMarkType);
+    }
+}
+
 #include <sstream>
 #include <iostream>
 
@@ -231,8 +637,6 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
             SkASSERT(string::npos != className.find("::"));
             continue;
         }
-        RootDefinition* root = &finder->second;
-        root->clearVisited();
     }
     for (auto& classMapper : fIClassMap) {
         string className = classMapper.first;
@@ -421,24 +825,34 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                     }
                     def->fVisited = true;
+                    bool hasCode = false;
+                    bool hasPopulate = true;
                     for (auto& child : def->fChildren) {
                         if (MarkType::kCode == child->fMarkType) {
-                            def = child;
+                            hasPopulate = std::any_of(child->fChildren.begin(),
+                                    child->fChildren.end(), [](auto grandChild){
+                                    return MarkType::kPopulate == grandChild->fMarkType; });
+                            if (!hasPopulate) {
+                                def = child;
+                            }
+                            hasCode = true;
                             break;
                         }
                     }
-                    if (MarkType::kCode != def->fMarkType) {
+                    if (!hasCode) {
                         if (!root->fDeprecated) {
                             SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
                             fFailed = true;
                         }
                         break;
                     }
-                    if (def->crossCheck(token)) {
-                        def->fVisited = true;
-                    } else {
-                        SkDebugf("enum differs from bmh: %s\n", def->fName.c_str());
-                        fFailed = true;
+                    if (!hasPopulate) {
+                        if (def->crossCheck(token)) {
+                            def->fVisited = true;
+                        } else {
+                            SkDebugf("enum differs from bmh: %s\n", def->fName.c_str());
+                            fFailed = true;
+                        }
                     }
                     for (auto& child : token.fChildren) {
                         string constName = MarkType::kEnumClass == token.fMarkType ?
@@ -839,9 +1253,7 @@ void IncludeParser::dumpEnum(const Definition& token, string name) {
     this->lf(2);
     this->dumpComment(token);
     for (auto& child : token.fChildren) {
-    //     start here;
-        // get comments before
-        // or after const values
+        // TODO: get comments before or after const values
         this->writeTag("Const");
         this->writeSpace();
         this->writeString(child->fName);
@@ -1327,6 +1739,23 @@ void IncludeParser::dumpTypedef(const Definition& token, string className) {
     this->dumpComment(token);
 }
 
+string IncludeParser::elidedCodeBlock(const Definition& iDef) {
+    SkASSERT(KeyWord::kStruct == iDef.fKeyWord || KeyWord::kClass == iDef.fKeyWord
+            || KeyWord::kTemplate == iDef.fKeyWord);
+    TextParser i(&iDef);
+    fElided = Elided::kYes;
+    MarkType markType = MarkType::kClass;
+    if (KeyWord::kTemplate == iDef.fKeyWord) {  // may be function
+        for (auto child : iDef.fChildren) {
+            if (MarkType::kMethod == child->fMarkType) {
+                markType = MarkType::kFunction;
+                break;
+            }
+        }
+    }
+    return this->writeCodeBlock(i, markType, 0);
+}
+
 bool IncludeParser::findComments(const Definition& includeDef, Definition* markupDef) {
     // add comment preceding class, if any
     const Definition* parent = includeDef.fParent;
@@ -1434,6 +1863,17 @@ bool IncludeParser::inAlignAs() const {
         return KeyWord::kAlignAs == reverseIter->fKeyWord;
     }
     return false;
+}
+
+const Definition* IncludeParser::include(string match) const {
+    for (auto& entry : fIncludeMap) {
+        if (string::npos == entry.first.find(match)) {
+            continue;
+        }
+        return &entry.second;
+    }
+    SkASSERT(0);
+    return nullptr;
 }
 
 // caller just returns, so report error here
@@ -1881,8 +2321,10 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         IClassDefinition& classDef = fIClassMap[markupDef->fName];
         SkASSERT(classDef.fStart);
         string uniqueName = this->uniqueName(classDef.fEnums, nameStr);
+        string fullName = markupChild->fName;
         markupChild->fName = uniqueName;
         classDef.fEnums[uniqueName] = markupChild;
+        fIEnumMap[fullName] = markupChild;
     }
     return true;
 }
@@ -2017,7 +2459,8 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     }
     tokenIter->fName = nameStr;     // simple token stream, OK if name is duplicate
     tokenIter->fMarkType = MarkType::kMethod;
-    tokenIter->fPrivate = string::npos != nameStr.find("::");
+    tokenIter->fPrivate = string::npos != nameStr.find("::")
+            && KeyWord::kTemplate != child->fParent->fKeyWord;
     auto testIter = child->fParent->fTokens.begin();
     SkASSERT(child->fParentIndex > 0);
     std::advance(testIter, child->fParentIndex - 1);
@@ -2035,8 +2478,11 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         end = testIter->fContentEnd - 1;
     } else {
         end = testIter->fContentEnd;
-        while (testIter != child->fParent->fTokens.end()) {
-            testIter = std::next(testIter);
+        do {
+            std::advance(testIter, 1);
+            if (testIter == child->fParent->fTokens.end()) {
+                break;
+            }
             switch (testIter->fType) {
                 case Definition::Type::kPunctuation:
                     SkASSERT(Punctuation::kSemicolon == testIter->fPunctuation
@@ -2054,7 +2500,7 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
                     continue;
             }
             break;
-        }
+        } while (true);
     }
     while (end > start && ' ' >= end[-1]) {
         --end;
@@ -2152,6 +2598,11 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                 case KeyWord::kUnion:
                     if (!this->parseUnion()) {
                         return child->reportError<bool>("failed to parse union");
+                    }
+                    break;
+                case KeyWord::kUsing:
+                    if (!this->parseUsing()) {
+                        return child->reportError<bool>("failed to parse using");
                     }
                     break;
                 default:
@@ -2316,7 +2767,12 @@ bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
 }
 
 bool IncludeParser::parseUnion() {
+    // incomplete
+    return true;
+}
 
+bool IncludeParser::parseUsing() {
+    // incomplete
     return true;
 }
 
@@ -2684,6 +3140,7 @@ bool IncludeParser::parseChar() {
                 if (KeyWord::kEnum == fParent->fKeyWord) {
                     fInEnum = false;
                 }
+                parentIsClass |= KeyWord::kStruct == fParent->fKeyWord;
                 this->popObject();
                 if (parentIsClass && fParent && KeyWord::kTemplate == fParent->fKeyWord) {
                     this->popObject();

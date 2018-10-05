@@ -1,15 +1,7 @@
 #Topic Color
 #Alias Color_Reference ##
 
-#File
-Types, consts, functions, and macros for colors.
-##
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Define
+#Code
 #Populate
 ##
 
@@ -17,21 +9,14 @@ Color constants can be helpful to write code, documenting the meaning of values
 the represent transparency and color values. The use of Color constants is not
 required.
 
-#Subtopic Constant
-#Populate
-##
-
-#Subtopic Function
-#Populate
-##
-
-#Subtopic Typedef
-#Populate
+#Subtopic Functions
+#Line # routines to read, write, and manipulate SkColor ##
 ##
 
 # ------------------------------------------------------------------------------
 
 #Subtopic Alpha
+#Line # transparency of Color ##
 
 Alpha represents the transparency of Color. Color with Alpha of zero is fully
 transparent. Color with Alpha of 255 is fully opaque. Some, but not all pixel
@@ -82,7 +67,7 @@ component values in a different order.
 # ------------------------------------------------------------------------------
 
 #Method static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
-#In Function
+#In Functions
 #Line # returns Color_Alpha and RGB combined ##
 
 Returns Color value from 8-bit component values. Asserts if SK_DEBUG is defined
@@ -268,7 +253,7 @@ Returns blue component of Color, from zero to 255.
 # ------------------------------------------------------------------------------
 
 #Method static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a)
-#In Function
+#In Functions
 #Line # returns Color with transparency ##
 
 Returns Unpremultiplied Color with red, blue, and green set from c; and alpha set
@@ -604,6 +589,7 @@ $$$#
 # ------------------------------------------------------------------------------
 
 #Subtopic HSV
+#Line # hue saturation value color representation ##
 
 #Subtopic Hue
 Hue represents an angle, in degrees, on a color wheel. Hue has a positive value
@@ -621,7 +607,7 @@ one, full brightness.
 ##
 
 #Method void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3])
-#In Function
+#In Functions
 #Line # converts RGB to HSV ##
 
 Converts RGB to its HSV components.
@@ -657,7 +643,7 @@ hsv[2] contains HSV_Value, a value from zero to one.
 # ------------------------------------------------------------------------------
 
 #Method void SkColorToHSV(SkColor color, SkScalar hsv[3])
-#In Function
+#In Functions
 #Line # converts RGB to HSV ##
 
 Converts ARGB to its HSV components. Alpha in ARGB is ignored.
@@ -692,7 +678,7 @@ hsv[2] contains HSV_Value, a value from zero to one.
 # ------------------------------------------------------------------------------
 
 #Method SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])
-#In Function
+#In Functions
 #Line # converts HSV with Alpha to RGB ##
 
 Converts HSV components to an ARGB color. Alpha is passed through unchanged.
@@ -733,7 +719,7 @@ Out of range hsv values are pinned.
 # ------------------------------------------------------------------------------
 
 #Method SkColor SkHSVToColor(const SkScalar hsv[3])
-#In Function
+#In Functions
 #Line # converts HSV to RGB ##
 
 Converts HSV components to an ARGB color. Alpha is set to 255.
@@ -774,6 +760,7 @@ Out of range hsv values are pinned.
 # ------------------------------------------------------------------------------
 
 #Subtopic PMColor
+#Line # color components premultiplied by Alpha ##
 
 #Typedef uint32_t SkPMColor
 #Line # defines Premultiplied Color as 32 bits ##
@@ -792,7 +779,7 @@ same byte order.
 # ------------------------------------------------------------------------------
 
 #Method SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
-#In Function
+#In Functions
 #Line # converts Unpremultiplied ARGB to Premultiplied PMColor ##
 
 Returns a SkPMColor value from Unpremultiplied 8-bit component values.
@@ -825,7 +812,7 @@ Returns a SkPMColor value from Unpremultiplied 8-bit component values.
 # ------------------------------------------------------------------------------
 
 #Method SkPMColor SkPreMultiplyColor(SkColor c)
-#In Function
+#In Functions
 #Line # converts Unpremultiplied Color to Premultiplied PMColor ##
 
 Returns PMColor closest to Color c. Multiplies c RGB components by the c Alpha,
