@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ce483d5_39a9fe28",
+        "filename": "infra/skqp/build_apk.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-10-05T14:46:19Z",
+      "side": 1,
+      "message": "now that d95303e10c has landed, try to see if this works without this step.",
+      "revId": "aa85a7f0760e31bbe83d348c3dbf2e0a031d7b60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

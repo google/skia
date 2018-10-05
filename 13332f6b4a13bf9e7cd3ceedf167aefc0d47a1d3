@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ed5e72c_3e14c983",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-10-05T14:46:19Z",
+      "side": 1,
+      "message": "What is devrel?",
+      "revId": "13332f6b4a13bf9e7cd3ceedf167aefc0d47a1d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
