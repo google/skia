@@ -660,3 +660,7 @@ bool <a href='#GrBackendTexture_isValid'>isValid</a>() const
 # <a name='YUV_Component_V'>YUV Component V</a>
 
 # <a name='YUV_Component_Y'>YUV Component Y</a>
+
+# <a name='YUV_Planes'>YUV Planes</a>
+
+# <a name='SkYUVAIndex'>Class SkYUVAIndex</a>
