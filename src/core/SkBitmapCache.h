@@ -30,9 +30,7 @@ struct SkBitmapCacheDesc {
 
     static SkBitmapCacheDesc Make(const SkBitmap&);
     static SkBitmapCacheDesc Make(const SkImage*);
-
-    // Use with care -- width/height must match the original bitmap/image
-    static SkBitmapCacheDesc Make(uint32_t genID, int origWidth, int origHeight);
+    static SkBitmapCacheDesc Make(uint32_t genID, const SkIRect& subset);
 };
 
 class SkBitmapCache {

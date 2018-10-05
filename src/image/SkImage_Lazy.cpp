@@ -158,8 +158,8 @@ bool SkImage_Lazy::directGeneratePixels(const SkImageInfo& info, void* pixels, s
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage_Lazy::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap) const {
-    return SkBitmapCache::Find(SkBitmapCacheDesc::Make(fUniqueID,
-                                                       fInfo.width(), fInfo.height()), bitmap) &&
+    auto desc = SkBitmapCacheDesc::Make(fUniqueID, SkIRect::MakeSize(fInfo.dimensions()));
+    return SkBitmapCache::Find(desc, bitmap) &&
            check_output_bitmap(*bitmap, fUniqueID);
 }
 
@@ -210,7 +210,7 @@ bool SkImage_Lazy::lockAsBitmap(SkBitmap* bitmap, SkImage::CachingHint chint,
     SkBitmapCache::RecPtr cacheRec;
     SkPixmap pmap;
     if (SkImage::kAllow_CachingHint == chint) {
-        auto desc = SkBitmapCacheDesc::Make(fUniqueID, info.width(), info.height());
+        auto desc = SkBitmapCacheDesc::Make(fUniqueID, SkIRect::MakeSize(info.dimensions()));
         cacheRec = SkBitmapCache::Alloc(desc, info, &pmap);
         if (!cacheRec) {
             return false;
