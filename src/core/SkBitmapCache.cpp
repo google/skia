@@ -51,10 +51,10 @@ static SkIRect get_bounds_from_image(const SkImage* image) {
     return SkIRect::MakeWH(image->width(), image->height());
 }
 
-SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, int origWidth, int origHeight) {
+SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, const SkIRect& subset) {
     SkASSERT(imageID);
-    SkASSERT(origWidth > 0 && origHeight > 0);
-    return { imageID, {0, 0, origWidth, origHeight} };
+    SkASSERT(subset.width() > 0 && subset.height() > 0);
+    return { imageID, subset };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
