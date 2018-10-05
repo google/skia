@@ -22,6 +22,63 @@
       "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1a89b1b_d302fee3",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-10-05T14:23:06Z",
+      "side": 1,
+      "message": "nit: SkColor color\nIt\u0027s easier to document parameters that have names",
+      "range": {
+        "startLine": 345,
+        "startChar": 30,
+        "endLine": 345,
+        "endChar": 37
+      },
+      "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea996368_6db7d553",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-10-05T14:23:06Z",
+      "side": 1,
+      "message": "nit: SkPMColor color",
+      "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b7311c1_6163a3b0",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-10-05T14:23:06Z",
+      "side": 1,
+      "message": "don\u0027t know what to make of these two.\nSince there\u0027s no comment, should outside clients rely on them? Or are they to be deprecated?\nShould outside clients expect that they can\u0027t call, say SkColor4f::pin() ?",
+      "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
