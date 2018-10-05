@@ -3,22 +3,14 @@
 
 #Class SkWStream
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
+#Code
 #Populate
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method virtual ~SkWStream()
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Example
@@ -32,7 +24,7 @@
 # ------------------------------------------------------------------------------
 
 #Method SkWStream()
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Return incomplete ##
