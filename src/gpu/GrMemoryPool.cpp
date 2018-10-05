@@ -12,6 +12,8 @@
 #endif
 #include "ops/GrOp.h"
 
+static constexpr int kMinAlignment = 4;
+
 #ifdef SK_DEBUG
     #define VALIDATE this->validate()
 #else
@@ -31,8 +33,9 @@ GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
     SkDEBUGCODE(fAllocationCnt = 0);
     SkDEBUGCODE(fAllocBlockCnt = 0);
 
-    minAllocSize = SkTMax<size_t>(GrSizeAlignUp(minAllocSize, kAlignment), kSmallestMinAllocSize);
-    preallocSize = SkTMax<size_t>(GrSizeAlignUp(preallocSize, kAlignment), minAllocSize);
+    minAllocSize = SkTMax<size_t>(GrSizeAlignUp(minAllocSize, kMinAlignment),
+                                                kSmallestMinAllocSize);
+    preallocSize = SkTMax<size_t>(GrSizeAlignUp(preallocSize, kMinAlignment), minAllocSize);
 
     fMinAllocSize = minAllocSize;
     fSize = 0;
@@ -65,10 +68,10 @@ GrMemoryPool::~GrMemoryPool() {
     DeleteBlock(fHead);
 };
 
-void* GrMemoryPool::allocate(size_t size) {
+void* GrMemoryPool::allocate(size_t size, size_t alignment) {
+    SkASSERT(alignment >= kMinAlignment);
     VALIDATE;
     size += kPerAllocPad;
-    size = GrSizeAlignUp(size, kAlignment);
     if (fTail->fFreeSize < size) {
         size_t blockSize = size + kHeaderSize;
         blockSize = SkTMax<size_t>(blockSize, fMinAllocSize);
@@ -83,7 +86,10 @@ void* GrMemoryPool::allocate(size_t size) {
         SkDEBUGCODE(++fAllocBlockCnt);
     }
     SkASSERT(kAssignedMarker == fTail->fBlockSentinal);
-    SkASSERT(fTail->fFreeSize >= size);
+    intptr_t start = fTail->fCurrPtr;
+    fTail->fCurrPtr = GrSizeAlignUp(fTail->fCurrPtr, alignment);
+    size_t delta = fTail->fCurrPtr - start;
+    SkASSERT(fTail->fFreeSize >= size + delta);
     intptr_t ptr = fTail->fCurrPtr;
     // We stash a pointer to the block header, just before the allocated space,
     // so that we can decrement the live count on delete in constant time.
@@ -96,7 +102,7 @@ void* GrMemoryPool::allocate(size_t size) {
     ptr += kPerAllocPad;
     fTail->fPrevPtr = fTail->fCurrPtr;
     fTail->fCurrPtr += size;
-    fTail->fFreeSize -= size;
+    fTail->fFreeSize -= size + delta;
     fTail->fLiveCount += 1;
     SkDEBUGCODE(++fAllocationCnt);
     VALIDATE;
@@ -150,7 +156,6 @@ GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t blockSize) {
     BlockHeader* block =
         reinterpret_cast<BlockHeader*>(sk_malloc_throw(blockSize));
     // we assume malloc gives us aligned memory
-    SkASSERT(!(reinterpret_cast<intptr_t>(block) % kAlignment));
     SkDEBUGCODE(block->fBlockSentinal = kAssignedMarker);
     block->fLiveCount = 0;
     block->fFreeSize = blockSize - kHeaderSize;
@@ -185,9 +190,8 @@ void GrMemoryPool::validate() {
         size_t totalSize = ptrOffset + block->fFreeSize;
         intptr_t userStart = b + kHeaderSize;
 
-        SkASSERT(!(b % kAlignment));
-        SkASSERT(!(totalSize % kAlignment));
-        SkASSERT(!(block->fCurrPtr % kAlignment));
+        SkASSERT(!(b % kMinAlignment));
+        SkASSERT(!(totalSize % kMinAlignment));
         if (fHead != block) {
             SkASSERT(block->fLiveCount);
             SkASSERT(totalSize >= fMinAllocSize);
