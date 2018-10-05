@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ff4ec40_f48cc56e",
+        "filename": "infra/skqp/run_skqp.sh",
+        "patchSetId": 13
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-10-05T15:05:45Z",
+      "side": 1,
+      "message": "Can we execute\n    `adb logcat -d TestRunner org.skia.skqp skia DEBUG \"*:S\"`\nAfterwards so it can go into the logs?",
+      "revId": "72937511b8cf92c81871640d040d2309433dcc03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
