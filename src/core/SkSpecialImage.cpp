@@ -396,7 +396,7 @@ public:
     }
 
     bool onGetROPixels(SkBitmap* dst) const override {
-        const auto desc = SkBitmapCacheDesc::Make(this->uniqueID(), this->width(), this->height());
+        const auto desc = SkBitmapCacheDesc::Make(this->uniqueID(), this->subset());
         if (SkBitmapCache::Find(desc, dst)) {
             SkASSERT(dst->getGenerationID() == this->uniqueID());
             SkASSERT(dst->isImmutable());
@@ -417,7 +417,8 @@ public:
             return false;
         }
 
-        if (!sContext->readPixels(info, pmap.writable_addr(), pmap.rowBytes(), 0, 0)) {
+        if (!sContext->readPixels(info, pmap.writable_addr(), pmap.rowBytes(),
+                                  this->subset().left(), this->subset().top())) {
             return false;
         }
 
