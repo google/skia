@@ -15,8 +15,8 @@
 
 #include "SkDevice.h"
 #include "SkDraw.h"
-#include "SkFindAndPlaceGlyph.h"
 #include "SkGlyphRun.h"
+#include "SkGlyphCache.h"
 #include "SkPathEffect.h"
 #include "SkRemoteGlyphCacheImpl.h"
 #include "SkStrikeCache.h"

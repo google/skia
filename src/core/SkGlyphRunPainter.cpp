@@ -19,13 +19,28 @@
 #include "SkDevice.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
-#include "SkFindAndPlaceGlyph.h"
 #include "SkGlyphCache.h"
 #include "SkMaskFilter.h"
 #include "SkPaintPriv.h"
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
 #include "SkStrikeCache.h"
+
+static SkPoint SubpixelPositionRounding(SkAxisAlignment axisAlignment) {
+    static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
+
+    switch (axisAlignment) {
+        case kX_SkAxisAlignment:
+            return {kSubpixelRounding, SK_ScalarHalf};
+        case kY_SkAxisAlignment:
+            return {SK_ScalarHalf, kSubpixelRounding};
+        case kNone_SkAxisAlignment:
+            return {kSubpixelRounding, kSubpixelRounding};
+    }
+    SK_ABORT("Should not get here.");
+    return {0.0f, 0.0f};
+}
+
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 SkGlyphRunListPainter::SkGlyphRunListPainter(
@@ -149,7 +164,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSubpixelMask(
         // Add rounding and origin.
         SkMatrix matrix = deviceMatrix;
         SkAxisAlignment axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
-        SkPoint rounding = SkFindAndPlaceGlyph::SubpixelPositionRounding(axisAlignment);
+        SkPoint rounding = SubpixelPositionRounding(axisAlignment);
         matrix.preTranslate(origin.x(), origin.y());
         matrix.postTranslate(rounding.x(), rounding.y());
         matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
