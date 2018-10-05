@@ -721,17 +721,6 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 ---
 
-<a name='SkRect_MakeFromIRect'></a>
-## MakeFromIRect
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkRect'>SkRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRect_MakeFromIRect'>MakeFromIRect</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& irect)
-</pre>
-
-Deprecated.
-
----
-
 <a name='SkRect_Make'></a>
 ## Make
 
