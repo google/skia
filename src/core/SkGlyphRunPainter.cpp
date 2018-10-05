@@ -26,22 +26,6 @@
 #include "SkRasterClip.h"
 #include "SkStrikeCache.h"
 
-static SkPoint SubpixelPositionRounding(SkAxisAlignment axisAlignment) {
-    static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
-
-    switch (axisAlignment) {
-        case kX_SkAxisAlignment:
-            return {kSubpixelRounding, SK_ScalarHalf};
-        case kY_SkAxisAlignment:
-            return {SK_ScalarHalf, kSubpixelRounding};
-        case kNone_SkAxisAlignment:
-            return {kSubpixelRounding, kSubpixelRounding};
-    }
-    SK_ABORT("Should not get here.");
-    return {0.0f, 0.0f};
-}
-
-
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 SkGlyphRunListPainter::SkGlyphRunListPainter(
         const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags)
@@ -163,8 +147,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSubpixelMask(
     if (this->ensureBitmapBuffers(runSize)) {
         // Add rounding and origin.
         SkMatrix matrix = deviceMatrix;
-        SkAxisAlignment axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
-        SkPoint rounding = SubpixelPositionRounding(axisAlignment);
+        SkPoint rounding = cache->rounding();
         matrix.preTranslate(origin.x(), origin.y());
         matrix.postTranslate(rounding.x(), rounding.y());
         matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
@@ -173,17 +156,8 @@ void SkGlyphRunListPainter::drawGlyphRunAsSubpixelMask(
         for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
             auto position = *positionCursor++;
             if (SkScalarsAreFinite(position.fX, position.fY)) {
-                SkFixed lookupX = SkScalarToFixed(SkScalarFraction(position.fX)),
-                        lookupY = SkScalarToFixed(SkScalarFraction(position.fY));
+                const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, position);
 
-                // Snap to a given axis if alignment is requested.
-                if (axisAlignment == kX_SkAxisAlignment ) {
-                    lookupY = 0;
-                } else if (axisAlignment == kY_SkAxisAlignment) {
-                    lookupX = 0;
-                }
-
-                const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID, lookupX, lookupY);
                 SkMask mask;
                 if (prepare_mask(cache, glyph, position, &mask)) {
                     perMask(mask, glyph, position);
