@@ -13,6 +13,12 @@
 #include "SkPath.h"
 #include "SkYUVAIndex.h"
 
+#if SK_SUPPORT_GPU
+#include "GrBackendSurface.h"
+#include "GrContextPriv.h"
+#include "GrGpu.h"
+#endif
+
 static const int kTileWidthHeight = 128;
 static const int kLabelWidth = 64;
 static const int kLabelHeight = 32;
@@ -707,7 +713,9 @@ protected:
             SkPath path = create_splat(origin, innerRadius, outerRadius, 1.0f, 7, &circles);
             fOriginalBMs[1] = make_bitmap(path, circles, true);
         }
+    }
 
+    void createImages(GrContext* context) {
         for (bool opaque : { false, true }) {
             for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
                 PlaneData planes;
@@ -718,17 +726,67 @@ protected:
                     SkYUVAIndex yuvaIndices[4];
                     create_YUV(planes, (YUVFormat) format, resultBMs, yuvaIndices, opaque);
 
-                    fImages[opaque][cs][format] = make_yuv_gen_image(fOriginalBMs[opaque].info(),
-                                                                     (YUVFormat) format,
-                                                                     (SkYUVColorSpace) cs,
-                                                                     yuvaIndices,
-                                                                     resultBMs);
+#if SK_SUPPORT_GPU
+                    if (context) {
+                        if (context->abandoned()) {
+                            return;
+                        }
+
+                        GrGpu* gpu = context->contextPriv().getGpu();
+                        if (!gpu) {
+                            return;
+                        }
+
+                        bool used[4] = { false, false, false, false };
+                        for (int i = 0; i < 4; ++i) {
+                            if (yuvaIndices[i].fIndex >= 0) {
+                                SkASSERT(yuvaIndices[i].fIndex < 4);
+                                used[yuvaIndices[i].fIndex] = true;
+                            }
+                        }
+
+                        GrBackendTexture yuvaTextures[4];
+
+                        for (int i = 0; i < 4; ++i) {
+                            if (!used[i]) {
+                                continue;
+                            }
+
+                            yuvaTextures[i] = gpu->createTestingOnlyBackendTexture(
+                                resultBMs[i].getPixels(),
+                                resultBMs[i].width(),
+                                resultBMs[i].height(),
+                                resultBMs[i].colorType(),
+                                false,
+                                GrMipMapped::kNo,
+                                resultBMs[i].rowBytes());
+                        }
+
+                        fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
+                            context,
+                            (SkYUVColorSpace) cs,
+                            yuvaTextures,
+                            yuvaIndices,
+                            { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                            kTopLeft_GrSurfaceOrigin);
+                    } else
+#endif
+                    {
+                        fImages[opaque][cs][format] = make_yuv_gen_image(
+                                                                fOriginalBMs[opaque].info(),
+                                                                (YUVFormat) format,
+                                                                (SkYUVColorSpace) cs,
+                                                                yuvaIndices,
+                                                                resultBMs);
+                    }
                 }
             }
         }
     }
 
     void onDraw(SkCanvas* canvas) override {
+        this->createImages(canvas->getGrContext());
+
         int x = kLabelWidth;
         for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
             for (int opaque : { 0, 1 }) {
