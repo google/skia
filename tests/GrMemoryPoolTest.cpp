@@ -30,7 +30,7 @@ public:
         if (!gPool.get()) {
             return ::operator new(size);
         } else {
-            return gPool->allocate(size);
+            return gPool->allocate(size, alignof(A));
         }
     }
 
@@ -252,7 +252,7 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
     auto allocateMemory = [](GrMemoryPool& pool, AutoPoolReleaser& r) {
         size_t origPoolSize = pool.size();
         while (pool.size() == origPoolSize) {
-            r.add(pool.allocate(31));
+            r.add(pool.allocate(31, 8));
         }
     };
 
@@ -308,13 +308,13 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
         REPORTER_ASSERT(reporter, pool.size() == 0);
 
         constexpr size_t hugeSize = 10 * kMinAllocSize;
-        r.add(pool.allocate(hugeSize));
+        r.add(pool.allocate(hugeSize, 8));
         REPORTER_ASSERT(reporter, pool.size() > hugeSize);
 
         // Block size allocated to accommodate huge request doesn't include any extra
         // space, so next allocation request allocates a new block.
         size_t hugeBlockSize = pool.size();
-        r.add(pool.allocate(0));
+        r.add(pool.allocate(0, 8));
         REPORTER_ASSERT(reporter, pool.size() == hugeBlockSize + kMinAllocSize);
     }
 }

@@ -181,6 +181,8 @@ public:
         return str;
     }
 
+    static void* Alloc(size_t size, size_t alignment);
+
     void* operator new(size_t size);
     void operator delete(void* target);
 
