@@ -22,30 +22,37 @@ static const float kRec709ConversionMatrix[16] = {
         1.164f, 0.0f,   1.793f, -0.96925f, 1.164f, -0.213f, -0.533f, 0.30025f,
         1.164f, 2.112f, 0.0f,   -1.12875f, 0.0f,   0.0f,    0.0f,    1.0f};
 
-std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(sk_sp<GrTextureProxy> yProxy,
-                                                            sk_sp<GrTextureProxy>
-                                                                    uProxy,
-                                                            sk_sp<GrTextureProxy>
-                                                                    vProxy,
-                                                            SkYUVColorSpace colorSpace,
-                                                            bool nv12) {
+std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make1(const sk_sp<GrTextureProxy> proxies[],
+                                                            const SkYUVAIndex yuvaIndices[4],
+                                                            SkYUVColorSpace yuvColorSpace) {
     SkScalar w[3], h[3];
-    w[0] = SkIntToScalar(yProxy->width());
-    h[0] = SkIntToScalar(yProxy->height());
-    w[1] = SkIntToScalar(uProxy->width());
-    h[1] = SkIntToScalar(uProxy->height());
-    w[2] = SkIntToScalar(vProxy->width());
-    h[2] = SkIntToScalar(vProxy->height());
+    w[0] = SkIntToScalar(yProxy1->width());
+    h[0] = SkIntToScalar(yProxy1->height());
+    w[1] = SkIntToScalar(uProxy1->width());
+    h[1] = SkIntToScalar(uProxy1->height());
+    w[2] = SkIntToScalar(vProxy1->width());
+    h[2] = SkIntToScalar(vProxy1->height());
+    w[3] = SkIntToScalar(aProxy->width());
+    h[3] = SkIntToScalar(aProxy->height());
     SkMatrix yTransform = SkMatrix::I();
-    SkMatrix uTransform = SkMatrix::MakeScale(w[1] / w[0], h[1] / h[0]);
-    SkMatrix vTransform = SkMatrix::MakeScale(w[2] / w[0], h[2] / h[0]);
-    GrSamplerState::Filter uvFilterMode =
-            ((uProxy->width() != yProxy->width()) || (uProxy->height() != yProxy->height()) ||
-             (vProxy->width() != yProxy->width()) || (vProxy->height() != yProxy->height()))
+    SkMatrix uTransform1 = SkMatrix::MakeScale(w[1] / w[0], h[1] / h[0]);
+    SkMatrix vTransform1 = SkMatrix::MakeScale(w[2] / w[0], h[2] / h[0]);
+    SkMatrix aTransform = SkMatrix::MakeScale(w[3] / w[0], h[3] / h[0]);
+
+    GrSamplerState::Filter uFilterMode =
+            (uProxy1->width() != yProxy1->width()) || (uProxy1->height() != yProxy1->height())
+                    ? GrSamplerState::Filter::kBilerp
+                    : GrSamplerState::Filter::kNearest;
+    GrSamplerState::Filter vFilterMode =
+             (vProxy1->width() != yProxy1->width()) || (vProxy1->height() != yProxy1->height())
+                    ? GrSamplerState::Filter::kBilerp
+                    : GrSamplerState::Filter::kNearest;
+    GrSamplerState::Filter aFilterMode =
+             (aProxy->width() != yProxy1->width()) || (aProxy->height() != yProxy1->height())
                     ? GrSamplerState::Filter::kBilerp
                     : GrSamplerState::Filter::kNearest;
     SkMatrix44 mat;
-    switch (colorSpace) {
+    switch (yuvColorSpace) {
         case kJPEG_SkYUVColorSpace:
             mat.setColMajorf(kJPEGConversionMatrix);
             break;
@@ -57,19 +64,24 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(sk_sp<GrTextureProxy
             break;
     }
     return std::unique_ptr<GrFragmentProcessor>(new GrYUVtoRGBEffect(
-            std::move(yProxy), yTransform, std::move(uProxy), uTransform, std::move(vProxy),
-            vTransform, mat, nv12, GrSamplerState(GrSamplerState::WrapMode::kClamp, uvFilterMode)));
+            std::move(yProxy1), yTransform,
+            std::move(uProxy1), uTransform1, uFilterMode,
+            std::move(vProxy1), vTransform1, vFilterMode,
+            std::move(aProxy), aTransform,   aFilterMode,
+            mat));
 }
 
 SkString GrYUVtoRGBEffect::dumpInfo() const {
     SkString str;
-    str.appendf("Y: %d %d U: %d %d V: %d %d\n",
-                fYSampler.proxy()->uniqueID().asUInt(),
-                fYSampler.proxy()->underlyingUniqueID().asUInt(),
-                fUSampler.proxy()->uniqueID().asUInt(),
-                fUSampler.proxy()->underlyingUniqueID().asUInt(),
-                fVSampler.proxy()->uniqueID().asUInt(),
-                fVSampler.proxy()->underlyingUniqueID().asUInt());
+    str.appendf("Y: %d %d U: %d %d V: %d %d A: %d %d\n",
+                fYSampler1.proxy()->uniqueID().asUInt(),
+                fYSampler1.proxy()->underlyingUniqueID().asUInt(),
+                fUSampler1.proxy()->uniqueID().asUInt(),
+                fUSampler1.proxy()->underlyingUniqueID().asUInt(),
+                fVSampler1.proxy()->uniqueID().asUInt(),
+                fVSampler1.proxy()->underlyingUniqueID().asUInt(),
+                fASampler.proxy()->uniqueID().asUInt(),
+                fASampler.proxy()->underlyingUniqueID().asUInt());
 
     return str;
 }
@@ -94,26 +106,32 @@ public:
         (void)vSamplerTransform;
         auto colorSpaceMatrix = _outer.colorSpaceMatrix();
         (void)colorSpaceMatrix;
-        auto nv12 = _outer.nv12();
-        (void)nv12;
         fColorSpaceMatrixVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType,
                                                  kDefault_GrSLPrecision, "colorSpaceMatrix");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         SkString sk_TransformedCoords2D_1 = fragBuilder->ensureCoords2D(args.fTransformedCoords[1]);
         SkString sk_TransformedCoords2D_2 = fragBuilder->ensureCoords2D(args.fTransformedCoords[2]);
+
+        int numSamplers = args.fTexSamplers.count();
+        SkDebugf("num samplers %d\n", numSamplers);
+
         fragBuilder->codeAppendf(
-                "@if (%s) {\n    %s = half4(texture(%s, %s).%s.x, texture(%s, %s).%s.xy, 1.0) * "
-                "%s;\n} else {\n    %s = half4(texture(%s, %s).%s.x, texture(%s, %s).%s.x, "
-                "texture(%s, %s).%s.x, 1.0) * %s;\n}\n",
-                (_outer.nv12() ? "true" : "false"), args.fOutputColor,
+                "@if (isNV12) {"
+                    "%s = half4(texture(%s, %s).%s.x, texture(%s, %s).%s.xy, 1.0) * %s;"
+                "} else {"
+                    "%s = half4(texture(%s, %s).%s.x, texture(%s, %s).%s.x, texture(%s, %s).%s.x, 1.0) * %s;"
+                "}",
+                args.fOutputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[1]).c_str(),
                 sk_TransformedCoords2D_1.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[1]).c_str(),
-                args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar), args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar),
+
+                args.fOutputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
@@ -139,42 +157,55 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
 }
 void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)fNv12);
+//    b->add32((int32_t)fNv12);
 }
 bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrYUVtoRGBEffect& that = other.cast<GrYUVtoRGBEffect>();
     (void)that;
-    if (fYSampler != that.fYSampler) return false;
-    if (fYSamplerTransform != that.fYSamplerTransform) return false;
-    if (fUSampler != that.fUSampler) return false;
-    if (fUSamplerTransform != that.fUSamplerTransform) return false;
-    if (fVSampler != that.fVSampler) return false;
-    if (fVSamplerTransform != that.fVSamplerTransform) return false;
+    if (fYSampler1 != that.fYSampler1) return false;
+    if (fYSamplerTransform1 != that.fYSamplerTransform1) return false;
+
+    if (fUSampler1 != that.fUSampler1) return false;
+    if (fUSamplerTransform1 != that.fUSamplerTransform1) return false;
+
+    if (fVSampler1 != that.fVSampler1) return false;
+    if (fVSamplerTransform1 != that.fVSamplerTransform1) return false;
+
+    if (fASampler != that.fASampler) return false;
+    if (fASamplerTransform != that.fASamplerTransform) return false;
+
     if (fColorSpaceMatrix != that.fColorSpaceMatrix) return false;
-    if (fNv12 != that.fNv12) return false;
     return true;
 }
 GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
         : INHERITED(kGrYUVtoRGBEffect_ClassID, src.optimizationFlags())
-        , fYSampler(src.fYSampler)
-        , fYSamplerTransform(src.fYSamplerTransform)
-        , fUSampler(src.fUSampler)
-        , fUSamplerTransform(src.fUSamplerTransform)
-        , fVSampler(src.fVSampler)
-        , fVSamplerTransform(src.fVSamplerTransform)
+        , fYSampler1(src.fYSampler1)
+        , fYSamplerTransform1(src.fYSamplerTransform1)
+
+        , fUSampler1(src.fUSampler1)
+        , fUSamplerTransform1(src.fUSamplerTransform1)
+
+        , fVSampler1(src.fVSampler1)
+        , fVSamplerTransform1(src.fVSamplerTransform1)
+
+        , fASampler(src.fASampler)
+        , fASamplerTransform(src.fASamplerTransform)
+
         , fColorSpaceMatrix(src.fColorSpaceMatrix)
-        , fNv12(src.fNv12)
-        , fYSamplerCoordTransform(src.fYSamplerCoordTransform)
-        , fUSamplerCoordTransform(src.fUSamplerCoordTransform)
-        , fVSamplerCoordTransform(src.fVSamplerCoordTransform) {
-    this->setTextureSamplerCnt(3);
-    this->addCoordTransform(&fYSamplerCoordTransform);
-    this->addCoordTransform(&fUSamplerCoordTransform);
-    this->addCoordTransform(&fVSamplerCoordTransform);
+
+        , fYSamplerCoordTransform1(src.fYSamplerCoordTransform1)
+        , fUSamplerCoordTransform1(src.fUSamplerCoordTransform1)
+        , fVSamplerCoordTransform1(src.fVSamplerCoordTransform1)
+        , fASamplerCoordTransform(src.fASamplerCoordTransform) {
+    this->setTextureSamplerCnt(4);
+    this->addCoordTransform(&fYSamplerCoordTransform1);
+    this->addCoordTransform(&fUSamplerCoordTransform1);
+    this->addCoordTransform(&fVSamplerCoordTransform1);
+    this->addCoordTransform(&fASamplerCoordTransform);
 }
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrYUVtoRGBEffect(*this));
 }
 const GrFragmentProcessor::TextureSampler& GrYUVtoRGBEffect::onTextureSampler(int index) const {
-    return IthTextureSampler(index, fYSampler, fUSampler, fVSampler);
+    return IthTextureSampler(index, fYSampler1, fUSampler1, fVSampler1, fASampler);
 }
