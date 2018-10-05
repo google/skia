@@ -64,10 +64,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
     fImageLoadStoreExtensionString = nullptr;
-    fMaxVertexSamplers = 0;
-    fMaxGeometrySamplers = 0;
     fMaxFragmentSamplers = 0;
-    fMaxCombinedSamplers = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
@@ -123,10 +120,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("float == fp32", fFloatIs32Bits);
     writer->appendBool("half == fp32", fHalfIs32Bits);
 
-    writer->appendS32("Max VS Samplers", fMaxVertexSamplers);
-    writer->appendS32("Max GS Samplers", fMaxGeometrySamplers);
     writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
-    writer->appendS32("Max Combined Samplers", fMaxFragmentSamplers);
     writer->appendString("Advanced blend equation interaction",
                          kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
 
