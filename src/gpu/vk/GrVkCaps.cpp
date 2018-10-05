@@ -274,6 +274,14 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 #endif
     }
 
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        // A "clear" load for the CCPR atlas runs faster on QC than a "discard" load followed by a
+        // scissored clear.
+        // On NVIDIA and Intel, the discard load followed by clear is faster.
+        // TODO: Evaluate on ARM, Imagination, and ATI.
+        fPreferFullscreenClears = true;
+    }
+
     this->initConfigTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
