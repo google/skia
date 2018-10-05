@@ -198,6 +198,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
     // Right now this still only deals with YUV and NV12 formats. Assuming that YUV has different
     // textures for U and V planes, while NV12 uses same texture for U and V planes.
     bool nv12 = (yuvaIndices[1].fIndex == yuvaIndices[2].fIndex);
+    auto ct = nv12 ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
 
     // We need to make a copy of the input backend textures because we need to preserve the result
     // of validate_backend_texture.
@@ -215,21 +216,11 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
             // at most 4 images sources being passed in, could not have a index more than 3.
             return nullptr;
         }
-        SkColorType ct = kUnknown_SkColorType;
-        if (SkYUVAIndex::kY_Index == i || SkYUVAIndex::kA_Index == i) {
-            // The Y and A planes are always kAlpha8 (for now)
-            ct = kAlpha_8_SkColorType;
-        } else {
-            // The UV planes can either be interleaved or planar
-            ct = nv12 ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
-        }
-
         if (!yuvaTexturesCopy[yuvaIndex.fIndex].isValid()) {
             yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
             // TODO: Instead of using assumption about whether it is NV12 format to guess colorType,
             // actually use channel information here.
-            if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[yuvaIndex.fIndex],
-                                        &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig,
+            if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[i], &yuvaTexturesCopy[i].fConfig,
                                         ct, kPremul_SkAlphaType, nullptr)) {
                 return nullptr;
             }
@@ -246,7 +237,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
 
         // Safely ignore since this means we are missing the A plane.
         if (textureIndex == -1) {
-            SkASSERT(SkYUVAIndex::kA_Index == i);
+            SkASSERT(3 == i);
             continue;
         }
 
