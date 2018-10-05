@@ -101,7 +101,9 @@ protected:
     void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&,
                         const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+#endif
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint& paint) override;
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
@@ -162,7 +164,9 @@ private:
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
     std::unique_ptr<SkBitmap> fCoverage;    // if non-null, will have the same dimensions as fBitmap
+#ifdef SK_ENABLE_TEXT_SUPPORT
     SkGlyphRunListPainter fGlyphPainter;
+#endif
 
 
     typedef SkBaseDevice INHERITED;
