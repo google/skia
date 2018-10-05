@@ -293,38 +293,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
         test_image(subSImg2, reporter, context, true, kPad, kFullSize);
     }
 }
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    SkBitmap bm = create_bm();
-    sk_sp<SkImage> rasterImage = SkImage::MakeFromBitmap(bm);
-
-    sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createTextureProxy(rasterImage, kNone_GrSurfaceFlags, 1,
-                                              SkBudgeted::kNo, SkBackingFit::kExact);
-    if (!proxy) {
-        return;
-    }
-
-    sk_sp<SkSpecialImage> fullSImg(SkSpecialImage::MakeDeferredFromGpu(
-                                                            context,
-                                                            SkIRect::MakeWH(kFullSize, kFullSize),
-                                                            kNeedNewImageUniqueID_SpecialImage,
-                                                            proxy, nullptr));
-
-    const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
-
-    {
-        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeDeferredFromGpu(
-                                                               context, subset,
-                                                               kNeedNewImageUniqueID_SpecialImage,
-                                                               std::move(proxy), nullptr));
-        test_image(subSImg1, reporter, context, true, kPad, kFullSize);
-    }
-
-    {
-        sk_sp<SkSpecialImage> subSImg2(fullSImg->makeSubset(subset));
-        test_image(subSImg2, reporter, context, true, kPad, kFullSize);
-    }
-}
