@@ -139,6 +139,24 @@
       "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f42c190_32ec9e9c",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-10-05T14:50:07Z",
+      "side": 1,
+      "message": "The SkCanvas convention is to name the public functions private_xxx or internal_private_xxx, and (sometimes) to have no documentation at all in the public header.",
+      "parentUuid": "76563888_ad40019a",
+      "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
