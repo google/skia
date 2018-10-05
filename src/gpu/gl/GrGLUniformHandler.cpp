@@ -61,11 +61,13 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(GrSwizzle swizzle,
+GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(uint32_t visibility,
+                                                                   GrSwizzle swizzle,
                                                                    GrTextureType type,
                                                                    GrSLPrecision precision,
                                                                    const char* name) {
     SkASSERT(name && strlen(name));
+    SkASSERT(0 != visibility);
 
     SkString mangleName;
     char prefix = 'u';
@@ -77,7 +79,7 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(GrSwizzle swi
     sampler.fVariable.setPrecision(precision);
     sampler.fVariable.setName(mangleName);
     sampler.fLocation = -1;
-    sampler.fVisibility = kFragment_GrShaderFlag;
+    sampler.fVisibility = visibility;
     fSamplerSwizzles.push_back(swizzle);
     SkASSERT(fSamplers.count() == fSamplerSwizzles.count());
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);

@@ -139,8 +139,10 @@ private:
                                     SkString output,
                                     SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>>*);
     void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
-    SamplerHandle emitSampler(GrTextureType, GrPixelConfig, const char* name);
+    SamplerHandle emitSampler(GrTextureType, GrPixelConfig, const char* name,
+                              GrShaderFlags visibility);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
+    void updateSamplerCounts(GrShaderFlags visibility);
     bool checkSamplerCounts();
 
 #ifdef SK_DEBUG
@@ -150,6 +152,8 @@ private:
 #endif
 
     // These are used to check that we don't excede the allowable number of resources in a shader.
+    int                         fNumVertexSamplers;
+    int                         fNumGeometrySamplers;
     int                         fNumFragmentSamplers;
     SkSTArray<4, GrShaderVar>   fTransformedCoordVars;
 };

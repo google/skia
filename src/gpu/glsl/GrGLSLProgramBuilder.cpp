@@ -31,6 +31,8 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrPrimitiveProcessor& primProc,
         , fDesc(desc)
         , fGeometryProcessor(nullptr)
         , fXferProcessor(nullptr)
+        , fNumVertexSamplers(0)
+        , fNumGeometrySamplers(0)
         , fNumFragmentSamplers(0) {}
 
 void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
@@ -99,7 +101,8 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
         SkString name;
         name.printf("TextureSampler_%d", i);
         const auto& sampler = proc.textureSampler(i);
-        texSamplers[i] = this->emitSampler(sampler.textureType(), sampler.config(), name.c_str());
+        texSamplers[i] = this->emitSampler(sampler.textureType(), sampler.config(), name.c_str(),
+                                           sampler.visibility());
     }
 
     GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(fPipeline,
@@ -181,7 +184,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
             const auto& sampler = subFP->textureSampler(i);
             GrTextureType textureType = sampler.peekTexture()->texturePriv().textureType();
             texSamplers.emplace_back(this->emitSampler(textureType, sampler.peekTexture()->config(),
-                                                       name.c_str()));
+                                                       name.c_str(), kFragment_GrShaderFlag));
         }
     }
 
@@ -238,7 +241,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
         SkString name("DstTextureSampler");
         dstTextureSamplerHandle =
                 this->emitSampler(dstTexture->texturePriv().textureType(), dstTexture->config(),
-                                  "DstTextureSampler");
+                                  "DstTextureSampler", kFragment_GrShaderFlag);
         dstTextureOrigin = fPipeline.dstTextureProxy()->origin();
         SkASSERT(dstTexture->texturePriv().textureType() != GrTextureType::kExternal);
     }
@@ -261,13 +264,27 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     fFS.codeAppend("}");
 }
 
+void GrGLSLProgramBuilder::updateSamplerCounts(GrShaderFlags visibility) {
+    if (visibility & kVertex_GrShaderFlag) {
+        ++fNumVertexSamplers;
+    }
+    if (visibility & kGeometry_GrShaderFlag) {
+        SkASSERT(this->primitiveProcessor().willUseGeoShader());
+        ++fNumGeometrySamplers;
+    }
+    if (visibility & kFragment_GrShaderFlag) {
+        ++fNumFragmentSamplers;
+    }
+}
+
 GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(GrTextureType textureType,
                                                                       GrPixelConfig config,
-                                                                      const char* name) {
-    ++fNumFragmentSamplers;
+                                                                      const char* name,
+                                                                      GrShaderFlags visibility) {
+    this->updateSamplerCounts(visibility);
     GrSLPrecision precision = GrSLSamplerPrecision(config);
     GrSwizzle swizzle = this->shaderCaps()->configTextureSwizzle(config);
-    return this->uniformHandler()->addSampler(swizzle, textureType, precision, name);
+    return this->uniformHandler()->addSampler(visibility, swizzle, textureType, precision, name);
 }
 
 void GrGLSLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {
@@ -288,8 +305,22 @@ void GrGLSLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {
 
 bool GrGLSLProgramBuilder::checkSamplerCounts() {
     const GrShaderCaps& shaderCaps = *this->shaderCaps();
+    if (fNumVertexSamplers > shaderCaps.maxVertexSamplers()) {
+        GrCapsDebugf(this->caps(), "Program would use too many vertex samplers\n");
+        return false;
+    }
+    if (fNumGeometrySamplers > shaderCaps.maxGeometrySamplers()) {
+        GrCapsDebugf(this->caps(), "Program would use too many geometry samplers\n");
+        return false;
+    }
     if (fNumFragmentSamplers > shaderCaps.maxFragmentSamplers()) {
         GrCapsDebugf(this->caps(), "Program would use too many fragment samplers\n");
+        return false;
+    }
+    // If the same sampler is used in two different shaders, it counts as two combined samplers.
+    int numCombinedSamplers = fNumVertexSamplers + fNumGeometrySamplers + fNumFragmentSamplers;
+    if (numCombinedSamplers > shaderCaps.maxCombinedSamplers()) {
+        GrCapsDebugf(this->caps(), "Program would use too many combined samplers\n");
         return false;
     }
     return true;

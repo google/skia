@@ -254,11 +254,16 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(GrSwizzle swizzle,
+GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(uint32_t visibility,
+                                                                   GrSwizzle swizzle,
                                                                    GrTextureType type,
                                                                    GrSLPrecision precision,
                                                                    const char* name) {
     SkASSERT(name && strlen(name));
+    // For now asserting the the visibility is either only vertex, geometry, or fragment
+    SkASSERT(kVertex_GrShaderFlag == visibility ||
+             kFragment_GrShaderFlag == visibility ||
+             kGeometry_GrShaderFlag == visibility);
     SkString mangleName;
     char prefix = 'u';
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
@@ -271,7 +276,7 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(GrSwizzle swi
     SkString layoutQualifier;
     layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count() - 1);
     info.fVariable.addLayoutQualifier(layoutQualifier.c_str());
-    info.fVisibility = kFragment_GrShaderFlag;
+    info.fVisibility = visibility;
     info.fUBOffset = 0;
     fSamplerSwizzles.push_back(swizzle);
     SkASSERT(fSamplerSwizzles.count() == fSamplers.count());

@@ -105,34 +105,40 @@ static inline GrSamplerState::Filter clamp_filter(GrTextureType type,
 
 GrPrimitiveProcessor::TextureSampler::TextureSampler(GrTextureType textureType,
                                                      GrPixelConfig config,
-                                                     const GrSamplerState& samplerState) {
-    this->reset(textureType, config, samplerState);
+                                                     const GrSamplerState& samplerState,
+                                                     GrShaderFlags visibility) {
+    this->reset(textureType, config, samplerState, visibility);
 }
 
 GrPrimitiveProcessor::TextureSampler::TextureSampler(GrTextureType textureType,
                                                      GrPixelConfig config,
                                                      GrSamplerState::Filter filterMode,
-                                                     GrSamplerState::WrapMode wrapXAndY) {
-    this->reset(textureType, config, filterMode, wrapXAndY);
+                                                     GrSamplerState::WrapMode wrapXAndY,
+                                                     GrShaderFlags visibility) {
+    this->reset(textureType, config, filterMode, wrapXAndY, visibility);
 }
 
 void GrPrimitiveProcessor::TextureSampler::reset(GrTextureType textureType,
                                                  GrPixelConfig config,
-                                                 const GrSamplerState& samplerState) {
+                                                 const GrSamplerState& samplerState,
+                                                 GrShaderFlags visibility) {
     SkASSERT(kUnknown_GrPixelConfig != config);
     fSamplerState = samplerState;
     fSamplerState.setFilterMode(clamp_filter(textureType, samplerState.filter()));
     fTextureType = textureType;
     fConfig = config;
+    fVisibility = visibility;
 }
 
 void GrPrimitiveProcessor::TextureSampler::reset(GrTextureType textureType,
                                                  GrPixelConfig config,
                                                  GrSamplerState::Filter filterMode,
-                                                 GrSamplerState::WrapMode wrapXAndY) {
+                                                 GrSamplerState::WrapMode wrapXAndY,
+                                                 GrShaderFlags visibility) {
     SkASSERT(kUnknown_GrPixelConfig != config);
     filterMode = clamp_filter(textureType, filterMode);
     fSamplerState = GrSamplerState(wrapXAndY, filterMode);
     fTextureType = textureType;
     fConfig = config;
+    fVisibility = visibility;
 }

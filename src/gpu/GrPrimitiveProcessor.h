@@ -202,23 +202,27 @@ class GrPrimitiveProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(GrTextureType, GrPixelConfig, const GrSamplerState&);
+    TextureSampler(GrTextureType, GrPixelConfig, const GrSamplerState&, GrShaderFlags visibility);
 
     explicit TextureSampler(GrTextureType, GrPixelConfig,
                             GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
-                            GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp);
+                            GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
+                            GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(GrTextureType, GrPixelConfig, const GrSamplerState&);
+    void reset(GrTextureType, GrPixelConfig, const GrSamplerState&,
+               GrShaderFlags visibility = kFragment_GrShaderFlag);
     void reset(GrTextureType, GrPixelConfig,
                GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
-               GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp);
+               GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
+               GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     GrTextureType textureType() const { return fTextureType; }
     GrPixelConfig config() const { return fConfig; }
 
+    GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerState& samplerState() const { return fSamplerState; }
 
     bool isInitialized() const { return fConfig != kUnknown_GrPixelConfig; }
@@ -227,6 +231,7 @@ private:
     GrSamplerState fSamplerState;
     GrTextureType fTextureType = GrTextureType::k2D;
     GrPixelConfig fConfig = kUnknown_GrPixelConfig;
+    GrShaderFlags fVisibility = kNone_GrShaderFlags;
 };
 
 const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::IthTextureSampler(int i) {
