@@ -27,7 +27,6 @@ public:
         fShaderCaps->fGeometryShaderSupport = options.fGeometryShaderSupport;
         fShaderCaps->fIntegerSupport = options.fIntegerSupport;
         fShaderCaps->fFlatInterpolationSupport = options.fFlatInterpolationSupport;
-        fShaderCaps->fMaxVertexSamplers = options.fMaxVertexSamplers;
         fShaderCaps->fMaxFragmentSamplers = options.fMaxFragmentSamplers;
         fShaderCaps->fShaderDerivativeSupport = options.fShaderDerivativeSupport;
 

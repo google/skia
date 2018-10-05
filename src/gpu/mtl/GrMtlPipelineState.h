@@ -95,10 +95,8 @@ private:
     struct SamplerBindings {
         id<MTLSamplerState> fSampler;
         id<MTLTexture> fTexture;
-        GrShaderFlags fVisibility;
 
-        SamplerBindings(const GrSamplerState& state, GrTexture* texture, GrShaderFlags flags,
-                        GrMtlGpu*);
+        SamplerBindings(const GrSamplerState& state, GrTexture* texture, GrMtlGpu*);
     };
 
     GrMtlGpu* fGpu;
