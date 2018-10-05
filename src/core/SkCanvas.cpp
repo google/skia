@@ -568,7 +568,9 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
         device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
     }
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     fScratchGlyphRunBuilder = skstd::make_unique<SkGlyphRunBuilder>();
+#endif
 }
 
 SkCanvas::SkCanvas()
@@ -2421,7 +2423,7 @@ void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattic
 
 void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                           const SkPaint& paint) {
-
+#ifdef SK_ENABLE_TEXT_SUPPORT
     LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
@@ -2432,11 +2434,12 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
     }
 
     LOOPER_END
+#endif
 }
 
 void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                              const SkPaint& paint) {
-
+#ifdef SK_ENABLE_TEXT_SUPPORT
     LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
@@ -2446,11 +2449,12 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     }
 
     LOOPER_END
+#endif
 }
 
 void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                               SkScalar constY, const SkPaint& paint) {
-
+#ifdef SK_ENABLE_TEXT_SUPPORT
     LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
@@ -2461,10 +2465,12 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
     }
 
     LOOPER_END
+#endif
 }
 
 void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform xform[],
                                  const SkRect* cullRect, const SkPaint& paint) {
+#ifdef SK_ENABLE_TEXT_SUPPORT
     if (cullRect && this->quickReject(*cullRect)) {
         return;
     }
@@ -2481,10 +2487,12 @@ void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform x
     }
 
     LOOPER_END
+#endif
 }
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
+#ifdef SK_ENABLE_TEXT_SUPPORT
     SkRect storage;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
@@ -2506,6 +2514,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     }
 
     LOOPER_END
+#endif
 }
 
 void SkCanvas::drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint) {

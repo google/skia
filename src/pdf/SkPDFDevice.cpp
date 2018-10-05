@@ -931,7 +931,7 @@ void SkPDFDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y, const 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
+#ifdef SK_ENABLE_TEXT_SUPPORT
 namespace {
 class GlyphPositioner {
 public:
@@ -1248,6 +1248,7 @@ void SkPDFDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
         this->internalDrawGlyphRun(glyphRun, glyphRunList.origin());
     }
 }
+#endif
 
 void SkPDFDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                                const SkPaint&) {
