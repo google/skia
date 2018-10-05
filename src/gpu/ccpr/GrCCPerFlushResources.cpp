@@ -411,8 +411,11 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
         if (stashedAtlasProxy && atlas->currentWidth() == stashedAtlasProxy->width() &&
             atlas->currentHeight() == stashedAtlasProxy->height()) {
             backingTexture = sk_ref_sp(stashedAtlasProxy->peekTexture());
-            stashedAtlasProxy = nullptr;
         }
+
+        // Delete the stashed proxy here. That way, if we can't recycle the stashed atlas texture,
+        // we free this memory prior to allocating a new backing texture.
+        stashedAtlasProxy = nullptr;
 
         if (auto rtc = atlas->makeRenderTargetContext(onFlushRP, std::move(backingTexture))) {
             auto op = RenderAtlasOp::Make(rtc->surfPriv().getContext(), sk_ref_sp(this),
