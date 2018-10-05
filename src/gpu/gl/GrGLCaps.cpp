@@ -359,9 +359,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // Protect ourselves against tracking huge amounts of texture state.
     static const uint8_t kMaxSaneSamplers = 32;
-    GrGLint maxSamplers;
+    GrGLint maxSamplers = 0;
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxSamplers);
+    uint8_t tempValue = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
+    SkASSERT(tempValue > 0);
+    SkASSERT(tempValue > 8);
+
+    maxSamplers = 0;
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxSamplers);
     shaderCaps->fMaxFragmentSamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
+    SkASSERT(maxSamplers > 0);
+    SkASSERT(maxSamplers > 8);
 
     // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
     // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
