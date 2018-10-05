@@ -293,3 +293,41 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
         test_image(subSImg2, reporter, context, true, kPad, kFullSize);
     }
 }
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_ReadbackAndCachingSubsets_Gpu, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    SkImageInfo ii = SkImageInfo::Make(50, 50, kN32_SkColorType, kPremul_SkAlphaType);
+    auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+
+    // Fill out our surface:
+    // Green | Blue
+    //  Red  | Green
+    {
+        surface->getCanvas()->clear(SK_ColorGREEN);
+        SkPaint p;
+        p.setColor(SK_ColorRED);
+        surface->getCanvas()->drawRect(SkRect::MakeXYWH(0, 25, 25, 25), p);
+        p.setColor(SK_ColorBLUE);
+        surface->getCanvas()->drawRect(SkRect::MakeXYWH(25, 0, 25, 25), p);
+    }
+
+    auto image = surface->makeImageSnapshot();
+    auto redImg  = SkSpecialImage::MakeFromImage(SkIRect::MakeXYWH(10, 30, 10, 10), image, nullptr);
+    auto blueImg = SkSpecialImage::MakeFromImage(SkIRect::MakeXYWH(30, 10, 10, 10), image, nullptr);
+
+    // This isn't necessary, but if it ever becomes false, then the cache collision bug that we're
+    // checking below is irrelevant.
+    REPORTER_ASSERT(reporter, redImg->uniqueID() == blueImg->uniqueID());
+
+    SkBitmap redBM, blueBM;
+    SkAssertResult(redImg->getROPixels(&redBM));
+    SkAssertResult(blueImg->getROPixels(&blueBM));
+
+    // Each image should read from the correct sub-rect. Past bugs (skbug.com/8448) have included:
+    // - Always reading back from (0, 0), producing green
+    // - Incorrectly hitting the cache on the 2nd read-back, causing blueBM to be red
+    REPORTER_ASSERT(reporter, redBM.getColor(0, 0) == SK_ColorRED,
+                    "0x%08x != 0x%08x", redBM.getColor(0, 0), SK_ColorRED);
+    REPORTER_ASSERT(reporter, blueBM.getColor(0, 0) == SK_ColorBLUE,
+                    "0x%08x != 0x%08x", blueBM.getColor(0, 0), SK_ColorBLUE);
+}
