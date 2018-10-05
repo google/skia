@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvasPriv.h"
 #include "SkSVGCanvas.h"
 #include "SkSVGDevice.h"
-#include "SkMakeUnique.h"
 #include "SkXMLWriter.h"
 
 std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkXMLWriter* writer) {
@@ -15,7 +15,7 @@ std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkXMLWriter* w
     SkISize size = bounds.roundOut().size();
     sk_sp<SkBaseDevice> device(SkSVGDevice::Create(size, writer));
 
-    return skstd::make_unique<SkCanvas>(device);
+    return SkCanvasPriv::Make(device);
 }
 
 std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkWStream* writer) {

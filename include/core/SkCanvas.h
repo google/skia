@@ -162,10 +162,6 @@ public:
     */
     SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr);
 
-    /** To be deprecated soon.
-    */
-    explicit SkCanvas(sk_sp<SkBaseDevice> device);
-
     /** Constructs a canvas that draws into bitmap.
         Sets SkSurfaceProps::kLegacyFontHost_InitType in constructed SkSurface.
 
@@ -2594,11 +2590,14 @@ private:
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
     friend class SkOverdrawCanvas;
     friend class SkRasterHandleAllocator;
+    friend class SkCanvasPriv;
 
 protected:
     // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
     SkCanvas(const SkIRect& bounds);
 private:
+    explicit SkCanvas(sk_sp<SkBaseDevice> device);
+
     SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
              SkRasterHandleAllocator::Handle);
 

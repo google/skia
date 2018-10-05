@@ -8,6 +8,7 @@
 
 #include "SkPDFShader.h"
 
+#include "SkCanvasPriv.h"
 #include "SkData.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
@@ -72,7 +73,8 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
     SkISize patternDeviceSize = {SkScalarCeilToInt(deviceBounds.width()),
                                  SkScalarCeilToInt(deviceBounds.height())};
     auto patternDevice = sk_make_sp<SkPDFDevice>(patternDeviceSize, doc);
-    SkCanvas canvas(patternDevice);
+    SkCanvas canvas;
+    SkCanvasPriv::Reset(&canvas, patternDevice);
 
     SkRect patternBBox = SkRect::Make(image->bounds());
 

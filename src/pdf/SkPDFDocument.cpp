@@ -8,6 +8,7 @@
 #include "SkPDFDocument.h"
 #include "SkPDFDocumentPriv.h"
 
+#include "SkCanvasPriv.h"
 #include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
@@ -247,7 +248,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
     initialTransform.setScaleTranslate(fInverseRasterScale, -fInverseRasterScale,
                                        0, fInverseRasterScale * pageSize.height());
     fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this, initialTransform);
-    reset_object(&fCanvas, fPageDevice);
+    SkCanvasPriv::Reset(&fCanvas, fPageDevice);
     fCanvas.scale(fRasterScale, fRasterScale);
     return &fCanvas;
 }

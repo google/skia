@@ -9,6 +9,8 @@
 #define SkCanvasPriv_DEFINED
 
 #include "SkCanvas.h"
+#include "SkDevice.h"
+#include "SkMakeUnique.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;
@@ -40,6 +42,13 @@ public:
 
     static SkCanvas::SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
 
+    static void Reset(SkCanvas* c, sk_sp<SkBaseDevice> d) {
+        c->~SkCanvas();
+        new (c) SkCanvas(std::move(d));
+    }
+    static std::unique_ptr<SkCanvas> Make(sk_sp<SkBaseDevice> d) {
+        return std::unique_ptr<SkCanvas>(new SkCanvas(std::move(d)));
+    }
 };
 
 #endif

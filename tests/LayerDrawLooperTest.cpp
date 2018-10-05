@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
+#include "SkCanvasPriv.h"
 #include "SkDraw.h"
 #include "SkLayerDrawLooper.h"
 #include "SkMatrix.h"
@@ -56,7 +57,8 @@ static void test_frontToBack(skiatest::Reporter* reporter) {
     layerPaint->setBlendMode(SkBlendMode::kSrc);
 
     FakeDevice device;
-    SkCanvas canvas(sk_ref_sp(&device));
+    SkCanvas canvas;
+    SkCanvasPriv::Reset(&canvas, sk_ref_sp(&device));
     SkPaint paint;
     auto looper(looperBuilder.detach());
     SkArenaAlloc alloc{48};
@@ -95,7 +97,8 @@ static void test_backToFront(skiatest::Reporter* reporter) {
     layerPaint->setBlendMode(SkBlendMode::kSrc);
 
     FakeDevice device;
-    SkCanvas canvas(sk_ref_sp(&device));
+    SkCanvas canvas;
+    SkCanvasPriv::Reset(&canvas, sk_ref_sp(&device));
     SkPaint paint;
     auto looper(looperBuilder.detach());
     SkArenaAlloc alloc{48};
@@ -134,7 +137,8 @@ static void test_mixed(skiatest::Reporter* reporter) {
     layerPaint->setBlendMode(SkBlendMode::kSrc);
 
     FakeDevice device;
-    SkCanvas canvas(sk_ref_sp(&device));
+    SkCanvas canvas;
+    SkCanvasPriv::Reset(&canvas, sk_ref_sp(&device));
     SkPaint paint;
     sk_sp<SkDrawLooper> looper(looperBuilder.detach());
     SkArenaAlloc alloc{48};

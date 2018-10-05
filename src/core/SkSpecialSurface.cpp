@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkCanvasPriv.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "SkSurfacePriv.h"
@@ -133,7 +134,7 @@ public:
             return;
         }
 
-        fCanvas.reset(new SkCanvas(device));
+        fCanvas = SkCanvasPriv::Make(device);
         fCanvas->clipRect(SkRect::Make(subset));
 #ifdef SK_IS_BOT
         fCanvas->clear(SK_ColorRED);  // catch any imageFilter sloppiness
