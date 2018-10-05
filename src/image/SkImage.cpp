@@ -370,6 +370,28 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
     return nullptr;
 }
 
+sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* context,
+                                                 SkYUVColorSpace yuvColorSpace,
+                                                 const GrBackendTexture yuvaTextures[],
+                                                 const SkYUVAIndex yuvaIndices[4],
+                                                 SkISize imageSize,
+                                                 GrSurfaceOrigin imageOrigin,
+                                                 sk_sp<SkColorSpace> imageColorSpace) {
+    return nullptr;
+}
+
+sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
+        GrContext* context,
+        SkYUVColorSpace yuvColorSpace,
+        const GrBackendTexture yuvaTextures[],
+        const SkYUVAIndex yuvaIndices[4],
+        SkISize imageSize,
+        GrSurfaceOrigin imageOrigin,
+        const GrBackendTexture& backendTexture,
+        sk_sp<SkColorSpace> imageColorSpace) {
+    return nullptr;
+}
+
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
                                                 const GrBackendTexture[3],
                                                 GrSurfaceOrigin origin,
@@ -379,7 +401,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
         GrContext* context, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvTextures[3],
-        GrSurfaceOrigin surfaceOrigin, const GrBackendTexture backendTexture,
+        GrSurfaceOrigin surfaceOrigin, const GrBackendTexture& backendTexture,
         sk_sp<SkColorSpace> colorSpace) {
     return nullptr;
 }
@@ -400,7 +422,7 @@ sk_sp<SkImage> MakeFromNV12TexturesCopyWithExternalBackend(GrContext* context,
                                                            SkYUVColorSpace yuvColorSpace,
                                                            const GrBackendTexture nv12Textures[2],
                                                            GrSurfaceOrigin surfaceOrigin,
-                                                           const GrBackendTexture backendTexture,
+                                                           const GrBackendTexture& backendTexture,
                                                            sk_sp<SkColorSpace> colorSpace) {
     return nullptr;
 }
