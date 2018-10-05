@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f5215cd_cd12dce7",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-05T19:20:37Z",
+      "side": 1,
+      "message": "You can just say \u0027SkColor4f\u0027 here",
+      "range": {
+        "startLine": 464,
+        "startChar": 4,
+        "endLine": 464,
+        "endChar": 35
+      },
+      "revId": "e346c07cc1800e3e66f4893c530de50e38f45996",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea3e1243_b1d1435d",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-05T19:20:37Z",
+      "side": 1,
+      "message": "Leftover?",
+      "range": {
+        "startLine": 496,
+        "startChar": 0,
+        "endLine": 496,
+        "endChar": 56
+      },
+      "revId": "e346c07cc1800e3e66f4893c530de50e38f45996",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
