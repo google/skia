@@ -156,7 +156,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobCache, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobStressCache, reporter, ctxInfo) {
-    text_blob_cache_inner(reporter, ctxInfo.grContext(), 512, 256, 10, true, true);
+    text_blob_cache_inner(reporter, ctxInfo.grContext(), 256, 256, 10, true, true);
 }
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
@@ -164,5 +164,5 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
-    text_blob_cache_inner(reporter, ctxInfo.grContext(), 1024, 256, 10, false, true);
+    text_blob_cache_inner(reporter, ctxInfo.grContext(), 256, 256, 10, false, true);
 }
