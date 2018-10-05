@@ -2,7 +2,7 @@
 #External
  DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__ AHardwareBuffer
  FreeType FreeType-based Harfbuzz
- LCD RGB sRGB ARGB BGR YUV SDTV HDTV
+ LCD RGB sRGB ARGB BGR RGBA YUV YUVA SDTV HDTV
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API
  BMP GIF HEIF ICO JPEG PNG WBMP WebP
@@ -36,7 +36,6 @@
  SK_HAS_WEBP_LIBRARY # ditto
  SK_IGNORE_GPU_DITHER # ditto
  SK_PMCOLOR_BYTE_ORDER # ditto
- SK_WARN_UNUSED_RESULT # ditto
 
 # FreeType related
 FT_LOAD_TARGET_LIGHT
@@ -803,4 +802,8 @@ FT_Load_Glyph
 #Topic Xfermode_Image_Filter
 #Class SkXfermodeImageFilter
 ##
+##
+
+# temporary while ref is separated from overview
+#Topic Zero_Length_Contour
 ##
