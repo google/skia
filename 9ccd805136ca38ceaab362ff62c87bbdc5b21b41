@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "ba1398c1_7e857333",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-05T14:40:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1a89b1b_d302fee3",
+      "range": {
+        "startLine": 345,
+        "startChar": 30,
+        "endLine": 345,
+        "endChar": 37
+      },
+      "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ea996368_6db7d553",
         "filename": "include/core/SkColor.h",
         "patchSetId": 4
@@ -65,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a5da5bb_bd732152",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-05T14:40:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea996368_6db7d553",
+      "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b7311c1_6163a3b0",
         "filename": "include/core/SkColor.h",
         "patchSetId": 4
@@ -76,6 +118,24 @@
       "writtenOn": "2018-10-05T14:23:06Z",
       "side": 1,
       "message": "don\u0027t know what to make of these two.\nSince there\u0027s no comment, should outside clients rely on them? Or are they to be deprecated?\nShould outside clients expect that they can\u0027t call, say SkColor4f::pin() ?",
+      "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76563888_ad40019a",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-05T14:40:49Z",
+      "side": 1,
+      "message": "Ah. Yes, clients can call these - these are just here to put the SK_API attribute on the function declarations, because they\u0027re templated and defined out-of-line.\n\nYou\u0027re right about pin, though - we should either document that as unavailable, or add a declaration here. I see no reason not to do that here.\n\nWhat\u0027s the right way to indicate that FromPMColor (for example) isn\u0027t available? Remove the doc-style comment, or just add an \u0027internal use only\u0027 line?",
+      "parentUuid": "9b7311c1_6163a3b0",
       "revId": "9ccd805136ca38ceaab362ff62c87bbdc5b21b41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
