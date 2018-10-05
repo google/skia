@@ -133,18 +133,27 @@ bool ValueTraits<ShapeValue>::FromJSON(const skjson::Value& jv,
         return false;
     const auto& ov = jv.as<skjson::ObjectValue>();
 
-    std::vector<SkPoint> inPts,  // Cubic Bezier "in" control points, relative to vertices.
-                         outPts, // Cubic Bezier "out" control points, relative to vertices.
-                         verts;  // Cubic Bezier vertices.
+    std::vector<SkPoint> verts,  // Cubic Bezier vertices.
+                         inPts,  // Cubic Bezier "in" control points, relative to vertices.
+                         outPts; // Cubic Bezier "out" control points, relative to vertices.
 
-    if (!ParsePointVec(ov["i"], &inPts) ||
-        !ParsePointVec(ov["o"], &outPts) ||
-        !ParsePointVec(ov["v"], &verts) ||
-        inPts.size() != outPts.size() ||
-        inPts.size() != verts.size()) {
-
+    if (!ParsePointVec(ov["v"], &verts)) {
+        // Vertices are required.
         return false;
     }
+
+    // In/out points are optional.
+    ParsePointVec(ov["i"], &inPts);
+    if (!inPts.empty() && inPts.size() != verts.size()) {
+        return false;
+    }
+    inPts.resize(verts.size(), { 0, 0 });
+
+    ParsePointVec(ov["o"], &outPts);
+    if (!outPts.empty() && outPts.size() != verts.size()) {
+        return false;
+    }
+    outPts.resize(verts.size(), { 0, 0 });
 
     v->fVertices.reserve(inPts.size());
     for (size_t i = 0; i < inPts.size(); ++i) {
