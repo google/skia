@@ -16,6 +16,24 @@
       "revId": "13332f6b4a13bf9e7cd3ceedf167aefc0d47a1d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d381446_7ae47f81",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-05T14:55:42Z",
+      "side": 1,
+      "message": "Not sure - it was the name of the build task in skqp/release.  I think Debug is more accurate and I can change it if you like.",
+      "parentUuid": "6ed5e72c_3e14c983",
+      "revId": "13332f6b4a13bf9e7cd3ceedf167aefc0d47a1d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

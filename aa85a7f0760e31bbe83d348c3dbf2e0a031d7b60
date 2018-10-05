@@ -16,6 +16,24 @@
       "revId": "aa85a7f0760e31bbe83d348c3dbf2e0a031d7b60",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12ac52fe_28351c08",
+        "filename": "infra/skqp/build_apk.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-05T14:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ce483d5_39a9fe28",
+      "revId": "aa85a7f0760e31bbe83d348c3dbf2e0a031d7b60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
