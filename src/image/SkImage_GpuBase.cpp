@@ -15,6 +15,7 @@
 #include "SkBitmapCache.h"
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuBase.h"
+#include "SkReadPixelsRec.h"
 
 SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
                                  SkAlphaType at, SkBudgeted budgeted, sk_sp<SkColorSpace> cs)
@@ -119,6 +120,76 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
                                    fAlphaType, sContext->asTextureProxyRef(),
                                    fColorSpace, fBudgeted);
+}
+
+static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
+    switch (info.colorType()) {
+    case kRGBA_8888_SkColorType:
+    case kBGRA_8888_SkColorType:
+        break;
+    default:
+        return; // nothing to do
+    }
+
+    // SkColor is not necesarily RGBA or BGRA, but it is one of them on little-endian,
+    // and in either case, the alpha-byte is always in the same place, so we can safely call
+    // SkPreMultiplyColor()
+    //
+    SkColor* row = (SkColor*)pixels;
+    for (int y = 0; y < info.height(); ++y) {
+        for (int x = 0; x < info.width(); ++x) {
+            row[x] = SkPreMultiplyColor(row[x]);
+        }
+        row = (SkColor*)((char*)(row)+rowBytes);
+    }
+}
+
+bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+                                   int srcX, int srcY, CachingHint) const {
+    if (!fContext->contextPriv().resourceProvider()) {
+        // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
+        return false;
+    }
+
+    if (!SkImageInfoValidConversion(dstInfo, this->onImageInfo())) {
+        return false;
+    }
+
+    SkReadPixelsRec rec(dstInfo, dstPixels, dstRB, srcX, srcY);
+    if (!rec.trim(this->width(), this->height())) {
+        return false;
+    }
+
+    // TODO: this seems to duplicate code in GrTextureContext::onReadPixels and
+    // GrRenderTargetContext::onReadPixels
+    uint32_t flags = 0;
+    if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() && kPremul_SkAlphaType == fAlphaType) {
+        // let the GPU perform this transformation for us
+        flags = GrContextPriv::kUnpremul_PixelOpsFlag;
+    }
+
+    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
+        this->asTextureProxyRef(), fColorSpace);
+    if (!sContext) {
+        return false;
+    }
+
+    if (!sContext->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY, flags)) {
+        return false;
+    }
+
+    // do we have to manually fix-up the alpha channel?
+    //      src         dst
+    //      unpremul    premul      fix manually
+    //      premul      unpremul    done by kUnpremul_PixelOpsFlag
+    // all other combos need to change.
+    //
+    // Should this be handled by Ganesh? todo:?
+    //
+    if (kPremul_SkAlphaType == rec.fInfo.alphaType() && kUnpremul_SkAlphaType == fAlphaType) {
+        apply_premul(rec.fInfo, rec.fPixels, rec.fRowBytes);
+    }
+    return true;
 }
 
 sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrContext* context,

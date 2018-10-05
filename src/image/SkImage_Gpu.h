@@ -35,9 +35,6 @@ public:
         return fProxy;
     }
 
-    bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
-                      int srcX, int srcY, CachingHint) const override;
-
     sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
 
     typedef ReleaseContext TextureContext;

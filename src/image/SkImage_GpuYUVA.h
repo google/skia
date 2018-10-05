@@ -32,12 +32,6 @@ public:
     GrTextureProxy* peekProxy() const override { return this->asTextureProxyRef().get(); }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override;
 
-    bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
-                      int srcX, int srcY, CachingHint) const override;
-
-    sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*,
-                                  const void* planes[3]) override { return nullptr; }
-
     // These need to match the ones defined elsewhere
     typedef ReleaseContext TextureContext;
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);

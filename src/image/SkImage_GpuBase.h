@@ -24,6 +24,9 @@ public:
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const final;
     sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const final;
 
+    bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+                      int srcX, int srcY, CachingHint) const override;
+
     sk_sp<GrTextureProxy> asTextureProxyRef() const override {
         // we shouldn't end up calling this
         SkASSERT(false);
