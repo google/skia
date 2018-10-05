@@ -32,6 +32,14 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fOversizedStencilSupport = false; //TODO: figure this out
     fInstanceAttribSupport = true;
 
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        // A "clear" load for the CCPR atlas runs faster on QC than a "discard" load followed by a
+        // scissored clear.
+        // On NVIDIA and Intel, the discard load followed by clear is faster.
+        // TODO: Evaluate on ARM, Imagination, and ATI.
+        fPreferFullscreenClears = true;
+    }
+
     fFenceSyncSupport = true;   // always available in Vulkan
     fCrossContextTextureSupport = true;
     fHalfFloatVertexAttributeSupport = true;
