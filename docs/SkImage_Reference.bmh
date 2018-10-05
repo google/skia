@@ -636,7 +636,7 @@ Recognized formats vary by GPU back-end.
 Creates an SkImage by flattening the specified YUVA planes into a single, interleaved RGBA image.
 
 #Param context         GPU context ##
-#Param yuvColorSpace   How the YUV values are converted to RGB. One of:
+#Param yuvColorSpace   how the YUV values are converted to RGB. One of:
                                     kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                                     kRec709_SkYUVColorSpace
 ##
@@ -684,7 +684,7 @@ Creates an SkImage by flattening the specified YUVA planes into a single, interl
 image. backendTexture is used to store the result of the flattening.
 
 #Param context         GPU context ##
-#Param yuvColorSpace   How the YUV values are converted to RGB. One of:
+#Param yuvColorSpace   how the YUV values are converted to RGB. One of:
                                     kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                                     kRec709_SkYUVColorSpace
 ##

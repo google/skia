@@ -2,7 +2,7 @@
 #External
  DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__ AHardwareBuffer
  FreeType FreeType-based Harfbuzz
- LCD RGB sRGB ARGB BGR YUV SDTV HDTV
+ LCD RGB sRGB BGR RGBA ARGB YUV YUVA SDTV HDTV
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API
  BMP GIF HEIF ICO JPEG PNG WBMP WebP
