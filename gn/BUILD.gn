@@ -506,7 +506,7 @@ config("release") {
     ]
   } else {
     cflags = [
-      "-Os",
+      "-O3",
     ]
     if (!enable_bitcode) {
       cflags += [
@@ -524,7 +524,7 @@ config("release") {
       # and ldflags to cut down on the local variables,
       # for performance reasons.
       # The "linking" step is the conversion to javascript.
-      ldflags += [ "-Os" ]
+      ldflags += [ "-O3" ]
     }
   }
   defines = [ "NDEBUG" ]
