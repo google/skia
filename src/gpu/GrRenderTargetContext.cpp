@@ -54,13 +54,17 @@
 #include "text/GrTextContext.h"
 #include "text/GrTextTarget.h"
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
 class GrRenderTargetContext::TextTarget : public GrTextTarget {
 public:
     TextTarget(GrRenderTargetContext* renderTargetContext)
             : GrTextTarget(renderTargetContext->width(), renderTargetContext->height(),
                      renderTargetContext->colorSpaceInfo())
             , fRenderTargetContext(renderTargetContext)
-            , fGlyphPainter{*renderTargetContext}{}
+#ifdef SK_ENABLE_TEXT_SUPPORT
+            , fGlyphPainter{*renderTargetContext}
+#endif
+    {}
 
     void addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) override {
         fRenderTargetContext->addDrawOp(clip, std::move(op));
@@ -87,15 +91,20 @@ public:
         return fRenderTargetContext->fContext;
     }
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     SkGlyphRunListPainter* glyphPainter() override {
         return &fGlyphPainter;
     }
+#endif
 
 private:
     GrRenderTargetContext* fRenderTargetContext;
-    SkGlyphRunListPainter fGlyphPainter;
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
+    SkGlyphRunListPainter fGlyphPainter;
+#endif
 };
+#endif
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER \
@@ -176,7 +185,9 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
         this->getRTOpList();
     }
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     fTextTarget.reset(new TextTarget(this));
+#endif
     SkDEBUGCODE(this->validate();)
 }
 
@@ -229,6 +240,7 @@ GrOpList* GrRenderTargetContext::getOpList() {
     return this->getRTOpList();
 }
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
 void GrRenderTargetContext::drawGlyphRunList(
         const GrClip& clip, const SkMatrix& viewMatrix,
         const SkGlyphRunList& blob) {
@@ -241,6 +253,7 @@ void GrRenderTargetContext::drawGlyphRunList(
     atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, viewMatrix,
                                        fSurfaceProps, blob);
 }
+#endif
 
 void GrRenderTargetContext::discard() {
     ASSERT_SINGLE_OWNER

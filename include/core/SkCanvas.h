@@ -2687,7 +2687,9 @@ private:
     void validateClip() const {}
 #endif
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
+#endif
 
     typedef SkRefCnt INHERITED;
 };
