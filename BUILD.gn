@@ -610,7 +610,8 @@ optional("gpu") {
     sources += [ "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp" ]
   } else if (is_win && !is_winrt) {
     sources += [ "src/gpu/gl/win/GrGLMakeNativeInterface_win.cpp" ]
-    libs += [ "OpenGL32.lib" ]
+    # GPU is not linked in, but loaded at runtime
+    # libs += [ "OpenGL32.lib" ]
   } else {
     sources += [ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
   }

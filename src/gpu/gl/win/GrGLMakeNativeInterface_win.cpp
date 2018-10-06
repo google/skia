@@ -13,6 +13,9 @@
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLUtil.h"
 
+typedef void* (*WGLGetCurrentContextProc)(void);
+typedef GrGLFuncPtr (*WGLGetProcAddressProc)(LPCSTR name);
+
 class AutoLibraryUnload {
 public:
     AutoLibraryUnload(const char* moduleName) {
@@ -31,29 +34,42 @@ private:
 
 class GLProcGetter {
 public:
-    GLProcGetter() : fGLLib("opengl32.dll") {}
+    GLProcGetter() : fGLLib("opengl32.dll") {
+        fGetProcAddress = (WGLGetProcAddressProc) GetProcAddress(fGLLib.get(), "wglGetProcAddress");
+        fGetCurrentContext = (WGLGetCurrentContextProc) GetProcAddress(fGLLib.get(), "wglGetCurrentContext");
+    }
 
-    bool isInitialized() const { return SkToBool(fGLLib.get()); }
+    bool isInitialized() const {
+        return SkToBool(fGLLib.get() && fGetCurrentContext && fGetProcAddress);
+    }
 
     GrGLFuncPtr getProc(const char name[]) const {
         GrGLFuncPtr proc;
         if ((proc = (GrGLFuncPtr) GetProcAddress(fGLLib.get(), name))) {
             return proc;
         }
-        if ((proc = (GrGLFuncPtr) wglGetProcAddress(name))) {
+        if (fGetProcAddress && (proc = (GrGLFuncPtr) fGetProcAddress(name))) {
             return proc;
         }
         return nullptr;
     }
 
+    void* getCurrentContext(void) const {
+        if (!fGetCurrentContext)
+            return nullptr;
+        return fGetCurrentContext();
+    }
+
 private:
     AutoLibraryUnload fGLLib;
+    WGLGetCurrentContextProc fGetCurrentContext;
+    WGLGetProcAddressProc fGetProcAddress;
 };
 
 static GrGLFuncPtr win_get_gl_proc(void* ctx, const char name[]) {
     SkASSERT(ctx);
-    SkASSERT(wglGetCurrentContext());
     const GLProcGetter* getter = (const GLProcGetter*) ctx;
+    SkASSERT(getter->getCurrentContext());
     return getter->getProc(name);
 }
 
@@ -63,12 +79,12 @@ static GrGLFuncPtr win_get_gl_proc(void* ctx, const char name[]) {
  * Otherwise, a springboard would be needed that hides the calling convention.
  */
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
-    if (nullptr == wglGetCurrentContext()) {
+    GLProcGetter getter;
+    if (!getter.isInitialized()) {
         return nullptr;
     }
 
-    GLProcGetter getter;
-    if (!getter.isInitialized()) {
+    if (nullptr == getter.getCurrentContext()) {
         return nullptr;
     }
 

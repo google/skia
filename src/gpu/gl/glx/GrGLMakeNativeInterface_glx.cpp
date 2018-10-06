@@ -12,10 +12,8 @@
 
 #include <dlfcn.h>
 
-typedef unsigned char GLubyte;
-
 typedef void* (*GLXGetCurrentContextProc)(void);
-typedef GrGLFuncPtr (*GLXGetProcAddressProc)(const GLubyte* name);
+typedef GrGLFuncPtr (*GLXGetProcAddressProc)(const GrGLubyte* name);
 
 class GLXLoader {
 public:
@@ -40,10 +38,14 @@ public:
         fGetCurrentContext = (GLXGetCurrentContextProc) dlsym(fLoader.handle(), "glXGetCurrentContext");
         fGetProcAddress = (GLXGetProcAddressProc) dlsym(fLoader.handle(), "glXGetProcAddress");
     }
-    GrGLFuncPtr getProc(const GLubyte* name) const {
-        return fGetProcAddress(name);
+    GrGLFuncPtr getProc(const char name[]) const {
+        if (!fGetProcAddress)
+            return nullptr;
+        return fGetProcAddress(reinterpret_cast<const GrGLubyte*>(name));
     }
     void* getCurrentContext(void) const {
+        if (!fGetCurrentContext)
+            return nullptr;
         return fGetCurrentContext();
     }
 private:
@@ -62,7 +64,7 @@ static GrGLFuncPtr glx_get(void* ctx, const char name[]) {
     SkASSERT(nullptr != ctx);
     const GLXProcGetter* getter = (const GLXProcGetter*) ctx;
     SkASSERT(nullptr != getter->getCurrentContext());
-    return getter->getProc(reinterpret_cast<const GLubyte*>(name));
+    return getter->getProc(name);
 }
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
