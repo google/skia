@@ -17,6 +17,8 @@ class GrTextureProxy;
 struct SkRect;
 class SkMatrix;
 
+#include "GrRenderTargetContext.h"
+
 namespace GrTextureOp {
 
 /**
@@ -35,6 +37,16 @@ std::unique_ptr<GrDrawOp> Make(GrContext*,
                                GrAAType,
                                GrQuadAAFlags,
                                SkCanvas::SrcRectConstraint,
+                               const SkMatrix& viewMatrix,
+                               sk_sp<GrColorSpaceXform> textureXform,
+                               sk_sp<GrColorSpaceXform> paintXform);
+
+std::unique_ptr<GrDrawOp> Make(GrContext*,
+                               const GrRenderTargetContext::TextureSetEntry[],
+                               int cnt,
+                               GrSamplerState::Filter,
+                               GrColor,
+                               GrAAType,
                                const SkMatrix& viewMatrix,
                                sk_sp<GrColorSpaceXform> textureXform,
                                sk_sp<GrColorSpaceXform> paintXform);

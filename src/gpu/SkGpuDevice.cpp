@@ -1447,6 +1447,54 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
     this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
+#if SK_USE_GPU_IMAGE_SET
+void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int cnt, float alpha,
+                               SkBlendMode mode) {
+    SkASSERT(cnt > 0);
+    if (mode != SkBlendMode::kSrcOver) {
+        INHERITED::drawImageSet(images, cnt, alpha, mode);
+        return;
+    }
+    std::unique_ptr<GrRenderTargetContext::TextureSetEntry[]> textures(
+            new GrRenderTargetContext::TextureSetEntry[cnt]);
+    GrColor color = GrColorPackA4(SkToUInt(SkTClamp(SkScalarRoundToInt(alpha * 255), 0, 255)));
+    int base = 0, n = 0;
+    auto flush = [&] {
+        auto textureXform = GrColorSpaceXform::Make(
+                images[base].fImage->colorSpace(), images[base].fImage->alphaType(),
+                fRenderTargetContext->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType);
+        fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
+                                             GrSamplerState::Filter::kBilerp, color, this->ctm(),
+                                             std::move(textureXform), nullptr);
+    };
+    for (int i = 0; i < cnt; ++i) {
+        auto image = images[i].fImage;
+        textures[i].fProxy = as_IB(image)->asTextureProxyRef(
+                fContext.get(), GrSamplerState::ClampBilerp(), nullptr, nullptr, nullptr);
+        textures[i].fSrcRect = images[i].fSrcRect;
+        textures[i].fDstRect = images[i].fDstRect;
+        textures[i].fAAFlags = SkToGrQuadAAFlags(images[i].fAAFlags);
+        // If we failed to make a proxy or our proxy can't be grouped with the previous proxies then
+        // draw the accumulated set and reset.
+        if (!textures[i].fProxy ||
+            (n > 0 &&
+             (textures[i].fProxy->textureType() != textures[base].fProxy->textureType() ||
+              textures[i].fProxy->config() != textures[base].fProxy->config() ||
+              images[i].fImage->alphaType() != images[base].fImage->alphaType() ||
+              !SkColorSpace::Equals(image->colorSpace(), images[base].fImage->colorSpace())))) {
+            flush();
+            base = textures[i].fProxy ? i : i + 1;
+            n = 0;
+        } else {
+            ++n;
+        }
+    }
+    if (n > 0) {
+        flush();
+    }
+}
+#endif
+
 static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
                                 const SkPaint& skPaint, const SkMatrix& matrix, SkBlendMode bmode,
                                 bool hasTexs, bool hasColors, GrPaint* grPaint) {

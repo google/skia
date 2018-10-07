@@ -202,6 +202,18 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     }
 }
 
+void SkBaseDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int cnt, float alpha,
+                                SkBlendMode) {
+    SkPaint paint;
+    paint.setFilterQuality(kLow_SkFilterQuality);
+    paint.setAlpha(SkToUInt(SkTClamp(SkScalarRoundToInt(alpha * 255), 0, 255)));
+    for (int i = 0; i < cnt; ++i) {
+        paint.setAntiAlias(images->fAAFlags != SkCanvas::kNone_QuadAAFlags);
+        this->drawImageRect(images[i].fImage, &images[i].fSrcRect, images[i].fDstRect, paint,
+                            SkCanvas::kFast_SrcRectConstraint);
+    }
+}
+
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
                                      const SkCanvas::Lattice& lattice, const SkRect& dst,
                                      const SkPaint& paint) {
