@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-set -ex
+set -x
 
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 # This expects the environment variable EMSDK to be set
@@ -19,6 +19,9 @@ BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
 pushd $BASE_DIR/../..
 
 source $EMSDK/emsdk_env.sh
+NINJA=`which ninja`
+EMCC=`which emcc`
+EMCXX=`which em++`
 
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE"
 EXTRA_CFLAGS="\"-DSK_RELEASE\""
@@ -28,11 +31,16 @@ if [[ $@ == *debug* ]]; then
   RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
 fi
 
+mkdir -p $BUILD_DIR
+
+if [[ -z $NINJA ]]; then
+  git clone "https://chromium.googlesource.com/chromium/tools/depot_tools.git" --depth 1 $BUILD_DIR/depot_tools
+  NINJA=$BUILD_DIR/depot_tools/ninja
+fi
+
+set -e
 
 echo "Compiling bitcode"
-
-EMCC=`which emcc`
-EMCXX=`which em++`
 
 # Inspired by https://github.com/Zubnix/skia-wasm-port/blob/master/build_bindings.sh
 ./bin/gn gen ${BUILD_DIR} \
