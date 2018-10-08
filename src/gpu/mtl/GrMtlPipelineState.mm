@@ -22,10 +22,8 @@
 
 GrMtlPipelineState::SamplerBindings::SamplerBindings(const GrSamplerState& state,
                                                      GrTexture* texture,
-                                                     GrShaderFlags flags,
                                                      GrMtlGpu* gpu)
-        : fTexture(static_cast<GrMtlTexture*>(texture)->mtlTexture())
-        , fVisibility(flags) {
+        : fTexture(static_cast<GrMtlTexture*>(texture)->mtlTexture()) {
     // TODO: use resource provider to get sampler.
     std::unique_ptr<GrMtlSampler> sampler(
             GrMtlSampler::Create(gpu, state, texture->texturePriv().maxMipMapLevel()));
@@ -73,7 +71,7 @@ void GrMtlPipelineState::setData(const GrPrimitiveProcessor& primProc,
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         const auto& sampler = primProc.textureSampler(i);
         auto texture = static_cast<GrMtlTexture*>(primProcTextures[i]->peekTexture());
-        fSamplerBindings.emplace_back(sampler.samplerState(), texture, sampler.visibility(), fGpu);
+        fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
     GrFragmentProcessor::Iter iter(pipeline);
@@ -84,8 +82,7 @@ void GrMtlPipelineState::setData(const GrPrimitiveProcessor& primProc,
         glslFP->setData(fDataManager, *fp);
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const auto& sampler = fp->textureSampler(i);
-            fSamplerBindings.emplace_back(sampler.samplerState(), sampler.peekTexture(),
-                                          kFragment_GrShaderFlag, fGpu);
+            fSamplerBindings.emplace_back(sampler.samplerState(), sampler.peekTexture(), fGpu);
         }
         fp = iter.next();
         glslFP = glslIter.next();
@@ -102,7 +99,6 @@ void GrMtlPipelineState::setData(const GrPrimitiveProcessor& primProc,
     if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
         fSamplerBindings.emplace_back(GrSamplerState::ClampNearest(),
                                       dstTextureProxy->peekTexture(),
-                                      kFragment_GrShaderFlag,
                                       fGpu);
     }
 
@@ -126,18 +122,10 @@ void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
     }
     SkASSERT(fNumSamplers == fSamplerBindings.count());
     for (int index = 0; index < fNumSamplers; ++index) {
-        if (fSamplerBindings[index].fVisibility & kVertex_GrShaderFlag) {
-            [renderCmdEncoder setVertexTexture: fSamplerBindings[index].fTexture
-                                       atIndex: index];
-            [renderCmdEncoder setVertexSamplerState: fSamplerBindings[index].fSampler
-                                            atIndex: index];
-        }
-        if (fSamplerBindings[index].fVisibility & kFragment_GrShaderFlag) {
-            [renderCmdEncoder setFragmentTexture: fSamplerBindings[index].fTexture
-                                         atIndex: index];
-            [renderCmdEncoder setFragmentSamplerState: fSamplerBindings[index].fSampler
-                                              atIndex: index];
-        }
+        [renderCmdEncoder setFragmentTexture: fSamplerBindings[index].fTexture
+                                     atIndex: index];
+        [renderCmdEncoder setFragmentSamplerState: fSamplerBindings[index].fSampler
+                                          atIndex: index];
     }
 }
 
