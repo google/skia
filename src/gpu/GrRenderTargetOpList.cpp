@@ -118,6 +118,7 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
 static GrGpuRTCommandBuffer* create_command_buffer(GrGpu* gpu,
                                                    GrRenderTarget* rt,
                                                    GrSurfaceOrigin origin,
+                                                   const SkRect& bounds,
                                                    GrLoadOp colorLoadOp,
                                                    GrColor loadClearColor,
                                                    GrLoadOp stencilLoadOp) {
@@ -137,7 +138,7 @@ static GrGpuRTCommandBuffer* create_command_buffer(GrGpu* gpu,
         GrStoreOp::kStore,
     };
 
-    return gpu->getCommandBuffer(rt, origin, kColorLoadStoreInfo, stencilLoadAndStoreInfo);
+    return gpu->getCommandBuffer(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo);
 }
 
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
@@ -164,6 +165,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
                                                     flushState->gpu(),
                                                     fTarget.get()->peekRenderTarget(),
                                                     fTarget.get()->origin(),
+                                                    fTarget.get()->getBoundsRect(),
                                                     fColorLoadOp,
                                                     fLoadClearColor,
                                                     fStencilLoadOp);
