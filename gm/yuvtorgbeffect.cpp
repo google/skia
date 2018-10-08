@@ -86,12 +86,12 @@ protected:
         }
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-        sk_sp<GrTextureProxy> proxy[3];
+        sk_sp<GrTextureProxy> proxies[3];
 
         for (int i = 0; i < 3; ++i) {
-            proxy[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
-                                                         SkBudgeted::kYes, SkBackingFit::kExact);
-            if (!proxy[i]) {
+            proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
+                                                           SkBudgeted::kYes, SkBackingFit::kExact);
+            if (!proxies[i]) {
                 return;
             }
         }
@@ -112,12 +112,16 @@ protected:
                                        {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
             for (int i = 0; i < 6; ++i) {
+                SkYUVAIndex yuvaIndices[4] = {
+                    { indices[i][0], SkColorChannel::kA },
+                    { indices[i][1], SkColorChannel::kA },
+                    { indices[i][2], SkColorChannel::kA },
+                    { -1, SkColorChannel::kA }
+                };
+
                 std::unique_ptr<GrFragmentProcessor> fp(
-                        GrYUVtoRGBEffect::Make(proxy[indices[i][0]],
-                                               proxy[indices[i][1]],
-                                               proxy[indices[i][2]],
-                                               static_cast<SkYUVColorSpace>(space),
-                                               false));
+                        GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
+                                               static_cast<SkYUVColorSpace>(space)));
                 if (fp) {
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
@@ -208,16 +212,22 @@ protected:
         }
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-        sk_sp<GrTextureProxy> proxy[3];
+        sk_sp<GrTextureProxy> proxies[2];
 
-        for (int i = 0; i < 3; ++i) {
-            int index = (0 == i) ? 0 : 1;
-            proxy[i] = proxyProvider->createTextureProxy(fImage[index], kNone_GrSurfaceFlags, 1,
-                                                         SkBudgeted::kYes, SkBackingFit::kExact);
-            if (!proxy[i]) {
+        for (int i = 0; i < 2; ++i) {
+            proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
+                                                           SkBudgeted::kYes, SkBackingFit::kExact);
+            if (!proxies[i]) {
                 return;
             }
         }
+
+        SkYUVAIndex yuvaIndices[4] = {
+            {  0, SkColorChannel::kA },
+            {  1, SkColorChannel::kR },
+            {  1, SkColorChannel::kG },
+            { -1, SkColorChannel::kA }
+        };
 
         constexpr SkScalar kDrawPad = 10.f;
         constexpr SkScalar kTestPad = 10.f;
@@ -233,8 +243,8 @@ protected:
 
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-            auto fp = GrYUVtoRGBEffect::Make(proxy[0], proxy[1], proxy[2],
-                                             static_cast<SkYUVColorSpace>(space), true);
+            auto fp = GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
+                                             static_cast<SkYUVColorSpace>(space));
             if (fp) {
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
