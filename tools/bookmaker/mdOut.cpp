@@ -1909,7 +1909,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                     SkASSERT(MarkType::kTopic == grand->fMarkType);
                     // use bmh file name to find include file name
                     size_t start = grand->fFileName.rfind("Sk");
-                    SkASSERT(start != string::npos && start >= 0);
+                    SkASSERT(start != string::npos);
                     size_t end = grand->fFileName.rfind("_Reference");
                     SkASSERT(end != string::npos && end > start);
                     string incName(grand->fFileName.substr(start, end - start));
