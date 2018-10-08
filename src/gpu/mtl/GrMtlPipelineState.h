@@ -10,6 +10,7 @@
 
 #include "GrMtlBuffer.h"
 #include "GrMtlPipelineStateDataManager.h"
+#include "GrStencilSettings.h"
 #include "GrTypesPriv.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
@@ -52,6 +53,8 @@ public:
     void bind(id<MTLRenderCommandEncoder>);
 
     void setBlendConstants(id<MTLRenderCommandEncoder>, GrPixelConfig, const GrXferProcessor&);
+
+    void setDepthStencilState(id<MTLRenderCommandEncoder> renderCmdEncoder);
 
 private:
     /**
@@ -105,6 +108,8 @@ private:
 
     RenderTargetState fRenderTargetState;
     GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;
+
+    GrStencilSettings fStencil;
 
     sk_sp<GrMtlBuffer> fGeometryUniformBuffer;
     sk_sp<GrMtlBuffer> fFragmentUniformBuffer;

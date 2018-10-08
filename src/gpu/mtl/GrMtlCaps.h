@@ -9,7 +9,7 @@
 #define GrMtlCaps_DEFINED
 
 #include "GrCaps.h"
-
+#include "GrMtlStencilAttachment.h"
 #include "SkTDArray.h"
 
 #import <Metal/Metal.h>
@@ -21,6 +21,8 @@ class GrShaderCaps;
  */
 class GrMtlCaps : public GrCaps {
 public:
+    typedef GrMtlStencilAttachment::Format StencilFormat;
+
     GrMtlCaps(const GrContextOptions& contextOptions, id<MTLDevice> device,
               MTLFeatureSet featureSet);
 
@@ -38,14 +40,13 @@ public:
         return true;
     }
 
-#if 0
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
-    const StencilFormat& preferedStencilFormat() const {
-        return fPreferedStencilFormat;
+    const StencilFormat& preferredStencilFormat() const {
+        return fPreferredStencilFormat;
     }
-#endif
+
     bool canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount, GrSurfaceOrigin dstOrigin,
                        GrPixelConfig srcConfig, int srcSampleCount, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect, const SkIPoint& dstPoint,
@@ -81,6 +82,8 @@ public:
 
 private:
     void initFeatureSet(MTLFeatureSet featureSet);
+
+    void initStencilFormat(const id<MTLDevice> device);
 
     void initGrCaps(const id<MTLDevice> device);
     void initShaderCaps();
@@ -120,6 +123,8 @@ private:
     int fVersion;
 
     SkTDArray<int> fSampleCounts;
+
+    StencilFormat fPreferredStencilFormat;
 
     typedef GrCaps INHERITED;
 };
