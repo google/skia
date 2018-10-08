@@ -51,22 +51,29 @@ static SkIRect get_bounds_from_image(const SkImage* image) {
     return SkIRect::MakeWH(image->width(), image->height());
 }
 
-SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, const SkIRect& subset) {
+static uint64_t get_hash_from_color_space(SkColorSpace* colorSpace) {
+    return colorSpace ? colorSpace->hash() : 0;
+}
+
+SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, SkColorType colorType,
+                                          SkColorSpace* colorSpace, const SkIRect& subset) {
     SkASSERT(imageID);
     SkASSERT(subset.width() > 0 && subset.height() > 0);
-    return { imageID, subset };
+    return { imageID, colorType, get_hash_from_color_space(colorSpace), subset };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
     SkASSERT(bm.width() > 0 && bm.height() > 0);
 
-    return { bm.getGenerationID(), get_bounds_from_bitmap(bm) };
+    return { bm.getGenerationID(), bm.colorType(), get_hash_from_color_space(bm.colorSpace()),
+             get_bounds_from_bitmap(bm) };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image) {
     SkASSERT(image->width() > 0 && image->height() > 0);
 
-    return { image->uniqueID(), get_bounds_from_image(image) };
+    return { image->uniqueID(), image->colorType(), get_hash_from_color_space(image->colorSpace()),
+             get_bounds_from_image(image) };
 }
 
 namespace {
@@ -110,8 +117,9 @@ public:
     {
         SkASSERT(!(fDM && fMalloc));    // can't have both
 
-        // We need an ID to return with the bitmap/pixelref - return the same ID as the key/desc
-        fPrUniqueID = desc.fImageID;
+        // We need an ID to return with the bitmap/pixelref. We can't necessarily use the key/desc
+        // ID - lazy images cache the same ID with multiple keys (in different color types).
+        fPrUniqueID = SkNextID::ImageID();
         REC_TRACE(" Rec(%d): [%d %d] %d\n",
                   sk_atomic_inc(&gRecCounter), fInfo.width(), fInfo.height(), fPrUniqueID);
     }
@@ -250,6 +258,8 @@ SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc, const 
     // Ensure that the info matches the subset (i.e. the subset is the entire image)
     SkASSERT(info.width() == desc.fSubset.width());
     SkASSERT(info.height() == desc.fSubset.height());
+    SkASSERT(info.colorType() == desc.fColorType);
+    SkASSERT(get_hash_from_color_space(info.colorSpace()) == desc.fColorSpaceHash);
 
     const size_t rb = info.minRowBytes();
     size_t size = info.computeByteSize(rb);
