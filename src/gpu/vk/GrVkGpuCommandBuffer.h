@@ -75,6 +75,7 @@ public:
               const SkIPoint& dstPoint) override;
 
     void set(GrRenderTarget*, GrSurfaceOrigin,
+             const SkRect& bounds,
              const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
              const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&);
     void reset();
@@ -201,6 +202,9 @@ private:
     VkAttachmentStoreOp         fVkStencilStoreOp;
     GrColor4f                   fClearColor;
     GrVkPipelineState*          fLastPipelineState;
+    // We store the bounds of the render target proxy so we can use that for any "full screen"
+    // clears or discards instead of the the GrSurface which may be bigger.
+    SkRect                      fRTBounds;
 
     typedef GrGpuRTCommandBuffer INHERITED;
 };
