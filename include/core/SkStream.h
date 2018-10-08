@@ -477,6 +477,13 @@ public:
     /** Equivalent to writeToStream() followed by reset(), but may save memory use. */
     bool writeToAndReset(SkWStream* dst);
 
+    /** Equivalent to writeToStream() followed by reset(), but may save memory use.
+        When the dst is also a SkDynamicMemoryWStream, the implementation is constant time. */
+    bool writeToAndReset(SkDynamicMemoryWStream* dst);
+
+    /** Prepend this stream to dst, resetting this. */
+    void prependToAndReset(SkDynamicMemoryWStream* dst);
+
     /** Return the contents as SkData, and then reset the stream. */
     sk_sp<SkData> detachAsData();
 

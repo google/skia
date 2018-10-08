@@ -16,7 +16,6 @@
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkSinglyLinkedList.h"
 #include "SkStream.h"
 #include "SkTextBlobPriv.h"
 #include "SkKeyedImage.h"
@@ -172,9 +171,11 @@ private:
     std::vector<sk_sp<SkPDFFont>> fFontResources;
     int fNodeId;
 
-    SkSinglyLinkedList<SkDynamicMemoryWStream> fContentEntries;
+    SkDynamicMemoryWStream fContent;
+    SkDynamicMemoryWStream fContentBuffer;
+    bool fNeedsExtraSave = false;
     struct GraphicStackState {
-        GraphicStackState(SkDynamicMemoryWStream* s = nullptr) : fContentStream(s) {}
+        GraphicStackState(SkDynamicMemoryWStream* s = nullptr);
         void updateClip(const SkClipStack* clipStack, const SkIRect& bounds);
         void updateMatrix(const SkMatrix& matrix);
         void updateDrawingState(const SkPDFDevice::GraphicStateEntry& state);

@@ -555,6 +555,43 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
     return true;
 }
 
+bool SkDynamicMemoryWStream::writeToAndReset(SkDynamicMemoryWStream* dst) {
+    SkASSERT(dst);
+    SkASSERT(dst != this);
+    if (0 == this->bytesWritten()) {
+        return true;
+    }
+    if (0 == dst->bytesWritten()) {
+        *dst = std::move(*this);
+        return true;
+    }
+    dst->fTail->fNext = fHead;
+    dst->fBytesWrittenBeforeTail += fBytesWrittenBeforeTail + dst->fTail->written();
+    dst->fTail = fTail;
+    fHead = fTail = nullptr;
+    fBytesWrittenBeforeTail = 0;
+    return true;
+}
+
+void SkDynamicMemoryWStream::prependToAndReset(SkDynamicMemoryWStream* dst) {
+    SkASSERT(dst);
+    SkASSERT(dst != this);
+    if (0 == this->bytesWritten()) {
+        return;
+    }
+    if (0 == dst->bytesWritten()) {
+        *dst = std::move(*this);
+        return;
+    }
+    fTail->fNext = dst->fHead;
+    dst->fHead = fHead;
+    dst->fBytesWrittenBeforeTail += fBytesWrittenBeforeTail + fTail->written();
+    fHead = fTail = nullptr;
+    fBytesWrittenBeforeTail = 0;
+    return;
+}
+
+
 bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count) {
     if (offset + count > this->bytesWritten()) {
         return false; // test does not partially modify
@@ -676,9 +713,7 @@ void SkDynamicMemoryWStream::validate() const {
     const Block* block = fHead;
     while (block) {
         if (block->fNext) {
-            SkASSERT(block->avail() == 0);
             bytes += block->written();
-            SkASSERT(bytes == SkAlign4(bytes)); // see padToAlign4()
         }
         block = block->fNext;
     }
