@@ -16,6 +16,19 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmcontents",
+      "[START_DIR]/cache/docker/wasm"
+    ],
+    "infra_step": true,
+    "name": "clean out_dir"
+  },
+  {
+    "cmd": [
       "docker",
       "run",
       "--rm",

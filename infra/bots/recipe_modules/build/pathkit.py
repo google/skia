@@ -22,6 +22,8 @@ def compile_fn(api, checkout_root, _ignore):
   # param. Instead, we use a "wasm" subdirectory in the "docker" named_cache.
   api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
 
+  api.file.rmcontents('clean out_dir', out_dir)
+
   # This uses the emscriptem sdk docker image and says "run the
   # build_pathkit.sh helper script in there". Additionally, it binds two
   # folders: the skia checkout to /SRC and the output directory to /OUT
