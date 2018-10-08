@@ -33,6 +33,7 @@ def RunSteps(api):
 
   for src in results:
     basename = api.path.basename(src)
+    basename = api.properties['revision'] + '_' + basename
     gs_path = '/'.join((
         'buildstats-json-v1', str(now.year).zfill(4),
         str(now.month).zfill(2), str(now.day).zfill(2), str(now.hour).zfill(2),
