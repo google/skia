@@ -18,6 +18,7 @@
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
 #include "SkYUVPlanesCache.h"
+#include "SkYUVAIndex.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
 sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
@@ -130,12 +131,17 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
         return nullptr;
     }
 
+    // This code path only generates I420 (i.e., 3 separate plane) YUVs
+    SkYUVAIndex yuvaIndices[4] = {
+        {  0, SkColorChannel::kA },
+        {  1, SkColorChannel::kA },
+        {  2, SkColorChannel::kA },
+        { -1, SkColorChannel::kA }, // no alpha
+    };
+
     GrPaint paint;
     auto yuvToRgbProcessor =
-            GrYUVtoRGBEffect::Make(std::move(yuvTextureProxies[0]),
-                                   std::move(yuvTextureProxies[1]),
-                                   std::move(yuvTextureProxies[2]),
-                                   yuvColorSpace, false);
+            GrYUVtoRGBEffect::Make(yuvTextureProxies, yuvaIndices, yuvColorSpace);
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
     // If the caller expects the pixels in a different color space than the one from the image,
