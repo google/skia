@@ -658,13 +658,15 @@ static sk_sp<SkPDFDict> create_link_annotation(const SkRect& translatedRect) {
     return annotation;
 }
 
+static SkString to_string(const SkData* data) {
+    return SkString(static_cast<const char *>(data->data()), data->size() - 1);
+}
+
 static sk_sp<SkPDFDict> create_link_to_url(const SkData* urlData, const SkRect& r) {
     sk_sp<SkPDFDict> annotation = create_link_annotation(r);
-    SkString url(static_cast<const char *>(urlData->data()),
-                 urlData->size() - 1);
     auto action = sk_make_sp<SkPDFDict>("Action");
     action->insertName("S", "URI");
-    action->insertString("URI", url);
+    action->insertString("URI", to_string(urlData));
     annotation->insertObject("A", std::move(action));
     return annotation;
 }
@@ -672,9 +674,7 @@ static sk_sp<SkPDFDict> create_link_to_url(const SkData* urlData, const SkRect& 
 static sk_sp<SkPDFDict> create_link_named_dest(const SkData* nameData,
                                                const SkRect& r) {
     sk_sp<SkPDFDict> annotation = create_link_annotation(r);
-    SkString name(static_cast<const char *>(nameData->data()),
-                  nameData->size() - 1);
-    annotation->insertName("Dest", name);
+    annotation->insertName("Dest", to_string(nameData));
     return annotation;
 }
 
@@ -1447,8 +1447,7 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
         pdfDest->appendScalar(p.x());
         pdfDest->appendScalar(p.y());
         pdfDest->appendInt(0);  // Leave zoom unchanged
-        SkString name(static_cast<const char*>(dest.nameData->data()));
-        dict->insertObject(name, std::move(pdfDest));
+        dict->insertObject(to_string(dest.nameData.get()), std::move(pdfDest));
     }
 }
 
