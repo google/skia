@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5ff3a4ea_3ca53c07",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-08T20:25:41Z",
+      "side": 1,
+      "message": "Line removed in update.",
+      "parentUuid": "0f5215cd_cd12dce7",
+      "range": {
+        "startLine": 464,
+        "startChar": 4,
+        "endLine": 464,
+        "endChar": 35
+      },
+      "revId": "e346c07cc1800e3e66f4893c530de50e38f45996",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ea3e1243_b1d1435d",
         "filename": "tests/ProcessorTest.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "e346c07cc1800e3e66f4893c530de50e38f45996",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a6dd6c6_fd6b7ca5",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-08T20:25:41Z",
+      "side": 1,
+      "message": "Yep, removed!",
+      "parentUuid": "ea3e1243_b1d1435d",
+      "range": {
+        "startLine": 496,
+        "startChar": 0,
+        "endLine": 496,
+        "endChar": 56
+      },
+      "revId": "e346c07cc1800e3e66f4893c530de50e38f45996",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
