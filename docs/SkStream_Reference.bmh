@@ -3,6 +3,10 @@
 
 #Class SkStream
 
+#Code
+#Populate
+##
+
 SkStream describes an abstract class that provides readable serial access to 
 data. Subclass SkFILEStream stores readable data in a file. Subclass 
 SkMemoryStream stores readable data in memory.
@@ -12,22 +16,10 @@ returns only as many bytes as were available when Stream was created. Unlike
 traditional streams, additional data will not become available at a later time
 or on a subsequent read request.
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
 # ------------------------------------------------------------------------------
 
 #Method virtual ~SkStream()
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Example
@@ -41,7 +33,7 @@ or on a subsequent read request.
 # ------------------------------------------------------------------------------
 
 #Method SkStream()
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Return incomplete ##
@@ -172,7 +164,7 @@ or late (after the first unsuccessful read).
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT readS8(int8_t* i)
+#Method bool readS8(int8_t* i)
 #In incomplete
 #Line # incomplete ##
 
@@ -190,7 +182,7 @@ or late (after the first unsuccessful read).
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT readS16(int16_t* i)
+#Method bool readS16(int16_t* i)
 #In incomplete
 #Line # incomplete ##
 
@@ -208,7 +200,7 @@ or late (after the first unsuccessful read).
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT readS32(int32_t* i)
+#Method bool readS32(int32_t* i)
 #In incomplete
 #Line # incomplete ##
 
@@ -226,7 +218,7 @@ or late (after the first unsuccessful read).
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT readU8(uint8_t* i)
+#Method bool readU8(uint8_t* i)
 #In incomplete
 #Line # incomplete ##
 
@@ -244,7 +236,7 @@ or late (after the first unsuccessful read).
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT readU16(uint16_t* i)
+#Method bool readU16(uint16_t* i)
 #In incomplete
 #Line # incomplete ##
 
@@ -262,7 +254,7 @@ or late (after the first unsuccessful read).
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT readU32(uint32_t* i)
+#Method bool readU32(uint32_t* i)
 #In incomplete
 #Line # incomplete ##
 
@@ -280,7 +272,7 @@ or late (after the first unsuccessful read).
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT readBool(bool* b)
+#Method bool readBool(bool* b)
 #In incomplete
 #Line # incomplete ##
 
@@ -298,7 +290,7 @@ or late (after the first unsuccessful read).
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT readScalar(SkScalar* s)
+#Method bool readScalar(SkScalar* s)
 #In incomplete
 #Line # incomplete ##
 
@@ -316,7 +308,7 @@ or late (after the first unsuccessful read).
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT readPackedUInt(size_t* u)
+#Method bool readPackedUInt(size_t* u)
 #In incomplete
 #Line # incomplete ##
 
