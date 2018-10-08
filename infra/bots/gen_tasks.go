@@ -501,6 +501,18 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			d["cpu"] = "x86-64-Haswell_GCE"
 			d["os"] = DEFAULT_OS_LINUX_GCE
 			d["machine_type"] = MACHINE_TYPE_SMALL
+		} else if strings.Contains(parts["extra_config"], "SKQP") && parts["cpu_or_gpu_value"] == "Emulator" {
+			if parts["model"] != "NUC7i5BNK" || d["os"] != DEFAULT_OS_DEBIAN {
+				glog.Fatalf("Please update defaultSwarmDimensions for SKQP::Emulator %s %s.", parts["os"], parts["model"])
+			}
+			d["cpu"] = "x86-64-i5-7260U"
+			d["os"] = "Debian-9.4"
+			// KVM means Kernel-based Virtual Machine, that is, can this vm virtualize commands
+			// For us, this means, can we run an x86 android emulator on it.
+			// kjlubick tried running this on GCE, but it was a bit too slow on the large install.
+			// So, we run on bare metal machines in the Skolo (that should also have KVM).
+			d["kvm"] = "1"
+			d["docker_installed"] = "true"
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			modelMapping, ok := map[string]map[string]string{
 				"AVX": {
@@ -785,11 +797,8 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
 			pkg.Path = "n"
 			task.CipdPackages = append(task.CipdPackages, pkg)
-		} else {
+		} else if !strings.Contains(name, "SKQP") {
 			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
-			if strings.Contains(name, "SKQP") {
-				task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME), isolateCIPDAsset(b, ISOLATE_GO_LINUX_NAME), isolateCIPDAsset(b, ISOLATE_GO_DEPS_NAME))
-			}
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cast_toolchain"))
@@ -1059,6 +1068,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	recipe := "test"
 	if strings.Contains(name, "SKQP") {
 		recipe = "skqp_test"
+		if strings.Contains(name, "Emulator") {
+			recipe = "test_skqp_emulator"
+		}
 	} else if strings.Contains(name, "OpenCL") {
 		// TODO(dogben): Longer term we may not want this to be called a "Test" task, but until we start
 		// running hs_bench or kx, it will be easier to fit into the current job name schema.
@@ -1076,7 +1088,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)
 	}
 	isolate := "test_skia_bundled.isolate"
-	if strings.Contains(name, "PathKit") || strings.Contains(name, "LottieWeb") {
+	if strings.Contains(name, "PathKit") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "Emulator") {
 		isolate = "swarm_recipe.isolate"
 	}
 	task := kitchenTask(name, recipe, isolate, "", swarmDimensions(parts), extraProps, OUTPUT_TEST)
@@ -1093,7 +1105,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
 	}
 	if strings.Contains(name, "SKQP") {
-		task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_GCLOUD_LINUX_NAME))
+		if !strings.Contains(name, "Emulator") {
+			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_GCLOUD_LINUX_NAME))
+		}
 	}
 	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
 		task.Dependencies = append(task.Dependencies, deps...)

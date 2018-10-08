@@ -32,7 +32,7 @@
       "go",
       "build",
       "-o",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel/run_testlab",
+      "[START_DIR]/cache/work/skia/out/Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP/devrel/run_testlab",
       "[START_DIR]/cache/work/skia/infra/cts/run_testlab.go"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
@@ -52,7 +52,7 @@
     "env": {
       "ANDROID_HOME": "[START_DIR]/android_sdk_linux/android-sdk",
       "ANDROID_NDK": "[START_DIR]/android_ndk_linux",
-      "APK_OUTPUT_DIR": "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel",
+      "APK_OUTPUT_DIR": "[START_DIR]/cache/work/skia/out/Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP/devrel",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -63,7 +63,7 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel",
+      "[START_DIR]/cache/work/skia/out/Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP/devrel",
       "[START_DIR]/[SWARM_OUT_DIR]/out/devrel"
     ],
     "infra_step": true,
