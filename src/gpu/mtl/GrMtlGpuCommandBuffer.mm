@@ -8,9 +8,11 @@
 #include "GrMtlGpuCommandBuffer.h"
 
 #include "GrColor.h"
+#include "GrFixedClip.h"
 #include "GrMtlPipelineState.h"
 #include "GrMtlPipelineStateBuilder.h"
 #include "GrMtlRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 
 GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
         GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
@@ -22,6 +24,11 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
         , fStencilLoadAndStoreInfo(stencilInfo)
         , fRenderPassDesc(this->createRenderPassDesc()) {
     (void)fStencilLoadAndStoreInfo; // Silence unused var warning
+    const GrMtlStencilAttachment* stencil = static_cast<GrMtlStencilAttachment*>(
+                                                     rt->renderTargetPriv().getStencilAttachment());
+    if (stencil) {
+        fRenderPassDesc.stencilAttachment.texture = stencil->stencilView();
+    }
     if (fColorLoadAndStoreInfo.fLoadOp == GrLoadOp::kClear) {
         fCommandBufferInfo.fBounds = SkRect::MakeWH(fRenderTarget->width(),
                                                     fRenderTarget->height());
@@ -30,6 +37,30 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
         fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
     } else {
         fCommandBufferInfo.fBounds.setEmpty();
+    }
+    switch (stencilInfo.fLoadOp) {
+        case GrLoadOp::kLoad:
+            fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
+            break;
+        case GrLoadOp::kClear:
+            fCommandBufferInfo.fBounds = SkRect::MakeWH(fRenderTarget->width(),
+                                                        fRenderTarget->height());
+            fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionClear;
+            this->internalBegin();
+            this->internalEnd();
+            fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
+            break;
+        case GrLoadOp::kDiscard:
+            fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionDontCare;
+            break;
+    }
+    switch (stencilInfo.fStoreOp) {
+        case GrStoreOp::kStore:
+            fRenderPassDesc.stencilAttachment.storeAction = MTLStoreActionStore;
+            break;
+        case GrStoreOp::kDiscard:
+            fRenderPassDesc.stencilAttachment.storeAction = MTLStoreActionDontCare;
+            break;
     }
 }
 
@@ -136,6 +167,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     pipelineState->bind(fActiveRenderCmdEncoder);
     pipelineState->setBlendConstants(fActiveRenderCmdEncoder, fRenderTarget->config(),
                                      pipeline.getXferProcessor());
+    pipelineState->setDepthStencilState(fActiveRenderCmdEncoder);
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
@@ -144,6 +176,29 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     }
     this->internalEnd();
     fCommandBufferInfo.fBounds.join(bounds);
+}
+
+void GrMtlGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+    SkASSERT(!clip.hasWindowRectangles());
+
+    GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
+    // this should only be called internally when we know we have a
+    // stencil buffer.
+    SkASSERT(sb);
+    int stencilBitCount = sb->bits();
+
+    // The contract with the callers does not guarantee that we preserve all bits in the stencil
+    // during this clear. Thus we will clear the entire stencil to the desired value.
+    if (insideStencilMask) {
+        fRenderPassDesc.stencilAttachment.clearStencil = (1 << (stencilBitCount - 1));
+    } else {
+        fRenderPassDesc.stencilAttachment.clearStencil = 0;
+    }
+
+    fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionClear;
+    this->internalBegin();
+    this->internalEnd();
+    fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
 }
 
 MTLRenderPassDescriptor* GrMtlGpuRTCommandBuffer::createRenderPassDesc() const {
