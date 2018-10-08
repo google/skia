@@ -453,7 +453,7 @@ void IncludeWriter::enumHeaderOut(RootDefinition* root, const Definition& child)
     bool firstCodeBlocks = true;
     bool wroteHeader = false;
     bool lastAnchor = false;
-    SkDEBUGCODE(bool foundConst = false);
+//    SkDEBUGCODE(bool foundConst = false);
     for (auto test : enumDef->fChildren) {
         if (MarkType::kCode == test->fMarkType && firstCodeBlocks) {
             codeBlock = test;
@@ -514,7 +514,7 @@ void IncludeWriter::enumHeaderOut(RootDefinition* root, const Definition& child)
         commentStart = test->fTerminator;
         if (MarkType::kConst == test->fMarkType) {
             SkASSERT(codeBlock);  // FIXME: check enum for correct order earlier
-            SkDEBUGCODE(foundConst = true);
+//            SkDEBUGCODE(foundConst = true);
             break;
         }
     }
