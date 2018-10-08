@@ -1,0 +1,134 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "mkdirs out_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/build",
+      "*.wasm"
+    ],
+    "cwd": "[START_DIR]/build",
+    "infra_step": true,
+    "name": "find WASM binaries",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/build/pathkit.wasm@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "cwd": "[START_DIR]/build",
+    "name": "get swarming bot id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "cwd": "[START_DIR]/build",
+    "name": "get swarming task id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport json\nimport os\nimport subprocess\nimport sys\n\ninput_file = sys.argv[1]\nout_dir = sys.argv[2]\nkeystr = sys.argv[3]\npropstr = sys.argv[4]\n\nresults = {\n  'keys': { },\n  'results': { }\n}\n\nprops = propstr.split(' ')\nfor i in range(0, len(props), 2):\n  results[i] = props[i+1]\n\nkeys = keystr.split(' ')\nfor i in range(0, len(keys), 2):\n  results['keys'][i] = keys[i+1]\n\nr = {\n  'total_size': os.path.getsize(input_file)\n}\n\nsubprocess.check_call(['gzip', input_file])\n\nr['gzip_size'] = os.path.getsize(input_file+'.gz')\n\nname = os.path.basename(input_file)\n\nresults['results'][name] = {\n  # We need this top level layer 'config'/slice\n  # Other analysis methods (e.g. libskia) might have\n  # slices for data on the 'code' section, etc.\n  'default' : r,\n}\n\nprint json.dumps(results)\n\nwith open(os.path.join(out_dir, name+'.json')) as output:\n  output.write(json.dumps(results))\n",
+      "[START_DIR]/build/pathkit.wasm",
+      "[START_DIR]/[SWARM_OUT_DIR]",
+      "compiler EMCC configuration Release extra_config PathKit os Debian9 target_arch wasm",
+      "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc"
+    ],
+    "cwd": "[START_DIR]/build",
+    "infra_step": true,
+    "name": "Analyze [START_DIR]/build/pathkit.wasm",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@input_file = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@out_dir = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@keystr = sys.argv[3]@@@",
+      "@@@STEP_LOG_LINE@python.inline@propstr = sys.argv[4]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@results = {@@@",
+      "@@@STEP_LOG_LINE@python.inline@  'keys': { },@@@",
+      "@@@STEP_LOG_LINE@python.inline@  'results': { }@@@",
+      "@@@STEP_LOG_LINE@python.inline@}@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@props = propstr.split(' ')@@@",
+      "@@@STEP_LOG_LINE@python.inline@for i in range(0, len(props), 2):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  results[i] = props[i+1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@keys = keystr.split(' ')@@@",
+      "@@@STEP_LOG_LINE@python.inline@for i in range(0, len(keys), 2):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  results['keys'][i] = keys[i+1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@r = {@@@",
+      "@@@STEP_LOG_LINE@python.inline@  'total_size': os.path.getsize(input_file)@@@",
+      "@@@STEP_LOG_LINE@python.inline@}@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['gzip', input_file])@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@r['gzip_size'] = os.path.getsize(input_file+'.gz')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@name = os.path.basename(input_file)@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@results['results'][name] = {@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # We need this top level layer 'config'/slice@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Other analysis methods (e.g. libskia) might have@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # slices for data on the 'code' section, etc.@@@",
+      "@@@STEP_LOG_LINE@python.inline@  'default' : r,@@@",
+      "@@@STEP_LOG_LINE@python.inline@}@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print json.dumps(results)@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(os.path.join(out_dir, name+'.json')) as output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output.write(json.dumps(results))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
