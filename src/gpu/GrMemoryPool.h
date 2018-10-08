@@ -21,7 +21,7 @@
  * requests. It is optimized for allocate / release speed over memory
  * efficiency. The interface is designed to be used to implement operator new
  * and delete overrides. All allocations are expected to be released before the
- * pool's destructor is called. Allocations will be 8-byte aligned.
+ * pool's destructor is called.
  */
 class GrMemoryPool {
 public:
@@ -44,7 +44,7 @@ public:
     /**
      * Allocates memory. The memory must be freed with release().
      */
-    void* allocate(size_t size);
+    void* allocate(size_t size, size_t alignment);
 
     /**
      * p must have been returned by allocate()
@@ -117,10 +117,8 @@ private:
 
 protected:
     enum {
-        // We assume this alignment is good enough for everybody.
-        kAlignment    = 8,
-        kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
-        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
+        kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), alignof(BlockHeader)),
+        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), alignof(AllocHeader)),
     };
 };
 
@@ -136,12 +134,12 @@ public:
 
     template <typename Op, typename... OpArgs>
     std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
-        char* mem = (char*) fMemoryPool.allocate(sizeof(Op));
+        char* mem = (char*) fMemoryPool.allocate(sizeof(Op), alignof(Op));
         return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
     }
 
     void* allocate(size_t size) {
-        return fMemoryPool.allocate(size);
+        return fMemoryPool.allocate(size, 8);
     }
 
     void release(std::unique_ptr<GrOp> op);

@@ -1,0 +1,218 @@
+From af43ce05ed980ff7ce19980d9a54a8b8e8e1e349 Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Thu, 4 Oct 2018 13:06:55 -0400
+Subject: [PATCH] GrMemoryPool alignment is no longer fixed
+
+---
+ bench/GrMemoryPoolBench.cpp            |  6 +++---
+ src/gpu/GrMemoryPool.cpp               | 10 +++------
+ src/gpu/GrMemoryPool.h                 | 29 +++++++++++++++++++-------
+ src/gpu/GrProcessor.cpp                |  4 +++-
+ src/gpu/ops/GrSimpleMeshDrawOpHelper.h |  2 +-
+ tests/GrMemoryPoolTest.cpp             |  8 +++----
+ 6 files changed, 35 insertions(+), 24 deletions(-)
+
+diff --git a/bench/GrMemoryPoolBench.cpp b/bench/GrMemoryPoolBench.cpp
+index bcc28c5c67..5fae55bfcb 100644
+--- a/bench/GrMemoryPoolBench.cpp
++++ b/bench/GrMemoryPoolBench.cpp
+@@ -21,7 +21,7 @@
+ struct A {
+     int gStuff[10];
+ #if OVERRIDE_NEW
+-    void* operator new (size_t size) { return gBenchPool.allocate(size); }
++    void* operator new (size_t size) { return gBenchPool.allocate<A>(); }
+     void operator delete (void* mem) { if (mem) { return gBenchPool.release(mem); } }
+ #endif
+     static GrMemoryPool gBenchPool;
+@@ -83,7 +83,7 @@ private:
+ struct B {
+     int gStuff[10];
+ #if OVERRIDE_NEW
+-    void* operator new (size_t size) { return gBenchPool.allocate(size); }
++    void* operator new (size_t size) { return gBenchPool.allocate<B>(); }
+     void operator delete (void* mem) { if (mem) { return gBenchPool.release(mem); } }
+ #endif
+     static GrMemoryPool gBenchPool;
+@@ -128,7 +128,7 @@ private:
+ struct C {
+     int gStuff[10];
+ #if OVERRIDE_NEW
+-    void* operator new (size_t size) { return gBenchPool.allocate(size); }
++    void* operator new (size_t size) { return gBenchPool.allocate<C>(); }
+     void operator delete (void* mem) { if (mem) { return gBenchPool.release(mem); } }
+ #endif
+     static GrMemoryPool gBenchPool;
+diff --git a/src/gpu/GrMemoryPool.cpp b/src/gpu/GrMemoryPool.cpp
+index 89e8f013ac..27a51d5e1e 100644
+--- a/src/gpu/GrMemoryPool.cpp
++++ b/src/gpu/GrMemoryPool.cpp
+@@ -31,6 +31,7 @@ GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
+     SkDEBUGCODE(fAllocationCnt = 0);
+     SkDEBUGCODE(fAllocBlockCnt = 0);
+ 
++    static constexpr int kAlignment = 8;
+     minAllocSize = SkTMax<size_t>(GrSizeAlignUp(minAllocSize, kAlignment), kSmallestMinAllocSize);
+     preallocSize = SkTMax<size_t>(GrSizeAlignUp(preallocSize, kAlignment), minAllocSize);
+ 
+@@ -65,10 +66,10 @@ GrMemoryPool::~GrMemoryPool() {
+     DeleteBlock(fHead);
+ };
+ 
+-void* GrMemoryPool::allocate(size_t size) {
++void* GrMemoryPool::allocate(size_t size, size_t alignment) {
+     VALIDATE;
+     size += kPerAllocPad;
+-    size = GrSizeAlignUp(size, kAlignment);
++    size = GrSizeAlignUp(size, alignment);
+     if (fTail->fFreeSize < size) {
+         size_t blockSize = size + kHeaderSize;
+         blockSize = SkTMax<size_t>(blockSize, fMinAllocSize);
+@@ -149,8 +150,6 @@ GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t blockSize) {
+     blockSize = SkTMax<size_t>(blockSize, kHeaderSize);
+     BlockHeader* block =
+         reinterpret_cast<BlockHeader*>(sk_malloc_throw(blockSize));
+-    // we assume malloc gives us aligned memory
+-    SkASSERT(!(reinterpret_cast<intptr_t>(block) % kAlignment));
+     SkDEBUGCODE(block->fBlockSentinal = kAssignedMarker);
+     block->fLiveCount = 0;
+     block->fFreeSize = blockSize - kHeaderSize;
+@@ -185,9 +184,6 @@ void GrMemoryPool::validate() {
+         size_t totalSize = ptrOffset + block->fFreeSize;
+         intptr_t userStart = b + kHeaderSize;
+ 
+-        SkASSERT(!(b % kAlignment));
+-        SkASSERT(!(totalSize % kAlignment));
+-        SkASSERT(!(block->fCurrPtr % kAlignment));
+         if (fHead != block) {
+             SkASSERT(block->fLiveCount);
+             SkASSERT(totalSize >= fMinAllocSize);
+diff --git a/src/gpu/GrMemoryPool.h b/src/gpu/GrMemoryPool.h
+index 15399b6852..87d184b459 100644
+--- a/src/gpu/GrMemoryPool.h
++++ b/src/gpu/GrMemoryPool.h
+@@ -41,10 +41,20 @@ public:
+ 
+     ~GrMemoryPool();
+ 
++    /**
++     * Allocates memory to hold an instance of the specified type. The memory must be freed with
++     * release().
++     */
++    template <typename T>
++    void* allocate() {
++        return this->allocate(sizeof(T), alignof(T));
++    }
++
++
+     /**
+      * Allocates memory. The memory must be freed with release().
+      */
+-    void* allocate(size_t size);
++    void* allocate(size_t size, size_t alignment);
+ 
+     /**
+      * p must have been returned by allocate()
+@@ -117,10 +127,8 @@ private:
+ 
+ protected:
+     enum {
+-        // We assume this alignment is good enough for everybody.
+-        kAlignment    = 8,
+-        kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
+-        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
++        kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), alignof(BlockHeader)),
++        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), alignof(AllocHeader)),
+     };
+ };
+ 
+@@ -136,12 +144,17 @@ public:
+ 
+     template <typename Op, typename... OpArgs>
+     std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
+-        char* mem = (char*) fMemoryPool.allocate(sizeof(Op));
++        char* mem = (char*) fMemoryPool.allocate<Op>();
+         return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
+     }
+ 
+-    void* allocate(size_t size) {
+-        return fMemoryPool.allocate(size);
++    template <typename Op>
++    void* allocate() {
++        return fMemoryPool.allocate<Op>();
++    }
++
++    void* allocate(size_t size, size_t alignment) {
++        return fMemoryPool.allocate(size, alignment);
+     }
+ 
+     void release(std::unique_ptr<GrOp> op);
+diff --git a/src/gpu/GrProcessor.cpp b/src/gpu/GrProcessor.cpp
+index 078cfbdf99..e2fb231372 100644
+--- a/src/gpu/GrProcessor.cpp
++++ b/src/gpu/GrProcessor.cpp
+@@ -120,7 +120,9 @@ public:
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
+-void* GrProcessor::operator new(size_t size) { return MemoryPoolAccessor().pool()->allocate(size); }
++void* GrProcessor::operator new(size_t size) {
++    return MemoryPoolAccessor().pool()->allocate<GrProcessor>();
++}
+ 
+ void GrProcessor::operator delete(void* target) {
+     return MemoryPoolAccessor().pool()->release(target);
+diff --git a/src/gpu/ops/GrSimpleMeshDrawOpHelper.h b/src/gpu/ops/GrSimpleMeshDrawOpHelper.h
+index cd72786da6..228c97a250 100644
+--- a/src/gpu/ops/GrSimpleMeshDrawOpHelper.h
++++ b/src/gpu/ops/GrSimpleMeshDrawOpHelper.h
+@@ -188,7 +188,7 @@ std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrContext* con
+         makeArgs.fProcessorSet = nullptr;
+         return pool->allocate<Op>(makeArgs, color, std::forward<OpArgs>(opArgs)...);
+     } else {
+-        char* mem = (char*) pool->allocate(sizeof(Op) + sizeof(GrProcessorSet));
++        char* mem = (char*) pool->allocate(sizeof(Op) + sizeof(GrProcessorSet), alignof(Op));
+         char* setMem = mem + sizeof(Op);
+         makeArgs.fProcessorSet = new (setMem) GrProcessorSet(std::move(paint));
+ 
+diff --git a/tests/GrMemoryPoolTest.cpp b/tests/GrMemoryPoolTest.cpp
+index bdc5557510..51f9505127 100644
+--- a/tests/GrMemoryPoolTest.cpp
++++ b/tests/GrMemoryPoolTest.cpp
+@@ -30,7 +30,7 @@ public:
+         if (!gPool.get()) {
+             return ::operator new(size);
+         } else {
+-            return gPool->allocate(size);
++            return gPool->allocate<A>();
+         }
+     }
+ 
+@@ -252,7 +252,7 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
+     auto allocateMemory = [](GrMemoryPool& pool, AutoPoolReleaser& r) {
+         size_t origPoolSize = pool.size();
+         while (pool.size() == origPoolSize) {
+-            r.add(pool.allocate(31));
++            r.add(pool.allocate(31, 8));
+         }
+     };
+ 
+@@ -308,13 +308,13 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
+         REPORTER_ASSERT(reporter, pool.size() == 0);
+ 
+         constexpr size_t hugeSize = 10 * kMinAllocSize;
+-        r.add(pool.allocate(hugeSize));
++        r.add(pool.allocate(hugeSize, 8));
+         REPORTER_ASSERT(reporter, pool.size() > hugeSize);
+ 
+         // Block size allocated to accommodate huge request doesn't include any extra
+         // space, so next allocation request allocates a new block.
+         size_t hugeBlockSize = pool.size();
+-        r.add(pool.allocate(0));
++        r.add(pool.allocate(0, 8));
+         REPORTER_ASSERT(reporter, pool.size() == hugeBlockSize + kMinAllocSize);
+     }
+ }
+-- 
+2.19.0.605.g01d371f741-goog
+
