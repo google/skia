@@ -17,8 +17,8 @@
     fprintf(fOut, __VA_ARGS__)
 
 const char* SubtopicKeys::kGeneratedSubtopics[] = {
-    kClasses, kConstants, kConstructors, kDefines,
-    kMemberFunctions, kMembers, kOperators, kRelatedFunctions, kStructs, kTypedefs,
+    kConstants, kDefines, kTypedefs, kMembers, kClasses, kStructs, kConstructors,
+    kOperators, kMemberFunctions, kRelatedFunctions
 };
 
 const char* kConstTableStyle =
@@ -46,10 +46,10 @@ const char* kSubConstTableHeader =  "  <tr>" kTH_Left   "Const</th>"            
                                              kTH_Left   "Details</th>"                          "\n"
                                              kTH_Left   "Description</th>" "</tr>";
 const char* kAllMemberTableHeader = "  <tr>" kTH_Left   "Type</th>"                             "\n"
-                                             kTH_Left   "Name</th>"                             "\n"
+                                             kTH_Left   "Member</th>"                           "\n"
                                              kTH_Left   "Description</th>" "</tr>";
 const char* kSubMemberTableHeader = "  <tr>" kTH_Left   "Type</th>"                             "\n"
-                                             kTH_Left   "Name</th>"                             "\n"
+                                             kTH_Left   "Member</th>"                           "\n"
                                              kTH_Left   "Details</th>"                          "\n"
                                              kTH_Left   "Description</th>" "</tr>";
 const char* kTopicsTableHeader    = "  <tr>" kTH_Left   "Topic</th>"                            "\n"
@@ -162,7 +162,6 @@ static string out_table_data_details(string details) {
 }
 
 #undef kConstTDBase
-#undef kTH_Left
 #undef kTH_Center
 
 static void add_ref(string leadingSpaces, string ref, string* result) {
@@ -204,56 +203,50 @@ void replace_all(string& str, const string& from, const string& to) {
 
 // detail strings are preceded by an example comment to check readability
 void MdOut::addPopulators() {
-    fPopulators[SubtopicKeys::kClasses].fName = "Class Declarations";
-    fPopulators[SubtopicKeys::kClasses].fOneLiner = "embedded class members";
-    fPopulators[SubtopicKeys::kClasses].fDetails =
-            /* SkImageInfo */ "uses C++ classes to declare the public data"
-            " structures and interfaces.";
-    fPopulators[SubtopicKeys::kConstants].fName = "Constants";
-    fPopulators[SubtopicKeys::kConstants].fOneLiner = "enum and enum class, and their const values";
-    fPopulators[SubtopicKeys::kConstants].fDetails =
-            /* SkImageInfo */ "related constants are defined by <code>enum</code>,"
-            " <code>enum class</code>,  <code>#define</code>, <code>const</code>,"
-            " and <code>constexpr</code>.";
-    fPopulators[SubtopicKeys::kConstructors].fName = "Constructors";
-    fPopulators[SubtopicKeys::kConstructors].fOneLiner = "functions that construct";
-    fPopulators[SubtopicKeys::kConstructors].fDetails =
+    auto populator = [this](string key, string singular, string plural, string oneLiner,
+            string details) -> void {
+        fPopulators[key].fSingular = singular;
+        fPopulators[key].fPlural = plural;
+        fPopulators[key].fOneLiner = oneLiner;
+        fPopulators[key].fDetails = details;
+    };
+    populator(SubtopicKeys::kClasses, "Class", "Class Declarations",
+            "embedded class members",
+            /* SkImageInfo */ "uses <code>class</code> to declare the public data structures"
+                              " and interfaces.");
+    populator(SubtopicKeys::kConstants, "Constant", "Constants",
+            "enum and enum class, and their const values",
+            /* SkImageInfo */ "defines related constants are using <code>enum</code>,"
+                              " <code>enum class</code>,  <code>#define</code>,"
+                              " <code>const</code>, and <code>constexpr</code>.");
+    populator(SubtopicKeys::kConstructors, "Constructor", "Constructors",
+            "functions that construct",
             /* SkImageInfo */ "can be constructed or initialized by these functions,"
-            " including C++ class constructors.";
-    fPopulators[SubtopicKeys::kDefines].fName = "Defines";
-    fPopulators[SubtopicKeys::kDefines].fOneLiner = "preprocessor definitions of functions, values";
-    fPopulators[SubtopicKeys::kDefines].fDetails =
+                              " including <code>class</code> constructors.");
+    populator(SubtopicKeys::kDefines, "Define", "Defines",
+            "preprocessor definitions of functions, values",
             /* SkImageInfo */ "uses preprocessor definitions to inline code and constants,"
-            " and to abstract platform-specific functionality.";
-    fPopulators[SubtopicKeys::kMemberFunctions].fName = "Functions";
-    fPopulators[SubtopicKeys::kMemberFunctions].fOneLiner = "global and class member functions";
-    fPopulators[SubtopicKeys::kMemberFunctions].fDetails =
-            /* SkImageInfo */ "member functions read and modify the structure properties.";
-    fPopulators[SubtopicKeys::kMembers].fName = "Members";
-    fPopulators[SubtopicKeys::kMembers].fOneLiner = "member values";
-    fPopulators[SubtopicKeys::kMembers].fDetails =
-            /* SkImageInfo */ "members may be read and written directly without using"
-            " a member function.";
-    fPopulators[SubtopicKeys::kOperators].fName = "Operators";
-    fPopulators[SubtopicKeys::kOperators].fOneLiner = "operator overloading methods";
-    fPopulators[SubtopicKeys::kOperators].fDetails =
-            /* SkImageInfo */ "operators inline class member functions with arithmetic"
-            " equivalents.";
-    fPopulators[SubtopicKeys::kRelatedFunctions].fName = "Related Functions";
-    fPopulators[SubtopicKeys::kRelatedFunctions].fOneLiner =
-            "similar member functions grouped together";
-    fPopulators[SubtopicKeys::kRelatedFunctions].fDetails =
-            /* SkImageInfo */ "global, <code>struct</code>, and <code>class</code> related member"
-            " functions share a topic.";
-    fPopulators[SubtopicKeys::kStructs].fName = "Struct Declarations";
-    fPopulators[SubtopicKeys::kStructs].fOneLiner = "embedded struct members";
-    fPopulators[SubtopicKeys::kStructs].fDetails =
-            /* SkImageInfo */ "uses C++ structs to declare the public data"
-            " structures and interfaces.";
-    fPopulators[SubtopicKeys::kTypedefs].fName = "Typedef Declarations";
-    fPopulators[SubtopicKeys::kTypedefs].fOneLiner = "types defined by other types";
-    fPopulators[SubtopicKeys::kTypedefs].fDetails =
-            /* SkImageInfo */ " <code>typedef</code> define a data type.";
+                              " and to abstract platform-specific functionality.");
+    populator(SubtopicKeys::kMemberFunctions, "Member Function", "Member Functions",
+            "static and local functions",
+            /* SkImageInfo */ "uses member functions to read and modify structure properties.");
+    populator(SubtopicKeys::kMembers, "Member", "Members",
+            "member values",
+            /* SkImageInfo */ "contains members that may be read and written directly without using"
+                              " a member function.");
+    populator(SubtopicKeys::kOperators, "Operator", "Operators",
+            "operator overloading functions",
+            /* SkImageInfo */ "defines member functions with arithmetic equivalents.");
+    populator(SubtopicKeys::kRelatedFunctions, "Related Function", "Related Functions",
+            "similar functions grouped together",
+            /* SkImageInfo */ "defines related functions that share a topic.");
+    populator(SubtopicKeys::kStructs, "Struct", "Struct Declarations",
+            "embedded struct members",
+            /* SkImageInfo */ "uses <code>struct</code> to declare the public data"
+                              " structures and interfaces.");
+    populator(SubtopicKeys::kTypedefs, "Typedef", "Typedef Declarations",
+            "types defined in terms of other types",
+            /* SkImageInfo */ "uses <code>typedef</code> to define a data type.");
 }
 
 Definition* MdOut::checkParentsForMatch(Definition* test, string ref) const {
@@ -283,15 +276,50 @@ static bool formula_or_code(BmhParser::Resolvable resolvable) {
             || BmhParser::Resolvable::kCode == resolvable;
 }
 
+static void fixup_const_function_name(string* ref) {
+    const char spaceConst[] = " const";
+    size_t spacePos = ref->rfind(spaceConst);
+    if (string::npos != spacePos && spacePos == ref->length() - sizeof(spaceConst) + 1) {
+        *ref = ref->substr(0, spacePos) + "_const";
+    }
+}
+
+struct BraceState {
+    BraceState(RootDefinition* root, string name, const char* ch, KeyWord last, KeyWord keyWord,
+            int count)
+        : fRoot(root)
+        , fName(name)
+        , fChar(ch)
+        , fLastKey(last)
+        , fKeyWord(keyWord)
+        , fBraceCount(count) {
+    }
+
+    RootDefinition* fRoot;
+    string fName;
+    const char* fChar;
+    KeyWord fLastKey;
+    KeyWord fKeyWord;
+    int fBraceCount;
+};
+
 // FIXME: preserve inter-line spaces and don't add new ones
 string MdOut::addReferences(const char* refStart, const char* refEnd,
         BmhParser::Resolvable resolvable) {
     string result;
     MethodParser t(fRoot ? fRoot->fName : string(), fFileName, refStart, refEnd, fLineCount);
     bool lineStart = true;
+//    bool structClassSet = false;
     string ref;
     string leadingSpaces;
     int distFromParam = 99;
+    const char* lastLine = nullptr;
+    vector<BraceState> braceStack;
+    KeyWord lastKeyWord = KeyWord::kNone;
+    KeyWord keyWord = KeyWord::kNone;
+    if (BmhParser::Resolvable::kCode == resolvable) {
+        braceStack.push_back({fRoot, fRoot->fName, t.fChar, lastKeyWord, keyWord, 0});
+    }
     do {
         ++distFromParam;
         const char* base = t.fChar;
@@ -303,8 +331,53 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             t.next();
             continue;
         }
-        t.skipToMethodStart();
+        if (BmhParser::Resolvable::kCode == resolvable) {
+            int priorBrace = braceStack.back().fBraceCount;
+            int braceCount = priorBrace + t.skipToMethodStart();
+            if (braceCount > priorBrace) {
+                string name;
+                if (KeyWord::kClass == keyWord || KeyWord::kStruct == keyWord) {
+                    name = ref;
+                } else if (KeyWord::kClass == lastKeyWord && KeyWord::kPublic == keyWord) {
+                    SkASSERT(lastLine);
+                    TextParser parser(t.fFileName, lastLine, t.fChar, t.fLineCount);
+                    parser.skipSpace();
+                    SkAssertResult(parser.skipExact("class "));
+                    parser.skipSpace();
+                    const char* nameStart = parser.fChar;
+                    parser.skipToSpace();
+                    name = string(nameStart, parser.fChar - nameStart);
+                }
+                if ("" != name) {
+                    const Definition* classDef = this->isDefined(t, name, resolvable);
+                    if (!classDef) {
+                        string className = fRoot->csParent()->fName;
+                        string withRoot = className + "::" + name;
+                        classDef = this->isDefined(t, withRoot, resolvable);
+                        SkASSERT(classDef);
+                    }
+                    if (classDef->isRoot()) {
+                        fRoot = const_cast<Definition*>(classDef)->asRoot();
+                        t.setLocalName(name);
+                    }
+                }
+                braceStack.push_back({fRoot, name, t.fChar, lastKeyWord, keyWord, braceCount});
+            } else if (braceCount < priorBrace) {
+                lastKeyWord = braceStack.back().fLastKey;
+                keyWord = braceStack.back().fKeyWord;
+                braceStack.pop_back();
+                if (KeyWord::kClass == keyWord || KeyWord::kStruct == keyWord) {
+                    fRoot = braceStack.back().fRoot;
+                    t.setLocalName(braceStack.back().fName);
+                }
+            }
+        } else {
+            (void) t.skipToMethodStart();
+        }
         const char* start = t.fChar;
+        if (fParamEnd <= start) {
+            fParamEnd = nullptr;
+        }
         if (wordStart < start) {
             if (lineStart) {
                 lineStart = false;
@@ -356,6 +429,17 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             continue;
         }
         ref = string(start, t.fChar - start);
+        if (fParamEnd
+                && islower(start[0]) && ('k' != start[0] || !isupper(start[1]))) {
+            if (' ' == start[-1] && ' ' != result.back()) {
+                result += ' ';
+            }
+            result += ref;
+            continue;
+        }
+        if (BmhParser::Resolvable::kCode == resolvable) {
+            fixup_const_function_name(&ref);
+        }
         if (const Definition* def = this->isDefined(t, ref, resolvable)) {
             if (MarkType::kExternal == def->fMarkType) {
                 (void) this->anchorRef("undocumented#" + ref, "");   // for anchor validate
@@ -365,15 +449,19 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             SkASSERT(def->fFiddle.length());
             if (BmhParser::Resolvable::kSimple != resolvable
                     && !t.eof() && '(' == t.peek() && t.strnchr(')', t.fEnd)) {
-                if (!t.skipToEndBracket(')')) {
+                TextParserSave tSave(&t);
+                if (!t.skipToBalancedEndBracket('(', ')')) {
+                    tSave.restore();
                     t.reportError("missing close paren");
                     fAddRefFailed = true;
                     return result;
                 }
-                t.next();
+//                t.next();
+                SkASSERT(')' == t.fChar[-1]);
+                fParamEnd = t.fChar - 1;    // don't resolve lower case words til param end
                 string fullRef = string(start, t.fChar - start);
                 // if _2 etc alternates are defined, look for paren match
-                // may ignore () if ref is all lower case
+                // may ignore () if ref is all lower case and resolvable is not code
                 // otherwise flag as error
                 int suffix = '2';
                 bool foundMatch = false;
@@ -409,6 +497,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     }
                     ref = fullRef;
                 }
+                ref = ref.substr(0, ref.find('('));
+                tSave.restore();
 			} else if (BmhParser::Resolvable::kClone != resolvable &&
 					all_lower(ref) && (t.eof() || '(' != t.peek())) {
 				add_ref(leadingSpaces, ref, &result);
@@ -420,6 +510,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 return result;
             }
 			result += linkRef(leadingSpaces, def, ref, resolvable);
+            if (!t.eof() && '(' == t.peek()) {
+                result += t.next();  // skip open paren
+            }
             continue;
         }
         if (!t.eof() && '(' == t.peek()) {
@@ -492,6 +585,17 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     }
                 }
             }
+            KeyWord newKeyWord = IncludeParser::FindKey(start, start + ref.length());
+            lastLine = nullptr;
+            if (KeyWord::kPrivate != newKeyWord && KeyWord::kProtected != newKeyWord
+                    && KeyWord::kPublic != newKeyWord) {
+                lastKeyWord = keyWord;
+                keyWord = newKeyWord;
+            } else if (BmhParser::Resolvable::kCode == resolvable && ':' != t.peek()) {
+                lastLine = t.fLine;
+                lastKeyWord = keyWord;
+                keyWord = newKeyWord;
+            }
             add_ref(leadingSpaces, ref, &result);
             continue;
         }
@@ -536,16 +640,16 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
     return result;
 }
 
-bool MdOut::buildReferences(const IncludeParser& includeParser, const char* docDir,
-        const char* mdFileOrPath) {
+bool MdOut::buildReferences(const char* docDir, const char* mdFileOrPath) {
     if (!sk_isdir(mdFileOrPath)) {
         SkDebugf("must pass directory %s\n", mdFileOrPath);
         SkDebugf("pass -i SkXXX.h to build references for a single include\n");
         return false;
     }
+    fInProgress = true;
     SkOSFile::Iter it(docDir, ".bmh");
     for (SkString file; it.next(&file); ) {
-        if (!includeParser.references(file)) {
+        if (!fIncludeParser.references(file)) {
             continue;
         }
         SkString p = SkOSPath::Join(docDir, file.c_str());
@@ -559,9 +663,11 @@ bool MdOut::buildReferences(const IncludeParser& includeParser, const char* docD
 
 bool MdOut::buildStatus(const char* statusFile, const char* outDir) {
     StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
-    for (string file; iter.next(&file); ) {
+    StatusFilter filter;
+    for (string file; iter.next(&file, &filter); ) {
         SkString p = SkOSPath::Join(iter.baseDir().c_str(), file.c_str());
         const char* hunk = p.c_str();
+        fInProgress = StatusFilter::kInProgress == filter;
         if (!this->buildRefFromFile(hunk, outDir)) {
             SkDebugf("failed to parse %s\n", hunk);
             return false;
@@ -630,9 +736,10 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
                 header.replace(underscorePos, 1, " ");
             }
             SkASSERT(string::npos == header.find('_'));
-            FPRINTF("%s", header.c_str());
+            this->writeString(header);
             this->lfAlways(1);
-            FPRINTF("===");
+            this->writeString("===");
+            this->lfAlways(1);
         }
         const Definition* prior = nullptr;
         this->markTypeOut(topicDef, &prior);
@@ -1190,10 +1297,11 @@ string MdOut::linkRef(string leadingSpaces, const Definition* def,
         buildup = '#' + parent->fFiddle + '_' + ref;
     }
     string refOut(ref);
-    if (!globalEnumMember) {
+    if (!globalEnumMember && BmhParser::Resolvable::kCode != resolvable) {
         std::replace(refOut.begin(), refOut.end(), '_', ' ');
     }
-    if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)) {
+    if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)
+            && BmhParser::Resolvable::kCode != resolvable) {
         refOut = refOut.substr(0, refOut.length() - 2);
     }
     string result = leadingSpaces + this->anchorRef(buildup, refOut);
@@ -1226,6 +1334,131 @@ string MdOut::linkRef(string leadingSpaces, const Definition* def,
 
 static bool writeTableEnd(MarkType markType, Definition* def, const Definition** prior) {
     return markType != def->fMarkType && *prior && markType == (*prior)->fMarkType;
+}
+
+// Recursively build string with declarative code. Skip structs, classes, that
+// have been built directly.
+void MdOut::addCodeBlock(const Definition* def, string& result) const {
+    const Definition* last = nullptr;
+    bool wroteFunction = false;
+    for (auto member : def->fChildren) {
+        const Definition* prior = last;
+        const char* priorTerminator = nullptr;
+        if (prior) {
+            priorTerminator = prior->fTerminator ? prior->fTerminator : prior->fContentEnd;
+        }
+        last = member;
+        if (KeyWord::kIfndef == member->fKeyWord) {
+            this->addCodeBlock(member, result);
+            continue;
+        }
+        if (KeyWord::kClass == member->fKeyWord || KeyWord::kStruct == member->fKeyWord
+                || KeyWord::kTemplate == member->fKeyWord) {
+            if (!member->fChildren.size()) {
+                continue;
+            }
+            // todo: Make sure this was written non-elided somewhere else
+            // todo: provide indent value?
+            string block = fIncludeParser.elidedCodeBlock(*member);
+            // add italic link for elided body
+            size_t brace = block.find('{');
+            if (string::npos != brace) {
+                string name = member->fName;
+                if ("" == name) {
+                    for (auto child : member->fChildren) {
+                        if ("" != (name = child->fName)) {
+                            break;
+                        }
+                    }
+                }
+                SkASSERT("" != name);
+                string body = "\n    // <i>" + name + " interface</i>";
+                block = block.substr(0, brace + 1) + body + block.substr(brace + 1);
+            }
+            this->stringAppend(result, block);
+            continue;
+        }
+        if (KeyWord::kEnum == member->fKeyWord) {
+            if (member->fChildren.empty()) {
+                continue;
+            }
+            auto tokenIter = member->fTokens.begin();
+            if (KeyWord::kEnum == member->fKeyWord && KeyWord::kClass == tokenIter->fKeyWord) {
+                tokenIter = tokenIter->fTokens.begin();
+            }
+            while (Definition::Type::kWord != tokenIter->fType) {
+                std::advance(tokenIter, 1);
+            }
+            const auto& token = *tokenIter;
+            string name = string(token.fContentStart, token.length());
+            SkASSERT(name.length() > 0);
+            MarkType markType = KeyWord::kClass == member->fKeyWord
+                    || KeyWord::kStruct == member->fKeyWord ? MarkType::kClass : MarkType::kEnum;
+            // find bmh def or just find name of class / struct / enum ? (what if enum is nameless?)
+            if (wroteFunction) {
+                this->stringAppend(result, '\n');
+                wroteFunction = false;
+            }
+            this->stringAppend(result,
+                    fIncludeParser.codeBlock(markType, name, fInProgress));
+            this->stringAppend(result, '\n');
+            continue;
+        }
+        // Global function declarations are not preparsed very well;
+        // make do by using the prior position to find the start
+        if (Bracket::kParen == member->fBracket && prior) {
+            TextParser function(member->fFileName, priorTerminator, member->fTerminator + 1,
+                    member->fLineCount);
+            this->stringAppend(result,
+                    fIncludeParser.writeCodeBlock(function, MarkType::kFunction, 0));
+            this->stringAppend(result, '\n');
+            wroteFunction = true;
+            continue;
+        }
+        if (KeyWord::kTypedef == member->fKeyWord) {
+            this->stringAppend(result, member);
+            this->stringAppend(result, ';');
+            this->stringAppend(result, '\n');
+            continue;
+        }
+        if (KeyWord::kDefine == member->fKeyWord) {
+            string body(member->fContentStart, member->length());
+            if (string::npos != body.find('(')) {
+                this->stringAppend(result, body);
+                this->stringAppend(result, '\n');
+            }
+            continue;
+        }
+        if (KeyWord::kConstExpr == member->fKeyWord) {
+            this->stringAppend(result, member);
+            auto nextMember = def->fTokens.begin();
+            unsigned tokenPos = member->fParentIndex + 1;
+            SkASSERT(tokenPos < def->fTokens.size());
+            std::advance(nextMember, tokenPos);
+            while (member->fContentEnd >= nextMember->fContentStart) {
+                std::advance(nextMember, 1);
+                SkASSERT(++tokenPos < def->fTokens.size());
+            }
+            while (Punctuation::kSemicolon != nextMember->fPunctuation) {
+                std::advance(nextMember, 1);
+                SkASSERT(++tokenPos < def->fTokens.size());
+            }
+            TextParser between(member->fFileName, member->fContentEnd,
+                    nextMember->fContentStart, member->fLineCount);
+            between.skipWhiteSpace();
+            if ('=' == between.peek()) {
+                this->stringAppend(result, ' ');
+                string middle(between.fChar, nextMember->fContentStart);
+                this->stringAppend(result, middle);
+                last = nullptr;
+            } else {
+                SkAssertResult(';' == between.peek());
+            }
+            this->stringAppend(result, ';');
+            this->stringAppend(result, '\n');
+            continue;
+        }
+    }
 }
 
 void MdOut::markTypeOut(Definition* def, const Definition** prior) {
@@ -1263,40 +1496,14 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         case MarkType::kClass:
         case MarkType::kStruct: {
             fRoot = def->asRoot();
-            this->mdHeaderOut(1);
+        //    this->mdHeaderOut(1);
+            this->lfAlways(1);
             if (MarkType::kStruct == def->fMarkType) {
-                this->htmlOut(anchorDef(def->fFiddle, "Struct " + def->fName));
+                this->htmlOut(anchorDef(def->fFiddle, ""));
             } else {
-                this->htmlOut(anchorDef(this->linkName(def), "Class " + def->fName));
+                this->htmlOut(anchorDef(this->linkName(def), ""));
             }
-            this->lf(1);
-            if (string::npos != fRoot->fFileName.find("undocumented")) {
-                break;
-            }
-            // if class or struct contains constants, and doesn't contain subtopic kConstant, add it
-            // and add a child populate
-            const Definition* subtopic = def->subtopicParent();
-            const Definition* topic = def->topicParent();
-            for (auto item : SubtopicKeys::kGeneratedSubtopics) {
-                string subname;
-                if (subtopic != topic) {
-                    subname = subtopic->fName + '_';
-                }
-                subname += item;
-                if (fRoot->populator(item).fMembers.size()
-                        && !std::any_of(fRoot->fChildren.begin(), fRoot->fChildren.end(),
-                        [subname](const Definition* child) {
-                            return MarkType::kSubtopic == child->fMarkType
-                                    && subname == child->fName;
-                        } )) {
-                    // generate subtopic
-                    this->mdHeaderOut(2);
-                    this->htmlOut(anchorDef(subname, item));
-                    this->lf(2);
-                    // generate populate
-                    this->subtopicOut(item);
-                }
-            }
+        //    this->lf(1);
             } break;
         case MarkType::kCode:
             this->lfAlways(2);
@@ -1325,10 +1532,11 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             if (TableState::kNone == fTableState) {
                 SkASSERT(!*prior || (isConst && MarkType::kConst != (*prior)->fMarkType)
                         || (!isConst && MarkType::kMember != (*prior)->fMarkType));
-                this->mdHeaderOut(3);
-                FPRINTF("%s", this->fPopulators[isConst ? SubtopicKeys::kConstants :
-                        SubtopicKeys::kMembers].fName.c_str());
-                this->lfAlways(2);
+                if (isConst) {
+                    this->mdHeaderOut(3);
+                    this->writeString(this->fPopulators[SubtopicKeys::kConstants].fPlural);
+                    this->lfAlways(2);
+                }
                 FPRINTF("%s", kTableDeclaration);
                 fTableState = TableState::kRow;
                 fOddRow = true;
@@ -1512,7 +1720,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             string method_name = def->methodName();
             string formattedStr = def->formatFunction(Definition::Format::kIncludeReturn);
 			this->lfAlways(2);
-            this->htmlOut(anchorDef(def->fFiddle, ""));
+            this->htmlOut(this->anchorDef(def->fFiddle, ""));
 			if (!def->isClone()) {
                 this->mdHeaderOutLF(2, 1);
                 FPRINTF("%s", method_name.c_str());
@@ -1637,16 +1845,88 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             break;
         case MarkType::kPlatform:
             break;
-        case MarkType::kPopulate: {
-            SkASSERT(MarkType::kSubtopic == def->fParent->fMarkType);
-            string name = def->fParent->fName;
-            if (string::npos != name.find(SubtopicKeys::kOverview)) {
-                this->subtopicsOut(def->fParent);
+        case MarkType::kPopulate:
+            if (MarkType::kSubtopic == def->fParent->fMarkType) {
+                string name = def->fParent->fName;
+                if (string::npos != name.find(SubtopicKeys::kOverview)) {
+                    this->subtopicsOut(def->fParent);
+                } else {
+                    this->subtopicOut(name);
+                }
+            } else if (MarkType::kClass == def->fParent->fMarkType
+                    || MarkType::kStruct == def->fParent->fMarkType) {
+                Definition* parent = def->fParent;
+ //               SkASSERT(parent->csParent());
+                if (!parent->csParent()) {
+                    this->subtopicsOut(def->fParent);
+                }
+                // if class or struct contains constants, and doesn't contain subtopic kConstant,
+                //add it and add a child populate
+                const Definition* subtopic = parent->subtopicParent();
+                const Definition* topic = parent->topicParent();
+                for (auto item : SubtopicKeys::kGeneratedSubtopics) {
+                    if (SubtopicKeys::kRelatedFunctions == item) {
+                        continue;
+                    }
+                    if (SubtopicKeys::kMemberFunctions == item) {
+                        continue;
+                    }
+                    string subname;
+                    if (subtopic != topic) {
+                        subname = subtopic->fName + '_';
+                    }
+                    subname += item;
+                    if (fRoot->populator(item).fMembers.size()
+                            && !std::any_of(fRoot->fChildren.begin(), fRoot->fChildren.end(),
+                            [subname](const Definition* child) {
+                                return MarkType::kSubtopic == child->fMarkType
+                                        && subname == child->fName;
+                            } )) {
+                        // generate subtopic
+                        this->mdHeaderOut(2);
+                        string itemStr(item);
+                        std::replace(itemStr.begin(), itemStr.end(), '_', ' ');
+                        this->htmlOut(anchorDef(subname, itemStr));
+                        this->lf(2);
+                        // generate populate
+                        this->subtopicOut(item);
+                    }
+                }
             } else {
-                this->subtopicOut(name);
+                Definition* parent = def->fParent;
+                SkASSERT(parent && MarkType::kCode == parent->fMarkType);
+                // find include matching code parent
+                Definition* grand = parent->fParent;
+                SkASSERT(grand);
+                if (MarkType::kClass == grand->fMarkType
+                        || MarkType::kStruct == grand->fMarkType
+                        || MarkType::kEnum == grand->fMarkType
+                        || MarkType::kEnumClass == grand->fMarkType) {
+                    string codeBlock = fIncludeParser.codeBlock(*grand, fInProgress);
+                    this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
+                            this->resolvable(parent));
+                } else {
+                    SkASSERT(MarkType::kTopic == grand->fMarkType);
+                    // use bmh file name to find include file name
+                    size_t start = grand->fFileName.rfind("Sk");
+                    SkASSERT(start != string::npos && start >= 0);
+                    size_t end = grand->fFileName.rfind("_Reference");
+                    SkASSERT(end != string::npos && end > start);
+                    string incName(grand->fFileName.substr(start, end - start));
+                    const Definition* includeDef = fIncludeParser.include(incName + ".h");
+                    SkASSERT(includeDef);
+                    string codeBlock;
+                    this->addCodeBlock(includeDef, codeBlock);
+                    this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
+                            this->resolvable(parent));
+                }
             }
-            } break;
+            break;
         case MarkType::kPrivate:
+            this->writeString("Private:");
+            this->writeSpace();
+            this->writeBlock(def->length(), def->fContentStart);
+            this->lf(2);
             break;
         case MarkType::kReturn:
             this->mdHeaderOut(3);
@@ -1701,12 +1981,12 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             // if a subtopic child is const, generate short table of const name, value, line desc
             if (std::any_of(def->fChildren.begin(), def->fChildren.end(),
                     [](Definition* child){return MarkType::kConst == child->fMarkType;})) {
-                this->summaryOut(def, MarkType::kConst, fPopulators[SubtopicKeys::kConstants].fName);
+                this->summaryOut(def, MarkType::kConst, fPopulators[SubtopicKeys::kConstants].fPlural);
             }
             // if a subtopic child is member, generate short table of const name, value, line desc
             if (std::any_of(def->fChildren.begin(), def->fChildren.end(),
                     [](Definition* child){return MarkType::kMember == child->fMarkType;})) {
-                this->summaryOut(def, MarkType::kMember, fPopulators[SubtopicKeys::kMembers].fName);
+                this->summaryOut(def, MarkType::kMember, fPopulators[SubtopicKeys::kMembers].fPlural);
             }
             break;
         case MarkType::kTable:
@@ -1738,9 +2018,9 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             if (!isUndocumented) {
                 this->populateTables(def, fRoot);
             }
-            this->mdHeaderOut(1);
-            this->htmlOut(anchorDef(this->linkName(def), printable));
-            this->lf(1);
+//            this->mdHeaderOut(1);
+//            this->htmlOut(anchorDef(this->linkName(def), printable));
+//            this->lf(1);
             } break;
         case MarkType::kTypedef:
             this->mdHeaderOut(2);
@@ -2097,6 +2377,29 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
     }
 }
 
+void MdOut::rowOut(string col1, const Definition* col2) {
+    FPRINTF("%s", fOddRow ? kTR_Dark.c_str() : "  <tr>");
+    this->lfAlways(1);
+    FPRINTF("%s", kTD_Left.c_str());
+    if ("" != col1) {
+        this->writeString(col1);
+    }
+    FPRINTF("</td>");
+    this->lfAlways(1);
+    FPRINTF("%s", kTD_Left.c_str());
+    TextParser parser(col2->fFileName, col2->fStart, col2->fContentStart, col2->fLineCount);
+    parser.skipExact("#Method");
+    parser.skipSpace();
+    parser.trimEnd();
+    string methodName(parser.fChar, parser.fEnd - parser.fChar);
+    this->htmlOut(this->anchorRef("#" + col2->fFiddle, methodName));
+    this->htmlOut("</td>");
+    this->lfAlways(1);
+    FPRINTF("  </tr>");
+    this->lfAlways(1);
+    fOddRow = !fOddRow;
+}
+
 void MdOut::rowOut(const char* name, string description, bool literalName) {
     FPRINTF("%s", fOddRow ? kTR_Dark.c_str() : "  <tr>");
     this->lfAlways(1);
@@ -2131,9 +2434,16 @@ void MdOut::subtopicsOut(Definition* def) {
     this->lfAlways(1);
     fOddRow = true;
     for (auto item : SubtopicKeys::kGeneratedSubtopics) {
+        if (SubtopicKeys::kMemberFunctions == item) {
+            continue;
+        }
         for (auto entry : fRoot->populator(item).fMembers) {
             if ((csParent && entry->csParent() == csParent)
                     || entry->subtopicParent() == subtopicParent) {
+                if (SubtopicKeys::kRelatedFunctions == item) {
+                    (void) subtopicRowOut(entry->fName, entry); // report all errors
+                    continue;
+                }
                 auto popItem = fPopulators.find(item);
                 string description = popItem->second.fOneLiner;
                 if (SubtopicKeys::kConstructors == item) {
@@ -2143,7 +2453,7 @@ void MdOut::subtopicsOut(Definition* def) {
                 if (subtopicParent != topicParent) {
                     subtopic = subtopicParent->fName + '_';
                 }
-                string link = this->anchorLocalRef(subtopic + item, popItem->second.fName);
+                string link = this->anchorLocalRef(subtopic + item, popItem->second.fPlural);
                 this->rowOut(link.c_str(), description, true);
                 break;
             }
@@ -2167,7 +2477,7 @@ void MdOut::subtopicOut(string name) {
     this->lfAlways(1);
     if (fPopulators.end() != fPopulators.find(name)) {
         const SubtopicDescriptions& tableDescriptions = this->populator(name);
-        this->anchorDef(name, tableDescriptions.fName);
+        this->anchorDef(name, tableDescriptions.fPlural);
         this->lfAlways(1);
         if (tableDescriptions.fDetails.length()) {
             string details = csParent->fName;
@@ -2179,15 +2489,29 @@ void MdOut::subtopicOut(string name) {
         this->anchorDef(name, name);
         this->lfAlways(1);
     }
-    FPRINTF("%s", kTableDeclaration);
+    if (SubtopicKeys::kMembers == name) {
+        return; // members output their own table
+    }
+    const RootDefinition::SubtopicContents& tableContents = fRoot->populator(name.c_str());
+    if (SubtopicKeys::kTypedefs == name && fSubtopic && MarkType::kTopic == fSubtopic->fMarkType) {
+        topicParent = fSubtopic;
+    }
+    this->subtopicOut(name, tableContents.fMembers, csParent, topicParent,
+            tableContents.fShowClones);
+}
+
+void MdOut::subtopicOut(string key, const vector<Definition*>& data, const Definition* csParent,
+        const Definition* topicParent, bool showClones) {
+    this->writeString(kTableDeclaration);
     this->lfAlways(1);
-    FPRINTF("%s", kTopicsTableHeader);
+    this->writeSubtopicTableHeader(key);
     this->lfAlways(1);
     fOddRow = true;
     std::map<string, const Definition*> items;
-    const RootDefinition::SubtopicContents& tableContents = fRoot->populator(name.c_str());
-    auto& data = tableContents.fMembers;
     for (auto entry : data) {
+        if (!BmhParser::IsExemplary(entry)) {
+            continue;
+        }
         if (entry->csParent() != csParent && entry->topicParent() != topicParent) {
             continue;
         }
@@ -2198,55 +2522,77 @@ void MdOut::subtopicOut(string name) {
             start = entry->fName.substr(0, start - 1).rfind("::");
         }
         string entryName = entry->fName.substr(string::npos == start ? 0 : start + 1);
+//        fixup_const_function_name(&entry->fName);
         items[entryName] = entry;
     }
     for (auto entry : items) {
         if (entry.second->fDeprecated) {
             continue;
         }
-        const Definition* oneLiner = nullptr;
-        for (auto child : entry.second->fChildren) {
-            if (MarkType::kLine == child->fMarkType) {
-                oneLiner = child;
-                break;
-            }
+        if (!this->subtopicRowOut(entry.first, entry.second)) {
+            return;
         }
-        if (!oneLiner) {
-            TextParser parser(entry.second->fFileName, entry.second->fStart,
-                    entry.second->fContentStart, entry.second->fLineCount);
-            parser.reportError("missing #Line");
-            continue;
-        }
-        string keyName = entry.first;
-        TextParser dummy(entry.second); // for reporting errors, which we won't do
-        if (!this->isDefined(dummy, keyName, BmhParser::Resolvable::kOut)) {
-            keyName = entry.second->fName;
-            size_t doubleColon = keyName.find("::");
-            SkASSERT(string::npos != doubleColon);
-            keyName = keyName.substr(doubleColon + 2);
-        }
-        this->rowOut(keyName.c_str(), string(oneLiner->fContentStart,
-                oneLiner->fContentEnd - oneLiner->fContentStart), false);
-        if (tableContents.fShowClones && entry.second->fCloned) {
+        if (showClones && entry.second->fCloned) {
             int cloneNo = 2;
             string builder = entry.second->fName;
             if ("()" == builder.substr(builder.length() - 2)) {
                 builder = builder.substr(0, builder.length() - 2);
             }
             builder += '_';
-            this->rowOut("",
-                    preformat(entry.second->formatFunction(Definition::Format::kOmitReturn)), true);
+            this->rowOut("overloads", entry.second);
             do {
                 string match = builder + to_string(cloneNo);
                 auto child = csParent->findClone(match);
                 if (!child) {
                     break;
                 }
-                this->rowOut("",
-                        preformat(child->formatFunction(Definition::Format::kOmitReturn)), true);
+                this->rowOut("", child);
             } while (++cloneNo);
         }
     }
     FPRINTF("</table>");
     this->lf(2);
 }
+
+bool MdOut::subtopicRowOut(string keyName, const Definition* entry) {
+    const Definition* oneLiner = nullptr;
+    for (auto child : entry->fChildren) {
+        if (MarkType::kLine == child->fMarkType) {
+            oneLiner = child;
+            break;
+        }
+    }
+    if (!oneLiner) {
+        TextParser parser(entry->fFileName, entry->fStart,
+                entry->fContentStart, entry->fLineCount);
+        return parser.reportError<bool>("missing #Line");
+    }
+    TextParser dummy(entry); // for reporting errors, which we won't do
+    if (!this->isDefined(dummy, keyName, BmhParser::Resolvable::kOut)) {
+        keyName = entry->fName;
+        size_t doubleColon = keyName.find("::");
+        SkASSERT(string::npos != doubleColon);
+        keyName = keyName.substr(doubleColon + 2);
+    }
+    this->rowOut(keyName.c_str(), string(oneLiner->fContentStart,
+            oneLiner->fContentEnd - oneLiner->fContentStart), false);
+    return true;
+}
+
+void MdOut::writeSubtopicTableHeader(string key) {
+    this->htmlOut("<tr>");
+    this->htmlOut(kTH_Left);
+    if (fPopulators.end() != fPopulators.find(key)) {
+        this->writeString(fPopulators[key].fSingular);
+    } else {
+        this->writeString("Function");
+    }
+    this->htmlOut("</th>");
+    this->lf(1);
+    this->htmlOut(kTH_Left);
+    this->writeString("Description");
+    this->htmlOut("</th>");
+    this->htmlOut("</tr>");
+}
+
+#undef kTH_Left
