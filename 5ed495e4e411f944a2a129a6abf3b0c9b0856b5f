@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee954750_abc63663",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-08T16:30:19Z",
+      "side": 1,
+      "message": "Nit: This seems a little odd to me.  If we don\u0027t care about uploading the results, should the job exist at all?",
+      "range": {
+        "startLine": 988,
+        "startChar": 0,
+        "endLine": 989,
+        "endChar": 57
+      },
+      "revId": "5ed495e4e411f944a2a129a6abf3b0c9b0856b5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79b068dd_23e8163f",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-08T16:30:19Z",
+      "side": 1,
+      "message": "We could avoid this by just making it Housekeeper-PerCommit-BuildStats",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 6
+      },
+      "revId": "5ed495e4e411f944a2a129a6abf3b0c9b0856b5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3545949d_5ee9635a",
+        "filename": "infra/bots/recipes/compute_buildstats.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-08T16:30:19Z",
+      "side": 1,
+      "message": "IMO this is too long to be done with an inline script.  Let\u0027s move it to its own file.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 28
+      },
+      "revId": "5ed495e4e411f944a2a129a6abf3b0c9b0856b5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
