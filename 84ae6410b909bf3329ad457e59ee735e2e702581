@@ -34,6 +34,24 @@
       "revId": "84ae6410b909bf3329ad457e59ee735e2e702581",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80765f1a_5a90dafa",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-08T19:08:32Z",
+      "side": 1,
+      "message": "It was my fault - I needed to do go get golang.org/x/tools/cmd/goimports because goimports was being used by sublime (not gofmt)",
+      "parentUuid": "fab6d964_9b28949c",
+      "revId": "84ae6410b909bf3329ad457e59ee735e2e702581",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
