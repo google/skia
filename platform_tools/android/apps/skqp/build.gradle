@@ -13,7 +13,6 @@ dependencies {
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId "org.skia.skqp"
         minSdkVersion 19

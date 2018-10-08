@@ -28,7 +28,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Android_API26',
   'Build-Debian9-Clang-arm-Release-Android_ASAN',
   'Build-Debian9-Clang-arm-Release-Chromebook_GLES',
-  'Build-Debian9-Clang-universal-devrel-Android_SKQP',
+  'Build-Debian9-Clang-x86-devrel-Android_SKQP',
   'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian9-Clang-x86_64-Debug-Coverage',
   'Build-Debian9-Clang-x86_64-Debug-MSAN',
@@ -62,6 +62,7 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86-Debug-Exceptions',
   'Build-Win-Clang-x86_64-Debug-OpenCL',
   'Build-Win-Clang-x86_64-Release-Vulkan',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
 ]
 
