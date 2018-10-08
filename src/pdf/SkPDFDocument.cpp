@@ -119,9 +119,7 @@ int32_t SkPDFObjectSerializer::offset(SkWStream* wStream) {
     return SkToS32(offset - fBaseOffset);
 }
 
-
-// return root node.
-static sk_sp<SkPDFDict> generate_page_tree(std::vector<sk_sp<SkPDFDict>>* pages) {
+static sk_sp<SkPDFDict> generate_page_tree(const std::vector<sk_sp<SkPDFDict>>& pages) {
     // PDF wants a tree describing all the pages in the document.  We arbitrary
     // choose 8 (kNodeSize) as the number of allowed children.  The internal
     // nodes have type "Pages" with an array of children, a parent pointer, and
@@ -129,57 +127,53 @@ static sk_sp<SkPDFDict> generate_page_tree(std::vector<sk_sp<SkPDFDict>>* pages)
     // into the method, have type "Page" and need a parent pointer. This method
     // builds the tree bottom up, skipping internal nodes that would have only
     // one child.
-    static const int kNodeSize = 8;
+    SkASSERT(pages.size() > 0);
+    struct PageTreeNode {
+        sk_sp<SkPDFDict> fNode;
+        int fPageObjectDescendantCount;
 
-    // curNodes takes a reference to its items, which it passes to pageTree.
-    size_t totalPageCount = pages->size();
-    std::vector<sk_sp<SkPDFDict>> curNodes;
-    curNodes.swap(*pages);
-
-    // nextRoundNodes passes its references to nodes on to curNodes.
-    int treeCapacity = kNodeSize;
-    do {
-        std::vector<sk_sp<SkPDFDict>> nextRoundNodes;
-        for (size_t i = 0; i < curNodes.size(); ) {
-            if (i > 0 && i + 1 == curNodes.size()) {
-                SkASSERT(curNodes[i]);
-                nextRoundNodes.emplace_back(std::move(curNodes[i]));
-                break;
+        static void Layer(std::vector<PageTreeNode>* vec) {
+            std::vector<PageTreeNode> result;
+            static constexpr size_t kMaxNodeSize = 8;
+            const size_t n = vec->size();
+            SkASSERT(n >= 1);
+            const size_t result_len = (n - 1) / kMaxNodeSize + 1;
+            SkASSERT(result_len >= 1);
+            SkASSERT(n == 1 || result_len < n);
+            result.reserve(result_len);
+            size_t index = 0;
+            for (size_t i = 0; i < result_len; ++i) {
+                if (n != 1 && index + 1 == n) {  // No need to create a new node.
+                    result.push_back(std::move((*vec)[index++]));
+                    continue;
+                }
+                auto next = sk_make_sp<SkPDFDict>("Pages");
+                auto kids_list = sk_make_sp<SkPDFArray>();
+                int descendantCount = 0;
+                for (size_t j = 0; j < kMaxNodeSize && index < n; ++j) {
+                    PageTreeNode& node = (*vec)[index++];
+                    node.fNode->insertObjRef("Parent", next);
+                    kids_list->appendObjRef(std::move(node.fNode));
+                    descendantCount += node.fPageObjectDescendantCount;
+                }
+                next->insertInt("Count", descendantCount);
+                next->insertObject("Kids", std::move(kids_list));
+                result.push_back(PageTreeNode{std::move(next), descendantCount});
             }
-
-            auto newNode = sk_make_sp<SkPDFDict>("Pages");
-            auto kids = sk_make_sp<SkPDFArray>();
-            kids->reserve(kNodeSize);
-
-            int count = 0;
-            for (; i < curNodes.size() && count < kNodeSize; i++, count++) {
-                SkASSERT(curNodes[i]);
-                curNodes[i]->insertObjRef("Parent", newNode);
-                kids->appendObjRef(std::move(curNodes[i]));
-            }
-
-            // treeCapacity is the number of leaf nodes possible for the
-            // current set of subtrees being generated. (i.e. 8, 64, 512, ...).
-            // It is hard to count the number of leaf nodes in the current
-            // subtree. However, by construction, we know that unless it's the
-            // last subtree for the current depth, the leaf count will be
-            // treeCapacity, otherwise it's what ever is left over after
-            // consuming treeCapacity chunks.
-            size_t pageCount = treeCapacity;
-            if (i == curNodes.size()) {
-                pageCount = ((totalPageCount - 1) % treeCapacity) + 1;
-            }
-            newNode->insertInt("Count", SkToInt(pageCount));
-            newNode->insertObject("Kids", std::move(kids));
-            nextRoundNodes.emplace_back(std::move(newNode));
+            *vec = result;
         }
-        SkDEBUGCODE( for (const auto& n : curNodes) { SkASSERT(!n); } );
-
-        curNodes.swap(nextRoundNodes);
-        nextRoundNodes = std::vector<sk_sp<SkPDFDict>>();
-        treeCapacity *= kNodeSize;
-    } while (curNodes.size() > 1);
-    return std::move(curNodes[0]);
+    };
+    std::vector<PageTreeNode> currentLayer;
+    currentLayer.reserve(pages.size());
+    for (const sk_sp<SkPDFDict>& page : pages) {
+        currentLayer.push_back(PageTreeNode{page, 1});
+    }
+    PageTreeNode::Layer(&currentLayer);
+    while (currentLayer.size() > 1) {
+        PageTreeNode::Layer(&currentLayer);
+    }
+    SkASSERT(currentLayer.size() == 1);
+    return std::move(currentLayer[0].fNode);
 }
 
 template<typename T, typename... Args>
@@ -496,12 +490,9 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         docCatalog->insertObject("OutputIntents", make_srgb_output_intents());
     }
 
-    std::vector<sk_sp<SkPDFDict>> pagesCopy(fPages);
-    SkASSERT(!pagesCopy.empty());
-    sk_sp<SkPDFDict> pageTree = generate_page_tree(&pagesCopy);
+    sk_sp<SkPDFDict> pageTree = generate_page_tree(fPages);
     pageTree->insertObject("Resources", make_top_resource_dict());
     docCatalog->insertObjRef("Pages", std::move(pageTree));
-    SkASSERT(pagesCopy.empty());
     if (fDests->size() > 0) {
         docCatalog->insertObjRef("Dests", std::move(fDests));
     }
