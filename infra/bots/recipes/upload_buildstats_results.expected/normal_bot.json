@@ -27,7 +27,7 @@
       "-z",
       "json",
       "[START_DIR]/perf/buildstats_abc123.json",
-      "gs://skia-perf/buildstats-json-v1/2012/05/14/12/BuildStats-Debian9-EMCC-wasm-Release-PathKit/buildstats_abc123.json"
+      "gs://skia-perf/buildstats-json-v1/2012/05/14/12/BuildStats-Debian9-EMCC-wasm-Release-PathKit/abc123_buildstats_abc123.json"
     ],
     "infra_step": true,
     "name": "upload [START_DIR]/perf/buildstats_abc123.json"
@@ -39,7 +39,7 @@
       "-z",
       "json",
       "[START_DIR]/perf/buildstats_def.json",
-      "gs://skia-perf/buildstats-json-v1/2012/05/14/12/BuildStats-Debian9-EMCC-wasm-Release-PathKit/buildstats_def.json"
+      "gs://skia-perf/buildstats-json-v1/2012/05/14/12/BuildStats-Debian9-EMCC-wasm-Release-PathKit/abc123_buildstats_def.json"
     ],
     "infra_step": true,
     "name": "upload [START_DIR]/perf/buildstats_def.json"

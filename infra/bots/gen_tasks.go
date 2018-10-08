@@ -312,7 +312,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -997,9 +997,9 @@ func buildstats(b *specs.TasksCfgBuilder, name string, parts map[string]string, 
 	// Always upload the results (just don't run the task otherwise.)
 	uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 	extraProps := map[string]string{
-		"gs_bucket": CONFIG.GsBucketCalm,
+		"gs_bucket": CONFIG.GsBucketNano,
 	}
-	uploadTask := kitchenTask(name, "upload_buildstats_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_CALMBENCH, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
+	uploadTask := kitchenTask(name, "upload_buildstats_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_NANO, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 	uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 	uploadTask.Dependencies = append(uploadTask.Dependencies, name)
 	b.MustAddTask(uploadName, uploadTask)
