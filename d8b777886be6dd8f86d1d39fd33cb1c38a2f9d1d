@@ -22,6 +22,30 @@
       "revId": "d8b777886be6dd8f86d1d39fd33cb1c38a2f9d1d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d3994a9_ba3cd251",
+        "filename": "infra/bots/buildstats_web.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-08T17:58:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f9253a0_5e6500d3",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 1
+      },
+      "revId": "d8b777886be6dd8f86d1d39fd33cb1c38a2f9d1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
