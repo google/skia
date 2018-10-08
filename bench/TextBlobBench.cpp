@@ -27,13 +27,16 @@ public:
 
     void onDelayedSetup() override {
         fPaint.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()));
-        fPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        fPaint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
 
         // This text seems representative in both length and letter frequency.
         const char* text = "Keep your sentences short, but not overly so.";
 
         fGlyphs.setCount(fPaint.textToGlyphs(text, strlen(text), nullptr));
         fPaint.textToGlyphs(text, strlen(text), fGlyphs.begin());
+
+        fPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        fPaint.setSubpixelText(true);
     }
 
     sk_sp<SkTextBlob> makeBlob() {
@@ -41,7 +44,7 @@ public:
             fBuilder.allocRunPosH(fPaint, fGlyphs.count(), 10, nullptr);
         for (int i = 0; i < fGlyphs.count(); i++) {
             run.glyphs[i] = fGlyphs[i];
-            run.   pos[i] = (i+1) * 10;
+            run.   pos[i] = (i+1) * 10.125;
         }
         return fBuilder.make();
     }
@@ -63,7 +66,7 @@ class TextBlobCachedBench : public SkTextBlobBench {
         SkPaint paint;
 
         auto blob = this->makeBlob();
-        auto bigLoops = loops * 1000;
+        auto bigLoops = loops * 100;
         for (int i = 0; i < bigLoops; i++) {
             // To ensure maximum caching, we just redraw the blob at the same place everytime
             canvas->drawTextBlob(blob, 0, 0, paint);
@@ -79,7 +82,7 @@ class TextBlobFirstTimeBench : public SkTextBlobBench {
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
 
-        auto bigLoops = loops * 1000;
+        auto bigLoops = loops * 100;
         for (int i = 0; i < bigLoops; i++) {
             canvas->drawTextBlob(this->makeBlob(), 0, 0, paint);
         }
