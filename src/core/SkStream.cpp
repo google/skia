@@ -555,6 +555,40 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
     return true;
 }
 
+bool SkDynamicMemoryWStream::writeToAndReset(SkDynamicMemoryWStream* dst) {
+    SkASSERT(dst);
+    if (dst == this || 0 == this->bytesWritten()) {
+        return true;
+    }
+    if (0 == dst->bytesWritten()) {
+        *dst = std::move(*this);
+        return true;
+    }
+    dst->fTail->fNext = fHead;
+    dst->fBytesWrittenBeforeTail += fBytesWrittenBeforeTail + dst->fTail->written();
+    dst->fTail = fTail;
+    fHead = fTail = nullptr;
+    fBytesWrittenBeforeTail = 0;
+    return true;
+}
+
+void SkDynamicMemoryWStream::prependToAndReset(SkDynamicMemoryWStream* dst) {
+    if (!dst || dst == this || 0 == this->bytesWritten()) {
+        return;
+    }
+    if (0 == dst->bytesWritten()) {
+        *dst = std::move(*this);
+        return;
+    }
+    fTail->fNext = dst->fHead;
+    dst->fHead = fHead;
+    dst->fBytesWrittenBeforeTail += fBytesWrittenBeforeTail + fTail->written();
+    fHead = fTail = nullptr;
+    fBytesWrittenBeforeTail = 0;
+    return;
+}
+
+
 bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count) {
     if (offset + count > this->bytesWritten()) {
         return false; // test does not partially modify
