@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6995f2a4_fe1dc8c2",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 22
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-08T18:04:16Z",
+      "side": 1,
+      "message": "I\u0027m using the latest and greatest gofmt with 1.11.1 *shrug*",
+      "parentUuid": "d421f1d1_0b9f2090",
+      "range": {
+        "startLine": 315,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 56
+      },
+      "revId": "29aa290b0639693c4ef3ef70e9bd2a3877dfd3b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25c99446_bb7831bf",
         "filename": "infra/bots/recipes/test_skqp_emulator.py",
         "patchSetId": 22
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "b7c218e4_15eb127e",
+        "filename": "infra/bots/recipes/test_skqp_emulator.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-08T18:04:16Z",
+      "side": 1,
+      "message": "https://bugs.chromium.org/p/skia/issues/detail?id\u003d8454 filed to address this in the future.",
+      "parentUuid": "25c99446_bb7831bf",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 57
+      },
+      "revId": "29aa290b0639693c4ef3ef70e9bd2a3877dfd3b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "022da330_039d79dc",
         "filename": "infra/skqp/docker/android-skqp/Dockerfile",
         "patchSetId": 22
@@ -68,6 +116,30 @@
       "revId": "29aa290b0639693c4ef3ef70e9bd2a3877dfd3b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71126fab_2e600551",
+        "filename": "infra/skqp/docker/android-skqp/Dockerfile",
+        "patchSetId": 22
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-08T18:04:16Z",
+      "side": 1,
+      "message": "This documentation is a bit out of date because that\u0027s exactly what we do.\n\nbutomo1989/docker-android-x86-8.1:1.4-p1 can emulate\n\nbutomo1989/docker-android-x86-8.1:1.4-p1 + clang and things (this Dockerfile) can build (and\n emulate, if needed).\n\nDocumentation has been updated.",
+      "parentUuid": "022da330_039d79dc",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 91
+      },
+      "revId": "29aa290b0639693c4ef3ef70e9bd2a3877dfd3b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
