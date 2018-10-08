@@ -1,38 +1,11 @@
 #Topic Text_Blob
 #Alias Text_Blob_Reference ##
 
-#PhraseDef paint_font_metrics
-Typeface, Paint_Text_Size, Paint_Text_Scale_X,
-Paint_Text_Skew_X, Paint_Text_Align, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
-Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
-and Subpixel_Text
-##
-
-Text_Blob holds one or more runs of text. Each run associates a string of Glyphs
-with a position and Paint. Each Paint contains attributes used
-to define the run text: #paint_font_metrics#.
-
-Text_Blob runs of text use Glyph_ID encoding; each run Paint must set
-Paint_Text_Encoding to SkPaint::kGlyphID_TextEncoding.
-
-Text_Blob is constructed with SkTextBlob::MakeFromText or Text_Blob_Builder.
-Once created, Text_Blob can not be modified.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
-# ------------------------------------------------------------------------------
-
 #Class SkTextBlob
+
+#Code
+#Populate
+##
 
 SkTextBlob combines multiple text runs into an immutable container. Each text
 run consists of Glyphs, Paint, and position. Only parts of Paint related to
@@ -129,7 +102,7 @@ for (int index = 0; index < 2; ++index) {
 
 #Method static sk_sp<SkTextBlob> MakeFromText(
             const void* text, size_t byteLength, const SkPaint& paint)
-#In Constructor
+#In Constructors
 #Line # constructs Text_Blob with one run ##
 
 Creates Text_Blob with a single run. text meaning depends on Paint_Text_Encoding;
@@ -163,7 +136,7 @@ paint contains attributes used to define the run text: #paint_font_metrics#.
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkPaint& paint)
-#In Constructor
+#In Constructors
 #Line # constructs Text_Blob with one run ##
 
 Creates Text_Blob with a single run. string meaning depends on Paint_Text_Encoding;
@@ -276,7 +249,7 @@ $$$#
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs& procs)
-#In Constructor
+#In Constructors
 #Line # constructs Text_Blob from memory ##
 
 Recreates Text_Blob that was serialized into data. Returns constructed Text_Blob
