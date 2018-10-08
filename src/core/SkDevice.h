@@ -217,7 +217,11 @@ protected:
                               SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList) = 0;
+    void drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform);
+#endif
+
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
@@ -232,8 +236,6 @@ protected:
         onCreateDevice on this device with kNeverTile_TileExpectation.
      */
     virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
-
-    void drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform);
 
     virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
                              SkImage* clipImage, const SkMatrix& clipMatrix);
@@ -412,7 +414,9 @@ protected:
     void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
                         SkCanvas::SrcRectConstraint) override {}
     void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
+#ifdef SK_ENABLE_TEXT_SUPPORT
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
+#endif
     void drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                       const SkPaint&) override {}
 

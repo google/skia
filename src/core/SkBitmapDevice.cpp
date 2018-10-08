@@ -229,6 +229,7 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
     return true;
 }
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
 // TODO: unify this with the same functionality on SkDraw.
 static SkScalerContextFlags scaler_context_flags(const SkBitmap& bitmap)  {
     // If we're doing linear blending, then we can disable the gamma hacks.
@@ -240,12 +241,15 @@ static SkScalerContextFlags scaler_context_flags(const SkBitmap& bitmap)  {
         return SkScalerContextFlags::kFakeGammaAndBoostContrast;
     }
 }
+#endif
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
     : INHERITED(bitmap.info(), SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
     , fBitmap(bitmap)
     , fRCStack(bitmap.width(), bitmap.height())
+#ifdef SK_ENABLE_TEXT_SUPPORT
     , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), scaler_context_flags(bitmap))
+#endif
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
@@ -260,7 +264,9 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
     , fBitmap(bitmap)
     , fRasterHandle(hndl)
     , fRCStack(bitmap.width(), bitmap.height())
+#ifdef SK_ENABLE_TEXT_SUPPORT
     , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), scaler_context_flags(bitmap))
+#endif
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 
@@ -570,6 +576,7 @@ void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPa
     BDDraw(this).drawSprite(bitmap, x, y, paint);
 }
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
 void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 #if defined(SK_SUPPORT_LEGACY_TEXT_BLOB)
     auto blob = glyphRunList.blob();
@@ -585,6 +592,7 @@ void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     LOOP_TILER( drawGlyphRunList(glyphRunList, &fGlyphPainter), nullptr )
 #endif
 }
+#endif
 
 void SkBitmapDevice::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
                                   int boneCount, SkBlendMode bmode, const SkPaint& paint) {

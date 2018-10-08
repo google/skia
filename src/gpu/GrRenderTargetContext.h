@@ -59,7 +59,9 @@ class SK_API GrRenderTargetContext : public GrSurfaceContext {
 public:
     ~GrRenderTargetContext() override;
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     virtual void drawGlyphRunList(const GrClip&, const SkMatrix& viewMatrix, const SkGlyphRunList&);
+#endif
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
@@ -378,7 +380,9 @@ public:
     GrRenderTargetContextPriv priv();
     const GrRenderTargetContextPriv priv() const;
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     GrTextTarget* textTarget() { return fTextTarget.get(); }
+#endif
 
     bool isWrapped_ForTesting() const;
 
@@ -457,7 +461,9 @@ private:
     GrRenderTargetOpList* getRTOpList();
     GrOpList* getOpList() override;
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     std::unique_ptr<GrTextTarget> fTextTarget;
+#endif
     sk_sp<GrRenderTargetProxy> fRenderTargetProxy;
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked

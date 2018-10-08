@@ -600,6 +600,7 @@ sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef SK_ENABLE_TEXT_SUPPORT
 
 void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
     buffer.writeRect(blob.fBounds);
@@ -745,7 +746,17 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromText(
     return blobBuilder.make();
 }
 
+sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
+                                          const SkDeserialProcs& procs) {
+    SkReadBuffer buffer(data, length);
+    buffer.setDeserialProcs(procs);
+    return SkTextBlobPriv::MakeFromBuffer(buffer);
+}
+
+#endif
+
 sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
+#ifdef SK_ENABLE_TEXT_SUPPORT
     SkBinaryWriteBuffer buffer;
     buffer.setSerialProcs(procs);
     SkTextBlobPriv::Flatten(*this, buffer);
@@ -754,20 +765,20 @@ sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
     sk_sp<SkData> data = SkData::MakeUninitialized(total);
     buffer.writeToMemory(data->writable_data());
     return data;
-}
-
-sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
-                                          const SkDeserialProcs& procs) {
-    SkReadBuffer buffer(data, length);
-    buffer.setDeserialProcs(procs);
-    return SkTextBlobPriv::MakeFromBuffer(buffer);
+#else
+    return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const {
+#ifdef SK_ENABLE_TEXT_SUPPORT
     SkBinaryWriteBuffer buffer(memory, memory_size);
     buffer.setSerialProcs(procs);
     SkTextBlobPriv::Flatten(*this, buffer);
     return buffer.usingInitialStorage() ? buffer.bytesWritten() : 0u;
+#else
+    return 0;
+#endif
 }
