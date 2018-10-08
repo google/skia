@@ -216,8 +216,8 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
             return nullptr;
         }
         SkColorType ct = kUnknown_SkColorType;
-        if (SkYUVAIndex::kY_Index == i || SkYUVAIndex::kA_Index == i) {
-            // The Y and A planes are always kAlpha8 (for now)
+        if (SkYUVAIndex::kA_Index == i) {
+            // The A plane is always kAlpha8 (for now)
             ct = kAlpha_8_SkColorType;
         } else {
             // The UV planes can either be interleaved or planar
