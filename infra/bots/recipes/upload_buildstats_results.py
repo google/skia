@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 
-# Recipe for uploading nanobench results.
+# Recipe for uploading buildstats results to Perf.
 
 
 DEPS = [
@@ -17,7 +17,7 @@ DEPS = [
 
 
 def RunSteps(api):
-  # Upload the nanobench results.
+  # Upload the buildstats results.
   builder_name = api.properties['buildername']
 
   now = api.time.utcnow()
@@ -27,33 +27,33 @@ def RunSteps(api):
         'find results',
         src_path,
         '*.json',
-        test_data=['nanobench_abc123.json'])
-  if len(results) != 1:  # pragma: nocover
-    raise Exception('Unable to find nanobench or skpbench JSON file!')
+        test_data=['buildstats_abc123.json', 'buildstats_def.json'])
+  if not len(results):  # pragma: nocover
+    raise Exception('Unable to find buildstats JSON file!')
 
-  src = results[0]
-  basename = api.path.basename(src)
-  gs_path = '/'.join((
-      'nano-json-v1', str(now.year).zfill(4),
-      str(now.month).zfill(2), str(now.day).zfill(2), str(now.hour).zfill(2),
-      builder_name))
+  for src in results:
+    basename = api.path.basename(src)
+    gs_path = '/'.join((
+        'buildstats-json-v1', str(now.year).zfill(4),
+        str(now.month).zfill(2), str(now.day).zfill(2), str(now.hour).zfill(2),
+        builder_name))
 
-  issue = api.properties.get('patch_issue')
-  patchset = api.properties.get('patch_set')
-  if issue and patchset:
-    gs_path = '/'.join(('trybot', gs_path, str(issue), str(patchset)))
+    issue = api.properties.get('patch_issue')
+    patchset = api.properties.get('patch_set')
+    if issue and patchset:
+      gs_path = '/'.join(('trybot', gs_path, str(issue), str(patchset)))
 
-  dst = '/'.join((
-      'gs://%s' % api.properties['gs_bucket'], gs_path, basename))
+    dst = '/'.join((
+        'gs://%s' % api.properties['gs_bucket'], gs_path, basename))
 
-  api.step(
-      'upload',
-      cmd=['gsutil', 'cp', '-z', 'json', src, dst],
-      infra_step=True)
+    api.step(
+        'upload %s' % src,
+        cmd=['gsutil', 'cp', '-z', 'json', src, dst],
+        infra_step=True)
 
 
 def GenTests(api):
-  builder = 'Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-All-Debug'
+  builder = 'BuildStats-Debian9-EMCC-wasm-Release-PathKit'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,
