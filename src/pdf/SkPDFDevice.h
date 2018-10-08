@@ -90,7 +90,9 @@ public:
                        const SkRect& dst,
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
+#ifdef SK_ENABLE_TEXT_SUPPORT
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+#endif
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
@@ -131,7 +133,9 @@ public:
         int fGraphicStateIndex = -1;
     };
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     void DrawGlyphRunAsPath(SkPDFDevice* dev, const SkGlyphRun& glyphRun, SkPoint offset);
+#endif
 
 protected:
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
@@ -221,8 +225,10 @@ private:
                                             bool hasText,
                                             GraphicStateEntry* entry);
 
+#ifdef SK_ENABLE_TEXT_SUPPORT
     void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset);
     void drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset);
+#endif
 
     void internalDrawImageRect(SkKeyedImage,
                                const SkRect* src,

@@ -25,6 +25,7 @@
 #define SKIA_VERSION_MINOR  0
 #define SKIA_VERSION_PATCH  0
 
+//#define SK_ENABLE_TEXT_SUPPORT
 
 /** Called internally if we hit an unrecoverable error.
     The platform implementation must not return, but should either throw
