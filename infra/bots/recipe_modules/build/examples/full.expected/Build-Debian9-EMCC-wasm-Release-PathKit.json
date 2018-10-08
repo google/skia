@@ -6,6 +6,19 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "rmtree",
+      "[START_DIR]/cache/docker/wasm"
+    ],
+    "infra_step": true,
+    "name": "clean out_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",

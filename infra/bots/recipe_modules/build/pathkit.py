@@ -20,6 +20,9 @@ def compile_fn(api, checkout_root, _ignore):
   # owned by root, which causes mysterious failures. To mitigate this risk
   # further, we don't use the same out_dir as everyone else (thus the _ignore)
   # param. Instead, we use a "wasm" subdirectory in the "docker" named_cache.
+  # Additionally, we want to remove any previous builds, so they don't get
+  # munged in.
+  api.file.rmtree('clean out_dir', out_dir)
   api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
 
   # This uses the emscriptem sdk docker image and says "run the
