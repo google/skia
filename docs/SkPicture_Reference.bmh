@@ -4,6 +4,10 @@
 
 #Class SkPicture
 
+#Code
+#Populate
+##
+
 Picture records drawing commands made to Canvas. The command stream may be
 played in whole or in part at a later time.
 
@@ -14,18 +18,6 @@ Picture may contain any Canvas drawing command, as well as one or more
 Canvas_Matrix or Canvas_Clip. Picture has a cull Rect, which is used as
 a bounding box hint. To limit Picture bounds, use Canvas_Clip when
 recording or drawing Picture.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Class
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
 
 # ------------------------------------------------------------------------------
 
@@ -50,7 +42,7 @@ If AbortCallback::abort returns true, SkPicture::playback is interrupted.
 # ------------------------------------------------------------------------------
 
 #Method AbortCallback()
-#In Constructor
+#In Constructors
 #Line # defines default constructor ##
 Has no effect.
 
@@ -66,7 +58,7 @@ Has no effect.
 # ------------------------------------------------------------------------------
 
 #Method virtual ~AbortCallback()
-#In Constructor
+#In Constructors
 #Line # defines default destructor ##
 Has no effect.
 
@@ -136,7 +128,7 @@ void draw(SkCanvas* canvas) {
 
 #Method static sk_sp<SkPicture> MakeFromStream(SkStream* stream,
                                            const SkDeserialProcs* procs = nullptr)
-#In Constructor
+#In Constructors
 #Line # constructs Picture from stream ##
 
 Recreates Picture that was serialized into a stream. Returns constructed Picture
@@ -176,7 +168,7 @@ is called with a pointer to data, data byte length, and user context.
 
 #Method static sk_sp<SkPicture> MakeFromData(const SkData* data,
                                          const SkDeserialProcs* procs = nullptr)
-#In Constructor
+#In Constructors
 #Line # constructs Picture from data ##
 
 Recreates Picture that was serialized into data. Returns constructed Picture
@@ -414,7 +406,7 @@ is called with a pointer to Picture and user context.
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkPicture> MakePlaceholder(SkRect cull)
-#In Constructor
+#In Constructors
 #Line # constructs placeholder with unique identifier ##
 
 Returns a placeholder SkPicture. Result does not draw, and contains only
