@@ -70,7 +70,6 @@ void GrMtlRenderTarget::onRelease() {
 }
 
 bool GrMtlRenderTarget::completeStencilAttachment() {
-    // TODO: fill this out
     return true;
 }
 

@@ -23,6 +23,7 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     this->initGrCaps(device);
     this->initShaderCaps();
     this->initConfigTable();
+    this->initStencilFormat(device);
 
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
@@ -34,7 +35,6 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     fMipMapSupport = false;              // GrMtlGpu::onRegenerateMipMapLevels() not implemented
     fMultisampleDisableSupport = true;   // MSAA and resolving not implemented yet
     fDiscardRenderTargetSupport = false; // GrMtlGpuCommandBuffer::discard() not implemented
-    fAvoidStencilBuffers = true;         // Stencils not implemented
     fCrossContextTextureSupport = false; // GrMtlGpu::prepareTextureForCrossContextUsage() not impl
 }
 
@@ -408,6 +408,10 @@ void GrMtlCaps::initConfigTable() {
     // RGBA_half uses RGBA16Float
     info = &fConfigTable[kRGBA_half_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
+}
+
+void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
+    fPreferredStencilFormat = StencilFormat{ MTLPixelFormatStencil8, 8, 8, true };
 }
 
 #ifdef GR_TEST_UTILS
