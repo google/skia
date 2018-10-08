@@ -2,171 +2,11 @@
 #Alias Path_Reference ##
 #Alias Paths ##
 
-Path contains Lines and Curves which can be stroked or filled. Contour is
-composed of a series of connected Lines and Curves. Path may contain zero,
-one, or more Contours.
-Each Line and Curve are described by Verb, Points, and optional Conic_Weight.
-
-Each pair of connected Lines and Curves share common Point; for instance, Path
-containing two connected Lines are described the Verb sequence:
-SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb; and a Point sequence
-with three entries, sharing
-the middle entry as the end of the first Line and the start of the second Line.
-
-Path components Arc, Rect, Round_Rect, Circle, and Oval are composed of
-Lines and Curves with as many Verbs and Points required
-for an exact description. Once added to Path, these components may lose their
-identity; although Path can be inspected to determine if it describes a single
-Rect, Oval, Round_Rect, and so on.
-
-#Example
-#Height 192
-#Description
-Path contains three Contours: Line, Circle, and Quad. Line is stroked but
-not filled. Circle is stroked and filled; Circle stroke forms a loop. Quad
-is stroked and filled, but since it is not closed, Quad does not stroke a loop.
-##
-void draw(SkCanvas* canvas) {
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    SkPath path;
-    path.moveTo(124, 108);
-    path.lineTo(172, 24);
-    path.addCircle(50, 50, 30);
-    path.moveTo(36, 148);
-    path.quadTo(66, 188, 120, 136);
-    canvas->drawPath(path, paint);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setColor(SK_ColorBLUE);
-    paint.setStrokeWidth(3);
-    canvas->drawPath(path, paint);
-}
-##
-
-Path contains a Fill_Type which determines whether overlapping Contours
-form fills or holes. Fill_Type also determines whether area inside or outside
-Lines and Curves is filled.
-
-#Example
-#Height 192
-#Description
-Path is drawn filled, then stroked, then stroked and filled.
-##
-void draw(SkCanvas* canvas) {
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    SkPath path;
-    path.moveTo(36, 48);
-    path.quadTo(66, 88, 120, 36);
-    canvas->drawPath(path, paint);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setColor(SK_ColorBLUE);
-    paint.setStrokeWidth(8);
-    canvas->translate(0, 50);
-    canvas->drawPath(path, paint);
-    paint.setStyle(SkPaint::kStrokeAndFill_Style);
-    paint.setColor(SK_ColorRED);
-    canvas->translate(0, 50);
-    canvas->drawPath(path, paint);
-}
-##
-
-Path contents are never shared. Copying Path by value effectively creates
-a new Path independent of the original. Internally, the copy does not duplicate
-its contents until it is edited, to reduce memory use and improve performance.
-
-#Subtopic Contour
-#Alias Contours ##
-#Line # loop of lines and curves ##
-
-Contour contains one or more Verbs, and as many Points as
-are required to satisfy Verb_Array. First Verb in Path is always
-SkPath::kMove_Verb; each SkPath::kMove_Verb that follows starts a new Contour.
-
-#Example
-#Description
-Each SkPath::moveTo starts a new Contour, and content after SkPath::close()
-also starts a new Contour. Since SkPath::conicTo is not preceded by
-SkPath::moveTo, the first Point of the third Contour starts at the last Point
-of the second Contour.
-##
-#Height 192
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    canvas->drawString("1st contour", 150, 100, paint);
-    canvas->drawString("2nd contour", 130, 160, paint);
-    canvas->drawString("3rd contour", 40, 30, paint);
-    paint.setStyle(SkPaint::kStroke_Style);
-    SkPath path;
-    path.moveTo(124, 108);
-    path.lineTo(172, 24);
-    path.moveTo(36, 148);
-    path.quadTo(66, 188, 120, 136);
-    path.close();
-    path.conicTo(70, 20, 110, 40, 0.6f);
-    canvas->drawPath(path, paint);
-##
-
-If final Verb in Contour is SkPath::kClose_Verb, Line connects Last_Point in
-Contour with first Point. A closed Contour, stroked, draws
-Paint_Stroke_Join at Last_Point and first Point. Without SkPath::kClose_Verb
-as final Verb, Last_Point and first Point are not connected; Contour
-remains open. An open Contour, stroked, draws Paint_Stroke_Cap at
-Last_Point and first Point.
-
-#Example
-#Height 160
-#Description
-Path is drawn stroked, with an open Contour and a closed Contour.
-##
-void draw(SkCanvas* canvas) {
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(8);
-    SkPath path;
-    path.moveTo(36, 48);
-    path.quadTo(66, 88, 120, 36);
-    canvas->drawPath(path, paint);
-    path.close();
-    canvas->translate(0, 50);
-    canvas->drawPath(path, paint);
-}
-##
-
-#Subtopic Zero_Length
-#Alias Zero_Length_Contour ##
-#Line # consideration when contour has no length ##
-Contour length is distance traveled from first Point to Last_Point,
-plus, if Contour is closed, distance from Last_Point to first Point.
-Even if Contour length is zero, stroked Lines are drawn if Paint_Stroke_Cap
-makes them visible.
-
-#Example
-#Height 64
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(8);
-    paint.setStrokeCap(SkPaint::kRound_Cap);
-    SkPath path;
-    path.moveTo(36, 48);
-    path.lineTo(36, 48);
-    canvas->drawPath(path, paint);
-    path.reset();
-    paint.setStrokeCap(SkPaint::kSquare_Cap);
-    path.moveTo(56, 48);
-    path.close();
-    canvas->drawPath(path, paint);
-##
-
-#Subtopic Zero_Length ##
-
-#Subtopic Contour ##
-
-# ------------------------------------------------------------------------------
-
 #Class SkPath
+
+#Code
+#Populate
+##
 
 Paths contain geometry. Paths may be empty, or contain one or more Verbs that
 outline a figure. Path always starts with a move verb to a Cartesian_Coordinate,
@@ -184,34 +24,6 @@ overlapping contours.
 
 Internally, Path lazily computes metrics likes bounds and convexity. Call
 SkPath::updateBoundsCache to make Path thread safe.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Constant
-#Populate
-##
-
-#Subtopic Class
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Operator
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
 
 #Subtopic Verb
 #Alias Verbs ##
@@ -395,7 +207,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method SkPath()
-#In Constructor
+#In Constructors
 #Line # constructs with default values ##
 Constucts an empty Path. By default, Path has no Verbs, no Points, and no Weights.
 Fill_Type is set to kWinding_FillType.
@@ -417,7 +229,7 @@ path is empty
 # ------------------------------------------------------------------------------
 
 #Method SkPath(const SkPath& path)
-#In Constructor
+#In Constructors
 #Line # makes a shallow copy ##
 Constructs a copy of an existing path.
 Copy constructor makes two paths identical by value. Internally, path and
@@ -608,7 +420,6 @@ convexity !=
 # ------------------------------------------------------------------------------
 
 #Subtopic Property
-#Populate
 #Line # metrics and attributes ##
 ##
 
@@ -648,7 +459,6 @@ paths are interpolatable
 # ------------------------------------------------------------------------------
 
 #Subtopic Interpolate
-#Populate
 #Line # weighted average of Path pair ##
 ##
 
@@ -1219,7 +1029,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method SkPath& reset()
-#In Constructor
+#In Constructors
 #Line # removes Verb_Array, Point_Array, and Weights; frees memory ##
 Sets Path to its initial state.
 Removes Verb_Array, Point_Array, and Weights, and sets FillType to kWinding_FillType.
@@ -1243,7 +1053,7 @@ Internal storage associated with Path is released.
 # ------------------------------------------------------------------------------
 
 #Method SkPath& rewind()
-#In Constructor
+#In Constructors
 #Line # removes Verb_Array, Point_Array, and Weights, keeping memory ##
 Sets Path to its initial state, preserving internal storage.
 Removes Verb_Array, Point_Array, and Weights, and sets FillType to kWinding_FillType.
@@ -1415,7 +1225,6 @@ volatile by default is false
 
 # ------------------------------------------------------------------------------
 #Subtopic Volatile
-#Populate
 #Line # caching attribute ##
 ##
 
@@ -1864,7 +1673,7 @@ just right verb count: 3  move line line
 # ------------------------------------------------------------------------------
 
 #Method void swap(SkPath& other)
-#In Operator
+#In Operators
 #Line # exchanges Path pair ##
 Exchanges the Verb_Array, Point_Array, Weights, and Fill_Type with other.
 Cached state is also exchanged. swap() internally exchanges pointers, so
@@ -1939,7 +1748,6 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 
 # ------------------------------------------------------------------------------
 #Subtopic Utility
-#Populate
 #Line # rarely called management functions ##
 ##
 
@@ -2137,7 +1945,6 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 #Subtopic Build
-#Populate
 #Line # adds points and verbs to path ##
 ##
 
@@ -4763,7 +4570,6 @@ If dst is nullptr, Path is replaced by offset data.
 
 # ------------------------------------------------------------------------------
 #Subtopic Transform
-#Populate
 #Line # modify all points ##
 ##
 
@@ -5384,16 +5190,7 @@ empty genID = 1
 #Line # data iterator ##
 
 #Code
-class Iter {
-public:
-    Iter();
-    Iter(const SkPath& path, bool forceClose);
-    void setPath(const SkPath& path, bool forceClose);
-    Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false);
-    SkScalar conicWeight() const;
-    bool isCloseLine() const;
-    bool isClosedContour() const;
-};
+#Populate
 ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
@@ -5780,19 +5577,12 @@ with close(),    forceClose is true : isClosedContour returns true
 #Line # raw data iterator ##
 
 #Code
-    class RawIter {
-    public:
-        RawIter();
-        RawIter(const SkPath& path);
-        void setPath(const SkPath& path);
-        Verb next(SkPoint pts[4]);
-        Verb peek() const;
-        SkScalar conicWeight() const;
-    }
+#Populate
 ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
+
 
     #Method RawIter()
     #Line # constructs empty Path iterator ##

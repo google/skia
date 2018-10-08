@@ -1,30 +1,35 @@
 SkPicture Reference
 ===
 
-# <a name='Picture'>Picture</a>
+<a name='SkPicture'></a>
 
-# <a name='SkPicture'>Class SkPicture</a>
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+class <a href='#SkPicture'>SkPicture</a> : public <a href='undocumented#SkRefCnt'>SkRefCnt</a> {
+public:
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkPicture'>SkPicture</a>> <a href='#SkPicture_MakeFromStream'>MakeFromStream</a>(<a href='SkStream_Reference#SkStream'>SkStream</a>* stream,
+                                    const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkPicture'>SkPicture</a>> <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const <a href='undocumented#SkData'>SkData</a>* data,
+                                         const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkPicture'>SkPicture</a>> <a href='#SkPicture_MakeFromData_2'>MakeFromData</a>(const void* data, size_t size,
+                                         const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr);
 
-## <a name='Constructor'>Constructor</a>
+    class <a href='#SkPicture_AbortCallback'>AbortCallback</a> {
+    public:
+        <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a>;
+        virtual <a href='#SkPicture_AbortCallback_destructor'>~AbortCallback()</a>;
+        virtual bool <a href='#SkPicture_AbortCallback_abort'>abort</a>() = 0;
+    };
 
-
-SkPicture can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromData'>MakeFromData</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from data</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromStream'>MakeFromStream</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from stream</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakePlaceholder'>MakePlaceholder</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs placeholder with unique identifier</td>
-  </tr>
-</table>
+    virtual void <a href='#SkPicture_playback'>playback</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* canvas, <a href='#SkPicture_AbortCallback'>AbortCallback</a>* callback = nullptr) const = 0;
+    virtual <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPicture_cullRect'>cullRect</a>() const = 0;
+    uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>() const;
+    <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkData'>SkData</a>> <a href='#SkPicture_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const;
+    void <a href='#SkPicture_serialize_2'>serialize</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* stream, const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const;
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkPicture'>SkPicture</a>> <a href='#SkPicture_MakePlaceholder'>MakePlaceholder</a>(<a href='SkRect_Reference#SkRect'>SkRect</a> cull);
+    virtual int <a href='#SkPicture_approximateOpCount'>approximateOpCount</a>() const = 0;
+    virtual size_t <a href='#SkPicture_approximateBytesUsed'>approximateBytesUsed</a>() const = 0;
+};
+</pre>
 
 <a href='#Picture'>Picture</a> records drawing commands made to <a href='SkCanvas_Reference#Canvas'>Canvas</a>. The command stream may be
 played in whole or in part at a later time.
@@ -37,126 +42,14 @@ or <a href='undocumented#Drawable'>Drawable</a>, or from <a href='#Picture'>Pict
 a bounding box hint. To limit <a href='#Picture'>Picture</a> bounds, use <a href='SkCanvas_Reference#Clip'>Canvas Clip</a> when
 recording or drawing <a href='#Picture'>Picture</a>.
 
-## Overview
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Class'>Class Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded class members</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkPicture'>SkPicture</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-</table>
-
-
-## <a name='Class'>Class</a>
-
-
-SkPicture uses C++ classes to declare the public data structures and interfaces.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback'>AbortCallback</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>utility to stop picture playback</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member Function</a>
-
-
-SkPicture member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromData'>MakeFromData</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from data</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromStream'>MakeFromStream</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from stream</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakePlaceholder'>MakePlaceholder</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs placeholder with unique identifier</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_approximateBytesUsed'>approximateBytesUsed</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns approximate size</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_approximateOpCount'>approximateOpCount</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns approximate operation count</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_cullRect'>cullRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds used to record <a href='#Picture'>Picture</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_playback'>playback</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replays drawing commands on canvas</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_serialize'>serialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>writes <a href='#Picture'>Picture</a> to <a href='undocumented#Data'>Data</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_uniqueID'>uniqueID</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns identifier for <a href='#Picture'>Picture</a></td>
-  </tr>
-</table>
-
-# <a name='SkPicture_AbortCallback'>Class SkPicture::AbortCallback</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkPicture::AbortCallback can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines default constructor</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback_destructor'>~AbortCallback()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines default destructor</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkPicture::AbortCallback member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines default constructor</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback_abort'>abort</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>aborts playback by callback</td>
-  </tr>
-</table>
+<a name='SkPicture_AbortCallback'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a> {
     public:
         <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a> {}
         virtual <a href='#SkPicture_AbortCallback_destructor'>~AbortCallback()</a> {}
-        virtual bool <a href='#SkPicture_AbortCallback_abort'>abort</a> = 0;
+        virtual bool <a href='#SkPicture_AbortCallback_abort'>abort</a>() = 0;
     };
 </pre>
 
@@ -208,12 +101,12 @@ virtual bool <a href='#SkPicture_AbortCallback_abort'>abort</a>() = 0
 </pre>
 
 Stops <a href='#Picture'>Picture</a> playback when some condition is met. A subclass of
-<a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a> provides an override for <a href='#SkPicture_AbortCallback_abort'>abort</a> that can stop <a href='#SkPicture_playback'>SkPicture::playback</a>.
+<a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a> provides an override for <a href='#SkPicture_AbortCallback_abort'>abort</a>() that can stop <a href='#SkPicture_playback'>SkPicture::playback</a>.
 
 The part of <a href='#Picture'>Picture</a> drawn when aborted is undefined. <a href='#Picture'>Picture</a> instantiations are
 free to stop drawing at different points during playback.
 
-If the abort happens inside one or more calls to <a href='SkCanvas_Reference#SkCanvas_save'>SkCanvas::save()</a>, stack
+If the abort happens inside one or more calls to <a href='SkCanvas_Reference#SkCanvas_save'>SkCanvas::save</a>(), stack
 of <a href='SkCanvas_Reference#Matrix'>Canvas Matrix</a> and <a href='SkCanvas_Reference#Clip'>Canvas Clip</a> values is restored to its state before
 <a href='#SkPicture_playback'>SkPicture::playback</a> was called.
 

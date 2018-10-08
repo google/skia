@@ -43,20 +43,6 @@ add check to require #Const to contain #Code block if defining const or constexp
 subclasses (e.g. Iter in SkPath) need to check for #Line and generate overview
      subclass methods should also disallow #In
 
-There are a number of formatting bugs with ad hoc patches where a substitution doesn't keep
-the space before or after, or the linefeeds before or after. The rules are not very good either.
-Linefeeds in the bmh file are intended to be respected, but #Formula tends to start on a new line
-even if the contents is intended to be inlined. Probably need to require it to be, e.g.:
-
-    array length must be #Formula # (fXCount + 1) * (fYCount + 1) ##.
-
-where there is always a space between prior words and formula (i.e., between "be" and "(fXCount";
-and, an absense of a space after ## denotes no space between "+ 1)" and ".". These rules preserve
-that # commands are always preceded by a whitespace character. Similarly, #PhraseDef/Ref
-need to be inline or create new paragraphs. #phrase_ref# is sufficiently flexible that it can be
-treated as a word without trailing whitespace, adapting the whitespace of its context. It also must
-always have leading whitespace.
-
 It's awkward that phrase param is a child of the phrase def. Since phrase refs may also be children,
 there is special case code to skip phrase def when looking for additional substitutions in the
 phrase def. Could put it in the token list instead I guess, or make a definition subclass used
@@ -67,6 +53,13 @@ followed by more elaborate descriptions, examples, seealso. In md.cpp, look to s
 has #Const children. If so, generate a summary table first.
 Or, only allow #Line and moderate text description in #Const. Put more verbose text, example,
 seealso, in subsequent #SubTopic. Alpha_Type does this and it looks good.
+
+IPoint is awkward. SkPoint and SkIPoint are named things; Point is a topic, which
+refers to float points or integer points. There needn't be an IPoint topic.
+One way to resolve this would be to combine SkPoint_Reference and SkIPoint_Reference into
+Point_Reference that then contains both structs (or just move SKIPoint into SkPoint_Reference).
+Most Point references would be replaced with SkPoint / SkIPoint (if that's what they mean),
+or remain Point if the text indicates the concept rather one of the C structs.
 
 see head of selfCheck.cpp for additional todos
 see head of spellCheck.cpp for additional todos
@@ -140,7 +133,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "List",         MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
 , { "Literal",      MarkType::kLiteral,      R_N, E_N, M(Code) }
 , { "",             MarkType::kMarkChar,     R_N, E_N, 0 }
-, { "Member",       MarkType::kMember,       R_Y, E_N, M_CSST }
+, { "Member",       MarkType::kMember,       R_Y, E_O, M_CSST }
 , { "Method",       MarkType::kMethod,       R_Y, E_Y, M_CSST }
 , { "NoExample",    MarkType::kNoExample,    R_N, E_N, M_CSST | M_E | M_MD }
 , { "NoJustify",    MarkType::kNoJustify,    R_N, E_N, M(Const) | M(Member) }
@@ -150,7 +143,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "",             MarkType::kPhraseParam,  R_Y, E_N, 0 }
 , { "",             MarkType::kPhraseRef,    R_N, E_N, 0 }
 , { "Platform",     MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
-, { "Populate",     MarkType::kPopulate,     R_N, E_N, M(Subtopic) }
+, { "Populate",     MarkType::kPopulate,     R_N, E_N, M_CS | M(Code) }
 , { "Private",      MarkType::kPrivate,      R_N, E_N, M_CSST | M_MDCM | M_E }
 , { "Return",       MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",             MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
@@ -159,14 +152,15 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "StdOut",       MarkType::kStdOut,       R_N, E_N, M(Example) | M(NoExample) }
 , { "Struct",       MarkType::kStruct,       R_Y, E_O, M(Class) | M_ST }
 , { "Substitute",   MarkType::kSubstitute,   R_N, E_N, M(Alias) | M_ST }
-, { "Subtopic",     MarkType::kSubtopic,     R_Y, E_Y, M_CSST }
+, { "Subtopic",     MarkType::kSubtopic,     R_Y, E_Y, M_CSST | M_E }
 , { "Table",        MarkType::kTable,        R_Y, E_N, M(Method) | M_CSST | M_E }
 , { "Template",     MarkType::kTemplate,     R_Y, E_N, M_CSST }
 , { "",             MarkType::kText,         R_N, E_N, 0 }
 , { "ToDo",         MarkType::kToDo,         R_N, E_N, 0 }
 , { "Topic",        MarkType::kTopic,        R_Y, E_Y, 0 }
-, { "Typedef",      MarkType::kTypedef,      R_Y, E_N, M_CSST | M_E }
+, { "Typedef",      MarkType::kTypedef,      R_Y, E_O, M_CSST | M_E }
 , { "Union",        MarkType::kUnion,        R_Y, E_N, M_CSST }
+, { "Using",        MarkType::kUsing,        R_Y, E_O, M_CSST }
 , { "Volatile",     MarkType::kVolatile,     R_N, E_N, M(StdOut) }
 , { "Width",        MarkType::kWidth,        R_N, E_N, M(Example) | M(NoExample) }
 };
@@ -234,7 +228,8 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     if (!hasEnd && fRoot->find(name, RootDefinition::AllowParens::kNo)) {
                         return this->reportError<bool>("duplicate symbol");
                     }
-                    if (MarkType::kStruct == markType || MarkType::kClass == markType) {
+                    if (MarkType::kStruct == markType || MarkType::kClass == markType
+                            || MarkType::kEnumClass == markType) {
                         // if class or struct, build fRoot hierarchy
                         // and change isDefined to search all parents of fRoot
                         SkASSERT(!hasEnd);
@@ -1027,6 +1022,10 @@ static void add_code(string text, int pos, int end,
             ++pos;
         }
     } while (pos < end);
+}
+
+bool BmhParser::IsExemplary(const Definition* def) {
+    return kMarkProps[(int) def->fMarkType].fExemplary != Exemplary::kNo;
 }
 
 bool BmhParser::exampleToScript(Definition* def, ExampleOptions exampleOptions,
@@ -2053,10 +2052,14 @@ void TextParser::reportError(const char* errorStr) const {
 }
 
 void TextParser::reportWarning(const char* errorStr) const {
-    SkASSERT(fLine < fEnd);
-    TextParser err(fFileName, fLine, fEnd, fLineCount);
+    const char* lineStart = fLine;
+    if (lineStart >= fEnd) {
+        lineStart = fChar;
+    }
+    SkASSERT(lineStart < fEnd);
+    TextParser err(fFileName, lineStart, fEnd, fLineCount);
     size_t lineLen = this->lineLength();
-    ptrdiff_t spaces = fChar - fLine;
+    ptrdiff_t spaces = fChar - lineStart;
     while (spaces > 0 && (size_t) spaces > lineLen) {
         ++err.fLineCount;
         err.fLine += lineLen;
@@ -2756,15 +2759,19 @@ int main(int argc, char** const argv) {
     if (!done && !FLAGS_ref.isEmpty() && FLAGS_examples.isEmpty()) {
         IncludeParser includeParser;
         includeParser.validate();
+        if (!FLAGS_status.isEmpty() && !includeParser.parseStatus(FLAGS_status[0], ".h",
+                StatusFilter::kCompleted)) {
+            return -1;
+        }
         if (!FLAGS_include.isEmpty() && !includeParser.parseFile(FLAGS_include[0], ".h",
                 ParserCommon::OneFile::kYes)) {
             return -1;
         }
-        MdOut mdOut(bmhParser);
+        includeParser.writeCodeBlock(bmhParser);
+        MdOut mdOut(bmhParser, includeParser);
         mdOut.fDebugOut = FLAGS_stdout;
         mdOut.fValidate = FLAGS_validate;
-        if (!FLAGS_bmh.isEmpty() && mdOut.buildReferences(includeParser,
-                FLAGS_bmh[0], FLAGS_ref[0])) {
+        if (!FLAGS_bmh.isEmpty() && mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0])) {
             bmhParser.fWroteOut = true;
         }
         if (!FLAGS_status.isEmpty() && mdOut.buildStatus(FLAGS_status[0], FLAGS_ref[0])) {

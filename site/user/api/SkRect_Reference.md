@@ -1,9 +1,91 @@
 SkRect Reference
 ===
 
-# <a name='Rect'>Rect</a>
+<a name='SkRect'></a>
 
-# <a name='SkRect'>Struct SkRect</a>
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+struct <a href='#SkRect'>SkRect</a> {
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_fLeft'>fLeft</a>;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_fTop'>fTop</a>;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_fRight'>fRight</a>;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_fBottom'>fBottom</a>;
+
+    static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeEmpty'>MakeEmpty</a>();
+    static <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeLargest'>MakeLargest</a>();
+    static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeWH'>MakeWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> w, <a href='undocumented#SkScalar'>SkScalar</a> h);
+    static <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeIWH'>MakeIWH</a>(int w, int h);
+    static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeSize'>MakeSize</a>(const <a href='undocumented#SkSize'>SkSize</a>& size);
+    static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeLTRB'>MakeLTRB</a>(<a href='undocumented#SkScalar'>SkScalar</a> l, <a href='undocumented#SkScalar'>SkScalar</a> t, <a href='undocumented#SkScalar'>SkScalar</a> r,
+                                     <a href='undocumented#SkScalar'>SkScalar</a> b);
+    static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeXYWH'>MakeXYWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='undocumented#SkScalar'>SkScalar</a> w,
+                                     <a href='undocumented#SkScalar'>SkScalar</a> h);
+    static <a href='#SkRect'>SkRect</a> <a href='#SkRect_Make'>Make</a>(const <a href='undocumented#SkISize'>SkISize</a>& size);
+    static <a href='#SkRect'>SkRect</a> <a href='#SkRect_Make_2'>Make</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& irect);
+    bool <a href='#SkRect_isEmpty'>isEmpty</a>() const;
+    bool <a href='#SkRect_isSorted'>isSorted</a>() const;
+    bool <a href='#SkRect_isFinite'>isFinite</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_x'>x</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_y'>y</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_left'>left</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_top'>top</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_right'>right</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_bottom'>bottom</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_width'>width</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_height'>height</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_centerX'>centerX</a>() const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_centerY'>centerY</a>() const;
+    friend bool <a href='#SkRect_equal_operator'>operator==(const SkRect& a, const SkRect& b)</a>;
+    friend bool <a href='#SkRect_notequal_operator'>operator!=(const SkRect& a, const SkRect& b)</a>;
+    void <a href='#SkRect_toQuad'>toQuad</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> quad[4]) const;
+    void <a href='#SkRect_setEmpty'>setEmpty</a>();
+    void <a href='#SkRect_set'>set</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& src);
+    void <a href='#SkRect_set_2'>set</a>(<a href='undocumented#SkScalar'>SkScalar</a> left, <a href='undocumented#SkScalar'>SkScalar</a> top, <a href='undocumented#SkScalar'>SkScalar</a> right, <a href='undocumented#SkScalar'>SkScalar</a> bottom);
+    void <a href='#SkRect_setLTRB'>setLTRB</a>(<a href='undocumented#SkScalar'>SkScalar</a> left, <a href='undocumented#SkScalar'>SkScalar</a> top, <a href='undocumented#SkScalar'>SkScalar</a> right, <a href='undocumented#SkScalar'>SkScalar</a> bottom);
+    void <a href='#SkRect_iset'>iset</a>(int left, int top, int right, int bottom);
+    void <a href='#SkRect_isetWH'>isetWH</a>(int width, int height);
+    void <a href='#SkRect_set_3'>set</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int count);
+    void <a href='#SkRect_setBounds'>setBounds</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int count);
+    bool <a href='#SkRect_setBoundsCheck'>setBoundsCheck</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int count);
+    void <a href='#SkRect_setBoundsNoCheck'>setBoundsNoCheck</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int count);
+    void <a href='#SkRect_set_4'>set</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p0, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1);
+    void <a href='#SkRect_setXYWH'>setXYWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='undocumented#SkScalar'>SkScalar</a> width, <a href='undocumented#SkScalar'>SkScalar</a> height);
+    void <a href='#SkRect_setWH'>setWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> width, <a href='undocumented#SkScalar'>SkScalar</a> height);
+    <a href='#SkRect'>SkRect</a> <a href='#SkRect_makeOffset'>makeOffset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy) const;
+    <a href='#SkRect'>SkRect</a> <a href='#SkRect_makeInset'>makeInset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy) const;
+    <a href='#SkRect'>SkRect</a> <a href='#SkRect_makeOutset'>makeOutset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy) const;
+    void <a href='#SkRect_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    void <a href='#SkRect_offset_2'>offset</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& delta);
+    void <a href='#SkRect_offsetTo'>offsetTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> newX, <a href='undocumented#SkScalar'>SkScalar</a> newY);
+    void <a href='#SkRect_inset'>inset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    void <a href='#SkRect_outset'>outset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    bool <a href='#SkRect_intersect'>intersect</a>(const <a href='#SkRect'>SkRect</a>& r);
+    bool <a href='#SkRect_intersect_2'>intersect</a>(<a href='undocumented#SkScalar'>SkScalar</a> left, <a href='undocumented#SkScalar'>SkScalar</a> top, <a href='undocumented#SkScalar'>SkScalar</a> right, <a href='undocumented#SkScalar'>SkScalar</a> bottom);
+    bool <a href='#SkRect_intersect_3'>intersect</a>(const <a href='#SkRect'>SkRect</a>& a, const <a href='#SkRect'>SkRect</a>& b);
+    bool <a href='#SkRect_intersects'>intersects</a>(<a href='undocumented#SkScalar'>SkScalar</a> left, <a href='undocumented#SkScalar'>SkScalar</a> top, <a href='undocumented#SkScalar'>SkScalar</a> right, <a href='undocumented#SkScalar'>SkScalar</a> bottom) const;
+    bool <a href='#SkRect_intersects_2'>intersects</a>(const <a href='#SkRect'>SkRect</a>& r) const;
+    static bool <a href='#SkRect_Intersects'>Intersects</a>(const <a href='#SkRect'>SkRect</a>& a, const <a href='#SkRect'>SkRect</a>& b);
+    void <a href='#SkRect_join'>join</a>(<a href='undocumented#SkScalar'>SkScalar</a> left, <a href='undocumented#SkScalar'>SkScalar</a> top, <a href='undocumented#SkScalar'>SkScalar</a> right, <a href='undocumented#SkScalar'>SkScalar</a> bottom);
+    void <a href='#SkRect_join_2'>join</a>(const <a href='#SkRect'>SkRect</a>& r);
+    void <a href='#SkRect_joinNonEmptyArg'>joinNonEmptyArg</a>(const <a href='#SkRect'>SkRect</a>& r);
+    void <a href='#SkRect_joinPossiblyEmptyRect'>joinPossiblyEmptyRect</a>(const <a href='#SkRect'>SkRect</a>& r);
+    bool <a href='#SkRect_contains'>contains</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const;
+    bool <a href='#SkRect_contains_2'>contains</a>(const <a href='#SkRect'>SkRect</a>& r) const;
+    bool <a href='#SkRect_contains_3'>contains</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& r) const;
+    void <a href='#SkRect_round'>round</a>(<a href='SkIRect_Reference#SkIRect'>SkIRect</a>* dst) const;
+    void <a href='#SkRect_roundOut'>roundOut</a>(<a href='SkIRect_Reference#SkIRect'>SkIRect</a>* dst) const;
+    void <a href='#SkRect_roundOut_2'>roundOut</a>(<a href='#SkRect'>SkRect</a>* dst) const;
+    void <a href='#SkRect_roundIn'>roundIn</a>(<a href='SkIRect_Reference#SkIRect'>SkIRect</a>* dst) const;
+    <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkRect_round_2'>round</a>() const;
+    <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkRect_roundOut_3'>roundOut</a>() const;
+    void <a href='#SkRect_sort'>sort</a>();
+    <a href='#SkRect'>SkRect</a> <a href='#SkRect_makeSorted'>makeSorted</a>() const;
+    const <a href='undocumented#SkScalar'>SkScalar</a>* <a href='#SkRect_asScalars'>asScalars</a>() const;
+    void <a href='#SkRect_dump'>dump</a>(bool asHex) const;
+    void <a href='#SkRect_dump_2'>dump</a>() const;
+    void <a href='#SkRect_dumpHex'>dumpHex</a>() const;
+};
+</pre>
+
 <a href='#SkRect'>SkRect</a> holds four <a href='undocumented#SkScalar'>SkScalar</a> coordinates describing the upper and
 lower bounds of a rectangle. <a href='#SkRect'>SkRect</a> may be created from outer bounds or
 from position, width, and height. <a href='#SkRect'>SkRect</a> describes an area; if its right
@@ -11,362 +93,10 @@ is less than or equal to its left, or if its bottom is less than or equal to
 its top, it is considered empty.
 
 <a href='#SkRect'>SkRect</a> can be constructed from int values to avoid compiler warnings that
-integer input cannot convert to <a href='undocumented#SkScalar'>SkScalar</a> without loss of precision.
+integer input cannot convert to <a href='undocumented#SkScalar'>SkScalar</a> without loss of precision.<table style='border-collapse: collapse; width: 62.5em'>
 
-## Overview
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkRect'>SkRect</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member'>Members</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
-  </tr>
-</table>
-
-
-## <a name='Related_Function'>Related Function</a>
-
-
-SkRect global, <code>struct</code>, and <code>class</code> related member functions share a topic.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#As_Points'>As Points</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>conversion to and from <a href='SkPoint_Reference#Point'>Points</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#From_Integers'>From Integers</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='undocumented#Scalar'>Scalar</a> values from integer input</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Inset_Outset_Offset'>Inset Outset Offset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves sides</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Intersection'>Intersection</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to shared bounds</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Join'>Join</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Property'>Property</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values, center, validity</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Rounding'>Rounding</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adjust to integer bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Set'>Set</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces all values</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Sorting'>Sorting</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orders sides</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member Function</a>
-
-
-SkRect member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_Intersects'>Intersects</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if areas overlap</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_Make'>Make</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#ISize'>ISize</a> returning (0, 0, width, height)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeEmpty'>MakeEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from bounds of (0, 0, 0, 0)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeIWH'>MakeIWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from int input returning (0, 0, width, height)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeLTRB'>MakeLTRB</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#SkScalar'>SkScalar</a> left, top, right, bottom</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeSize'>MakeSize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#Size'>Size</a> returning (0, 0, width, height)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeWH'>MakeWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#SkScalar'>SkScalar</a> input returning (0, 0, width, height)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeXYWH'>MakeXYWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#SkScalar'>SkScalar</a> input returning (x, y, width, height)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_asScalars'>asScalars</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pointer to members as array</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_bottom'>bottom</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns larger bounds in y, if sorted</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_centerX'>centerX</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns midpoint in x</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_centerY'>centerY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns midpoint in y</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_contains'>contains</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if points are equal or inside</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_dump_2'>dump</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation to standard output using floats</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_dumpHex'>dumpHex</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation to standard output using hexadecimal</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_height'>height</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in y</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_inset'>inset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_intersect'>intersect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to shared area; returns true if not empty</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_intersects'>intersects</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if areas overlap</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_isEmpty'>isEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if width or height are zero or negative</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_isFinite'>isFinite</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if no member is infinite or NaN</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_isSorted'>isSorted</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if width or height are zero or positive</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_iset'>iset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to int input (left, top, right, bottom)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_isetWH'>isetWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to int input (0, 0, width, height)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_join'>join</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_joinNonEmptyArg'>joinNonEmptyArg</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds, asserting that argument is not empty</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_joinPossiblyEmptyRect'>joinPossiblyEmptyRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds; skips empty check for both</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_left'>left</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns smaller bounds in x, if sorted</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_makeInset'>makeInset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from sides moved symmetrically about the center</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_makeOffset'>makeOffset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from translated sides</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_makeOutset'>makeOutset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from sides moved symmetrically about the center</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_makeSorted'>makeSorted</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Rect'>Rect</a>, ordering sides from smaller to larger</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_offset'>offset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates sides without changing width and height</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_offsetTo'>offsetTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates to (x, y) without changing width and height</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_outset'>outset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_right'>right</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns larger bounds in x, if sorted</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_round_2'>round</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets members to nearest integer value</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_roundIn'>roundIn</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets members to nearest integer value towards opposite</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_roundOut'>roundOut</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets members to nearest integer value away from opposite</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_set'>set</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (left, top, right, bottom) and others</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setBounds'>setBounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to upper and lower limits of <a href='SkPoint_Reference#Point'>Point</a> array</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setBoundsCheck'>setBoundsCheck</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to upper and lower limits of <a href='SkPoint_Reference#Point'>Point</a> array</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setBoundsNoCheck'>setBoundsNoCheck</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to upper and lower limits of <a href='SkPoint_Reference#Point'>Point</a> array</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setEmpty'>setEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to (0, 0, 0, 0)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setLTRB'>setLTRB</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (left, top, right, bottom)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setWH'>setWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (0, 0, width, height)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setXYWH'>setXYWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (x, y, width, height)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_sort'>sort</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orders sides from smaller to larger</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_toQuad'>toQuad</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns four corners as <a href='SkPoint_Reference#Point'>Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_top'>top</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns smaller bounds in y, if sorted</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_width'>width</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in x</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_x'>x</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds left</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_y'>y</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds top</td>
-  </tr>
-</table>
-
-## <a name='Member'>Member</a>
-
-
-
-### Members
-
-<table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Name</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fLeft'><code>fLeft</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller x-axis bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fTop'><code>fTop</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller y-axis bounds</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fRight'><code>fRight</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>larger x-axis bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fBottom'><code>fBottom</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>larger y-axis bounds</td>
-  </tr>
-</table>
-
-
-SkRect members may be read and written directly without using a member function.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_fBottom'>fBottom</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>larger y-axis bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_fLeft'>fLeft</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller x-axis bounds</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_fRight'>fRight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>larger x-axis bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_fTop'>fTop</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller y-axis bounds</td>
-  </tr>
-</table>
-
-### Members
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Name</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
@@ -400,66 +130,15 @@ May contain any value, including infinities and NaN. The larger of the
 vertical values when sorted. When equal to or less than <a href='#SkRect_fTop'>fTop</a>, <a href='#Rect'>Rect</a> is empty.
 </td>
   </tr>
-
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkRect can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_Make'>Make</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#ISize'>ISize</a> returning (0, 0, width, height)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeEmpty'>MakeEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from bounds of (0, 0, 0, 0)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeIWH'>MakeIWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from int input returning (0, 0, width, height)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeLTRB'>MakeLTRB</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#SkScalar'>SkScalar</a> left, top, right, bottom</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeSize'>MakeSize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#Size'>Size</a> returning (0, 0, width, height)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeWH'>MakeWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#SkScalar'>SkScalar</a> input returning (0, 0, width, height)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_MakeXYWH'>MakeXYWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from <a href='undocumented#SkScalar'>SkScalar</a> input returning (x, y, width, height)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_makeInset'>makeInset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from sides moved symmetrically about the center</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_makeOffset'>makeOffset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from translated sides</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_makeOutset'>makeOutset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs from sides moved symmetrically about the center</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_makeSorted'>makeSorted</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Rect'>Rect</a>, ordering sides from smaller to larger</td>
-  </tr>
 </table>
+
+## <a name='Constructors'>Constructors</a>
 
 <a name='SkRect_MakeEmpty'></a>
 ## MakeEmpty
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkRect'>SkRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRect_MakeEmpty'>MakeEmpty</a>()
+static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeEmpty'>MakeEmpty</a>()
 </pre>
 
 Returns constructed <a href='#Rect'>Rect</a> set to (0, 0, 0, 0).
@@ -496,7 +175,7 @@ outset rect isEmpty: false
 ## MakeWH
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkRect'>SkRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRect_MakeWH'>MakeWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> w, <a href='undocumented#SkScalar'>SkScalar</a> h)
+static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeWH'>MakeWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> w, <a href='undocumented#SkScalar'>SkScalar</a> h)
 </pre>
 
 Returns constructed <a href='#Rect'>Rect</a> set to <a href='undocumented#SkScalar'>SkScalar</a> values (0, 0, <a href='#SkRect_MakeWH_w'>w</a>, <a href='#SkRect_MakeWH_h'>h</a>). Does not
@@ -541,7 +220,7 @@ all equal
 ## MakeIWH
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkRect'>SkRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRect_MakeIWH'>MakeIWH</a>(int w, int h)
+static <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeIWH'>MakeIWH</a>(int w, int h)
 </pre>
 
 Returns constructed <a href='#Rect'>Rect</a> set to integer values (0, 0, <a href='#SkRect_MakeIWH_w'>w</a>, <a href='#SkRect_MakeIWH_h'>h</a>). Does not validate
@@ -587,11 +266,11 @@ i_rect width: 125000111 f_rect width:125000112
 ## MakeSize
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkRect'>SkRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRect_MakeSize'>MakeSize</a>(const <a href='undocumented#SkSize'>SkSize</a>& size)
+static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeSize'>MakeSize</a>(const <a href='undocumented#SkSize'>SkSize</a>& size)
 </pre>
 
-Returns constructed <a href='#Rect'>Rect</a> set to (0, 0, <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_width'>width</a>, <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_height'>height</a>). Does not
-validate input; <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_width'>width</a> or <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_height'>height</a> may be negative.
+Returns constructed <a href='#Rect'>Rect</a> set to (0, 0, <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_width'>width</a>(), <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_height'>height</a>()). Does not
+validate input; <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_width'>width</a>() or <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_height'>height</a>() may be negative.
 
 ### Parameters
 
@@ -602,7 +281,7 @@ validate input; <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_width'
 
 ### Return Value
 
-bounds (0, 0, <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_width'>width</a>, <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_height'>height</a>)
+bounds (0, 0, <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_width'>width</a>(), <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_height'>height</a>())
 
 ### Example
 
@@ -627,7 +306,7 @@ floor width: 25  height: 35
 ## MakeLTRB
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkRect'>SkRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRect_MakeLTRB'>MakeLTRB</a>(<a href='undocumented#SkScalar'>SkScalar</a> l, <a href='undocumented#SkScalar'>SkScalar</a> t, <a href='undocumented#SkScalar'>SkScalar</a> r, <a href='undocumented#SkScalar'>SkScalar</a> b)
+static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeLTRB'>MakeLTRB</a>(<a href='undocumented#SkScalar'>SkScalar</a> l, <a href='undocumented#SkScalar'>SkScalar</a> t, <a href='undocumented#SkScalar'>SkScalar</a> r, <a href='undocumented#SkScalar'>SkScalar</a> b)
 </pre>
 
 Returns constructed <a href='#Rect'>Rect</a> set to (<a href='#SkRect_MakeLTRB_l'>l</a>, <a href='#SkRect_MakeLTRB_t'>t</a>, <a href='#SkRect_MakeLTRB_r'>r</a>, <a href='#SkRect_MakeLTRB_b'>b</a>). Does not sort input; <a href='#Rect'>Rect</a> may
@@ -676,7 +355,7 @@ rect: 5, 25, 15, 35  isEmpty: false
 ## MakeXYWH
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkRect'>SkRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRect_MakeXYWH'>MakeXYWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='undocumented#SkScalar'>SkScalar</a> w, <a href='undocumented#SkScalar'>SkScalar</a> h)
+static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeXYWH'>MakeXYWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='undocumented#SkScalar'>SkScalar</a> w, <a href='undocumented#SkScalar'>SkScalar</a> h)
 </pre>
 
 Returns constructed <a href='#Rect'>Rect</a> set to <code>\(x, y, x&nbsp;\+&nbsp;<a href='#SkRect_MakeXYWH_w'>w</a>, y&nbsp;\+&nbsp;<a href='#SkRect_MakeXYWH_h'>h</a>\)</code>.
@@ -728,8 +407,8 @@ rect: -10, 35, 5, 60  isEmpty: false
 static <a href='#SkRect'>SkRect</a> <a href='#SkRect_Make'>Make</a>(const <a href='undocumented#SkISize'>SkISize</a>& size)
 </pre>
 
-Returns constructed <a href='SkIRect_Reference#IRect'>IRect</a> set to (0, 0, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>).
-Does not validate input; <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a> or <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a> may be negative.
+Returns constructed <a href='SkIRect_Reference#IRect'>IRect</a> set to (0, 0, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>(), <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>()).
+Does not validate input; <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>() or <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>() may be negative.
 
 ### Parameters
 
@@ -740,7 +419,7 @@ Does not validate input; <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_w
 
 ### Return Value
 
-bounds (0, 0, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>)
+bounds (0, 0, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>(), <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>())
 
 ### Example
 
@@ -763,7 +442,7 @@ rect1 == rect2
 <a name='SkRect_Make_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkRect'>SkRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRect_Make'>Make</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& irect)
+static <a href='#SkRect'>SkRect</a> <a href='#SkRect_Make'>Make</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& irect)
 </pre>
 
 Returns constructed <a href='SkIRect_Reference#IRect'>IRect</a> set to <a href='#SkRect_Make_2_irect'>irect</a>, promoting integers to <a href='undocumented#Scalar'>Scalar</a>.
@@ -793,84 +472,6 @@ than <a href='#SkRect_fBottom'>fBottom</a>.
 
 ## <a name='Property'>Property</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_asScalars'>asScalars</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns pointer to members as array</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_bottom'>bottom</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns larger bounds in y, if sorted</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_centerX'>centerX</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns midpoint in x</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_centerY'>centerY</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns midpoint in y</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_dump_2'>dump</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation to standard output using floats</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_dump'>dump(bool asHex)</a> const</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_dump_2'>dump</a> const</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_dumpHex'>dumpHex</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation to standard output using hexadecimal</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_height'>height</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in y</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_isEmpty'>isEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if width or height are zero or negative</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_isFinite'>isFinite</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if no member is infinite or NaN</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_isSorted'>isSorted</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if width or height are zero or positive</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_left'>left</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns smaller bounds in x, if sorted</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_right'>right</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns larger bounds in x, if sorted</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_top'>top</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns smaller bounds in y, if sorted</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_width'>width</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns span in x</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_x'>x</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds left</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_y'>y</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds top</td>
-  </tr>
-</table>
-
 <a name='SkRect_isEmpty'></a>
 ## isEmpty
 
@@ -879,12 +480,12 @@ bool <a href='#SkRect_isEmpty'>isEmpty</a>() const
 </pre>
 
 Returns true if <a href='#SkRect_fLeft'>fLeft</a> is equal to or greater than <a href='#SkRect_fRight'>fRight</a>, or if <a href='#SkRect_fTop'>fTop</a> is equal
-to or greater than <a href='#SkRect_fBottom'>fBottom</a>. Call <a href='#SkRect_sort'>sort</a> to reverse rectangles with negative
-<a href='#SkRect_width'>width</a> or <a href='#SkRect_height'>height</a>.
+to or greater than <a href='#SkRect_fBottom'>fBottom</a>. Call <a href='#SkRect_sort'>sort</a>() to reverse rectangles with negative
+<a href='#SkRect_width'>width</a>() or <a href='#SkRect_height'>height</a>().
 
 ### Return Value
 
-true if <a href='#SkRect_width'>width</a> or <a href='#SkRect_height'>height</a> are zero or negative
+true if <a href='#SkRect_width'>width</a>() or <a href='#SkRect_height'>height</a>() are not positive and valid
 
 ### Example
 
@@ -915,12 +516,12 @@ bool <a href='#SkRect_isSorted'>isSorted</a>() const
 </pre>
 
 Returns true if <a href='#SkRect_fLeft'>fLeft</a> is equal to or less than <a href='#SkRect_fRight'>fRight</a>, or if <a href='#SkRect_fTop'>fTop</a> is equal
-to or less than <a href='#SkRect_fBottom'>fBottom</a>. Call <a href='#SkRect_sort'>sort</a> to reverse rectangles with negative
-<a href='#SkRect_width'>width</a> or <a href='#SkRect_height'>height</a>.
+to or less than <a href='#SkRect_fBottom'>fBottom</a>. Call <a href='#SkRect_sort'>sort</a>() to reverse rectangles with negative
+<a href='#SkRect_width'>width</a>() or <a href='#SkRect_height'>height</a>().
 
 ### Return Value
 
-true if <a href='#SkRect_width'>width</a> or <a href='#SkRect_height'>height</a> are zero or positive
+true if <a href='#SkRect_width'>width</a>() or <a href='#SkRect_height'>height</a>() are zero or positive
 
 ### Example
 
@@ -985,7 +586,7 @@ widest is finite: false
 </pre>
 
 Returns left edge of <a href='#Rect'>Rect</a>, if sorted. Call <a href='#SkRect_isSorted'>isSorted</a> to see if <a href='#Rect'>Rect</a> is valid.
-Call <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fRight'>fRight</a> if needed.
+Call <a href='#SkRect_sort'>sort</a>() to reverse <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fRight'>fRight</a> if needed.
 
 ### Return Value
 
@@ -1006,7 +607,7 @@ sorted.fLeft: 10 sorted.x(): 10
 
 ### See Also
 
-<a href='#SkRect_fLeft'>fLeft</a> <a href='#SkRect_left'>left</a> <a href='#SkRect_y'>y</a> <a href='SkIRect_Reference#SkIRect_x'>SkIRect::x()</a>
+<a href='#SkRect_fLeft'>fLeft</a> <a href='#SkRect_left'>left</a>() <a href='#SkRect_y'>y</a>() <a href='SkIRect_Reference#SkIRect_x'>SkIRect::x</a>()
 
 ---
 
@@ -1018,7 +619,7 @@ sorted.fLeft: 10 sorted.x(): 10
 </pre>
 
 Returns top edge of <a href='#Rect'>Rect</a>, if sorted. Call <a href='#SkRect_isEmpty'>isEmpty</a> to see if <a href='#Rect'>Rect</a> may be invalid,
-and <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fTop'>fTop</a> and <a href='#SkRect_fBottom'>fBottom</a> if needed.
+and <a href='#SkRect_sort'>sort</a>() to reverse <a href='#SkRect_fTop'>fTop</a> and <a href='#SkRect_fBottom'>fBottom</a> if needed.
 
 ### Return Value
 
@@ -1039,7 +640,7 @@ sorted.fTop: 5 sorted.y(): 5
 
 ### See Also
 
-<a href='#SkRect_fTop'>fTop</a> <a href='#SkRect_top'>top</a> <a href='#SkRect_x'>x</a> <a href='SkIRect_Reference#SkIRect_y'>SkIRect::y()</a>
+<a href='#SkRect_fTop'>fTop</a> <a href='#SkRect_top'>top</a>() <a href='#SkRect_x'>x</a>() <a href='SkIRect_Reference#SkIRect_y'>SkIRect::y</a>()
 
 ---
 
@@ -1051,7 +652,7 @@ sorted.fTop: 5 sorted.y(): 5
 </pre>
 
 Returns left edge of <a href='#Rect'>Rect</a>, if sorted. Call <a href='#SkRect_isSorted'>isSorted</a> to see if <a href='#Rect'>Rect</a> is valid.
-Call <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fRight'>fRight</a> if needed.
+Call <a href='#SkRect_sort'>sort</a>() to reverse <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fRight'>fRight</a> if needed.
 
 ### Return Value
 
@@ -1072,7 +673,7 @@ sorted.fLeft: 10 sorted.left(): 10
 
 ### See Also
 
-<a href='#SkRect_fLeft'>fLeft</a> <a href='#SkRect_x'>x</a> <a href='SkIRect_Reference#SkIRect_left'>SkIRect::left()</a>
+<a href='#SkRect_fLeft'>fLeft</a> <a href='#SkRect_x'>x</a>() <a href='SkIRect_Reference#SkIRect_left'>SkIRect::left</a>()
 
 ---
 
@@ -1084,7 +685,7 @@ sorted.fLeft: 10 sorted.left(): 10
 </pre>
 
 Returns top edge of <a href='#Rect'>Rect</a>, if sorted. Call <a href='#SkRect_isEmpty'>isEmpty</a> to see if <a href='#Rect'>Rect</a> may be invalid,
-and <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fTop'>fTop</a> and <a href='#SkRect_fBottom'>fBottom</a> if needed.
+and <a href='#SkRect_sort'>sort</a>() to reverse <a href='#SkRect_fTop'>fTop</a> and <a href='#SkRect_fBottom'>fBottom</a> if needed.
 
 ### Return Value
 
@@ -1105,7 +706,7 @@ sorted.fTop: 5 sorted.top(): 5
 
 ### See Also
 
-<a href='#SkRect_fTop'>fTop</a> <a href='#SkRect_y'>y</a> <a href='SkIRect_Reference#SkIRect_top'>SkIRect::top()</a>
+<a href='#SkRect_fTop'>fTop</a> <a href='#SkRect_y'>y</a>() <a href='SkIRect_Reference#SkIRect_top'>SkIRect::top</a>()
 
 ---
 
@@ -1117,7 +718,7 @@ sorted.fTop: 5 sorted.top(): 5
 </pre>
 
 Returns right edge of <a href='#Rect'>Rect</a>, if sorted. Call <a href='#SkRect_isSorted'>isSorted</a> to see if <a href='#Rect'>Rect</a> is valid.
-Call <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fRight'>fRight</a> if needed.
+Call <a href='#SkRect_sort'>sort</a>() to reverse <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fRight'>fRight</a> if needed.
 
 ### Return Value
 
@@ -1138,7 +739,7 @@ sorted.fRight: 15 sorted.right(): 15
 
 ### See Also
 
-<a href='#SkRect_fRight'>fRight</a> <a href='SkIRect_Reference#SkIRect_right'>SkIRect::right()</a>
+<a href='#SkRect_fRight'>fRight</a> <a href='SkIRect_Reference#SkIRect_right'>SkIRect::right</a>()
 
 ---
 
@@ -1150,7 +751,7 @@ sorted.fRight: 15 sorted.right(): 15
 </pre>
 
 Returns bottom edge of <a href='#Rect'>Rect</a>, if sorted. Call <a href='#SkRect_isEmpty'>isEmpty</a> to see if <a href='#Rect'>Rect</a> may be invalid,
-and <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fTop'>fTop</a> and <a href='#SkRect_fBottom'>fBottom</a> if needed.
+and <a href='#SkRect_sort'>sort</a>() to reverse <a href='#SkRect_fTop'>fTop</a> and <a href='#SkRect_fBottom'>fBottom</a> if needed.
 
 ### Return Value
 
@@ -1171,7 +772,7 @@ sorted.fBottom: 25 sorted.bottom(): 25
 
 ### See Also
 
-<a href='#SkRect_fBottom'>fBottom</a> <a href='SkIRect_Reference#SkIRect_bottom'>SkIRect::bottom()</a>
+<a href='#SkRect_fBottom'>fBottom</a> <a href='SkIRect_Reference#SkIRect_bottom'>SkIRect::bottom</a>()
 
 ---
 
@@ -1191,7 +792,7 @@ result fits in 32-bit float; result may be negative or infinity.
 
 ### Example
 
-<div><fiddle-embed name="11f8f0efe6291019fee0ac17844f6c1a"><div>Compare with <a href='SkIRect_Reference#SkIRect_width'>SkIRect::width()</a> example.
+<div><fiddle-embed name="11f8f0efe6291019fee0ac17844f6c1a"><div>Compare with <a href='SkIRect_Reference#SkIRect_width'>SkIRect::width</a>() example.
 </div>
 
 #### Example Output
@@ -1205,7 +806,7 @@ large width: 4294967296
 
 ### See Also
 
-<a href='#SkRect_height'>height</a> <a href='SkIRect_Reference#SkIRect_width'>SkIRect::width()</a>
+<a href='#SkRect_height'>height</a>() <a href='SkIRect_Reference#SkIRect_width'>SkIRect::width</a>()
 
 ---
 
@@ -1225,7 +826,7 @@ result fits in 32-bit float; result may be negative or infinity.
 
 ### Example
 
-<div><fiddle-embed name="39429e45f05240218ecd511443ab3e44"><div>Compare with <a href='SkIRect_Reference#SkIRect_height'>SkIRect::height()</a> example.
+<div><fiddle-embed name="39429e45f05240218ecd511443ab3e44"><div>Compare with <a href='SkIRect_Reference#SkIRect_height'>SkIRect::height</a>() example.
 </div>
 
 #### Example Output
@@ -1239,7 +840,7 @@ large height: 4294967296
 
 ### See Also
 
-<a href='#SkRect_width'>width</a> <a href='SkIRect_Reference#SkIRect_height'>SkIRect::height()</a>
+<a href='#SkRect_width'>width</a>() <a href='SkIRect_Reference#SkIRect_height'>SkIRect::height</a>()
 
 ---
 
@@ -1310,22 +911,7 @@ left: 2e+38 right: 3e+38 centerX: 2.5e+38 safe mid x: 2.5e+38
 
 ---
 
-## <a name='Operator'>Operator</a>
-
-
-SkRect operators inline class member functions with arithmetic equivalents.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_notequal_operator'>operator!=(const SkRect& a, const SkRect& b)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if members are unequal</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_equal_operator'>operator==(const SkRect& a, const SkRect& b)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if members are equal</td>
-  </tr>
-</table>
+## <a name='Operators'>Operators</a>
 
 <a name='SkRect_equal_operator'></a>
 ## operator==
@@ -1422,24 +1008,6 @@ test with NaN is not equal to itself
 
 ## <a name='As_Points'>As Points</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setBounds'>setBounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to upper and lower limits of <a href='SkPoint_Reference#Point'>Point</a> array</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setBoundsCheck'>setBoundsCheck</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to upper and lower limits of <a href='SkPoint_Reference#Point'>Point</a> array</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_toQuad'>toQuad</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns four corners as <a href='SkPoint_Reference#Point'>Point</a></td>
-  </tr>
-</table>
-
 <a name='SkRect_toQuad'></a>
 ## toQuad
 
@@ -1449,6 +1017,8 @@ void <a href='#SkRect_toQuad'>toQuad</a>(<a href='SkPoint_Reference#SkPoint'>SkP
 
 Returns four points in <a href='#SkRect_toQuad_quad'>quad</a> that enclose <a href='#Rect'>Rect</a> ordered as: top-left, top-right,
 bottom-right, bottom-left.
+
+Private: Consider adding param to control whether quad is clockwise or counterclockwise.
 
 ### Parameters
 
@@ -1572,40 +1142,6 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 ---
 
 ## <a name='Set'>Set</a>
-
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_set'>set</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (left, top, right, bottom) and others</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_set'>set(const SkIRect& src)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setBoundsNoCheck'>setBoundsNoCheck</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to upper and lower limits of <a href='SkPoint_Reference#Point'>Point</a> array</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setEmpty'>setEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to (0, 0, 0, 0)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setLTRB'>setLTRB</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (left, top, right, bottom)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setWH'>setWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (0, 0, width, height)</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_setXYWH'>setXYWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to <a href='undocumented#SkScalar'>SkScalar</a> input (x, y, width, height)</td>
-  </tr>
-</table>
 
 <a name='SkRect_setBoundsNoCheck'></a>
 ## setBoundsNoCheck
@@ -1956,20 +1492,6 @@ rect: -15, 0, 0, 25  isEmpty: false
 
 ## <a name='From_Integers'>From Integers</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_iset'>iset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to int input (left, top, right, bottom)</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_isetWH'>isetWH</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to int input (0, 0, width, height)</td>
-  </tr>
-</table>
-
 <a name='SkRect_iset'></a>
 ## iset
 
@@ -2053,37 +1575,11 @@ rect2: {0, 0, 1, 2}
 
 ### See Also
 
-<a href='#SkRect_MakeWH'>MakeWH</a> <a href='#SkRect_MakeXYWH'>MakeXYWH</a> <a href='#SkRect_iset'>iset</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>:<a href='#SkRect_MakeWH'>MakeWH</a>
+<a href='#SkRect_MakeWH'>MakeWH</a> <a href='#SkRect_MakeXYWH'>MakeXYWH</a> <a href='#SkRect_iset'>iset</a>() <a href='SkIRect_Reference#SkIRect'>SkIRect</a>:<a href='#SkRect_MakeWH'>MakeWH</a>
 
 ---
 
 ## <a name='Inset_Outset_Offset'>Inset Outset Offset</a>
-
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_inset'>inset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_offset'>offset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates sides without changing width and height</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_offset'>offset(SkScalar dx, SkScalar dy)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_offsetTo'>offsetTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates to (x, y) without changing width and height</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_outset'>outset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>moves the sides symmetrically about the center</td>
-  </tr>
-</table>
 
 <a name='SkRect_makeOffset'></a>
 ## makeOffset
@@ -2128,7 +1624,7 @@ rect: 25, 82, 35, 92  isEmpty: false
 
 ### See Also
 
-<a href='#SkRect_offset'>offset</a><sup><a href='#SkRect_offset_2'>[2]</a></sup> <a href='#SkRect_makeInset'>makeInset</a> <a href='#SkRect_makeOutset'>makeOutset</a> <a href='SkIRect_Reference#SkIRect_makeOffset'>SkIRect::makeOffset</a>
+<a href='#SkRect_offset'>offset</a><sup><a href='#SkRect_offset_2'>[2]</a></sup>() <a href='#SkRect_makeInset'>makeInset</a> <a href='#SkRect_makeOutset'>makeOutset</a> <a href='SkIRect_Reference#SkIRect_makeOffset'>SkIRect::makeOffset</a>
 
 ---
 
@@ -2175,7 +1671,7 @@ rect: 25, 82, 5, 28  isEmpty: true
 
 ### See Also
 
-<a href='#SkRect_inset'>inset</a> <a href='#SkRect_makeOffset'>makeOffset</a> <a href='#SkRect_makeOutset'>makeOutset</a> <a href='SkIRect_Reference#SkIRect_makeInset'>SkIRect::makeInset</a>
+<a href='#SkRect_inset'>inset</a>() <a href='#SkRect_makeOffset'>makeOffset</a> <a href='#SkRect_makeOutset'>makeOutset</a> <a href='SkIRect_Reference#SkIRect_makeInset'>SkIRect::makeInset</a>
 
 ---
 
@@ -2222,7 +1718,7 @@ rect: -5, 18, 35, 92  isEmpty: false
 
 ### See Also
 
-<a href='#SkRect_outset'>outset</a> <a href='#SkRect_makeOffset'>makeOffset</a> <a href='#SkRect_makeInset'>makeInset</a> <a href='SkIRect_Reference#SkIRect_makeOutset'>SkIRect::makeOutset</a>
+<a href='#SkRect_outset'>outset</a>() <a href='#SkRect_makeOffset'>makeOffset</a> <a href='#SkRect_makeInset'>makeInset</a> <a href='SkIRect_Reference#SkIRect_makeOutset'>SkIRect::makeOutset</a>
 
 ---
 
@@ -2320,10 +1816,10 @@ are unchanged.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_offsetTo_newX'><code><strong>newX</strong></code></a></td>
-    <td>stored in <a href='#SkRect_fLeft'>fLeft</a>, preserving <a href='#SkRect_width'>width</a></td>
+    <td>stored in <a href='#SkRect_fLeft'>fLeft</a>, preserving <a href='#SkRect_width'>width</a>()</td>
   </tr>
   <tr>    <td><a name='SkRect_offsetTo_newY'><code><strong>newY</strong></code></a></td>
-    <td>stored in <a href='#SkRect_fTop'>fTop</a>, preserving <a href='#SkRect_height'>height</a></td>
+    <td>stored in <a href='#SkRect_fTop'>fTop</a>, preserving <a href='#SkRect_height'>height</a>()</td>
   </tr>
 </table>
 
@@ -2439,40 +1935,6 @@ empty() returns false. The intersection of <a href='#Rect'>Rect</a> pair can be 
 
 The intersection is only meaningful if the resulting <a href='#Rect'>Rect</a> is not empty and
 describes an area: <a href='#SkRect_fLeft'>fLeft</a> is less than <a href='#SkRect_fRight'>fRight</a>, and <a href='#SkRect_fTop'>fTop</a> is less than <a href='#SkRect_fBottom'>fBottom</a>.
-
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_Intersects'>Intersects</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if areas overlap</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_contains'>contains</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if points are equal or inside</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_contains'>contains(SkScalar x, SkScalar y)</a> const</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_intersect'>intersect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to shared area; returns true if not empty</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_intersect'>intersect(const SkRect& r)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_intersects'>intersects</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if areas overlap</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_intersects'>intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> const</td>
-  </tr>
-</table>
 
 <a name='SkRect_contains'></a>
 ## contains
@@ -2704,7 +2166,7 @@ intersection: 30, 60, 50, 80
 <a name='SkRect_intersect_3'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool SK_WARN_UNUSED_RESULT <a href='#SkRect_intersect'>intersect</a>(const <a href='#SkRect'>SkRect</a>& a, const <a href='#SkRect'>SkRect</a>& b)
+bool <a href='#SkRect_intersect'>intersect</a>(const <a href='#SkRect'>SkRect</a>& a, const <a href='#SkRect'>SkRect</a>& b)
 </pre>
 
 Returns true if <a href='#SkRect_intersect_3_a'>a</a> intersects <a href='#SkRect_intersect_3_b'>b</a>, and sets <a href='#Rect'>Rect</a> to intersection.
@@ -2877,28 +2339,6 @@ intersection
 
 ## <a name='Join'>Join</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_join'>join</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_join'>join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_joinNonEmptyArg'>joinNonEmptyArg</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds, asserting that argument is not empty</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_joinPossiblyEmptyRect'>joinPossiblyEmptyRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to union of bounds; skips empty check for both</td>
-  </tr>
-</table>
-
 <a name='SkRect_join'></a>
 ## join
 
@@ -3065,32 +2505,6 @@ sorted: 10, 0, 55, 100
 
 ## <a name='Rounding'>Rounding</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_round_2'>round</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets members to nearest integer value</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_round'>round(SkIRect* dst)</a> const</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_roundIn'>roundIn</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets members to nearest integer value towards opposite</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_roundOut'>roundOut</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets members to nearest integer value away from opposite</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_roundOut'>roundOut(SkIRect* dst)</a> const</td>
-  </tr>
-</table>
-
 <a name='SkRect_round'></a>
 ## round
 
@@ -3099,8 +2513,8 @@ void <a href='#SkRect_round'>round</a>(<a href='SkIRect_Reference#SkIRect'>SkIRe
 </pre>
 
 Sets <a href='SkIRect_Reference#IRect'>IRect</a> by adding 0.5 and discarding the fractional portion of <a href='#Rect'>Rect</a>
-members, using <code>\(<a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt(fLeft)</a>, <a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt(fTop)</a>,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt(fRight)</a>, <a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt(fBottom)</a>\)</code>.
+members, using <code>\(<a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt</a>(fLeft\), <a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt</a>(fTop\),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt</a>(fRight\), <a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt</a>(fBottom\)\)</code>.
 
 ### Parameters
 
@@ -3135,8 +2549,8 @@ void <a href='#SkRect_roundOut'>roundOut</a>(<a href='SkIRect_Reference#SkIRect'
 </pre>
 
 Sets <a href='SkIRect_Reference#IRect'>IRect</a> by discarding the fractional portion of <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fTop'>fTop</a>; and rounding
-up <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>, using <code>\(<a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt(fLeft)</a>, <a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt(fTop)</a>,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt(fRight)</a>, <a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt(fBottom)</a>\)</code>.
+up <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>, using <code>\(<a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt</a>(fLeft\), <a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt</a>(fTop\),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt</a>(fRight\), <a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt</a>(fBottom\)\)</code>.
 
 ### Parameters
 
@@ -3170,8 +2584,8 @@ void <a href='#SkRect_roundOut'>roundOut</a>(<a href='#SkRect'>SkRect</a>* dst) 
 </pre>
 
 Sets <a href='#Rect'>Rect</a> by discarding the fractional portion of <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fTop'>fTop</a>; and rounding
-up <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>, using <code>\(<a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt(fLeft)</a>, <a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt(fTop)</a>,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt(fRight)</a>, <a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt(fBottom)</a>\)</code>.
+up <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>, using <code>\(<a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt</a>(fLeft\), <a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt</a>(fTop\),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt</a>(fRight\), <a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt</a>(fBottom\)\)</code>.
 
 ### Parameters
 
@@ -3206,8 +2620,8 @@ void <a href='#SkRect_roundIn'>roundIn</a>(<a href='SkIRect_Reference#SkIRect'>S
 </pre>
 
 Sets <a href='#Rect'>Rect</a> by rounding up <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fTop'>fTop</a>; and discarding the fractional portion
-of <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>, using <code>\(<a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt(fLeft)</a>, <a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt(fTop)</a>,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt(fRight)</a>, <a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt(fBottom)</a>\)</code>.
+of <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>, using <code>\(<a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt</a>(fLeft\), <a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt</a>(fTop\),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt</a>(fRight\), <a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt</a>(fBottom\)\)</code>.
 
 ### Parameters
 
@@ -3241,8 +2655,8 @@ round: 31, 51, 40, 60
 </pre>
 
 Returns <a href='SkIRect_Reference#IRect'>IRect</a> by adding 0.5 and discarding the fractional portion of <a href='#Rect'>Rect</a>
-members, using <code>\(<a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt(fLeft)</a>, <a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt(fTop)</a>,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt(fRight)</a>, <a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt(fBottom)</a>\)</code>.
+members, using <code>\(<a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt</a>(fLeft\), <a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt</a>(fTop\),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt</a>(fRight\), <a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToInt</a>(fBottom\)\)</code>.
 
 ### Return Value
 
@@ -3273,8 +2687,8 @@ round: 31, 51, 41, 61
 </pre>
 
 Sets <a href='SkIRect_Reference#IRect'>IRect</a> by discarding the fractional portion of <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fTop'>fTop</a>; and rounding
-up <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>, using <code>\(<a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt(fLeft)</a>, <a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt(fTop)</a>,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt(fRight)</a>, <a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt(fBottom)</a>\)</code>.
+up <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>, using <code>\(<a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt</a>(fLeft\), <a href='undocumented#SkScalarFloorToInt'>SkScalarFloorToInt</a>(fTop\),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt</a>(fRight\), <a href='undocumented#SkScalarCeilToInt'>SkScalarCeilToInt</a>(fBottom\)\)</code>.
 
 ### Return Value
 
@@ -3300,16 +2714,6 @@ round: 30, 50, 41, 61
 
 ## <a name='Sorting'>Sorting</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRect_sort'>sort</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>orders sides from smaller to larger</td>
-  </tr>
-</table>
-
 <a name='SkRect_sort'></a>
 ## sort
 
@@ -3319,7 +2723,7 @@ void <a href='#SkRect_sort'>sort</a>()
 
 Swaps <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fRight'>fRight</a> if <a href='#SkRect_fLeft'>fLeft</a> is greater than <a href='#SkRect_fRight'>fRight</a>; and swaps
 <a href='#SkRect_fTop'>fTop</a> and <a href='#SkRect_fBottom'>fBottom</a> if <a href='#SkRect_fTop'>fTop</a> is greater than <a href='#SkRect_fBottom'>fBottom</a>. Result may be empty;
-and <a href='#SkRect_width'>width</a> and <a href='#SkRect_height'>height</a> will be zero or positive.
+and <a href='#SkRect_width'>width</a>() and <a href='#SkRect_height'>height</a>() will be zero or positive.
 
 ### Example
 
@@ -3349,7 +2753,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 
 Returns <a href='#Rect'>Rect</a> with <a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRect_fRight'>fRight</a> swapped if <a href='#SkRect_fLeft'>fLeft</a> is greater than <a href='#SkRect_fRight'>fRight</a>; and
 with <a href='#SkRect_fTop'>fTop</a> and <a href='#SkRect_fBottom'>fBottom</a> swapped if <a href='#SkRect_fTop'>fTop</a> is greater than <a href='#SkRect_fBottom'>fBottom</a>. Result may be empty;
-and <a href='#SkRect_width'>width</a> and <a href='#SkRect_height'>height</a> will be zero or positive.
+and <a href='#SkRect_width'>width</a>() and <a href='#SkRect_height'>height</a>() will be zero or positive.
 
 ### Return Value
 
@@ -3487,7 +2891,7 @@ directly compiled as C++ code. Floating point values are written
 in hexadecimal to preserve their exact bit pattern. The output reconstructs the
 original <a href='#Rect'>Rect</a>.
 
-Use instead of <a href='#SkRect_dump_2'>dump</a> when submitting <a href='https://bug.skia.org'>bug reports against Skia</a></a> .
+Use instead of <a href='#SkRect_dump_2'>dump</a>() when submitting <a href='https://bug.skia.org'>bug reports against Skia</a></a> .
 
 ### Example
 
@@ -3515,7 +2919,7 @@ rect is equal to copy
 ## MakeLargest
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkRect'>SkRect</a> SK_WARN_UNUSED_RESULT <a href='#SkRect_MakeLargest'>MakeLargest</a>()
+static <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeLargest'>MakeLargest</a>()
 </pre>
 
 Deprecated.

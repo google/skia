@@ -5,22 +5,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
+#Code
 #Populate
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method SkFILEWStream(const char path[])
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Param path  incomplete ##
@@ -38,7 +30,7 @@
 # ------------------------------------------------------------------------------
 
 #Method ~SkFILEWStream() override
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Example

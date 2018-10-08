@@ -5,22 +5,14 @@
 
 A stream that wraps a C FILE* file stream. */
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
+#Code
 #Populate
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method explicit SkFILEStream(const char path[] = nullptr)
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 Initializes Stream by reading data contained by path.
@@ -42,7 +34,7 @@ Destructor is invoked.
 # ------------------------------------------------------------------------------
 
 #Method explicit SkFILEStream(FILE* file)
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 Initialize the stream with an existing C_FILE stream.
@@ -65,7 +57,7 @@ The C_FILE stream is closed when SkFILEStream Destructor is invoked.
 # ------------------------------------------------------------------------------
 
 #Method ~SkFILEStream() override
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Example

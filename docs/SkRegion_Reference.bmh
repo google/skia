@@ -20,35 +20,15 @@ kReplace_Op
 
 #Class SkRegion
 
+#Code
+#Populate
+##
+
 SkRegion describes the set of pixels used to clip Canvas. SkRegion is compact,
 efficiently storing a single integer rectangle, or a run length encoded array
 of rectangles. SkRegion may reduce the current Canvas_Clip, or may be drawn as
 one or more integer rectangles. SkRegion iterator returns the scan lines or
 rectangles contained by it, optionally intersecting a bounding rectangle.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constant
-#Populate
-##
-
-#Subtopic Class
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Operator
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
 
 # ------------------------------------------------------------------------------
 
@@ -526,7 +506,7 @@ after set rect: result=true left=2 right=3
 # ------------------------------------------------------------------------------
 
 #Method SkRegion()
-#In Constructor
+#In Constructors
 #Line # constructs with default values ##
 
 Constructs an empty Region. Region is set to empty bounds
@@ -550,7 +530,7 @@ region bounds: {0, 0, 0, 0}
 # ------------------------------------------------------------------------------
 
 #Method SkRegion(const SkRegion& region)
-#In Constructor
+#In Constructors
 #Line # makes a shallow copy ##
 Constructs a copy of an existing region.
 Copy constructor makes two regions identical by value. Internally, region and
@@ -594,7 +574,7 @@ region2 bounds: {1,2,3,4}
 # ------------------------------------------------------------------------------
 
 #Method explicit SkRegion(const SkIRect& rect)
-#In Constructor
+#In Constructors
 #Line # constructs Region matching IRect ##
 Constructs a rectangular Region matching the bounds of rect.
 
@@ -616,7 +596,7 @@ Constructs a rectangular Region matching the bounds of rect.
 # ------------------------------------------------------------------------------
 
 #Method ~SkRegion()
-#In Constructor
+#In Constructors
 #Line # decreases Reference_Count of owned objects ##
 Releases ownership of any shared data and deletes data if Region is sole owner.
 
@@ -641,7 +621,7 @@ region2 bounds: {1,2,3,4}
 # ------------------------------------------------------------------------------
 
 #Method SkRegion& operator=(const SkRegion& region)
-#In Operator
+#In Operators
 #Line # makes a shallow copy ##
 Constructs a copy of an existing region.
 Makes two regions identical by value. Internally, region and
@@ -678,7 +658,7 @@ region2 bounds: {1,2,3,4}
 # ------------------------------------------------------------------------------
 
 #Method bool operator==(const SkRegion& other)_const
-#In Operator
+#In Operators
 #Line # compares Regions for equality ##
 
 Compares Region and other; returns true if they enclose exactly
@@ -713,7 +693,7 @@ set empty one == two
 # ------------------------------------------------------------------------------
 
 #Method bool operator!=(const SkRegion& other)_const
-#In Operator
+#In Operators
 #Line # compares Regions for inequality ##
 
 Compares Region and other; returns true if they do not enclose the same area.
@@ -748,7 +728,7 @@ union rect one == two
 # ------------------------------------------------------------------------------
 
 #Method bool set(const SkRegion& src)
-#In Constructor
+#In Constructors
 #Line # makes a shallow copy ##
 
 Sets Region to src, and returns true if src bounds is not empty.
@@ -787,7 +767,7 @@ region2 bounds: {1,2,3,4}
 # ------------------------------------------------------------------------------
 
 #Method void swap(SkRegion& other)
-#In Operator
+#In Operators
 #Line # exchanges Region pair ##
 
 Exchanges IRect array of Region and other. swap() internally exchanges pointers,
@@ -1009,7 +989,7 @@ unmodified.
 # ------------------------------------------------------------------------------
 
 #Method bool setEmpty()
-#In Constructor
+#In Constructors
 #Line # constructs with default values ##
 
 Constructs an empty Region. Region is set to empty bounds
@@ -1041,7 +1021,7 @@ at (0, 0) with zero width and height. Always returns false.
 # ------------------------------------------------------------------------------
 
 #Method bool setRect(const SkIRect& rect)
-#In Constructor
+#In Constructors
 #Line # constructs Region matching IRect ##
 
 Constructs a rectangular Region matching the bounds of rect.
@@ -1071,7 +1051,7 @@ setEmpty: false
 # ------------------------------------------------------------------------------
 
 #Method bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom)
-#In Constructor
+#In Constructors
 #Line # constructs Region matching bounds ##
 
 Constructs Region with bounds (left, top, right, bottom).
@@ -1109,7 +1089,7 @@ set to: 3,2,1,4: success:false {0,0,0,0}
 # ------------------------------------------------------------------------------
 
 #Method bool setRects(const SkIRect rects[], int count)
-#In Constructor
+#In Constructors
 #Line # sets IRect array ##
 
 Constructs Region as the union of IRect in rects array. If count is
@@ -1143,7 +1123,7 @@ May be faster than repeated calls to op().
 # ------------------------------------------------------------------------------
 
 #Method bool setRegion(const SkRegion& region)
-#In Constructor
+#In Constructors
 #Line # copies Region ##
 
 Constructs a copy of an existing region.
@@ -1189,7 +1169,7 @@ region2 bounds: {0,0,0,0}
 # ------------------------------------------------------------------------------
 
 #Method bool setPath(const SkPath& path, const SkRegion& clip)
-#In Constructor
+#In Constructors
 #Line # constructs Region from clipped Path ##
 
 Constructs Region to match outline of path within clip.

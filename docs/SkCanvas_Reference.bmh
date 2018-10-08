@@ -3,6 +3,10 @@
 
 #Class SkCanvas
 
+#Code
+#Populate
+##
+
 Canvas provides an interface for drawing, and how the drawing is clipped and transformed.
 Canvas contains a stack of Matrix and Clip values.
 
@@ -24,36 +28,11 @@ destination.
 Canvas can be constructed to draw to Bitmap without first creating Raster_Surface.
 This approach may be deprecated in the future.
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Constant
-#Populate
-##
-
-#Subtopic Struct
-#Populate
-##
-
-#Subtopic Typedef
-#Populate
-##
-
-#Subtopic Constructor
+#Subtopic Constructors
 
 Create the desired type of Surface to obtain its Canvas when possible. Useful
 when no Surface is required, and some helpers implicitly create Raster_Surface.
 
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
 ##
 
 # ------------------------------------------------------------------------------
@@ -61,7 +40,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 #Method static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels,
                                                           size_t rowBytes,
                                                           const SkSurfaceProps* props = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Canvas that will draw directly into pixels.
@@ -136,7 +115,7 @@ void draw(SkCanvas* ) {
 
 #Method static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
                                                          size_t rowBytes)
-#In Constructor
+#In Constructors
 #Line # creates from image data and Pixel_Storage ##
 
 Allocates raster Canvas specified by inline image specification. Subsequent Canvas
@@ -373,9 +352,7 @@ Android framework only.
 ##
 
 #Code
-    enum class ColorBehavior {
-        kLegacy,
-    };
+#Populate
 ##
 #Const kLegacy 0
 #Line # placeholder ##
@@ -498,7 +475,6 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 #Subtopic Property
-#Populate
 #Line # metrics and attributes ##
 ##
 
@@ -593,7 +569,6 @@ GPU_Surface, and returns true. Otherwise, returns false and leave props unchange
 
 # ------------------------------------------------------------------------------
 #Subtopic Utility
-#Populate
 #Line # rarely called management functions ##
 ##
 
@@ -669,7 +644,7 @@ smaller (due to clipping or saveLayer).
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Surface matching SkImageInfo and SkSurfaceProps ##
 Creates Surface matching info and props, and associates it with Canvas.
 Returns nullptr if no match found.
@@ -872,7 +847,6 @@ the drawing destination.
 
 # ------------------------------------------------------------------------------
 #Subtopic Pixels
-#Populate
 #Line # read and write pixel values ##
 ##
 
@@ -1683,14 +1657,7 @@ Call restoreToCount with returned value to restore this and subsequent saves.
 #Enum SaveLayerFlagsSet
 #Line # sets SaveLayerRec options ##
 #Code
-    enum SaveLayerFlagsSet {
-        kPreserveLCDText_SaveLayerFlag = 1 << 1,
-        kInitWithPrevious_SaveLayerFlag = 1 << 2,
-        kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag = 1 << 3,
-        kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
-    };
-
-    typedef uint32_t SaveLayerFlags;
+#Populate
 ##
 
 
@@ -1756,25 +1723,10 @@ void draw(SkCanvas* canvas) {
 #Line # contains the state used to create the Layer ##
 
 #Code
-    struct SaveLayerRec {
-        SaveLayerRec*(...
-
-        const SkRect*           fBounds;
-        const SkPaint*          fPaint;
-        const SkImageFilter*    fBackdrop;
-        SaveLayerFlags          fSaveLayerFlags;
-    };
+#Populate
 ##
 
 SaveLayerRec contains the state used to create the Layer.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Member
-#Populate
-##
 
 #Member const SkRect*           fBounds
 #Line # hints at Layer size limit ##
@@ -1841,8 +1793,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#Subtopic Constructor
-#Populate
+#Subtopic Constructors
 ##
 
 #Method SaveLayerRec()
@@ -3018,7 +2969,6 @@ Unlike getLocalClipBounds, bounds is not outset.
 
 # ------------------------------------------------------------------------------
 #Subtopic Draw
-#Populate
 #Line # draws into Canvas ##
 ##
 
@@ -3130,11 +3080,7 @@ void draw(SkCanvas* canvas) {
 #Line # sets drawPoints options ##
 
 #Code
-    enum PointMode {
-        kPoints_PointMode,
-        kLines_PointMode,
-        kPolygon_PointMode,
-    };
+#Populate
 ##
 
 Selects if an array of points are drawn as discrete points, as lines, or as
@@ -3941,10 +3887,7 @@ void draw(SkCanvas* canvas) {
 #Line # sets drawImageRect options ##
 
 #Code
-    enum SrcRectConstraint {
-        kStrict_SrcRectConstraint,
-        kFast_SrcRectConstraint,
-    };
+#Populate
 ##
 
 SrcRectConstraint controls the behavior at the edge of source Rect,
@@ -4770,17 +4713,7 @@ void draw(SkCanvas* canvas) {
 #Line # divides Bitmap or Image into a rectangular grid ##
 
 #Code
-    struct Lattice {
-        enum RectType ...
-
-        const int*      fXDivs;
-        const int*      fYDivs;
-        const RectType* fRectTypes;
-        int             fXCount;
-        int             fYCount;
-        const SkIRect*  fBounds;
-        const SkColor*  fColors;
-    };
+#Populate
 ##
 
 Lattice divides Bitmap or Image into a rectangular grid.
@@ -4791,22 +4724,10 @@ entries are proportionately scaled down to fit.
 The grid entries not on even columns and rows are scaled to fit the
 remaining space, if any.
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constant
-#Populate
-##
-
     #Enum RectType
     #Line # optional setting per rectangular grid entry ##
         #Code
-            enum RectType : uint8_t {
-                kDefault = 0,
-                kTransparent,
-                kFixedColor,
-            };
+        #Populate
         ##
 
         Optional setting per rectangular grid entry to make it transparent,
@@ -4825,8 +4746,7 @@ remaining space, if any.
         ##
     ##
 
-#Subtopic Member
-#Populate
+#Subtopic Members
 ##
 
     #Member const int*   fXDivs
@@ -5041,7 +4961,6 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 #Subtopic Draw_Text
-#Populate
 #Line # draws text into Canvas ##
 ##
 
@@ -5331,7 +5250,7 @@ Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
 
 Elements of paint: Anti_Alias, Blend_Mode, Color including Color_Alpha,
 Color_Filter, Paint_Dither, Draw_Looper, Mask_Filter, Path_Effect, Shader, and
-Paint_Style; apply to blob. If Paint contains SkPaint::kStroke_Style: 
+Paint_Style; apply to blob. If Paint contains SkPaint::kStroke_Style:
 Paint_Miter_Limit, Paint_Stroke_Cap, Paint_Stroke_Join, and Paint_Stroke_Width;
 apply to Path created from blob.
 

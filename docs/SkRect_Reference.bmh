@@ -4,6 +4,10 @@
 
 #Struct SkRect
 
+#Code
+#Populate
+##
+
 SkRect holds four SkScalar coordinates describing the upper and
 lower bounds of a rectangle. SkRect may be created from outer bounds or
 from position, width, and height. SkRect describes an area; if its right
@@ -13,21 +17,6 @@ its top, it is considered empty.
 # move to topic about MakeIWH and friends
 SkRect can be constructed from int values to avoid compiler warnings that
 integer input cannot convert to SkScalar without loss of precision.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
-#Subtopic Member
-#Populate
 
 #Member SkScalar  fLeft
 #Line # smaller x-axis bounds ##
@@ -53,16 +42,13 @@ May contain any value, including infinities and NaN. The larger of the
 vertical values when sorted. When equal to or less than fTop, Rect is empty.
 ##
 
-#Subtopic Member ##
-
-#Subtopic Constructor
-#Populate
+#Subtopic Constructors
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
+#Method static constexpr SkRect MakeEmpty()
 
-#In Constructor
+#In Constructors
 #Line # constructs from bounds of (0, 0, 0, 0) ##
 Returns constructed Rect set to (0, 0, 0, 0).
 Many other rectangles are empty; if left is equal to or greater than right,
@@ -94,9 +80,9 @@ outset rect isEmpty: false
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h)
+#Method static constexpr SkRect MakeWH(SkScalar w, SkScalar h)
 
-#In Constructor
+#In Constructors
 #Line # constructs from SkScalar input returning (0, 0, width, height) ##
 Returns constructed Rect set to SkScalar values (0, 0, w, h). Does not
 validate input; w or h may be negative.
@@ -127,9 +113,9 @@ all equal
 
 # ------------------------------------------------------------------------------
 
-#Method static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h)
+#Method static SkRect MakeIWH(int w, int h)
 
-#In Constructor
+#In Constructors
 #Line # constructs from int input returning (0, 0, width, height) ##
 Returns constructed Rect set to integer values (0, 0, w, h). Does not validate
 input; w or h may be negative.
@@ -161,9 +147,9 @@ i_rect width: 125000111 f_rect width:125000112
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size)
+#Method static constexpr SkRect MakeSize(const SkSize& size)
 
-#In Constructor
+#In Constructors
 #Line # constructs from Size returning (0, 0, width, height) ##
 Returns constructed Rect set to (0, 0, size.width(), size.height()). Does not
 validate input; size.width() or size.height() may be negative.
@@ -191,9 +177,9 @@ floor width: 25  height: 35
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r,
+#Method static constexpr SkRect MakeLTRB(SkScalar l, SkScalar t, SkScalar r,
                                                            SkScalar b)
-#In Constructor
+#In Constructors
 #Line # constructs from SkScalar left, top, right, bottom ##
 
 Returns constructed Rect set to (l, t, r, b). Does not sort input; Rect may
@@ -225,9 +211,9 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
+#Method static constexpr SkRect MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
 
-#In Constructor
+#In Constructors
 #Line # constructs from SkScalar input returning (x, y, width, height) ##
 Returns constructed Rect set to #Formula # (x, y, x + w, y + h) ##.
 Does not validate input; w or h may be negative.
@@ -260,7 +246,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 #Method static SkRect Make(const SkISize& size)
 
-#In Constructor
+#In Constructors
 #Line # constructs from ISize returning (0, 0, width, height) ##
 Returns constructed IRect set to (0, 0, size.width(), size.height()).
 Does not validate input; size.width() or size.height() may be negative.
@@ -284,9 +270,9 @@ rect1 == rect2
 
 # ------------------------------------------------------------------------------
 
-#Method static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect)
+#Method static SkRect Make(const SkIRect& irect)
 
-#In Constructor
+#In Constructors
 Returns constructed IRect set to irect, promoting integers to Scalar.
 Does not validate input; fLeft may be greater than fRight, fTop may be greater
 than fBottom.
@@ -308,11 +294,10 @@ than fBottom.
 
 ##
 
-#Subtopic Constructor ##
+#Subtopic Constructors ##
 
 #Subtopic Property
 #Line # member values, center, validity ##
-#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -324,7 +309,7 @@ Returns true if fLeft is equal to or greater than fRight, or if fTop is equal
 to or greater than fBottom. Call sort() to reverse rectangles with negative
 width() or height().
 
-#Return true if width() or height() are zero or negative ##
+#Return true if width() or height() are not positive and valid ##
 
 #Example
     SkRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
@@ -678,15 +663,13 @@ left: 2e+38 right: 3e+38 centerX: 2.5e+38 safe mid x: 2.5e+38
 
 #Subtopic Property ##
 
-#Subtopic Operator
-
-#Populate
+#Subtopic Operators
 
 # ------------------------------------------------------------------------------
 
 #Method bool operator==(const SkRect& a, const SkRect& b)
 
-#In Operator
+#In Operators
 #Line # returns true if members are equal ##
 Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are
 equal to the corresponding members in b.
@@ -731,7 +714,7 @@ tests are equal
 
 #Method bool operator!=(const SkRect& a, const SkRect& b)
 
-#In Operator
+#In Operators
 #Line # returns true if members are unequal ##
 Returns true if any in a: fLeft, fTop, fRight, and fBottom; does not
 equal the corresponding members in b.
@@ -756,12 +739,10 @@ test with NaN is not equal to itself
 
 ##
 
-#Subtopic Operator ##
+#Subtopic Operators ##
 
 #Subtopic As_Points
 #Line # conversion to and from Points ##
-
-#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -887,7 +868,6 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 
 #Subtopic Set
 #Line # replaces all values ##
-#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1170,8 +1150,6 @@ rect: -15, 0, 0, 25  isEmpty: false
 #Subtopic From_Integers
 #Line # sets Scalar values from integer input ##
 
-#Populate
-
 # ------------------------------------------------------------------------------
 
 #Method void iset(int left, int top, int right, int bottom)
@@ -1237,8 +1215,6 @@ rect2: {0, 0, 1, 2}
 
 #Subtopic Inset_Outset_Offset
 #Line # moves sides ##
-
-#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1499,8 +1475,6 @@ empty() returns false. The intersection of Rect pair can be described by:
 The intersection is only meaningful if the resulting Rect is not empty and
 describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 
-#Populate
-
 # ------------------------------------------------------------------------------
 
 #Method    bool contains(SkScalar x, SkScalar y) const
@@ -1679,7 +1653,7 @@ be before or after the call to intersect.
 
 # ------------------------------------------------------------------------------
 
-#Method bool SK_WARN_UNUSED_RESULT intersect(const SkRect& a, const SkRect& b)
+#Method bool intersect(const SkRect& a, const SkRect& b)
 
 #In Intersection
 Returns true if a intersects b, and sets Rect to intersection.
@@ -1790,8 +1764,6 @@ Returns false if either a or b is empty, or do not intersect.
 
 #Subtopic Join
 #Line # sets to union of bounds ##
-
-#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1923,8 +1895,6 @@ sorted: 10, 0, 55, 100
 
 #Subtopic Rounding
 #Line # adjust to integer bounds ##
-
-#Populate
 
 #Method    void round(SkIRect* dst) const
 
@@ -2084,8 +2054,6 @@ round: 30, 50, 41, 61
 #Subtopic Sorting
 #Line # orders sides ##
 
-#Populate
-
 # ------------------------------------------------------------------------------
 
 #Method    void sort()
@@ -2116,7 +2084,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 #Method    SkRect makeSorted() const
 
 #In Sorting
-#In Constructor
+#In Constructors
 #Line # constructs Rect, ordering sides from smaller to larger ##
 Returns Rect with fLeft and fRight swapped if fLeft is greater than fRight; and
 with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
@@ -2252,7 +2220,7 @@ rect is equal to copy
 
 ##
 
-#Method static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
+#Method static SkRect MakeLargest()
 #Deprecated
 ##
 

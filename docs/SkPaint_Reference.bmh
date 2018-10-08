@@ -1,7 +1,18 @@
 #Topic Paint
 #Alias Paint_Reference ##
 
+#PhraseDef paint_font_metrics
+Typeface, Paint_Text_Size, Paint_Text_Scale_X,
+Paint_Text_Skew_X, Paint_Text_Align, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
+Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
+and Subpixel_Text
+##
+
 #Class SkPaint
+
+#Code
+#Populate
+##
 
 Paint controls options applied when drawing and measuring. Paint collects all
 options outside of the Canvas_Clip and Canvas_Matrix.
@@ -29,35 +40,6 @@ Paint describes a single color, a single font, a single image quality, and so on
 Multiple colors are drawn either by using multiple paints or with objects like
 Shader attached to Paint.
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Constant
-#Populate
-##
-
-#Subtopic Struct
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Operator
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
-# ------------------------------------------------------------------------------
 #Subtopic Initializers
 #Line # constructors and initialization ##
 
@@ -231,6 +213,7 @@ objects containing Reference_Count go to zero, they are deleted.
 
 
 # ------------------------------------------------------------------------------
+
 #Subtopic Management
 #Line # paint copying, moving, comparing ##
 
@@ -394,6 +377,7 @@ The hash returned is platform and implementation specific.
 #Subtopic Management ##
 
 # ------------------------------------------------------------------------------
+
 #Subtopic Hinting
 #Line # glyph outline adjustment ##
 
@@ -5162,7 +5146,6 @@ Paint may draw to.
 
 # ------------------------------------------------------------------------------
 #Subtopic Utility
-#Populate
 #Line # rarely called management functions ##
 ##
 

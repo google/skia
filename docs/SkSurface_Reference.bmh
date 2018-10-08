@@ -3,6 +3,10 @@
 
 #Class SkSurface
 
+#Code
+#Populate
+##
+
 SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
 allocated either in CPU memory (a raster surface) or on the GPU (a GrRenderTarget surface).
 SkSurface takes care of allocating a SkCanvas that will draw into the surface. Call
@@ -10,31 +14,12 @@ surface->getCanvas() to use that canvas (but don't delete it, it is owned by the
 SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
 of the requested dimensions are zero, then nullptr will be returned.
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constant
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
 # ------------------------------------------------------------------------------
-#Subtopic Constructor
-#Populate
-##
 
 #Method static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels,
                                              size_t rowBytes,
                                              const SkSurfaceProps* surfaceProps = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Surface from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
@@ -98,7 +83,7 @@ void draw(SkCanvas* ) {
                                     size_t rowBytes,
                                     void (*releaseProc)(void* pixels, void* context),
                                     void* context, const SkSurfaceProps* surfaceProps = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Surface from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
@@ -174,7 +159,7 @@ expected release context
 
 #Method static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, size_t rowBytes,
                                        const SkSurfaceProps* surfaceProps)
-#In Constructor
+#In Constructors
 #Line # creates Surface from SkImageInfo ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
@@ -291,7 +276,7 @@ void draw(SkCanvas* ) {
 
 #Method static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
                                                 const SkSurfaceProps* surfaceProps = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Surface from width, height matching output ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
@@ -354,7 +339,7 @@ void draw(SkCanvas* ) {
                                                    SkColorType colorType,
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps)
-#In Constructor
+#In Constructors
 #Line # creates Surface from GPU texture ##
 
 Wraps a GPU-backed texture into Surface. Caller must ensure the texture is
@@ -414,7 +399,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                 SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps)
-#In Constructor
+#In Constructors
 #Line # creates Surface from GPU render target ##
 
 Wraps a GPU-backed buffer into Surface. Caller must ensure backendRenderTarget
@@ -473,7 +458,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                             SkColorType colorType,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps)
-#In Constructor
+#In Constructors
 #Line # creates Surface from GPU back-end render target ##
 
 Wraps a GPU-backed texture into Surface. Caller must ensure backendTexture is
@@ -535,7 +520,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                              int sampleCount, GrSurfaceOrigin surfaceOrigin,
                                              const SkSurfaceProps* surfaceProps,
                                              bool shouldCreateWithMips = false)
-#In Constructor
+#In Constructors
 #Line # creates Surface pointing to new GPU memory buffer ##
 
 Returns Surface on GPU indicated by context. Allocates memory for
@@ -740,7 +725,7 @@ characterization. budgeted selects whether allocation for pixels is tracked by c
 
 #Method static sk_sp<SkSurface> MakeNull(int width, int height)
 
-#In Constructor
+#In Constructors
 #Line # creates Surface without backing pixels ##
 Returns Surface without backing pixels. Drawing to Canvas returned from Surface
 has no effect. Calling makeImageSnapshot() on returned Surface returns nullptr.
@@ -772,7 +757,6 @@ surf->makeImageSnapshot() == nullptr
 
 # ------------------------------------------------------------------------------
 #Subtopic Property
-#Populate
 #Line # member values ##
 ##
 
@@ -891,7 +875,6 @@ If a snapshot has been generated, this copies the Surface contents.
 ##
 
 #Subtopic Miscellaneous
-#Populate
 #Line # other functions ##
 ##
 
@@ -1080,7 +1063,7 @@ is deleted.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo)
-#In Constructor
+#In Constructors
 #Line # creates a compatible Surface ##
 Returns a compatible Surface, or nullptr. Returned Surface contains
 the same raster, GPU, or null properties as the original. Returned Surface
@@ -1121,7 +1104,7 @@ is incompatible with Surface.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkImage> makeImageSnapshot()
-#In Constructor
+#In Constructors
 #Line # creates Image capturing Surface contents ##
 Returns Image capturing Surface contents. Subsequent drawing to Surface contents
 are not captured. Image allocation is accounted for if Surface was created with
@@ -1148,7 +1131,6 @@ SkBudgeted::kYes.
 
 # ------------------------------------------------------------------------------
 #Subtopic Pixels
-#Populate
 #Line # functions with pixel access ##
 ##
 
@@ -1505,7 +1487,6 @@ surf.props(): kRGB_H_SkPixelGeometry
 
 # ------------------------------------------------------------------------------
 #Subtopic Utility
-#Populate
 #Line # rarely called management functions ##
 ##
 

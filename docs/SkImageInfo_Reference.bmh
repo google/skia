@@ -1,6 +1,10 @@
 #Topic Image_Info
 #Alias Image_Info_Reference ##
 
+#Code
+#Populate
+##
+
 Image_Info specifies the dimensions and encoding of the pixels in a Bitmap.
 The dimensions are integral width and height. The encoding is how pixel
 bits describe Color_Alpha, transparency; Color components red, blue,
@@ -10,14 +14,6 @@ Image_Info describes an uncompressed raster pixels. In contrast, Image
 additionally describes compressed pixels like PNG, and Surface describes
 destinations on the GPU. Image and Surface may be specified by Image_Info,
 but Image and Surface may not contain Image_Info.
-
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constant
-#Populate
-##
 
 # ------------------------------------------------------------------------------
 #Subtopic Alpha_Type
@@ -34,24 +30,15 @@ kUnpremul_SkAlphaType
 #Line # encoding for pixel transparency ##
 
 #Code
-    enum SkAlphaType {
-        kUnknown_SkAlphaType,
-        kOpaque_SkAlphaType,
-        kPremul_SkAlphaType,
-        kUnpremul_SkAlphaType,
-        kLastEnum_SkAlphaType = kUnpremul_SkAlphaType,
-    };
+#Populate
 ##
 
 Describes how to interpret the alpha component of a pixel. A pixel may
 be opaque, or Color_Alpha, describing multiple levels of transparency.
 
 In simple blending, Color_Alpha weights the draw color and the destination
-color to create a new color. If alpha describes a weight from zero to one:
-
-#Code
-    new color = draw color * alpha + destination color * (1 - alpha)
-##
+color to create a new color. If alpha describes a weight from zero to one,
+new color is set to: #Formula # draw color * alpha + destination color * (1 - alpha) ##.
 
 In practice alpha is encoded in two or more bits, where 1.0 equals all bits set.
 
@@ -238,31 +225,8 @@ kGray_8_SkColorType, kRGBA_F16_SkColorType
 #Line # encoding for pixel color ##
 
 #Code
-    enum SkColorType {
-        kUnknown_SkColorType,
-        kAlpha_8_SkColorType,
-        kRGB_565_SkColorType,
-        kARGB_4444_SkColorType,
-        kRGBA_8888_SkColorType,
-        kRGB_888x_SkColorType,
-        kBGRA_8888_SkColorType,
-        kRGBA_1010102_SkColorType,
-        kRGB_101010x_SkColorType,
-        kGray_8_SkColorType,
-        kRGBA_F16_SkColorType,
-        kRGBA_F32_SkColorType,
-        kLastEnum_SkColorType = kRGBA_F32_SkColorType,
-###$
-    #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-        kN32_SkColorType = kBGRA_8888_SkColorType,
-    #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-        kN32_SkColorType = kRGBA_8888_SkColorType,
-    #else
-        #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
-    #endif
-$$$#
-    };
-#Code ##
+#Populate
+##
 
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
 Grayscale, RGB, or ARGB.
@@ -1053,12 +1017,7 @@ and return true if alphaType is not kUnknown_SkAlphaType.
 #Line # color range of YUV pixels ##
 
 #Code
-    enum SkYUVColorSpace {
-        kJPEG_SkYUVColorSpace,
-        kRec601_SkYUVColorSpace,
-        kRec709_SkYUVColorSpace,
-        kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
-    };
+#Populate
 ##
 
 Describes color range of YUV pixels. The color mapping from YUV to RGB varies
@@ -1107,6 +1066,10 @@ with studio range of 16 to 235 range for components.
 
 #Struct SkImageInfo
 
+#Code
+#Populate
+##
+
 Describes pixel dimensions and encoding. Bitmap, Image, PixMap, and Surface
 can be created from Image_Info. Image_Info can be retrieved from Bitmap and
 Pixmap, but not from Image and Surface. For example, Image and Surface
@@ -1116,22 +1079,11 @@ Image_Info contains dimensions, the pixel integral width and height. It encodes
 how pixel bits describe Color_Alpha, transparency; Color components red, blue,
 and green; and Color_Space, the range and linearity of colors.
 
-#Subtopic Member_Function
-#Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
 # ------------------------------------------------------------------------------
-#Subtopic Constructor
-#Populate
-##
 
 #Method SkImageInfo()
 
-#In Constructor
+#In Constructors
 #Line # creates with zeroed dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
 Creates an empty Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType,
 a width and height of zero, and no Color_Space.
@@ -1163,7 +1115,7 @@ for the Canvas actual Image_Info.
 
 #Method static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
                             sk_sp<SkColorSpace> cs = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Image_Info from dimensions, Color_Type, Alpha_Type, Color_Space ##
 Creates Image_Info from integral dimensions width and height, Color_Type ct,
 Alpha_Type at, and optionally Color_Space cs.
@@ -1207,7 +1159,7 @@ combination is supported.
 
 #Method static SkImageInfo MakeN32(int width, int height, SkAlphaType at,
                                sk_sp<SkColorSpace> cs = nullptr)
-#In Constructor
+#In Constructors
 #Line # creates Image_Info with Native_Color_Type ##
 Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
 Alpha_Type at, and optionally Color_Space cs. kN32_SkColorType will equal either
@@ -1247,7 +1199,7 @@ combination is supported.
 
 #Method static SkImageInfo MakeS32(int width, int height, SkAlphaType at)
 
-#In Constructor
+#In Constructors
 #Line # creates Image_Info with Native_Color_Type, sRGB Color_Space ##
 Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
 Alpha_Type at, with sRGB Color_Space.
@@ -1303,7 +1255,7 @@ middle gradient.
 
 #Method static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr)
 
-#In Constructor
+#In Constructors
 #Line # creates Image_Info with Native_Color_Type, kPremul_SkAlphaType ##
 Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
 kPremul_SkAlphaType, with optional Color_Space.
@@ -1342,7 +1294,7 @@ combination is supported.
 
 #Method static SkImageInfo MakeN32Premul(const SkISize& size)
 
-#In Constructor
+#In Constructors
 Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
 kPremul_SkAlphaType, with Color_Space set to nullptr.
 
@@ -1378,7 +1330,7 @@ combination is supported.
 
 #Method static SkImageInfo MakeA8(int width, int height)
 
-#In Constructor
+#In Constructors
 #Line # creates Image_Info with kAlpha_8_SkColorType, kPremul_SkAlphaType ##
 Creates Image_Info from integral dimensions width and height, kAlpha_8_SkColorType,
 kPremul_SkAlphaType, with Color_Space set to nullptr.
@@ -1418,7 +1370,7 @@ kPremul_SkAlphaType, with Color_Space set to nullptr.
 
 #Method static SkImageInfo MakeUnknown(int width, int height)
 
-#In Constructor
+#In Constructors
 #Line # creates Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType ##
 Creates Image_Info from integral dimensions width and height, kUnknown_SkColorType,
 kUnknown_SkAlphaType, with Color_Space set to nullptr.
@@ -1450,7 +1402,7 @@ canvas->drawString(string, 0, 12, paint);
 
 #Method static SkImageInfo MakeUnknown()
 
-#In Constructor
+#In Constructors
 Creates Image_Info from integral dimensions width and height set to zero,
 kUnknown_SkColorType, kUnknown_SkAlphaType, with Color_Space set to nullptr.
 
@@ -1477,7 +1429,6 @@ canvas->drawString(string, 0, 12, paint);
 
 # ------------------------------------------------------------------------------
 #Subtopic Property
-#Populate
 #Line # metrics and attributes ##
 ##
 
@@ -1814,7 +1765,7 @@ as well as a gamma curve described by a 2.2 exponent.
 # ------------------------------------------------------------------------------
 
 #Method SkImageInfo makeWH(int newWidth, int newHeight) const
-#In Constructor
+#In Constructors
 #Line # creates Image_Info with changed dimensions ##
 Creates Image_Info with the same Color_Type, Color_Space, and Alpha_Type,
 with dimensions set to width and height.
@@ -1846,7 +1797,7 @@ with dimensions set to width and height.
 # ------------------------------------------------------------------------------
 
 #Method SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const
-#In Constructor
+#In Constructors
 #Line # creates Image_Info with changed Alpha_Type ##
 Creates Image_Info with same Color_Type, Color_Space, width, and height,
 with Alpha_Type set to newAlphaType.
@@ -1891,7 +1842,7 @@ Color_Type, in which case Alpha_Type in Image_Info is ignored.
 # ------------------------------------------------------------------------------
 
 #Method SkImageInfo makeColorType(SkColorType newColorType) const
-#In Constructor
+#In Constructors
 #Line # creates Image_Info with changed Color_Type ##
 Creates Image_Info with same Alpha_Type, Color_Space, width, and height,
 with Color_Type set to newColorType.
@@ -1932,7 +1883,7 @@ with Color_Type set to newColorType.
 # ------------------------------------------------------------------------------
 
 #Method SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
-#In Constructor
+#In Constructors
 #Line # creates Image_Info with changed Color_Space ##
 Creates Image_Info with same Alpha_Type, Color_Type, width, and height,
 with Color_Space set to cs.
@@ -2182,9 +2133,6 @@ rowBytes is smaller than minRowBytes, even though result may be incorrect.
 #Method ##
 
 # ------------------------------------------------------------------------------
-#Subtopic Operator
-#Populate
-##
 
 #Method bool operator==(const SkImageInfo& other)_const
 #Line # compares Image_Info for equality ##
@@ -2381,7 +2329,7 @@ validRowBytes(68): true
 # ------------------------------------------------------------------------------
 
 #Method void reset()
-#In Constructor
+#In Constructors
 #Line # sets zero dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
 Creates an empty Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType,
 a width and height of zero, and no Color_Space.
@@ -2406,7 +2354,6 @@ SkImageInfo() == reset copy
 
 # ------------------------------------------------------------------------------
 #Subtopic Utility
-#Populate
 #Line # rarely called management functions ##
 ##
 
