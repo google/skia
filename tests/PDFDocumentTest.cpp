@@ -221,3 +221,21 @@ DEF_TEST(SkPDF_unicode_metadata, r) {
         }
     }
 }
+
+// Make sure we excercise the multi-page functionality without problems.
+// Add this to args.gn to output the PDF to a file:
+//   extra_cflags = [ "-DSK_PDF_TEST_MULTIPAGE=\"/tmp/skpdf_test_multipage.pdf\"" ]
+DEF_TEST(SkPDF_multiple_pages, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_multiple_pages, r);
+    int n = 100;
+#ifdef SK_PDF_TEST_MULTIPAGE
+    SkFILEWStream wStream(SK_PDF_TEST_MULTIPAGE);
+#else
+    SkDynamicMemoryWStream wStream;
+#endif
+    auto doc = SkPDF::MakeDocument(&wStream);
+    for (int i = 0; i < n; ++i) {
+        doc->beginPage(612, 792)->drawColor(
+                SkColorSetARGB(0xFF, 0x00, (uint8_t)(255.0f * i / (n - 1)), 0x00));
+    }
+}
