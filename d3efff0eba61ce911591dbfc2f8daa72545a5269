@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2be8f645_4ebc252f",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-08T18:50:12Z",
+      "side": 1,
+      "message": "... or some new API, as outlined in the CL description.",
+      "range": {
+        "startLine": 72,
+        "startChar": 70,
+        "endLine": 72,
+        "endChar": 80
+      },
+      "revId": "d3efff0eba61ce911591dbfc2f8daa72545a5269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
