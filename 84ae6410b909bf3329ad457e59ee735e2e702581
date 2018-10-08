@@ -16,6 +16,24 @@
       "revId": "84ae6410b909bf3329ad457e59ee735e2e702581",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fab6d964_9b28949c",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-08T19:07:36Z",
+      "side": 1,
+      "message": "It doesn\u0027t list a version.  It\u0027s under go1.11/bin though.",
+      "parentUuid": "7e67916c_a2267cfc",
+      "revId": "84ae6410b909bf3329ad457e59ee735e2e702581",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
