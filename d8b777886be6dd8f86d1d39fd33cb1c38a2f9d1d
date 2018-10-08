@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f9253a0_5e6500d3",
+        "filename": "infra/bots/buildstats_web.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-08T17:29:54Z",
+      "side": 1,
+      "message": "Uber-nit: Python style guide: two empty lines between top-level stuff",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 1
+      },
+      "revId": "d8b777886be6dd8f86d1d39fd33cb1c38a2f9d1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

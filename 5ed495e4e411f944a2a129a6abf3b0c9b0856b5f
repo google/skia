@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "e1d1c44e_b77e0e87",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-08T17:29:54Z",
+      "side": 1,
+      "message": "Ok, I didn\u0027t realize that there were going to be O(n) of these, as opposed to O(1)",
+      "parentUuid": "e774f67a_8363893c",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 6
+      },
+      "revId": "5ed495e4e411f944a2a129a6abf3b0c9b0856b5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3545949d_5ee9635a",
         "filename": "infra/bots/recipes/compute_buildstats.py",
         "patchSetId": 11
