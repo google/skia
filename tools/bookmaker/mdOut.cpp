@@ -1901,7 +1901,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 if (MarkType::kClass == grand->fMarkType
                         || MarkType::kStruct == grand->fMarkType
                         || MarkType::kEnum == grand->fMarkType
-                        || MarkType::kEnumClass == grand->fMarkType) {
+                        || MarkType::kEnumClass == grand->fMarkType
+                        || MarkType::kTypedef == grand->fMarkType) {
                     string codeBlock = fIncludeParser.codeBlock(*grand, fInProgress);
                     this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
                             this->resolvable(parent));

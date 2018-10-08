@@ -1716,6 +1716,11 @@ public:
             SkASSERT(fIEnumMap.end() != map);
             return map->second->fCode;
         }
+        if (MarkType::kTypedef == markType) {
+            auto map = fITypedefMap.find(name);
+            SkASSERT(fITypedefMap.end() != map);
+            return map->second->fCode;
+        }
         SkASSERT(0);
         return "";
     }
