@@ -18,6 +18,7 @@
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
 #include "SkYUVPlanesCache.h"
+#include "SkYUVAIndex.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
 sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
@@ -88,7 +89,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> yuvTextureProxies[3];
+    sk_sp<GrTextureProxy> yuvaTextureProxies[4];
     for (int i = 0; i < 3; i++) {
         int componentWidth  = yuvSizeInfo.fSizes[i].fWidth;
         int componentHeight = yuvSizeInfo.fSizes[i].fHeight;
@@ -114,11 +115,11 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
                                                           dataStoragePtr);
 
         auto proxyProvider = ctx->contextPriv().proxyProvider();
-        yuvTextureProxies[i] = proxyProvider->createTextureProxy(yuvImage, kNone_GrSurfaceFlags,
+        yuvaTextureProxies[i] = proxyProvider->createTextureProxy(yuvImage, kNone_GrSurfaceFlags,
                                                                  1, SkBudgeted::kYes, fit);
 
-        SkASSERT(yuvTextureProxies[i]->width() == yuvSizeInfo.fSizes[i].fWidth);
-        SkASSERT(yuvTextureProxies[i]->height() == yuvSizeInfo.fSizes[i].fHeight);
+        SkASSERT(yuvaTextureProxies[i]->width() == yuvSizeInfo.fSizes[i].fWidth);
+        SkASSERT(yuvaTextureProxies[i]->height() == yuvSizeInfo.fSizes[i].fHeight);
     }
 
     // TODO: investigate preallocating mip maps here
@@ -130,12 +131,17 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
         return nullptr;
     }
 
+    // This code path only generates I420 (i.e., 3 separate plane) YUVs
+    SkYUVAIndex yuvaIndices[4] = {
+        {  0, SkColorChannel::kA },
+        {  1, SkColorChannel::kA },
+        {  2, SkColorChannel::kA },
+        { -1, SkColorChannel::kA }, // no alpha
+    };
+
     GrPaint paint;
     auto yuvToRgbProcessor =
-            GrYUVtoRGBEffect::Make(std::move(yuvTextureProxies[0]),
-                                   std::move(yuvTextureProxies[1]),
-                                   std::move(yuvTextureProxies[2]),
-                                   yuvColorSpace, false);
+            GrYUVtoRGBEffect::Make(yuvaTextureProxies, yuvaIndices, yuvColorSpace);
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
     // If the caller expects the pixels in a different color space than the one from the image,
