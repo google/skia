@@ -65,10 +65,12 @@ public:
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                                  GrSurfaceOrigin* origin) const;
 
-    // return a read-only copy of the pixels. We promise to not modify them,
-    // but only inspect them (or encode them).
-    virtual bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace,
-                             CachingHint = kAllow_CachingHint) const = 0;
+    // Return a read-only copy of the pixels, in the most natural (cheapest to produce) format.
+    // We promise to not modify them, but only inspect them (or encode them).
+    // For raster or GPU-backed images, this will be the stored format and color space.
+    // For lazy images, the chosen color type and color space may result in loss of information.
+    // If specific or high-quality results are needed, consider using readPixels.
+    virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
