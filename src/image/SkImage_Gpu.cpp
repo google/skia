@@ -39,7 +39,6 @@
 #include "SkImage_Gpu.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
-#include "SkReadPixelsRec.h"
 #include "SkTraceEvent.h"
 #include "SkYUVAIndex.h"
 #include "effects/GrYUVtoRGBEffect.h"
@@ -61,76 +60,6 @@ SkImageInfo SkImage_Gpu::onImageInfo() const {
     }
 
     return SkImageInfo::Make(fProxy->width(), fProxy->height(), colorType, fAlphaType, fColorSpace);
-}
-
-static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-    switch (info.colorType()) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            break;
-        default:
-            return; // nothing to do
-    }
-
-    // SkColor is not necesarily RGBA or BGRA, but it is one of them on little-endian,
-    // and in either case, the alpha-byte is always in the same place, so we can safely call
-    // SkPreMultiplyColor()
-    //
-    SkColor* row = (SkColor*)pixels;
-    for (int y = 0; y < info.height(); ++y) {
-        for (int x = 0; x < info.width(); ++x) {
-            row[x] = SkPreMultiplyColor(row[x]);
-        }
-        row = (SkColor*)((char*)(row) + rowBytes);
-    }
-}
-
-bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                               int srcX, int srcY, CachingHint) const {
-    if (!fContext->contextPriv().resourceProvider()) {
-        // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
-        return false;
-    }
-
-    if (!SkImageInfoValidConversion(dstInfo, this->onImageInfo())) {
-        return false;
-    }
-
-    SkReadPixelsRec rec(dstInfo, dstPixels, dstRB, srcX, srcY);
-    if (!rec.trim(this->width(), this->height())) {
-        return false;
-    }
-
-    // TODO: this seems to duplicate code in GrTextureContext::onReadPixels and
-    // GrRenderTargetContext::onReadPixels
-    uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() && kPremul_SkAlphaType == fAlphaType) {
-        // let the GPU perform this transformation for us
-        flags = GrContextPriv::kUnpremul_PixelOpsFlag;
-    }
-
-    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
-            fProxy, fColorSpace);
-    if (!sContext) {
-        return false;
-    }
-
-    if (!sContext->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY, flags)) {
-        return false;
-    }
-
-    // do we have to manually fix-up the alpha channel?
-    //      src         dst
-    //      unpremul    premul      fix manually
-    //      premul      unpremul    done by kUnpremul_PixelOpsFlag
-    // all other combos need to change.
-    //
-    // Should this be handled by Ganesh? todo:?
-    //
-    if (kPremul_SkAlphaType == rec.fInfo.alphaType() && kUnpremul_SkAlphaType == fAlphaType) {
-        apply_premul(rec.fInfo, rec.fPixels, rec.fRowBytes);
-    }
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -461,149 +390,6 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * This helper holds the normal hard ref for the Release proc as well as a hard ref on the DoneProc.
- * Thus when a GrTexture is being released, it will unref both the ReleaseProc and DoneProc.
- */
-class PromiseReleaseProcHelper : public GrReleaseProcHelper {
-public:
-    PromiseReleaseProcHelper(SkImage_Gpu::TextureReleaseProc releaseProc,
-                             SkImage_Gpu::TextureContext context,
-                             sk_sp<GrReleaseProcHelper> doneHelper)
-            : INHERITED(releaseProc, context)
-            , fDoneProcHelper(std::move(doneHelper)) {}
-
-    void weak_dispose() const override {
-        // Call the inherited weak_dispose first so that we call the ReleaseProc before the DoneProc
-        // if we hold the last ref to the DoneProc.
-        INHERITED::weak_dispose();
-        fDoneProcHelper.reset();
-    }
-
-private:
-    mutable sk_sp<GrReleaseProcHelper> fDoneProcHelper;
-
-    typedef GrReleaseProcHelper INHERITED;
-};
-
-/**
- * This helper class manages the ref counting for the the ReleaseProc and DoneProc for promise
- * images. It holds a weak ref on the ReleaseProc (hard refs are owned by GrTextures). The weak ref
- * allows us to reuse an outstanding ReleaseProc (because we dropped our GrTexture but the GrTexture
- * isn't done on the GPU) without needing to call FulfillProc again. It also holds a hard ref on the
- * DoneProc. The idea is that after every flush we may call the ReleaseProc so that the client can
- * free up their GPU memory if they want to. The life time of the DoneProc matches that of any
- * outstanding ReleaseProc as well as the PromiseImageHelper. Thus we won't call the DoneProc until
- * all ReleaseProcs are finished and we are finished with the PromiseImageHelper (i.e. won't call
- * FulfillProc again).
- */
-class PromiseImageHelper {
-public:
-    PromiseImageHelper()
-            : fFulfillProc(nullptr)
-            , fReleaseProc(nullptr)
-            , fContext(nullptr)
-            , fDoneHelper(nullptr) {}
-
-    void set(SkImage_Gpu::TextureFulfillProc fulfillProc,
-             SkImage_Gpu::TextureReleaseProc releaseProc,
-             SkImage_Gpu::PromiseDoneProc doneProc,
-             SkImage_Gpu::TextureContext context) {
-        fFulfillProc = fulfillProc;
-        fReleaseProc = releaseProc;
-        fContext = context;
-        fDoneHelper.reset(new GrReleaseProcHelper(doneProc, context));
-    }
-
-    PromiseImageHelper(SkImage_Gpu::TextureFulfillProc fulfillProc,
-                       SkImage_Gpu::TextureReleaseProc releaseProc,
-                       SkImage_Gpu::PromiseDoneProc doneProc,
-                       SkImage_Gpu::TextureContext context)
-            : fFulfillProc(fulfillProc)
-            , fReleaseProc(releaseProc)
-            , fContext(context)
-            , fDoneHelper(new GrReleaseProcHelper(doneProc, context)) {}
-
-    bool isValid() { return SkToBool(fDoneHelper); }
-
-    void reset() {
-        this->resetReleaseHelper();
-        fDoneHelper.reset();
-    }
-
-    sk_sp<GrTexture> getTexture(GrResourceProvider* resourceProvider, GrPixelConfig config) {
-        // Releases the promise helper if there are no outstanding hard refs. This means that we
-        // don't have any ReleaseProcs waiting to be called so we will need to do a fulfill.
-        if (fReleaseHelper && fReleaseHelper->weak_expired()) {
-            this->resetReleaseHelper();
-        }
-
-        sk_sp<GrTexture> tex;
-        if (!fReleaseHelper) {
-            fFulfillProc(fContext, &fBackendTex);
-            fBackendTex.fConfig = config;
-            if (!fBackendTex.isValid()) {
-                // Even though the GrBackendTexture is not valid, we must call the release
-                // proc to keep our contract of always calling Fulfill and Release in pairs.
-                fReleaseProc(fContext);
-                return sk_sp<GrTexture>();
-            }
-
-            tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership);
-            if (!tex) {
-                // Even though the GrBackendTexture is not valid, we must call the release
-                // proc to keep our contract of always calling Fulfill and Release in pairs.
-                fReleaseProc(fContext);
-                return sk_sp<GrTexture>();
-            }
-            fReleaseHelper = new PromiseReleaseProcHelper(fReleaseProc, fContext, fDoneHelper);
-            // Take a weak ref
-            fReleaseHelper->weak_ref();
-        } else {
-            SkASSERT(fBackendTex.isValid());
-            tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership);
-            if (!tex) {
-                // We weren't able to make a texture here, but since we are in this branch
-                // of the calls (promiseHelper.fReleaseHelper is valid) there is already a
-                // texture out there which will call the release proc so we don't need to
-                // call it here.
-                return sk_sp<GrTexture>();
-            }
-
-            SkAssertResult(fReleaseHelper->try_ref());
-        }
-        SkASSERT(tex);
-        // Pass the hard ref off to the texture
-        tex->setRelease(sk_sp<GrReleaseProcHelper>(fReleaseHelper));
-        return tex;
-    }
-
-private:
-    // Weak unrefs fReleaseHelper and sets it to null
-    void resetReleaseHelper() {
-        if (fReleaseHelper) {
-            fReleaseHelper->weak_unref();
-            fReleaseHelper = nullptr;
-        }
-    }
-
-    SkImage_Gpu::TextureFulfillProc fFulfillProc;
-    SkImage_Gpu::TextureReleaseProc fReleaseProc;
-    SkImage_Gpu::TextureContext     fContext;
-
-    // We cache the GrBackendTexture so that if we deleted the GrTexture but the the release proc
-    // has yet not been called (this can happen on Vulkan), then we can create a new texture without
-    // needing to call the fulfill proc again.
-    GrBackendTexture           fBackendTex;
-    // The fReleaseHelper is used to track a weak ref on the release proc. This helps us make sure
-    // we are always pairing fulfill and release proc calls correctly.
-    PromiseReleaseProcHelper*  fReleaseHelper = nullptr;
-    // We don't want to call the fDoneHelper until we are done with the PromiseImageHelper and all
-    // ReleaseHelpers are finished. Thus we hold a hard ref here and we will pass a hard ref to each
-    // fReleaseHelper we make.
-    sk_sp<GrReleaseProcHelper> fDoneHelper;
-};
-
 static GrTextureType TextureTypeFromBackendFormat(const GrBackendFormat& backendFormat) {
     if (const GrGLenum* target = backendFormat.getGLTarget()) {
         return GrGLTexture::TextureTypeFromTarget(*target);
@@ -661,8 +447,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     desc.fHeight = height;
     desc.fConfig = config;
 
-    PromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, promiseDoneProc,
-                                     textureContext);
+    SkPromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, promiseDoneProc,
+                                       textureContext);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [promiseHelper, config](GrResourceProvider* resourceProvider) mutable {
@@ -736,7 +522,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
     struct {
         GrPixelConfig fConfigs[4] = { kUnknown_GrPixelConfig, kUnknown_GrPixelConfig,
                                       kUnknown_GrPixelConfig, kUnknown_GrPixelConfig };
-        PromiseImageHelper fPromiseHelpers[4];
+        SkPromiseImageHelper fPromiseHelpers[4];
         SkYUVAIndex fLocalIndices[4];
     } params;
 
