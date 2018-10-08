@@ -312,7 +312,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -409,6 +409,8 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			glog.Fatal(err)
 		}
 		return name
+	} else if parts["role"] == "BuildStats" {
+		return strings.Replace(jobName, "BuildStats", "Build", 1)
 	} else {
 		return jobName
 	}
@@ -978,6 +980,25 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
+func buildstats(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string) string {
+	task := kitchenTask(name, "compute_buildstats", "swarm_recipe.isolate", "", swarmDimensions(parts), nil, OUTPUT_PERF)
+	task.Dependencies = append(task.Dependencies, compileTaskName)
+	b.MustAddTask(name, task)
+
+	// Always upload the results (just don't run the task otherwise.)
+	uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
+	extraProps := map[string]string{
+		"gs_bucket": CONFIG.GsBucketCalm,
+	}
+	uploadTask := kitchenTask(name, "upload_buildstats_results", "swarm_recipe.isolate", SERVICE_ACCOUNT_UPLOAD_CALMBENCH, linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
+	uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
+	uploadTask.Dependencies = append(uploadTask.Dependencies, name)
+	b.MustAddTask(uploadName, uploadTask)
+	return uploadName
+
+	return name
+}
+
 func getParentRevisionName(compileTaskName string, parts map[string]string) string {
 	if parts["extra_config"] == "" {
 		return compileTaskName + "-ParentRevision"
@@ -1348,6 +1369,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// Calmbench bots.
 	if parts["role"] == "Calmbench" {
 		deps = append(deps, calmbench(b, name, parts, compileTaskName, compileParentName))
+	}
+
+	// BuildStats bots. This computes things like binary size.
+	if parts["role"] == "BuildStats" {
+		deps = append(deps, buildstats(b, name, parts, compileTaskName))
 	}
 
 	// Add the Job spec.

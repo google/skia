@@ -15,4 +15,7 @@
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 PATHKIT_DIR=$BASE_DIR/../../../modules/pathkit
 
+# Clean out previous builds
+rm /OUT/*
+
 BUILD_DIR=/OUT $PATHKIT_DIR/compile.sh $@
