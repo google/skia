@@ -23,7 +23,7 @@ class GrTexture;
 class SkImage_GpuYUVA : public SkImage_GpuBase {
 public:
     SkImage_GpuYUVA(sk_sp<GrContext>, uint32_t uniqueID, SkYUVColorSpace,
-                    sk_sp<GrTextureProxy> proxies[], SkYUVAIndex yuvaIndices[4], SkISize size,
+                    sk_sp<GrTextureProxy> proxies[], const SkYUVAIndex yuvaIndices[4], SkISize size,
                     GrSurfaceOrigin, sk_sp<SkColorSpace>, SkBudgeted);
     ~SkImage_GpuYUVA() override;
 
@@ -31,17 +31,6 @@ public:
 
     GrTextureProxy* peekProxy() const override { return this->asTextureProxyRef().get(); }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override;
-
-    bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
-                      int srcX, int srcY, CachingHint) const override;
-
-    sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*,
-                                  const void* planes[3]) override { return nullptr; }
-
-    // These need to match the ones defined elsewhere
-    typedef ReleaseContext TextureContext;
-    typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
-    typedef void (*PromiseDoneProc)(TextureContext textureContext);
 
     /**
         Create a new SkImage_GpuYUVA that's very similar to SkImage created by MakeFromYUVATextures.
@@ -91,9 +80,7 @@ public:
                                                  TextureFulfillProc textureFulfillProc,
                                                  TextureReleaseProc textureReleaseProc,
                                                  PromiseDoneProc promiseDoneProc,
-                                                 TextureContext textureContexts[]) {
-        return nullptr;
-    }
+                                                 TextureContext textureContexts[]);
 
     static sk_sp<SkImage> MakeFromYUVATextures(GrContext* context,
                                                SkYUVColorSpace yuvColorSpace,
