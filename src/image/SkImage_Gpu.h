@@ -35,14 +35,7 @@ public:
         return fProxy;
     }
 
-    bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
-                      int srcX, int srcY, CachingHint) const override;
-
     sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
-
-    typedef ReleaseContext TextureContext;
-    typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
-    typedef void (*PromiseDoneProc)(TextureContext textureContext);
 
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
