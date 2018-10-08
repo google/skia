@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "befc1739_62f0e1cd",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-10-08T20:59:00Z",
+      "side": 1,
+      "message": "Probably not worth it, removed",
+      "parentUuid": "742a3832_a4cc2ca9",
+      "range": {
+        "startLine": 201,
+        "startChar": 28,
+        "endLine": 201,
+        "endChar": 50
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d562ed5_afda38d9",
         "filename": "src/gpu/mtl/GrMtlGpu.h",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f2e7f4d_440a344a",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-10-08T20:59:00Z",
+      "side": 1,
+      "message": "Nope",
+      "parentUuid": "9d562ed5_afda38d9",
+      "range": {
+        "startLine": 205,
+        "startChar": 5,
+        "endLine": 206,
+        "endChar": 36
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "c52f7fbd_6ea3b10e",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-10-08T20:59:00Z",
+      "side": 1,
+      "message": "I think I just screwed up. Fixed.",
+      "parentUuid": "2151eace_a56b809a",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 9
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e3227afd_5d9b17d5",
         "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2018-10-03T20:00:18Z",
       "side": 1,
       "message": "Do we need to set the commandbufferinfo.fBounds here like we do for color?",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 45,
+        "endChar": 30
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dad2c49c_2bf29b1a",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-10-08T20:59:00Z",
+      "side": 1,
+      "message": "Probably should.",
+      "parentUuid": "e3227afd_5d9b17d5",
       "range": {
         "startLine": 45,
         "startChar": 8,
@@ -114,6 +210,30 @@
       "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f51b4aed_217af610",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-10-08T20:59:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9916e89e_23d98f5d",
+      "range": {
+        "startLine": 97,
+        "startChar": 2,
+        "endLine": 97,
+        "endChar": 42
+      },
+      "revId": "f143b4208e91613ceac9d285ae3bf8de2565967d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

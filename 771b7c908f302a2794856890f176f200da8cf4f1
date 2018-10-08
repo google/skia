@@ -22,6 +22,30 @@
       "revId": "771b7c908f302a2794856890f176f200da8cf4f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7709d179_7e22ab33",
+        "filename": "src/gpu/mtl/GrMtlStencilAttachment.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-10-08T20:59:00Z",
+      "side": 1,
+      "message": "Leaving this alone per verbal discussion, as it feeds into an overridden virtual that expects a raw pointer.",
+      "parentUuid": "8f045d9b_5cd26591",
+      "range": {
+        "startLine": 27,
+        "startChar": 35,
+        "endLine": 27,
+        "endChar": 41
+      },
+      "revId": "771b7c908f302a2794856890f176f200da8cf4f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
