@@ -11,6 +11,7 @@
 #include "GrContextPriv.h"
 #include "GrPipeline.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "GrTexturePriv.h"
 #include "GrMtlBuffer.h"
 #include "GrMtlGpu.h"
@@ -107,6 +108,13 @@ void GrMtlPipelineState::setData(const GrPrimitiveProcessor& primProc,
         fDataManager.uploadUniformBuffers(fGpu, fGeometryUniformBuffer.get(),
                                           fFragmentUniformBuffer.get());
     }
+
+    if (pipeline.isStencilEnabled()) {
+        GrRenderTarget* rt = pipeline.renderTarget();
+        SkASSERT(rt->renderTargetPriv().getStencilAttachment());
+        fStencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
+                       rt->renderTargetPriv().numStencilBits());
+    }
 }
 
 void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
@@ -187,5 +195,84 @@ void GrMtlPipelineState::setBlendConstants(id<MTLRenderCommandEncoder> renderCmd
                                      green: floatColors[1]
                                       blue: floatColors[2]
                                      alpha: floatColors[3]];
+    }
+}
+
+MTLStencilOperation skia_stencil_op_to_mtl(GrStencilOp op) {
+    switch (op) {
+        case GrStencilOp::kKeep:
+            return MTLStencilOperationKeep;
+        case GrStencilOp::kZero:
+            return MTLStencilOperationZero;
+        case GrStencilOp::kReplace:
+            return MTLStencilOperationReplace;
+        case GrStencilOp::kInvert:
+            return MTLStencilOperationInvert;
+        case GrStencilOp::kIncWrap:
+            return MTLStencilOperationIncrementWrap;
+        case GrStencilOp::kDecWrap:
+            return MTLStencilOperationDecrementWrap;
+        case GrStencilOp::kIncClamp:
+            return MTLStencilOperationIncrementClamp;
+        case GrStencilOp::kDecClamp:
+            return MTLStencilOperationDecrementClamp;
+    }
+}
+
+MTLStencilDescriptor* skia_stencil_to_mtl(GrStencilSettings::Face face) {
+    MTLStencilDescriptor* result = [[MTLStencilDescriptor alloc] init];
+    switch (face.fTest) {
+        case GrStencilTest::kAlways:
+            result.stencilCompareFunction = MTLCompareFunctionAlways;
+            break;
+        case GrStencilTest::kNever:
+            result.stencilCompareFunction = MTLCompareFunctionNever;
+            break;
+        case GrStencilTest::kGreater:
+            result.stencilCompareFunction = MTLCompareFunctionGreater;
+            break;
+        case GrStencilTest::kGEqual:
+            result.stencilCompareFunction = MTLCompareFunctionGreaterEqual;
+            break;
+        case GrStencilTest::kLess:
+            result.stencilCompareFunction = MTLCompareFunctionLess;
+            break;
+        case GrStencilTest::kLEqual:
+            result.stencilCompareFunction = MTLCompareFunctionLessEqual;
+            break;
+        case GrStencilTest::kEqual:
+            result.stencilCompareFunction = MTLCompareFunctionEqual;
+            break;
+        case GrStencilTest::kNotEqual:
+            result.stencilCompareFunction = MTLCompareFunctionNotEqual;
+            break;
+    }
+    result.readMask = face.fTestMask;
+    result.writeMask = face.fWriteMask;
+    result.depthStencilPassOperation = skia_stencil_op_to_mtl(face.fPassOp);
+    result.stencilFailureOperation = skia_stencil_op_to_mtl(face.fFailOp);
+    return result;
+}
+
+void GrMtlPipelineState::setDepthStencilState(id<MTLRenderCommandEncoder> renderCmdEncoder) {
+    if (fStencil.isDisabled()) {
+        MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
+        id<MTLDepthStencilState> state = [fGpu->device() newDepthStencilStateWithDescriptor:desc];
+        [renderCmdEncoder setDepthStencilState:state];
+    }
+    else {
+        MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
+        desc.frontFaceStencil = skia_stencil_to_mtl(fStencil.front());
+        if (fStencil.isTwoSided()) {
+            desc.backFaceStencil = skia_stencil_to_mtl(fStencil.back());
+            [renderCmdEncoder setStencilFrontReferenceValue:fStencil.front().fRef
+                              backReferenceValue:fStencil.back().fRef];
+        }
+        else {
+            desc.backFaceStencil = desc.frontFaceStencil;
+            [renderCmdEncoder setStencilReferenceValue:fStencil.front().fRef];
+        }
+        id<MTLDepthStencilState> state = [fGpu->device() newDepthStencilStateWithDescriptor:desc];
+        [renderCmdEncoder setDepthStencilState:state];
     }
 }
