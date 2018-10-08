@@ -1,41 +1,21 @@
 usingBookmaker
 ===
-
-# <a name='Bookmaker'>Bookmaker</a>
-<a href='#Bookmaker'>Bookmaker</a> generates markdown files to view documentation on skia.org, and generates includes for use in C++.
-<a href='#Bookmaker'>Bookmaker</a> reads canonical documentation from files suffixed with bmh in the docs directory. These bmh
-files describe how public interfaces work, and generate Skia fiddle examples to illustrate them.
-
-The docs files must be manually edited to stay current with Skia as it evolves.
+<a href='#Bookmaker'>Bookmaker</a> generates markdown files to view documentation on skia
 
 ## <a name='Broken_Build'>Broken Build</a>
 
-The bots <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> and <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> verify that <a href='#Bookmaker'>Bookmaker</a> data in docs builds without error and is consistent with include files it documents.
-
-Possible failures include:
+The bots <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> and <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> verify that <a href='#Bookmaker'>Bookmaker</a> data in docs builds without error and is consistent with include files it documents
 
 <table>  <tr>
-    <td>Public interface in include directory does not match documented interface in docs directory.</td>
+    <td>Public interface in include directory does not match documented interface in docs directory</td>
   </tr>  <tr>
-    <td>Example in bookmaker bmh file does not compile, or does not produce expected output.</td>
+    <td>Example in bookmaker bmh file does not compile</td>
   </tr>  <tr>
-    <td>Undocumented but referenced interface is missing from undocumented bookmaker file in docs directory.</td>
+    <td>Undocumented but referenced interface is missing from undocumented bookmaker file in docs directory</td>
   </tr>
 </table>
 
-Editing comments in includes or editing private interfaces will not break the bots.
-<a href='#Bookmaker'>Bookmaker</a> detects that comments edited in includes do not match comments in docs; it will generate an updated include in the
-directory where it is run.
-
-If <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> bot is red, the error is usually related to an edit to an include which has not been reflected in docs.
-
-To fix this, edit the docs file corresponding to the changed include file.
-
-For instance, if the change was made to <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, edit docs/SkIRect_Reference.bmh.
-Checking in the edited docs/SkIRect_Reference.bmh will fix the bot.
-
-If the interface is deprecated, but still present in the interface, mark-up the
-documentation to be deprecated as well.
+Editing comments in includes or editing private interfaces will not break the bots <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> bot is red
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 #Method void someMethodThatIsNowDeprecated()
@@ -49,36 +29,24 @@ Use
 #Deprecated soon
 </pre>
 
-if the change is soon to be deprecated.
-
-If <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> bot is red, one of several things may have gone wrong:
+if the change is soon to be deprecatedIf <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> bot is red
 
 <table>  <tr>
-    <td>A change to include broke documentation examples.</td>
+    <td>A change to include broke documentation examples</td>
   </tr>  <tr>
-    <td>Something changed the examples that output text.</td>
+    <td>Something changed the examples that output text</td>
   </tr>  <tr>
-    <td>Some interface was added, deleted, edited.</td>
+    <td>Some interface was added</td>
   </tr>  <tr>
-    <td>Documentation is malformed.</td>
+    <td>Documentation is malformed</td>
   </tr>
 </table>
 
-The bot output describes what changed, and includes the file and line
-where the error occurred.
-
-To regenerate the documentation, follow the <a href='#Installing'>Installing</a> and <a href='#Regenerate'>Regenerate</a> steps below.
+The bot output describes what changed
 
 ## <a name='Editing_Comments'>Editing Comments</a>
 
-Edit docs instead of include/core files to update comments if possible.
-
-The <a href='#Bookmaker'>Bookmaker</a> bots do not complain if the docs file does not match the
-corresponding include comments. Running <a href='#Bookmaker'>Bookmaker</a> include generation will
-report when docs and includes comments do not match.
-
-For instance, if include/core/SkSurface.h comments do not match
-docs/SkSurface_Reference.bmh, running:
+Edit docs instead of include
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -b docs -i include/core/SkSurface.h -p
@@ -91,16 +59,11 @@ wrote updated <a href='SkSurface_Reference#SkSurface'>SkSurface</a>.h
 </pre>
 
 The updated SkSurface.h is written to the root to avoid subsequent runs of
-<a href='#Bookmaker'>Bookmaker</a> from recompiling. if SkSurface.h was not changed, it is not written,
-and <a href='#Bookmaker'>Bookmaker</a> will not generate any output.
+<a href='#Bookmaker'>Bookmaker</a> from recompiling
 
 ## <a name='Broken_Example'>Broken Example</a>
 
-An example may cause <a href='#Bookmaker'>Bookmaker</a> or a bot running <a href='#Bookmaker'>Bookmaker</a> to fail if it fails to compile.
-
-Fix the example by pasting it into <a href='https://fiddle.skia.org'>Skia Fiddle</a></a> and editing it until it runs successfully.
-
-If the example cannot be fixed, it can be commented out by changing
+An example may cause <a href='#Bookmaker'>Bookmaker</a> or a bot running <a href='#Bookmaker'>Bookmaker</a> to fail if it fails to compile <a href='https://fiddle.skia.org'>Skia Fiddle</a></a> and editing it until it runs successfully
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 #Example
@@ -112,26 +75,21 @@ to
 #NoExample
 </pre>
 
-.
-The disabled example can contain additional markup, which will be ignored.
-
 ## <a name='Installing'>Installing</a>
 
-Install <a href='https://golang.org/doc/install'>Go</a></a> if needed.
-Check the version. The results should be 1.10 or greater.
+Install <a href='https://golang.org/doc/install'>Go</a></a> if needed
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ go version
 </pre>
 
-Get the fiddle command line interface tool.
-By default this will appear in your home directory.
+Get the fiddle command line interface tool
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ go get go.skia.org/infra/fiddlek/go/fiddlecli
 </pre>
 
-Build <a href='#Bookmaker'>Bookmaker</a>.
+Build <a href='#Bookmaker'>Bookmaker</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ninja -C out/dir bookmaker
@@ -139,7 +97,7 @@ $ ninja -C out/dir bookmaker
 
 ## <a name='Regenerate'>Regenerate</a>
 
-Complete rebuilding of all bookmaker output looks like:
+Complete rebuilding of all bookmaker output looks like
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -a docs/status.json -e fiddle.json
@@ -152,13 +110,13 @@ $ ./out/dir/bookmaker -a docs/status.json -p
 
 ## <a name='New_Documentation'>New Documentation</a>
 
-Generate an starter <a href='#Bookmaker'>Bookmaker</a> file from an existing include.
+Generate an starter <a href='#Bookmaker'>Bookmaker</a> file from an existing include
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -i include/core/SkXXX.h -t docs
 </pre>
 
-If a method or function has an unnamed parameter, bookmaker generates an error:
+If a method or function has an unnamed parameter
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 C:/puregit/include/core/<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>.h(208): error: #Method missing param name
@@ -167,124 +125,66 @@ bool erase(const SkColor4f&, const SkIRect* subset = nullptr) const
 </pre>
 
 All parameters require names to allow markdown and doxygen documents to refer to
-them. After naming all parameters, check in the include before continuing.
-
-A successful run generates
+them
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 docs/SkXXX_Reference.bmh
 </pre>
 
-.
-
-Next, use your favorite editor to fill out
-
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 docs/SkXXX_Reference.bmh
 </pre>
-
-.
 
 ## <a name='Style'>Style</a>
 
-Documentation consists of cross references, descriptions, and examples.
-All structs, classes, enums, their members and methods, functions, and so on,
-require descriptions. Most also require examples.
-
-All methods and functions should include examples if practical.
-It's difficult to think of a meaningful example for class destructors.
-In cases like these, change the placeholder:
+Documentation consists of cross references
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 #Example
 </pre>
 
-to:
+to
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 #NoExample
 </pre>
 
-Descriptions start with an active verb. Descriptions are complete, punctuated
-sentences unless they describe parameters or return values. Parameters and
-returned values are described by phrases that start lower case and do not
-include trailing punctuation.
-
-Descriptions are not self-referential; they do not include the thing they
-describe. Descriptions may contain upper case or camel case references to
-definitions but otherwise should be free of jargon.
-
-Descriptions may contain code and formulas, each bracketed by markup.
-
-Similar items may be grouped into topics. Topics may include subtopics.
-
-Each document begins with one or more indices that include the contents of
-that file. A class reference includes an index listing contained topics,
-a separate listing for constructors, one for methods, and so on.
-
-Class methods contain a description, any parameters, any return value,
-an example, and any cross references.
-
-Each method must contain either one or more examples or markup indicating
-that there is no example.
-
-After editing is complete, searching for "" should fail,
-assuming "" is not the perfect word to use in a description or
-example!
+Descriptions start with an active verb
 
 ## <a name='Adding_Documentation'>Adding Documentation</a>
 
-Generate fiddle.json from all examples, including the ones you just wrote.
-Error checking is syntatic: starting keywords are closed, keywords have the
-correct parents.
-If you run <a href='#Bookmaker'>Bookmaker</a> inside Visual_Studio, you can click on errors and it
-will take you to the source line in question.
+Generate fiddle
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -e fiddle.json -b docs
 </pre>
 
-Once complete, run fiddlecli to generate the example hashes.
-Errors are contained by the output but aren't reported yet.
+Once complete
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ $GOPATH/bin/fiddlecli --input fiddle.json --output fiddleout.json
 </pre>
 
-Generate SkXXX.md from SkXXX.bmh and fiddleout.json.
-Error checking includes: undefined references, fiddle compiler errors,
-missing or mismatched printf output.
-Again, you can click on any errors inside Visual_Studio.
+Generate SkXXX
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -r site/user/api -b docs -f fiddleout.json
 </pre>
 
-The original include may have changed since you started creating the markdown.
-Check to see if it is up to date.
-This reports if a method no longer exists or its parameters have changed.
+The original include may have changed since you started creating the markdown
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -x -b docs/SkXXX.bmh -i include/core/SkXXX.h
 </pre>
 
-Generate an updated include header. Run:
+Generate an updated include header
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -p -b docs -i include/core/SkXXX.h
 </pre>
 
-to write the updated SkXXX.h to the current directory.
-
-Once adding the file is complete, add the file to status.json in the
-Completed section. You may add it to the InProgress section during
-development, or leave status.json unchanged.
-
-If the new file has been added to status.json, you can run
-any of the above commands with -a docs/status.json in place of
--b docs or -i includes.
+to write the updated SkXXX.h to the current directory
 
 ## <a name='Bugs'>Bugs</a>
 
-<a href='#Bookmaker'>Bookmaker</a> bugs are tracked <a href='https://bug.skia.org/6898'>here</a></a> .
-
+<a href='#Bookmaker'>Bookmaker</a> bugs are tracked <a href='https://bug.skia.org/6898'>here</a></a> 

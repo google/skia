@@ -4,6 +4,78 @@
 
 #Class SkRRect
 
+#Code
+class SkRRect {
+public:
+    SkRRect() = default;
+    SkRRect(const SkRRect& rrect) = default;
+    SkRRect& operator=(const SkRRect& rrect) = default;
+
+    enum Type {
+        kEmpty_Type,
+        kRect_Type,
+        kOval_Type,
+        kSimple_Type,
+        kNinePatch_Type,
+        kComplex_Type,
+        kLastType       = kComplex_Type,
+    };
+
+    Type getType() const;
+    Type type() const;
+    bool isEmpty() const;
+    bool isRect() const;
+    bool isOval() const;
+    bool isSimple() const;
+    bool isNinePatch() const;
+    bool isComplex() const;
+    SkScalar width() const;
+    SkScalar height() const;
+    SkVector getSimpleRadii() const;
+    void setEmpty();
+    void setRect(const SkRect& rect);
+    static SkRRect MakeEmpty();
+    static SkRRect MakeRect(const SkRect& r);
+    static SkRRect MakeOval(const SkRect& oval);
+    static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad);
+    void setOval(const SkRect& oval);
+    void setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad);
+    void setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad,
+                      SkScalar rightRad, SkScalar bottomRad);
+    void setRectRadii(const SkRect& rect, const SkVector radii[4]);
+
+    enum Corner {
+        kUpperLeft_Corner,
+        kUpperRight_Corner,
+        kLowerRight_Corner,
+        kLowerLeft_Corner,
+    };
+
+    const SkRect& rect() const;
+    SkVector radii(Corner corner) const;
+    const SkRect& getBounds() const;
+    friend bool operator==(const SkRRect& a, const SkRRect& b);
+    friend bool operator!=(const SkRRect& a, const SkRRect& b);
+    void inset(SkScalar dx, SkScalar dy, SkRRect* dst) const;
+    void inset(SkScalar dx, SkScalar dy);
+    void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const;
+    void outset(SkScalar dx, SkScalar dy);
+    void offset(SkScalar dx, SkScalar dy);
+    SkRRect makeOffset(SkScalar dx, SkScalar dy) const;
+    bool contains(const SkRect& rect) const;
+    bool isValid() const;
+
+    static constexpr size_t kSizeInMemory = 12 * sizeof(SkScalar);
+
+    size_t writeToMemory(void* buffer) const;
+    size_t readFromMemory(const void* buffer, size_t length);
+    bool transform(const SkMatrix& matrix, SkRRect* dst) const;
+    void dump(bool asHex) const;
+    void dump() const;
+    void dumpHex() const;
+};
+##
+
 SkRRect describes a rounded rectangle with a bounds and a pair of radii for each corner.
 The bounds and radii can be set so that SkRRect describes: a rectangle with sharp corners;
 a Circle; an Oval; or a rectangle with one or more rounded corners.
@@ -16,26 +88,10 @@ SkRRect may modify the provided parameters when initializing bounds and radii.
 If either axis radii is zero or less: radii are stored as zero; corner is square.
 If corner curves overlap, radii are proportionally reduced to fit within bounds.
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Operator
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
-
 # ------------------------------------------------------------------------------
 
 #Method SkRRect()
-#In Constructor
+#In Constructors
 #Line # creates with zeroed bounds and corner radii ##
 
 Initializes bounds at (0, 0), the origin, with zero width and height.
@@ -61,7 +117,7 @@ Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 # ------------------------------------------------------------------------------
 
 #Method SkRRect(const SkRRect& rrect)
-#In Constructor
+#In Constructors
 #Line # copies bounds and corner radii ##
 
 Initializes to copy of rrect bounds and corner radii.
@@ -90,7 +146,7 @@ Initializes to copy of rrect bounds and corner radii.
 # ------------------------------------------------------------------------------
 
 #Method SkRRect& operator=(const SkRRect& rrect)
-#In Operator
+#In Operators
 #Line # copies bounds and corner radii ##
 
 Copies rrect bounds and corner radii.
@@ -278,7 +334,7 @@ inset() has made rrect2 empty.
 
 # ------------------------------------------------------------------------------
 
-#Method inline bool isEmpty() const
+#Method bool isEmpty() const
 #In Property
 #Line # returns true if width or height are zero ##
 Returns true if rect().fLeft is equal to rect().fRight, or if rect().fTop is equal
@@ -307,7 +363,7 @@ to rect().fBottom.
 
 # ------------------------------------------------------------------------------
 
-#Method inline bool isRect() const
+#Method bool isRect() const
 #In Property
 #Line # returns true if not empty, and one radius at each corner is zero ##
 Returns true if not empty, and if either x-axis or y-axis radius at each corner
@@ -337,7 +393,7 @@ is zero.
 
 # ------------------------------------------------------------------------------
 
-#Method inline bool isOval() const
+#Method bool isOval() const
 #In Property
 #Line # returns true if not empty, axes radii are equal, radii fill bounds ##
 Returns true if not empty, if all x-axis radii are equal, if all y-axis radii
@@ -373,7 +429,7 @@ dimensions; right Round_Rect is an oval.
 
 # ------------------------------------------------------------------------------
 
-#Method inline bool isSimple() const
+#Method bool isSimple() const
 #In Property
 #Line # returns true if not empty, Rect or Oval; and axes radii are equal ##
 Returns true if not empty, if all x-axis radii are equal but not zero,
@@ -407,7 +463,7 @@ width(), or y-axis radius is less than half height().
 
 # ------------------------------------------------------------------------------
 
-#Method inline bool isNinePatch() const
+#Method bool isNinePatch() const
 #In Property
 #Line # returns true if not empty, Rect, Oval or simple; and radii are axis-aligned ##
 Returns true if isEmpty, isRect, isOval, and isSimple return false; and if
@@ -441,7 +497,7 @@ equal, and bottom y-axis radii are equal.
 
 # ------------------------------------------------------------------------------
 
-#Method inline bool isComplex() const
+#Method bool isComplex() const
 #In Property
 #Line # returns true if not empty, Rect, Oval, simple, or nine-patch ##
 
@@ -623,7 +679,7 @@ otherwise, sets type to kEmpty_Type.
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeEmpty()
-#In Constructor
+#In Constructors
 #Line # creates with zeroed bounds and corner radii ##
 
 Initializes bounds at (0, 0), the origin, with zero width and height.
@@ -653,7 +709,7 @@ Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeRect(const SkRect& r)
-#In Constructor
+#In Constructors
 #Line # copies bounds and zeroes corner radii ##
 
 Initializes to copy of r bounds and zeroes corner radii.
@@ -679,7 +735,7 @@ Initializes to copy of r bounds and zeroes corner radii.
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeOval(const SkRect& oval)
-#In Constructor
+#In Constructors
 #Line # creates Oval to fit bounds ##
 
 Sets bounds to oval, x-axis radii to half oval.width(), and all y-axis radii
@@ -708,7 +764,7 @@ Otherwise, sets to kOval_Type.
 # ------------------------------------------------------------------------------
 
 #Method static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
-#In Constructor
+#In Constructors
 #Line # creates rounded rectangle ##
 
 Sets to rounded rectangle with the same radii for all four corners.
@@ -1040,7 +1096,7 @@ Result is identical to rect().
 # ------------------------------------------------------------------------------
 
 #Method bool operator==(const SkRRect& a, const SkRRect& b)
-#In Operator
+#In Operators
 #Line # returns true if members are equal ##
 Returns true if bounds and radii in a are equal to bounds and radii in b.
 
@@ -1074,7 +1130,7 @@ contain zeroes width different signs.
 # ------------------------------------------------------------------------------
 
 #Method bool operator!=(const SkRRect& a, const SkRRect& b)
-#In Operator
+#In Operators
 #Line # returns true if members are unequal ##
 Returns true if bounds and radii in a are not equal to bounds and radii in b.
 
@@ -1277,7 +1333,7 @@ Translates Round_Rect by (dx, dy).
 
 # ------------------------------------------------------------------------------
 
-#Method SkRRect SK_WARN_UNUSED_RESULT makeOffset(SkScalar dx, SkScalar dy) const
+#Method SkRRect makeOffset(SkScalar dx, SkScalar dy) const
 #In Inset_Outset_Offset
 #Line # offsets bounds and radii ##
 

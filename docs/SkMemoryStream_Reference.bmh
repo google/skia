@@ -3,22 +3,14 @@
 
 #Class SkMemoryStream
 
-#Subtopic Overview
-#Populate
-##
-
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Member_Function
+#Code
 #Populate
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method SkMemoryStream()
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 #Return incomplete ##
@@ -34,7 +26,7 @@
 # ------------------------------------------------------------------------------
 
 #Method SkMemoryStream(size_t length)
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 We allocate (and free) the memory. Write to it via getMemoryBase()
@@ -54,7 +46,7 @@ We allocate (and free) the memory. Write to it via getMemoryBase()
 # ------------------------------------------------------------------------------
 
 #Method SkMemoryStream(const void* data, size_t length, bool copyData = false)
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 If copyData is true, the stream makes a private copy of the data.
@@ -76,7 +68,7 @@ If copyData is true, the stream makes a private copy of the data.
 # ------------------------------------------------------------------------------
 
 #Method SkMemoryStream(sk_sp<SkData> data)
-#In Constructor
+#In Constructors
 #Line # incomplete ##
 
 Creates the stream to read from the specified data
@@ -185,6 +177,7 @@ if copyData is true, the stream makes a private copy of the data
 #Line # incomplete ##
 
 #Private
+Internal use only.
 ##
 
 #Param data  incomplete ##

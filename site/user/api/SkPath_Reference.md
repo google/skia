@@ -1,736 +1,208 @@
 SkPath Reference
 ===
 
-# <a name='Path'>Path</a>
-<a href='#Path'>Path</a> contains <a href='undocumented#Line'>Lines</a> and <a href='undocumented#Curve'>Curves</a> which can be stroked or filled. <a href='#Contour'>Contour</a> is
-composed of a series of connected <a href='undocumented#Line'>Lines</a> and <a href='undocumented#Curve'>Curves</a>. <a href='#Path'>Path</a> may contain zero,
-one, or more <a href='#Contour'>Contours</a>.
-Each <a href='undocumented#Line'>Line</a> and <a href='undocumented#Curve'>Curve</a> are described by <a href='#SkPath_Verb'>Verb</a>, <a href='SkPoint_Reference#Point'>Points</a>, and optional <a href='#Conic_Weight'>Conic Weight</a>.
+<a name='SkPath'></a>
 
-Each pair of connected <a href='undocumented#Line'>Lines</a> and <a href='undocumented#Curve'>Curves</a> share common <a href='SkPoint_Reference#Point'>Point</a>; for instance, <a href='#Path'>Path</a>
-containing two connected <a href='undocumented#Line'>Lines</a> are described the <a href='#SkPath_Verb'>Verb</a> sequence:
-<a href='#SkPath_kMove_Verb'>SkPath::kMove Verb</a>, <a href='#SkPath_kLine_Verb'>SkPath::kLine Verb</a>, <a href='#SkPath_kLine_Verb'>SkPath::kLine Verb</a>; and a <a href='SkPoint_Reference#Point'>Point</a> sequence
-with three entries, sharing
-the middle entry as the end of the first <a href='undocumented#Line'>Line</a> and the start of the second <a href='undocumented#Line'>Line</a>.
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+class <a href='#SkPath'>SkPath</a> {
+public:
+    enum <a href='#SkPath_Direction'>Direction</a> {
+        <a href='#SkPath_kCW_Direction'>kCW_Direction</a>,
+        <a href='#SkPath_kCCW_Direction'>kCCW_Direction</a>,
+    };
 
-<a href='#Path'>Path</a> components <a href='#Arc'>Arc</a>, <a href='SkRect_Reference#Rect'>Rect</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a>, <a href='undocumented#Circle'>Circle</a>, and <a href='undocumented#Oval'>Oval</a> are composed of
-<a href='undocumented#Line'>Lines</a> and <a href='undocumented#Curve'>Curves</a> with as many <a href='#Verb'>Verbs</a> and <a href='SkPoint_Reference#Point'>Points</a> required
-for an exact description. Once added to <a href='#Path'>Path</a>, these components may lose their
-identity; although <a href='#Path'>Path</a> can be inspected to determine if it describes a single
-<a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Oval'>Oval</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a>, and so on.
+    <a href='#SkPath_empty_constructor'>SkPath()</a>;
+    <a href='#SkPath_copy_const_SkPath'>SkPath(const SkPath& path)</a>;
+    <a href='#SkPath_destructor'>~SkPath()</a>;
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a>;
+    friend bool <a href='#SkPath_equal_operator'>operator==(const SkPath& a, const SkPath& b)</a>;
+    friend bool <a href='#SkPath_notequal_operator'>operator!=(const SkPath& a, const SkPath& b)</a>;
+    bool <a href='#SkPath_isInterpolatable'>isInterpolatable</a>(const <a href='#SkPath'>SkPath</a>& compare) const;
+    bool <a href='#SkPath_interpolate'>interpolate</a>(const <a href='#SkPath'>SkPath</a>& ending, <a href='undocumented#SkScalar'>SkScalar</a> weight, <a href='#SkPath'>SkPath</a>* out) const;
+    bool <a href='#SkPath_unique'>unique</a>() const;
 
-### Example
+    enum <a href='#SkPath_FillType'>FillType</a> {
+        <a href='#SkPath_kWinding_FillType'>kWinding_FillType</a>,
+        <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd_FillType</a>,
+        <a href='#SkPath_kInverseWinding_FillType'>kInverseWinding_FillType</a>,
+        <a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd_FillType</a>,
+    };
 
-<div><fiddle-embed name="93887af0c1dac49521972698cf04069c"><div><a href='#Path'>Path</a> contains three <a href='#Contour'>Contours</a>: <a href='undocumented#Line'>Line</a>, <a href='undocumented#Circle'>Circle</a>, and <a href='#Quad'>Quad</a>. <a href='undocumented#Line'>Line</a> is stroked but
-not filled. <a href='undocumented#Circle'>Circle</a> is stroked and filled; <a href='undocumented#Circle'>Circle</a> stroke forms a loop. <a href='#Quad'>Quad</a>
-is stroked and filled, but since it is not closed, <a href='#Quad'>Quad</a> does not stroke a loop.
-</div></fiddle-embed></div>
+    <a href='#SkPath_FillType'>FillType</a> <a href='#SkPath_getFillType'>getFillType</a>() const;
+    void <a href='#SkPath_setFillType'>setFillType</a>(<a href='#SkPath_FillType'>FillType</a> ft);
+    bool <a href='#SkPath_isInverseFillType'>isInverseFillType</a>() const;
+    void <a href='#SkPath_toggleInverseFillType'>toggleInverseFillType</a>();
 
-<a href='#Path'>Path</a> contains a <a href='#Fill_Type'>Fill Type</a> which determines whether overlapping <a href='#Contour'>Contours</a>
-form fills or holes. <a href='#Fill_Type'>Fill Type</a> also determines whether area inside or outside
-<a href='undocumented#Line'>Lines</a> and <a href='undocumented#Curve'>Curves</a> is filled.
+    enum <a href='#SkPath_Convexity'>Convexity</a> : uint8_t {
+        <a href='#SkPath_kUnknown_Convexity'>kUnknown_Convexity</a>,
+        <a href='#SkPath_kConvex_Convexity'>kConvex_Convexity</a>,
+        <a href='#SkPath_kConcave_Convexity'>kConcave_Convexity</a>,
+    };
 
-### Example
+    <a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexity'>getConvexity</a>() const;
+    <a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a>() const;
+    void <a href='#SkPath_setConvexity'>setConvexity</a>(<a href='#SkPath_Convexity'>Convexity</a> convexity);
+    bool <a href='#SkPath_isConvex'>isConvex</a>() const;
+    bool <a href='#SkPath_isOval'>isOval</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>* bounds) const;
+    bool <a href='#SkPath_isRRect'>isRRect</a>(<a href='SkRRect_Reference#SkRRect'>SkRRect</a>* rrect) const;
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_reset'>reset</a>();
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_rewind'>rewind</a>();
+    bool <a href='#SkPath_isEmpty'>isEmpty</a>() const;
+    bool <a href='#SkPath_isLastContourClosed'>isLastContourClosed</a>() const;
+    bool <a href='#SkPath_isFinite'>isFinite</a>() const;
+    bool <a href='#SkPath_isVolatile'>isVolatile</a>() const;
+    void <a href='#SkPath_setIsVolatile'>setIsVolatile</a>(bool isVolatile);
+    static bool <a href='#SkPath_IsLineDegenerate'>IsLineDegenerate</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, bool exact);
+    static bool <a href='#SkPath_IsQuadDegenerate'>IsQuadDegenerate</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2,
+                                 const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p3, bool exact);
+    static bool <a href='#SkPath_IsCubicDegenerate'>IsCubicDegenerate</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2,
+                                  const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p3, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p4, bool exact);
+    bool <a href='#SkPath_isLine'>isLine</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> line[2]) const;
+    int <a href='#SkPath_countPoints'>countPoints</a>() const;
+    <a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='#SkPath_getPoint'>getPoint</a>(int index) const;
+    int <a href='#SkPath_getPoints'>getPoints</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> points[], int max) const;
+    int <a href='#SkPath_countVerbs'>countVerbs</a>() const;
+    int <a href='#SkPath_getVerbs'>getVerbs</a>(uint8_t verbs[], int max) const;
+    void <a href='#SkPath_swap'>swap</a>(<a href='#SkPath'>SkPath</a>& other);
+    const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPath_getBounds'>getBounds</a>() const;
+    void <a href='#SkPath_updateBoundsCache'>updateBoundsCache</a>() const;
+    <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPath_computeTightBounds'>computeTightBounds</a>() const;
+    bool <a href='#SkPath_conservativelyContainsRect'>conservativelyContainsRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect) const;
+    void <a href='#SkPath_incReserve'>incReserve</a>(unsigned extraPtCount);
+    void <a href='#SkPath_shrinkToFit'>shrinkToFit</a>();
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_moveTo'>moveTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_moveTo_2'>moveTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_rMoveTo'>rMoveTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_lineTo'>lineTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_lineTo_2'>lineTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_rLineTo'>rLineTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_quadTo'>quadTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_quadTo_2'>quadTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_rQuadTo'>rQuadTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx1, <a href='undocumented#SkScalar'>SkScalar</a> dy1, <a href='undocumented#SkScalar'>SkScalar</a> dx2, <a href='undocumented#SkScalar'>SkScalar</a> dy2);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_conicTo'>conicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2,
+                    <a href='undocumented#SkScalar'>SkScalar</a> w);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_conicTo_2'>conicTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, <a href='undocumented#SkScalar'>SkScalar</a> w);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_rConicTo'>rConicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx1, <a href='undocumented#SkScalar'>SkScalar</a> dy1, <a href='undocumented#SkScalar'>SkScalar</a> dx2, <a href='undocumented#SkScalar'>SkScalar</a> dy2,
+                     <a href='undocumented#SkScalar'>SkScalar</a> w);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_cubicTo'>cubicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2,
+                    <a href='undocumented#SkScalar'>SkScalar</a> x3, <a href='undocumented#SkScalar'>SkScalar</a> y3);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_cubicTo_2'>cubicTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p3);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_rCubicTo'>rCubicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2,
+                     <a href='undocumented#SkScalar'>SkScalar</a> x3, <a href='undocumented#SkScalar'>SkScalar</a> y3);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo'>arcTo</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='undocumented#SkScalar'>SkScalar</a> startAngle, <a href='undocumented#SkScalar'>SkScalar</a> sweepAngle, bool forceMoveTo);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo_2'>arcTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2, <a href='undocumented#SkScalar'>SkScalar</a> radius);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo_3'>arcTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> p2, <a href='undocumented#SkScalar'>SkScalar</a> radius);
 
-<div><fiddle-embed name="36a995442c081ee779ecab2962d36e69"><div><a href='#Path'>Path</a> is drawn filled, then stroked, then stroked and filled.
-</div></fiddle-embed></div>
+    enum <a href='#SkPath_ArcSize'>ArcSize</a> {
+        <a href='#SkPath_kSmall_ArcSize'>kSmall_ArcSize</a>,
+        <a href='#SkPath_kLarge_ArcSize'>kLarge_ArcSize</a>,
+    };
 
-<a href='#Path'>Path</a> contents are never shared. Copying <a href='#Path'>Path</a> by value effectively creates
-a new <a href='#Path'>Path</a> independent of the original. Internally, the copy does not duplicate
-its contents until it is edited, to reduce memory use and improve performance.
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo_4'>arcTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> rx, <a href='undocumented#SkScalar'>SkScalar</a> ry, <a href='undocumented#SkScalar'>SkScalar</a> xAxisRotate, <a href='#SkPath_ArcSize'>ArcSize</a> largeArc,
+                  <a href='#SkPath_Direction'>Direction</a> sweep, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo_5'>arcTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> r, <a href='undocumented#SkScalar'>SkScalar</a> xAxisRotate, <a href='#SkPath_ArcSize'>ArcSize</a> largeArc, <a href='#SkPath_Direction'>Direction</a> sweep,
+               const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> xy);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_rArcTo'>rArcTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> rx, <a href='undocumented#SkScalar'>SkScalar</a> ry, <a href='undocumented#SkScalar'>SkScalar</a> xAxisRotate, <a href='#SkPath_ArcSize'>ArcSize</a> largeArc,
+                   <a href='#SkPath_Direction'>Direction</a> sweep, <a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_close'>close</a>();
+    static bool <a href='#SkPath_IsInverseFillType'>IsInverseFillType</a>(<a href='#SkPath_FillType'>FillType</a> fill);
+    static <a href='#SkPath_FillType'>FillType</a> <a href='#SkPath_ConvertToNonInverseFillType'>ConvertToNonInverseFillType</a>(<a href='#SkPath_FillType'>FillType</a> fill);
+    static int <a href='#SkPath_ConvertConicToQuads'>ConvertConicToQuads</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p0, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2,
+                                   <a href='undocumented#SkScalar'>SkScalar</a> w, <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int pow2);
+    bool <a href='#SkPath_isRect'>isRect</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>* rect, bool* isClosed = nullptr, <a href='#SkPath_Direction'>Direction</a>* direction = nullptr) const;
+    bool <a href='#SkPath_isNestedFillRects'>isNestedFillRects</a>(<a href='SkRect_Reference#SkRect'>SkRect</a> rect[2], <a href='#SkPath_Direction'>Direction</a> dirs[2] = nullptr) const;
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRect'>addRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW_Direction</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRect_2'>addRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='#SkPath_Direction'>Direction</a> dir, unsigned start);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRect_3'>addRect</a>(<a href='undocumented#SkScalar'>SkScalar</a> left, <a href='undocumented#SkScalar'>SkScalar</a> top, <a href='undocumented#SkScalar'>SkScalar</a> right, <a href='undocumented#SkScalar'>SkScalar</a> bottom,
+                    <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW_Direction</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addOval'>addOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW_Direction</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addOval_2'>addOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='#SkPath_Direction'>Direction</a> dir, unsigned start);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addCircle'>addCircle</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='undocumented#SkScalar'>SkScalar</a> radius,
+                      <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW_Direction</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addArc'>addArc</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='undocumented#SkScalar'>SkScalar</a> startAngle, <a href='undocumented#SkScalar'>SkScalar</a> sweepAngle);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRoundRect'>addRoundRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> rx, <a href='undocumented#SkScalar'>SkScalar</a> ry,
+                         <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW_Direction</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRoundRect_2'>addRoundRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, const <a href='undocumented#SkScalar'>SkScalar</a> radii[],
+                         <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW_Direction</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRRect'>addRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& rrect, <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW_Direction</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRRect_2'>addRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& rrect, <a href='#SkPath_Direction'>Direction</a> dir, unsigned start);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPoly'>addPoly</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int count, bool close);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPoly_2'>addPoly</a>(const std::initializer_list<<a href='SkPoint_Reference#SkPoint'>SkPoint</a>>& list, bool close);
 
-## <a name='Contour'>Contour</a>
+    enum <a href='#SkPath_AddPathMode'>AddPathMode</a> {
+        <a href='#SkPath_kAppend_AddPathMode'>kAppend_AddPathMode</a>,
+        <a href='#SkPath_kExtend_AddPathMode'>kExtend_AddPathMode</a>,
+    };
 
-<a href='#Contour'>Contour</a> contains one or more <a href='#Verb'>Verbs</a>, and as many <a href='SkPoint_Reference#Point'>Points</a> as
-are required to satisfy <a href='#Verb_Array'>Verb Array</a>. First <a href='#SkPath_Verb'>Verb</a> in <a href='#Path'>Path</a> is always
-<a href='#SkPath_kMove_Verb'>SkPath::kMove Verb</a>; each <a href='#SkPath_kMove_Verb'>SkPath::kMove Verb</a> that follows starts a new <a href='#Contour'>Contour</a>.
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPath'>addPath</a>(const <a href='#SkPath'>SkPath</a>& src, <a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy,
+                    <a href='#SkPath_AddPathMode'>AddPathMode</a> mode = <a href='#SkPath_kAppend_AddPathMode'>kAppend_AddPathMode</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPath_2'>addPath</a>(const <a href='#SkPath'>SkPath</a>& src, <a href='#SkPath_AddPathMode'>AddPathMode</a> mode = <a href='#SkPath_kAppend_AddPathMode'>kAppend_AddPathMode</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPath_3'>addPath</a>(const <a href='#SkPath'>SkPath</a>& src, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix,
+                    <a href='#SkPath_AddPathMode'>AddPathMode</a> mode = <a href='#SkPath_kAppend_AddPathMode'>kAppend_AddPathMode</a>);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_reverseAddPath'>reverseAddPath</a>(const <a href='#SkPath'>SkPath</a>& src);
+    void <a href='#SkPath_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='#SkPath'>SkPath</a>* dst) const;
+    void <a href='#SkPath_offset_2'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    void <a href='#SkPath_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix, <a href='#SkPath'>SkPath</a>* dst) const;
+    void <a href='#SkPath_transform_2'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix);
+    bool <a href='#SkPath_getLastPt'>getLastPt</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a>* lastPt) const;
+    void <a href='#SkPath_setLastPt'>setLastPt</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y);
+    void <a href='#SkPath_setLastPt_2'>setLastPt</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p);
 
-### Example
+    enum <a href='#SkPath_SegmentMask'>SegmentMask</a> {
+        <a href='#SkPath_kLine_SegmentMask'>kLine_SegmentMask</a> = 1 << 0,
+        <a href='#SkPath_kQuad_SegmentMask'>kQuad_SegmentMask</a> = 1 << 1,
+        <a href='#SkPath_kConic_SegmentMask'>kConic_SegmentMask</a> = 1 << 2,
+        <a href='#SkPath_kCubic_SegmentMask'>kCubic_SegmentMask</a> = 1 << 3,
+    };
 
-<div><fiddle-embed name="0374f2dcd7effeb1dd435205a6c2de6f"><div>Each <a href='#SkPath_moveTo'>SkPath::moveTo</a> starts a new <a href='#Contour'>Contour</a>, and content after <a href='#SkPath_close'>SkPath::close()</a>
-also starts a new <a href='#Contour'>Contour</a>. Since <a href='#SkPath_conicTo'>SkPath::conicTo</a> is not preceded by
-<a href='#SkPath_moveTo'>SkPath::moveTo</a>, the first <a href='SkPoint_Reference#Point'>Point</a> of the third <a href='#Contour'>Contour</a> starts at the last <a href='SkPoint_Reference#Point'>Point</a>
-of the second <a href='#Contour'>Contour</a>.
-</div></fiddle-embed></div>
+    uint32_t <a href='#SkPath_getSegmentMasks'>getSegmentMasks</a>() const;
 
-If final <a href='#SkPath_Verb'>Verb</a> in <a href='#Contour'>Contour</a> is <a href='#SkPath_kClose_Verb'>SkPath::kClose Verb</a>, <a href='undocumented#Line'>Line</a> connects <a href='#Last_Point'>Last Point</a> in
-<a href='#Contour'>Contour</a> with first <a href='SkPoint_Reference#Point'>Point</a>. A closed <a href='#Contour'>Contour</a>, stroked, draws
-<a href='SkPaint_Reference#Stroke_Join'>Paint Stroke Join</a> at <a href='#Last_Point'>Last Point</a> and first <a href='SkPoint_Reference#Point'>Point</a>. Without <a href='#SkPath_kClose_Verb'>SkPath::kClose Verb</a>
-as final <a href='#SkPath_Verb'>Verb</a>, <a href='#Last_Point'>Last Point</a> and first <a href='SkPoint_Reference#Point'>Point</a> are not connected; <a href='#Contour'>Contour</a>
-remains open. An open <a href='#Contour'>Contour</a>, stroked, draws <a href='SkPaint_Reference#Stroke_Cap'>Paint Stroke Cap</a> at
-<a href='#Last_Point'>Last Point</a> and first <a href='SkPoint_Reference#Point'>Point</a>.
+    enum <a href='#SkPath_Verb'>Verb</a> {
+        <a href='#SkPath_kMove_Verb'>kMove_Verb</a>,
+        <a href='#SkPath_kLine_Verb'>kLine_Verb</a>,
+        <a href='#SkPath_kQuad_Verb'>kQuad_Verb</a>,
+        <a href='#SkPath_kConic_Verb'>kConic_Verb</a>,
+        <a href='#SkPath_kCubic_Verb'>kCubic_Verb</a>,
+        <a href='#SkPath_kClose_Verb'>kClose_Verb</a>,
+        <a href='#SkPath_kDone_Verb'>kDone_Verb</a>,
+    };
 
-### Example
+    class <a href='#SkPath_Iter'>Iter</a> {
+    public:
+        <a href='#SkPath_Iter_Iter'>Iter</a>();
+        <a href='#SkPath_Iter_const_SkPath'>Iter</a>(const <a href='#SkPath'>SkPath</a>& path, bool forceClose);
+        void <a href='#SkPath_Iter_setPath'>setPath</a>(const <a href='#SkPath'>SkPath</a>& path, bool forceClose);
+        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4], bool doConsumeDegenerates = true, bool exact = false);
+        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a>() const;
+        bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a>() const;
+        bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a>() const;
+    };
 
-<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2"><div><a href='#Path'>Path</a> is drawn stroked, with an open <a href='#Contour'>Contour</a> and a closed <a href='#Contour'>Contour</a>.
-</div></fiddle-embed></div>
+    class <a href='#SkPath_RawIter'>RawIter</a> {
+    public:
+        <a href='#SkPath_RawIter_RawIter'>RawIter</a>();
+        <a href='#SkPath_RawIter_copy_const_SkPath'>RawIter</a>(const <a href='#SkPath'>SkPath</a>& path);
+        void <a href='#SkPath_RawIter_setPath'>setPath</a>(const <a href='#SkPath'>SkPath</a>& path);
+        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4]);
+        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek</a>() const;
+        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a>() const;
+    };
 
-## <a name='Contour_Zero_Length'>Contour Zero Length</a>
+    bool <a href='#SkPath_contains'>contains</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const;
+    void <a href='#SkPath_dump'>dump</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* stream, bool forceClose, bool dumpAsHex) const;
+    void <a href='#SkPath_dump_2'>dump</a>() const;
+    void <a href='#SkPath_dumpHex'>dumpHex</a>() const;
+    size_t <a href='#SkPath_writeToMemory'>writeToMemory</a>(void* buffer) const;
+    <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkData'>SkData</a>> <a href='#SkPath_serialize'>serialize</a>() const;
+    size_t <a href='#SkPath_readFromMemory'>readFromMemory</a>(const void* buffer, size_t length);
+    uint32_t <a href='#SkPath_getGenerationID'>getGenerationID</a>() const;
+    bool <a href='#SkPath_isValid'>isValid</a>() const;
+    bool <a href='#SkPath_isValid'>isValid</a>() const;
+    bool <a href='#SkPath_pathRefIsValid'>pathRefIsValid</a>() const;
+};
+</pre>
 
-<a href='#Contour'>Contour</a> length is distance traveled from first <a href='SkPoint_Reference#Point'>Point</a> to <a href='#Last_Point'>Last Point</a>,
-plus, if <a href='#Contour'>Contour</a> is closed, distance from <a href='#Last_Point'>Last Point</a> to first <a href='SkPoint_Reference#Point'>Point</a>.
-Even if <a href='#Contour'>Contour</a> length is zero, stroked <a href='undocumented#Line'>Lines</a> are drawn if <a href='SkPaint_Reference#Stroke_Cap'>Paint Stroke Cap</a>
-makes them visible.
-
-### Example
-
-<div><fiddle-embed name="62848df605af6258653d9e16b27d8f7f"></fiddle-embed></div>
-
-# <a name='SkPath'>Class SkPath</a>
-<a href='#Path'>Paths</a> contain geometry. <a href='#Path'>Paths</a> may be empty, or contain one or more <a href='#Verb'>Verbs</a> that
-outline a figure. <a href='#Path'>Path</a> always starts with a move verb to a <a href='undocumented#Cartesian_Coordinate'>Cartesian Coordinate</a>,
-and may be followed by additional verbs that add lines or curves.
-Adding a close verb makes the geometry into a continuous loop, a closed contour.
-<a href='#Path'>Paths</a> may contain any number of contours, each beginning with a move verb.
-
-<a href='#Path'>Path</a> contours may contain only a move verb, or may also contain lines,
-<a href='#Quad'>Quadratic Beziers</a>, <a href='#Conic'>Conics</a>, and <a href='#Cubic'>Cubic Beziers</a>. <a href='#Path'>Path</a> contours may be open or
-closed.
-
-When used to draw a filled area, <a href='#Path'>Path</a> describes whether the fill is inside or
-outside the geometry. <a href='#Path'>Path</a> also describes the winding rule used to fill
-overlapping contours.
-
-Internally, <a href='#Path'>Path</a> lazily computes metrics likes bounds and convexity. Call
-<a href='#SkPath_updateBoundsCache'>SkPath::updateBoundsCache</a> to make <a href='#Path'>Path</a> thread safe.
-
-## Overview
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Class'>Class Declarations</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>embedded class members</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constant'>Constants</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>enum and enum class, and their const values</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkPath'>SkPath</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Operator'>Operators</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>operator overloading methods</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Related_Function'>Related Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>similar member functions grouped together</td>
-  </tr>
-</table>
-
-
-## <a name='Related_Function'>Related Function</a>
-
-
-SkPath global, <code>struct</code>, and <code>class</code> related member functions share a topic.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Arc'>Arc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>part of <a href='undocumented#Oval'>Oval</a> or <a href='undocumented#Circle'>Circle</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Build'>Build</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds points and verbs to path</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Conic'>Conic</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>conic section defined by three points and a weight</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Conic_Weight'>Conic Weight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>strength of <a href='#Conic'>Conic</a> control <a href='SkPoint_Reference#Point'>Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Contour'>Contour</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>loop of lines and curves</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Contour_Zero_Length'>Contour Zero Length</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>consideration when contour has no length</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Convexity'>Convexity</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>if <a href='#Path'>Path</a> is concave or convex</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Cubic'>Cubic</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>curve described by third-order polynomial</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Direction'>Direction</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>contour orientation, clockwise or counterclockwise</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Fill_Type'>Fill Type</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>fill rule, normal and inverted</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Generation_ID'>Generation ID</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>value reflecting contents change</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Interpolate'>Interpolate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>weighted average of <a href='#Path'>Path</a> pair</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Last_Point'>Last Point</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>final <a href='SkPoint_Reference#Point'>Point</a> in <a href='#Contour'>Contour</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Point_Array'>Point Array</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>end points and control points for lines and curves</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Property'>Property</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>metrics and attributes</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Quad'>Quad</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>curve described by second-order polynomial</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Transform'>Transform</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>modify all points</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Utility'>Utility</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>rarely called management functions</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Verb'>Verb</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>line and curve type</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Verb_Array'>Verb Array</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>line and curve type for points</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Volatile'>Volatile</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>caching attribute</td>
-  </tr>
-</table>
-
-## <a name='Constant'>Constant</a>
-
-
-SkPath related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_AddPathMode'>AddPathMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='#SkPath_addPath'>addPath</a> options</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_ArcSize'>ArcSize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>used by <a href='#SkPath_arcTo'>arcTo</a> variation</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Convexity'>Convexity</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Path'>Path</a> is convex or concave</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Direction'>Direction</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='#Contour'>Contour</a> clockwise or counterclockwise</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_FillType'>FillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets winding rule and inverse fill</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_SegmentMask'>SegmentMask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkPath_Verb'>Verb</a> types in <a href='#Path'>Path</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Verb'>Verb</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>controls how <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Points</a> are interpreted</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appended to destination unaltered</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kCCW_Direction'>kCCW Direction</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>contour travels counterclockwise</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kCW_Direction'>kCW Direction</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>contour travels clockwise</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>closes <a href='#Contour'>Contour</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kConcave_Convexity'>kConcave Convexity</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>more than one <a href='#Contour'>Contour</a>, or a geometry with indentations</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kConic_SegmentMask'>kConic SegmentMask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>contains one or more <a href='#Conic'>Conics</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kConic_Verb'>kConic Verb</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds <a href='#Conic'>Conic</a> from <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kConvex_Convexity'>kConvex Convexity</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>one <a href='#Contour'>Contour</a> made of a simple geometry without indentations</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kCubic_SegmentMask'>kCubic SegmentMask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>contains one or more <a href='#Cubic'>Cubics</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kCubic_Verb'>kCubic Verb</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kDone_Verb'>kDone Verb</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>terminates <a href='#Path'>Path</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>is enclosed by an odd number of <a href='#Contour'>Contours</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kExtend_AddPathMode'>kExtend AddPathMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>add line if prior <a href='#Contour'>Contour</a> is not closed</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd FillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>is enclosed by an even number of <a href='#Contour'>Contours</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kInverseWinding_FillType'>kInverseWinding FillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>is enclosed by a zero sum of <a href='#Contour'>Contour</a> <a href='#Direction'>Directions</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kLarge_ArcSize'>kLarge ArcSize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>larger of <a href='#Arc'>Arc</a> pair</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kLine_SegmentMask'>kLine SegmentMask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>contains one or more <a href='undocumented#Line'>Lines</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kLine_Verb'>kLine Verb</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point</a> to next <a href='SkPoint_Reference#Point'>Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kMove_Verb'>kMove Verb</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>starts new <a href='#Contour'>Contour</a> at next <a href='SkPoint_Reference#Point'>Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kQuad_SegmentMask'>kQuad SegmentMask</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>contains one or more <a href='#Quad'>Quads</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kQuad_Verb'>kQuad Verb</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds <a href='#Quad'>Quad</a> from <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kSmall_ArcSize'>kSmall ArcSize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller of <a href='#Arc'>Arc</a> pair</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kUnknown_Convexity'>kUnknown Convexity</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>indicates <a href='#SkPath_Convexity'>Convexity</a> has not been determined</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_kWinding_FillType'>kWinding FillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>is enclosed by a non-zero sum of <a href='#Contour'>Contour</a> <a href='#Direction'>Directions</a></td>
-  </tr>
-</table>
-
-## <a name='Class'>Class</a>
-
-
-SkPath uses C++ classes to declare the public data structures and interfaces.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter'>Iter</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>data iterator</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter'>RawIter</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>raw data iterator</td>
-  </tr>
-</table>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkPath can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_empty_constructor'>SkPath()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs with default values</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_copy_const_SkPath'>SkPath(const SkPath& path)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>makes a shallow copy</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_reset'>reset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>removes <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Weights</a>; frees memory</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rewind'>rewind</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>removes <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Weights</a>, keeping memory</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_destructor'>~SkPath()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>decreases <a href='undocumented#Reference_Count'>Reference Count</a> of owned objects</td>
-  </tr>
-</table>
-
-## <a name='Operator'>Operator</a>
-
-
-SkPath operators inline class member functions with arithmetic equivalents.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_notequal_operator'>operator!=(const SkPath& a, const SkPath& b)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>compares paths for inequality</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>makes a shallow copy</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_equal_operator'>operator==(const SkPath& a, const SkPath& b)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>compares <a href='#Path'>Paths</a> for equality</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_swap'>swap</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exchanges <a href='#Path'>Path</a> pair</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member Function</a>
-
-
-SkPath member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_ConvertConicToQuads'>ConvertConicToQuads</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>approximates <a href='#Conic'>Conic</a> with <a href='#Quad'>Quad</a> array</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_ConvertToNonInverseFillType'>ConvertToNonInverseFillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Fill_Type'>Fill Type</a> representing inside geometry</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_IsCubicDegenerate'>IsCubicDegenerate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Cubic'>Cubic</a> is very small</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_IsInverseFillType'>IsInverseFillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Fill_Type'>Fill Type</a> represents outside geometry</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_IsLineDegenerate'>IsLineDegenerate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='undocumented#Line'>Line</a> is very small</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_IsQuadDegenerate'>IsQuadDegenerate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Quad'>Quad</a> is very small</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addArc'>addArc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='#Arc'>Arc</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addCircle'>addCircle</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='undocumented#Circle'>Circle</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addOval'>addOval</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='undocumented#Oval'>Oval</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addPath'>addPath</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds contents of <a href='#Path'>Path</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addPoly'>addPoly</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing connected lines</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRRect'>addRRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRect'>addRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='SkRect_Reference#Rect'>Rect</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRoundRect'>addRoundRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='SkRRect_Reference#RRect'>Round Rect</a> with common corner radii</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_arcTo'>arcTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Arc'>Arc</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_close'>close</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>makes last <a href='#Contour'>Contour</a> a loop</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_computeTightBounds'>computeTightBounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns extent of geometry</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_conicTo'>conicTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Conic'>Conic</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_conservativelyContainsRect'>conservativelyContainsRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkRect_Reference#Rect'>Rect</a> may be inside</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_contains'>contains</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='SkPoint_Reference#Point'>Point</a> is in fill area</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_countPoints'>countPoints</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Point_Array'>Point Array</a> length</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_countVerbs'>countVerbs</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Verb_Array'>Verb Array</a> length</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_cubicTo'>cubicTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Cubic'>Cubic</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_dump_2'>dump</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation to stream</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_dumpHex'>dumpHex</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation using hexadecimal to standard output</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getBounds'>getBounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns maximum and minimum of <a href='#Point_Array'>Point Array</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getConvexity'>getConvexity</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns geometry convexity, computing if necessary</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns geometry convexity if known</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getFillType'>getFillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Fill_Type'>Fill Type</a>: winding, even-odd, inverse</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getGenerationID'>getGenerationID</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns unique ID</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getLastPt'>getLastPt</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getPoint'>getPoint</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns entry from <a href='#Point_Array'>Point Array</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getPoints'>getPoints</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Point_Array'>Point Array</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getSegmentMasks'>getSegmentMasks</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns types in <a href='#Verb_Array'>Verb Array</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getVerbs'>getVerbs</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Verb_Array'>Verb Array</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_incReserve'>incReserve</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>reserves space for additional data</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_interpolate'>interpolate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>interpolates between <a href='#Path'>Path</a> pair</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isConvex'>isConvex</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if geometry is convex</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isEmpty'>isEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if verb count is zero</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isFinite'>isFinite</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if all <a href='SkPoint_Reference#Point'>Point</a> values are finite</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isInterpolatable'>isInterpolatable</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if pair contains equal counts of <a href='#Verb_Array'>Verb Array</a> and <a href='#Conic_Weight'>Weights</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isInverseFillType'>isInverseFillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Fill_Type'>Fill Type</a> fills outside geometry</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isLastContourClosed'>isLastContourClosed</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if final <a href='#Contour'>Contour</a> forms a loop</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isLine'>isLine</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='undocumented#Line'>Line</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isNestedFillRects'>isNestedFillRects</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='SkRect_Reference#Rect'>Rect</a> pair, one inside the other</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isOval'>isOval</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='undocumented#Oval'>Oval</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isRRect'>isRRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isRect'>isRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='SkRect_Reference#Rect'>Rect</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isValid'>isValid</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if data is internally consistent</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isVolatile'>isVolatile</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='undocumented#Device'>Device</a> should not cache</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_lineTo'>lineTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='undocumented#Line'>Line</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_moveTo'>moveTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>starts <a href='#Contour'>Contour</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_offset'>offset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates <a href='#Point_Array'>Point Array</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_quadTo'>quadTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Quad'>Quad</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rArcTo'>rArcTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Arc'>Arc</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rConicTo'>rConicTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Conic'>Conic</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rCubicTo'>rCubicTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Cubic'>Cubic</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rLineTo'>rLineTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='undocumented#Line'>Line</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rMoveTo'>rMoveTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>starts <a href='#Contour'>Contour</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rQuadTo'>rQuadTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Quad'>Quad</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_readFromMemory'>readFromMemory</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>initializes from buffer</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_reset'>reset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>removes <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Weights</a>; frees memory</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_reverseAddPath'>reverseAddPath</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds contents of <a href='#Path'>Path</a> back to front</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rewind'>rewind</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>removes <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Weights</a>, keeping memory</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_serialize'>serialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies data to buffer</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_setConvexity'>setConvexity</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets if geometry is convex to avoid future computation</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_setFillType'>setFillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='#Fill_Type'>Fill Type</a>: winding, even-odd, inverse</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_setIsVolatile'>setIsVolatile</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets if <a href='undocumented#Device'>Device</a> should not cache</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_setLastPt'>setLastPt</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_shrinkToFit'>shrinkToFit</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>removes unused reserved space</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_swap'>swap</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exchanges <a href='#Path'>Path</a> pair</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_toggleInverseFillType'>toggleInverseFillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>toggles <a href='#Fill_Type'>Fill Type</a> between inside and outside geometry</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_transform'>transform</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>applies <a href='SkMatrix_Reference#Matrix'>Matrix</a> to <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Weights</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_updateBoundsCache'>updateBoundsCache</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>refreshes result of <a href='#SkPath_getBounds'>getBounds</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_writeToMemory'>writeToMemory</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies data to buffer</td>
-  </tr>
-</table>
+<a href='#Path'>Paths</a> contain geometry
 
 ## <a name='Verb'>Verb</a>
 
@@ -738,18 +210,17 @@ SkPath member functions read and modify the structure properties.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPath_Verb'>Verb</a> {
-        <a href='#SkPath_kMove_Verb'>kMove Verb</a>,
-        <a href='#SkPath_kLine_Verb'>kLine Verb</a>,
-        <a href='#SkPath_kQuad_Verb'>kQuad Verb</a>,
-        <a href='#SkPath_kConic_Verb'>kConic Verb</a>,
-        <a href='#SkPath_kCubic_Verb'>kCubic Verb</a>,
-        <a href='#SkPath_kClose_Verb'>kClose Verb</a>,
-        <a href='#SkPath_kDone_Verb'>kDone Verb</a>,
+        <a href='#SkPath_kMove_Verb'>kMove_Verb</a>,
+        <a href='#SkPath_kLine_Verb'>kLine_Verb</a>,
+        <a href='#SkPath_kQuad_Verb'>kQuad_Verb</a>,
+        <a href='#SkPath_kConic_Verb'>kConic_Verb</a>,
+        <a href='#SkPath_kCubic_Verb'>kCubic_Verb</a>,
+        <a href='#SkPath_kClose_Verb'>kClose_Verb</a>,
+        <a href='#SkPath_kDone_Verb'>kDone_Verb</a>,
     };
 </pre>
 
-<a href='#SkPath_Verb'>Verb</a> instructs <a href='#Path'>Path</a> how to interpret one or more <a href='SkPoint_Reference#Point'>Point</a> and optional <a href='#Conic_Weight'>Conic Weight</a>;
-manage <a href='#Contour'>Contour</a>, and terminate <a href='#Path'>Path</a>.
+<a href='#SkPath_Verb'>Verb</a> instructs <a href='#Path'>Path</a> how to interpret one or more <a href='SkPoint_Reference#Point'>Point</a> and optional <a href='#Conic_Weight'>Conic Weight</a>
 
 ### Constants
 
@@ -762,72 +233,45 @@ manage <a href='#Contour'>Contour</a>, and terminate <a href='#Path'>Path</a>.
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Consecutive <a href='#SkPath_kMove_Verb'>kMove Verb</a> are preserved but all but the last <a href='#SkPath_kMove_Verb'>kMove Verb</a> is
-ignored. <a href='#SkPath_kMove_Verb'>kMove Verb</a> after other <a href='#Verb'>Verbs</a> implicitly closes the previous <a href='#Contour'>Contour</a>
-if <a href='SkPaint_Reference#SkPaint_kFill_Style'>SkPaint::kFill Style</a> is set when drawn; otherwise, stroke is drawn open.
-<a href='#SkPath_kMove_Verb'>kMove Verb</a> as the last <a href='#SkPath_Verb'>Verb</a> is preserved but ignored.
-</td>
+ignored</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kLine_Verb'><code>SkPath::kLine_Verb</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-<a href='undocumented#Line'>Line</a> is a straight segment from <a href='SkPoint_Reference#Point'>Point</a> to <a href='SkPoint_Reference#Point'>Point</a>. Consecutive <a href='#SkPath_kLine_Verb'>kLine Verb</a>
-extend <a href='#Contour'>Contour</a>. <a href='#SkPath_kLine_Verb'>kLine Verb</a> at same position as prior <a href='#SkPath_kMove_Verb'>kMove Verb</a> is
-preserved, and draws <a href='SkPoint_Reference#Point'>Point</a> if <a href='SkPaint_Reference#SkPaint_kStroke_Style'>SkPaint::kStroke Style</a> is set, and
-<a href='SkPaint_Reference#SkPaint_Cap'>SkPaint::Cap</a> is <a href='SkPaint_Reference#SkPaint_kSquare_Cap'>SkPaint::kSquare Cap</a> or <a href='SkPaint_Reference#SkPaint_kRound_Cap'>SkPaint::kRound Cap</a>. <a href='#SkPath_kLine_Verb'>kLine Verb</a>
-at same position as prior line or curve <a href='#SkPath_Verb'>Verb</a> is preserved but is ignored.
-</td>
+<a href='undocumented#Line'>Line</a> is a straight segment from <a href='SkPoint_Reference#Point'>Point</a> to <a href='SkPoint_Reference#Point'>Point</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kQuad_Verb'><code>SkPath::kQuad_Verb</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Adds <a href='#Quad'>Quad</a> from <a href='#Last_Point'>Last Point</a>, using control <a href='SkPoint_Reference#Point'>Point</a>, and end <a href='SkPoint_Reference#Point'>Point</a>.
-<a href='#Quad'>Quad</a> is a parabolic section within tangents from <a href='#Last_Point'>Last Point</a> to control <a href='SkPoint_Reference#Point'>Point</a>,
-and control <a href='SkPoint_Reference#Point'>Point</a> to end <a href='SkPoint_Reference#Point'>Point</a>.
-</td>
+Adds <a href='#Quad'>Quad</a> from <a href='#Last_Point'>Last Point</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kConic_Verb'><code>SkPath::kConic_Verb</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Adds <a href='#Conic'>Conic</a> from <a href='#Last_Point'>Last Point</a>, using control <a href='SkPoint_Reference#Point'>Point</a>, end <a href='SkPoint_Reference#Point'>Point</a>, and <a href='#Conic_Weight'>Conic Weight</a>.
-<a href='#Conic'>Conic</a> is a elliptical, parabolic, or hyperbolic section within tangents
-from <a href='#Last_Point'>Last Point</a> to control <a href='SkPoint_Reference#Point'>Point</a>, and control <a href='SkPoint_Reference#Point'>Point</a> to end <a href='SkPoint_Reference#Point'>Point</a>, constrained
-by <a href='#Conic_Weight'>Conic Weight</a>. <a href='#Conic_Weight'>Conic Weight</a> less than one is elliptical; equal to one is
-parabolic (and identical to <a href='#Quad'>Quad</a>); greater than one hyperbolic.
-</td>
+Adds <a href='#Conic'>Conic</a> from <a href='#Last_Point'>Last Point</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kCubic_Verb'><code>SkPath::kCubic_Verb</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a>, using two control <a href='SkPoint_Reference#Point'>Points</a>, and end <a href='SkPoint_Reference#Point'>Point</a>.
-<a href='#Cubic'>Cubic</a> is a third-order <a href='undocumented#Bezier_Curve'>Bezier Curve</a> section within tangents from <a href='#Last_Point'>Last Point</a>
-to first control <a href='SkPoint_Reference#Point'>Point</a>, and from second control <a href='SkPoint_Reference#Point'>Point</a> to end <a href='SkPoint_Reference#Point'>Point</a>.
-</td>
+Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kClose_Verb'><code>SkPath::kClose_Verb</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>5</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Closes <a href='#Contour'>Contour</a>, connecting <a href='#Last_Point'>Last Point</a> to <a href='#SkPath_kMove_Verb'>kMove Verb</a> <a href='SkPoint_Reference#Point'>Point</a>. Consecutive
-<a href='#SkPath_kClose_Verb'>kClose Verb</a> are preserved but only first has an effect. <a href='#SkPath_kClose_Verb'>kClose Verb</a> after
-<a href='#SkPath_kMove_Verb'>kMove Verb</a> has no effect.
-</td>
+Closes <a href='SkPath_Overview#Contour'>Contour</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kDone_Verb'><code>SkPath::kDone_Verb</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>6</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Not in <a href='#Verb_Array'>Verb Array</a>, but returned by <a href='#Path'>Path</a> iterator.
-</td>
+Not in <a href='#Verb_Array'>Verb Array</a></td>
   </tr>
-Each <a href='#SkPath_Verb'>Verb</a> has zero or more <a href='SkPoint_Reference#Point'>Points</a> stored in <a href='#Path'>Path</a>.
-<a href='#Path'>Path</a> iterator returns complete curve descriptions, duplicating shared <a href='SkPoint_Reference#Point'>Points</a>
-for consecutive entries.
-
-</table>
+Each <a href='#SkPath_Verb'>Verb</a> has zero or more <a href='SkPoint_Reference#Point'>Points</a> stored in <a href='#Path'>Path</a></table>
 
 | <a href='#SkPath_Verb'>Verb</a> | Allocated <a href='SkPoint_Reference#Point'>Points</a> | Iterated <a href='SkPoint_Reference#Point'>Points</a> | <a href='#Conic_Weight'>Weights</a> |
 | --- | --- | --- | ---  |
@@ -837,7 +281,7 @@ for consecutive entries.
 | <a href='#SkPath_kConic_Verb'>kConic Verb</a> | 2 | 3 | 1 |
 | <a href='#SkPath_kCubic_Verb'>kCubic Verb</a> | 3 | 4 | 0 |
 | <a href='#SkPath_kClose_Verb'>kClose Verb</a> | 0 | 1 | 0 |
-| <a href='#SkPath_kDone_Verb'>kDone Verb</a> | -- | 0 | 0 |
+| <a href='#SkPath_kDone_Verb'>kDone Verb</a> |  | 0 | 0 |
 
 ### Example
 
@@ -858,22 +302,12 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPath_Direction'>Direction</a> {
-        <a href='#SkPath_kCW_Direction'>kCW Direction</a>,
-        <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>,
+        <a href='#SkPath_kCW_Direction'>kCW_Direction</a>,
+        <a href='#SkPath_kCCW_Direction'>kCCW_Direction</a>,
     };
 </pre>
 
-<a href='#SkPath_Direction'>Direction</a> describes whether <a href='#Contour'>Contour</a> is clockwise or counterclockwise.
-When <a href='#Path'>Path</a> contains multiple overlapping <a href='#Contour'>Contours</a>, <a href='#SkPath_Direction'>Direction</a> together with
-<a href='#Fill_Type'>Fill Type</a> determines whether overlaps are filled or form holes.
-
-<a href='#SkPath_Direction'>Direction</a> also determines how <a href='#Contour'>Contour</a> is measured. For instance, dashing
-measures along <a href='#Path'>Path</a> to determine where to start and stop stroke; <a href='#SkPath_Direction'>Direction</a>
-will change dashed results as it steps clockwise or counterclockwise.
-
-Closed <a href='#Contour'>Contours</a> like <a href='SkRect_Reference#Rect'>Rect</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a>, <a href='undocumented#Circle'>Circle</a>, and <a href='undocumented#Oval'>Oval</a> added with
-<a href='#SkPath_kCW_Direction'>kCW Direction</a> travel clockwise; the same added with <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>
-travel counterclockwise.
+<a href='#SkPath_Direction'>Direction</a> describes whether <a href='SkPath_Overview#Contour'>Contour</a> is clockwise or counterclockwise
 
 ### Constants
 
@@ -907,11 +341,10 @@ contour travels counterclockwise</td>
 ## SkPath
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>()
+<a href='#SkPath'>SkPath</a>(
 </pre>
 
-Constucts an empty <a href='#Path'>Path</a>. By default, <a href='#Path'>Path</a> has no <a href='#Verb'>Verbs</a>, no <a href='SkPoint_Reference#Point'>Points</a>, and no <a href='#Conic_Weight'>Weights</a>.
-<a href='#Fill_Type'>Fill Type</a> is set to <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>.
+Constucts an empty <a href='#Path'>Path</a>
 
 ### Return Value
 
@@ -939,17 +372,10 @@ path is empty
 ## SkPath
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>(const <a href='#SkPath'>SkPath</a>& path)
+<a href='#SkPath'>SkPath</a>(const <a href='#SkPath'>SkPath</a>
 </pre>
 
-Constructs a copy of an existing <a href='#SkPath_copy_const_SkPath_path'>path</a>.
-Copy constructor makes two paths identical by value. Internally, <a href='#SkPath_copy_const_SkPath_path'>path</a> and
-the returned result share pointer values. The underlying <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>
-and <a href='#Conic_Weight'>Weights</a> are copied when modified.
-
-Creating a <a href='#Path'>Path</a> copy is very efficient and never allocates memory.
-<a href='#Path'>Paths</a> are always copied by value from the interface; the underlying shared
-pointers are not exposed.
+Constructs a copy of an existing <a href='#SkPath_copy_const_SkPath_path'>path</a>
 
 ### Parameters
 
@@ -964,9 +390,7 @@ copy of <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="647312aacd946c8a6eabaca797140432"><div>Modifying one <a href='#SkPath_copy_const_SkPath_path'>path</a> does not effect another, even if they started as copies
-of each other.
-</div>
+<div><fiddle-embed name="647312aacd946c8a6eabaca797140432"><div>Modifying one <a href='#SkPath_copy_const_SkPath_path'>path</a> does not effect another</div>
 
 #### Example Output
 
@@ -990,15 +414,14 @@ path2 verbs: 3
 ## ~SkPath
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_destructor'>~SkPath</a>()
+<a href='#SkPath_destructor'>~SkPath</a>(
 </pre>
 
-Releases ownership of any shared data and deletes data if <a href='#Path'>Path</a> is sole owner.
+Releases ownership of any shared data and deletes data if <a href='#Path'>Path</a> is sole owner
 
 ### Example
 
-<div><fiddle-embed name="01ad6be9b7d15a2217daea273eb3d466"><div>delete calls <a href='#Path'>Path</a> <a href='undocumented#Destructor'>Destructor</a>, but copy of original in path2 is unaffected.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="01ad6be9b7d15a2217daea273eb3d466"><div>delete calls <a href='#Path'>Path</a> <a href='undocumented#Destructor'>Destructor</a></div></fiddle-embed></div>
 
 ### See Also
 
@@ -1010,22 +433,15 @@ Releases ownership of any shared data and deletes data if <a href='#Path'>Path</
 ## operator=
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a>
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Constructs a copy of an existing <a href='#SkPath_copy_operator_path'>path</a>.
-<a href='#Path'>Path</a> assignment makes two paths identical by value. Internally, assignment
-shares pointer values. The underlying <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Weights</a>
-are copied when modified.
-
-Copying <a href='#Path'>Paths</a> by assignment is very efficient and never allocates memory.
-<a href='#Path'>Paths</a> are always copied by value from the interface; the underlying shared
-pointers are not exposed.
+Constructs a copy of an existing <a href='#SkPath_copy_operator_path'>path</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_copy_operator_path'><code><strong>path</strong></code></a></td>
-    <td><a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, <a href='#Conic_Weight'>Weights</a>, and <a href='#Fill_Type'>Fill Type</a> to copy</td>
+    <td><a href='#Verb_Array'>Verb Array</a></td>
   </tr>
 </table>
 
@@ -1059,8 +475,7 @@ path2 bounds = 10, 20, 30, 40
 bool <a href='#SkPath_equal_operator'>operator==(const SkPath& a, const SkPath& b)</a>
 </pre>
 
-Compares <a href='#SkPath_equal_operator_a'>a</a> and <a href='#SkPath_equal_operator_b'>b</a>; returns true if <a href='#Fill_Type'>Fill Type</a>, <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Weights</a>
-are equivalent.
+Compares <a href='#SkPath_equal_operator_a'>a</a> and <a href='#SkPath_equal_operator_b'>b</a>
 
 ### Parameters
 
@@ -1078,9 +493,7 @@ true if <a href='#Path'>Path</a> pair are equivalent
 
 ### Example
 
-<div><fiddle-embed name="31883f51bb357f2ac5990d88f8b82e02"><div>Rewind removes <a href='#Verb_Array'>Verb Array</a> but leaves storage; since storage is not compared,
-<a href='#Path'>Path</a> pair are equivalent.
-</div>
+<div><fiddle-embed name="31883f51bb357f2ac5990d88f8b82e02"><div>Rewind removes <a href='#Verb_Array'>Verb Array</a> but leaves storage</div>
 
 #### Example Output
 
@@ -1106,8 +519,7 @@ reset one == two
 bool <a href='#SkPath_notequal_operator'>operator!=(const SkPath& a, const SkPath& b)</a>
 </pre>
 
-Compares <a href='#SkPath_notequal_operator_a'>a</a> and <a href='#SkPath_notequal_operator_b'>b</a>; returns true if <a href='#Fill_Type'>Fill Type</a>, <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Weights</a>
-are not equivalent.
+Compares <a href='#SkPath_notequal_operator_a'>a</a> and <a href='#SkPath_notequal_operator_b'>b</a>
 
 ### Parameters
 
@@ -1125,8 +537,7 @@ true if <a href='#Path'>Path</a> pair are not equivalent
 
 ### Example
 
-<div><fiddle-embed name="bbbda1cc818d96c9c0d2a06c0c48902b"><div><a href='#Path'>Path</a> pair are equal though their convexity is not equal.
-</div>
+<div><fiddle-embed name="bbbda1cc818d96c9c0d2a06c0c48902b"><div><a href='#Path'>Path</a> pair are equal though their convexity is not equal</div>
 
 #### Example Output
 
@@ -1143,105 +554,14 @@ convexity !=
 
 ## <a name='Property'>Property</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_IsCubicDegenerate'>IsCubicDegenerate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Cubic'>Cubic</a> is very small</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_IsInverseFillType'>IsInverseFillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Fill_Type'>Fill Type</a> represents outside geometry</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_IsLineDegenerate'>IsLineDegenerate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='undocumented#Line'>Line</a> is very small</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_IsQuadDegenerate'>IsQuadDegenerate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Quad'>Quad</a> is very small</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_computeTightBounds'>computeTightBounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns extent of geometry</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_conservativelyContainsRect'>conservativelyContainsRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkRect_Reference#Rect'>Rect</a> may be inside</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_contains'>contains</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='SkPoint_Reference#Point'>Point</a> is in fill area</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getBounds'>getBounds</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns maximum and minimum of <a href='#Point_Array'>Point Array</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getLastPt'>getLastPt</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isEmpty'>isEmpty</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if verb count is zero</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isFinite'>isFinite</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if all <a href='SkPoint_Reference#Point'>Point</a> values are finite</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isInterpolatable'>isInterpolatable</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if pair contains equal counts of <a href='#Verb_Array'>Verb Array</a> and <a href='#Conic_Weight'>Weights</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isLastContourClosed'>isLastContourClosed</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if final <a href='#Contour'>Contour</a> forms a loop</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isLine'>isLine</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='undocumented#Line'>Line</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isNestedFillRects'>isNestedFillRects</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='SkRect_Reference#Rect'>Rect</a> pair, one inside the other</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isOval'>isOval</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='undocumented#Oval'>Oval</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isRRect'>isRRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isRect'>isRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if describes <a href='SkRect_Reference#Rect'>Rect</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isValid'>isValid</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if data is internally consistent</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_isVolatile'>isVolatile</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='undocumented#Device'>Device</a> should not cache</td>
-  </tr>
-</table>
-
 <a name='SkPath_isInterpolatable'></a>
 ## isInterpolatable
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isInterpolatable'>isInterpolatable</a>(const <a href='#SkPath'>SkPath</a>& compare) const
+bool <a href='#SkPath_isInterpolatable'>isInterpolatable</a>(const <a href='#SkPath'>SkPath</a>
 </pre>
 
-Returns true if <a href='#Path'>Paths</a> contain equal <a href='#Verb'>Verbs</a> and equal <a href='#Conic_Weight'>Weights</a>.
-If <a href='#Path'>Paths</a> contain one or more <a href='#Conic'>Conics</a>, the <a href='#Conic_Weight'>Weights</a> must match.
-
-<a href='#SkPath_conicTo'>conicTo</a> may add different <a href='#Verb'>Verbs</a> depending on <a href='#Conic_Weight'>Conic Weight</a>, so it is not
-trivial to interpolate a pair of <a href='#Path'>Paths</a> containing <a href='#Conic'>Conics</a> with different
-<a href='#Conic_Weight'>Conic Weight</a> values.
+Returns true if <a href='#Path'>Paths</a> contain equal <a href='#Verb'>Verbs</a> and equal <a href='#Conic_Weight'>Weights</a>
 
 ### Parameters
 
@@ -1274,35 +594,14 @@ paths are interpolatable
 
 ## <a name='Interpolate'>Interpolate</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_interpolate'>interpolate</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>interpolates between <a href='#Path'>Path</a> pair</td>
-  </tr>
-</table>
-
 <a name='SkPath_interpolate'></a>
 ## interpolate
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_interpolate'>interpolate</a>(const <a href='#SkPath'>SkPath</a>& ending, <a href='undocumented#SkScalar'>SkScalar</a> weight, <a href='#SkPath'>SkPath</a>* out) const
+bool <a href='#SkPath_interpolate'>interpolate</a>(const <a href='#SkPath'>SkPath</a>
 </pre>
 
-Interpolates between <a href='#Path'>Paths</a> with <a href='#Point_Array'>Point Array</a> of equal size.
-Copy <a href='#Verb_Array'>Verb Array</a> and <a href='#Conic_Weight'>Weights</a> to <a href='#SkPath_interpolate_out'>out</a>, and set <a href='#SkPath_interpolate_out'>out</a> <a href='#Point_Array'>Point Array</a> to a weighted
-average of this <a href='#Point_Array'>Point Array</a> and <a href='#SkPath_interpolate_ending'>ending</a> <a href='#Point_Array'>Point Array</a>, using the formula:
-<code>\(<a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a>&nbsp;\*&nbsp;<a href='#SkPath_interpolate_weight'>weight</a>\)&nbsp;\+&nbsp;<a href='#SkPath_interpolate_ending'>ending</a> <a href='SkPoint_Reference#Point'>Point</a>&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;<a href='#SkPath_interpolate_weight'>weight</a>\)</code>.
-
-<a href='#SkPath_interpolate_weight'>weight</a> is most useful when between zero (<a href='#SkPath_interpolate_ending'>ending</a> <a href='#Point_Array'>Point Array</a>) and
-one (this <a href='#Point_Array'>Point Array</a>); will work with values outside of this
-range.
-
-<a href='#SkPath_interpolate'>interpolate</a> returns false and leaves <a href='#SkPath_interpolate_out'>out</a> unchanged if <a href='#Point_Array'>Point Array</a> is not
-the same size as <a href='#SkPath_interpolate_ending'>ending</a> <a href='#Point_Array'>Point Array</a>. Call <a href='#SkPath_isInterpolatable'>isInterpolatable</a> to check <a href='#Path'>Path</a>
-compatibility prior to calling <a href='#SkPath_interpolate'>interpolate</a>.
+Interpolates between <a href='#Path'>Paths</a> with <a href='#Point_Array'>Point Array</a> of equal size <code></code>
 
 ### Parameters
 
@@ -1310,8 +609,7 @@ compatibility prior to calling <a href='#SkPath_interpolate'>interpolate</a>.
     <td><a href='#Point_Array'>Point Array</a> averaged with this <a href='#Point_Array'>Point Array</a></td>
   </tr>
   <tr>    <td><a name='SkPath_interpolate_weight'><code><strong>weight</strong></code></a></td>
-    <td>contribution of this <a href='#Point_Array'>Point Array</a>, and
-one minus contribution of <a href='#SkPath_interpolate_ending'>ending</a> <a href='#Point_Array'>Point Array</a></td>
+    <td>contribution of this <a href='#Point_Array'>Point Array</a></td>
   </tr>
   <tr>    <td><a name='SkPath_interpolate_out'><code><strong>out</strong></code></a></td>
     <td><a href='#Path'>Path</a> replaced by interpolated averages</td>
@@ -1336,12 +634,12 @@ true if <a href='#Path'>Paths</a> contain same number of <a href='SkPoint_Refere
 ## unique
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_unique'>unique</a>() const
+bool <a href='#SkPath_unique'>unique</a>(
 </pre>
 
 To be deprecated soon.
 
-Only valid for Android framework.
+Only valid for Android framework
 
 ---
 
@@ -1351,28 +649,18 @@ Only valid for Android framework.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPath_FillType'>FillType</a> {
-        <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>,
-        <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a>,
-        <a href='#SkPath_kInverseWinding_FillType'>kInverseWinding FillType</a>,
-        <a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd FillType</a>,
+        <a href='#SkPath_kWinding_FillType'>kWinding_FillType</a>,
+        <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd_FillType</a>,
+        <a href='#SkPath_kInverseWinding_FillType'>kInverseWinding_FillType</a>,
+        <a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd_FillType</a>,
     };
 </pre>
 
-<a href='#Fill_Type'>Fill Type</a> selects the rule used to fill <a href='#Path'>Path</a>. <a href='#Path'>Path</a> set to <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>
-fills if the sum of <a href='#Contour'>Contour</a> edges is not zero, where clockwise edges add one, and
-counterclockwise edges subtract one. <a href='#Path'>Path</a> set to <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a> fills if the
-number of <a href='#Contour'>Contour</a> edges is odd. Each <a href='#Fill_Type'>Fill Type</a> has an inverse variant that
-reverses the rule:
-<a href='#SkPath_kInverseWinding_FillType'>kInverseWinding FillType</a> fills where the sum of <a href='#Contour'>Contour</a> edges is zero;
-<a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd FillType</a> fills where the number of <a href='#Contour'>Contour</a> edges is even.
+<a href='#Fill_Type'>Fill Type</a> selects the rule used to fill <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="71fc6c069c377d808799f2453edabaf5"><div>The top row has two clockwise rectangles. The second row has one clockwise and
-one counterclockwise rectangle. The even-odd variants draw the same. The
-winding variants draw the top rectangle overlap, which has a winding of 2, the
-same as the outer parts of the top rectangles, which have a winding of 1.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="71fc6c069c377d808799f2453edabaf5"><div>The top row has two clockwise rectangles</div></fiddle-embed></div>
 
 ### Constants
 
@@ -1418,16 +706,14 @@ is enclosed by an even number of Contours</td>
 ## getFillType
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_FillType'>FillType</a> <a href='#SkPath_getFillType'>getFillType</a>() const
+<a href='#SkPath_FillType'>FillType</a> <a href='#SkPath_getFillType'>getFillType</a>(
 </pre>
 
-Returns <a href='#SkPath_FillType'>FillType</a>, the rule used to fill <a href='#Path'>Path</a>. <a href='#SkPath_FillType'>FillType</a> of a new <a href='#Path'>Path</a> is
-<a href='#SkPath_kWinding_FillType'>kWinding FillType</a>.
+Returns <a href='#SkPath_FillType'>FillType</a>
 
 ### Return Value
 
-one of: <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>, <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a>,  <a href='#SkPath_kInverseWinding_FillType'>kInverseWinding FillType</a>,
-<a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd FillType</a>
+one of
 
 ### Example
 
@@ -1451,24 +737,21 @@ default path fill type is kWinding_FillType
 ## setFillType
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_setFillType'>setFillType</a>(<a href='#SkPath_FillType'>FillType</a> ft)
+void <a href='#SkPath_setFillType'>setFillType</a>(<a href='#SkPath_FillType'>FillType</a> ft
 </pre>
 
-Sets <a href='#SkPath_FillType'>FillType</a>, the rule used to fill <a href='#Path'>Path</a>. While there is no check
-that <a href='#SkPath_setFillType_ft'>ft</a> is legal, values outside of <a href='#SkPath_FillType'>FillType</a> are not supported.
+Sets <a href='#SkPath_FillType'>FillType</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_setFillType_ft'><code><strong>ft</strong></code></a></td>
-    <td>one of: <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>, <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a>,  <a href='#SkPath_kInverseWinding_FillType'>kInverseWinding FillType</a>,
-<a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd FillType</a></td>
+    <td>one of</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="b4a91cd7f50b2a0a0d1bec6d0ac823d2"><div>If empty <a href='#Path'>Path</a> is set to inverse <a href='#SkPath_FillType'>FillType</a>, it fills all pixels.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="b4a91cd7f50b2a0a0d1bec6d0ac823d2"><div>If empty <a href='#Path'>Path</a> is set to inverse <a href='#SkPath_FillType'>FillType</a></div></fiddle-embed></div>
 
 ### See Also
 
@@ -1480,11 +763,10 @@ that <a href='#SkPath_setFillType_ft'>ft</a> is legal, values outside of <a href
 ## isInverseFillType
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isInverseFillType'>isInverseFillType</a>() const
+bool <a href='#SkPath_isInverseFillType'>isInverseFillType</a>(
 </pre>
 
-Returns if <a href='#SkPath_FillType'>FillType</a> describes area outside <a href='#Path'>Path</a> geometry. The inverse fill area
-extends indefinitely.
+Returns if <a href='#SkPath_FillType'>FillType</a> describes area outside <a href='#Path'>Path</a> geometry
 
 ### Return Value
 
@@ -1512,11 +794,10 @@ default path fill type is inverse: false
 ## toggleInverseFillType
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_toggleInverseFillType'>toggleInverseFillType</a>()
+void <a href='#SkPath_toggleInverseFillType'>toggleInverseFillType</a>(
 </pre>
 
-Replaces <a href='#SkPath_FillType'>FillType</a> with its inverse. The inverse of <a href='#SkPath_FillType'>FillType</a> describes the area
-unmodified by the original <a href='#SkPath_FillType'>FillType</a>.
+Replaces <a href='#SkPath_FillType'>FillType</a> with its inverse
 
 | <a href='#SkPath_FillType'>FillType</a> | toggled <a href='#SkPath_FillType'>FillType</a> |
 | --- | ---  |
@@ -1527,8 +808,7 @@ unmodified by the original <a href='#SkPath_FillType'>FillType</a>.
 
 ### Example
 
-<div><fiddle-embed name="400facce23d417bc5043c5f58404afbd"><div><a href='#Path'>Path</a> drawn normally and through its inverse touches every pixel once.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="400facce23d417bc5043c5f58404afbd"><div><a href='#Path'>Path</a> drawn normally and through its inverse touches every pixel once</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1542,22 +822,14 @@ unmodified by the original <a href='#SkPath_FillType'>FillType</a>.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPath_Convexity'>Convexity</a> : uint8_t {
-        <a href='#SkPath_kUnknown_Convexity'>kUnknown Convexity</a>,
-        <a href='#SkPath_kConvex_Convexity'>kConvex Convexity</a>,
-        <a href='#SkPath_kConcave_Convexity'>kConcave Convexity</a>,
+        <a href='#SkPath_kUnknown_Convexity'>kUnknown_Convexity</a>,
+        <a href='#SkPath_kConvex_Convexity'>kConvex_Convexity</a>,
+        <a href='#SkPath_kConcave_Convexity'>kConcave_Convexity</a>,
     };
 </pre>
 
-<a href='#Path'>Path</a> is convex if it contains one <a href='#Contour'>Contour</a> and <a href='#Contour'>Contour</a> loops no more than
-360 degrees, and <a href='#Contour'>Contour</a> angles all have same <a href='#SkPath_Direction'>Direction</a>. Convex <a href='#Path'>Path</a>
-may have better performance and require fewer resources on <a href='undocumented#GPU_Surface'>GPU Surface</a>.
-
-<a href='#Path'>Path</a> is concave when either at least one <a href='#SkPath_Direction'>Direction</a> change is clockwise and
-another is counterclockwise, or the sum of the changes in <a href='#SkPath_Direction'>Direction</a> is not 360
-degrees.
-
-Initially <a href='#Path'>Path</a> <a href='#SkPath_Convexity'>Convexity</a> is <a href='#SkPath_kUnknown_Convexity'>kUnknown Convexity</a>. <a href='#Path'>Path</a> <a href='#SkPath_Convexity'>Convexity</a> is computed
-if needed by destination <a href='SkSurface_Reference#Surface'>Surface</a>.
+<a href='#Path'>Path</a> is convex if it contains one <a href='SkPath_Overview#Contour'>Contour</a> and <a href='SkPath_Overview#Contour'>Contour</a> loops no more than
+360 degrees
 
 ### Constants
 
@@ -1591,18 +863,16 @@ more than one Contour, or a geometry with indentations</td>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexity'>getConvexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> <a href='#SkPath_setConvexity'>setConvexity</a> <a href='#SkPath_isConvex'>isConvex</a>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexity'>getConvexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> <a href='#SkPath_setConvexity'>setConvexity</a> <a href='#SkPath_isConvex'>isConvex</a>
 
 <a name='SkPath_getConvexity'></a>
 ## getConvexity
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexity'>getConvexity</a>() const
+<a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexity'>getConvexity</a>(
 </pre>
 
-Computes <a href='#SkPath_Convexity'>Convexity</a> if required, and returns stored value.
-<a href='#SkPath_Convexity'>Convexity</a> is computed if stored value is <a href='#SkPath_kUnknown_Convexity'>kUnknown Convexity</a>,
-or if <a href='#Path'>Path</a> has been altered since <a href='#SkPath_Convexity'>Convexity</a> was computed or set.
+Computes <a href='#SkPath_Convexity'>Convexity</a> if required
 
 ### Return Value
 
@@ -1614,7 +884,7 @@ computed or stored <a href='#SkPath_Convexity'>Convexity</a>
 
 ### See Also
 
-<a href='#SkPath_Convexity'>Convexity</a> <a href='#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> <a href='#SkPath_setConvexity'>setConvexity</a> <a href='#SkPath_isConvex'>isConvex</a>
+<a href='#SkPath_Convexity'>Convexity</a> <a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> <a href='#SkPath_setConvexity'>setConvexity</a> <a href='#SkPath_isConvex'>isConvex</a>
 
 ---
 
@@ -1622,11 +892,10 @@ computed or stored <a href='#SkPath_Convexity'>Convexity</a>
 ## getConvexityOrUnknown
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a>() const
+<a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a>(
 </pre>
 
-Returns last computed <a href='#SkPath_Convexity'>Convexity</a>, or <a href='#SkPath_kUnknown_Convexity'>kUnknown Convexity</a> if
-<a href='#Path'>Path</a> has been altered since <a href='#SkPath_Convexity'>Convexity</a> was computed or set.
+Returns last computed <a href='#SkPath_Convexity'>Convexity</a>
 
 ### Return Value
 
@@ -1635,12 +904,11 @@ stored <a href='#SkPath_Convexity'>Convexity</a>
 ### Example
 
 <div><fiddle-embed name="111c59e9afadb940ab8f41bdc25378a4"><div><a href='#SkPath_Convexity'>Convexity</a> is unknown unless <a href='#SkPath_getConvexity'>getConvexity</a> is called without a subsequent call
-that alters the path.
-</div></fiddle-embed></div>
+that alters the path</div></fiddle-embed></div>
 
 ### See Also
 
-<a href='#SkPath_Convexity'>Convexity</a> <a href='#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexity'>getConvexity</a> <a href='#SkPath_setConvexity'>setConvexity</a> <a href='#SkPath_isConvex'>isConvex</a>
+<a href='#SkPath_Convexity'>Convexity</a> <a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexity'>getConvexity</a> <a href='#SkPath_setConvexity'>setConvexity</a> <a href='#SkPath_isConvex'>isConvex</a>
 
 ---
 
@@ -1648,24 +916,15 @@ that alters the path.
 ## setConvexity
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_setConvexity'>setConvexity</a>(<a href='#SkPath_Convexity'>Convexity</a> convexity)
+void <a href='#SkPath_setConvexity'>setConvexity</a>(<a href='#SkPath_Convexity'>Convexity</a> convexity
 </pre>
 
-Stores <a href='#SkPath_setConvexity_convexity'>convexity</a> so that it is later returned by <a href='#SkPath_getConvexity'>getConvexity</a> or <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a>.
-<a href='#SkPath_setConvexity_convexity'>convexity</a> may differ from <a href='#SkPath_getConvexity'>getConvexity</a>, although setting an incorrect value may
-cause incorrect or inefficient drawing.
-
-If <a href='#SkPath_setConvexity_convexity'>convexity</a> is <a href='#SkPath_kUnknown_Convexity'>kUnknown Convexity</a>: <a href='#SkPath_getConvexity'>getConvexity</a> will
-compute <a href='#SkPath_Convexity'>Convexity</a>, and <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> will return <a href='#SkPath_kUnknown_Convexity'>kUnknown Convexity</a>.
-
-If <a href='#SkPath_setConvexity_convexity'>convexity</a> is <a href='#SkPath_kConvex_Convexity'>kConvex Convexity</a> or <a href='#SkPath_kConcave_Convexity'>kConcave Convexity</a>, <a href='#SkPath_getConvexity'>getConvexity</a>
-and <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> will return <a href='#SkPath_setConvexity_convexity'>convexity</a> until the path is
-altered.
+Stores <a href='#SkPath_setConvexity_convexity'>convexity</a> so that it is later returned by <a href='#SkPath_getConvexity'>getConvexity</a> or <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_setConvexity_convexity'><code><strong>convexity</strong></code></a></td>
-    <td>one of: <a href='#SkPath_kUnknown_Convexity'>kUnknown Convexity</a>, <a href='#SkPath_kConvex_Convexity'>kConvex Convexity</a>, or <a href='#SkPath_kConcave_Convexity'>kConcave Convexity</a></td>
+    <td>one of</td>
   </tr>
 </table>
 
@@ -1675,7 +934,7 @@ altered.
 
 ### See Also
 
-<a href='#SkPath_Convexity'>Convexity</a> <a href='#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexity'>getConvexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> <a href='#SkPath_isConvex'>isConvex</a>
+<a href='#SkPath_Convexity'>Convexity</a> <a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexity'>getConvexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> <a href='#SkPath_isConvex'>isConvex</a>
 
 ---
 
@@ -1683,12 +942,10 @@ altered.
 ## isConvex
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isConvex'>isConvex</a>() const
+bool <a href='#SkPath_isConvex'>isConvex</a>(
 </pre>
 
-Computes <a href='#SkPath_Convexity'>Convexity</a> if required, and returns true if value is <a href='#SkPath_kConvex_Convexity'>kConvex Convexity</a>.
-If <a href='#SkPath_setConvexity'>setConvexity</a> was called with <a href='#SkPath_kConvex_Convexity'>kConvex Convexity</a> or <a href='#SkPath_kConcave_Convexity'>kConcave Convexity</a>, and
-the path has not been altered, <a href='#SkPath_Convexity'>Convexity</a> is not recomputed.
+Computes <a href='#SkPath_Convexity'>Convexity</a> if required
 
 ### Return Value
 
@@ -1697,12 +954,11 @@ true if <a href='#SkPath_Convexity'>Convexity</a> stored or computed is <a href=
 ### Example
 
 <div><fiddle-embed name="d8be8b6e59de244e4cbf58ec9554557b"><div>Concave shape is erroneously considered convex after a forced call to
-<a href='#SkPath_setConvexity'>setConvexity</a>.
-</div></fiddle-embed></div>
+<a href='#SkPath_setConvexity'>setConvexity</a></div></fiddle-embed></div>
 
 ### See Also
 
-<a href='#SkPath_Convexity'>Convexity</a> <a href='#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexity'>getConvexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> <a href='#SkPath_setConvexity'>setConvexity</a>
+<a href='#SkPath_Convexity'>Convexity</a> <a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_Direction'>Direction</a> <a href='#SkPath_getConvexity'>getConvexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a> <a href='#SkPath_setConvexity'>setConvexity</a>
 
 ---
 
@@ -1710,19 +966,15 @@ true if <a href='#SkPath_Convexity'>Convexity</a> stored or computed is <a href=
 ## isOval
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isOval'>isOval</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>* bounds) const
+bool <a href='#SkPath_isOval'>isOval</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>
 </pre>
 
-Returns true if this path is recognized as an oval or circle.
-
-<a href='#SkPath_isOval_bounds'>bounds</a> receives <a href='#SkPath_isOval_bounds'>bounds</a> of <a href='undocumented#Oval'>Oval</a>.
-
-<a href='#SkPath_isOval_bounds'>bounds</a> is unmodified if <a href='undocumented#Oval'>Oval</a> is not found.
+Returns true if this path is recognized as an oval or circle
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_isOval_bounds'><code><strong>bounds</strong></code></a></td>
-    <td>storage for bounding <a href='SkRect_Reference#Rect'>Rect</a> of <a href='undocumented#Oval'>Oval</a>; may be nullptr</td>
+    <td>storage for bounding <a href='SkRect_Reference#Rect'>Rect</a> of <a href='undocumented#Oval'>Oval</a></td>
   </tr>
 </table>
 
@@ -1744,19 +996,15 @@ true if <a href='#Path'>Path</a> is recognized as an oval or circle
 ## isRRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isRRect'>isRRect</a>(<a href='SkRRect_Reference#SkRRect'>SkRRect</a>* rrect) const
+bool <a href='#SkPath_isRRect'>isRRect</a>(<a href='SkRRect_Reference#SkRRect'>SkRRect</a>
 </pre>
 
-Returns true if this path is recognized as a <a href='SkRRect_Reference#SkRRect'>SkRRect</a> (but not an oval/circle or rect).
-
-<a href='#SkPath_isRRect_rrect'>rrect</a> receives bounds of <a href='SkRRect_Reference#RRect'>Round Rect</a>.
-
-<a href='#SkPath_isRRect_rrect'>rrect</a> is unmodified if <a href='SkRRect_Reference#RRect'>Round Rect</a> is not found.
+Returns true if this path is recognized as a <a href='SkRRect_Reference#SkRRect'>SkRRect</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_isRRect_rrect'><code><strong>rrect</strong></code></a></td>
-    <td>storage for bounding <a href='SkRect_Reference#Rect'>Rect</a> of <a href='SkRRect_Reference#RRect'>Round Rect</a>; may be nullptr</td>
+    <td>storage for bounding <a href='SkRect_Reference#Rect'>Rect</a> of <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
   </tr>
 </table>
 
@@ -1766,8 +1014,7 @@ true if <a href='#Path'>Path</a> contains only <a href='SkRRect_Reference#RRect'
 
 ### Example
 
-<div><fiddle-embed name="2aa939b90d96aff436b145a96305132c"><div>Draw rounded rectangle and its bounds.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="2aa939b90d96aff436b145a96305132c"><div>Draw rounded rectangle and its bounds</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1779,12 +1026,10 @@ true if <a href='#Path'>Path</a> contains only <a href='SkRRect_Reference#RRect'
 ## reset
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_reset'>reset</a>()
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Sets <a href='#Path'>Path</a> to its initial state.
-Removes <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Weights</a>, and sets <a href='#SkPath_FillType'>FillType</a> to <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>.
-Internal storage associated with <a href='#Path'>Path</a> is released.
+Sets <a href='#Path'>Path</a> to its initial state
 
 ### Return Value
 
@@ -1796,7 +1041,7 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#SkPath_rewind'>rewind</a>
+<a href='#SkPath_rewind'>rewind</a>(
 
 ---
 
@@ -1804,15 +1049,10 @@ reference to <a href='#Path'>Path</a>
 ## rewind
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_rewind'>rewind</a>()
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Sets <a href='#Path'>Path</a> to its initial state, preserving internal storage.
-Removes <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Weights</a>, and sets <a href='#SkPath_FillType'>FillType</a> to <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>.
-Internal storage associated with <a href='#Path'>Path</a> is retained.
-
-Use <a href='#SkPath_rewind'>rewind</a> instead of <a href='#SkPath_reset'>reset</a> if <a href='#Path'>Path</a> storage will be reused and performance
-is critical.
+Sets <a href='#Path'>Path</a> to its initial state
 
 ### Return Value
 
@@ -1820,13 +1060,11 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="f1fedbb89da9c2a33a91805175663012"><div>Although path1 retains its internal storage, it is indistinguishable from
-a newly initialized path.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="f1fedbb89da9c2a33a91805175663012"><div>Although path1 retains its internal storage</div></fiddle-embed></div>
 
 ### See Also
 
-<a href='#SkPath_reset'>reset</a>
+<a href='#SkPath_reset'>reset</a>(
 
 ---
 
@@ -1834,12 +1072,10 @@ a newly initialized path.
 ## isEmpty
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isEmpty'>isEmpty</a>() const
+bool <a href='#SkPath_isEmpty'>isEmpty</a>(
 </pre>
 
-Returns if <a href='#Path'>Path</a> is empty.
-Empty <a href='#Path'>Path</a> may have <a href='#SkPath_FillType'>FillType</a> but has no <a href='SkPoint_Reference#SkPoint'>SkPoint</a>, <a href='#SkPath_Verb'>Verb</a>, or <a href='#Conic_Weight'>Conic Weight</a>.
-<a href='#SkPath_empty_constructor'>SkPath()</a> constructs empty <a href='#Path'>Path</a>; <a href='#SkPath_reset'>reset</a> and <a href='#SkPath_rewind'>rewind</a> make <a href='#Path'>Path</a> empty.
+Returns if <a href='#Path'>Path</a> is empty
 
 ### Return Value
 
@@ -1863,7 +1099,7 @@ after reset path is empty
 
 ### See Also
 
-<a href='#SkPath_empty_constructor'>SkPath()</a> <a href='#SkPath_reset'>reset</a> <a href='#SkPath_rewind'>rewind</a>
+<a href='#SkPath_empty_constructor'>SkPath()</a> <a href='#SkPath_reset'>reset</a>(
 
 ---
 
@@ -1871,22 +1107,18 @@ after reset path is empty
 ## isLastContourClosed
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isLastContourClosed'>isLastContourClosed</a>() const
+bool <a href='#SkPath_isLastContourClosed'>isLastContourClosed</a>(
 </pre>
 
-Returns if <a href='#Contour'>Contour</a> is closed.
-<a href='#Contour'>Contour</a> is closed if <a href='#Path'>Path</a> <a href='#SkPath_Verb'>Verb</a> array was last modified by <a href='#SkPath_close'>close</a>. When stroked,
-closed <a href='#Contour'>Contour</a> draws <a href='SkPaint_Reference#Stroke_Join'>Paint Stroke Join</a> instead of <a href='SkPaint_Reference#Stroke_Cap'>Paint Stroke Cap</a> at first and last <a href='SkPoint_Reference#Point'>Point</a>.
+Returns if <a href='SkPath_Overview#Contour'>Contour</a> is closed
 
 ### Return Value
 
-true if the last <a href='#Contour'>Contour</a> ends with a <a href='#SkPath_kClose_Verb'>kClose Verb</a>
+true if the last <a href='SkPath_Overview#Contour'>Contour</a> ends with a <a href='#SkPath_kClose_Verb'>kClose Verb</a>
 
 ### Example
 
-<div><fiddle-embed name="03b740ab94b9017800a52e30b5e7fee7"><div><a href='#SkPath_close'>close</a> has no effect if <a href='#Path'>Path</a> is empty; <a href='#SkPath_isLastContourClosed'>isLastContourClosed</a> returns
-false until <a href='#Path'>Path</a> has geometry followed by <a href='#SkPath_close'>close</a>.
-</div>
+<div><fiddle-embed name="03b740ab94b9017800a52e30b5e7fee7"><div><a href='#SkPath_close'>close</a>(</div>
 
 #### Example Output
 
@@ -1901,7 +1133,7 @@ after close last contour is closed
 
 ### See Also
 
-<a href='#SkPath_close'>close</a>
+<a href='#SkPath_close'>close</a>(
 
 ---
 
@@ -1909,12 +1141,11 @@ after close last contour is closed
 ## isFinite
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isFinite'>isFinite</a>() const
+bool <a href='#SkPath_isFinite'>isFinite</a>(
 </pre>
 
 Returns true for finite <a href='SkPoint_Reference#Point'>Point</a> array values between negative <a href='undocumented#SK_ScalarMax'>SK ScalarMax</a> and
-positive <a href='undocumented#SK_ScalarMax'>SK ScalarMax</a>. Returns false for any <a href='SkPoint_Reference#Point'>Point</a> array value of
-<a href='undocumented#SK_ScalarInfinity'>SK ScalarInfinity</a>, <a href='undocumented#SK_ScalarNegativeInfinity'>SK ScalarNegativeInfinity</a>, or <a href='undocumented#SK_ScalarNaN'>SK ScalarNaN</a>.
+positive <a href='undocumented#SK_ScalarMax'>SK ScalarMax</a>
 
 ### Return Value
 
@@ -1944,13 +1175,10 @@ after scale path is not finite
 ## isVolatile
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isVolatile'>isVolatile</a>() const
+bool <a href='#SkPath_isVolatile'>isVolatile</a>(
 </pre>
 
-Returns true if the path is volatile; it will not be altered or discarded
-by the caller after it is drawn. <a href='#Path'>Paths</a> by default have volatile set false, allowing
-<a href='SkSurface_Reference#Surface'>Surface</a> to attach a cache of data which speeds repeated drawing. If true, <a href='SkSurface_Reference#Surface'>Surface</a>
-may not speed repeated drawing.
+Returns true if the path is volatile
 
 ### Return Value
 
@@ -1976,35 +1204,14 @@ volatile by default is false
 
 ## <a name='Volatile'>Volatile</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_setIsVolatile'>setIsVolatile</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets if <a href='undocumented#Device'>Device</a> should not cache</td>
-  </tr>
-</table>
-
 <a name='SkPath_setIsVolatile'></a>
 ## setIsVolatile
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_setIsVolatile'>setIsVolatile</a>(bool <a href='#SkPath_isVolatile'>isVolatile</a>)
+void <a href='#SkPath_setIsVolatile'>setIsVolatile</a>(bool <a href='#SkPath_isVolatile'>isVolatile</a>
 </pre>
 
-Specifies whether <a href='#Path'>Path</a> is volatile; whether it will be altered or discarded
-by the caller after it is drawn. <a href='#Path'>Paths</a> by default have volatile set false, allowing
-<a href='undocumented#Device'>Device</a> to attach a cache of data which speeds repeated drawing.
-
-Mark temporary paths, discarded or modified after use, as volatile
-to inform <a href='undocumented#Device'>Device</a> that the path need not be cached.
-
-Mark animating <a href='#Path'>Path</a> volatile to improve performance.
-Mark unchanging <a href='#Path'>Path</a> non-volatile to improve repeated rendering.
-
-<a href='undocumented#Raster_Surface'>Raster Surface</a> <a href='#Path'>Path</a> draws are affected by volatile for some shadows.
-<a href='undocumented#GPU_Surface'>GPU Surface</a> <a href='#Path'>Path</a> draws are affected by volatile for some shadows and concave geometries.
+Specifies whether <a href='#Path'>Path</a> is volatile
 
 ### Parameters
 
@@ -2027,15 +1234,10 @@ Mark unchanging <a href='#Path'>Path</a> non-volatile to improve repeated render
 ## IsLineDegenerate
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static bool <a href='#SkPath_IsLineDegenerate'>IsLineDegenerate</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, bool exact)
+static bool <a href='#SkPath_IsLineDegenerate'>IsLineDegenerate</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>
 </pre>
 
-Tests if <a href='undocumented#Line'>Line</a> between <a href='SkPoint_Reference#Point'>Point</a> pair is degenerate.
-<a href='undocumented#Line'>Line</a> with no length or that moves a very short distance is degenerate; it is
-treated as a point.
-
-<a href='#SkPath_IsLineDegenerate_exact'>exact</a> changes the equality test. If true, returns true only if <a href='#SkPath_IsLineDegenerate_p1'>p1</a> equals <a href='#SkPath_IsLineDegenerate_p2'>p2</a>.
-If false, returns true if <a href='#SkPath_IsLineDegenerate_p1'>p1</a> equals or nearly equals <a href='#SkPath_IsLineDegenerate_p2'>p2</a>.
+Tests if <a href='undocumented#Line'>Line</a> between <a href='SkPoint_Reference#Point'>Point</a> pair is degenerate
 
 ### Parameters
 
@@ -2046,20 +1248,17 @@ If false, returns true if <a href='#SkPath_IsLineDegenerate_p1'>p1</a> equals or
     <td>line end point</td>
   </tr>
   <tr>    <td><a name='SkPath_IsLineDegenerate_exact'><code><strong>exact</strong></code></a></td>
-    <td>if false, allow nearly equals</td>
+    <td>if false</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if <a href='undocumented#Line'>Line</a> is degenerate; its length is effectively zero
+true if <a href='undocumented#Line'>Line</a> is degenerate
 
 ### Example
 
-<div><fiddle-embed name="97a031f9186ade586928563840ce9116"><div>As single precision floats, 100 and 100.000001 have the same bit representation,
-and are exactly equal. 100 and 100.0001 have different bit representations, and
-are not exactly equal, but are nearly equal.
-</div>
+<div><fiddle-embed name="97a031f9186ade586928563840ce9116"><div>As single precision floats</div>
 
 #### Example Output
 
@@ -2082,12 +1281,10 @@ line from (100,100) to (100.0001,100.0001) is not degenerate, exactly
 ## IsQuadDegenerate
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static bool <a href='#SkPath_IsQuadDegenerate'>IsQuadDegenerate</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p3, bool exact)
+static bool <a href='#SkPath_IsQuadDegenerate'>IsQuadDegenerate</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>
 </pre>
 
-Tests if <a href='#Quad'>Quad</a> is degenerate.
-<a href='#Quad'>Quad</a> with no length or that moves a very short distance is degenerate; it is
-treated as a point.
+Tests if <a href='#Quad'>Quad</a> is degenerate
 
 ### Parameters
 
@@ -2101,21 +1298,17 @@ treated as a point.
     <td><a href='#Quad'>Quad</a> end point</td>
   </tr>
   <tr>    <td><a name='SkPath_IsQuadDegenerate_exact'><code><strong>exact</strong></code></a></td>
-    <td>if true, returns true only if <a href='#SkPath_IsQuadDegenerate_p1'>p1</a>, <a href='#SkPath_IsQuadDegenerate_p2'>p2</a>, and <a href='#SkPath_IsQuadDegenerate_p3'>p3</a> are equal;
-if false, returns true if <a href='#SkPath_IsQuadDegenerate_p1'>p1</a>, <a href='#SkPath_IsQuadDegenerate_p2'>p2</a>, and <a href='#SkPath_IsQuadDegenerate_p3'>p3</a> are equal or nearly equal</td>
+    <td>if true</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if <a href='#Quad'>Quad</a> is degenerate; its length is effectively zero
+true if <a href='#Quad'>Quad</a> is degenerate
 
 ### Example
 
-<div><fiddle-embed name="a2b255a7dac1926cc3a247d318d63c62"><div>As single precision floats: 100, 100.00001, and 100.00002 have different bit representations
-but nearly the same value. Translating all three by 1000 gives them the same bit representation;
-the fractional portion of the number can not be represented by the float and is lost.
-</div>
+<div><fiddle-embed name="a2b255a7dac1926cc3a247d318d63c62"><div>As single precision floats</div>
 
 #### Example Output
 
@@ -2138,13 +1331,10 @@ quad (1100,1100), (1100,1100), (1100,1100) is degenerate, exactly
 ## IsCubicDegenerate
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static bool <a href='#SkPath_IsCubicDegenerate'>IsCubicDegenerate</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p3,
-                              const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p4, bool exact)
+static bool <a href='#SkPath_IsCubicDegenerate'>IsCubicDegenerate</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>
 </pre>
 
-Tests if <a href='#Cubic'>Cubic</a> is degenerate.
-<a href='#Cubic'>Cubic</a> with no length or that moves a very short distance is degenerate; it is
-treated as a point.
+Tests if <a href='#Cubic'>Cubic</a> is degenerate
 
 ### Parameters
 
@@ -2161,14 +1351,13 @@ treated as a point.
     <td><a href='#Cubic'>Cubic</a> end point</td>
   </tr>
   <tr>    <td><a name='SkPath_IsCubicDegenerate_exact'><code><strong>exact</strong></code></a></td>
-    <td>if true, returns true only if <a href='#SkPath_IsCubicDegenerate_p1'>p1</a>, <a href='#SkPath_IsCubicDegenerate_p2'>p2</a>, <a href='#SkPath_IsCubicDegenerate_p3'>p3</a>, and <a href='#SkPath_IsCubicDegenerate_p4'>p4</a> are equal;
-if false, returns true if <a href='#SkPath_IsCubicDegenerate_p1'>p1</a>, <a href='#SkPath_IsCubicDegenerate_p2'>p2</a>, <a href='#SkPath_IsCubicDegenerate_p3'>p3</a>, and <a href='#SkPath_IsCubicDegenerate_p4'>p4</a> are equal or nearly equal</td>
+    <td>if true</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if <a href='#Cubic'>Cubic</a> is degenerate; its length is effectively zero
+true if <a href='#Cubic'>Cubic</a> is degenerate
 
 ### Example
 
@@ -2189,19 +1378,15 @@ true if <a href='#Cubic'>Cubic</a> is degenerate; its length is effectively zero
 ## isLine
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isLine'>isLine</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> line[2]) const
+bool <a href='#SkPath_isLine'>isLine</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> line
 </pre>
 
-Returns true if <a href='#Path'>Path</a> contains only one <a href='undocumented#Line'>Line</a>;
-<a href='#Verb'>Path Verb</a> array has two entries: <a href='#SkPath_kMove_Verb'>kMove Verb</a>, <a href='#SkPath_kLine_Verb'>kLine Verb</a>.
-If <a href='#Path'>Path</a> contains one <a href='undocumented#Line'>Line</a> and <a href='#SkPath_isLine_line'>line</a> is not nullptr, <a href='#SkPath_isLine_line'>line</a> is set to
-<a href='undocumented#Line'>Line</a> start point and <a href='undocumented#Line'>Line</a> end point.
-Returns false if <a href='#Path'>Path</a> is not one <a href='undocumented#Line'>Line</a>; <a href='#SkPath_isLine_line'>line</a> is unaltered.
+Returns true if <a href='#Path'>Path</a> contains only one <a href='undocumented#Line'>Line</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_isLine_line'><code><strong>line</strong></code></a></td>
-    <td>storage for <a href='undocumented#Line'>Line</a>. May be nullptr</td>
+    <td>storage for <a href='undocumented#Line'>Line</a></td>
   </tr>
 </table>
 
@@ -2229,31 +1414,24 @@ second move is not line
 ## <a name='Point_Array'>Point Array</a>
 
 <a href='#Point_Array'>Point Array</a> contains <a href='SkPoint_Reference#Point'>Points</a> satisfying the allocated <a href='SkPoint_Reference#Point'>Points</a> for
-each <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>. For instance, <a href='#Path'>Path</a> containing one <a href='#Contour'>Contour</a> with <a href='undocumented#Line'>Line</a>
-and <a href='#Quad'>Quad</a> is described by <a href='#Verb_Array'>Verb Array</a>: Verb::kMoveTo, Verb::kLineTo, Verb::kQuadTo; and
-one <a href='SkPoint_Reference#Point'>Point</a> for move, one <a href='SkPoint_Reference#Point'>Point</a> for <a href='undocumented#Line'>Line</a>, two <a href='SkPoint_Reference#Point'>Points</a> for <a href='#Quad'>Quad</a>; totaling four <a href='SkPoint_Reference#Point'>Points</a>.
-
-<a href='#Point_Array'>Point Array</a> may be read directly from <a href='#Path'>Path</a> with <a href='#SkPath_getPoints'>getPoints</a>, or inspected with
-<a href='#SkPath_getPoint'>getPoint</a>, with <a href='#SkPath_Iter'>Iter</a>, or with <a href='#SkPath_RawIter'>RawIter</a>.
+each <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>
 
 <a name='SkPath_getPoints'></a>
 ## getPoints
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPath_getPoints'>getPoints</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> points[], int max) const
+int <a href='#SkPath_getPoints'>getPoints</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> points
 </pre>
 
-Returns number of <a href='#SkPath_getPoints_points'>points</a> in <a href='#Path'>Path</a>. Up to max <a href='#SkPath_getPoints_points'>points</a> are copied.
-<a href='#SkPath_getPoints_points'>points</a> may be nullptr; then, max must be zero.
-If max is greater than number of <a href='#SkPath_getPoints_points'>points</a>, excess <a href='#SkPath_getPoints_points'>points</a> storage is unaltered.
+Returns number of <a href='#SkPath_getPoints_points'>points</a> in <a href='#Path'>Path</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_getPoints_points'><code><strong>points</strong></code></a></td>
-    <td>storage for <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> array. May be nullptr</td>
+    <td>storage for <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> array</td>
   </tr>
   <tr>    <td><a name='SkPath_getPoints_max'><code><strong>max</strong></code></a></td>
-    <td>maximum to copy; must be greater than or equal to zero</td>
+    <td>maximum to copy</td>
   </tr>
 </table>
 
@@ -2286,11 +1464,10 @@ just right point count: 3  (0,0) (20,20) (-10,-10)
 ## countPoints
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPath_countPoints'>countPoints</a>() const
+int <a href='#SkPath_countPoints'>countPoints</a>(
 </pre>
 
-Returns the number of points in <a href='#Path'>Path</a>.
-<a href='SkPoint_Reference#Point'>Point</a> count is initially zero.
+Returns the number of points in <a href='#Path'>Path</a>
 
 ### Return Value
 
@@ -2321,12 +1498,10 @@ second move point count: 3
 ## getPoint
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='#SkPath_getPoint'>getPoint</a>(int index) const
+<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='#SkPath_getPoint'>getPoint</a>(int index
 </pre>
 
-Returns <a href='SkPoint_Reference#Point'>Point</a> at <a href='#SkPath_getPoint_index'>index</a> in <a href='#Point_Array'>Point Array</a>. Valid range for <a href='#SkPath_getPoint_index'>index</a> is
-0 to <a href='#SkPath_countPoints'>countPoints</a> - 1.
-Returns (0, 0) if <a href='#SkPath_getPoint_index'>index</a> is out of range.
+Returns <a href='SkPoint_Reference#Point'>Point</a> at <a href='#SkPath_getPoint_index'>index</a> in <a href='#Point_Array'>Point Array</a>
 
 ### Parameters
 
@@ -2337,7 +1512,7 @@ Returns (0, 0) if <a href='#SkPath_getPoint_index'>index</a> is out of range.
 
 ### Return Value
 
-<a href='SkPoint_Reference#Point'>Point</a> array value or (0, 0)
+<a href='SkPoint_Reference#Point'>Point</a> array value or
 
 ### Example
 
@@ -2360,24 +1535,16 @@ point 1: (10,10)
 
 ## <a name='Verb_Array'>Verb Array</a>
 
-<a href='#Verb_Array'>Verb Array</a> always starts with <a href='#SkPath_kMove_Verb'>kMove Verb</a>.
-If <a href='#SkPath_kClose_Verb'>kClose Verb</a> is not the last entry, it is always followed by <a href='#SkPath_kMove_Verb'>kMove Verb</a>;
-the quantity of <a href='#SkPath_kMove_Verb'>kMove Verb</a> equals the <a href='#Contour'>Contour</a> count.
-<a href='#Verb_Array'>Verb Array</a> does not include or count <a href='#SkPath_kDone_Verb'>kDone Verb</a>; it is a convenience
-returned when iterating through <a href='#Verb_Array'>Verb Array</a>.
-
-<a href='#Verb_Array'>Verb Array</a> may be read directly from <a href='#Path'>Path</a> with <a href='#SkPath_getVerbs'>getVerbs</a>, or inspected with <a href='#SkPath_Iter'>Iter</a>,
-or with <a href='#SkPath_RawIter'>RawIter</a>.
+<a href='#Verb_Array'>Verb Array</a> always starts with <a href='#SkPath_kMove_Verb'>kMove Verb</a>
 
 <a name='SkPath_countVerbs'></a>
 ## countVerbs
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPath_countVerbs'>countVerbs</a>() const
+int <a href='#SkPath_countVerbs'>countVerbs</a>(
 </pre>
 
-Returns the number of <a href='#Verb'>Verbs</a>: <a href='#SkPath_kMove_Verb'>kMove Verb</a>, <a href='#SkPath_kLine_Verb'>kLine Verb</a>, <a href='#SkPath_kQuad_Verb'>kQuad Verb</a>, <a href='#SkPath_kConic_Verb'>kConic Verb</a>,
-<a href='#SkPath_kCubic_Verb'>kCubic Verb</a>, and <a href='#SkPath_kClose_Verb'>kClose Verb</a>; added to <a href='#Path'>Path</a>.
+Returns the number of <a href='#Verb'>Verbs</a>
 
 ### Return Value
 
@@ -2406,16 +1573,15 @@ round rect verb count: 10
 ## getVerbs
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPath_getVerbs'>getVerbs</a>(uint8_t verbs[], int max) const
+int <a href='#SkPath_getVerbs'>getVerbs</a>(uint8_t verbs
 </pre>
 
-Returns the number of <a href='#SkPath_getVerbs_verbs'>verbs</a> in the path. Up to max <a href='#SkPath_getVerbs_verbs'>verbs</a> are copied. The
-<a href='#SkPath_getVerbs_verbs'>verbs</a> are copied as one byte per verb.
+Returns the number of <a href='#SkPath_getVerbs_verbs'>verbs</a> in the path
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_getVerbs_verbs'><code><strong>verbs</strong></code></a></td>
-    <td>storage for <a href='#SkPath_getVerbs_verbs'>verbs</a>, may be nullptr</td>
+    <td>storage for <a href='#SkPath_getVerbs_verbs'>verbs</a></td>
   </tr>
   <tr>    <td><a name='SkPath_getVerbs_max'><code><strong>max</strong></code></a></td>
     <td>maximum number to copy into <a href='#SkPath_getVerbs_verbs'>verbs</a></td>
@@ -2451,16 +1617,10 @@ just right verb count: 3  move line line
 ## swap
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_swap'>swap</a>(<a href='#SkPath'>SkPath</a>& other)
+void <a href='#SkPath_swap'>swap</a>(<a href='#SkPath'>SkPath</a>
 </pre>
 
-Exchanges the <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, <a href='#Conic_Weight'>Weights</a>, and <a href='#Fill_Type'>Fill Type</a> with <a href='#SkPath_swap_other'>other</a>.
-Cached state is also exchanged. <a href='#SkPath_swap'>swap</a> internally exchanges pointers, so
-it is lightweight and does not allocate memory.
-
-<a href='#SkPath_swap'>swap</a> usage has largely been replaced by <a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a>.
-<a href='#Path'>Paths</a> do not copy their content on assignment until they are written to,
-making assignment as efficient as <a href='#SkPath_swap'>swap</a>.
+Exchanges the <a href='#Verb_Array'>Verb Array</a>
 
 ### Parameters
 
@@ -2492,15 +1652,10 @@ path2 bounds = 10, 20, 30, 40
 ## getBounds
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPath_getBounds'>getBounds</a>() const
+const <a href='SkRect_Reference#SkRect'>SkRect</a>
 </pre>
 
-Returns minimum and maximum axes values of <a href='#Point_Array'>Point Array</a>.
-Returns (0, 0, 0, 0) if <a href='#Path'>Path</a> contains no points. Returned bounds width and height may
-be larger or smaller than area affected when <a href='#Path'>Path</a> is drawn.
-
-<a href='SkRect_Reference#Rect'>Rect</a> returned includes all <a href='SkPoint_Reference#Point'>Points</a> added to <a href='#Path'>Path</a>, including <a href='SkPoint_Reference#Point'>Points</a> associated with
-<a href='#SkPath_kMove_Verb'>kMove Verb</a> that define empty <a href='#Contour'>Contours</a>.
+Returns minimum and maximum axes values of <a href='#Point_Array'>Point Array</a>
 
 ### Return Value
 
@@ -2508,9 +1663,7 @@ bounds of all <a href='SkPoint_Reference#Point'>Points</a> in <a href='#Point_Ar
 
 ### Example
 
-<div><fiddle-embed name="45c0fc3acb74fab99d544b80eadd10ad"><div>Bounds of upright <a href='undocumented#Circle'>Circle</a> can be predicted from center and radius.
-Bounds of rotated <a href='undocumented#Circle'>Circle</a> includes control <a href='SkPoint_Reference#Point'>Points</a> outside of filled area.
-</div>
+<div><fiddle-embed name="45c0fc3acb74fab99d544b80eadd10ad"><div>Bounds of upright <a href='undocumented#Circle'>Circle</a> can be predicted from center and radius</div>
 
 #### Example Output
 
@@ -2530,86 +1683,14 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 
 ## <a name='Utility'>Utility</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_ConvertConicToQuads'>ConvertConicToQuads</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>approximates <a href='#Conic'>Conic</a> with <a href='#Quad'>Quad</a> array</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_ConvertToNonInverseFillType'>ConvertToNonInverseFillType</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Fill_Type'>Fill Type</a> representing inside geometry</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_dump_2'>dump</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation to stream</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_dump'>dump(SkWStream* stream, bool forceClose, bool dumpAsHex)</a> const</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_dump_2'>dump</a> const</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_dumpHex'>dumpHex</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sends text representation using hexadecimal to standard output</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_getSegmentMasks'>getSegmentMasks</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns types in <a href='#Verb_Array'>Verb Array</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_incReserve'>incReserve</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>reserves space for additional data</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_readFromMemory'>readFromMemory</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>initializes from buffer</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_serialize'>serialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies data to buffer</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_setLastPt'>setLastPt</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_setLastPt'>setLastPt(SkScalar x, SkScalar y)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_shrinkToFit'>shrinkToFit</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>removes unused reserved space</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_updateBoundsCache'>updateBoundsCache</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>refreshes result of <a href='#SkPath_getBounds'>getBounds</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_writeToMemory'>writeToMemory</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies data to buffer</td>
-  </tr>
-</table>
-
 <a name='SkPath_updateBoundsCache'></a>
 ## updateBoundsCache
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_updateBoundsCache'>updateBoundsCache</a>() const
+void <a href='#SkPath_updateBoundsCache'>updateBoundsCache</a>(
 </pre>
 
-Updates internal bounds so that subsequent calls to <a href='#SkPath_getBounds'>getBounds</a> are instantaneous.
-Unaltered copies of <a href='#Path'>Path</a> may also access cached bounds through <a href='#SkPath_getBounds'>getBounds</a>.
-
-For now, identical to calling <a href='#SkPath_getBounds'>getBounds</a> and ignoring the returned value.
-
-Call to prepare <a href='#Path'>Path</a> subsequently drawn from multiple threads,
-to avoid a race condition where each draw separately computes the bounds.
+Updates internal bounds so that subsequent calls to <a href='#SkPath_getBounds'>getBounds</a> are instantaneous
 
 ### Example
 
@@ -2635,21 +1716,10 @@ cached avg: 0.182784 ms
 ## computeTightBounds
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPath_computeTightBounds'>computeTightBounds</a>() const
+<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPath_computeTightBounds'>computeTightBounds</a>(
 </pre>
 
-Returns minimum and maximum axes values of the lines and curves in <a href='#Path'>Path</a>.
-Returns (0, 0, 0, 0) if <a href='#Path'>Path</a> contains no points.
-Returned bounds width and height may be larger or smaller than area affected
-when <a href='#Path'>Path</a> is drawn.
-
-Includes <a href='SkPoint_Reference#Point'>Points</a> associated with <a href='#SkPath_kMove_Verb'>kMove Verb</a> that define empty
-<a href='#Contour'>Contours</a>.
-
-Behaves identically to <a href='#SkPath_getBounds'>getBounds</a> when <a href='#Path'>Path</a> contains
-only lines. If <a href='#Path'>Path</a> contains curves, computed bounds includes
-the maximum extent of the <a href='#Quad'>Quad</a>, <a href='#Conic'>Conic</a>, or <a href='#Cubic'>Cubic</a>; is slower than <a href='#SkPath_getBounds'>getBounds</a>;
-and unlike <a href='#SkPath_getBounds'>getBounds</a>, does not cache the result.
+Returns minimum and maximum axes values of the lines and curves in <a href='#Path'>Path</a>
 
 ### Return Value
 
@@ -2679,21 +1749,15 @@ rotated circle bounds = 25, 20, 75, 70
 ## conservativelyContainsRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_conservativelyContainsRect'>conservativelyContainsRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect) const
+bool <a href='#SkPath_conservativelyContainsRect'>conservativelyContainsRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>
 </pre>
 
-Returns true if <a href='#SkPath_conservativelyContainsRect_rect'>rect</a> is contained by <a href='#Path'>Path</a>.
-May return false when <a href='#SkPath_conservativelyContainsRect_rect'>rect</a> is contained by <a href='#Path'>Path</a>.
-
-For now, only returns true if <a href='#Path'>Path</a> has one <a href='#Contour'>Contour</a> and is convex.
-<a href='#SkPath_conservativelyContainsRect_rect'>rect</a> may share points and edges with <a href='#Path'>Path</a> and be contained.
-Returns true if <a href='#SkPath_conservativelyContainsRect_rect'>rect</a> is empty, that is, it has zero width or height; and
-the <a href='SkPoint_Reference#Point'>Point</a> or <a href='undocumented#Line'>Line</a> described by <a href='#SkPath_conservativelyContainsRect_rect'>rect</a> is contained by <a href='#Path'>Path</a>.
+Returns true if <a href='#SkPath_conservativelyContainsRect_rect'>rect</a> is contained by <a href='#Path'>Path</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_conservativelyContainsRect_rect'><code><strong>rect</strong></code></a></td>
-    <td><a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Line'>Line</a>, or <a href='SkPoint_Reference#Point'>Point</a> checked for containment</td>
+    <td><a href='SkRect_Reference#Rect'>Rect</a></td>
   </tr>
 </table>
 
@@ -2703,8 +1767,7 @@ true if <a href='#SkPath_conservativelyContainsRect_rect'>rect</a> is contained
 
 ### Example
 
-<div><fiddle-embed name="41638d13e40fa449ece354dde5fb1941"><div><a href='SkRect_Reference#Rect'>Rect</a> is drawn in blue if it is contained by red <a href='#Path'>Path</a>.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="41638d13e40fa449ece354dde5fb1941"><div><a href='SkRect_Reference#Rect'>Rect</a> is drawn in blue if it is contained by red <a href='#Path'>Path</a></div></fiddle-embed></div>
 
 ### See Also
 
@@ -2716,12 +1779,10 @@ true if <a href='#SkPath_conservativelyContainsRect_rect'>rect</a> is contained
 ## incReserve
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_incReserve'>incReserve</a>(unsigned extraPtCount)
+void <a href='#SkPath_incReserve'>incReserve</a>(unsigned extraPtCount
 </pre>
 
-Grows <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> and <a href='#Point_Array'>Point Array</a> to contain <a href='#SkPath_incReserve_extraPtCount'>extraPtCount</a> additional <a href='SkPoint_Reference#Point'>Points</a>.
-May improve performance and use less memory by
-reducing the number and size of allocations when creating <a href='#Path'>Path</a>.
+Grows <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> and <a href='#Point_Array'>Point Array</a> to contain <a href='#SkPath_incReserve_extraPtCount'>extraPtCount</a> additional <a href='SkPoint_Reference#Point'>Points</a>
 
 ### Parameters
 
@@ -2744,11 +1805,10 @@ reducing the number and size of allocations when creating <a href='#Path'>Path</
 ## shrinkToFit
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_shrinkToFit'>shrinkToFit</a>()
+void <a href='#SkPath_shrinkToFit'>shrinkToFit</a>(
 </pre>
 
-Shrinks <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> and <a href='#Point_Array'>Point Array</a> storage to discard unused capacity.
-May reduce the heap overhead for <a href='#Path'>Paths</a> known to be fully constructed.
+Shrinks <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> and <a href='#Point_Array'>Point Array</a> storage to discard unused capacity
 
 ### See Also
 
@@ -2758,188 +1818,22 @@ May reduce the heap overhead for <a href='#Path'>Paths</a> known to be fully con
 
 ## <a name='Build'>Build</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addArc'>addArc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='#Arc'>Arc</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addCircle'>addCircle</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='undocumented#Circle'>Circle</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addOval'>addOval</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='undocumented#Oval'>Oval</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addOval'>addOval(const SkRect& oval, Direction dir = kCW Direction)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addOval_2'>addOval(const SkRect& oval, Direction dir, unsigned start)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addPath'>addPath</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds contents of <a href='#Path'>Path</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addPath'>addPath(const SkPath& src, SkScalar dx, SkScalar dy, AddPathMode mode = kAppend AddPathMode)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addPath_2'>addPath(const SkPath& src, AddPathMode mode = kAppend AddPathMode)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addPath_3'>addPath(const SkPath& src, const SkMatrix& matrix, AddPathMode mode = kAppend AddPathMode)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addPoly'>addPoly</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing connected lines</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addPoly'>addPoly(const SkPoint pts[], int count, bool close)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addPoly_2'>addPoly(const std::initializer list&lt;SkPoint&gt;& list, bool close)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRRect'>addRRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRRect'>addRRect(const SkRRect& rrect, Direction dir = kCW Direction)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRRect_2'>addRRect(const SkRRect& rrect, Direction dir, unsigned start)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRect'>addRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='SkRect_Reference#Rect'>Rect</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRect'>addRect(const SkRect& rect, Direction dir = kCW Direction)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRect_2'>addRect(const SkRect& rect, Direction dir, unsigned start)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRect_3'>addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom, Direction dir = kCW Direction)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRoundRect'>addRoundRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds one <a href='#Contour'>Contour</a> containing <a href='SkRRect_Reference#RRect'>Round Rect</a> with common corner radii</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRoundRect'>addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, Direction dir = kCW Direction)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_addRoundRect_2'>addRoundRect(const SkRect& rect, const SkScalar radii[], Direction dir = kCW Direction)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_arcTo'>arcTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Arc'>Arc</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_arcTo'>arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_close'>close</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>makes last <a href='#Contour'>Contour</a> a loop</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_cubicTo'>cubicTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Cubic'>Cubic</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_cubicTo'>cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_lineTo'>lineTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='undocumented#Line'>Line</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_lineTo'>lineTo(SkScalar x, SkScalar y)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_lineTo_2'>lineTo(const SkPoint& p)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_moveTo'>moveTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>starts <a href='#Contour'>Contour</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_moveTo'>moveTo(SkScalar x, SkScalar y)</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_moveTo_2'>moveTo(const SkPoint& p)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rArcTo'>rArcTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Arc'>Arc</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rConicTo'>rConicTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Conic'>Conic</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rCubicTo'>rCubicTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Cubic'>Cubic</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rLineTo'>rLineTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='undocumented#Line'>Line</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rMoveTo'>rMoveTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>starts <a href='#Contour'>Contour</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_rQuadTo'>rQuadTo</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>appends <a href='#Quad'>Quad</a> relative to <a href='#Last_Point'>Last Point</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_reverseAddPath'>reverseAddPath</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>adds contents of <a href='#Path'>Path</a> back to front</td>
-  </tr>
-</table>
-
 <a name='SkPath_moveTo'></a>
 ## moveTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_moveTo'>moveTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds beginning of <a href='#Contour'>Contour</a> at <a href='SkPoint_Reference#Point'>Point</a> (<a href='#SkPath_moveTo_x'>x</a>, <a href='#SkPath_moveTo_y'>y</a>).
+Adds beginning of <a href='SkPath_Overview#Contour'>Contour</a> at <a href='SkPoint_Reference#Point'>Point</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_moveTo_x'><code><strong>x</strong></code></a></td>
-    <td><a href='#SkPath_moveTo_x'>x</a>-axis value of <a href='#Contour'>Contour</a> start</td>
+    <td><a href='#SkPath_moveTo_x'>x</a></td>
   </tr>
   <tr>    <td><a name='SkPath_moveTo_y'><code><strong>y</strong></code></a></td>
-    <td><a href='#SkPath_moveTo_y'>y</a>-axis value of <a href='#Contour'>Contour</a> start</td>
+    <td><a href='#SkPath_moveTo_y'>y</a></td>
   </tr>
 </table>
 
@@ -2953,17 +1847,17 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_lineTo'>lineTo</a><sup><a href='#SkPath_lineTo_2'>[2]</a></sup> <a href='#SkPath_rMoveTo'>rMoveTo</a> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_cubicTo'>cubicTo</a><sup><a href='#SkPath_cubicTo_2'>[2]</a></sup> <a href='#SkPath_close'>close</a>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_lineTo'>lineTo</a><sup><a href='#SkPath_lineTo_2'>[2]</a></sup> <a href='#SkPath_rMoveTo'>rMoveTo</a> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_cubicTo'>cubicTo</a><sup><a href='#SkPath_cubicTo_2'>[2]</a></sup> <a href='#SkPath_close'>close</a>(
 
 ---
 
 <a name='SkPath_moveTo_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_moveTo'>moveTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds beginning of <a href='#Contour'>Contour</a> at <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_moveTo_2_p'>p</a>.
+Adds beginning of <a href='SkPath_Overview#Contour'>Contour</a> at <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_moveTo_2_p'>p</a>
 
 ### Parameters
 
@@ -2982,7 +1876,7 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_lineTo'>lineTo</a><sup><a href='#SkPath_lineTo_2'>[2]</a></sup> <a href='#SkPath_rMoveTo'>rMoveTo</a> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_cubicTo'>cubicTo</a><sup><a href='#SkPath_cubicTo_2'>[2]</a></sup> <a href='#SkPath_close'>close</a>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_lineTo'>lineTo</a><sup><a href='#SkPath_lineTo_2'>[2]</a></sup> <a href='#SkPath_rMoveTo'>rMoveTo</a> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_cubicTo'>cubicTo</a><sup><a href='#SkPath_cubicTo_2'>[2]</a></sup> <a href='#SkPath_close'>close</a>(
 
 ---
 
@@ -2990,21 +1884,18 @@ reference to <a href='#Path'>Path</a>
 ## rMoveTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_rMoveTo'>rMoveTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds beginning of <a href='#Contour'>Contour</a> relative to <a href='#Last_Point'>Last Point</a>.
-If <a href='#Path'>Path</a> is empty, starts <a href='#Contour'>Contour</a> at (<a href='#SkPath_rMoveTo_dx'>dx</a>, <a href='#SkPath_rMoveTo_dy'>dy</a>).
-Otherwise, start <a href='#Contour'>Contour</a> at <a href='#Last_Point'>Last Point</a> offset by (<a href='#SkPath_rMoveTo_dx'>dx</a>, <a href='#SkPath_rMoveTo_dy'>dy</a>).
-Function name stands for "relative move to".
+Adds beginning of <a href='SkPath_Overview#Contour'>Contour</a> relative to <a href='#Last_Point'>Last Point</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_rMoveTo_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Contour'>Contour</a> start on x-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='SkPath_Overview#Contour'>Contour</a> start on x</td>
   </tr>
   <tr>    <td><a name='SkPath_rMoveTo_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Contour'>Contour</a> start on y-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='SkPath_Overview#Contour'>Contour</a> start on y</td>
   </tr>
 </table>
 
@@ -3018,7 +1909,7 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_lineTo'>lineTo</a><sup><a href='#SkPath_lineTo_2'>[2]</a></sup> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_cubicTo'>cubicTo</a><sup><a href='#SkPath_cubicTo_2'>[2]</a></sup> <a href='#SkPath_close'>close</a>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_lineTo'>lineTo</a><sup><a href='#SkPath_lineTo_2'>[2]</a></sup> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_cubicTo'>cubicTo</a><sup><a href='#SkPath_cubicTo_2'>[2]</a></sup> <a href='#SkPath_close'>close</a>(
 
 ---
 
@@ -3026,14 +1917,10 @@ reference to <a href='#Path'>Path</a>
 ## lineTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_lineTo'>lineTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point</a> to (<a href='#SkPath_lineTo_x'>x</a>, <a href='#SkPath_lineTo_y'>y</a>). If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a> is
-<a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0) before adding <a href='undocumented#Line'>Line</a>.
-
-<a href='#SkPath_lineTo'>lineTo</a> appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>, if needed.
-<a href='#SkPath_lineTo'>lineTo</a> then appends <a href='#SkPath_kLine_Verb'>kLine Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (<a href='#SkPath_lineTo_x'>x</a>, <a href='#SkPath_lineTo_y'>y</a>) to <a href='#Point_Array'>Point Array</a>.
+Adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point</a> to
 
 ### Parameters
 
@@ -3055,21 +1942,17 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_rLineTo'>rLineTo</a> <a href='#SkPath_addRect'>addRect</a><sup><a href='#SkPath_addRect_2'>[2]</a></sup><sup><a href='#SkPath_addRect_3'>[3]</a></sup>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_rLineTo'>rLineTo</a> <a href='#SkPath_addRect'>addRect</a><sup><a href='#SkPath_addRect_2'>[2]</a></sup><sup><a href='#SkPath_addRect_3'>[3]</a></sup>
 
 ---
 
 <a name='SkPath_lineTo_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_lineTo'>lineTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point</a> to <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_lineTo_2_p'>p</a>. If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a> is
-<a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0) before adding <a href='undocumented#Line'>Line</a>.
-
-<a href='#SkPath_lineTo'>lineTo</a> first appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>, if needed.
-<a href='#SkPath_lineTo'>lineTo</a> then appends <a href='#SkPath_kLine_Verb'>kLine Verb</a> to <a href='#Verb_Array'>Verb Array</a> and <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_lineTo_2_p'>p</a> to <a href='#Point_Array'>Point Array</a>.
+Adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point</a> to <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_lineTo_2_p'>p</a>
 
 ### Parameters
 
@@ -3088,7 +1971,7 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_rLineTo'>rLineTo</a> <a href='#SkPath_addRect'>addRect</a><sup><a href='#SkPath_addRect_2'>[2]</a></sup><sup><a href='#SkPath_addRect_3'>[3]</a></sup>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_rLineTo'>rLineTo</a> <a href='#SkPath_addRect'>addRect</a><sup><a href='#SkPath_addRect_2'>[2]</a></sup><sup><a href='#SkPath_addRect_3'>[3]</a></sup>
 
 ---
 
@@ -3096,24 +1979,18 @@ reference to <a href='#Path'>Path</a>
 ## rLineTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_rLineTo'>rLineTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point</a> to <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rLineTo_dx'>dx</a>, <a href='#SkPath_rLineTo_dy'>dy</a>). If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a> is
-<a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0) before adding <a href='undocumented#Line'>Line</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>, if needed;
-then appends <a href='#SkPath_kLine_Verb'>kLine Verb</a> to <a href='#Verb_Array'>Verb Array</a> and <a href='undocumented#Line'>Line</a> end to <a href='#Point_Array'>Point Array</a>.
-<a href='undocumented#Line'>Line</a> end is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rLineTo_dx'>dx</a>, <a href='#SkPath_rLineTo_dy'>dy</a>).
-Function name stands for "relative line to".
+Adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point</a> to <a href='SkPoint_Reference#Vector'>Vector</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_rLineTo_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='undocumented#Line'>Line</a> end on x-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='undocumented#Line'>Line</a> end on x</td>
   </tr>
   <tr>    <td><a name='SkPath_rLineTo_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='undocumented#Line'>Line</a> end on y-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='undocumented#Line'>Line</a> end on y</td>
   </tr>
 </table>
 
@@ -3127,25 +2004,19 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_lineTo'>lineTo</a><sup><a href='#SkPath_lineTo_2'>[2]</a></sup> <a href='#SkPath_addRect'>addRect</a><sup><a href='#SkPath_addRect_2'>[2]</a></sup><sup><a href='#SkPath_addRect_3'>[3]</a></sup>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_lineTo'>lineTo</a><sup><a href='#SkPath_lineTo_2'>[2]</a></sup> <a href='#SkPath_addRect'>addRect</a><sup><a href='#SkPath_addRect_2'>[2]</a></sup><sup><a href='#SkPath_addRect_3'>[3]</a></sup>
 
 ---
 
 ## <a name='Quad'>Quad</a>
 
-<a href='#Quad'>Quad</a> describes a quadratic Bezier, a second-order curve identical to a section
-of a parabola. <a href='#Quad'>Quad</a> begins at a start <a href='SkPoint_Reference#Point'>Point</a>, curves towards a control <a href='SkPoint_Reference#Point'>Point</a>,
-and then curves to an end <a href='SkPoint_Reference#Point'>Point</a>.
+<a href='#Quad'>Quad</a> describes a quadratic Bezier
 
 ### Example
 
 <div><fiddle-embed name="78ad51fa1cd33eb84a6f99061e56e067"></fiddle-embed></div>
 
-<a href='#Quad'>Quad</a> is a special case of <a href='#Conic'>Conic</a> where <a href='#Conic_Weight'>Conic Weight</a> is set to one.
-
-<a href='#Quad'>Quad</a> is always contained by the triangle connecting its three <a href='SkPoint_Reference#Point'>Points</a>. <a href='#Quad'>Quad</a>
-begins tangent to the line between start <a href='SkPoint_Reference#Point'>Point</a> and control <a href='SkPoint_Reference#Point'>Point</a>, and ends
-tangent to the line between control <a href='SkPoint_Reference#Point'>Point</a> and end <a href='SkPoint_Reference#Point'>Point</a>.
+<a href='#Quad'>Quad</a> is a special case of <a href='#Conic'>Conic</a> where <a href='#Conic_Weight'>Conic Weight</a> is set to one
 
 ### Example
 
@@ -3155,16 +2026,10 @@ tangent to the line between control <a href='SkPoint_Reference#Point'>Point</a> 
 ## quadTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_quadTo'>quadTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Quad'>Quad</a> from <a href='#Last_Point'>Last Point</a> towards (<a href='#SkPath_quadTo_x1'>x1</a>, <a href='#SkPath_quadTo_y1'>y1</a>), to (<a href='#SkPath_quadTo_x2'>x2</a>, <a href='#SkPath_quadTo_y2'>y2</a>).
-If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a> is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0)
-before adding <a href='#Quad'>Quad</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>, if needed;
-then appends <a href='#SkPath_kQuad_Verb'>kQuad Verb</a> to <a href='#Verb_Array'>Verb Array</a>; and (<a href='#SkPath_quadTo_x1'>x1</a>, <a href='#SkPath_quadTo_y1'>y1</a>), (<a href='#SkPath_quadTo_x2'>x2</a>, <a href='#SkPath_quadTo_y2'>y2</a>)
-to <a href='#Point_Array'>Point Array</a>.
+Adds <a href='#Quad'>Quad</a> from <a href='#Last_Point'>Last Point</a> towards
 
 ### Parameters
 
@@ -3192,23 +2057,17 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_rQuadTo'>rQuadTo</a>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_rQuadTo'>rQuadTo</a>
 
 ---
 
 <a name='SkPath_quadTo_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_quadTo'>quadTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Quad'>Quad</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_quadTo_2_p1'>p1</a>, to <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_quadTo_2_p2'>p2</a>.
-If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a> is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0)
-before adding <a href='#Quad'>Quad</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>, if needed;
-then appends <a href='#SkPath_kQuad_Verb'>kQuad Verb</a> to <a href='#Verb_Array'>Verb Array</a>; and <a href='SkPoint_Reference#Point'>Points</a> <a href='#SkPath_quadTo_2_p1'>p1</a>, <a href='#SkPath_quadTo_2_p2'>p2</a>
-to <a href='#Point_Array'>Point Array</a>.
+Adds <a href='#Quad'>Quad</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_quadTo_2_p1'>p1</a>
 
 ### Parameters
 
@@ -3230,7 +2089,7 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_rQuadTo'>rQuadTo</a>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_rQuadTo'>rQuadTo</a>
 
 ---
 
@@ -3238,33 +2097,24 @@ reference to <a href='#Path'>Path</a>
 ## rQuadTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_rQuadTo'>rQuadTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx1, <a href='undocumented#SkScalar'>SkScalar</a> dy1, <a href='undocumented#SkScalar'>SkScalar</a> dx2, <a href='undocumented#SkScalar'>SkScalar</a> dy2)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Quad'>Quad</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rQuadTo_dx1'>dx1</a>, <a href='#SkPath_rQuadTo_dy1'>dy1</a>), to <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rQuadTo_dx2'>dx2</a>, <a href='#SkPath_rQuadTo_dy2'>dy2</a>).
-If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a>
-is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0) before adding <a href='#Quad'>Quad</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>,
-if needed; then appends <a href='#SkPath_kQuad_Verb'>kQuad Verb</a> to <a href='#Verb_Array'>Verb Array</a>; and appends <a href='#Quad'>Quad</a>
-control and <a href='#Quad'>Quad</a> end to <a href='#Point_Array'>Point Array</a>.
-<a href='#Quad'>Quad</a> control is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rQuadTo_dx1'>dx1</a>, <a href='#SkPath_rQuadTo_dy1'>dy1</a>).
-<a href='#Quad'>Quad</a> end is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rQuadTo_dx2'>dx2</a>, <a href='#SkPath_rQuadTo_dy2'>dy2</a>).
-Function name stands for "relative quad to".
+Adds <a href='#Quad'>Quad</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Vector'>Vector</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_rQuadTo_dx1'><code><strong>dx1</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Quad'>Quad</a> control on x-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Quad'>Quad</a> control on x</td>
   </tr>
   <tr>    <td><a name='SkPath_rQuadTo_dy1'><code><strong>dy1</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Quad'>Quad</a> control on y-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Quad'>Quad</a> control on y</td>
   </tr>
   <tr>    <td><a name='SkPath_rQuadTo_dx2'><code><strong>dx2</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Quad'>Quad</a> end on x-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Quad'>Quad</a> end on x</td>
   </tr>
   <tr>    <td><a name='SkPath_rQuadTo_dy2'><code><strong>dy2</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Quad'>Quad</a> end on y-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Quad'>Quad</a> end on y</td>
   </tr>
 </table>
 
@@ -3278,35 +2128,21 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_conicTo'>conicTo</a><sup><a href='#SkPath_conicTo_2'>[2]</a></sup> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup>
 
 ---
 
 ## <a name='Conic'>Conic</a>
 
-<a href='#Conic'>Conic</a> describes a conical section: a piece of an ellipse, or a piece of a
-parabola, or a piece of a hyperbola. <a href='#Conic'>Conic</a> begins at a start <a href='SkPoint_Reference#Point'>Point</a>,
-curves towards a control <a href='SkPoint_Reference#Point'>Point</a>, and then curves to an end <a href='SkPoint_Reference#Point'>Point</a>. The influence
-of the control <a href='SkPoint_Reference#Point'>Point</a> is determined by <a href='#Conic_Weight'>Conic Weight</a>.
-
-Each <a href='#Conic'>Conic</a> in <a href='#Path'>Path</a> adds two <a href='SkPoint_Reference#Point'>Points</a> and one <a href='#Conic_Weight'>Conic Weight</a>. <a href='#Conic_Weight'>Conic Weights</a> in <a href='#Path'>Path</a>
-may be inspected with <a href='#SkPath_Iter'>Iter</a>, or with <a href='#SkPath_RawIter'>RawIter</a>.
+<a href='#Conic'>Conic</a> describes a conical section
 
 ## <a name='Conic_Weight'>Conic Weight</a>
 
-<a href='#Conic_Weight'>Weight</a> determines both the strength of the control <a href='SkPoint_Reference#Point'>Point</a> and the type of <a href='#Conic'>Conic</a>.
-<a href='#Conic_Weight'>Weight</a> varies from zero to infinity. At zero, <a href='#Conic_Weight'>Weight</a> causes the control <a href='SkPoint_Reference#Point'>Point</a> to
-have no effect; <a href='#Conic'>Conic</a> is identical to a line segment from start <a href='SkPoint_Reference#Point'>Point</a> to end
-point. If <a href='#Conic_Weight'>Weight</a> is less than one, <a href='#Conic'>Conic</a> follows an elliptical arc.
-If <a href='#Conic_Weight'>Weight</a> is exactly one, then <a href='#Conic'>Conic</a> is identical to <a href='#Quad'>Quad</a>; <a href='#Conic'>Conic</a> follows a
-parabolic arc. If <a href='#Conic_Weight'>Weight</a> is greater than one, <a href='#Conic'>Conic</a> follows a hyperbolic
-arc. If <a href='#Conic_Weight'>Weight</a> is infinity, <a href='#Conic'>Conic</a> is identical to two line segments, connecting
-start <a href='SkPoint_Reference#Point'>Point</a> to control <a href='SkPoint_Reference#Point'>Point</a>, and control <a href='SkPoint_Reference#Point'>Point</a> to end <a href='SkPoint_Reference#Point'>Point</a>.
+<a href='#Conic_Weight'>Weight</a> determines both the strength of the control <a href='SkPoint_Reference#Point'>Point</a> and the type of <a href='#Conic'>Conic</a>
 
 ### Example
 
-<div><fiddle-embed name="2aadded3d20dfef34d1c8abe28c7bc8d"><div>When <a href='#Conic_Weight'>Conic Weight</a> is one, <a href='#Quad'>Quad</a> is added to path; the two are identical.
-</div>
+<div><fiddle-embed name="2aadded3d20dfef34d1c8abe28c7bc8d"><div>When <a href='#Conic_Weight'>Conic Weight</a> is one</div>
 
 #### Example Output
 
@@ -3318,12 +2154,11 @@ done
 
 </fiddle-embed></div>
 
-If weight is less than one, <a href='#Conic'>Conic</a> is an elliptical segment.
+If weight is less than one
 
 ### Example
 
-<div><fiddle-embed name="e88f554efacfa9f75f270fb1c0add5b4"><div>A 90 degree circular arc has the weight <code>1&nbsp;/&nbsp;sqrt(2)</code>.
-</div>
+<div><fiddle-embed name="e88f554efacfa9f75f270fb1c0add5b4"><div>A 90 degree circular arc has the weight <code>1</code></div>
 
 #### Example Output
 
@@ -3335,9 +2170,7 @@ done
 
 </fiddle-embed></div>
 
-If weight is greater than one, <a href='#Conic'>Conic</a> is a hyperbolic segment. As weight gets large,
-a hyperbolic segment can be approximated by straight lines connecting the
-control <a href='SkPoint_Reference#Point'>Point</a> with the end <a href='SkPoint_Reference#Point'>Points</a>.
+If weight is greater than one
 
 ### Example
 
@@ -3358,23 +2191,10 @@ done
 ## conicTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_conicTo'>conicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2, <a href='undocumented#SkScalar'>SkScalar</a> w)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Conic'>Conic</a> from <a href='#Last_Point'>Last Point</a> towards (<a href='#SkPath_conicTo_x1'>x1</a>, <a href='#SkPath_conicTo_y1'>y1</a>), to (<a href='#SkPath_conicTo_x2'>x2</a>, <a href='#SkPath_conicTo_y2'>y2</a>), weighted by <a href='#SkPath_conicTo_w'>w</a>.
-If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a> is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0)
-before adding <a href='#Conic'>Conic</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>, if needed.
-
-If <a href='#SkPath_conicTo_w'>w</a> is finite and not one, appends <a href='#SkPath_kConic_Verb'>kConic Verb</a> to <a href='#Verb_Array'>Verb Array</a>;
-and (<a href='#SkPath_conicTo_x1'>x1</a>, <a href='#SkPath_conicTo_y1'>y1</a>), (<a href='#SkPath_conicTo_x2'>x2</a>, <a href='#SkPath_conicTo_y2'>y2</a>) to <a href='#Point_Array'>Point Array</a>; and <a href='#SkPath_conicTo_w'>w</a> to <a href='#Conic_Weight'>Conic Weights</a>.
-
-If <a href='#SkPath_conicTo_w'>w</a> is one, appends <a href='#SkPath_kQuad_Verb'>kQuad Verb</a> to <a href='#Verb_Array'>Verb Array</a>, and
-(<a href='#SkPath_conicTo_x1'>x1</a>, <a href='#SkPath_conicTo_y1'>y1</a>), (<a href='#SkPath_conicTo_x2'>x2</a>, <a href='#SkPath_conicTo_y2'>y2</a>) to <a href='#Point_Array'>Point Array</a>.
-
-If <a href='#SkPath_conicTo_w'>w</a> is not finite, appends <a href='#SkPath_kLine_Verb'>kLine Verb</a> twice to <a href='#Verb_Array'>Verb Array</a>, and
-(<a href='#SkPath_conicTo_x1'>x1</a>, <a href='#SkPath_conicTo_y1'>y1</a>), (<a href='#SkPath_conicTo_x2'>x2</a>, <a href='#SkPath_conicTo_y2'>y2</a>) to <a href='#Point_Array'>Point Array</a>.
+Adds <a href='#Conic'>Conic</a> from <a href='#Last_Point'>Last Point</a> towards
 
 ### Parameters
 
@@ -3401,10 +2221,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="358d9b6060b528b0923c007420f09c13"><div>As weight increases, curve is pulled towards control point.
-The bottom two curves are elliptical; the next is parabolic; the
-top curve is hyperbolic.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="358d9b6060b528b0923c007420f09c13"><div>As weight increases</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3415,23 +2232,10 @@ top curve is hyperbolic.
 <a name='SkPath_conicTo_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_conicTo'>conicTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, <a href='undocumented#SkScalar'>SkScalar</a> w)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Conic'>Conic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_conicTo_2_p1'>p1</a>, to <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_conicTo_2_p2'>p2</a>, weighted by <a href='#SkPath_conicTo_2_w'>w</a>.
-If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a> is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0)
-before adding <a href='#Conic'>Conic</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>, if needed.
-
-If <a href='#SkPath_conicTo_2_w'>w</a> is finite and not one, appends <a href='#SkPath_kConic_Verb'>kConic Verb</a> to <a href='#Verb_Array'>Verb Array</a>;
-and <a href='SkPoint_Reference#Point'>Points</a> <a href='#SkPath_conicTo_2_p1'>p1</a>, <a href='#SkPath_conicTo_2_p2'>p2</a> to <a href='#Point_Array'>Point Array</a>; and <a href='#SkPath_conicTo_2_w'>w</a> to <a href='#Conic_Weight'>Conic Weights</a>.
-
-If <a href='#SkPath_conicTo_2_w'>w</a> is one, appends <a href='#SkPath_kQuad_Verb'>kQuad Verb</a> to <a href='#Verb_Array'>Verb Array</a>, and <a href='SkPoint_Reference#Point'>Points</a> <a href='#SkPath_conicTo_2_p1'>p1</a>, <a href='#SkPath_conicTo_2_p2'>p2</a>
-to <a href='#Point_Array'>Point Array</a>.
-
-If <a href='#SkPath_conicTo_2_w'>w</a> is not finite, appends <a href='#SkPath_kLine_Verb'>kLine Verb</a> twice to <a href='#Verb_Array'>Verb Array</a>, and
-<a href='SkPoint_Reference#Point'>Points</a> <a href='#SkPath_conicTo_2_p1'>p1</a>, <a href='#SkPath_conicTo_2_p2'>p2</a> to <a href='#Point_Array'>Point Array</a>.
+Adds <a href='#Conic'>Conic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_conicTo_2_p1'>p1</a>
 
 ### Parameters
 
@@ -3452,9 +2256,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="22d25e03b19d5bae92118877e462361b"><div><a href='#Conic'>Conics</a> and arcs use identical representations. As the arc sweep increases
-the <a href='#Conic_Weight'>Conic Weight</a> also increases, but remains smaller than one.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="22d25e03b19d5bae92118877e462361b"><div><a href='#Conic'>Conics</a> and arcs use identical representations</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3466,40 +2268,24 @@ the <a href='#Conic_Weight'>Conic Weight</a> also increases, but remains smaller
 ## rConicTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_rConicTo'>rConicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx1, <a href='undocumented#SkScalar'>SkScalar</a> dy1, <a href='undocumented#SkScalar'>SkScalar</a> dx2, <a href='undocumented#SkScalar'>SkScalar</a> dy2, <a href='undocumented#SkScalar'>SkScalar</a> w)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Conic'>Conic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rConicTo_dx1'>dx1</a>, <a href='#SkPath_rConicTo_dy1'>dy1</a>), to <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rConicTo_dx2'>dx2</a>, <a href='#SkPath_rConicTo_dy2'>dy2</a>),
-weighted by <a href='#SkPath_rConicTo_w'>w</a>. If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a>
-is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0) before adding <a href='#Conic'>Conic</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>,
-if needed.
-
-If <a href='#SkPath_rConicTo_w'>w</a> is finite and not one, next appends <a href='#SkPath_kConic_Verb'>kConic Verb</a> to <a href='#Verb_Array'>Verb Array</a>,
-and <a href='#SkPath_rConicTo_w'>w</a> is recorded as <a href='#Conic_Weight'>Conic Weight</a>; otherwise, if <a href='#SkPath_rConicTo_w'>w</a> is one, appends
-<a href='#SkPath_kQuad_Verb'>kQuad Verb</a> to <a href='#Verb_Array'>Verb Array</a>; or if <a href='#SkPath_rConicTo_w'>w</a> is not finite, appends <a href='#SkPath_kLine_Verb'>kLine Verb</a>
-twice to <a href='#Verb_Array'>Verb Array</a>.
-
-In all cases appends <a href='SkPoint_Reference#Point'>Points</a> control and end to <a href='#Point_Array'>Point Array</a>.
-control is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rConicTo_dx1'>dx1</a>, <a href='#SkPath_rConicTo_dy1'>dy1</a>).
-end is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rConicTo_dx2'>dx2</a>, <a href='#SkPath_rConicTo_dy2'>dy2</a>).
-
-Function name stands for "relative conic to".
+Adds <a href='#Conic'>Conic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Vector'>Vector</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_rConicTo_dx1'><code><strong>dx1</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Conic'>Conic</a> control on x-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Conic'>Conic</a> control on x</td>
   </tr>
   <tr>    <td><a name='SkPath_rConicTo_dy1'><code><strong>dy1</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Conic'>Conic</a> control on y-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Conic'>Conic</a> control on y</td>
   </tr>
   <tr>    <td><a name='SkPath_rConicTo_dx2'><code><strong>dx2</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Conic'>Conic</a> end on x-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Conic'>Conic</a> end on x</td>
   </tr>
   <tr>    <td><a name='SkPath_rConicTo_dy2'><code><strong>dy2</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Conic'>Conic</a> end on y-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Conic'>Conic</a> end on y</td>
   </tr>
   <tr>    <td><a name='SkPath_rConicTo_w'><code><strong>w</strong></code></a></td>
     <td>weight of added <a href='#Conic'>Conic</a></td>
@@ -3522,9 +2308,7 @@ reference to <a href='#Path'>Path</a>
 
 ## <a name='Cubic'>Cubic</a>
 
-<a href='#Cubic'>Cubic</a> describes a <a href='undocumented#Bezier_Curve'>Bezier Curve</a> segment described by a third-order polynomial.
-<a href='#Cubic'>Cubic</a> begins at a start <a href='SkPoint_Reference#Point'>Point</a>, curving towards the first control <a href='SkPoint_Reference#Point'>Point</a>;
-and curves from the end <a href='SkPoint_Reference#Point'>Point</a> towards the second control <a href='SkPoint_Reference#Point'>Point</a>.
+<a href='#Cubic'>Cubic</a> describes a <a href='undocumented#Bezier_Curve'>Bezier Curve</a> segment described by a third
 
 ### Example
 
@@ -3534,16 +2318,10 @@ and curves from the end <a href='SkPoint_Reference#Point'>Point</a> towards the 
 ## cubicTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_cubicTo'>cubicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2, <a href='undocumented#SkScalar'>SkScalar</a> x3, <a href='undocumented#SkScalar'>SkScalar</a> y3)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a> towards (<a href='#SkPath_cubicTo_x1'>x1</a>, <a href='#SkPath_cubicTo_y1'>y1</a>), then towards (<a href='#SkPath_cubicTo_x2'>x2</a>, <a href='#SkPath_cubicTo_y2'>y2</a>), ending at
-(<a href='#SkPath_cubicTo_x3'>x3</a>, <a href='#SkPath_cubicTo_y3'>y3</a>). If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a> is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to
-(0, 0) before adding <a href='#Cubic'>Cubic</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>, if needed;
-then appends <a href='#SkPath_kCubic_Verb'>kCubic Verb</a> to <a href='#Verb_Array'>Verb Array</a>; and (<a href='#SkPath_cubicTo_x1'>x1</a>, <a href='#SkPath_cubicTo_y1'>y1</a>), (<a href='#SkPath_cubicTo_x2'>x2</a>, <a href='#SkPath_cubicTo_y2'>y2</a>), (<a href='#SkPath_cubicTo_x3'>x3</a>, <a href='#SkPath_cubicTo_y3'>y3</a>)
-to <a href='#Point_Array'>Point Array</a>.
+Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a> towards
 
 ### Parameters
 
@@ -3577,23 +2355,17 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_rCubicTo'>rCubicTo</a> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_rCubicTo'>rCubicTo</a> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup>
 
 ---
 
 <a name='SkPath_cubicTo_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_cubicTo'>cubicTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p3)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_cubicTo_2_p1'>p1</a>, then towards <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_cubicTo_2_p2'>p2</a>, ending at
-<a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_cubicTo_2_p3'>p3</a>. If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a> is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to
-(0, 0) before adding <a href='#Cubic'>Cubic</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>, if needed;
-then appends <a href='#SkPath_kCubic_Verb'>kCubic Verb</a> to <a href='#Verb_Array'>Verb Array</a>; and <a href='SkPoint_Reference#Point'>Points</a> <a href='#SkPath_cubicTo_2_p1'>p1</a>, <a href='#SkPath_cubicTo_2_p2'>p2</a>, <a href='#SkPath_cubicTo_2_p3'>p3</a>
-to <a href='#Point_Array'>Point Array</a>.
+Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_cubicTo_2_p1'>p1</a>
 
 ### Parameters
 
@@ -3618,7 +2390,7 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_rCubicTo'>rCubicTo</a> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_rCubicTo'>rCubicTo</a> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup>
 
 ---
 
@@ -3626,40 +2398,30 @@ reference to <a href='#Path'>Path</a>
 ## rCubicTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_rCubicTo'>rCubicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2, <a href='undocumented#SkScalar'>SkScalar</a> x3, <a href='undocumented#SkScalar'>SkScalar</a> y3)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Vector'>Vector</a> (dx1, dy1), then towards
-<a href='SkPoint_Reference#Vector'>Vector</a> (dx2, dy2), to <a href='SkPoint_Reference#Vector'>Vector</a> (dx3, dy3).
-If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a>
-is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0) before adding <a href='#Cubic'>Cubic</a>.
-
-Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>,
-if needed; then appends <a href='#SkPath_kCubic_Verb'>kCubic Verb</a> to <a href='#Verb_Array'>Verb Array</a>; and appends <a href='#Cubic'>Cubic</a>
-control and <a href='#Cubic'>Cubic</a> end to <a href='#Point_Array'>Point Array</a>.
-<a href='#Cubic'>Cubic</a> control is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (dx1, dy1).
-<a href='#Cubic'>Cubic</a> end is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (dx2, dy2).
-Function name stands for "relative cubic to".
+Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Vector'>Vector</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_rCubicTo_x1'><code><strong>x1</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to first <a href='#Cubic'>Cubic</a> control on x-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to first <a href='#Cubic'>Cubic</a> control on x</td>
   </tr>
   <tr>    <td><a name='SkPath_rCubicTo_y1'><code><strong>y1</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to first <a href='#Cubic'>Cubic</a> control on y-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to first <a href='#Cubic'>Cubic</a> control on y</td>
   </tr>
   <tr>    <td><a name='SkPath_rCubicTo_x2'><code><strong>x2</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to second <a href='#Cubic'>Cubic</a> control on x-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to second <a href='#Cubic'>Cubic</a> control on x</td>
   </tr>
   <tr>    <td><a name='SkPath_rCubicTo_y2'><code><strong>y2</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to second <a href='#Cubic'>Cubic</a> control on y-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to second <a href='#Cubic'>Cubic</a> control on y</td>
   </tr>
   <tr>    <td><a name='SkPath_rCubicTo_x3'><code><strong>x3</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Cubic'>Cubic</a> end on x-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Cubic'>Cubic</a> end on x</td>
   </tr>
   <tr>    <td><a name='SkPath_rCubicTo_y3'><code><strong>y3</strong></code></a></td>
-    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Cubic'>Cubic</a> end on y-axis</td>
+    <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Cubic'>Cubic</a> end on y</td>
   </tr>
 </table>
 
@@ -3673,53 +2435,24 @@ reference to <a href='#Path'>Path</a>
 
 ### See Also
 
-<a href='#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_cubicTo'>cubicTo</a><sup><a href='#SkPath_cubicTo_2'>[2]</a></sup> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup>
+<a href='SkPath_Overview#Contour'>Contour</a> <a href='#SkPath_moveTo'>moveTo</a><sup><a href='#SkPath_moveTo_2'>[2]</a></sup> <a href='#SkPath_cubicTo'>cubicTo</a><sup><a href='#SkPath_cubicTo_2'>[2]</a></sup> <a href='#SkPath_quadTo'>quadTo</a><sup><a href='#SkPath_quadTo_2'>[2]</a></sup>
 
 ---
 
 ## <a name='Arc'>Arc</a>
 
-<a href='#Arc'>Arc</a> can be constructed in a number of ways. <a href='#Arc'>Arc</a> may be described by part of <a href='undocumented#Oval'>Oval</a> and angles,
-by start point and end point, and by radius and tangent lines. Each construction has advantages,
-and some constructions correspond to <a href='#Arc'>Arc</a> drawing in graphics standards.
-
-All <a href='#Arc'>Arc</a> draws are implemented by one or more <a href='#Conic'>Conic</a> draws. When <a href='#Conic_Weight'>Conic Weight</a> is less than one,
-<a href='#Conic'>Conic</a> describes an <a href='#Arc'>Arc</a> of some <a href='undocumented#Oval'>Oval</a> or <a href='undocumented#Circle'>Circle</a>.
-
-<a href='#SkPath_arcTo'>arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a>
-describes <a href='#Arc'>Arc</a> as a piece of <a href='undocumented#Oval'>Oval</a>, beginning at start angle, sweeping clockwise or counterclockwise,
-which may continue <a href='#Contour'>Contour</a> or start a new one. This construction is similar to <a href='undocumented#PostScript'>PostScript</a> and
-<a href='undocumented#HTML_Canvas'>HTML Canvas</a> arcs. Variation <a href='#SkPath_addArc'>addArc</a> always starts new <a href='#Contour'>Contour</a>. Canvas::drawArc draws without
-requiring <a href='#Path'>Path</a>.
-
-<a href='#SkPath_arcTo_2'>arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius)</a>
-describes <a href='#Arc'>Arc</a> as tangent to the line (x0, y0), (x1, y1) and tangent to the line (x1, y1), (x2, y2)
-where (x0, y0) is the last <a href='SkPoint_Reference#Point'>Point</a> added to <a href='#Path'>Path</a>. This construction is similar to <a href='undocumented#PostScript'>PostScript</a> and
-<a href='undocumented#HTML_Canvas'>HTML Canvas</a> arcs.
-
-<a href='#SkPath_arcTo_4'>arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
-SkScalar x, SkScalar y)</a>
-describes <a href='#Arc'>Arc</a> as part of <a href='undocumented#Oval'>Oval</a> with radii (rx, ry), beginning at
-last <a href='SkPoint_Reference#Point'>Point</a> added to <a href='#Path'>Path</a> and ending at (x, y). More than one <a href='#Arc'>Arc</a> satisfies this criteria,
-so additional values choose a single solution. This construction is similar to <a href='undocumented#SVG'>SVG</a> arcs.
-
-<a href='#SkPath_conicTo'>conicTo</a> describes <a href='#Arc'>Arc</a> of less than 180 degrees as a pair of tangent lines and <a href='#Conic_Weight'>Conic Weight</a>.
-<a href='#SkPath_conicTo'>conicTo</a> can represent any <a href='#Arc'>Arc</a> with a sweep less than 180 degrees at any rotation. All <a href='#SkPath_arcTo'>arcTo</a>
-constructions are converted to <a href='#Conic'>Conic</a> data when added to <a href='#Path'>Path</a>.
-
-![Arc](https://fiddle.skia.org/i/e17e48e9d2182e9afc0f5d26b72c60f0_raster.png "")
+<a href='#Arc'>Arc</a> can be constructed in a number of ways![Arc](https://fiddle.skia.org/i/e17e48e9d2182e9afc0f5d26b72c60f0_raster.png "")
 
 <table>  <tr>
-    <td><sup>1</sup> <a href='#SkPath_arcTo'>arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a></td>
+    <td></td>
   </tr>  <tr>
-    <td><sup>2</sup> parameter sets force MoveTo</td>
+    <td></td>
   </tr>  <tr>
-    <td><sup>3</sup> start angle must be multiple of 90 degrees</td>
+    <td></td>
   </tr>  <tr>
-    <td><sup>4</sup> <a href='#SkPath_arcTo_2'>arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius)</a></td>
+    <td></td>
   </tr>  <tr>
-    <td><sup>5</sup> <a href='#SkPath_arcTo_4'>arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
-Direction sweep, SkScalar x, SkScalar y)</a></td>
+    <td></td>
   </tr>
 </table>
 
@@ -3727,20 +2460,20 @@ Direction sweep, SkScalar x, SkScalar y)</a></td>
 
 <div><fiddle-embed name="5acc77eba0cb4d00bbf3a8f4db0c0aee"></fiddle-embed></div>
 
-In the example above:
+In the example above
 
 <table>  <tr>
-    <td>1 describes an arc from an oval, a starting angle, and a sweep angle.</td>
+    <td>1 describes an arc from an oval</td>
   </tr>  <tr>
-    <td>2 is similar to 1, but does not require building a path to draw.</td>
+    <td>2 is similar to 1</td>
   </tr>  <tr>
-    <td>3 is similar to 1, but always begins new <a href='#Contour'>Contour</a>.</td>
+    <td>3 is similar to 1</td>
   </tr>  <tr>
-    <td>4 describes an arc from a pair of tangent lines and a radius.</td>
+    <td>4 describes an arc from a pair of tangent lines and a radius</td>
   </tr>  <tr>
-    <td>5 describes an arc from <a href='undocumented#Oval'>Oval</a> center, arc start <a href='SkPoint_Reference#Point'>Point</a> and arc end <a href='SkPoint_Reference#Point'>Point</a>.</td>
+    <td>5 describes an arc from <a href='undocumented#Oval'>Oval</a> center</td>
   </tr>  <tr>
-    <td>6 describes an arc from a pair of tangent lines and a <a href='#Conic_Weight'>Conic Weight</a>.</td>
+    <td>6 describes an arc from a pair of tangent lines and a <a href='#Conic_Weight'>Conic Weight</a></td>
   </tr>
 </table>
 
@@ -3748,17 +2481,10 @@ In the example above:
 ## arcTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo'>arcTo</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='undocumented#SkScalar'>SkScalar</a> startAngle, <a href='undocumented#SkScalar'>SkScalar</a> sweepAngle, bool forceMoveTo)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>. <a href='#Arc'>Arc</a> added is part of ellipse
-bounded by <a href='#SkPath_arcTo_oval'>oval</a>, from <a href='#SkPath_arcTo_startAngle'>startAngle</a> through <a href='#SkPath_arcTo_sweepAngle'>sweepAngle</a>. Both <a href='#SkPath_arcTo_startAngle'>startAngle</a> and
-<a href='#SkPath_arcTo_sweepAngle'>sweepAngle</a> are measured in degrees, where zero degrees is aligned with the
-positive x-axis, and positive sweeps extends <a href='#Arc'>Arc</a> clockwise.
-
-<a href='#SkPath_arcTo'>arcTo</a> adds <a href='undocumented#Line'>Line</a> connecting <a href='#Path'>Path</a> last <a href='SkPoint_Reference#Point'>Point</a> to initial <a href='#Arc'>Arc</a> <a href='SkPoint_Reference#Point'>Point</a> if <a href='#SkPath_arcTo_forceMoveTo'>forceMoveTo</a>
-is false and <a href='#Path'>Path</a> is not empty. Otherwise, added <a href='#Contour'>Contour</a> begins with first point
-of <a href='#Arc'>Arc</a>. Angles greater than -360 and less than 360 are treated modulo 360.
+Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
@@ -3769,7 +2495,7 @@ of <a href='#Arc'>Arc</a>. Angles greater than -360 and less than 360 are treate
     <td>starting angle of <a href='#Arc'>Arc</a> in degrees</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_sweepAngle'><code><strong>sweepAngle</strong></code></a></td>
-    <td>sweep, in degrees. Positive is clockwise; treated modulo 360</td>
+    <td>sweep</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_forceMoveTo'><code><strong>forceMoveTo</strong></code></a></td>
     <td>true to start a new contour with <a href='#Arc'>Arc</a></td>
@@ -3783,8 +2509,7 @@ reference to <a href='#Path'>Path</a>
 ### Example
 
 <div><fiddle-embed name="5f02890edaa10cb5e1a4243a82b6a382"><div><a href='#SkPath_arcTo'>arcTo</a> continues a previous contour when <a href='#SkPath_arcTo_forceMoveTo'>forceMoveTo</a> is false and when <a href='#Path'>Path</a>
-is not empty.
-</div></fiddle-embed></div>
+is not empty</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3795,44 +2520,36 @@ is not empty.
 <a name='SkPath_arcTo_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo'>arcTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2, <a href='undocumented#SkScalar'>SkScalar</a> radius)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>, after appending <a href='undocumented#Line'>Line</a> if needed. <a href='#Arc'>Arc</a> is implemented by <a href='#Conic'>Conic</a>
-weighted to describe part of <a href='undocumented#Circle'>Circle</a>. <a href='#Arc'>Arc</a> is contained by tangent from
-last <a href='#Path'>Path</a> point (x0, y0) to (<a href='#SkPath_arcTo_2_x1'>x1</a>, <a href='#SkPath_arcTo_2_y1'>y1</a>), and tangent from (<a href='#SkPath_arcTo_2_x1'>x1</a>, <a href='#SkPath_arcTo_2_y1'>y1</a>) to (<a href='#SkPath_arcTo_2_x2'>x2</a>, <a href='#SkPath_arcTo_2_y2'>y2</a>). <a href='#Arc'>Arc</a>
-is part of <a href='undocumented#Circle'>Circle</a> sized to <a href='#SkPath_arcTo_2_radius'>radius</a>, positioned so it touches both tangent lines.
+Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>
 
 ### Example
 
 <div><fiddle-embed name="d9c6435f26f37b3d63c664a99028f77f"></fiddle-embed></div>
 
-If last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> does not start <a href='#Arc'>Arc</a>, <a href='#SkPath_arcTo'>arcTo</a> appends connecting <a href='undocumented#Line'>Line</a> to <a href='#Path'>Path</a>.
-The length of <a href='SkPoint_Reference#Vector'>Vector</a> from (<a href='#SkPath_arcTo_2_x1'>x1</a>, <a href='#SkPath_arcTo_2_y1'>y1</a>) to (<a href='#SkPath_arcTo_2_x2'>x2</a>, <a href='#SkPath_arcTo_2_y2'>y2</a>) does not affect <a href='#Arc'>Arc</a>.
+If last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> does not start <a href='#Arc'>Arc</a>
 
 ### Example
 
 <div><fiddle-embed name="01d2ddfd539ab86a86989e210640dffc"></fiddle-embed></div>
 
-<a href='#Arc'>Arc</a> sweep is always less than 180 degrees. If <a href='#SkPath_arcTo_2_radius'>radius</a> is zero, or if
-tangents are nearly parallel, <a href='#SkPath_arcTo'>arcTo</a> appends <a href='undocumented#Line'>Line</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> to (<a href='#SkPath_arcTo_2_x1'>x1</a>, <a href='#SkPath_arcTo_2_y1'>y1</a>).
-
-<a href='#SkPath_arcTo'>arcTo</a> appends at most one <a href='undocumented#Line'>Line</a> and one <a href='#Conic'>Conic</a>.
-<a href='#SkPath_arcTo'>arcTo</a> implements the functionality of <a href='undocumented#Arct'>PostScript Arct</a> and <a href='undocumented#ArcTo'>HTML Canvas ArcTo</a>.
+<a href='#Arc'>Arc</a> sweep is always less than 180 degrees
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_arcTo_2_x1'><code><strong>x1</strong></code></a></td>
-    <td>x-axis value common to pair of tangents</td>
+    <td>x</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_2_y1'><code><strong>y1</strong></code></a></td>
-    <td>y-axis value common to pair of tangents</td>
+    <td>y</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_2_x2'><code><strong>x2</strong></code></a></td>
-    <td>x-axis value end of second tangent</td>
+    <td>x</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_2_y2'><code><strong>y2</strong></code></a></td>
-    <td>y-axis value end of second tangent</td>
+    <td>y</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_2_radius'><code><strong>radius</strong></code></a></td>
     <td>distance from <a href='#Arc'>Arc</a> to <a href='undocumented#Circle'>Circle</a> center</td>
@@ -3845,8 +2562,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="498360fa0a201cc5db04b1c27256358f"><div><a href='#SkPath_arcTo'>arcTo</a> is represented by <a href='undocumented#Line'>Line</a> and circular <a href='#Conic'>Conic</a> in <a href='#Path'>Path</a>.
-</div>
+<div><fiddle-embed name="498360fa0a201cc5db04b1c27256358f"><div><a href='#SkPath_arcTo'>arcTo</a> is represented by <a href='undocumented#Line'>Line</a> and circular <a href='#Conic'>Conic</a> in <a href='#Path'>Path</a></div>
 
 #### Example Output
 
@@ -3867,22 +2583,10 @@ conic (79.2893,20),(200,20),(114.645,105.355) weight 0.382683
 <a name='SkPath_arcTo_3'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo'>arcTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> p2, <a href='undocumented#SkScalar'>SkScalar</a> radius)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>, after appending <a href='undocumented#Line'>Line</a> if needed. <a href='#Arc'>Arc</a> is implemented by <a href='#Conic'>Conic</a>
-weighted to describe part of <a href='undocumented#Circle'>Circle</a>. <a href='#Arc'>Arc</a> is contained by tangent from
-last <a href='#Path'>Path</a> point to <a href='#SkPath_arcTo_3_p1'>p1</a>, and tangent from <a href='#SkPath_arcTo_3_p1'>p1</a> to <a href='#SkPath_arcTo_3_p2'>p2</a>. <a href='#Arc'>Arc</a>
-is part of <a href='undocumented#Circle'>Circle</a> sized to <a href='#SkPath_arcTo_3_radius'>radius</a>, positioned so it touches both tangent lines.
-
-If last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> does not start <a href='#Arc'>Arc</a>, <a href='#SkPath_arcTo'>arcTo</a> appends connecting <a href='undocumented#Line'>Line</a> to <a href='#Path'>Path</a>.
-The length of <a href='SkPoint_Reference#Vector'>Vector</a> from <a href='#SkPath_arcTo_3_p1'>p1</a> to <a href='#SkPath_arcTo_3_p2'>p2</a> does not affect <a href='#Arc'>Arc</a>.
-
-<a href='#Arc'>Arc</a> sweep is always less than 180 degrees. If <a href='#SkPath_arcTo_3_radius'>radius</a> is zero, or if
-tangents are nearly parallel, <a href='#SkPath_arcTo'>arcTo</a> appends <a href='undocumented#Line'>Line</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> to <a href='#SkPath_arcTo_3_p1'>p1</a>.
-
-<a href='#SkPath_arcTo'>arcTo</a> appends at most one <a href='undocumented#Line'>Line</a> and one <a href='#Conic'>Conic</a>.
-<a href='#SkPath_arcTo'>arcTo</a> implements the functionality of <a href='undocumented#Arct'>PostScript Arct</a> and <a href='undocumented#ArcTo'>HTML Canvas ArcTo</a>.
+Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
@@ -3903,9 +2607,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="0c056264a361579c18e5d02d3172d4d4"><div>Because tangent lines are parallel, <a href='#SkPath_arcTo'>arcTo</a> appends line from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> to
-<a href='#SkPath_arcTo_3_p1'>p1</a>, but does not append a circular <a href='#Conic'>Conic</a>.
-</div>
+<div><fiddle-embed name="0c056264a361579c18e5d02d3172d4d4"><div>Because tangent lines are parallel</div>
 
 #### Example Output
 
@@ -3926,13 +2628,12 @@ line (156,20),(200,20)
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPath_ArcSize'>ArcSize</a> {
-        <a href='#SkPath_kSmall_ArcSize'>kSmall ArcSize</a>,
-        <a href='#SkPath_kLarge_ArcSize'>kLarge ArcSize</a>,
+        <a href='#SkPath_kSmall_ArcSize'>kSmall_ArcSize</a>,
+        <a href='#SkPath_kLarge_ArcSize'>kLarge_ArcSize</a>,
     };
 </pre>
 
-Four <a href='undocumented#Oval'>Oval</a> parts with radii (rx, ry) start at last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> and ends at (x, y).
-<a href='#SkPath_ArcSize'>ArcSize</a> and <a href='#SkPath_Direction'>Direction</a> select one of the four <a href='undocumented#Oval'>Oval</a> parts.
+Four <a href='undocumented#Oval'>Oval</a> parts with radii
 
 ### Constants
 
@@ -3956,10 +2657,7 @@ larger of Arc pair</td>
 
 ### Example
 
-<div><fiddle-embed name="8e40c546eecd9cc213200717240898ba"><div><a href='#Arc'>Arc</a> begins at top of <a href='undocumented#Oval'>Oval</a> pair and ends at bottom. <a href='#Arc'>Arc</a> can take four routes to get there.
-Two routes are large, and two routes are counterclockwise. The one route both large
-and counterclockwise is blue.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="8e40c546eecd9cc213200717240898ba"><div><a href='#Arc'>Arc</a> begins at top of <a href='undocumented#Oval'>Oval</a> pair and ends at bottom</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3968,35 +2666,21 @@ and counterclockwise is blue.
 <a name='SkPath_arcTo_4'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo'>arcTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> rx, <a href='undocumented#SkScalar'>SkScalar</a> ry, <a href='undocumented#SkScalar'>SkScalar</a> xAxisRotate, <a href='#SkPath_ArcSize'>ArcSize</a> largeArc, <a href='#SkPath_Direction'>Direction</a> sweep,
-              <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>. <a href='#Arc'>Arc</a> is implemented by one or more <a href='#Conic'>Conics</a> weighted to
-describe part of <a href='undocumented#Oval'>Oval</a> with radii (<a href='#SkPath_arcTo_4_rx'>rx</a>, <a href='#SkPath_arcTo_4_ry'>ry</a>) rotated by <a href='#SkPath_arcTo_4_xAxisRotate'>xAxisRotate</a> degrees. <a href='#Arc'>Arc</a>
-curves from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> to (<a href='#SkPath_arcTo_4_x'>x</a>, <a href='#SkPath_arcTo_4_y'>y</a>), choosing one of four possible routes:
-clockwise or counterclockwise, and smaller or larger.
-
-<a href='#Arc'>Arc</a> <a href='#SkPath_arcTo_4_sweep'>sweep</a> is always less than 360 degrees. <a href='#SkPath_arcTo'>arcTo</a> appends <a href='undocumented#Line'>Line</a> to (<a href='#SkPath_arcTo_4_x'>x</a>, <a href='#SkPath_arcTo_4_y'>y</a>) if
-either radii are zero, or if last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> equals (<a href='#SkPath_arcTo_4_x'>x</a>, <a href='#SkPath_arcTo_4_y'>y</a>). <a href='#SkPath_arcTo'>arcTo</a> scales radii
-(<a href='#SkPath_arcTo_4_rx'>rx</a>, <a href='#SkPath_arcTo_4_ry'>ry</a>) to fit last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> and (<a href='#SkPath_arcTo_4_x'>x</a>, <a href='#SkPath_arcTo_4_y'>y</a>) if both are greater than zero but
-too small.
-
-<a href='#SkPath_arcTo'>arcTo</a> appends up to four <a href='#Conic'>Conic</a> curves.
-<a href='#SkPath_arcTo'>arcTo</a> implements the functionality of <a href='undocumented#Arc'>SVG Arc</a>, although <a href='undocumented#SVG'>SVG</a> "<a href='#SkPath_arcTo_4_sweep'>sweep</a>-flag" value
-is opposite the integer value of <a href='#SkPath_arcTo_4_sweep'>sweep</a>; <a href='undocumented#SVG'>SVG</a> "<a href='#SkPath_arcTo_4_sweep'>sweep</a>-flag" uses 1 for clockwise,
-while <a href='#SkPath_kCW_Direction'>kCW Direction</a>  cast to int is zero.
+Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_arcTo_4_rx'><code><strong>rx</strong></code></a></td>
-    <td>radius in <a href='#SkPath_arcTo_4_x'>x</a> before <a href='#SkPath_arcTo_4_x'>x</a>-axis rotation</td>
+    <td>radius in <a href='#SkPath_arcTo_4_x'>x</a> before <a href='#SkPath_arcTo_4_x'>x</a></td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_4_ry'><code><strong>ry</strong></code></a></td>
-    <td>radius in <a href='#SkPath_arcTo_4_y'>y</a> before <a href='#SkPath_arcTo_4_x'>x</a>-axis rotation</td>
+    <td>radius in <a href='#SkPath_arcTo_4_y'>y</a> before <a href='#SkPath_arcTo_4_x'>x</a></td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_4_xAxisRotate'><code><strong>xAxisRotate</strong></code></a></td>
-    <td><a href='#SkPath_arcTo_4_x'>x</a>-axis rotation in degrees; positive values are clockwise</td>
+    <td><a href='#SkPath_arcTo_4_x'>x</a></td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_4_largeArc'><code><strong>largeArc</strong></code></a></td>
     <td>chooses smaller or larger <a href='#Arc'>Arc</a></td>
@@ -4029,33 +2713,18 @@ reference to <a href='#Path'>Path</a>
 <a name='SkPath_arcTo_5'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo'>arcTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> r, <a href='undocumented#SkScalar'>SkScalar</a> xAxisRotate, <a href='#SkPath_ArcSize'>ArcSize</a> largeArc, <a href='#SkPath_Direction'>Direction</a> sweep,
-              const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> xy)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>. <a href='#Arc'>Arc</a> is implemented by one or more <a href='#Conic'>Conic</a> weighted to describe
-part of <a href='undocumented#Oval'>Oval</a> with radii (<a href='#SkPath_arcTo_5_r'>r</a>.fX, <a href='#SkPath_arcTo_5_r'>r</a>.fY) rotated by <a href='#SkPath_arcTo_5_xAxisRotate'>xAxisRotate</a> degrees. <a href='#Arc'>Arc</a> curves
-from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> to (<a href='#SkPath_arcTo_5_xy'>xy</a>.fX, <a href='#SkPath_arcTo_5_xy'>xy</a>.fY), choosing one of four possible routes:
-clockwise or counterclockwise,
-and smaller or larger.
-
-<a href='#Arc'>Arc</a> <a href='#SkPath_arcTo_5_sweep'>sweep</a> is always less than 360 degrees. <a href='#SkPath_arcTo'>arcTo</a> appends <a href='undocumented#Line'>Line</a> to <a href='#SkPath_arcTo_5_xy'>xy</a> if either
-radii are zero, or if last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> equals (x, y). <a href='#SkPath_arcTo'>arcTo</a> scales radii <a href='#SkPath_arcTo_5_r'>r</a> to fit
-last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> and <a href='#SkPath_arcTo_5_xy'>xy</a> if both are greater than zero but too small to describe
-an arc.
-
-<a href='#SkPath_arcTo'>arcTo</a> appends up to four <a href='#Conic'>Conic</a> curves.
-<a href='#SkPath_arcTo'>arcTo</a> implements the functionality of <a href='undocumented#Arc'>SVG Arc</a>, although <a href='undocumented#SVG'>SVG</a> "<a href='#SkPath_arcTo_5_sweep'>sweep</a>-flag" value is
-opposite the integer value of <a href='#SkPath_arcTo_5_sweep'>sweep</a>; <a href='undocumented#SVG'>SVG</a> "<a href='#SkPath_arcTo_5_sweep'>sweep</a>-flag" uses 1 for clockwise, while
-<a href='#SkPath_kCW_Direction'>kCW Direction</a> cast to int is zero.
+Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_arcTo_5_r'><code><strong>r</strong></code></a></td>
-    <td>radii on axes before x-axis rotation</td>
+    <td>radii on axes before x</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_5_xAxisRotate'><code><strong>xAxisRotate</strong></code></a></td>
-    <td>x-axis rotation in degrees; positive values are clockwise</td>
+    <td>x</td>
   </tr>
   <tr>    <td><a name='SkPath_arcTo_5_largeArc'><code><strong>largeArc</strong></code></a></td>
     <td>chooses smaller or larger <a href='#Arc'>Arc</a></td>
@@ -4086,37 +2755,21 @@ reference to <a href='#Path'>Path</a>
 ## rArcTo
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_rArcTo'>rArcTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> rx, <a href='undocumented#SkScalar'>SkScalar</a> ry, <a href='undocumented#SkScalar'>SkScalar</a> xAxisRotate, <a href='#SkPath_ArcSize'>ArcSize</a> largeArc, <a href='#SkPath_Direction'>Direction</a> sweep,
-               <a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>, relative to last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a>. <a href='#Arc'>Arc</a> is implemented by one or
-more <a href='#Conic'>Conic</a>, weighted to describe part of <a href='undocumented#Oval'>Oval</a> with radii (<a href='#SkPath_rArcTo_rx'>rx</a>, <a href='#SkPath_rArcTo_ry'>ry</a>) rotated by
-<a href='#SkPath_rArcTo_xAxisRotate'>xAxisRotate</a> degrees. <a href='#Arc'>Arc</a> curves from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> (x0, y0) to end <a href='SkPoint_Reference#Point'>Point</a>:
-<code>\(x0&nbsp;\+&nbsp;<a href='#SkPath_rArcTo_dx'>dx</a>, y0&nbsp;\+&nbsp;<a href='#SkPath_rArcTo_dy'>dy</a>\)</code>, choosing one of four possible routes: clockwise or
-counterclockwise, and smaller or larger. If <a href='#Path'>Path</a> is empty, the start <a href='#Arc'>Arc</a> <a href='SkPoint_Reference#Point'>Point</a>
-is (0, 0).
-
-<a href='#Arc'>Arc</a> <a href='#SkPath_rArcTo_sweep'>sweep</a> is always less than 360 degrees. <a href='#SkPath_arcTo'>arcTo</a> appends <a href='undocumented#Line'>Line</a> to end <a href='SkPoint_Reference#Point'>Point</a>
-if either radii are zero, or if last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> equals end <a href='SkPoint_Reference#Point'>Point</a>.
-<a href='#SkPath_arcTo'>arcTo</a> scales radii (<a href='#SkPath_rArcTo_rx'>rx</a>, <a href='#SkPath_rArcTo_ry'>ry</a>) to fit last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> and end <a href='SkPoint_Reference#Point'>Point</a> if both are
-greater than zero but too small to describe an arc.
-
-<a href='#SkPath_arcTo'>arcTo</a> appends up to four <a href='#Conic'>Conic</a> curves.
-<a href='#SkPath_arcTo'>arcTo</a> implements the functionality of <a href='undocumented#Arc'>SVG Arc</a>, although <a href='undocumented#SVG'>SVG</a> "<a href='#SkPath_rArcTo_sweep'>sweep</a>-flag" value is
-opposite the integer value of <a href='#SkPath_rArcTo_sweep'>sweep</a>; <a href='undocumented#SVG'>SVG</a> "<a href='#SkPath_rArcTo_sweep'>sweep</a>-flag" uses 1 for clockwise, while
-<a href='#SkPath_kCW_Direction'>kCW Direction</a> cast to int is zero.
+Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a> <code></code>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_rArcTo_rx'><code><strong>rx</strong></code></a></td>
-    <td>radius before x-axis rotation</td>
+    <td>radius before x</td>
   </tr>
   <tr>    <td><a name='SkPath_rArcTo_ry'><code><strong>ry</strong></code></a></td>
-    <td>radius before x-axis rotation</td>
+    <td>radius before x</td>
   </tr>
   <tr>    <td><a name='SkPath_rArcTo_xAxisRotate'><code><strong>xAxisRotate</strong></code></a></td>
-    <td>x-axis rotation in degrees; positive values are clockwise</td>
+    <td>x</td>
   </tr>
   <tr>    <td><a name='SkPath_rArcTo_largeArc'><code><strong>largeArc</strong></code></a></td>
     <td>chooses smaller or larger <a href='#Arc'>Arc</a></td>
@@ -4125,10 +2778,10 @@ opposite the integer value of <a href='#SkPath_rArcTo_sweep'>sweep</a>; <a href=
     <td>chooses clockwise or counterclockwise <a href='#Arc'>Arc</a></td>
   </tr>
   <tr>    <td><a name='SkPath_rArcTo_dx'><code><strong>dx</strong></code></a></td>
-    <td>x-axis offset end of <a href='#Arc'>Arc</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a></td>
+    <td>x</td>
   </tr>
   <tr>    <td><a name='SkPath_rArcTo_dy'><code><strong>dy</strong></code></a></td>
-    <td>y-axis offset end of <a href='#Arc'>Arc</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a></td>
+    <td>y</td>
   </tr>
 </table>
 
@@ -4150,16 +2803,10 @@ reference to <a href='#Path'>Path</a>
 ## close
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_close'>close</a>()
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#SkPath_kClose_Verb'>kClose Verb</a> to <a href='#Path'>Path</a>. A closed <a href='#Contour'>Contour</a> connects the first and last <a href='SkPoint_Reference#Point'>Point</a>
-with <a href='undocumented#Line'>Line</a>, forming a continuous loop. Open and closed <a href='#Contour'>Contour</a> draw the same
-with <a href='SkPaint_Reference#SkPaint_kFill_Style'>SkPaint::kFill Style</a>. With <a href='SkPaint_Reference#SkPaint_kStroke_Style'>SkPaint::kStroke Style</a>, open <a href='#Contour'>Contour</a> draws
-<a href='SkPaint_Reference#Stroke_Cap'>Paint Stroke Cap</a> at <a href='#Contour'>Contour</a> start and end; closed <a href='#Contour'>Contour</a> draws
-<a href='SkPaint_Reference#Stroke_Join'>Paint Stroke Join</a> at <a href='#Contour'>Contour</a> start and end.
-
-<a href='#SkPath_close'>close</a> has no effect if <a href='#Path'>Path</a> is empty or last <a href='#Path'>Path</a> <a href='#SkPath_Verb'>Verb</a> is <a href='#SkPath_kClose_Verb'>kClose Verb</a>.
+Appends <a href='#SkPath_kClose_Verb'>kClose Verb</a> to <a href='#Path'>Path</a>
 
 ### Return Value
 
@@ -4177,11 +2824,11 @@ reference to <a href='#Path'>Path</a>
 ## IsInverseFillType
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static bool <a href='#SkPath_IsInverseFillType'>IsInverseFillType</a>(<a href='#SkPath_FillType'>FillType</a> fill)
+static bool <a href='#SkPath_IsInverseFillType'>IsInverseFillType</a>(<a href='#SkPath_FillType'>FillType</a> fill
 </pre>
 
 Returns true if <a href='#SkPath_IsInverseFillType_fill'>fill</a> is inverted and <a href='#Path'>Path</a> with <a href='#SkPath_IsInverseFillType_fill'>fill</a> represents area outside
-of its geometric bounds.
+of its geometric bounds
 
 | <a href='#SkPath_FillType'>FillType</a> | is inverse |
 | --- | ---  |
@@ -4193,8 +2840,7 @@ of its geometric bounds.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_IsInverseFillType_fill'><code><strong>fill</strong></code></a></td>
-    <td>one of: <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>, <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a>,
-<a href='#SkPath_kInverseWinding_FillType'>kInverseWinding FillType</a>, <a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd FillType</a></td>
+    <td>one of</td>
   </tr>
 </table>
 
@@ -4227,11 +2873,10 @@ IsInverseFillType(kInverseEvenOdd_FillType) == true
 ## ConvertToNonInverseFillType
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkPath_FillType'>FillType</a> <a href='#SkPath_ConvertToNonInverseFillType'>ConvertToNonInverseFillType</a>(<a href='#SkPath_FillType'>FillType</a> fill)
+static <a href='#SkPath_FillType'>FillType</a> <a href='#SkPath_ConvertToNonInverseFillType'>ConvertToNonInverseFillType</a>(<a href='#SkPath_FillType'>FillType</a> fill
 </pre>
 
-Returns equivalent <a href='#Fill_Type'>Fill Type</a> representing <a href='#Path'>Path</a> <a href='#SkPath_ConvertToNonInverseFillType_fill'>fill</a> inside its bounds.
-.
+Returns equivalent <a href='#Fill_Type'>Fill Type</a> representing <a href='#Path'>Path</a> <a href='#SkPath_ConvertToNonInverseFillType_fill'>fill</a> inside its bounds
 
 | <a href='#SkPath_FillType'>FillType</a> | inside <a href='#SkPath_FillType'>FillType</a> |
 | --- | ---  |
@@ -4243,14 +2888,13 @@ Returns equivalent <a href='#Fill_Type'>Fill Type</a> representing <a href='#Pat
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_ConvertToNonInverseFillType_fill'><code><strong>fill</strong></code></a></td>
-    <td>one of: <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>, <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a>,
-<a href='#SkPath_kInverseWinding_FillType'>kInverseWinding FillType</a>, <a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd FillType</a></td>
+    <td>one of</td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='#SkPath_ConvertToNonInverseFillType_fill'>fill</a>, or <a href='#SkPath_kWinding_FillType'>kWinding FillType</a> or <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a> if <a href='#SkPath_ConvertToNonInverseFillType_fill'>fill</a> is inverted
+<a href='#SkPath_ConvertToNonInverseFillType_fill'>fill</a>
 
 ### Example
 
@@ -4277,27 +2921,10 @@ ConvertToNonInverseFillType(kInverseEvenOdd_FillType) == kEvenOdd_FillType
 ## ConvertConicToQuads
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static int <a href='#SkPath_ConvertConicToQuads'>ConvertConicToQuads</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p0, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, <a href='undocumented#SkScalar'>SkScalar</a> w,
-                               <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int pow2)
+static int <a href='#SkPath_ConvertConicToQuads'>ConvertConicToQuads</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>
 </pre>
 
-Approximates <a href='#Conic'>Conic</a> with <a href='#Quad'>Quad</a> array. <a href='#Conic'>Conic</a> is constructed from start <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_ConvertConicToQuads_p0'>p0</a>,
-control <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_ConvertConicToQuads_p1'>p1</a>, end <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_ConvertConicToQuads_p2'>p2</a>, and weight <a href='#SkPath_ConvertConicToQuads_w'>w</a>.
-<a href='#Quad'>Quad</a> array is stored in <a href='#SkPath_ConvertConicToQuads_pts'>pts</a>; this storage is supplied by caller.
-Maximum <a href='#Quad'>Quad</a> count is 2 to the <a href='#SkPath_ConvertConicToQuads_pow2'>pow2</a>.
-Every third point in array shares last <a href='SkPoint_Reference#Point'>Point</a> of previous <a href='#Quad'>Quad</a> and first <a href='SkPoint_Reference#Point'>Point</a> of
-next <a href='#Quad'>Quad</a>. Maximum <a href='#SkPath_ConvertConicToQuads_pts'>pts</a> storage size is given by:
-<code>\(1&nbsp;\+&nbsp;2&nbsp;\*&nbsp;\(1&nbsp;<<&nbsp;<a href='#SkPath_ConvertConicToQuads_pow2'>pow2</a>\)\)&nbsp;\*&nbsp;sizeof(SkPoint)</code>.
-
-Returns <a href='#Quad'>Quad</a> count used the approximation, which may be smaller
-than the number requested.
-
-<a href='#Conic_Weight'>Conic Weight</a> determines the amount of influence <a href='#Conic'>Conic</a> control point has on the curve.
-<a href='#SkPath_ConvertConicToQuads_w'>w</a> less than one represents an elliptical section. <a href='#SkPath_ConvertConicToQuads_w'>w</a> greater than one represents
-a hyperbolic section. <a href='#SkPath_ConvertConicToQuads_w'>w</a> equal to one represents a parabolic section.
-
-Two <a href='#Quad'>Quad</a> curves are sufficient to approximate an elliptical <a href='#Conic'>Conic</a> with a sweep
-of up to 90 degrees; in this case, set <a href='#SkPath_ConvertConicToQuads_pow2'>pow2</a> to one.
+Approximates <a href='#Conic'>Conic</a> with <a href='#Quad'>Quad</a> array <code></code>
 
 ### Parameters
 
@@ -4317,7 +2944,7 @@ of up to 90 degrees; in this case, set <a href='#SkPath_ConvertConicToQuads_pow2
     <td>storage for <a href='#Quad'>Quad</a> array</td>
   </tr>
   <tr>    <td><a name='SkPath_ConvertConicToQuads_pow2'><code><strong>pow2</strong></code></a></td>
-    <td><a href='#Quad'>Quad</a> count, as power of two, normally 0 to 5 (1 to 32 <a href='#Quad'>Quad</a> curves)</td>
+    <td><a href='#Quad'>Quad</a> count</td>
   </tr>
 </table>
 
@@ -4327,10 +2954,7 @@ number of <a href='#Quad'>Quad</a> curves written to <a href='#SkPath_ConvertCon
 
 ### Example
 
-<div><fiddle-embed name="3ba94448a4ba48f926e643baeb5b1016"><div>A pair of <a href='#Quad'>Quad</a> curves are drawn in red on top of the elliptical <a href='#Conic'>Conic</a> curve in black.
-The middle curve is nearly circular. The top-right curve is parabolic, which can
-be drawn exactly with a single <a href='#Quad'>Quad</a>.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="3ba94448a4ba48f926e643baeb5b1016"><div>A pair of <a href='#Quad'>Quad</a> curves are drawn in red on top of the elliptical <a href='#Conic'>Conic</a> curve in black</div></fiddle-embed></div>
 
 ### See Also
 
@@ -4342,26 +2966,21 @@ be drawn exactly with a single <a href='#Quad'>Quad</a>.
 ## isRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isRect'>isRect</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>* rect, bool* isClosed = nullptr, <a href='#SkPath_Direction'>Direction</a>* direction = nullptr) const
+bool <a href='#SkPath_isRect'>isRect</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>
 </pre>
 
-Returns true if <a href='#Path'>Path</a> is equivalent to <a href='SkRect_Reference#Rect'>Rect</a> when filled.
-If false: <a href='#SkPath_isRect_rect'>rect</a>, <a href='#SkPath_isRect_isClosed'>isClosed</a>, and <a href='#SkPath_isRect_direction'>direction</a> are unchanged.
-If true: <a href='#SkPath_isRect_rect'>rect</a>, <a href='#SkPath_isRect_isClosed'>isClosed</a>, and <a href='#SkPath_isRect_direction'>direction</a> are written to if not nullptr.
-
-<a href='#SkPath_isRect_rect'>rect</a> may be smaller than the <a href='#Path'>Path</a> bounds. <a href='#Path'>Path</a> bounds may include <a href='#SkPath_kMove_Verb'>kMove Verb</a> points
-that do not alter the area drawn by the returned <a href='#SkPath_isRect_rect'>rect</a>.
+Returns true if <a href='#Path'>Path</a> is equivalent to <a href='SkRect_Reference#Rect'>Rect</a> when filled
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_isRect_rect'><code><strong>rect</strong></code></a></td>
-    <td>storage for bounds of <a href='SkRect_Reference#Rect'>Rect</a>; may be nullptr</td>
+    <td>storage for bounds of <a href='SkRect_Reference#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkPath_isRect_isClosed'><code><strong>isClosed</strong></code></a></td>
-    <td>storage set to true if <a href='#Path'>Path</a> is closed; may be nullptr</td>
+    <td>storage set to true if <a href='#Path'>Path</a> is closed</td>
   </tr>
   <tr>    <td><a name='SkPath_isRect_direction'><code><strong>direction</strong></code></a></td>
-    <td>storage set to <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkPath_isRect_direction'>direction</a>; may be nullptr</td>
+    <td>storage set to <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkPath_isRect_direction'>direction</a></td>
   </tr>
 </table>
 
@@ -4371,10 +2990,7 @@ true if <a href='#Path'>Path</a> contains <a href='SkRect_Reference#Rect'>Rect</
 
 ### Example
 
-<div><fiddle-embed name="81a2aac1b8f0ff3d4c8d35ccb9149b16"><div>After <a href='#SkPath_addRect'>addRect</a>, <a href='#SkPath_isRect'>isRect</a> returns true. Following <a href='#SkPath_moveTo'>moveTo</a> permits <a href='#SkPath_isRect'>isRect</a> to return true, but
-following <a href='#SkPath_lineTo'>lineTo</a> does not. <a href='#SkPath_addPoly'>addPoly</a> returns true even though <a href='#SkPath_isRect_rect'>rect</a> is not closed, and one
-side of <a href='#SkPath_isRect_rect'>rect</a> is made up of consecutive line segments.
-</div>
+<div><fiddle-embed name="81a2aac1b8f0ff3d4c8d35ccb9149b16"><div>After <a href='#SkPath_addRect'>addRect</a></div>
 
 #### Example Output
 
@@ -4398,23 +3014,18 @@ addPoly is rect (0, 0, 80, 80); is not closed; direction CCW
 ## isNestedFillRects
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isNestedFillRects'>isNestedFillRects</a>(<a href='SkRect_Reference#SkRect'>SkRect</a> rect[2], <a href='#SkPath_Direction'>Direction</a> dirs[2] = nullptr) const
+bool <a href='#SkPath_isNestedFillRects'>isNestedFillRects</a>(<a href='SkRect_Reference#SkRect'>SkRect</a> rect
 </pre>
 
-Returns true if <a href='#Path'>Path</a> is equivalent to nested <a href='SkRect_Reference#Rect'>Rect</a> pair when filled.
-If false, <a href='#SkPath_isNestedFillRects_rect'>rect</a> and <a href='#SkPath_isNestedFillRects_dirs'>dirs</a> are unchanged.
-If true, <a href='#SkPath_isNestedFillRects_rect'>rect</a> and <a href='#SkPath_isNestedFillRects_dirs'>dirs</a> are written to if not nullptr:
-setting <a href='#SkPath_isNestedFillRects_rect'>rect</a>[0] to outer <a href='SkRect_Reference#Rect'>Rect</a>, and <a href='#SkPath_isNestedFillRects_rect'>rect</a>[1] to inner <a href='SkRect_Reference#Rect'>Rect</a>;
-setting <a href='#SkPath_isNestedFillRects_dirs'>dirs</a>[0] to <a href='#SkPath_Direction'>Direction</a> of outer <a href='SkRect_Reference#Rect'>Rect</a>, and <a href='#SkPath_isNestedFillRects_dirs'>dirs</a>[1] to <a href='#SkPath_Direction'>Direction</a> of inner
-<a href='SkRect_Reference#Rect'>Rect</a>.
+Returns true if <a href='#Path'>Path</a> is equivalent to nested <a href='SkRect_Reference#Rect'>Rect</a> pair when filled
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_isNestedFillRects_rect'><code><strong>rect</strong></code></a></td>
-    <td>storage for <a href='SkRect_Reference#Rect'>Rect</a> pair; may be nullptr</td>
+    <td>storage for <a href='SkRect_Reference#Rect'>Rect</a> pair</td>
   </tr>
   <tr>    <td><a name='SkPath_isNestedFillRects_dirs'><code><strong>dirs</strong></code></a></td>
-    <td>storage for <a href='#SkPath_Direction'>Direction</a> pair; may be nullptr</td>
+    <td>storage for <a href='#SkPath_Direction'>Direction</a> pair</td>
   </tr>
 </table>
 
@@ -4445,13 +3056,10 @@ inner (12.5, 22.5, 27.5, 37.5); direction CCW
 ## addRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRect'>addRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW Direction</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='SkRect_Reference#Rect'>Rect</a> to <a href='#Path'>Path</a>, appending <a href='#SkPath_kMove_Verb'>kMove Verb</a>, three <a href='#SkPath_kLine_Verb'>kLine Verb</a>, and <a href='#SkPath_kClose_Verb'>kClose Verb</a>,
-starting with top-left corner of <a href='SkRect_Reference#Rect'>Rect</a>; followed by top-right, bottom-right,
-and bottom-left if <a href='#SkPath_addRect_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>; or followed by bottom-left,
-bottom-right, and top-right if <a href='#SkPath_addRect_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>.
+Adds <a href='SkRect_Reference#Rect'>Rect</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
@@ -4469,9 +3077,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="0f841e4eaebb613b5069800567917c2d"><div>The left <a href='SkRect_Reference#Rect'>Rect</a> dashes starting at the top-left corner, to the right.
-The right <a href='SkRect_Reference#Rect'>Rect</a> dashes starting at the top-left corner, towards the bottom.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="0f841e4eaebb613b5069800567917c2d"><div>The left <a href='SkRect_Reference#Rect'>Rect</a> dashes starting at the top</div></fiddle-embed></div>
 
 ### See Also
 
@@ -4482,20 +3088,17 @@ The right <a href='SkRect_Reference#Rect'>Rect</a> dashes starting at the top-le
 <a name='SkPath_addRect_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRect'>addRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='#SkPath_Direction'>Direction</a> dir, unsigned start)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='SkRect_Reference#Rect'>Rect</a> to <a href='#Path'>Path</a>, appending <a href='#SkPath_kMove_Verb'>kMove Verb</a>, three <a href='#SkPath_kLine_Verb'>kLine Verb</a>, and <a href='#SkPath_kClose_Verb'>kClose Verb</a>.
-If <a href='#SkPath_addRect_2_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>, <a href='SkRect_Reference#Rect'>Rect</a> corners are added clockwise; if <a href='#SkPath_addRect_2_dir'>dir</a> is
-<a href='#SkPath_kCCW_Direction'>kCCW Direction</a>, <a href='SkRect_Reference#Rect'>Rect</a> corners are added counterclockwise.
-<a href='#SkPath_addRect_2_start'>start</a> determines the first corner added.
+Adds <a href='SkRect_Reference#Rect'>Rect</a> to <a href='#Path'>Path</a>
 
 | <a href='#SkPath_addRect_2_start'>start</a> | first corner |
 | --- | ---  |
-| 0 | top-left |
-| 1 | top-right |
-| 2 | bottom-right |
-| 3 | bottom-left |
+| 0 | top |
+| 1 | top |
+| 2 | bottom |
+| 3 | bottom |
 
 ### Parameters
 
@@ -4517,8 +3120,7 @@ reference to <a href='#Path'>Path</a>
 ### Example
 
 <div><fiddle-embed name="9202430b3f4f5275af8eec5cc9d7baa8"><div>The arrow is just after the initial corner and points towards the next
-corner appended to <a href='#Path'>Path</a>.
-</div></fiddle-embed></div>
+corner appended to <a href='#Path'>Path</a></div></fiddle-embed></div>
 
 ### See Also
 
@@ -4529,29 +3131,24 @@ corner appended to <a href='#Path'>Path</a>.
 <a name='SkPath_addRect_3'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRect'>addRect</a>(<a href='undocumented#SkScalar'>SkScalar</a> left, <a href='undocumented#SkScalar'>SkScalar</a> top, <a href='undocumented#SkScalar'>SkScalar</a> right, <a href='undocumented#SkScalar'>SkScalar</a> bottom,
-                <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW Direction</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='SkRect_Reference#Rect'>Rect</a> (<a href='#SkPath_addRect_3_left'>left</a>, <a href='#SkPath_addRect_3_top'>top</a>, <a href='#SkPath_addRect_3_right'>right</a>, <a href='#SkPath_addRect_3_bottom'>bottom</a>) to <a href='#Path'>Path</a>,
-appending <a href='#SkPath_kMove_Verb'>kMove Verb</a>, three <a href='#SkPath_kLine_Verb'>kLine Verb</a>, and <a href='#SkPath_kClose_Verb'>kClose Verb</a>,
-starting with <a href='#SkPath_addRect_3_top'>top</a>-<a href='#SkPath_addRect_3_left'>left</a> corner of <a href='SkRect_Reference#Rect'>Rect</a>; followed by <a href='#SkPath_addRect_3_top'>top</a>-<a href='#SkPath_addRect_3_right'>right</a>, <a href='#SkPath_addRect_3_bottom'>bottom</a>-<a href='#SkPath_addRect_3_right'>right</a>,
-and <a href='#SkPath_addRect_3_bottom'>bottom</a>-<a href='#SkPath_addRect_3_left'>left</a> if <a href='#SkPath_addRect_3_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>; or followed by <a href='#SkPath_addRect_3_bottom'>bottom</a>-<a href='#SkPath_addRect_3_left'>left</a>,
-<a href='#SkPath_addRect_3_bottom'>bottom</a>-<a href='#SkPath_addRect_3_right'>right</a>, and <a href='#SkPath_addRect_3_top'>top</a>-<a href='#SkPath_addRect_3_right'>right</a> if <a href='#SkPath_addRect_3_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>.
+Adds <a href='SkRect_Reference#Rect'>Rect</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_addRect_3_left'><code><strong>left</strong></code></a></td>
-    <td>smaller x-axis value of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>smaller x</td>
   </tr>
   <tr>    <td><a name='SkPath_addRect_3_top'><code><strong>top</strong></code></a></td>
-    <td>smaller y-axis value of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>smaller y</td>
   </tr>
   <tr>    <td><a name='SkPath_addRect_3_right'><code><strong>right</strong></code></a></td>
-    <td>larger x-axis value of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>larger x</td>
   </tr>
   <tr>    <td><a name='SkPath_addRect_3_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>larger y-axis value of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>larger y</td>
   </tr>
   <tr>    <td><a name='SkPath_addRect_3_dir'><code><strong>dir</strong></code></a></td>
     <td><a href='#SkPath_Direction'>Direction</a> to wind added contour</td>
@@ -4564,9 +3161,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="3837827310e8b88b8c2e128ef9fbbd65"><div>The <a href='#SkPath_addRect_3_left'>left</a> <a href='SkRect_Reference#Rect'>Rect</a> dashes start at the <a href='#SkPath_addRect_3_top'>top</a>-<a href='#SkPath_addRect_3_left'>left</a> corner, and continue to the <a href='#SkPath_addRect_3_right'>right</a>.
-The <a href='#SkPath_addRect_3_right'>right</a> <a href='SkRect_Reference#Rect'>Rect</a> dashes start at the <a href='#SkPath_addRect_3_top'>top</a>-<a href='#SkPath_addRect_3_left'>left</a> corner, and continue down.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="3837827310e8b88b8c2e128ef9fbbd65"><div>The <a href='#SkPath_addRect_3_left'>left</a> <a href='SkRect_Reference#Rect'>Rect</a> dashes start at the <a href='#SkPath_addRect_3_top'>top</a></div></fiddle-embed></div>
 
 ### See Also
 
@@ -4578,13 +3173,10 @@ The <a href='#SkPath_addRect_3_right'>right</a> <a href='SkRect_Reference#Rect'>
 ## addOval
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addOval'>addOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW Direction</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='undocumented#Oval'>Oval</a> to path, appending <a href='#SkPath_kMove_Verb'>kMove Verb</a>, four <a href='#SkPath_kConic_Verb'>kConic Verb</a>, and <a href='#SkPath_kClose_Verb'>kClose Verb</a>.
-<a href='undocumented#Oval'>Oval</a> is upright ellipse bounded by <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkPath_addOval_oval'>oval</a> with radii equal to half <a href='#SkPath_addOval_oval'>oval</a> width
-and half <a href='#SkPath_addOval_oval'>oval</a> height. <a href='undocumented#Oval'>Oval</a> begins at (<a href='#SkPath_addOval_oval'>oval</a>.fRight, <a href='#SkPath_addOval_oval'>oval</a>.centerY()) and continues
-clockwise if <a href='#SkPath_addOval_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>, counterclockwise if <a href='#SkPath_addOval_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>.
+Adds <a href='undocumented#Oval'>Oval</a> to path
 
 ### Parameters
 
@@ -4613,20 +3205,17 @@ reference to <a href='#Path'>Path</a>
 <a name='SkPath_addOval_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addOval'>addOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='#SkPath_Direction'>Direction</a> dir, unsigned start)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='undocumented#Oval'>Oval</a> to <a href='#Path'>Path</a>, appending <a href='#SkPath_kMove_Verb'>kMove Verb</a>, four <a href='#SkPath_kConic_Verb'>kConic Verb</a>, and <a href='#SkPath_kClose_Verb'>kClose Verb</a>.
-<a href='undocumented#Oval'>Oval</a> is upright ellipse bounded by <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkPath_addOval_2_oval'>oval</a> with radii equal to half <a href='#SkPath_addOval_2_oval'>oval</a> width
-and half <a href='#SkPath_addOval_2_oval'>oval</a> height. <a href='undocumented#Oval'>Oval</a> begins at <a href='#SkPath_addOval_2_start'>start</a> and continues
-clockwise if <a href='#SkPath_addOval_2_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>, counterclockwise if <a href='#SkPath_addOval_2_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>.
+Adds <a href='undocumented#Oval'>Oval</a> to <a href='#Path'>Path</a>
 
 | <a href='#SkPath_addOval_2_start'>start</a> | <a href='SkPoint_Reference#Point'>Point</a> |
 | --- | ---  |
-| 0 | <a href='#SkPath_addOval_2_oval'>oval</a>.centerX(), <a href='#SkPath_addOval_2_oval'>oval</a>.fTop |
-| 1 | <a href='#SkPath_addOval_2_oval'>oval</a>.fRight, <a href='#SkPath_addOval_2_oval'>oval</a>.centerY() |
-| 2 | <a href='#SkPath_addOval_2_oval'>oval</a>.centerX(), <a href='#SkPath_addOval_2_oval'>oval</a>.fBottom |
-| 3 | <a href='#SkPath_addOval_2_oval'>oval</a>.fLeft, <a href='#SkPath_addOval_2_oval'>oval</a>.centerY() |
+| 0 | <a href='#SkPath_addOval_2_oval'>oval</a> |
+| 1 | <a href='#SkPath_addOval_2_oval'>oval</a> |
+| 2 | <a href='#SkPath_addOval_2_oval'>oval</a> |
+| 3 | <a href='#SkPath_addOval_2_oval'>oval</a> |
 
 ### Parameters
 
@@ -4659,14 +3248,10 @@ reference to <a href='#Path'>Path</a>
 ## addCircle
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addCircle'>addCircle</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='undocumented#SkScalar'>SkScalar</a> radius, <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW Direction</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='undocumented#Circle'>Circle</a> centered at (<a href='#SkPath_addCircle_x'>x</a>, <a href='#SkPath_addCircle_y'>y</a>) of size <a href='#SkPath_addCircle_radius'>radius</a> to <a href='#Path'>Path</a>, appending <a href='#SkPath_kMove_Verb'>kMove Verb</a>,
-four <a href='#SkPath_kConic_Verb'>kConic Verb</a>, and <a href='#SkPath_kClose_Verb'>kClose Verb</a>. <a href='undocumented#Circle'>Circle</a> begins at: <code>\(<a href='#SkPath_addCircle_x'>x</a>&nbsp;\+&nbsp;<a href='#SkPath_addCircle_radius'>radius</a>, <a href='#SkPath_addCircle_y'>y</a>\)</code>, continuing
-clockwise if <a href='#SkPath_addCircle_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>, and counterclockwise if <a href='#SkPath_addCircle_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>.
-
-Has no effect if <a href='#SkPath_addCircle_radius'>radius</a> is zero or negative.
+Adds <a href='undocumented#Circle'>Circle</a> centered at <code></code>
 
 ### Parameters
 
@@ -4702,17 +3287,10 @@ reference to <a href='#Path'>Path</a>
 ## addArc
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addArc'>addArc</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='undocumented#SkScalar'>SkScalar</a> startAngle, <a href='undocumented#SkScalar'>SkScalar</a> sweepAngle)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>, as the start of new <a href='#Contour'>Contour</a>. <a href='#Arc'>Arc</a> added is part of ellipse
-bounded by <a href='#SkPath_addArc_oval'>oval</a>, from <a href='#SkPath_addArc_startAngle'>startAngle</a> through <a href='#SkPath_addArc_sweepAngle'>sweepAngle</a>. Both <a href='#SkPath_addArc_startAngle'>startAngle</a> and
-<a href='#SkPath_addArc_sweepAngle'>sweepAngle</a> are measured in degrees, where zero degrees is aligned with the
-positive x-axis, and positive sweeps extends <a href='#Arc'>Arc</a> clockwise.
-
-If <a href='#SkPath_addArc_sweepAngle'>sweepAngle</a> <= -360, or <a href='#SkPath_addArc_sweepAngle'>sweepAngle</a> >= 360; and <a href='#SkPath_addArc_startAngle'>startAngle</a> modulo 90 is nearly
-zero, append <a href='undocumented#Oval'>Oval</a> instead of <a href='#Arc'>Arc</a>. Otherwise, <a href='#SkPath_addArc_sweepAngle'>sweepAngle</a> values are treated
-modulo 360, and <a href='#Arc'>Arc</a> may or may not draw depending on numeric rounding.
+Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
@@ -4723,7 +3301,7 @@ modulo 360, and <a href='#Arc'>Arc</a> may or may not draw depending on numeric 
     <td>starting angle of <a href='#Arc'>Arc</a> in degrees</td>
   </tr>
   <tr>    <td><a name='SkPath_addArc_sweepAngle'><code><strong>sweepAngle</strong></code></a></td>
-    <td>sweep, in degrees. Positive is clockwise; treated modulo 360</td>
+    <td>sweep</td>
   </tr>
 </table>
 
@@ -4734,9 +3312,7 @@ reference to <a href='#Path'>Path</a>
 ### Example
 
 <div><fiddle-embed name="9cf5122475624e4cf39f06c698f80b1a"><div>The middle row of the left and right columns draw differently from the entries
-above and below because <a href='#SkPath_addArc_sweepAngle'>sweepAngle</a> is outside of the range of +/-360,
-and <a href='#SkPath_addArc_startAngle'>startAngle</a> modulo 90 is not zero.
-</div></fiddle-embed></div>
+above and below because <a href='#SkPath_addArc_sweepAngle'>sweepAngle</a> is outside of the range of</div></fiddle-embed></div>
 
 ### See Also
 
@@ -4748,20 +3324,10 @@ and <a href='#SkPath_addArc_startAngle'>startAngle</a> modulo 90 is not zero.
 ## addRoundRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRoundRect'>addRoundRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> rx, <a href='undocumented#SkScalar'>SkScalar</a> ry, <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW Direction</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='SkRRect_Reference#RRect'>Round Rect</a> to <a href='#Path'>Path</a>, creating a new closed <a href='#Contour'>Contour</a>. <a href='SkRRect_Reference#RRect'>Round Rect</a> has bounds
-equal to <a href='#SkPath_addRoundRect_rect'>rect</a>; each corner is 90 degrees of an ellipse with radii (<a href='#SkPath_addRoundRect_rx'>rx</a>, <a href='#SkPath_addRoundRect_ry'>ry</a>). If
-<a href='#SkPath_addRoundRect_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a> starts at top-left of the lower-left corner and
-winds clockwise. If <a href='#SkPath_addRoundRect_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a> starts at the bottom-left
-of the upper-left corner and winds counterclockwise.
-
-If either <a href='#SkPath_addRoundRect_rx'>rx</a> or <a href='#SkPath_addRoundRect_ry'>ry</a> is too large, <a href='#SkPath_addRoundRect_rx'>rx</a> and <a href='#SkPath_addRoundRect_ry'>ry</a> are scaled uniformly until the
-corners fit. If <a href='#SkPath_addRoundRect_rx'>rx</a> or <a href='#SkPath_addRoundRect_ry'>ry</a> is less than or equal to zero, <a href='#SkPath_addRoundRect'>addRoundRect</a> appends
-<a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkPath_addRoundRect_rect'>rect</a> to <a href='#Path'>Path</a>.
-
-After appending, <a href='#Path'>Path</a> may be empty, or may contain: <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Oval'>Oval</a>, or RoundRect.
+Appends <a href='SkRRect_Reference#RRect'>Round Rect</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
@@ -4769,10 +3335,10 @@ After appending, <a href='#Path'>Path</a> may be empty, or may contain: <a href=
     <td>bounds of <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addRoundRect_rx'><code><strong>rx</strong></code></a></td>
-    <td>x-axis radius of rounded corners on the <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
+    <td>x</td>
   </tr>
   <tr>    <td><a name='SkPath_addRoundRect_ry'><code><strong>ry</strong></code></a></td>
-    <td>y-axis radius of rounded corners on the <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
+    <td>y</td>
   </tr>
   <tr>    <td><a name='SkPath_addRoundRect_dir'><code><strong>dir</strong></code></a></td>
     <td><a href='#SkPath_Direction'>Direction</a> to wind <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
@@ -4785,12 +3351,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="24736f685f265cf533f1700c042db353"><div>If either radius is zero, path contains <a href='SkRect_Reference#Rect'>Rect</a> and is drawn red.
-If sides are only radii, path contains <a href='undocumented#Oval'>Oval</a> and is drawn blue.
-All remaining path draws are convex, and are drawn in gray; no
-paths constructed from <a href='#SkPath_addRoundRect'>addRoundRect</a> are concave, so none are
-drawn in green.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="24736f685f265cf533f1700c042db353"><div>If either radius is zero</div></fiddle-embed></div>
 
 ### See Also
 
@@ -4801,33 +3362,23 @@ drawn in green.
 <a name='SkPath_addRoundRect_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRoundRect'>addRoundRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, const <a href='undocumented#SkScalar'>SkScalar</a> radii[], <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW Direction</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='SkRRect_Reference#RRect'>Round Rect</a> to <a href='#Path'>Path</a>, creating a new closed <a href='#Contour'>Contour</a>. <a href='SkRRect_Reference#RRect'>Round Rect</a> has bounds
-equal to <a href='#SkPath_addRoundRect_2_rect'>rect</a>; each corner is 90 degrees of an ellipse with <a href='#SkPath_addRoundRect_2_radii'>radii</a> from the
-array.
+Appends <a href='SkRRect_Reference#RRect'>Round Rect</a> to <a href='#Path'>Path</a>
 
 | <a href='#SkPath_addRoundRect_2_radii'>radii</a> index | location |
 | --- | ---  |
-| 0 | x-axis radius of top-left corner |
-| 1 | y-axis radius of top-left corner |
-| 2 | x-axis radius of top-right corner |
-| 3 | y-axis radius of top-right corner |
-| 4 | x-axis radius of bottom-right corner |
-| 5 | y-axis radius of bottom-right corner |
-| 6 | x-axis radius of bottom-left corner |
-| 7 | y-axis radius of bottom-left corner |
+| 0 | x |
+| 1 | y |
+| 2 | x |
+| 3 | y |
+| 4 | x |
+| 5 | y |
+| 6 | x |
+| 7 | y |
 
-If <a href='#SkPath_addRoundRect_2_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a> starts at top-left of the lower-left corner
-and winds clockwise. If <a href='#SkPath_addRoundRect_2_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>, <a href='SkRRect_Reference#RRect'>Round Rect</a> starts at the
-bottom-left of the upper-left corner and winds counterclockwise.
-
-If both <a href='#SkPath_addRoundRect_2_radii'>radii</a> on any side of <a href='#SkPath_addRoundRect_2_rect'>rect</a> exceed its length, all <a href='#SkPath_addRoundRect_2_radii'>radii</a> are scaled
-uniformly until the corners fit. If either radius of a corner is less than or
-equal to zero, both are treated as zero.
-
-After appending, <a href='#Path'>Path</a> may be empty, or may contain: <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Oval'>Oval</a>, or RoundRect.
+If <a href='#SkPath_addRoundRect_2_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>
 
 ### Parameters
 
@@ -4835,7 +3386,7 @@ After appending, <a href='#Path'>Path</a> may be empty, or may contain: <a href=
     <td>bounds of <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addRoundRect_2_radii'><code><strong>radii</strong></code></a></td>
-    <td>array of 8 <a href='undocumented#SkScalar'>SkScalar</a> values, a radius pair for each corner</td>
+    <td>array of 8 <a href='undocumented#SkScalar'>SkScalar</a> values</td>
   </tr>
   <tr>    <td><a name='SkPath_addRoundRect_2_dir'><code><strong>dir</strong></code></a></td>
     <td><a href='#SkPath_Direction'>Direction</a> to wind <a href='SkRRect_Reference#RRect'>Round Rect</a></td>
@@ -4860,15 +3411,10 @@ reference to <a href='#Path'>Path</a>
 ## addRRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRRect'>addRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& rrect, <a href='#SkPath_Direction'>Direction</a> dir = <a href='#SkPath_kCW_Direction'>kCW Direction</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#SkPath_addRRect_rrect'>rrect</a> to <a href='#Path'>Path</a>, creating a new closed <a href='#Contour'>Contour</a>. If
-<a href='#SkPath_addRRect_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>, <a href='#SkPath_addRRect_rrect'>rrect</a> starts at top-left of the lower-left corner and
-winds clockwise. If <a href='#SkPath_addRRect_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>, <a href='#SkPath_addRRect_rrect'>rrect</a> starts at the bottom-left
-of the upper-left corner and winds counterclockwise.
-
-After appending, <a href='#Path'>Path</a> may be empty, or may contain: <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Oval'>Oval</a>, or <a href='SkRRect_Reference#RRect'>Round Rect</a>.
+Adds <a href='#SkPath_addRRect_rrect'>rrect</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
@@ -4897,25 +3443,23 @@ reference to <a href='#Path'>Path</a>
 <a name='SkPath_addRRect_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addRRect'>addRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& rrect, <a href='#SkPath_Direction'>Direction</a> dir, unsigned start)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#SkPath_addRRect_2_rrect'>rrect</a> to <a href='#Path'>Path</a>, creating a new closed <a href='#Contour'>Contour</a>. If <a href='#SkPath_addRRect_2_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>, <a href='#SkPath_addRRect_2_rrect'>rrect</a>
-winds clockwise; if <a href='#SkPath_addRRect_2_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>, <a href='#SkPath_addRRect_2_rrect'>rrect</a> winds counterclockwise.
-<a href='#SkPath_addRRect_2_start'>start</a> determines the first point of <a href='#SkPath_addRRect_2_rrect'>rrect</a> to add.
+Adds <a href='#SkPath_addRRect_2_rrect'>rrect</a> to <a href='#Path'>Path</a>
 
 | <a href='#SkPath_addRRect_2_start'>start</a> | location |
 | --- | ---  |
-| 0 | right of top-left corner |
-| 1 | left of top-right corner |
-| 2 | bottom of top-right corner |
-| 3 | top of bottom-right corner |
-| 4 | left of bottom-right corner |
-| 5 | right of bottom-left corner |
-| 6 | top of bottom-left corner |
-| 7 | bottom of top-left corner |
+| 0 | right of top |
+| 1 | left of top |
+| 2 | bottom of top |
+| 3 | top of bottom |
+| 4 | left of bottom |
+| 5 | right of bottom |
+| 6 | top of bottom |
+| 7 | bottom of top |
 
-After appending, <a href='#Path'>Path</a> may be empty, or may contain: <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Oval'>Oval</a>, or <a href='SkRRect_Reference#RRect'>Round Rect</a>.
+After appending
 
 ### Parameters
 
@@ -4948,16 +3492,10 @@ reference to <a href='#Path'>Path</a>
 ## addPoly
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPoly'>addPoly</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], int count, bool close)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Contour'>Contour</a> created from <a href='undocumented#Line'>Line</a> array, adding (<a href='#SkPath_addPoly_count'>count</a> - 1) <a href='undocumented#Line'>Line</a> segments.
-<a href='#Contour'>Contour</a> added starts at <a href='#SkPath_addPoly_pts'>pts</a>[0], then adds a line for every additional <a href='SkPoint_Reference#Point'>Point</a>
-in <a href='#SkPath_addPoly_pts'>pts</a> array. If close is true, appends <a href='#SkPath_kClose_Verb'>kClose Verb</a> to <a href='#Path'>Path</a>, connecting
-<a href='#SkPath_addPoly_pts'>pts</a>[<a href='#SkPath_addPoly_count'>count</a> - 1] and <a href='#SkPath_addPoly_pts'>pts</a>[0].
-
-If <a href='#SkPath_addPoly_count'>count</a> is zero, append <a href='#SkPath_kMove_Verb'>kMove Verb</a> to path.
-Has no effect if <a href='#SkPath_addPoly_count'>count</a> is less than one.
+Adds <a href='SkPath_Overview#Contour'>Contour</a> created from <a href='undocumented#Line'>Line</a> array
 
 ### Parameters
 
@@ -4968,7 +3506,7 @@ Has no effect if <a href='#SkPath_addPoly_count'>count</a> is less than one.
     <td>length of <a href='SkPoint_Reference#Point'>Point</a> array</td>
   </tr>
   <tr>    <td><a name='SkPath_addPoly_close'><code><strong>close</strong></code></a></td>
-    <td>true to add <a href='undocumented#Line'>Line</a> connecting <a href='#Contour'>Contour</a> end and start</td>
+    <td>true to add <a href='undocumented#Line'>Line</a> connecting <a href='SkPath_Overview#Contour'>Contour</a> end and start</td>
   </tr>
 </table>
 
@@ -4989,14 +3527,10 @@ reference to <a href='#Path'>Path</a>
 <a name='SkPath_addPoly_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPoly'>addPoly</a>(const std::initializer_list&lt;<a href='SkPoint_Reference#SkPoint'>SkPoint</a>&gt;& list, bool close)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Adds <a href='#Contour'>Contour</a> created from <a href='#SkPath_addPoly_2_list'>list</a>. <a href='#Contour'>Contour</a> added starts at <a href='#SkPath_addPoly_2_list'>list</a>[0], then adds a line
-for every additional <a href='SkPoint_Reference#Point'>Point</a> in <a href='#SkPath_addPoly_2_list'>list</a>. If close is true, appends <a href='#SkPath_kClose_Verb'>kClose Verb</a> to <a href='#Path'>Path</a>,
-connecting last and first <a href='SkPoint_Reference#Point'>Point</a> in <a href='#SkPath_addPoly_2_list'>list</a>.
-
-If <a href='#SkPath_addPoly_2_list'>list</a> is empty, append <a href='#SkPath_kMove_Verb'>kMove Verb</a> to path.
+Adds <a href='SkPath_Overview#Contour'>Contour</a> created from <a href='#SkPath_addPoly_2_list'>list</a>
 
 ### Parameters
 
@@ -5004,7 +3538,7 @@ If <a href='#SkPath_addPoly_2_list'>list</a> is empty, append <a href='#SkPath_k
     <td>array of <a href='SkPoint_Reference#Point'>Points</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addPoly_2_close'><code><strong>close</strong></code></a></td>
-    <td>true to add <a href='undocumented#Line'>Line</a> connecting <a href='#Contour'>Contour</a> end and start</td>
+    <td>true to add <a href='undocumented#Line'>Line</a> connecting <a href='SkPath_Overview#Contour'>Contour</a> end and start</td>
   </tr>
 </table>
 
@@ -5026,13 +3560,12 @@ reference to <a href='#Path'>Path</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPath_AddPathMode'>AddPathMode</a> {
-        <a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a>,
-        <a href='#SkPath_kExtend_AddPathMode'>kExtend AddPathMode</a>,
+        <a href='#SkPath_kAppend_AddPathMode'>kAppend_AddPathMode</a>,
+        <a href='#SkPath_kExtend_AddPathMode'>kExtend_AddPathMode</a>,
     };
 </pre>
 
-<a href='#SkPath_AddPathMode'>AddPathMode</a> chooses how <a href='#SkPath_addPath'>addPath</a> appends. Adding one <a href='#Path'>Path</a> to another can extend
-the last <a href='#Contour'>Contour</a> or start a new <a href='#Contour'>Contour</a>.
+<a href='#SkPath_AddPathMode'>AddPathMode</a> chooses how <a href='#SkPath_addPath'>addPath</a> appends
 
 ### Constants
 
@@ -5044,28 +3577,19 @@ the last <a href='#Contour'>Contour</a> or start a new <a href='#Contour'>Contou
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kAppend_AddPathMode'><code>SkPath::kAppend_AddPathMode</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # appended to destination unaltered ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-<a href='#Path'>Path</a> <a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a> are appended to destination unaltered.
-Since <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> begins with <a href='#SkPath_kMove_Verb'>kMove Verb</a> if src is not empty, this
-starts a new <a href='#Contour'>Contour</a>.
-</td>
+<a href='#Path'>Path</a> <a href='#Verb'>Verbs</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kExtend_AddPathMode'><code>SkPath::kExtend_AddPathMode</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # add line if prior Contour is not closed ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-If destination is closed or empty, start a new <a href='#Contour'>Contour</a>. If destination
-is not empty, add <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point</a> to added <a href='#Path'>Path</a> first <a href='SkPoint_Reference#Point'>Point</a>. Skip added
-<a href='#Path'>Path</a> initial <a href='#SkPath_kMove_Verb'>kMove Verb</a>, then append remining <a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a>.
-</td>
+If destination is closed or empty</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="801b02e74c64aafdb734f2e5cf3e5ab0"><div>test is built from path, open on the top row, and closed on the bottom row.
-The left column uses <a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a>; the right uses <a href='#SkPath_kExtend_AddPathMode'>kExtend AddPathMode</a>.
-The top right composition is made up of one contour; the other three have two.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="801b02e74c64aafdb734f2e5cf3e5ab0"><div>test is built from path</div></fiddle-embed></div>
 
 ### See Also
 
@@ -5075,25 +3599,21 @@ The top right composition is made up of one contour; the other three have two.
 ## addPath
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPath'>addPath</a>(const <a href='#SkPath'>SkPath</a>& src, <a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='#SkPath_AddPathMode'>AddPathMode</a> mode = <a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#SkPath_addPath_src'>src</a> to <a href='#Path'>Path</a>, offset by (<a href='#SkPath_addPath_dx'>dx</a>, <a href='#SkPath_addPath_dy'>dy</a>).
-
-If <a href='#SkPath_addPath_mode'>mode</a> is <a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a>, <a href='#SkPath_addPath_src'>src</a> <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weights</a> are
-added unaltered. If <a href='#SkPath_addPath_mode'>mode</a> is <a href='#SkPath_kExtend_AddPathMode'>kExtend AddPathMode</a>, add <a href='undocumented#Line'>Line</a> before appending
-<a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a>.
+Appends <a href='#SkPath_addPath_src'>src</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_addPath_src'><code><strong>src</strong></code></a></td>
-    <td><a href='#Path'>Path</a> <a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a> to add</td>
+    <td><a href='#Path'>Path</a> <a href='#Verb'>Verbs</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addPath_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset added to <a href='#SkPath_addPath_src'>src</a> <a href='#Point_Array'>Point Array</a> x-axis coordinates</td>
+    <td>offset added to <a href='#SkPath_addPath_src'>src</a> <a href='#Point_Array'>Point Array</a> x</td>
   </tr>
   <tr>    <td><a name='SkPath_addPath_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset added to <a href='#SkPath_addPath_src'>src</a> <a href='#Point_Array'>Point Array</a> y-axis coordinates</td>
+    <td>offset added to <a href='#SkPath_addPath_src'>src</a> <a href='#Point_Array'>Point Array</a> y</td>
   </tr>
   <tr>    <td><a name='SkPath_addPath_mode'><code><strong>mode</strong></code></a></td>
     <td><a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a> or <a href='#SkPath_kExtend_AddPathMode'>kExtend AddPathMode</a></td>
@@ -5117,19 +3637,15 @@ reference to <a href='#Path'>Path</a>
 <a name='SkPath_addPath_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPath'>addPath</a>(const <a href='#SkPath'>SkPath</a>& src, <a href='#SkPath_AddPathMode'>AddPathMode</a> mode = <a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#SkPath_addPath_2_src'>src</a> to <a href='#Path'>Path</a>.
-
-If <a href='#SkPath_addPath_2_mode'>mode</a> is <a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a>, <a href='#SkPath_addPath_2_src'>src</a> <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weights</a> are
-added unaltered. If <a href='#SkPath_addPath_2_mode'>mode</a> is <a href='#SkPath_kExtend_AddPathMode'>kExtend AddPathMode</a>, add <a href='undocumented#Line'>Line</a> before appending
-<a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a>.
+Appends <a href='#SkPath_addPath_2_src'>src</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_addPath_2_src'><code><strong>src</strong></code></a></td>
-    <td><a href='#Path'>Path</a> <a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a> to add</td>
+    <td><a href='#Path'>Path</a> <a href='#Verb'>Verbs</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addPath_2_mode'><code><strong>mode</strong></code></a></td>
     <td><a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a> or <a href='#SkPath_kExtend_AddPathMode'>kExtend AddPathMode</a></td>
@@ -5153,20 +3669,15 @@ reference to <a href='#Path'>Path</a>
 <a name='SkPath_addPath_3'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_addPath'>addPath</a>(const <a href='#SkPath'>SkPath</a>& src, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix, <a href='#SkPath_AddPathMode'>AddPathMode</a> mode = <a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a>)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#SkPath_addPath_3_src'>src</a> to <a href='#Path'>Path</a>, transformed by <a href='#SkPath_addPath_3_matrix'>matrix</a>. Transformed curves may have different
-<a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a>.
-
-If <a href='#SkPath_addPath_3_mode'>mode</a> is <a href='#SkPath_kAppend_AddPathMode'>kAppend AddPathMode</a>, <a href='#SkPath_addPath_3_src'>src</a> <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weights</a> are
-added unaltered. If <a href='#SkPath_addPath_3_mode'>mode</a> is <a href='#SkPath_kExtend_AddPathMode'>kExtend AddPathMode</a>, add <a href='undocumented#Line'>Line</a> before appending
-<a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a>.
+Appends <a href='#SkPath_addPath_3_src'>src</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_addPath_3_src'><code><strong>src</strong></code></a></td>
-    <td><a href='#Path'>Path</a> <a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a> to add</td>
+    <td><a href='#Path'>Path</a> <a href='#Verb'>Verbs</a></td>
   </tr>
   <tr>    <td><a name='SkPath_addPath_3_matrix'><code><strong>matrix</strong></code></a></td>
     <td>transform applied to <a href='#SkPath_addPath_3_src'>src</a></td>
@@ -5194,16 +3705,15 @@ reference to <a href='#Path'>Path</a>
 ## reverseAddPath
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_reverseAddPath'>reverseAddPath</a>(const <a href='#SkPath'>SkPath</a>& src)
+<a href='#SkPath'>SkPath</a>
 </pre>
 
-Appends <a href='#SkPath_reverseAddPath_src'>src</a> to <a href='#Path'>Path</a>, from back to front.
-Reversed <a href='#SkPath_reverseAddPath_src'>src</a> always appends a new <a href='#Contour'>Contour</a> to <a href='#Path'>Path</a>.
+Appends <a href='#SkPath_reverseAddPath_src'>src</a> to <a href='#Path'>Path</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_reverseAddPath_src'><code><strong>src</strong></code></a></td>
-    <td><a href='#Path'>Path</a> <a href='#Verb'>Verbs</a>, <a href='SkPoint_Reference#Point'>Points</a>, and <a href='#Conic_Weight'>Conic Weights</a> to add</td>
+    <td><a href='#Path'>Path</a> <a href='#Verb'>Verbs</a></td>
   </tr>
 </table>
 
@@ -5225,22 +3735,21 @@ reference to <a href='#Path'>Path</a>
 ## offset
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='#SkPath'>SkPath</a>* dst) const
+void <a href='#SkPath_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx
 </pre>
 
-Offsets <a href='#Point_Array'>Point Array</a> by (<a href='#SkPath_offset_dx'>dx</a>, <a href='#SkPath_offset_dy'>dy</a>). Offset <a href='#Path'>Path</a> replaces <a href='#SkPath_offset_dst'>dst</a>.
-If <a href='#SkPath_offset_dst'>dst</a> is nullptr, <a href='#Path'>Path</a> is replaced by offset data.
+Offsets <a href='#Point_Array'>Point Array</a> by
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_offset_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset added to <a href='#Point_Array'>Point Array</a> x-axis coordinates</td>
+    <td>offset added to <a href='#Point_Array'>Point Array</a> x</td>
   </tr>
   <tr>    <td><a name='SkPath_offset_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset added to <a href='#Point_Array'>Point Array</a> y-axis coordinates</td>
+    <td>offset added to <a href='#Point_Array'>Point Array</a> y</td>
   </tr>
   <tr>    <td><a name='SkPath_offset_dst'><code><strong>dst</strong></code></a></td>
-    <td>overwritten, translated copy of <a href='#Path'>Path</a>; may be nullptr</td>
+    <td>overwritten</td>
   </tr>
 </table>
 
@@ -5256,51 +3765,21 @@ If <a href='#SkPath_offset_dst'>dst</a> is nullptr, <a href='#Path'>Path</a> is 
 
 ## <a name='Transform'>Transform</a>
 
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_offset'>offset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>translates <a href='#Point_Array'>Point Array</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_offset'>offset(SkScalar dx, SkScalar dy, SkPath* dst)</a> const</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_offset_2'>offset(SkScalar dx, SkScalar dy)</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_transform'>transform</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>applies <a href='SkMatrix_Reference#Matrix'>Matrix</a> to <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Weights</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_transform'>transform(const SkMatrix& matrix, SkPath* dst)</a> const</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_transform_2'>transform(const SkMatrix& matrix)</a></td>
-  </tr>
-</table>
-
 <a name='SkPath_offset_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
+void <a href='#SkPath_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx
 </pre>
 
-Offsets <a href='#Point_Array'>Point Array</a> by (<a href='#SkPath_offset_2_dx'>dx</a>, <a href='#SkPath_offset_2_dy'>dy</a>). <a href='#Path'>Path</a> is replaced by offset data.
+Offsets <a href='#Point_Array'>Point Array</a> by
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_offset_2_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset added to <a href='#Point_Array'>Point Array</a> x-axis coordinates</td>
+    <td>offset added to <a href='#Point_Array'>Point Array</a> x</td>
   </tr>
   <tr>    <td><a name='SkPath_offset_2_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset added to <a href='#Point_Array'>Point Array</a> y-axis coordinates</td>
+    <td>offset added to <a href='#Point_Array'>Point Array</a> y</td>
   </tr>
 </table>
 
@@ -5310,7 +3789,7 @@ Offsets <a href='#Point_Array'>Point Array</a> by (<a href='#SkPath_offset_2_dx'
 
 ### See Also
 
-<a href='#SkPath_addPath'>addPath</a><sup><a href='#SkPath_addPath_2'>[2]</a></sup><sup><a href='#SkPath_addPath_3'>[3]</a></sup> <a href='#SkPath_transform'>transform</a><sup><a href='#SkPath_transform_2'>[2]</a></sup> <a href='SkCanvas_Reference#SkCanvas_translate'>SkCanvas::translate()</a>
+<a href='#SkPath_addPath'>addPath</a><sup><a href='#SkPath_addPath_2'>[2]</a></sup><sup><a href='#SkPath_addPath_3'>[3]</a></sup> <a href='#SkPath_transform'>transform</a><sup><a href='#SkPath_transform_2'>[2]</a></sup> <a href='SkCanvas_Reference#SkCanvas_translate'>SkCanvas::translate</a>(
 
 ---
 
@@ -5318,13 +3797,10 @@ Offsets <a href='#Point_Array'>Point Array</a> by (<a href='#SkPath_offset_2_dx'
 ## transform
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix, <a href='#SkPath'>SkPath</a>* dst) const
+void <a href='#SkPath_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>
 </pre>
 
-Transforms <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and weight by <a href='#SkPath_transform_matrix'>matrix</a>.
-transform may change <a href='#Verb'>Verbs</a> and increase their number.
-Transformed <a href='#Path'>Path</a> replaces <a href='#SkPath_transform_dst'>dst</a>; if <a href='#SkPath_transform_dst'>dst</a> is nullptr, original data
-is replaced.
+Transforms <a href='#Verb_Array'>Verb Array</a>
 
 ### Parameters
 
@@ -5332,7 +3808,7 @@ is replaced.
     <td><a href='SkMatrix_Reference#Matrix'>Matrix</a> to apply to <a href='#Path'>Path</a></td>
   </tr>
   <tr>    <td><a name='SkPath_transform_dst'><code><strong>dst</strong></code></a></td>
-    <td>overwritten, transformed copy of <a href='#Path'>Path</a>; may be nullptr</td>
+    <td>overwritten</td>
   </tr>
 </table>
 
@@ -5342,19 +3818,17 @@ is replaced.
 
 ### See Also
 
-<a href='#SkPath_addPath'>addPath</a><sup><a href='#SkPath_addPath_2'>[2]</a></sup><sup><a href='#SkPath_addPath_3'>[3]</a></sup> <a href='#SkPath_offset'>offset</a><sup><a href='#SkPath_offset_2'>[2]</a></sup> <a href='SkCanvas_Reference#SkCanvas_concat'>SkCanvas::concat()</a> <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>
+<a href='#SkPath_addPath'>addPath</a><sup><a href='#SkPath_addPath_2'>[2]</a></sup><sup><a href='#SkPath_addPath_3'>[3]</a></sup> <a href='#SkPath_offset'>offset</a><sup><a href='#SkPath_offset_2'>[2]</a></sup> <a href='SkCanvas_Reference#SkCanvas_concat'>SkCanvas::concat</a>(
 
 ---
 
 <a name='SkPath_transform_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix)
+void <a href='#SkPath_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>
 </pre>
 
-Transforms <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and weight by <a href='#SkPath_transform_2_matrix'>matrix</a>.
-transform may change <a href='#Verb'>Verbs</a> and increase their number.
-<a href='#Path'>Path</a> is replaced by transformed data.
+Transforms <a href='#Verb_Array'>Verb Array</a>
 
 ### Parameters
 
@@ -5369,30 +3843,27 @@ transform may change <a href='#Verb'>Verbs</a> and increase their number.
 
 ### See Also
 
-<a href='#SkPath_addPath'>addPath</a><sup><a href='#SkPath_addPath_2'>[2]</a></sup><sup><a href='#SkPath_addPath_3'>[3]</a></sup> <a href='#SkPath_offset'>offset</a><sup><a href='#SkPath_offset_2'>[2]</a></sup> <a href='SkCanvas_Reference#SkCanvas_concat'>SkCanvas::concat()</a> <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>
+<a href='#SkPath_addPath'>addPath</a><sup><a href='#SkPath_addPath_2'>[2]</a></sup><sup><a href='#SkPath_addPath_3'>[3]</a></sup> <a href='#SkPath_offset'>offset</a><sup><a href='#SkPath_offset_2'>[2]</a></sup> <a href='SkCanvas_Reference#SkCanvas_concat'>SkCanvas::concat</a>(
 
 ---
 
 ## <a name='Last_Point'>Last Point</a>
 
-<a href='#Path'>Path</a> is defined cumulatively, often by adding a segment to the end of last
-<a href='#Contour'>Contour</a>. <a href='#Last_Point'>Last Point</a> of <a href='#Contour'>Contour</a> is shared as first <a href='SkPoint_Reference#Point'>Point</a> of added <a href='undocumented#Line'>Line</a> or <a href='undocumented#Curve'>Curve</a>.
-<a href='#Last_Point'>Last Point</a> can be read and written directly with <a href='#SkPath_getLastPt'>getLastPt</a> and <a href='#SkPath_setLastPt'>setLastPt</a>.
+<a href='#Path'>Path</a> is defined cumulatively
 
 <a name='SkPath_getLastPt'></a>
 ## getLastPt
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_getLastPt'>getLastPt</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a>* lastPt) const
+bool <a href='#SkPath_getLastPt'>getLastPt</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a>
 </pre>
 
-Returns <a href='#Last_Point'>Last Point</a> on <a href='#Path'>Path</a> in <a href='#SkPath_getLastPt_lastPt'>lastPt</a>. Returns false if <a href='#Point_Array'>Point Array</a> is empty,
-storing (0, 0) if <a href='#SkPath_getLastPt_lastPt'>lastPt</a> is not nullptr.
+Returns <a href='#Last_Point'>Last Point</a> on <a href='#Path'>Path</a> in <a href='#SkPath_getLastPt_lastPt'>lastPt</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_getLastPt_lastPt'><code><strong>lastPt</strong></code></a></td>
-    <td>storage for final <a href='SkPoint_Reference#Point'>Point</a> in <a href='#Point_Array'>Point Array</a>; may be nullptr</td>
+    <td>storage for final <a href='SkPoint_Reference#Point'>Point</a> in <a href='#Point_Array'>Point Array</a></td>
   </tr>
 </table>
 
@@ -5422,19 +3893,18 @@ last point: 35.2786, 52.9772
 ## setLastPt
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_setLastPt'>setLastPt</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y)
+void <a href='#SkPath_setLastPt'>setLastPt</a>(<a href='undocumented#SkScalar'>SkScalar</a> x
 </pre>
 
-Sets <a href='#Last_Point'>Last Point</a> to (<a href='#SkPath_setLastPt_x'>x</a>, <a href='#SkPath_setLastPt_y'>y</a>). If <a href='#Point_Array'>Point Array</a> is empty, append <a href='#SkPath_kMove_Verb'>kMove Verb</a> to
-<a href='#Verb_Array'>Verb Array</a> and append (<a href='#SkPath_setLastPt_x'>x</a>, <a href='#SkPath_setLastPt_y'>y</a>) to <a href='#Point_Array'>Point Array</a>.
+Sets <a href='#Last_Point'>Last Point</a> to
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_setLastPt_x'><code><strong>x</strong></code></a></td>
-    <td>set <a href='#SkPath_setLastPt_x'>x</a>-axis value of <a href='#Last_Point'>Last Point</a></td>
+    <td>set <a href='#SkPath_setLastPt_x'>x</a></td>
   </tr>
   <tr>    <td><a name='SkPath_setLastPt_y'><code><strong>y</strong></code></a></td>
-    <td>set <a href='#SkPath_setLastPt_y'>y</a>-axis value of <a href='#Last_Point'>Last Point</a></td>
+    <td>set <a href='#SkPath_setLastPt_y'>y</a></td>
   </tr>
 </table>
 
@@ -5451,11 +3921,10 @@ Sets <a href='#Last_Point'>Last Point</a> to (<a href='#SkPath_setLastPt_x'>x</a
 <a name='SkPath_setLastPt_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_setLastPt'>setLastPt</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p)
+void <a href='#SkPath_setLastPt'>setLastPt</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>
 </pre>
 
-Sets the last point on the path. If <a href='#Point_Array'>Point Array</a> is empty, append <a href='#SkPath_kMove_Verb'>kMove Verb</a> to
-<a href='#Verb_Array'>Verb Array</a> and append <a href='#SkPath_setLastPt_2_p'>p</a> to <a href='#Point_Array'>Point Array</a>.
+Sets the last point on the path
 
 ### Parameters
 
@@ -5478,15 +3947,14 @@ Sets the last point on the path. If <a href='#Point_Array'>Point Array</a> is em
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPath_SegmentMask'>SegmentMask</a> {
-        <a href='#SkPath_kLine_SegmentMask'>kLine SegmentMask</a> = 1 << 0,
-        <a href='#SkPath_kQuad_SegmentMask'>kQuad SegmentMask</a> = 1 << 1,
-        <a href='#SkPath_kConic_SegmentMask'>kConic SegmentMask</a> = 1 << 2,
-        <a href='#SkPath_kCubic_SegmentMask'>kCubic SegmentMask</a> = 1 << 3,
+        <a href='#SkPath_kLine_SegmentMask'>kLine_SegmentMask</a> = 1 << 0,
+        <a href='#SkPath_kQuad_SegmentMask'>kQuad_SegmentMask</a> = 1 << 1,
+        <a href='#SkPath_kConic_SegmentMask'>kConic_SegmentMask</a> = 1 << 2,
+        <a href='#SkPath_kCubic_SegmentMask'>kCubic_SegmentMask</a> = 1 << 3,
     };
 </pre>
 
-<a href='#SkPath_SegmentMask'>SegmentMask</a> constants correspond to each drawing <a href='#SkPath_Verb'>Verb</a> type in <a href='#Path'>Path</a>; for
-instance, if <a href='#Path'>Path</a> only contains <a href='undocumented#Line'>Lines</a>, only the <a href='#SkPath_kLine_SegmentMask'>kLine SegmentMask</a> bit is set.
+<a href='#SkPath_SegmentMask'>SegmentMask</a> constants correspond to each drawing <a href='#SkPath_Verb'>Verb</a> type in <a href='#Path'>Path</a>
 
 ### Constants
 
@@ -5498,36 +3966,31 @@ instance, if <a href='#Path'>Path</a> only contains <a href='undocumented#Line'>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kLine_SegmentMask'><code>SkPath::kLine_SegmentMask</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Set if <a href='#Verb_Array'>Verb Array</a> contains <a href='#SkPath_kLine_Verb'>kLine Verb</a>.
-</td>
+Set if <a href='#Verb_Array'>Verb Array</a> contains <a href='#SkPath_kLine_Verb'>kLine Verb</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kQuad_SegmentMask'><code>SkPath::kQuad_SegmentMask</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Set if <a href='#Verb_Array'>Verb Array</a> contains <a href='#SkPath_kQuad_Verb'>kQuad Verb</a>. Note that <a href='#SkPath_conicTo'>conicTo</a> may add a <a href='#Quad'>Quad</a>.
-</td>
+Set if <a href='#Verb_Array'>Verb Array</a> contains <a href='#SkPath_kQuad_Verb'>kQuad Verb</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kConic_SegmentMask'><code>SkPath::kConic_SegmentMask</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Set if <a href='#Verb_Array'>Verb Array</a> contains <a href='#SkPath_kConic_Verb'>kConic Verb</a>.
-</td>
+Set if <a href='#Verb_Array'>Verb Array</a> contains <a href='#SkPath_kConic_Verb'>kConic Verb</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPath_kCubic_SegmentMask'><code>SkPath::kCubic_SegmentMask</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>8</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Set if <a href='#Verb_Array'>Verb Array</a> contains <a href='#SkPath_kCubic_Verb'>kCubic Verb</a>.
-</td>
+Set if <a href='#Verb_Array'>Verb Array</a> contains <a href='#SkPath_kCubic_Verb'>kCubic Verb</a></td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="a61e5758574e28190ec4ed8c4ae7e7fa"><div>When <a href='#SkPath_conicTo'>conicTo</a> has a weight of one, <a href='#Quad'>Quad</a> is added to <a href='#Path'>Path</a>.
-</div>
+<div><fiddle-embed name="a61e5758574e28190ec4ed8c4ae7e7fa"><div>When <a href='#SkPath_conicTo'>conicTo</a> has a weight of one</div>
 
 #### Example Output
 
@@ -5546,14 +4009,10 @@ Path kQuad_SegmentMask is set
 ## getSegmentMasks
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint32_t <a href='#SkPath_getSegmentMasks'>getSegmentMasks</a>() const
+uint32_t <a href='#SkPath_getSegmentMasks'>getSegmentMasks</a>(
 </pre>
 
-Returns a mask, where each set bit corresponds to a <a href='#SkPath_SegmentMask'>SegmentMask</a> constant
-if <a href='#Path'>Path</a> contains one or more <a href='#Verb'>Verbs</a> of that type.
-Returns zero if <a href='#Path'>Path</a> contains no <a href='undocumented#Line'>Lines</a>, or <a href='undocumented#Curve'>Curves</a>: <a href='#Quad'>Quads</a>, <a href='#Conic'>Conics</a>, or <a href='#Cubic'>Cubics</a>.
-
-<a href='#SkPath_getSegmentMasks'>getSegmentMasks</a> returns a cached result; it is very fast.
+Returns a mask
 
 ### Return Value
 
@@ -5581,26 +4040,25 @@ mask quad set
 ## contains
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_contains'>contains</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const
+bool <a href='#SkPath_contains'>contains</a>(<a href='undocumented#SkScalar'>SkScalar</a> x
 </pre>
 
-Returns true if the point (<a href='#SkPath_contains_x'>x</a>, <a href='#SkPath_contains_y'>y</a>) is contained by <a href='#Path'>Path</a>, taking into
-account <a href='#SkPath_FillType'>FillType</a>.
+Returns true if the point
 
-| <a href='#SkPath_FillType'>FillType</a> | <a href='#SkPath_contains'>contains</a> returns true if <a href='SkPoint_Reference#Point'>Point</a> is enclosed by |
+| <a href='#SkPath_FillType'>FillType</a> | <a href='#SkPath_contains'>contains</a>( |
 | --- | ---  |
-| <a href='#SkPath_kWinding_FillType'>kWinding FillType</a> | a non-zero sum of <a href='#Contour'>Contour</a> <a href='#Direction'>Directions</a>. |
-| <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a> | an odd number of <a href='#Contour'>Contours</a>. |
-| <a href='#SkPath_kInverseWinding_FillType'>kInverseWinding FillType</a> | a zero sum of <a href='#Contour'>Contour</a> <a href='#Direction'>Directions</a>. |
-| <a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd FillType</a> | and even number of <a href='#Contour'>Contours</a>. |
+| <a href='#SkPath_kWinding_FillType'>kWinding FillType</a> | a non |
+| <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd FillType</a> | an odd number of <a href='SkPath_Overview#Contour'>Contours</a> |
+| <a href='#SkPath_kInverseWinding_FillType'>kInverseWinding FillType</a> | a zero sum of <a href='SkPath_Overview#Contour'>Contour</a> <a href='#Direction'>Directions</a> |
+| <a href='#SkPath_kInverseEvenOdd_FillType'>kInverseEvenOdd FillType</a> | and even number of <a href='SkPath_Overview#Contour'>Contours</a> |
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_contains_x'><code><strong>x</strong></code></a></td>
-    <td><a href='#SkPath_contains_x'>x</a>-axis value of containment test</td>
+    <td><a href='#SkPath_contains_x'>x</a></td>
   </tr>
   <tr>    <td><a name='SkPath_contains_y'><code><strong>y</strong></code></a></td>
-    <td><a href='#SkPath_contains_y'>y</a>-axis value of containment test</td>
+    <td><a href='#SkPath_contains_y'>y</a></td>
   </tr>
 </table>
 
@@ -5622,18 +4080,15 @@ true if <a href='SkPoint_Reference#Point'>Point</a> is in <a href='#Path'>Path</
 ## dump
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_dump'>dump</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* stream, bool forceClose, bool dumpAsHex) const
+void <a href='#SkPath_dump'>dump</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>
 </pre>
 
-Writes text representation of <a href='#Path'>Path</a> to <a href='#SkPath_dump_stream'>stream</a>. If <a href='#SkPath_dump_stream'>stream</a> is nullptr, writes to
-standard output. Set <a href='#SkPath_dump_forceClose'>forceClose</a> to true to get edges used to fill <a href='#Path'>Path</a>.
-Set <a href='#SkPath_dump_dumpAsHex'>dumpAsHex</a> true to generate exact binary representations
-of floating point numbers used in <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weights</a>.
+Writes text representation of <a href='#Path'>Path</a> to <a href='#SkPath_dump_stream'>stream</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_dump_stream'><code><strong>stream</strong></code></a></td>
-    <td>writable <a href='SkWStream_Reference#WStream'>WStream</a> receiving <a href='#Path'>Path</a> text representation; may be nullptr</td>
+    <td>writable <a href='SkWStream_Reference#WStream'>WStream</a> receiving <a href='#Path'>Path</a> text representation</td>
   </tr>
   <tr>    <td><a name='SkPath_dump_forceClose'><code><strong>forceClose</strong></code></a></td>
     <td>true if missing <a href='#SkPath_kClose_Verb'>kClose Verb</a> is output</td>
@@ -5672,20 +4127,17 @@ path.close();
 
 ### See Also
 
-<a href='#SkPath_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump()</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkRRect_Reference#SkRRect_dump'>SkRRect::dump()</a><sup><a href='SkRRect_Reference#SkRRect_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump()</a>
+<a href='#SkPath_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup>(
 
 ---
 
 <a name='SkPath_dump_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_dump'>dump</a>() const
+void <a href='#SkPath_dump'>dump</a>(
 </pre>
 
-Writes text representation of <a href='#Path'>Path</a> to standard output. The representation may be
-directly compiled as C++ code. Floating point values are written
-with limited precision; it may not be possible to reconstruct original <a href='#Path'>Path</a>
-from output.
+Writes text representation of <a href='#Path'>Path</a> to standard output
 
 ### Example
 
@@ -5704,7 +4156,7 @@ path is not equal to copy
 
 ### See Also
 
-<a href='#SkPath_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump()</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkRRect_Reference#SkRRect_dump'>SkRRect::dump()</a><sup><a href='SkRRect_Reference#SkRRect_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump()</a> <a href='#SkPath_writeToMemory'>writeToMemory</a>
+<a href='#SkPath_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup>(
 
 ---
 
@@ -5712,15 +4164,10 @@ path is not equal to copy
 ## dumpHex
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_dumpHex'>dumpHex</a>() const
+void <a href='#SkPath_dumpHex'>dumpHex</a>(
 </pre>
 
-Writes text representation of <a href='#Path'>Path</a> to standard output. The representation may be
-directly compiled as C++ code. Floating point values are written
-in hexadecimal to preserve their exact bit pattern. The output reconstructs the
-original <a href='#Path'>Path</a>.
-
-Use instead of <a href='#SkPath_dump_2'>dump</a> when submitting <a href='https://bug.skia.org'>bug reports against Skia</a></a> .
+Writes text representation of <a href='#Path'>Path</a> to standard output <a href='https://bug.skia.org'>bug reports against Skia</a></a>
 
 ### Example
 
@@ -5747,28 +4194,21 @@ path is equal to copy
 ## writeToMemory
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-size_t <a href='#SkPath_writeToMemory'>writeToMemory</a>(void* buffer) const
+size_t <a href='#SkPath_writeToMemory'>writeToMemory</a>(void
 </pre>
 
-Writes <a href='#Path'>Path</a> to <a href='#SkPath_writeToMemory_buffer'>buffer</a>, returning the number of bytes written.
-Pass nullptr to obtain the storage size.
-
-Writes <a href='#Fill_Type'>Fill Type</a>, <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, <a href='#Conic_Weight'>Conic Weight</a>, and
-additionally writes computed information like <a href='#SkPath_Convexity'>Convexity</a> and bounds.
-
-Use only be used in concert with <a href='#SkPath_readFromMemory'>readFromMemory</a>;
-the format used for <a href='#Path'>Path</a> in memory is not guaranteed.
+Writes <a href='#Path'>Path</a> to <a href='#SkPath_writeToMemory_buffer'>buffer</a>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_writeToMemory_buffer'><code><strong>buffer</strong></code></a></td>
-    <td>storage for <a href='#Path'>Path</a>; may be nullptr</td>
+    <td>storage for <a href='#Path'>Path</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-size of storage required for <a href='#Path'>Path</a>; always a multiple of 4
+size of storage required for <a href='#Path'>Path</a>
 
 ### Example
 
@@ -5792,16 +4232,10 @@ path is equal to copy
 ## serialize
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPath_serialize'>serialize</a>() const
+<a href='undocumented#sk_sp'>sk sp</a>
 </pre>
 
-Writes <a href='#Path'>Path</a> to buffer, returning the buffer written to, wrapped in <a href='undocumented#Data'>Data</a>.
-
-<a href='#SkPath_serialize'>serialize</a> writes <a href='#Fill_Type'>Fill Type</a>, <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, <a href='#Conic_Weight'>Conic Weight</a>, and
-additionally writes computed information like <a href='#SkPath_Convexity'>Convexity</a> and bounds.
-
-<a href='#SkPath_serialize'>serialize</a> should only be used in concert with <a href='#SkPath_readFromMemory'>readFromMemory</a>.
-The format used for <a href='#Path'>Path</a> in memory is not guaranteed.
+Writes <a href='#Path'>Path</a> to buffer
 
 ### Return Value
 
@@ -5829,17 +4263,10 @@ path is equal to copy
 ## readFromMemory
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-size_t <a href='#SkPath_readFromMemory'>readFromMemory</a>(const void* buffer, size_t length)
+size_t <a href='#SkPath_readFromMemory'>readFromMemory</a>(const void
 </pre>
 
-Initializes <a href='#Path'>Path</a> from <a href='#SkPath_readFromMemory_buffer'>buffer</a> of size <a href='#SkPath_readFromMemory_length'>length</a>. Returns zero if the <a href='#SkPath_readFromMemory_buffer'>buffer</a> is
-data is inconsistent, or the <a href='#SkPath_readFromMemory_length'>length</a> is too small.
-
-Reads <a href='#Fill_Type'>Fill Type</a>, <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, <a href='#Conic_Weight'>Conic Weight</a>, and
-additionally reads computed information like <a href='#SkPath_Convexity'>Convexity</a> and bounds.
-
-Used only in concert with <a href='#SkPath_writeToMemory'>writeToMemory</a>;
-the format used for <a href='#Path'>Path</a> in memory is not guaranteed.
+Initializes <a href='#Path'>Path</a> from <a href='#SkPath_readFromMemory_buffer'>buffer</a> of size <a href='#SkPath_readFromMemory_length'>length</a>
 
 ### Parameters
 
@@ -5847,13 +4274,13 @@ the format used for <a href='#Path'>Path</a> in memory is not guaranteed.
     <td>storage for <a href='#Path'>Path</a></td>
   </tr>
   <tr>    <td><a name='SkPath_readFromMemory_length'><code><strong>length</strong></code></a></td>
-    <td><a href='#SkPath_readFromMemory_buffer'>buffer</a> size in bytes; must be multiple of 4</td>
+    <td><a href='#SkPath_readFromMemory_buffer'>buffer</a> size in bytes</td>
   </tr>
 </table>
 
 ### Return Value
 
-number of bytes read, or zero on failure
+number of bytes read
 
 ### Example
 
@@ -5876,31 +4303,20 @@ length = 40; returned by readFromMemory = 36
 
 ## <a name='Generation_ID'>Generation ID</a>
 
-<a href='#Generation_ID'>Generation ID</a> provides a quick way to check if <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, or
-<a href='#Conic_Weight'>Conic Weight</a> has changed. <a href='#Generation_ID'>Generation ID</a> is not a hash; identical <a href='#Path'>Paths</a> will
-not necessarily have matching <a href='#Generation_ID'>Generation IDs</a>.
-
-Empty <a href='#Path'>Paths</a> have a <a href='#Generation_ID'>Generation ID</a> of one.
+<a href='#Generation_ID'>Generation ID</a> provides a quick way to check if <a href='#Verb_Array'>Verb Array</a>
 
 <a name='SkPath_getGenerationID'></a>
 ## getGenerationID
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint32_t <a href='#SkPath_getGenerationID'>getGenerationID</a>() const
+uint32_t <a href='#SkPath_getGenerationID'>getGenerationID</a>(
 </pre>
 
-Returns a non-zero, globally unique value. A different value is returned
-if <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, or <a href='#Conic_Weight'>Conic Weight</a> changes.
-
-Setting <a href='#Fill_Type'>Fill Type</a> does not change <a href='#Generation_ID'>Generation ID</a>.
-
-Each time the path is modified, a different <a href='#Generation_ID'>Generation ID</a> will be returned.
-
-<a href='#Fill_Type'>Fill Type</a> does affect <a href='#Generation_ID'>Generation ID</a> on Android framework.
+Returns a non<a href='#Fill_Type'>Fill Type</a> does affect <a href='#Generation_ID'>Generation ID</a> on Android framework
 
 ### Return Value
 
-non-zero, globally unique value
+non
 
 ### Example
 
@@ -5927,12 +4343,10 @@ empty genID = 1
 ## isValid
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isValid'>isValid</a>() const
+bool <a href='#SkPath_isValid'>isValid</a>(
 </pre>
 
-Returns if <a href='#Path'>Path</a> data is consistent. Corrupt <a href='#Path'>Path</a> data is detected if
-internal values are out of range or internal storage does not match
-array dimensions.
+Returns if <a href='#Path'>Path</a> data is consistent
 
 ### Return Value
 
@@ -5944,83 +4358,24 @@ true if <a href='#Path'>Path</a> data is consistent
 ## pathRefIsValid
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_pathRefIsValid'>pathRefIsValid</a>() const
+bool <a href='#SkPath_pathRefIsValid'>pathRefIsValid</a>(
 </pre>
 
 To be deprecated soon.
 
 ---
 
-# <a name='SkPath_Iter'>Class SkPath::Iter</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkPath::Iter can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Path'>Path</a> iterator</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkPath::Iter member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_Iter'>Iter()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Path'>Path</a> iterator</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_conicWeight'>conicWeight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Conic_Weight'>Conic Weight</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_isCloseLine'>isCloseLine</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='undocumented#Line'>Line</a> was generated by <a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_isClosedContour'>isClosedContour</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Contour'>Contour</a> has <a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_next'>next</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns next <a href='#SkPath_Verb'>Verb</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_setPath'>setPath</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>resets <a href='#SkPath_Iter_Iter'>Iter</a> to <a href='#Path'>Path</a></td>
-  </tr>
-</table>
+<a name='SkPath_Iter'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href='#SkPath_Iter_Iter'>Iter</a> {
-public:
-    <a href='#SkPath_Iter_Iter'>Iter()</a>;
-    <a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>;
-    void <a href='#SkPath_Iter_setPath'>setPath(const SkPath& path, bool forceClose)</a>;
-    <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)</a>;
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a> const;
-    bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a> const;
-    bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a> const;
-};
 </pre>
 
-Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
-Provides options to treat open <a href='#Contour'>Contours</a> as closed, and to ignore
-degenerate data.
+Iterates through <a href='#Verb_Array'>Verb Array</a>
 
 ### Example
 
 <div><fiddle-embed name="2f53df9201769ab7e7c0e164a1334309"><div>Ignoring the actual <a href='#Verb'>Verbs</a> and replacing them with <a href='#Quad'>Quads</a> rounds the
-path of the glyph.
-</div></fiddle-embed></div>
+path of the glyph</div></fiddle-embed></div>
 
 ### See Also
 
@@ -6030,11 +4385,10 @@ path of the glyph.
 ## Iter
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Iter_Iter'>Iter</a>()
+<a href='#SkPath_Iter_Iter'>Iter</a>(
 </pre>
 
-Initializes <a href='#SkPath_Iter_Iter'>Iter</a> with an empty <a href='#Path'>Path</a>. <a href='#SkPath_Iter_next'>next</a> on <a href='#SkPath_Iter_Iter'>Iter</a> returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
-Call <a href='#SkPath_Iter_setPath'>setPath</a> to initialize <a href='#SkPath_Iter_Iter'>Iter</a> at a later time.
+Initializes <a href='#SkPath_Iter_Iter'>Iter</a> with an empty <a href='#Path'>Path</a>
 
 ### Return Value
 
@@ -6063,12 +4417,10 @@ iter is done
 ## Iter
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Iter_Iter'>Iter</a>(const <a href='#SkPath'>SkPath</a>& path, bool forceClose)
+<a href='#SkPath_Iter_Iter'>Iter</a>(const <a href='#SkPath'>SkPath</a>
 </pre>
 
-Sets <a href='#SkPath_Iter_Iter'>Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_Iter_const_SkPath_path'>path</a>.
-If <a href='#SkPath_Iter_const_SkPath_forceClose'>forceClose</a> is true, <a href='#SkPath_Iter_Iter'>Iter</a> will add <a href='#SkPath_kLine_Verb'>kLine Verb</a> and <a href='#SkPath_kClose_Verb'>kClose Verb</a> after each
-open <a href='#Contour'>Contour</a>. <a href='#SkPath_Iter_const_SkPath_path'>path</a> is not altered.
+Sets <a href='#SkPath_Iter_Iter'>Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>
 
 ### Parameters
 
@@ -6076,7 +4428,7 @@ open <a href='#Contour'>Contour</a>. <a href='#SkPath_Iter_const_SkPath_path'>pa
     <td><a href='#Path'>Path</a> to iterate</td>
   </tr>
   <tr>    <td><a name='SkPath_Iter_const_SkPath_forceClose'><code><strong>forceClose</strong></code></a></td>
-    <td>true if open <a href='#Contour'>Contours</a> generate <a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
+    <td>true if open <a href='SkPath_Overview#Contour'>Contours</a> generate <a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
   </tr>
 </table>
 
@@ -6115,12 +4467,10 @@ kDone_Verb
 ## setPath
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_Iter_setPath'>setPath</a>(const <a href='#SkPath'>SkPath</a>& path, bool forceClose)
+void <a href='#SkPath_Iter_setPath'>setPath</a>(const <a href='#SkPath'>SkPath</a>
 </pre>
 
-Sets <a href='#SkPath_Iter_Iter'>Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_Iter_setPath_path'>path</a>.
-If <a href='#SkPath_Iter_setPath_forceClose'>forceClose</a> is true, <a href='#SkPath_Iter_Iter'>Iter</a> will add <a href='#SkPath_kLine_Verb'>kLine Verb</a> and <a href='#SkPath_kClose_Verb'>kClose Verb</a> after each
-open <a href='#Contour'>Contour</a>. <a href='#SkPath_Iter_setPath_path'>path</a> is not altered.
+Sets <a href='#SkPath_Iter_Iter'>Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>
 
 ### Parameters
 
@@ -6128,7 +4478,7 @@ open <a href='#Contour'>Contour</a>. <a href='#SkPath_Iter_setPath_path'>path</a
     <td><a href='#Path'>Path</a> to iterate</td>
   </tr>
   <tr>    <td><a name='SkPath_Iter_setPath_forceClose'><code><strong>forceClose</strong></code></a></td>
-    <td>true if open <a href='#Contour'>Contours</a> generate <a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
+    <td>true if open <a href='SkPath_Overview#Contour'>Contours</a> generate <a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
   </tr>
 </table>
 
@@ -6163,19 +4513,10 @@ kDone_Verb
 ## next
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4], bool doConsumeDegenerates = true, bool exact = false)
+<a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts
 </pre>
 
-Returns next <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>, and advances <a href='#SkPath_Iter_Iter'>Iter</a>.
-When <a href='#Verb_Array'>Verb Array</a> is exhausted, returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
-
-Zero to four <a href='SkPoint_Reference#Point'>Points</a> are stored in <a href='#SkPath_Iter_next_pts'>pts</a>, depending on the returned <a href='#SkPath_Verb'>Verb</a>.
-
-If <a href='#SkPath_Iter_next_doConsumeDegenerates'>doConsumeDegenerates</a> is true, skip consecutive <a href='#SkPath_kMove_Verb'>kMove Verb</a> entries, returning
-only the last in the series; and skip very small <a href='undocumented#Line'>Lines</a>, <a href='#Quad'>Quads</a>, and <a href='#Conic'>Conics</a>; and
-skip <a href='#SkPath_kClose_Verb'>kClose Verb</a> following <a href='#SkPath_kMove_Verb'>kMove Verb</a>.
-if <a href='#SkPath_Iter_next_doConsumeDegenerates'>doConsumeDegenerates</a> is true and <a href='#SkPath_Iter_next_exact'>exact</a> is true, only skip <a href='undocumented#Line'>Lines</a>, <a href='#Quad'>Quads</a>, and
-<a href='#Conic'>Conics</a> with zero lengths.
+Returns next <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>
 
 ### Parameters
 
@@ -6183,7 +4524,7 @@ if <a href='#SkPath_Iter_next_doConsumeDegenerates'>doConsumeDegenerates</a> is 
     <td>storage for <a href='SkPoint_Reference#Point'>Point</a> data describing returned <a href='#SkPath_Verb'>Verb</a></td>
   </tr>
   <tr>    <td><a name='SkPath_Iter_next_doConsumeDegenerates'><code><strong>doConsumeDegenerates</strong></code></a></td>
-    <td>if true, skip degenerate <a href='#Verb'>Verbs</a></td>
+    <td>if true</td>
   </tr>
   <tr>    <td><a name='SkPath_Iter_next_exact'><code><strong>exact</strong></code></a></td>
     <td>skip zero length curves</td>
@@ -6196,14 +4537,7 @@ next <a href='#SkPath_Verb'>Verb</a> from <a href='#Verb_Array'>Verb Array</a>
 
 ### Example
 
-<div><fiddle-embed name="00ae8984856486bdb626d0ed6587855a"><div>skip degenerate skips the first in a <a href='#SkPath_kMove_Verb'>kMove Verb</a> pair, the <a href='#SkPath_kMove_Verb'>kMove Verb</a>
-followed by the <a href='#SkPath_kClose_Verb'>kClose Verb</a>, the zero length <a href='undocumented#Line'>Line</a> and the very small <a href='undocumented#Line'>Line</a>.
-
-skip degenerate if <a href='#SkPath_Iter_next_exact'>exact</a> skips the same as skip degenerate, but shows
-the very small <a href='undocumented#Line'>Line</a>.
-
-skip none shows all of the <a href='#Verb'>Verbs</a> and <a href='SkPoint_Reference#Point'>Points</a> in <a href='#Path'>Path</a>.
-</div>
+<div><fiddle-embed name="00ae8984856486bdb626d0ed6587855a"><div>skip degenerate skips the first in a <a href='#SkPath_kMove_Verb'>kMove Verb</a> pair</div>
 
 #### Example Output
 
@@ -6243,17 +4577,14 @@ kDone_Verb
 ## conicWeight
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a>(
 </pre>
 
-Returns <a href='#Conic_Weight'>Conic Weight</a> if <a href='#SkPath_Iter_next'>next</a> returned <a href='#SkPath_kConic_Verb'>kConic Verb</a>.
-
-If <a href='#SkPath_Iter_next'>next</a> has not been called, or <a href='#SkPath_Iter_next'>next</a> did not return <a href='#SkPath_kConic_Verb'>kConic Verb</a>,
-result is undefined.
+Returns <a href='#Conic_Weight'>Conic Weight</a> if <a href='#SkPath_Iter_next'>next</a>(
 
 ### Return Value
 
-<a href='#Conic_Weight'>Conic Weight</a> for <a href='#Conic'>Conic</a> <a href='SkPoint_Reference#Point'>Points</a> returned by <a href='#SkPath_Iter_next'>next</a>
+<a href='#Conic_Weight'>Conic Weight</a> for <a href='#Conic'>Conic</a> <a href='SkPoint_Reference#Point'>Points</a> returned by <a href='#SkPath_Iter_next'>next</a>(
 
 ### Example
 
@@ -6280,15 +4611,10 @@ conic weight: 0.5
 ## isCloseLine
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a>() const
+bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a>(
 </pre>
 
-Returns true if last <a href='#SkPath_kLine_Verb'>kLine Verb</a> returned by <a href='#SkPath_Iter_next'>next</a> was generated
-by <a href='#SkPath_kClose_Verb'>kClose Verb</a>. When true, the end point returned by <a href='#SkPath_Iter_next'>next</a> is
-also the start point of <a href='#Contour'>Contour</a>.
-
-If <a href='#SkPath_Iter_next'>next</a> has not been called, or <a href='#SkPath_Iter_next'>next</a> did not return <a href='#SkPath_kLine_Verb'>kLine Verb</a>,
-result is undefined.
+Returns true if last <a href='#SkPath_kLine_Verb'>kLine Verb</a> returned by <a href='#SkPath_Iter_next'>next</a>(
 
 ### Return Value
 
@@ -6314,7 +4640,7 @@ line generated by close
 
 ### See Also
 
-<a href='#SkPath_close'>close</a>
+<a href='#SkPath_close'>close</a>(
 
 ---
 
@@ -6322,16 +4648,14 @@ line generated by close
 ## isClosedContour
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a>() const
+bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a>(
 </pre>
 
-Returns true if subsequent calls to <a href='#SkPath_Iter_next'>next</a> return <a href='#SkPath_kClose_Verb'>kClose Verb</a> before returning
-<a href='#SkPath_kMove_Verb'>kMove Verb</a>. if true, <a href='#Contour'>Contour</a> <a href='#SkPath_Iter_Iter'>Iter</a> is processing may end with <a href='#SkPath_kClose_Verb'>kClose Verb</a>, or
-<a href='#SkPath_Iter_Iter'>Iter</a> may have been initialized with force close set to true.
+Returns true if subsequent calls to <a href='#SkPath_Iter_next'>next</a>(
 
 ### Return Value
 
-true if <a href='#Contour'>Contour</a> is closed
+true if <a href='SkPath_Overview#Contour'>Contour</a> is closed
 
 ### Example
 
@@ -6354,74 +4678,21 @@ with close(),    forceClose is true : isClosedContour returns true
 
 ---
 
-# <a name='SkPath_RawIter'>Class SkPath::RawIter</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkPath::RawIter can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_copy_const_SkPath'>RawIter(const SkPath& path)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs with <a href='#Path'>Path</a> to iterate over</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkPath::RawIter member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_RawIter'>RawIter()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs empty <a href='#Path'>Path</a> iterator</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_conicWeight'>conicWeight</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Conic_Weight'>Conic Weight</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_next'>next</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns next <a href='#SkPath_Verb'>Verb</a> and associated <a href='SkPoint_Reference#Point'>Points</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_peek'>peek</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns next <a href='#SkPath_Verb'>Verb</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_setPath'>setPath</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='#Path'>Path</a> to iterate over</td>
-  </tr>
-</table>
+<a name='SkPath_RawIter'></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    class <a href='#SkPath_RawIter_RawIter'>RawIter</a> {
-    public:
-        <a href='#SkPath_RawIter_RawIter'>RawIter()</a>;
-        <a href='#SkPath_RawIter_copy_const_SkPath'>RawIter(const SkPath& path)</a>;
-        void <a href='#SkPath_RawIter_setPath'>setPath(const SkPath& path)</a>;
-        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next(SkPoint pts[4])</a>;
-        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek</a> const;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a> const;
-    }
 </pre>
 
-Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
-<a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> are returned unaltered.
+Iterates through <a href='#Verb_Array'>Verb Array</a>
 
 <a name='SkPath_RawIter_RawIter'></a>
 ## RawIter
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_RawIter_RawIter'>RawIter</a>()
+<a href='#SkPath_RawIter_RawIter'>RawIter</a>(
 </pre>
 
-Initializes <a href='#SkPath_RawIter_RawIter'>RawIter</a> with an empty <a href='#Path'>Path</a>. <a href='#SkPath_RawIter_next'>next</a> on <a href='#SkPath_RawIter_RawIter'>RawIter</a> returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
-Call <a href='#SkPath_RawIter_setPath'>setPath</a> to initialize <a href='#SkPath_Iter'>SkPath::Iter</a> at a later time.
+Initializes <a href='#SkPath_RawIter_RawIter'>RawIter</a> with an empty <a href='#Path'>Path</a>
 
 ### Return Value
 
@@ -6433,10 +4704,10 @@ Call <a href='#SkPath_RawIter_setPath'>setPath</a> to initialize <a href='#SkPat
 ## RawIter
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_RawIter_RawIter'>RawIter</a>(const <a href='#SkPath'>SkPath</a>& path)
+<a href='#SkPath_RawIter_RawIter'>RawIter</a>(const <a href='#SkPath'>SkPath</a>
 </pre>
 
-Sets <a href='#SkPath_RawIter_RawIter'>RawIter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_RawIter_copy_const_SkPath_path'>path</a>.
+Sets <a href='#SkPath_RawIter_RawIter'>RawIter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>
 
 ### Parameters
 
@@ -6455,10 +4726,10 @@ Sets <a href='#SkPath_RawIter_RawIter'>RawIter</a> to return elements of <a href
 ## setPath
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_RawIter_setPath'>setPath</a>(const <a href='#SkPath'>SkPath</a>& path)
+void <a href='#SkPath_RawIter_setPath'>setPath</a>(const <a href='#SkPath'>SkPath</a>
 </pre>
 
-Sets <a href='#SkPath_Iter'>SkPath::Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_RawIter_setPath_path'>path</a>.
+Sets <a href='#SkPath_Iter'>SkPath::Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>
 
 ### Parameters
 
@@ -6473,12 +4744,10 @@ Sets <a href='#SkPath_Iter'>SkPath::Iter</a> to return elements of <a href='#Ver
 ## next
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4])
+<a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts
 </pre>
 
-Returns next <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>, and advances <a href='#SkPath_RawIter_RawIter'>RawIter</a>.
-When <a href='#Verb_Array'>Verb Array</a> is exhausted, returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
-Zero to four <a href='SkPoint_Reference#Point'>Points</a> are stored in <a href='#SkPath_RawIter_next_pts'>pts</a>, depending on the returned <a href='#SkPath_Verb'>Verb</a>.
+Returns next <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>
 
 ### Parameters
 
@@ -6512,7 +4781,7 @@ kDone_Verb
 
 ### See Also
 
-<a href='#SkPath_RawIter_peek'>peek</a>
+<a href='#SkPath_RawIter_peek'>peek</a>(
 
 ---
 
@@ -6520,10 +4789,10 @@ kDone_Verb
 ## peek
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek</a>() const
+<a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek</a>(
 </pre>
 
-Returns next <a href='#SkPath_Verb'>Verb</a>, but does not advance <a href='#SkPath_RawIter_RawIter'>RawIter</a>.
+Returns next <a href='#SkPath_Verb'>Verb</a>
 
 ### Return Value
 
@@ -6547,10 +4816,7 @@ peek Done == verb Done
 
 </fiddle-embed></div>
 
-StdOut is not really volatile, it just produces the wrong result.
-A simple fix changes the output of hairlines and needs to be
-investigated to see if the change is correct or not.
-see change 21340 (abandoned for now)
+StdOut is not really volatile
 
 ### See Also
 
@@ -6562,17 +4828,14 @@ see change 21340 (abandoned for now)
 ## conicWeight
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a>(
 </pre>
 
-Returns <a href='#Conic_Weight'>Conic Weight</a> if <a href='#SkPath_RawIter_next'>next</a> returned <a href='#SkPath_kConic_Verb'>kConic Verb</a>.
-
-If <a href='#SkPath_RawIter_next'>next</a> has not been called, or <a href='#SkPath_RawIter_next'>next</a> did not return <a href='#SkPath_kConic_Verb'>kConic Verb</a>,
-result is undefined.
+Returns <a href='#Conic_Weight'>Conic Weight</a> if <a href='#SkPath_RawIter_next'>next</a>(
 
 ### Return Value
 
-<a href='#Conic_Weight'>Conic Weight</a> for <a href='#Conic'>Conic</a> <a href='SkPoint_Reference#Point'>Points</a> returned by <a href='#SkPath_RawIter_next'>next</a>
+<a href='#Conic_Weight'>Conic Weight</a> for <a href='#Conic'>Conic</a> <a href='SkPoint_Reference#Point'>Points</a> returned by <a href='#SkPath_RawIter_next'>next</a>(
 
 ### Example
 

@@ -112,7 +112,7 @@ void BmhParser::spellStatus(const char* statusFile, SkCommandLineFlags::StringAr
     SpellCheck checker(*this);
     StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
     string file;
-    iter.next(&file);
+    iter.next(&file, nullptr);
     string match = iter.baseDir();
     checker.check(match.c_str());
     checker.report(report);
