@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d421f1d1_0b9f2090",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 22
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-10-08T17:15:30Z",
+      "side": 1,
+      "message": "I think this is formatted with the wrong/a different version of gofmt ?",
+      "range": {
+        "startLine": 315,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 56
+      },
+      "revId": "29aa290b0639693c4ef3ef70e9bd2a3877dfd3b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25c99446_bb7831bf",
+        "filename": "infra/bots/recipes/test_skqp_emulator.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-10-08T17:15:30Z",
+      "side": 1,
+      "message": "IMO, we should have this in a docker file and have the image in our repository.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 57
+      },
+      "revId": "29aa290b0639693c4ef3ef70e9bd2a3877dfd3b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "022da330_039d79dc",
+        "filename": "infra/skqp/docker/android-skqp/Dockerfile",
+        "patchSetId": 22
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-10-08T17:15:30Z",
+      "side": 1,
+      "message": "Would it simplify or create a smaller image if we split this into a docker container that emulates and docker container that builds ?",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 91
+      },
+      "revId": "29aa290b0639693c4ef3ef70e9bd2a3877dfd3b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
