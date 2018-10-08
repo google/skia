@@ -72,6 +72,7 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
     SkColorType colorType;
     switch (bufferDesc.format) {
     case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
+    case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
         colorType = kRGBA_8888_SkColorType;
         break;
     case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT:
@@ -80,7 +81,6 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
     case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
         colorType = kRGB_565_SkColorType;
         break;
-    case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
     case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
         colorType = kRGB_888x_SkColorType;
         break;
@@ -443,6 +443,7 @@ GrBackendFormat get_backend_format(GrBackend backend, uint32_t bufferFormat) {
         switch (bufferFormat) {
             //TODO: find out if we can detect, which graphic buffers support GR_GL_TEXTURE_2D
             case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
+            case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
                 return GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_EXTERNAL);
             case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT:
                 return GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_EXTERNAL);
@@ -450,7 +451,6 @@ GrBackendFormat get_backend_format(GrBackend backend, uint32_t bufferFormat) {
                 return GrBackendFormat::MakeGL(GR_GL_RGB565, GR_GL_TEXTURE_EXTERNAL);
             case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM:
                 return GrBackendFormat::MakeGL(GR_GL_RGB10_A2, GR_GL_TEXTURE_EXTERNAL);
-            case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
             case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
                 return GrBackendFormat::MakeGL(GR_GL_RGB8, GR_GL_TEXTURE_EXTERNAL);
             default:
