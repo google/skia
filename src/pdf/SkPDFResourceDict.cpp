@@ -71,16 +71,6 @@ sk_sp<SkPDFDict> SkPDFMakeResourceDict(std::vector<sk_sp<SkPDFObject>> graphicSt
                                        std::vector<sk_sp<SkPDFObject>> xObjectResources,
                                        std::vector<sk_sp<SkPDFFont>> fontResources) {
     auto dict = sk_make_sp<SkPDFDict>();
-    static const char kProcs[][7] = {
-        "PDF", "Text", "ImageB", "ImageC", "ImageI"};
-    auto procSets = sk_make_sp<SkPDFArray>();
-
-    procSets->reserve(SK_ARRAY_COUNT(kProcs));
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kProcs); i++) {
-        procSets->appendName(kProcs[i]);
-    }
-    dict->insertObject("ProcSets", std::move(procSets));
-
     add_subdict(std::move(graphicStateResources), SkPDFResourceType::kExtGState, dict.get());
     add_subdict(std::move(shaderResources),       SkPDFResourceType::kPattern,   dict.get());
     add_subdict(std::move(xObjectResources),      SkPDFResourceType::kXObject,   dict.get());

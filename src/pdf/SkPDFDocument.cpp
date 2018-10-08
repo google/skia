@@ -436,6 +436,18 @@ static sk_sp<SkPDFArray> make_srgb_output_intents() {
     return intentArray;
 }
 
+static sk_sp<SkPDFDict> make_top_resource_dict() {
+    sk_sp<SkPDFDict> dict = sk_make_sp<SkPDFDict>();
+    sk_sp<SkPDFArray> procSet = sk_make_sp<SkPDFArray>();
+    static const char* kProcs[] = {"PDF", "Text", "ImageB", "ImageC", "ImageI"};
+    procSet->reserve(SK_ARRAY_COUNT(kProcs));
+    for (const char* proc : kProcs) {
+        procSet->appendName(proc);
+    }
+    dict->insertObject("ProcSets", std::move(procSet));
+    return dict;
+}
+
 sk_sp<SkPDFDict> SkPDFDocument::getPage(int pageIndex) const {
     SkASSERT(pageIndex >= 0 && pageIndex < static_cast<int>(fPages.size()));
     return fPages[pageIndex];
@@ -486,9 +498,10 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 
     std::vector<sk_sp<SkPDFDict>> pagesCopy(fPages);
     SkASSERT(!pagesCopy.empty());
-    docCatalog->insertObjRef("Pages", generate_page_tree(&pagesCopy));
+    sk_sp<SkPDFDict> pageTree = generate_page_tree(&pagesCopy);
+    pageTree->insertObject("Resources", make_top_resource_dict());
+    docCatalog->insertObjRef("Pages", std::move(pageTree));
     SkASSERT(pagesCopy.empty());
-
     if (fDests->size() > 0) {
         docCatalog->insertObjRef("Dests", std::move(fDests));
     }
