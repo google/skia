@@ -283,7 +283,7 @@ each dimension fits in 29 bits;
 ## <a name='SkImage_ReleaseContext'>Typedef SkImage::ReleaseContext</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-typedef void* <a href='#SkImage_ReleaseContext'>ReleaseContext</a>;
+    typedef void* <a href='#SkImage_ReleaseContext'>ReleaseContext</a>;
 </pre>
 
 Caller data passed to <a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>; may be nullptr.
@@ -295,7 +295,7 @@ Caller data passed to <a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>
 ## <a name='SkImage_RasterReleaseProc'>Typedef SkImage::RasterReleaseProc</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-typedef void (*<a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>)(const void* pixels, <a href='#SkImage_ReleaseContext'>ReleaseContext</a>);
+    typedef void (*<a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>)(const void* pixels, <a href='#SkImage_ReleaseContext'>ReleaseContext</a>);
 </pre>
 
 Function called when <a href='#Image'>Image</a> no longer shares pixels. <a href='#SkImage_ReleaseContext'>ReleaseContext</a> is
@@ -492,7 +492,7 @@ created <a href='#Image'>Image</a>, or nullptr
 ## <a name='SkImage_TextureReleaseProc'>Typedef SkImage::TextureReleaseProc</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-typedef void (*<a href='#SkImage_TextureReleaseProc'>TextureReleaseProc</a>)(<a href='#SkImage_ReleaseContext'>ReleaseContext</a> releaseContext);
+    typedef void (*<a href='#SkImage_TextureReleaseProc'>TextureReleaseProc</a>)(<a href='#SkImage_ReleaseContext'>ReleaseContext</a> releaseContext);
 </pre>
 
 User function called when supplied texture may be deleted.
@@ -2303,7 +2303,7 @@ By translating canvas by returned <a href='#SkImage_makeWithFilter_offset'>offse
 <a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-typedef std::function<void(GrBackendTexture)> <a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a>;
+    typedef std::function<void(GrBackendTexture)> <a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a>;
 </pre>
 
 Defines a callback function, taking one parameter of type <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> with
