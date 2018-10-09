@@ -93,7 +93,7 @@ bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
     // Since the scaler context is being called, we don't have the needed data. Try to find a
     // fallback before failing.
     auto desc = SkScalerContext::DescriptorGivenRecAndEffects(this->getRec(), this->getEffects());
-    bool foundPath = fStrikeCache->desperationSearchForPath(*desc, glyphID, path);
+    bool foundPath = fStrikeCache && fStrikeCache->desperationSearchForPath(*desc, glyphID, path);
     fDiscardableManager->notifyCacheMiss(foundPath
                                                  ? SkStrikeClient::CacheMissType::kGlyphPathFallback
                                                  : SkStrikeClient::CacheMissType::kGlyphPath);
