@@ -15,6 +15,8 @@
 #include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"
 
+#include <vector>
+
 static uint32_t hash(const SkShader::GradientInfo& v) {
     uint32_t buffer[] = {
         (uint32_t)v.fColorCount,
@@ -761,18 +763,18 @@ static sk_sp<SkPDFObject> find_pdf_shader(SkPDFDocument* doc,
 
 static sk_sp<SkPDFDict> get_gradient_resource_dict(sk_sp<SkPDFObject> functionShader,
                                                    sk_sp<SkPDFObject> gState) {
-    std::vector<sk_sp<SkPDFObject>> patternShaders;
+    sk::Vector<sk_sp<SkPDFObject>> patternShaders;
     if (functionShader) {
         patternShaders.push_back(std::move(functionShader));
     }
-    std::vector<sk_sp<SkPDFObject>> graphicStates;
+    sk::Vector<sk_sp<SkPDFObject>> graphicStates;
     if (gState) {
         graphicStates.push_back(std::move(gState));
     }
     return SkPDFMakeResourceDict(std::move(graphicStates),
                                  std::move(patternShaders),
-                                 std::vector<sk_sp<SkPDFObject>>(),
-                                 std::vector<sk_sp<SkPDFFont>>());
+                                 sk::Vector<sk_sp<SkPDFObject>>(),
+                                 sk::Vector<sk_sp<SkPDFFont>>());
 }
 
 // Creates a content stream which fills the pattern P0 across bounds.

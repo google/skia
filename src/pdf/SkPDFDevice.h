@@ -13,15 +13,14 @@
 #include "SkClipStack.h"
 #include "SkClipStackDevice.h"
 #include "SkData.h"
+#include "SkKeyedImage.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkSinglyLinkedList.h"
 #include "SkStream.h"
 #include "SkTextBlobPriv.h"
-#include "SkKeyedImage.h"
-
-#include <vector>
+#include "SkVector.h"
 
 class SkGlyphRunList;
 class SkKeyedImage;
@@ -162,14 +161,14 @@ private:
 
     SkMatrix fInitialTransform;
 
-    std::vector<RectWithData> fLinkToURLs;
-    std::vector<RectWithData> fLinkToDestinations;
-    std::vector<NamedDestination> fNamedDestinations;
+    sk::Vector<RectWithData> fLinkToURLs;
+    sk::Vector<RectWithData> fLinkToDestinations;
+    sk::Vector<NamedDestination> fNamedDestinations;
 
-    std::vector<sk_sp<SkPDFObject>> fGraphicStateResources;
-    std::vector<sk_sp<SkPDFObject>> fXObjectResources;
-    std::vector<sk_sp<SkPDFObject>> fShaderResources;
-    std::vector<sk_sp<SkPDFFont>> fFontResources;
+    sk::Vector<sk_sp<SkPDFObject>> fGraphicStateResources;
+    sk::Vector<sk_sp<SkPDFObject>> fXObjectResources;
+    sk::Vector<sk_sp<SkPDFObject>> fShaderResources;
+    sk::Vector<sk_sp<SkPDFFont>> fFontResources;
     int fNodeId;
 
     SkSinglyLinkedList<SkDynamicMemoryWStream> fContentEntries;

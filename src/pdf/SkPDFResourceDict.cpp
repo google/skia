@@ -43,7 +43,7 @@ void SkPDFWriteResourceName(SkWStream* dst, SkPDFResourceType type, int key) {
 }
 
 template <typename T>
-static void add_subdict(std::vector<sk_sp<T>> resourceList,
+static void add_subdict(sk::Vector<sk_sp<T>> resourceList,
                         SkPDFResourceType type,
                         SkPDFDict* dst) {
     if (0 == resourceList.size()) {
@@ -66,10 +66,10 @@ static void add_subdict(std::vector<sk_sp<T>> resourceList,
     dst->insertObject(kResourceTypeNames[(unsigned)type], std::move(resources));
 }
 
-sk_sp<SkPDFDict> SkPDFMakeResourceDict(std::vector<sk_sp<SkPDFObject>> graphicStateResources,
-                                       std::vector<sk_sp<SkPDFObject>> shaderResources,
-                                       std::vector<sk_sp<SkPDFObject>> xObjectResources,
-                                       std::vector<sk_sp<SkPDFFont>> fontResources) {
+sk_sp<SkPDFDict> SkPDFMakeResourceDict(sk::Vector<sk_sp<SkPDFObject>> graphicStateResources,
+                                       sk::Vector<sk_sp<SkPDFObject>> shaderResources,
+                                       sk::Vector<sk_sp<SkPDFObject>> xObjectResources,
+                                       sk::Vector<sk_sp<SkPDFFont>> fontResources) {
     auto dict = sk_make_sp<SkPDFDict>();
     add_subdict(std::move(graphicStateResources), SkPDFResourceType::kExtGState, dict.get());
     add_subdict(std::move(shaderResources),       SkPDFResourceType::kPattern,   dict.get());

@@ -47,9 +47,8 @@
 #include "SkTextFormatParams.h"
 #include "SkTo.h"
 #include "SkUTF.h"
+#include "SkVector.h"
 #include "SkXfermodeInterpretation.h"
-
-#include <vector>
 
 #ifndef SK_PDF_MASK_QUALITY
     // If MASK_QUALITY is in [0,100], will be used for JpegEncoder.
@@ -495,13 +494,13 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc, const SkMatrix& t
 SkPDFDevice::~SkPDFDevice() = default;
 
 void SkPDFDevice::reset() {
-    fLinkToURLs = std::vector<RectWithData>();
-    fLinkToDestinations = std::vector<RectWithData>();
-    fNamedDestinations = std::vector<NamedDestination>();
-    fGraphicStateResources = std::vector<sk_sp<SkPDFObject>>();
-    fXObjectResources = std::vector<sk_sp<SkPDFObject>>();
-    fShaderResources = std::vector<sk_sp<SkPDFObject>>();
-    fFontResources = std::vector<sk_sp<SkPDFFont>>();
+    fLinkToURLs = sk::Vector<RectWithData>();
+    fLinkToDestinations = sk::Vector<RectWithData>();
+    fNamedDestinations = sk::Vector<NamedDestination>();
+    fGraphicStateResources = sk::Vector<sk_sp<SkPDFObject>>();
+    fXObjectResources = sk::Vector<sk_sp<SkPDFObject>>();
+    fShaderResources = sk::Vector<sk_sp<SkPDFObject>>();
+    fFontResources = sk::Vector<sk_sp<SkPDFFont>>();
     fContentEntries.reset();
     fActiveStackState = GraphicStackState();
 }
@@ -785,7 +784,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
 template <typename T,
           typename U,
           typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
-static int find_or_add(std::vector<sk_sp<T>>* vec, sk_sp<U> object) {
+static int find_or_add(sk::Vector<sk_sp<T>>* vec, sk_sp<U> object) {
     SkASSERT(vec);
     SkASSERT(object);
     for (size_t i = 0; i < vec->size(); ++i) {
@@ -1003,7 +1002,7 @@ private:
 };
 }  // namespace
 
-static SkUnichar map_glyph(const std::vector<SkUnichar>& glyphToUnicode, SkGlyphID glyph) {
+static SkUnichar map_glyph(const sk::Vector<SkUnichar>& glyphToUnicode, SkGlyphID glyph) {
     return glyph < glyphToUnicode.size() ? glyphToUnicode[SkToInt(glyph)] : -1;
 }
 
@@ -1105,7 +1104,7 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     if (!metrics) {
         return;
     }
-    const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(
+    const sk::Vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(
         typeface, fDocument->canon());
 
     SkClusterator clusterator(glyphRun);

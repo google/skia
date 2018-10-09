@@ -63,7 +63,7 @@ void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream,
 
 // Serialize all objects in the fObjNumMap that have not yet been serialized;
 void SkPDFObjectSerializer::serializeObjects(SkWStream* wStream) {
-    const std::vector<sk_sp<SkPDFObject>>& objects = fObjNumMap.objects();
+    const sk::Vector<sk_sp<SkPDFObject>>& objects = fObjNumMap.objects();
     while (fNextToBeSerialized < objects.size()) {
         SkPDFObject* object = objects[fNextToBeSerialized].get();
         // Maximum number of indirect objects is 2^23-1.
@@ -121,7 +121,7 @@ int32_t SkPDFObjectSerializer::offset(SkWStream* wStream) {
 
 
 // return root node.
-static sk_sp<SkPDFDict> generate_page_tree(std::vector<sk_sp<SkPDFDict>>* pages) {
+static sk_sp<SkPDFDict> generate_page_tree(sk::Vector<sk_sp<SkPDFDict>>* pages) {
     // PDF wants a tree describing all the pages in the document.  We arbitrary
     // choose 8 (kNodeSize) as the number of allowed children.  The internal
     // nodes have type "Pages" with an array of children, a parent pointer, and
@@ -133,13 +133,13 @@ static sk_sp<SkPDFDict> generate_page_tree(std::vector<sk_sp<SkPDFDict>>* pages)
 
     // curNodes takes a reference to its items, which it passes to pageTree.
     size_t totalPageCount = pages->size();
-    std::vector<sk_sp<SkPDFDict>> curNodes;
+    sk::Vector<sk_sp<SkPDFDict>> curNodes;
     curNodes.swap(*pages);
 
     // nextRoundNodes passes its references to nodes on to curNodes.
     int treeCapacity = kNodeSize;
     do {
-        std::vector<sk_sp<SkPDFDict>> nextRoundNodes;
+        sk::Vector<sk_sp<SkPDFDict>> nextRoundNodes;
         for (size_t i = 0; i < curNodes.size(); ) {
             if (i > 0 && i + 1 == curNodes.size()) {
                 SkASSERT(curNodes[i]);
@@ -176,7 +176,7 @@ static sk_sp<SkPDFDict> generate_page_tree(std::vector<sk_sp<SkPDFDict>>* pages)
         SkDEBUGCODE( for (const auto& n : curNodes) { SkASSERT(!n); } );
 
         curNodes.swap(nextRoundNodes);
-        nextRoundNodes = std::vector<sk_sp<SkPDFDict>>();
+        nextRoundNodes = sk::Vector<sk_sp<SkPDFDict>>();
         treeCapacity *= kNodeSize;
     } while (curNodes.size() > 1);
     return std::move(curNodes[0]);
@@ -289,7 +289,7 @@ void SkPDFDocument::reset() {
     fObjectSerializer = SkPDFObjectSerializer();
     fCanon = SkPDFCanon();
     reset_object(&fCanvas);
-    fPages = std::vector<sk_sp<SkPDFDict>>();
+    fPages = sk::Vector<sk_sp<SkPDFDict>>();
     fFonts.reset();
     fDests = nullptr;
     fPageDevice = nullptr;
@@ -496,7 +496,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         docCatalog->insertObject("OutputIntents", make_srgb_output_intents());
     }
 
-    std::vector<sk_sp<SkPDFDict>> pagesCopy(fPages);
+    sk::Vector<sk_sp<SkPDFDict>> pagesCopy(fPages);
     SkASSERT(!pagesCopy.empty());
     sk_sp<SkPDFDict> pageTree = generate_page_tree(&pagesCopy);
     pageTree->insertObject("Resources", make_top_resource_dict());

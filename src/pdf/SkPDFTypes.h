@@ -17,7 +17,7 @@
 #include <new>
 #include <type_traits>
 #include <utility>
-#include <vector>
+#include "SkVector.h"
 
 class SkData;
 class SkPDFCanon;
@@ -243,7 +243,7 @@ public:
     void appendObjRef(sk_sp<SkPDFObject>);
 
 private:
-    std::vector<SkPDFUnion> fValues;
+    sk::Vector<SkPDFUnion> fValues;
     void append(SkPDFUnion&& value);
     SkDEBUGCODE(bool fDumped;)
 };
@@ -324,7 +324,7 @@ private:
         SkPDFUnion fKey;
         SkPDFUnion fValue;
     };
-    std::vector<Record> fRecords;
+    sk::Vector<Record> fRecords;
     SkDEBUGCODE(bool fDumped;)
 };
 
@@ -411,10 +411,10 @@ public:
      */
     int32_t getObjectNumber(SkPDFObject* obj) const;
 
-    const std::vector<sk_sp<SkPDFObject>>& objects() const { return fObjects; }
+    const sk::Vector<sk_sp<SkPDFObject>>& objects() const { return fObjects; }
 
 private:
-    std::vector<sk_sp<SkPDFObject>> fObjects;
+    sk::Vector<sk_sp<SkPDFObject>> fObjects;
     SkTHashMap<SkPDFObject*, int32_t> fObjectNumbers;
 };
 

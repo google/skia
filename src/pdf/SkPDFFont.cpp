@@ -28,6 +28,8 @@
 #include "SkTypes.h"
 #include "SkUTF.h"
 
+#include <vector>
+
 #ifdef SK_PDF_USE_SFNTLY
     #include "sample/chromium/font_subsetter.h"
 #endif
@@ -182,15 +184,15 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
     return canon->fTypefaceMetrics.set(id, std::move(metrics))->get();
 }
 
-const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface* typeface,
+const sk::Vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface* typeface,
                                                        SkPDFCanon* canon) {
     SkASSERT(typeface);
     SkASSERT(canon);
     SkFontID id = typeface->uniqueID();
-    if (std::vector<SkUnichar>* ptr = canon->fToUnicodeMap.find(id)) {
+    if (sk::Vector<SkUnichar>* ptr = canon->fToUnicodeMap.find(id)) {
         return *ptr;
     }
-    std::vector<SkUnichar> buffer(typeface->countGlyphs());
+    sk::Vector<SkUnichar> buffer(typeface->countGlyphs());
     typeface->getGlyphToUnicodeMap(buffer.data());
     return *canon->fToUnicodeMap.set(id, std::move(buffer));
 }
@@ -355,11 +357,11 @@ static sk_sp<SkPDFStream> get_subset_font_stream(
         int ttcIndex) {
     // Generate glyph id array in format needed by sfntly.
     // TODO(halcanary): sfntly should take a more compact format.
-    std::vector<unsigned> subset;
+    sk::Vector<unsigned> subset;
     if (!glyphUsage.has(0)) {
         subset.push_back(0);  // Always include glyph 0.
     }
-    glyphUsage.exportTo(&subset);
+    glyphUsage.exportTo([&subset](unsigned v) { subset.push_back(v); });
 
     unsigned char* subsetFont{nullptr};
     sk_sp<SkData> fontData(stream_to_data(std::move(fontAsset)));
@@ -382,7 +384,7 @@ static sk_sp<SkPDFStream> get_subset_font_stream(
                                                    &subsetFont);
 #endif
     fontData.reset();
-    subset = std::vector<unsigned>();
+    subset.resize(0);
     SkASSERT(subsetFontSize > 0 || subsetFont == nullptr);
     if (subsetFontSize < 1) {
         return nullptr;
@@ -499,7 +501,7 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
     descendantFonts->appendObjRef(std::move(newCIDFont));
     this->insertObject("DescendantFonts", std::move(descendantFonts));
 
-    const std::vector<SkUnichar>& glyphToUnicode =
+    const sk::Vector<SkUnichar>& glyphToUnicode =
         SkPDFFont::GetUnicodeMap(this->typeface(), canon);
     SkASSERT(SkToSizeT(this->typeface()->countGlyphs()) == glyphToUnicode.size());
     this->insertObjRef("ToUnicode",
@@ -544,7 +546,7 @@ static sk_sp<SkPDFDict> make_type1_font_descriptor(
 
 static void populate_type_1_font(SkPDFDict* font,
                                  const SkAdvancedTypefaceMetrics& info,
-                                 const std::vector<SkString>& glyphNames,
+                                 const sk::Vector<SkString>& glyphNames,
                                  SkTypeface* typeface,
                                  SkGlyphID firstGlyphID,
                                  SkGlyphID lastGlyphID) {
@@ -603,9 +605,9 @@ SkPDFType1Font::SkPDFType1Font(SkPDFFont::Info info,
     }
     this->insertObjRef("FontDescriptor", std::move(fontDescriptor));
 
-    std::vector<SkString>* glyphNames = canon->fType1GlyphNames.find(fontID);
+    sk::Vector<SkString>* glyphNames = canon->fType1GlyphNames.find(fontID);
     if (!glyphNames) {
-        std::vector<SkString> names(this->typeface()->countGlyphs());
+        sk::Vector<SkString> names(this->typeface()->countGlyphs());
         SkPDFFont::GetType1GlyphNames(*this->typeface(), names.data());
         glyphNames = canon->fType1GlyphNames.set(fontID, std::move(names));
     }
@@ -812,7 +814,7 @@ static void add_type3_font_info(SkPDFCanon* canon,
 
     font->insertName("CIDToGIDMap", "Identity");
 
-    const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(typeface, canon);
+    const sk::Vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(typeface, canon);
     SkASSERT(glyphToUnicode.size() == SkToSizeT(typeface->countGlyphs()));
     font->insertObjRef("ToUnicode",
                        SkPDFMakeToUnicodeCmap(glyphToUnicode.data(),

@@ -81,7 +81,7 @@ static void write_glyph(SkDynamicMemoryWStream* cmap,
     }
 }
 
-static void append_bfchar_section(const std::vector<BFChar>& bfchar,
+static void append_bfchar_section(const sk::Vector<BFChar>& bfchar,
                                   bool multiByte,
                                   SkDynamicMemoryWStream* cmap) {
     // PDF spec defines that every bf* list can have at most 100 entries.
@@ -101,7 +101,7 @@ static void append_bfchar_section(const std::vector<BFChar>& bfchar,
     }
 }
 
-static void append_bfrange_section(const std::vector<BFRange>& bfrange,
+static void append_bfrange_section(const sk::Vector<BFRange>& bfrange,
                                    bool multiByte,
                                    SkDynamicMemoryWStream* cmap) {
     // PDF spec defines that every bf* list can have at most 100 entries.
@@ -160,8 +160,8 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
         glyphOffset = firstGlyphID - 1;
     }
 
-    std::vector<BFChar> bfcharEntries;
-    std::vector<BFRange> bfrangeEntries;
+    sk::Vector<BFChar> bfcharEntries;
+    sk::Vector<BFRange> bfrangeEntries;
 
     BFRange currentRangeEntry = {0, 0, 0};
     bool rangeEmpty = true;

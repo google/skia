@@ -11,8 +11,7 @@
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkTo.h"
-
-#include <vector>
+#include "SkVector.h"
 
 // TODO(halcanary): Write unit tests for SkPDFMakeCIDGlyphWidthsArray().
 
@@ -31,7 +30,7 @@ struct AdvanceMetric {
     MetricType fType;
     uint16_t fStartId;
     uint16_t fEndId;
-    std::vector<int16_t> fAdvance;
+    sk::Vector<int16_t> fAdvance;
     AdvanceMetric(uint16_t startId) : fStartId(startId) {}
     AdvanceMetric(AdvanceMetric&&) = default;
     AdvanceMetric& operator=(AdvanceMetric&& other) = default;

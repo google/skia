@@ -307,7 +307,7 @@ SkPDFArray::SkPDFArray() { SkDEBUGCODE(fDumped = false;) }
 SkPDFArray::~SkPDFArray() { this->drop(); }
 
 void SkPDFArray::drop() {
-    fValues = std::vector<SkPDFUnion>();
+    fValues = sk::Vector<SkPDFUnion>();
     SkDEBUGCODE(fDumped = true;)
 }
 
@@ -386,7 +386,7 @@ void SkPDFArray::appendObjRef(sk_sp<SkPDFObject> objSp) {
 SkPDFDict::~SkPDFDict() { this->drop(); }
 
 void SkPDFDict::drop() {
-    fRecords = std::vector<SkPDFDict::Record>();
+    fRecords = sk::Vector<SkPDFDict::Record>();
     SkDEBUGCODE(fDumped = true;)
 }
 
