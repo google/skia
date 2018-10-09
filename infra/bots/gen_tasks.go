@@ -70,7 +70,6 @@ const (
 
 	SERVICE_ACCOUNT_BOOKMAKER          = "skia-bookmaker@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_COMPILE            = "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-	SERVICE_ACCOUNT_CT_SKPS            = "skia-external-ct-skps@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_HOUSEKEEPER        = "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_RECREATE_SKPS      = "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPDATE_GO_DEPS     = "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -394,9 +393,6 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			"compiler":      parts["compiler"],
 			"target_arch":   parts["arch"],
 			"configuration": parts["configuration"],
-		}
-		if strings.Contains(jobName, "-CT_") {
-			ec = []string{"Static"}
 		}
 		if strings.Contains(jobName, "PathKit") {
 			ec = []string{"PathKit"}
@@ -920,23 +916,6 @@ func updateGoDEPS(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
-// ctSKPs generates a CT SKPs task. Returns the name of the last task in the
-// generated chain of tasks, which the Job should add as a dependency.
-func ctSKPs(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
-	dims := []string{
-		"pool:SkiaCT",
-		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
-	}
-	task := kitchenTask(name, "ct_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_CT_SKPS, dims, nil, OUTPUT_NONE)
-	usesGit(task, name)
-	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
-	task.Dependencies = append(task.Dependencies, compileTaskName)
-	timeout(task, 24*time.Hour)
-	task.MaxAttempts = 1
-	b.MustAddTask(name, task)
-	return name
-}
-
 // checkGeneratedFiles verifies that no generated SKSL files have been edited
 // by hand.
 func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
@@ -1307,18 +1286,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-OnDemand-Presubmit" &&
 		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
-		!strings.Contains(name, "-CT_") &&
 		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") &&
 		!strings.Contains(name, "LottieWeb") {
 		compile(b, compileTaskName, compileTaskParts)
 		if parts["role"] == "Calmbench" {
 			compile(b, compileParentName, compileParentParts)
 		}
-	}
-
-	// CT bots.
-	if strings.Contains(name, "-CT_") {
-		deps = append(deps, ctSKPs(b, name, compileTaskName))
 	}
 
 	// Housekeepers.
@@ -1375,13 +1348,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Test bots.
 	if parts["role"] == "Test" {
-		if !strings.Contains(name, "-CT_") {
-			deps = append(deps, test(b, name, parts, compileTaskName, pkgs))
-		}
+		deps = append(deps, test(b, name, parts, compileTaskName, pkgs))
 	}
 
 	// Perf bots.
-	if parts["role"] == "Perf" && !strings.Contains(name, "-CT_") {
+	if parts["role"] == "Perf" {
 		deps = append(deps, perf(b, name, parts, compileTaskName, pkgs))
 	}
 
@@ -1403,7 +1374,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	if strings.Contains(name, "-Nightly-") {
 		j.Trigger = specs.TRIGGER_NIGHTLY
-	} else if strings.Contains(name, "-Weekly-") || strings.Contains(name, "CT_DM_1m_SKPs") {
+	} else if strings.Contains(name, "-Weekly-") {
 		j.Trigger = specs.TRIGGER_WEEKLY
 	} else if strings.Contains(name, "Flutter") || strings.Contains(name, "CommandBuffer") {
 		j.Trigger = specs.TRIGGER_MASTER_ONLY
