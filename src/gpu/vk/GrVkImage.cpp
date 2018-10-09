@@ -12,17 +12,19 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
-VkPipelineStageFlags GrVkImage::LayoutToPipelineStageFlags(const VkImageLayout layout) {
+VkPipelineStageFlags GrVkImage::LayoutToPipelineSrcStageFlags(const VkImageLayout layout) {
     if (VK_IMAGE_LAYOUT_GENERAL == layout) {
         return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
     } else if (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == layout ||
                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL == layout) {
         return VK_PIPELINE_STAGE_TRANSFER_BIT;
-    } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout ||
-               VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout ||
-               VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == layout ||
-               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout) {
-        return VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+    } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
+        return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout ||
+               VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == layout) {
+        return VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    } else if (VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout) {
+        return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
         return VK_PIPELINE_STAGE_HOST_BIT;
     }
@@ -51,7 +53,7 @@ VkAccessFlags GrVkImage::LayoutToSrcAccessMask(const VkImageLayout layout) {
     } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
         flags = VK_ACCESS_HOST_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
-        flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
     } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout) {
         flags = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL == layout) {
@@ -100,7 +102,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     }
 
     VkAccessFlags srcAccessMask = GrVkImage::LayoutToSrcAccessMask(currentLayout);
-    VkPipelineStageFlags srcStageMask = GrVkImage::LayoutToPipelineStageFlags(currentLayout);
+    VkPipelineStageFlags srcStageMask = GrVkImage::LayoutToPipelineSrcStageFlags(currentLayout);
 
     VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(fInfo.fFormat);
 

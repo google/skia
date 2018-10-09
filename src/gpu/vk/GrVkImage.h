@@ -103,7 +103,7 @@ public:
     void setResourceRelease(sk_sp<GrReleaseProcHelper> releaseHelper);
 
     // Helpers to use for setting the layout of the VkImage
-    static VkPipelineStageFlags LayoutToPipelineStageFlags(const VkImageLayout layout);
+    static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
     static VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
 
 protected:

@@ -188,20 +188,26 @@ void GrVkGpuRTCommandBuffer::submit() {
             // and write issues.
 
             // Change layout of our render target so it can be used as the color attachment.
+            // TODO: If we know that we will never be blending or loading the attachment we could
+            // drop the VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.
             targetImage->setImageLayout(fGpu,
                                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
                                         VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                        VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                                         false);
 
             // If we are using a stencil attachment we also need to update its layout
             if (stencil) {
                 GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+                // We need the write and read access bits since we may load and store the stencil.
+                // The initial load happens in the VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT so we
+                // wait there.
                 vkStencil->setImageLayout(fGpu,
                                           VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                           VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
                                           VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-                                          VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                          VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                                           false);
             }
 
@@ -210,7 +216,7 @@ void GrVkGpuRTCommandBuffer::submit() {
                 cbInfo.fSampledImages[j]->setImageLayout(fGpu,
                                                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                                          VK_ACCESS_SHADER_READ_BIT,
-                                                         VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                                          false);
             }
 

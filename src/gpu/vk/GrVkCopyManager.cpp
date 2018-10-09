@@ -301,28 +301,38 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     //       any perf issues with using the whole bounds
     SkIRect bounds = SkIRect::MakeWH(rt->width(), rt->height());
 
-    // Change layouts of rt and texture
+    // Change layouts of rt and texture. We aren't blending so we don't need color attachment read
+    // access for blending.
     GrVkImage* targetImage = rt->msaaImage() ? rt->msaaImage() : rt;
+    VkAccessFlags dstAccessFlags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    if (!canDiscardOutsideDstRect) {
+        // We need to load the color attachment so need to be able to read it.
+        dstAccessFlags |= VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+    }
     targetImage->setImageLayout(gpu,
                                 VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                dstAccessFlags,
+                                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                                 false);
 
     srcTex->setImageLayout(gpu,
                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                            VK_ACCESS_SHADER_READ_BIT,
-                           VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                            false);
 
     GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment();
     if (stencil) {
         GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+        // We aren't actually using the stencil but we still load and store it so we need
+        // appropriate barriers.
+        // TODO: Once we refactor surface and how we conntect stencil to RTs, we should not even
+        // have the stencil on this render pass if possible.
         vkStencil->setImageLayout(gpu,
                                   VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                                  VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                                   false);
     }
 
