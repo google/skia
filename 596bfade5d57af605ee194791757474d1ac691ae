@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dda044c2_6dededdc",
+        "filename": "src/core/SkBitmapCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-09T15:09:52Z",
+      "side": 1,
+      "message": "Hash collision avoidance just removes the risk, and we don\u0027t know if this is a \"src\"-y color space or a \"dst\"-y color space as far as sRGB goes.",
+      "parentUuid": "ae8e184c_05bffae6",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 47
+      },
+      "revId": "596bfade5d57af605ee194791757474d1ac691ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1f184a5c_3c1a72ed",
         "filename": "src/core/SkBitmapCache.h",
         "patchSetId": 6
@@ -36,6 +60,24 @@
       "writtenOn": "2018-10-09T14:57:51Z",
       "side": 1,
       "message": "Maybe\n\n   SkColorSpace* fColorSpace;  // no ref held\n\nThat\u0027d cut the chance of collision to zero?",
+      "revId": "596bfade5d57af605ee194791757474d1ac691ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e7f8d87_6dac22dd",
+        "filename": "src/core/SkBitmapCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-09T15:09:52Z",
+      "side": 1,
+      "message": "Worth thinking about later.",
+      "parentUuid": "1f184a5c_3c1a72ed",
       "revId": "596bfade5d57af605ee194791757474d1ac691ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true

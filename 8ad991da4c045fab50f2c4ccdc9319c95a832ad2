@@ -22,6 +22,30 @@
       "revId": "8ad991da4c045fab50f2c4ccdc9319c95a832ad2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e006331a_a88d8015",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-09T15:09:52Z",
+      "side": 0,
+      "message": "Nope.  :(",
+      "parentUuid": "be616002_466adc9c",
+      "range": {
+        "startLine": 240,
+        "startChar": 28,
+        "endLine": 240,
+        "endChar": 46
+      },
+      "revId": "8ad991da4c045fab50f2c4ccdc9319c95a832ad2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
