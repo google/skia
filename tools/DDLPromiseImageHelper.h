@@ -13,12 +13,14 @@
 
 #include "GrBackendSurface.h"
 #include "SkCachedData.h"
+#include "SkYUVAIndex.h"
 #include "SkYUVSizeInfo.h"
 
 class GrContext;
 class SkDeferredDisplayListRecorder;
 class SkImage;
 class SkPicture;
+struct SkYUVAIndex;
 
 // This class consolidates tracking & extraction of the original image data from an skp,
 // the upload of said data to the GPU and the fulfillment of promise images.
@@ -114,12 +116,16 @@ private:
 
         SkYUVColorSpace yuvColorSpace() const {
             SkASSERT(this->isYUV());
-            return fYUVColorSpace;
+            return fYUVColorSpace1;
         }
-        const SkPixmap& yuvPixmap(int index) const {
+        const SkYUVAIndex* yuvaIndices() const {
             SkASSERT(this->isYUV());
-            SkASSERT(index >= 0 && index < 3);
-            return fYUVPlanes[index];
+            return fYUVAIndices;
+        }
+        const SkPixmap& yuvPixmap1(int index) const {
+            SkASSERT(this->isYUV());
+            SkASSERT(index >= 0 && index < 4);
+            return fYUVPlanes1[index];
         }
         const SkBitmap& normalBitmap() const {
             SkASSERT(!this->isYUV());
@@ -127,35 +133,38 @@ private:
         }
 
         void setCallbackContext(int index, sk_sp<PromiseImageCallbackContext> callbackContext) {
-            SkASSERT(index >= 0 && index < (this->isYUV() ? 3 : 1));
+            SkASSERT(index >= 0 && index < (this->isYUV() ? 4 : 1));
             fCallbackContexts[index] = callbackContext;
         }
         PromiseImageCallbackContext* callbackContext(int index) {
-            SkASSERT(index >= 0 && index < (this->isYUV() ? 3 : 1));
+            SkASSERT(index >= 0 && index < (this->isYUV() ? 4 : 1));
             return fCallbackContexts[index].get();
         }
         sk_sp<PromiseImageCallbackContext> refCallbackContext(int index) const {
-            SkASSERT(index >= 0 && index < (this->isYUV() ? 3 : 1));
+            SkASSERT(index >= 0 && index < (this->isYUV() ? 4 : 1));
             return fCallbackContexts[index];
         }
 
         const GrCaps* caps() const { return fCallbackContexts[0]->caps(); }
 
         const GrBackendTexture& backendTexture(int index) const {
-            SkASSERT(index >= 0 && index < (this->isYUV() ? 3 : 1));
+            SkASSERT(index >= 0 && index < (this->isYUV() ? 4 : 1));
             return fCallbackContexts[index]->backendTexture();
         }
 
         void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
 
-        void setYUVData(sk_sp<SkCachedData> yuvData, SkYUVColorSpace cs) {
+        void setYUVData(sk_sp<SkCachedData> yuvData,
+                        SkYUVAIndex yuvaIndices[4],
+                        SkYUVColorSpace cs) {
             fYUVData = yuvData;
-            fYUVColorSpace = cs;
+            memcpy(fYUVAIndices, yuvaIndices, sizeof(fYUVAIndices));
+            fYUVColorSpace1 = cs;
         }
         void addYUVPlane(int index, const SkImageInfo& ii, const void* plane, size_t widthBytes) {
             SkASSERT(this->isYUV());
-            SkASSERT(index >= 0 && index < 3);
-            fYUVPlanes[index].reset(ii, plane, widthBytes);
+            SkASSERT(index >= 0 && index < 4);
+            fYUVPlanes1[index].reset(ii, plane, widthBytes);
         }
 
     private:
@@ -169,11 +178,12 @@ private:
 
         // CPU-side cache of a YUV SkImage's contents
         sk_sp<SkCachedData>                fYUVData;       // when !null, this is a YUV image
-        SkYUVColorSpace                    fYUVColorSpace = kJPEG_SkYUVColorSpace;
-        SkPixmap                           fYUVPlanes[3];
+        SkYUVColorSpace                    fYUVColorSpace1 = kJPEG_SkYUVColorSpace;
+        SkYUVAIndex                        fYUVAIndices[4];
+        SkPixmap                           fYUVPlanes1[4];
 
-        // Up to 3 for a YUV image. Only one for a normal image.
-        sk_sp<PromiseImageCallbackContext> fCallbackContexts[3];
+        // Up to 4 for a YUVA image. Only one for a normal image.
+        sk_sp<PromiseImageCallbackContext> fCallbackContexts[4];
     };
 
     // This stack-based context allows each thread to re-inflate the image indices into

@@ -355,7 +355,7 @@ public:
      *  @param colorSpace Output parameter.  If non-NULL this is set to kJPEG,
      *                    otherwise this is ignored.
      */
-    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+    bool queryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
         if (nullptr == sizeInfo) {
             return false;
         }
@@ -373,9 +373,8 @@ public:
      *                    recommendation (but not smaller).
      *  @param planes     Memory for each of the Y, U, and V planes.
      */
-    Result getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
-        if (nullptr == planes || nullptr == planes[0] || nullptr == planes[1] ||
-                nullptr == planes[2]) {
+    Result getYUV8Planes(const SkYUVASizeInfo& sizeInfo, void* planes[3]) {
+        if (!planes || !planes[0] || !planes[1] || !planes[2]) {
             return kInvalidInput;
         }
 
@@ -708,11 +707,11 @@ protected:
                                void* pixels, size_t rowBytes, const Options&,
                                int* rowsDecoded) = 0;
 
-    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const {
+    virtual bool onQueryYUV8(SkYUVASizeInfo*, SkYUVColorSpace*) const {
         return false;
     }
 
-    virtual Result onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) {
+    virtual Result onGetYUV8Planes(const SkYUVASizeInfo&, void*[3] /*planes*/) {
         return kUnimplemented;
     }
 

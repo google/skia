@@ -10,6 +10,7 @@
 #include "SkGraphics.h"
 #include "SkImageGenerator.h"
 #include "SkImageInfoPriv.h"
+#include "SkYUVAIndex.h"
 #include "Test.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
@@ -60,25 +61,26 @@ public:
 
 DEF_TEST(ImageGenerator, reporter) {
     MyImageGenerator ig;
-    SkYUVSizeInfo sizeInfo;
-    sizeInfo.fSizes[SkYUVSizeInfo::kY] = SkISize::Make(200, 200);
-    sizeInfo.fSizes[SkYUVSizeInfo::kU] = SkISize::Make(100, 100);
-    sizeInfo.fSizes[SkYUVSizeInfo::kV] = SkISize::Make( 50,  50);
-    sizeInfo.fWidthBytes[SkYUVSizeInfo::kY] = 0;
-    sizeInfo.fWidthBytes[SkYUVSizeInfo::kU] = 0;
-    sizeInfo.fWidthBytes[SkYUVSizeInfo::kV] = 0;
+    SkYUVASizeInfo sizeInfo;
+    sizeInfo.fSizes[SkYUVASizeInfo::kY] = SkISize::Make(200, 200);
+    sizeInfo.fSizes[SkYUVASizeInfo::kU] = SkISize::Make(100, 100);
+    sizeInfo.fSizes[SkYUVASizeInfo::kV] = SkISize::Make( 50,  50);
+    sizeInfo.fWidthBytes[SkYUVASizeInfo::kY] = 0;
+    sizeInfo.fWidthBytes[SkYUVASizeInfo::kU] = 0;
+    sizeInfo.fWidthBytes[SkYUVASizeInfo::kV] = 0;
     void* planes[3] = { nullptr };
+    SkYUVAIndex yuvaIndices[4];
     SkYUVColorSpace colorSpace;
 
     // Check that the YUV decoding API does not cause any crashes
-    ig.queryYUV8(&sizeInfo, nullptr);
-    ig.queryYUV8(&sizeInfo, &colorSpace);
-    sizeInfo.fWidthBytes[SkYUVSizeInfo::kY] = 250;
-    sizeInfo.fWidthBytes[SkYUVSizeInfo::kU] = 250;
-    sizeInfo.fWidthBytes[SkYUVSizeInfo::kV] = 250;
+    ig.queryYUVA8(&sizeInfo, yuvaIndices, nullptr);
+    ig.queryYUVA8(&sizeInfo, yuvaIndices, &colorSpace);
+    sizeInfo.fWidthBytes[SkYUVASizeInfo::kY] = 250;
+    sizeInfo.fWidthBytes[SkYUVASizeInfo::kU] = 250;
+    sizeInfo.fWidthBytes[SkYUVASizeInfo::kV] = 250;
     int dummy;
-    planes[SkYUVSizeInfo::kY] = planes[SkYUVSizeInfo::kU] = planes[SkYUVSizeInfo::kV] = &dummy;
-    ig.getYUV8Planes(sizeInfo, planes);
+    planes[SkYUVASizeInfo::kY] = planes[SkYUVASizeInfo::kU] = planes[SkYUVASizeInfo::kV] = &dummy;
+    ig.getYUVA8Planes(sizeInfo, yuvaIndices, planes);
 
     // Suppressed due to https://code.google.com/p/skia/issues/detail?id=4339
     if (false) {
