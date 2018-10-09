@@ -48,6 +48,8 @@ private:
             return fTs[i];
         }
 
+        int count() const { return (fFP->*COUNT)(); }
+
         BuilderInputProvider childInputs(int childIdx) const {
             const GrFragmentProcessor* child = &fFP->childProcessor(childIdx);
             GrFragmentProcessor::Iter iter(fFP);

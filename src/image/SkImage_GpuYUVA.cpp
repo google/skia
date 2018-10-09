@@ -66,14 +66,10 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
 
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        // TODO: Modify the fragment processor to sample from different channel
-        // instead of taking nv12 bool.
-        bool nv12 = (fYUVAIndices[SkYUVAIndex::kU_Index].fIndex ==
-                     fYUVAIndices[SkYUVAIndex::kV_Index].fIndex);
+
         // TODO: modify the YUVtoRGBEffect to do premul if fImageAlphaType is kPremul_AlphaType
-        paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(std::move(yProxy), std::move(uProxy),
-                                                               std::move(vProxy), fYUVColorSpace,
-                                                               nv12));
+        paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(fProxies, fYUVAIndices,
+                                                               fYUVColorSpace));
 
         const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
 

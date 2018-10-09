@@ -23,9 +23,6 @@ static const int kTileWidthHeight = 128;
 static const int kLabelWidth = 64;
 static const int kLabelHeight = 32;
 static const int kPad = 1;
-constexpr SkColor kGreen  = SkColorSetARGB(0xFF, 178, 240, 104);
-constexpr SkColor kBlue   = SkColorSetARGB(0xFF, 173, 167, 252);
-constexpr SkColor kYellow = SkColorSetARGB(0xFF, 255, 221, 117);
 
 enum YUVFormat {
     // 4:4:4 formats, 32 bpp
@@ -153,6 +150,9 @@ static SkPath create_splat(const SkPoint& o, SkScalar innerRadius, SkScalar oute
 }
 
 static SkBitmap make_bitmap(const SkPath& path, const SkTDArray<SkRect>& circles, bool opaque) {
+    const SkColor kGreen  = sk_tool_utils::color_to_565(SkColorSetARGB(0xFF, 178, 240, 104));
+    const SkColor kBlue   = sk_tool_utils::color_to_565(SkColorSetARGB(0xFF, 173, 167, 252));
+    const SkColor kYellow = sk_tool_utils::color_to_565(SkColorSetARGB(0xFF, 255, 221, 117));
 
     SkImageInfo ii = SkImageInfo::MakeN32(kTileWidthHeight, kTileWidthHeight, kPremul_SkAlphaType);
 
