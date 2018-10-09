@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c3acda3_6091581d",
+        "filename": "infra/bots/recipe_modules/build/examples/full.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T12:28:20Z",
+      "side": 1,
+      "message": "From what I can tell, we shouldn\u0027t need the Release example.  Is that the case?",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 46
+      },
+      "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbaaa7c0_ac959e8c",
+        "filename": "infra/canvaskit/build_canvaskit.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T12:28:20Z",
+      "side": 1,
+      "message": "nit: probably want \"set -e\"",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 2
+      },
+      "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "154dab75_84da0b5b",
+        "filename": "infra/pathkit/build_pathkit.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T12:28:20Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 1
+      },
+      "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8a44508_c278bed8",
+        "filename": "modules/pathkit/compile.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T12:28:20Z",
+      "side": 1,
+      "message": "Why is this here?  Are all of the above lines okay to fail?",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 6
+      },
+      "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
