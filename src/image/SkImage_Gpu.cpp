@@ -410,6 +410,15 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                                TextureReleaseProc textureReleaseProc,
                                                PromiseDoneProc promiseDoneProc,
                                                TextureContext textureContext) {
+    // The contract here is that if 'promiseDoneProc' is passed in it should always be called,
+    // even if creation of the SkImage fails.
+    if (!promiseDoneProc) {
+        return nullptr;
+    }
+
+    SkPromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, promiseDoneProc,
+                                       textureContext);
+
     if (!context) {
         return nullptr;
     }
@@ -418,7 +427,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    if (!textureFulfillProc || !textureReleaseProc || !promiseDoneProc) {
+    if (!textureFulfillProc || !textureReleaseProc) {
         return nullptr;
     }
 
@@ -446,9 +455,6 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = config;
-
-    SkPromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, promiseDoneProc,
-                                       textureContext);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [promiseHelper, config](GrResourceProvider* resourceProvider) mutable {
@@ -483,38 +489,10 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
                                                    TextureReleaseProc textureReleaseProc,
                                                    PromiseDoneProc promiseDoneProc,
                                                    TextureContext textureContexts[]) {
-    // DDL TODO: we need to create a SkImage_GpuYUVA here! This implementation just
-    // returns the Y-plane.
-    if (!context) {
+    // The contract here is that if 'promiseDoneProc' is passed in it should always be called,
+    // even if creation of the SkImage fails.
+    if (!promiseDoneProc) {
         return nullptr;
-    }
-
-    if (imageWidth <= 0 || imageHeight <= 0) {
-        return nullptr;
-    }
-
-    if (!textureFulfillProc || !textureReleaseProc || !promiseDoneProc) {
-        return nullptr;
-    }
-
-    SkImageInfo info = SkImageInfo::Make(imageWidth, imageHeight, kRGBA_8888_SkColorType,
-                                         kPremul_SkAlphaType, imageColorSpace);
-    if (!SkImageInfoIsValid(info)) {
-        return nullptr;
-    }
-
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-
-    // Determine which of the slots in yuvaFormats and textureContexts are actually used
-    bool slotUsed[4] = { false, false, false, false };
-    for (int i = 0; i < 4; ++i) {
-        if (yuvaIndices[i].fIndex < 0) {
-            SkASSERT(SkYUVAIndex::kA_Index == i); // We had better have YUV channels
-            continue;
-        }
-
-        SkASSERT(yuvaIndices[i].fIndex < 4);
-        slotUsed[yuvaIndices[i].fIndex] = true;
     }
 
     // Temporarily work around an MSVC compiler bug. Copying the arrays directly into the lambda
@@ -526,6 +504,17 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
         SkYUVAIndex fLocalIndices[4];
     } params;
 
+    // Determine which of the slots in 'yuvaFormats' and 'textureContexts' are actually used
+    bool slotUsed[4] = { false, false, false, false };
+    for (int i = 0; i < 4; ++i) {
+        if (yuvaIndices[i].fIndex < 0) {
+            SkASSERT(SkYUVAIndex::kA_Index == i); // We had better have YUV channels
+            continue;
+        }
+
+        SkASSERT(yuvaIndices[i].fIndex < 4);
+        slotUsed[yuvaIndices[i].fIndex] = true;
+    }
 
     for (int i = 0; i < 4; ++i) {
         params.fLocalIndices[i] = yuvaIndices[i];
@@ -533,7 +522,31 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
         if (slotUsed[i]) {
             params.fPromiseHelpers[i].set(textureFulfillProc, textureReleaseProc,
                                           promiseDoneProc, textureContexts[i]);
+        }
+    }
 
+    // DDL TODO: we need to create a SkImage_GpuYUVA here! This implementation just
+    // returns the Y-plane.
+    if (!context) {
+        return nullptr;
+    }
+
+    if (imageWidth <= 0 || imageHeight <= 0) {
+        return nullptr;
+    }
+
+    if (!textureFulfillProc || !textureReleaseProc) {
+        return nullptr;
+    }
+
+    SkImageInfo info = SkImageInfo::Make(imageWidth, imageHeight, kRGBA_8888_SkColorType,
+                                         kPremul_SkAlphaType, imageColorSpace);
+    if (!SkImageInfoIsValid(info)) {
+        return nullptr;
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        if (slotUsed[i]) {
             // DDL TODO: This (the kAlpha_8) only works for non-NV12 YUV textures
             if (!context->contextPriv().caps()->getConfigFromBackendFormat(yuvaFormats[i],
                                                                            kAlpha_8_SkColorType,
@@ -551,6 +564,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
     desc.fConfig = params.fConfigs[params.fLocalIndices[SkYUVAIndex::kY_Index].fIndex];
     desc.fSampleCnt = 1;
 
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [params](GrResourceProvider* resourceProvider) mutable {
