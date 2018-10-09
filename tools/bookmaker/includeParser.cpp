@@ -621,8 +621,16 @@ void IncludeParser::writeCodeBlock(const BmhParser& bmhParser) {
         SkASSERT(string::npos != className.find("::"));
     }
     for (auto& enumMapper : fIEnumMap) {
-            enumMapper.second->fCode = this->writeCodeBlock(*enumMapper.second,
-                    enumMapper.second->fMarkType);
+        enumMapper.second->fCode = this->writeCodeBlock(*enumMapper.second,
+                enumMapper.second->fMarkType);
+    }
+    for (auto& typedefMapper : fITypedefMap) {
+        typedefMapper.second->fCode = this->writeCodeBlock(*typedefMapper.second,
+                typedefMapper.second->fMarkType);
+    }
+    for (auto& defineMapper : fIDefineMap) {
+        defineMapper.second->fCode = this->writeCodeBlock(*defineMapper.second,
+                defineMapper.second->fMarkType);
     }
 }
 
@@ -2155,6 +2163,7 @@ bool IncludeParser::parseDefine(Definition* child, Definition* markupDef) {
         return false;
     }
     classDef.fDefines[nameStr] = markupChild;
+    fIDefineMap[nameStr] = markupChild;
     return true;
 }
 
@@ -2763,6 +2772,7 @@ bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
     classDef.fTypedefs[nameStr] = markupChild;
     child->fName = markupDef->fName + "::" + nameStr;
+    fITypedefMap[child->fName] = markupChild;
     return true;
 }
 
@@ -3335,6 +3345,9 @@ bool IncludeParser::references(const SkString& file) const {
         return true;
     }
     if (fIEnumMap.end() != fIEnumMap.find(root)) {
+        return true;
+    }
+    if (fITypedefMap.end() != fITypedefMap.find(root)) {
         return true;
     }
     if (fIFunctionMap.end() != fIFunctionMap.find(root)) {

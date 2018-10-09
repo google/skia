@@ -1009,6 +1009,11 @@ public:
         fParentIndex = fParent ? (int) fParent->fTokens.size() : -1;
     }
 
+    string simpleName() {
+        size_t doubleColon = fName.rfind("::");
+        return string::npos == doubleColon ? fName : fName.substr(doubleColon + 2);
+    }
+
     const Definition* subtopicParent() const {
         Definition* test = fParent;
         while (test) {
@@ -1714,6 +1719,16 @@ public:
         if (MarkType::kEnum == markType || MarkType::kEnumClass == markType) {
             auto map = fIEnumMap.find(name);
             SkASSERT(fIEnumMap.end() != map);
+            return map->second->fCode;
+        }
+        if (MarkType::kTypedef == markType) {
+            auto map = fITypedefMap.find(name);
+            SkASSERT(fITypedefMap.end() != map);
+            return map->second->fCode;
+        }
+        if (MarkType::kDefine == markType) {
+            auto map = fIDefineMap.find(name);
+            SkASSERT(fIDefineMap.end() != map);
             return map->second->fCode;
         }
         SkASSERT(0);

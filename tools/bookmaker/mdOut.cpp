@@ -1598,8 +1598,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         } break;
         case MarkType::kDefine:
             this->mdHeaderOut(2);
-            this->htmlOut(anchorDef(def->fFiddle, "Define " + def->fName));
-            this->lf(2);
+            this->htmlOut(anchorDef(def->fFiddle, def->simpleName()));
+            this->lf(1);
             break;
         case MarkType::kDeprecated:
             this->writeString(def->fParent->incompleteMessage(
@@ -1618,7 +1618,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         case MarkType::kEnum:
         case MarkType::kEnumClass:
             this->mdHeaderOut(2);
-            this->htmlOut(anchorDef(def->fFiddle, "Enum " + def->fName));
+            this->htmlOut(anchorDef(def->fFiddle, def->simpleName()));
             this->lf(2);
             break;
         case MarkType::kExample: {
@@ -1901,7 +1901,9 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 if (MarkType::kClass == grand->fMarkType
                         || MarkType::kStruct == grand->fMarkType
                         || MarkType::kEnum == grand->fMarkType
-                        || MarkType::kEnumClass == grand->fMarkType) {
+                        || MarkType::kEnumClass == grand->fMarkType
+                        || MarkType::kTypedef == grand->fMarkType
+                        || MarkType::kDefine == grand->fMarkType) {
                     string codeBlock = fIncludeParser.codeBlock(*grand, fInProgress);
                     this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
                             this->resolvable(parent));
@@ -2024,7 +2026,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             } break;
         case MarkType::kTypedef:
             this->mdHeaderOut(2);
-            this->htmlOut(anchorDef(def->fFiddle, "Typedef " + def->fName));
+            this->htmlOut(anchorDef(def->fFiddle, def->simpleName()));
             this->lf(1);
             break;
         case MarkType::kUnion:

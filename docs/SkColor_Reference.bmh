@@ -33,7 +33,7 @@ zero, fully transparent, to one, fully opaque.
 #Line # defines Alpha as eight bits ##
 
 #Code
-typedef uint8_t SkAlpha;
+#Populate
 ##
 
 8-bit type for an alpha value. 255 is 100% opaque, zero is 100% transparent.
@@ -48,7 +48,7 @@ typedef uint8_t SkAlpha;
 #Line # defines Color as 32 bits ##
 
 #Code
-typedef uint32_t SkColor;
+#Populate
 ##
 
 32-bit ARGB Color value, Unpremultiplied. Color components are always in
@@ -99,9 +99,7 @@ than the largest of r, g, and b.
 #Line # returns opaque Color ##
 
 #Code
-###$
-    #define SkColorSetRGB(r, g, b)  SkColorSetARGB(0xFF, r, g, b)
-$$$#
+#Populate
 ##
 
 Returns Color value from 8-bit component values, with Alpha set

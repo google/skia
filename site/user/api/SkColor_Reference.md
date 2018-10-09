@@ -64,7 +64,7 @@ floating point values. Unsigned integer <a href='#Alpha'>Alpha</a> ranges from z
 transparent, to all bits set, fully opaque. Floating point <a href='#Alpha'>Alpha</a> ranges from
 zero, fully transparent, to one, fully opaque.
 
-## <a name='SkAlpha'>Typedef SkAlpha</a>
+## <a name='SkAlpha'>SkAlpha</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 typedef uint8_t <a href='#SkAlpha'>SkAlpha</a>;
@@ -72,7 +72,7 @@ typedef uint8_t <a href='#SkAlpha'>SkAlpha</a>;
 
 8-bit type for an alpha value. 255 is 100% opaque, zero is 100% transparent.
 
-## <a name='SkColor'>Typedef SkColor</a>
+## <a name='SkColor'>SkColor</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 typedef uint32_t <a href='#SkColor'>SkColor</a>;
@@ -132,10 +132,10 @@ color and alpha, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
 
 ---
 
-## <a name='SkColorSetRGB'>Define SkColorSetRGB</a>
+## <a name='SkColorSetRGB'>SkColorSetRGB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorSetRGB'>SkColorSetRGB</a>(r, g, b)  <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, r, g, b)
+ <a href='#SkColorSetRGB'>SkColorSetRGB</a>(r, g, b) <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, r, g, b);
 </pre>
 
 Returns <a href='#Color'>Color</a> value from 8-bit component values, with <a href='#Alpha'>Alpha</a> set
@@ -166,7 +166,7 @@ color with opaque alpha
 
 <a href='#SkColorSetARGB'>SkColorSetARGB</a>
 
-## <a name='SkColorGetA'>Define SkColorGetA</a>
+## <a name='SkColorGetA'>SkColorGetA</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorGetA'>SkColorGetA</a>(color)      (((color) >> 24) & 0xFF)
@@ -189,7 +189,7 @@ Returns <a href='#Alpha'>Alpha</a> byte from <a href='#Color'>Color</a> value.
 
 <a href='SkPaint_Reference#SkPaint_getAlpha'>SkPaint::getAlpha</a>
 
-## <a name='SkColorGetR'>Define SkColorGetR</a>
+## <a name='SkColorGetR'>SkColorGetR</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorGetR'>SkColorGetR</a>(color)      (((color) >> 16) & 0xFF)
@@ -216,7 +216,7 @@ red byte
 
 <a href='#SkColorGetG'>SkColorGetG</a> <a href='#SkColorGetB'>SkColorGetB</a>
 
-## <a name='SkColorGetG'>Define SkColorGetG</a>
+## <a name='SkColorGetG'>SkColorGetG</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorGetG'>SkColorGetG</a>(color)      (((color) >>  8) & 0xFF)
@@ -243,7 +243,7 @@ green byte
 
 <a href='#SkColorGetR'>SkColorGetR</a> <a href='#SkColorGetB'>SkColorGetB</a>
 
-## <a name='SkColorGetB'>Define SkColorGetB</a>
+## <a name='SkColorGetB'>SkColorGetB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     #define <a href='#SkColorGetB'>SkColorGetB</a>(color)      (((color) >>  0) & 0xFF)
@@ -780,7 +780,7 @@ RGB equivalent to <a href='#HSV'>HSV</a>
 
 ## <a name='PMColor'>PMColor</a>
 
-## <a name='SkPMColor'>Typedef SkPMColor</a>
+## <a name='SkPMColor'>SkPMColor</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 typedef uint32_t <a href='#SkPMColor'>SkPMColor</a>;
