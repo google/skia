@@ -385,12 +385,7 @@ The hash returned is platform and implementation specific.
 #Line # level of glyph outline adjustment ##
 
 #Code
-    enum Hinting {
-        kNo_Hinting            = 0,
-        kSlight_Hinting        = 1,
-        kNormal_Hinting        = 2,
-        kFull_Hinting          = 3,
-    };
+#Populate
 ##
 
 Hinting adjusts the glyph outlines so that the shape provides a uniform
@@ -507,20 +502,7 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
 #Line # values described by bits and masks ##
 
 #Code
-    enum Flags {
-        kAntiAlias_Flag       = 0x01,
-        kDither_Flag          = 0x04,
-        kFakeBoldText_Flag    = 0x20,
-        kLinearText_Flag      = 0x40,
-        kSubpixelText_Flag    = 0x80,
-        kLCDRenderText_Flag   = 0x200,
-        kEmbeddedBitmapText_Flag = 0x400,
-        kAutoHinting_Flag     = 0x800,
-        kVerticalText_Flag    = 0x1000,
-
-        kAllFlags = 0xFFFF,
-    };
-
+#Populate
 ##
 
 The bit values stored in Flags.
@@ -571,10 +553,7 @@ Flags default to all flags clear, disabling the associated feature.
 Only valid for Android framework.
 
 #Code
-    enum ReserveFlags {
-        kUnderlineText_ReserveFlag   = 0x08,
-        kStrikeThruText_ReserveFlag  = 0x10,
-    };
+#Populate
 ##
 
 #Const kUnderlineText_ReserveFlag   0x0008
@@ -1850,16 +1829,6 @@ The fill covers the area inside the geometry for most shapes.
 
 Set Style to kStroke_Style to stroke the shape.
 
-# ------------------------------------------------------------------------------
-#Subtopic Fill
-#Line # fill and stroke ##
-#ToDo write up whatever generalities make sense to describe filling  ##
-
-#SeeAlso Path_Fill_Type
-#Subtopic Fill ##
-
-#Subtopic Stroke
-#Line # lines and curves with width ##
 The stroke covers the area described by following the shape edge with a pen or brush of
 Stroke_Width. The area covered where the shape starts and stops is described by Stroke_Cap.
 The area covered where the shape turns a corner is described by Stroke_Join.
@@ -1867,11 +1836,6 @@ The stroke is centered on the shape; it extends equally on either side of the sh
 
 As Stroke_Width gets smaller, the drawn path frame is thinner. Stroke_Width less than one
 may have gaps, and if kAntiAlias_Flag is set, Color_Alpha will increase to visually decrease coverage.
-#Subtopic Stroke ##
-
-#Subtopic Hairline
-#Line # lines and curves with minimal width ##
-#Alias Hairline ## # maybe should be Stroke_Hairline ?
 
 Stroke_Width of zero has a special meaning and switches drawing to use Hairline.
 Hairline draws the thinnest continuous frame. If kAntiAlias_Flag is clear, adjacent pixels
@@ -1885,19 +1849,17 @@ pixel. If kAntiAlias_Flag is set, transparency is applied twice, resulting in a 
 GPU-backed implementations apply transparency at a later drawing stage, avoiding double hit pixels
 while stroking.
 
-#Subtopic Hairline ##
-
 #Enum Style
 #Line # stroke, fill, or both ##
 
 #Code
-    enum Style {
-        kFill_Style,
-        kStroke_Style,
-        kStrokeAndFill_Style,
-    };
+#Populate
+##
 
-    static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
+#Code
+#In Constant
+#Filter kStyle
+#Populate
 ##
 
 Set Style to fill, stroke, or both fill and stroke geometry.
@@ -2217,21 +2179,19 @@ Here are some miter limits and the angles that triggers them.
 # ------------------------------------------------------------------------------
 #Subtopic Stroke_Cap
 #Line # decorations at ends of open strokes ##
+#Subtopic Stroke_Cap ##
 
 #Enum Cap
 #Line # start and end geometry on stroked shapes ##
 
 #Code
-    enum Cap {
-        kButt_Cap,
-        kRound_Cap,
-        kSquare_Cap,
+#Populate
+##
 
-        kLast_Cap = kSquare_Cap,
-        kDefault_Cap = kButt_Cap,
-    };
-
-    static constexpr int kCapCount = kLast_Cap + 1;
+#Code
+#In Constant
+#Filter kCap
+#Populate
 ##
 
 Stroke_Cap draws at the beginning and end of an open Path_Contour.
@@ -2345,10 +2305,10 @@ Stroke_Cap is kButt_Cap by default.
     #SeeAlso Stroke_Cap getStrokeCap
 ##
 
-#Subtopic Stroke_Cap ##
 # ------------------------------------------------------------------------------
 #Subtopic Stroke_Join
 #Line # decoration at corners of strokes ##
+#Subtopic Stroke_Join ##
 
 Stroke_Join draws at the sharp corners of an open or closed Path_Contour.
 
@@ -2378,16 +2338,13 @@ the following curve, the pair of curves meet at Stroke_Join.
 #Enum Join
 #Line # corner geometry on stroked shapes ##
 #Code
-    enum Join {
-        kMiter_Join,
-        kRound_Join,
-        kBevel_Join,
+#Populate
+##
 
-        kLast_Join = kBevel_Join,
-        kDefault_Join = kMiter_Join,
-    };
-
-    static constexpr int kJoinCount = kLast_Join + 1;
+#Code
+#In Constant
+#Filter kJoin
+#Populate
 ##
 
 Join specifies how corners are drawn when a shape is stroked. Join
@@ -2505,7 +2462,6 @@ void draw(SkCanvas* canvas) {
 
 #SeeAlso Miter_Limit
 
-#Subtopic Stroke_Join ##
 # ------------------------------------------------------------------------------
 #Subtopic Fill_Path
 #Line # make Path from Path_Effect, stroking ##
@@ -3493,13 +3449,13 @@ Increments drawLooper Reference_Count by one.
 #Enum Align
 #Line # glyph locations relative to text position ##
 #Code
-    enum Align {
-        kLeft_Align,
-        kCenter_Align,
-        kRight_Align,
-    };
+#Populate
+##
 
-    static constexpr int kAlignCount = 3;
+#Code
+#In Constant
+#Filter kAlign
+#Populate
 ##
 
 Align adjusts the text relative to the text position.
@@ -3812,12 +3768,7 @@ Text_Skew_X defaults to 0.
 #Line # character or glyph encoded size ##
 
 #Code
-    enum TextEncoding {
-        kUTF8_TextEncoding,
-        kUTF16_TextEncoding,
-        kUTF32_TextEncoding,
-        kGlyphID_TextEncoding,
-    };
+#Populate
 ##
 
 TextEncoding determines whether text specifies character codes and their encoded
@@ -3997,36 +3948,7 @@ void draw(SkCanvas* canvas) {
 #Line # values computed by Font_Manager using Typeface ##
 
 #Code
-    struct FontMetrics {
-        enum FontMetricsFlags {
-            kUnderlineThicknessIsValid_Flag = 1 << 0,
-            kUnderlinePositionIsValid_Flag = 1 << 1,
-            kStrikeoutThicknessIsValid_Flag = 1 << 2,
-            kStrikeoutPositionIsValid_Flag = 1 << 3,
-        };
-
-        uint32_t    fFlags;
-        SkScalar    fTop;
-        SkScalar    fAscent;
-        SkScalar    fDescent;
-        SkScalar    fBottom;
-        SkScalar    fLeading;
-        SkScalar    fAvgCharWidth;
-        SkScalar    fMaxCharWidth;
-        SkScalar    fXMin;
-        SkScalar    fXMax;
-        SkScalar    fXHeight;
-        SkScalar    fCapHeight;
-        SkScalar    fUnderlineThickness;
-        SkScalar    fUnderlinePosition;
-        SkScalar    fStrikeoutThickness;
-        SkScalar    fStrikeoutPosition;
-
-        bool hasUnderlineThickness(SkScalar* thickness) const;
-        bool hasUnderlinePosition(SkScalar* position) const;
-        bool hasStrikeoutThickness(SkScalar* thickness) const;
-        bool hasStrikeoutPosition(SkScalar* position) const;
-    };
+#Populate
 ##
 
     FontMetrics is filled out by getFontMetrics. FontMetrics contents reflect the values
@@ -4047,12 +3969,7 @@ void draw(SkCanvas* canvas) {
     #Line # valid Font_Metrics ##
 
     #Code
-        enum FontMetricsFlags {
-            kUnderlineThicknessIsValid_Flag = 1 << 0,
-            kUnderlinePositionIsValid_Flag = 1 << 1,
-            kStrikeoutThicknessIsValid_Flag = 1 << 2,
-            kStrikeoutPositionIsValid_Flag = 1 << 3,
-        };
+    #Populate
     ##
 
     FontMetricsFlags are set in fFlags when underline and strikeout metrics are valid;
