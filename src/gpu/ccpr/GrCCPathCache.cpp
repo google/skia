@@ -174,6 +174,7 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
             this->evict(fLRU.tail());  // We've exceeded our limit.
         }
         entry = fHashTable.set(HashNode(this, m, shape))->entry();
+        shape.addGenIDChangeListener(sk_ref_sp(entry));
         SkASSERT(fHashTable.count() <= kMaxCacheCount);
     } else {
         fLRU.remove(entry);  // Will be re-added at head.
