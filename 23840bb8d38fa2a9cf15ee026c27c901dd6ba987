@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eab88798_c1a50048",
+        "filename": "src/gpu/vk/GrVkCopyManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-09T15:57:48Z",
+      "side": 1,
+      "message": "dstAccess",
+      "range": {
+        "startLine": 307,
+        "startChar": 18,
+        "endLine": 307,
+        "endChar": 33
+      },
+      "revId": "23840bb8d38fa2a9cf15ee026c27c901dd6ba987",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e093046f_741fbae3",
+        "filename": "src/gpu/vk/GrVkCopyPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-09T15:57:48Z",
+      "side": 1,
+      "message": "blend",
+      "range": {
+        "startLine": 103,
+        "startChar": 65,
+        "endLine": 103,
+        "endChar": 70
+      },
+      "revId": "23840bb8d38fa2a9cf15ee026c27c901dd6ba987",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
