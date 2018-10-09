@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "180b61b4_08d1d4a3",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-09T15:46:22Z",
+      "side": 1,
+      "message": "It seems like this could be used in SkImage_Gpu and SkImage_GpuYUVA as well.",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 24
+      },
+      "revId": "87ba268e34bf14f436dd209d72c1acb550b6cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f2ea5a0_93260b6f",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-09T15:46:22Z",
+      "side": 1,
+      "message": "kYSize? And do we know for sure that this will be the biggest?",
+      "range": {
+        "startLine": 66,
+        "startChar": 18,
+        "endLine": 66,
+        "endChar": 23
+      },
+      "revId": "87ba268e34bf14f436dd209d72c1acb550b6cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ef837fa_931d985a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-09T15:46:22Z",
+      "side": 1,
+      "message": "This will recompute this each time through the loop -- it\u0027s not clear to me why you\u0027d want to do that.",
+      "range": {
+        "startLine": 215,
+        "startChar": 8,
+        "endLine": 215,
+        "endChar": 69
+      },
+      "revId": "87ba268e34bf14f436dd209d72c1acb550b6cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40adb992_1b1b4599",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-09T15:46:22Z",
+      "side": 1,
+      "message": "// if interleaved the Y plane will have RBGA color type",
+      "range": {
+        "startLine": 222,
+        "startChar": 15,
+        "endLine": 222,
+        "endChar": 64
+      },
+      "revId": "87ba268e34bf14f436dd209d72c1acb550b6cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
