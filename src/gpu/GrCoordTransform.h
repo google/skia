@@ -21,9 +21,9 @@ class GrTexture;
 class GrCoordTransform {
 public:
     GrCoordTransform()
-        : fProxy(nullptr)
-        , fNormalize(false)
-        , fReverseY(false) {
+            : fProxy(nullptr)
+            , fNormalize(false)
+            , fReverseY(false) {
         SkDEBUGCODE(fInProcessor = false);
     }
 
