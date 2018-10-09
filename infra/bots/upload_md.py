@@ -38,7 +38,7 @@ def main():
                              cc_list=CC_LIST) as git_branch:
       # Run bookmaker binary.
       cmd = [args.bookmaker_binary,
-             '-b', 'docs',
+             '-a', 'docs/status.json',
              '-f', args.fiddlecli_output,
              '-r', 'site/user/api',
              ]
