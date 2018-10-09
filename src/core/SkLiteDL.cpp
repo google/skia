@@ -46,15 +46,15 @@ static const D* pod(const T* op, size_t offset = 0) {
 }
 
 namespace {
-#define TYPES(M)                                                                \
-    M(Flush) M(Save) M(Restore) M(SaveLayer)                                    \
-    M(Concat) M(SetMatrix) M(Translate)                                         \
-    M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                          \
-    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawRegion) M(DrawOval) M(DrawArc)   \
-    M(DrawRRect) M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture) \
-    M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice)          \
-    M(DrawText) M(DrawPosText) M(DrawPosTextH)                                  \
-    M(DrawTextRSXform) M(DrawTextBlob)                                          \
+#define TYPES(M)                                                                       \
+    M(Flush) M(Save) M(Restore) M(SaveLayer)                                           \
+    M(Concat) M(SetMatrix) M(Translate)                                                \
+    M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                                 \
+    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawRegion) M(DrawOval) M(DrawArc)          \
+    M(DrawRRect) M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture)        \
+    M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice) M(DrawImageSet) \
+    M(DrawText) M(DrawPosText) M(DrawPosTextH)                                         \
+    M(DrawTextRSXform) M(DrawTextBlob)                                                 \
     M(DrawPatch) M(DrawPoints) M(DrawVertices) M(DrawAtlas) M(DrawShadowRec)
 
 #define M(T) T,
@@ -325,7 +325,24 @@ namespace {
                                 &paint);
         }
     };
-
+    struct DrawImageSet final : Op {
+        static const auto kType = Type::DrawImageSet;
+        DrawImageSet(const SkCanvas::ImageSetEntry set[], int count, float alpha,
+                     SkFilterQuality quality, SkBlendMode xfermode)
+                : count(count), alpha(alpha), quality(quality), xfermode(xfermode), set(count) {
+            for (int i = 0; i < count; ++i) {
+                this->set[i] = set[i];
+            }
+        }
+        int                                   count;
+        float                                 alpha;
+        SkFilterQuality                       quality;
+        SkBlendMode                           xfermode;
+        SkAutoTArray<SkCanvas::ImageSetEntry> set;
+        void draw(SkCanvas* c, const SkMatrix&) const {
+            c->experimental_DrawImageSetV0(set.get(), count, alpha, quality, xfermode);
+        }
+    };
     struct DrawText final : Op {
         static const auto kType = Type::DrawText;
         DrawText(size_t bytes, SkScalar x, SkScalar y, const SkPaint& paint)
@@ -602,6 +619,11 @@ void SkLiteDL::drawImageLattice(sk_sp<const SkImage> image, const SkCanvas::Latt
                 lattice.fYDivs, ys,
                 lattice.fColors, fs,
                 lattice.fRectTypes, fs);
+}
+
+void SkLiteDL::drawImageSet(const SkCanvas::ImageSetEntry set[], int cnt, float alpha,
+                            SkFilterQuality filterQuality, SkBlendMode mode) {
+    this->push<DrawImageSet>(0, set, cnt, alpha, filterQuality, mode);
 }
 
 void SkLiteDL::drawText(const void* text, size_t bytes,

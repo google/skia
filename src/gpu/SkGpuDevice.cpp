@@ -1447,6 +1447,62 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
     this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
+#if SK_USE_GPU_IMAGE_SET
+void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int cnt, float alpha,
+                               SkFilterQuality filterQuality, SkBlendMode mode) {
+    SkASSERT(cnt > 0);
+    if (mode != SkBlendMode::kSrcOver) {
+        INHERITED::drawImageSet(set, cnt, alpha, filterQuality, mode);
+        return;
+    }
+    GrSamplerState sampler;
+    sampler.setFilterMode(kNone_SkFilterQuality == filterQuality ? GrSamplerState::Filter::kNearest
+                                                                 : GrSamplerState::Filter::kBilerp);
+    std::unique_ptr<GrRenderTargetContext::TextureSetEntry[]> textures(
+            new GrRenderTargetContext::TextureSetEntry[cnt]);
+    GrColor color = GrColorPackA4(SkToUInt(SkTClamp(SkScalarRoundToInt(alpha * 255), 0, 255)));
+    int base = 0, n = 0;
+    auto flush = [&] {
+        if (n > 0) {
+            auto textureXform = GrColorSpaceXform::Make(
+                    set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
+                    fRenderTargetContext->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType);
+            fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
+                                                 sampler.filter(), color, this->ctm(),
+                                                 std::move(textureXform), nullptr);
+        }
+    };
+    for (int i = 0; i < cnt; ++i) {
+        textures[i].fProxy =
+                as_IB(set[i].fImage.get())
+                        ->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(), nullptr,
+                                            nullptr, nullptr);
+        textures[i].fSrcRect = set[i].fSrcRect;
+        textures[i].fDstRect = set[i].fDstRect;
+        textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
+        // If we failed to make a proxy or our proxy can't be grouped with the previous proxies then
+        // draw the accumulated set and reset.
+        if (!textures[i].fProxy) {
+            flush();
+            base = i + 1;
+            n = 0;
+        } else if (n > 0 &&
+                   (textures[i].fProxy->textureType() != textures[base].fProxy->textureType() ||
+                    textures[i].fProxy->config() != textures[base].fProxy->config() ||
+                    set[i].fImage->alphaType() != set[base].fImage->alphaType() ||
+                    !SkColorSpace::Equals(set[i].fImage->colorSpace(),
+                                          set[base].fImage->colorSpace()))) {
+            flush();
+            base = i;
+            n = 1;
+        } else {
+            ++n;
+        }
+    }
+    flush();
+}
+#endif
+
 static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
                                 const SkPaint& skPaint, const SkMatrix& matrix, SkBlendMode bmode,
                                 bool hasTexs, bool hasColors, GrPaint* grPaint) {

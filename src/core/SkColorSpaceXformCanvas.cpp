@@ -171,6 +171,18 @@ public:
                                       dst, MaybePaint(paint, fXformer.get()));
         }
     }
+    void onDrawImageSet(const SkCanvas::ImageSetEntry set[], int cnt, float alpha,
+                        SkFilterQuality filterQuality, SkBlendMode mode) override {
+        SkAutoTArray<ImageSetEntry> xformedSet(cnt);
+        for (int i = 0; i < cnt; ++i) {
+            xformedSet[i].fImage = this->prepareImage(set[i].fImage.get());
+            xformedSet[i].fSrcRect = set[i].fSrcRect;
+            xformedSet[i].fDstRect = set[i].fDstRect;
+            xformedSet[i].fAAFlags = set[i].fAAFlags;
+        }
+        fTarget->experimental_DrawImageSetV0(xformedSet.get(), cnt, alpha, filterQuality, mode);
+    }
+
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
                      const SkColor* colors, int count, SkBlendMode mode,
                      const SkRect* cull, const SkPaint* paint) override {
