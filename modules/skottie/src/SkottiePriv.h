@@ -44,7 +44,8 @@ using AnimatorScope = sksg::AnimatorList;
 class AnimationBuilder final : public SkNoncopyable {
 public:
     AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, sk_sp<PropertyObserver>,
-                     sk_sp<Logger>, Animation::Builder::Stats*, float duration, float framerate);
+                     sk_sp<Logger>, sk_sp<AnnotationObserver>,
+                     Animation::Builder::Stats*, float duration, float framerate);
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
 
@@ -85,6 +86,8 @@ private:
     void parseAssets(const skjson::ArrayValue*);
     void parseFonts (const skjson::ObjectValue* jfonts,
                      const skjson::ArrayValue* jchars);
+
+    void dispatchAnnotations(const skjson::ObjectValue*) const;
 
     sk_sp<sksg::RenderNode> attachComposition(const skjson::ObjectValue&, AnimatorScope*) const;
     sk_sp<sksg::RenderNode> attachLayer(const skjson::ObjectValue*, AttachLayerContext*) const;
@@ -162,6 +165,7 @@ private:
     LazyResolveFontMgr         fLazyFontMgr;
     sk_sp<PropertyObserver>    fPropertyObserver;
     sk_sp<Logger>              fLogger;
+    sk_sp<AnnotationObserver>  fAnnotationObserver;
     Animation::Builder::Stats* fStats;
     const float                fDuration,
                                fFrameRate;

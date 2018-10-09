@@ -155,17 +155,21 @@ sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcol
 
 AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
+                                   sk_sp<AnnotationObserver> aobserver,
                                    Animation::Builder::Stats* stats,
                                    float duration, float framerate)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
     , fPropertyObserver(std::move(pobserver))
     , fLogger(std::move(logger))
+    , fAnnotationObserver(std::move(aobserver))
     , fStats(stats)
     , fDuration(duration)
     , fFrameRate(framerate) {}
 
 std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
+    this->dispatchAnnotations(jroot["annotations"]);
+
     this->parseAssets(jroot["assets"]);
     this->parseFonts(jroot["fonts"], jroot["chars"]);
 
@@ -185,6 +189,20 @@ void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
     for (const skjson::ObjectValue* asset : *jassets) {
         if (asset) {
             fAssets.set(ParseDefault<SkString>((*asset)["id"], SkString()), { asset, false });
+        }
+    }
+}
+
+void AnimationBuilder::dispatchAnnotations(const skjson::ObjectValue* jannotations) const {
+    if (!fAnnotationObserver || !jannotations) {
+        return;
+    }
+
+    for (const auto& a : *jannotations) {
+        if (const skjson::StringValue* value = a.fValue) {
+            fAnnotationObserver->onAnnotation(a.fKey.begin(), value->begin());
+        } else {
+            this->log(Logger::Level::kWarning, &a.fValue, "Ignoring unexpected annotation value.");
         }
     }
 }
@@ -278,6 +296,11 @@ Animation::Builder& Animation::Builder::setLogger(sk_sp<Logger> logger) {
     return *this;
 }
 
+Animation::Builder& Animation::Builder::setAnnotationObserver(sk_sp<AnnotationObserver> aobserver) {
+    fAnnotationObserver = std::move(aobserver);
+    return *this;
+}
+
 sk_sp<Animation> Animation::Builder::make(SkStream* stream) {
     if (!stream->hasLength()) {
         // TODO: handle explicit buffering?
@@ -348,6 +371,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     internal::AnimationBuilder builder(std::move(resolvedProvider), fFontMgr,
                                        std::move(fPropertyObserver),
                                        std::move(fLogger),
+                                       std::move(fAnnotationObserver),
                                        &fStats, duration, fps);
     auto scene = builder.parse(json);
 
