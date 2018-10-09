@@ -370,11 +370,15 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
             this->clear(nullptr, clearColor, CanClearFullscreen::kYes);
             return;
         }
-        // If the clip intersection with the device is an aligned rectangle, it can be a clear
-        // limited by the scissor test.
+        // If the clip intersection with the device is a non-rounded rectangle, it could be a
+        // implemented faster as a clear limited by the scissor test. Not all rectangular clips can
+        // be converted into a simple clear (see GrReducedClip), but for non-AA and "AA rects that
+        // line up with pixel boundaries", we can map it to a clear using the rounded rect.
         rrectState = clip.isRRect(r, &rrect, &aa) ? kValid : kNotValid;
-        if (rrectState == kValid && aa == GrAA::kNo && rrect.isRect()) {
-            SkIRect scissorRect = GrClip::GetPixelIBounds(rrect.getBounds());
+        if (rrectState == kValid && rrect.isRect() && (aa == GrAA::kNo ||
+                                                       GrClip::IsPixelAligned(rrect.getBounds()))) {
+            SkIRect scissorRect;
+            rrect.getBounds().round(&scissorRect);
             this->clear(&scissorRect, clearColor, CanClearFullscreen::kNo);
             return;
         }
