@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a1364e9_b21d88d1",
+        "filename": "infra/bots/buildstats/buildstats_flutter.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-09T21:23:33Z",
+      "side": 1,
+      "message": "Is it possible for these to be 4 separate steps?  It\u0027d be easier to click one of four links in Milo than to find each of these (somewhat long) sections in the single file.",
+      "revId": "09ccb20afcef36d6486797bef7450b469a82206a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
