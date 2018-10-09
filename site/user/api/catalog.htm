@@ -3856,21 +3856,21 @@
     "file": "SkCanvas_Reference",
     "name": "State_Stack_2"
 },
-    "Color_Alpha_Constants_Opaque": {
-    "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> srcPixels;\n    srcPixels.resize(source.height() * source.rowBytes());\n    SkPixmap pixmap(SkImageInfo::MakeN32Premul(source.width(), source.height()),\n                    &srcPixels.front(), source.rowBytes());\n    source.readPixels(pixmap, 0, 0);\n    for (int y = 0; y < source.height(); ++y) {\n        for (int x = 0; x < source.width(); ++x) {\n            SkPMColor pixel = srcPixels[y * source.width() + x];\n            const SkColor color = SkUnPreMultiply::PMColorToColor(pixel);\n            if (SkColorGetA(color) == SK_AlphaOPAQUE) {\n                srcPixels[y * source.width() + x] = SK_ColorGREEN;\n            }\n        }\n    }\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
-    "width": 256,
-    "height": 128,
-    "hash": "0424f67ebc2858e8fd04ae3367b115ff",
-    "file": "SkColor_Reference",
-    "name": "Alpha_Constants_Opaque"
-},
-    "Color_Alpha_Constants_Transparent": {
+    "Color_Alpha_Constants": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> srcPixels;\n    srcPixels.resize(source.height() * source.rowBytes());\n    SkPixmap pixmap(SkImageInfo::MakeN32Premul(source.width(), source.height()),\n                    &srcPixels.front(), source.rowBytes());\n    source.readPixels(pixmap, 0, 0);\n    for (int y = 0; y < 16; ++y) {\n        for (int x = 0; x < 16; ++x) {\n            int32_t* blockStart = &srcPixels.front() + y * source.width() * 16 + x * 16;\n            size_t transparentCount = 0;\n            for (int fillY = 0; fillY < source.height() / 16; ++fillY) {\n                for (int fillX = 0; fillX < source.width() / 16; ++fillX) {\n                    const SkColor color = SkUnPreMultiply::PMColorToColor(blockStart[fillX]);\n                    transparentCount += SkColorGetA(color) == SK_AlphaTRANSPARENT;\n                }\n                blockStart += source.width();\n            }\n            if (transparentCount > 200) {\n                blockStart = &srcPixels.front() + y * source.width() * 16 + x * 16;\n                for (int fillY = 0; fillY < source.height() / 16; ++fillY) {\n                    for (int fillX = 0; fillX < source.width() / 16; ++fillX) {\n                        blockStart[fillX] = SK_ColorRED;\n                    }\n                    blockStart += source.width();\n                }\n            }\n        }\n    }\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
     "height": 128,
     "hash": "bc9c7ea424d10bbcd1e5a88770d4794e",
     "file": "SkColor_Reference",
-    "name": "Alpha_Constants_Transparent"
+    "name": "Alpha_Constants"
+},
+    "Color_Alpha_Constants_a": {
+    "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> srcPixels;\n    srcPixels.resize(source.height() * source.rowBytes());\n    SkPixmap pixmap(SkImageInfo::MakeN32Premul(source.width(), source.height()),\n                    &srcPixels.front(), source.rowBytes());\n    source.readPixels(pixmap, 0, 0);\n    for (int y = 0; y < source.height(); ++y) {\n        for (int x = 0; x < source.width(); ++x) {\n            SkPMColor pixel = srcPixels[y * source.width() + x];\n            const SkColor color = SkUnPreMultiply::PMColorToColor(pixel);\n            if (SkColorGetA(color) == SK_AlphaOPAQUE) {\n                srcPixels[y * source.width() + x] = SK_ColorGREEN;\n            }\n        }\n    }\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "0424f67ebc2858e8fd04ae3367b115ff",
+    "file": "SkColor_Reference",
+    "name": "Alpha_Constants_2"
 },
     "Color_Color_Constants": {
     "code": "#define SKIA_COLOR_PAIR(name) \"SK_Color\" #name, SK_Color##name\n\nvoid draw(SkCanvas* canvas) {\n    struct ColorCompare {\n        const char* fSVGName;\n        SkColor fSVGColor;\n        const char* fSkiaName;\n        SkColor fSkiaColor;\n    } colorCompare[] = {  // see https://www.w3.org/TR/SVG/types.html#ColorKeywords\n        {\"black\",     SkColorSetRGB(  0,   0,   0),    SKIA_COLOR_PAIR(BLACK) },\n        {\"darkgray\",  SkColorSetRGB(169, 169, 169),    SKIA_COLOR_PAIR(DKGRAY) },\n        {\"gray\",      SkColorSetRGB(128, 128, 128),    SKIA_COLOR_PAIR(GRAY) },\n        {\"lightgray\", SkColorSetRGB(211, 211, 211),    SKIA_COLOR_PAIR(LTGRAY) },\n        {\"white\",     SkColorSetRGB(255, 255, 255),    SKIA_COLOR_PAIR(WHITE) },\n        {\"red\",       SkColorSetRGB(255,   0,   0),    SKIA_COLOR_PAIR(RED) },\n        {\"green\",     SkColorSetRGB(  0, 128,   0),    SKIA_COLOR_PAIR(GREEN) },\n        {\"blue\",      SkColorSetRGB(  0,   0, 255),    SKIA_COLOR_PAIR(BLUE) },\n        {\"yellow\",    SkColorSetRGB(255, 255,   0),    SKIA_COLOR_PAIR(YELLOW) },\n        {\"aqua\",      SkColorSetRGB(  0, 255, 255),    SKIA_COLOR_PAIR(CYAN) },\n        {\"fuchsia\",   SkColorSetRGB(255,   0, 255),    SKIA_COLOR_PAIR(MAGENTA) },\n    };\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(14);\n    for (auto compare : colorCompare) {\n        paint.setStyle(SkPaint::kFill_Style);\n        paint.setColor(compare.fSVGColor);\n        canvas->drawRect({5, 5, 15, 15}, paint);\n        paint.setColor(SK_ColorBLACK);\n        canvas->drawString(compare.fSVGName, 20, 16, paint);\n        paint.setColor(compare.fSkiaColor);\n        canvas->drawRect({105, 5, 115, 15}, paint);\n        paint.setColor(SK_ColorBLACK);\n        canvas->drawString(compare.fSkiaName, 120, 16, paint);\n        paint.setStyle(SkPaint::kStroke_Style);\n        canvas->drawRect({5, 5, 15, 15}, paint);\n        canvas->drawRect({105, 5, 115, 15}, paint);\n        canvas->translate(0, 20);\n    }\n}\n",
@@ -3880,29 +3880,29 @@
     "file": "SkColor_Reference",
     "name": "Color_Constants"
 },
-    "Color_Color_Constants_Black": {
-    "code": "void draw(SkCanvas* canvas) {\n    std::vector<uint32_t> srcPixels;\n    constexpr int width = 256;\n    constexpr int height = 256;\n    srcPixels.resize(width * height);\n    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());\n    pixmap.erase(SK_ColorTRANSPARENT);\n    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );\n    pixmap.erase(SK_ColorBLACK, { 48, 48, 168, 168 } );\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, 48, 48);\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "6971489f28291f08e429cc6ccc73b09b",
-    "file": "SkColor_Reference",
-    "name": "Color_Constants_Black"
-},
-    "Color_Color_Constants_Transparent": {
+    "Color_Color_Constants_a": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<uint32_t> srcPixels;\n    constexpr int width = 256;\n    constexpr int height = 256;\n    srcPixels.resize(width * height);\n    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());\n    pixmap.erase(SK_ColorTRANSPARENT);\n    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );\n    pixmap.erase(SK_ColorTRANSPARENT, { 48, 48, 168, 168 } );\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, 48, 48);\n}",
     "width": 256,
     "height": 256,
     "hash": "9ca1e2a5b9b4c92ecf4409d0813867d6",
     "file": "SkColor_Reference",
-    "name": "Color_Constants_Transparent"
+    "name": "Color_Constants_2"
 },
-    "Color_Color_Constants_White": {
+    "Color_Color_Constants_b": {
+    "code": "void draw(SkCanvas* canvas) {\n    std::vector<uint32_t> srcPixels;\n    constexpr int width = 256;\n    constexpr int height = 256;\n    srcPixels.resize(width * height);\n    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());\n    pixmap.erase(SK_ColorTRANSPARENT);\n    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );\n    pixmap.erase(SK_ColorBLACK, { 48, 48, 168, 168 } );\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, 48, 48);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "6971489f28291f08e429cc6ccc73b09b",
+    "file": "SkColor_Reference",
+    "name": "Color_Constants_3"
+},
+    "Color_Color_Constants_c": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<uint32_t> srcPixels;\n    constexpr int width = 256;\n    constexpr int height = 256;\n    srcPixels.resize(width * height);\n    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());\n    pixmap.erase(SK_ColorTRANSPARENT);\n    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );\n    pixmap.erase(SK_ColorWHITE, { 48, 48, 168, 168 } );\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, 48, 48);\n}",
     "width": 256,
     "height": 256,
     "hash": "fce650f997e802d4e55edf62b8437a2d",
     "file": "SkColor_Reference",
-    "name": "Color_Constants_White"
+    "name": "Color_Constants_4"
 },
     "Illustrations_Blend_Mode_Overview_Color_Blends": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    labelPaint.setTextAlign(SkPaint::kCenter_Align);\n    labelPaint.setTextSize(16);\n    SkPaint dstPaint = labelPaint;\n    dstPaint.setTextSize(80);\n    dstPaint.setColor(0xFF606080);\n    dstPaint.setTypeface(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()));\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    for (auto blend : { SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor,\n                        SkBlendMode::kLuminosity } ) {\n        canvas->drawString(\"&\", 50, 80, dstPaint);\n        srcPaint.setBlendMode(blend);\n        canvas->drawPath(srcPath, srcPaint);\n        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);\n        canvas->translate(90, 0);\n    }\n}",
