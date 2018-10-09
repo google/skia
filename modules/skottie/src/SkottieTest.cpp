@@ -12,6 +12,7 @@
 
 #include "Test.h"
 
+#include <tuple>
 #include <vector>
 
 using namespace skottie;
@@ -138,4 +139,60 @@ DEF_TEST(Skottie_Properties, reporter) {
     REPORTER_ASSERT(reporter, transforms[0].matrix == SkMatrix::MakeScale(0.5, 0.5));
     REPORTER_ASSERT(reporter, transforms[1].node_name.equals("layer_0"));
     REPORTER_ASSERT(reporter, transforms[1].matrix == SkMatrix::I());
+}
+
+DEF_TEST(Skottie_Annotations, reporter) {
+    static constexpr char json[] = R"({
+                                     "v": "5.2.1",
+                                     "w": 100,
+                                     "h": 100,
+                                     "fr": 1,
+                                     "ip": 0,
+                                     "op": 1,
+                                     "layers": [
+                                       {
+                                         "ty": 1,
+                                         "ind": 0,
+                                         "ip": 0,
+                                         "op": 1,
+                                         "ks": {
+                                           "o": { "a": 0, "k": 50 }
+                                         },
+                                         "sw": 100,
+                                         "sh": 100,
+                                         "sc": "#ffffff"
+                                       }
+                                     ],
+                                     "annotations": {
+                                       "key1": "foo",
+                                       "key2": "bar",
+                                       "key3": "baz"
+                                     }
+                                   })";
+
+    class TestAnnotationObserver final : public AnnotationObserver {
+    public:
+        void onAnnotation(const char key[], const char value[]) override {
+            fAnnotations.push_back(std::make_tuple(key, value));
+        }
+
+        std::vector<std::tuple<std::string, std::string>> fAnnotations;
+    };
+
+    SkMemoryStream stream(json, strlen(json));
+    auto observer = sk_make_sp<TestAnnotationObserver>();
+
+    auto animation = skottie::Animation::Builder()
+            .setAnnotationObserver(observer)
+            .make(&stream);
+
+    REPORTER_ASSERT(reporter, animation);
+
+    REPORTER_ASSERT(reporter, observer->fAnnotations.size() == 3ul);
+    REPORTER_ASSERT(reporter, std::get<0>(observer->fAnnotations[0]) == "key1");
+    REPORTER_ASSERT(reporter, std::get<1>(observer->fAnnotations[0]) == "foo");
+    REPORTER_ASSERT(reporter, std::get<0>(observer->fAnnotations[1]) == "key2");
+    REPORTER_ASSERT(reporter, std::get<1>(observer->fAnnotations[1]) == "bar");
+    REPORTER_ASSERT(reporter, std::get<0>(observer->fAnnotations[2]) == "key3");
+    REPORTER_ASSERT(reporter, std::get<1>(observer->fAnnotations[2]) == "baz");
 }
