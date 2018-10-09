@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "937eb683_25e858dd",
+        "filename": "infra/bots/assets/bloaty/create.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T16:36:45Z",
+      "side": 1,
+      "message": "Need to clean this up.  I recommend using utils.temp_dir.",
+      "range": {
+        "startLine": 22,
+        "startChar": 11,
+        "endLine": 22,
+        "endChar": 29
+      },
+      "revId": "929aef49bfcf918c5269532ff5891b7db93cf33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32dd6cc3_02d8c462",
+        "filename": "infra/bots/buildstats_cpp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T16:36:45Z",
+      "side": 1,
+      "message": "For organizational cleanliness, can we put this somewhere other than the root of infra/bots?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 2
+      },
+      "revId": "929aef49bfcf918c5269532ff5891b7db93cf33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e8b490e_9b41d8f8",
+        "filename": "infra/bots/buildstats_cpp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T16:36:45Z",
+      "side": 1,
+      "message": "If this will ever by run by anyone but a bot, it would be nice to use argparse or some such to document and describe these args.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 27
+      },
+      "revId": "929aef49bfcf918c5269532ff5891b7db93cf33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb6d20dd_7c23f909",
+        "filename": "infra/bots/buildstats_cpp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T16:36:45Z",
+      "side": 1,
+      "message": "Nit: usage of both \"print\" and \"print()\" is a little odd",
+      "range": {
+        "startLine": 42,
+        "startChar": 2,
+        "endLine": 42,
+        "endChar": 8
+      },
+      "revId": "929aef49bfcf918c5269532ff5891b7db93cf33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "348ea2c0_265539e3",
+        "filename": "infra/bots/recipes/compute_buildstats.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T16:36:45Z",
+      "side": 1,
+      "message": "This is an opportunity for the lib(s) to not be present or in the wrong place and for no error to occur, causing us to succeed incorrectly.  IMO we should determine (based on task name?) whether the lib should be present, and if so, error out if it\u0027s not.",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 18
+      },
+      "revId": "929aef49bfcf918c5269532ff5891b7db93cf33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee31a2db_91eb88e6",
+        "filename": "infra/bots/recipes/compute_buildstats.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-09T16:36:45Z",
+      "side": 1,
+      "message": "Uber-nit: 4-space indent for broken lines.",
+      "range": {
+        "startLine": 112,
+        "startChar": 6,
+        "endLine": 112,
+        "endChar": 8
+      },
+      "revId": "929aef49bfcf918c5269532ff5891b7db93cf33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
