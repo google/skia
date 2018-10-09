@@ -197,6 +197,12 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
                                                        TextureReleaseProc textureReleaseProc,
                                                        PromiseDoneProc promiseDoneProc,
                                                        TextureContext textureContexts[]) {
+    if (!promiseDoneProc) {
+        return nullptr;
+    }
+
+    // TODO: fill in the promise image helpers here so promiseDoneProc will always be called
+
     if (!context) {
         return nullptr;
     }
@@ -205,7 +211,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         return nullptr;
     }
 
-    if (!textureFulfillProc || !textureReleaseProc || !promiseDoneProc) {
+    if (!textureFulfillProc || !textureReleaseProc) {
         return nullptr;
     }
 
