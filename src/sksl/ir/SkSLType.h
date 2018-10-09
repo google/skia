@@ -62,9 +62,9 @@ public:
 
     // Create an "other" (special) type with the given name. These types cannot be directly
     // referenced from user code.
-    Type(String name)
+    Type(const char* name)
     : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    , fNameString(name)
     , fTypeKind(kOther_Kind)
     , fNumberKind(kNonnumeric_NumberKind) {
         fName.fChars = fNameString.c_str();
@@ -72,9 +72,9 @@ public:
     }
 
     // Create an "other" (special) type that supports field access.
-    Type(String name, std::vector<Field> fields)
+    Type(const char* name, std::vector<Field> fields)
     : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    , fNameString(name)
     , fTypeKind(kOther_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
     , fFields(std::move(fields)) {
@@ -93,9 +93,9 @@ public:
     }
 
     // Create a generic type which maps to the listed types.
-    Type(String name, std::vector<const Type*> types)
+    Type(const char* name, std::vector<const Type*> types)
     : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    , fNameString(name)
     , fTypeKind(kGeneric_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
     , fCoercibleTypes(std::move(types)) {
@@ -115,9 +115,9 @@ public:
     }
 
     // Create a scalar type.
-    Type(String name, NumberKind numberKind, int priority)
+    Type(const char* name, NumberKind numberKind, int priority)
     : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    , fNameString(name)
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
     , fPriority(priority)
@@ -128,9 +128,12 @@ public:
     }
 
     // Create a scalar type which can be coerced to the listed types.
-    Type(String name, NumberKind numberKind, int priority, std::vector<const Type*> coercibleTypes)
+    Type(const char* name,
+         NumberKind numberKind,
+         int priority,
+         std::vector<const Type*> coercibleTypes)
     : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    , fNameString(name)
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
     , fPriority(priority)
@@ -142,7 +145,7 @@ public:
     }
 
     // Create a vector type.
-    Type(String name, const Type& componentType, int columns)
+    Type(const char* name, const Type& componentType, int columns)
     : Type(name, kVector_Kind, componentType, columns) {}
 
     // Create a vector or array type.
@@ -160,9 +163,9 @@ public:
     }
 
     // Create a matrix type.
-    Type(String name, const Type& componentType, int columns, int rows)
+    Type(const char* name, const Type& componentType, int columns, int rows)
     : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    , fNameString(name)
     , fTypeKind(kMatrix_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
     , fComponentType(&componentType)
@@ -174,10 +177,10 @@ public:
     }
 
     // Create a sampler type.
-    Type(String name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
+    Type(const char* name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
          bool isSampled)
     : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    , fNameString(name)
     , fTypeKind(kSampler_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
     , fDimensions(dimensions)
