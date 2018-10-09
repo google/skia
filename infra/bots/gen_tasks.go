@@ -974,6 +974,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 func buildstats(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string) string {
 	task := kitchenTask(name, "compute_buildstats", "swarm_recipe.isolate", "", swarmDimensions(parts), nil, OUTPUT_PERF)
 	task.Dependencies = append(task.Dependencies, compileTaskName)
+	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("bloaty"))
 	b.MustAddTask(name, task)
 
 	// Always upload the results (just don't run the task otherwise.)
