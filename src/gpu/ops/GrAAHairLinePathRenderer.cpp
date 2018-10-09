@@ -498,12 +498,17 @@ static void intersect_lines(const SkPoint& ptA, const SkVector& normA,
 
     SkScalar wInv = normA.fX * normB.fY - normA.fY * normB.fX;
     wInv = SkScalarInvert(wInv);
+    if (!SkScalarIsFinite(wInv)) {
+        // lines are parallel, pick the point in between
+        *result = (ptA + ptB)*SK_ScalarHalf;
+        *result += normA;
+    } else {
+        result->fX = normA.fY * lineBW - lineAW * normB.fY;
+        result->fX *= wInv;
 
-    result->fX = normA.fY * lineBW - lineAW * normB.fY;
-    result->fX *= wInv;
-
-    result->fY = lineAW * normB.fX - normA.fX * lineBW;
-    result->fY *= wInv;
+        result->fY = lineAW * normB.fX - normA.fX * lineBW;
+        result->fY *= wInv;
+    }
 }
 
 static void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kQuadNumVertices]) {
@@ -550,8 +555,16 @@ static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     SkVector cb = b;
     cb -= c;
 
+    // After the transform we might have a line, try to do something reasonable
+    if (toDevice && SkPointPriv::LengthSqd(ab) <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
+        ab = cb;
+    }
+    if (toDevice && SkPointPriv::LengthSqd(cb) <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
+        cb = ab;
+    }
+
     // We should have already handled degenerates
-    SkASSERT(ab.length() > 0 && cb.length() > 0);
+    SkASSERT(toDevice || (ab.length() > 0 && cb.length() > 0));
 
     ab.normalize();
     SkVector abN = SkPointPriv::MakeOrthog(ab, SkPointPriv::kLeft_Side);
@@ -570,6 +583,9 @@ static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     a1.fPos = a;
     a1.fPos -= abN;
 
+    if (toDevice && SkPointPriv::LengthSqd(ac) <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
+        c = b;
+    }
     c0.fPos = c;
     c0.fPos += cbN;
     c1.fPos = c;
