@@ -4,6 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+set -x
 
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 HTML_SHELL=$BASE_DIR/shell.html
@@ -80,7 +81,7 @@ if [[ -z $NINJA ]]; then
   NINJA=$BUILD_DIR/depot_tools/ninja
 fi
 
-set -ex
+set -e
 
 echo "Compiling bitcode"
 
@@ -119,7 +120,7 @@ ${NINJA} -C ${BUILD_DIR} libpathkit.a
 
 echo "Generating WASM"
 
-em++ $RELEASE_CONF -std=c++14 \
+${EMCXX} $RELEASE_CONF -std=c++14 \
 -Iinclude/config \
 -Iinclude/core \
 -Iinclude/effects \
