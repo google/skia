@@ -396,8 +396,7 @@ public:
     }
 
     bool onGetROPixels(SkBitmap* dst) const override {
-        const auto desc = SkBitmapCacheDesc::Make(this->uniqueID(), kN32_SkColorType,
-                                                  fColorSpace.get(), this->subset());
+        const auto desc = SkBitmapCacheDesc::Make(this->uniqueID(), this->subset());
         if (SkBitmapCache::Find(desc, dst)) {
             SkASSERT(dst->getGenerationID() == this->uniqueID());
             SkASSERT(dst->isImmutable());

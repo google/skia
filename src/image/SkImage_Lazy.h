@@ -59,8 +59,8 @@ public:
 
     bool onIsValid(GrContext*) const override;
 
-    // Only return true if the generate has already been cached, in a format that matches the info.
-    bool lockAsBitmapOnlyIfAlreadyCached(SkBitmap*, const SkImageInfo&) const;
+    // Only return true if the generate has already been cached.
+    bool lockAsBitmapOnlyIfAlreadyCached(SkBitmap*) const;
     // Call the underlying generator directly
     bool directGeneratePixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                               int srcX, int srcY) const;

@@ -61,6 +61,7 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, SkColorSpace*, CachingHint chin
     // rolled the dstColorSpace into the key).
     const auto desc = SkBitmapCacheDesc::Make(this);
     if (SkBitmapCache::Find(desc, dst)) {
+        SkASSERT(dst->getGenerationID() == this->uniqueID());
         SkASSERT(dst->isImmutable());
         SkASSERT(dst->getPixels());
         return true;

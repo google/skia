@@ -337,6 +337,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
+    const uint32_t uniqueID = image->uniqueID();
     const auto desc = SkBitmapCacheDesc::Make(image.get());
 
     auto surface(SkSurface::MakeRaster(info));
@@ -352,6 +353,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu, reporter, ctxInfo) {
     {
         SkBitmap cachedBitmap;
         if (SkBitmapCache::Find(desc, &cachedBitmap)) {
+            REPORTER_ASSERT(reporter, cachedBitmap.getGenerationID() == uniqueID);
             REPORTER_ASSERT(reporter, cachedBitmap.isImmutable());
             REPORTER_ASSERT(reporter, cachedBitmap.getPixels());
         } else {
