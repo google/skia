@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae8e184c_05bffae6",
+        "filename": "src/core/SkBitmapCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-09T14:57:51Z",
+      "side": 1,
+      "message": "Should we make sure SkColorSpace::hash() never returns 0?  Or write this as\n\n  if (!colorSpace) {\n      return 0;\n  }\n  uint64_t hash \u003d colorSpace-\u003ehash();\n  return hash \u003d\u003d 0 ? 1 : hash;\n\n?  Or maybe,\n\n  if (colorSpace \u003d\u003d nullptr) {\n      colorSpace \u003d sk_srgb_singleton();\n  }\n  return colorSpace-\u003ehash();",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 47
+      },
+      "revId": "596bfade5d57af605ee194791757474d1ac691ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f184a5c_3c1a72ed",
+        "filename": "src/core/SkBitmapCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-09T14:57:51Z",
+      "side": 1,
+      "message": "Maybe\n\n   SkColorSpace* fColorSpace;  // no ref held\n\nThat\u0027d cut the chance of collision to zero?",
+      "revId": "596bfade5d57af605ee194791757474d1ac691ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

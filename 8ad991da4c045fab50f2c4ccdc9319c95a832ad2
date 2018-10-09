@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be616002_466adc9c",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-09T14:57:51Z",
+      "side": 0,
+      "message": "Any chance this is now dead code?",
+      "range": {
+        "startLine": 240,
+        "startChar": 28,
+        "endLine": 240,
+        "endChar": 46
+      },
+      "revId": "8ad991da4c045fab50f2c4ccdc9319c95a832ad2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
