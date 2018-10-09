@@ -7,15 +7,15 @@ release:
 	# Does an incremental build where possible.
 	./compile.sh
 	mkdir -p ./canvas-kit/bin
-	cp ../../out/canvaskit_wasm/skia.js   ./canvas-kit/bin
-	cp ../../out/canvaskit_wasm/skia.wasm ./canvas-kit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvas-kit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvas-kit/bin
 
 debug:
 	# Does an incremental build where possible.
 	./compile.sh debug
 	mkdir -p ./canvas-kit/bin
-	cp ../../out/canvaskit_wasm/skia.js   ./canvas-kit/bin
-	cp ../../out/canvaskit_wasm/skia.wasm ./canvas-kit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvas-kit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvas-kit/bin
 
 local-example:
 	rm -rf node_modules/canvas-kit

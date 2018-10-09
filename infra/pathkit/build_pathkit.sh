@@ -9,11 +9,13 @@
 # is mounted at /OUT
 
 # For example:
-# docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT gcr.io/skia-public/emsdk-release:1.38.6_jre /SRC/infra/pathkit/docker/build_pathkit.sh
+# docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT gcr.io/skia-public/emsdk-release:1.38.6_jre /SRC/infra/pathkit/build_pathkit.sh
 
-#BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/pathkit/docker)
+set -ex
+
+#BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/pathkit)
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
-PATHKIT_DIR=$BASE_DIR/../../../modules/pathkit
+PATHKIT_DIR=$BASE_DIR/../../modules/pathkit
 
 # Clean out previous builds
 rm /OUT/*
