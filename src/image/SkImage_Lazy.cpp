@@ -136,11 +136,10 @@ SkImage_Lazy::~SkImage_Lazy() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-static bool check_output_bitmap(const SkBitmap& bitmap, const SkImageInfo& info) {
+static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
+    SkASSERT(bitmap.getGenerationID() == expectedID);
     SkASSERT(bitmap.isImmutable());
     SkASSERT(bitmap.getPixels());
-    SkASSERT(bitmap.colorType() == info.colorType());
-    SkASSERT(SkColorSpace::Equals(bitmap.colorSpace(), info.colorSpace()));
     return true;
 }
 
@@ -158,12 +157,10 @@ bool SkImage_Lazy::directGeneratePixels(const SkImageInfo& info, void* pixels, s
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImage_Lazy::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap,
-                                                   const SkImageInfo& dstInfo) const {
-    auto desc = SkBitmapCacheDesc::Make(fUniqueID, dstInfo.colorType(), dstInfo.colorSpace(),
-                                        SkIRect::MakeSize(fInfo.dimensions()));
+bool SkImage_Lazy::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap) const {
+    auto desc = SkBitmapCacheDesc::Make(fUniqueID, SkIRect::MakeSize(fInfo.dimensions()));
     return SkBitmapCache::Find(desc, bitmap) &&
-           check_output_bitmap(*bitmap, dstInfo);
+           check_output_bitmap(*bitmap, fUniqueID);
 }
 
 static bool generate_pixels(SkImageGenerator* gen, const SkPixmap& pmap, int originX, int originY) {
@@ -204,7 +201,8 @@ static bool generate_pixels(SkImageGenerator* gen, const SkPixmap& pmap, int ori
 
 bool SkImage_Lazy::lockAsBitmap(SkBitmap* bitmap, SkImage::CachingHint chint,
                                 const SkImageInfo& info) const {
-    if (this->lockAsBitmapOnlyIfAlreadyCached(bitmap, info)) {
+    // TODO: Verify dstColorSpace here
+    if (this->lockAsBitmapOnlyIfAlreadyCached(bitmap)) {
         return true;
     }
 
@@ -212,8 +210,7 @@ bool SkImage_Lazy::lockAsBitmap(SkBitmap* bitmap, SkImage::CachingHint chint,
     SkBitmapCache::RecPtr cacheRec;
     SkPixmap pmap;
     if (SkImage::kAllow_CachingHint == chint) {
-        auto desc = SkBitmapCacheDesc::Make(fUniqueID, info.colorType(), info.colorSpace(),
-                                            SkIRect::MakeSize(info.dimensions()));
+        auto desc = SkBitmapCacheDesc::Make(fUniqueID, SkIRect::MakeSize(info.dimensions()));
         cacheRec = SkBitmapCache::Alloc(desc, info, &pmap);
         if (!cacheRec) {
             return false;
@@ -234,13 +231,16 @@ bool SkImage_Lazy::lockAsBitmap(SkBitmap* bitmap, SkImage::CachingHint chint,
 
     if (cacheRec) {
         SkBitmapCache::Add(std::move(cacheRec), bitmap);
+        SkASSERT(bitmap->getPixels());  // we're locked
+        SkASSERT(bitmap->isImmutable());
+        SkASSERT(bitmap->getGenerationID() == fUniqueID);
         this->notifyAddedToRasterCache();
     } else {
         *bitmap = tmpBitmap;
-        bitmap->setImmutable();
+        bitmap->pixelRef()->setImmutableWithID(fUniqueID);
     }
 
-    check_output_bitmap(*bitmap, info);
+    check_output_bitmap(*bitmap, fUniqueID);
     return true;
 }
 
@@ -251,7 +251,7 @@ bool SkImage_Lazy::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
     SkColorSpace* dstColorSpace = dstInfo.colorSpace();
     SkBitmap bm;
     if (kDisallow_CachingHint == chint) {
-        if (this->lockAsBitmapOnlyIfAlreadyCached(&bm, dstInfo)) {
+        if (this->lockAsBitmapOnlyIfAlreadyCached(&bm)) {
             return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
         } else {
             // Try passing the caller's buffer directly down to the generator. If this fails we
