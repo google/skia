@@ -19,7 +19,7 @@ def main():
   propstr = sys.argv[4]
 
   results = {
-    'keys': { },
+    'key': { },
     'results': { }
   }
 
@@ -29,7 +29,7 @@ def main():
 
   keys = keystr.split(' ')
   for i in range(0, len(keys), 2):
-    results['keys'][keys[i]] = keys[i+1]
+    results['key'][keys[i]] = keys[i+1]
 
   r = {
     'total_size_bytes': os.path.getsize(input_file)
