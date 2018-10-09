@@ -14,11 +14,13 @@ if [[ ! -d $EMSDK ]]; then
 fi
 
 BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
-
+mkdir -p $BUILD_DIR
 # Navigate to SKIA_HOME from where this file is located.
 pushd $BASE_DIR/../..
 
 source $EMSDK/emsdk_env.sh
+EMCC=`which emcc`
+EMCXX=`which em++`
 
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE"
 EXTRA_CFLAGS="\"-DSK_RELEASE\""
@@ -28,11 +30,17 @@ if [[ $@ == *debug* ]]; then
   RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
 fi
 
+# Turn off exiting while we check for ninja (which may not be on PATH)
+set +e
+NINJA=`which ninja`
+if [[ -z $NINJA ]]; then
+  git clone "https://chromium.googlesource.com/chromium/tools/depot_tools.git" --depth 1 $BUILD_DIR/depot_tools
+  NINJA=$BUILD_DIR/depot_tools/ninja
+fi
+# Re-enable error checking
+set -e
 
 echo "Compiling bitcode"
-
-EMCC=`which emcc`
-EMCXX=`which em++`
 
 # Inspired by https://github.com/Zubnix/skia-wasm-port/blob/master/build_bindings.sh
 ./bin/gn gen ${BUILD_DIR} \
@@ -68,7 +76,7 @@ EMCXX=`which em++`
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
 
-ninja -C ${BUILD_DIR} libskia.a
+${NINJA} -C ${BUILD_DIR} libskia.a
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
@@ -132,4 +140,4 @@ ${EMCC} \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WASM=1 \
-    -o $BUILD_DIR/skia.js
+    -o $BUILD_DIR/canvaskit.js
