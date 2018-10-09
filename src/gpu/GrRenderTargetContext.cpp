@@ -351,18 +351,50 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
     SkRect r = fRenderTargetProxy->getBoundsRect();
 
     SkRRect rrect;
-    GrAA aa;
+    GrAA aa = GrAA::kNo;
+
+    // rrect is calculated in one of two places, don't do it twice
+    enum RRectState {
+        kUnknown, kValid, kNotValid
+    };
+    RRectState rrectState = kUnknown;
+
+    // Check if the paint is a constant color, which is the first criterion to being able to turn
+    // the drawPaint() into a clear(). More expensive geometry checks can happen after that.
+    GrColor clearColor;
+    if (paint.isConstantBlendedColor(&clearColor)) {
+        // Regardless of the actual clip geometry, if it completely covers the device bounds it can
+        // be turned into a fullscreen clear.
+        if (clip.quickContains(r)) {
+            // Fill the device with the constant color
+            this->clear(nullptr, clearColor, CanClearFullscreen::kYes);
+            return;
+        }
+        // If the clip intersection with the device is an aligned rectangle, it can be a clear
+        // limited by the scissor test.
+        rrectState = clip.isRRect(r, &rrect, &aa) ? kValid : kNotValid;
+        if (rrectState == kValid && aa == GrAA::kNo && rrect.isRect()) {
+            SkIRect scissorRect = GrClip::GetPixelIBounds(rrect.getBounds());
+            this->clear(&scissorRect, clearColor, CanClearFullscreen::kNo);
+            return;
+        }
+    }
+
     // Check if we can replace a clipRRect()/drawPaint() with a drawRRect(). We only do the
     // transformation for non-rect rrects. Rects caused a performance regression on an Android
     // test that needs investigation. We also skip cases where there are fragment processors
     // because they may depend on having correct local coords and this path draws in device space
     // without a local matrix.
-    if (!paint.numTotalFragmentProcessors() && clip.isRRect(r, &rrect, &aa) && !rrect.isRect()) {
-        this->drawRRect(GrNoClip(), std::move(paint), aa, SkMatrix::I(), rrect,
-                        GrStyle::SimpleFill());
-        return;
+    if (!paint.numTotalFragmentProcessors()) {
+        if (rrectState == kUnknown) {
+            rrectState = clip.isRRect(r, &rrect, &aa) ? kValid : kNotValid;
+        }
+        if (rrectState == kValid && !rrect.isRect()) {
+            this->drawRRect(GrNoClip(), std::move(paint), aa, SkMatrix::I(), rrect,
+                            GrStyle::SimpleFill());
+            return;
+        }
     }
-
 
     bool isPerspective = viewMatrix.hasPerspective();
 
