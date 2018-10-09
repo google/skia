@@ -207,9 +207,7 @@ private:
     class VSImpl;
     class TriangleShader;
 
-    // Slightly undershoot a bloat radius of 0.5 so vertices that fall on integer boundaries don't
-    // accidentally bleed into neighbor pixels.
-    static constexpr float kAABloatRadius = 0.491111f;
+    static constexpr float kAABloatRadius = 0.5f;
 
     // Number of bezier points for curves, or 3 for triangles.
     int numInputPoints() const { return PrimitiveType::kCubics == fPrimitiveType ? 4 : 3; }
