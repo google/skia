@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "717da66f_510d8fc7",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-09T16:33:06Z",
+      "side": 1,
+      "message": "Ack - I intend to move it somewhere more central and use it more broadly in a follow up.",
+      "parentUuid": "180b61b4_08d1d4a3",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 24
+      },
+      "revId": "87ba268e34bf14f436dd209d72c1acb550b6cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2f2ea5a0_93260b6f",
         "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2018-10-09T15:46:22Z",
       "side": 1,
       "message": "kYSize? And do we know for sure that this will be the biggest?",
+      "range": {
+        "startLine": 66,
+        "startChar": 18,
+        "endLine": 66,
+        "endChar": 23
+      },
+      "revId": "87ba268e34bf14f436dd209d72c1acb550b6cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b858fbd_5b3f7197",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-09T16:33:06Z",
+      "side": 1,
+      "message": "I thought we reserved the \u0027k\u0027 prefix for things like: kPi. This is just the size of the Y-plane.\n\nWe should probably plumb through the size of the final target. In practive, though, the Y-channel is never down sampled (since it carries the important information).",
+      "parentUuid": "2f2ea5a0_93260b6f",
       "range": {
         "startLine": 66,
         "startChar": 18,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "6ce88ad6_59f4330b",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-09T16:33:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ef837fa_931d985a",
+      "range": {
+        "startLine": 215,
+        "startChar": 8,
+        "endLine": 215,
+        "endChar": 69
+      },
+      "revId": "87ba268e34bf14f436dd209d72c1acb550b6cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40adb992_1b1b4599",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 10
@@ -91,6 +163,30 @@
       "revId": "87ba268e34bf14f436dd209d72c1acb550b6cdc3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f71513e_11c07ebf",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-09T16:33:06Z",
+      "side": 1,
+      "message": "Done\n\nBut we\u0027re only forced to do this right now bc of Chrome.",
+      "parentUuid": "40adb992_1b1b4599",
+      "range": {
+        "startLine": 222,
+        "startChar": 15,
+        "endLine": 222,
+        "endChar": 64
+      },
+      "revId": "87ba268e34bf14f436dd209d72c1acb550b6cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
