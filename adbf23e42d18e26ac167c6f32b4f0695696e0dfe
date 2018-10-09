@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7241638_90fd1363",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-09T14:36:45Z",
+      "side": 1,
+      "message": "Copy this into the \u0027writeToAndReset(SkDynamicMemoryWStream*)\u0027 documentation. It isn\u0027t obvious that the \u0027If\u0027 below follows this statement (and it is even less obvious in other contexts, like the docs).",
+      "range": {
+        "startLine": 477,
+        "startChar": 8,
+        "endLine": 477,
+        "endChar": 83
+      },
+      "revId": "adbf23e42d18e26ac167c6f32b4f0695696e0dfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8470241_97c96e52",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-09T14:36:45Z",
+      "side": 1,
+      "message": "When?",
+      "range": {
+        "startLine": 479,
+        "startChar": 8,
+        "endLine": 479,
+        "endChar": 10
+      },
+      "revId": "adbf23e42d18e26ac167c6f32b4f0695696e0dfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccfb6f15_9b629870",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-09T14:36:45Z",
+      "side": 1,
+      "message": "Prepend \u0027this\u0027 stream to dst, resetting \u0027this\u0027.",
+      "range": {
+        "startLine": 482,
+        "startChar": 7,
+        "endLine": 482,
+        "endChar": 72
+      },
+      "revId": "adbf23e42d18e26ac167c6f32b4f0695696e0dfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2024d07c_778b8bbd",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-09T14:36:45Z",
+      "side": 1,
+      "message": "Why is this asserted here, but only tested in \u0027prepend\u0027?",
+      "range": {
+        "startLine": 559,
+        "startChar": 4,
+        "endLine": 559,
+        "endChar": 18
+      },
+      "revId": "adbf23e42d18e26ac167c6f32b4f0695696e0dfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0c92bc1_1ccf1346",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-09T14:36:45Z",
+      "side": 1,
+      "message": "Wouldn\u0027t this means something like duplicate all blocks (append this to this)? Perhaps this should just be an assert? (same for \u0027prepend\u0027)",
+      "range": {
+        "startLine": 560,
+        "startChar": 8,
+        "endLine": 560,
+        "endChar": 19
+      },
+      "revId": "adbf23e42d18e26ac167c6f32b4f0695696e0dfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
