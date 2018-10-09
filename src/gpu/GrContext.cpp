@@ -134,7 +134,8 @@ bool GrContext::initCommon(const GrContextOptions& options) {
                                             : false;
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, textContextOptions,
                                                &fSingleOwner, explicitlyAllocatingResources,
-                                               options.fSortRenderTargets));
+                                               options.fSortRenderTargets,
+                                               options.fReduceOpListSplitting));
 
     fGlyphCache = new GrGlyphCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
 
