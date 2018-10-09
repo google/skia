@@ -240,10 +240,9 @@ public:
                      bool canDiscardOutsideDstRect = false);
 
     // Returns a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
-    // to the Gpu object. The passed in bounds is the content rect of the destination.
+    // to the Gpu object.
     virtual GrGpuRTCommandBuffer* getCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin,
-            const SkRect& bounds,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) = 0;
 

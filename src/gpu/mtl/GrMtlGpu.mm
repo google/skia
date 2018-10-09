@@ -107,7 +107,6 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
 
 GrGpuRTCommandBuffer* GrMtlGpu::getCommandBuffer(
             GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
-            const SkRect& bounds,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
     return new GrMtlGpuRTCommandBuffer(this, renderTarget, origin, colorInfo, stencilInfo);
