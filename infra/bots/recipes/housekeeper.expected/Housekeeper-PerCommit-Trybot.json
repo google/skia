@@ -111,41 +111,6 @@
     "name": "makedirs tmp_dir"
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]"
-    ],
-    "infra_step": true,
-    "name": "makedirs perf_dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "RECIPE_MODULE[skia::binary_size]/resources/run_binary_size_analysis.py",
-      "--library",
-      "[START_DIR]/build/libskia.so",
-      "--githash",
-      "abc123",
-      "--dest",
-      "[START_DIR]/[SWARM_OUT_DIR]/nanobench_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json",
-      "--issue_number",
-      "456789"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
-    "name": "generate binary size data"
-  },
-  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0

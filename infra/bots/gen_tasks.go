@@ -311,7 +311,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -352,8 +352,6 @@ func linuxGceDimensions(machineType string) []string {
 func deriveCompileTaskName(jobName string, parts map[string]string) string {
 	if strings.Contains(jobName, "Bookmaker") {
 		return "Build-Debian9-GCC-x86_64-Release"
-	} else if parts["role"] == "Housekeeper" {
-		return "Build-Debian9-GCC-x86_64-Release-Shared"
 	} else if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
 		task_os := parts["os"]
 		ec := []string{}
@@ -927,11 +925,10 @@ func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 
 // housekeeper generates a Housekeeper task. Returns the name of the last task
 // in the generated chain of tasks, which the Job should add as a dependency.
-func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
+func housekeeper(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "housekeeper", "swarm_recipe.isolate", SERVICE_ACCOUNT_HOUSEKEEPER, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 	usesGit(task, name)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
-	task.Dependencies = append(task.Dependencies, compileTaskName)
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1285,6 +1282,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
 		name != "Housekeeper-OnDemand-Presubmit" &&
+		name != "Housekeeper-PerCommit" &&
 		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") &&
@@ -1297,7 +1295,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Housekeepers.
 	if name == "Housekeeper-PerCommit" {
-		deps = append(deps, housekeeper(b, name, compileTaskName))
+		deps = append(deps, housekeeper(b, name))
 	}
 	if name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
 		deps = append(deps, checkGeneratedFiles(b, name))
