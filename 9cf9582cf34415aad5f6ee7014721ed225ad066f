@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a5ecefdc_352ac2e3",
+        "filename": "infra/bots/recipe_modules/build/examples/full.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-09T12:40:43Z",
+      "side": 1,
+      "message": "You are right in that we don\u0027t need it to get 100% coverage, but I did want it to make sure the code worked correctly.",
+      "parentUuid": "0c3acda3_6091581d",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 46
+      },
+      "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bbaaa7c0_ac959e8c",
         "filename": "infra/canvaskit/build_canvaskit.sh",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55653754_eec9b8c9",
+        "filename": "infra/canvaskit/build_canvaskit.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-09T12:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbaaa7c0_ac959e8c",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 2
+      },
+      "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "33ea467c_91a39a19",
+        "filename": "infra/pathkit/build_pathkit.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-09T12:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "154dab75_84da0b5b",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 1
+      },
+      "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e8a44508_c278bed8",
         "filename": "modules/pathkit/compile.sh",
         "patchSetId": 10
@@ -91,6 +163,30 @@
       "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b1ab972_2d92fb70",
+        "filename": "modules/pathkit/compile.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-09T12:40:43Z",
+      "side": 1,
+      "message": "Made it a bit more precise when the errors are turned off and documented *why*",
+      "parentUuid": "e8a44508_c278bed8",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 6
+      },
+      "revId": "9cf9582cf34415aad5f6ee7014721ed225ad066f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
