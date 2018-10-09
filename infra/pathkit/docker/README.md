@@ -26,7 +26,7 @@ For testing the image locally, the following flow can be helpful:
     # Run bash in it to poke around and make sure things are properly installed
     docker run -it emsdk-release /bin/bash
     # Compile PathKit with the local image
-    docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT emsdk-base /SRC/infra/pathkit/docker/build_pathkit.sh
+    docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT emsdk-base /SRC/infra/pathkit/build_pathkit.sh
 
 karma-chrome-tests
 ------------------
@@ -91,4 +91,4 @@ For testing the image locally, the following can be helpful:
     docker run -it --shm-size=2gb gold-karma-chrome-tests /bin/bash
     # Run the tests and collect Gold output with the local source repo
     mkdir -p -m 0777 /tmp/dockergold
-    docker run --shm-size=2gb -v $SKIA_ROOT:/SRC -v /tmp/dockergold:/OUT gold-karma-chrome-tests /SRC/infra/pathkit/docker/test_pathkit.sh
+    docker run --shm-size=2gb -v $SKIA_ROOT:/SRC -v /tmp/dockergold:/OUT gold-karma-chrome-tests /SRC/infra/pathkit/test_pathkit.sh

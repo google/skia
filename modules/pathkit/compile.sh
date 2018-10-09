@@ -4,10 +4,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+set -ex
 
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 HTML_SHELL=$BASE_DIR/shell.html
 BUILD_DIR=${BUILD_DIR:="out/pathkit"}
+mkdir -p $BUILD_DIR
 
 # This expects the environment variable EMSDK to be set
 if [[ ! -d $EMSDK ]]; then
@@ -67,20 +69,21 @@ if [[ $@ == *asm.js* ]]; then
 fi
 
 OUTPUT="-o $BUILD_DIR/pathkit.js"
+
 source $EMSDK/emsdk_env.sh
-NINJA=`which ninja`
 EMCC=`which emcc`
 EMCXX=`which em++`
 
 
-mkdir -p $BUILD_DIR
-
+# Turn off exiting while we check for ninja (which may not be on PATH)
+set +e
+NINJA=`which ninja`
 if [[ -z $NINJA ]]; then
   git clone "https://chromium.googlesource.com/chromium/tools/depot_tools.git" --depth 1 $BUILD_DIR/depot_tools
   NINJA=$BUILD_DIR/depot_tools/ninja
 fi
-
-set -ex
+# Re-enable error checking
+set -e
 
 echo "Compiling bitcode"
 
@@ -119,7 +122,7 @@ ${NINJA} -C ${BUILD_DIR} libpathkit.a
 
 echo "Generating WASM"
 
-em++ $RELEASE_CONF -std=c++14 \
+${EMCXX} $RELEASE_CONF -std=c++14 \
 -Iinclude/config \
 -Iinclude/core \
 -Iinclude/effects \
