@@ -677,6 +677,30 @@
     },
     {
       "key": {
+        "uuid": "cd0169ba_6102cc15",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "Ah, that\u0027s the part I misunderstood. That falls into the else case and we return. Thanks!",
+      "parentUuid": "975eb989_28efec7f",
+      "range": {
+        "startLine": 478,
+        "startChar": 4,
+        "endLine": 478,
+        "endChar": 26
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0c3e0e7_b189b3a6",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -712,6 +736,30 @@
       "side": 1,
       "message": "I\u0027m sorry, but I don\u0027t understand the question. Are you asking about types? It returns a uint64_t. Are you asking about the semantics of the number? It returns, uh, the number of decoded frames: the number of frames that fDecoder has successfully decoded (or skipped over) as it runs forward through the stream of input data.",
       "parentUuid": "f0c3e0e7_b189b3a6",
+      "range": {
+        "startLine": 483,
+        "startChar": 33,
+        "endLine": 483,
+        "endChar": 51
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b2bd064_3528f036",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "I assumed it returned uint64_t, given the declaration of current (and that\u0027s easy to look up in the header file). But I wasn\u0027t sure whether it meant fully decoded (e.g. LZW decompression) or if skipping over qualified. It sounds like skipping over does, then.",
+      "parentUuid": "ec45bc36_fb93970a",
       "range": {
         "startLine": 483,
         "startChar": 33,
@@ -933,6 +981,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9dbe9cfe_4d6383c7",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "Ah. Please add a comment (probably above the declaration of fNeedResetDecoder?)\n\nSo are we defensively throwing it away because we don\u0027t know whether the next attempt to decode will be for the same frame?",
+      "parentUuid": "1d9ba610_0f5851ae",
+      "range": {
+        "startLine": 611,
+        "startChar": 8,
+        "endLine": 611,
+        "endChar": 25
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {
@@ -1203,6 +1275,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3907d5e_40eca318",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "Though not mentioned in the spec [1], I\u0027ve found a couple of places that suggest the repeat count should be at the beginning of the file [2][3]. Chromium, however, allows the repeat count to be anywhere in the image [4][5]. Does Wuffs assume that it\u0027s early, or does it only succeed if it\u0027s found the repeat count?\n\n(FWIW, I don\u0027t know how often the repeat count appears late in the stream, but it seems that at some point we thought it was worth supporting it.)\n\n[1] https://www.w3.org/Graphics/GIF/spec-gif89a.txt\n[2] https://en.wikipedia.org/wiki/GIF#Animated_GIF\n[3] http://giflib.sourceforge.net/whatsinagif/bits_and_bytes.html#application_extension_block\n[4] https://cs.chromium.org/chromium/src/third_party/blink/renderer/platform/image-decoders/gif/gif_image_decoder.cc?sq\u003dpackage:chromium\u0026dr\u003dC\u0026g\u003d0\u0026l\u003d110\n[5] https://cs.chromium.org/chromium/src/third_party/blink/renderer/platform/graphics/bitmap_image.cc?sq\u003dpackage:chromium\u0026dr\u003dC\u0026q\u003dBitmapImage::RepetitionCount()\u0026g\u003d0\u0026l\u003d395",
+      "parentUuid": "b17a120c_65fbea89",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 22
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

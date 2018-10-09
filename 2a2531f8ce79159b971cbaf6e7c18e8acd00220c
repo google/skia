@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "536dc096_a90de1e1",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "Why is this section now public?\n\nI think the only method that is accessed externally by a pointer to SkWuffsCodec is frame(int) const. That\u0027s currently private, but if it were public, I think we no longer need to make SkWuffsFrameHolder a friend?",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 6
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd68486b_61ddd2ec",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "I don\u0027t think this comment is necessary. I was confused by the method numFullyReceived() and the similarity with the other code that uses fPreviousBestNumFullyReceived. As stated below at the callsite, I don\u0027t think we need numFullyReceived(), which makes this simpler.",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 74
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ef97538_8b104258",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "nit: I think the name \"fNumFullyReceived\" would provide enough information.",
+      "range": {
+        "startLine": 211,
+        "startChar": 13,
+        "endLine": 211,
+        "endChar": 42
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f6c05a4_8708f2f6",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "I think this can just use fPreviousBestNumFullyReceived, and then we can drop the method numFullyReceived. The reason onGetFrameInfo is const is that it\u0027s not expected to move forward in the stream. In the intended call sequence, onGetFrameCount will have updated fPreviousBestNumFullyReceived, and then this will just see the up to date value.",
+      "range": {
+        "startLine": 473,
+        "startChar": 61,
+        "endLine": 473,
+        "endChar": 85
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d58cd8cd_d08c7c21",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "We don\u0027t actually do this, right? If we didn\u0027t have enough data, don\u0027t we reset the decoder?",
+      "range": {
+        "startLine": 614,
+        "startChar": 0,
+        "endLine": 615,
+        "endChar": 58
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ea3801e_07280c82",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "nit: In Skia, we typically name static methods with underscores e.g. reset_and_decode_image_config",
+      "range": {
+        "startLine": 626,
+        "startChar": 23,
+        "endLine": 626,
+        "endChar": 48
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab18aa0a_8a798a6d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "nit: no longer appropriate now that it\u0027s referring to sk_malloc_canfail.",
+      "range": {
+        "startLine": 726,
+        "startChar": 52,
+        "endLine": 726,
+        "endChar": 55
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fce2e34c_824e281a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 734,
+        "startChar": 32,
+        "endLine": 734,
+        "endChar": 35
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "554f5ae1_62319965",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "This is fine, although the alignment expectation is typically for member variables of a class.",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 25
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bba78fc8_9fc86dc8",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "Should this be named something like SkWuffsCodec_Supports?",
+      "range": {
+        "startLine": 14,
+        "startChar": 25,
+        "endLine": 14,
+        "endChar": 46
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

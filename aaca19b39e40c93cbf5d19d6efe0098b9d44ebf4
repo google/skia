@@ -468,6 +468,30 @@
     },
     {
       "key": {
+        "uuid": "a3961e9e_81b614d9",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-09T19:00:33Z",
+      "side": 1,
+      "message": "\u003e FWIW, the Go stdlib\u0027s GIF decoder has been enforcing (literal_width \u003e\u003d 2) for 8 or 10 years now, and I don\u0027t remember anyone filing a bug about it. In constrast, I have seen lots of different Go GIF bugs, often along the lines of \"other GIF decoders accept such-and-such; why not Go?\", such as:\n\u003e \n\u003e https://github.com/golang/go/issues/3565\n\u003e https://github.com/golang/go/issues/5401\n\u003e https://github.com/golang/go/issues/6441\n\u003e https://github.com/golang/go/issues/8789\n\nThis one seems important for Chromium. SkGifCodec was previously written such that it didn\u0027t allow indices outside the color table, and that caused regressions. (See crbug.com/765590 and skbug.com/7069.) This bug was closed as working as intended, you suggested that could change if two widely used implementations support the image. Chromium, Firefox, and Safari all support images using an index outside of the color table (which they treat as transparent). I tested the image from both bugs in all three browsers.\n\nDoes wuffs support these out of spec images?\n\n\u003e https://github.com/golang/go/issues/9856\n\u003e https://github.com/golang/go/issues/10676\n\u003e https://github.com/golang/go/issues/11150\n\u003e https://github.com/golang/go/issues/20804\n\u003e https://github.com/golang/go/issues/20856",
+      "parentUuid": "9537d3e4_f3b3fede",
+      "range": {
+        "startLine": 1485,
+        "startChar": 0,
+        "endLine": 1486,
+        "endChar": 13
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45aabc90_080d06da",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 10
