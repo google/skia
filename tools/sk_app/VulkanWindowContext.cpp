@@ -545,13 +545,11 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
     // set up layout transfer from initial to color attachment
     VkImageLayout layout = fImageLayouts[backbuffer->fImageIndex];
     SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED == layout || VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout);
-    VkPipelineStageFlags srcStageMask = (VK_IMAGE_LAYOUT_UNDEFINED == layout) ?
-                                        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT :
-                                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    VkAccessFlags srcAccessMask = (VK_IMAGE_LAYOUT_UNDEFINED == layout) ?
-                                  0 : VK_ACCESS_MEMORY_READ_BIT;
-    VkAccessFlags dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    VkAccessFlags srcAccessMask = 0;
+    VkAccessFlags dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+                                  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // sType
@@ -622,10 +620,10 @@ void VulkanWindowContext::swapBuffers() {
     SkASSERT(imageInfo.fImage == fImages[backbuffer->fImageIndex]);
 
     VkImageLayout layout = imageInfo.fImageLayout;
-    VkPipelineStageFlags srcStageMask = GrVkImage::LayoutToPipelineStageFlags(layout);
+    VkPipelineStageFlags srcStageMask = GrVkImage::LayoutToPipelineSrcStageFlags(layout);
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     VkAccessFlags srcAccessMask = GrVkImage::LayoutToSrcAccessMask(layout);
-    VkAccessFlags dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    VkAccessFlags dstAccessMask = 0;
 
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // sType
