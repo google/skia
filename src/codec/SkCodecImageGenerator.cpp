@@ -58,12 +58,15 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* re
     return SkPixmapPriv::Orient(dst, fCodec->getOrigin(), decode);
 }
 
-bool SkCodecImageGenerator::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const
-{
+bool SkCodecImageGenerator::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVAIndex yuvaIndices[4],
+                                        SkYUVColorSpace* colorSpace) const {
+    // $$
     return fCodec->queryYUV8(sizeInfo, colorSpace);
 }
 
-bool SkCodecImageGenerator::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
+bool SkCodecImageGenerator::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo,
+                                            const SkYUVAIndex yuvaIndices[4],
+                                            void* planes[3]) {
     SkCodec::Result result = fCodec->getYUV8Planes(sizeInfo, planes);
 
     switch (result) {

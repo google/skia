@@ -21,6 +21,7 @@
 #include "effects/GrYUVtoRGBEffect.h"
 
 sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
+                                             SkYUVAIndex yuvaIndices[4],
                                              SkYUVColorSpace* colorSpace,
                                              const void* constPlanes[3]) {
     sk_sp<SkCachedData> data;
@@ -31,30 +32,30 @@ sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
 
     if (data.get()) {
         planes[0] = (void*)data->data();
-        planes[1] = (uint8_t*)planes[0] + (yuvInfo.fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
-                                           yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
-        planes[2] = (uint8_t*)planes[1] + (yuvInfo.fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *
-                                           yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kU].fHeight);
+        planes[1] = (uint8_t*)planes[0] + (yuvInfo.fSizeInfo1.fWidthBytes[SkYUVSizeInfo::kY] *
+                                           yuvInfo.fSizeInfo1.fSizes[SkYUVSizeInfo::kY].fHeight);
+        planes[2] = (uint8_t*)planes[1] + (yuvInfo.fSizeInfo1.fWidthBytes[SkYUVSizeInfo::kU] *
+                                           yuvInfo.fSizeInfo1.fSizes[SkYUVSizeInfo::kU].fHeight);
     } else {
         // Fetch yuv plane sizes for memory allocation.
-        if (!this->onQueryYUV8(&yuvInfo.fSizeInfo, &yuvInfo.fColorSpace)) {
+        if (!this->onQueryYUV8(&yuvInfo.fSizeInfo1, yuvInfo.fYUVAIndices, &yuvInfo.fColorSpace1)) {
             return nullptr;
         }
 
         // Allocate the memory for YUV
         size_t totalSize(0);
         for (int i = 0; i < 3; i++) {
-            totalSize += yuvInfo.fSizeInfo.fWidthBytes[i] * yuvInfo.fSizeInfo.fSizes[i].fHeight;
+            totalSize += yuvInfo.fSizeInfo1.fWidthBytes[i] * yuvInfo.fSizeInfo1.fSizes[i].fHeight;
         }
         data.reset(SkResourceCache::NewCachedData(totalSize));
         planes[0] = data->writable_data();
-        planes[1] = (uint8_t*)planes[0] + (yuvInfo.fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
-                                           yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
-        planes[2] = (uint8_t*)planes[1] + (yuvInfo.fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *
-                                           yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kU].fHeight);
+        planes[1] = (uint8_t*)planes[0] + (yuvInfo.fSizeInfo1.fWidthBytes[SkYUVSizeInfo::kY] *
+                                           yuvInfo.fSizeInfo1.fSizes[SkYUVSizeInfo::kY].fHeight);
+        planes[2] = (uint8_t*)planes[1] + (yuvInfo.fSizeInfo1.fWidthBytes[SkYUVSizeInfo::kU] *
+                                           yuvInfo.fSizeInfo1.fSizes[SkYUVSizeInfo::kU].fHeight);
 
         // Get the YUV planes.
-        if (!this->onGetYUV8Planes(yuvInfo.fSizeInfo, planes)) {
+        if (!this->onGetYUV8Planes(yuvInfo.fSizeInfo1, yuvInfo.fYUVAIndices, planes)) {
             return nullptr;
         }
 
@@ -62,8 +63,9 @@ sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
         SkYUVPlanesCache::Add(this->onGetID(), data.get(), &yuvInfo);
     }
 
-    *size = yuvInfo.fSizeInfo;
-    *colorSpace = yuvInfo.fColorSpace;
+    *size = yuvInfo.fSizeInfo1;
+    memcpy(yuvaIndices, yuvInfo.fYUVAIndices, sizeof(yuvInfo.fYUVAIndices));
+    *colorSpace = yuvInfo.fColorSpace1;
     constPlanes[0] = planes[0];
     constPlanes[1] = planes[1];
     constPlanes[2] = planes[2];
@@ -80,10 +82,12 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
                                                        SkColorSpace* srcColorSpace,
                                                        SkColorSpace* dstColorSpace) {
     SkYUVSizeInfo yuvSizeInfo;
+    SkYUVAIndex yuvaIndices[4];
     SkYUVColorSpace yuvColorSpace;
     const void* planes[3];
 
-    sk_sp<SkCachedData> dataStorage = this->getPlanes(&yuvSizeInfo, &yuvColorSpace, planes);
+    sk_sp<SkCachedData> dataStorage = this->getPlanes(&yuvSizeInfo, yuvaIndices,
+                                                      &yuvColorSpace, planes);
     if (!dataStorage) {
         return nullptr;
     }

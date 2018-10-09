@@ -573,7 +573,9 @@ protected:
         return fFlattened.readPixels(info, pixels, rowBytes, 0, 0);
     }
 
-    bool onQueryYUV8(SkYUVSizeInfo* size, SkYUVColorSpace* yuvColorSpace) const override {
+    bool onQueryYUV8(SkYUVSizeInfo* size,
+                     SkYUVAIndex yuvaIndices[4],
+                     SkYUVColorSpace* yuvColorSpace) const override {
         if (kI420_YUVFormat != fYUVFormat && kYV12_YUVFormat != fYUVFormat) {
             return false; // currently this API only supports planar formats
         }
@@ -593,7 +595,9 @@ protected:
         return true;
     }
 
-    bool onGetYUV8Planes(const SkYUVSizeInfo&, void* planes[3]) override {
+    bool onGetYUV8Planes(const SkYUVSizeInfo&,
+                         const SkYUVAIndex yuvaIndices[4],
+                         void* planes[3]) override {
         planes[0] = fYUVBitmaps[fYUVAIndices[0].fIndex].getAddr(0, 0);
         planes[1] = fYUVBitmaps[fYUVAIndices[1].fIndex].getAddr(0, 0);
         planes[2] = fYUVBitmaps[fYUVAIndices[2].fIndex].getAddr(0, 0);

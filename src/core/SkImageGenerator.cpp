@@ -29,13 +29,17 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     return this->onGetPixels(info, pixels, rowBytes, defaultOpts);
 }
 
-bool SkImageGenerator::queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+bool SkImageGenerator::queryYUV8(SkYUVSizeInfo* sizeInfo,
+                                 SkYUVAIndex yuvaIndices[4],
+                                 SkYUVColorSpace* colorSpace) const {
     SkASSERT(sizeInfo);
 
-    return this->onQueryYUV8(sizeInfo, colorSpace);
+    return this->onQueryYUV8(sizeInfo, yuvaIndices, colorSpace);
 }
 
-bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
+bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo,
+                                     const SkYUVAIndex yuvaIndices[4],
+                                     void* planes[3]) {
     SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth >= 0);
     SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight >= 0);
     SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kU].fWidth >= 0);
@@ -50,7 +54,7 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
             (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kV].fWidth);
     SkASSERT(planes && planes[0] && planes[1] && planes[2]);
 
-    return this->onGetYUV8Planes(sizeInfo, planes);
+    return this->onGetYUV8Planes(sizeInfo, yuvaIndices, planes);
 }
 
 #if SK_SUPPORT_GPU
