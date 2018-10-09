@@ -27,46 +27,27 @@ void SkNotifyBitmapGenIDIsStale(uint32_t bitmapGenID) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- This function finds the bounds of the bitmap *within its pixelRef*.
- If the bitmap lacks a pixelRef, it will return an empty rect, since
- that doesn't make sense.  This may be a useful enough function that
- it should be somewhere else (in SkBitmap?).
- */
-static SkIRect get_bounds_from_bitmap(const SkBitmap& bm) {
-    if (!(bm.pixelRef())) {
-        return SkIRect::MakeEmpty();
-    }
-    SkIPoint origin = bm.pixelRefOrigin();
-    return SkIRect::MakeXYWH(origin.fX, origin.fY, bm.width(), bm.height());
-}
-
-/**
- *  This function finds the bounds of the image. Today this is just the entire bounds,
- *  but in the future we may support subsets within an image, in which case this should
- *  return that subset (see get_bounds_from_bitmap).
- */
-static SkIRect get_bounds_from_image(const SkImage* image) {
-    SkASSERT(image->width() > 0 && image->height() > 0);
-    return SkIRect::MakeWH(image->width(), image->height());
-}
-
-SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, const SkIRect& subset) {
+SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, SkColorType colorType,
+                                          SkColorSpace* colorSpace, const SkIRect& subset) {
     SkASSERT(imageID);
     SkASSERT(subset.width() > 0 && subset.height() > 0);
-    return { imageID, subset };
+    return { imageID,
+             colorType,
+             colorSpace ? colorSpace->toXYZD50Hash() : 0,
+             colorSpace ? colorSpace->transferFnHash() : 0,
+             subset };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
-    SkASSERT(bm.width() > 0 && bm.height() > 0);
-
-    return { bm.getGenerationID(), get_bounds_from_bitmap(bm) };
+    SkASSERT(bm.pixelRef());
+    SkIPoint origin = bm.pixelRefOrigin();
+    SkIRect bounds = SkIRect::MakeXYWH(origin.fX, origin.fY, bm.width(), bm.height());
+    return Make(bm.getGenerationID(), bm.colorType(), bm.colorSpace(), bounds);
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image) {
-    SkASSERT(image->width() > 0 && image->height() > 0);
-
-    return { image->uniqueID(), get_bounds_from_image(image) };
+    SkIRect bounds = SkIRect::MakeWH(image->width(), image->height());
+    return Make(image->uniqueID(), image->colorType(), image->colorSpace(), bounds);
 }
 
 namespace {
@@ -110,8 +91,9 @@ public:
     {
         SkASSERT(!(fDM && fMalloc));    // can't have both
 
-        // We need an ID to return with the bitmap/pixelref - return the same ID as the key/desc
-        fPrUniqueID = desc.fImageID;
+        // We need an ID to return with the bitmap/pixelref. We can't necessarily use the key/desc
+        // ID - lazy images cache the same ID with multiple keys (in different color types).
+        fPrUniqueID = SkNextID::ImageID();
         REC_TRACE(" Rec(%d): [%d %d] %d\n",
                   sk_atomic_inc(&gRecCounter), fInfo.width(), fInfo.height(), fPrUniqueID);
     }
@@ -250,6 +232,10 @@ SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc, const 
     // Ensure that the info matches the subset (i.e. the subset is the entire image)
     SkASSERT(info.width() == desc.fSubset.width());
     SkASSERT(info.height() == desc.fSubset.height());
+    SkASSERT(info.colorType() == desc.fColorType);
+    SkASSERT((info.colorSpace() ? info.colorSpace()->toXYZD50Hash() : 0) == desc.fCSXYZHash);
+    SkASSERT((info.colorSpace() ? info.colorSpace()->transferFnHash() : 0) ==
+             desc.fCSTransferFnHash);
 
     const size_t rb = info.minRowBytes();
     size_t size = info.computeByteSize(rb);
