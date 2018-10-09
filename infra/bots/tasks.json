@@ -18519,8 +18519,7 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-GCC-x86_64-Release-Shared"
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
