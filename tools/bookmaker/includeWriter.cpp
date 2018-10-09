@@ -1531,7 +1531,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 continue;
             }
             const char* bodyEnd = fDeferComment ? fDeferComment->fContentStart - 1 :
-                    fAttrDeprecated ? fAttrDeprecated->fContentStart - 1 :
                     child.fContentStart;
             if (Definition::Type::kBracket == def->fType && Bracket::kDebugCode == def->fBracket) {
                 auto tokenIter = def->fParent->fTokens.begin();
@@ -1576,11 +1575,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             }
             this->methodOut(method, child);
             sawConst = false;
-            if (fAttrDeprecated) {
-                startDef = fAttrDeprecated;
-                this->setStartBack(fAttrDeprecated->fContentStart, fAttrDeprecated);
-                fAttrDeprecated = nullptr;
-            }
             continue;
         }
         if (Definition::Type::kKeyWord == child.fType) {
@@ -1886,9 +1880,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 }
                 continue;
             }
-            if (fAttrDeprecated) {
-                continue;
-            }
             if (KeyWord::kDefine == child.fKeyWord && this->defineOut(child)) {
                 fDeferComment = nullptr;
                 continue;
@@ -1974,10 +1965,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             if (child.fMemberStart) {
                 memberStart = &child;
                 staticOnly = false;
-            }
-            if (kAttrDeprecatedLen == (size_t) (child.fContentEnd - child.fContentStart) &&
-                    !strncmp(gAttrDeprecated, child.fStart, kAttrDeprecatedLen)) {
-                fAttrDeprecated = &child;
             }
             continue;
         }
