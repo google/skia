@@ -120,6 +120,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "Experimental", MarkType::kExperimental, R_Y, E_N, M_CS | M_MDCM | M_E }
 , { "External",     MarkType::kExternal,     R_Y, E_N, 0 }
 , { "File",         MarkType::kFile,         R_Y, E_N, M(Topic) }
+, { "Filter",       MarkType::kFilter,       R_N, E_N, M(Subtopic) }
 , { "Formula",      MarkType::kFormula,      R_F, E_N, M(Column) | M(Description)
                                                      | M_E | M_ST | M_MDCM }
 , { "Function",     MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
@@ -562,6 +563,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kDetails:
         case MarkType::kDuration:
         case MarkType::kExperimental:
+        case MarkType::kFilter:
         case MarkType::kHeight:
         case MarkType::kIllustration:
         case MarkType::kImage:
@@ -2312,6 +2314,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kDuration:
         case MarkType::kExperimental:
         case MarkType::kFile:
+        case MarkType::kFilter:
         case MarkType::kHeight:
         case MarkType::kIllustration:
         case MarkType::kImage:

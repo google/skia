@@ -4,7 +4,7 @@ undocumented
 <a name='SkBBHFactory'></a>
 <a name='GrBackendSemaphore'></a>
 
-## <a name='SkClipOp'>Enum SkClipOp</a>
+## <a name='SkClipOp'>SkClipOp</a>
 
 ### Constants
 
@@ -26,11 +26,13 @@ undocumented
   </tr>
 </table>
 
+---
+
 <a name='SkColorFilter'></a>
 <a name='SkColorSpace'></a>
 
-<a name='SkColorSpace_MakeSRGBLinear'></a>
-## MakeSRGBLinear
+
+## <a name='SkColorSpace_MakeSRGBLinear'>MakeSRGBLinear</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkColorSpace_MakeSRGBLinear'>MakeSRGBLinear</a>()
@@ -38,8 +40,8 @@ static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkColorSpace'>SkColorSpace</a>&gt
 
 ---
 
-<a name='SkColorSpace_gammaCloseToSRGB'></a>
-## gammaCloseToSRGB
+
+## <a name='SkColorSpace_gammaCloseToSRGB'>gammaCloseToSRGB</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkColorSpace_gammaCloseToSRGB'>gammaCloseToSRGB</a>() const
@@ -47,8 +49,8 @@ bool <a href='#SkColorSpace_gammaCloseToSRGB'>gammaCloseToSRGB</a>() const
 
 ---
 
-<a name='SkColorSpace_Equals'></a>
-## Equals
+
+## <a name='SkColorSpace_Equals'>Equals</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static bool <a href='#SkColorSpace_Equals'>Equals</a>(const <a href='#SkColorSpace'>SkColorSpace</a>* src, const <a href='#SkColorSpace'>SkColorSpace</a>* dst)
@@ -56,8 +58,8 @@ static bool <a href='#SkColorSpace_Equals'>Equals</a>(const <a href='#SkColorSpa
 
 ---
 
-<a name='SkCreateColorSpaceXformCanvas'></a>
-## SkCreateColorSpaceXformCanvas
+
+## <a name='SkCreateColorSpaceXformCanvas'>SkCreateColorSpaceXformCanvas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt; SK_API <a href='#SkCreateColorSpaceXformCanvas'>SkCreateColorSpaceXformCanvas</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* target,
@@ -69,8 +71,8 @@ std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt; SK_API
 <a name='SkData'></a>
 <a name='SkDebugCanvas'></a>
 
-<a name='SkDebugf'></a>
-## SkDebugf
+
+## <a name='SkDebugf'>SkDebugf</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 SK_API void <a href='#SkDebugf'>SkDebugf</a>(const char format[], ...)
@@ -87,8 +89,8 @@ SK_API void <a href='#SkDebugf'>SkDebugf</a>(const char format[], ...)
 <a name='SkBaseDevice'></a>
 <a name='SkDocument'></a>
 
-<a name='SkDocument_beginPage'></a>
-## beginPage
+
+## <a name='SkDocument_beginPage'>beginPage</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='#SkDocument_beginPage'>beginPage</a>(<a href='#SkScalar'>SkScalar</a> width, <a href='#SkScalar'>SkScalar</a> height, const <a href='SkRect_Reference#SkRect'>SkRect</a>* content = NULL)
@@ -101,8 +103,8 @@ SK_API void <a href='#SkDebugf'>SkDebugf</a>(const char format[], ...)
 <a name='SkDrawLooper'></a>
 <a name='SkDrawable'></a>
 
-<a name='SkDrawable_draw'></a>
-## draw
+
+## <a name='SkDrawable_draw'>draw</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkDrawable_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>*, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* = NULL)
@@ -110,7 +112,7 @@ void <a href='#SkDrawable_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>S
 
 ---
 
-## <a name='SkFilterQuality'>Enum SkFilterQuality</a>
+## <a name='SkFilterQuality'>SkFilterQuality</a>
 
 ### Constants
 
@@ -144,6 +146,8 @@ void <a href='#SkDrawable_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>S
   </tr>
 </table>
 
+---
+
 ## <a name='Nearest_Neighbor'>Nearest Neighbor</a>
 
 ## <a name='Bilerp'>Bilerp</a>
@@ -158,8 +162,8 @@ void <a href='#SkDrawable_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>S
 
 <a name='GrContext'></a>
 
-<a name='GrContext_flush'></a>
-## flush
+
+## <a name='GrContext_flush'>flush</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#GrContext_flush'>flush</a>()
@@ -208,12 +212,14 @@ void <a href='#GrContext_flush'>flush</a>()
   </tr>
 
 
-## <a name='SkPathOp'>Enum SkPathOp</a>
+## <a name='SkPathOp'>SkPathOp</a>
 
 </table>
 
-<a name='Op'></a>
-## Op
+---
+
+
+## <a name='Op'>Op</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool SK_API <a href='#Op'>Op</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& one, const <a href='SkPath_Reference#SkPath'>SkPath</a>& two, <a href='#SkPathOp'>SkPathOp</a> op, <a href='SkPath_Reference#SkPath'>SkPath</a>* result)
@@ -224,8 +230,8 @@ bool SK_API <a href='#Op'>Op</a>(const <a href='SkPath_Reference#SkPath'>SkPath<
 <a name='SkPathEffect'></a>
 <a name='SkPictureRecorder'></a>
 
-<a name='SkPictureRecorder_beginRecording'></a>
-## beginRecording
+
+## <a name='SkPictureRecorder_beginRecording'>beginRecording</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='#SkPictureRecorder_beginRecording'>beginRecording</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& bounds, <a href='#SkBBHFactory'>SkBBHFactory</a>* bbhFactory = NULL,
@@ -238,8 +244,8 @@ bool SK_API <a href='#Op'>Op</a>(const <a href='SkPath_Reference#SkPath'>SkPath<
 
 <a name='SkPixelRef'></a>
 
-<a name='SkPixelRef_width'></a>
-## width
+
+## <a name='SkPixelRef_width'>width</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPixelRef_width'>width</a>() const
@@ -247,8 +253,8 @@ int <a href='#SkPixelRef_width'>width</a>() const
 
 ---
 
-<a name='SkPixelRef_height'></a>
-## height
+
+## <a name='SkPixelRef_height'>height</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPixelRef_height'>height</a>() const
@@ -256,8 +262,8 @@ int <a href='#SkPixelRef_height'>height</a>() const
 
 ---
 
-<a name='SkPixelRef_isImmutable'></a>
-## isImmutable
+
+## <a name='SkPixelRef_isImmutable'>isImmutable</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPixelRef_isImmutable'>isImmutable</a>() const
@@ -265,8 +271,8 @@ bool <a href='#SkPixelRef_isImmutable'>isImmutable</a>() const
 
 ---
 
-<a name='SkPixelRef_setImmutable'></a>
-## setImmutable
+
+## <a name='SkPixelRef_setImmutable'>setImmutable</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPixelRef_setImmutable'>setImmutable</a>()
@@ -281,11 +287,14 @@ void <a href='#SkPixelRef_setImmutable'>setImmutable</a>()
 <a name='SkRSXform'></a>
 <a name='SkRasterHandleAllocator'></a>
 
-## <a name='SkRasterHandleAllocator_Handle'>Typedef SkRasterHandleAllocator::Handle</a>
+## <a name='SkRasterHandleAllocator_Handle'>Handle</a>
+
+---
+
 <a name='SkRasterHandleAllocator_Rec'></a>
 
-<a name='SkRasterHandleAllocator_MakeCanvas'></a>
-## MakeCanvas
+
+## <a name='SkRasterHandleAllocator_MakeCanvas'>MakeCanvas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt; <a href='#SkRasterHandleAllocator_MakeCanvas'>MakeCanvas</a>(std::unique_ptr&lt;<a href='#SkRasterHandleAllocator'>SkRasterHandleAllocator</a>&gt;,
@@ -298,8 +307,8 @@ static std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt;
 <a name='sk_sp'></a>
 <a name='GrBackendRenderTarget'></a>
 
-<a name='GrBackendRenderTarget_isValid'></a>
-## isValid
+
+## <a name='GrBackendRenderTarget_isValid'>isValid</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#GrBackendRenderTarget_isValid'>isValid</a>() const
@@ -313,11 +322,14 @@ bool <a href='#GrBackendRenderTarget_isValid'>isValid</a>() const
 
 ## <a name='Arc'>Arc</a>
 
-## <a name='SkScalar'>Typedef SkScalar</a>
+## <a name='SkScalar'>SkScalar</a>
+
+---
+
 <a name='SkSerialProcs'></a>
 <a name='SkShader'></a>
 
-## <a name='SkShader_TileMode'>Enum SkShader::TileMode</a>
+## <a name='SkShader_TileMode'>TileMode</a>
 
 ### Constants
 
@@ -345,8 +357,10 @@ bool <a href='#GrBackendRenderTarget_isValid'>isValid</a>() const
   </tr>
 </table>
 
-<a name='SkShader_MakeBitmapShader'></a>
-## MakeBitmapShader
+---
+
+
+## <a name='SkShader_MakeBitmapShader'>MakeBitmapShader</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a href='#SkShader_MakeBitmapShader'>MakeBitmapShader</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& src, <a href='#SkShader_TileMode'>TileMode</a> tmx, <a href='#SkShader_TileMode'>TileMode</a> tmy,
@@ -355,8 +369,8 @@ static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a hre
 
 ---
 
-<a name='SkShader_MakeCompose'></a>
-## MakeCompose
+
+## <a name='SkShader_MakeCompose'>MakeCompose</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a href='#SkShader_MakeCompose'>MakeCompose</a>(<a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; dst, <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; src, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode,
@@ -373,7 +387,7 @@ static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a hre
 
 ## <a name='Legacy_Font_Host'>Legacy Font Host</a>
 
-## <a name='SkSurfaceProps_InitType'>Enum SkSurfaceProps::InitType</a>
+## <a name='SkSurfaceProps_InitType'>InitType</a>
 
 ### Constants
 
@@ -389,12 +403,14 @@ static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a hre
   </tr>
 </table>
 
+---
+
 #
 Topic
 <a name='GrBackendTexture'></a>
 
-<a name='GrBackendTexture_isValid'></a>
-## isValid
+
+## <a name='GrBackendTexture_isValid'>isValid</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#GrBackendTexture_isValid'>isValid</a>() const
@@ -404,11 +420,14 @@ bool <a href='#GrBackendTexture_isValid'>isValid</a>() const
 
 ## <a name='ID'>ID</a>
 
-## <a name='SkFontID'>Typedef SkFontID</a>
+## <a name='SkFontID'>SkFontID</a>
+
+---
+
 <a name='SkTypeface'></a>
 
-<a name='SkTypeface_uniqueID'></a>
-## uniqueID
+
+## <a name='SkTypeface_uniqueID'>uniqueID</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkFontID'>SkFontID</a> <a href='#SkTypeface_uniqueID'>uniqueID</a>() const

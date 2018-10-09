@@ -267,8 +267,8 @@ This approach may be deprecated in the future.
 Create the desired type of <a href='SkSurface_Reference#Surface'>Surface</a> to obtain its <a href='#Canvas'>Canvas</a> when possible. Useful
 when no <a href='SkSurface_Reference#Surface'>Surface</a> is required, and some helpers implicitly create <a href='undocumented#Raster_Surface'>Raster Surface</a>.
 
-<a name='SkCanvas_MakeRasterDirect'></a>
-## MakeRasterDirect
+
+## <a name='SkCanvas_MakeRasterDirect'>MakeRasterDirect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static std::unique_ptr&lt;<a href='#SkCanvas'>SkCanvas</a>&gt; <a href='#SkCanvas_MakeRasterDirect'>MakeRasterDirect</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, void* pixels,
@@ -337,8 +337,8 @@ in the center.
 
 ---
 
-<a name='SkCanvas_MakeRasterDirectN32'></a>
-## MakeRasterDirectN32
+
+## <a name='SkCanvas_MakeRasterDirectN32'>MakeRasterDirectN32</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static std::unique_ptr&lt;<a href='#SkCanvas'>SkCanvas</a>&gt; <a href='#SkCanvas_MakeRasterDirectN32'>MakeRasterDirectN32</a>(int width, int height, <a href='SkColor_Reference#SkPMColor'>SkPMColor</a>* pixels,
@@ -406,8 +406,8 @@ in the center.
 
 ---
 
-<a name='SkCanvas_empty_constructor'></a>
-## SkCanvas
+
+## <a name='SkCanvas_empty_constructor'>SkCanvas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkCanvas'>SkCanvas</a>()
@@ -441,8 +441,8 @@ paint draws text top to bottom
 
 ---
 
-<a name='SkCanvas_int_int_const_SkSurfaceProps_star'></a>
-## SkCanvas
+
+## <a name='SkCanvas_int_int_const_SkSurfaceProps_star'>SkCanvas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkCanvas'>SkCanvas</a>(int width, int height, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* props = nullptr)
@@ -493,8 +493,8 @@ canvas is empty
 
 ---
 
-<a name='SkCanvas_copy_SkBaseDevice'></a>
-## SkCanvas
+
+## <a name='SkCanvas_copy_SkBaseDevice'>SkCanvas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 explicit <a href='#SkCanvas'>SkCanvas</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkBaseDevice'>SkBaseDevice</a>&gt; device)
@@ -504,8 +504,8 @@ To be deprecated soon.
 
 ---
 
-<a name='SkCanvas_copy_const_SkBitmap'></a>
-## SkCanvas
+
+## <a name='SkCanvas_copy_const_SkBitmap'>SkCanvas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 explicit <a href='#SkCanvas'>SkCanvas</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& bitmap)
@@ -560,7 +560,7 @@ storage of <a href='undocumented#Raster_Surface'>Raster Surface</a></td>
 
 ---
 
-## <a name='SkCanvas_ColorBehavior'>Enum SkCanvas::ColorBehavior</a>
+## <a name='SkCanvas_ColorBehavior'>ColorBehavior</a>
 
 Private: Android framework only.
 
@@ -585,8 +585,10 @@ Is a placeholder to allow specialized constructor; has no meaning.
   </tr>
 </table>
 
-<a name='SkCanvas_const_SkBitmap'></a>
-## SkCanvas
+---
+
+
+## <a name='SkCanvas_const_SkBitmap'>SkCanvas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkCanvas'>SkCanvas</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& bitmap, <a href='#SkCanvas_ColorBehavior'>ColorBehavior</a> behavior)
@@ -610,8 +612,8 @@ For use by Android framework only.
 
 ---
 
-<a name='SkCanvas_const_SkBitmap_const_SkSurfaceProps'></a>
-## SkCanvas
+
+## <a name='SkCanvas_const_SkBitmap_const_SkSurfaceProps'>SkCanvas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkCanvas'>SkCanvas</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& bitmap, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>& props)
@@ -668,8 +670,8 @@ device independent fonts</td>
 
 ---
 
-<a name='SkCanvas_destructor'></a>
-## ~SkCanvas
+
+## <a name='SkCanvas_destructor'>~SkCanvas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual <a href='#SkCanvas_destructor'>~SkCanvas</a>()
@@ -694,8 +696,8 @@ transparent letters.
 
 ## <a name='Property'>Property</a>
 
-<a name='SkCanvas_getMetaData'></a>
-## getMetaData
+
+## <a name='SkCanvas_getMetaData'>getMetaData</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkMetaData'>SkMetaData</a>& <a href='#SkCanvas_getMetaData'>getMetaData</a>()
@@ -728,8 +730,8 @@ after: (null)
 
 ---
 
-<a name='SkCanvas_imageInfo'></a>
-## imageInfo
+
+## <a name='SkCanvas_imageInfo'>imageInfo</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> <a href='#SkCanvas_imageInfo'>imageInfo</a>() const
@@ -760,8 +762,8 @@ emptyInfo == canvasInfo
 
 ---
 
-<a name='SkCanvas_getProps'></a>
-## getProps
+
+## <a name='SkCanvas_getProps'>getProps</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkCanvas_getProps'>getProps</a>(<a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* props) const
@@ -802,8 +804,8 @@ isRGB:1
 
 ## <a name='Utility'>Utility</a>
 
-<a name='SkCanvas_flush'></a>
-## flush
+
+## <a name='SkCanvas_flush'>flush</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_flush'>flush</a>()
@@ -820,8 +822,8 @@ operations are never deferred.
 
 ---
 
-<a name='SkCanvas_getBaseLayerSize'></a>
-## getBaseLayerSize
+
+## <a name='SkCanvas_getBaseLayerSize'>getBaseLayerSize</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual <a href='undocumented#SkISize'>SkISize</a> <a href='#SkCanvas_getBaseLayerSize'>getBaseLayerSize</a>() const
@@ -854,8 +856,8 @@ size=20,30
 
 ---
 
-<a name='SkCanvas_makeSurface'></a>
-## makeSurface
+
+## <a name='SkCanvas_makeSurface'>makeSurface</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkCanvas_makeSurface'>makeSurface</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* props = nullptr)
@@ -900,8 +902,8 @@ size = 3, 4
 
 ---
 
-<a name='SkCanvas_getGrContext'></a>
-## getGrContext
+
+## <a name='SkCanvas_getGrContext'>getGrContext</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual <a href='undocumented#GrContext'>GrContext</a>* <a href='#SkCanvas_getGrContext'>getGrContext</a>()
@@ -923,8 +925,8 @@ Returns <a href='undocumented#GPU_Context'>GPU Context</a> of the <a href='undoc
 
 ---
 
-<a name='SkCanvas_accessTopLayerPixels'></a>
-## accessTopLayerPixels
+
+## <a name='SkCanvas_accessTopLayerPixels'>accessTopLayerPixels</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void* <a href='#SkCanvas_accessTopLayerPixels'>accessTopLayerPixels</a>(<a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>* info, size_t* rowBytes, <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>* origin = nullptr)
@@ -975,8 +977,8 @@ The <a href='#Layer'>Layer</a> and blended result appear on the CPU and GPU but 
 
 ---
 
-<a name='SkCanvas_accessTopRasterHandle'></a>
-## accessTopRasterHandle
+
+## <a name='SkCanvas_accessTopRasterHandle'>accessTopRasterHandle</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkRasterHandleAllocator_Handle'>SkRasterHandleAllocator::Handle</a> <a href='#SkCanvas_accessTopRasterHandle'>accessTopRasterHandle</a>() const
@@ -1013,8 +1015,8 @@ context = skia
 
 ## <a name='Pixels'>Pixels</a>
 
-<a name='SkCanvas_peekPixels'></a>
-## peekPixels
+
+## <a name='SkCanvas_peekPixels'>peekPixels</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkCanvas_peekPixels'>peekPixels</a>(<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>* pixmap)
@@ -1059,8 +1061,8 @@ width=256 height=256
 
 ---
 
-<a name='SkCanvas_readPixels'></a>
-## readPixels
+
+## <a name='SkCanvas_readPixels'>readPixels</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkCanvas_readPixels'>readPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY)
@@ -1314,8 +1316,8 @@ pixel = 802b5580
 
 ---
 
-<a name='SkCanvas_writePixels'></a>
-## writePixels
+
+## <a name='SkCanvas_writePixels'>writePixels</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkCanvas_writePixels'>writePixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, const void* pixels, size_t rowBytes, int x, int y)
@@ -1505,8 +1507,8 @@ Each <a href='#Clip'>Clip</a> uses the current <a href='#Matrix'>Matrix</a> for 
 
 <a href='#SkCanvas_save'>save</a>() <a href='#SkCanvas_saveLayer'>saveLayer</a><sup><a href='#SkCanvas_saveLayer_2'>[2]</a></sup><sup><a href='#SkCanvas_saveLayer_3'>[3]</a></sup> <a href='#SkCanvas_saveLayerPreserveLCDTextRequests'>saveLayerPreserveLCDTextRequests</a> <a href='#SkCanvas_saveLayerAlpha'>saveLayerAlpha</a> <a href='#SkCanvas_restore'>restore</a>() <a href='#SkCanvas_restoreToCount'>restoreToCount</a>
 
-<a name='SkCanvas_save'></a>
-## save
+
+## <a name='SkCanvas_save'>save</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkCanvas_save'>save</a>()
@@ -1541,8 +1543,8 @@ the red square is not translated, and is drawn at the origin.
 
 ---
 
-<a name='SkCanvas_restore'></a>
-## restore
+
+## <a name='SkCanvas_restore'>restore</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_restore'>restore</a>()
@@ -1563,8 +1565,8 @@ Does nothing if the stack is empty.
 
 ---
 
-<a name='SkCanvas_getSaveCount'></a>
-## getSaveCount
+
+## <a name='SkCanvas_getSaveCount'>getSaveCount</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkCanvas_getSaveCount'>getSaveCount</a>() const
@@ -1598,8 +1600,8 @@ depth = 1
 
 ---
 
-<a name='SkCanvas_restoreToCount'></a>
-## restoreToCount
+
+## <a name='SkCanvas_restoreToCount'>restoreToCount</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_restoreToCount'>restoreToCount</a>(int saveCount)
@@ -1650,8 +1652,8 @@ is restored, the <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is drawn into th
 restored, its <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> can be modified by <a href='SkPaint_Reference#Paint'>Paint</a> passed to <a href='#Layer'>Layer</a> to apply
 <a href='SkColor_Reference#Alpha'>Color Alpha</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>, and <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>.
 
-<a name='SkCanvas_saveLayer'></a>
-## saveLayer
+
+## <a name='SkCanvas_saveLayer'>saveLayer</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkCanvas_saveLayer'>saveLayer</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint)
@@ -1746,8 +1748,8 @@ The red rectangle is clipped; it does not fully fit on <a href='#Layer'>Layer</a
 
 ---
 
-<a name='SkCanvas_saveLayerPreserveLCDTextRequests'></a>
-## saveLayerPreserveLCDTextRequests
+
+## <a name='SkCanvas_saveLayerPreserveLCDTextRequests'>saveLayerPreserveLCDTextRequests</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkCanvas_saveLayerPreserveLCDTextRequests'>saveLayerPreserveLCDTextRequests</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint)
@@ -1798,8 +1800,8 @@ depth of saved stack
 
 ---
 
-<a name='SkCanvas_saveLayerAlpha'></a>
-## saveLayerAlpha
+
+## <a name='SkCanvas_saveLayerAlpha'>saveLayerAlpha</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkCanvas_saveLayerAlpha'>saveLayerAlpha</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, <a href='undocumented#U8CPU'>U8CPU</a> alpha)
@@ -1845,7 +1847,7 @@ depth of saved stack
 
 ---
 
-## <a name='SkCanvas_SaveLayerFlagsSet'>Enum SkCanvas::SaveLayerFlagsSet</a>
+## <a name='SkCanvas_SaveLayerFlagsSet'>SaveLayerFlagsSet</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkCanvas_SaveLayerFlagsSet'>SaveLayerFlagsSet</a> {
@@ -1858,7 +1860,10 @@ depth of saved stack
     };
 </pre>
 
-## <a name='SkCanvas_SaveLayerFlags'>Typedef SkCanvas::SaveLayerFlags</a>
+## <a name='SkCanvas_SaveLayerFlags'>SaveLayerFlags</a>
+
+---
+
 <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a> provides options that may be used in any combination in <a href='#SkCanvas_SaveLayerRec'>SaveLayerRec</a>,
 defining how <a href='#Layer'>Layer</a> allocated by <a href='#SkCanvas_saveLayer'>saveLayer</a> operates. It may be set to zero,
 <a href='#SkCanvas_kPreserveLCDText_SaveLayerFlag'>kPreserveLCDText SaveLayerFlag</a>, <a href='#SkCanvas_kInitWithPrevious_SaveLayerFlag'>kInitWithPrevious SaveLayerFlag</a>, or both flags.
@@ -1988,8 +1993,8 @@ transferred to the main canvas.
 
 ## <a name='Layer_SaveLayerRec_Constructors'>Layer SaveLayerRec Constructors</a>
 
-<a name='SkCanvas_SaveLayerRec_SaveLayerRec'></a>
-## SaveLayerRec
+
+## <a name='SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a>()
@@ -2019,8 +2024,8 @@ rec1 == rec2
 
 ---
 
-<a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star'></a>
-## SaveLayerRec
+
+## <a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star'>SaveLayerRec</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint, <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a> saveLayerFlags = 0)
@@ -2063,8 +2068,8 @@ rec1 == rec2
 
 ---
 
-<a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star'></a>
-## SaveLayerRec
+
+## <a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star'>SaveLayerRec</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint, const <a href='undocumented#SkImageFilter'>SkImageFilter</a>* backdrop,
@@ -2112,8 +2117,8 @@ rec1 == rec2
 
 ---
 
-<a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star'></a>
-## SaveLayerRec
+
+## <a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star'>SaveLayerRec</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint, const <a href='undocumented#SkImageFilter'>SkImageFilter</a>* backdrop,
@@ -2209,8 +2214,8 @@ Outside of the circle the mandrill is brightened.
 
 ## <a name='Matrix'>Matrix</a>
 
-<a name='SkCanvas_translate'></a>
-## translate
+
+## <a name='SkCanvas_translate'>translate</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_translate'>translate</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
@@ -2251,8 +2256,8 @@ follows translate of (50, 50).
 
 ---
 
-<a name='SkCanvas_scale'></a>
-## scale
+
+## <a name='SkCanvas_scale'>scale</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_scale'>scale</a>(<a href='undocumented#SkScalar'>SkScalar</a> sx, <a href='undocumented#SkScalar'>SkScalar</a> sy)
@@ -2286,8 +2291,8 @@ the result with <a href='#Matrix'>Matrix</a>.
 
 ---
 
-<a name='SkCanvas_rotate'></a>
-## rotate
+
+## <a name='SkCanvas_rotate'>rotate</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_rotate'>rotate</a>(<a href='undocumented#SkScalar'>SkScalar</a> degrees)
@@ -2359,8 +2364,8 @@ transforming the result with <a href='#Matrix'>Matrix</a>.
 
 ---
 
-<a name='SkCanvas_skew'></a>
-## skew
+
+## <a name='SkCanvas_skew'>skew</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_skew'>skew</a>(<a href='undocumented#SkScalar'>SkScalar</a> sx, <a href='undocumented#SkScalar'>SkScalar</a> sy)
@@ -2400,8 +2405,8 @@ Blue text combines <a href='#SkCanvas_skew_sx'>sx</a> and <a href='#SkCanvas_ske
 
 ---
 
-<a name='SkCanvas_concat'></a>
-## concat
+
+## <a name='SkCanvas_concat'>concat</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_concat'>concat</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix)
@@ -2429,8 +2434,8 @@ transforming the result with existing <a href='#Matrix'>Matrix</a>.
 
 ---
 
-<a name='SkCanvas_setMatrix'></a>
-## setMatrix
+
+## <a name='SkCanvas_setMatrix'>setMatrix</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_setMatrix'>setMatrix</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix)
@@ -2456,8 +2461,8 @@ Unlike <a href='#SkCanvas_concat'>concat</a>(), any prior <a href='#SkCanvas_set
 
 ---
 
-<a name='SkCanvas_resetMatrix'></a>
-## resetMatrix
+
+## <a name='SkCanvas_resetMatrix'>resetMatrix</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_resetMatrix'>resetMatrix</a>()
@@ -2476,8 +2481,8 @@ Any prior matrix state is overwritten.
 
 ---
 
-<a name='SkCanvas_getTotalMatrix'></a>
-## getTotalMatrix
+
+## <a name='SkCanvas_getTotalMatrix'>getTotalMatrix</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='#SkCanvas_getTotalMatrix'>getTotalMatrix</a>() const
@@ -2545,8 +2550,8 @@ The edge of the <a href='undocumented#Alias'>Aliased</a> clip fully draws pixels
 The edge of the <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> clip partially draws pixels in the red circle.
 </div></fiddle-embed></div>
 
-<a name='SkCanvas_clipRect'></a>
-## clipRect
+
+## <a name='SkCanvas_clipRect'>clipRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_clipRect'>clipRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkClipOp'>SkClipOp</a> op, bool doAntiAlias)
@@ -2643,8 +2648,8 @@ visible as a thin pair of lines through the right circle.
 
 ---
 
-<a name='SkCanvas_androidFramework_setDeviceClipRestriction'></a>
-## androidFramework_setDeviceClipRestriction
+
+## <a name='SkCanvas_androidFramework_setDeviceClipRestriction'>androidFramework_setDeviceClipRestriction</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_androidFramework_setDeviceClipRestriction'>androidFramework setDeviceClipRestriction</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& rect)
@@ -2668,8 +2673,8 @@ Private: This private API is for use by Android framework only.
 
 ---
 
-<a name='SkCanvas_clipRRect'></a>
-## clipRRect
+
+## <a name='SkCanvas_clipRRect'>clipRRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_clipRRect'>clipRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& rrect, <a href='undocumented#SkClipOp'>SkClipOp</a> op, bool doAntiAlias)
@@ -2763,8 +2768,8 @@ with an <a href='undocumented#Alias'>Aliased</a> or <a href='SkPaint_Reference#A
 
 ---
 
-<a name='SkCanvas_clipPath'></a>
-## clipPath
+
+## <a name='SkCanvas_clipPath'>clipPath</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_clipPath'>clipPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& path, <a href='undocumented#SkClipOp'>SkClipOp</a> op, bool doAntiAlias)
@@ -2877,8 +2882,8 @@ is set to <a href='SkPath_Reference#SkPath_kWinding_FillType'>SkPath::kWinding F
 
 ---
 
-<a name='SkCanvas_setAllowSimplifyClip'></a>
-## setAllowSimplifyClip
+
+## <a name='SkCanvas_setAllowSimplifyClip'>setAllowSimplifyClip</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_setAllowSimplifyClip'>setAllowSimplifyClip</a>(bool allow)
@@ -2890,8 +2895,8 @@ Set to simplify clip stack using <a href='undocumented#PathOps'>PathOps</a>.
 
 ---
 
-<a name='SkCanvas_clipRegion'></a>
-## clipRegion
+
+## <a name='SkCanvas_clipRegion'>clipRegion</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_clipRegion'>clipRegion</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& deviceRgn, <a href='undocumented#SkClipOp'>SkClipOp</a> op = <a href='undocumented#SkClipOp_kIntersect'>SkClipOp::kIntersect</a>)
@@ -2924,8 +2929,8 @@ aligns to pixel boundaries.
 
 ---
 
-<a name='SkCanvas_quickReject'></a>
-## quickReject
+
+## <a name='SkCanvas_quickReject'>quickReject</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkCanvas_quickReject'>quickReject</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect) const
@@ -3007,8 +3012,8 @@ quickReject false
 
 ---
 
-<a name='SkCanvas_getLocalClipBounds'></a>
-## getLocalClipBounds
+
+## <a name='SkCanvas_getLocalClipBounds'>getLocalClipBounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkCanvas_getLocalClipBounds'>getLocalClipBounds</a>() const
@@ -3090,8 +3095,8 @@ local bounds empty = true
 
 ---
 
-<a name='SkCanvas_getDeviceClipBounds'></a>
-## getDeviceClipBounds
+
+## <a name='SkCanvas_getDeviceClipBounds'>getDeviceClipBounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkCanvas_getDeviceClipBounds'>getDeviceClipBounds</a>() const
@@ -3173,8 +3178,8 @@ device bounds empty = true
 
 ## <a name='Draw'>Draw</a>
 
-<a name='SkCanvas_drawColor'></a>
-## drawColor
+
+## <a name='SkCanvas_drawColor'>drawColor</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawColor'>drawColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> color, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode = <a href='SkBlendMode_Reference#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>)
@@ -3203,8 +3208,8 @@ Fills <a href='#Clip'>Clip</a> with <a href='SkColor_Reference#Color'>Color</a> 
 
 ---
 
-<a name='SkCanvas_clear'></a>
-## clear
+
+## <a name='SkCanvas_clear'>clear</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_clear'>clear</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> color)
@@ -3230,8 +3235,8 @@ This has the effect of replacing all pixels contained by <a href='#Clip'>Clip</a
 
 ---
 
-<a name='SkCanvas_discard'></a>
-## discard
+
+## <a name='SkCanvas_discard'>discard</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_discard'>discard</a>()
@@ -3255,8 +3260,8 @@ any cached data is deleted when owning <a href='SkSurface_Reference#Surface'>Sur
 
 ---
 
-<a name='SkCanvas_drawPaint'></a>
-## drawPaint
+
+## <a name='SkCanvas_drawPaint'>drawPaint</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawPaint'>drawPaint</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3283,7 +3288,7 @@ Fills <a href='#Clip'>Clip</a> with <a href='SkPaint_Reference#Paint'>Paint</a> 
 
 ---
 
-## <a name='SkCanvas_PointMode'>Enum SkCanvas::PointMode</a>
+## <a name='SkCanvas_PointMode'>PointMode</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkCanvas_PointMode'>PointMode</a> {
@@ -3334,8 +3339,8 @@ The lower left corner shows two lines with a miter when path contains polygon.
 
 <a href='#SkCanvas_drawLine'>drawLine</a><sup><a href='#SkCanvas_drawLine_2'>[2]</a></sup> <a href='#SkCanvas_drawPoint'>drawPoint</a><sup><a href='#SkCanvas_drawPoint_2'>[2]</a></sup> <a href='#SkCanvas_drawPath'>drawPath</a>
 
-<a name='SkCanvas_drawPoints'></a>
-## drawPoints
+
+## <a name='SkCanvas_drawPoints'>drawPoints</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawPoints'>drawPoints</a>(<a href='#SkCanvas_PointMode'>PointMode</a> mode, size_t count, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[], const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3412,8 +3417,8 @@ the path is drawn all at once.
 
 ---
 
-<a name='SkCanvas_drawPoint'></a>
-## drawPoint
+
+## <a name='SkCanvas_drawPoint'>drawPoint</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawPoint'>drawPoint</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3484,8 +3489,8 @@ draw a square of width and height <a href='SkPaint_Reference#Stroke_Width'>Paint
 
 ---
 
-<a name='SkCanvas_drawLine'></a>
-## drawLine
+
+## <a name='SkCanvas_drawLine'>drawLine</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawLine'>drawLine</a>(<a href='undocumented#SkScalar'>SkScalar</a> x0, <a href='undocumented#SkScalar'>SkScalar</a> y0, <a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3559,8 +3564,8 @@ In <a href='#SkCanvas_drawLine_2_paint'>paint</a>: <a href='SkPaint_Reference#St
 
 ---
 
-<a name='SkCanvas_drawRect'></a>
-## drawRect
+
+## <a name='SkCanvas_drawRect'>drawRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawRect'>drawRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3591,8 +3596,8 @@ if stroked, <a href='SkPaint_Reference#Stroke_Width'>Paint Stroke Width</a> desc
 
 ---
 
-<a name='SkCanvas_drawIRect'></a>
-## drawIRect
+
+## <a name='SkCanvas_drawIRect'>drawIRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawIRect'>drawIRect</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& rect, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3623,8 +3628,8 @@ if stroked, <a href='SkPaint_Reference#Stroke_Width'>Paint Stroke Width</a> desc
 
 ---
 
-<a name='SkCanvas_drawRegion'></a>
-## drawRegion
+
+## <a name='SkCanvas_drawRegion'>drawRegion</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawRegion'>drawRegion</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& region, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3655,8 +3660,8 @@ if stroked, <a href='SkPaint_Reference#Stroke_Width'>Paint Stroke Width</a> desc
 
 ---
 
-<a name='SkCanvas_drawOval'></a>
-## drawOval
+
+## <a name='SkCanvas_drawOval'>drawOval</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawOval'>drawOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3686,8 +3691,8 @@ if stroked, <a href='SkPaint_Reference#Stroke_Width'>Paint Stroke Width</a> desc
 
 ---
 
-<a name='SkCanvas_drawRRect'></a>
-## drawRRect
+
+## <a name='SkCanvas_drawRRect'>drawRRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawRRect'>drawRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& rrect, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3720,8 +3725,8 @@ may have any combination of positive non-square radii for the four corners.
 
 ---
 
-<a name='SkCanvas_drawDRRect'></a>
-## drawDRRect
+
+## <a name='SkCanvas_drawDRRect'>drawDRRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawDRRect'>drawDRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& outer, const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& inner, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3769,8 +3774,8 @@ Stroke join does not affect <a href='#SkCanvas_drawDRRect_inner'>inner</a> <a hr
 
 ---
 
-<a name='SkCanvas_drawCircle'></a>
-## drawCircle
+
+## <a name='SkCanvas_drawCircle'>drawCircle</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawCircle'>drawCircle</a>(<a href='undocumented#SkScalar'>SkScalar</a> cx, <a href='undocumented#SkScalar'>SkScalar</a> cy, <a href='undocumented#SkScalar'>SkScalar</a> radius, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3841,8 +3846,8 @@ if stroked, <a href='SkPaint_Reference#Stroke_Width'>Paint Stroke Width</a> desc
 
 ---
 
-<a name='SkCanvas_drawArc'></a>
-## drawArc
+
+## <a name='SkCanvas_drawArc'>drawArc</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawArc'>drawArc</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='undocumented#SkScalar'>SkScalar</a> startAngle, <a href='undocumented#SkScalar'>SkScalar</a> sweepAngle, bool useCenter,
@@ -3896,8 +3901,8 @@ If <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkCanvas_drawArc_oval'>ova
 
 ---
 
-<a name='SkCanvas_drawRoundRect'></a>
-## drawRoundRect
+
+## <a name='SkCanvas_drawRoundRect'>drawRoundRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawRoundRect'>drawRoundRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> rx, <a href='undocumented#SkScalar'>SkScalar</a> ry, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3943,8 +3948,8 @@ DrawRRect <a href='#SkCanvas_drawRect'>drawRect</a> <a href='#SkCanvas_drawDRRec
 
 ---
 
-<a name='SkCanvas_drawPath'></a>
-## drawPath
+
+## <a name='SkCanvas_drawPath'>drawPath</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawPath'>drawPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& path, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -3990,8 +3995,8 @@ Third bottom column shows inverse winding fills area outside both contours.
 <a href='#SkCanvas_drawImage'>drawImage</a>, <a href='#SkCanvas_drawImageRect'>drawImageRect</a>, and <a href='#SkCanvas_drawImageNine'>drawImageNine</a> can be called with a bare pointer or
 a smart pointer as a convenience. The pairs of calls are otherwise identical.
 
-<a name='SkCanvas_drawImage'></a>
-## drawImage
+
+## <a name='SkCanvas_drawImage'>drawImage</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawImage'>drawImage</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, <a href='undocumented#SkScalar'>SkScalar</a> left, <a href='undocumented#SkScalar'>SkScalar</a> top, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint = nullptr)
@@ -4078,7 +4083,7 @@ and so on; or nullptr</td>
 
 ---
 
-## <a name='SkCanvas_SrcRectConstraint'>Enum SkCanvas::SrcRectConstraint</a>
+## <a name='SkCanvas_SrcRectConstraint'>SrcRectConstraint</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkCanvas_SrcRectConstraint'>SrcRectConstraint</a> {
@@ -4134,8 +4139,8 @@ Drawing the checkerboard with <a href='#SkCanvas_kFast_SrcRectConstraint'>kFast 
 
 <a href='#SkCanvas_drawImageRect'>drawImageRect</a><sup><a href='#SkCanvas_drawImageRect_2'>[2]</a></sup><sup><a href='#SkCanvas_drawImageRect_3'>[3]</a></sup><sup><a href='#SkCanvas_drawImageRect_4'>[4]</a></sup><sup><a href='#SkCanvas_drawImageRect_5'>[5]</a></sup><sup><a href='#SkCanvas_drawImageRect_6'>[6]</a></sup> <a href='#SkCanvas_drawImage'>drawImage</a><sup><a href='#SkCanvas_drawImage_2'>[2]</a></sup> <a href='SkPaint_Reference#SkPaint_setImageFilter'>SkPaint::setImageFilter</a>
 
-<a name='SkCanvas_drawImageRect'></a>
-## drawImageRect
+
+## <a name='SkCanvas_drawImageRect'>drawImageRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawImageRect'>drawImageRect</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& src, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
@@ -4451,8 +4456,8 @@ and so on; or nullptr</td>
 
 ---
 
-<a name='SkCanvas_drawImageNine'></a>
-## drawImageNine
+
+## <a name='SkCanvas_drawImageNine'>drawImageNine</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawImageNine'>drawImageNine</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& center, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
@@ -4562,8 +4567,8 @@ and below <a href='#SkCanvas_drawImageNine_2_center'>center</a> to fill the rema
 
 ---
 
-<a name='SkCanvas_drawBitmap'></a>
-## drawBitmap
+
+## <a name='SkCanvas_drawBitmap'>drawBitmap</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawBitmap'>drawBitmap</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& bitmap, <a href='undocumented#SkScalar'>SkScalar</a> left, <a href='undocumented#SkScalar'>SkScalar</a> top, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint = nullptr)
@@ -4608,8 +4613,8 @@ and so on; or nullptr</td>
 
 ---
 
-<a name='SkCanvas_drawBitmapRect'></a>
-## drawBitmapRect
+
+## <a name='SkCanvas_drawBitmapRect'>drawBitmapRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawBitmapRect'>drawBitmapRect</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& bitmap, const <a href='SkRect_Reference#SkRect'>SkRect</a>& src, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
@@ -4767,8 +4772,8 @@ and so on; or nullptr</td>
 
 ---
 
-<a name='SkCanvas_drawBitmapNine'></a>
-## drawBitmapNine
+
+## <a name='SkCanvas_drawBitmapNine'>drawBitmapNine</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawBitmapNine'>drawBitmapNine</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& bitmap, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& center, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
@@ -4841,7 +4846,7 @@ entries are proportionately scaled down to fit.
 The grid entries not on even columns and rows are scaled to fit the
 remaining space, if any.
 
-## <a name='SkCanvas_Lattice_RectType'>Enum SkCanvas::Lattice::RectType</a>
+## <a name='SkCanvas_Lattice_RectType'>RectType</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
         enum <a href='#SkCanvas_Lattice_RectType'>RectType</a> : uint8_t {
@@ -4879,6 +4884,8 @@ skips lattice rectangle by making it transparent</td>
 draws one of fColors into lattice rectangle</td>
   </tr>
 </table>
+
+---
 
 ## <a name='Draw_Image_Lattice_Members'>Draw Image Lattice Members</a><table style='border-collapse: collapse; width: 62.5em'>
 
@@ -4957,8 +4964,8 @@ left to right, then top to bottom.
   </tr>
 </table>
 
-<a name='SkCanvas_drawBitmapLattice'></a>
-## drawBitmapLattice
+
+## <a name='SkCanvas_drawBitmapLattice'>drawBitmapLattice</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawBitmapLattice'>drawBitmapLattice</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& bitmap, const <a href='#SkCanvas_Lattice'>Lattice</a>& lattice, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
@@ -5018,8 +5025,8 @@ and below center to fill the remaining space.
 
 ---
 
-<a name='SkCanvas_drawImageLattice'></a>
-## drawImageLattice
+
+## <a name='SkCanvas_drawImageLattice'>drawImageLattice</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawImageLattice'>drawImageLattice</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='#SkCanvas_Lattice'>Lattice</a>& lattice, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
@@ -5079,8 +5086,8 @@ are scaled if needed to take up the remaining space; the center is transparent.
 
 ## <a name='Draw_Text'>Draw Text</a>
 
-<a name='SkCanvas_drawText'></a>
-## drawText
+
+## <a name='SkCanvas_drawText'>drawText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawText'>drawText</a>(const void* text, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -5130,8 +5137,8 @@ filled 12 point black <a href='undocumented#Glyph'>Glyphs</a>.
 
 ---
 
-<a name='SkCanvas_drawString'></a>
-## drawString
+
+## <a name='SkCanvas_drawString'>drawString</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawString'>drawString</a>(const char* string, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -5227,8 +5234,8 @@ ending with a char value of zero</td>
 
 ---
 
-<a name='SkCanvas_drawPosText'></a>
-## drawPosText
+
+## <a name='SkCanvas_drawPosText'>drawPosText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawPosText'>drawPosText</a>(const void* text, size_t byteLength, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -5276,8 +5283,8 @@ rather than using the font advance widths.
 
 ---
 
-<a name='SkCanvas_drawPosTextH'></a>
-## drawPosTextH
+
+## <a name='SkCanvas_drawPosTextH'>drawPosTextH</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawPosTextH'>drawPosTextH</a>(const void* text, size_t byteLength, const <a href='undocumented#SkScalar'>SkScalar</a> xpos[], <a href='undocumented#SkScalar'>SkScalar</a> constY,
@@ -5331,8 +5338,8 @@ baseline.
 
 ---
 
-<a name='SkCanvas_drawTextRSXform'></a>
-## drawTextRSXform
+
+## <a name='SkCanvas_drawTextRSXform'>drawTextRSXform</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawTextRSXform'>drawTextRSXform</a>(const void* text, size_t byteLength, const <a href='undocumented#SkRSXform'>SkRSXform</a> xform[],
@@ -5381,8 +5388,8 @@ filled 12 point black <a href='undocumented#Glyph'>Glyphs</a>.
 
 ---
 
-<a name='SkCanvas_drawTextBlob'></a>
-## drawTextBlob
+
+## <a name='SkCanvas_drawTextBlob'>drawTextBlob</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -5475,8 +5482,8 @@ Elements of <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a>: <a href='undocum
 
 ---
 
-<a name='SkCanvas_drawPicture'></a>
-## drawPicture
+
+## <a name='SkCanvas_drawPicture'>drawPicture</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawPicture'>drawPicture</a>(const <a href='SkPicture_Reference#SkPicture'>SkPicture</a>* picture)
@@ -5606,8 +5613,8 @@ Draws <a href='SkPicture_Reference#Picture'>Picture</a> <a href='#SkCanvas_drawP
 
 ---
 
-<a name='SkCanvas_drawVertices'></a>
-## drawVertices
+
+## <a name='SkCanvas_drawVertices'>drawVertices</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawVertices'>drawVertices</a>(const <a href='undocumented#SkVertices'>SkVertices</a>* vertices, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -5755,8 +5762,8 @@ it should be the identity matrix.
 
 ---
 
-<a name='SkCanvas_drawPatch'></a>
-## drawPatch
+
+## <a name='SkCanvas_drawPatch'>drawPatch</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawPatch'>drawPatch</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> cubics[12], const <a href='SkColor_Reference#SkColor'>SkColor</a> colors[4], const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> texCoords[4],
@@ -5867,8 +5874,8 @@ SeeAlso <a href='#SkCanvas_drawVertices'>drawVertices</a><sup><a href='#SkCanvas
 
 ---
 
-<a name='SkCanvas_drawAtlas'></a>
-## drawAtlas
+
+## <a name='SkCanvas_drawAtlas'>drawAtlas</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawAtlas'>drawAtlas</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* atlas, const <a href='undocumented#SkRSXform'>SkRSXform</a> xform[], const <a href='SkRect_Reference#SkRect'>SkRect</a> tex[],
@@ -6077,8 +6084,8 @@ If <a href='#SkCanvas_drawAtlas_4_cullRect'>cullRect</a> is outside of <a href='
 
 ---
 
-<a name='SkCanvas_drawDrawable'></a>
-## drawDrawable
+
+## <a name='SkCanvas_drawDrawable'>drawDrawable</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawDrawable'>drawDrawable</a>(<a href='undocumented#SkDrawable'>SkDrawable</a>* drawable, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* matrix = nullptr)
@@ -6148,8 +6155,8 @@ immediate drawing, call <a href='undocumented#SkDrawable_draw'>SkDrawable::draw<
 
 ---
 
-<a name='SkCanvas_drawAnnotation'></a>
-## drawAnnotation
+
+## <a name='SkCanvas_drawAnnotation'>drawAnnotation</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkCanvas_drawAnnotation'>drawAnnotation</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, const char key[], <a href='undocumented#SkData'>SkData</a>* value)
@@ -6219,8 +6226,8 @@ Only some canvas implementations, such as recording to <a href='SkPicture_Refere
 
 ---
 
-<a name='SkCanvas_isClipEmpty'></a>
-## isClipEmpty
+
+## <a name='SkCanvas_isClipEmpty'>isClipEmpty</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual bool <a href='#SkCanvas_isClipEmpty'>isClipEmpty</a>() const
@@ -6255,8 +6262,8 @@ clip is empty
 
 ---
 
-<a name='SkCanvas_isClipRect'></a>
-## isClipRect
+
+## <a name='SkCanvas_isClipRect'>isClipRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual bool <a href='#SkCanvas_isClipRect'>isClipRect</a>() const

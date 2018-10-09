@@ -88,8 +88,8 @@ Reserved for future use. clusters should not be read or written.
 
 <a href='#SkTextBlobBuilder_allocRun'>allocRun</a> <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a> <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>
 
-<a name='SkTextBlobBuilder_empty_constructor'></a>
-## SkTextBlobBuilder
+
+## <a name='SkTextBlobBuilder_empty_constructor'>SkTextBlobBuilder</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkTextBlobBuilder'>SkTextBlobBuilder</a>()
@@ -119,8 +119,8 @@ blob equals nullptr
 
 ---
 
-<a name='SkTextBlobBuilder_destructor'></a>
-## ~SkTextBlobBuilder
+
+## <a name='SkTextBlobBuilder_destructor'>~SkTextBlobBuilder</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkTextBlobBuilder_destructor'>~SkTextBlobBuilder</a>()
@@ -134,8 +134,8 @@ Deletes data allocated internally by <a href='#Text_Blob_Builder'>Text Blob Buil
 
 ---
 
-<a name='SkTextBlobBuilder_make'></a>
-## make
+
+## <a name='SkTextBlobBuilder_make'>make</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlobBuilder_make'>make</a>()
@@ -172,8 +172,8 @@ blob equals nullptr
 
 ---
 
-<a name='SkTextBlobBuilder_allocRun'></a>
-## allocRun
+
+## <a name='SkTextBlobBuilder_allocRun'>allocRun</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
@@ -230,8 +230,8 @@ writable glyph buffer
 
 ---
 
-<a name='SkTextBlobBuilder_allocRunPosH'></a>
-## allocRunPosH
+
+## <a name='SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
@@ -286,8 +286,8 @@ writable glyph buffer and x-axis position buffer
 
 ---
 
-<a name='SkTextBlobBuilder_allocRunPos'></a>
-## allocRunPos
+
+## <a name='SkTextBlobBuilder_allocRunPos'>allocRunPos</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count, const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr)

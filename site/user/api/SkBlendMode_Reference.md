@@ -41,7 +41,7 @@ enum class <a href='#SkBlendMode'>SkBlendMode</a> {
 const char* <a href='#SkBlendMode_Name'>SkBlendMode_Name</a>(<a href='#SkBlendMode'>SkBlendMode</a> blendMode);
 </pre>
 
-## <a name='SkBlendMode'>Enum SkBlendMode</a>
+## <a name='SkBlendMode'>SkBlendMode</a>
 
 ### Constants
 
@@ -694,8 +694,8 @@ source luminosity, leaving destination hue and saturation unchanged.
 
 <div><fiddle-embed name="7d42fe34ae20dd9e12c39dc3950e9989"></fiddle-embed></div>
 
-<a name='SkBlendMode_Name'></a>
-## SkBlendMode_Name
+
+## <a name='SkBlendMode_Name'>SkBlendMode_Name</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 SK_API const char* <a href='#SkBlendMode_Name'>SkBlendMode Name</a>(<a href='#SkBlendMode'>SkBlendMode</a> blendMode)

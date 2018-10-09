@@ -410,7 +410,11 @@ string IncludeParser::writeCodeBlock(TextParser& i, MarkType markType, int start
     int lastIndent = 0;
     bool lastDoubleMeUp = false;
     fCheck.reset();
-    this->codeBlockSpaces(result, startIndent);
+    if (MarkType::kDefine == markType) {
+        result = "#define ";
+    } else {
+        this->codeBlockSpaces(result, startIndent);
+    }
     do {
         if (!this->advanceInclude(i)) {
             continue;
@@ -621,8 +625,16 @@ void IncludeParser::writeCodeBlock(const BmhParser& bmhParser) {
         SkASSERT(string::npos != className.find("::"));
     }
     for (auto& enumMapper : fIEnumMap) {
-            enumMapper.second->fCode = this->writeCodeBlock(*enumMapper.second,
-                    enumMapper.second->fMarkType);
+        enumMapper.second->fCode = this->writeCodeBlock(*enumMapper.second,
+                enumMapper.second->fMarkType);
+    }
+    for (auto& typedefMapper : fITypedefMap) {
+        typedefMapper.second->fCode = this->writeCodeBlock(*typedefMapper.second,
+                typedefMapper.second->fMarkType);
+    }
+    for (auto& defineMapper : fIDefineMap) {
+        defineMapper.second->fCode = this->writeCodeBlock(*defineMapper.second,
+                defineMapper.second->fMarkType);
     }
 }
 
@@ -1756,6 +1768,25 @@ string IncludeParser::elidedCodeBlock(const Definition& iDef) {
     return this->writeCodeBlock(i, markType, 0);
 }
 
+ string IncludeParser::filteredBlock(string inContents, string filterContents) {
+    string result;
+    const unordered_map<string, Definition*>* mapPtr = nullptr;
+    MarkType markType = MarkType::kNone;
+    if ("Constant" == inContents) {
+        mapPtr = &fIConstMap;
+        markType = MarkType::kConst;
+    } else {
+        SkASSERT(0); // only Constant supported for now
+    }
+    for (auto entry : *mapPtr) {
+        if (string::npos == entry.first.find(filterContents)) {
+            continue;
+        }
+        result += this->writeCodeBlock(*entry.second, markType);
+    }
+    return result;
+}
+
 bool IncludeParser::findComments(const Definition& includeDef, Definition* markupDef) {
     // add comment preceding class, if any
     const Definition* parent = includeDef.fParent;
@@ -2071,6 +2102,7 @@ bool IncludeParser::parseConst(Definition* child, Definition* markupDef) {
     markupChild->fTerminator = markupChild->fContentEnd;
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
     classDef.fConsts[child->fName] = markupChild;
+    fIConstMap[child->fName] = markupChild;
     return true;
 }
 
@@ -2155,6 +2187,7 @@ bool IncludeParser::parseDefine(Definition* child, Definition* markupDef) {
         return false;
     }
     classDef.fDefines[nameStr] = markupChild;
+    fIDefineMap[nameStr] = markupChild;
     return true;
 }
 
@@ -2763,6 +2796,7 @@ bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
     classDef.fTypedefs[nameStr] = markupChild;
     child->fName = markupDef->fName + "::" + nameStr;
+    fITypedefMap[child->fName] = markupChild;
     return true;
 }
 
@@ -3335,6 +3369,9 @@ bool IncludeParser::references(const SkString& file) const {
         return true;
     }
     if (fIEnumMap.end() != fIEnumMap.find(root)) {
+        return true;
+    }
+    if (fITypedefMap.end() != fITypedefMap.find(root)) {
         return true;
     }
     if (fIFunctionMap.end() != fIFunctionMap.find(root)) {

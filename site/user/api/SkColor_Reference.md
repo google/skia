@@ -64,7 +64,7 @@ floating point values. Unsigned integer <a href='#Alpha'>Alpha</a> ranges from z
 transparent, to all bits set, fully opaque. Floating point <a href='#Alpha'>Alpha</a> ranges from
 zero, fully transparent, to one, fully opaque.
 
-## <a name='SkAlpha'>Typedef SkAlpha</a>
+## <a name='SkAlpha'>SkAlpha</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 typedef uint8_t <a href='#SkAlpha'>SkAlpha</a>;
@@ -72,7 +72,9 @@ typedef uint8_t <a href='#SkAlpha'>SkAlpha</a>;
 
 8-bit type for an alpha value. 255 is 100% opaque, zero is 100% transparent.
 
-## <a name='SkColor'>Typedef SkColor</a>
+---
+
+## <a name='SkColor'>SkColor</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 typedef uint32_t <a href='#SkColor'>SkColor</a>;
@@ -91,8 +93,10 @@ component values in a different order.
 
 <a href='#SkPMColor'>SkPMColor</a>
 
-<a name='SkColorSetARGB'></a>
-## SkColorSetARGB
+---
+
+
+## <a name='SkColorSetARGB'>SkColorSetARGB</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr inline <a href='#SkColor'>SkColor</a> <a href='#SkColorSetARGB'>SkColorSetARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> a, <a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b)
@@ -132,10 +136,10 @@ color and alpha, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
 
 ---
 
-## <a name='SkColorSetRGB'>Define SkColorSetRGB</a>
+## <a name='SkColorSetRGB'>SkColorSetRGB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorSetRGB'>SkColorSetRGB</a>(r, g, b)  <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, r, g, b)
+#define <a href='#SkColorSetRGB'>SkColorSetRGB</a>(r, g, b) <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, r, g, b);
 </pre>
 
 Returns <a href='#Color'>Color</a> value from 8-bit component values, with <a href='#Alpha'>Alpha</a> set
@@ -166,10 +170,12 @@ color with opaque alpha
 
 <a href='#SkColorSetARGB'>SkColorSetARGB</a>
 
-## <a name='SkColorGetA'>Define SkColorGetA</a>
+---
+
+## <a name='SkColorGetA'>SkColorGetA</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetA'>SkColorGetA</a>(color)      (((color) >> 24) & 0xFF)
+#define <a href='#SkColorGetA'>SkColorGetA</a>(color) (((color) >> 24) & 0xFF);
 </pre>
 
 Returns <a href='#Alpha'>Alpha</a> byte from <a href='#Color'>Color</a> value.
@@ -189,10 +195,12 @@ Returns <a href='#Alpha'>Alpha</a> byte from <a href='#Color'>Color</a> value.
 
 <a href='SkPaint_Reference#SkPaint_getAlpha'>SkPaint::getAlpha</a>
 
-## <a name='SkColorGetR'>Define SkColorGetR</a>
+---
+
+## <a name='SkColorGetR'>SkColorGetR</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetR'>SkColorGetR</a>(color)      (((color) >> 16) & 0xFF)
+#define <a href='#SkColorGetR'>SkColorGetR</a>(color) (((color) >> 16) & 0xFF);
 </pre>
 
 Returns red component of <a href='#Color'>Color</a>, from zero to 255.
@@ -216,10 +224,12 @@ red byte
 
 <a href='#SkColorGetG'>SkColorGetG</a> <a href='#SkColorGetB'>SkColorGetB</a>
 
-## <a name='SkColorGetG'>Define SkColorGetG</a>
+---
+
+## <a name='SkColorGetG'>SkColorGetG</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetG'>SkColorGetG</a>(color)      (((color) >>  8) & 0xFF)
+#define <a href='#SkColorGetG'>SkColorGetG</a>(color) (((color) >> 8) & 0xFF);
 </pre>
 
 Returns green component of <a href='#Color'>Color</a>, from zero to 255.
@@ -243,10 +253,12 @@ green byte
 
 <a href='#SkColorGetR'>SkColorGetR</a> <a href='#SkColorGetB'>SkColorGetB</a>
 
-## <a name='SkColorGetB'>Define SkColorGetB</a>
+---
+
+## <a name='SkColorGetB'>SkColorGetB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetB'>SkColorGetB</a>(color)      (((color) >>  0) & 0xFF)
+#define <a href='#SkColorGetB'>SkColorGetB</a>(color) (((color) >> 0) & 0xFF);
 </pre>
 
 Returns blue component of <a href='#Color'>Color</a>, from zero to 255.
@@ -270,8 +282,10 @@ blue byte
 
 <a href='#SkColorGetR'>SkColorGetR</a> <a href='#SkColorGetG'>SkColorGetG</a>
 
-<a name='SkColorSetA'></a>
-## SkColorSetA
+---
+
+
+## <a name='SkColorSetA'>SkColorSetA</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr inline <a href='#SkColor'>SkColor</a> <a href='#SkColorSetA'>SkColorSetA</a>(<a href='#SkColor'>SkColor</a> c, <a href='undocumented#U8CPU'>U8CPU</a> a)
@@ -328,8 +342,8 @@ from <a href='#SkColorSetA_a'>a</a>. <a href='#Alpha'>Alpha</a> component of <a 
 
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaTRANSPARENT'>SK_AlphaTRANSPARENT</a> = 0x00;
-    constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaOPAQUE'>SK_AlphaOPAQUE</a>      = 0xFF;
+constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaTRANSPARENT'>SK_AlphaTRANSPARENT</a> = 0x00;
+constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaOPAQUE'>SK_AlphaOPAQUE</a> = 0xFF;
 </pre>
 
 <a href='#Alpha'>Alpha</a> constants are conveniences to represent fully transparent and fully
@@ -457,18 +471,18 @@ fully transparent; to 255, fully opaque.
 
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorTRANSPARENT'>SK_ColorTRANSPARENT</a> = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0x00, 0x00, 0x00, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLACK'>SK_ColorBLACK</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0x00, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorDKGRAY'>SK_ColorDKGRAY</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x44, 0x44, 0x44);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGRAY'>SK_ColorGRAY</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x88, 0x88, 0x88);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorLTGRAY'>SK_ColorLTGRAY</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xCC, 0xCC, 0xCC);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorWHITE'>SK_ColorWHITE</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0xFF, 0xFF);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorRED'>SK_ColorRED</a>         = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0x00, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGREEN'>SK_ColorGREEN</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0xFF, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLUE'>SK_ColorBLUE</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0x00, 0xFF);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorYELLOW'>SK_ColorYELLOW</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0xFF, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorCYAN'>SK_ColorCYAN</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0xFF, 0xFF);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorMAGENTA'>SK_ColorMAGENTA</a>     = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0x00, 0xFF);
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGREEN'>SK_ColorGREEN</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorRED'>SK_ColorRED</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLACK'>SK_ColorBLACK</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorTRANSPARENT'>SK_ColorTRANSPARENT</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorDKGRAY'>SK_ColorDKGRAY</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorLTGRAY'>SK_ColorLTGRAY</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGRAY'>SK_ColorGRAY</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorWHITE'>SK_ColorWHITE</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorYELLOW'>SK_ColorYELLOW</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLUE'>SK_ColorBLUE</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorCYAN'>SK_ColorCYAN</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorMAGENTA'>SK_ColorMAGENTA</a>;
 </pre>
 
 <a href='#Color'>Color</a> names are provided as conveniences, but are not otherwise special.
@@ -636,8 +650,8 @@ with no <a href='#HSV_Hue'>Hue</a> contribution; to one, with full <a href='#HSV
 <a href='#HSV_Value'>Value</a> represents the lightness of the color. <a href='#HSV_Value'>Value</a> varies from zero, black; to
 one, full brightness.
 
-<a name='SkRGBToHSV'></a>
-## SkRGBToHSV
+
+## <a name='SkRGBToHSV'>SkRGBToHSV</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRGBToHSV'>SkRGBToHSV</a>(<a href='undocumented#U8CPU'>U8CPU</a> red, <a href='undocumented#U8CPU'>U8CPU</a> green, <a href='undocumented#U8CPU'>U8CPU</a> blue, <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
@@ -674,8 +688,8 @@ Converts RGB to its <a href='#HSV'>HSV</a> components.
 
 ---
 
-<a name='SkColorToHSV'></a>
-## SkColorToHSV
+
+## <a name='SkColorToHSV'>SkColorToHSV</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkColorToHSV'>SkColorToHSV</a>(<a href='#SkColor'>SkColor</a> color, <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
@@ -706,8 +720,8 @@ Converts ARGB to its <a href='#HSV'>HSV</a> components. <a href='#Alpha'>Alpha</
 
 ---
 
-<a name='SkHSVToColor'></a>
-## SkHSVToColor
+
+## <a name='SkHSVToColor'>SkHSVToColor</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkColor'>SkColor</a> <a href='#SkHSVToColor'>SkHSVToColor</a>(<a href='undocumented#U8CPU'>U8CPU</a> alpha, const <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
@@ -780,7 +794,7 @@ RGB equivalent to <a href='#HSV'>HSV</a>
 
 ## <a name='PMColor'>PMColor</a>
 
-## <a name='SkPMColor'>Typedef SkPMColor</a>
+## <a name='SkPMColor'>SkPMColor</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 typedef uint32_t <a href='#SkPMColor'>SkPMColor</a>;
@@ -791,8 +805,10 @@ configuration dependent, matching the format of <a href='SkImageInfo_Reference#k
 This is different from <a href='#SkColor'>SkColor</a>, which is <a href='undocumented#Unpremultiply'>Unpremultiplied</a>, and is always in the
 same byte order.
 
-<a name='SkPreMultiplyARGB'></a>
-## SkPreMultiplyARGB
+---
+
+
+## <a name='SkPreMultiplyARGB'>SkPreMultiplyARGB</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPMColor'>SkPMColor</a> <a href='#SkPreMultiplyARGB'>SkPreMultiplyARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> a, <a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b)
@@ -830,8 +846,8 @@ Returns <a href='#SkPreMultiplyARGB_a'>a</a> <a href='#SkPMColor'>SkPMColor</a> 
 
 ---
 
-<a name='SkPreMultiplyColor'></a>
-## SkPreMultiplyColor
+
+## <a name='SkPreMultiplyColor'>SkPreMultiplyColor</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPMColor'>SkPMColor</a> <a href='#SkPreMultiplyColor'>SkPreMultiplyColor</a>(<a href='#SkColor'>SkColor</a> c)
