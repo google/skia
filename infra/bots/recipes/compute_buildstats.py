@@ -54,6 +54,14 @@ def RunSteps(api):
     if len(files):
       analyze_web_file(api, checkout_root, out_dir, files)
 
+    files = api.file.glob_paths(
+        'find built libraries',
+        bin_dir,
+        '*.so',
+        test_data=['libskia.so'])
+    if len(files):
+      analyze_cpp_lib(api, checkout_root, out_dir, files)
+
 
 def keys_and_props(api):
   keys = []
@@ -89,6 +97,19 @@ def analyze_web_file(api, checkout_root, out_dir, files):
       script = skia_dir.join('infra', 'bots', 'buildstats_web.py')
       api.run(api.python, 'Analyze %s' % f, script=script,
         args=[f, out_dir, keystr, propstr])
+
+
+# Get the raw size and a few metrics from bloaty
+def analyze_cpp_lib(api, checkout_root, out_dir, files):
+  (keystr, propstr) = keys_and_props(api)
+  bloaty_exe = api.path['start_dir'].join('bloaty', 'bloaty')
+
+  for f in files:
+    skia_dir = checkout_root.join('skia')
+    with api.context(cwd=skia_dir):
+      script = skia_dir.join('infra', 'bots', 'buildstats_cpp.py')
+      api.run(api.python, 'Analyze %s' % f, script=script,
+        args=[f, out_dir, keystr, propstr, bloaty_exe])
 
 
 def GenTests(api):
