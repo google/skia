@@ -1,7 +1,8 @@
 SkIPoint Reference
 ===
-
 <a name='SkIPoint'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 struct <a href='#SkIPoint'>SkIPoint</a> {
@@ -43,10 +44,9 @@ x-axis value used by <a href='#IPoint'>IPoint</a>.
 y-axis value used by <a href='#IPoint'>IPoint</a>.
 </td>
   </tr>
-</table>
+</table><a name='SkIPoint_Make'></a>
 
-<a name='SkIPoint_Make'></a>
-## Make
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_Make'>Make</a>(int32_t x, int32_t y)
@@ -82,14 +82,9 @@ pt1 == pt2
 
 ### See Also
 
-<a href='#SkIPoint_set'>set</a>() <a href='SkPoint_Reference#SkPoint_iset'>SkPoint::iset</a><sup><a href='SkPoint_Reference#SkPoint_iset_2'>[2]</a></sup>() <a href='SkPoint_Reference#SkPoint_Make'>SkPoint::Make</a>
+<a href='#SkIPoint_set'>set</a>() <a href='SkPoint_Reference#SkPoint_iset'>SkPoint::iset</a><sup><a href='SkPoint_Reference#SkPoint_iset_2'>[2]</a></sup>() <a href='SkPoint_Reference#SkPoint_Make'>SkPoint::Make</a><a name='Property'></a><a name='SkIPoint_x'></a>
 
 ---
-
-## <a name='Property'>Property</a>
-
-<a name='SkIPoint_x'></a>
-## x
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIPoint_x'>x</a>() const
@@ -115,12 +110,9 @@ pt1.fX == pt1.x()
 
 ### See Also
 
-<a href='#SkIPoint_y'>y</a>() <a href='SkPoint_Reference#SkPoint_x'>SkPoint::x</a>()
+<a href='#SkIPoint_y'>y</a>() <a href='SkPoint_Reference#SkPoint_x'>SkPoint::x</a>()<a name='SkIPoint_y'></a>
 
 ---
-
-<a name='SkIPoint_y'></a>
-## y
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIPoint_y'>y</a>() const
@@ -146,12 +138,9 @@ pt1.fY == pt1.y()
 
 ### See Also
 
-<a href='#SkIPoint_x'>x</a>() <a href='SkPoint_Reference#SkPoint_y'>SkPoint::y</a>()
+<a href='#SkIPoint_x'>x</a>() <a href='SkPoint_Reference#SkPoint_y'>SkPoint::y</a>()<a name='SkIPoint_isZero'></a>
 
 ---
-
-<a name='SkIPoint_isZero'></a>
-## isZero
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIPoint_isZero'>isZero</a>() const
@@ -177,14 +166,9 @@ pt.isZero() == true
 
 ### See Also
 
-<a href='SkPoint_Reference#SkPoint_isZero'>SkPoint::isZero</a>
+<a href='SkPoint_Reference#SkPoint_isZero'>SkPoint::isZero</a><a name='Set'></a><a name='SkIPoint_set'></a>
 
 ---
-
-## <a name='Set'>Set</a>
-
-<a name='SkIPoint_set'></a>
-## set
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIPoint_set'>set</a>(int32_t x, int32_t y)
@@ -216,12 +200,9 @@ pt1 == pt2
 
 ### See Also
 
-<a href='#SkIPoint_Make'>Make</a>
+<a href='#SkIPoint_Make'>Make</a><a name='SkIPoint_minus_operator'></a>
 
 ---
-
-<a name='SkIPoint_minus_operator'></a>
-## operator-
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkIPoint'>SkIPoint</a> operator-() const
@@ -250,12 +231,9 @@ pt: -2147483648, -2147483648  negate: -2147483648, -2147483648
 
 ### See Also
 
-<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> <a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a> <a href='SkPoint_Reference#SkPoint_minus_operator'>SkPoint::operator-() const</a>
+<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> <a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a> <a href='SkPoint_Reference#SkPoint_minus_operator'>SkPoint::operator-() const</a><a name='SkIPoint_addto_operator'></a>
 
 ---
-
-<a name='SkIPoint_addto_operator'></a>
-## operator+=
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIPoint_addto_operator'>operator+=(const SkIVector& v)</a>
@@ -276,12 +254,9 @@ Offsets <a href='#IPoint'>IPoint</a> by <a href='#IVector'>IVector</a> <a href='
 
 ### See Also
 
-<a href='#SkIPoint_add_operator'>operator+(const SkIPoint& a, const SkIVector& b)</a> <a href='SkPoint_Reference#SkPoint_addto_operator'>SkPoint::operator+=(const SkVector& v)</a>
+<a href='#SkIPoint_add_operator'>operator+(const SkIPoint& a, const SkIVector& b)</a> <a href='SkPoint_Reference#SkPoint_addto_operator'>SkPoint::operator+=(const SkVector& v)</a><a name='SkIPoint_subtractfrom_operator'></a>
 
 ---
-
-<a name='SkIPoint_subtractfrom_operator'></a>
-## operator-=
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a>
@@ -302,12 +277,9 @@ Subtracts <a href='#IVector'>IVector</a> <a href='#SkIPoint_subtractfrom_operato
 
 ### See Also
 
-<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> <a href='SkPoint_Reference#SkPoint_subtractfrom_operator'>SkPoint::operator-=(const SkVector& v)</a>
+<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> <a href='SkPoint_Reference#SkPoint_subtractfrom_operator'>SkPoint::operator-=(const SkVector& v)</a><a name='SkIPoint_equals'></a>
 
 ---
-
-<a name='SkIPoint_equals'></a>
-## equals
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIPoint_equals'>equals</a>(int32_t x, int32_t y) const
@@ -346,12 +318,9 @@ pt: -2147483648, -1  == pt
 
 ### See Also
 
-<a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a>
+<a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a><a name='SkIPoint_equal_operator'></a>
 
 ---
-
-<a name='SkIPoint_equal_operator'></a>
-## operator==
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a>
@@ -390,12 +359,9 @@ pt: -2147483648, -1  == pt
 
 ### See Also
 
-<a href='#SkIPoint_equals'>equals</a>() <a href='#SkIPoint_notequal_operator'>operator!=(const SkIPoint& a, const SkIPoint& b)</a>
+<a href='#SkIPoint_equals'>equals</a>() <a href='#SkIPoint_notequal_operator'>operator!=(const SkIPoint& a, const SkIPoint& b)</a><a name='SkIPoint_notequal_operator'></a>
 
 ---
-
-<a name='SkIPoint_notequal_operator'></a>
-## operator!=
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIPoint_notequal_operator'>operator!=(const SkIPoint& a, const SkIPoint& b)</a>
@@ -434,12 +400,9 @@ pt: -2147483648, -1  == pt
 
 ### See Also
 
-<a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a> <a href='#SkIPoint_equals'>equals</a>()
+<a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a> <a href='#SkIPoint_equals'>equals</a>()<a name='SkIPoint_subtract_operator'></a>
 
 ---
-
-<a name='SkIPoint_subtract_operator'></a>
-## operator-
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkIVector'>SkIVector</a> <a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a>
@@ -469,12 +432,9 @@ Can also be used to subtract <a href='#IVector'>IVector</a> from <a href='#IVect
 
 ### See Also
 
-<a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a>
+<a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a><a name='SkIPoint_add_operator'></a>
 
 ---
-
-<a name='SkIPoint_add_operator'></a>
-## operator+
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_add_operator'>operator+(const SkIPoint& a, const SkIVector& b)</a>
@@ -506,13 +466,9 @@ Can also be used to add <a href='#IVector'>IVector</a> to <a href='#IVector'>IVe
 
 ### See Also
 
-<a href='#SkIPoint_addto_operator'>operator+=(const SkIVector& v)</a>
+<a href='#SkIPoint_addto_operator'>operator+=(const SkIVector& v)</a><a name='IVector'></a><a name='SkIVector'></a>
 
 ---
-
-## <a name='IVector'>IVector</a>
-
-## <a name='SkIVector'>Typedef SkIVector</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     typedef <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIVector'>SkIVector</a>;

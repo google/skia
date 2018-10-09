@@ -4,9 +4,7 @@ usingBookmaker
 <a href='#Bookmaker'>Bookmaker</a> reads canonical documentation from files suffixed with bmh in the docs directory. These bmh
 files describe how public interfaces work, and generate Skia fiddle examples to illustrate them.
 
-The docs files must be manually edited to stay current with Skia as it evolves.
-
-## <a name='Broken_Build'>Broken Build</a>
+The docs files must be manually edited to stay current with Skia as it evolves.<a name='Broken_Build'></a>
 
 The bots <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> and <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> verify that <a href='#Bookmaker'>Bookmaker</a> data in docs builds without error and is consistent with include files it documents.
 
@@ -65,9 +63,7 @@ If <a href='https://status.skia.org/repo/skia?filter=search&search_value=Houseke
 The bot output describes what changed, and includes the file and line
 where the error occurred.
 
-To regenerate the documentation, follow the <a href='#Installing'>Installing</a> and <a href='#Regenerate'>Regenerate</a> steps below.
-
-## <a name='Editing_Comments'>Editing Comments</a>
+To regenerate the documentation, follow the <a href='#Installing'>Installing</a> and <a href='#Regenerate'>Regenerate</a> steps below.<a name='Editing_Comments'></a>
 
 Edit docs instead of include/core files to update comments if possible.
 
@@ -90,9 +86,7 @@ wrote updated <a href='SkSurface_Reference#SkSurface'>SkSurface</a>.h
 
 The updated SkSurface.h is written to the root to avoid subsequent runs of
 <a href='#Bookmaker'>Bookmaker</a> from recompiling. if SkSurface.h was not changed, it is not written,
-and <a href='#Bookmaker'>Bookmaker</a> will not generate any output.
-
-## <a name='Broken_Example'>Broken Example</a>
+and <a href='#Bookmaker'>Bookmaker</a> will not generate any output.<a name='Broken_Example'></a>
 
 An example may cause <a href='#Bookmaker'>Bookmaker</a> or a bot running <a href='#Bookmaker'>Bookmaker</a> to fail if it fails to compile.
 
@@ -111,9 +105,7 @@ to
 </pre>
 
 .
-The disabled example can contain additional markup, which will be ignored.
-
-## <a name='Installing'>Installing</a>
+The disabled example can contain additional markup, which will be ignored.<a name='Installing'></a>
 
 Install <a href='https://golang.org/doc/install'>Go</a></a> if needed.
 Check the version. The results should be 1.10 or greater.
@@ -133,9 +125,7 @@ Build <a href='#Bookmaker'>Bookmaker</a>.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ninja -C out/dir bookmaker
-</pre>
-
-## <a name='Regenerate'>Regenerate</a>
+</pre><a name='Regenerate'></a>
 
 Complete rebuilding of all bookmaker output looks like:
 
@@ -146,9 +136,7 @@ $ ./out/dir/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api -c
 $ ./out/dir/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api
 $ ./out/dir/bookmaker -a docs/status.json -x
 $ ./out/dir/bookmaker -a docs/status.json -p
-</pre>
-
-## <a name='New_Documentation'>New Documentation</a>
+</pre><a name='New_Documentation'></a>
 
 Generate an starter <a href='#Bookmaker'>Bookmaker</a> file from an existing include.
 
@@ -181,9 +169,7 @@ Next, use your favorite editor to fill out
 docs/SkXXX_Reference.bmh
 </pre>
 
-.
-
-## <a name='Style'>Style</a>
+.<a name='Style'></a>
 
 Documentation consists of cross references, descriptions, and examples.
 All structs, classes, enums, their members and methods, functions, and so on,
@@ -228,9 +214,7 @@ that there is no example.
 
 After editing is complete, searching for "" should fail,
 assuming "" is not the perfect word to use in a description or
-example!
-
-## <a name='Adding_Documentation'>Adding Documentation</a>
+example!<a name='Adding_Documentation'></a>
 
 Generate fiddle.json from all examples, including the ones you just wrote.
 Error checking is syntatic: starting keywords are closed, keywords have the
@@ -280,9 +264,7 @@ development, or leave status.json unchanged.
 
 If the new file has been added to status.json, you can run
 any of the above commands with -a docs/status.json in place of
--b docs or -i includes.
-
-## <a name='Bugs'>Bugs</a>
+-b docs or -i includes.<a name='Bugs'></a>
 
 <a href='#Bookmaker'>Bookmaker</a> bugs are tracked <a href='https://bug.skia.org/6898'>here</a></a> .
 

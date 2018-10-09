@@ -1,7 +1,8 @@
 SkTextBlob Reference
 ===
-
 <a name='SkTextBlob'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='#SkTextBlob'>SkTextBlob</a> final : public SkNVRefCnt<<a href='#SkTextBlob'>SkTextBlob</a>> {
@@ -19,10 +20,9 @@ public:
 
 <a href='#SkTextBlob'>SkTextBlob</a> combines multiple text runs into an immutable container. Each text
 run consists of <a href='undocumented#Glyph'>Glyphs</a>, <a href='SkPaint_Reference#Paint'>Paint</a>, and position. Only parts of <a href='SkPaint_Reference#Paint'>Paint</a> related to
-fonts and text rendering are used by run.
+fonts and text rendering are used by run.<a name='SkTextBlob_bounds'></a>
 
-<a name='SkTextBlob_bounds'></a>
-## bounds
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkTextBlob_bounds'>bounds</a>() const
@@ -42,12 +42,9 @@ conservative bounding box
 
 ### See Also
 
-<a href='SkPath_Reference#SkPath_getBounds'>SkPath::getBounds</a>
+<a href='SkPath_Reference#SkPath_getBounds'>SkPath::getBounds</a><a name='SkTextBlob_uniqueID'></a>
 
 ---
-
-<a name='SkTextBlob_uniqueID'></a>
-## uniqueID
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint32_t <a href='#SkTextBlob_uniqueID'>uniqueID</a>() const
@@ -65,12 +62,9 @@ identifier for <a href='#Text_Blob'>Text Blob</a>
 
 ### See Also
 
-<a href='undocumented#SkRefCnt'>SkRefCnt</a>
+<a href='undocumented#SkRefCnt'>SkRefCnt</a><a name='SkTextBlob_MakeFromText'></a>
 
 ---
-
-<a name='SkTextBlob_MakeFromText'></a>
-## MakeFromText
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(
@@ -109,12 +103,9 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
 ### See Also
 
-<a href='#SkTextBlob_MakeFromString'>MakeFromString</a> TextBlobBuilder
+<a href='#SkTextBlob_MakeFromString'>MakeFromString</a> TextBlobBuilder<a name='SkTextBlob_MakeFromString'></a>
 
 ---
-
-<a name='SkTextBlob_MakeFromString'></a>
-## MakeFromString
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* string, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -148,12 +139,9 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
 ### See Also
 
-<a href='#SkTextBlob_MakeFromText'>MakeFromText</a> TextBlobBuilder
+<a href='#SkTextBlob_MakeFromText'>MakeFromText</a> TextBlobBuilder<a name='SkTextBlob_serialize'></a>
 
 ---
-
-<a name='SkTextBlob_serialize'></a>
-## serialize
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs, void* memory, size_t memory_size) const
@@ -192,11 +180,9 @@ bytes written, or zero if required storage is larger than memory_size
 
 ### See Also
 
-<a href='#SkTextBlob_Deserialize'>Deserialize</a> <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>
+<a href='#SkTextBlob_Deserialize'>Deserialize</a> <a href='undocumented#SkSerialProcs'>SkSerialProcs</a><a name='SkTextBlob_serialize_2'></a>
 
 ---
-
-<a name='SkTextBlob_serialize_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs) const
@@ -227,12 +213,9 @@ storage containing serialized <a href='#Text_Blob'>Text Blob</a>
 
 ### See Also
 
-<a href='#SkTextBlob_Deserialize'>Deserialize</a> <a href='undocumented#SkData'>SkData</a> <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>
+<a href='#SkTextBlob_Deserialize'>Deserialize</a> <a href='undocumented#SkData'>SkData</a> <a href='undocumented#SkSerialProcs'>SkSerialProcs</a><a name='SkTextBlob_Deserialize'></a>
 
 ---
-
-<a name='SkTextBlob_Deserialize'></a>
-## Deserialize
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_Deserialize'>Deserialize</a>(const void* data, size_t size, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>& procs)
@@ -273,6 +256,4 @@ When drawn, "" uses the spacing computed for "World!".
 ### See Also
 
 <a href='#SkTextBlob_serialize'>serialize</a><sup><a href='#SkTextBlob_serialize_2'>[2]</a></sup> <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>
-
----
 
