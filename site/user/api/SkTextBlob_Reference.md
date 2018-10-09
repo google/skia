@@ -21,8 +21,8 @@ public:
 run consists of <a href='undocumented#Glyph'>Glyphs</a>, <a href='SkPaint_Reference#Paint'>Paint</a>, and position. Only parts of <a href='SkPaint_Reference#Paint'>Paint</a> related to
 fonts and text rendering are used by run.
 
-<a name='SkTextBlob_bounds'></a>
-## bounds
+
+## <a name='SkTextBlob_bounds'>bounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkTextBlob_bounds'>bounds</a>() const
@@ -46,8 +46,8 @@ conservative bounding box
 
 ---
 
-<a name='SkTextBlob_uniqueID'></a>
-## uniqueID
+
+## <a name='SkTextBlob_uniqueID'>uniqueID</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint32_t <a href='#SkTextBlob_uniqueID'>uniqueID</a>() const
@@ -69,8 +69,8 @@ identifier for <a href='#Text_Blob'>Text Blob</a>
 
 ---
 
-<a name='SkTextBlob_MakeFromText'></a>
-## MakeFromText
+
+## <a name='SkTextBlob_MakeFromText'>MakeFromText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(
@@ -113,8 +113,8 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
 ---
 
-<a name='SkTextBlob_MakeFromString'></a>
-## MakeFromString
+
+## <a name='SkTextBlob_MakeFromString'>MakeFromString</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* string, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
@@ -152,8 +152,8 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
 ---
 
-<a name='SkTextBlob_serialize'></a>
-## serialize
+
+## <a name='SkTextBlob_serialize'>serialize</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs, void* memory, size_t memory_size) const
@@ -231,8 +231,8 @@ storage containing serialized <a href='#Text_Blob'>Text Blob</a>
 
 ---
 
-<a name='SkTextBlob_Deserialize'></a>
-## Deserialize
+
+## <a name='SkTextBlob_Deserialize'>Deserialize</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_Deserialize'>Deserialize</a>(const void* data, size_t size, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>& procs)

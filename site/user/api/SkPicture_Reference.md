@@ -59,8 +59,8 @@ commands have been processed.
 
 If <a href='#SkPicture_AbortCallback_abort'>AbortCallback::abort</a> returns true, <a href='#SkPicture_playback'>SkPicture::playback</a> is interrupted.
 
-<a name='SkPicture_AbortCallback_AbortCallback'></a>
-## AbortCallback
+
+## <a name='SkPicture_AbortCallback_AbortCallback'>AbortCallback</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a>()
@@ -78,8 +78,8 @@ abstract class cannot be instantiated
 
 ---
 
-<a name='SkPicture_AbortCallback_destructor'></a>
-## ~AbortCallback
+
+## <a name='SkPicture_AbortCallback_destructor'>~AbortCallback</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual <a href='#SkPicture_AbortCallback_destructor'>~AbortCallback</a>()
@@ -93,8 +93,8 @@ Has no effect.
 
 ---
 
-<a name='SkPicture_AbortCallback_abort'></a>
-## abort
+
+## <a name='SkPicture_AbortCallback_abort'>abort</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual bool <a href='#SkPicture_AbortCallback_abort'>abort</a>() = 0
@@ -126,8 +126,8 @@ true to stop playback
 white rectangle appears.
 </div></fiddle-embed></div>
 
-<a name='SkPicture_MakeFromStream'></a>
-## MakeFromStream
+
+## <a name='SkPicture_MakeFromStream'>MakeFromStream</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromStream'>MakeFromStream</a>(<a href='SkStream_Reference#SkStream'>SkStream</a>* stream, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
@@ -166,8 +166,8 @@ is called with a pointer to data, data byte length, and user context.
 
 ---
 
-<a name='SkPicture_MakeFromData'></a>
-## MakeFromData
+
+## <a name='SkPicture_MakeFromData'>MakeFromData</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const <a href='undocumented#SkData'>SkData</a>* data, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
@@ -249,8 +249,8 @@ is called with a pointer to <a href='#SkPicture_MakeFromData_2_data'>data</a>, <
 
 ---
 
-<a name='SkPicture_playback'></a>
-## playback
+
+## <a name='SkPicture_playback'>playback</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual void <a href='#SkPicture_playback'>playback</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* canvas, <a href='#SkPicture_AbortCallback'>AbortCallback</a>* callback = nullptr) const = 0
@@ -282,8 +282,8 @@ To add a single command to draw <a href='#Picture'>Picture</a> to recording <a h
 
 ---
 
-<a name='SkPicture_cullRect'></a>
-## cullRect
+
+## <a name='SkPicture_cullRect'>cullRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPicture_cullRect'>cullRect</a>() const = 0
@@ -312,8 +312,8 @@ bounds may be drawn, and are drawn in this example.
 
 ---
 
-<a name='SkPicture_uniqueID'></a>
-## uniqueID
+
+## <a name='SkPicture_uniqueID'>uniqueID</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>() const
@@ -344,8 +344,8 @@ placeholder id = 2
 
 ---
 
-<a name='SkPicture_serialize'></a>
-## serialize
+
+## <a name='SkPicture_serialize'>serialize</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPicture_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const
@@ -413,8 +413,8 @@ is called with a pointer to <a href='#Picture'>Picture</a> and user context.
 
 ---
 
-<a name='SkPicture_MakePlaceholder'></a>
-## MakePlaceholder
+
+## <a name='SkPicture_MakePlaceholder'>MakePlaceholder</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakePlaceholder'>MakePlaceholder</a>(<a href='SkRect_Reference#SkRect'>SkRect</a> cull)
@@ -448,8 +448,8 @@ placeholder with unique identifier
 
 ---
 
-<a name='SkPicture_approximateOpCount'></a>
-## approximateOpCount
+
+## <a name='SkPicture_approximateOpCount'>approximateOpCount</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual int <a href='#SkPicture_approximateOpCount'>approximateOpCount</a>() const = 0
@@ -474,8 +474,8 @@ approximate operation count
 
 ---
 
-<a name='SkPicture_approximateBytesUsed'></a>
-## approximateBytesUsed
+
+## <a name='SkPicture_approximateBytesUsed'>approximateBytesUsed</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual size_t <a href='#SkPicture_approximateBytesUsed'>approximateBytesUsed</a>() const = 0

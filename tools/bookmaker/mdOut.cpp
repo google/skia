@@ -1598,8 +1598,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         } break;
         case MarkType::kDefine:
             this->mdHeaderOut(2);
-            this->htmlOut(anchorDef(def->fFiddle, "Define " + def->fName));
-            this->lf(2);
+            this->htmlOut(anchorDef(def->fFiddle, def->simpleName()));
+            this->lf(1);
             break;
         case MarkType::kDeprecated:
             this->writeString(def->fParent->incompleteMessage(
@@ -1618,7 +1618,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         case MarkType::kEnum:
         case MarkType::kEnumClass:
             this->mdHeaderOut(2);
-            this->htmlOut(anchorDef(def->fFiddle, "Enum " + def->fName));
+            this->htmlOut(anchorDef(def->fFiddle, def->simpleName()));
             this->lf(2);
             break;
         case MarkType::kExample: {
@@ -1666,6 +1666,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         case MarkType::kExternal:
             break;
         case MarkType::kFile:
+            break;
+        case MarkType::kFilter:
             break;
         case MarkType::kFormula:
             break;
@@ -1720,11 +1722,12 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             string method_name = def->methodName();
             string formattedStr = def->formatFunction(Definition::Format::kIncludeReturn);
 			this->lfAlways(2);
-            this->htmlOut(this->anchorDef(def->fFiddle, ""));
 			if (!def->isClone()) {
                 this->mdHeaderOutLF(2, 1);
-                FPRINTF("%s", method_name.c_str());
-			}
+                this->htmlOut(this->anchorDef(def->fFiddle, method_name));
+			} else {
+                this->htmlOut(this->anchorDef(def->fFiddle, ""));
+            }
 			this->lf(2);
 
             // TODO: put in css spec that we can define somewhere else (if markup supports that)
@@ -1901,12 +1904,13 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 if (MarkType::kClass == grand->fMarkType
                         || MarkType::kStruct == grand->fMarkType
                         || MarkType::kEnum == grand->fMarkType
-                        || MarkType::kEnumClass == grand->fMarkType) {
+                        || MarkType::kEnumClass == grand->fMarkType
+                        || MarkType::kTypedef == grand->fMarkType
+                        || MarkType::kDefine == grand->fMarkType) {
                     string codeBlock = fIncludeParser.codeBlock(*grand, fInProgress);
                     this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
                             this->resolvable(parent));
-                } else {
-                    SkASSERT(MarkType::kTopic == grand->fMarkType);
+                } else if (MarkType::kTopic == grand->fMarkType) {
                     // use bmh file name to find include file name
                     size_t start = grand->fFileName.rfind("Sk");
                     SkASSERT(start != string::npos);
@@ -1919,6 +1923,19 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                     this->addCodeBlock(includeDef, codeBlock);
                     this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
                             this->resolvable(parent));
+                } else {
+                    SkASSERT(MarkType::kSubtopic == grand->fMarkType);
+                    auto inTag = std::find_if(grand->fChildren.begin(), grand->fChildren.end(),
+                            [](Definition* child){return MarkType::kIn == child->fMarkType;});
+                    SkASSERT(grand->fChildren.end() != inTag);
+                    auto filterTag = std::find_if(grand->fChildren.begin(), grand->fChildren.end(),
+                            [](Definition* child){return MarkType::kFilter == child->fMarkType;});
+                    SkASSERT(grand->fChildren.end() != filterTag);
+                    string inContents((*inTag)->fContentStart, (*inTag)->length());
+                    string filterContents((*filterTag)->fContentStart, (*filterTag)->length());
+                    string filteredBlock = fIncludeParser.filteredBlock(inContents, filterContents);
+                    this->resolveOut(filteredBlock.c_str(), filteredBlock.c_str()
+                            + filteredBlock.length(), this->resolvable(parent));
                 }
             }
             break;
@@ -2024,7 +2041,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             } break;
         case MarkType::kTypedef:
             this->mdHeaderOut(2);
-            this->htmlOut(anchorDef(def->fFiddle, "Typedef " + def->fName));
+            this->htmlOut(anchorDef(def->fFiddle, def->simpleName()));
             this->lf(1);
             break;
         case MarkType::kUnion:
@@ -2085,6 +2102,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             if (TableState::kNone != fTableState) {
                 this->writePending();
                 FPRINTF("</table>");
+                this->lfAlways(2);
+                FPRINTF("---");
                 this->lf(2);
                 fTableState = TableState::kNone;
             }
@@ -2188,6 +2207,13 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         case MarkType::kTopic:
             fSubtopic = nullptr;
             break;
+        case MarkType::kDefine:
+        case MarkType::kTypedef:
+            this->lfAlways(2);
+            FPRINTF("---");
+            this->lf(2);
+            break;
+
         default:
             break;
     }
