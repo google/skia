@@ -59,9 +59,18 @@ def RunSteps(api):
       analyze_web_file(api, checkout_root, out_dir, files)
 
     files = api.file.glob_paths(
-        'find built libraries',
+        'find flutter library',
         bin_dir,
-        '*.so',
+        'libflutter.so',
+        test_data=['libflutter.so'])
+    analyzed += len(files)
+    if len(files):
+      analyze_flutter_lib(api, checkout_root, out_dir, files)
+
+    files = api.file.glob_paths(
+        'find skia library',
+        bin_dir,
+        'libskia.so',
         test_data=['libskia.so'])
     analyzed += len(files)
     if len(files):
@@ -120,6 +129,19 @@ def analyze_cpp_lib(api, checkout_root, out_dir, files):
       api.run(api.python, 'Analyze %s' % f, script=script,
           args=[f, out_dir, keystr, propstr, bloaty_exe])
 
+
+# Get the size of skia in flutter and a few metrics from bloaty
+def analyze_flutter_lib(api, checkout_root, out_dir, files):
+  (keystr, propstr) = keys_and_props(api)
+  bloaty_exe = api.path['start_dir'].join('bloaty', 'bloaty')
+
+  for f in files:
+    skia_dir = checkout_root.join('skia')
+    with api.context(cwd=skia_dir):
+      script = skia_dir.join('infra', 'bots', 'buildstats',
+                             'buildstats_flutter.py')
+      api.run(api.python, 'Analyze %s' % f, script=script,
+          args=[f, out_dir, keystr, propstr, bloaty_exe])
 
 def GenTests(api):
   builder = 'BuildStats-Debian9-EMCC-wasm-Release-PathKit'
