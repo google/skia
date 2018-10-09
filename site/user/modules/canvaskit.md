@@ -96,13 +96,13 @@ Samples
   var locate_file = '';
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported!');
-    locate_file = 'https://storage.googleapis.com/skia-cdn/canvaskit-wasm/0.0.3/bin/';
+    locate_file = 'https://storage.googleapis.com/skia-cdn/canvaskit-wasm/0.1.0/bin/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser.');
     document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";
     return;
   }
-  s.src = locate_file + 'skia.js';
+  s.src = locate_file + 'canvaskit.js';
   s.onload = () => {
   var CanvasKit = null;
   var legoJSON = null;

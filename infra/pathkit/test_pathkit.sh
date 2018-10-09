@@ -9,13 +9,13 @@
 # is mounted at /OUT
 
 # For example:
-# docker run -v $SKIA_ROOT:/SRC -v /tmp/dockerout:/OUT gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v1 /SRC/infra/pathkit/docker/test_pathkit.sh
+# docker run -v $SKIA_ROOT:/SRC -v /tmp/dockerout:/OUT gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v1 /SRC/infra/pathkit/test_pathkit.sh
 
 set -ex
 
-#BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/pathkit/docker)
+#BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/pathkit)
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
-PATHKIT_DIR=$BASE_DIR/../../../modules/pathkit
+PATHKIT_DIR=$BASE_DIR/../../modules/pathkit
 
 # Start the aggregator in the background
 /opt/gold-aggregator $@ &

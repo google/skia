@@ -203,7 +203,7 @@
       "-e",
       "ASM_JS=1",
       "gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v4",
-      "/SRC/skia/infra/pathkit/docker/test_pathkit.sh",
+      "/SRC/skia/infra/pathkit/test_pathkit.sh",
       "--builder",
       "Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit",
       "--git_hash",
