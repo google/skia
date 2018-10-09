@@ -64,7 +64,7 @@ floating point values. Unsigned integer <a href='#Alpha'>Alpha</a> ranges from z
 transparent, to all bits set, fully opaque. Floating point <a href='#Alpha'>Alpha</a> ranges from
 zero, fully transparent, to one, fully opaque.
 
-## <a name='SkAlpha'>Typedef SkAlpha</a>
+## <a name='SkAlpha'>SkAlpha</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 typedef uint8_t <a href='#SkAlpha'>SkAlpha</a>;
@@ -72,7 +72,9 @@ typedef uint8_t <a href='#SkAlpha'>SkAlpha</a>;
 
 8-bit type for an alpha value. 255 is 100% opaque, zero is 100% transparent.
 
-## <a name='SkColor'>Typedef SkColor</a>
+---
+
+## <a name='SkColor'>SkColor</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 typedef uint32_t <a href='#SkColor'>SkColor</a>;
@@ -91,8 +93,10 @@ component values in a different order.
 
 <a href='#SkPMColor'>SkPMColor</a>
 
-<a name='SkColorSetARGB'></a>
-## SkColorSetARGB
+---
+
+
+## <a name='SkColorSetARGB'>SkColorSetARGB</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr inline <a href='#SkColor'>SkColor</a> <a href='#SkColorSetARGB'>SkColorSetARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> a, <a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b)
@@ -132,10 +136,10 @@ color and alpha, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
 
 ---
 
-## <a name='SkColorSetRGB'>Define SkColorSetRGB</a>
+## <a name='SkColorSetRGB'>SkColorSetRGB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorSetRGB'>SkColorSetRGB</a>(r, g, b)  <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, r, g, b)
+#define <a href='#SkColorSetRGB'>SkColorSetRGB</a>(r, g, b) <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, r, g, b);
 </pre>
 
 Returns <a href='#Color'>Color</a> value from 8-bit component values, with <a href='#Alpha'>Alpha</a> set
@@ -166,10 +170,12 @@ color with opaque alpha
 
 <a href='#SkColorSetARGB'>SkColorSetARGB</a>
 
-## <a name='SkColorGetA'>Define SkColorGetA</a>
+---
+
+## <a name='SkColorGetA'>SkColorGetA</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetA'>SkColorGetA</a>(color)      (((color) >> 24) & 0xFF)
+#define <a href='#SkColorGetA'>SkColorGetA</a>(color) (((color) >> 24) & 0xFF);
 </pre>
 
 Returns <a href='#Alpha'>Alpha</a> byte from <a href='#Color'>Color</a> value.
@@ -189,10 +195,12 @@ Returns <a href='#Alpha'>Alpha</a> byte from <a href='#Color'>Color</a> value.
 
 <a href='SkPaint_Reference#SkPaint_getAlpha'>SkPaint::getAlpha</a>
 
-## <a name='SkColorGetR'>Define SkColorGetR</a>
+---
+
+## <a name='SkColorGetR'>SkColorGetR</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetR'>SkColorGetR</a>(color)      (((color) >> 16) & 0xFF)
+#define <a href='#SkColorGetR'>SkColorGetR</a>(color) (((color) >> 16) & 0xFF);
 </pre>
 
 Returns red component of <a href='#Color'>Color</a>, from zero to 255.
@@ -216,10 +224,12 @@ red byte
 
 <a href='#SkColorGetG'>SkColorGetG</a> <a href='#SkColorGetB'>SkColorGetB</a>
 
-## <a name='SkColorGetG'>Define SkColorGetG</a>
+---
+
+## <a name='SkColorGetG'>SkColorGetG</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetG'>SkColorGetG</a>(color)      (((color) >>  8) & 0xFF)
+#define <a href='#SkColorGetG'>SkColorGetG</a>(color) (((color) >> 8) & 0xFF);
 </pre>
 
 Returns green component of <a href='#Color'>Color</a>, from zero to 255.
@@ -243,10 +253,12 @@ green byte
 
 <a href='#SkColorGetR'>SkColorGetR</a> <a href='#SkColorGetB'>SkColorGetB</a>
 
-## <a name='SkColorGetB'>Define SkColorGetB</a>
+---
+
+## <a name='SkColorGetB'>SkColorGetB</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    #define <a href='#SkColorGetB'>SkColorGetB</a>(color)      (((color) >>  0) & 0xFF)
+#define <a href='#SkColorGetB'>SkColorGetB</a>(color) (((color) >> 0) & 0xFF);
 </pre>
 
 Returns blue component of <a href='#Color'>Color</a>, from zero to 255.
@@ -270,8 +282,10 @@ blue byte
 
 <a href='#SkColorGetR'>SkColorGetR</a> <a href='#SkColorGetG'>SkColorGetG</a>
 
-<a name='SkColorSetA'></a>
-## SkColorSetA
+---
+
+
+## <a name='SkColorSetA'>SkColorSetA</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr inline <a href='#SkColor'>SkColor</a> <a href='#SkColorSetA'>SkColorSetA</a>(<a href='#SkColor'>SkColor</a> c, <a href='undocumented#U8CPU'>U8CPU</a> a)
@@ -306,30 +320,9 @@ from <a href='#SkColorSetA_a'>a</a>. <a href='#Alpha'>Alpha</a> component of <a 
 
 ## <a name='Alpha_Constants'>Alpha Constants</a>
 
-
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_AlphaTRANSPARENT'><code>SK_AlphaTRANSPARENT</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>fully transparent SkAlpha</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_AlphaOPAQUE'><code>SK_AlphaOPAQUE</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>fully opaque SkAlpha</td>
-  </tr>
-</table>
-
-
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaTRANSPARENT'>SK_AlphaTRANSPARENT</a> = 0x00;
-    constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaOPAQUE'>SK_AlphaOPAQUE</a>      = 0xFF;
+constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaTRANSPARENT'>SK_AlphaTRANSPARENT</a> = 0x00;
+constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaOPAQUE'>SK_AlphaOPAQUE</a> = 0xFF;
 </pre>
 
 <a href='#Alpha'>Alpha</a> constants are conveniences to represent fully transparent and fully
@@ -340,12 +333,10 @@ opaque colors and masks. Their use is not required.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
 <th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Details</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_AlphaTRANSPARENT'><code>SK_AlphaTRANSPARENT</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Transparent'>Transparent</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully transparent <a href='#SkAlpha'>SkAlpha</a> value. <a href='#SkAlpha'>SkAlpha</a> ranges from zero,
 fully transparent; to 255, fully opaque.
@@ -354,7 +345,6 @@ fully transparent; to 255, fully opaque.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_AlphaOPAQUE'><code>SK_AlphaOPAQUE</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Opaque'>Opaque</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque <a href='#SkAlpha'>SkAlpha</a> value. <a href='#SkAlpha'>SkAlpha</a> ranges from zero,
 fully transparent; to 255, fully opaque.
@@ -362,134 +352,50 @@ fully transparent; to 255, fully opaque.
   </tr>
 </table>
 
-## <a name='Alpha_Constants_Transparent'>Alpha Constants Transparent</a>
-
 ### Example
 
 <div><fiddle-embed name="bc9c7ea424d10bbcd1e5a88770d4794e"><div><a href='#Color'>Color</a> the parts of the bitmap red if they mostly contain transparent pixels.
 </div></fiddle-embed></div>
 
-### See Also
-
-<a href='#SkAlpha'>SkAlpha</a> <a href='#SK_ColorTRANSPARENT'>SK ColorTRANSPARENT</a> <a href='#SK_AlphaOPAQUE'>SK AlphaOPAQUE</a>
-
-## <a name='Alpha_Constants_Opaque'>Alpha Constants Opaque</a>
-
 ### Example
 
-<div><fiddle-embed name="0424f67ebc2858e8fd04ae3367b115ff"></fiddle-embed></div>
+<div><fiddle-embed name="0424f67ebc2858e8fd04ae3367b115ff"><div><a href='#Color'>Color</a> the parts of the bitmap green if they contain fully opaque pixels.
+</div></fiddle-embed></div>
 
 ### See Also
 
-<a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaTRANSPARENT'>SK AlphaTRANSPARENT</a>
+<a href='#SkAlpha'>SkAlpha</a> <a href='#SK_ColorTRANSPARENT'>SK ColorTRANSPARENT</a> <a href='#SK_ColorBLACK'>SK ColorBLACK</a>
 
 ## <a name='Color_Constants'>Color Constants</a>
 
-
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorTRANSPARENT'><code>SK_ColorTRANSPARENT</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00000000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>transparent Color</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorBLACK'><code>SK_ColorBLACK</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF000000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>black Color</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorDKGRAY'><code>SK_ColorDKGRAY</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF444444</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>dark gray Color</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorGRAY'><code>SK_ColorGRAY</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF888888</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>gray Color</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorLTGRAY'><code>SK_ColorLTGRAY</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFCCCCCC</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>light gray Color</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorWHITE'><code>SK_ColorWHITE</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFFFFFF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>white Color</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorRED'><code>SK_ColorRED</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFF0000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>red Color</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorGREEN'><code>SK_ColorGREEN</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FF00</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>green Color</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorBLUE'><code>SK_ColorBLUE</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF0000FF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>blue Color</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorYELLOW'><code>SK_ColorYELLOW</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFFFF00</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>yellow Color</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorCYAN'><code>SK_ColorCYAN</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FFFF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>cyan Color</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SK_ColorMAGENTA'><code>SK_ColorMAGENTA</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFF00FF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>magenta Color</td>
-  </tr>
-</table>
-
-
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorTRANSPARENT'>SK_ColorTRANSPARENT</a> = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0x00, 0x00, 0x00, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLACK'>SK_ColorBLACK</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0x00, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorDKGRAY'>SK_ColorDKGRAY</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x44, 0x44, 0x44);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGRAY'>SK_ColorGRAY</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x88, 0x88, 0x88);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorLTGRAY'>SK_ColorLTGRAY</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xCC, 0xCC, 0xCC);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorWHITE'>SK_ColorWHITE</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0xFF, 0xFF);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorRED'>SK_ColorRED</a>         = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0x00, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGREEN'>SK_ColorGREEN</a>       = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0xFF, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLUE'>SK_ColorBLUE</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0x00, 0xFF);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorYELLOW'>SK_ColorYELLOW</a>      = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0xFF, 0x00);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorCYAN'>SK_ColorCYAN</a>        = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0x00, 0xFF, 0xFF);
-    constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorMAGENTA'>SK_ColorMAGENTA</a>     = <a href='#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, 0xFF, 0x00, 0xFF);
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGREEN'>SK_ColorGREEN</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorRED'>SK_ColorRED</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLACK'>SK_ColorBLACK</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorTRANSPARENT'>SK_ColorTRANSPARENT</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorDKGRAY'>SK_ColorDKGRAY</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorLTGRAY'>SK_ColorLTGRAY</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGRAY'>SK_ColorGRAY</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorWHITE'>SK_ColorWHITE</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorYELLOW'>SK_ColorYELLOW</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLUE'>SK_ColorBLUE</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorCYAN'>SK_ColorCYAN</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorMAGENTA'>SK_ColorMAGENTA</a>;
 </pre>
 
 <a href='#Color'>Color</a> names are provided as conveniences, but are not otherwise special.
 The values chosen for names may not be the same as values used by
 <a href='undocumented#SVG'>SVG</a>, HTML, CSS, or colors named by a platform.
 
-### Example
-
-<div><fiddle-embed name="1c2e38321464818847f953ddd45cb5a1"></fiddle-embed></div>
-
 ### Constants
 
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
 <th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Details</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorTRANSPARENT'><code>SK_ColorTRANSPARENT</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00000000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Transparent'>Transparent</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully transparent <a href='#SkColor'>SkColor</a>. May be used to initialize a destination
 containing a mask or a non-rectangular image.
@@ -498,7 +404,6 @@ containing a mask or a non-rectangular image.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorBLACK'><code>SK_ColorBLACK</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF000000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Black'>Black</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque black.
 </td>
@@ -506,7 +411,6 @@ Represents fully opaque black.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorDKGRAY'><code>SK_ColorDKGRAY</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF444444</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque dark gray.
 Note that <a href='undocumented#SVG_darkgray'>SVG darkgray</a> is equivalent to 0xFFA9A9A9.
@@ -515,7 +419,6 @@ Note that <a href='undocumented#SVG_darkgray'>SVG darkgray</a> is equivalent to 
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorGRAY'><code>SK_ColorGRAY</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF888888</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque gray.
 Note that <a href='undocumented#HTML_Gray'>HTML Gray</a> is equivalent to 0xFF808080.
@@ -524,7 +427,6 @@ Note that <a href='undocumented#HTML_Gray'>HTML Gray</a> is equivalent to 0xFF80
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorLTGRAY'><code>SK_ColorLTGRAY</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFCCCCCC</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque light gray. <a href='undocumented#HTML_Silver'>HTML Silver</a> is equivalent to 0xFFC0C0C0.
 Note that <a href='undocumented#SVG_lightgray'>SVG lightgray</a> is equivalent to 0xFFD3D3D3.
@@ -533,7 +435,6 @@ Note that <a href='undocumented#SVG_lightgray'>SVG lightgray</a> is equivalent t
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorWHITE'><code>SK_ColorWHITE</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFFFFFF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque white.
 </td>
@@ -541,7 +442,6 @@ Represents fully opaque white.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorRED'><code>SK_ColorRED</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFF0000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque red.
 </td>
@@ -549,7 +449,6 @@ Represents fully opaque red.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorGREEN'><code>SK_ColorGREEN</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FF00</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque green. <a href='undocumented#HTML_Lime'>HTML Lime</a> is equivalent.
 Note that <a href='undocumented#HTML_Green'>HTML Green</a> is equivalent to 0xFF008000.
@@ -558,7 +457,6 @@ Note that <a href='undocumented#HTML_Green'>HTML Green</a> is equivalent to 0xFF
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorBLUE'><code>SK_ColorBLUE</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF0000FF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque blue.
 </td>
@@ -566,7 +464,6 @@ Represents fully opaque blue.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorYELLOW'><code>SK_ColorYELLOW</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFFFF00</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque yellow.
 </td>
@@ -574,7 +471,6 @@ Represents fully opaque yellow.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorCYAN'><code>SK_ColorCYAN</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FFFF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque cyan. <a href='undocumented#HTML_Aqua'>HTML Aqua</a> is equivalent.
 </td>
@@ -582,42 +478,34 @@ Represents fully opaque cyan. <a href='undocumented#HTML_Aqua'>HTML Aqua</a> is 
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorMAGENTA'><code>SK_ColorMAGENTA</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFF00FF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque magenta. <a href='undocumented#HTML_Fuchsia'>HTML Fuchsia</a> is equivalent.
 </td>
   </tr>
 </table>
 
-## <a name='Color_Constants_Transparent'>Color Constants Transparent</a>
+### Example
+
+<div><fiddle-embed name="1c2e38321464818847f953ddd45cb5a1"></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="9ca1e2a5b9b4c92ecf4409d0813867d6"></fiddle-embed></div>
-
-### See Also
-
-<a href='#SK_AlphaTRANSPARENT'>SK AlphaTRANSPARENT</a> <a href='SkCanvas_Reference#SkCanvas_clear'>SkCanvas::clear</a>
-
-## <a name='Color_Constants_Black'>Color Constants Black</a>
+<div><fiddle-embed name="9ca1e2a5b9b4c92ecf4409d0813867d6"><div><a href='#SK_ColorTRANSPARENT'>SK ColorTRANSPARENT</a> sets <a href='#Color'>Color</a> <a href='#Alpha'>Alpha</a> and components to zero.
+</div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="6971489f28291f08e429cc6ccc73b09b"></fiddle-embed></div>
-
-### See Also
-
-<a href='#SK_ColorTRANSPARENT'>SK ColorTRANSPARENT</a>
-
-## <a name='Color_Constants_White'>Color Constants White</a>
+<div><fiddle-embed name="6971489f28291f08e429cc6ccc73b09b"><div><a href='#SK_ColorBLACK'>SK ColorBLACK</a> sets <a href='#Color'>Color</a> <a href='#Alpha'>Alpha</a> to one and components to zero.
+</div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="fce650f997e802d4e55edf62b8437a2d"></fiddle-embed></div>
+<div><fiddle-embed name="fce650f997e802d4e55edf62b8437a2d"><div><a href='#SK_ColorWHITE'>SK ColorWHITE</a> sets <a href='#Color'>Color</a> <a href='#Alpha'>Alpha</a> and components to one.
+</div></fiddle-embed></div>
 
 ### See Also
 
-<a href='#SK_ColorTRANSPARENT'>SK ColorTRANSPARENT</a>
+<a href='#SK_ColorTRANSPARENT'>SK ColorTRANSPARENT</a> <a href='SkCanvas_Reference#SkCanvas_clear'>SkCanvas::clear</a> <a href='#SK_AlphaOPAQUE'>SK AlphaOPAQUE</a>
 
 ## <a name='HSV'>HSV</a>
 
@@ -636,8 +524,8 @@ with no <a href='#HSV_Hue'>Hue</a> contribution; to one, with full <a href='#HSV
 <a href='#HSV_Value'>Value</a> represents the lightness of the color. <a href='#HSV_Value'>Value</a> varies from zero, black; to
 one, full brightness.
 
-<a name='SkRGBToHSV'></a>
-## SkRGBToHSV
+
+## <a name='SkRGBToHSV'>SkRGBToHSV</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRGBToHSV'>SkRGBToHSV</a>(<a href='undocumented#U8CPU'>U8CPU</a> red, <a href='undocumented#U8CPU'>U8CPU</a> green, <a href='undocumented#U8CPU'>U8CPU</a> blue, <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
@@ -674,8 +562,8 @@ Converts RGB to its <a href='#HSV'>HSV</a> components.
 
 ---
 
-<a name='SkColorToHSV'></a>
-## SkColorToHSV
+
+## <a name='SkColorToHSV'>SkColorToHSV</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkColorToHSV'>SkColorToHSV</a>(<a href='#SkColor'>SkColor</a> color, <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
@@ -706,8 +594,8 @@ Converts ARGB to its <a href='#HSV'>HSV</a> components. <a href='#Alpha'>Alpha</
 
 ---
 
-<a name='SkHSVToColor'></a>
-## SkHSVToColor
+
+## <a name='SkHSVToColor'>SkHSVToColor</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkColor'>SkColor</a> <a href='#SkHSVToColor'>SkHSVToColor</a>(<a href='undocumented#U8CPU'>U8CPU</a> alpha, const <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
@@ -780,7 +668,7 @@ RGB equivalent to <a href='#HSV'>HSV</a>
 
 ## <a name='PMColor'>PMColor</a>
 
-## <a name='SkPMColor'>Typedef SkPMColor</a>
+## <a name='SkPMColor'>SkPMColor</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 typedef uint32_t <a href='#SkPMColor'>SkPMColor</a>;
@@ -791,8 +679,10 @@ configuration dependent, matching the format of <a href='SkImageInfo_Reference#k
 This is different from <a href='#SkColor'>SkColor</a>, which is <a href='undocumented#Unpremultiply'>Unpremultiplied</a>, and is always in the
 same byte order.
 
-<a name='SkPreMultiplyARGB'></a>
-## SkPreMultiplyARGB
+---
+
+
+## <a name='SkPreMultiplyARGB'>SkPreMultiplyARGB</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPMColor'>SkPMColor</a> <a href='#SkPreMultiplyARGB'>SkPreMultiplyARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> a, <a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b)
@@ -830,8 +720,8 @@ Returns <a href='#SkPreMultiplyARGB_a'>a</a> <a href='#SkPMColor'>SkPMColor</a> 
 
 ---
 
-<a name='SkPreMultiplyColor'></a>
-## SkPreMultiplyColor
+
+## <a name='SkPreMultiplyColor'>SkPreMultiplyColor</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPMColor'>SkPMColor</a> <a href='#SkPreMultiplyColor'>SkPreMultiplyColor</a>(<a href='#SkColor'>SkColor</a> c)

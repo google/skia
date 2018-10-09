@@ -16,8 +16,8 @@ Stack helper class calls <a href='SkCanvas_Reference#SkCanvas_restoreToCount'>Sk
 goes out of scope. Use this to guarantee that the canvas is restored to a known
 state.
 
-<a name='SkAutoCanvasRestore_SkCanvas_star'></a>
-## SkAutoCanvasRestore
+
+## <a name='SkAutoCanvasRestore_SkCanvas_star'>SkAutoCanvasRestore</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* canvas, bool doSave)
@@ -49,8 +49,8 @@ utility to restore <a href='SkCanvas_Reference#Canvas'>Canvas</a> state on destr
 
 ---
 
-<a name='SkAutoCanvasRestore_destructor'></a>
-## ~SkAutoCanvasRestore
+
+## <a name='SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore</a>()
@@ -65,8 +65,8 @@ scope.
 
 ---
 
-<a name='SkAutoCanvasRestore_restore'></a>
-## restore
+
+## <a name='SkAutoCanvasRestore_restore'>restore</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkAutoCanvasRestore_restore'>restore</a>()
