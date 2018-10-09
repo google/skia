@@ -1,7 +1,8 @@
 SkPicture Reference
 ===
-
 <a name='SkPicture'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='#SkPicture'>SkPicture</a> : public <a href='undocumented#SkRefCnt'>SkRefCnt</a> {
@@ -40,9 +41,9 @@ or <a href='undocumented#Drawable'>Drawable</a>, or from <a href='#Picture'>Pict
 <a href='#Picture'>Picture</a> may contain any <a href='SkCanvas_Reference#Canvas'>Canvas</a> drawing command, as well as one or more
 <a href='SkCanvas_Reference#Matrix'>Canvas Matrix</a> or <a href='SkCanvas_Reference#Clip'>Canvas Clip</a>. <a href='#Picture'>Picture</a> has a cull <a href='SkRect_Reference#Rect'>Rect</a>, which is used as
 a bounding box hint. To limit <a href='#Picture'>Picture</a> bounds, use <a href='SkCanvas_Reference#Clip'>Canvas Clip</a> when
-recording or drawing <a href='#Picture'>Picture</a>.
+recording or drawing <a href='#Picture'>Picture</a>.<a name='SkPicture_AbortCallback'></a>
 
-<a name='SkPicture_AbortCallback'></a>
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a> {
@@ -57,10 +58,9 @@ recording or drawing <a href='#Picture'>Picture</a>.
 passed as a parameter to <a href='#SkPicture_playback'>SkPicture::playback</a>, to stop it before all drawing
 commands have been processed.
 
-If <a href='#SkPicture_AbortCallback_abort'>AbortCallback::abort</a> returns true, <a href='#SkPicture_playback'>SkPicture::playback</a> is interrupted.
+If <a href='#SkPicture_AbortCallback_abort'>AbortCallback::abort</a> returns true, <a href='#SkPicture_playback'>SkPicture::playback</a> is interrupted.<a name='SkPicture_AbortCallback_AbortCallback'></a>
 
-<a name='SkPicture_AbortCallback_AbortCallback'></a>
-## AbortCallback
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a>()
@@ -74,12 +74,9 @@ abstract class cannot be instantiated
 
 ### See Also
 
-<a href='#SkPicture_playback'>playback</a>
+<a href='#SkPicture_playback'>playback</a><a name='SkPicture_AbortCallback_destructor'></a>
 
 ---
-
-<a name='SkPicture_AbortCallback_destructor'></a>
-## ~AbortCallback
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual <a href='#SkPicture_AbortCallback_destructor'>~AbortCallback</a>()
@@ -89,12 +86,9 @@ Has no effect.
 
 ### See Also
 
-<a href='#SkPicture_playback'>playback</a>
+<a href='#SkPicture_playback'>playback</a><a name='SkPicture_AbortCallback_abort'></a>
 
 ---
-
-<a name='SkPicture_AbortCallback_abort'></a>
-## abort
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual bool <a href='#SkPicture_AbortCallback_abort'>abort</a>() = 0
@@ -118,16 +112,13 @@ true to stop playback
 
 <a href='#SkPicture_playback'>playback</a>
 
----
-
 ### Example
 
 <div><fiddle-embed name="56ed920dadbf2b2967ac45fb5a9bded6"><div>JustOneDraw allows the black rectangle to draw but stops playback before the
 white rectangle appears.
-</div></fiddle-embed></div>
+</div></fiddle-embed></div><a name='SkPicture_MakeFromStream'></a>
 
-<a name='SkPicture_MakeFromStream'></a>
-## MakeFromStream
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromStream'>MakeFromStream</a>(<a href='SkStream_Reference#SkStream'>SkStream</a>* stream, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
@@ -162,12 +153,9 @@ is called with a pointer to data, data byte length, and user context.
 
 ### See Also
 
-<a href='#SkPicture_MakeFromData'>MakeFromData</a><sup><a href='#SkPicture_MakeFromData_2'>[2]</a></sup> <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>
+<a href='#SkPicture_MakeFromData'>MakeFromData</a><sup><a href='#SkPicture_MakeFromData_2'>[2]</a></sup> <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a><a name='SkPicture_MakeFromData'></a>
 
 ---
-
-<a name='SkPicture_MakeFromData'></a>
-## MakeFromData
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const <a href='undocumented#SkData'>SkData</a>* data, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
@@ -202,11 +190,9 @@ is called with a pointer to <a href='#SkPicture_MakeFromData_data'>data</a>, <a 
 
 ### See Also
 
-<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>
+<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a><a name='SkPicture_MakeFromData_2'></a>
 
 ---
-
-<a name='SkPicture_MakeFromData_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const void* data, size_t size,
@@ -245,12 +231,9 @@ is called with a pointer to <a href='#SkPicture_MakeFromData_2_data'>data</a>, <
 
 ### See Also
 
-<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>
+<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a><a name='SkPicture_playback'></a>
 
 ---
-
-<a name='SkPicture_playback'></a>
-## playback
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual void <a href='#SkPicture_playback'>playback</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* canvas, <a href='#SkPicture_AbortCallback'>AbortCallback</a>* callback = nullptr) const = 0
@@ -278,12 +261,9 @@ To add a single command to draw <a href='#Picture'>Picture</a> to recording <a h
 
 ### See Also
 
-<a href='SkCanvas_Reference#SkCanvas_drawPicture'>SkCanvas::drawPicture</a><sup><a href='SkCanvas_Reference#SkCanvas_drawPicture_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_drawPicture_3'>[3]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_drawPicture_4'>[4]</a></sup>
+<a href='SkCanvas_Reference#SkCanvas_drawPicture'>SkCanvas::drawPicture</a><sup><a href='SkCanvas_Reference#SkCanvas_drawPicture_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_drawPicture_3'>[3]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_drawPicture_4'>[4]</a></sup><a name='SkPicture_cullRect'></a>
 
 ---
-
-<a name='SkPicture_cullRect'></a>
-## cullRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPicture_cullRect'>cullRect</a>() const = 0
@@ -308,12 +288,9 @@ bounds may be drawn, and are drawn in this example.
 
 ### See Also
 
-<a href='SkCanvas_Reference#SkCanvas_clipRect'>SkCanvas::clipRect</a><sup><a href='SkCanvas_Reference#SkCanvas_clipRect_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_clipRect_3'>[3]</a></sup>
+<a href='SkCanvas_Reference#SkCanvas_clipRect'>SkCanvas::clipRect</a><sup><a href='SkCanvas_Reference#SkCanvas_clipRect_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_clipRect_3'>[3]</a></sup><a name='SkPicture_uniqueID'></a>
 
 ---
-
-<a name='SkPicture_uniqueID'></a>
-## uniqueID
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>() const
@@ -340,12 +317,9 @@ placeholder id = 2
 
 ### See Also
 
-<a href='undocumented#SkRefCnt'>SkRefCnt</a>
+<a href='undocumented#SkRefCnt'>SkRefCnt</a><a name='SkPicture_serialize'></a>
 
 ---
-
-<a name='SkPicture_serialize'></a>
-## serialize
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPicture_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const
@@ -376,11 +350,9 @@ storage containing serialized <a href='#Picture'>Picture</a>
 
 ### See Also
 
-<a href='#SkPicture_MakeFromData'>MakeFromData</a><sup><a href='#SkPicture_MakeFromData_2'>[2]</a></sup> <a href='undocumented#SkData'>SkData</a> <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>
+<a href='#SkPicture_MakeFromData'>MakeFromData</a><sup><a href='#SkPicture_MakeFromData_2'>[2]</a></sup> <a href='undocumented#SkData'>SkData</a> <a href='undocumented#SkSerialProcs'>SkSerialProcs</a><a name='SkPicture_serialize_2'></a>
 
 ---
-
-<a name='SkPicture_serialize_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPicture_serialize'>serialize</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* stream, const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const
@@ -409,12 +381,9 @@ is called with a pointer to <a href='#Picture'>Picture</a> and user context.
 
 ### See Also
 
-<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='SkWStream_Reference#SkWStream'>SkWStream</a> <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>
+<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='SkWStream_Reference#SkWStream'>SkWStream</a> <a href='undocumented#SkSerialProcs'>SkSerialProcs</a><a name='SkPicture_MakePlaceholder'></a>
 
 ---
-
-<a name='SkPicture_MakePlaceholder'></a>
-## MakePlaceholder
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakePlaceholder'>MakePlaceholder</a>(<a href='SkRect_Reference#SkRect'>SkRect</a> cull)
@@ -444,12 +413,9 @@ placeholder with unique identifier
 
 ### See Also
 
-<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='#SkPicture_MakeFromData'>MakeFromData</a><sup><a href='#SkPicture_MakeFromData_2'>[2]</a></sup> <a href='#SkPicture_uniqueID'>uniqueID</a>
+<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='#SkPicture_MakeFromData'>MakeFromData</a><sup><a href='#SkPicture_MakeFromData_2'>[2]</a></sup> <a href='#SkPicture_uniqueID'>uniqueID</a><a name='SkPicture_approximateOpCount'></a>
 
 ---
-
-<a name='SkPicture_approximateOpCount'></a>
-## approximateOpCount
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual int <a href='#SkPicture_approximateOpCount'>approximateOpCount</a>() const = 0
@@ -470,12 +436,9 @@ approximate operation count
 
 ### See Also
 
-<a href='#SkPicture_approximateBytesUsed'>approximateBytesUsed</a>
+<a href='#SkPicture_approximateBytesUsed'>approximateBytesUsed</a><a name='SkPicture_approximateBytesUsed'></a>
 
 ---
-
-<a name='SkPicture_approximateBytesUsed'></a>
-## approximateBytesUsed
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual size_t <a href='#SkPicture_approximateBytesUsed'>approximateBytesUsed</a>() const = 0
@@ -495,6 +458,4 @@ approximate size
 ### See Also
 
 <a href='#SkPicture_approximateOpCount'>approximateOpCount</a>
-
----
 

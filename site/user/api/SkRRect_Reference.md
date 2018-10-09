@@ -1,7 +1,8 @@
 SkRRect Reference
 ===
-
 <a name='SkRRect'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='#SkRRect'>SkRRect</a> {
@@ -85,10 +86,9 @@ corners.
 
 <a href='#SkRRect'>SkRRect</a> may modify the provided parameters when initializing bounds and radii.
 If either axis radii is zero or less: radii are stored as zero; corner is square.
-If corner curves overlap, radii are proportionally reduced to fit within bounds.
+If corner curves overlap, radii are proportionally reduced to fit within bounds.<a name='SkRRect_empty_constructor'></a>
 
-<a name='SkRRect_empty_constructor'></a>
-## SkRRect
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRRect'>SkRRect</a>()
@@ -107,12 +107,9 @@ empty <a href='#RRect'>Round Rect</a>
 
 ### See Also
 
-<a href='#SkRRect_setEmpty'>setEmpty</a> <a href='#SkRRect_isEmpty'>isEmpty</a>
+<a href='#SkRRect_setEmpty'>setEmpty</a> <a href='#SkRRect_isEmpty'>isEmpty</a><a name='SkRRect_copy_const_SkRRect'></a>
 
 ---
-
-<a name='SkRRect_copy_const_SkRRect'></a>
-## SkRRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRRect'>SkRRect</a>(const <a href='#SkRRect'>SkRRect</a>& rrect)
@@ -137,12 +134,9 @@ copy of <a href='#SkRRect_copy_const_SkRRect_rrect'>rrect</a>
 
 ### See Also
 
-<a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a> <a href='#SkRRect_MakeRect'>MakeRect</a>
+<a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a> <a href='#SkRRect_MakeRect'>MakeRect</a><a name='SkRRect_copy_operator'></a>
 
 ---
-
-<a name='SkRRect_copy_operator'></a>
-## operator=
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRRect'>SkRRect</a>& <a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a>
@@ -167,13 +161,9 @@ copy of <a href='#SkRRect_copy_operator_rrect'>rrect</a>
 
 ### See Also
 
-<a href='#SkRRect_copy_const_SkRRect'>SkRRect(const SkRRect& rrect)</a> <a href='#SkRRect_MakeRect'>MakeRect</a>
+<a href='#SkRRect_copy_const_SkRRect'>SkRRect(const SkRRect& rrect)</a> <a href='#SkRRect_MakeRect'>MakeRect</a><a name='Type'></a><a name='SkRRect_Type'></a>
 
 ---
-
-## <a name='Type'>Type</a>
-
-## <a name='SkRRect_Type'>Enum SkRRect::Type</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkRRect_Type'>Type</a> {
@@ -266,10 +256,9 @@ largest Type value</td>
 
 ### See Also
 
-<a href='SkRect_Reference#Rect'>Rect</a> <a href='SkPath_Reference#Path'>Path</a>
+<a href='SkRect_Reference#Rect'>Rect</a> <a href='SkPath_Reference#Path'>Path</a><a name='SkRRect_getType'></a>
 
-<a name='SkRRect_getType'></a>
-## getType
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_getType'>getType</a>() const
@@ -289,12 +278,9 @@ Returns <a href='#SkRRect_Type'>Type</a>, one of: <a href='#SkRRect_kEmpty_Type'
 
 ### See Also
 
-<a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_type'>type</a>
+<a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_type'>type</a><a name='SkRRect_type'></a>
 
 ---
-
-<a name='SkRRect_type'></a>
-## type
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_type'>type</a>() const
@@ -314,12 +300,9 @@ Returns <a href='#SkRRect_Type'>Type</a>, one of: <a href='#SkRRect_kEmpty_Type'
 
 ### See Also
 
-<a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_getType'>getType</a>
+<a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_getType'>getType</a><a name='SkRRect_isEmpty'></a>
 
 ---
-
-<a name='SkRRect_isEmpty'></a>
-## isEmpty
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_isEmpty'>isEmpty</a>() const
@@ -338,12 +321,9 @@ true if <a href='#SkRRect_width'>width</a>() or <a href='#SkRRect_height'>height
 
 ### See Also
 
-<a href='SkRect_Reference#SkRect_isEmpty'>SkRect::isEmpty</a> <a href='#SkRRect_height'>height</a> <a href='#SkRRect_width'>width</a>
+<a href='SkRect_Reference#SkRect_isEmpty'>SkRect::isEmpty</a> <a href='#SkRRect_height'>height</a> <a href='#SkRRect_width'>width</a><a name='SkRRect_isRect'></a>
 
 ---
-
-<a name='SkRRect_isRect'></a>
-## isRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_isRect'>isRect</a>() const
@@ -362,12 +342,9 @@ true if not empty, and one radius at each corner is zero
 
 ### See Also
 
-<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_radii'>radii</a>
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_radii'>radii</a><a name='SkRRect_isOval'></a>
 
 ---
-
-<a name='SkRRect_isOval'></a>
-## isOval
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_isOval'>isOval</a>() const
@@ -391,12 +368,9 @@ dimensions; right <a href='#RRect'>Round Rect</a> is an oval.
 
 ### See Also
 
-<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isSimple'>isSimple</a> <a href='SkCanvas_Reference#SkCanvas_drawOval'>SkCanvas::drawOval</a>
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isSimple'>isSimple</a> <a href='SkCanvas_Reference#SkCanvas_drawOval'>SkCanvas::drawOval</a><a name='SkRRect_isSimple'></a>
 
 ---
-
-<a name='SkRRect_isSimple'></a>
-## isSimple
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_isSimple'>isSimple</a>() const
@@ -416,12 +390,9 @@ true if not empty, <a href='SkRect_Reference#Rect'>Rect</a> or <a href='undocume
 
 ### See Also
 
-<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isRect'>isRect</a> <a href='#SkRRect_isOval'>isOval</a> <a href='#SkRRect_isNinePatch'>isNinePatch</a>
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isRect'>isRect</a> <a href='#SkRRect_isOval'>isOval</a> <a href='#SkRRect_isNinePatch'>isNinePatch</a><a name='SkRRect_isNinePatch'></a>
 
 ---
-
-<a name='SkRRect_isNinePatch'></a>
-## isNinePatch
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_isNinePatch'>isNinePatch</a>() const
@@ -441,12 +412,9 @@ true if not empty, <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocument
 
 ### See Also
 
-<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isRect'>isRect</a> <a href='#SkRRect_isOval'>isOval</a> <a href='#SkRRect_isSimple'>isSimple</a> <a href='#SkRRect_isComplex'>isComplex</a>
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isRect'>isRect</a> <a href='#SkRRect_isOval'>isOval</a> <a href='#SkRRect_isSimple'>isSimple</a> <a href='#SkRRect_isComplex'>isComplex</a><a name='SkRRect_isComplex'></a>
 
 ---
-
-<a name='SkRRect_isComplex'></a>
-## isComplex
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_isComplex'>isComplex</a>() const
@@ -468,12 +436,9 @@ true if not empty, <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocument
 
 ### See Also
 
-<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isRect'>isRect</a> <a href='#SkRRect_isOval'>isOval</a> <a href='#SkRRect_isSimple'>isSimple</a> <a href='#SkRRect_isNinePatch'>isNinePatch</a>
+<a href='#SkRRect_isEmpty'>isEmpty</a> <a href='#SkRRect_isRect'>isRect</a> <a href='#SkRRect_isOval'>isOval</a> <a href='#SkRRect_isSimple'>isSimple</a> <a href='#SkRRect_isNinePatch'>isNinePatch</a><a name='SkRRect_width'></a>
 
 ---
-
-<a name='SkRRect_width'></a>
-## width
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRRect_width'>width</a>() const
@@ -502,12 +467,9 @@ large width: inf
 
 ### See Also
 
-<a href='SkRect_Reference#SkRect_width'>SkRect::width</a> <a href='#SkRRect_height'>height</a> <a href='#SkRRect_getBounds'>getBounds</a>
+<a href='SkRect_Reference#SkRect_width'>SkRect::width</a> <a href='#SkRRect_height'>height</a> <a href='#SkRRect_getBounds'>getBounds</a><a name='SkRRect_height'></a>
 
 ---
-
-<a name='SkRRect_height'></a>
-## height
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRRect_height'>height</a>() const
@@ -536,12 +498,9 @@ large height: inf
 
 ### See Also
 
-<a href='SkRect_Reference#SkRect'>SkRect</a>.<a href='#SkRRect_height'>height</a> <a href='#SkRRect_width'>width</a> <a href='#SkRRect_getBounds'>getBounds</a>
+<a href='SkRect_Reference#SkRect'>SkRect</a>.<a href='#SkRRect_height'>height</a> <a href='#SkRRect_width'>width</a> <a href='#SkRRect_getBounds'>getBounds</a><a name='SkRRect_getSimpleRadii'></a>
 
 ---
-
-<a name='SkRRect_getSimpleRadii'></a>
-## getSimpleRadii
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkRRect_getSimpleRadii'>getSimpleRadii</a>() const
@@ -562,12 +521,9 @@ corner radii for simple types
 
 ### See Also
 
-<a href='#SkRRect_radii'>radii</a> <a href='#SkRRect_getBounds'>getBounds</a> <a href='#SkRRect_getType'>getType</a> <a href='#SkRRect_isSimple'>isSimple</a>
+<a href='#SkRRect_radii'>radii</a> <a href='#SkRRect_getBounds'>getBounds</a> <a href='#SkRRect_getType'>getType</a> <a href='#SkRRect_isSimple'>isSimple</a><a name='SkRRect_setEmpty'></a>
 
 ---
-
-<a name='SkRRect_setEmpty'></a>
-## setEmpty
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_setEmpty'>setEmpty</a>()
@@ -583,12 +539,9 @@ corner radii to zero and sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type
 
 ### See Also
 
-<a href='#SkRRect_MakeEmpty'>MakeEmpty</a> <a href='#SkRRect_setRect'>setRect</a>
+<a href='#SkRRect_MakeEmpty'>MakeEmpty</a> <a href='#SkRRect_setRect'>setRect</a><a name='SkRRect_setRect'></a>
 
 ---
-
-<a name='SkRRect_setRect'></a>
-## setRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_setRect'>setRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect)
@@ -611,12 +564,9 @@ otherwise, sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
 
 ### See Also
 
-<a href='#SkRRect_MakeRect'>MakeRect</a> <a href='#SkRRect_setRectXY'>setRectXY</a>
+<a href='#SkRRect_MakeRect'>MakeRect</a> <a href='#SkRRect_setRectXY'>setRectXY</a><a name='SkRRect_MakeEmpty'></a>
 
 ---
-
-<a name='SkRRect_MakeEmpty'></a>
-## MakeEmpty
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeEmpty'>MakeEmpty</a>()
@@ -635,12 +585,9 @@ empty <a href='#RRect'>Round Rect</a>
 
 ### See Also
 
-<a href='#SkRRect_empty_constructor'>SkRRect()</a> <a href='SkRect_Reference#SkRect_MakeEmpty'>SkRect::MakeEmpty</a>
+<a href='#SkRRect_empty_constructor'>SkRRect()</a> <a href='SkRect_Reference#SkRect_MakeEmpty'>SkRect::MakeEmpty</a><a name='SkRRect_MakeRect'></a>
 
 ---
-
-<a name='SkRRect_MakeRect'></a>
-## MakeRect
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeRect'>MakeRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& r)
@@ -665,12 +612,9 @@ copy of <a href='#SkRRect_MakeRect_r'>r</a>
 
 ### See Also
 
-<a href='#SkRRect_setRect'>setRect</a> <a href='#SkRRect_MakeOval'>MakeOval</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</a>
+<a href='#SkRRect_setRect'>setRect</a> <a href='#SkRRect_MakeOval'>MakeOval</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</a><a name='SkRRect_MakeOval'></a>
 
 ---
-
-<a name='SkRRect_MakeOval'></a>
-## MakeOval
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeOval'>MakeOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval)
@@ -697,12 +641,9 @@ Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
 
 ### See Also
 
-<a href='#SkRRect_setOval'>setOval</a> <a href='#SkRRect_MakeRect'>MakeRect</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</a>
+<a href='#SkRRect_setOval'>setOval</a> <a href='#SkRRect_MakeRect'>MakeRect</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</a><a name='SkRRect_MakeRectXY'></a>
 
 ---
-
-<a name='SkRRect_MakeRectXY'></a>
-## MakeRectXY
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> xRad, <a href='undocumented#SkScalar'>SkScalar</a> yRad)
@@ -738,12 +679,9 @@ rounded rectangle
 
 ### See Also
 
-<a href='#SkRRect_setRectXY'>setRectXY</a>
+<a href='#SkRRect_setRectXY'>setRectXY</a><a name='SkRRect_setOval'></a>
 
 ---
-
-<a name='SkRRect_setOval'></a>
-## setOval
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_setOval'>setOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval)
@@ -766,12 +704,9 @@ Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
 
 ### See Also
 
-<a href='#SkRRect_MakeOval'>MakeOval</a>
+<a href='#SkRRect_MakeOval'>MakeOval</a><a name='SkRRect_setRectXY'></a>
 
 ---
-
-<a name='SkRRect_setRectXY'></a>
-## setRectXY
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_setRectXY'>setRectXY</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> xRad, <a href='undocumented#SkScalar'>SkScalar</a> yRad)
@@ -803,12 +738,9 @@ Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>.
 
 ### See Also
 
-<a href='#SkRRect_MakeRectXY'>MakeRectXY</a> <a href='SkPath_Reference#SkPath_addRoundRect'>SkPath::addRoundRect</a><sup><a href='SkPath_Reference#SkPath_addRoundRect_2'>[2]</a></sup>
+<a href='#SkRRect_MakeRectXY'>MakeRectXY</a> <a href='SkPath_Reference#SkPath_addRoundRect'>SkPath::addRoundRect</a><sup><a href='SkPath_Reference#SkPath_addRoundRect_2'>[2]</a></sup><a name='SkRRect_setNinePatch'></a>
 
 ---
-
-<a name='SkRRect_setNinePatch'></a>
-## setNinePatch
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_setNinePatch'>setNinePatch</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> leftRad, <a href='undocumented#SkScalar'>SkScalar</a> topRad, <a href='undocumented#SkScalar'>SkScalar</a> rightRad,
@@ -854,12 +786,9 @@ four edge patches, and four corner patches.
 
 ### See Also
 
-<a href='#SkRRect_setRectRadii'>setRectRadii</a>
+<a href='#SkRRect_setRectRadii'>setRectRadii</a><a name='SkRRect_setRectRadii'></a>
 
 ---
-
-<a name='SkRRect_setRectRadii'></a>
-## setRectRadii
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_setRectRadii'>setRectRadii</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, const <a href='SkPoint_Reference#SkVector'>SkVector</a> radii[4])
@@ -890,11 +819,9 @@ sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>. Otherwise, sets to <a 
 
 ### See Also
 
-<a href='#SkRRect_setNinePatch'>setNinePatch</a> <a href='SkPath_Reference#SkPath_addRoundRect'>SkPath::addRoundRect</a><sup><a href='SkPath_Reference#SkPath_addRoundRect_2'>[2]</a></sup>
+<a href='#SkRRect_setNinePatch'>setNinePatch</a> <a href='SkPath_Reference#SkPath_addRoundRect'>SkPath::addRoundRect</a><sup><a href='SkPath_Reference#SkPath_addRoundRect_2'>[2]</a></sup><a name='SkRRect_Corner'></a>
 
 ---
-
-## <a name='SkRRect_Corner'>Enum SkRRect::Corner</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkRRect_Corner'>Corner</a> {
@@ -945,10 +872,9 @@ index of bottom-left corner radii</td>
 
 ### See Also
 
-<a href='#SkRRect_radii'>radii</a>
+<a href='#SkRRect_radii'>radii</a><a name='SkRRect_rect'></a>
 
-<a name='SkRRect_rect'></a>
-## rect
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_rect'>rect</a>() const
@@ -980,12 +906,9 @@ left bounds: (25) 25
 
 ### See Also
 
-<a href='#SkRRect_getBounds'>getBounds</a>
+<a href='#SkRRect_getBounds'>getBounds</a><a name='SkRRect_radii'></a>
 
 ---
-
-<a name='SkRRect_radii'></a>
-## radii
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkRRect_radii'>radii</a>(<a href='#SkRRect_Corner'>Corner</a> corner) const
@@ -1028,12 +951,9 @@ left corner: (25) 12.5
 
 ### See Also
 
-<a href='#SkRRect_Corner'>Corner</a>
+<a href='#SkRRect_Corner'>Corner</a><a name='SkRRect_getBounds'></a>
 
 ---
-
-<a name='SkRRect_getBounds'></a>
-## getBounds
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_getBounds'>getBounds</a>() const
@@ -1053,12 +973,9 @@ bounding box
 
 ### See Also
 
-<a href='#SkRRect_rect'>rect</a>
+<a href='#SkRRect_rect'>rect</a><a name='SkRRect_equal_operator'></a>
 
 ---
-
-<a name='SkRRect_equal_operator'></a>
-## operator==
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a>
@@ -1089,12 +1006,9 @@ true if members are equal
 
 ### See Also
 
-<a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a>
+<a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a><a name='SkRRect_notequal_operator'></a>
 
 ---
-
-<a name='SkRRect_notequal_operator'></a>
-## operator!=
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a>
@@ -1125,12 +1039,9 @@ true if members are not equal
 
 ### See Also
 
-<a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a>
+<a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a><a name='SkRRect_inset'></a>
 
 ---
-
-<a name='SkRRect_inset'></a>
-## inset
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_inset'>inset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='#SkRRect'>SkRRect</a>* dst) const
@@ -1167,11 +1078,9 @@ If <a href='#SkRRect_inset_dx'>dx</a> or <a href='#SkRRect_inset_dy'>dy</a> caus
 
 ### See Also
 
-<a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a>
+<a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a><a name='SkRRect_inset_2'></a>
 
 ---
-
-<a name='SkRRect_inset_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_inset'>inset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
@@ -1204,12 +1113,9 @@ If <a href='#SkRRect_inset_2_dx'>dx</a> or <a href='#SkRRect_inset_2_dy'>dy</a> 
 
 ### See Also
 
-<a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a>
+<a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a><a name='SkRRect_outset'></a>
 
 ---
-
-<a name='SkRRect_outset'></a>
-## outset
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_outset'>outset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='#SkRRect'>SkRRect</a>* dst) const
@@ -1245,11 +1151,9 @@ If <a href='#SkRRect_outset_dx'>dx</a> or <a href='#SkRRect_outset_dy'>dy</a> ca
 
 ### See Also
 
-<a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a>
+<a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a><a name='SkRRect_outset_2'></a>
 
 ---
-
-<a name='SkRRect_outset_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_outset'>outset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
@@ -1282,12 +1186,9 @@ If <a href='#SkRRect_outset_2_dx'>dx</a> or <a href='#SkRRect_outset_2_dy'>dy</a
 
 ### See Also
 
-<a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a>
+<a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_makeOffset'>makeOffset</a><a name='SkRRect_offset'></a>
 
 ---
-
-<a name='SkRRect_offset'></a>
-## offset
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
@@ -1311,12 +1212,9 @@ Translates <a href='#RRect'>Round Rect</a> by (<a href='#SkRRect_offset_dx'>dx</
 
 ### See Also
 
-<a href='#SkRRect_makeOffset'>makeOffset</a> <a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup>
+<a href='#SkRRect_makeOffset'>makeOffset</a> <a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup><a name='SkRRect_makeOffset'></a>
 
 ---
-
-<a name='SkRRect_makeOffset'></a>
-## makeOffset
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_makeOffset'>makeOffset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy) const
@@ -1344,12 +1242,9 @@ Returns <a href='#RRect'>Round Rect</a> translated by (<a href='#SkRRect_makeOff
 
 ### See Also
 
-<a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup>
+<a href='#SkRRect_offset'>offset</a> <a href='#SkRRect_inset'>inset</a><sup><a href='#SkRRect_inset_2'>[2]</a></sup> <a href='#SkRRect_outset'>outset</a><sup><a href='#SkRRect_outset_2'>[2]</a></sup><a name='SkRRect_contains'></a>
 
 ---
-
-<a name='SkRRect_contains'></a>
-## contains
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_contains'>contains</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect) const
@@ -1375,12 +1270,9 @@ true if <a href='#RRect'>Round Rect</a> contains rect
 
 ### See Also
 
-<a href='SkRect_Reference#SkRect_contains'>SkRect::contains</a><sup><a href='SkRect_Reference#SkRect_contains_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_contains_3'>[3]</a></sup>
+<a href='SkRect_Reference#SkRect_contains'>SkRect::contains</a><sup><a href='SkRect_Reference#SkRect_contains_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_contains_3'>[3]</a></sup><a name='SkRRect_isValid'></a>
 
 ---
-
-<a name='SkRRect_isValid'></a>
-## isValid
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_isValid'>isValid</a>() const
@@ -1403,8 +1295,6 @@ true if bounds and radii match <a href='#SkRRect_type'>type</a>()
 
 <a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_getType'>getType</a>
 
----
-
 ### Constants
 
 <table style='border-collapse: collapse; width: 62.5em'>
@@ -1418,10 +1308,9 @@ true if bounds and radii match <a href='#SkRRect_type'>type</a>()
 Space required to serialize <a href='#SkRRect'>SkRRect</a> into a buffer. Always a multiple of four.
 </td>
   </tr>
-</table>
+</table><a name='SkRRect_writeToMemory'></a>
 
-<a name='SkRRect_writeToMemory'></a>
-## writeToMemory
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkRRect_writeToMemory'>writeToMemory</a>(void* buffer) const
@@ -1447,12 +1336,9 @@ bytes written, <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>
 
 ### See Also
 
-<a href='#SkRRect_readFromMemory'>readFromMemory</a>
+<a href='#SkRRect_readFromMemory'>readFromMemory</a><a name='SkRRect_readFromMemory'></a>
 
 ---
-
-<a name='SkRRect_readFromMemory'></a>
-## readFromMemory
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkRRect_readFromMemory'>readFromMemory</a>(const void* buffer, size_t length)
@@ -1482,12 +1368,9 @@ bytes read, or 0 if <a href='#SkRRect_readFromMemory_length'>length</a> is less 
 
 ### See Also
 
-<a href='#SkRRect_writeToMemory'>writeToMemory</a>
+<a href='#SkRRect_writeToMemory'>writeToMemory</a><a name='SkRRect_transform'></a>
 
 ---
-
-<a name='SkRRect_transform'></a>
-## transform
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix, <a href='#SkRRect'>SkRRect</a>* dst) const
@@ -1519,12 +1402,9 @@ true if transformation succeeded.
 
 ### See Also
 
-<a href='SkPath_Reference#SkPath_transform'>SkPath::transform</a><sup><a href='SkPath_Reference#SkPath_transform_2'>[2]</a></sup>
+<a href='SkPath_Reference#SkPath_transform'>SkPath::transform</a><sup><a href='SkPath_Reference#SkPath_transform_2'>[2]</a></sup><a name='SkRRect_dump'></a>
 
 ---
-
-<a name='SkRRect_dump'></a>
-## dump
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_dump'>dump</a>(bool asHex) const
@@ -1571,11 +1451,9 @@ const SkPoint corners[] = {
 
 ### See Also
 
-<a href='#SkRRect_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkPath_Reference#SkPath_dump'>SkPath::dump</a><sup><a href='SkPath_Reference#SkPath_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump</a>
+<a href='#SkRRect_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkPath_Reference#SkPath_dump'>SkPath::dump</a><sup><a href='SkPath_Reference#SkPath_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump</a><a name='SkRRect_dump_2'></a>
 
 ---
-
-<a name='SkRRect_dump_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_dump'>dump</a>() const
@@ -1607,12 +1485,9 @@ rrect is not equal to copy
 
 ### See Also
 
-<a href='#SkRRect_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkPath_Reference#SkPath_dump'>SkPath::dump</a><sup><a href='SkPath_Reference#SkPath_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump</a>
+<a href='#SkRRect_dumpHex'>dumpHex</a> <a href='SkRect_Reference#SkRect_dump'>SkRect::dump</a><sup><a href='SkRect_Reference#SkRect_dump_2'>[2]</a></sup> <a href='SkPath_Reference#SkPath_dump'>SkPath::dump</a><sup><a href='SkPath_Reference#SkPath_dump_2'>[2]</a></sup> <a href='undocumented#SkPathMeasure_dump'>SkPathMeasure::dump</a><a name='SkRRect_dumpHex'></a>
 
 ---
-
-<a name='SkRRect_dumpHex'></a>
-## dumpHex
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRRect_dumpHex'>dumpHex</a>() const
@@ -1648,6 +1523,4 @@ rrect is equal to copy
 ### See Also
 
 <a href='#SkRRect_dump'>dump</a><sup><a href='#SkRRect_dump_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_dumpHex'>SkRect::dumpHex</a> <a href='SkPath_Reference#SkPath_dumpHex'>SkPath::dumpHex</a>
-
----
 
