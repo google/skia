@@ -268,8 +268,8 @@ Multiple colors are drawn either by using multiple paints or with objects like
 
 ## <a name='Initializers'>Initializers</a>
 
-<a name='SkPaint_empty_constructor'></a>
-## SkPaint
+
+## <a name='SkPaint_empty_constructor'>SkPaint</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint'>SkPaint</a>()
@@ -326,8 +326,8 @@ default initialized <a href='#Paint'>Paint</a>
 
 ---
 
-<a name='SkPaint_copy_const_SkPaint'></a>
-## SkPaint
+
+## <a name='SkPaint_copy_const_SkPaint'>SkPaint</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint'>SkPaint</a>(const <a href='#SkPaint'>SkPaint</a>& paint)
@@ -368,8 +368,8 @@ SK_ColorBLUE == paint2.getColor()
 
 ---
 
-<a name='SkPaint_move_SkPaint'></a>
-## SkPaint
+
+## <a name='SkPaint_move_SkPaint'>SkPaint</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint'>SkPaint</a>(<a href='#SkPaint'>SkPaint</a>&& paint)
@@ -405,8 +405,8 @@ path effect unique: true
 
 ---
 
-<a name='SkPaint_reset'></a>
-## reset
+
+## <a name='SkPaint_reset'>reset</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_reset'>reset</a>()
@@ -429,8 +429,8 @@ paint1 == paint2
 
 ---
 
-<a name='SkPaint_destructor'></a>
-## ~SkPaint
+
+## <a name='SkPaint_destructor'>~SkPaint</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint_destructor'>~SkPaint</a>()
@@ -444,8 +444,8 @@ objects containing <a href='undocumented#Reference_Count'>Reference Count</a> go
 
 ## <a name='Management'>Management</a>
 
-<a name='SkPaint_copy_operator'></a>
-## operator=
+
+## <a name='SkPaint_copy_operator'>operator=</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint'>SkPaint</a>& <a href='#SkPaint_copy_operator'>operator=(const SkPaint& paint)</a>
@@ -484,8 +484,8 @@ SK_ColorRED == paint2.getColor()
 
 ---
 
-<a name='SkPaint_move_operator'></a>
-## operator=
+
+## <a name='SkPaint_move_operator'>operator=</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint'>SkPaint</a>& <a href='#SkPaint_move_operator'>operator=(SkPaint&& paint)</a>
@@ -523,8 +523,8 @@ SK_ColorRED == paint2.getColor()
 
 ---
 
-<a name='SkPaint_equal_operator'></a>
-## operator==
+
+## <a name='SkPaint_equal_operator'>operator==</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_equal_operator'>operator==(const SkPaint& a, const SkPaint& b)</a>
@@ -567,8 +567,8 @@ paint1 != paint2
 
 ---
 
-<a name='SkPaint_notequal_operator'></a>
-## operator!=
+
+## <a name='SkPaint_notequal_operator'>operator!=</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_notequal_operator'>operator!=(const SkPaint& a, const SkPaint& b)</a>
@@ -611,8 +611,8 @@ paint1 == paint2
 
 ---
 
-<a name='SkPaint_getHash'></a>
-## getHash
+
+## <a name='SkPaint_getHash'>getHash</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint32_t <a href='#SkPaint_getHash'>getHash</a>() const
@@ -649,7 +649,7 @@ paint1.getHash() == paint2.getHash()
 
 ## <a name='Hinting'>Hinting</a>
 
-## <a name='SkPaint_Hinting'>Enum SkPaint::Hinting</a>
+## <a name='SkPaint_Hinting'>Hinting</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPaint_Hinting'>Hinting</a> {
@@ -728,8 +728,8 @@ On Windows with DirectWrite, <a href='#SkPaint_Hinting'>Hinting</a> has no effec
 <a href='#SkPaint_Hinting'>Hinting</a> defaults to <a href='#SkPaint_kNormal_Hinting'>kNormal Hinting</a>.
 Set <a href='undocumented#SkPaintDefaults_Hinting'>SkPaintDefaults Hinting</a> at compile time to change the default setting.
 
-<a name='SkPaint_getHinting'></a>
-## getHinting
+
+## <a name='SkPaint_getHinting'>getHinting</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const
@@ -755,8 +755,8 @@ SkPaint::kNormal_Hinting == paint.getHinting()
 
 ---
 
-<a name='SkPaint_setHinting'></a>
-## setHinting
+
+## <a name='SkPaint_setHinting'>setHinting</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel)
@@ -795,7 +795,7 @@ paint1 == paint2
 
 ## <a name='Flags'>Flags</a>
 
-## <a name='SkPaint_Flags'>Enum SkPaint::Flags</a>
+## <a name='SkPaint_Flags'>Flags</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPaint_Flags'>Flags</a> {
@@ -889,7 +889,9 @@ mask of all <a href='#SkPaint_Flags'>Flags</a>, including private flags and flag
 <a href='#SkPaint_Flags'>Flags</a> default to all flags clear, disabling the associated feature.
 </table>
 
-## <a name='SkPaint_ReserveFlags'>Enum SkPaint::ReserveFlags</a>
+---
+
+## <a name='SkPaint_ReserveFlags'>ReserveFlags</a>
 
 To be deprecated soon.
 
@@ -926,8 +928,10 @@ To be deprecated soon.
   </tr>
 </table>
 
-<a name='SkPaint_getFlags'></a>
-## getFlags
+---
+
+
+## <a name='SkPaint_getFlags'>getFlags</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint32_t <a href='#SkPaint_getFlags'>getFlags</a>() const
@@ -954,8 +958,8 @@ zero, one, or more bits described by <a href='#SkPaint_Flags'>Flags</a>
 
 ---
 
-<a name='SkPaint_setFlags'></a>
-## setFlags
+
+## <a name='SkPaint_setFlags'>setFlags</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setFlags'>setFlags</a>(uint32_t flags)
@@ -1016,8 +1020,8 @@ The lines are drawn into <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, then dr
 <a href='undocumented#Alias'>Aliasing</a> easier to see.
 </div></fiddle-embed></div>
 
-<a name='SkPaint_isAntiAlias'></a>
-## isAntiAlias
+
+## <a name='SkPaint_isAntiAlias'>isAntiAlias</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isAntiAlias'>isAntiAlias</a>() const
@@ -1046,8 +1050,8 @@ paint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag)
 
 ---
 
-<a name='SkPaint_setAntiAlias'></a>
-## setAntiAlias
+
+## <a name='SkPaint_setAntiAlias'>setAntiAlias</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setAntiAlias'>setAntiAlias</a>(bool aa)
@@ -1112,8 +1116,8 @@ Drawing the gradient repeatedly with <a href='SkBlendMode_Reference#SkBlendMode_
 dither, making it easier to see.
 </div></fiddle-embed></div>
 
-<a name='SkPaint_isDither'></a>
-## isDither
+
+## <a name='SkPaint_isDither'>isDither</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isDither'>isDither</a>() const
@@ -1142,8 +1146,8 @@ paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag)
 
 ---
 
-<a name='SkPaint_setDither'></a>
-## setDither
+
+## <a name='SkPaint_setDither'>setDither</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setDither'>setDither</a>(bool dither)
@@ -1215,8 +1219,8 @@ When <a href='#Subpixel_Text'>Subpixel Text</a> is enabled, the comma <a href='u
 If <a href='#SkPaint_kLinearText_Flag'>kLinearText Flag</a> is set, it has the same effect as setting <a href='#SkPaint_Hinting'>Hinting</a> to <a href='#SkPaint_kNormal_Hinting'>kNormal Hinting</a>.
 If <a href='#SkPaint_kLinearText_Flag'>kLinearText Flag</a> is clear, it is the same as setting <a href='#SkPaint_Hinting'>Hinting</a> to <a href='#SkPaint_kNo_Hinting'>kNo Hinting</a>.
 
-<a name='SkPaint_isLinearText'></a>
-## isLinearText
+
+## <a name='SkPaint_isLinearText'>isLinearText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isLinearText'>isLinearText</a>() const
@@ -1240,8 +1244,8 @@ Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkP
 
 ---
 
-<a name='SkPaint_setLinearText'></a>
-## setLinearText
+
+## <a name='SkPaint_setLinearText'>setLinearText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setLinearText'>setLinearText</a>(bool linearText)
@@ -1276,8 +1280,8 @@ Clears <a href='#SkPaint_kLinearText_Flag'>kLinearText Flag</a> if <a href='#SkP
 As the opaqueness
 of the color increases, the edge of the glyph appears to move towards the outside of the pixel.
 
-<a name='SkPaint_isSubpixelText'></a>
-## isSubpixelText
+
+## <a name='SkPaint_isSubpixelText'>isSubpixelText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isSubpixelText'>isSubpixelText</a>() const
@@ -1306,8 +1310,8 @@ paint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)
 
 ---
 
-<a name='SkPaint_setSubpixelText'></a>
-## setSubpixelText
+
+## <a name='SkPaint_setSubpixelText'>setSubpixelText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setSubpixelText'>setSubpixelText</a>(bool subpixelText)
@@ -1347,8 +1351,8 @@ on the small size of the stripe and visual perception to make the color fringing
 <a href='#LCD_Text'>LCD Text</a> can be enabled on devices that orient stripes horizontally or vertically, and that order
 the color components as RGB or BGR.
 
-<a name='SkPaint_isLCDRenderText'></a>
-## isLCDRenderText
+
+## <a name='SkPaint_isLCDRenderText'>isLCDRenderText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isLCDRenderText'>isLCDRenderText</a>() const
@@ -1377,8 +1381,8 @@ paint.isLCDRenderText() == !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag)
 
 ---
 
-<a name='SkPaint_setLCDRenderText'></a>
-## setLCDRenderText
+
+## <a name='SkPaint_setLCDRenderText'>setLCDRenderText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setLCDRenderText'>setLCDRenderText</a>(bool lcdText)
@@ -1450,8 +1454,8 @@ Windows may select the bitmap glyph but is not required to do so.
 
 </pre>
 
-<a name='SkPaint_isEmbeddedBitmapText'></a>
-## isEmbeddedBitmapText
+
+## <a name='SkPaint_isEmbeddedBitmapText'>isEmbeddedBitmapText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isEmbeddedBitmapText'>isEmbeddedBitmapText</a>() const
@@ -1480,8 +1484,8 @@ paint.isEmbeddedBitmapText() == !!(paint.getFlags() & SkPaint::kEmbeddedBitmapTe
 
 ---
 
-<a name='SkPaint_setEmbeddedBitmapText'></a>
-## setEmbeddedBitmapText
+
+## <a name='SkPaint_setEmbeddedBitmapText'>setEmbeddedBitmapText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setEmbeddedBitmapText'>setEmbeddedBitmapText</a>(bool useEmbeddedBitmapText)
@@ -1522,8 +1526,8 @@ instructs the <a href='undocumented#Font_Manager'>Font Manager</a> to always hin
 
 <a href='#Automatic_Hinting'>Automatic Hinting</a> only affects platforms that use FreeType as the <a href='undocumented#Font_Manager'>Font Manager</a>.
 
-<a name='SkPaint_isAutohinted'></a>
-## isAutohinted
+
+## <a name='SkPaint_isAutohinted'>isAutohinted</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isAutohinted'>isAutohinted</a>() const
@@ -1558,8 +1562,8 @@ paint.isAutohinted() == !!(paint.getFlags() & SkPaint::kAutoHinting_Flag)
 
 ---
 
-<a name='SkPaint_setAutohinted'></a>
-## setAutohinted
+
+## <a name='SkPaint_setAutohinted'>setAutohinted</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setAutohinted'>setAutohinted</a>(bool useAutohinter)
@@ -1619,8 +1623,8 @@ into glyph series.
 
 <div><fiddle-embed name="8df5800819311b71373d9abb669b49b8"></fiddle-embed></div>
 
-<a name='SkPaint_isVerticalText'></a>
-## isVerticalText
+
+## <a name='SkPaint_isVerticalText'>isVerticalText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isVerticalText'>isVerticalText</a>() const
@@ -1649,8 +1653,8 @@ paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)
 
 ---
 
-<a name='SkPaint_setVerticalText'></a>
-## setVerticalText
+
+## <a name='SkPaint_setVerticalText'>setVerticalText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setVerticalText'>setVerticalText</a>(bool verticalText)
@@ -1702,8 +1706,8 @@ by increasing the stroke width and setting the <a href='#SkPaint_Style'>Style</a
 
 <div><fiddle-embed name="e811f4829a2daaaeaad3795504a7e02a"></fiddle-embed></div>
 
-<a name='SkPaint_isFakeBoldText'></a>
-## isFakeBoldText
+
+## <a name='SkPaint_isFakeBoldText'>isFakeBoldText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isFakeBoldText'>isFakeBoldText</a>() const
@@ -1733,8 +1737,8 @@ paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)
 
 ---
 
-<a name='SkPaint_setFakeBoldText'></a>
-## setFakeBoldText
+
+## <a name='SkPaint_setFakeBoldText'>setFakeBoldText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setFakeBoldText'>setFakeBoldText</a>(bool fakeBoldText)
@@ -1776,8 +1780,8 @@ FreeType as their <a href='undocumented#Engine'>Font Engine</a>.
 <a href='#Full_Hinting_Spacing'>Full Hinting Spacing</a> is not related to text <a href='undocumented#Kerning'>Kerning</a>, where the space between
 a specific pair of characters is adjusted using data in the font <a href='undocumented#Kerning'>Kerning</a> tables.
 
-<a name='SkPaint_isDevKernText'></a>
-## isDevKernText
+
+## <a name='SkPaint_isDevKernText'>isDevKernText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isDevKernText'>isDevKernText</a>() const
@@ -1787,8 +1791,8 @@ Deprecated.
 
 ---
 
-<a name='SkPaint_setDevKernText'></a>
-## setDevKernText
+
+## <a name='SkPaint_setDevKernText'>setDevKernText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setDevKernText'>setDevKernText</a>(bool)
@@ -1827,8 +1831,8 @@ and when <a href='#Paint'>Paint</a> has a <a href='undocumented#Shader'>Shader</
 
 <div><fiddle-embed name="69369cff2f5b145a6f616092513266a0"></fiddle-embed></div>
 
-<a name='SkPaint_getFilterQuality'></a>
-## getFilterQuality
+
+## <a name='SkPaint_getFilterQuality'>getFilterQuality</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> <a href='#SkPaint_getFilterQuality'>getFilterQuality</a>() const
@@ -1856,8 +1860,8 @@ kNone_SkFilterQuality == paint.getFilterQuality()
 
 ---
 
-<a name='SkPaint_setFilterQuality'></a>
-## setFilterQuality
+
+## <a name='SkPaint_setFilterQuality'>setFilterQuality</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setFilterQuality'>setFilterQuality</a>(<a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality)
@@ -1920,8 +1924,8 @@ a different arrangement.
 
 <div><fiddle-embed name="214b559d75c65a7bef6ef4be1f860053"></fiddle-embed></div>
 
-<a name='SkPaint_getColor'></a>
-## getColor
+
+## <a name='SkPaint_getColor'>getColor</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkPaint_getColor'>getColor</a>() const
@@ -1953,8 +1957,8 @@ Yellow is 100% red, 100% green, and 0% blue.
 
 ---
 
-<a name='SkPaint_getColor4f'></a>
-## getColor4f
+
+## <a name='SkPaint_getColor4f'>getColor4f</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a> <a href='#SkPaint_getColor4f'>getColor4f</a>() const
@@ -1985,8 +1989,8 @@ Yellow is 100% red, 100% green, and 0% blue.
 
 ---
 
-<a name='SkPaint_setColor'></a>
-## setColor
+
+## <a name='SkPaint_setColor'>setColor</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setColor'>setColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> color)
@@ -2020,8 +2024,8 @@ green1 == green2
 
 ---
 
-<a name='SkPaint_setColor4f'></a>
-## setColor4f
+
+## <a name='SkPaint_setColor4f'>setColor4f</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setColor4f'>setColor4f</a>(const <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>& color, <a href='undocumented#SkColorSpace'>SkColorSpace</a>* colorSpace)
@@ -2064,8 +2068,8 @@ green1 == green2
 
 <a href='SkColor_Reference#Alpha'>Color Alpha</a> sets the transparency independent of RGB: red, blue, and green.
 
-<a name='SkPaint_getAlpha'></a>
-## getAlpha
+
+## <a name='SkPaint_getAlpha'>getAlpha</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint8_t <a href='#SkPaint_getAlpha'>getAlpha</a>() const
@@ -2091,8 +2095,8 @@ Retrieves <a href='SkColor_Reference#Alpha'>Alpha</a> from the <a href='SkColor_
 
 ---
 
-<a name='SkPaint_setAlpha'></a>
-## setAlpha
+
+## <a name='SkPaint_setAlpha'>setAlpha</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setAlpha'>setAlpha</a>(<a href='undocumented#U8CPU'>U8CPU</a> a)
@@ -2125,8 +2129,8 @@ fully opaque.
 
 ---
 
-<a name='SkPaint_setARGB'></a>
-## setARGB
+
+## <a name='SkPaint_setARGB'>setARGB</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setARGB'>setARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> a, <a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b)
@@ -2207,7 +2211,7 @@ pixel. If <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias Flag</a> is set, transpa
 GPU-backed implementations apply transparency at a later drawing stage, avoiding double hit pixels
 while stroking.
 
-## <a name='SkPaint_Style'>Enum SkPaint::Style</a>
+## <a name='SkPaint_Style'>Style</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPaint_Style'>Style</a> {
@@ -2272,8 +2276,10 @@ May be used to verify that <a href='#SkPaint_Style'>Style</a> is a legal value.
   </tr>
 </table>
 
-<a name='SkPaint_getStyle'></a>
-## getStyle
+---
+
+
+## <a name='SkPaint_getStyle'>getStyle</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint_Style'>Style</a> <a href='#SkPaint_getStyle'>getStyle</a>() const
@@ -2303,8 +2309,8 @@ SkPaint::kFill_Style == paint.getStyle()
 
 ---
 
-<a name='SkPaint_setStyle'></a>
-## setStyle
+
+## <a name='SkPaint_setStyle'>setStyle</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setStyle'>setStyle</a>(<a href='#SkPaint_Style'>Style</a> style)
@@ -2355,8 +2361,8 @@ The default width for the paint is zero.
 line and the platform implementation.
 </div></fiddle-embed></div>
 
-<a name='SkPaint_getStrokeWidth'></a>
-## getStrokeWidth
+
+## <a name='SkPaint_getStrokeWidth'>getStrokeWidth</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getStrokeWidth'>getStrokeWidth</a>() const
@@ -2383,8 +2389,8 @@ zero for <a href='#Style_Hairline'>Hairline</a>, greater than zero for pen thick
 
 ---
 
-<a name='SkPaint_setStrokeWidth'></a>
-## setStrokeWidth
+
+## <a name='SkPaint_setStrokeWidth'>setStrokeWidth</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setStrokeWidth'>setStrokeWidth</a>(<a href='undocumented#SkScalar'>SkScalar</a> width)
@@ -2456,8 +2462,8 @@ When the miter limit is decreased slightly, the miter join is replaced
 by a bevel join.
 </div></fiddle-embed></div>
 
-<a name='SkPaint_getStrokeMiter'></a>
-## getStrokeMiter
+
+## <a name='SkPaint_getStrokeMiter'>getStrokeMiter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getStrokeMiter'>getStrokeMiter</a>() const
@@ -2487,8 +2493,8 @@ default miter limit == 4
 
 ---
 
-<a name='SkPaint_setStrokeMiter'></a>
-## setStrokeMiter
+
+## <a name='SkPaint_setStrokeMiter'>setStrokeMiter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setStrokeMiter'>setStrokeMiter</a>(<a href='undocumented#SkScalar'>SkScalar</a> miter)
@@ -2525,7 +2531,7 @@ default miter limit == 8
 
 ## <a name='Stroke_Cap'>Stroke Cap</a>
 
-## <a name='SkPaint_Cap'>Enum SkPaint::Cap</a>
+## <a name='SkPaint_Cap'>Cap</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPaint_Cap'>Cap</a> {
@@ -2595,6 +2601,8 @@ May be used to verify that <a href='#Stroke_Cap'>Stroke Cap</a> is a legal value
   </tr>
 </table>
 
+---
+
 Stroke describes the area covered by a pen of <a href='#Stroke_Width'>Stroke Width</a> as it
 follows the <a href='SkPath_Overview#Contour'>Path Contour</a>, moving parallel to the contour direction.
 
@@ -2615,8 +2623,8 @@ at the contour point.
 
 <div><fiddle-embed name="2bffb6384cc20077e632e7d01da045ca"></fiddle-embed></div>
 
-<a name='SkPaint_getStrokeCap'></a>
-## getStrokeCap
+
+## <a name='SkPaint_getStrokeCap'>getStrokeCap</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint_Cap'>Cap</a> <a href='#SkPaint_getStrokeCap'>getStrokeCap</a>() const
@@ -2646,8 +2654,8 @@ kButt_Cap == default stroke cap
 
 ---
 
-<a name='SkPaint_setStrokeCap'></a>
-## setStrokeCap
+
+## <a name='SkPaint_setStrokeCap'>setStrokeCap</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setStrokeCap'>setStrokeCap</a>(<a href='#SkPaint_Cap'>Cap</a> cap)
@@ -2696,7 +2704,7 @@ the following curve, the pair of curves meet at <a href='#Stroke_Join'>Stroke Jo
 
 <div><fiddle-embed name="917c44b504d3f9308571fd3835d90a0d"></fiddle-embed></div>
 
-## <a name='SkPaint_Join'>Enum SkPaint::Join</a>
+## <a name='SkPaint_Join'>Join</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPaint_Join'>Join</a> {
@@ -2781,8 +2789,8 @@ May be used to verify that <a href='#Stroke_Join'>Stroke Join</a> is a legal val
 
 <a href='#SkPaint_setStrokeJoin'>setStrokeJoin</a> <a href='#SkPaint_getStrokeJoin'>getStrokeJoin</a> <a href='#SkPaint_setStrokeMiter'>setStrokeMiter</a> <a href='#SkPaint_getStrokeMiter'>getStrokeMiter</a>
 
-<a name='SkPaint_getStrokeJoin'></a>
-## getStrokeJoin
+
+## <a name='SkPaint_getStrokeJoin'>getStrokeJoin</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint_Join'>Join</a> <a href='#SkPaint_getStrokeJoin'>getStrokeJoin</a>() const
@@ -2812,8 +2820,8 @@ kMiter_Join == default stroke join
 
 ---
 
-<a name='SkPaint_setStrokeJoin'></a>
-## setStrokeJoin
+
+## <a name='SkPaint_setStrokeJoin'>setStrokeJoin</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setStrokeJoin'>setStrokeJoin</a>(<a href='#SkPaint_Join'>Join</a> join)
@@ -2871,8 +2879,8 @@ Fill <a href='SkPath_Reference#Path'>Path</a> can specify the precision used by 
 If the <a href='#SkPaint_Style'>Style</a> is <a href='#SkPaint_kStroke_Style'>kStroke Style</a> and the <a href='#Stroke_Width'>Stroke Width</a> is zero, <a href='#SkPaint_getFillPath'>getFillPath</a>
 returns false since <a href='#Style_Hairline'>Hairline</a> has no filled equivalent.
 
-<a name='SkPaint_getFillPath'></a>
-## getFillPath
+
+## <a name='SkPaint_getFillPath'>getFillPath</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_getFillPath'>getFillPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& src, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst, const <a href='SkRect_Reference#SkRect'>SkRect</a>* cullRect, <a href='undocumented#SkScalar'>SkScalar</a> resScale = 1) const
@@ -2967,8 +2975,8 @@ If <a href='undocumented#Shader'>Shader</a> generates only <a href='SkColor_Refe
 
 <div><fiddle-embed name="fe80fd80b98a20823db7fb9a077243c7"></fiddle-embed></div>
 
-<a name='SkPaint_getShader'></a>
-## getShader
+
+## <a name='SkPaint_getShader'>getShader</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkShader'>SkShader</a>* <a href='#SkPaint_getShader'>getShader</a>() const
@@ -2997,8 +3005,8 @@ nullptr != shader
 
 ---
 
-<a name='SkPaint_refShader'></a>
-## refShader
+
+## <a name='SkPaint_refShader'>refShader</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkShader'>SkShader</a>&gt; <a href='#SkPaint_refShader'>refShader</a>() const
@@ -3027,8 +3035,8 @@ shader unique: false
 
 ---
 
-<a name='SkPaint_setShader'></a>
-## setShader
+
+## <a name='SkPaint_setShader'>setShader</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setShader'>setShader</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkShader'>SkShader</a>&gt; shader)
@@ -3064,8 +3072,8 @@ The drawn transparency can be modified without altering <a href='undocumented#Co
 
 <div><fiddle-embed name="5abde56ca2f89a18b8e231abd1b57c56"></fiddle-embed></div>
 
-<a name='SkPaint_getColorFilter'></a>
-## getColorFilter
+
+## <a name='SkPaint_getColorFilter'>getColorFilter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkColorFilter'>SkColorFilter</a>* <a href='#SkPaint_getColorFilter'>getColorFilter</a>() const
@@ -3093,8 +3101,8 @@ nullptr != color filter
 
 ---
 
-<a name='SkPaint_refColorFilter'></a>
-## refColorFilter
+
+## <a name='SkPaint_refColorFilter'>refColorFilter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorFilter'>SkColorFilter</a>&gt; <a href='#SkPaint_refColorFilter'>refColorFilter</a>() const
@@ -3122,8 +3130,8 @@ color filter unique: false
 
 ---
 
-<a name='SkPaint_setColorFilter'></a>
-## setColorFilter
+
+## <a name='SkPaint_setColorFilter'>setColorFilter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setColorFilter'>setColorFilter</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorFilter'>SkColorFilter</a>&gt; colorFilter)
@@ -3161,8 +3169,8 @@ over the destination color.
 
 <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>
 
-<a name='SkPaint_getBlendMode'></a>
-## getBlendMode
+
+## <a name='SkPaint_getBlendMode'>getBlendMode</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> <a href='#SkPaint_getBlendMode'>getBlendMode</a>() const
@@ -3190,8 +3198,8 @@ kSrcOver != getBlendMode
 
 ---
 
-<a name='SkPaint_isSrcOver'></a>
-## isSrcOver
+
+## <a name='SkPaint_isSrcOver'>isSrcOver</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_isSrcOver'>isSrcOver</a>() const
@@ -3218,8 +3226,8 @@ isSrcOver != true
 
 ---
 
-<a name='SkPaint_setBlendMode'></a>
-## setBlendMode
+
+## <a name='SkPaint_setBlendMode'>setBlendMode</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setBlendMode'>setBlendMode</a>(<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode)
@@ -3264,8 +3272,8 @@ If <a href='#Paint'>Paint</a> has no <a href='undocumented#Path_Effect'>Path Eff
 
 <a href='undocumented#Path_Effect'>Path Effect</a>
 
-<a name='SkPaint_getPathEffect'></a>
-## getPathEffect
+
+## <a name='SkPaint_getPathEffect'>getPathEffect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkPathEffect'>SkPathEffect</a>* <a href='#SkPaint_getPathEffect'>getPathEffect</a>() const
@@ -3293,8 +3301,8 @@ nullptr != path effect
 
 ---
 
-<a name='SkPaint_refPathEffect'></a>
-## refPathEffect
+
+## <a name='SkPaint_refPathEffect'>refPathEffect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkPathEffect'>SkPathEffect</a>&gt; <a href='#SkPaint_refPathEffect'>refPathEffect</a>() const
@@ -3322,8 +3330,8 @@ path effect unique: false
 
 ---
 
-<a name='SkPaint_setPathEffect'></a>
-## setPathEffect
+
+## <a name='SkPaint_setPathEffect'>setPathEffect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setPathEffect'>setPathEffect</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkPathEffect'>SkPathEffect</a>&gt; pathEffect)
@@ -3360,8 +3368,8 @@ modifying the draw.
 
 <div><fiddle-embed name="55d7b9d482ac8e17a6153f555a8adb8d"></fiddle-embed></div>
 
-<a name='SkPaint_getMaskFilter'></a>
-## getMaskFilter
+
+## <a name='SkPaint_getMaskFilter'>getMaskFilter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkMaskFilter'>SkMaskFilter</a>* <a href='#SkPaint_getMaskFilter'>getMaskFilter</a>() const
@@ -3389,8 +3397,8 @@ nullptr != mask filter
 
 ---
 
-<a name='SkPaint_refMaskFilter'></a>
-## refMaskFilter
+
+## <a name='SkPaint_refMaskFilter'>refMaskFilter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkMaskFilter'>SkMaskFilter</a>&gt; <a href='#SkPaint_refMaskFilter'>refMaskFilter</a>() const
@@ -3419,8 +3427,8 @@ mask filter unique: false
 
 ---
 
-<a name='SkPaint_setMaskFilter'></a>
-## setMaskFilter
+
+## <a name='SkPaint_setMaskFilter'>setMaskFilter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setMaskFilter'>setMaskFilter</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkMaskFilter'>SkMaskFilter</a>&gt; maskFilter)
@@ -3456,8 +3464,8 @@ implementation.
 
 <div><fiddle-embed name="1a7a5062725139760962582f599f1b97"></fiddle-embed></div>
 
-<a name='SkPaint_getTypeface'></a>
-## getTypeface
+
+## <a name='SkPaint_getTypeface'>getTypeface</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkTypeface'>SkTypeface</a>* <a href='#SkPaint_getTypeface'>getTypeface</a>() const
@@ -3485,8 +3493,8 @@ nullptr != typeface
 
 ---
 
-<a name='SkPaint_refTypeface'></a>
-## refTypeface
+
+## <a name='SkPaint_refTypeface'>refTypeface</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkTypeface'>SkTypeface</a>&gt; <a href='#SkPaint_refTypeface'>refTypeface</a>() const
@@ -3513,8 +3521,8 @@ typeface1 == typeface2
 
 ---
 
-<a name='SkPaint_setTypeface'></a>
-## setTypeface
+
+## <a name='SkPaint_setTypeface'>setTypeface</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setTypeface'>setTypeface</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkTypeface'>SkTypeface</a>&gt; typeface)
@@ -3552,8 +3560,8 @@ can operate on all channels of <a href='SkColor_Reference#Color'>Color</a>, whil
 
 <div><fiddle-embed name="ece04ee3d3761e3425f37c8f06f054c1"></fiddle-embed></div>
 
-<a name='SkPaint_getImageFilter'></a>
-## getImageFilter
+
+## <a name='SkPaint_getImageFilter'>getImageFilter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkImageFilter'>SkImageFilter</a>* <a href='#SkPaint_getImageFilter'>getImageFilter</a>() const
@@ -3581,8 +3589,8 @@ nullptr != image filter
 
 ---
 
-<a name='SkPaint_refImageFilter'></a>
-## refImageFilter
+
+## <a name='SkPaint_refImageFilter'>refImageFilter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkImageFilter'>SkImageFilter</a>&gt; <a href='#SkPaint_refImageFilter'>refImageFilter</a>() const
@@ -3610,8 +3618,8 @@ image filter unique: false
 
 ---
 
-<a name='SkPaint_setImageFilter'></a>
-## setImageFilter
+
+## <a name='SkPaint_setImageFilter'>setImageFilter</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setImageFilter'>setImageFilter</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkImageFilter'>SkImageFilter</a>&gt; imageFilter)
@@ -3649,8 +3657,8 @@ Set <a href='undocumented#Draw_Looper'>Draw Looper</a> to nullptr to prevent <a 
 
 <div><fiddle-embed name="84ec12a36e50df5ac565cc7a75ffbe9f"></fiddle-embed></div>
 
-<a name='SkPaint_getDrawLooper'></a>
-## getDrawLooper
+
+## <a name='SkPaint_getDrawLooper'>getDrawLooper</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='#SkPaint_getDrawLooper'>getDrawLooper</a>() const
@@ -3678,8 +3686,8 @@ nullptr != draw looper
 
 ---
 
-<a name='SkPaint_refDrawLooper'></a>
-## refDrawLooper
+
+## <a name='SkPaint_refDrawLooper'>refDrawLooper</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>&gt; <a href='#SkPaint_refDrawLooper'>refDrawLooper</a>() const
@@ -3707,8 +3715,8 @@ draw looper unique: false
 
 ---
 
-<a name='SkPaint_getLooper'></a>
-## getLooper
+
+## <a name='SkPaint_getLooper'>getLooper</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='#SkPaint_getLooper'>getLooper</a>() const
@@ -3718,8 +3726,8 @@ Deprecated.
 
 ---
 
-<a name='SkPaint_setDrawLooper'></a>
-## setDrawLooper
+
+## <a name='SkPaint_setDrawLooper'>setDrawLooper</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setDrawLooper'>setDrawLooper</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>&gt; drawLooper)
@@ -3744,8 +3752,8 @@ Increments <a href='#SkPaint_setDrawLooper_drawLooper'>drawLooper</a> <a href='u
 
 ---
 
-<a name='SkPaint_setLooper'></a>
-## setLooper
+
+## <a name='SkPaint_setLooper'>setLooper</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setLooper'>setLooper</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>&gt; drawLooper)
@@ -3757,7 +3765,7 @@ Deprecated.
 
 ## <a name='Text_Align'>Text Align</a>
 
-## <a name='SkPaint_Align'>Enum SkPaint::Align</a>
+## <a name='SkPaint_Align'>Align</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPaint_Align'>Align</a> {
@@ -3823,6 +3831,8 @@ May be used to verify that <a href='#SkPaint_Align'>Align</a> is a legal value.
   </tr>
 </table>
 
+---
+
 ### Example
 
 <div><fiddle-embed name="702617fd9ebc3f12e30081b5db93e8a8"><div>Each position separately moves the glyph in drawPosText.
@@ -3833,8 +3843,8 @@ May be used to verify that <a href='#SkPaint_Align'>Align</a> is a legal value.
 <div><fiddle-embed name="f1cbbbafe6b3c52b81309cccbf96a308"><div><a href='#Vertical_Text'>Vertical Text</a> treats <a href='#SkPaint_kLeft_Align'>kLeft Align</a> as top align, and <a href='#SkPaint_kRight_Align'>kRight Align</a> as bottom align.
 </div></fiddle-embed></div>
 
-<a name='SkPaint_getTextAlign'></a>
-## getTextAlign
+
+## <a name='SkPaint_getTextAlign'>getTextAlign</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint_Align'>Align</a> <a href='#SkPaint_getTextAlign'>getTextAlign</a>() const
@@ -3861,8 +3871,8 @@ kLeft_Align == default
 
 ---
 
-<a name='SkPaint_setTextAlign'></a>
-## setTextAlign
+
+## <a name='SkPaint_setTextAlign'>setTextAlign</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void    <a href='#SkPaint_setTextAlign'>setTextAlign</a>(<a href='#SkPaint_Align'>Align</a> align)
@@ -3897,8 +3907,8 @@ Set <a href='undocumented#SkPaintDefaults_TextSize'>SkPaintDefaults TextSize</a>
 
 <div><fiddle-embed name="91c9a3e498bb9412e4522a95d076ed5f"></fiddle-embed></div>
 
-<a name='SkPaint_getTextSize'></a>
-## getTextSize
+
+## <a name='SkPaint_getTextSize'>getTextSize</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSize'>getTextSize</a>() const
@@ -3916,8 +3926,8 @@ typographic height of text
 
 ---
 
-<a name='SkPaint_setTextSize'></a>
-## setTextSize
+
+## <a name='SkPaint_setTextSize'>setTextSize</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setTextSize'>setTextSize</a>(<a href='undocumented#SkScalar'>SkScalar</a> textSize)
@@ -3951,8 +3961,8 @@ is not available.
 
 <div><fiddle-embed name="d13d787c1e36f515319fc998411c1d91"></fiddle-embed></div>
 
-<a name='SkPaint_getTextScaleX'></a>
-## getTextScaleX
+
+## <a name='SkPaint_getTextScaleX'>getTextScaleX</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextScaleX'>getTextScaleX</a>() const
@@ -3971,8 +3981,8 @@ text horizontal scale
 
 ---
 
-<a name='SkPaint_setTextScaleX'></a>
-## setTextScaleX
+
+## <a name='SkPaint_setTextScaleX'>setTextScaleX</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setTextScaleX'>setTextScaleX</a>(<a href='undocumented#SkScalar'>SkScalar</a> scaleX)
@@ -4006,8 +4016,8 @@ is not available.
 
 <div><fiddle-embed name="aff208b0aab265f273045b27e683c17c"></fiddle-embed></div>
 
-<a name='SkPaint_getTextSkewX'></a>
-## getTextSkewX
+
+## <a name='SkPaint_getTextSkewX'>getTextSkewX</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSkewX'>getTextSkewX</a>() const
@@ -4026,8 +4036,8 @@ additional shear in x-axis relative to y-axis
 
 ---
 
-<a name='SkPaint_setTextSkewX'></a>
-## setTextSkewX
+
+## <a name='SkPaint_setTextSkewX'>setTextSkewX</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setTextSkewX'>setTextSkewX</a>(<a href='undocumented#SkScalar'>SkScalar</a> skewX)
@@ -4051,7 +4061,7 @@ Default value is zero.
 
 ## <a name='Text_Encoding'>Text Encoding</a>
 
-## <a name='SkPaint_TextEncoding'>Enum SkPaint::TextEncoding</a>
+## <a name='SkPaint_TextEncoding'>TextEncoding</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPaint_TextEncoding'>TextEncoding</a> {
@@ -4112,6 +4122,8 @@ uses two byte words to represent glyph indices</td>
   </tr>
 </table>
 
+---
+
 ### Example
 
 <div><fiddle-embed name="b29294e7f29d160a1b46abf2dcec9d2a"><div>First line is encoded in UTF-8.
@@ -4120,8 +4132,8 @@ Third line is encoded in UTF-32.
 Fourth line has 16-bit glyph indices.
 </div></fiddle-embed></div>
 
-<a name='SkPaint_getTextEncoding'></a>
-## getTextEncoding
+
+## <a name='SkPaint_getTextEncoding'>getTextEncoding</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkPaint_TextEncoding'>TextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>() const
@@ -4150,8 +4162,8 @@ kGlyphID_TextEncoding == text encoding
 
 ---
 
-<a name='SkPaint_setTextEncoding'></a>
-## setTextEncoding
+
+## <a name='SkPaint_setTextEncoding'>setTextEncoding</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='#SkPaint_TextEncoding'>TextEncoding</a> encoding)
@@ -4249,7 +4261,7 @@ are valid, since their value may be zero.
 <a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a> and <a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a> have a bit set in <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a> if their values
 are valid, since their value may be zero.
 
-## <a name='SkPaint_FontMetrics_FontMetricsFlags'>Enum SkPaint::FontMetrics::FontMetricsFlags</a>
+## <a name='SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
         enum <a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a> {
@@ -4294,7 +4306,9 @@ set if fStrikeoutThickness is valid</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 set if fStrikeoutPosition is valid</td>
   </tr>
-</table><table style='border-collapse: collapse; width: 62.5em'>
+</table>
+
+---<table style='border-collapse: collapse; width: 62.5em'>
 
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
@@ -4429,8 +4443,8 @@ If <a href='#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'>kStrikeoutPosit
   </tr>
 </table>
 
-<a name='SkPaint_FontMetrics_hasUnderlineThickness'></a>
-## hasUnderlineThickness
+
+## <a name='SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const
@@ -4453,8 +4467,8 @@ true if font specifies underline width
 
 ---
 
-<a name='SkPaint_FontMetrics_hasUnderlinePosition'></a>
-## hasUnderlinePosition
+
+## <a name='SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const
@@ -4477,8 +4491,8 @@ true if font specifies underline <a href='#SkPaint_FontMetrics_hasUnderlinePosit
 
 ---
 
-<a name='SkPaint_FontMetrics_hasStrikeoutThickness'></a>
-## hasStrikeoutThickness
+
+## <a name='SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const
@@ -4501,8 +4515,8 @@ true if font specifies strikeout width
 
 ---
 
-<a name='SkPaint_FontMetrics_hasStrikeoutPosition'></a>
-## hasStrikeoutPosition
+
+## <a name='SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const
@@ -4525,8 +4539,8 @@ true if font specifies strikeout <a href='#SkPaint_FontMetrics_hasStrikeoutPosit
 
 ---
 
-<a name='SkPaint_getFontMetrics'></a>
-## getFontMetrics
+
+## <a name='SkPaint_getFontMetrics'>getFontMetrics</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics, <a href='undocumented#SkScalar'>SkScalar</a> scale = 0) const
@@ -4566,8 +4580,8 @@ recommended spacing between lines
 
 ---
 
-<a name='SkPaint_getFontSpacing'></a>
-## getFontSpacing
+
+## <a name='SkPaint_getFontSpacing'>getFontSpacing</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>() const
@@ -4600,8 +4614,8 @@ textSize: 32 fontSpacing: 37.25
 
 ---
 
-<a name='SkPaint_getFontBounds'></a>
-## getFontBounds
+
+## <a name='SkPaint_getFontBounds'>getFontBounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>() const
@@ -4635,8 +4649,8 @@ font bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }
 
 ---
 
-<a name='SkPaint_textToGlyphs'></a>
-## textToGlyphs
+
+## <a name='SkPaint_textToGlyphs'>textToGlyphs</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* text, size_t byteLength, <a href='undocumented#SkGlyphID'>SkGlyphID</a> glyphs[]) const
@@ -4678,8 +4692,8 @@ number of <a href='#SkPaint_textToGlyphs_glyphs'>glyphs</a> represented by <a hr
 
 ---
 
-<a name='SkPaint_countText'></a>
-## countText
+
+## <a name='SkPaint_countText'>countText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_countText'>countText</a>(const void* text, size_t byteLength) const
@@ -4717,8 +4731,8 @@ count = 5
 
 ---
 
-<a name='SkPaint_containsText'></a>
-## containsText
+
+## <a name='SkPaint_containsText'>containsText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_containsText'>containsText</a>(const void* text, size_t byteLength) const
@@ -4781,8 +4795,8 @@ that it corresponds to an entry in <a href='undocumented#Typeface'>Typeface</a>.
 
 ---
 
-<a name='SkPaint_glyphsToUnichars'></a>
-## glyphsToUnichars
+
+## <a name='SkPaint_glyphsToUnichars'>glyphsToUnichars</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_glyphsToUnichars'>glyphsToUnichars</a>(const <a href='undocumented#SkGlyphID'>SkGlyphID</a> glyphs[], int count, <a href='undocumented#SkUnichar'>SkUnichar</a> text[]) const
@@ -4817,8 +4831,8 @@ Only supported on platforms that use FreeType as the <a href='undocumented#Engin
 
 ## <a name='Measure_Text'>Measure Text</a>
 
-<a name='SkPaint_measureText'></a>
-## measureText
+
+## <a name='SkPaint_measureText'>measureText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* text, size_t length, <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds) const
@@ -4898,8 +4912,8 @@ double width = 10
 
 ---
 
-<a name='SkPaint_breakText'></a>
-## breakText
+
+## <a name='SkPaint_breakText'>breakText</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkPaint_breakText'>breakText</a>(const void* text, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> maxWidth,
@@ -4945,8 +4959,8 @@ bytes of <a href='#SkPaint_breakText_text'>text</a> that fit, always less than o
 
 ---
 
-<a name='SkPaint_getTextWidths'></a>
-## getTextWidths
+
+## <a name='SkPaint_getTextWidths'>getTextWidths</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_getTextWidths'>getTextWidths</a>(const void* text, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> widths[], <a href='SkRect_Reference#SkRect'>SkRect</a> bounds[] = nullptr) const
@@ -4996,8 +5010,8 @@ The underlines show the <a href='#SkPaint_getTextWidths_text'>text</a> advance, 
 
 <a href='#Text_Path'>Text Path</a> describes the geometry of <a href='undocumented#Glyph'>Glyphs</a> used to draw text.
 
-<a name='SkPaint_getTextPath'></a>
-## getTextPath
+
+## <a name='SkPaint_getTextPath'>getTextPath</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_getTextPath'>getTextPath</a>(const void* text, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='SkPath_Reference#SkPath'>SkPath</a>* path) const
@@ -5036,8 +5050,8 @@ the offset location. The result is rendered with one draw call.
 
 ---
 
-<a name='SkPaint_getPosTextPath'></a>
-## getPosTextPath
+
+## <a name='SkPaint_getPosTextPath'>getPosTextPath</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* text, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPath_Reference#SkPath'>SkPath</a>* path) const
@@ -5079,8 +5093,8 @@ Uses <a href='#SkPaint_getPosTextPath_pos'>pos</a> array and <a href='#Text_Alig
 of lines parallel to the text advance. <a href='#Text_Intercepts'>Text Intercepts</a> permits creating a
 underline that skips <a href='undocumented#Descenders'>Descenders</a>.
 
-<a name='SkPaint_getTextIntercepts'></a>
-## getTextIntercepts
+
+## <a name='SkPaint_getTextIntercepts'>getTextIntercepts</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_getTextIntercepts'>getTextIntercepts</a>(const void* text, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
@@ -5132,8 +5146,8 @@ number of intersections; may be zero
 
 ---
 
-<a name='SkPaint_getPosTextIntercepts'></a>
-## getPosTextIntercepts
+
+## <a name='SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a>(const void* text, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[],
@@ -5182,8 +5196,8 @@ number of intersections; may be zero
 
 ---
 
-<a name='SkPaint_getPosTextHIntercepts'></a>
-## getPosTextHIntercepts
+
+## <a name='SkPaint_getPosTextHIntercepts'>getPosTextHIntercepts</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_getPosTextHIntercepts'>getPosTextHIntercepts</a>(const void* text, size_t length, const <a href='undocumented#SkScalar'>SkScalar</a> xpos[], <a href='undocumented#SkScalar'>SkScalar</a> constY,
@@ -5235,8 +5249,8 @@ number of intersections; may be zero
 
 ---
 
-<a name='SkPaint_getTextBlobIntercepts'></a>
-## getTextBlobIntercepts
+
+## <a name='SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const
@@ -5279,8 +5293,8 @@ number of intersections; may be zero
 
 ---
 
-<a name='SkPaint_nothingToDraw'></a>
-## nothingToDraw
+
+## <a name='SkPaint_nothingToDraw'>nothingToDraw</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>() const
@@ -5320,8 +5334,8 @@ Private: To be made private.
 <a href='#Fast_Bounds'>Fast Bounds</a> functions conservatively outset a drawing bounds by additional area
 <a href='#Paint'>Paint</a> may draw to.
 
-<a name='SkPaint_canComputeFastBounds'></a>
-## canComputeFastBounds
+
+## <a name='SkPaint_canComputeFastBounds'>canComputeFastBounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a>() const
@@ -5339,8 +5353,8 @@ true if <a href='#Paint'>Paint</a> allows for fast computation of bounds
 
 ---
 
-<a name='SkPaint_computeFastBounds'></a>
-## computeFastBounds
+
+## <a name='SkPaint_computeFastBounds'>computeFastBounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastBounds'>computeFastBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const
@@ -5384,8 +5398,8 @@ fast computed bounds
 
 ---
 
-<a name='SkPaint_computeFastStrokeBounds'></a>
-## computeFastStrokeBounds
+
+## <a name='SkPaint_computeFastStrokeBounds'>computeFastStrokeBounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastStrokeBounds'>computeFastStrokeBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const
@@ -5409,8 +5423,8 @@ fast computed bounds
 
 ---
 
-<a name='SkPaint_doComputeFastBounds'></a>
-## doComputeFastBounds
+
+## <a name='SkPaint_doComputeFastBounds'>doComputeFastBounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_doComputeFastBounds'>doComputeFastBounds</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage, <a href='#SkPaint_Style'>Style</a> style) const

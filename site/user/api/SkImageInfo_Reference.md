@@ -62,7 +62,7 @@ but <a href='SkImage_Reference#Image'>Image</a> and <a href='SkSurface_Reference
 
 ## <a name='Alpha_Type'>Alpha Type</a>
 
-## <a name='SkAlphaType'>Enum SkAlphaType</a>
+## <a name='SkAlphaType'>SkAlphaType</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 enum <a href='#SkAlphaType'>SkAlphaType</a> {
@@ -200,8 +200,8 @@ The four displayed values are the original component values, though not necessar
 in the same order.
 </div></fiddle-embed></div>
 
-<a name='SkAlphaTypeIsOpaque'></a>
-## SkAlphaTypeIsOpaque
+
+## <a name='SkAlphaTypeIsOpaque'>SkAlphaTypeIsOpaque</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static inline bool <a href='#SkAlphaTypeIsOpaque'>SkAlphaTypeIsOpaque</a>(<a href='#SkAlphaType'>SkAlphaType</a> at)
@@ -229,7 +229,7 @@ true if <a href='#SkAlphaTypeIsOpaque_at'>at</a> equals <a href='#kOpaque_SkAlph
 
 ## <a name='Color_Type'>Color Type</a>
 
-## <a name='SkColorType'>Enum SkColorType</a>
+## <a name='SkColorType'>SkColorType</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 enum <a href='#SkColorType'>SkColorType</a> {
@@ -681,8 +681,8 @@ less than one, the drawn result is undefined.
 
 <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>
 
-<a name='SkColorTypeBytesPerPixel'></a>
-## SkColorTypeBytesPerPixel
+
+## <a name='SkColorTypeBytesPerPixel'>SkColorTypeBytesPerPixel</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkColorTypeBytesPerPixel'>SkColorTypeBytesPerPixel</a>(<a href='#SkColorType'>SkColorType</a> ct)
@@ -718,8 +718,8 @@ bytes per pixel
 
 ---
 
-<a name='SkColorTypeIsAlwaysOpaque'></a>
-## SkColorTypeIsAlwaysOpaque
+
+## <a name='SkColorTypeIsAlwaysOpaque'>SkColorTypeIsAlwaysOpaque</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkColorTypeIsAlwaysOpaque'>SkColorTypeIsAlwaysOpaque</a>(<a href='#SkColorType'>SkColorType</a> ct)
@@ -755,8 +755,8 @@ true if <a href='SkColor_Reference#Alpha'>Color Alpha</a> is always set to 1.0
 
 ---
 
-<a name='SkColorTypeValidateAlphaType'></a>
-## SkColorTypeValidateAlphaType
+
+## <a name='SkColorTypeValidateAlphaType'>SkColorTypeValidateAlphaType</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkColorTypeValidateAlphaType'>SkColorTypeValidateAlphaType</a>(<a href='#SkColorType'>SkColorType</a> <a href='#SkImageInfo_colorType'>colorType</a>, <a href='#SkAlphaType'>SkAlphaType</a> <a href='#SkImageInfo_alphaType'>alphaType</a>,
@@ -817,7 +817,7 @@ true if valid <a href='#Alpha_Type'>Alpha Type</a> can be associated with <a hre
 
 ## <a name='YUV_ColorSpace'>YUV ColorSpace</a>
 
-## <a name='SkYUVColorSpace'>Enum SkYUVColorSpace</a>
+## <a name='SkYUVColorSpace'>SkYUVColorSpace</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 enum <a href='#SkYUVColorSpace'>SkYUVColorSpace</a> {
@@ -936,8 +936,8 @@ implementations may defer pixel depth, so may not completely specify <a href='#I
 how pixel bits describe <a href='SkColor_Reference#Alpha'>Color Alpha</a>, transparency; <a href='SkColor_Reference#Color'>Color</a> components red, blue,
 and green; and <a href='undocumented#Color_Space'>Color Space</a>, the range and linearity of colors.
 
-<a name='SkImageInfo_empty_constructor'></a>
-## SkImageInfo
+
+## <a name='SkImageInfo_empty_constructor'>SkImageInfo</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkImageInfo'>SkImageInfo</a>()
@@ -962,8 +962,8 @@ for the <a href='SkCanvas_Reference#Canvas'>Canvas</a> actual <a href='#Image_In
 
 ---
 
-<a name='SkImageInfo_Make'></a>
-## Make
+
+## <a name='SkImageInfo_Make'>Make</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_Make'>Make</a>(int width, int height, <a href='#SkColorType'>SkColorType</a> ct, <a href='#SkAlphaType'>SkAlphaType</a> at,
@@ -1016,8 +1016,8 @@ created <a href='#Image_Info'>Image Info</a>
 
 ---
 
-<a name='SkImageInfo_MakeN32'></a>
-## MakeN32
+
+## <a name='SkImageInfo_MakeN32'>MakeN32</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_MakeN32'>MakeN32</a>(int width, int height, <a href='#SkAlphaType'>SkAlphaType</a> at, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; cs = nullptr)
@@ -1064,8 +1064,8 @@ created <a href='#Image_Info'>Image Info</a>
 
 ---
 
-<a name='SkImageInfo_MakeS32'></a>
-## MakeS32
+
+## <a name='SkImageInfo_MakeS32'>MakeS32</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_MakeS32'>MakeS32</a>(int width, int height, <a href='#SkAlphaType'>SkAlphaType</a> at)
@@ -1110,8 +1110,8 @@ middle gradient.
 
 ---
 
-<a name='SkImageInfo_MakeN32Premul'></a>
-## MakeN32Premul
+
+## <a name='SkImageInfo_MakeN32Premul'>MakeN32Premul</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_MakeN32Premul'>MakeN32Premul</a>(int width, int height, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; cs = nullptr)
@@ -1189,8 +1189,8 @@ created <a href='#Image_Info'>Image Info</a>
 
 ---
 
-<a name='SkImageInfo_MakeA8'></a>
-## MakeA8
+
+## <a name='SkImageInfo_MakeA8'>MakeA8</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_MakeA8'>MakeA8</a>(int width, int height)
@@ -1223,8 +1223,8 @@ created <a href='#Image_Info'>Image Info</a>
 
 ---
 
-<a name='SkImageInfo_MakeUnknown'></a>
-## MakeUnknown
+
+## <a name='SkImageInfo_MakeUnknown'>MakeUnknown</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_MakeUnknown'>MakeUnknown</a>(int width, int height)
@@ -1288,8 +1288,8 @@ created <a href='#Image_Info'>Image Info</a>
 
 ## <a name='Property'>Property</a>
 
-<a name='SkImageInfo_width'></a>
-## width
+
+## <a name='SkImageInfo_width'>width</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkImageInfo_width'>width</a>() const
@@ -1311,8 +1311,8 @@ pixel width
 
 ---
 
-<a name='SkImageInfo_height'></a>
-## height
+
+## <a name='SkImageInfo_height'>height</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkImageInfo_height'>height</a>() const
@@ -1334,8 +1334,8 @@ pixel height
 
 ---
 
-<a name='SkImageInfo_colorType'></a>
-## colorType
+
+## <a name='SkImageInfo_colorType'>colorType</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkColorType'>SkColorType</a> <a href='#SkImageInfo_colorType'>colorType</a>() const
@@ -1368,8 +1368,8 @@ color type: kAlpha_8_SkColorType
 
 ---
 
-<a name='SkImageInfo_alphaType'></a>
-## alphaType
+
+## <a name='SkImageInfo_alphaType'>alphaType</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkAlphaType'>SkAlphaType</a> <a href='#SkImageInfo_alphaType'>alphaType</a>() const
@@ -1400,8 +1400,8 @@ alpha type: kPremul_SkAlphaType
 
 ---
 
-<a name='SkImageInfo_colorSpace'></a>
-## colorSpace
+
+## <a name='SkImageInfo_colorSpace'>colorSpace</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkColorSpace'>SkColorSpace</a>* <a href='#SkImageInfo_colorSpace'>colorSpace</a>() const
@@ -1434,8 +1434,8 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 
 ---
 
-<a name='SkImageInfo_refColorSpace'></a>
-## refColorSpace
+
+## <a name='SkImageInfo_refColorSpace'>refColorSpace</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImageInfo_refColorSpace'>refColorSpace</a>() const
@@ -1461,8 +1461,8 @@ The returned <a href='undocumented#Color_Space'>Color Space</a> is immutable.
 
 ---
 
-<a name='SkImageInfo_isEmpty'></a>
-## isEmpty
+
+## <a name='SkImageInfo_isEmpty'>isEmpty</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkImageInfo_isEmpty'>isEmpty</a>() const
@@ -1496,8 +1496,8 @@ width: 2 height: 2 empty: false
 
 ---
 
-<a name='SkImageInfo_isOpaque'></a>
-## isOpaque
+
+## <a name='SkImageInfo_isOpaque'>isOpaque</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkImageInfo_isOpaque'>isOpaque</a>() const
@@ -1535,8 +1535,8 @@ isOpaque: true
 
 ---
 
-<a name='SkImageInfo_dimensions'></a>
-## dimensions
+
+## <a name='SkImageInfo_dimensions'>dimensions</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkISize'>SkISize</a> <a href='#SkImageInfo_dimensions'>dimensions</a>() const
@@ -1566,8 +1566,8 @@ dimensionsAsBounds == bounds
 
 ---
 
-<a name='SkImageInfo_bounds'></a>
-## bounds
+
+## <a name='SkImageInfo_bounds'>bounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkImageInfo_bounds'>bounds</a>() const
@@ -1589,8 +1589,8 @@ integral rectangle from origin to <a href='#SkImageInfo_width'>width</a>() and <
 
 ---
 
-<a name='SkImageInfo_gammaCloseToSRGB'></a>
-## gammaCloseToSRGB
+
+## <a name='SkImageInfo_gammaCloseToSRGB'>gammaCloseToSRGB</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkImageInfo_gammaCloseToSRGB'>gammaCloseToSRGB</a>() const
@@ -1614,8 +1614,8 @@ true if <a href='undocumented#Color_Space'>Color Space</a> gamma is approximatel
 
 ---
 
-<a name='SkImageInfo_makeWH'></a>
-## makeWH
+
+## <a name='SkImageInfo_makeWH'>makeWH</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_makeWH'>makeWH</a>(int newWidth, int newHeight) const
@@ -1648,8 +1648,8 @@ created <a href='#Image_Info'>Image Info</a>
 
 ---
 
-<a name='SkImageInfo_makeAlphaType'></a>
-## makeAlphaType
+
+## <a name='SkImageInfo_makeAlphaType'>makeAlphaType</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_makeAlphaType'>makeAlphaType</a>(<a href='#SkAlphaType'>SkAlphaType</a> newAlphaType) const
@@ -1683,8 +1683,8 @@ created <a href='#Image_Info'>Image Info</a>
 
 ---
 
-<a name='SkImageInfo_makeColorType'></a>
-## makeColorType
+
+## <a name='SkImageInfo_makeColorType'>makeColorType</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_makeColorType'>makeColorType</a>(<a href='#SkColorType'>SkColorType</a> newColorType) const
@@ -1717,8 +1717,8 @@ created <a href='#Image_Info'>Image Info</a>
 
 ---
 
-<a name='SkImageInfo_makeColorSpace'></a>
-## makeColorSpace
+
+## <a name='SkImageInfo_makeColorSpace'>makeColorSpace</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_makeColorSpace'>makeColorSpace</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; cs) const
@@ -1748,8 +1748,8 @@ created <a href='#Image_Info'>Image Info</a>
 
 ---
 
-<a name='SkImageInfo_bytesPerPixel'></a>
-## bytesPerPixel
+
+## <a name='SkImageInfo_bytesPerPixel'>bytesPerPixel</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkImageInfo_bytesPerPixel'>bytesPerPixel</a>() const
@@ -1793,8 +1793,8 @@ color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 
 ---
 
-<a name='SkImageInfo_shiftPerPixel'></a>
-## shiftPerPixel
+
+## <a name='SkImageInfo_shiftPerPixel'>shiftPerPixel</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkImageInfo_shiftPerPixel'>shiftPerPixel</a>() const
@@ -1838,8 +1838,8 @@ color: kRGBA_F16_SkColorType      shiftPerPixel: 3
 
 ---
 
-<a name='SkImageInfo_minRowBytes64'></a>
-## minRowBytes64
+
+## <a name='SkImageInfo_minRowBytes64'>minRowBytes64</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint64_t <a href='#SkImageInfo_minRowBytes64'>minRowBytes64</a>() const
@@ -1878,8 +1878,8 @@ RGBA_F16 width -2147483648 (0x80000000) too large
 
 ---
 
-<a name='SkImageInfo_minRowBytes'></a>
-## minRowBytes
+
+## <a name='SkImageInfo_minRowBytes'>minRowBytes</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkImageInfo_minRowBytes'>minRowBytes</a>() const
@@ -1918,8 +1918,8 @@ RGBA_F16 width -2147483648 (0x80000000) too large
 
 ---
 
-<a name='SkImageInfo_computeOffset'></a>
-## computeOffset
+
+## <a name='SkImageInfo_computeOffset'>computeOffset</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkImageInfo_computeOffset'>computeOffset</a>(int x, int y, size_t rowBytes) const
@@ -1957,8 +1957,8 @@ offset within pixel array
 
 ---
 
-<a name='SkImageInfo_equal1_operator'></a>
-## operator==
+
+## <a name='SkImageInfo_equal1_operator'>operator==</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool operator==(const SkImageInfo& other) const
@@ -1999,8 +1999,8 @@ info1 == info2
 
 ---
 
-<a name='SkImageInfo_notequal1_operator'></a>
-## operator!=
+
+## <a name='SkImageInfo_notequal1_operator'>operator!=</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool operator!=(const SkImageInfo& other) const
@@ -2041,8 +2041,8 @@ info1 == info2
 
 ---
 
-<a name='SkImageInfo_computeByteSize'></a>
-## computeByteSize
+
+## <a name='SkImageInfo_computeByteSize'>computeByteSize</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkImageInfo_computeByteSize'>computeByteSize</a>(size_t rowBytes) const
@@ -2075,8 +2075,8 @@ memory required by pixel buffer
 
 ---
 
-<a name='SkImageInfo_computeMinByteSize'></a>
-## computeMinByteSize
+
+## <a name='SkImageInfo_computeMinByteSize'>computeMinByteSize</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkImageInfo_computeMinByteSize'>computeMinByteSize</a>() const
@@ -2102,8 +2102,8 @@ least memory required by pixel buffer
 
 ---
 
-<a name='SkImageInfo_ByteSizeOverflowed'></a>
-## ByteSizeOverflowed
+
+## <a name='SkImageInfo_ByteSizeOverflowed'>ByteSizeOverflowed</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static bool <a href='#SkImageInfo_ByteSizeOverflowed'>ByteSizeOverflowed</a>(size_t byteSize)
@@ -2145,8 +2145,8 @@ rowBytes:1000000000000 size:18446744073709551615 overflowed:true
 
 ---
 
-<a name='SkImageInfo_validRowBytes'></a>
-## validRowBytes
+
+## <a name='SkImageInfo_validRowBytes'>validRowBytes</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkImageInfo_validRowBytes'>validRowBytes</a>(size_t rowBytes) const
@@ -2185,8 +2185,8 @@ validRowBytes(68): true
 
 ---
 
-<a name='SkImageInfo_reset'></a>
-## reset
+
+## <a name='SkImageInfo_reset'>reset</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkImageInfo_reset'>reset</a>()
@@ -2217,8 +2217,8 @@ SkImageInfo() == reset copy
 
 ## <a name='Utility'>Utility</a>
 
-<a name='SkImageInfo_validate'></a>
-## validate
+
+## <a name='SkImageInfo_validate'>validate</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkImageInfo_validate'>validate</a>() const

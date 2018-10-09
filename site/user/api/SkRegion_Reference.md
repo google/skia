@@ -125,8 +125,8 @@ rectangles contained by it, optionally intersecting a bounding rectangle.
 Returns sequence of rectangles, sorted along y-axis, then x-axis, that make
 up <a href='#Region'>Region</a>.
 
-<a name='SkRegion_Iterator_Iterator'></a>
-## Iterator
+
+## <a name='SkRegion_Iterator_Iterator'>Iterator</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRegion_Iterator_Iterator'>Iterator</a>()
@@ -157,8 +157,8 @@ rect={1,2,3,4}
 
 ---
 
-<a name='SkRegion_Iterator_copy_const_SkRegion'></a>
-## Iterator
+
+## <a name='SkRegion_Iterator_copy_const_SkRegion'>Iterator</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRegion_Iterator_Iterator'>Iterator</a>(const <a href='#SkRegion'>SkRegion</a>& region)
@@ -195,8 +195,8 @@ rect={1,2,3,4}
 
 ---
 
-<a name='SkRegion_Iterator_rewind'></a>
-## rewind
+
+## <a name='SkRegion_Iterator_rewind'>rewind</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_Iterator_rewind'>rewind</a>()
@@ -234,8 +234,8 @@ after rewind rect={1,2,3,4}
 
 ---
 
-<a name='SkRegion_Iterator_reset'></a>
-## reset
+
+## <a name='SkRegion_Iterator_reset'>reset</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRegion_Iterator_reset'>reset</a>(const <a href='#SkRegion'>SkRegion</a>& region)
@@ -270,8 +270,8 @@ after reset: done=false
 
 ---
 
-<a name='SkRegion_Iterator_done'></a>
-## done
+
+## <a name='SkRegion_Iterator_done'>done</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_Iterator_done'>done</a>() const
@@ -302,8 +302,8 @@ done=false
 
 ---
 
-<a name='SkRegion_Iterator_next'></a>
-## next
+
+## <a name='SkRegion_Iterator_next'>next</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRegion_Iterator_next'>next</a>()
@@ -330,8 +330,8 @@ rect={5,6,7,8}
 
 ---
 
-<a name='SkRegion_Iterator_rect'></a>
-## rect
+
+## <a name='SkRegion_Iterator_rect'>rect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkRegion_Iterator_rect'>rect</a>() const
@@ -364,8 +364,8 @@ rect={1,2,3,4}
 
 ---
 
-<a name='SkRegion_Iterator_rgn'></a>
-## rgn
+
+## <a name='SkRegion_Iterator_rgn'>rgn</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='#SkRegion'>SkRegion</a>* <a href='#SkRegion_Iterator_rgn'>rgn</a>() const
@@ -402,8 +402,8 @@ iterated <a href='#Region'>Region</a>
 Returns the sequence of rectangles, sorted along y-axis, then x-axis, that make
 up <a href='#Region'>Region</a> intersected with the specified clip rectangle.
 
-<a name='SkRegion_Cliperator_const_SkRegion_const_SkIRect'></a>
-## Cliperator
+
+## <a name='SkRegion_Cliperator_const_SkRegion_const_SkIRect'>Cliperator</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRegion_Cliperator'>Cliperator</a>(const <a href='#SkRegion'>SkRegion</a>& region, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& clip)
@@ -443,8 +443,8 @@ rect={1,2,2,3}
 
 ---
 
-<a name='SkRegion_Cliperator_done'></a>
-## done
+
+## <a name='SkRegion_Cliperator_done'>done</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_Cliperator_done'>done</a>()
@@ -475,8 +475,8 @@ after add rect done=false
 
 ---
 
-<a name='SkRegion_Cliperator_next'></a>
-## next
+
+## <a name='SkRegion_Cliperator_next'>next</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void  <a href='#SkRegion_Cliperator_next'>next</a>()
@@ -503,8 +503,8 @@ rect={5,6,7,7}
 
 ---
 
-<a name='SkRegion_Cliperator_rect'></a>
-## rect
+
+## <a name='SkRegion_Cliperator_rect'>rect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkRegion_Cliperator_rect'>rect</a>() const
@@ -550,8 +550,8 @@ after set rect rect={1,2,3,3}
 
 Returns the line segment ends within <a href='#Region'>Region</a> that intersect a horizontal line.
 
-<a name='SkRegion_Spanerator_const_SkRegion_int_int_int'></a>
-## Spanerator
+
+## <a name='SkRegion_Spanerator_const_SkRegion_int_int_int'>Spanerator</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRegion_Spanerator'>Spanerator</a>(const <a href='#SkRegion'>SkRegion</a>& region, int y, int left, int right)
@@ -589,8 +589,8 @@ Sets <a href='#SkRegion_Spanerator'>Spanerator</a> to return line segments in <a
 
 ---
 
-<a name='SkRegion_Spanerator_next'></a>
-## next
+
+## <a name='SkRegion_Spanerator_next'>next</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_Spanerator_next'>next</a>(int* left, int* right)
@@ -632,8 +632,8 @@ done
 
 ---
 
-<a name='SkRegion_empty_constructor'></a>
-## SkRegion
+
+## <a name='SkRegion_empty_constructor'>SkRegion</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRegion'>SkRegion</a>()
@@ -664,8 +664,8 @@ region bounds: {0, 0, 0, 0}
 
 ---
 
-<a name='SkRegion_copy_const_SkRegion'></a>
-## SkRegion
+
+## <a name='SkRegion_copy_const_SkRegion'>SkRegion</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRegion'>SkRegion</a>(const <a href='#SkRegion'>SkRegion</a>& region)
@@ -713,8 +713,8 @@ region2 bounds: {1,2,3,4}
 
 ---
 
-<a name='SkRegion_copy_const_SkIRect'></a>
-## SkRegion
+
+## <a name='SkRegion_copy_const_SkIRect'>SkRegion</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 explicit <a href='#SkRegion'>SkRegion</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& rect)
@@ -743,8 +743,8 @@ rectangular <a href='#Region'>Region</a>
 
 ---
 
-<a name='SkRegion_destructor'></a>
-## ~SkRegion
+
+## <a name='SkRegion_destructor'>~SkRegion</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRegion_destructor'>~SkRegion</a>()
@@ -771,8 +771,8 @@ region2 bounds: {1,2,3,4}
 
 ---
 
-<a name='SkRegion_copy_operator'></a>
-## operator=
+
+## <a name='SkRegion_copy_operator'>operator=</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRegion'>SkRegion</a>& <a href='#SkRegion_copy_operator'>operator=(const SkRegion& region)</a>
@@ -817,8 +817,8 @@ region2 bounds: {1,2,3,4}
 
 ---
 
-<a name='SkRegion_equal1_operator'></a>
-## operator==
+
+## <a name='SkRegion_equal1_operator'>operator==</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool operator==(const SkRegion& other) const
@@ -858,8 +858,8 @@ set empty one == two
 
 ---
 
-<a name='SkRegion_notequal1_operator'></a>
-## operator!=
+
+## <a name='SkRegion_notequal1_operator'>operator!=</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool operator!=(const SkRegion& other) const
@@ -898,8 +898,8 @@ union rect one == two
 
 ---
 
-<a name='SkRegion_set'></a>
-## set
+
+## <a name='SkRegion_set'>set</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_set'>set</a>(const <a href='#SkRegion'>SkRegion</a>& src)
@@ -944,8 +944,8 @@ region2 bounds: {1,2,3,4}
 
 ---
 
-<a name='SkRegion_swap'></a>
-## swap
+
+## <a name='SkRegion_swap'>swap</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRegion_swap'>swap</a>(<a href='#SkRegion'>SkRegion</a>& other)
@@ -984,8 +984,8 @@ region2 bounds: {1,2,3,4}
 
 ---
 
-<a name='SkRegion_isEmpty'></a>
-## isEmpty
+
+## <a name='SkRegion_isEmpty'>isEmpty</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_isEmpty'>isEmpty</a>() const
@@ -1020,8 +1020,8 @@ set empty: region is empty
 
 ---
 
-<a name='SkRegion_isRect'></a>
-## isRect
+
+## <a name='SkRegion_isRect'>isRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_isRect'>isRect</a>() const
@@ -1053,8 +1053,8 @@ set empty: region is not rect
 
 ---
 
-<a name='SkRegion_isComplex'></a>
-## isComplex
+
+## <a name='SkRegion_isComplex'>isComplex</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_isComplex'>isComplex</a>() const
@@ -1086,8 +1086,8 @@ op rect: region is complex
 
 ---
 
-<a name='SkRegion_getBounds'></a>
-## getBounds
+
+## <a name='SkRegion_getBounds'>getBounds</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkRegion_getBounds'>getBounds</a>() const
@@ -1118,8 +1118,8 @@ bounds: {1,2,4,5}
 
 ---
 
-<a name='SkRegion_computeRegionComplexity'></a>
-## computeRegionComplexity
+
+## <a name='SkRegion_computeRegionComplexity'>computeRegionComplexity</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkRegion_computeRegionComplexity'>computeRegionComplexity</a>() const
@@ -1156,8 +1156,8 @@ op rect: region complexity 3
 
 ---
 
-<a name='SkRegion_getBoundaryPath'></a>
-## getBoundaryPath
+
+## <a name='SkRegion_getBoundaryPath'>getBoundaryPath</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_getBoundaryPath'>getBoundaryPath</a>(<a href='SkPath_Reference#SkPath'>SkPath</a>* path) const
@@ -1188,8 +1188,8 @@ true if <a href='#SkRegion_getBoundaryPath_path'>path</a> changed
 
 ---
 
-<a name='SkRegion_setEmpty'></a>
-## setEmpty
+
+## <a name='SkRegion_setEmpty'>setEmpty</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_setEmpty'>setEmpty</a>()
@@ -1222,8 +1222,8 @@ region bounds: {0,0,0,0}
 
 ---
 
-<a name='SkRegion_setRect'></a>
-## setRect
+
+## <a name='SkRegion_setRect'>setRect</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_setRect'>setRect</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& rect)
@@ -1312,8 +1312,8 @@ set to: 3,2,1,4: success:false {0,0,0,0}
 
 ---
 
-<a name='SkRegion_setRects'></a>
-## setRects
+
+## <a name='SkRegion_setRects'>setRects</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_setRects'>setRects</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a> rects[], int count)
@@ -1348,8 +1348,8 @@ true if constructed <a href='#Region'>Region</a> is not empty
 
 ---
 
-<a name='SkRegion_setRegion'></a>
-## setRegion
+
+## <a name='SkRegion_setRegion'>setRegion</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_setRegion'>setRegion</a>(const <a href='#SkRegion'>SkRegion</a>& region)
@@ -1397,8 +1397,8 @@ region2 bounds: {0,0,0,0}
 
 ---
 
-<a name='SkRegion_setPath'></a>
-## setPath
+
+## <a name='SkRegion_setPath'>setPath</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_setPath'>setPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& path, const <a href='#SkRegion'>SkRegion</a>& clip)
@@ -1434,8 +1434,8 @@ true if constructed <a href='#Region'>Region</a> is not empty
 
 ---
 
-<a name='SkRegion_intersects'></a>
-## intersects
+
+## <a name='SkRegion_intersects'>intersects</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_intersects'>intersects</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& rect) const
@@ -1495,8 +1495,8 @@ true if <a href='#SkRegion_intersects_2_other'>other</a> and <a href='#Region'>R
 
 ---
 
-<a name='SkRegion_contains'></a>
-## contains
+
+## <a name='SkRegion_contains'>contains</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_contains'>contains</a>(int32_t x, int32_t y) const
@@ -1589,8 +1589,8 @@ true if <a href='#SkRegion_contains_3_other'>other</a> is inside <a href='#Regio
 
 ---
 
-<a name='SkRegion_quickContains'></a>
-## quickContains
+
+## <a name='SkRegion_quickContains'>quickContains</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_quickContains'>quickContains</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& r) const
@@ -1681,8 +1681,8 @@ quickContains 3: false
 
 ---
 
-<a name='SkRegion_quickReject'></a>
-## quickReject
+
+## <a name='SkRegion_quickReject'>quickReject</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_quickReject'>quickReject</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& rect) const
@@ -1764,8 +1764,8 @@ quickReject 3: false
 
 ---
 
-<a name='SkRegion_translate'></a>
-## translate
+
+## <a name='SkRegion_translate'>translate</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkRegion_translate'>translate</a>(int dx, int dy)
@@ -1826,7 +1826,7 @@ If <a href='#Region'>Region</a> is empty, sets <a href='#SkRegion_translate_2_ds
 
 ---
 
-## <a name='SkRegion_Op'>Enum SkRegion::Op</a>
+## <a name='SkRegion_Op'>Op</a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='undocumented#Op'>Op</a> {
@@ -1920,8 +1920,8 @@ May be used to verify that <a href='undocumented#Op'>Op</a> is a legal value.</t
   </tr>
 </table>
 
-<a name='SkRegion_op'></a>
-## op
+
+## <a name='SkRegion_op'>op</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRegion_op'>op</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& rect, <a href='undocumented#Op'>Op</a> op)
@@ -2143,8 +2143,8 @@ false if result is empty
 
 ---
 
-<a name='SkRegion_toString'></a>
-## toString
+
+## <a name='SkRegion_toString'>toString</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 char* <a href='#SkRegion_toString'>toString</a>()
@@ -2158,8 +2158,8 @@ string representation of <a href='#Region'>Region</a>
 
 ---
 
-<a name='SkRegion_writeToMemory'></a>
-## writeToMemory
+
+## <a name='SkRegion_writeToMemory'>writeToMemory</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkRegion_writeToMemory'>writeToMemory</a>(void* buffer) const
@@ -2189,8 +2189,8 @@ size of <a href='#Region'>Region</a>
 
 ---
 
-<a name='SkRegion_readFromMemory'></a>
-## readFromMemory
+
+## <a name='SkRegion_readFromMemory'>readFromMemory</a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkRegion_readFromMemory'>readFromMemory</a>(const void* buffer, size_t length)
