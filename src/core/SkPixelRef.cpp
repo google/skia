@@ -35,9 +35,6 @@ SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes)
     , fHeight(height)
     , fPixels(pixels)
     , fRowBytes(rowBytes)
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    , fStableID(SkNextID::ImageID())
-#endif
 {
 #ifdef SK_TRACE_PIXELREF_LIFETIME
     SkDebugf(" pixelref %d\n", sk_atomic_inc(&gInstCounter));
