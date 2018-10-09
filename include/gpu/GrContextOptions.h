@@ -172,6 +172,13 @@ struct GrContextOptions {
     Enable fSortRenderTargets = Enable::kDefault;
 
     /**
+     * Allow Ganesh to more aggressively reorder operations. This is an optional
+     * behavior that is only relevant when 'fSortRenderTargets' is enabled.
+     * Eventually this will just be what is done and will not be optional.
+     */
+    Enable fReduceOpListSplitting = Enable::kDefault;
+
+    /**
      * Some ES3 contexts report the ES2 external image extension, but not the ES3 version.
      * If support for external images is critical, enabling this option will cause Ganesh to limit
      * shaders to the ES2 shading language in that situation.

@@ -122,6 +122,8 @@ private:
 
         void swap(SkTArray<sk_sp<GrOpList>>* opLists);
 
+        bool sortingOpLists() const { return fSortOpLists; }
+
     private:
         SkTArray<sk_sp<GrOpList>> fOpLists;
         bool                      fSortOpLists;
@@ -129,7 +131,8 @@ private:
 
     GrDrawingManager(GrContext*, const GrPathRendererChain::Options&,
                      const GrTextContext::Options&, GrSingleOwner*,
-                     bool explicitlyAllocating, GrContextOptions::Enable sortRenderTargets);
+                     bool explicitlyAllocating, GrContextOptions::Enable sortRenderTargets,
+                     GrContextOptions::Enable reduceOpListSplitting);
 
     void abandon();
     void cleanup();
@@ -172,7 +175,7 @@ private:
 
     GrTokenTracker                    fTokenTracker;
     bool                              fFlushing;
-    bool                              fSortRenderTargets;
+    bool                              fReduceOpListSplitting;
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 };

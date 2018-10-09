@@ -120,6 +120,7 @@ private:
     void addDependent(GrOpList* dependent);
     SkDEBUGCODE(bool isDependedent(const GrOpList* dependent) const);
     SkDEBUGCODE(void validate() const);
+    void closeThoseWhoDependOnMe(const GrCaps&);
 
     // Remove all Ops which reference proxies that have not been instantiated.
     virtual void purgeOpsWithUninstantiatedProxies() = 0;
