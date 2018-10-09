@@ -492,6 +492,30 @@
     },
     {
       "key": {
+        "uuid": "6ac1b211_2f2c29e6",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-09T23:59:33Z",
+      "side": 1,
+      "message": "\u003e Does wuffs support these out of spec images?\n\nYes, Wuffs does support these, while Go does not. (I\u0027m also open to Go accepting them now, but changing that hasn\u0027t been high priority). Wuffs treats out-of-palette indices as *opaque* black:\n\nhttps://github.com/google/wuffs/blob/master/std/gif/decode_gif.wuffs#L329\nhttps://github.com/google/wuffs/blob/master/std/gif/decode_gif.wuffs#L541\n\nOpaque vs transparent black is an interesting question. Wuffs originally did *transparent* black, similar to browsers, but I changed it to *opaque* black because of Skia test cases. (FYI https://github.com/google/wuffs/commit/ece4eea1af571bcdf94c49e19e137e09bf9e7c0c is the Wuffs code change although there\u0027s not really any additional commentary in the commit re motivation).\n\nSpecifically, Skia\u0027s Codec_frames test in CodecAnimTest.cpp. It reads files like resources/images/{alphabetAnim,randPixelsAnim2.gif,required,test640x479}.gif\n\nThose GIF images all have a short palette, fewer than 256 entries. However, Codec_frames\u0027 gRecs test cases state that they should be kOpaque_SkAlphaType, not kUnpremul_SkAlphaType.\n\nIf out-of-palette indices are implicitly *transparent* black, then it is inconsistent to claim kOpaque_SkAlphaType. Hence I chose *opaque* black.\n\nI\u0027m not particularly fussed, either way, and am happy to go back to *transparent* black. But then I think we can only claim kOpaque_SkAlphaType if the palette length is 256. That will obviously require CodecAnimTest.cpp changes, possibly with #ifdef SK_HAS_WUFFS_LIBRARY guards. WDYT?\n\nIf it really is important to be *transparent* black, as per BUG\u003dskia:7069, then there should probably be a test for that, separate from this CL. Can I assign that task to you (I\u0027m happy to review)?\n\nhttps://skia-review.googlesource.com/c/skia/+/51100 \"Treat invalid indices as transparent in gifs\" did add some code to tests/CodecAnimTest.cpp to cover BUG\u003dskia:7069, but it doesn\u0027t seem enough, as my Wuffs GIF decoder passes the CodecAnimTest.cpp tests despite using *opaque* black.",
+      "parentUuid": "a3961e9e_81b614d9",
+      "range": {
+        "startLine": 1485,
+        "startChar": 0,
+        "endLine": 1486,
+        "endChar": 13
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45aabc90_080d06da",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 10
