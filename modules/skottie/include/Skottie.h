@@ -103,6 +103,28 @@ public:
     virtual void log(Level, const char message[], const char* json = nullptr);
 };
 
+/**
+ * Interface for receiving custom annotation events at Animation build time.
+ *
+ * Annotations are parsed as a top-level key-value string dictionary, e.g.:
+ *
+ * {
+ *   ...
+ *
+ *   "annotations": {
+ *     "key1": "foo",
+ *     "key2": "bar",
+ *     "key3": "baz"
+ *   },
+ *
+ *   ...
+ * }
+ */
+class SK_API AnnotationObserver : public SkRefCnt {
+public:
+    virtual void onAnnotation(const char key[], const char value[]) = 0;
+};
+
 class SK_API Animation : public SkNVRefCnt<Animation> {
 public:
 
@@ -150,6 +172,11 @@ public:
         Builder& setLogger(sk_sp<Logger>);
 
         /**
+         * Register an AnnotationObserver with this builder.
+         */
+        Builder& setAnnotationObserver(sk_sp<AnnotationObserver>);
+
+        /**
          * Animation factories.
          */
         sk_sp<Animation> make(SkStream*);
@@ -157,11 +184,12 @@ public:
         sk_sp<Animation> makeFromFile(const char path[]);
 
     private:
-        sk_sp<ResourceProvider> fResourceProvider;
-        sk_sp<SkFontMgr>        fFontMgr;
-        sk_sp<PropertyObserver> fPropertyObserver;
-        sk_sp<Logger>           fLogger;
-        Stats                   fStats;
+        sk_sp<ResourceProvider>   fResourceProvider;
+        sk_sp<SkFontMgr>          fFontMgr;
+        sk_sp<PropertyObserver>   fPropertyObserver;
+        sk_sp<Logger>             fLogger;
+        sk_sp<AnnotationObserver> fAnnotationObserver;
+        Stats                     fStats;
     };
 
     /**
