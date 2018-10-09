@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "819ea7b0_02bafe74",
+        "filename": "infra/bots/assets/bloaty/create.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-09T16:50:51Z",
+      "side": 1,
+      "message": "Fwiw, if you just do \u0027-j\u0027, that\u0027s essentially \u0027-j∞\u0027.  Make\u0027ll just start a new job any time there\u0027s something ready to run.",
+      "range": {
+        "startLine": 29,
+        "startChar": 34,
+        "endLine": 29,
+        "endChar": 38
+      },
+      "revId": "929aef49bfcf918c5269532ff5891b7db93cf33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "32dd6cc3_02d8c462",
         "filename": "infra/bots/buildstats_cpp.py",
         "patchSetId": 3
