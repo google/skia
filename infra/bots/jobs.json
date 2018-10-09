@@ -112,6 +112,7 @@
   "BuildStats-Debian9-EMCC-asmjs-Release-PathKit",
   "BuildStats-Debian9-EMCC-wasm-Release-CanvasKit",
   "BuildStats-Debian9-EMCC-wasm-Release-PathKit",
+  "BuildStats-Debian9-Clang-x86_64-Release-Mini",
   "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
   "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
   "Housekeeper-Nightly-Bookmaker",

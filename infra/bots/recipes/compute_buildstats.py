@@ -29,12 +29,14 @@ def RunSteps(api):
 
   api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
 
+  analyzed = 0
   with api.context(cwd=bin_dir):
     files = api.file.glob_paths(
         'find WASM binaries',
         bin_dir,
         '*.wasm',
         test_data=['pathkit.wasm'])
+    analyzed += len(files)
     if len(files):
       analyze_web_file(api, checkout_root, out_dir, files)
 
@@ -43,6 +45,7 @@ def RunSteps(api):
         bin_dir,
         '*.js',
         test_data=['pathkit.js'])
+    analyzed += len(files)
     if len(files):
       analyze_web_file(api, checkout_root, out_dir, files)
 
@@ -51,8 +54,20 @@ def RunSteps(api):
         bin_dir,
         '*.js.mem',
         test_data=['pathkit.js.mem'])
+    analyzed += len(files)
     if len(files):
       analyze_web_file(api, checkout_root, out_dir, files)
+
+    files = api.file.glob_paths(
+        'find built libraries',
+        bin_dir,
+        '*.so',
+        test_data=['libskia.so'])
+    analyzed += len(files)
+    if len(files):
+      analyze_cpp_lib(api, checkout_root, out_dir, files)
+  if not analyzed: # pragma: nocover
+    raise Exception('No files were analyzed!')
 
 
 def keys_and_props(api):
@@ -86,9 +101,24 @@ def analyze_web_file(api, checkout_root, out_dir, files):
   for f in files:
     skia_dir = checkout_root.join('skia')
     with api.context(cwd=skia_dir):
-      script = skia_dir.join('infra', 'bots', 'buildstats_web.py')
+      script = skia_dir.join('infra', 'bots', 'buildstats',
+                             'buildstats_web.py')
       api.run(api.python, 'Analyze %s' % f, script=script,
-        args=[f, out_dir, keystr, propstr])
+          args=[f, out_dir, keystr, propstr])
+
+
+# Get the raw size and a few metrics from bloaty
+def analyze_cpp_lib(api, checkout_root, out_dir, files):
+  (keystr, propstr) = keys_and_props(api)
+  bloaty_exe = api.path['start_dir'].join('bloaty', 'bloaty')
+
+  for f in files:
+    skia_dir = checkout_root.join('skia')
+    with api.context(cwd=skia_dir):
+      script = skia_dir.join('infra', 'bots', 'buildstats',
+                             'buildstats_cpp.py')
+      api.run(api.python, 'Analyze %s' % f, script=script,
+          args=[f, out_dir, keystr, propstr, bloaty_exe])
 
 
 def GenTests(api):
