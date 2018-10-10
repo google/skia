@@ -806,6 +806,7 @@ private:
         bool hasPerspective = false;
         Domain domain = Domain::kNo;
         int numProxies = 0;
+        int numTotalQuads = 0;
         auto textureType = fProxies[0].fProxy->textureType();
         auto config = fProxies[0].fProxy->config();
         for (const auto& op : ChainRange<TextureOp>(this)) {
@@ -815,6 +816,7 @@ private:
             }
             numProxies += op.fProxyCnt;
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
+                numTotalQuads += op.fProxies[p].fQuadCnt;
                 auto* proxy = op.fProxies[p].fProxy;
                 if (!proxy->instantiate(target->resourceProvider())) {
                     return;
@@ -880,20 +882,29 @@ private:
         SkASSERT(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize == gp->debugOnly_vertexStride());
 
         GrMesh* meshes = target->allocMeshes(numProxies);
+        int vstart = 0;
+        const GrBuffer* vbuffer;
+        int numQuadVerticesLeft = numTotalQuads * 4;
+        int numAllocatedVertices = 0;
+        void* vdata = nullptr;
+
         int m = 0;
         for (const auto& op : ChainRange<TextureOp>(this)) {
             int q = 0;
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 int quadCnt = op.fProxies[p].fQuadCnt;
                 auto* proxy = op.fProxies[p].fProxy;
-                int vstart;
-                const GrBuffer* vbuffer;
-                void* vdata = target->makeVertexSpace(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize,
-                                                      4 * quadCnt, &vbuffer, &vstart);
-                if (!vdata) {
-                    SkDebugf("Could not allocate vertices\n");
-                    return;
+                int meshVertexCnt = quadCnt * 4;
+                if (numAllocatedVertices < meshVertexCnt) {
+                    vdata = target->makeVertexSpaceAtLeast(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize, meshVertexCnt,
+                                                           numQuadVerticesLeft, &vbuffer, &vstart, &numAllocatedVertices);
+                    SkASSERT(numAllocatedVertices <= numQuadVerticesLeft);
+                    if (!vdata) {
+                        SkDebugf("Could not allocate vertices\n");
+                        return;
+                    }
                 }
+                SkASSERT(numAllocatedVertices >= meshVertexCnt);
 
                 (op.*(kTessFnsAndVertexSizes[tessFnIdx].fTessFn))(vdata, gp.get(), proxy, q,
                                                                   quadCnt);
@@ -917,9 +928,15 @@ private:
                     dynamicStateArrays->fPrimitiveProcessorTextures[m] = proxy;
                 }
                 ++m;
+                numAllocatedVertices -= meshVertexCnt;
+                numQuadVerticesLeft -= meshVertexCnt;
+                vstart += meshVertexCnt;
+                vdata = reinterpret_cast<char*>(vdata) + kTessFnsAndVertexSizes[tessFnIdx].fVertexSize * meshVertexCnt;
                 q += quadCnt;
             }
         }
+        SkASSERT(!numQuadVerticesLeft);
+        SkASSERT(!numAllocatedVertices);
         target->draw(std::move(gp), pipeline, fixedDynamicState, dynamicStateArrays, meshes,
                      numProxies);
     }
