@@ -413,6 +413,7 @@
       "_",
       ".SRW",
       "--nonativeFonts",
+      "--reduceOpListSplitting",
       "--verbose",
       "--releaseAndAbandonGpuContext"
     ],
