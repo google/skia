@@ -148,13 +148,13 @@ static void transform_shader(SkPaint* paint, const SkMatrix& ctm) {
     }
 }
 
-static void emit_pdf_color(SkColor color, SkWStream* result) {
-    SkASSERT(SkColorGetA(color) == 0xFF);  // We handle alpha elsewhere.
-    SkPDFUtils::AppendColorComponent(SkColorGetR(color), result);
+static void emit_pdf_color(SkColor4f color, SkWStream* result) {
+    SkASSERT(color.fA == 1);  // We handle alpha elsewhere.
+    SkPDFUtils::AppendColorComponentF(color.fR, result);
     result->writeText(" ");
-    SkPDFUtils::AppendColorComponent(SkColorGetG(color), result);
+    SkPDFUtils::AppendColorComponentF(color.fG, result);
     result->writeText(" ");
-    SkPDFUtils::AppendColorComponent(SkColorGetB(color), result);
+    SkPDFUtils::AppendColorComponentF(color.fB, result);
     result->writeText(" ");
 }
 
@@ -165,7 +165,7 @@ void remove_color_filter(SkPaint* paint) {
         if (SkShader* shader = paint->getShader()) {
             paint->setShader(shader->makeWithColorFilter(paint->refColorFilter()));
         } else {
-            paint->setColor(cf->filterColor(paint->getColor()));
+            paint->setColor4f(cf->filterColor4f(paint->getColor4f(), nullptr), nullptr);
         }
         paint->setColorFilter(nullptr);
     }
@@ -1699,13 +1699,13 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     entry->fMatrix = matrix;
     entry->fClipStackGenID = clipStack ? clipStack->getTopmostGenID()
                                        : SkClipStack::kWideOpenGenID;
-    entry->fColor = SkColorSetA(paint.getColor(), 0xFF);
+    SkColor4f color = paint.getColor4f();
+    entry->fColor = {color.fR, color.fG, color.fB, 1};
     entry->fShaderIndex = -1;
 
     // PDF treats a shader as a color, so we only set one or the other.
     sk_sp<SkPDFObject> pdfShader;
     SkShader* shader = paint.getShader();
-    SkColor color = paint.getColor();
     if (shader) {
         if (SkShader::kColor_GradientType == shader->asAGradient(nullptr)) {
             // We don't have to set a shader just for a color.
@@ -1715,8 +1715,9 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
             gradientInfo.fColorOffsets = nullptr;
             gradientInfo.fColorCount = 1;
             SkAssertResult(shader->asAGradient(&gradientInfo) == SkShader::kColor_GradientType);
-            entry->fColor = SkColorSetA(gradientColor, 0xFF);
-            color = gradientColor;
+            color = SkColor4f::FromColor(gradientColor);
+            entry->fColor ={color.fR, color.fG, color.fB, 1};
+
         } else {
             // PDF positions patterns relative to the initial transform, so
             // we need to apply the current transform to the shader parameters.
@@ -1744,11 +1745,11 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     }
 
     sk_sp<SkPDFDict> newGraphicState;
-    if (color == paint.getColor()) {
+    if (color == paint.getColor4f()) {
         newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), paint);
     } else {
         SkPaint newPaint = paint;
-        newPaint.setColor(color);
+        newPaint.setColor4f(color, nullptr);
         newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), newPaint);
     }
     entry->fGraphicStateIndex = find_or_add(&fGraphicStateResources, std::move(newGraphicState));
@@ -1839,7 +1840,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         // In the case of alpha images with shaders, the shader's coordinate
         // system is the image's coordiantes.
         tmpPaint.setShader(sk_ref_sp(paint.getShader()));
-        tmpPaint.setColor(paint.getColor());
+        tmpPaint.setColor4f(paint.getColor4f(), nullptr);
         canvas->clear(0x00000000);
         canvas->drawImage(imageSubset.image().get(), 0, 0, &tmpPaint);
         paint.setShader(nullptr);
