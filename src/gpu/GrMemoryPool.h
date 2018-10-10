@@ -118,7 +118,7 @@ private:
 protected:
     enum {
         // We assume this alignment is good enough for everybody.
-        kAlignment    = 8,
+        kAlignment    = alignof(std::function<void()>),
         kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
         kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
     };
