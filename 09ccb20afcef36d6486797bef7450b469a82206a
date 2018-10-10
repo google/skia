@@ -16,6 +16,24 @@
       "revId": "09ccb20afcef36d6486797bef7450b469a82206a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4598b55d_f1b80295",
+        "filename": "infra/bots/buildstats/buildstats_flutter.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-10T13:35:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a1364e9_b21d88d1",
+      "revId": "09ccb20afcef36d6486797bef7450b469a82206a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
