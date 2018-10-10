@@ -516,6 +516,30 @@
     },
     {
       "key": {
+        "uuid": "348d7e55_1d7e7b2e",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-10T00:14:07Z",
+      "side": 1,
+      "message": "A quick idea: we could possibly have our cake and eat it too, if the implicit palette entries were either *transparent* or *opaque* black depending on whether or not the Graphic Control Extension\u0027s Transparent Color Flag was set.\n\nI haven\u0027t thought through all the implications of that idea yet, but it might work. In any case, perhaps something to think about if you\u0027re adding more tests.",
+      "parentUuid": "6ac1b211_2f2c29e6",
+      "range": {
+        "startLine": 1485,
+        "startChar": 0,
+        "endLine": 1486,
+        "endChar": 13
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45aabc90_080d06da",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 10
