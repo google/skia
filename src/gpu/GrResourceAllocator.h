@@ -210,8 +210,8 @@ private:
         Interval* fTail = nullptr;
     };
 
-    // Gathered statistics indicate that 99% of flushes will be covered by <= 12 Intervals
-    static const int kInitialArenaSize = 12 * sizeof(Interval);
+    // Compositing use cases can create > 80 intervals.
+    static const int kInitialArenaSize = 128 * sizeof(Interval);
 
     GrResourceProvider*    fResourceProvider;
     FreePoolMultiMap       fFreePool;          // Recently created/used GrSurfaces
@@ -228,7 +228,7 @@ private:
     SkDEBUGCODE(bool       fAssigned = false;)
 
     char                   fStorage[kInitialArenaSize];
-    SkArenaAlloc           fIntervalAllocator { fStorage, kInitialArenaSize, 0 };
+    SkArenaAlloc           fIntervalAllocator { fStorage, kInitialArenaSize, kInitialArenaSize };
     Interval*              fFreeIntervalList = nullptr;
 };
 
