@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0608b1f_7b882eaf",
+        "filename": "include/core/SkYUVAIndex.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-10T15:56:55Z",
+      "side": 1,
+      "message": "// Note that \u0027numPlanes\u0027 is always filled in even if the indices are not valid. This means it can always be used to process the backing resources (but be careful of empty intervening slots).\n\n?",
+      "revId": "a2c118f9d4d8623d5522c4c53608e30b5ae95959",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "810ac9dd_b3301bdb",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-10T15:56:55Z",
+      "side": 1,
+      "message": "// some words here about the \u0027promiseDoneProc\u0027 contract ?",
+      "revId": "a2c118f9d4d8623d5522c4c53608e30b5ae95959",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b4a3341_4496126c",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-10T15:56:55Z",
+      "side": 1,
+      "message": "Unfortunately, that holds true for Chrome but not for the wacky_yuv_formats GM.",
+      "revId": "a2c118f9d4d8623d5522c4c53608e30b5ae95959",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
