@@ -33,11 +33,15 @@ DEF_TEST(YUVPlanesCache, reporter) {
 
     SkYUVPlanesCache::Info yuvInfo;
     for (int i = 0; i < 3; i++) {
-        yuvInfo.fSizeInfo.fSizes[i].fWidth = 20 * i;
-        yuvInfo.fSizeInfo.fSizes[i].fHeight = 10 * i;
-        yuvInfo.fSizeInfo.fWidthBytes[i] = 80 * i;
+        yuvInfo.fSizeInfo1.fSizes[i].fWidth = 20 * i;
+        yuvInfo.fSizeInfo1.fSizes[i].fHeight = 10 * i;
+        yuvInfo.fSizeInfo1.fWidthBytes[i] = 80 * i;
     }
-    yuvInfo.fColorSpace = kRec601_SkYUVColorSpace;
+    for (int i = 0; i < 4; ++i) {
+        yuvInfo.fYUVAIndices[i].fIndex = -1;
+        yuvInfo.fYUVAIndices[i].fChannel = SkColorChannel::kR;
+    }
+    yuvInfo.fColorSpace1 = kRec601_SkYUVColorSpace;
 
     const uint32_t genID = 12345678;
 
@@ -60,14 +64,19 @@ DEF_TEST(YUVPlanesCache, reporter) {
     REPORTER_ASSERT(reporter, data);
     REPORTER_ASSERT(reporter, data->size() == size);
     for (int i = 0; i < 3; ++i) {
-        REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo.fSizes[i].fWidth ==
-                yuvInfoRead.fSizeInfo.fSizes[i].fWidth);
-        REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo.fSizes[i].fHeight ==
-                yuvInfoRead.fSizeInfo.fSizes[i].fHeight);
-        REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo.fWidthBytes[i] ==
-                yuvInfoRead.fSizeInfo.fWidthBytes[i]);
+        REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo1.fSizes[i].fWidth ==
+                                  yuvInfoRead.fSizeInfo1.fSizes[i].fWidth);
+        REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo1.fSizes[i].fHeight ==
+                                  yuvInfoRead.fSizeInfo1.fSizes[i].fHeight);
+        REPORTER_ASSERT(reporter, yuvInfo.fSizeInfo1.fWidthBytes[i] ==
+                                  yuvInfoRead.fSizeInfo1.fWidthBytes[i]);
     }
-    REPORTER_ASSERT(reporter, yuvInfo.fColorSpace == yuvInfoRead.fColorSpace);
+    for (int i = 0; i < 4; ++i) {
+        REPORTER_ASSERT(reporter, yuvInfo.fYUVAIndices[i] ==
+                                  yuvInfoRead.fYUVAIndices[i]);
+    }
+
+    REPORTER_ASSERT(reporter, yuvInfo.fColorSpace1 == yuvInfoRead.fColorSpace1);
 
     check_data(reporter, data, 2, kInCache, kLocked);
 

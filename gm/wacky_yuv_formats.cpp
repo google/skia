@@ -514,8 +514,10 @@ public:
             }
         }
 
+        fLastUsedBitmap = 0;
         for (int i = 0; i < 4; ++i) {
             if (used[i]) {
+                fLastUsedBitmap = i;
                 fYUVBitmaps[i] = bitmaps[i];
             }
         }
@@ -573,30 +575,34 @@ protected:
         return fFlattened.readPixels(info, pixels, rowBytes, 0, 0);
     }
 
-    bool onQueryYUV8(SkYUVSizeInfo* size, SkYUVColorSpace* yuvColorSpace) const override {
-        if (kI420_YUVFormat != fYUVFormat && kYV12_YUVFormat != fYUVFormat) {
-            return false; // currently this API only supports planar formats
+    bool onQueryYUVA8(SkYUVASizeInfo* size,
+                      SkYUVAIndex yuvaIndices[4],
+                      SkYUVColorSpace* yuvColorSpace) const override {
+
+        memcpy(yuvaIndices, fYUVAIndices, sizeof(fYUVAIndices));
+        *yuvColorSpace = fYUVColorSpace;
+
+        int i = 0;
+        for ( ; i <= fLastUsedBitmap; ++i) {
+            size->fSizes[i].fWidth = fYUVBitmaps[i].width();
+            size->fSizes[i].fHeight = fYUVBitmaps[i].height();
+            size->fWidthBytes[i] = fYUVBitmaps[i].rowBytes();
+        }
+        for ( ; i < 4; ++i) {
+            size->fSizes[1].fWidth = 0;
+            size->fSizes[1].fHeight = 0;
+            size->fWidthBytes[1] = 0;
         }
 
-        *yuvColorSpace = fYUVColorSpace;
-        size->fSizes[0].fWidth = fYUVBitmaps[fYUVAIndices[0].fIndex].width();
-        size->fSizes[0].fHeight = fYUVBitmaps[fYUVAIndices[0].fIndex].height();
-        size->fWidthBytes[0] = fYUVBitmaps[fYUVAIndices[0].fIndex].rowBytes();
-
-        size->fSizes[1].fWidth = fYUVBitmaps[fYUVAIndices[1].fIndex].width();
-        size->fSizes[1].fHeight = fYUVBitmaps[fYUVAIndices[1].fIndex].height();
-        size->fWidthBytes[1] = fYUVBitmaps[fYUVAIndices[1].fIndex].rowBytes();
-
-        size->fSizes[2].fWidth = fYUVBitmaps[fYUVAIndices[2].fIndex].width();
-        size->fSizes[2].fHeight = fYUVBitmaps[fYUVAIndices[2].fIndex].height();
-        size->fWidthBytes[2] = fYUVBitmaps[fYUVAIndices[2].fIndex].rowBytes();
         return true;
     }
 
-    bool onGetYUV8Planes(const SkYUVSizeInfo&, void* planes[3]) override {
-        planes[0] = fYUVBitmaps[fYUVAIndices[0].fIndex].getAddr(0, 0);
-        planes[1] = fYUVBitmaps[fYUVAIndices[1].fIndex].getAddr(0, 0);
-        planes[2] = fYUVBitmaps[fYUVAIndices[2].fIndex].getAddr(0, 0);
+    bool onGetYUVA8Planes(const SkYUVASizeInfo&,
+                          const SkYUVAIndex yuvaIndices[4],
+                          void* planes[4]) override {
+        for (int i = 0; i <= fLastUsedBitmap; ++i) {
+            planes[i] = fYUVBitmaps[fYUVAIndices[i].fIndex].getPixels();
+        }
         return true;
     }
 
@@ -604,6 +610,7 @@ private:
     YUVFormat       fYUVFormat;
     SkYUVColorSpace fYUVColorSpace;
     SkYUVAIndex     fYUVAIndices[4];
+    int             fLastUsedBitmap;
     SkBitmap        fYUVBitmaps[4];
     SkBitmap        fFlattened;
 
@@ -614,8 +621,8 @@ static sk_sp<SkImage> make_yuv_gen_image(const SkImageInfo& ii,
                                          SkYUVColorSpace yuvColorSpace,
                                          SkYUVAIndex yuvaIndices[4],
                                          SkBitmap bitmaps[]) {
-     std::unique_ptr<SkImageGenerator> gen(new YUVGenerator(ii, yuvFormat, yuvColorSpace,
-                                                            yuvaIndices, bitmaps));
+    std::unique_ptr<SkImageGenerator> gen(new YUVGenerator(ii, yuvFormat, yuvColorSpace,
+                                                           yuvaIndices, bitmaps));
 
     return SkImage::MakeFromGenerator(std::move(gen));
 }
