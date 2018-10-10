@@ -182,6 +182,7 @@ void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 
         uint8_t index = this->yuvaIndex(i).fIndex;
         uint8_t chann = (uint8_t) this->yuvaIndex(i).fChannel;
+
         SkASSERT(index < 4 && chann < 4);
 
         packed |= (index | (chann << 2)) << (i * 4);
@@ -190,7 +191,12 @@ void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 }
 bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrYUVtoRGBEffect& that = other.cast<GrYUVtoRGBEffect>();
-    (void)that;
+
+    for (int i = 0; i < 4; ++i) {
+        if (fYUVAIndices[i] != that.fYUVAIndices[i]) {
+            return false;
+        }
+    }
 
     for (int i = 0; i < this->numTextureSamplers(); ++i) {
         // 'fSamplers' is checked by the base class
