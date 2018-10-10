@@ -111,6 +111,8 @@ public:
 
     static SkPDFUnion ColorComponent(uint8_t);
 
+    static SkPDFUnion ColorComponentF(float);
+
     /** These two functions do NOT take ownership of char*, and do NOT
         copy the string.  Suitable for passing in static const
         strings. For example:
@@ -159,6 +161,7 @@ private:
         kDestroyed = 0,
         kInt,
         kColorComponent,
+        kColorComponentF,
         kBool,
         kScalar,
         kName,
@@ -171,6 +174,10 @@ private:
     Type fType;
 
     SkPDFUnion(Type);
+    SkPDFUnion(Type, int32_t);
+    SkPDFUnion(Type, bool);
+    SkPDFUnion(Type, SkScalar);
+    SkPDFUnion(Type, const SkString&);
     // We do not now need copy constructor and copy assignment, so we
     // will disable this functionality.
     SkPDFUnion& operator=(const SkPDFUnion&) = delete;
@@ -309,6 +316,7 @@ public:
     void insertInt(const char key[], int32_t value);
     void insertInt(const char key[], size_t value);
     void insertScalar(const char key[], SkScalar value);
+    void insertColorComponentF(const char key[], SkScalar value);
     void insertName(const char key[], const char nameValue[]);
     void insertName(const char key[], const SkString& nameValue);
     void insertString(const char key[], const char value[]);

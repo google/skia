@@ -20,6 +20,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFUnion::SkPDFUnion(Type t) : fType(t) {}
+SkPDFUnion::SkPDFUnion(Type t, int32_t v)         : fIntValue    (v), fType(t) {}
+SkPDFUnion::SkPDFUnion(Type t, bool v)            : fBoolValue   (v), fType(t) {}
+SkPDFUnion::SkPDFUnion(Type t, SkScalar v)        : fScalarValue (v), fType(t) {}
+SkPDFUnion::SkPDFUnion(Type t, const SkString& v) : fType(t) { fSkString.init(v); }
 
 SkPDFUnion::~SkPDFUnion() {
     switch (fType) {
@@ -167,6 +171,9 @@ void SkPDFUnion::emitObject(SkWStream* stream,
         case Type::kColorComponent:
             SkPDFUtils::AppendColorComponent(SkToU8(fIntValue), stream);
             return;
+        case Type::kColorComponentF:
+            SkPDFUtils::AppendColorComponentF(fScalarValue, stream);
+            return;
         case Type::kBool:
             stream->writeText(fBoolValue ? "true" : "false");
             return;
@@ -205,6 +212,7 @@ void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap) const {
     switch (fType) {
         case Type::kInt:
         case Type::kColorComponent:
+        case Type::kColorComponentF:
         case Type::kBool:
         case Type::kScalar:
         case Type::kName:
@@ -223,28 +231,22 @@ void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap) const {
     }
 }
 
-SkPDFUnion SkPDFUnion::Int(int32_t value) {
-    SkPDFUnion u(Type::kInt);
-    u.fIntValue = value;
-    return u;
-}
+SkPDFUnion SkPDFUnion::Int(int32_t value) { return SkPDFUnion(Type::kInt, value); }
 
 SkPDFUnion SkPDFUnion::ColorComponent(uint8_t value) {
-    SkPDFUnion u(Type::kColorComponent);
-    u.fIntValue = value;
-    return u;
+    return SkPDFUnion(Type::kColorComponent, (int32_t)value);
+}
+
+SkPDFUnion SkPDFUnion::ColorComponentF(float value) {
+    return SkPDFUnion(Type::kColorComponentF, (SkScalar)value);
 }
 
 SkPDFUnion SkPDFUnion::Bool(bool value) {
-    SkPDFUnion u(Type::kBool);
-    u.fBoolValue = value;
-    return u;
+    return SkPDFUnion(Type::kBool, value);
 }
 
 SkPDFUnion SkPDFUnion::Scalar(SkScalar value) {
-    SkPDFUnion u(Type::kScalar);
-    u.fScalarValue = value;
-    return u;
+    return SkPDFUnion(Type::kScalar, value);
 }
 
 SkPDFUnion SkPDFUnion::Name(const char* value) {
@@ -262,17 +264,9 @@ SkPDFUnion SkPDFUnion::String(const char* value) {
     return u;
 }
 
-SkPDFUnion SkPDFUnion::Name(const SkString& s) {
-    SkPDFUnion u(Type::kNameSkS);
-    u.fSkString.init(s);
-    return u;
-}
+SkPDFUnion SkPDFUnion::Name(const SkString& s) { return SkPDFUnion(Type::kNameSkS, s); }
 
-SkPDFUnion SkPDFUnion::String(const SkString& s) {
-    SkPDFUnion u(Type::kStringSkS);
-    u.fSkString.init(s);
-    return u;
-}
+SkPDFUnion SkPDFUnion::String(const SkString& s) { return SkPDFUnion(Type::kStringSkS, s); }
 
 SkPDFUnion SkPDFUnion::ObjRef(sk_sp<SkPDFObject> objSp) {
     SkPDFUnion u(Type::kObjRef);
@@ -456,6 +450,10 @@ void SkPDFDict::insertInt(const char key[], int32_t value) {
 
 void SkPDFDict::insertInt(const char key[], size_t value) {
     this->insertInt(key, SkToS32(value));
+}
+
+void SkPDFDict::insertColorComponentF(const char key[], SkScalar value) {
+    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::ColorComponentF(value)});
 }
 
 void SkPDFDict::insertScalar(const char key[], SkScalar value) {
