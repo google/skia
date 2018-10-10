@@ -540,6 +540,30 @@
     },
     {
       "key": {
+        "uuid": "d3acdfb4_b87feb15",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-10T00:56:42Z",
+      "side": 1,
+      "message": "I took a closer look in the GIF image that triggered https://bugs.chromium.org/p/skia/issues/detail?id\u003d7069 \"Treat invalid indices as transparent\".\n\nThe gifsicle deconstruction is:\n\n```\n$ gifsicle --info tumblr_owahzwaJP91uexsvbo1_400.gif \n* tumblr_owahzwaJP91uexsvbo1_400.gif 11 images\n  logical screen 400x245\n  global color table [64]\n  background 0\n  loop forever\n  + image #0 400x245\n    disposal asis delay 0.17s\n  + image #1 400x245 transparent 64\n    disposal asis delay 0.17s\n  + image #2 400x245 transparent 64\n    disposal asis delay 0.17s\n  + image #3 400x245 transparent 64\n    disposal asis delay 0.17s\n  + image #4 400x245 transparent 64\n    disposal asis delay 0.17s\n  + image #5 400x245 transparent 64\n    disposal asis delay 0.17s\n  + image #6 400x245 transparent 64\n    disposal asis delay 0.17s\n  + image #7 400x245 transparent 64\n    disposal asis delay 0.17s\n  + image #8 400x245 transparent 64\n    disposal asis delay 0.17s\n  + image #9 400x245 transparent 64\n    disposal asis delay 0.17s\n  + image #10 400x245 transparent 64\n    disposal asis delay 0.17s\n```\n\nSo, all frames use a 64-entry palette (the \"global color table\"), but for frames other than the first frame, they also explicitly set (in the per-frame Graphic Control Extension) the Transparent Color Index to 64. Although 64 is out of the [0, 63] bounds, Wuffs as it is today actually handles this as you want. First (see link 1) it sets [64, 255] to opaque black, but second (see link 2), a dozen lines of code down, it then overrides 64 to transparent black.\n\nLink 1: https://github.com/google/wuffs/blob/master/std/gif/decode_gif.wuffs#L541\nLink 2: https://github.com/google/wuffs/blob/master/std/gif/decode_gif.wuffs#L555\n\nIn this case, debating whether the default should be transparent or opaque will only affect palette indices in [65, 255], as 64 is overridden, and for skia:7069\u0027s tumblr_owahzwaJP91uexsvbo1_400.gif, no index is used above 64.\n\nThe difference between Wuffs as is and for my \"cake and eat it too\" idea only affects those unused indices: 65 and above.\n\nSo, perhaps Wuffs (and therefore the CodecAnimTest.cpp tests re kOpaque_SkAlphaType) doesn\u0027t have to change, and having implicit mean opaque black (but letting the Graphic Control Extension override to transparent) is OK, even if that\u0027s in some sense different from third_party/gif??\n\nEven without any *behavior* changes, for Wuffs and for Skia\u0027s tests, as I said, we could probably do with more tests.\n\n\n\u003e I\u0027m also open to Go accepting them now, but changing that hasn\u0027t been high priority\n\nIncidentally, I did actually change Go, a couple of years ago (https://go-review.googlesource.com/c/go/+/22546 fixed https://github.com/golang/go/issues/15059) and it seems like I forgot I fixed it.",
+      "parentUuid": "348d7e55_1d7e7b2e",
+      "range": {
+        "startLine": 1485,
+        "startChar": 0,
+        "endLine": 1486,
+        "endChar": 13
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45aabc90_080d06da",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 10
