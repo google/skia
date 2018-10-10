@@ -67,6 +67,8 @@ public:
     void onDrawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
                          SrcRectConstraint) override;
+    void onDrawImageSet(const ImageSetEntry[], int count, float alpha, SkFilterQuality,
+                        SkBlendMode) override;
 
     void onDrawPatch(const SkPoint[12], const SkColor[4],
                      const SkPoint[4], SkBlendMode, const SkPaint&) override;
