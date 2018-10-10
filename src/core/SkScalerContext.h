@@ -436,8 +436,7 @@ private:
 };
 
 #define kRec_SkDescriptorTag            SkSetFourByteTag('s', 'r', 'e', 'c')
-#define kPathEffect_SkDescriptorTag     SkSetFourByteTag('p', 't', 'h', 'e')
-#define kMaskFilter_SkDescriptorTag     SkSetFourByteTag('m', 's', 'k', 'f')
+#define kEffects_SkDescriptorTag        SkSetFourByteTag('e', 'f', 'c', 't')
 
 ///////////////////////////////////////////////////////////////////////////////
 

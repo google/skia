@@ -122,8 +122,8 @@ public:
     void writeTypeface(SkTypeface* typeface) override;
     void writePaint(const SkPaint& paint) override;
 
-    bool writeToStream(SkWStream*);
-    void writeToMemory(void* dst) { fWriter.flatten(dst); }
+    bool writeToStream(SkWStream*) const;
+    void writeToMemory(void* dst) const { fWriter.flatten(dst); }
 
     void setFactoryRecorder(sk_sp<SkFactorySet>);
     void setTypefaceRecorder(sk_sp<SkRefCntSet>);
