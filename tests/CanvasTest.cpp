@@ -625,10 +625,10 @@ static void test_newraster(skiatest::Reporter* reporter) {
     info = SkImageInfo::Make(10, 10, kUnknown_SkColorType, info.alphaType());
     REPORTER_ASSERT(reporter, nullptr == SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes));
 
-    // We should succeed with a zero-sized valid info
+    // We should not succeed with a zero-sized valid info
     info = SkImageInfo::MakeN32Premul(0, 0);
     canvas = SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes);
-    REPORTER_ASSERT(reporter, canvas);
+    REPORTER_ASSERT(reporter, nullptr == canvas);
 }
 
 DEF_TEST(Canvas, reporter) {

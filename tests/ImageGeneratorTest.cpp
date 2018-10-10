@@ -99,19 +99,18 @@ DEF_TEST(PictureImageGenerator, reporter) {
     const struct {
         SkColorType fColorType;
         SkAlphaType fAlphaType;
-        bool        fExpectSuccess;
     } recs[] = {
-        { kRGBA_8888_SkColorType, kPremul_SkAlphaType, kRGBA_8888_SkColorType == kN32_SkColorType },
-        { kBGRA_8888_SkColorType, kPremul_SkAlphaType, kBGRA_8888_SkColorType == kN32_SkColorType },
-        { kRGBA_F16_SkColorType,  kPremul_SkAlphaType, true },
-        { kRGBA_F32_SkColorType,  kPremul_SkAlphaType, true },
-        { kRGBA_1010102_SkColorType, kPremul_SkAlphaType, true },
+        { kRGBA_8888_SkColorType, kPremul_SkAlphaType },
+        { kBGRA_8888_SkColorType, kPremul_SkAlphaType },
+        { kRGBA_F16_SkColorType,  kPremul_SkAlphaType },
+        { kRGBA_F32_SkColorType,  kPremul_SkAlphaType },
+        { kRGBA_1010102_SkColorType, kPremul_SkAlphaType },
 
-        { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, false },
-        { kBGRA_8888_SkColorType, kUnpremul_SkAlphaType, false },
-        { kRGBA_F16_SkColorType,  kUnpremul_SkAlphaType, false },
-        { kRGBA_F32_SkColorType,  kUnpremul_SkAlphaType, false },
-        { kRGBA_1010102_SkColorType, kUnpremul_SkAlphaType, false },
+        { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType },
+        { kBGRA_8888_SkColorType, kUnpremul_SkAlphaType },
+        { kRGBA_F16_SkColorType,  kUnpremul_SkAlphaType },
+        { kRGBA_F32_SkColorType,  kUnpremul_SkAlphaType },
+        { kRGBA_1010102_SkColorType, kUnpremul_SkAlphaType },
     };
 
     auto colorspace = SkColorSpace::MakeSRGB();
@@ -124,8 +123,7 @@ DEF_TEST(PictureImageGenerator, reporter) {
 
     for (const auto& rec : recs) {
         SkImageInfo info = SkImageInfo::Make(100, 100, rec.fColorType, rec.fAlphaType, colorspace);
-        bool success = gen->getPixels(info, storage.get(), info.minRowBytes());
-        REPORTER_ASSERT(reporter, success == rec.fExpectSuccess);
+        REPORTER_ASSERT(reporter, gen->getPixels(info, storage.get(), info.minRowBytes()));
     }
 }
 
