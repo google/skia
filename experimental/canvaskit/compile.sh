@@ -27,7 +27,7 @@ EXTRA_CFLAGS="\"-DSK_RELEASE\""
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
+  RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
 fi
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
@@ -47,7 +47,8 @@ echo "Compiling bitcode"
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-DIS_WEBGL=1\",
+  extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
+    \"-DIS_WEBGL=1\", \"-DSKNX_NO_SIMD\",
     ${EXTRA_CFLAGS}
   ] \
   is_debug=false \
@@ -55,9 +56,9 @@ echo "Compiling bitcode"
   is_component_build=false \
   target_cpu=\"wasm\" \
   \
+  skia_use_angle = false \
   skia_use_dng_sdk=false \
   skia_use_egl=true \
-  skia_use_expat=false \
   skia_use_expat=false \
   skia_use_fontconfig=false \
   skia_use_freetype=true \
@@ -68,7 +69,6 @@ echo "Compiling bitcode"
   skia_use_libwebp=false \
   skia_use_lua=false \
   skia_use_piex=false \
-  skia_use_vulkan=false \
   skia_use_vulkan=false \
   skia_use_zlib=true \
   \
@@ -84,7 +84,7 @@ echo "Generating final wasm"
 
 # Skottie doesn't end up in libskia and is currently not its own library
 # so we just hack in the .cpp files we need for now.
-${EMCC} \
+${EMCXX} \
     $RELEASE_CONF \
     -Iinclude/c \
     -Iinclude/codec \
@@ -105,7 +105,7 @@ ${EMCC} \
     -Itools \
     -lEGL \
     -lGLESv2 \
-    -std=c++11 \
+    -std=c++14 \
     --bind \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
@@ -131,13 +131,14 @@ ${EMCC} \
     src/utils/SkJSON.cpp \
     src/utils/SkParse.cpp \
     -s ALLOW_MEMORY_GROWTH=1 \
-    -s TOTAL_MEMORY=64MB \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
+    -s TOTAL_MEMORY=32MB \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
+    -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js
