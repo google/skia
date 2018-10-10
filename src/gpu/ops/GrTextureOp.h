@@ -6,6 +6,7 @@
  */
 
 #include "GrColor.h"
+#include "GrRenderTargetContext.h"
 #include "GrSamplerState.h"
 #include "GrTypesPriv.h"
 #include "SkCanvas.h"
@@ -35,6 +36,16 @@ std::unique_ptr<GrDrawOp> Make(GrContext*,
                                GrAAType,
                                GrQuadAAFlags,
                                SkCanvas::SrcRectConstraint,
+                               const SkMatrix& viewMatrix,
+                               sk_sp<GrColorSpaceXform> textureXform,
+                               sk_sp<GrColorSpaceXform> paintXform);
+
+std::unique_ptr<GrDrawOp> Make(GrContext*,
+                               const GrRenderTargetContext::TextureSetEntry[],
+                               int cnt,
+                               GrSamplerState::Filter,
+                               GrColor,
+                               GrAAType,
                                const SkMatrix& viewMatrix,
                                sk_sp<GrColorSpaceXform> textureXform,
                                sk_sp<GrColorSpaceXform> paintXform);
