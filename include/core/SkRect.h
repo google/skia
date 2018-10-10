@@ -51,14 +51,6 @@ struct SK_API SkIRect {
         return SkIRect{0, 0, 0, 0};
     }
 
-#ifdef SK_SUPPORT_LEGACY_RECTMAKELARGEST
-    /** Deprecated.
-    */
-    static SkIRect SK_WARN_UNUSED_RESULT MakeLargest() {
-        return { SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32 };
-    }
-#endif
-
     /** Returns constructed SkIRect set to (0, 0, w, h). Does not validate input; w or h
         may be negative.
 
