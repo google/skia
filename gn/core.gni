@@ -95,6 +95,7 @@ skia_core_sources = [
   "$_src/core/SkDeferredDisplayListRecorder.cpp",
   "$_src/core/SkDeque.cpp",
   "$_src/core/SkDescriptor.h",
+  "$_src/core/SkDescriptor.cpp",
   "$_src/core/SkDevice.cpp",
   "$_src/core/SkDevice.h",
   "$_src/core/SkDiscardableMemory.h",
