@@ -783,6 +783,9 @@ def dm_flags(api, bot):
   if 'GDI' in bot:
     args.append('--gdi')
 
+  if 'QuadroP400' in bot or 'Adreno540' in bot:
+    args.extend(['--reduceOpListSplitting'])
+
   # Let's make all bots produce verbose output by default.
   args.append('--verbose')
 

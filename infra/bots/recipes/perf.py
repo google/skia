@@ -141,6 +141,9 @@ def nanobench_flags(api, bot):
     # Ensure that the bot framework does not think we have timed out.
     args.extend(['--keepAlive', 'true'])
 
+  if 'QuadroP400' in bot or 'Adreno540' in bot:
+    args.extend(['--reduceOpListSplitting'])
+
   # Some people don't like verbose output.
   verbose = False
 
