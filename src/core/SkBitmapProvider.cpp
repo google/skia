@@ -40,5 +40,8 @@ void SkBitmapProvider::notifyAddedToCache() const {
 }
 
 bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
-    return as_IB(fImage)->getROPixels(bm, nullptr, SkImage::kAllow_CachingHint);
+    // GETRO_TODO: Create another API that SkBitmapProvider can use to get bitmaps from lazy images
+    // in the destination color type and color space. As written, the resulting bitmap will be in
+    // the original image's format, causing a transformation step on each draw.
+    return as_IB(fImage)->getROPixels(bm, SkImage::kAllow_CachingHint);
 }
