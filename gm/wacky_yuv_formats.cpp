@@ -690,7 +690,7 @@ protected:
 
     SkISize onISize() override {
         int numCols = 2 * (kLastEnum_SkYUVColorSpace + 1); // opacity x color-space
-        int numRows = 1 + (kLast_YUVFormat + 1);  // origin + # yuv formats
+        int numRows = 1;// 1 + (kLast_YUVFormat + 1);  // origin + # yuv formats
         return SkISize::Make(kLabelWidth  + numCols * (kTileWidthHeight + kPad),
                              kLabelHeight + numRows * (kTileWidthHeight + kPad));
     }
@@ -721,7 +721,7 @@ protected:
                 PlaneData planes;
                 extract_planes(fOriginalBMs[opaque], (SkYUVColorSpace) cs, &planes);
 
-                for (int format = AYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
+                for (int format = kLast_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     SkBitmap resultBMs[4];
                     SkYUVAIndex yuvaIndices[4];
                     create_YUV(planes, (YUVFormat) format, resultBMs, yuvaIndices, opaque);
@@ -797,7 +797,7 @@ protected:
                 canvas->drawBitmap(fOriginalBMs[opaque], x, y);
                 y += kTileWidthHeight + kPad;
 
-                for (int format = AYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
+                for (int format = kLast_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     draw_row_label(canvas, y, format);
                     canvas->drawImage(fImages[opaque][cs][format], x, y);
 

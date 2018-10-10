@@ -62,6 +62,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
 
 #include "SkGr.h"
 #include "SkImage_Gpu.h"
+#include "SkImage_GpuYUVA.h"
 #include "SkSurface_Gpu.h"
 
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c)
@@ -242,18 +243,32 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         return nullptr;
     }
 
+#if 0
+    SkISize size = { imageWidth, imageHeight };
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
+                                                   yuvColorSpace,
+                                                   yuvaFormats,
+                                                   yuvaIndices,
+                                                   size,
+                                                   imageOrigin,
+                                                   std::move(imageColorSpace),
+                                                   textureFulfillProc,
+                                                   textureReleaseProc,
+                                                   promiseDoneProc,
+                                                   textureContexts);
+#else
     return SkImage_Gpu::MakePromiseYUVATexture(fContext.get(),
-                                               yuvColorSpace,
-                                               yuvaFormats,
-                                               yuvaIndices,
-                                               imageWidth,
-                                               imageHeight,
-                                               imageOrigin,
-                                               std::move(imageColorSpace),
-                                               textureFulfillProc,
-                                               textureReleaseProc,
-                                               promiseDoneProc,
-                                               textureContexts);
+                                                   yuvColorSpace,
+                                                   yuvaFormats,
+                                                   yuvaIndices,
+                                                   imageWidth, imageHeight,
+                                                   imageOrigin,
+                                                   std::move(imageColorSpace),
+                                                   textureFulfillProc,
+                                                   textureReleaseProc,
+                                                   promiseDoneProc,
+                                                   textureContexts);
+#endif
 }
 
 #endif
