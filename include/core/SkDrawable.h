@@ -11,6 +11,10 @@
 #include "SkFlattenable.h"
 #include "SkScalar.h"
 
+#if SK_SUPPORT_GPU
+#include "GrBackendDrawableInfo.h"
+#endif
+
 class SkCanvas;
 class SkMatrix;
 class SkPicture;
@@ -25,8 +29,6 @@ struct SkRect;
  */
 class SK_API SkDrawable : public SkFlattenable {
 public:
-    SkDrawable();
-
     /**
      *  Draws into the specified content. The drawing sequence will be balanced upon return
      *  (i.e. the saveLevel() on the canvas will match what it was when draw() was called,
@@ -34,6 +36,17 @@ public:
      */
     void draw(SkCanvas*, const SkMatrix* = nullptr);
     void draw(SkCanvas*, SkScalar x, SkScalar y);
+
+#if SK_SUPPORT_GPU
+    /**
+     * Draws the SkDrawable using gpu backend specific calls. This will allow the drawable to emit
+     * gpu calls directly into the stream of commands going to the GPU form skia. See
+     * GrBackendDrawableInfo for the details on specific backends and how to intermix draws.
+     * Currently this is only supported for the GPU Vulkan backend.
+     */
+    virtual void drawBackendGpu(const GrBackendDrawableInfo&) {}
+    virtual bool isGpuDrawSupported(GrBackend) { return false; }
+#endif
 
     SkPicture* newPictureSnapshot();
 
@@ -78,6 +91,8 @@ public:
     Factory getFactory() const override { return nullptr; }
 
 protected:
+    SkDrawable();
+
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
 
@@ -90,7 +105,7 @@ protected:
     virtual SkPicture* onNewPictureSnapshot();
 
 private:
-    int32_t fGenerationID;
+    int32_t  fGenerationID;
 };
 
 #endif
