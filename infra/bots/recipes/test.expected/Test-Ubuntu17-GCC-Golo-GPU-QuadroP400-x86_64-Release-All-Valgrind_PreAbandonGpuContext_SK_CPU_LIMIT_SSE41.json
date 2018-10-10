@@ -299,6 +299,7 @@
       "~Threaded",
       "~multipicturedraw_",
       "--nonativeFonts",
+      "--reduceOpListSplitting",
       "--verbose",
       "--preAbandonGpuContext"
     ],

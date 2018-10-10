@@ -211,6 +211,9 @@ def nanobench_flags(api, bot):
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
 
+  if 'QuadroP400' in bot or 'Adreno540' in bot:
+    args.extend(['--reduceOpListSplitting'])
+
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
   match.append('~inc0.gif')
