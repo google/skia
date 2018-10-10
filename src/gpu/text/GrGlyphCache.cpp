@@ -56,7 +56,7 @@ void GrGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
     }
 }
 
-static inline GrMaskFormat get_packed_glyph_mask_format(const SkGlyph& glyph) {
+static GrMaskFormat get_packed_glyph_mask_format(const SkGlyph& glyph) {
     SkMask::Format format = static_cast<SkMask::Format>(glyph.fMaskFormat);
     switch (format) {
         case SkMask::kBW_Format:
@@ -74,18 +74,6 @@ static inline GrMaskFormat get_packed_glyph_mask_format(const SkGlyph& glyph) {
             SkDEBUGFAIL("unsupported SkMask::Format");
             return kA8_GrMaskFormat;
     }
-}
-
-static inline bool get_packed_glyph_bounds(SkGlyphCache* cache, const SkGlyph& glyph,
-                                           SkIRect* bounds) {
-#if 1
-    // crbug:510931
-    // Retrieving the image from the cache can actually change the mask format.
-    cache->findImage(glyph);
-#endif
-    bounds->setXYWH(glyph.fLeft, glyph.fTop, glyph.fWidth, glyph.fHeight);
-
-    return true;
 }
 
 // expands each bit in a bitmask to 0 or ~0 of type INT_TYPE. Used to expand a BW glyph mask to
@@ -218,9 +206,12 @@ GrTextStrike::~GrTextStrike() {
 GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                                      SkGlyphCache* cache) {
     SkIRect bounds;
-    if (!get_packed_glyph_bounds(cache, skGlyph, &bounds)) {
-        return nullptr;
-    }
+
+    // crbug:510931
+    // Retrieving the image from the cache can actually change the mask format.
+    cache->findImage(skGlyph);
+    bounds.setXYWH(skGlyph.fLeft, skGlyph.fTop, skGlyph.fWidth, skGlyph.fHeight);
+
     GrMaskFormat format = get_packed_glyph_mask_format(skGlyph);
 
     GrGlyph* glyph = fPool.make<GrGlyph>();
