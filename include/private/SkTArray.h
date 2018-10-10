@@ -63,7 +63,9 @@ public:
         if (this == &that) {
             return *this;
         }
-        this->forEach([](T& o) { o.~T(); });
+        for (int i = 0; i < fCount; ++i) {
+            fItemArray[i].~T();
+        }
         fCount = 0;
         this->checkRealloc(that.count());
         fCount = that.count();
@@ -74,7 +76,9 @@ public:
         if (this == &that) {
             return *this;
         }
-        this->forEach([](T& o) { o.~T(); });
+        for (int i = 0; i < fCount; ++i) {
+            fItemArray[i].~T();
+        }
         fCount = 0;
         this->checkRealloc(that.count());
         fCount = that.count();
@@ -84,7 +88,9 @@ public:
     }
 
     ~SkTArray() {
-        this->forEach([](T& o) { o.~T(); });
+        for (int i = 0; i < fCount; ++i) {
+            fItemArray[i].~T();
+        }
         if (fOwnMemory) {
             sk_free(fMemArray);
         }
@@ -103,12 +109,16 @@ public:
      */
     void reset(int n) {
         SkASSERT(n >= 0);
-        this->forEach([](T& o) { o.~T(); });
+        for (int i = 0; i < fCount; ++i) {
+            fItemArray[i].~T();
+        }
         // Set fCount to 0 before calling checkRealloc so that no elements are moved.
         fCount = 0;
         this->checkRealloc(n);
         fCount = n;
-        this->forEach([](T& o) { new (&o) T; });
+        for (int i = 0; i < fCount; ++i) {
+            new (fItemArray + i) T;
+        }
         fReserved = false;
     }
 
@@ -116,7 +126,9 @@ public:
      * Resets to a copy of a C array and resets any reserve count.
      */
     void reset(const T* array, int count) {
-        this->forEach([](T& o) { o.~T(); });
+        for (int i = 0; i < fCount; ++i) {
+            fItemArray[i].~T();
+        }
         fCount = 0;
         this->checkRealloc(count);
         fCount = count;
@@ -164,23 +176,33 @@ public:
      * the reference only remains valid until the next call that adds or removes
      * elements.
      */
-    T& push_back() { return *new (this->push_back_raw(1)) T; }
+    T& push_back() {
+        void* newT = this->push_back_raw(1);
+        return *new (newT) T;
+    }
 
     /**
      * Version of above that uses a copy constructor to initialize the new item
      */
-    T& push_back(const T& t) { return *new (this->push_back_raw(1)) T(t); }
+    T& push_back(const T& t) {
+        void* newT = this->push_back_raw(1);
+        return *new (newT) T(t);
+    }
 
     /**
      * Version of above that uses a move constructor to initialize the new item
      */
-    T& push_back(T&& t) { return *new (this->push_back_raw(1)) T(std::move(t)); }
+    T& push_back(T&& t) {
+        void* newT = this->push_back_raw(1);
+        return *new (newT) T(std::move(t));
+    }
 
     /**
      *  Construct a new T at the back of this array.
      */
     template<class... Args> T& emplace_back(Args&&... args) {
-        return *new (this->push_back_raw(1)) T(std::forward<Args>(args)...);
+        void* newT = this->push_back_raw(1);
+        return *new (newT) T(std::forward<Args>(args)...);
     }
 
     /**
@@ -190,9 +212,11 @@ public:
      */
     T* push_back_n(int n) {
         SkASSERT(n >= 0);
-        T* newTs = this->push_back_raw(n);
-        ForEach(newTs, newTs + n, [](T& o) { new (&o) T; });
-        return newTs;
+        void* newTs = this->push_back_raw(n);
+        for (int i = 0; i < n; ++i) {
+            new (static_cast<char*>(newTs) + i * sizeof(T)) T;
+        }
+        return static_cast<T*>(newTs);
     }
 
     /**
@@ -201,30 +225,38 @@ public:
      */
     T* push_back_n(int n, const T& t) {
         SkASSERT(n >= 0);
-        T* newTs = this->push_back_raw(n);
-        ForEach(newTs, newTs + n, [&t](T& o) { new (&o) T(t); });
-        return newTs;
+        void* newTs = this->push_back_raw(n);
+        for (int i = 0; i < n; ++i) {
+            new (static_cast<char*>(newTs) + i * sizeof(T)) T(t);
+        }
+        return static_cast<T*>(newTs);
     }
 
     /**
      * Version of above that uses a copy constructor to initialize the n items
      * to separate T values.
      */
-    T* push_back_n(int n, const T* ts) {
+    T* push_back_n(int n, const T t[]) {
         SkASSERT(n >= 0);
-        T* newTs = this->push_back_raw(n);
-        ForEach(newTs, newTs + n, [&ts](T& o) { new (&o) T(*ts++); });
-        return newTs;
+        this->checkRealloc(n);
+        for (int i = 0; i < n; ++i) {
+            new (fItemArray + fCount + i) T(t[i]);
+        }
+        fCount += n;
+        return fItemArray + fCount - n;
     }
 
     /**
      * Version of above that uses the move constructor to set n items.
      */
-    T* move_back_n(int n, T* ts) {
+    T* move_back_n(int n, T* t) {
         SkASSERT(n >= 0);
-        T* newTs = this->push_back_raw(n);
-        ForEach(newTs, newTs + n, [&ts](T& o) { new (&o) T(std::move(*ts++)); });
-        return newTs;
+        this->checkRealloc(n);
+        for (int i = 0; i < n; ++i) {
+            new (fItemArray + fCount + i) T(std::move(t[i]));
+        }
+        fCount += n;
+        return fItemArray + fCount - n;
     }
 
     /**
@@ -244,7 +276,9 @@ public:
         SkASSERT(n >= 0);
         SkASSERT(fCount >= n);
         fCount -= n;
-        ForEach(this->end(), this->end() + n, [](T& o) { o.~T(); });
+        for (int i = 0; i < n; ++i) {
+            fItemArray[fCount + i].~T();
+        }
         this->checkRealloc(0);
     }
 
@@ -445,7 +479,9 @@ private:
         // MEM_MOVE == true implies that the type is trivially movable, and not necessarily
         // trivially copyable (think sk_sp<>).  So short of adding another template arg, we
         // must be conservative and use copy construction.
-        this->forEach([&src](T& o) { new (&o) T(*src++); });
+        for (int i = 0; i < fCount; ++i) {
+            new (fItemArray + i) T(src[i]);
+        }
     }
 
     template <bool E = MEM_MOVE> SK_WHEN(E, void) move(int dst, int src) {
@@ -460,20 +496,19 @@ private:
         fItemArray[src].~T();
     }
     template <bool E = MEM_MOVE> SK_WHEN(!E, void) move(void* dst) {
-        T* tDst = static_cast<T*>(dst);
-        this->forEach([&tDst](T& o) {
-            new (tDst++) T(std::move(o));
-            o.~T();
-        } );
+        for (int i = 0; i < fCount; ++i) {
+            new (static_cast<char*>(dst) + sizeof(T) * i) T(std::move(fItemArray[i]));
+            fItemArray[i].~T();
+        }
     }
 
     static constexpr int kMinHeapAllocCount = 8;
 
     // Helper function that makes space for n objects, adjusts the count, but does not initialize
     // the new objects.
-    T* push_back_raw(int n) {
+    void* push_back_raw(int n) {
         this->checkRealloc(n);
-        T* ptr = fItemArray + fCount;
+        void* ptr = fItemArray + fCount;
         fCount += n;
         return ptr;
     }
@@ -527,12 +562,6 @@ private:
     int fAllocCount;
     bool fOwnMemory : 1;
     bool fReserved : 1;
-
-    template <typename Fn>
-    static void ForEach(T* begin, T* end, Fn&& f) { while (begin != end) { f(*begin++); } }
-
-    template <typename Fn>
-    void forEach(Fn&& f) { ForEach(this->begin(), this->end(), std::move(f)); }
 };
 
 template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {
