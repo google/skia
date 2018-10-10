@@ -59,9 +59,18 @@ def RunSteps(api):
       analyze_web_file(api, checkout_root, out_dir, files)
 
     files = api.file.glob_paths(
-        'find built libraries',
+        'find flutter library',
         bin_dir,
-        '*.so',
+        'libflutter.so',
+        test_data=['libflutter.so'])
+    analyzed += len(files)
+    if len(files):
+      analyze_flutter_lib(api, checkout_root, out_dir, files)
+
+    files = api.file.glob_paths(
+        'find skia library',
+        bin_dir,
+        'libskia.so',
         test_data=['libskia.so'])
     analyzed += len(files)
     if len(files):
@@ -121,6 +130,33 @@ def analyze_cpp_lib(api, checkout_root, out_dir, files):
           args=[f, out_dir, keystr, propstr, bloaty_exe])
 
 
+# Get the size of skia in flutter and a few metrics from bloaty
+def analyze_flutter_lib(api, checkout_root, out_dir, files):
+  (keystr, propstr) = keys_and_props(api)
+  bloaty_exe = api.path['start_dir'].join('bloaty', 'bloaty')
+
+  for f in files:
+    skia_dir = checkout_root.join('skia')
+    with api.context(cwd=skia_dir):
+      script = skia_dir.join('infra', 'bots', 'buildstats',
+                             'buildstats_flutter.py')
+      step_data = api.run(api.python, 'Analyze flutter', script=script,
+                         args=[f, out_dir, keystr, propstr, bloaty_exe],
+                         stdout=api.raw_io.output())
+      if step_data and step_data.stdout:
+        magic_seperator = '#$%^&*'
+        sections = step_data.stdout.split(magic_seperator)
+        result = api.step.active_result
+        logs = result.presentation.logs
+        # Skip section 0 because it's everything before first print,
+        # which is probably the empty string.
+        logs['bloaty_file_symbol_short'] = sections[1].split('\n')
+        logs['bloaty_file_symbol_full']  = sections[2].split('\n')
+        logs['bloaty_symbol_file_short'] = sections[3].split('\n')
+        logs['bloaty_symbol_file_full']  = sections[4].split('\n')
+        logs['perf_json'] = sections[5].split('\n')
+
+
 def GenTests(api):
   builder = 'BuildStats-Debian9-EMCC-wasm-Release-PathKit'
   yield (
@@ -130,10 +166,12 @@ def GenTests(api):
                    revision='abc123',
                    swarm_out_dir='[SWARM_OUT_DIR]',
                    path_config='kitchen') +
-      api.step_data('get swarming bot id',
-          stdout=api.raw_io.output('skia-bot-123')) +
-      api.step_data('get swarming task id',
-          stdout=api.raw_io.output('123456abc'))
+    api.step_data('get swarming bot id',
+        stdout=api.raw_io.output('skia-bot-123')) +
+    api.step_data('get swarming task id',
+        stdout=api.raw_io.output('123456abc')) +
+    api.step_data('Analyze flutter',
+        stdout=api.raw_io.output(sample_output))
   )
 
   yield (
@@ -153,5 +191,26 @@ def GenTests(api):
         buildername=builder,
         gerrit_project='skia',
         gerrit_url='https://skia-review.googlesource.com/',
-      )
+      ) +
+    api.step_data('Analyze flutter',
+          stdout=api.raw_io.output(sample_output))
   )
+
+sample_output = """
+#$%^&*
+Report A
+    Total size: 50 bytes
+#$%^&*
+Report B
+    Total size: 60 bytes
+#$%^&*
+Report C
+    Total size: 70 bytes
+#$%^&*
+Report D
+    Total size: 80 bytes
+#$%^&*
+{
+  "some": "json"
+}
+"""
