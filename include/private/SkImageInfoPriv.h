@@ -106,8 +106,7 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
         return false;
     }
 
-    if (kOpaque_SkAlphaType != info.alphaType() &&
-       (kRGB_565_SkColorType == info.colorType() || kGray_8_SkColorType == info.colorType())) {
+    if (kOpaque_SkAlphaType != info.alphaType() && SkColorTypeIsAlwaysOpaque(info.colorType())) {
         return false;
     }
 
