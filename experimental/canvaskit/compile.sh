@@ -72,6 +72,7 @@ echo "Compiling bitcode"
   skia_use_vulkan=false \
   skia_use_zlib=true \
   \
+  skia_enable_ccpr=false \
   skia_enable_gpu=true \
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
