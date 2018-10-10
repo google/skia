@@ -26,6 +26,7 @@
 #include "GrStencilAttachment.h"
 #include "GrStyle.h"
 #include "GrTracing.h"
+#include "SkDrawable.h"
 #include "SkDrawShadowInfo.h"
 #include "SkGlyphRunPainter.h"
 #include "SkGr.h"
@@ -39,6 +40,7 @@
 #include "ops/GrClearOp.h"
 #include "ops/GrClearStencilClipOp.h"
 #include "ops/GrDebugMarkerOp.h"
+#include "ops/GrDrawableOp.h"
 #include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawVerticesOp.h"
@@ -1392,6 +1394,12 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
             GrLatticeOp::MakeNonAA(fContext, std::move(paint), viewMatrix, std::move(image),
                                    std::move(csxf), filter, std::move(iter), dst);
     this->addDrawOp(clip, std::move(op));
+}
+
+void GrRenderTargetContext::drawDrawable(SkDrawable* drawable, const SkMatrix& matrix) {
+    std::unique_ptr<GrOp> op(GrDrawableOp::Make(fContext, drawable, matrix));
+    SkASSERT(op);
+    this->getRTOpList()->addOp(std::move(op), *this->caps());
 }
 
 GrSemaphoresSubmitted GrRenderTargetContext::prepareForExternalIO(
