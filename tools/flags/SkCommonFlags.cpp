@@ -173,6 +173,7 @@ DEFINE_string(pr, "all",
               "[~]small [~]tess] [~]all");
 
 DEFINE_bool(disableExplicitAlloc, false, "Disable explicit allocation of GPU resources");
+DEFINE_bool(reduceOpListSplitting, false, "Improve opList sorting");
 
 void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     static std::unique_ptr<SkExecutor> gGpuExecutor = (0 != FLAGS_gpuThreads)
@@ -187,5 +188,9 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
         ctxOptions->fExplicitlyAllocateGPUResources = GrContextOptions::Enable::kNo;
         // Can't have sorting enabled when explicit allocation is disabled.
         ctxOptions->fSortRenderTargets = GrContextOptions::Enable::kNo;
+    }
+
+    if (FLAGS_reduceOpListSplitting) {
+        ctxOptions->fReduceOpListSplitting = GrContextOptions::Enable::kYes;
     }
 }
