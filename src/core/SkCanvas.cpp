@@ -2802,34 +2802,9 @@ int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO: This still disagrees with SkSurfaceValidateRasterInfo
-static bool supported_for_raster_canvas(const SkImageInfo& info) {
-    switch (info.alphaType()) {
-        case kPremul_SkAlphaType:
-        case kOpaque_SkAlphaType:
-            break;
-        default:
-            return false;
-    }
-
-    switch (info.colorType()) {
-        case kAlpha_8_SkColorType:
-        case kRGB_565_SkColorType:
-        case kN32_SkColorType:
-        case kRGBA_F16_SkColorType:
-        case kRGBA_F32_SkColorType:
-        case kRGBA_1010102_SkColorType:
-            break;
-        default:
-            return false;
-    }
-
-    return true;
-}
-
 std::unique_ptr<SkCanvas> SkCanvas::MakeRasterDirect(const SkImageInfo& info, void* pixels,
                                                      size_t rowBytes, const SkSurfaceProps* props) {
-    if (!supported_for_raster_canvas(info)) {
+    if (!SkSurfaceValidateRasterInfo(info, rowBytes)) {
         return nullptr;
     }
 
@@ -2907,7 +2882,7 @@ SkRasterHandleAllocator::Handle SkRasterHandleAllocator::allocBitmap(const SkIma
 std::unique_ptr<SkCanvas>
 SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> alloc,
                                     const SkImageInfo& info, const Rec* rec) {
-    if (!alloc || !supported_for_raster_canvas(info)) {
+    if (!alloc || !SkSurfaceValidateRasterInfo(info, rec ? rec->fRowBytes : kIgnoreRowBytesValue)) {
         return nullptr;
     }
 
