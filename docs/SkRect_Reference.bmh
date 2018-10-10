@@ -2217,13 +2217,3 @@ rect is equal to copy
 ##
 
 #SeeAlso dump
-
-##
-
-#Method static SkRect MakeLargest()
-#Deprecated
-##
-
-#Struct SkRect ##
-
-#Topic Rect ##
