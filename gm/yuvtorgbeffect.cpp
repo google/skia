@@ -113,9 +113,9 @@ protected:
 
             for (int i = 0; i < 6; ++i) {
                 SkYUVAIndex yuvaIndices[4] = {
-                    { indices[i][0], SkColorChannel::kA },
-                    { indices[i][1], SkColorChannel::kA },
-                    { indices[i][2], SkColorChannel::kA },
+                    { indices[i][0], SkColorChannel::kR },
+                    { indices[i][1], SkColorChannel::kR },
+                    { indices[i][2], SkColorChannel::kR },
                     { -1, SkColorChannel::kA }
                 };
 
@@ -223,7 +223,7 @@ protected:
         }
 
         SkYUVAIndex yuvaIndices[4] = {
-            {  0, SkColorChannel::kA },
+            {  0, SkColorChannel::kR },
             {  1, SkColorChannel::kR },
             {  1, SkColorChannel::kG },
             { -1, SkColorChannel::kA }

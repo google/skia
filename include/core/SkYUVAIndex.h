@@ -29,6 +29,14 @@ enum class SkColorChannel {
     to read from.
 */
 struct SK_API SkYUVAIndex {
+    bool operator==(const SkYUVAIndex& that) const {
+        return this->fIndex == that.fIndex && this->fChannel == that.fChannel;
+    }
+
+    bool operator!=(const SkYUVAIndex& that) const {
+        return !(*this == that);
+    }
+
     // Index in the array of SkYUVAIndex
     enum Index {
         kY_Index = 0,
