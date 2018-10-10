@@ -942,7 +942,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
         { kRGBA_F32_SkColorType,  srgbColorSpace,       supportsF32,  "F32-srgb"    },
         { kRGBA_F32_SkColorType,  oddColorSpace,        supportsF32,  "F32-odd"     },
         { kRGB_565_SkColorType,   srgbColorSpace,             false,  "565-srgb"    },
-        { kAlpha_8_SkColorType,   srgbColorSpace,             false,  "A8-srgb"     },
+        { kAlpha_8_SkColorType,   srgbColorSpace,              true,  "A8-srgb"     },
         { kRGBA_1010102_SkColorType, nullptr,       supports1010102,  "1010102-nullptr" },
     };
 
