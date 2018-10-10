@@ -56,30 +56,34 @@ sk_sp<SkPDFDict> SkPDFGraphicState::GetGraphicStateForPaint(SkPDFCanon* canon,
                                                             const SkPaint& p) {
     SkASSERT(canon);
     if (SkPaint::kFill_Style == p.getStyle()) {
-        SkPDFFillGraphicState fillKey = {p.getAlpha(), pdf_blend_mode(p.getBlendMode())};
+        SkPDFFillGraphicState fillKey = {p.getColor4f().fA, pdf_blend_mode(p.getBlendMode())};
         auto& fillMap = canon->fFillGSMap;
         if (sk_sp<SkPDFDict>* statePtr = fillMap.find(fillKey)) {
             return *statePtr;
         }
         auto state = sk_make_sp<SkPDFDict>();
         state->reserve(2);
-        state->insertScalar("ca", fillKey.fAlpha / 255.0f);
+        state->insertColorComponentF("ca", fillKey.fAlpha);
         state->insertName("BM", as_pdf_blend_mode_name((SkBlendMode)fillKey.fBlendMode));
         fillMap.set(fillKey, state);
         return state;
     } else {
         SkPDFStrokeGraphicState strokeKey = {
-            p.getStrokeWidth(), p.getStrokeMiter(),
-            SkToU8(p.getStrokeCap()), SkToU8(p.getStrokeJoin()),
-            p.getAlpha(), pdf_blend_mode(p.getBlendMode())};
+            p.getStrokeWidth(),
+            p.getStrokeMiter(),
+            p.getColor4f().fA,
+            SkToU8(p.getStrokeCap()),
+            SkToU8(p.getStrokeJoin()),
+            pdf_blend_mode(p.getBlendMode())
+        };
         auto& sMap = canon->fStrokeGSMap;
         if (sk_sp<SkPDFDict>* statePtr = sMap.find(strokeKey)) {
             return *statePtr;
         }
         auto state = sk_make_sp<SkPDFDict>();
         state->reserve(8);
-        state->insertScalar("CA", strokeKey.fAlpha / 255.0f);
-        state->insertScalar("ca", strokeKey.fAlpha / 255.0f);
+        state->insertColorComponentF("CA", strokeKey.fAlpha);
+        state->insertColorComponentF("ca", strokeKey.fAlpha);
         state->insertInt("LC", to_stroke_cap(strokeKey.fStrokeCap));
         state->insertInt("LJ", to_stroke_join(strokeKey.fStrokeJoin));
         state->insertScalar("LW", strokeKey.fStrokeWidth);
