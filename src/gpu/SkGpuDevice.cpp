@@ -1636,8 +1636,9 @@ bool SkGpuDevice::isDrawableSupported(SkDrawable* drawable) const {
 
 void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix& matrix) {
     SkASSERT(this->isDrawableSupported(drawable));
-    // TODO: Create a drawable Op here
+    fRenderTargetContext->drawDrawable(drawable, matrix);
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
