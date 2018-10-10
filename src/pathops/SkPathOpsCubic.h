@@ -80,9 +80,12 @@ struct SkDCubic {
     bool hullIntersects(const SkDQuad& c2, bool* isLinear) const;
     bool hullIntersects(const SkDPoint* pts, int ptCount, bool* isLinear) const;
     bool isLinear(int startIndex, int endIndex) const;
+    static int maxIntersections() { return kMaxIntersections; }
     bool monotonicInX() const;
     bool monotonicInY() const;
     void otherPts(int index, const SkDPoint* o1Pts[kPointCount - 1]) const;
+    static int pointCount() { return kPointCount; }
+    static int pointLast() { return kPointLast; }
     SkDPoint ptAtT(double t) const;
     static int RootsReal(double A, double B, double C, double D, double t[3]);
     static int RootsValidT(const double A, const double B, const double C, double D, double s[3]);
@@ -114,6 +117,7 @@ struct SkDCubic {
     }
 
     SkDCubic subDivide(double t1, double t2) const;
+    void subDivide(double t1, double t2, SkDCubic* c) const { *c = this->subDivide(t1, t2); }
 
     static SkDCubic SubDivide(const SkPoint a[kPointCount], double t1, double t2) {
         SkDCubic cubic;

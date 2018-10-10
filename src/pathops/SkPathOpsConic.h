@@ -80,6 +80,8 @@ struct SkDConic {
         return fPts.isLinear(startIndex, endIndex);
     }
 
+    static int maxIntersections() { return kMaxIntersections; }
+
     bool monotonicInX() const {
         return fPts.monotonicInX();
     }
@@ -92,6 +94,8 @@ struct SkDConic {
         fPts.otherPts(oddMan, endPt);
     }
 
+    static int pointCount() { return kPointCount; }
+    static int pointLast() { return kPointLast; }
     SkDPoint ptAtT(double t) const;
 
     static int RootsReal(double A, double B, double C, double t[2]) {
@@ -103,6 +107,7 @@ struct SkDConic {
     }
 
     SkDConic subDivide(double t1, double t2) const;
+    void subDivide(double t1, double t2, SkDConic* c) const { *c = this->subDivide(t1, t2); }
 
     static SkDConic SubDivide(const SkPoint a[kPointCount], SkScalar weight, double t1, double t2) {
         SkDConic conic;

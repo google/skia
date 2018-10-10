@@ -60,3 +60,16 @@ int SkIntersections::intersect(const SkDCubic& cubic1, const SkDCubic& cubic2) {
     SkTSect<SkDCubic, SkDCubic>::BinarySearch(&sect1, &sect2, this);
     return used();
 }
+
+#if PATH_OP_COMPILE_FOR_SIZE
+
+int SkIntersections::intersect(const SkTQuad& quad1, const SkTQuad& quad2) {
+    SkTSect<SkTQuad, SkTQuad> sect1(quad1
+        SkDEBUGPARAMS(globalState())  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
+    SkTSect<SkTQuad, SkTQuad> sect2(quad2
+        SkDEBUGPARAMS(globalState())  PATH_OPS_DEBUG_T_SECT_PARAMS(2));
+    SkTSect<SkTQuad, SkTQuad>::BinarySearch(&sect1, &sect2, this);
+    return used();
+}
+
+#endif
