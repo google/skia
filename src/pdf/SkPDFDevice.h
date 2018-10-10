@@ -123,7 +123,7 @@ public:
     struct GraphicStateEntry {
         SkMatrix fMatrix = SkMatrix::I();
         uint32_t fClipStackGenID = SkClipStack::kWideOpenGenID;
-        SkColor fColor = SK_ColorBLACK;
+        SkColor4f fColor = {0, 0, 0, 1};
         SkScalar fTextScaleX = 1;  // Zero means we don't care what the value is.
         SkPaint::Style fTextFill = SkPaint::kFill_Style;  // Only if TextScaleX is non-zero.
         int fShaderIndex = -1;

@@ -66,9 +66,17 @@ void ApplyPattern(int objectIndex, SkWStream* content);
 // Converts (value / 255.0) with three significant digits of accuracy.
 // Writes value as string into result.  Returns strlen() of result.
 size_t ColorToDecimal(uint8_t value, char result[5]);
+
+static constexpr unsigned kFloatColorDecimalCount = 4;
+size_t ColorToDecimalF(float value, char result[kFloatColorDecimalCount + 2]);
 inline void AppendColorComponent(uint8_t value, SkWStream* wStream) {
     char buffer[5];
     size_t len = SkPDFUtils::ColorToDecimal(value, buffer);
+    wStream->write(buffer, len);
+}
+inline void AppendColorComponentF(float value, SkWStream* wStream) {
+    char buffer[kFloatColorDecimalCount + 2];
+    size_t len = SkPDFUtils::ColorToDecimalF(value, buffer);
     wStream->write(buffer, len);
 }
 
