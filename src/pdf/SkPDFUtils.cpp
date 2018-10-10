@@ -244,21 +244,16 @@ void SkPDFUtils::ApplyPattern(int objectIndex, SkWStream* content) {
     content->writeText(" scn\n");
 }
 
-size_t SkPDFUtils::ColorToDecimal(uint8_t value, char result[5]) {
-    if (value == 255 || value == 0) {
-        result[0] = value ? '1' : '0';
-        result[1] = '\0';
-        return 1;
-    }
-    // int x = 0.5 + (1000.0 / 255.0) * value;
-    int x = SkFixedRoundToInt((SK_Fixed1 * 1000 / 255) * value);
+// return "x/pow(10, places)", given 0<x<pow(10, places)
+// result points to places+2 chars.
+static size_t print_permil_as_decimal(int x, char* result, unsigned places) {
     result[0] = '.';
-    for (int i = 3; i > 0; --i) {
+    for (int i = places; i > 0; --i) {
         result[i] = '0' + x % 10;
         x /= 10;
     }
     int j;
-    for (j = 3; j > 1; --j) {
+    for (j = places; j > 1; --j) {
         if (result[j] != '0') {
             break;
         }
@@ -267,6 +262,36 @@ size_t SkPDFUtils::ColorToDecimal(uint8_t value, char result[5]) {
     return j + 1;
 }
 
+
+static constexpr int int_pow(int base, unsigned exp, int acc = 1) {
+  return exp < 1 ? acc
+                 : int_pow(base * base,
+                           exp / 2,
+                           (exp % 2) ? acc * base : acc);
+}
+
+
+size_t SkPDFUtils::ColorToDecimalF(float value, char result[kFloatColorDecimalCount + 2]) {
+    static constexpr int kFactor = int_pow(10, kFloatColorDecimalCount);
+    int x = sk_float_round2int(value * kFactor);
+    if (x >= kFactor || x <= 0) {  // clamp to 0-1
+        result[0] = x > 0 ? '1' : '0';
+        result[1] = '\0';
+        return 1;
+    }
+    return print_permil_as_decimal(x, result, kFloatColorDecimalCount);
+}
+
+size_t SkPDFUtils::ColorToDecimal(uint8_t value, char result[5]) {
+    if (value == 255 || value == 0) {
+        result[0] = value ? '1' : '0';
+        result[1] = '\0';
+        return 1;
+    }
+    // int x = 0.5 + (1000.0 / 255.0) * value;
+    int x = SkFixedRoundToInt((SK_Fixed1 * 1000 / 255) * value);
+    return print_permil_as_decimal(x, result, 3);
+}
 
 bool SkPDFUtils::InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
     SkMatrix inverse;
