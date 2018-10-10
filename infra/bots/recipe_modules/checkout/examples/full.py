@@ -86,7 +86,7 @@ def GenTests(api):
                      patch_storage='gerrit')
   )
 
-  buildername = 'Build-Debian9-GCC-x86_64-Release-Flutter_Android'
+  buildername = 'Build-Debian9-Clang-arm-Release-Flutter_Android'
   yield (
       api.test('flutter_trybot') +
       api.properties(
