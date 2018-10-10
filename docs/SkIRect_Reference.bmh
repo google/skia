@@ -1594,6 +1594,10 @@ rect: 0, 0, 0, 0
 
 ##
 
+#Method static SkIRect MakeLargest()
+#Deprecated
+##
+
 #Struct SkIRect ##
 
 #Topic IRect ##
