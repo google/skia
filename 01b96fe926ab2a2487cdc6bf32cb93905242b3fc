@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60e9eba5_27e831d5",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-10T14:24:42Z",
+      "side": 1,
+      "message": "These array-ish arguments might clearer as \u0027ts\u0027?",
+      "range": {
+        "startLine": 213,
+        "startChar": 35,
+        "endLine": 213,
+        "endChar": 36
+      },
+      "revId": "01b96fe926ab2a2487cdc6bf32cb93905242b3fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b267cb9d_6135ae95",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-10T14:24:42Z",
+      "side": 1,
+      "message": "It\u0027s nice to pass these kinds of arguments as Fn\u0026\u0026 so you can never accidentally copy them.",
+      "range": {
+        "startLine": 532,
+        "startChar": 42,
+        "endLine": 532,
+        "endChar": 44
+      },
+      "revId": "01b96fe926ab2a2487cdc6bf32cb93905242b3fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
