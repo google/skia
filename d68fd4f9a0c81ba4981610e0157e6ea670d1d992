@@ -22,6 +22,30 @@
       "revId": "d68fd4f9a0c81ba4981610e0157e6ea670d1d992",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15713906_802afc5f",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-10T20:08:13Z",
+      "side": 1,
+      "message": "Yes, it is. It\u0027s because SkImageInfoIsValid returns false for 565 and Gray8 with any alpha type other than kOpaque. :P",
+      "parentUuid": "256b857e_c3a2926b",
+      "range": {
+        "startLine": 944,
+        "startChar": 62,
+        "endLine": 944,
+        "endChar": 80
+      },
+      "revId": "d68fd4f9a0c81ba4981610e0157e6ea670d1d992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
