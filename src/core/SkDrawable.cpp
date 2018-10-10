@@ -21,7 +21,11 @@ static int32_t next_generation_id() {
     return genID;
 }
 
-SkDrawable::SkDrawable() : fGenerationID(0) {}
+SkDrawable::SkDrawable() : fGenerationID(0), fDrawSupportFlags(0) {}
+
+SkDrawable::SkDrawable(uint32_t drawSupportFlags)
+    : fGenerationID(0)
+    , fDrawSupportFlags(drawSupportFlags) {}
 
 static void draw_bbox(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
