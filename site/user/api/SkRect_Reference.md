@@ -11,7 +11,6 @@ struct <a href='#SkRect'>SkRect</a> {
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkRect_fBottom'>fBottom</a>;
 
     static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeEmpty'>MakeEmpty</a>();
-    static <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeLargest'>MakeLargest</a>();
     static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeWH'>MakeWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> w, <a href='undocumented#SkScalar'>SkScalar</a> h);
     static <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeIWH'>MakeIWH</a>(int w, int h);
     static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeSize'>MakeSize</a>(const <a href='undocumented#SkSize'>SkSize</a>& size);
@@ -2914,15 +2913,3 @@ rect is equal to copy
 <a href='#SkRect_dump'>dump</a><sup><a href='#SkRect_dump_2'>[2]</a></sup>
 
 ---
-
-<a name='SkRect_MakeLargest'></a>
-## MakeLargest
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeLargest'>MakeLargest</a>()
-</pre>
-
-Deprecated.
-
----
-

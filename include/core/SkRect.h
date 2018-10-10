@@ -51,14 +51,6 @@ struct SK_API SkIRect {
         return SkIRect{0, 0, 0, 0};
     }
 
-#ifdef SK_SUPPORT_LEGACY_RECTMAKELARGEST
-    /** Deprecated.
-    */
-    static SkIRect SK_WARN_UNUSED_RESULT MakeLargest() {
-        return { SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32 };
-    }
-#endif
-
     /** Returns constructed SkIRect set to (0, 0, w, h). Does not validate input; w or h
         may be negative.
 
@@ -701,14 +693,6 @@ struct SK_API SkRect {
     static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty() {
         return SkRect{0, 0, 0, 0};
     }
-
-#ifdef SK_SUPPORT_LEGACY_RECTMAKELARGEST
-    /** Deprecated.
-    */
-    static SkRect SK_WARN_UNUSED_RESULT MakeLargest() {
-        return { SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax };
-    }
-#endif
 
     /** Returns constructed SkRect set to SkScalar values (0, 0, w, h). Does not
         validate input; w or h may be negative.
