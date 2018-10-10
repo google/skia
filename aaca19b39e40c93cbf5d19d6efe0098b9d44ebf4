@@ -564,6 +564,30 @@
     },
     {
       "key": {
+        "uuid": "174fb9ab_cec2804d",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-10T01:11:27Z",
+      "side": 1,
+      "message": "I think it\u0027s still open what the \u0027right\u0027 behavior should be, but one example of where Wuffs as is and my \"cake and eat it too\" idea differ is in Skia\u0027s resources/images/alphabetAnim.gif\n\nThe detail is:\n\n```\n$ gifsicle --info resources/images/alphabetAnim.gif\n* resources/images/alphabetAnim.gif 13 images\n  logical screen 100x100\n  global color table [2]\netc\n  + image #12 25x25 at 37,37 transparent 8\n    delay 0.10s\n```\n\nThe global palette has 2 entries; the final frame sets index 8 to transparent. The LZW-compressed pixel data (which \"gifsicle --info\" doesn\u0027t show) refer to entries 2, 3, 4, 5, 6 and 7, but not 8.\n\nWuffs as is interprets anything in [2, 7] as opaque black, \"cake and eat it too\" would interpret as transparent black.",
+      "parentUuid": "d3acdfb4_b87feb15",
+      "range": {
+        "startLine": 1485,
+        "startChar": 0,
+        "endLine": 1486,
+        "endChar": 13
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45aabc90_080d06da",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 10
