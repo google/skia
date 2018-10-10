@@ -1591,13 +1591,3 @@ rect: 0, 0, 0, 0
 ##
 
 #SeeAlso MakeEmpty
-
-##
-
-#Method static SkIRect MakeLargest()
-#Deprecated
-##
-
-#Struct SkIRect ##
-
-#Topic IRect ##

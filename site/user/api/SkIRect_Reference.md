@@ -11,7 +11,6 @@ struct <a href='#SkIRect'>SkIRect</a> {
     int32_t <a href='#SkIRect_fBottom'>fBottom</a>;
 
     static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeEmpty'>MakeEmpty</a>();
-    static <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeLargest'>MakeLargest</a>();
     static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeWH'>MakeWH</a>(int32_t w, int32_t h);
     static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeSize'>MakeSize</a>(const <a href='undocumented#SkISize'>SkISize</a>& size);
     static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeLTRB'>MakeLTRB</a>(int32_t l, int32_t t,
@@ -2195,15 +2194,3 @@ rect: 0, 0, 0, 0
 <a href='#SkIRect_MakeEmpty'>MakeEmpty</a>
 
 ---
-
-<a name='SkIRect_MakeLargest'></a>
-## MakeLargest
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeLargest'>MakeLargest</a>()
-</pre>
-
-Deprecated.
-
----
-
