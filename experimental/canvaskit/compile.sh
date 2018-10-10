@@ -22,12 +22,44 @@ source $EMSDK/emsdk_env.sh
 EMCC=`which emcc`
 EMCXX=`which em++`
 
-RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE"
+#FIXME add --closure 1 back in when ready
+RELEASE_CONF="-Oz --js-opts 0 --llvm-lto 3 -DSK_RELEASE"
 EXTRA_CFLAGS="\"-DSK_RELEASE\""
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
   RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
+fi
+
+GN_GPU="skia_enable_gpu=true skia_enable_ccpr=false"
+WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1"
+if [[ $@ == *no_gpu* ]]; then
+  echo "Omitting the GPU backend"
+  GN_GPU="skia_enable_gpu=false"
+  WASM_GPU="-DSK_SUPPORT_GPU=0"
+fi
+
+WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=1 \
+  modules/skottie/src/Skottie.cpp \
+  modules/skottie/src/SkottieAdapter.cpp \
+  modules/skottie/src/SkottieAnimator.cpp \
+  modules/skottie/src/SkottieJson.cpp \
+  modules/skottie/src/SkottieLayer.cpp \
+  modules/skottie/src/SkottieLayerEffect.cpp \
+  modules/skottie/src/SkottiePrecompLayer.cpp \
+  modules/skottie/src/SkottieProperty.cpp \
+  modules/skottie/src/SkottieShapeLayer.cpp \
+  modules/skottie/src/SkottieTextLayer.cpp \
+  modules/skottie/src/SkottieValue.cpp \
+  modules/sksg/src/*.cpp \
+  src/core/SkCubicMap.cpp \
+  src/core/SkTime.cpp \
+  src/pathops/SkOpBuilder.cpp \
+  src/utils/SkJSON.cpp \
+  src/utils/SkParse.cpp "
+if [[ $@ == *no_skottie* ]]; then
+  echo "Omitting Skottie"
+  WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=0"
 fi
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
@@ -72,7 +104,7 @@ echo "Compiling bitcode"
   skia_use_vulkan=false \
   skia_use_zlib=true \
   \
-  skia_enable_gpu=true \
+  ${GN_GPU} \
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
 
@@ -103,33 +135,16 @@ ${EMCXX} \
     -Isrc/sfnt/ \
     -Itools/fonts \
     -Itools \
-    -lEGL \
-    -lGLESv2 \
+    $WASM_GPU \
     -std=c++14 \
     --bind \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
     $BASE_DIR/canvaskit_bindings.cpp \
     $BUILD_DIR/libskia.a \
-    modules/skottie/src/Skottie.cpp \
-    modules/skottie/src/SkottieAdapter.cpp \
-    modules/skottie/src/SkottieAnimator.cpp \
-    modules/skottie/src/SkottieJson.cpp \
-    modules/skottie/src/SkottieLayer.cpp \
-    modules/skottie/src/SkottieLayerEffect.cpp \
-    modules/skottie/src/SkottiePrecompLayer.cpp \
-    modules/skottie/src/SkottieProperty.cpp \
-    modules/skottie/src/SkottieShapeLayer.cpp \
-    modules/skottie/src/SkottieTextLayer.cpp \
-    modules/skottie/src/SkottieValue.cpp \
-    modules/sksg/src/*.cpp \
-    src/core/SkCubicMap.cpp \
-    src/core/SkTime.cpp \
-    src/pathops/SkOpBuilder.cpp \
     tools/fonts/SkTestFontMgr.cpp \
     tools/fonts/SkTestTypeface.cpp \
-    src/utils/SkJSON.cpp \
-    src/utils/SkParse.cpp \
+    $WASM_SKOTTIE \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
