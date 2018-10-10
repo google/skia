@@ -57,9 +57,7 @@ SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerConte
     SkDebugf("SkScalerContext checksum %x count %d length %d\n",
              desc->getChecksum(), desc->getCount(), desc->getLength());
     SkDebugf("%s", fRec.dump().c_str());
-    SkDebugf("  pathEffect %x maskFilter %x\n",
-             desc->findEntry(kPathEffect_SkDescriptorTag, nullptr),
-        desc->findEntry(kMaskFilter_SkDescriptorTag, nullptr));
+    SkDebugf("  effects %x\n", desc->findEntry(kEffects_SkDescriptorTag, nullptr));
 #endif
 }
 
@@ -1126,107 +1124,36 @@ SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
     return AutoDescriptorGivenRecAndEffects(rec, *effects, ad);
 }
 
-static size_t calculate_size_and_flatten(
-    const SkScalerContextRec& rec,
-    const SkScalerContextEffects& effects,
-    SkBinaryWriteBuffer* pathEffectBuffer,
-    SkBinaryWriteBuffer* maskFilterBuffer)
-{
+static size_t calculate_size_and_flatten(const SkScalerContextRec& rec,
+                                         const SkScalerContextEffects& effects,
+                                         SkBinaryWriteBuffer* effectBuffer) {
     size_t descSize = sizeof(rec);
     int entryCount = 1;
 
-    if (effects.fPathEffect) {
-        pathEffectBuffer->writeFlattenable(effects.fPathEffect);
-        descSize += pathEffectBuffer->bytesWritten();
+    if (effects.fPathEffect || effects.fMaskFilter) {
+        if (effects.fPathEffect) { effectBuffer->writeFlattenable(effects.fPathEffect); }
+        if (effects.fMaskFilter) { effectBuffer->writeFlattenable(effects.fMaskFilter); }
         entryCount += 1;
-    }
-    if (effects.fMaskFilter) {
-        maskFilterBuffer->writeFlattenable(effects.fMaskFilter);
-        descSize += maskFilterBuffer->bytesWritten();
-        entryCount += 1;
+        descSize += effectBuffer->bytesWritten();
     }
 
     descSize += SkDescriptor::ComputeOverhead(entryCount);
     return descSize;
 }
 
-#ifdef SK_DEBUG
-  #define TEST_DESC
-#endif
-
-#ifdef TEST_DESC
-static void test_desc(const SkScalerContextRec& rec,
-                      const SkScalerContextEffects& effects,
-                      SkBinaryWriteBuffer* peBuffer,
-                      SkBinaryWriteBuffer* mfBuffer,
-                      const SkDescriptor* desc) {
-    // Check that we completely write the bytes in desc (our key), and that
-    // there are no uninitialized bytes. If there were, then we would get
-    // false-misses (or worse, false-hits) in our fontcache.
-    //
-    // We do this buy filling 2 others, one with 0s and the other with 1s
-    // and create those, and then check that all 3 are identical.
-    SkAutoDescriptor    ad1(desc->getLength());
-    SkAutoDescriptor    ad2(desc->getLength());
-    SkDescriptor*       desc1 = ad1.getDesc();
-    SkDescriptor*       desc2 = ad2.getDesc();
-
-    memset(desc1, 0x00, desc->getLength());
-    memset(desc2, 0xFF, desc->getLength());
-
-    desc1->init();
-    desc2->init();
-    desc1->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-    desc2->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-
-    auto add_flattenable = [](SkDescriptor* desc, uint32_t tag,
-                              SkBinaryWriteBuffer* buffer) {
-        buffer->writeToMemory(desc->addEntry(tag, buffer->bytesWritten(), nullptr));
-    };
-
-    if (effects.fPathEffect) {
-        add_flattenable(desc1, kPathEffect_SkDescriptorTag, peBuffer);
-        add_flattenable(desc2, kPathEffect_SkDescriptorTag, peBuffer);
-    }
-    if (effects.fMaskFilter) {
-        add_flattenable(desc1, kMaskFilter_SkDescriptorTag, mfBuffer);
-        add_flattenable(desc2, kMaskFilter_SkDescriptorTag, mfBuffer);
-    }
-
-    SkASSERT(desc->getLength() == desc1->getLength());
-    SkASSERT(desc->getLength() == desc2->getLength());
-    desc1->computeChecksum();
-    desc2->computeChecksum();
-    SkASSERT(!memcmp(desc, desc1, desc->getLength()));
-    SkASSERT(!memcmp(desc, desc2, desc->getLength()));
-}
-#endif
-
-void generate_descriptor(
-    const SkScalerContextRec& rec,
-    const SkScalerContextEffects& effects,
-    SkBinaryWriteBuffer* pathEffectBuffer,
-    SkBinaryWriteBuffer* maskFilterBuffer,
-    SkDescriptor* desc)
-{
+static void generate_descriptor(const SkScalerContextRec& rec,
+                                const SkBinaryWriteBuffer& effectBuffer,
+                                SkDescriptor* desc) {
     desc->init();
     desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
 
-    auto add = [&desc](uint32_t tag, SkBinaryWriteBuffer* buffer) {
-        buffer->writeToMemory(desc->addEntry(tag, buffer->bytesWritten(), nullptr));
-    };
-
-    if (effects.fPathEffect) {
-        add(kPathEffect_SkDescriptorTag, pathEffectBuffer);
-    }
-    if (effects.fMaskFilter) {
-        add(kMaskFilter_SkDescriptorTag, maskFilterBuffer);
+    if (effectBuffer.bytesWritten() > 0) {
+        effectBuffer.writeToMemory(desc->addEntry(kEffects_SkDescriptorTag,
+                                                  effectBuffer.bytesWritten(),
+                                                  nullptr));
     }
 
     desc->computeChecksum();
-#ifdef TEST_DESC
-    test_desc(rec, effects, pathEffectBuffer, maskFilterBuffer, desc);
-#endif
 }
 
 SkDescriptor* SkScalerContext::AutoDescriptorGivenRecAndEffects(
@@ -1234,11 +1161,10 @@ SkDescriptor* SkScalerContext::AutoDescriptorGivenRecAndEffects(
     const SkScalerContextEffects& effects,
     SkAutoDescriptor* ad)
 {
-    SkBinaryWriteBuffer peBuffer, mfBuffer;
+    SkBinaryWriteBuffer buf;
 
-    ad->reset(calculate_size_and_flatten(rec, effects, &peBuffer, &mfBuffer));
-
-    generate_descriptor(rec, effects, &peBuffer, &mfBuffer, ad->getDesc());
+    ad->reset(calculate_size_and_flatten(rec, effects, &buf));
+    generate_descriptor(rec, buf, ad->getDesc());
 
     return ad->getDesc();
 }
@@ -1247,27 +1173,23 @@ std::unique_ptr<SkDescriptor> SkScalerContext::DescriptorGivenRecAndEffects(
     const SkScalerContextRec& rec,
     const SkScalerContextEffects& effects)
 {
-    SkBinaryWriteBuffer peBuffer, mfBuffer;
+    SkBinaryWriteBuffer buf;
 
-    auto desc = SkDescriptor::Alloc(calculate_size_and_flatten(rec, effects, &peBuffer, &mfBuffer));
-
-    generate_descriptor(rec, effects, &peBuffer, &mfBuffer, desc.get());
+    auto desc = SkDescriptor::Alloc(calculate_size_and_flatten(rec, effects, &buf));
+    generate_descriptor(rec, buf, desc.get());
 
     return desc;
 }
 
 void SkScalerContext::DescriptorBufferGiveRec(const SkScalerContextRec& rec, void* buffer) {
-    SkScalerContextEffects noEffects;
-    SkBinaryWriteBuffer peBuffer, mfBuffer;
-    generate_descriptor(rec, noEffects, &peBuffer, &mfBuffer, (SkDescriptor*)buffer);
+    generate_descriptor(rec, SkBinaryWriteBuffer{}, (SkDescriptor*)buffer);
 }
 
 bool SkScalerContext::CheckBufferSizeForRec(const SkScalerContextRec& rec,
                                             const SkScalerContextEffects& effects,
                                             size_t size) {
-    SkBinaryWriteBuffer peBuffer, mfBuffer;
-
-    return size >= calculate_size_and_flatten(rec, effects, &peBuffer, &mfBuffer);
+    SkBinaryWriteBuffer buf;
+    return size >= calculate_size_and_flatten(rec, effects, &buf);
 }
 
 

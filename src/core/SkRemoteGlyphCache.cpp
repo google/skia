@@ -17,7 +17,6 @@
 #include "SkDraw.h"
 #include "SkGlyphRun.h"
 #include "SkGlyphCache.h"
-#include "SkPathEffect.h"
 #include "SkRemoteGlyphCacheImpl.h"
 #include "SkStrikeCache.h"
 #include "SkTraceEvent.h"
@@ -45,18 +44,11 @@ static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
         desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     }
 
-    // Path effect.
+    // Effects.
     {
         uint32_t size;
-        auto ptr = source_desc->findEntry(kPathEffect_SkDescriptorTag, &size);
-        if (ptr) desc->addEntry(kPathEffect_SkDescriptorTag, size, ptr);
-    }
-
-    // Mask filter.
-    {
-        uint32_t size;
-        auto ptr = source_desc->findEntry(kMaskFilter_SkDescriptorTag, &size);
-        if (ptr) desc->addEntry(kMaskFilter_SkDescriptorTag, size, ptr);
+        auto ptr = source_desc->findEntry(kEffects_SkDescriptorTag, &size);
+        if (ptr) { desc->addEntry(kEffects_SkDescriptorTag, size, ptr); }
     }
 
     desc->computeChecksum();
