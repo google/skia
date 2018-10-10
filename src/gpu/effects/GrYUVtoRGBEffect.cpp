@@ -28,40 +28,11 @@ static const float kRec709ConversionMatrix[16] = {
     0.0f,    0.0f,    0.0f,    1.0f
 };
 
-static bool is_valid_yuv(const SkYUVAIndex yuvaIndices[4], int* numPlanes) {
-
-    int maxSlotUsed = -1;
-    bool used[4] = { false, false, false, false };
-    for (int i = 0; i < 4; ++i) {
-
-        if (yuvaIndices[i].fIndex < 0) {
-            if (SkYUVAIndex::kA_Index != i) {
-                return false; // only the 'A' plane can be omitted
-            }
-        } else if (yuvaIndices[i].fIndex > 3) {
-            return false; // A maximum of four input textures is allowed
-        } else {
-            maxSlotUsed = SkTMax(yuvaIndices[i].fIndex, maxSlotUsed);
-            used[i] = true;
-        }
-    }
-
-    // All the used slots should be packed starting at 0 with no gaps
-    for (int i = 0; i <= maxSlotUsed; ++i) {
-        if (!used[i]) {
-            return false;
-        }
-    }
-
-    *numPlanes = maxSlotUsed+1;
-    return true;
-}
-
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextureProxy> proxies[],
                                                             const SkYUVAIndex yuvaIndices[4],
                                                             SkYUVColorSpace yuvColorSpace) {
     int numPlanes;
-    SkAssertResult(is_valid_yuv(yuvaIndices, &numPlanes));
+    SkAssertResult(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
 
     const SkISize YSize = proxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex]->isize();
 

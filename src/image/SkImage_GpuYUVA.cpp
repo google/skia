@@ -168,12 +168,10 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
             SkASSERT(yuvaTexturesCopy[textureIndex].isValid());
             tempTextureProxies[textureIndex] =
                 proxyProvider->wrapBackendTexture(yuvaTexturesCopy[textureIndex], origin);
+            if (!tempTextureProxies[textureIndex]) {
+                return nullptr;
+            }
         }
-    }
-    if (!tempTextureProxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex] ||
-        !tempTextureProxies[yuvaIndices[SkYUVAIndex::kU_Index].fIndex] ||
-        !tempTextureProxies[yuvaIndices[SkYUVAIndex::kV_Index].fIndex]) {
-        return nullptr;
     }
 
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(ctx), kNeedNewImageUniqueID, colorSpace,
@@ -193,11 +191,25 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
                                                        TextureReleaseProc textureReleaseProc,
                                                        PromiseDoneProc promiseDoneProc,
                                                        TextureContext textureContexts[]) {
+    // The contract here is that if 'promiseDoneProc' is passed in it should always be called,
+    // even if creation of the SkImage fails.
     if (!promiseDoneProc) {
         return nullptr;
     }
 
-    // TODO: fill in the promise image helpers here so promiseDoneProc will always be called
+    int numTextures;
+    bool valid = SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures);
+
+    // Set up promise helpers
+    SkPromiseImageHelper promiseHelpers[4];
+    for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
+        promiseHelpers[texIdx].set(textureFulfillProc, textureReleaseProc, promiseDoneProc,
+                                  textureContexts[texIdx]);
+    }
+
+    if (!valid) {
+        return nullptr;
+    }
 
     if (!context) {
         return nullptr;
@@ -219,68 +231,67 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         return nullptr;
     }
 
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-
-    SkColorType colorTypes[4] = { kUnknown_SkColorType, kUnknown_SkColorType,
-                                  kUnknown_SkColorType, kUnknown_SkColorType };
-    for (int i = 0; i < 4; ++i) {
-        if (yuvaIndices[i].fIndex < 0) {
-            SkASSERT(SkYUVAIndex::kA_Index == i); // We had better have YUV channels
+    // Set up color types
+    SkColorType texColorTypes[4] = { kUnknown_SkColorType, kUnknown_SkColorType,
+                                     kUnknown_SkColorType, kUnknown_SkColorType };
+    for (int yuvIndex = 0; yuvIndex < 4; ++yuvIndex) {
+        int texIdx = yuvaIndices[yuvIndex].fIndex;
+        if (texIdx < 0) {
+            SkASSERT(SkYUVAIndex::kA_Index);
             continue;
         }
-
-        SkASSERT(yuvaIndices[i].fIndex < 4);
-        if (kUnknown_SkColorType == colorTypes[i]) {
-            colorTypes[i] = kAlpha_8_SkColorType;
+        if (kUnknown_SkColorType == texColorTypes[texIdx]) {
+            texColorTypes[texIdx] = kAlpha_8_SkColorType;
         } else {
-            colorTypes[i] = kRGBA_8888_SkColorType;
+            texColorTypes[texIdx] = kRGBA_8888_SkColorType;
         }
+    }
+    // If UV is interleaved, then Y will have RGBA color type
+    if (kRGBA_8888_SkColorType == texColorTypes[yuvaIndices[SkYUVAIndex::kU_Index].fIndex]) {
+        texColorTypes[yuvaIndices[SkYUVAIndex::kY_Index].fIndex] = kRGBA_8888_SkColorType;
     }
 
     // Get lazy proxies
-    struct {
-        GrPixelConfig fConfig;
-        SkPromiseImageHelper fPromiseHelper;
-    } params;
-    GrProxyProvider::LazyInstantiateCallback lazyInstCallback =
-            [params](GrResourceProvider* resourceProvider) mutable {
-        if (!resourceProvider || !params.fPromiseHelper.isValid()) {
-            if (params.fPromiseHelper.isValid()) {
-                params.fPromiseHelper.reset();
-            }
-             return sk_sp<GrTexture>();
-        }
-
-        return params.fPromiseHelper.getTexture(resourceProvider, params.fConfig);
-    };
-
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = size.width();
     desc.fHeight = size.height();
-    // For now, we'll replace this for each proxy
-    desc.fConfig = kUnknown_GrPixelConfig;
+    desc.fConfig = kUnknown_GrPixelConfig;  // We'll replace this for each proxy.
     desc.fSampleCnt = 1;
     sk_sp<GrTextureProxy> proxies[4];
-    for (int i = 0; i < 4; ++i) {
+    for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
         // for each proxy we need to fill in
-        if (kUnknown_SkColorType != colorTypes[i]) {
-            GrPixelConfig pixelConfig;
-            if (!context->contextPriv().caps()->getConfigFromBackendFormat(yuvaFormats[i],
-                                                                           colorTypes[i],
-                                                                           &pixelConfig)) {
-                return nullptr;
+        struct {
+            GrPixelConfig fConfig;
+            SkPromiseImageHelper fPromiseHelper;
+        } params;
+        if (!context->contextPriv().caps()->getConfigFromBackendFormat(yuvaFormats[texIdx],
+                                                                       texColorTypes[texIdx],
+                                                                       &params.fConfig)) {
+            return nullptr;
+        }
+        params.fPromiseHelper = promiseHelpers[texIdx];
+
+        GrProxyProvider::LazyInstantiateCallback lazyInstCallback =
+            [params](GrResourceProvider* resourceProvider) mutable {
+            if (!resourceProvider || !params.fPromiseHelper.isValid()) {
+                if (params.fPromiseHelper.isValid()) {
+                    params.fPromiseHelper.reset();
+                }
+                return sk_sp<GrTexture>();
             }
 
-            desc.fConfig = pixelConfig;
-            proxies[i] = proxyProvider->createLazyProxy(
-                             std::move(lazyInstCallback), desc, imageOrigin, GrMipMapped::kNo,
-                             GrTextureType::k2D, GrInternalSurfaceFlags::kNone,
-                             SkBackingFit::kExact, SkBudgeted::kNo,
-                             GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
-            if (!proxies[i]) {
-                return nullptr;
-            }
+            return params.fPromiseHelper.getTexture(resourceProvider, params.fConfig);
+        };
+        desc.fConfig = params.fConfig;
+        proxies[texIdx] = proxyProvider->createLazyProxy(
+                            std::move(lazyInstCallback), desc, imageOrigin, GrMipMapped::kNo,
+                            GrTextureType::k2D, GrInternalSurfaceFlags::kNone,
+                            SkBackingFit::kExact, SkBudgeted::kNo,
+                            GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
+        if (!proxies[texIdx]) {
+            return nullptr;
         }
     }
 
