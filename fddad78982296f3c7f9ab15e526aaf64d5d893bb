@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2a157d2_863b0e07",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-10T15:18:28Z",
+      "side": 1,
+      "message": "this one too right?",
+      "range": {
+        "startLine": 223,
+        "startChar": 29,
+        "endLine": 223,
+        "endChar": 30
+      },
+      "revId": "fddad78982296f3c7f9ab15e526aaf64d5d893bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
