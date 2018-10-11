@@ -52,7 +52,7 @@ public:
 
     std::unique_ptr<SkDeferredDisplayList> detach();
 
-    // Matches the defines in SkImage_Gpu.h
+    // Matches the defines in SkImage_GpuBase.h
     typedef void* TextureContext;
     typedef void (*TextureReleaseProc)(TextureContext textureContext);
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);

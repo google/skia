@@ -716,12 +716,12 @@ protected:
     }
 
     void createImages(GrContext* context) {
-        for (bool opaque : { false, true }) {
-            for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
+        for (bool opaque : { true }) {
+            for (int cs = kLastEnum_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
                 PlaneData planes;
                 extract_planes(fOriginalBMs[opaque], (SkYUVColorSpace) cs, &planes);
 
-                for (int format = AYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
+                for (int format = kLast_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     SkBitmap resultBMs[4];
                     SkYUVAIndex yuvaIndices[4];
                     create_YUV(planes, (YUVFormat) format, resultBMs, yuvaIndices, opaque);
@@ -788,16 +788,16 @@ protected:
         this->createImages(canvas->getGrContext());
 
         int x = kLabelWidth;
-        for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
-            for (int opaque : { 0, 1 }) {
+        for (int cs = kLastEnum_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
+            for (int opaque : { 1 }) {
                 int y = kLabelHeight;
 
                 draw_col_label(canvas, x+kTileWidthHeight/2, cs, opaque);
 
-                canvas->drawBitmap(fOriginalBMs[opaque], x, y);
+//                canvas->drawBitmap(fOriginalBMs[opaque], x, y);
                 y += kTileWidthHeight + kPad;
 
-                for (int format = AYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
+                for (int format = kLast_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     draw_row_label(canvas, y, format);
                     canvas->drawImage(fImages[opaque][cs][format], x, y);
 

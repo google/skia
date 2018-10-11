@@ -218,29 +218,29 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
                                    isBudgeted);
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
-                                                 SkYUVColorSpace yuvColorSpace,
-                                                 const GrBackendTexture yuvaTextures[],
-                                                 const SkYUVAIndex yuvaIndices[4],
-                                                 SkISize imageSize,
-                                                 GrSurfaceOrigin imageOrigin,
-                                                 sk_sp<SkColorSpace> imageColorSpace) {
-    const int width = imageSize.width();
-    const int height = imageSize.height();
-
-    // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-            ctx->contextPriv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
-                    std::move(imageColorSpace), 1, GrMipMapped::kNo, imageOrigin));
-    if (!renderTargetContext) {
-        return nullptr;
-    }
-
-    return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, yuvaIndices,
-                                                 imageSize, imageOrigin, SkBudgeted::kYes,
-                                                 renderTargetContext.get());
-}
+//sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
+//                                                 SkYUVColorSpace yuvColorSpace,
+//                                                 const GrBackendTexture yuvaTextures[],
+//                                                 const SkYUVAIndex yuvaIndices[4],
+//                                                 SkISize imageSize,
+//                                                 GrSurfaceOrigin imageOrigin,
+//                                                 sk_sp<SkColorSpace> imageColorSpace) {
+//    const int width = imageSize.width();
+//    const int height = imageSize.height();
+//
+//    // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
+//    sk_sp<GrRenderTargetContext> renderTargetContext(
+//            ctx->contextPriv().makeDeferredRenderTargetContext(
+//                    SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
+//                    std::move(imageColorSpace), 1, GrMipMapped::kNo, imageOrigin));
+//    if (!renderTargetContext) {
+//        return nullptr;
+//    }
+//
+//    return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, yuvaIndices,
+//                                                 imageSize, imageOrigin, SkBudgeted::kYes,
+//                                                 renderTargetContext.get());
+//}
 
 sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
         GrContext* ctx,
