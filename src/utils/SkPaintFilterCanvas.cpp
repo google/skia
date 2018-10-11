@@ -173,6 +173,18 @@ void SkPaintFilterCanvas::onDrawImageLattice(const SkImage* image, const Lattice
     }
 }
 
+void SkPaintFilterCanvas::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
+                                         float alpha, SkFilterQuality filterQuality,
+                                         SkBlendMode mode) {
+    SkPaint paint;
+    paint.setBlendMode(mode);
+    AutoPaintFilter apf(this, kBitmap_Type, &paint);
+    mode = paint.getBlendMode();
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawImageSet(set, count, alpha, filterQuality, mode);
+    }
+}
+
 void SkPaintFilterCanvas::onDrawVerticesObject(const SkVertices* vertices,
                                                const SkVertices::Bone bones[], int boneCount,
                                                SkBlendMode bmode, const SkPaint& paint) {
