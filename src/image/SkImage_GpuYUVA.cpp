@@ -90,8 +90,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
         // DDL TODO: in the promise image version we must not flush here
         fContext->contextPriv().flushSurfaceWrites(renderTargetContext->asSurfaceProxy());
 
-        // cast to non-const
-        (sk_sp<GrTextureProxy>)(fRGBProxy) = renderTargetContext->asTextureProxyRef();
+        fRGBProxy = renderTargetContext->asTextureProxyRef();
     }
 
     return fRGBProxy;
@@ -99,11 +98,24 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
+                                                 SkYUVColorSpace yuvColorSpace,
+                                                 const GrBackendTexture yuvaTextures[],
+                                                 const SkYUVAIndex yuvaIndices[4],
+                                                 SkISize imageSize,
+                                                 GrSurfaceOrigin imageOrigin,
+                                                 sk_sp<SkColorSpace> imageColorSpace) {
+    return SkImage_GpuYUVA::MakeFromYUVATextures(ctx, yuvColorSpace, yuvaTextures,
+                                                 yuvaIndices, imageSize, imageOrigin,
+                                                 std::move(imageColorSpace));
+}
+
+
 //*** bundle this into a helper function used by this and SkImage_Gpu?
 sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
                                                      SkYUVColorSpace colorSpace,
                                                      const GrBackendTexture yuvaTextures[],
-                                                     SkYUVAIndex yuvaIndices[4],
+                                                     const SkYUVAIndex yuvaIndices[4],
                                                      SkISize size,
                                                      GrSurfaceOrigin origin,
                                                      sk_sp<SkColorSpace> imageColorSpace) {

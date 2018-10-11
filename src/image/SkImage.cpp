@@ -31,10 +31,11 @@
 #endif
 #include "GrBackendSurface.h"
 
-SkImage::SkImage(int width, int height, uint32_t uniqueID)
+SkImage::SkImage(int width, int height, uint32_t uniqueID, bool textureBacked)
     : fWidth(width)
     , fHeight(height)
     , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID)
+    , fIsTextureBacked(textureBacked)
 {
     SkASSERT(width > 0);
     SkASSERT(height > 0);
@@ -156,8 +157,6 @@ GrTexture* SkImage::getTexture() const {
     return as_IB(this)->onGetTexture();
 }
 
-bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekProxy()); }
-
 GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
                                             GrSurfaceOrigin* origin) const {
     return as_IB(this)->onGetBackendTexture(flushPendingGrContextIO, origin);
@@ -192,8 +191,8 @@ bool SkImage::isValid(GrContext* context) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImage_Base::SkImage_Base(int width, int height, uint32_t uniqueID)
-    : INHERITED(width, height, uniqueID)
+SkImage_Base::SkImage_Base(int width, int height, uint32_t uniqueID, bool textureBacked)
+    : INHERITED(width, height, uniqueID, textureBacked)
     , fAddedToRasterCache(false)
 {}
 
