@@ -96,7 +96,7 @@ private:
  * This class stores all the data necessary to draw a specific path + matrix combination from their
  * corresponding cached atlas.
  */
-class GrCCPathCacheEntry : public SkPathRef::GenIDChangeListener {
+class GrCCPathCacheEntry : public SkPathRef::GenIDInvalidateListener {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCPathCacheEntry);
 
@@ -153,20 +153,19 @@ public:
 private:
     using MaskTransform = GrCCPathCache::MaskTransform;
 
-    GrCCPathCacheEntry(GrCCPathCache* cache, const MaskTransform& m)
-            : fCacheWeakPtr(cache), fMaskTransform(m) {}
+    GrCCPathCacheEntry(GrCCPathCache*, const MaskTransform&, const GrShape&);
 
     // Resets this entry back to not having an atlas, and purges its previous atlas texture from the
     // resource cache if needed.
     void invalidateAtlas();
 
     // Called when our corresponding path is modified or deleted.
-    void onChange() override;
+    void notifyPathGenIDInvalidated() override;
 
     uint32_t fContextUniqueID;
     GrCCPathCache* fCacheWeakPtr;  // Gets manually reset to null by the path cache upon eviction.
     MaskTransform fMaskTransform;
-    int fHitCount = 1;
+    int fHitCount = 0;
 
     GrUniqueKey fAtlasKey;
     SkIVector fAtlasOffset;
@@ -180,6 +179,9 @@ private:
 
     // This field is for when a path gets drawn more than once during the same flush.
     const GrCCAtlas* fCurrFlushAtlas = nullptr;
+
+    // On which path (if any) is our GenIDInvalidateListener registered?
+    SkPathRef* fListenerTarget;
 
     friend class GrCCPathCache;
     friend void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry&, const SkIVector&,

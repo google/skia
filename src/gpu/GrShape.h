@@ -448,12 +448,12 @@ public:
      * a path is no longer in-use. If the shape started out as something other than a path, this
      * does nothing.
      */
-    void addGenIDChangeListener(sk_sp<SkPathRef::GenIDChangeListener>) const;
+    SkPathRef* addGenIDInvalidateListener(sk_sp<SkPathRef::GenIDInvalidateListener>) const;
 
     /**
      * Helpers that are only exposed for unit tests, to determine if the shape is a path, and get
      * the generation ID of the *original* path. This is the path that will receive
-     * GenIDChangeListeners added to this shape.
+     * GenIDInvalidateListeners added to this shape.
      */
     uint32_t testingOnly_getOriginalGenerationID() const;
     bool testingOnly_isPath() const;

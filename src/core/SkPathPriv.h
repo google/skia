@@ -86,9 +86,9 @@ public:
         return false;
     }
 
-    static void AddGenIDChangeListener(const SkPath& path,
-                                       sk_sp<SkPathRef::GenIDChangeListener> listener) {
-        path.fPathRef->addGenIDChangeListener(std::move(listener));
+    static SkPathRef* AddGenIDInvalidateListener(
+            const SkPath& path, sk_sp<SkPathRef::GenIDInvalidateListener> listener) {
+        return path.fPathRef->addGenIDInvalidateListener(std::move(listener));
     }
 
     /**
