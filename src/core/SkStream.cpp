@@ -860,6 +860,17 @@ private:
 };
 
 std::unique_ptr<SkStreamAsset> SkDynamicMemoryWStream::detachAsStream() {
+    if (nullptr == fHead) {
+        // no need to reset.
+        return SkMemoryStream::Make(nullptr);
+    }
+    if (fHead == fTail) {  // one block, may be worth shrinking.
+        ptrdiff_t used = fTail->fCurr - (char*)fTail;
+        fHead = fTail = (SkDynamicMemoryWStream::Block*)sk_realloc_throw(fTail, SkToSizeT(used));
+        fTail->fStop = fTail->fCurr = (char*)fTail + used;  // Update pointers.
+        SkASSERT(nullptr == fTail->fNext);
+        SkASSERT(0 == fBytesWrittenBeforeTail);
+    }
     std::unique_ptr<SkStreamAsset> stream
             = skstd::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
                                                       this->bytesWritten());
