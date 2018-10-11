@@ -248,7 +248,6 @@ bool SkImage_Lazy::lockAsBitmap(SkBitmap* bitmap, SkImage::CachingHint chint,
 
 bool SkImage_Lazy::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                 int srcX, int srcY, CachingHint chint) const {
-    SkColorSpace* dstColorSpace = dstInfo.colorSpace();
     SkBitmap bm;
     if (kDisallow_CachingHint == chint) {
         if (this->lockAsBitmapOnlyIfAlreadyCached(&bm, dstInfo)) {
@@ -264,7 +263,8 @@ bool SkImage_Lazy::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
         }
     }
 
-    if (this->getROPixels(&bm, dstColorSpace, chint)) {
+    bm.setInfo(dstInfo);  // Decoding hint
+    if (this->getROPixels(&bm, chint)) {
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }
     return false;
@@ -275,9 +275,16 @@ sk_sp<SkData> SkImage_Lazy::onRefEncoded() const {
     return generator->refEncodedData();
 }
 
-bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,
-                               CachingHint chint) const {
-    return this->lockAsBitmap(bitmap, chint, fInfo);
+bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, CachingHint chint) const {
+    // Respect decoding hints supplied by the bitmap
+    SkImageInfo info = fInfo;
+    if (kUnknown_SkColorType != bitmap->colorType()) {
+        info = info.makeColorType(bitmap->colorType());
+    }
+    if (nullptr != bitmap->colorSpace()) {
+        info = info.makeColorSpace(bitmap->refColorSpace());
+    }
+    return this->lockAsBitmap(bitmap, chint, info);
 }
 
 bool SkImage_Lazy::onIsValid(GrContext* context) const {
