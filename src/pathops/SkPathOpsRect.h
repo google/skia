@@ -9,6 +9,8 @@
 
 #include "SkPathOpsPoint.h"
 
+class SkTCurve;
+
 struct SkDRect {
     double fLeft, fTop, fRight, fBottom;
 
@@ -64,6 +66,8 @@ struct SkDRect {
     }
 
     void setBounds(const SkDQuad& curve, const SkDQuad& sub, double tStart, double tEnd);
+
+    void setBounds(const SkTCurve& curve);
 
     bool valid() const {
         return fLeft <= fRight && fTop <= fBottom;
