@@ -16,6 +16,24 @@
       "revId": "d8741aae6469b2f06c4888550709fd06f04a0409",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3de565e5_0a10f10a",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-11T20:08:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "841f3d79_bf10f88d",
+      "revId": "d8741aae6469b2f06c4888550709fd06f04a0409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
