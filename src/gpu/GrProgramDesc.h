@@ -126,15 +126,6 @@ public:
         *checksum = SkOpts::hash(fKey.begin(), keyLength);
     }
 
-protected:
-    template<typename T, size_t OFFSET> T* atOffset() {
-        return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
-    }
-
-    template<typename T, size_t OFFSET> const T* atOffset() const {
-        return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
-    }
-
     // The key, stored in fKey, is composed of four parts:
     // 1. uint32_t for total key length.
     // 2. uint32_t for a checksum.
@@ -163,6 +154,15 @@ protected:
 
     SkSTArray<kPreAllocSize, uint8_t, true>& key() { return fKey; }
     const SkSTArray<kPreAllocSize, uint8_t, true>& key() const { return fKey; }
+
+protected:
+    template<typename T, size_t OFFSET> T* atOffset() {
+        return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
+    }
+
+    template<typename T, size_t OFFSET> const T* atOffset() const {
+        return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
+    }
 
 private:
     SkSTArray<kPreAllocSize, uint8_t, true> fKey;
