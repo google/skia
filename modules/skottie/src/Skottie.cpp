@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkFontMgr.h"
+#include "SkImage.h"
 #include "SkMakeUnique.h"
 #include "SkOSPath.h"
 #include "SkPaint.h"
@@ -398,7 +399,29 @@ sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
             return SkData::MakeFromFileName(full_path.c_str());
         }
 
+        sk_sp<ImageAsset> loadImageAsset(const char resource_path[],
+                                         const char resource_name[]) const override {
+            auto data = this->load(resource_path, resource_name);
+
+            return data
+                ? sk_make_sp<StaticImageAsset>(SkImage::MakeFromEncoded(std::move(data)))
+                : nullptr;
+        }
+
     private:
+        class StaticImageAsset final : public ImageAsset {
+        public:
+            explicit StaticImageAsset(sk_sp<SkImage> image)
+                : fImage(std::move(image)) {}
+
+            bool isMultiFrame() override { return false; }
+
+            sk_sp<SkImage> getFrame(float) override { return fImage; }
+
+        private:
+            sk_sp<SkImage> fImage;
+        };
+
         const SkString fDir;
     };
 
