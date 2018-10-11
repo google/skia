@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56efa32a_2d425462",
+        "filename": "src/pdf/SkPDFTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-11T18:39:23Z",
+      "side": 1,
+      "message": "nit: sp after comma",
+      "range": {
+        "startLine": 234,
+        "startChar": 72,
+        "endLine": 234,
+        "endChar": 73
+      },
+      "revId": "71dbf14cb85fcee2abed419ea79a5bb07cedd8fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
