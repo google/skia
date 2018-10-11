@@ -27,6 +27,7 @@ var CanvasKit = {
 	Color: function(r, g, b, a) {},
 	currentContext: function() {},
 	getWebGLSurface: function(htmlID) {},
+	getRasterN32PremulSurface: function(htmlID) {},
 	MakeSkDashPathEffect: function(intervals, phase) {},
 	setCurrentContext: function() {},
 	LTRBRect: function(l, t, r, b) {},
@@ -34,13 +35,26 @@ var CanvasKit = {
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)
 	_getWebGLSurface: function(htmlID, w, h) {},
+	_getRasterN32PremulSurface: function(w, h) {},
 	_malloc: function(size) {},
 	onRuntimeInitialized: function() {},
 	_MakeSkDashPathEffect: function(ptr, len, phase) {},
 
 	// Objects and properties on CanvasKit
 
+	/** Represents the heap of the WASM code
+	 * @type {ArrayBuffer}
+	 */
+	buffer: {},
+	/**
+	 * @type {Float32Array}
+	 */
 	HEAPF32: {}, // only needed for TypedArray mallocs
+	/**
+	 * @type {Uint8Array}
+	 */
+	HEAPU8: {},
+
 
 	SkPath: {
 		// public API should go below because closure still will
@@ -59,6 +73,14 @@ var CanvasKit = {
 		_rect: function(x, y, w, h) {},
 		_simplify: function() {},
 		_transform: function(scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2) {},
+	},
+
+	SkSurface: {
+		// public API should go below because closure still will
+		// remove things declared here and not on the prototype.
+
+		// private API
+		_readPixels: function(w, h, ptr) {},
 	}
 }
 
@@ -75,6 +97,8 @@ CanvasKit.SkPath.prototype.quadTo = function(x1, y1, x2, y2) {};
 CanvasKit.SkPath.prototype.rect = function(x, y, w, h) {};
 CanvasKit.SkPath.prototype.simplify = function() {};
 CanvasKit.SkPath.prototype.transform = function() {};
+
+CanvasKit.SkSurface.prototype.flush = function() {};
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
 function loadWebAssemblyModule() {}
