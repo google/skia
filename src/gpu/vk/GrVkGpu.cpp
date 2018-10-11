@@ -307,6 +307,10 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 
     fCurrentCmdBuffer->submitToQueue(this, fQueue, sync, fSemaphoresToSignal, fSemaphoresToWaitOn);
 
+    // We need to emit any submit procs. We just need to reset the fSubmitProcs array and the dtor
+    // of the SubmitProcHelper will take care of calling the procs for us.
+    fSubmitProcs.reset();
+
     for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
         fSemaphoresToWaitOn[i]->unref(this);
     }
@@ -2151,5 +2155,10 @@ sk_sp<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* textur
 
     // The image layout change serves as a barrier, so no semaphore is needed
     return nullptr;
+}
+
+void GrVkGpu::addSubmitProc(SubmitProc proc, SubmitContext context) {
+    SkASSERT(proc);
+    fSubmitProcs.emplace_back(proc, context);
 }
 

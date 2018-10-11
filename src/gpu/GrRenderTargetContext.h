@@ -36,6 +36,7 @@ class GrShape;
 class GrStyle;
 class GrTextureProxy;
 struct GrUserStencilSettings;
+class SkDrawable;
 struct SkDrawShadowRec;
 class SkGlyphRunList;
 struct SkIPoint;
@@ -322,6 +323,12 @@ public:
                           GrSamplerState::Filter,
                           std::unique_ptr<SkLatticeIter>,
                           const SkRect& dst);
+
+    /**
+     * Adds the necessary signal and wait semaphores and adds the passed in SkDrawable to the
+     * command stream.
+     */
+    void drawDrawable(SkDrawable*, const SkMatrix&);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and

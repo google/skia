@@ -141,6 +141,14 @@ public:
     void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override;
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
 
+    // These match the definitions in SkDrawable, from whence they came
+    typedef void* SubmitContext;
+    typedef void (*SubmitProc)(SubmitContext submitContext);
+
+    // Adds a submit proc that will be called the next time the GPU submits the current primary
+    // command buffer to the queue.
+    void addSubmitProc(SubmitProc proc, SubmitContext context);
+
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     void copyBuffer(GrVkBuffer* srcBuffer, GrVkBuffer* dstBuffer, VkDeviceSize srcOffset,
@@ -245,6 +253,20 @@ private:
 
     SkSTArray<1, GrVkSemaphore::Resource*> fSemaphoresToWaitOn;
     SkSTArray<1, GrVkSemaphore::Resource*> fSemaphoresToSignal;
+
+    class SubmitProcHelper {
+    public:
+        SubmitProcHelper(SubmitProc proc, SubmitContext ctx)
+                : fSubmitProc(proc), fSubmitContext(ctx) {}
+        ~SubmitProcHelper() {
+            fSubmitProc(fSubmitContext);
+        }
+
+    private:
+        SubmitProc    fSubmitProc;
+        SubmitContext fSubmitContext;
+    };
+    SkTArray<SubmitProcHelper>             fSubmitProcs;
 
     VkPhysicalDeviceProperties             fPhysDevProps;
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
