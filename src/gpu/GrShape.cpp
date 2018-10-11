@@ -365,10 +365,12 @@ const SkPath* GrShape::originalPathForListeners() const {
     return nullptr;
 }
 
-void GrShape::addGenIDChangeListener(sk_sp<SkPathRef::GenIDChangeListener> listener) const {
+SkPathRef* GrShape::addGenIDInvalidateListener(
+        sk_sp<SkPathRef::GenIDInvalidateListener> listener) const {
     if (const auto* lp = this->originalPathForListeners()) {
-        SkPathPriv::AddGenIDChangeListener(*lp, std::move(listener));
+        return SkPathPriv::AddGenIDInvalidateListener(*lp, std::move(listener));
     }
+    return nullptr;
 }
 
 GrShape GrShape::MakeArc(const SkRect& oval, SkScalar startAngleDegrees, SkScalar sweepAngleDegrees,

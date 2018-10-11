@@ -101,7 +101,7 @@ inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* cache, const MaskTransfo
     WriteStyledKey writeKey(shape);
     void* memory = ::operator new (sizeof(GrCCPathCacheEntry) +
                                    writeKey.allocCountU32() * sizeof(uint32_t));
-    fEntry = new (memory) GrCCPathCacheEntry(cache, m);
+    fEntry = new (memory) GrCCPathCacheEntry(cache, m, shape);
 
     // The shape key is a variable-length footer to the entry allocation.
     uint32_t* keyData = (uint32_t*)((char*)memory + sizeof(GrCCPathCacheEntry));
@@ -130,6 +130,14 @@ GrCCPathCache::HashNode::~HashNode() {
     SkASSERT(fEntry->fCacheWeakPtr);
     fEntry->fCacheWeakPtr->fLRU.remove(fEntry);
     fEntry->fCacheWeakPtr = nullptr;
+
+    if (fEntry->fListenerTarget) {
+        // Unregister the entry's GenIDInvalidateListener. The path takes a ref on listeners, so if
+        // we don't unregister, the entry will persist for the lifetime of the SkPathRef.
+        fEntry->fListenerTarget->removeGenIDInvalidateListener(fEntry);
+        fEntry->fListenerTarget = nullptr;
+    }
+
     fEntry->unref();
 }
 
@@ -152,17 +160,25 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
     if (HashNode* node = fHashTable.find({keyData.get()})) {
         entry = node->entry();
         SkASSERT(this == entry->fCacheWeakPtr);
-        if (fuzzy_equals(m, entry->fMaskTransform)) {
-            ++entry->fHitCount;  // The path was reused with a compatible matrix.
-        } else if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
-            // This entry is unique: we can recycle it instead of deleting and malloc-ing a new one.
-            entry->fMaskTransform = m;
-            entry->fHitCount = 1;
-            entry->invalidateAtlas();
-            SkASSERT(!entry->fCurrFlushAtlas);  // Should be null because 'entry' is unique.
-        } else {
-            this->evict(entry);
-            entry = nullptr;
+        if (!fuzzy_equals(m, entry->fMaskTransform)) {
+            // The transformation matrix is not a match. Evict this entry from the cache.
+            if (entry->fListenerTarget) {
+                // Unregister the entry's GenIDInvalidateListener. This frees the ref, giving us the
+                // possibility of being able to recycle the memory in the next step.
+                entry->fListenerTarget->removeGenIDInvalidateListener(entry);
+                entry->fListenerTarget = nullptr;
+            }
+
+            if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
+                // The entry is unique: we can recycle its memory instead of malloc-ing a new one.
+                entry->fMaskTransform = m;
+                entry->fHitCount = 0;
+                entry->invalidateAtlas();
+                SkASSERT(!entry->fCurrFlushAtlas);  // Should be null because 'entry' is unique.
+            } else {
+                this->evict(entry);
+                entry = nullptr;
+            }
         }
     }
 
@@ -174,12 +190,12 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
             this->evict(fLRU.tail());  // We've exceeded our limit.
         }
         entry = fHashTable.set(HashNode(this, m, shape))->entry();
-        shape.addGenIDChangeListener(sk_ref_sp(entry));
         SkASSERT(fHashTable.count() <= kMaxCacheCount);
     } else {
         fLRU.remove(entry);  // Will be re-added at head.
     }
 
+    ++entry->fHitCount;
     fLRU.addToHead(entry);
     return sk_ref_sp(entry);
 }
@@ -193,6 +209,13 @@ void GrCCPathCache::evict(const GrCCPathCacheEntry* entry) {
     fHashTable.remove(HashNode::GetKey(entry));  // ~HashNode() handles the rest.
 }
 
+
+GrCCPathCacheEntry::GrCCPathCacheEntry(GrCCPathCache* cache, const MaskTransform& m,
+                                       const GrShape& shape)
+        : fCacheWeakPtr(cache)
+        , fMaskTransform(m)
+        , fListenerTarget(shape.addGenIDInvalidateListener(sk_ref_sp(this))) {
+}
 
 GrCCPathCacheEntry::~GrCCPathCacheEntry() {
     SkASSERT(!fCacheWeakPtr);  // HashNode should have cleared our cache pointer.
@@ -255,7 +278,13 @@ void GrCCPathCacheEntry::invalidateAtlas() {
     fCachedAtlasInfo = nullptr;
 }
 
-void GrCCPathCacheEntry::onChange() {
+void GrCCPathCacheEntry::notifyPathGenIDInvalidated() {
+    // Reset the listener target here so we don't attempt to unregister ourselves during evict().
+    // The SkPathRef will drop all its listeners right after this call anyway, and attempting to
+    // unregister ourselves will deadlock on the SkPathRef's listener mutex.
+    SkASSERT(fListenerTarget);
+    fListenerTarget = nullptr;
+
     // Our corresponding path was modified or deleted. Evict ourselves.
     if (fCacheWeakPtr) {
         fCacheWeakPtr->evict(this);

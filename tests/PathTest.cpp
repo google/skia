@@ -4248,15 +4248,15 @@ static void test_dump(skiatest::Reporter* reporter) {
 
 namespace {
 
-class ChangeListener : public SkPathRef::GenIDChangeListener {
+class InvalidateListener : public SkPathRef::GenIDInvalidateListener {
 public:
-    ChangeListener(bool *changed) : fChanged(changed) { *fChanged = false; }
-    ~ChangeListener() override {}
-    void onChange() override {
-        *fChanged = true;
+    InvalidateListener(bool *invalidated) : fInvalidated(invalidated) { *fInvalidated = false; }
+    ~InvalidateListener() override {}
+    void notifyPathGenIDInvalidated() override {
+        *fInvalidated = true;
     }
 private:
-    bool* fChanged;
+    bool* fInvalidated;
 };
 
 }
@@ -4288,45 +4288,45 @@ public:
     static void TestPathrefListeners(skiatest::Reporter* reporter) {
         SkPath p;
 
-        bool changed = false;
+        bool invalidated = false;
         p.moveTo(0, 0);
 
         // Check that listener is notified on moveTo().
 
-        SkPathPriv::AddGenIDChangeListener(p, sk_make_sp<ChangeListener>(&changed));
-        REPORTER_ASSERT(reporter, !changed);
+        SkPathPriv::AddGenIDInvalidateListener(p, sk_make_sp<InvalidateListener>(&invalidated));
+        REPORTER_ASSERT(reporter, !invalidated);
         p.moveTo(10, 0);
-        REPORTER_ASSERT(reporter, changed);
+        REPORTER_ASSERT(reporter, invalidated);
 
         // Check that listener is notified on lineTo().
-        SkPathPriv::AddGenIDChangeListener(p, sk_make_sp<ChangeListener>(&changed));
-        REPORTER_ASSERT(reporter, !changed);
+        SkPathPriv::AddGenIDInvalidateListener(p, sk_make_sp<InvalidateListener>(&invalidated));
+        REPORTER_ASSERT(reporter, !invalidated);
         p.lineTo(20, 0);
-        REPORTER_ASSERT(reporter, changed);
+        REPORTER_ASSERT(reporter, invalidated);
 
         // Check that listener is notified on reset().
-        SkPathPriv::AddGenIDChangeListener(p, sk_make_sp<ChangeListener>(&changed));
-        REPORTER_ASSERT(reporter, !changed);
+        SkPathPriv::AddGenIDInvalidateListener(p, sk_make_sp<InvalidateListener>(&invalidated));
+        REPORTER_ASSERT(reporter, !invalidated);
         p.reset();
-        REPORTER_ASSERT(reporter, changed);
+        REPORTER_ASSERT(reporter, invalidated);
 
         p.moveTo(0, 0);
 
         // Check that listener is notified on rewind().
-        SkPathPriv::AddGenIDChangeListener(p, sk_make_sp<ChangeListener>(&changed));
-        REPORTER_ASSERT(reporter, !changed);
+        SkPathPriv::AddGenIDInvalidateListener(p, sk_make_sp<InvalidateListener>(&invalidated));
+        REPORTER_ASSERT(reporter, !invalidated);
         p.rewind();
-        REPORTER_ASSERT(reporter, changed);
+        REPORTER_ASSERT(reporter, invalidated);
 
         // Check that listener is notified when pathref is deleted.
         {
             SkPath q;
             q.moveTo(10, 10);
-            SkPathPriv::AddGenIDChangeListener(q, sk_make_sp<ChangeListener>(&changed));
-            REPORTER_ASSERT(reporter, !changed);
+            SkPathPriv::AddGenIDInvalidateListener(q, sk_make_sp<InvalidateListener>(&invalidated));
+            REPORTER_ASSERT(reporter, !invalidated);
         }
         // q went out of scope.
-        REPORTER_ASSERT(reporter, changed);
+        REPORTER_ASSERT(reporter, invalidated);
     }
 };
 
