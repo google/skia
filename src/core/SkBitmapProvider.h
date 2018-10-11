@@ -9,16 +9,20 @@
 #define SkBitmapProvider_DEFINED
 
 #include "SkImage.h"
-#include "SkBitmapCache.h"
 
 class SkBitmapProvider {
 public:
-    explicit SkBitmapProvider(const SkImage* img)
-        : fImage(img) {
+    explicit SkBitmapProvider(const SkImage* img,
+                              SkColorType lazyColorType, SkColorSpace* lazyColorSpace)
+        : fImage(img)
+        , fLazyColorType(lazyColorType)
+        , fLazyColorSpace(lazyColorSpace) {
         SkASSERT(img);
     }
     SkBitmapProvider(const SkBitmapProvider& other)
         : fImage(other.fImage)
+        , fLazyColorType(other.fLazyColorType)
+        , fLazyColorSpace(other.fLazyColorSpace)
     {}
 
     int width() const;
@@ -28,7 +32,6 @@ public:
     SkImageInfo info() const;
     bool isVolatile() const;
 
-    SkBitmapCacheDesc makeCacheDesc() const;
     void notifyAddedToCache() const;
 
     // Only call this if you're sure you need the bits, since it maybe expensive
@@ -43,6 +46,8 @@ private:
     // SkBitmapProvider is always short-lived/stack allocated, and the source image is guaranteed
     // to outlive its scope => we can store a raw ptr to avoid ref churn.
     const SkImage* fImage;
+    SkColorType    fLazyColorType;
+    SkColorSpace*  fLazyColorSpace;
 };
 
 #endif

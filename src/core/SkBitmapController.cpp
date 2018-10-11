@@ -76,12 +76,12 @@ bool SkBitmapController::State::processMediumRequest(const SkBitmapProvider& pro
     }
 
     if (invScaleSize.width() > SK_Scalar1 || invScaleSize.height() > SK_Scalar1) {
-        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc()));
+        SkBitmap orig;
+        if (!provider.asBitmap(&orig)) {
+            return false;
+        }
+        fCurrMip.reset(SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(orig)));
         if (nullptr == fCurrMip.get()) {
-            SkBitmap orig;
-            if (!provider.asBitmap(&orig)) {
-                return false;
-            }
             fCurrMip.reset(SkMipMapCache::AddAndRef(orig));
             if (nullptr == fCurrMip.get()) {
                 return false;
