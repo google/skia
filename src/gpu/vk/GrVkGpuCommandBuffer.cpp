@@ -19,7 +19,9 @@
 #include "GrVkRenderPass.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkResourceProvider.h"
+#include "GrVkSemaphore.h"
 #include "GrVkTexture.h"
+#include "SkDrawable.h"
 #include "SkRect.h"
 
 void GrVkGpuTextureCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin,
@@ -266,6 +268,8 @@ void GrVkGpuRTCommandBuffer::reset() {
     fLastPipelineState = nullptr;
     fRenderTarget = nullptr;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpuRTCommandBuffer::discard() {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
@@ -777,3 +781,42 @@ void GrVkGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
                                         baseIndex, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrVkGpuRTCommandBuffer::executeDrawable(SkDrawable* drawable, const SkMatrix& matrix) {
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(fRenderTarget);
+
+    GrVkImage* targetImage = target->msaaImage() ? target->msaaImage() : target;
+
+    SkASSERT(drawable->isGpuDrawSupported(kVulkan_GrBackend));
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+    VkRect2D bounds;
+    bounds.offset = { 0, 0 };
+    bounds.extent = { 0, 0 };
+
+    GrVkDrawableInfo vkInfo;
+    vkInfo.fSecondaryCommandBuffer = cbInfo.currentCmdBuf()->vkCommandBuffer();
+    vkInfo.fCompatibleRenderPass = cbInfo.fRenderPass->vkRenderPass();
+    SkAssertResult(cbInfo.fRenderPass->colorAttachmentIndex(&vkInfo.fImageAttachmentIndex));
+    vkInfo.fFormat = targetImage->imageFormat();
+    vkInfo.fDrawBounds = &bounds;
+
+    GrBackendDrawableInfo info(vkInfo);
+
+    GrVkGpu::SubmitProc proc = nullptr;
+    GrVkGpu::SubmitContext ctx = nullptr;
+
+    drawable->drawBackendGpu(info, &proc, &ctx);
+    if (proc) {
+        fGpu->addSubmitProc(proc, ctx);
+    }
+
+    if (bounds.extent.width == 0 || bounds.extent.height == 0) {
+        cbInfo.fBounds.join(target->getBoundsRect());
+    } else {
+        cbInfo.fBounds.join(SkRect::MakeXYWH(bounds.offset.x, bounds.offset.y,
+                                             bounds.extent.width, bounds.extent.height));
+    }
+}
+
