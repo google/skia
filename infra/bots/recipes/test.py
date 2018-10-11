@@ -752,7 +752,6 @@ def dm_flags(api, bot):
     match.append('~^RGB565TextureTest$')
     match.append('~^RGBA4444TextureTest$')
     match.append('~^TransferPixelsTest$')
-    match.append('~^SurfaceCreationWithColorSpace_Gpu$')
     match.append('~^SurfaceSemaphores$')
     match.append('~^VertexAttributeCount$')
     match.append('~^WrappedProxyTest$')
