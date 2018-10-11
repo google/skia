@@ -262,15 +262,7 @@ bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
-    switch (info.colorType()) {
-        case kRGBA_F16_SkColorType:
-        case kRGBA_F32_SkColorType:
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            return true;
-        default:
-            return !info.colorSpace();
-    }
+    return true;
 }
 
 bool SkSurface_Gpu::Valid(const GrCaps* caps, GrPixelConfig config, SkColorSpace* colorSpace) {
@@ -278,13 +270,8 @@ bool SkSurface_Gpu::Valid(const GrCaps* caps, GrPixelConfig config, SkColorSpace
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
             return caps->srgbSupport();
-        case kRGBA_half_GrPixelConfig:
-        case kRGBA_float_GrPixelConfig:
-        case kRGBA_8888_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-            return true;
         default:
-            return !colorSpace;
+            return true;
     }
 }
 

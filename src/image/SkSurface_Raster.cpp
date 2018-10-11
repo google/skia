@@ -42,32 +42,6 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         return false;
     }
 
-    static const size_t kMaxTotalSize = SK_MaxS32;
-
-    // TODO(mtklein,brianosman): revisit all these color space decisions
-    switch (info.colorType()) {
-        case kAlpha_8_SkColorType:
-        case kGray_8_SkColorType:
-        case kRGB_565_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kRGB_888x_SkColorType:
-        case kRGBA_1010102_SkColorType:
-        case kRGB_101010x_SkColorType:
-            if (info.colorSpace()) {
-                return false;
-            }
-            break;
-
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            break;
-        case kRGBA_F16_SkColorType:
-        case kRGBA_F32_SkColorType:
-            break;
-        default:
-            return false;
-    }
-
     if (kIgnoreRowBytesValue == rowBytes) {
         return true;
     }
@@ -85,6 +59,7 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
     }
 
     uint64_t size = sk_64_mul(info.height(), rowBytes);
+    static const size_t kMaxTotalSize = SK_MaxS32;
     if (size > kMaxTotalSize) {
         return false;
     }
