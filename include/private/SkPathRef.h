@@ -309,12 +309,13 @@ public:
      */
     uint32_t genID() const;
 
-    struct GenIDChangeListener : SkRefCnt {
-        virtual ~GenIDChangeListener() {}
-        virtual void onChange() = 0;
+    struct GenIDInvalidateListener : SkRefCnt {
+        virtual ~GenIDInvalidateListener() {}
+        virtual void notifyPathGenIDInvalidated() = 0;
     };
 
-    void addGenIDChangeListener(sk_sp<GenIDChangeListener>);  // Threadsafe.
+    SkPathRef* addGenIDInvalidateListener(sk_sp<GenIDInvalidateListener>);  // Threadsafe.
+    void removeGenIDInvalidateListener(const GenIDInvalidateListener*);  // Threadsafe.
 
     bool isValid() const;
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
@@ -524,7 +525,7 @@ private:
         return fPoints;
     }
 
-    void callGenIDChangeListeners();
+    void callGenIDInvalidateListeners();
 
     enum {
         kMinSize = 256,
@@ -545,8 +546,8 @@ private:
     mutable uint32_t    fGenerationID;
     SkDEBUGCODE(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
 
-    SkMutex                         fGenIDChangeListenersMutex;
-    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are reffed
+    SkMutex fGenIDInvalidateListenersMutex;
+    SkTDArray<GenIDInvalidateListener*> fGenIDInvalidateListeners;  // pointers are reffed
 
     mutable uint8_t  fBoundsIsDirty;
     mutable bool     fIsFinite;    // only meaningful if bounds are valid

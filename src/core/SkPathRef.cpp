@@ -38,7 +38,7 @@ SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
         pathRef->reset(copy);
     }
     fPathRef = pathRef->get();
-    fPathRef->callGenIDChangeListeners();
+    fPathRef->callGenIDInvalidateListeners();
     fPathRef->fGenerationID = 0;
     fPathRef->fBoundsIsDirty = true;
     SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
@@ -89,7 +89,7 @@ void SkPath::shrinkToFit() {
 SkPathRef::~SkPathRef() {
     // Deliberately don't validate() this path ref, otherwise there's no way
     // to read one that's not valid and then free its memory without asserting.
-    this->callGenIDChangeListeners();
+    this->callGenIDInvalidateListeners();
     sk_free(fPoints);
 
     SkDEBUGCODE(fPoints = nullptr;)
@@ -393,7 +393,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
 void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {
     if ((*pathRef)->unique()) {
         SkDEBUGCODE((*pathRef)->validate();)
-        (*pathRef)->callGenIDChangeListeners();
+        (*pathRef)->callGenIDInvalidateListeners();
         (*pathRef)->fBoundsIsDirty = true;  // this also invalidates fIsFinite
         (*pathRef)->fVerbCnt = 0;
         (*pathRef)->fPointCnt = 0;
@@ -700,23 +700,36 @@ uint32_t SkPathRef::genID() const {
     return fGenerationID;
 }
 
-void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
+SkPathRef* SkPathRef::addGenIDInvalidateListener(sk_sp<GenIDInvalidateListener> listener) {
     if (nullptr == listener || this == gEmpty) {
-        return;
+        return nullptr;
     }
-    SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
-    *fGenIDChangeListeners.append() = listener.release();
+    SkAutoMutexAcquire lock(fGenIDInvalidateListenersMutex);
+    *fGenIDInvalidateListeners.append() = listener.release();
+    return this;
+}
+
+void SkPathRef::removeGenIDInvalidateListener(const GenIDInvalidateListener* listener) {
+    SkAutoMutexAcquire lock(fGenIDInvalidateListenersMutex);
+    for (int i = 0; i < fGenIDInvalidateListeners.count(); ++i) {
+        if (fGenIDInvalidateListeners[i] == listener) {
+            fGenIDInvalidateListeners[i]->unref();
+            fGenIDInvalidateListeners.remove(i);
+            return;
+        }
+    }
+    SkDEBUGFAIL("Attempted to remove a GenIDInvalidateListener that was not in the list.");
 }
 
 // we need to be called *before* the genID gets changed or zerod
-void SkPathRef::callGenIDChangeListeners() {
-    SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
-    for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
-        fGenIDChangeListeners[i]->onChange();
+void SkPathRef::callGenIDInvalidateListeners() {
+    SkAutoMutexAcquire lock(fGenIDInvalidateListenersMutex);
+    for (int i = 0; i < fGenIDInvalidateListeners.count(); i++) {
+        fGenIDInvalidateListeners[i]->notifyPathGenIDInvalidated();
     }
 
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
-    fGenIDChangeListeners.unrefAll();
+    fGenIDInvalidateListeners.unrefAll();
 }
 
 SkRRect SkPathRef::getRRect() const {
