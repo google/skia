@@ -516,6 +516,8 @@ bool SkPixmap::computeIsOpaque() const {
         } break;
         case kRGB_565_SkColorType:
         case kGray_8_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kRGB_101010x_SkColorType:
             return true;
             break;
         case kARGB_4444_SkColorType: {
@@ -557,7 +559,33 @@ bool SkPixmap::computeIsOpaque() const {
             }
             return true;
         }
-        default:
+        case kRGBA_F32_SkColorType: {
+            const float* row = (const float*)this->addr();
+            for (int y = 0; y < height; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    if (row[4 * x + 3] < 1.0f) {
+                        return false;
+                    }
+                }
+                row += this->rowBytes() >> 2;
+            }
+            return true;
+        }
+        case kRGBA_1010102_SkColorType: {
+            uint32_t c = ~0;
+            for (int y = 0; y < height; ++y) {
+                const uint32_t* row = this->addr32(0, y);
+                for (int x = 0; x < width; ++x) {
+                    c &= row[x];
+                }
+                if (0b11 != c >> 30) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        case kUnknown_SkColorType:
+            SkDEBUGFAIL("");
             break;
     }
     return false;

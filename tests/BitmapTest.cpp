@@ -174,29 +174,29 @@ DEF_TEST(Bitmap_eraseColor_Premul, r) {
 
 // Test that SkBitmap::ComputeOpaque() is correct for various colortypes.
 DEF_TEST(Bitmap_compute_is_opaque, r) {
-    struct {
-        SkColorType fCT;
-        SkAlphaType fAT;
-    } types[] = {
-        { kGray_8_SkColorType,    kOpaque_SkAlphaType },
-        { kAlpha_8_SkColorType,   kPremul_SkAlphaType },
-        { kARGB_4444_SkColorType, kPremul_SkAlphaType },
-        { kRGB_565_SkColorType,   kOpaque_SkAlphaType },
-        { kBGRA_8888_SkColorType, kPremul_SkAlphaType },
-        { kRGBA_8888_SkColorType, kPremul_SkAlphaType },
-        { kRGBA_F16_SkColorType,  kPremul_SkAlphaType },
+    SkColorType colorTypes[] = {
+        kAlpha_8_SkColorType,
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kRGBA_8888_SkColorType,
+        kRGB_888x_SkColorType,
+        kBGRA_8888_SkColorType,
+        kRGBA_1010102_SkColorType,
+        kRGB_101010x_SkColorType,
+        kGray_8_SkColorType,
+        kRGBA_F16_SkColorType,
+        kRGBA_F32_SkColorType,
     };
-    for (auto type : types) {
+    for (auto ct : colorTypes) {
         SkBitmap bm;
-        REPORTER_ASSERT(r, !SkBitmap::ComputeIsOpaque(bm));
-
-        bm.allocPixels(SkImageInfo::Make(13, 17, type.fCT, type.fAT));
+        SkAlphaType at = SkColorTypeIsAlwaysOpaque(ct) ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+        bm.allocPixels(SkImageInfo::Make(13, 17, ct, at));
         bm.eraseColor(SkColorSetARGB(255, 10, 20, 30));
         REPORTER_ASSERT(r, SkBitmap::ComputeIsOpaque(bm));
 
         bm.eraseColor(SkColorSetARGB(128, 255, 255, 255));
         bool isOpaque = SkBitmap::ComputeIsOpaque(bm);
-        bool shouldBeOpaque = (type.fAT == kOpaque_SkAlphaType);
+        bool shouldBeOpaque = (at == kOpaque_SkAlphaType);
         REPORTER_ASSERT(r, isOpaque == shouldBeOpaque);
     }
 }

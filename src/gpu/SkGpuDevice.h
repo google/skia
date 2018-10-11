@@ -129,7 +129,6 @@ private:
     sk_sp<GrRenderTargetContext> fRenderTargetContext;
 
     SkISize                      fSize;
-    bool                         fOpaque;
 
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
