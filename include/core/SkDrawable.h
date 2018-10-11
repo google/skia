@@ -11,9 +11,11 @@
 #include "SkFlattenable.h"
 #include "SkScalar.h"
 
+class GrBackendDrawableInfo;
 class SkCanvas;
 class SkMatrix;
 class SkPicture;
+enum class GrBackend : unsigned;
 struct SkRect;
 
 /**
@@ -25,8 +27,6 @@ struct SkRect;
  */
 class SK_API SkDrawable : public SkFlattenable {
 public:
-    SkDrawable();
-
     /**
      *  Draws into the specified content. The drawing sequence will be balanced upon return
      *  (i.e. the saveLevel() on the canvas will match what it was when draw() was called,
@@ -34,6 +34,31 @@ public:
      */
     void draw(SkCanvas*, const SkMatrix* = nullptr);
     void draw(SkCanvas*, SkScalar x, SkScalar y);
+
+    /**
+     *  Caller data passed to SubmitProc; may be nullptr.
+     */
+    typedef void* SubmitContext;
+
+    /**
+     *  Function called when the gpu backend has submitted work from drawBackendGpu to the GPU.
+     *  SubmitContext is provided by caller when drawBackendGpu is called, and may be nullptr.
+     *
+     *  The caller can use this proc as a possible signal to start reusing data or a time to insert
+     *  some synchronization to know when the GPU has finished using resources. The specifics will
+     *  depend on the backend.
+     */
+    typedef void (*SubmitProc)(SubmitContext submitContext);
+
+    /**
+     *  Draws the SkDrawable using gpu backend specific calls. This will allow the drawable to emit
+     *  gpu calls directly into the stream of commands going to the GPU fromm skia. If this draw is
+     *  supported as returned by isGpuDrawSupported, we will not use the normal draw(...) calls. See
+     *  GrBackendDrawableInfo for the details on specific backends and how to intermix draws.
+     *  Currently this is only supported for the GPU Vulkan backend.
+     */
+    virtual void drawBackendGpu(const GrBackendDrawableInfo&, SubmitProc*, SubmitContext*) {}
+    virtual bool isGpuDrawSupported(GrBackend) { return false; }
 
     SkPicture* newPictureSnapshot();
 
@@ -78,6 +103,8 @@ public:
     Factory getFactory() const override { return nullptr; }
 
 protected:
+    SkDrawable();
+
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
 
