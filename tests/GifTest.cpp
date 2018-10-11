@@ -281,3 +281,45 @@ DEF_TEST(Codec_GifTruncated2, r) {
     // too early.
     REPORTER_ASSERT(r, codec->getFrameCount() == 0);
 }
+
+DEF_TEST(Codec_gif_out_of_palette, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* path = "images/out-of-palette.gif";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "failed to find %s", path);
+        return;
+    }
+
+    auto codec = SkCodec::MakeFromData(std::move(data));
+    if (!codec) {
+        ERRORF(r, "Could not create codec from %s", path);
+        return;
+    }
+
+    SkBitmap bm;
+    bm.allocPixels(codec->getInfo());
+    auto result = codec->getPixels(bm.pixmap());
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess, "Failed to decode %s with error %s",
+                    path, SkCodec::ResultToString(result));
+
+    struct {
+        int     x;
+        int     y;
+        SkColor expected;
+    } pixels[] = {
+        { 0, 0, SK_ColorBLACK },
+        { 1, 0, SK_ColorWHITE },
+        { 0, 1, SK_ColorTRANSPARENT },
+        { 1, 1, SK_ColorTRANSPARENT },
+    };
+    for (auto& pixel : pixels) {
+        auto actual = bm.getColor(pixel.x, pixel.y);
+        REPORTER_ASSERT(r, actual == pixel.expected,
+                        "pixel (%i,%i) mismatch! expected: %x actual: %x",
+                        pixel.x, pixel.y, pixel.expected, actual);
+    }
+}
