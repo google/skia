@@ -1001,7 +1001,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     }
 
     if (mode != SkBlendMode::kSrcOver) {
-        bool deviceIsOpaque = kRGB_565_SkColorType == device.colorType();
+        bool deviceIsOpaque = SkColorTypeIsAlwaysOpaque(device.colorType());
         switch (SkInterpretXfermode(*commonPaint, deviceIsOpaque)) {
             case kSrcOver_SkXfermodeInterpretation:
                 mode = SkBlendMode::kSrcOver;
