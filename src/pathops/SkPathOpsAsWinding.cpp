@@ -80,10 +80,7 @@ static int contains_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight, con
         // TODO : other cases need discriminating. need op angle code to figure it out
         // example: edge ends 45 degree diagonal going up. If pts is to the left of edge, keep.
         // if pts is to the right of edge, discard. With code as is, can't distiguish the two cases.
-        if (intersectX < edge.fX) {
-            tVals[index] = tVals[--count];
-            continue;
-        }
+        tVals[index] = tVals[--count];
     }
     // use first derivative to determine if intersection is contributing +1 or -1 to winding
     for (int index = 0; index < count; ++index) {
@@ -252,7 +249,9 @@ public:
                     continue;
                 }
                 // incomplete: must sort edges to find the one most to left
-                SkDebugf("incomplete\n");
+                // File a bug if this code path is triggered and AsWinding was
+                // expected to succeed.
+                SkDEBUGF("incomplete\n");
                 // TODO: add edges as opangle and sort
             }
             contour.fMinXY = minXY;
