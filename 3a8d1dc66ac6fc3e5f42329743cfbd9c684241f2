@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96e150da_5664a7ff",
+        "filename": "include/gpu/GrBackendDrawableInfo.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-11T18:48:56Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 28,
+        "startChar": 31,
+        "endLine": 28,
+        "endChar": 37
+      },
+      "revId": "3a8d1dc66ac6fc3e5f42329743cfbd9c684241f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
