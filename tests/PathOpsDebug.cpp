@@ -423,6 +423,7 @@ const SkTSpan<TCurve, OppCurve>* DebugSpan(const SkTSect<TCurve, OppCurve>* sect
 
 void DontCallDebugSpan(int id);
 void DontCallDebugSpan(int id) {  // exists to instantiate the templates
+#if !PATH_OP_COMPILE_FOR_SIZE
     SkDQuad quad;
     SkDConic conic;
     SkDCubic cubic;
@@ -444,6 +445,7 @@ void DontCallDebugSpan(int id) {  // exists to instantiate the templates
     DebugSpan(&c1q2, id);
     DebugSpan(&c1k2, id);
     DebugSpan(&c1c2, id);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -453,6 +455,7 @@ const SkTSpan<TCurve, OppCurve>* DebugT(const SkTSect<TCurve, OppCurve>* sect, d
 
 void DontCallDebugT(double t);
 void DontCallDebugT(double t) {  // exists to instantiate the templates
+#if !PATH_OP_COMPILE_FOR_SIZE
     SkDQuad quad;
     SkDConic conic;
     SkDCubic cubic;
@@ -474,6 +477,7 @@ void DontCallDebugT(double t) {  // exists to instantiate the templates
     DebugT(&c1q2, t);
     DebugT(&c1k2, t);
     DebugT(&c1c2, t);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -483,6 +487,7 @@ void Dump(const SkTSect<TCurve, OppCurve>* sect) {
 
 void DontCallDumpTSect();
 void DontCallDumpTSect() {  // exists to instantiate the templates
+#if !PATH_OP_COMPILE_FOR_SIZE
     SkDQuad quad;
     SkDConic conic;
     SkDCubic cubic;
@@ -504,6 +509,7 @@ void DontCallDumpTSect() {  // exists to instantiate the templates
     Dump(&c1q2);
     Dump(&c1k2);
     Dump(&c1c2);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -513,6 +519,7 @@ void DumpBoth(SkTSect<TCurve, OppCurve>* sect1, SkTSect<OppCurve, TCurve>* sect2
 
 void DontCallDumpBoth();
 void DontCallDumpBoth() {  // exists to instantiate the templates
+#if !PATH_OP_COMPILE_FOR_SIZE
     SkDQuad quad;
     SkDConic conic;
     SkDCubic cubic;
@@ -534,6 +541,7 @@ void DontCallDumpBoth() {  // exists to instantiate the templates
     DumpBoth(&c1q2, &q1c2);
     DumpBoth(&c1k2, &k1c2);
     DumpBoth(&c1c2, &c1c2);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -543,6 +551,7 @@ void DumpBounded(SkTSect<TCurve, OppCurve>* sect1, int id) {
 
 void DontCallDumpBounded();
 void DontCallDumpBounded() {
+#if !PATH_OP_COMPILE_FOR_SIZE
     SkDQuad quad;
     SkDConic conic;
     SkDCubic cubic;
@@ -564,6 +573,7 @@ void DontCallDumpBounded() {
     DumpBounded(&c1q2, 0);
     DumpBounded(&c1k2, 0);
     DumpBounded(&c1c2, 0);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -573,6 +583,7 @@ void DumpBounds(SkTSect<TCurve, OppCurve>* sect1) {
 
 void DontCallDumpBounds();
 void DontCallDumpBounds() {
+#if !PATH_OP_COMPILE_FOR_SIZE
     SkDQuad quad;
     SkDConic conic;
     SkDCubic cubic;
@@ -594,6 +605,7 @@ void DontCallDumpBounds() {
     DumpBounds(&c1q2);
     DumpBounds(&c1k2);
     DumpBounds(&c1c2);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -603,6 +615,7 @@ void DumpCoin(SkTSect<TCurve, OppCurve>* sect1) {
 
 void DontCallDumpCoin();
 void DontCallDumpCoin() {  // exists to instantiate the templates
+#if !PATH_OP_COMPILE_FOR_SIZE
     SkDQuad quad;
     SkDConic conic;
     SkDCubic cubic;
@@ -624,6 +637,7 @@ void DontCallDumpCoin() {  // exists to instantiate the templates
     DumpCoin(&c1q2);
     DumpCoin(&c1k2);
     DumpCoin(&c1c2);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -633,6 +647,7 @@ void DumpCoinCurves(SkTSect<TCurve, OppCurve>* sect1) {
 
 void DontCallDumpCoinCurves();
 void DontCallDumpCoinCurves() {  // exists to instantiate the templates
+#if !PATH_OP_COMPILE_FOR_SIZE
     SkDQuad quad;
     SkDConic conic;
     SkDCubic cubic;
@@ -654,6 +669,7 @@ void DontCallDumpCoinCurves() {  // exists to instantiate the templates
     DumpCoinCurves(&c1q2);
     DumpCoinCurves(&c1k2);
     DumpCoinCurves(&c1c2);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -663,6 +679,7 @@ void DumpCurves(const SkTSect<TCurve, OppCurve>* sect) {
 
 void DontCallDumpCurves();
 void DontCallDumpCurves() {  // exists to instantiate the templates
+#if !PATH_OP_COMPILE_FOR_SIZE
     SkDQuad quad;
     SkDConic conic;
     SkDCubic cubic;
@@ -684,6 +701,7 @@ void DontCallDumpCurves() {  // exists to instantiate the templates
     DumpCurves(&c1q2);
     DumpCurves(&c1k2);
     DumpCurves(&c1c2);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -693,15 +711,20 @@ void Dump(const SkTSpan<TCurve, OppCurve>* span) {
 
 void DontCallDumpTSpan();
 void DontCallDumpTSpan() {  // exists to instantiate the templates
-    SkTSpan<SkDQuad, SkDQuad> q1q2; q1q2.debugInit();
-    SkTSpan<SkDQuad, SkDConic> q1k2; q1k2.debugInit();
-    SkTSpan<SkDQuad, SkDCubic> q1c2; q1c2.debugInit();
-    SkTSpan<SkDConic, SkDQuad> k1q2; k1q2.debugInit();
-    SkTSpan<SkDConic, SkDConic> k1k2; k1k2.debugInit();
-    SkTSpan<SkDConic, SkDCubic> k1c2; k1c2.debugInit();
-    SkTSpan<SkDCubic, SkDQuad> c1q2; c1q2.debugInit();
-    SkTSpan<SkDCubic, SkDConic> c1k2; c1k2.debugInit();
-    SkTSpan<SkDCubic, SkDCubic> c1c2; c1c2.debugInit();
+#if !PATH_OP_COMPILE_FOR_SIZE
+    SkArenaAlloc heap(0);
+    SkDQuad quad;
+    SkTSpan<SkDQuad, SkDQuad> q1q2(quad, heap); q1q2.debugInit();
+    SkTSpan<SkDQuad, SkDConic> q1k2(quad, heap); q1k2.debugInit();
+    SkTSpan<SkDQuad, SkDCubic> q1c2(quad, heap); q1c2.debugInit();
+    SkDConic conic;
+    SkTSpan<SkDConic, SkDQuad> k1q2(conic, heap); k1q2.debugInit();
+    SkTSpan<SkDConic, SkDConic> k1k2(conic, heap); k1k2.debugInit();
+    SkTSpan<SkDConic, SkDCubic> k1c2(conic, heap); k1c2.debugInit();
+    SkDCubic cubic;
+    SkTSpan<SkDCubic, SkDQuad> c1q2(cubic, heap); c1q2.debugInit();
+    SkTSpan<SkDCubic, SkDConic> c1k2(cubic, heap); c1k2.debugInit();
+    SkTSpan<SkDCubic, SkDCubic> c1c2(cubic, heap); c1c2.debugInit();
     Dump(&q1q2);
     Dump(&q1k2);
     Dump(&q1c2);
@@ -711,6 +734,7 @@ void DontCallDumpTSpan() {  // exists to instantiate the templates
     Dump(&c1q2);
     Dump(&c1k2);
     Dump(&c1c2);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -720,15 +744,20 @@ void DumpAll(const SkTSpan<TCurve, OppCurve>* span) {
 
 void DontCallDumpSpanAll();
 void DontCallDumpSpanAll() {  // exists to instantiate the templates
-    SkTSpan<SkDQuad, SkDQuad> q1q2; q1q2.debugInit();
-    SkTSpan<SkDQuad, SkDConic> q1k2; q1k2.debugInit();
-    SkTSpan<SkDQuad, SkDCubic> q1c2; q1c2.debugInit();
-    SkTSpan<SkDConic, SkDQuad> k1q2; k1q2.debugInit();
-    SkTSpan<SkDConic, SkDConic> k1k2; k1k2.debugInit();
-    SkTSpan<SkDConic, SkDCubic> k1c2; k1c2.debugInit();
-    SkTSpan<SkDCubic, SkDQuad> c1q2; c1q2.debugInit();
-    SkTSpan<SkDCubic, SkDConic> c1k2; c1k2.debugInit();
-    SkTSpan<SkDCubic, SkDCubic> c1c2; c1c2.debugInit();
+#if !PATH_OP_COMPILE_FOR_SIZE
+    SkArenaAlloc heap(0);
+    SkDQuad quad;
+    SkTSpan<SkDQuad, SkDQuad> q1q2(quad, heap); q1q2.debugInit();
+    SkTSpan<SkDQuad, SkDConic> q1k2(quad, heap); q1k2.debugInit();
+    SkTSpan<SkDQuad, SkDCubic> q1c2(quad, heap); q1c2.debugInit();
+    SkDConic conic;
+    SkTSpan<SkDConic, SkDQuad> k1q2(conic, heap); k1q2.debugInit();
+    SkTSpan<SkDConic, SkDConic> k1k2(conic, heap); k1k2.debugInit();
+    SkTSpan<SkDConic, SkDCubic> k1c2(conic, heap); k1c2.debugInit();
+    SkDCubic cubic;
+    SkTSpan<SkDCubic, SkDQuad> c1q2(cubic, heap); c1q2.debugInit();
+    SkTSpan<SkDCubic, SkDConic> c1k2(cubic, heap); c1k2.debugInit();
+    SkTSpan<SkDCubic, SkDCubic> c1c2(cubic, heap); c1c2.debugInit();
     DumpAll(&q1q2);
     DumpAll(&q1k2);
     DumpAll(&q1c2);
@@ -738,6 +767,7 @@ void DontCallDumpSpanAll() {  // exists to instantiate the templates
     DumpAll(&c1q2);
     DumpAll(&c1k2);
     DumpAll(&c1c2);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -747,15 +777,20 @@ void DumpBounded(const SkTSpan<TCurve, OppCurve>* span) {
 
 void DontCallDumpSpanBounded();
 void DontCallDumpSpanBounded() {  // exists to instantiate the templates
-    SkTSpan<SkDQuad, SkDQuad> q1q2; q1q2.debugInit();
-    SkTSpan<SkDQuad, SkDConic> q1k2; q1k2.debugInit();
-    SkTSpan<SkDQuad, SkDCubic> q1c2; q1c2.debugInit();
-    SkTSpan<SkDConic, SkDQuad> k1q2; k1q2.debugInit();
-    SkTSpan<SkDConic, SkDConic> k1k2; k1k2.debugInit();
-    SkTSpan<SkDConic, SkDCubic> k1c2; k1c2.debugInit();
-    SkTSpan<SkDCubic, SkDQuad> c1q2; c1q2.debugInit();
-    SkTSpan<SkDCubic, SkDConic> c1k2; c1k2.debugInit();
-    SkTSpan<SkDCubic, SkDCubic> c1c2; c1c2.debugInit();
+#if !PATH_OP_COMPILE_FOR_SIZE
+    SkArenaAlloc heap(0);
+    SkDQuad quad;
+    SkTSpan<SkDQuad, SkDQuad> q1q2(quad, heap); q1q2.debugInit();
+    SkTSpan<SkDQuad, SkDConic> q1k2(quad, heap); q1k2.debugInit();
+    SkTSpan<SkDQuad, SkDCubic> q1c2(quad, heap); q1c2.debugInit();
+    SkDConic conic;
+    SkTSpan<SkDConic, SkDQuad> k1q2(conic, heap); k1q2.debugInit();
+    SkTSpan<SkDConic, SkDConic> k1k2(conic, heap); k1k2.debugInit();
+    SkTSpan<SkDConic, SkDCubic> k1c2(conic, heap); k1c2.debugInit();
+    SkDCubic cubic;
+    SkTSpan<SkDCubic, SkDQuad> c1q2(cubic, heap); c1q2.debugInit();
+    SkTSpan<SkDCubic, SkDConic> c1k2(cubic, heap); c1k2.debugInit();
+    SkTSpan<SkDCubic, SkDCubic> c1c2(cubic, heap); c1c2.debugInit();
     DumpBounded(&q1q2);
     DumpBounded(&q1k2);
     DumpBounded(&q1c2);
@@ -765,6 +800,7 @@ void DontCallDumpSpanBounded() {  // exists to instantiate the templates
     DumpBounded(&c1q2);
     DumpBounded(&c1k2);
     DumpBounded(&c1c2);
+#endif
 }
 
 template <typename TCurve, typename OppCurve>
@@ -774,15 +810,20 @@ void DumpCoin(const SkTSpan<TCurve, OppCurve>* span) {
 
 void DontCallDumpSpanCoin();
 void DontCallDumpSpanCoin() {  // exists to instantiate the templates
-    SkTSpan<SkDQuad, SkDQuad> q1q2; q1q2.debugInit();
-    SkTSpan<SkDQuad, SkDConic> q1k2; q1k2.debugInit();
-    SkTSpan<SkDQuad, SkDCubic> q1c2; q1c2.debugInit();
-    SkTSpan<SkDConic, SkDQuad> k1q2; k1q2.debugInit();
-    SkTSpan<SkDConic, SkDConic> k1k2; k1k2.debugInit();
-    SkTSpan<SkDConic, SkDCubic> k1c2; k1c2.debugInit();
-    SkTSpan<SkDCubic, SkDQuad> c1q2; c1q2.debugInit();
-    SkTSpan<SkDCubic, SkDConic> c1k2; c1k2.debugInit();
-    SkTSpan<SkDCubic, SkDCubic> c1c2; c1c2.debugInit();
+#if !PATH_OP_COMPILE_FOR_SIZE
+    SkArenaAlloc heap(0);
+    SkDQuad quad;
+    SkTSpan<SkDQuad, SkDQuad> q1q2(quad, heap); q1q2.debugInit();
+    SkTSpan<SkDQuad, SkDConic> q1k2(quad, heap); q1k2.debugInit();
+    SkTSpan<SkDQuad, SkDCubic> q1c2(quad, heap); q1c2.debugInit();
+    SkDConic conic;
+    SkTSpan<SkDConic, SkDQuad> k1q2(conic, heap); k1q2.debugInit();
+    SkTSpan<SkDConic, SkDConic> k1k2(conic, heap); k1k2.debugInit();
+    SkTSpan<SkDConic, SkDCubic> k1c2(conic, heap); k1c2.debugInit();
+    SkDCubic cubic;
+    SkTSpan<SkDCubic, SkDQuad> c1q2(cubic, heap); c1q2.debugInit();
+    SkTSpan<SkDCubic, SkDConic> c1k2(cubic, heap); c1k2.debugInit();
+    SkTSpan<SkDCubic, SkDCubic> c1c2(cubic, heap); c1c2.debugInit();
     DumpCoin(&q1q2);
     DumpCoin(&q1k2);
     DumpCoin(&q1c2);
@@ -792,6 +833,7 @@ void DontCallDumpSpanCoin() {  // exists to instantiate the templates
     DumpCoin(&c1q2);
     DumpCoin(&c1k2);
     DumpCoin(&c1c2);
+#endif
 }
 
 static void dumpTestCase(const SkDQuad& quad1, const SkDQuad& quad2, int testNo) {
@@ -1706,12 +1748,14 @@ namespace SkOpDebug {
         ((const SkTSpan<SkD##a, SkD##b>& ) curve).dumpCoin();                                      \
     }
 
+#if !PATH_OP_COMPILE_FOR_SIZE
     DummyDefinitions(Quad, Quad);
     DummyDefinitions(Conic, Quad);
     DummyDefinitions(Conic, Conic);
     DummyDefinitions(Cubic, Quad);
     DummyDefinitions(Cubic, Conic);
     DummyDefinitions(Cubic, Cubic);
+#endif
 
 #undef DummyDefinitions
 }
