@@ -48,6 +48,23 @@
     },
     {
       "key": {
+        "uuid": "30cfde26_352df11f",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-11T12:14:04Z",
+      "side": 1,
+      "message": "(std::copy_n(set, n, this-\u003eset) ?)",
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c2b80fe_d6b9666f",
         "filename": "src/core/SkLiteDL.cpp",
         "patchSetId": 9
@@ -59,6 +76,24 @@
       "writtenOn": "2018-10-11T01:26:36Z",
       "side": 1,
       "message": "Fine for now while this is under development, but eventually this will turn into a pod allocation, right?",
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a6bcc21_d0207129",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-11T12:14:04Z",
+      "side": 1,
+      "message": "I think this has got to stay this way... ImageSetEntries are not POD.  I\u0027m thinking of this conceptually like DrawVertices with its own sk_sp\u003cSkVertices\u003e.\n\n(Things don\u0027t _have_ to be POD here.  We just try to make it convenient to append variable amounts of POD, and to destruct quickly when they are.)",
+      "parentUuid": "3c2b80fe_d6b9666f",
       "revId": "9ac013433b8249266963b33490587b405881cc68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
