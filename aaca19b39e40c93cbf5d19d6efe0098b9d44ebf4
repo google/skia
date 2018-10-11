@@ -588,6 +588,30 @@
     },
     {
       "key": {
+        "uuid": "4988fe89_c35f3886",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-11T14:30:15Z",
+      "side": 1,
+      "message": "\u003e Opaque vs transparent black is an interesting question. Wuffs originally did *transparent*\n\u003e black, similar to browsers, but I changed it to *opaque* black because of Skia test cases.\n\u003e (FYI https://github.com/google/wuffs/commit/ece4eea1af571bcdf94c49e19e137e09bf9e7c0c is the\n\u003e Wuffs code change although there\u0027s not really any additional commentary in the commit re\n\u003e motivation).\n\u003e\n\u003e Specifically, Skia\u0027s Codec_frames test in CodecAnimTest.cpp. It reads files like\n\u003e resources/images/{alphabetAnim,randPixelsAnim2.gif,required,test640x479}.gif\n\u003e\n\u003e Those GIF images all have a short palette, fewer than 256 entries. However, Codec_frames\u0027\n\u003e gRecs test cases state that they should be kOpaque_SkAlphaType, not kUnpremul_SkAlphaType.\n\u003e\n\u003e If out-of-palette indices are implicitly *transparent* black, then it is inconsistent to\n\u003e claim kOpaque_SkAlphaType. Hence I chose *opaque* black.\n\nThe SkAlphaType associated with the frame represents the final composited frame, rather than the new contribution from the frame itself. (I just looked at the comments and see that this is unspecified, but that is the intent.) So it\u0027s possible to have a frame with transparency that is blended with a prior frame that is opaque, and it ends up being opaque.\n\nBut you\u0027re right - for the first frame (or another independent frame), we\u0027ve allowed the possibility of matching kOpaque with transparency. I\u0027d be hesitant to mark all independent frames (or other ways we can exercise this) with palette sizes \u003c 256 as having alpha, as this would penalize images that follow spec (by not allowing them to take the opaque fast drawing case). I\u0027d suspect that you\u0027re correct, and the typical case of using out of palette indices sets the transparent index, so using opaque black for other out of palette indices won\u0027t break anything, and it will eliminate this inconsistency.\n\n\u003e So, perhaps Wuffs (and therefore the CodecAnimTest.cpp tests re kOpaque_SkAlphaType)\n\u003e doesn\u0027t have to change, and having implicit mean opaque black (but letting the Graphic\n\u003e Control Extension override to transparent) is OK, even if that\u0027s in some sense different\n\u003e from third_party/gif??\n\nI\u0027m in favor of experimenting with it and seeing if it breaks anything.\n\n\u003e If it really is important to be *transparent* black, as per BUG\u003dskia:7069, then there should\n\u003e probably be a test for that, separate from this CL. Can I assign that task to you (I\u0027m happy\n\u003e to review)?\n\n+1. Filed skbug.com/8461\n\n\u003e I think it\u0027s still open what the \u0027right\u0027 behavior should be, but one example of where Wuffs\n\u003e as is and my \"cake and eat it too\" idea differ is in Skia\u0027s\n\u003e resources/images/alphabetAnim.gif\n\nAgreed. I\u0027m fine with updating the test; there are several things that it was designed specifically to test, but there are also pieces that just enforce the current behavior.",
+      "parentUuid": "174fb9ab_cec2804d",
+      "range": {
+        "startLine": 1485,
+        "startChar": 0,
+        "endLine": 1486,
+        "endChar": 13
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45aabc90_080d06da",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 10
