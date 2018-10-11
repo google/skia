@@ -1591,3 +1591,9 @@ rect: 0, 0, 0, 0
 ##
 
 #SeeAlso MakeEmpty
+
+##
+
+#Struct SkIRect ##
+
+#Topic IRect ##
