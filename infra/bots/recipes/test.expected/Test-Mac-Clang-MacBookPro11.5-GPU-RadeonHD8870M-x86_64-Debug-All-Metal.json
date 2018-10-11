@@ -494,7 +494,6 @@
       "~^RGB565TextureTest$",
       "~^RGBA4444TextureTest$",
       "~^TransferPixelsTest$",
-      "~^SurfaceCreationWithColorSpace_Gpu$",
       "~^SurfaceSemaphores$",
       "~^VertexAttributeCount$",
       "~^WrappedProxyTest$",
