@@ -860,6 +860,18 @@ private:
 };
 
 std::unique_ptr<SkStreamAsset> SkDynamicMemoryWStream::detachAsStream() {
+    if (fHead && fHead == fTail) {
+        const char* stop = fTail->fStop;
+        const char* start = fTail->start();
+        const char* curr = fTail->fCurr;
+        size_t unused = stop - curr;
+        size_t allocated = stop - start;
+        if (unused * 4 > allocated) {  // > 25% unused allocation.
+            auto s = SkMemoryStream::MakeCopy(start, curr - start);
+            this->reset();
+            return s;
+        }
+    }
     std::unique_ptr<SkStreamAsset> stream
             = skstd::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
                                                       this->bytesWritten());
