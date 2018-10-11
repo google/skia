@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "841f3d79_bf10f88d",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-11T18:51:03Z",
+      "side": 1,
+      "message": "Along the lines of recent VK trends... is it easy enough to make the header the same in GPU/non-GPU builds and just have the APIs trivially fail if !SK_SUPPORT_GPU?",
+      "revId": "d8741aae6469b2f06c4888550709fd06f04a0409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
