@@ -735,7 +735,6 @@ static void add_type3_font_info(SkPDFCanon* canon,
 
     SkIRect bbox = SkIRect::MakeEmpty();
 
-    sk_sp<SkPDFStream> emptyStream;
     for (SkGlyphID gID : SingleByteGlyphIdIterator(firstGlyphID, lastGlyphID)) {
         bool skipGlyph = gID != 0 && !subset.has(gID);
         SkString characterName;
@@ -764,12 +763,13 @@ static void add_type3_font_info(SkPDFCanon* canon,
             } else {
                 auto pimg = to_image(gID, cache.get());
                 if (!pimg.fImage) {
-                    if (!emptyStream) {
-                        emptyStream = sk_make_sp<SkPDFStream>(
-                                std::unique_ptr<SkStreamAsset>(
-                                        new SkMemoryStream((size_t)0)));
-                    }
-                    charProcs->insertObjRef(characterName, emptyStream);
+                    SkDynamicMemoryWStream content;
+                    setGlyphWidthAndBoundingBox(SkFloatToScalar(glyph.fAdvanceX), glyphBBox,
+                                                &content);
+                    content.writeText("m 0 0\nf\n"); // fill an empty path.
+                    charProcs->insertObjRef(
+                        characterName, sk_make_sp<SkPDFStream>(
+                                std::unique_ptr<SkStreamAsset>(content.detachAsStream())));
                 } else {
                     SkDynamicMemoryWStream content;
                     SkPDFUtils::AppendScalar(SkFloatToScalar(glyph.fAdvanceX), &content);
