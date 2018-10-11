@@ -565,7 +565,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         if (kUnknown_SkColorType == srcSkColorType || kUnknown_SkColorType == dstSkColorType) {
             return false;
         }
-        auto srcAlphaType = premul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
+        auto srcAlphaType = SkColorTypeIsAlwaysOpaque(srcSkColorType)
+                ? kOpaque_SkAlphaType
+                : (premul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
         SkPixmap src(SkImageInfo::Make(width, height, srcSkColorType, srcAlphaType,
                                        sk_ref_sp(srcColorSpace)),
                      buffer, rowBytes);
@@ -738,15 +740,16 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     if (convert) {
         SkColorType srcSkColorType = GrColorTypeToSkColorType(allowedColorType);
         SkColorType dstSkColorType = GrColorTypeToSkColorType(dstColorType);
+        bool srcAlwaysOpaque = SkColorTypeIsAlwaysOpaque(srcSkColorType);
+        bool dstAlwaysOpaque = SkColorTypeIsAlwaysOpaque(dstSkColorType);
         if (kUnknown_SkColorType == srcSkColorType || kUnknown_SkColorType == dstSkColorType) {
             return false;
         }
-        auto tempAT = SkColorTypeIsAlwaysOpaque(srcSkColorType) ? kOpaque_SkAlphaType
-                                                                : kPremul_SkAlphaType;
+        auto tempAT = srcAlwaysOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
         auto tempII = SkImageInfo::Make(width, height, srcSkColorType, tempAT,
                                         src->colorSpaceInfo().refColorSpace());
-        SkASSERT(!unpremul || !SkColorTypeIsAlwaysOpaque(dstSkColorType));
-        auto finalAT = SkColorTypeIsAlwaysOpaque(srcSkColorType)
+        SkASSERT(!unpremul || !dstAlwaysOpaque);
+        auto finalAT = (srcAlwaysOpaque || dstAlwaysOpaque)
                                ? kOpaque_SkAlphaType
                                : unpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
         auto finalII =

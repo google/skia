@@ -124,8 +124,9 @@ static SkImageInfo make_info(GrRenderTargetContext* context, int w, int h, bool 
     if (!GrPixelConfigToColorType(context->colorSpaceInfo().config(), &colorType)) {
         colorType = kUnknown_SkColorType;
     }
-    return SkImageInfo::Make(w, h, colorType, opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType,
-                             context->colorSpaceInfo().refColorSpace());
+    SkAlphaType alphaType = opaque || SkColorTypeIsAlwaysOpaque(colorType) ? kOpaque_SkAlphaType
+                                                                           : kPremul_SkAlphaType;
+    return SkImageInfo::Make(w, h, colorType, alphaType, context->colorSpaceInfo().refColorSpace());
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> renderTargetContext,
@@ -136,7 +137,6 @@ SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> render
     , fRenderTargetContext(std::move(renderTargetContext))
 {
     fSize.set(width, height);
-    fOpaque = SkToBool(flags & kIsOpaque_Flag);
 
     if (flags & kNeedClear_Flag) {
         this->clearAll();

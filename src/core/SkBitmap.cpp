@@ -609,7 +609,7 @@ void SkBitmap::validate() const {
 
     // ImageInfo may not require this, but Bitmap ensures that opaque-only
     // colorTypes report opaque for their alphatype
-    if (kRGB_565_SkColorType == this->colorType()) {
+    if (SkColorTypeIsAlwaysOpaque(this->colorType())) {
         SkASSERT(kOpaque_SkAlphaType == this->alphaType());
     }
 
