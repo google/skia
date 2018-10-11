@@ -2913,3 +2913,4 @@ rect is equal to copy
 <a href='#SkRect_dump'>dump</a><sup><a href='#SkRect_dump_2'>[2]</a></sup>
 
 ---
+
