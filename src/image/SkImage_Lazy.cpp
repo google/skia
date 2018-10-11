@@ -355,11 +355,15 @@ public:
 
 private:
     uint32_t onGetID() const override { return fGen->uniqueID(); }
-    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
-        return fGen->queryYUV8(sizeInfo, colorSpace);
+    bool onQueryYUVA8(SkYUVASizeInfo* sizeInfo,
+                      SkYUVAIndex yuvaIndices[4],
+                      SkYUVColorSpace* colorSpace) const override {
+        return fGen->queryYUVA8(sizeInfo, yuvaIndices, colorSpace);
     }
-    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
-        return fGen->getYUV8Planes(sizeInfo, planes);
+    bool onGetYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
+                          const SkYUVAIndex yuvaIndices[4],
+                          void* planes[]) override {
+        return fGen->getYUVA8Planes(sizeInfo, yuvaIndices, planes);
     }
 
     SkImageGenerator* fGen;
@@ -384,13 +388,14 @@ static void set_key_on_proxy(GrProxyProvider* proxyProvider,
     }
 }
 
-sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVSizeInfo* yuvSizeInfo,
+sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
+                                            SkYUVAIndex yuvaIndices[4],
                                             SkYUVColorSpace* yuvColorSpace,
-                                            const void* planes[3]) {
+                                            const void* planes[4]) {
     ScopedGenerator generator(fSharedGenerator);
     Generator_GrYUVProvider provider(generator);
 
-    sk_sp<SkCachedData> data = provider.getPlanes(yuvSizeInfo, yuvColorSpace, planes);
+    sk_sp<SkCachedData> data = provider.getPlanes(yuvaSizeInfo, yuvaIndices, yuvColorSpace, planes);
     if (!data) {
         return nullptr;
     }

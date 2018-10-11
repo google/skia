@@ -58,12 +58,26 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* re
     return SkPixmapPriv::Orient(dst, fCodec->getOrigin(), decode);
 }
 
-bool SkCodecImageGenerator::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const
-{
+#include "SkYUVAIndex.h"
+
+bool SkCodecImageGenerator::onQueryYUVA8(SkYUVASizeInfo* sizeInfo, SkYUVAIndex yuvaIndices[4],
+                                         SkYUVColorSpace* colorSpace) const {
+    // This image generator always returns 3 separate non-interleaved planes
+    yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
+    yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
+    yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
+    yuvaIndices[SkYUVAIndex::kU_Index].fChannel = SkColorChannel::kR;
+    yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 2;
+    yuvaIndices[SkYUVAIndex::kV_Index].fChannel = SkColorChannel::kR;
+    yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
+    yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
+
     return fCodec->queryYUV8(sizeInfo, colorSpace);
 }
 
-bool SkCodecImageGenerator::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
+bool SkCodecImageGenerator::onGetYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
+                                             const SkYUVAIndex yuvaIndices[4],
+                                             void* planes[]) {
     SkCodec::Result result = fCodec->getYUV8Planes(sizeInfo, planes);
 
     switch (result) {

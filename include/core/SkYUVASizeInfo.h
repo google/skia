@@ -5,21 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkYUVSizeInfo_DEFINED
-#define SkYUVSizeInfo_DEFINED
+#ifndef SkYUVASizeInfo_DEFINED
+#define SkYUVASizeInfo_DEFINED
 
 #include "SkSize.h"
 
-struct SkYUVSizeInfo {
-    enum YUVIndex {
-        kY          = 0,
-        kU          = 1,
-        kV          = 2,
-    };
-    SkISize fSizes[3];
+struct SkYUVASizeInfo {
+    SkColorType fColorTypes[4];
+    SkISize     fSizes[4];
 
     /**
-     * While the widths of the Y, U, and V planes are not restricted, the
+     * While the widths of the Y, U, V and A planes are not restricted, the
      * implementation often requires that the width of the memory allocated
      * for each plane be a multiple of 8.
      *
@@ -30,7 +26,7 @@ struct SkYUVSizeInfo {
      * include any extra padding, while, in this case, every single row of
      * the allocation must be at least "widthBytes".
      */
-    size_t fWidthBytes[3];
+    size_t      fWidthBytes1[4];
 };
 
-#endif // SkYUVSizeInfo_DEFINED
+#endif // SkYUVASizeInfo_DEFINED
