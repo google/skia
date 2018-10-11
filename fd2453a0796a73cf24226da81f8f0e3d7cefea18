@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09855d8f_db2cf3fc",
+        "filename": "src/core/SkPictureImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-11T19:06:44Z",
+      "side": 1,
+      "message": "Wanna spin this file off as its own CL?",
+      "revId": "fd2453a0796a73cf24226da81f8f0e3d7cefea18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
