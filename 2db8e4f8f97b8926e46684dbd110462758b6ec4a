@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2ad7f2e_8a312445",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2628,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-11T22:42:50Z",
+      "side": 1,
+      "message": "canvas",
+      "range": {
+        "startLine": 2628,
+        "startChar": 92,
+        "endLine": 2628,
+        "endChar": 98
+      },
+      "revId": "2db8e4f8f97b8926e46684dbd110462758b6ec4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "697f94f4_8dbad6e4",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2642,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-11T22:42:50Z",
+      "side": 1,
+      "message": "const SkMatrix\u0026 combinedMat \u003d matrix ? SkMatrix::Concat(ctm, *matrix) : ctm;\n\n?",
+      "revId": "2db8e4f8f97b8926e46684dbd110462758b6ec4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f663bac8_8786161f",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1634,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-11T22:42:50Z",
+      "side": 1,
+      "message": "new enum?",
+      "range": {
+        "startLine": 1634,
+        "startChar": 40,
+        "endLine": 1634,
+        "endChar": 57
+      },
+      "revId": "2db8e4f8f97b8926e46684dbd110462758b6ec4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
