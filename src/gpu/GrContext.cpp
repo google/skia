@@ -565,9 +565,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         if (kUnknown_SkColorType == srcSkColorType || kUnknown_SkColorType == dstSkColorType) {
             return false;
         }
-        auto srcAlphaType = SkColorTypeIsAlwaysOpaque(srcSkColorType)
-            ? kOpaque_SkAlphaType
-            : (premul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
+        auto srcAlphaType = premul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
         SkPixmap src(SkImageInfo::Make(width, height, srcSkColorType, srcAlphaType,
                                        sk_ref_sp(srcColorSpace)),
                      buffer, rowBytes);
@@ -748,7 +746,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         auto tempII = SkImageInfo::Make(width, height, srcSkColorType, tempAT,
                                         src->colorSpaceInfo().refColorSpace());
         SkASSERT(!unpremul || !SkColorTypeIsAlwaysOpaque(dstSkColorType));
-        auto finalAT = SkColorTypeIsAlwaysOpaque(dstSkColorType)
+        auto finalAT = SkColorTypeIsAlwaysOpaque(srcSkColorType)
                                ? kOpaque_SkAlphaType
                                : unpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
         auto finalII =
