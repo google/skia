@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "63c868a9_a6c626be",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-11T13:43:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2cfc9e81_ec9604b7",
+      "range": {
+        "startLine": 206,
+        "startChar": 63,
+        "endLine": 206,
+        "endChar": 74
+      },
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cbeef142_54484890",
         "filename": "src/core/SkDevice.cpp",
         "patchSetId": 9
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "96515022_369bdd6d",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-11T13:43:10Z",
+      "side": 1,
+      "message": "Done. Added test to the GM that would have caught this and the above.",
+      "parentUuid": "cbeef142_54484890",
+      "range": {
+        "startLine": 214,
+        "startChar": 27,
+        "endLine": 214,
+        "endChar": 43
+      },
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30cfde26_352df11f",
         "filename": "src/core/SkLiteDL.cpp",
         "patchSetId": 9
@@ -59,6 +107,24 @@
       "writtenOn": "2018-10-11T12:14:04Z",
       "side": 1,
       "message": "(std::copy_n(set, n, this-\u003eset) ?)",
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "551908cb_6858fc94",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-11T13:43:10Z",
+      "side": 1,
+      "message": "I tried std::copy_n(set.get(), count, set) and I get this:\n\nn file included from /usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/algorithm:61:\n/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/stl_algobase.h:324:18: error: no viable overloaded \u0027\u003d\u0027\n              *__result \u003d *__first;\n              ~~~~~~~~~ ^ ~~~~~~~~\n/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/stl_algobase.h:386:36: note: in instantiation of function template specialization \u0027std::__copy_move\u003cfalse, false, std::random_access_iterator_tag\u003e::__copy_m\u003cSkCanvas::ImageSetEntry *, const SkCanvas::ImageSetEntry *\u003e\u0027 requested here\n                              _Category\u003e::__copy_m(__first, __last, __result);\n                                          ^\n/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/stl_algobase.h:422:23: note: in instantiation of function template specialization \u0027std::__copy_move_a\u003cfalse, SkCanvas::ImageSetEntry *, const SkCanvas::ImageSetEntry *\u003e\u0027 requested here\n      return _OI(std::__copy_move_a\u003c_IsMove\u003e(std::__niter_base(__first),\n                      ^\n/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/stl_algobase.h:454:20: note: in instantiation of function template specialization \u0027std::__copy_move_a2\u003cfalse, SkCanvas::ImageSetEntry *, const SkCanvas::ImageSetEntry *\u003e\u0027 requested here\n      return (std::__copy_move_a2\u003c__is_move_iterator\u003c_II\u003e::__value\u003e\n                   ^\n/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/stl_algo.h:782:19: note: in instantiation of function template specialization \u0027std::copy\u003cSkCanvas::ImageSetEntry *, const SkCanvas::ImageSetEntry *\u003e\u0027 requested here\n    { return std::copy(__first, __first + __n, __result); }\n                  ^\n/usr/lib/gcc/x86_64-linux-gnu/7.3.0/../../../../include/c++/7.3.0/bits/stl_algo.h:806:19: note: in instantiation of function template specialization \u0027std::__copy_n\u003cSkCanvas::ImageSetEntry *, int, const SkCanvas::ImageSetEntry *\u003e\u0027 requested here\n      return std::__copy_n(__first, __n, __result,\n                  ^\n../../src/core/SkLiteDL.cpp:334:18: note: in instantiation of function template specialization \u0027std::copy_n\u003cSkCanvas::ImageSetEntry *, int, const SkCanvas::ImageSetEntry *\u003e\u0027 requested here\n            std::copy_n(this-\u003eset.get(), count, set);\n                 ^\n../../include/core/SkCanvas.h:1837:12: note: candidate function (the implicit copy assignment operator) not viable: \u0027this\u0027 argument has type \u0027const SkCanvas::ImageSetEntry\u0027, but method is not marked const\n    struct ImageSetEntry {\n           ^\n../../include/core/SkCanvas.h:1837:12: note: candidate function (the implicit move assignment operator) not viable: \u0027this\u0027 argument has type \u0027const SkCanvas::ImageSetEntry\u0027, but method is not marked const",
+      "parentUuid": "30cfde26_352df11f",
       "revId": "9ac013433b8249266963b33490587b405881cc68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -112,6 +178,24 @@
       "side": 1,
       "message": "Ah, of course.",
       "parentUuid": "0a6bcc21_d0207129",
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93046893_27ac6577",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-11T13:43:10Z",
+      "side": 1,
+      "message": "I considered making a SkVertices-like immutable wrapper for the set (with a Builder) and then allow us to ref the set all the way down. Still a future option.",
+      "parentUuid": "58eaa997_ff4d8d60",
       "revId": "9ac013433b8249266963b33490587b405881cc68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
