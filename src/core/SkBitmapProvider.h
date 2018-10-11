@@ -13,12 +13,17 @@
 
 class SkBitmapProvider {
 public:
-    explicit SkBitmapProvider(const SkImage* img)
-        : fImage(img) {
+    explicit SkBitmapProvider(const SkImage* img,
+                              SkColorType lazyColorType, SkColorSpace* lazyColorSpace)
+        : fImage(img)
+        , fLazyColorType(lazyColorType)
+        , fLazyColorSpace(lazyColorSpace) {
         SkASSERT(img);
     }
     SkBitmapProvider(const SkBitmapProvider& other)
         : fImage(other.fImage)
+        , fLazyColorType(other.fLazyColorType)
+        , fLazyColorSpace(other.fLazyColorSpace)
     {}
 
     int width() const;
@@ -43,6 +48,8 @@ private:
     // SkBitmapProvider is always short-lived/stack allocated, and the source image is guaranteed
     // to outlive its scope => we can store a raw ptr to avoid ref churn.
     const SkImage* fImage;
+    SkColorType    fLazyColorType;
+    SkColorSpace*  fLazyColorSpace;
 };
 
 #endif
