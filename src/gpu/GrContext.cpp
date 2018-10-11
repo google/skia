@@ -193,7 +193,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (kOpenGL_GrBackend != backendFormat.backend() && willUseGLFBO0) {
+    if (GrBackend::kOpenGL != backendFormat.backend() && willUseGLFBO0) {
         // The willUseGLFBO0 flags can only be used for a GL backend.
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
@@ -1126,11 +1126,11 @@ SkString GrContextPriv::dump() const {
         "Vulkan",
         "Mock",
     };
-    GR_STATIC_ASSERT(0 == kMetal_GrBackend);
-    GR_STATIC_ASSERT(1 == kOpenGL_GrBackend);
-    GR_STATIC_ASSERT(2 == kVulkan_GrBackend);
-    GR_STATIC_ASSERT(3 == kMock_GrBackend);
-    writer.appendString("backend", kBackendStr[fContext->fBackend]);
+    GR_STATIC_ASSERT(0 == (unsigned)GrBackend::kMetal);
+    GR_STATIC_ASSERT(1 == (unsigned)GrBackend::kOpenGL);
+    GR_STATIC_ASSERT(2 == (unsigned)GrBackend::kVulkan);
+    GR_STATIC_ASSERT(3 == (unsigned)GrBackend::kMock);
+    writer.appendString("backend", kBackendStr[(unsigned)fContext->fBackend]);
 
     writer.appendName("caps");
     fContext->fCaps->dumpJSON(&writer);

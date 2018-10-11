@@ -20,7 +20,7 @@ class GrVkExtensions;
 namespace sk_gpu_test {
 class VkTestContext : public TestContext {
 public:
-    virtual GrBackend backend() override { return kVulkan_GrBackend; }
+    virtual GrBackend backend() override { return GrBackend::kVulkan; }
 
     const GrVkBackendContext& getVkBackendContext() const {
         return fVk;

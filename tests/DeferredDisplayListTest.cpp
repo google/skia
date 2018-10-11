@@ -56,7 +56,7 @@ static GrBackendFormat create_backend_format(GrContext* context,
     const GrCaps* caps = context->contextPriv().caps();
 
     switch (context->contextPriv().getBackend()) {
-    case kOpenGL_GrBackend: {
+    case GrBackend::kOpenGL: {
         const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(caps);
         GrGLStandard standard = glCaps->standard();
 
@@ -126,7 +126,7 @@ static GrBackendFormat create_backend_format(GrContext* context,
     }
     break;
 #ifdef SK_VULKAN
-    case kVulkan_GrBackend:
+    case GrBackend::kVulkan:
         switch (ct) {
             case kUnknown_SkColorType:
                 return GrBackendFormat();
@@ -184,7 +184,7 @@ static GrBackendFormat create_backend_format(GrContext* context,
         }
         break;
 #endif
-    case kMock_GrBackend:
+    case GrBackend::kMock:
         switch (ct) {
             case kUnknown_SkColorType:
                 return GrBackendFormat();

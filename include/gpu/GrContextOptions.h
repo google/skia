@@ -154,7 +154,7 @@ struct GrContextOptions {
 
     /**
      * Enables driver workaround to use draws instead of glClear. This only applies to
-     * kOpenGL_GrBackend.
+     * GrBackend::kOpenGL.
      */
     Enable fUseDrawInsteadOfGLClear = Enable::kDefault;
 

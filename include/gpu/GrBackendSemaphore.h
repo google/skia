@@ -20,16 +20,16 @@ class GrBackendSemaphore {
 public:
     // For convenience we just set the backend here to OpenGL. The GrBackendSemaphore cannot be used
     // until either initGL or initVulkan are called which will set the appropriate GrBackend.
-    GrBackendSemaphore() : fBackend(kOpenGL_GrBackend), fGLSync(0), fIsInitialized(false) {}
+    GrBackendSemaphore() : fBackend(GrBackend::kOpenGL), fGLSync(0), fIsInitialized(false) {}
 
     void initGL(GrGLsync sync) {
-        fBackend = kOpenGL_GrBackend;
+        fBackend = GrBackend::kOpenGL;
         fGLSync = sync;
         fIsInitialized = true;
     }
 
     void initVulkan(VkSemaphore semaphore) {
-        fBackend = kVulkan_GrBackend;
+        fBackend = GrBackend::kVulkan;
         fVkSemaphore = semaphore;
 #ifdef SK_VULKAN
         fIsInitialized = true;
@@ -41,14 +41,14 @@ public:
     bool isInitialized() const { return fIsInitialized; }
 
     GrGLsync glSync() const {
-        if (!fIsInitialized || kOpenGL_GrBackend != fBackend) {
+        if (!fIsInitialized || GrBackend::kOpenGL != fBackend) {
             return 0;
         }
         return fGLSync;
     }
 
     VkSemaphore vkSemaphore() const {
-        if (!fIsInitialized || kVulkan_GrBackend != fBackend) {
+        if (!fIsInitialized || GrBackend::kVulkan != fBackend) {
             return VK_NULL_HANDLE;
         }
         return fVkSemaphore;

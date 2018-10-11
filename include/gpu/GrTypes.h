@@ -184,16 +184,25 @@ static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
 /**
  * Possible 3D APIs that may be used by Ganesh.
  */
-enum GrBackend {
-    kMetal_GrBackend,
-    kOpenGL_GrBackend,
-    kVulkan_GrBackend,
+enum class GrBackend : unsigned {
+    kMetal,
+    kOpenGL,
+    kVulkan,
     /**
      * Mock is a backend that does not draw anything. It is used for unit tests
      * and to measure CPU overhead.
      */
-    kMock_GrBackend,
+    kMock,
 };
+
+/**
+ * Previously the above enum was not an enum class but a normal enum. To support the legacy use of
+ * the enum values we define them below so that no clients break.
+ */
+static constexpr GrBackend kMetal_GrBackend = GrBackend::kMetal;
+static constexpr GrBackend kOpenGL_GrBackend = GrBackend::kOpenGL;
+static constexpr GrBackend kVulkan_GrBackend = GrBackend::kVulkan;
+static constexpr GrBackend kMock_GrBackend = GrBackend::kMock;
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -14,13 +14,13 @@ using sk_gpu_test::ContextInfo;
 namespace skiatest {
 
 bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return kOpenGL_GrBackend == GrContextFactory::ContextTypeBackend(type);
+    return GrBackend::kOpenGL == GrContextFactory::ContextTypeBackend(type);
 }
 bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return kVulkan_GrBackend == GrContextFactory::ContextTypeBackend(type);
+    return GrBackend::kVulkan == GrContextFactory::ContextTypeBackend(type);
 }
 bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return kMetal_GrBackend == GrContextFactory::ContextTypeBackend(type);
+    return GrBackend::kMetal == GrContextFactory::ContextTypeBackend(type);
 }
 bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);

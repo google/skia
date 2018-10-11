@@ -73,13 +73,13 @@ public:
     static GrBackend ContextTypeBackend(ContextType type) {
         switch (type) {
             case kVulkan_ContextType:
-                return kVulkan_GrBackend;
+                return GrBackend::kVulkan;
             case kMetal_ContextType:
-                return kMetal_GrBackend;
+                return GrBackend::kMetal;
             case kMock_ContextType:
-                return kMock_GrBackend;
+                return GrBackend::kMock;
             default:
-                return kOpenGL_GrBackend;
+                return GrBackend::kOpenGL;
         }
     }
 
@@ -176,7 +176,7 @@ public:
     TestContext* testContext() const { return fTestContext; }
 
     GLTestContext* glContext() const {
-        SkASSERT(kOpenGL_GrBackend == this->backend());
+        SkASSERT(GrBackend::kOpenGL == this->backend());
         return static_cast<GLTestContext*>(fTestContext);
     }
 

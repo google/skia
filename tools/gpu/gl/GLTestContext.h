@@ -20,7 +20,7 @@ class GLTestContext : public TestContext {
 public:
     ~GLTestContext() override;
 
-    virtual GrBackend backend() override { return kOpenGL_GrBackend; }
+    virtual GrBackend backend() override { return GrBackend::kOpenGL; }
 
     bool isValid() const { return SkToBool(this->gl()); }
 
