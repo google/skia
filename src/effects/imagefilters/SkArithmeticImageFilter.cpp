@@ -344,8 +344,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                                                      arithmeticIndex,
                                                                      "Arithmetic",
                                                                      SKSL_ARITHMETIC_SRC,
-                                                                     &inputs,
-                                                                     sizeof(inputs));
+                                                                     inputs);
         if (xferFP) {
             ((GrSkSLFP&) *xferFP).addChild(std::move(bgFP));
             paint.addColorFragmentProcessor(std::move(xferFP));

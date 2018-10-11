@@ -490,7 +490,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (ditherRange >= 0) {
             static int ditherIndex = GrSkSLFP::NewIndex();
             auto ditherFP = GrSkSLFP::Make(context, ditherIndex, "Dither", SKSL_DITHER_SRC,
-                                           &ditherRange, sizeof(ditherRange));
+                                           ditherRange);
             if (ditherFP) {
                 grPaint->addColorFragmentProcessor(std::move(ditherFP));
             }

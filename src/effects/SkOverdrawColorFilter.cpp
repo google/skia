@@ -91,8 +91,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
         GrContext* context, const GrColorSpaceInfo&) const {
     static int overdrawIndex = GrSkSLFP::NewIndex();
-    return GrSkSLFP::Make(context, overdrawIndex, "Overdraw", SKSL_OVERDRAW_SRC, fColors,
-                          sizeof(fColors));
+    return GrSkSLFP::Make(context, overdrawIndex, "Overdraw", SKSL_OVERDRAW_SRC, fColors);
 }
 
 #endif

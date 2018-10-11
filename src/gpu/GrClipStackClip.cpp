@@ -211,8 +211,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
     auto* ccpr = context->contextPriv().drawingManager()->getCoverageCountingPathRenderer();
 
-    GrReducedClip reducedClip(*fStack, devBounds, context->contextPriv().caps(),
-                              maxWindowRectangles, maxAnalyticFPs, ccpr ? maxAnalyticFPs : 0);
+    GrReducedClip reducedClip(*fStack, devBounds, context, maxWindowRectangles, maxAnalyticFPs,
+                              ccpr ? maxAnalyticFPs : 0);
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
         return false;
@@ -291,7 +291,7 @@ bool GrClipStackClip::applyClipMask(GrContext* context, GrRenderTargetContext* r
     // after clipping is overhauled.
     if (renderTargetContext->priv().mustRenderClip(reducedClip.maskGenID(), reducedClip.scissor(),
                                                    reducedClip.numAnalyticFPs())) {
-        reducedClip.drawStencilClipMask(context, renderTargetContext);
+        reducedClip.drawStencilClipMask(renderTargetContext);
         renderTargetContext->priv().setLastClip(reducedClip.maskGenID(), reducedClip.scissor(),
                                                 reducedClip.numAnalyticFPs());
     }

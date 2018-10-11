@@ -1041,7 +1041,6 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         }
 
         auto context = GrContext::MakeMock(nullptr);
-        const GrCaps* caps = context->contextPriv().caps();
 
         // Zero the memory we will new the GrReducedClip into. This ensures the elements gen ID
         // will be kInvalidGenID if left uninitialized.
@@ -1052,7 +1051,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         // Get the reduced version of the stack.
         SkRect queryBounds = kBounds;
         queryBounds.outset(kBounds.width() / 2, kBounds.height() / 2);
-        const GrReducedClip* reduced = new (storage.get()) GrReducedClip(stack, queryBounds, caps);
+        const GrReducedClip* reduced = new (storage.get()) GrReducedClip(stack, queryBounds,
+                                                                         context.get());
 
         REPORTER_ASSERT(reporter,
                         reduced->maskElements().isEmpty() ||
@@ -1112,12 +1112,12 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
         auto context = GrContext::MakeMock(nullptr);
-        const GrCaps* caps = context->contextPriv().caps();
 
         SkAlignedSTStorage<1, GrReducedClip> storage;
         memset(storage.get(), 0, sizeof(GrReducedClip));
         GR_STATIC_ASSERT(0 == SkClipStack::kInvalidGenID);
-        const GrReducedClip* reduced = new (storage.get()) GrReducedClip(stack, bounds, caps);
+        const GrReducedClip* reduced = new (storage.get()) GrReducedClip(stack, bounds,
+                                                                         context.get());
 
         REPORTER_ASSERT(reporter, reduced->maskElements().count() == 1);
         // Clips will be cached based on the generation id. Make sure the gen id is valid.
@@ -1201,10 +1201,9 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
 #undef XYWH
 #undef IXYWH
         auto context = GrContext::MakeMock(nullptr);
-        const GrCaps* caps = context->contextPriv().caps();
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(testCases); ++i) {
-            const GrReducedClip reduced(stack, testCases[i].testBounds, caps);
+            const GrReducedClip reduced(stack, testCases[i].testBounds, context.get());
             REPORTER_ASSERT(reporter, reduced.maskElements().count() ==
                             testCases[i].reducedClipCount);
             SkASSERT(reduced.maskElements().count() == testCases[i].reducedClipCount);
@@ -1229,10 +1228,9 @@ static void test_reduced_clip_stack_no_aa_crash(skiatest::Reporter* reporter) {
     SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
     auto context = GrContext::MakeMock(nullptr);
-    const GrCaps* caps = context->contextPriv().caps();
 
     // At the time, this would crash.
-    const GrReducedClip reduced(stack, bounds, caps);
+    const GrReducedClip reduced(stack, bounds, context.get());
     REPORTER_ASSERT(reporter, reduced.maskElements().isEmpty());
 }
 
@@ -1248,11 +1246,10 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
                           const SkRect& preXformQuery, ClipMethod expectedMethod,
                           int numExpectedElems = 0) {
     auto context = GrContext::MakeMock(nullptr);
-    const GrCaps* caps = context->contextPriv().caps();
 
     SkRect queryBounds;
     queryXform.mapRect(&queryBounds, preXformQuery);
-    const GrReducedClip reduced(stack, queryBounds, caps);
+    const GrReducedClip reduced(stack, queryBounds, context.get());
 
     SkClipStack::BoundsType stackBoundsType;
     SkRect stackBounds;
@@ -1410,14 +1407,13 @@ static void test_tiny_query_bounds_assertion_bug(skiatest::Reporter* reporter) {
     pathStack.clipPath(clipPath, SkMatrix::I(), kIntersect_SkClipOp, true);
 
     auto context = GrContext::MakeMock(nullptr);
-    const GrCaps* caps = context->contextPriv().caps();
 
     for (const SkClipStack& stack : {rectStack, pathStack}) {
         for (SkRect queryBounds : {SkRect::MakeXYWH(53, 60, GrClip::kBoundsTolerance, 1000),
                                    SkRect::MakeXYWH(53, 60, GrClip::kBoundsTolerance/2, 1000),
                                    SkRect::MakeXYWH(53, 160, 1000, GrClip::kBoundsTolerance),
                                    SkRect::MakeXYWH(53, 160, 1000, GrClip::kBoundsTolerance/2)}) {
-            const GrReducedClip reduced(stack, queryBounds, caps);
+            const GrReducedClip reduced(stack, queryBounds, context.get());
             REPORTER_ASSERT(reporter, !reduced.hasScissor());
             REPORTER_ASSERT(reporter, reduced.maskElements().isEmpty());
             REPORTER_ASSERT(reporter,

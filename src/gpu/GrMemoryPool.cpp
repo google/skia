@@ -11,12 +11,20 @@
 #include "SkAtomics.h"
 #endif
 #include "ops/GrOp.h"
+#include "effects/GrSkSLFP.h"
 
 #ifdef SK_DEBUG
     #define VALIDATE this->validate()
 #else
     #define VALIDATE
 #endif
+
+enum {
+    // We assume this alignment is good enough for everybody.
+    kAlignment    = alignof(GrSkSLFP),
+    kHeaderSize   = GR_CT_ALIGN_UP(GrMemoryPool::kBlockHeaderSize, kAlignment),
+    kPerAllocPad  = GR_CT_ALIGN_UP(GrMemoryPool::kAllocHeaderSize, kAlignment),
+};
 
 void GrOpMemoryPool::release(std::unique_ptr<GrOp> op) {
     GrOp* tmp = op.release();
