@@ -1,0 +1,9 @@
+declare_args() {
+  dawn_always_assert = false
+  dawn_enable_opengl = false
+  dawn_enable_vulkan = is_linux
+  dawn_enable_metal = is_mac
+  dawn_enable_d3d12 = is_win
+  dawn_enable_null = false
+  dawn_spirv_tools_dir = "third_party"
+}
