@@ -16,7 +16,7 @@
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
-uint32_t grsltype_to_alignment_mask(GrSLType type) {
+static uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
         case kByte_GrSLType: // fall through
         case kUByte_GrSLType:
@@ -170,10 +170,10 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
 // Given the current offset into the ubo, calculate the offset for the uniform we're trying to add
 // taking into consideration all alignment requirements. The uniformOffset is set to the offset for
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
-void get_ubo_aligned_offset(uint32_t* uniformOffset,
-                            uint32_t* currentOffset,
-                            GrSLType type,
-                            int arrayCount) {
+static void get_ubo_aligned_offset(uint32_t* uniformOffset,
+                                   uint32_t* currentOffset,
+                                   GrSLType type,
+                                   int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
     uint32_t offsetDiff = *currentOffset & alignmentMask;
     if (offsetDiff != 0) {
