@@ -31,14 +31,10 @@ bool SkBitmapProvider::isVolatile() const {
     return bm ? bm->isVolatile() : false;
 }
 
-SkBitmapCacheDesc SkBitmapProvider::makeCacheDesc() const {
-    return SkBitmapCacheDesc::Make(fImage);
-}
-
 void SkBitmapProvider::notifyAddedToCache() const {
     as_IB(fImage)->notifyAddedToRasterCache();
 }
 
 bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
-    return as_IB(fImage)->getROPixels(bm, nullptr, SkImage::kAllow_CachingHint);
+    return as_IB(fImage)->getROPixels(bm, fLazyColorType, fLazyColorSpace);
 }
