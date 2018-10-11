@@ -9,6 +9,7 @@
 #include "SkPathOpsConic.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsQuad.h"
+#include "SkPathOpsRect.h"
 
 // cribbed from the float version in SkGeometry.cpp
 static void conic_deriv_coeff(const double src[],
@@ -171,3 +172,23 @@ SkDPoint SkDConic::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, do
     *weight = chopped.fWeight;
     return chopped[1];
 }
+
+#if PATH_OP_COMPILE_FOR_SIZE
+
+    int SkTConic::intersectRay(SkIntersections* i, const SkDLine& line) const {
+        return i->intersectRay(fConic, line);
+    }
+
+    bool SkTConic::hullIntersects(const SkDQuad& quad, bool* isLinear) const  {
+        return quad.hullIntersects(fConic, isLinear);
+    }
+
+    bool SkTConic::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {
+        return cubic.hullIntersects(fConic, isLinear);
+    }
+
+    void SkTConic::setBounds(SkDRect* rect) const {
+        rect->setBounds(fConic);
+    }
+
+#endif
