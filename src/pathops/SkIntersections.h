@@ -269,6 +269,11 @@ public:
     int intersectRay(const SkDQuad&, const SkDLine&);
     int intersectRay(const SkDConic&, const SkDLine&);
     int intersectRay(const SkDCubic&, const SkDLine&);
+#if PATH_OP_COMPILE_FOR_SIZE
+    int intersectRay(const SkTCurve& tCurve, const SkDLine& line) {
+        return tCurve.intersectRay(this, line);
+    }
+#endif
     void merge(const SkIntersections& , int , const SkIntersections& , int );
     int mostOutside(double rangeStart, double rangeEnd, const SkDPoint& origin) const;
     void removeOne(int index);
