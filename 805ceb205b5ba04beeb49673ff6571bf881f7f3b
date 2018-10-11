@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e17840a2_dae495da",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-11T18:57:58Z",
+      "side": 1,
+      "message": "All we really want is to trim the tail, but we don\u0027t want to update a previous block pointer in the event realloc moves the block. But we don\u0027t want to force a copy either. I think the following is ok?\n\n    ptrdiff_t used \u003d fTail-\u003efCurr - (char*)fTail;\n    fHead \u003d fTail \u003d sk_realloc_throw(fTail, used);\n    fTail-\u003efCurr \u003d fTail.fStop \u003d fTail + used;",
+      "range": {
+        "startLine": 864,
+        "startChar": 0,
+        "endLine": 873,
+        "endChar": 9
+      },
+      "revId": "805ceb205b5ba04beeb49673ff6571bf881f7f3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
