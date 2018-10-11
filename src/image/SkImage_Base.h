@@ -65,10 +65,19 @@ public:
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                                  GrSurfaceOrigin* origin) const;
 
-    // return a read-only copy of the pixels. We promise to not modify them,
-    // but only inspect them (or encode them).
-    virtual bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace,
-                             CachingHint = kAllow_CachingHint) const = 0;
+    // Return a read-only copy of the pixels. We promise to not modify them, but only inspect them
+    // (or encode them). The behavior of this function is different for lazy images vs other types.
+    //
+    // For raster or GPU-backed images, the bitmap will always be provided in the stored format and
+    // color space, minimizing the work done.
+    // For lazy images, the color type and color space of the passed SkBitmap are used as hints
+    // to choose the decoded color type and color space. If the bitmap has an unknown color type
+    // or nullptr color space, then the most natural format of the encoded data will be used.
+    //
+    // If data is always needed in a specific or high-quality format, use readPixels.
+    // If no specific format is required, passing an uninitialized bitmap may give faster results
+    // with lazy images.
+    virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
