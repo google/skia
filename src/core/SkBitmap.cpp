@@ -607,12 +607,6 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
 void SkBitmap::validate() const {
     this->info().validate();
 
-    // ImageInfo may not require this, but Bitmap ensures that opaque-only
-    // colorTypes report opaque for their alphatype
-    if (kRGB_565_SkColorType == this->colorType()) {
-        SkASSERT(kOpaque_SkAlphaType == this->alphaType());
-    }
-
     SkASSERT(this->info().validRowBytes(this->rowBytes()));
     uint8_t allFlags = kImageIsVolatile_Flag;
 #ifdef SK_BUILD_FOR_ANDROID
