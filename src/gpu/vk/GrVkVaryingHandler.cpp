@@ -75,7 +75,7 @@ static inline int grsltype_to_location_size(GrSLType type) {
     return -1;
 }
 
-void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
+static void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
     int locationIndex = 0;
     for (int i = 0; i < vars.count(); ++i) {
         GrShaderVar& var = vars[i];

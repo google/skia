@@ -7,7 +7,7 @@
 
 #include "GrMtlVaryingHandler.h"
 
-void finalize_helper(GrMtlVaryingHandler::VarArray& vars) {
+static void finalize_helper(GrMtlVaryingHandler::VarArray& vars) {
     int locationIndex;
     for (locationIndex = 0; locationIndex < vars.count(); locationIndex++) {
         GrShaderVar& var = vars[locationIndex];
