@@ -136,7 +136,6 @@ SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> render
     , fRenderTargetContext(std::move(renderTargetContext))
 {
     fSize.set(width, height);
-    fOpaque = SkToBool(flags & kIsOpaque_Flag);
 
     if (flags & kNeedClear_Flag) {
         this->clearAll();
