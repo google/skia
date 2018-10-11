@@ -183,6 +183,7 @@
       "glsrgb",
       "gles",
       "glessrgb",
+      "--reduceOpListSplitting",
       "--match",
       "~inc0.gif",
       "~inc1.gif",

@@ -152,6 +152,7 @@
       "--nocpu",
       "--config",
       "vk",
+      "--reduceOpListSplitting",
       "--match",
       "~desk_carsvg.skp_1",
       "~desk_tiger8svg.skp_1",

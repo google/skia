@@ -411,6 +411,7 @@
       "--match",
       "~BlurMaskBiggerThanDest",
       "--nonativeFonts",
+      "--reduceOpListSplitting",
       "--verbose"
     ],
     "env": {
