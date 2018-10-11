@@ -106,6 +106,20 @@
       }
       return this;
     };
+
+    CanvasKit.SkSurface.prototype.flush = function() {
+      var success = this._readPixels(this._width, this._height, this._pixelPtr);
+      if (!success) {
+        console.err('could not read pixels');
+        return;
+      }
+
+      var pixels = new Uint8ClampedArray(CanvasKit.buffer, this._pixelPtr, this._pixelLen);
+      var imageData = new ImageData(pixels, this._width, this._height);
+
+      this.canvas.getContext('2d').putImageData(imageData, 0, 0);
+
+    };
   }
 
   CanvasKit.getWebGLSurface = function(htmlID) {
@@ -116,6 +130,25 @@
     // Maybe better to use clientWidth/height.  See:
     // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
     return this._getWebGLSurface(htmlID, canvas.width, canvas.height);
+  }
+
+  CanvasKit.getRasterN32PremulSurface = function(htmlID) {
+    var canvas = document.getElementById(htmlID);
+    if (!canvas) {
+      throw 'Canvas with id ' + htmlID + ' was not found';
+    }
+    // Maybe better to use clientWidth/height.  See:
+    // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
+    var surface = this._getRasterN32PremulSurface(canvas.width, canvas.height);
+    if (surface) {
+      surface.canvas = canvas;
+      surface._width = canvas.width;
+      surface._height = canvas.height;
+      surface._pixelLen = surface._width * surface._height * 4; // it's 8888
+      // Allocate the buffer of pixels to be used to draw back and forth.
+      surface._pixelPtr = CanvasKit._malloc(surface._pixelLen);
+    }
+    return surface;
   }
 
   // Likely only used for tests.
