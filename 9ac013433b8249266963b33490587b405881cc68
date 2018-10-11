@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2cfc9e81_ec9604b7",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-11T01:26:36Z",
+      "side": 1,
+      "message": "Assuming this should go into the paint?",
+      "range": {
+        "startLine": 206,
+        "startChar": 63,
+        "endLine": 206,
+        "endChar": 74
+      },
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbeef142_54484890",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-11T01:26:36Z",
+      "side": 1,
+      "message": "images[i].fAAFlags, I presume?",
+      "range": {
+        "startLine": 214,
+        "startChar": 27,
+        "endLine": 214,
+        "endChar": 43
+      },
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c2b80fe_d6b9666f",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-11T01:26:36Z",
+      "side": 1,
+      "message": "Fine for now while this is under development, but eventually this will turn into a pod allocation, right?",
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
