@@ -14,7 +14,7 @@
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkImage_Base.h"
 #include "SkYUVAIndex.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
     GrGpu* gpu = fContext->contextPriv().getGpu();
@@ -60,8 +60,8 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
         // DDL TODO: how can we tell if we need mipmapping!
         if (info.isYUV()) {
-            for (int j = 0; j < 3; ++j) {
-                const SkPixmap& yuvPixmap = info.yuvPixmap(j);
+            for (int j = 0; j < 4; ++j) {
+                const SkPixmap& yuvPixmap = info.yuvPixmap1(j);
 
                 sk_sp<PromiseImageCallbackContext> callbackContext(
                                                         new PromiseImageCallbackContext(context));
@@ -150,19 +150,21 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
             contexts[i] = curImage.refCallbackContext(i).release();
         }
 
+#if 0
         SkYUVAIndex yuvaIndices[4] = {
                 SkYUVAIndex{0, SkColorChannel::kA},
                 SkYUVAIndex{1, SkColorChannel::kA},
                 SkYUVAIndex{2, SkColorChannel::kA},
                 SkYUVAIndex{-1, SkColorChannel::kA}
         };
+#endif
 
         int tempWidth = curImage.backendTexture(0).width();
         int tempHeight = curImage.backendTexture(0).height();
 
         image = recorder->makeYUVAPromiseTexture(curImage.yuvColorSpace(),
                                                  backendFormats,
-                                                 yuvaIndices,
+                                                 curImage.yuvaIndices(),
                                                  tempWidth,  //curImage.overallWidth(),
                                                  tempHeight, //curImage.overallHeight(),
                                                  GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
@@ -219,17 +221,18 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
                                                              image->uniqueID(),
                                                              overallII);
 
-    SkYUVSizeInfo yuvSizeInfo;
+    SkYUVASizeInfo yuvaSizeInfo;
+    SkYUVAIndex yuvaIndices[4];
     SkYUVColorSpace yuvColorSpace;
-    const void* planes[3];
-    sk_sp<SkCachedData> yuvData = ib->getPlanes(&yuvSizeInfo, &yuvColorSpace, planes);
+    const void* planes[4];
+    sk_sp<SkCachedData> yuvData = ib->getPlanes(&yuvaSizeInfo, yuvaIndices, &yuvColorSpace, planes);
     if (yuvData) {
-        newImageInfo.setYUVData(std::move(yuvData), yuvColorSpace);
+        newImageInfo.setYUVData(std::move(yuvData), yuvaIndices, yuvColorSpace);
 
         for (int i = 0; i < 3; ++i) {
-            SkImageInfo planeII = SkImageInfo::MakeA8(yuvSizeInfo.fSizes[i].fWidth,
-                                                      yuvSizeInfo.fSizes[i].fHeight);
-            newImageInfo.addYUVPlane(i, planeII, planes[i], yuvSizeInfo.fWidthBytes[i]);
+            SkImageInfo planeII = SkImageInfo::MakeA8(yuvaSizeInfo.fSizes[i].fWidth,
+                                                      yuvaSizeInfo.fSizes[i].fHeight);
+            newImageInfo.addYUVPlane(i, planeII, planes[i], yuvaSizeInfo.fWidthBytes[i]);
         }
     } else {
         sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images

@@ -10,13 +10,14 @@
 
 #include "GrTypes.h"
 #include "SkImageInfo.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 
 class GrContext;
 struct GrSurfaceDesc;
 class GrTexture;
 class GrTextureProxy;
 class SkCachedData;
+struct SkYUVAIndex;
 
 /**
  *  There are at least 2 different ways to extract/retrieve YUV planar data...
@@ -43,7 +44,8 @@ public:
                                             SkColorSpace* srcColorSpace,
                                             SkColorSpace* dstColorSpace);
 
-    sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*, const void* planes[3]);
+    sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
+                                  SkYUVColorSpace*, const void* planes[4]);
 
 private:
     virtual uint32_t onGetID() const = 0;
@@ -54,23 +56,29 @@ private:
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
      *  returns false and does not modify any of the parameters.
      *
-     *  @param sizeInfo   Output parameter indicating the sizes and required
-     *                    allocation widths of the Y, U, and V planes.
-     *  @param colorSpace Output parameter.
+     *  @param sizeInfo    Output parameter indicating the sizes and required
+     *                     allocation widths of the Y, U, and V planes.
+     *  @param yuvaIndices How the YUV planes are used/organized
+     *  @param colorSpace  Output parameter.
      */
-    virtual bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const = 0;
+    virtual bool onQueryYUVA8(SkYUVASizeInfo* sizeInfo,
+                              SkYUVAIndex yuvaIndices[4],
+                              SkYUVColorSpace* colorSpace) const = 0;
 
     /**
      *  Returns true on success and false on failure.
      *  This always attempts to perform a full decode.  If the client only
      *  wants size, it should call onQueryYUV8().
      *
-     *  @param sizeInfo   Needs to exactly match the values returned by the
-     *                    query, except the WidthBytes may be larger than the
-     *                    recommendation (but not smaller).
-     *  @param planes     Memory for each of the Y, U, and V planes.
+     *  @param sizeInfo    Needs to exactly match the values returned by the
+     *                     query, except the WidthBytes may be larger than the
+     *                     recommendation (but not smaller).
+     *  @param yuvaIndices How the YUV planes are used/organized
+     *  @param planes      Memory for each of the Y, U, and V planes.
      */
-    virtual bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) = 0;
+    virtual bool onGetYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
+                                  const SkYUVAIndex yuvaIndices[4],
+                                  void* planes[4]) = 0;
 
     // This is used as release callback for the YUV data that we capture in an SkImage when
     // uploading to a gpu. When the upload is complete and we release the SkImage this callback will

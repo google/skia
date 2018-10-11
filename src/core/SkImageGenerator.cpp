@@ -8,6 +8,7 @@
 #include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkNextID.h"
+#include "SkYUVAIndex.h"
 
 SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     : fInfo(info)
@@ -29,28 +30,39 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     return this->onGetPixels(info, pixels, rowBytes, defaultOpts);
 }
 
-bool SkImageGenerator::queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+bool SkImageGenerator::queryYUVA8(SkYUVASizeInfo* sizeInfo,
+                                  SkYUVAIndex yuvaIndices[4],
+                                  SkYUVColorSpace* colorSpace) const {
     SkASSERT(sizeInfo);
 
-    return this->onQueryYUV8(sizeInfo, colorSpace);
+    return this->onQueryYUVA8(sizeInfo, yuvaIndices, colorSpace);
 }
 
-bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kU].fWidth >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kU].fHeight >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kV].fWidth >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kV].fHeight >= 0);
-    SkASSERT(sizeInfo.fWidthBytes[SkYUVSizeInfo::kY] >=
-            (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth);
-    SkASSERT(sizeInfo.fWidthBytes[SkYUVSizeInfo::kU] >=
-            (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kU].fWidth);
-    SkASSERT(sizeInfo.fWidthBytes[SkYUVSizeInfo::kV] >=
-            (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kV].fWidth);
+bool SkImageGenerator::getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
+                                      const SkYUVAIndex yuvaIndices[4],
+                                      void* planes[4]) {
+    SkASSERT(sizeInfo.fSizes[SkYUVASizeInfo::kY].fWidth >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVASizeInfo::kY].fHeight >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVASizeInfo::kU].fWidth >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVASizeInfo::kU].fHeight >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVASizeInfo::kV].fWidth >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVASizeInfo::kV].fHeight >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVASizeInfo::kA].fWidth >= 0);
+    SkASSERT(sizeInfo.fSizes[SkYUVASizeInfo::kA].fHeight >= 0);
+    SkASSERT(sizeInfo.fWidthBytes[SkYUVASizeInfo::kY] >=
+            (size_t) sizeInfo.fSizes[SkYUVASizeInfo::kY].fWidth);
+    SkASSERT(sizeInfo.fWidthBytes[SkYUVASizeInfo::kU] >=
+            (size_t) sizeInfo.fSizes[SkYUVASizeInfo::kU].fWidth);
+    SkASSERT(sizeInfo.fWidthBytes[SkYUVASizeInfo::kV] >=
+            (size_t) sizeInfo.fSizes[SkYUVASizeInfo::kV].fWidth);
+    SkASSERT(sizeInfo.fWidthBytes[SkYUVASizeInfo::kA] >=
+            (size_t) sizeInfo.fSizes[SkYUVASizeInfo::kA].fWidth);
     SkASSERT(planes && planes[0] && planes[1] && planes[2]);
+    if (yuvaIndices[SkYUVAIndex::kA_Index].fIndex >= 0) {
+        SkASSERT(planes[3]);
+    }
 
-    return this->onGetYUV8Planes(sizeInfo, planes);
+    return this->onGetYUVA8Planes(sizeInfo, yuvaIndices, planes);
 }
 
 #if SK_SUPPORT_GPU
