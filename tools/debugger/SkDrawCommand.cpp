@@ -227,6 +227,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawImageLattice_OpType: return "DrawImageLattice";
         case kDrawImageNine_OpType: return "DrawImageNine";
         case kDrawImageRect_OpType: return "DrawImageRect";
+        case kDrawImageSet_OpType: return "DrawImageSet";
         case kDrawOval_OpType: return "DrawOval";
         case kDrawPaint_OpType: return "DrawPaint";
         case kDrawPatch_OpType: return "DrawPatch";
@@ -1550,6 +1551,24 @@ Json::Value SkDrawImageRectCommand::toJSON(UrlDataManager& urlDataManager) const
     result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fDst)->c_str());
 
     return result;
+}
+
+SkDrawImageSetCommand::SkDrawImageSetCommand(const SkCanvas::ImageSetEntry set[], int count,
+                                             float alpha, SkFilterQuality filterQuality,
+                                             SkBlendMode mode)
+        : INHERITED(kDrawImageSet_OpType)
+        , fSet(count)
+        , fCount(count)
+        , fAlpha(alpha)
+        , fFilterQuality(filterQuality)
+        , fMode(mode) {
+    for (int i = 0; i < count; ++i) {
+        fSet[i] = set[i];
+    }
+}
+
+void SkDrawImageSetCommand::execute(SkCanvas* canvas) const {
+    canvas->experimental_DrawImageSetV0(fSet.get(), fCount, fAlpha, fFilterQuality, fMode);
 }
 
 SkDrawImageNineCommand::SkDrawImageNineCommand(const SkImage* image, const SkIRect& center,
