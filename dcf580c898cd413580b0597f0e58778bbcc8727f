@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5597c763_8f19f472",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-11T14:45:59Z",
+      "side": 1,
+      "message": "Can we remove this now?  Or swap it with a case kUnknown?",
+      "range": {
+        "startLine": 587,
+        "startChar": 5,
+        "endLine": 589,
+        "endChar": 18
+      },
+      "revId": "dcf580c898cd413580b0597f0e58778bbcc8727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
