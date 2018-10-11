@@ -64,6 +64,7 @@ namespace SkRecords {
     M(DrawImageLattice)                                             \
     M(DrawImageRect)                                                \
     M(DrawImageNine)                                                \
+    M(DrawImageSet)                                                 \
     M(DrawDRRect)                                                   \
     M(DrawOval)                                                     \
     M(DrawPaint)                                                    \
@@ -265,6 +266,12 @@ RECORD(DrawImageNine, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         sk_sp<const SkImage> image;
         SkIRect center;
         SkRect dst);
+RECORD(DrawImageSet, kDraw_Tag|kHasImage_Tag,
+       SkAutoTArray<SkCanvas::ImageSetEntry> set;
+       int count;
+       float alpha;
+       SkFilterQuality quality;
+       SkBlendMode mode);
 RECORD(DrawOval, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRect oval);

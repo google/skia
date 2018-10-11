@@ -1796,6 +1796,15 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     }
 }
 
+void SkCanvas::experimental_DrawImageSetV0(const ImageSetEntry* imageSet, int cnt, float alpha,
+                                           SkFilterQuality filterQuality, SkBlendMode mode) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    RETURN_ON_NULL(imageSet);
+    RETURN_ON_FALSE(cnt);
+
+    this->onDrawImageSet(imageSet, cnt, alpha, filterQuality, mode);
+}
+
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (bitmap.drawsNothing()) {
@@ -2394,6 +2403,16 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
         iter.fDevice->drawImageLattice(image, lattice, dst, looper.paint());
     }
 
+    LOOPER_END
+}
+
+void SkCanvas::onDrawImageSet(const ImageSetEntry imageSet[], int count, float alpha,
+                              SkFilterQuality filterQuality, SkBlendMode mode) {
+    SkPaint paint;
+    LOOPER_BEGIN(paint, nullptr);
+    while (iter.next()) {
+        iter.fDevice->drawImageSet(imageSet, count, alpha, filterQuality, mode);
+    }
     LOOPER_END
 }
 

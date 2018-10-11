@@ -6,7 +6,7 @@
  */
 
 #include "GrTextureOp.h"
-
+#include <new>
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -27,13 +27,13 @@
 #include "SkMatrixPriv.h"
 #include "SkPoint.h"
 #include "SkPoint3.h"
+#include "SkRectPriv.h"
 #include "SkTo.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
-#include <new>
 
 namespace {
 
@@ -271,8 +271,6 @@ private:
 // output.
 static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y, Sk4f* a,
                                                    Sk4f* b, Sk4f* c, bool outsetCorners) {
-    SkASSERT(GrQuadAAFlags::kNone != aaFlags);
-
     static constexpr auto fma = SkNx_fma<4, float>;
     // These rotate the points/edge values either clockwise or counterclockwise assuming tri strip
     // order.
@@ -594,34 +592,56 @@ public:
                 std::move(proxy), filter, color, srcRect, dstRect, aaType, aaFlags, constraint,
                 viewMatrix, std::move(textureColorSpaceXform), std::move(paintColorSpaceXform));
     }
+    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                                          const GrRenderTargetContext::TextureSetEntry set[],
+                                          int cnt, GrSamplerState::Filter filter, GrColor color,
+                                          GrAAType aaType, const SkMatrix& viewMatrix,
+                                          sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                          sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
+        size_t size = sizeof(TextureOp) + sizeof(Proxy) * (cnt - 1);
+        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        void* mem = pool->allocate(size);
+        return std::unique_ptr<GrDrawOp>(new (mem) TextureOp(
+                set, cnt, filter, color, aaType, viewMatrix, std::move(textureColorSpaceXform),
+                std::move(paintColorSpaceXform)));
+    }
 
     ~TextureOp() override {
-        if (fFinalized) {
-            fProxy->completedRead();
-        } else {
-            fProxy->unref();
+        for (unsigned p = 0; p < fProxyCnt; ++p) {
+            if (fFinalized) {
+                fProxies[p].fProxy->completedRead();
+            } else {
+                fProxies[p].fProxy->unref();
+            }
         }
     }
 
     const char* name() const override { return "TextureOp"; }
 
-    void visitProxies(const VisitProxyFunc& func) const override { func(fProxy); }
+    void visitProxies(const VisitProxyFunc& func) const override {
+        for (unsigned p = 0; p < fProxyCnt; ++p) {
+            func(fProxies[p].fProxy);
+        }
+    }
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("# draws: %d\n", fDraws.count());
-        str.appendf("Proxy ID: %d, Filter: %d\n", fProxy->uniqueID().asUInt(),
-                    static_cast<int>(fFilter));
-        for (int i = 0; i < fDraws.count(); ++i) {
-            const Draw& draw = fDraws[i];
-            str.appendf(
-                    "%d: Color: 0x%08x, TexRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f] "
-                    "Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
-                    i, draw.color(), draw.srcRect().fLeft, draw.srcRect().fTop,
-                    draw.srcRect().fRight, draw.srcRect().fBottom, draw.quad().point(0).fX,
-                    draw.quad().point(0).fY, draw.quad().point(1).fX, draw.quad().point(1).fY,
-                    draw.quad().point(2).fX, draw.quad().point(2).fY, draw.quad().point(3).fX,
-                    draw.quad().point(3).fY);
+        str.appendf("# draws: %d\n", fQuads.count());
+        int q = 0;
+        for (unsigned p = 0; p < fProxyCnt; ++p) {
+            str.appendf("Proxy ID: %d, Filter: %d\n", fProxies[p].fProxy->uniqueID().asUInt(),
+                        static_cast<int>(fFilter));
+            for (int i = 0; i < fProxies[p].fQuadCnt; ++i, ++q) {
+                const Quad& quad = fQuads[q];
+                str.appendf(
+                        "%d: Color: 0x%08x, TexRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f] "
+                        "Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
+                        i, quad.color(), quad.srcRect().fLeft, quad.srcRect().fTop,
+                        quad.srcRect().fRight, quad.srcRect().fBottom, quad.quad().point(0).fX,
+                        quad.quad().point(0).fY, quad.quad().point(1).fX, quad.quad().point(1).fY,
+                        quad.quad().point(2).fX, quad.quad().point(2).fY, quad.quad().point(3).fX,
+                        quad.quad().point(3).fY);
+            }
         }
         str += INHERITED::dumpInfo();
         return str;
@@ -630,8 +650,10 @@ public:
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkASSERT(!fFinalized);
         fFinalized = true;
-        fProxy->addPendingRead();
-        fProxy->unref();
+        for (unsigned p = 0; p < fProxyCnt; ++p) {
+            fProxies[p].fProxy->addPendingRead();
+            fProxies[p].fProxy->unref();
+        }
         return RequiresDstTexture::kNo;
     }
 
@@ -653,7 +675,6 @@ private:
             : INHERITED(ClassID())
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
-            , fProxy(proxy.release())
             , fFilter(filter)
             , fAAType(static_cast<unsigned>(aaType))
             , fFinalized(0) {
@@ -673,11 +694,11 @@ private:
                 SK_ABORT("Should not use mixed sample AA");
                 break;
         }
-        fPerspective = viewMatrix.hasPerspective();
+        fPerspective = static_cast<unsigned>(viewMatrix.hasPerspective());
         auto quad = GrPerspQuad(dstRect, viewMatrix);
         auto bounds = quad.bounds();
         // We expect our caller to have already caught this optimization.
-        SkASSERT(!srcRect.contains(fProxy->getWorstCaseBoundsRect()) ||
+        SkASSERT(!srcRect.contains(proxy->getWorstCaseBoundsRect()) ||
                  constraint == SkCanvas::kFast_SrcRectConstraint);
         if (viewMatrix.rectStaysRect()) {
             // Disable filtering when there is no scaling or fractional translation.
@@ -707,48 +728,107 @@ private:
             this->aaType() != GrAAType::kCoverage) {
             constraint = SkCanvas::kFast_SrcRectConstraint;
         }
-        const auto& draw = fDraws.emplace_back(srcRect, quad, aaFlags, constraint, color);
-        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
-        fDomain = static_cast<bool>(draw.domain());
+        const auto& draw = fQuads.emplace_back(srcRect, quad, aaFlags, constraint, color);
+        fProxyCnt = 1;
+        fProxies[0] = {proxy.release(), 1};
+        this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
+        fDomain = static_cast<unsigned>(draw.domain());
+    }
+    TextureOp(const GrRenderTargetContext::TextureSetEntry set[], int cnt,
+              GrSamplerState::Filter filter, GrColor color, GrAAType aaType,
+              const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+              sk_sp<GrColorSpaceXform> paintColorSpaceXform)
+            : INHERITED(ClassID())
+            , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
+            , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
+            , fFilter(filter)
+            , fAAType(static_cast<unsigned>(aaType))
+            , fFinalized(0) {
+        fQuads.reserve(cnt);
+        fProxyCnt = SkToUInt(cnt);
+        SkRect bounds = SkRectPriv::MakeLargestInverted();
+        bool aa = false;
+        for (unsigned p = 0; p < fProxyCnt; ++p) {
+            fProxies[p].fProxy = SkRef(set[p].fProxy.get());
+            fProxies[p].fQuadCnt = 1;
+            SkASSERT(fProxies[p].fProxy->textureType() == fProxies[0].fProxy->textureType());
+            SkASSERT(fProxies[p].fProxy->config() == fProxies[0].fProxy->config());
+            auto quad = GrPerspQuad(set[p].fDstRect, viewMatrix);
+            bounds.joinPossiblyEmptyRect(quad.bounds());
+            GrQuadAAFlags aaFlags = set[p].fAAFlags;
+            switch (aaType) {
+                case GrAAType::kNone:
+                    aaFlags = GrQuadAAFlags::kNone;
+                    break;
+                case GrAAType::kCoverage:
+                    break;
+                case GrAAType::kMSAA:
+                    aaFlags = GrQuadAAFlags::kAll;
+                    break;
+                case GrAAType::kMixedSamples:
+                    SK_ABORT("Should not use mixed sample AA");
+                    break;
+            }
+            aa = aa || (set[p].fAAFlags != GrQuadAAFlags::kNone);
+            fQuads.emplace_back(set[p].fSrcRect, quad, aaFlags, SkCanvas::kFast_SrcRectConstraint,
+                                color);
+        }
+        if (!aa) {
+            fAAType = static_cast<unsigned>(GrAAType::kNone);
+        }
+        this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
+        fPerspective = static_cast<unsigned>(viewMatrix.hasPerspective());
+        fDomain = static_cast<unsigned>(false);
     }
 
     template <typename Pos, Domain D, GrAA AA>
-    void tess(void* v, const GrGeometryProcessor* gp) const {
+    void tess(void* v, const GrGeometryProcessor* gp, const GrTextureProxy* proxy, int start,
+              int cnt) const {
+        TRACE_EVENT0("skia", TRACE_FUNC);
         using Vertex = TextureGeometryProcessor::Vertex<Pos, D, AA>;
         SkASSERT(gp->debugOnly_vertexStride() == sizeof(Vertex));
         auto vertices = static_cast<Vertex*>(v);
-        auto origin = fProxy->origin();
-        const auto* texture = fProxy->peekTexture();
+        auto origin = proxy->origin();
+        const auto* texture = proxy->peekTexture();
         float iw = 1.f / texture->width();
         float ih = 1.f / texture->height();
 
-        for (const auto& draw : fDraws) {
-            tessellate_quad<Vertex>(draw.quad(), draw.aaFlags(), draw.srcRect(), draw.color(),
-                                    origin, fFilter, vertices, iw, ih, draw.domain());
+        for (int i = start; i < start + cnt; ++i) {
+            const auto q = fQuads[i];
+            tessellate_quad<Vertex>(q.quad(), q.aaFlags(), q.srcRect(), q.color(), origin, fFilter,
+                                    vertices, iw, ih, q.domain());
             vertices += 4;
         }
     }
 
     void onPrepareDraws(Target* target) override {
+        TRACE_EVENT0("skia", TRACE_FUNC);
         bool hasPerspective = false;
         Domain domain = Domain::kNo;
-        int numOps = 0;
+        int numProxies = 0;
+        auto textureType = fProxies[0].fProxy->textureType();
+        auto config = fProxies[0].fProxy->config();
         for (const auto& op : ChainRange<TextureOp>(this)) {
-            ++numOps;
             hasPerspective |= op.fPerspective;
             if (op.fDomain) {
                 domain = Domain::kYes;
             }
-            if (!op.fProxy->instantiate(target->resourceProvider())) {
-                return;
+            numProxies += op.fProxyCnt;
+            for (unsigned p = 0; p < op.fProxyCnt; ++p) {
+                auto* proxy = op.fProxies[p].fProxy;
+                if (!proxy->instantiate(target->resourceProvider())) {
+                    return;
+                }
+                SkASSERT(proxy->config() == config);
+                SkASSERT(proxy->textureType() == textureType);
             }
         }
 
         bool coverageAA = GrAAType::kCoverage == this->aaType();
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
-                fProxy->textureType(), fProxy->config(), fFilter,
-                std::move(fTextureColorSpaceXform), std::move(fPaintColorSpaceXform), coverageAA,
-                hasPerspective, domain, *target->caps().shaderCaps());
+                textureType, config, fFilter, std::move(fTextureColorSpaceXform),
+                std::move(fPaintColorSpaceXform), coverageAA, hasPerspective, domain,
+                *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();
@@ -763,12 +843,12 @@ private:
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.
         GrPipeline::DynamicStateArrays* dynamicStateArrays = nullptr;
         GrPipeline::FixedDynamicState* fixedDynamicState;
-        if (numOps > 1) {
-            dynamicStateArrays = target->allocDynamicStateArrays(numOps, 1, false);
+        if (numProxies > 1) {
+            dynamicStateArrays = target->allocDynamicStateArrays(numProxies, 1, false);
             fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 0);
         } else {
             fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 1);
-            fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy;
+            fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxies[0].fProxy;
         }
         const auto* pipeline =
                 target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
@@ -799,44 +879,53 @@ private:
 
         SkASSERT(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize == gp->debugOnly_vertexStride());
 
-        GrMesh* meshes = target->allocMeshes(numOps);
-        int i = 0;
+        GrMesh* meshes = target->allocMeshes(numProxies);
+        int m = 0;
         for (const auto& op : ChainRange<TextureOp>(this)) {
-            int vstart;
-            const GrBuffer* vbuffer;
-            void* vdata = target->makeVertexSpace(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize,
-                                                  4 * op.fDraws.count(), &vbuffer, &vstart);
-            if (!vdata) {
-                SkDebugf("Could not allocate vertices\n");
-                return;
-            }
-
-            (op.*(kTessFnsAndVertexSizes[tessFnIdx].fTessFn))(vdata, gp.get());
-
-            if (op.fDraws.count() > 1) {
-                meshes[i].setPrimitiveType(GrPrimitiveType::kTriangles);
-                sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
-                if (!ibuffer) {
-                    SkDebugf("Could not allocate quad indices\n");
+            int q = 0;
+            for (unsigned p = 0; p < op.fProxyCnt; ++p) {
+                int quadCnt = op.fProxies[p].fQuadCnt;
+                auto* proxy = op.fProxies[p].fProxy;
+                int vstart;
+                const GrBuffer* vbuffer;
+                void* vdata = target->makeVertexSpace(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize,
+                                                      4 * quadCnt, &vbuffer, &vstart);
+                if (!vdata) {
+                    SkDebugf("Could not allocate vertices\n");
                     return;
                 }
-                meshes[i].setIndexedPatterned(ibuffer.get(), 6, 4, op.fDraws.count(),
-                                              GrResourceProvider::QuadCountOfQuadBuffer());
-            } else {
-                meshes[i].setPrimitiveType(GrPrimitiveType::kTriangleStrip);
-                meshes[i].setNonIndexedNonInstanced(4);
+
+                (op.*(kTessFnsAndVertexSizes[tessFnIdx].fTessFn))(vdata, gp.get(), proxy, q,
+                                                                  quadCnt);
+
+                if (quadCnt > 1) {
+                    meshes[m].setPrimitiveType(GrPrimitiveType::kTriangles);
+                    sk_sp<const GrBuffer> ibuffer =
+                            target->resourceProvider()->refQuadIndexBuffer();
+                    if (!ibuffer) {
+                        SkDebugf("Could not allocate quad indices\n");
+                        return;
+                    }
+                    meshes[m].setIndexedPatterned(ibuffer.get(), 6, 4, quadCnt,
+                                                  GrResourceProvider::QuadCountOfQuadBuffer());
+                } else {
+                    meshes[m].setPrimitiveType(GrPrimitiveType::kTriangleStrip);
+                    meshes[m].setNonIndexedNonInstanced(4);
+                }
+                meshes[m].setVertexData(vbuffer, vstart);
+                if (dynamicStateArrays) {
+                    dynamicStateArrays->fPrimitiveProcessorTextures[m] = proxy;
+                }
+                ++m;
+                q += quadCnt;
             }
-            meshes[i].setVertexData(vbuffer, vstart);
-            if (dynamicStateArrays) {
-                dynamicStateArrays->fPrimitiveProcessorTextures[i] = op.fProxy;
-            }
-            ++i;
         }
         target->draw(std::move(gp), pipeline, fixedDynamicState, dynamicStateArrays, meshes,
-                     numOps);
+                     numProxies);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+        TRACE_EVENT0("skia", TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
         if (!GrColorSpaceXform::Equals(fTextureColorSpaceXform.get(),
                                        that->fTextureColorSpaceXform.get())) {
@@ -854,17 +943,21 @@ private:
         if (fFilter != that->fFilter) {
             return CombineResult::kCannotCombine;
         }
-        if (fProxy->uniqueID() != that->fProxy->uniqueID() || that->isChained()) {
+        auto thisProxy = fProxies[0].fProxy;
+        auto thatProxy = that->fProxies[0].fProxy;
+        if (fProxyCnt > 1 || that->fProxyCnt > 1 ||
+            thisProxy->uniqueID() != thatProxy->uniqueID() || that->isChained()) {
             // We can't merge across different proxies (and we're disallowed from merging when
             // 'that' is chained. Check if we can be chained with 'that'.
-            if (fProxy->config() == that->fProxy->config() &&
-                fProxy->textureType() == that->fProxy->textureType() &&
+            if (thisProxy->config() == thatProxy->config() &&
+                thisProxy->textureType() == thatProxy->textureType() &&
                 caps.dynamicStateArrayGeometryProcessorTextureSupport()) {
                 return CombineResult::kMayChain;
             }
             return CombineResult::kCannotCombine;
         }
-        fDraws.push_back_n(that->fDraws.count(), that->fDraws.begin());
+        fProxies[0].fQuadCnt += that->fQuads.count();
+        fQuads.push_back_n(that->fQuads.count(), that->fQuads.begin());
         this->joinBounds(*that);
         fPerspective |= that->fPerspective;
         fDomain |= that->fDomain;
@@ -873,9 +966,9 @@ private:
 
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
 
-    class Draw {
+    class Quad {
     public:
-        Draw(const SkRect& srcRect, const GrPerspQuad& quad, GrQuadAAFlags aaFlags,
+        Quad(const SkRect& srcRect, const GrPerspQuad& quad, GrQuadAAFlags aaFlags,
              SkCanvas::SrcRectConstraint constraint, GrColor color)
                 : fSrcRect(srcRect)
                 , fQuad(quad)
@@ -897,16 +990,21 @@ private:
         unsigned fHasDomain : 1;
         unsigned fAAFlags : 4;
     };
-    SkSTArray<1, Draw, true> fDraws;
+    struct Proxy {
+        GrTextureProxy* fProxy;
+        int fQuadCnt;
+    };
+    SkSTArray<1, Quad, true> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     sk_sp<GrColorSpaceXform> fPaintColorSpaceXform;
-    GrTextureProxy* fProxy;
     GrSamplerState::Filter fFilter;
     unsigned fAAType : 2;
     unsigned fPerspective : 1;
     unsigned fDomain : 1;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
+    unsigned fProxyCnt : 32 - 5;
+    Proxy fProxies[1];
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -930,6 +1028,19 @@ std::unique_ptr<GrDrawOp> Make(GrContext* context,
     return TextureOp::Make(context, std::move(proxy), filter, color, srcRect, dstRect, aaType,
                            aaFlags, constraint, viewMatrix, std::move(textureColorSpaceXform),
                            std::move(paintColorSpaceXform));
+}
+
+std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                               const GrRenderTargetContext::TextureSetEntry set[],
+                               int cnt,
+                               GrSamplerState::Filter filter,
+                               GrColor color,
+                               GrAAType aaType,
+                               const SkMatrix& viewMatrix,
+                               sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                               sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
+    return TextureOp::Make(context, set, cnt, filter, color, aaType, viewMatrix,
+                           std::move(textureColorSpaceXform), std::move(paintColorSpaceXform));
 }
 
 }  // namespace GrTextureOp
