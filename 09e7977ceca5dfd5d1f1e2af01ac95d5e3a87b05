@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89ff3f75_7b446ef0",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-11T14:27:18Z",
+      "side": 1,
+      "message": "This was the key thing that fixed the viz unit tests. They were creating 888x premul devices, which were no longer capable of doing read-back (because of the SkImageInfoIsValid change).",
+      "revId": "09e7977ceca5dfd5d1f1e2af01ac95d5e3a87b05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
