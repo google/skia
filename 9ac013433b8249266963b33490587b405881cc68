@@ -97,6 +97,24 @@
       "revId": "9ac013433b8249266963b33490587b405881cc68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58eaa997_ff4d8d60",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-11T13:01:21Z",
+      "side": 1,
+      "message": "Ah, of course.",
+      "parentUuid": "0a6bcc21_d0207129",
+      "revId": "9ac013433b8249266963b33490587b405881cc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
