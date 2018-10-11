@@ -175,6 +175,7 @@
       "--nocpu",
       "--config",
       "angle_d3d11_es2",
+      "--reduceOpListSplitting",
       "--match",
       "~inc0.gif",
       "~inc1.gif",
