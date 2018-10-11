@@ -306,6 +306,10 @@ void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint
         fFlushingPaths.reset();
     }
 
+    if (fPathCache) {
+        fPathCache->notifyFlushOccurred();
+    }
+
     SkDEBUGCODE(fFlushing = false);
 }
 

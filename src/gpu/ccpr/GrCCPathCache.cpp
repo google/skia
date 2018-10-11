@@ -195,6 +195,7 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
     }
 
     ++entry->fHitCount;
+    entry->fLastHitFlushIdx = fCurrFlushIdx;
     fLRU.addToHead(entry);
     return sk_ref_sp(entry);
 }
@@ -208,6 +209,20 @@ void GrCCPathCache::evict(const GrCCPathCacheEntry* entry) {
     fHashTable.remove(HashNode::GetKey(entry));  // ~HashNode() handles the rest.
 }
 
+void GrCCPathCache::notifyFlushOccurred() {
+    static constexpr int kMaximumAge = 10;
+
+    // Purge all cache entries that haven't been used in over kMaximumAge flushes.
+    while (GrCCPathCacheEntry* tail = fLRU.tail()) {
+        uint32_t age = fCurrFlushIdx - tail->fLastHitFlushIdx;
+        if (age <= kMaximumAge) {
+            break;  // fLRU is sorted by age. No more entries will need to be purged.
+        }
+        this->evict(tail);
+    }
+
+    ++fCurrFlushIdx;
+}
 
 GrCCPathCacheEntry::GrCCPathCacheEntry(GrCCPathCache* cache, const MaskTransform& m,
                                        const GrShape& shape)

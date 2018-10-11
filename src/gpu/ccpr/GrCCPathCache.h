@@ -57,6 +57,8 @@ public:
 
     void evict(const GrCCPathCacheEntry*);
 
+    void notifyFlushOccurred();
+
 private:
     // Wrapper around a raw GrShape key that has a specialized operator==. Used by the hash table.
     struct HashKey {
@@ -90,6 +92,7 @@ private:
 
     SkTHashTable<HashNode, HashKey> fHashTable;
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
+    uint32_t fCurrFlushIdx = 0;
 };
 
 /**
@@ -162,10 +165,12 @@ private:
     // Called when our corresponding path is modified or deleted.
     void notifyPathGenIDInvalidated() override;
 
-    uint32_t fContextUniqueID;
     GrCCPathCache* fCacheWeakPtr;  // Gets manually reset to null by the path cache upon eviction.
     MaskTransform fMaskTransform;
+
     int fHitCount = 0;
+    uint32_t fLastHitFlushIdx;
+    uint32_t fContextUniqueID;
 
     GrUniqueKey fAtlasKey;
     SkIVector fAtlasOffset;
