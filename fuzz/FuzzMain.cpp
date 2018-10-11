@@ -54,6 +54,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "image_scale\n"
                                          "json\n"
                                          "path_deserialize\n"
+                                         "region_set_path\n"
                                          "region_deserialize\n"
                                          "region_set_path\n"
                                          "skp\n"
@@ -219,6 +220,7 @@ static std::map<std::string, std::string> cf_api_map = {
     {"api_null_canvas", "NullCanvas"},
     {"api_path_measure", "PathMeasure"},
     {"api_pathop", "Pathop"},
+    {"api_polyutils", "PolyUtils"},
     {"api_raster_n32_canvas", "RasterN32Canvas"},
     {"jpeg_encoder", "JPEGEncoder"},
     {"png_encoder", "PNGEncoder"},
