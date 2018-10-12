@@ -618,7 +618,10 @@ public:
 
     const char* name() const override { return "TextureOp"; }
 
-    void visitProxies(const VisitProxyFunc& func) const override {
+    void visitProxies(const VisitProxyFunc& func, VisitorType visitor) const override {
+        if (visitor == VisitorType::kAllocatorGather && fCanSkipAllocatorGather) {
+            return;
+        }
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             func(fProxies[p].fProxy);
         }
@@ -733,6 +736,8 @@ private:
         fProxies[0] = {proxy.release(), 1};
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(draw.domain());
+        fCanSkipAllocatorGather =
+                static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
     }
     TextureOp(const GrRenderTargetContext::TextureSetEntry set[], int cnt,
               GrSamplerState::Filter filter, GrColor color, GrAAType aaType,
@@ -748,11 +753,15 @@ private:
         fProxyCnt = SkToUInt(cnt);
         SkRect bounds = SkRectPriv::MakeLargestInverted();
         bool aa = false;
+        fCanSkipAllocatorGather = static_cast<unsigned>(true);
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
             fProxies[p].fQuadCnt = 1;
             SkASSERT(fProxies[p].fProxy->textureType() == fProxies[0].fProxy->textureType());
             SkASSERT(fProxies[p].fProxy->config() == fProxies[0].fProxy->config());
+            if (!fProxies[p].fProxy->canSkipResourceAllocator()) {
+                fCanSkipAllocatorGather = static_cast<unsigned>(false);
+            }
             auto quad = GrPerspQuad(set[p].fDstRect, viewMatrix);
             bounds.joinPossiblyEmptyRect(quad.bounds());
             GrQuadAAFlags aaFlags = set[p].fAAFlags;
@@ -1003,7 +1012,8 @@ private:
     unsigned fDomain : 1;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
-    unsigned fProxyCnt : 32 - 5;
+    unsigned fCanSkipAllocatorGather : 1;
+    unsigned fProxyCnt : 32 - 6;
     Proxy fProxies[1];
 
     typedef GrMeshDrawOp INHERITED;

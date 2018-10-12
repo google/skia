@@ -66,7 +66,9 @@ public:
     }
 
     const char* name() const override { return "CopyAtlasOp (CCPR)"; }
-    void visitProxies(const VisitProxyFunc& fn) const override { fn(fStashedAtlasProxy.get()); }
+    void visitProxies(const VisitProxyFunc& fn, VisitorType) const override {
+        fn(fStashedAtlasProxy.get());
+    }
 
     void onExecute(GrOpFlushState* flushState) override {
         SkASSERT(fStashedAtlasProxy);
