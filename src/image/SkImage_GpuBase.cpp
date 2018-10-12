@@ -255,11 +255,9 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
 
 sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
     SkAlphaType newAlphaType = fAlphaType;
-#if defined(SK_LEGACY_MAKE_COLOR_SPACE_IMPL)
     if (kUnpremul_SkAlphaType == fAlphaType) {
         newAlphaType = kPremul_SkAlphaType;
     }
-#endif
     auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), this->alphaType(),
                                                target.get(), newAlphaType);
     if (!xform) {
