@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "5db894e1_ca4c85eb",
+        "filename": "infra/pathkit/docker/README.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-10-12T18:44:10Z",
+      "side": 1,
+      "message": "Could this and the sequence of commands below be converted into a script \nand we keep track of the chrome version in git ?",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 74
+      },
+      "revId": "c2bfd150671a810e2e1f29e44a4aa22a8d326680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04cff918_608e3491",
+        "filename": "infra/pathkit/docker/perf-karma-chrome-tests/Dockerfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-10-12T18:44:10Z",
+      "side": 1,
+      "message": "should this docker image also contain a clean/dirty postfix ?",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 59
+      },
+      "revId": "c2bfd150671a810e2e1f29e44a4aa22a8d326680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76ab64f9_f6a60cd5",
         "filename": "infra/pathkit/perf/pathkit_perf_aggregator.go",
         "patchSetId": 8
