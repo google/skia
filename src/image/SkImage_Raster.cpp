@@ -339,22 +339,14 @@ sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) cons
     SkAssertResult(fBitmap.peekPixels(&src));
 
     // Treat nullptr srcs as sRGB.
-    if (!src.colorSpace()) {
-        if (target->isSRGB()) {
-            return sk_ref_sp(const_cast<SkImage*>((SkImage*)this));
-        }
-
-        src.setColorSpace(SkColorSpace::MakeSRGB());
+    if (!src.colorSpace() && target->isSRGB()) {
+        return sk_ref_sp(const_cast<SkImage*>((SkImage*)this));
     }
 
-    SkImageInfo dstInfo = fBitmap.info().makeColorSpace(target);
-#if defined(SK_LEGACY_MAKE_COLOR_SPACE_IMPL)
-    dstInfo = dstInfo.makeColorType(kN32_SkColorType);
-#endif
     SkBitmap dst;
-    dst.allocPixels(dstInfo);
+    dst.allocPixels(fBitmap.info().makeColorSpace(target));
 
-    SkAssertResult(dst.writePixels(src, 0, 0));
+    SkAssertResult(dst.writePixels(src));
     dst.setImmutable();
     return SkImage::MakeFromBitmap(dst);
 }
