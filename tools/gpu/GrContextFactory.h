@@ -70,16 +70,16 @@ public:
         }
     }
 
-    static GrBackend ContextTypeBackend(ContextType type) {
+    static GrBackendApi ContextTypeBackend(ContextType type) {
         switch (type) {
             case kVulkan_ContextType:
-                return kVulkan_GrBackend;
+                return GrBackendApi::kVulkan;
             case kMetal_ContextType:
-                return kMetal_GrBackend;
+                return GrBackendApi::kMetal;
             case kMock_ContextType:
-                return kMock_GrBackend;
+                return GrBackendApi::kMock;
             default:
-                return kOpenGL_GrBackend;
+                return GrBackendApi::kOpenGL;
         }
     }
 
@@ -150,7 +150,7 @@ private:
         ContextType       fType;
         ContextOverrides  fOverrides;
         GrContextOptions  fOptions;
-        GrBackend         fBackend;
+        GrBackendApi         fBackend;
         TestContext*      fTestContext;
         GrContext*        fGrContext;
         GrContext*        fShareContext;
@@ -169,14 +169,14 @@ public:
     ContextInfo& operator=(const ContextInfo&) = default;
 
     GrContextFactory::ContextType type() const { return fType; }
-    GrBackend backend() const { return GrContextFactory::ContextTypeBackend(fType); }
+    GrBackendApi backend() const { return GrContextFactory::ContextTypeBackend(fType); }
 
     GrContext* grContext() const { return fGrContext; }
 
     TestContext* testContext() const { return fTestContext; }
 
     GLTestContext* glContext() const {
-        SkASSERT(kOpenGL_GrBackend == this->backend());
+        SkASSERT(GrBackendApi::kOpenGL == this->backend());
         return static_cast<GLTestContext*>(fTestContext);
     }
 

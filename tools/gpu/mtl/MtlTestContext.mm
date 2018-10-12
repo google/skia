@@ -120,7 +120,7 @@ public:
 
     ~MtlTestContext() override { this->teardown(); }
 
-    GrBackend backend() override { return kMetal_GrBackend; }
+    GrBackendApi backend() override { return GrBackendApi::kMetal; }
 
     void testAbandon() override {}
 
