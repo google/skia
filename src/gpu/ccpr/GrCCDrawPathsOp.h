@@ -37,7 +37,9 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override;
     CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
-    void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
+    void visitProxies(const VisitProxyFunc& fn, VisitorType) const override {
+        fProcessors.visitProxies(fn);
+    }
     void onPrepare(GrOpFlushState*) override {}
 
     void wasRecorded(sk_sp<GrCCPerOpListPaths> owningPerOpListPaths);
