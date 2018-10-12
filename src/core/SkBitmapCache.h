@@ -11,7 +11,6 @@
 #include "SkBitmap.h"
 #include "SkMipMap.h"
 
-class SkBitmapProvider;
 class SkImage;
 class SkResourceCache;
 
@@ -62,8 +61,7 @@ class SkMipMapCache {
 public:
     static const SkMipMap* FindAndRef(const SkBitmapCacheDesc&,
                                       SkResourceCache* localCache = nullptr);
-    static const SkMipMap* AddAndRef(const SkBitmapProvider&,
-                                     SkResourceCache* localCache = nullptr);
+    static const SkMipMap* AddAndRef(const SkBitmap& src, SkResourceCache* localCache = nullptr);
 };
 
 #endif
