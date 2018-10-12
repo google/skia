@@ -156,7 +156,7 @@ GrTexture* SkImage::getTexture() const {
     return as_IB(this)->onGetTexture();
 }
 
-bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekProxy()); }
+bool SkImage::isTextureBacked() const { return as_IB(this)->onIsTextureBacked(); }
 
 GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
                                             GrSurfaceOrigin* origin) const {

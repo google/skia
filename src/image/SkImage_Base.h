@@ -80,6 +80,9 @@ public:
     // True for picture-backed and codec-backed
     virtual bool onIsLazyGenerated() const { return false; }
 
+    // True for images instantiated in GPU memory
+    virtual bool onIsTextureBacked() const { return false; }
+
     // Call when this image is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this SkImage deleted.
     void notifyAddedToRasterCache() const {
