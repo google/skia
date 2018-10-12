@@ -80,6 +80,10 @@ public:
         return false;
     }
 
+    bool performPartialClearsAsDraws() const override {
+        return true;
+    }
+
 private:
     void initFeatureSet(MTLFeatureSet featureSet);
 

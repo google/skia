@@ -329,11 +329,26 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     if (isFull) {
         this->getRTOpList()->fullClear(fContext, color);
     } else {
-        std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, clip, color, this->asSurfaceProxy()));
-        if (!op) {
-            return;
+        if (this->caps()->performPartialClearsAsDraws()) {
+            GrPaint paint;
+            paint.setColor4f(GrColor4f::FromGrColor(color));
+            SkRect scissor = SkRect::Make(clip.scissorRect());
+            std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(fContext, std::move(paint),
+                                                                        SkMatrix::I(), scissor,
+                                                                        GrAAType::kNone));
+            if (!op) {
+                return;
+            }
+            this->addDrawOp(clip, std::move(op));
         }
-        this->getRTOpList()->addOp(std::move(op), *this->caps());
+        else {
+            std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, clip, color,
+                                                     this->asSurfaceProxy()));
+            if (!op) {
+                return;
+            }
+            this->getRTOpList()->addOp(std::move(op), *this->caps());
+        }
     }
 }
 
