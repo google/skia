@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46cb1ff3_5277f17b",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T17:20:19Z",
+      "side": 1,
+      "message": "While we\u0027re at it, do you want to convert this to an SkISize ?",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 131,
+        "endChar": 58
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "808a51b2_390505c0",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T17:20:19Z",
+      "side": 1,
+      "message": "This is probably a call for Mr. Reed.",
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e1129e3_6dcfed4e",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T17:20:19Z",
+      "side": 1,
+      "message": "can we delete this ?",
+      "range": {
+        "startLine": 277,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 5
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57eb74c5_c0022798",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T17:20:19Z",
+      "side": 1,
+      "message": "How does this work?",
+      "range": {
+        "startLine": 289,
+        "startChar": 24,
+        "endLine": 289,
+        "endChar": 46
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c97fff63_173b499e",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T17:20:19Z",
+      "side": 1,
+      "message": "Eeek, what is going on here ?",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 58
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9a5f4f8_5eb53740",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T17:20:19Z",
+      "side": 1,
+      "message": "I think this could be wrapped in the testing only #define",
+      "range": {
+        "startLine": 58,
+        "startChar": 9,
+        "endLine": 58,
+        "endChar": 21
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "678240c9_02757b4d",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T17:20:19Z",
+      "side": 1,
+      "message": "So, set to 0 here ?\n\nActually, at this point should we just make this down below ?",
+      "range": {
+        "startLine": 259,
+        "startChar": 18,
+        "endLine": 259,
+        "endChar": 30
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "377357ac_309c7938",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T17:20:19Z",
+      "side": 1,
+      "message": "// comment as to why ?",
+      "range": {
+        "startLine": 35,
+        "startChar": 46,
+        "endLine": 35,
+        "endChar": 58
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37c3445d_850c8dda",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T17:20:19Z",
+      "side": 1,
+      "message": "I don\u0027t know if we want to. We would have to read the planes back.",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 27
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
