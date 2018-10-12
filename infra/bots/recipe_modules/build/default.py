@@ -189,16 +189,20 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_enable_spirv_validation'] = 'false'
   if 'Mini' in extra_tokens:
     args.update({
-      'is_component_build':     'true',   # Proves we can link a coherent .so.
-      'is_official_build':      'true',   # No debug symbols, no tools.
-      'skia_enable_effects':    'false',
-      'skia_enable_gpu':        'true',
-      'skia_enable_pdf':        'false',
-      'skia_use_expat':         'false',
-      'skia_use_libjpeg_turbo': 'false',
-      'skia_use_libpng':        'false',
-      'skia_use_libwebp':       'false',
-      'skia_use_zlib':          'false',
+       # Proves we can link a coherent .so.
+      'is_component_build':              'true',
+       # No debug symbols, no tools.
+      'is_official_build':               'true',
+      'skia_enable_effects':             'false',
+      'skia_enable_gpu':                 'true',
+      'skia_enable_pdf':                 'false',
+      'skia_use_expat':                  'false',
+      'skia_use_libjpeg_turbo':          'false',
+      'skia_use_libpng':                 'false',
+      'skia_use_libwebp':                'false',
+      'skia_use_zlib':                   'false',
+      'skia_enable_vulkan_debug_layers': 'false',
+      'skia_vulkan_sdk':                 '"%s"' % linux_vulkan_sdk
     })
   if 'NoDEPS' in extra_tokens:
     args.update({
