@@ -13,7 +13,7 @@
 namespace sk_gpu_test {
 
 /**
- * Creates mock context object for use with GrContexts created with kMock_GrBackend. It will
+ * Creates mock context object for use with GrContexts created with GrBackendApi::kMock. It will
  * trivially succeed at everything.
  */
 TestContext* CreateMockTestContext(TestContext* shareContext = nullptr);

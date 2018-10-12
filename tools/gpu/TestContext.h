@@ -59,7 +59,7 @@ public:
      */
     SkScopeExit SK_WARN_UNUSED_RESULT makeCurrentAndAutoRestore() const;
 
-    virtual GrBackend backend() = 0;
+    virtual GrBackendApi backend() = 0;
 
     virtual sk_sp<GrContext> makeGrContext(const GrContextOptions&);
 

@@ -320,7 +320,7 @@ void CCPRGeometryView::updateGpuData() {
 void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state) {
     GrResourceProvider* rp = state->resourceProvider();
     GrContext* context = state->gpu()->getContext();
-    GrGLGpu* glGpu = kOpenGL_GrBackend == context->contextPriv().getBackend()
+    GrGLGpu* glGpu = GrBackendApi::kOpenGL == context->contextPriv().getBackend()
                              ? static_cast<GrGLGpu*>(state->gpu())
                              : nullptr;
     if (glGpu) {

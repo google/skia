@@ -177,7 +177,7 @@ public:
                             GrColorType srcColorType, SkColorSpace* srcColorSpace,
                             const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
 
-    GrBackend getBackend() const { return fContext->fBackend; }
+    GrBackendApi getBackend() const { return fContext->fBackend; }
 
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
 

@@ -174,7 +174,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
 
             GrBackendTexture genBackendTex = genTexture->getBackendTexture();
 
-            if (kOpenGL_GrBackend == genBackendTex.backend()) {
+            if (GrBackendApi::kOpenGL == genBackendTex.backend()) {
                 GrGLTextureInfo genTexInfo;
                 GrGLTextureInfo origTexInfo;
                 if (genBackendTex.getGLTextureInfo(&genTexInfo) &&
@@ -189,7 +189,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                     ERRORF(reporter, "Failed to get GrGLTextureInfo");
                 }
 #ifdef SK_VULKAN
-            } else if (kVulkan_GrBackend == genBackendTex.backend()) {
+            } else if (GrBackendApi::kVulkan == genBackendTex.backend()) {
                 GrVkImageInfo genImageInfo;
                 GrVkImageInfo origImageInfo;
                 if (genBackendTex.getVkImageInfo(&genImageInfo) &&
