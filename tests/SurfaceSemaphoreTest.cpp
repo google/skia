@@ -124,7 +124,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
 
     SkAutoTArray<GrBackendSemaphore> semaphores(2);
 #ifdef SK_VULKAN
-    if (kVulkan_GrBackend == mainInfo.backend()) {
+    if (GrBackendApi::kVulkan == mainInfo.backend()) {
         // Initialize the secondary semaphore instead of having Ganesh create one internally
         GrVkGpu* gpu = static_cast<GrVkGpu*>(mainCtx->contextPriv().getGpu());
         const GrVkInterface* interface = gpu->vkInterface();
@@ -154,7 +154,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     draw_child(reporter, childInfo1, backendTexture, semaphores[0]);
 
 #ifdef SK_VULKAN
-    if (kVulkan_GrBackend == mainInfo.backend()) {
+    if (GrBackendApi::kVulkan == mainInfo.backend()) {
         // In Vulkan we need to make sure we are sending the correct VkImageLayout in with the
         // backendImage. After the first child draw the layout gets changed to SHADER_READ, so
         // we just manually set that here.
@@ -229,7 +229,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     GrSemaphoresSubmitted submitted = mainSurface->flushAndSignalSemaphores(1, &semaphore);
     REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == submitted);
 
-    if (kOpenGL_GrBackend == ctxInfo.backend()) {
+    if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
         GrGLGpu* gpu = static_cast<GrGLGpu*>(ctx->contextPriv().getGpu());
         const GrGLInterface* interface = gpu->glInterface();
         GrGLsync sync = semaphore.glSync();
@@ -240,7 +240,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     }
 
 #ifdef SK_VULKAN
-    if (kVulkan_GrBackend == ctxInfo.backend()) {
+    if (GrBackendApi::kVulkan == ctxInfo.backend()) {
         GrVkGpu* gpu = static_cast<GrVkGpu*>(ctx->contextPriv().getGpu());
         const GrVkInterface* interface = gpu->vkInterface();
         VkDevice device = gpu->device();

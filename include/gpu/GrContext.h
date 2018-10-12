@@ -284,14 +284,14 @@ public:
     bool supportsDistanceFieldText() const;
 
 protected:
-    GrContext(GrBackend, int32_t id = SK_InvalidGenID);
+    GrContext(GrBackendApi, int32_t id = SK_InvalidGenID);
 
     bool initCommon(const GrContextOptions&);
     virtual bool init(const GrContextOptions&) = 0; // must be called after the ctor!
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
-    const GrBackend                         fBackend;
+    const GrBackendApi                         fBackend;
     sk_sp<const GrCaps>                     fCaps;
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
     sk_sp<GrSkSLFPFactoryCache>             fFPFactoryCache;
@@ -417,13 +417,13 @@ private:
     // DDL TODO: need to add unit tests for backend & maybe options
     GrContextThreadSafeProxy(sk_sp<const GrCaps> caps,
                              uint32_t uniqueID,
-                             GrBackend backend,
+                             GrBackendApi backend,
                              const GrContextOptions& options,
                              sk_sp<GrSkSLFPFactoryCache> cache);
 
     sk_sp<const GrCaps>         fCaps;
     const uint32_t              fContextUniqueID;
-    const GrBackend             fBackend;
+    const GrBackendApi             fBackend;
     const GrContextOptions      fOptions;
     sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
 

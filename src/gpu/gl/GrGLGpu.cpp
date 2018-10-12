@@ -4025,7 +4025,7 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
 }
 
 bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
-    SkASSERT(kOpenGL_GrBackend == tex.backend());
+    SkASSERT(GrBackendApi::kOpenGL == tex.backend());
 
     GrGLTextureInfo info;
     if (!tex.getGLTextureInfo(&info)) {
@@ -4039,7 +4039,7 @@ bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 }
 
 void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
-    SkASSERT(kOpenGL_GrBackend == tex.backend());
+    SkASSERT(GrBackendApi::kOpenGL == tex.backend());
 
     GrGLTextureInfo info;
     if (tex.getGLTextureInfo(&info)) {
@@ -4165,7 +4165,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
 }
 
 void GrGLGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
-    SkASSERT(kOpenGL_GrBackend == backendRT.backend());
+    SkASSERT(GrBackendApi::kOpenGL == backendRT.backend());
     GrGLFramebufferInfo info;
     if (backendRT.getGLFramebufferInfo(&info)) {
         if (info.fFBOID) {

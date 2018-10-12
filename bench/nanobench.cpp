@@ -215,7 +215,7 @@ struct GPUTarget : public Target {
     }
     void fillOptions(ResultsWriter* log) override {
         const GrGLubyte* version;
-        if (this->contextInfo.backend() == kOpenGL_GrBackend) {
+        if (this->contextInfo.backend() == GrBackendApi::kOpenGL) {
             const GrGLInterface* gl =
                     static_cast<GrGLGpu*>(this->contextInfo.grContext()->contextPriv().getGpu())
                             ->glInterface();

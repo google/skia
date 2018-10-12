@@ -234,7 +234,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
                 // Test wrapping FBO 0 (with made up properties). This tests sample count and the
                 // special case where FBO 0 doesn't support window rectangles.
-                if (kOpenGL_GrBackend == ctxInfo.backend()) {
+                if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
                     GrGLFramebufferInfo fboInfo;
                     fboInfo.fFBOID = 0;
                     static constexpr int kStencilBits = 8;

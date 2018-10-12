@@ -1473,7 +1473,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, i
 }
 
 bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
-    SkASSERT(kVulkan_GrBackend == tex.fBackend);
+    SkASSERT(GrBackendApi::kVulkan == tex.fBackend);
 
     GrVkImageInfo backend;
     if (!tex.getVkImageInfo(&backend)) {
@@ -1495,7 +1495,7 @@ bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 }
 
 void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
-    SkASSERT(kVulkan_GrBackend == tex.fBackend);
+    SkASSERT(GrBackendApi::kVulkan == tex.fBackend);
 
     GrVkImageInfo info;
     if (tex.getVkImageInfo(&info)) {
@@ -1526,7 +1526,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
 }
 
 void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {
-    SkASSERT(kVulkan_GrBackend == rt.fBackend);
+    SkASSERT(GrBackendApi::kVulkan == rt.fBackend);
 
     GrVkImageInfo info;
     if (rt.getVkImageInfo(&info)) {

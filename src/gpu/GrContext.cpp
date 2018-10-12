@@ -66,7 +66,7 @@ static int32_t next_id() {
     return id;
 }
 
-GrContext::GrContext(GrBackend backend, int32_t id)
+GrContext::GrContext(GrBackendApi backend, int32_t id)
         : fBackend(backend)
         , fUniqueID(SK_InvalidGenID == id ? next_id() : id) {
     fResourceCache = nullptr;
@@ -168,7 +168,7 @@ GrContext::~GrContext() {
 //////////////////////////////////////////////////////////////////////////////
 
 GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID,
-                                                   GrBackend backend,
+                                                   GrBackendApi backend,
                                                    const GrContextOptions& options,
                                                    sk_sp<GrSkSLFPFactoryCache> cache)
         : fCaps(std::move(caps))
@@ -193,7 +193,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (kOpenGL_GrBackend != backendFormat.backend() && willUseGLFBO0) {
+    if (GrBackendApi::kOpenGL != backendFormat.backend() && willUseGLFBO0) {
         // The willUseGLFBO0 flags can only be used for a GL backend.
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
@@ -1129,11 +1129,11 @@ SkString GrContextPriv::dump() const {
         "Vulkan",
         "Mock",
     };
-    GR_STATIC_ASSERT(0 == kMetal_GrBackend);
-    GR_STATIC_ASSERT(1 == kOpenGL_GrBackend);
-    GR_STATIC_ASSERT(2 == kVulkan_GrBackend);
-    GR_STATIC_ASSERT(3 == kMock_GrBackend);
-    writer.appendString("backend", kBackendStr[fContext->fBackend]);
+    GR_STATIC_ASSERT(0 == (unsigned)GrBackendApi::kMetal);
+    GR_STATIC_ASSERT(1 == (unsigned)GrBackendApi::kOpenGL);
+    GR_STATIC_ASSERT(2 == (unsigned)GrBackendApi::kVulkan);
+    GR_STATIC_ASSERT(3 == (unsigned)GrBackendApi::kMock);
+    writer.appendString("backend", kBackendStr[(unsigned)fContext->fBackend]);
 
     writer.appendName("caps");
     fContext->fCaps->dumpJSON(&writer);

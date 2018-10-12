@@ -209,7 +209,7 @@ GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(const void* pixels, 
 }
 
 bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
-    SkASSERT(kMock_GrBackend == tex.backend());
+    SkASSERT(GrBackendApi::kMock == tex.backend());
 
     GrMockTextureInfo info;
     if (!tex.getMockTextureInfo(&info)) {
@@ -220,7 +220,7 @@ bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 }
 
 void GrMockGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
-    SkASSERT(kMock_GrBackend == tex.backend());
+    SkASSERT(GrBackendApi::kMock == tex.backend());
 
     GrMockTextureInfo info;
     if (tex.getMockTextureInfo(&info)) {

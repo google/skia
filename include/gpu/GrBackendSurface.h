@@ -61,7 +61,7 @@ public:
         return GrBackendFormat(config);
     }
 
-    GrBackend backend() const {return fBackend; }
+    GrBackendApi backend() const {return fBackend; }
 
     // If the backend API is GL, these return a pointer to the format and target. Otherwise
     // it returns nullptr.
@@ -96,7 +96,7 @@ private:
 
     GrBackendFormat(const GrPixelConfig config);
 
-    GrBackend fBackend;
+    GrBackendApi fBackend;
     bool      fValid;
 
     union {
@@ -148,7 +148,7 @@ public:
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     bool hasMipMaps() const { return GrMipMapped::kYes == fMipMapped; }
-    GrBackend backend() const {return fBackend; }
+    GrBackendApi backend() const {return fBackend; }
 
     // If the backend API is GL, copies a snapshot of the GrGLTextureInfo struct into the passed in
     // pointer and returns true. Otherwise returns false if the backend API is not GL.
@@ -224,7 +224,7 @@ private:
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;
     GrMipMapped fMipMapped;
-    GrBackend fBackend;
+    GrBackendApi fBackend;
 
     union {
         GrGLTextureInfo fGLInfo;
@@ -278,7 +278,7 @@ public:
     int height() const { return fHeight; }
     int sampleCnt() const { return fSampleCnt; }
     int stencilBits() const { return fStencilBits; }
-    GrBackend backend() const {return fBackend; }
+    GrBackendApi backend() const {return fBackend; }
 
     // If the backend API is GL, copies a snapshot of the GrGLFramebufferInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not GL.
@@ -347,7 +347,7 @@ private:
     int fStencilBits;
     GrPixelConfig fConfig;
 
-    GrBackend fBackend;
+    GrBackendApi fBackend;
 
     union {
         GrGLFramebufferInfo fGLInfo;
