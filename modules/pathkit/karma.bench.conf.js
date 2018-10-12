@@ -10,21 +10,20 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      { pattern: 'npm-wasm/bin/test/pathkit.wasm', included:false, served:true},
-      { pattern: 'tests/*.json', included:false, served:true},
-      'tests/testReporter.js',
-      'npm-wasm/bin/test/pathkit.js',
-      'tests/*.spec.js'
+      { pattern: 'npm-wasm/bin/pathkit.wasm', included:false, served:true},
+      'perf/perfReporter.js',
+      'npm-wasm/bin/pathkit.js',
+      'perf/*.bench.js'
     ],
 
     proxies: {
-      '/pathkit/': '/base/npm-wasm/bin/test/'
+      '/pathkit/': '/base/npm-wasm/bin/'
     },
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['dots'],
 
     // web server port
     port: 4444,
@@ -39,8 +38,8 @@ module.exports = function(config) {
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
 
-    browserDisconnectTimeout: 15000,
-    browserNoActivityTimeout: 15000,
+    browserDisconnectTimeout: 10000,
+    browserNoActivityTimeout: 10000,
 
     // start these browsers
     browsers: ['Chrome'],
@@ -72,15 +71,14 @@ module.exports = function(config) {
   if (process.env.ASM_JS) {
     console.log('asm.js is under test');
     cfg.files = [
-      { pattern: 'npm-asmjs/bin/test/pathkit.js.mem', included:false, served:true},
-      { pattern: 'tests/*.json', included:false, served:true},
-      'tests/testReporter.js',
-      'npm-asmjs/bin/test/pathkit.js',
-      'tests/*.spec.js'
+      { pattern: 'npm-asmjs/bin/pathkit.js.mem', included:false, served:true},
+      'perf/perfReporter.js',
+      'npm-asmjs/bin/pathkit.js',
+      'perf/*.bench.js'
     ];
 
     cfg.proxies = {
-      '/pathkit/': '/base/npm-asmjs/bin/test/'
+      '/pathkit/': '/base/npm-asmjs/bin/'
     };
   } else {
     console.log('wasm is under test');

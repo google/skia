@@ -63,7 +63,10 @@
   // See above for example of cmds.
   PathKit.FromCmds = function(cmds) {
     var ptrLen = PathKit.loadCmdsTypedArray(cmds);
-    return PathKit._FromCmds(ptrLen[0], ptrLen[1]);
+    var path = PathKit._FromCmds(ptrLen[0], ptrLen[1]);
+    // TODO(kjlubick): cache this memory blob somehow.
+    PathKit._free(ptrLen[0]);
+    return path;
   }
 
   /**

@@ -23,6 +23,7 @@
 var PathKit = {
 	SkBits2FloatUnsigned: function(num) {},
 	_malloc: function(size) {},
+	_free: function(ptr) {},
 	onRuntimeInitialized: function() {},
 	_FromCmds: function(ptr, size) {},
 	loadCmdsTypedArray: function(arr) {},
@@ -31,6 +32,9 @@ var PathKit = {
 	cubicYFromX: function(cpx1, cpy1, cpx2, cpy2, X) {},
 	cubicPtFromT: function(cpx1, cpy1, cpx2, cpy2, T) {},
 
+	/**
+	 * @type {Float32Array}
+	 */
 	HEAPF32: {},
 
 	SkPath: {
