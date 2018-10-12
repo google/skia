@@ -2211,7 +2211,7 @@ STAGE(bilerp_clamp_8888, const SkJumper_GatherCtx* ctx) {
 }
 
 namespace lowp {
-#if defined(JUMPER_IS_SCALAR)
+#if defined(JUMPER_IS_SCALAR) || defined(SK_DISABLE_LOWP_RASTER_PIPELINE)
     // If we're not compiled by Clang, or otherwise switched into scalar mode (old Clang, manually),
     // we don't generate lowp stages.  All these nullptrs will tell SkJumper.cpp to always use the
     // highp float pipeline.
