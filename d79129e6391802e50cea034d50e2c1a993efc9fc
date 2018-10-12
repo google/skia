@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "90c0aae9_110647ff",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T18:33:51Z",
+      "side": 1,
+      "message": "I don\u0027t think so -- PromiseImageInfo doesn\u0027t have a size member, and it looks like Chrome has their own structure(s) for storing sizes.",
+      "parentUuid": "46cb1ff3_5277f17b",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 131,
+        "endChar": 58
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "808a51b2_390505c0",
         "filename": "include/core/SkImage.h",
         "patchSetId": 7
@@ -39,6 +63,24 @@
       "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69da4d69_6339ebcd",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T18:33:51Z",
+      "side": 1,
+      "message": "I\u0027ll implement it as a virtual. The old def checked for a null proxy so I should probably do that.",
+      "parentUuid": "808a51b2_390505c0",
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "30420c54_5acfebab",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T18:33:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2e1129e3_6dcfed4e",
+      "range": {
+        "startLine": 277,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 5
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "57eb74c5_c0022798",
         "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
         "patchSetId": 7
@@ -85,6 +151,30 @@
       "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "398dffc0_62e75346",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T18:33:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "57eb74c5_c0022798",
+      "range": {
+        "startLine": 289,
+        "startChar": 24,
+        "endLine": 289,
+        "endChar": 46
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "c9580b6b_67f4103b",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T18:33:51Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "c97fff63_173b499e",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 58
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9a5f4f8_5eb53740",
         "filename": "src/image/SkImage_GpuBase.h",
         "patchSetId": 7
@@ -131,6 +245,30 @@
       "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f443d2c5_9a8e19a2",
+        "filename": "src/image/SkImage_GpuBase.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T18:33:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9a5f4f8_5eb53740",
+      "range": {
+        "startLine": 58,
+        "startChar": 9,
+        "endLine": 58,
+        "endChar": 21
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "1e461c20_a99de755",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T18:33:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "678240c9_02757b4d",
+      "range": {
+        "startLine": 259,
+        "startChar": 18,
+        "endLine": 259,
+        "endChar": 30
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "377357ac_309c7938",
         "filename": "src/image/SkImage_GpuYUVA.h",
         "patchSetId": 7
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "dfe9aa73_522fff4f",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T18:33:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "377357ac_309c7938",
+      "range": {
+        "startLine": 35,
+        "startChar": 46,
+        "endLine": 35,
+        "endChar": 58
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "37c3445d_850c8dda",
         "filename": "src/image/SkImage_GpuYUVA.h",
         "patchSetId": 7
@@ -200,6 +386,30 @@
       "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "070c1038_e2872513",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T18:33:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37c3445d_850c8dda",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 27
+      },
+      "revId": "d79129e6391802e50cea034d50e2c1a993efc9fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
