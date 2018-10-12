@@ -318,11 +318,12 @@
       "python",
       "-u",
       "[START_DIR]/cache/work/skia/infra/bots/buildstats/buildstats_flutter.py",
-      "[START_DIR]/build/libflutter.so",
+      "[START_DIR]/build/libflutter_stripped.so",
       "[START_DIR]/[SWARM_OUT_DIR]",
       "compiler EMCC configuration Release extra_config PathKit os Debian9 target_arch wasm",
       "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit",
-      "[START_DIR]/bloaty/bloaty"
+      "[START_DIR]/bloaty/bloaty",
+      "[START_DIR]/build/libflutter.so"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
