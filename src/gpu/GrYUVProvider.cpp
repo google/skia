@@ -21,41 +21,65 @@
 #include "SkYUVAIndex.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
-sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
+sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVASizeInfo* size,
+                                             SkYUVAIndex yuvaIndices[4],
                                              SkYUVColorSpace* colorSpace,
-                                             const void* constPlanes[3]) {
+                                             const void* constPlanes[4]) {
     sk_sp<SkCachedData> data;
     SkYUVPlanesCache::Info yuvInfo;
     data.reset(SkYUVPlanesCache::FindAndRef(this->onGetID(), &yuvInfo));
 
-    void* planes[3];
+    void* planes[4];
 
     if (data.get()) {
-        planes[0] = (void*)data->data();
-        planes[1] = (uint8_t*)planes[0] + (yuvInfo.fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
-                                           yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
-        planes[2] = (uint8_t*)planes[1] + (yuvInfo.fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *
-                                           yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kU].fHeight);
+        planes[0] = (void*)data->data(); // we should always have at least one plane
+
+        for (int i = 1; i < 4; ++i) {
+            if (!yuvInfo.fSizeInfo.fWidthBytes[i]) {
+                SkASSERT(kUnknown_SkColorType == yuvInfo.fSizeInfo.fColorTypes[i] &&
+                         !yuvInfo.fSizeInfo.fWidthBytes[i] &&
+                         !yuvInfo.fSizeInfo.fSizes[i].fHeight);
+                planes[i] = nullptr;
+                continue;
+            }
+
+            planes[i] = (uint8_t*)planes[i-1] + (yuvInfo.fSizeInfo.fWidthBytes[i-1] *
+                                                 yuvInfo.fSizeInfo.fSizes[i-1].fHeight);
+        }
     } else {
         // Fetch yuv plane sizes for memory allocation.
-        if (!this->onQueryYUV8(&yuvInfo.fSizeInfo, &yuvInfo.fColorSpace)) {
+        if (!this->onQueryYUVA8(&yuvInfo.fSizeInfo, yuvInfo.fYUVAIndices, &yuvInfo.fColorSpace)) {
             return nullptr;
         }
 
-        // Allocate the memory for YUV
+        // Allocate the memory for YUVA
         size_t totalSize(0);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
+            SkASSERT(kUnknown_SkColorType != yuvInfo.fSizeInfo.fColorTypes[i] ||
+                     (!yuvInfo.fSizeInfo.fWidthBytes[i] && yuvInfo.fSizeInfo.fSizes[i].fHeight));
+
             totalSize += yuvInfo.fSizeInfo.fWidthBytes[i] * yuvInfo.fSizeInfo.fSizes[i].fHeight;
         }
+
         data.reset(SkResourceCache::NewCachedData(totalSize));
+
         planes[0] = data->writable_data();
-        planes[1] = (uint8_t*)planes[0] + (yuvInfo.fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
-                                           yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
-        planes[2] = (uint8_t*)planes[1] + (yuvInfo.fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *
-                                           yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kU].fHeight);
+
+        for (int i = 1; i < 4; ++i) {
+            if (!yuvInfo.fSizeInfo.fWidthBytes[i]) {
+                SkASSERT(kUnknown_SkColorType == yuvInfo.fSizeInfo.fColorTypes[i] &&
+                         !yuvInfo.fSizeInfo.fWidthBytes[i] &&
+                         !yuvInfo.fSizeInfo.fSizes[i].fHeight);
+                planes[i] = nullptr;
+                continue;
+            }
+
+            planes[i] = (uint8_t*)planes[i-1] + (yuvInfo.fSizeInfo.fWidthBytes[i-1] *
+                                                 yuvInfo.fSizeInfo.fSizes[i-1].fHeight);
+        }
 
         // Get the YUV planes.
-        if (!this->onGetYUV8Planes(yuvInfo.fSizeInfo, planes)) {
+        if (!this->onGetYUVA8Planes(yuvInfo.fSizeInfo, yuvInfo.fYUVAIndices, planes)) {
             return nullptr;
         }
 
@@ -64,10 +88,12 @@ sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
     }
 
     *size = yuvInfo.fSizeInfo;
+    memcpy(yuvaIndices, yuvInfo.fYUVAIndices, sizeof(yuvInfo.fYUVAIndices));
     *colorSpace = yuvInfo.fColorSpace;
     constPlanes[0] = planes[0];
     constPlanes[1] = planes[1];
     constPlanes[2] = planes[2];
+    constPlanes[3] = planes[3];
     return data;
 }
 
@@ -80,25 +106,34 @@ void GrYUVProvider::YUVGen_DataReleaseProc(const void*, void* data) {
 sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrSurfaceDesc& desc,
                                                        SkColorSpace* srcColorSpace,
                                                        SkColorSpace* dstColorSpace) {
-    SkYUVSizeInfo yuvSizeInfo;
+    SkYUVASizeInfo yuvSizeInfo;
+    SkYUVAIndex yuvaIndices[4];
     SkYUVColorSpace yuvColorSpace;
     const void* planes[3];
 
-    sk_sp<SkCachedData> dataStorage = this->getPlanes(&yuvSizeInfo, &yuvColorSpace, planes);
+    sk_sp<SkCachedData> dataStorage = this->getPlanes(&yuvSizeInfo, yuvaIndices,
+                                                      &yuvColorSpace, planes);
     if (!dataStorage) {
         return nullptr;
     }
 
     sk_sp<GrTextureProxy> yuvTextureProxies[3];
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; ++i) {
+        if (kUnknown_SkColorType == yuvSizeInfo.fColorTypes[i]) {
+            SkASSERT(!yuvSizeInfo.fSizes[i].fWidth ||
+                     !yuvSizeInfo.fSizes[i].fHeight ||
+                     !yuvSizeInfo.fWidthBytes[i]);
+            continue;
+        }
+
         int componentWidth  = yuvSizeInfo.fSizes[i].fWidth;
         int componentHeight = yuvSizeInfo.fSizes[i].fHeight;
         // If the sizes of the components are not all the same we choose to create exact-match
         // textures for the smaller ones rather than add a texture domain to the draw.
         // TODO: revisit this decision to improve texture reuse?
         SkBackingFit fit =
-                (componentWidth  != yuvSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth) ||
-                (componentHeight != yuvSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight)
+                (componentWidth  != yuvSizeInfo.fSizes[0].fWidth) ||
+                (componentHeight != yuvSizeInfo.fSizes[0].fHeight)
                     ? SkBackingFit::kExact : SkBackingFit::kApprox;
 
         SkImageInfo imageInfo = SkImageInfo::MakeA8(componentWidth, componentHeight);
@@ -131,14 +166,6 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
         return nullptr;
     }
 
-    // This code path only generates I420 (i.e., 3 separate plane) YUVs
-    SkYUVAIndex yuvaIndices[4] = {
-        {  0, SkColorChannel::kA },
-        {  1, SkColorChannel::kA },
-        {  2, SkColorChannel::kA },
-        { -1, SkColorChannel::kA }, // no alpha
-    };
-
     GrPaint paint;
     auto yuvToRgbProcessor =
             GrYUVtoRGBEffect::Make(yuvTextureProxies, yuvaIndices, yuvColorSpace);
@@ -154,8 +181,8 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
     }
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    const SkRect r = SkRect::MakeIWH(yuvSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
-                                     yuvSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
+    const SkRect r = SkRect::MakeIWH(yuvSizeInfo.fSizes[0].fWidth,
+                                     yuvSizeInfo.fSizes[0].fHeight);
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
 
