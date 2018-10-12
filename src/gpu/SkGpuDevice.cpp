@@ -1629,6 +1629,18 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkGpuDevice::isDrawableSupported(SkDrawable* drawable) const {
+    return GrBackendApi::kVulkan == this->context()->contextPriv().getBackend() &&
+           drawable->isGpuDrawSupported(GrBackendApi::kVulkan);
+}
+
+void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix& matrix) {
+    SkASSERT(this->isDrawableSupported(drawable));
+    // TODO: Create a drawable Op here
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkGpuDevice::flush() {
     this->flushAndSignalSemaphores(0, nullptr);
 }
