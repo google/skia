@@ -22,6 +22,30 @@
       "revId": "acf83b94636f5bf04bc3aaf07d95ed21138304d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "686dcf88_5554cba9",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-12T20:47:30Z",
+      "side": 1,
+      "message": "Added the protected virtuals. I also tried to rewrite some of the comments for SubmitProc to hopefully clarify why it is needed.",
+      "parentUuid": "88d84540_ac6e2b04",
+      "range": {
+        "startLine": 60,
+        "startChar": 17,
+        "endLine": 60,
+        "endChar": 31
+      },
+      "revId": "acf83b94636f5bf04bc3aaf07d95ed21138304d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
