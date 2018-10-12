@@ -638,7 +638,7 @@ public:
 
         @return  true if SkImage is a GPU texture
     */
-    bool isTextureBacked() const;
+    bool isTextureBacked() const { return fIsTextureBacked; }
 
     /** Returns true if SkImage can be drawn on either raster surface or GPU surface.
         If context is nullptr, tests if SkImage draws on raster surface;
@@ -969,12 +969,13 @@ public:
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
 
 private:
-    SkImage(int width, int height, uint32_t uniqueID);
+    SkImage(int width, int height, uint32_t uniqueID, bool isTextureBacked);
     friend class SkImage_Base;
 
     const int       fWidth;
     const int       fHeight;
     const uint32_t  fUniqueID;
+    bool            fIsTextureBacked;
 
     typedef SkRefCnt INHERITED;
 };

@@ -19,7 +19,7 @@
 
 SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
                                  SkAlphaType at, SkBudgeted budgeted, sk_sp<SkColorSpace> cs)
-        : INHERITED(width, height, uniqueID)
+        : INHERITED(width, height, uniqueID, true)
         , fContext(std::move(context))
         , fAlphaType(at)
         , fBudgeted(budgeted)
