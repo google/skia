@@ -1820,6 +1820,37 @@ public:
     void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                           const SkPaint* paint = nullptr);
 
+    /**
+     * Controls anti-aliasing of each edge of images in an image-set.
+     */
+    enum QuadAAFlags : unsigned {
+        kLeft_QuadAAFlag    = 0b0001,
+        kTop_QuadAAFlag     = 0b0010,
+        kRight_QuadAAFlag   = 0b0100,
+        kBottom_QuadAAFlag  = 0b1000,
+
+        kNone_QuadAAFlags   = 0b0000,
+        kAll_QuadAAFlags    = 0b1111,
+    };
+
+    /** This is used by the experimental API below. */
+    struct ImageSetEntry {
+        sk_sp<const SkImage> fImage;
+        SkRect fSrcRect;
+        SkRect fDstRect;
+        unsigned fAAFlags;  // QuadAAFlags
+    };
+
+    /**
+     * This is an experimental API for the SkiaRenderer Chromium project. The signature will
+     * surely evolve if this is not removed. It currently offers no performance advantage over
+     * drawing images independently, though may in the future. The antialiasing flags are intended
+     * to allow control over each edge's AA status, to allow perfect seaming for tile sets. The
+     * current implementation only antialiases if all edges are flagged, however.
+     */
+    void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
+                                     SkFilterQuality quality, SkBlendMode mode);
+
     /** Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
 
         text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
@@ -2445,6 +2476,9 @@ protected:
                                  const SkPaint* paint);
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
+
+    virtual void onDrawImageSet(const ImageSetEntry imageSet[], int count, float alpha,
+                                SkFilterQuality, SkBlendMode);
 
     virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
                               const SkPaint* paint);
