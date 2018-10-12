@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d6c9a8bc_b43a6583",
+        "filename": "infra/pathkit/docker/README.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-12T19:21:38Z",
+      "side": 1,
+      "message": "Done.  Added to Makefiles.",
+      "parentUuid": "5db894e1_ca4c85eb",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 74
+      },
+      "revId": "c2bfd150671a810e2e1f29e44a4aa22a8d326680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "04cff918_608e3491",
         "filename": "infra/pathkit/docker/perf-karma-chrome-tests/Dockerfile",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d4930c73_44612503",
+        "filename": "infra/pathkit/docker/perf-karma-chrome-tests/Dockerfile",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-12T19:21:38Z",
+      "side": 1,
+      "message": "I don\u0027t think that\u0027s necessary. One can develop a docker image locally and iterate as much as they like until landing on what becomes \"clean\".  If that doesn\u0027t work, just upload the next version.",
+      "parentUuid": "04cff918_608e3491",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 59
+      },
+      "revId": "c2bfd150671a810e2e1f29e44a4aa22a8d326680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "76ab64f9_f6a60cd5",
         "filename": "infra/pathkit/perf/pathkit_perf_aggregator.go",
         "patchSetId": 8
@@ -68,6 +116,30 @@
       "revId": "c2bfd150671a810e2e1f29e44a4aa22a8d326680",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a68fe76_fb950902",
+        "filename": "infra/pathkit/perf/pathkit_perf_aggregator.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-12T19:21:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76ab64f9_f6a60cd5",
+      "range": {
+        "startLine": 106,
+        "startChar": 55,
+        "endLine": 107,
+        "endChar": 34
+      },
+      "revId": "c2bfd150671a810e2e1f29e44a4aa22a8d326680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
