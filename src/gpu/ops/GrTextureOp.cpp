@@ -368,10 +368,17 @@ public:
         Sk4f a, b, c;
         compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, true);
 
+        // Faster to store the Sk4fs all at once rather than element-by-element into vertices.
+        float xs[4], ys[4], as[4], bs[4], cs[4];
+        x.store(xs);
+        y.store(ys);
+        a.store(as);
+        b.store(bs);
+        c.store(cs);
         for (int i = 0; i < 4; ++i) {
-            vertices[i].fPosition = {x[i], y[i]};
+            vertices[i].fPosition = {xs[i], ys[i]};
             for (int j = 0; j < 4; ++j) {
-                vertices[i].fEdges[j]  = {a[j], b[j], c[j]};
+                vertices[i].fEdges[j]  = {as[j], bs[j], cs[j]};
             }
         }
 
@@ -469,10 +476,18 @@ public:
             y = opY + t * (y - opY);
             w = opW + t * (w - opW);
         }
+        // Faster to store the Sk4fs all at once rather than element-by-element into vertices.
+        float xs[4], ys[4], ws[4], as[4], bs[4], cs[4];
+        x.store(xs);
+        y.store(ys);
+        w.store(ws);
+        a.store(as);
+        b.store(bs);
+        c.store(cs);
         for (int i = 0; i < 4; ++i) {
-            vertices[i].fPosition = {x[i], y[i], w[i]};
+            vertices[i].fPosition = {xs[i], ys[i], ws[i]};
             for (int j = 0; j < 4; ++j) {
-                vertices[i].fEdges[j] = {a[j], b[j], c[j]};
+                vertices[i].fEdges[j] = {as[j], bs[j], cs[j]};
             }
         }
 
