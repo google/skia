@@ -12,7 +12,7 @@
 #include "SkColor.h"
 #include "SkImage.h"
 #include "SkImageInfo.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 
 class GrContext;
 class GrContextThreadSafeProxy;
@@ -86,23 +86,30 @@ public:
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
      *  returns false and does not modify any of the parameters.
      *
-     *  @param sizeInfo   Output parameter indicating the sizes and required
-     *                    allocation widths of the Y, U, and V planes.
-     *  @param colorSpace Output parameter.
+     *  @param sizeInfo    Output parameter indicating the sizes and required
+     *                     allocation widths of the Y, U, V, and A planes.
+     *  @param yuvaIndices How the YUVA planes are organized/used
+     *  @param colorSpace  Output parameter.
      */
-    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const;
+    bool queryYUVA8(SkYUVASizeInfo* sizeInfo,
+                    SkYUVAIndex yuvaIndices[4],
+                    SkYUVColorSpace* colorSpace) const;
 
     /**
      *  Returns true on success and false on failure.
      *  This always attempts to perform a full decode.  If the client only
-     *  wants size, it should call queryYUV8().
+     *  wants size, it should call queryYUVA8().
      *
-     *  @param sizeInfo   Needs to exactly match the values returned by the
-     *                    query, except the WidthBytes may be larger than the
-     *                    recommendation (but not smaller).
-     *  @param planes     Memory for each of the Y, U, and V planes.
+     *  @param sizeInfo    Needs to exactly match the values returned by the
+     *                     query, except the WidthBytes may be larger than the
+     *                     recommendation (but not smaller).
+     *  @param yuvaIndices Needs to exactly match the values returned by the query.
+     *  @param planes      Memory for the Y, U, V, and A planes. Note that, depending on the
+     *                     settings in yuvaIndices, anywhere from 1..4 planes could be returned.
      */
-    bool getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]);
+    bool getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
+                        const SkYUVAIndex yuvaIndices[4],
+                        void* planes[]);
 
 #if SK_SUPPORT_GPU
     /**
@@ -163,8 +170,12 @@ protected:
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrContext*) const { return true; }
-    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }
-    virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) { return false; }
+    virtual bool onQueryYUVA8(SkYUVASizeInfo*, SkYUVAIndex[4], SkYUVColorSpace*) const {
+        return false;
+    }
+    virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[4], void* planes[]) {
+        return false;
+    }
 
 #if SK_SUPPORT_GPU
     enum class TexGenType {
