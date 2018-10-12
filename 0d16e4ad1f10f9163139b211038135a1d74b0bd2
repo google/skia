@@ -473,6 +473,30 @@
     },
     {
       "key": {
+        "uuid": "661e65b5_55449f37",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-12T00:31:16Z",
+      "side": 1,
+      "message": "\u003e In a correct image you will always get clear code after that\n\nThe third paragraph of https://www.w3.org/Graphics/GIF/spec-gif89a.txt explicitly says, \"There is not a requirement to send a clear code when the string table is full\".",
+      "parentUuid": "f7c9345e_164208db",
+      "range": {
+        "startLine": 294,
+        "startChar": 13,
+        "endLine": 295,
+        "endChar": 33
+      },
+      "revId": "0d16e4ad1f10f9163139b211038135a1d74b0bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c4a9510_f23d1549",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
