@@ -462,7 +462,7 @@ SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,
                                    SkColorSpace* src, SkColorSpace* dst) {
     fColors = colors;
 
-    if (!SkColorSpace::Equals(src, dst)) {
+    if (dst && !SkColorSpace::Equals(src, dst)) {
         fStorage.reset(colorCount);
 
         auto info = SkImageInfo::Make(colorCount,1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType);
