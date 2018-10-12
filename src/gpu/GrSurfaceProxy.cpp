@@ -179,6 +179,16 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     return surface;
 }
 
+bool GrSurfaceProxy::canSkipResourceAllocator() const {
+    auto peek = this->peekSurface();
+    if (!peek) {
+        return false;
+    }
+    // If this resource is already allocated and not recyclable then the resource allocator does
+    // not need to do anything with it.
+    return !peek->resourcePriv().getScratchKey().isValid();
+}
+
 void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
     SkASSERT(!fTarget && surface);
 

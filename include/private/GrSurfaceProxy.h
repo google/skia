@@ -324,6 +324,12 @@ public:
     void deInstantiate();
 
     /**
+     * Proxies that are already instantiated and whose backing surface cannot be recycled to
+     * instantiate other proxies do not need to be considered by GrResourceAllocator.
+     */
+    bool canSkipResourceAllocator() const;
+
+    /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
      */
     virtual GrTextureProxy* asTextureProxy() { return nullptr; }
