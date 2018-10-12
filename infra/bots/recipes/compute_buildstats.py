@@ -136,12 +136,15 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
   bloaty_exe = api.path['start_dir'].join('bloaty', 'bloaty')
 
   for f in files:
+
     skia_dir = checkout_root.join('skia')
     with api.context(cwd=skia_dir):
+      stripped = api.vars.build_dir.join('libflutter_stripped.so')
       script = skia_dir.join('infra', 'bots', 'buildstats',
                              'buildstats_flutter.py')
       step_data = api.run(api.python, 'Analyze flutter', script=script,
-                         args=[f, out_dir, keystr, propstr, bloaty_exe],
+                         args=[stripped, out_dir, keystr, propstr, bloaty_exe,
+                               f],
                          stdout=api.raw_io.output())
       if step_data and step_data.stdout:
         magic_seperator = '#$%^&*'

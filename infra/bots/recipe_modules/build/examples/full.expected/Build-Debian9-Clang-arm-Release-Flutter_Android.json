@@ -79,6 +79,28 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\n\nshutil.copyfile(src, dst)\n",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android/Release/lib.stripped/libflutter.so",
+      "[START_DIR]/[SWARM_OUT_DIR]/out/Release/libflutter_stripped.so"
+    ],
+    "infra_step": true,
+    "name": "copy stripped library",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import shutil@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@dst = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@shutil.copyfile(src, dst)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0

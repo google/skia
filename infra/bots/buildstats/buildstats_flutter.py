@@ -13,11 +13,16 @@ import sys
 
 
 def main():
-  input_file = sys.argv[1]
+  # This should be the stripped file from
+  # out/android_release/lib.stripped/libflutter.so
+  stripped_file = sys.argv[1]
   out_dir = sys.argv[2]
   keystr = sys.argv[3]
   propstr = sys.argv[4]
   bloaty_path = sys.argv[5]
+  # This is the unstripped out/android_release/libflutter.so
+  # The symbols in it are needed to get the compileunits data.
+  symbols_file = sys.argv[6]
 
   results = {
     'key': { },
@@ -37,29 +42,33 @@ def main():
   # Human "readable" reports as an FYI.
   print magic_seperator
   print 'Report by file, then by symbol with ellided/combined templates'
-  lines = subprocess.check_output([bloaty_path, input_file,
+  lines = subprocess.check_output([bloaty_path, stripped_file,
                                  '-d', 'compileunits,symbols', '-s', 'file',
-                                 '-n', '0', '--tsv', '--demangle=short'])
+                                 '-n', '0', '--tsv', '--demangle=short',
+                                 '--debug-file=%s' % symbols_file])
   grand_total = print_skia_lines_file_symbol(lines)
   print magic_seperator
   print 'Report by file, then by symbol with full templates'
-  lines = subprocess.check_output([bloaty_path, input_file,
+  lines = subprocess.check_output([bloaty_path, stripped_file,
                                  '-d', 'compileunits,symbols', '-s', 'file',
-                                 '-n', '0', '--tsv', '--demangle=full'])
+                                 '-n', '0', '--tsv', '--demangle=full',
+                                 '--debug-file=%s' % symbols_file])
   print_skia_lines_file_symbol(lines)
   print magic_seperator
 
   print 'Report by symbol, then by file with ellided/combined templates'
-  lines = subprocess.check_output([bloaty_path, input_file,
+  lines = subprocess.check_output([bloaty_path, stripped_file,
                                  '-d', 'symbols,compileunits', '-s', 'file',
-                                 '-n', '0', '--tsv', '--demangle=short'])
+                                 '-n', '0', '--tsv', '--demangle=short',
+                                 '--debug-file=%s' % symbols_file])
   print_skia_lines_symbol_file(lines)
   print magic_seperator
 
   print 'Report by symbol, then by file with full templates'
-  lines = subprocess.check_output([bloaty_path, input_file,
+  lines = subprocess.check_output([bloaty_path, stripped_file,
                                  '-d', 'symbols,compileunits', '-s', 'file',
-                                 '-n', '0', '--tsv', '--demangle=full'])
+                                 '-n', '0', '--tsv', '--demangle=full',
+                                 '--debug-file=%s' % symbols_file])
   print_skia_lines_symbol_file(lines)
   print magic_seperator
 
@@ -70,7 +79,7 @@ def main():
     },
   }
 
-  name = os.path.basename(input_file)
+  name = 'libflutter.so'
   results['results'][name] = r
 
   # Make debugging easier

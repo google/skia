@@ -613,6 +613,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				// machines (after Aug 2018).
 				return linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 			}
+			if parts["role"] == "BuildStats" {
+				// Doesn't require a lot of resources
+				return linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+			}
 			// Use many-core machines for Build tasks.
 			return linuxGceDimensions(MACHINE_TYPE_LARGE)
 		} else if d["os"] == DEFAULT_OS_WIN {

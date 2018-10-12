@@ -33,4 +33,18 @@ def compile_fn(api, checkout_root, out_dir):
 
 
 def copy_extra_build_products(api, src, dst):
-  pass
+  stripped_src = src.join('lib.stripped', 'libflutter.so')
+  stripped_dst = dst.join('libflutter_stripped.so')
+  api.python.inline(
+      name='copy stripped library',
+      program='''
+import shutil
+import sys
+
+src = sys.argv[1]
+dst = sys.argv[2]
+
+shutil.copyfile(src, dst)
+''',
+      args=[stripped_src, stripped_dst],
+      infra_step=True)
