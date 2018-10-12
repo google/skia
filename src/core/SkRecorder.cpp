@@ -253,6 +253,15 @@ void SkRecorder::onDrawImageLattice(const SkImage* image, const Lattice& lattice
            this->copy(lattice.fColors, flagCount), *lattice.fBounds, dst);
 }
 
+void SkRecorder::onDrawImageSet(const ImageSetEntry set[], int count, float alpha,
+                                SkFilterQuality filterQuality, SkBlendMode mode) {
+    SkAutoTArray<ImageSetEntry> setCopy(count);
+    for (int i = 0; i < count; ++i) {
+        setCopy[i] = set[i];
+    }
+    this->append<SkRecords::DrawImageSet>(std::move(setCopy), count, alpha, filterQuality, mode);
+}
+
 void SkRecorder::onDrawText(const void* text, size_t byteLength,
                             SkScalar x, SkScalar y, const SkPaint& paint) {
     this->append<SkRecords::DrawText>(

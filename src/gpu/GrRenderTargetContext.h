@@ -139,6 +139,21 @@ public:
                      SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
                      sk_sp<GrColorSpaceXform> texXform, sk_sp<GrColorSpaceXform> colorXform);
 
+    /** Used with drawTextureSet */
+    struct TextureSetEntry {
+        sk_sp<GrTextureProxy> fProxy;
+        SkRect fSrcRect;
+        SkRect fDstRect;
+        GrQuadAAFlags fAAFlags;
+    };
+    /**
+     * Draws a set of textures with a shared filter, color, view matrix, color xform, and
+     * texture color xform. The textures must all have the same GrTextureType and GrConfig.
+     */
+    void drawTextureSet(const GrClip&, const TextureSetEntry[], int cnt, GrSamplerState::Filter,
+                        GrColor, const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform,
+                        sk_sp<GrColorSpaceXform> colorXform);
+
     /**
      * Draw a roundrect using a paint.
      *
