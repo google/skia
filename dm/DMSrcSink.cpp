@@ -45,7 +45,6 @@
 #include "SkPictureCommon.h"
 #include "SkPictureData.h"
 #include "SkPictureRecorder.h"
-#include "SkPipe.h"
 #include "SkPDFDocument.h"
 #include "SkRandom.h"
 #include "SkRecordDraw.h"
@@ -1680,14 +1679,6 @@ Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-PipeSink::PipeSink() {}
-
-Error PipeSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    return src.draw(SkPipeSerializer().beginWrite(SkRect::Make(src.size()), dst));
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 SKPSink::SKPSink() {}
 
 Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
@@ -2020,27 +2011,6 @@ Error ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
         }
         pic = recorder.finishRecordingAsPicture();
         canvas->drawPicture(pic);
-        return err;
-    });
-    if (!err.isEmpty()) {
-        return err;
-    }
-
-    return check_against_reference(bitmap, src, fSink.get());
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    auto size = src.size();
-    Error err = draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) {
-        SkDynamicMemoryWStream tmpStream;
-        Error err = src.draw(SkPipeSerializer().beginWrite(SkRect::Make(size), &tmpStream));
-        if (!err.isEmpty()) {
-            return err;
-        }
-        sk_sp<SkData> data = tmpStream.detachAsData();
-        SkPipeDeserializer().playback(data->data(), data->size(), canvas);
         return err;
     });
     if (!err.isEmpty()) {
