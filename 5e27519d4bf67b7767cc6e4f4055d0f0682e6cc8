@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c55dc8a_5acbf145",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T16:48:24Z",
+      "side": 1,
+      "message": "queryYUVA8?",
+      "range": {
+        "startLine": 360,
+        "startChar": 9,
+        "endLine": 360,
+        "endChar": 18
+      },
+      "revId": "5e27519d4bf67b7767cc6e4f4055d0f0682e6cc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb94ab8d_3659d6c6",
+        "filename": "src/core/SkYUVPlanesCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T16:48:24Z",
+      "side": 1,
+      "message": "1?",
+      "range": {
+        "startLine": 28,
+        "startChar": 33,
+        "endLine": 28,
+        "endChar": 34
+      },
+      "revId": "5e27519d4bf67b7767cc6e4f4055d0f0682e6cc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0f9dd04_55f26fc3",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-12T16:48:24Z",
+      "side": 0,
+      "message": "Don\u0027t you still need to copy the bitmaps?",
+      "range": {
+        "startLine": 519,
+        "startChar": 16,
+        "endLine": 519,
+        "endChar": 43
+      },
+      "revId": "f421685918c5976eecc4459a787f5a45bdb1e0a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
