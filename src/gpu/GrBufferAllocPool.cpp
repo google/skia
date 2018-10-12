@@ -208,8 +208,15 @@ void* GrBufferAllocPool::makeSpaceAtLeast(size_t minSize,
             back.fBytesFree -= pad;
             fBytesInUse += pad;
 
-            // Give caller all remaining space in this block (but aligned correctly)
-            size_t size = GrSizeAlignDown(back.fBytesFree, alignment);
+            // Give caller all remaining space in this block up to fallbackSize (but aligned
+            // correctly)
+            size_t size;
+            if (back.fBytesFree >= fallbackSize) {
+                SkASSERT(GrSizeAlignDown(fallbackSize, alignment) == fallbackSize);
+                size = fallbackSize;
+            } else {
+                size = GrSizeAlignDown(back.fBytesFree, alignment);
+            }
             *offset = usedBytes;
             *buffer = back.fBuffer;
             *actualSize = size;
