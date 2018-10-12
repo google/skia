@@ -11,9 +11,11 @@
 #include "SkFlattenable.h"
 #include "SkScalar.h"
 
+class GrBackendDrawableInfo;
 class SkCanvas;
 class SkMatrix;
 class SkPicture;
+enum class GrBackendApi : unsigned;
 struct SkRect;
 
 /**
@@ -25,8 +27,6 @@ struct SkRect;
  */
 class SK_API SkDrawable : public SkFlattenable {
 public:
-    SkDrawable();
-
     /**
      *  Draws into the specified content. The drawing sequence will be balanced upon return
      *  (i.e. the saveLevel() on the canvas will match what it was when draw() was called,
@@ -34,6 +34,39 @@ public:
      */
     void draw(SkCanvas*, const SkMatrix* = nullptr);
     void draw(SkCanvas*, SkScalar x, SkScalar y);
+
+    /**
+     *  Caller data passed to SubmitProc; may be nullptr.
+     */
+    typedef void* SubmitContext;
+
+    /**
+     *  Since the GPU backend may defer gpu commands from the drawBackendGpu call, the SkDrawable
+     *  cannot immediately delete or modify any gpu resources used during the drawBackendGpu.
+     *  Therefore, we allow the SkDrawable to return to the GPU backend a SubmitProc which the GPU
+     *  backend will call once work has actually been sent to the GPU. This will allow the
+     *  SkDrawable to free resources or set up any needed synchronization (e.g. fences to know when
+     *  GPU work has finished) it may need. The SubmitProc and SubmitContext are returned by the
+     *  SkDrawable during a call to drawBackendGpu.
+     */
+    typedef void (*SubmitProc)(SubmitContext submitContext);
+
+    /**
+     *  Draws the SkDrawable using gpu backend specific calls. This will allow the drawable to emit
+     *  gpu calls directly into the stream of commands going to the GPU fromm skia. If this draw is
+     *  supported as returned by isGpuDrawSupported, we will not use the normal draw(...) calls. See
+     *  GrBackendDrawableInfo for the details on specific backends and how to intermix draws.
+     *  Currently this is only supported for the GPU Vulkan backend.
+     *
+     *  The SkDrawable may return a SubmitProc and SubmitContext to the GPU. Either value may be
+     *  nullptr.
+     */
+    void drawBackendGpu(const GrBackendDrawableInfo& info, SubmitProc* proc, SubmitContext* ctx) {
+        this->onDrawBackendGpu(info, proc, ctx);
+    }
+    bool isGpuDrawSupported(GrBackendApi backendApi) {
+        return this->onIsGpuDrawSupported(backendApi);
+    }
 
     SkPicture* newPictureSnapshot();
 
@@ -78,8 +111,13 @@ public:
     Factory getFactory() const override { return nullptr; }
 
 protected:
+    SkDrawable();
+
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
+
+    virtual void onDrawBackendGpu(const GrBackendDrawableInfo&, SubmitProc*, SubmitContext*) {}
+    virtual bool onIsGpuDrawSupported(GrBackendApi) { return false; }
 
     /**
      *  Default implementation calls onDraw() with a canvas that records into a picture. Subclasses
