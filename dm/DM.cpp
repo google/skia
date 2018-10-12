@@ -915,7 +915,6 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("101010x", RasterSink, kRGB_101010x_SkColorType);
         SINK("pdf",     PDFSink, false, SK_ScalarDefaultRasterDPI);
         SINK("skp",     SKPSink);
-        SINK("pipe",    PipeSink);
         SINK("svg",     SVGSink);
         SINK("null",    NullSink);
         SINK("xps",     XPSSink);
@@ -962,7 +961,6 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
                      SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                            SkColorSpace::kDCIP3_D65_Gamut), false);
     VIA("lite",      ViaLite,              wrapped);
-    VIA("pipe",      ViaPipe,              wrapped);
 #ifdef TEST_VIA_SVG
     VIA("svg",       ViaSVG,               wrapped);
 #endif

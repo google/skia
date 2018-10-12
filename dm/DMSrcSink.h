@@ -440,15 +440,6 @@ public:
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
-class PipeSink : public Sink {
-public:
-    PipeSink();
-
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    const char* fileExtension() const override { return "skpipe"; }
-    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
-};
-
 class RasterSink : public Sink {
 public:
     explicit RasterSink(SkColorType, sk_sp<SkColorSpace> = nullptr);
@@ -538,12 +529,6 @@ public:
 class ViaPicture : public Via {
 public:
     explicit ViaPicture(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
-class ViaPipe : public Via {
-public:
-    explicit ViaPipe(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
