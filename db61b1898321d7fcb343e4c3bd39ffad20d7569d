@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "74af8a16_4a498aa2",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-12T18:37:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89c5c4fb_c2f14e8c",
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e5475dc_838cb825",
         "filename": "src/atlastext/SkAtlasTextTarget.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c891687b_4a96e362",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-12T18:37:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e5475dc_838cb825",
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "2249ecba_03d38884",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-12T18:37:49Z",
+      "side": 1,
+      "message": "I don\u0027t think anyone else can save enough work to bother with checking the type so I didn\u0027t pass it down to all the leaves.",
+      "parentUuid": "4d285753_95e07ba7",
+      "range": {
+        "startLine": 154,
+        "startChar": 47,
+        "endLine": 154,
+        "endChar": 49
+      },
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6100fe98_65170e7a",
         "filename": "src/gpu/ops/GrAAConvexPathRenderer.cpp",
         "patchSetId": 3
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "d7fa242a_86d2765a",
+        "filename": "src/gpu/ops/GrAAConvexPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-12T18:37:49Z",
+      "side": 1,
+      "message": "Another place where I don\u0027t think the field saves enough work.",
+      "parentUuid": "6100fe98_65170e7a",
+      "range": {
+        "startLine": 779,
+        "startChar": 33,
+        "endLine": 779,
+        "endChar": 35
+      },
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c127541_38a83467",
         "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
         "patchSetId": 3
@@ -102,6 +186,30 @@
       "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "330d22d6_8607fb4f",
+        "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-12T18:37:49Z",
+      "side": 1,
+      "message": "Another place where I don\u0027t think the field saves enough work.",
+      "parentUuid": "5c127541_38a83467",
+      "range": {
+        "startLine": 211,
+        "startChar": 33,
+        "endLine": 211,
+        "endChar": 35
+      },
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
