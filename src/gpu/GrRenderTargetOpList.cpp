@@ -75,7 +75,7 @@ void GrRenderTargetOpList::dump(bool printDependencies) const {
 
 void GrRenderTargetOpList::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
     for (const RecordedOp& recordedOp : fRecordedOps) {
-        recordedOp.visitProxies(func);
+        recordedOp.visitProxies(func, GrOp::VisitorType::kOther);
     }
 }
 
@@ -267,7 +267,7 @@ void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
     for (RecordedOp& recordedOp : fRecordedOps) {
         hasUninstantiatedProxy = false;
         if (recordedOp.fOp) {
-            recordedOp.visitProxies(checkInstantiation);
+            recordedOp.visitProxies(checkInstantiation, GrOp::VisitorType::kOther);
         }
         if (hasUninstantiatedProxy) {
             // When instantiation of the proxy fails we drop the Op
@@ -304,7 +304,8 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         alloc->addInterval(p SkDEBUGCODE(, fTarget.get() == p));
     };
     for (const RecordedOp& recordedOp : fRecordedOps) {
-        recordedOp.visitProxies(gather); // only diff from the GrTextureOpList version
+        // only diff from the GrTextureOpList version
+        recordedOp.visitProxies(gather, GrOp::VisitorType::kAllocatorGather);
 
         // Even though the op may have been moved we still need to increment the op count to
         // keep all the math consistent.

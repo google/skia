@@ -143,9 +143,9 @@ private:
 
         void deleteOp(GrOpMemoryPool* opMemoryPool);
 
-        void visitProxies(const GrOp::VisitProxyFunc& func) const {
+        void visitProxies(const GrOp::VisitProxyFunc& func, GrOp::VisitorType visitor) const {
             if (fOp) {
-                fOp->visitProxies(func);
+                fOp->visitProxies(func, visitor);
             }
             if (fDstProxy.proxy()) {
                 func(fDstProxy.proxy());
