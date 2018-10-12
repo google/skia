@@ -509,81 +509,62 @@ SI F table_16(const skcms_Curve* curve, F v) {
     return l + (h-l)*t;
 }
 
-// Color lookup tables, by input dimension and bit depth.
-SI void clut_0_8(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
+template <int>
+static void sample_clut(const skcms_A2B*, I32 ix, F* r, F* g, F* b);
+
+template <> void sample_clut<8>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b) {
     U32 rgb = gather_24(a2b->grid_8, ix);
 
     *r = cast<F>((rgb >>  0) & 0xff) * (1/255.0f);
     *g = cast<F>((rgb >>  8) & 0xff) * (1/255.0f);
     *b = cast<F>((rgb >> 16) & 0xff) * (1/255.0f);
-
-    (void)a;
-    (void)stride;
-}
-SI void clut_0_16(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
-    #if defined(__arm__)
-        // This is up to 2x faster on 32-bit ARM than the #else-case fast path.
-        *r = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+0));
-        *g = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+1));
-        *b = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+2));
-    #else
-        // This strategy is much faster for 64-bit builds, and fine for 32-bit x86 too.
-        U64 rgb;
-        gather_48(a2b->grid_16, ix, &rgb);
-        rgb = swap_endian_16x4(rgb);
-
-        *r = cast<F>((rgb >>  0) & 0xffff) * (1/65535.0f);
-        *g = cast<F>((rgb >> 16) & 0xffff) * (1/65535.0f);
-        *b = cast<F>((rgb >> 32) & 0xffff) * (1/65535.0f);
-    #endif
-    (void)a;
-    (void)stride;
 }
 
-// __attribute__((always_inline)) hits some pathological case in GCC that makes
-// compilation way too slow for my patience.
-#if defined(__clang__)
-    #define MAYBE_SI SI
+template <> void sample_clut<16>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b) {
+#if defined(__arm__)
+    // This is up to 2x faster on 32-bit ARM than the #else-case fast path.
+    *r = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+0));
+    *g = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+1));
+    *b = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+2));
 #else
-    #define MAYBE_SI static inline
-#endif
+    // This strategy is much faster for 64-bit builds, and fine for 32-bit x86 too.
+    U64 rgb;
+    gather_48(a2b->grid_16, ix, &rgb);
+    rgb = swap_endian_16x4(rgb);
 
-// These are all the same basic approach: handle one dimension, then the rest recursively.
-// We let "I" be the current dimension, and "J" the previous dimension, I-1.  "B" is the bit depth.
-#define DEF_CLUT(I,J,B)                                                                    \
-    MAYBE_SI \
-    void clut_##I##_##B(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) { \
-        I32 limit = cast<I32>(F0);                                                         \
-        limit += a2b->grid_points[I-1];                                                    \
-                                                                                           \
-        const F* srcs[] = { r,g,b,&a };                                                    \
-        F src = *srcs[I-1];                                                                \
-                                                                                           \
-        F x = max_(F0, min_(src, F1)) * cast<F>(limit - 1);                                \
-                                                                                           \
-        I32 lo = cast<I32>(            x      ),                                           \
-            hi = cast<I32>(minus_1_ulp(x+1.0f));                                           \
-        F lr = *r, lg = *g, lb = *b,                                                       \
-          hr = *r, hg = *g, hb = *b;                                                       \
-        clut_##J##_##B(a2b, stride*lo + ix, stride*limit, &lr,&lg,&lb,a);                  \
-        clut_##J##_##B(a2b, stride*hi + ix, stride*limit, &hr,&hg,&hb,a);                  \
-                                                                                           \
-        F t = x - cast<F>(lo);                                                             \
-        *r = lr + (hr-lr)*t;                                                               \
-        *g = lg + (hg-lg)*t;                                                               \
-        *b = lb + (hb-lb)*t;                                                               \
+    *r = cast<F>((rgb >>  0) & 0xffff) * (1/65535.0f);
+    *g = cast<F>((rgb >> 16) & 0xffff) * (1/65535.0f);
+    *b = cast<F>((rgb >> 32) & 0xffff) * (1/65535.0f);
+#endif
+}
+
+template <int kBitDepth>
+static void clut(const skcms_A2B* a2b, int dim, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
+    if (dim == 0) {
+        sample_clut<kBitDepth>(a2b,ix, r,g,b);
+        return;
     }
 
-DEF_CLUT(1,0,8)
-DEF_CLUT(2,1,8)
-DEF_CLUT(3,2,8)
-DEF_CLUT(4,3,8)
+    I32 limit = cast<I32>(F0);
+    limit += a2b->grid_points[dim-1];
 
-DEF_CLUT(1,0,16)
-DEF_CLUT(2,1,16)
-DEF_CLUT(3,2,16)
-DEF_CLUT(4,3,16)
+    const F* srcs[] = { r,g,b,&a };
+    F src = *srcs[dim-1];
 
+    F x = max_(F0, min_(src, F1)) * cast<F>(limit - 1);
+
+    I32 lo = cast<I32>(            x      ),
+        hi = cast<I32>(minus_1_ulp(x+1.0f));
+    F lr = *r, lg = *g, lb = *b,
+      hr = *r, hg = *g, hb = *b;
+    clut<kBitDepth>(a2b, dim-1, stride*lo + ix, stride*limit, &lr,&lg,&lb,a);
+    clut<kBitDepth>(a2b, dim-1, stride*hi + ix, stride*limit, &hr,&hg,&hb,a);
+
+    F t = x - cast<F>(lo);
+    *r = lr + (hr-lr)*t;
+    *g = lg + (hg-lg)*t;
+    *b = lb + (hb-lb)*t;
+}
 
 static void exec_ops(const Op* ops, const void** args,
                      const char* src, char* dst, int i) {
@@ -911,44 +892,44 @@ static void exec_ops(const Op* ops, const void** args,
 
             case Op_clut_1D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut_1_8(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+                clut<8>(a2b, 1, cast<I32>(F0), cast<I32>(F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_1D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut_1_16(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+                clut<16>(a2b, 1, cast<I32>(F0), cast<I32>(F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_2D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut_2_8(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+                clut<8>(a2b, 2, cast<I32>(F0), cast<I32>(F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_2D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut_2_16(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+                clut<16>(a2b, 2, cast<I32>(F0), cast<I32>(F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_3D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut_3_8(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+                clut<8>(a2b, 3, cast<I32>(F0), cast<I32>(F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_3D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut_3_16(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+                clut<16>(a2b, 3, cast<I32>(F0), cast<I32>(F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_4D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut_4_8(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+                clut<8>(a2b, 4, cast<I32>(F0), cast<I32>(F1), &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
             } break;
 
             case Op_clut_4D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut_4_16(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+                clut<16>(a2b, 4, cast<I32>(F0), cast<I32>(F1), &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
             } break;
