@@ -88,6 +88,8 @@ protected:
                          const SkPaint*) override;
     void onDrawImageLattice(const SkImage*, const Lattice&, const SkRect&,
                             const SkPaint*) override;
+    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
+                        SkBlendMode) override;
     void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
                               SkBlendMode, const SkPaint&) override;
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

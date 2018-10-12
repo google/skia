@@ -58,6 +58,16 @@ protected:
     void onDrawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
                             const SkRect& dst, const SkPaint* paint) override = 0;
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // This is under active development for Chrome and not used in Android. Hold off on adding
+    // implementations in Android's SkCanvas subclasses until this stabilizes.
+    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
+                        SkBlendMode) override {};
+#else
+    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
+                        SkBlendMode) override = 0;
+#endif
+
     void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
                       const SkPaint* paint) override = 0;
     void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,

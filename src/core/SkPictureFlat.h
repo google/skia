@@ -97,7 +97,8 @@ enum DrawType {
 
     FLUSH,
 
-    LAST_DRAWTYPE_ENUM = FLUSH
+    DRAW_IMAGE_SET,
+    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_SET
 };
 
 enum DrawVertexFlags {
