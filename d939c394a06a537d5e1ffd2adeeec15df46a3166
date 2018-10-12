@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17bc1b00_0f36a3b5",
+        "filename": "src/core/SkBitmapProvider.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-10-12T16:40:43Z",
+      "side": 1,
+      "message": "quick dox what these are for? (i.e. why they are called lazy)",
+      "range": {
+        "startLine": 17,
+        "startChar": 42,
+        "endLine": 17,
+        "endChar": 55
+      },
+      "revId": "d939c394a06a537d5e1ffd2adeeec15df46a3166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1fd8fdd_da5bdbcf",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-10-12T16:40:43Z",
+      "side": 1,
+      "message": "at some point, let\u0027s move this to onGetROPixels (for the virtual) with no default args. Then we can have several public versions with varying levels of params...\n\ngetRO(bitmap)\ngetRO(bitmap, cacheHint)\ngetRO(bitmap, colortype, colorspace)\netc.\n\nJust don\u0027t feel great having 3 default args in a row :)",
+      "range": {
+        "startLine": 80,
+        "startChar": 17,
+        "endLine": 80,
+        "endChar": 28
+      },
+      "revId": "d939c394a06a537d5e1ffd2adeeec15df46a3166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
