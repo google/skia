@@ -52,7 +52,7 @@ public:
 
     std::unique_ptr<SkDeferredDisplayList> detach();
 
-    // Matches the defines in SkImage_Gpu.h
+    // Matches the defines in SkImage_GpuBase.h
     typedef void* TextureContext;
     typedef void (*TextureReleaseProc)(TextureContext textureContext);
     typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
@@ -125,6 +125,7 @@ public:
      */
     sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
                                           const GrBackendFormat yuvaFormats[],
+                                          const SkISize yuvaSizes[],
                                           const SkYUVAIndex yuvaIndices[4],
                                           int imageWidth,
                                           int imageHeight,
@@ -134,6 +135,20 @@ public:
                                           TextureReleaseProc textureReleaseProc,
                                           PromiseDoneProc promiseDoneProc,
                                           TextureContext textureContexts[]);
+
+    // deprecated version that doesn't take yuvaSizes
+    sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
+                                          const GrBackendFormat yuvaFormats[],
+                                          const SkYUVAIndex yuvaIndices[4],
+                                          int imageWidth,
+                                          int imageHeight,
+                                          GrSurfaceOrigin imageOrigin,
+                                          sk_sp<SkColorSpace> imageColorSpace,
+                                          TextureFulfillProc textureFulfillProc,
+                                          TextureReleaseProc textureReleaseProc,
+                                          PromiseDoneProc promiseDoneProc,
+                                          TextureContext textureContexts[]);
+
 private:
     bool init();
 

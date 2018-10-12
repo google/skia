@@ -93,7 +93,7 @@ public:
 
     virtual sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const = 0;
 protected:
-    SkImage_Base(int width, int height, uint32_t uniqueID);
+    SkImage_Base(int width, int height, uint32_t uniqueID, bool textureBacked);
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.
