@@ -178,6 +178,16 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     fCommandBufferInfo.fBounds.join(bounds);
 }
 
+void GrMtlGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
+    const auto& clear = GrColor4f::FromGrColor(color).fRGBA;
+    fRenderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clear[0], clear[1], clear[2],
+                                                                       clear[3]);
+    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    this->internalBegin();
+    this->internalEnd();
+    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
+}
+
 void GrMtlGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     SkASSERT(!clip.hasWindowRectangles());
 
