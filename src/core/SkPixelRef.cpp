@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapCache.h"
 #include "SkMutex.h"
 #include "SkPixelRef.h"
 #include "SkTraceEvent.h"
@@ -42,7 +41,6 @@ SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes)
 
     this->needsNewGenID();
     fMutability = kMutable;
-    fAddedToCache.store(false);
 }
 
 SkPixelRef::~SkPixelRef() {
@@ -100,12 +98,6 @@ void SkPixelRef::callGenIDChangeListeners() {
     if (this->genIDIsUnique()) {
         for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
             fGenIDChangeListeners[i]->onChange();
-        }
-
-        // TODO: SkAtomic could add "old_value = atomic.xchg(new_value)" to make this clearer.
-        if (fAddedToCache.load()) {
-            SkNotifyBitmapGenIDIsStale(this->getGenerationID());
-            fAddedToCache.store(false);
         }
     }
     // Listeners get at most one shot, so whether these triggered or not, blow them away.

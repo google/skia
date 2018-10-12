@@ -80,12 +80,6 @@ public:
     // Takes ownership of listener.  Threadsafe.
     void addGenIDChangeListener(GenIDChangeListener* listener);
 
-    // Call when this pixelref is part of the key to a resourcecache entry. This allows the cache
-    // to know automatically those entries can be purged when this pixelref is changed or deleted.
-    void notifyAddedToCache() {
-        fAddedToCache.store(true);
-    }
-
     virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return nullptr; }
 
 protected:
@@ -103,9 +97,6 @@ private:
 
     SkMutex                         fGenIDChangeListenersMutex;
     SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
-
-    // Set true by caches when they cache content that's derived from the current pixels.
-    std::atomic<bool> fAddedToCache;
 
     enum Mutability {
         kMutable,               // PixelRefs begin mutable.
