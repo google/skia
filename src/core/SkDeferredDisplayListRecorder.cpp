@@ -244,13 +244,13 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         return nullptr;
     }
 
-    SkISize imageSize = { imageWidth, imageHeight };
     return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
                                                    yuvColorSpace,
                                                    yuvaFormats,
                                                    yuvaSizes,
                                                    yuvaIndices,
-                                                   imageSize,
+                                                   imageWidth,
+                                                   imageHeight,
                                                    imageOrigin,
                                                    std::move(imageColorSpace),
                                                    textureFulfillProc,
