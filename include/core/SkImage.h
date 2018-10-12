@@ -947,7 +947,8 @@ public:
         @param legacyBitmapMode  to be deprecated
         @return                  true if SkBitmap was created
     */
-    bool asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode legacyBitmapMode = kRO_LegacyBitmapMode) const;
+    bool asLegacyBitmap(SkBitmap* bitmap,
+                        LegacyBitmapMode legacyBitmapMode = kRO_LegacyBitmapMode) const;
 
     /** Returns true if SkImage is backed by an image-generator or other service that creates
         and caches its pixels or texture on-demand.
