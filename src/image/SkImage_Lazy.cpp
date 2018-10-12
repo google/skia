@@ -117,7 +117,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage_Lazy::SkImage_Lazy(Validator* validator)
-        : INHERITED(validator->fInfo.width(), validator->fInfo.height(), validator->fUniqueID)
+        : INHERITED(validator->fInfo.width(), validator->fInfo.height(), validator->fUniqueID,
+                    false)
         , fSharedGenerator(std::move(validator->fSharedGenerator))
         , fInfo(validator->fInfo)
         , fOrigin(validator->fOrigin) {

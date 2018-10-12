@@ -52,6 +52,14 @@ public:
 
     bool onIsValid(GrContext*) const final;
 
+    // should this be overriding SkImage::refColorSpace()?
+    sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
+
+    void resetContext(sk_sp<GrContext> newContext) {
+        SkASSERT(fContext->uniqueID() == newContext->uniqueID());
+        fContext = newContext;
+    }
+
     static bool ValidateBackendTexture(GrContext* ctx, const GrBackendTexture& tex,
                                        GrPixelConfig* config, SkColorType ct, SkAlphaType at,
                                        sk_sp<SkColorSpace> cs);

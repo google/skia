@@ -97,7 +97,8 @@ public:
     SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false)
         : INHERITED(bm.width(), bm.height(),
                     is_not_subset(bm) ? bm.getGenerationID()
-                                      : (uint32_t)kNeedNewImageUniqueID)
+                                      : (uint32_t)kNeedNewImageUniqueID,
+                    false)
         , fBitmap(bm)
     {
         SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
@@ -134,7 +135,7 @@ static void release_data(void* addr, void* context) {
 
 SkImage_Raster::SkImage_Raster(const SkImageInfo& info, sk_sp<SkData> data, size_t rowBytes,
                                uint32_t id)
-    : INHERITED(info.width(), info.height(), id)
+    : INHERITED(info.width(), info.height(), id, false)
 {
     void* addr = const_cast<void*>(data->data());
 
