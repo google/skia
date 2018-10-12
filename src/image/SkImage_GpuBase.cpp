@@ -255,7 +255,7 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
 
 sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
     auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), fAlphaType,
-                                               target.get(),      fAlphaType);
+                                               target.get(),      kPremul_SkAlphaType);
     if (!xform) {
         return sk_ref_sp(const_cast<SkImage_GpuBase*>(this));
     }
@@ -282,8 +282,10 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) con
     }
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
+    SkAlphaType newAlphaType = (kUnpremul_SkAlphaType == fAlphaType) ? kPremul_SkAlphaType
+                                                                     : fAlphaType;
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
-                                   fAlphaType, renderTargetContext->asTextureProxyRef(),
+                                   newAlphaType, renderTargetContext->asTextureProxyRef(),
                                    std::move(target), fBudgeted);
 }
 
