@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76ab64f9_f6a60cd5",
+        "filename": "infra/pathkit/perf/pathkit_perf_aggregator.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-10-12T18:26:10Z",
+      "side": 1,
+      "message": "Gold and PNG?",
+      "range": {
+        "startLine": 106,
+        "startChar": 55,
+        "endLine": 107,
+        "endChar": 34
+      },
+      "revId": "c2bfd150671a810e2e1f29e44a4aa22a8d326680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
