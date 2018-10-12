@@ -199,6 +199,8 @@ enum class GrBackendApi : unsigned {
  * Previously the above enum was not an enum class but a normal enum. To support the legacy use of
  * the enum values we define them below so that no clients break.
  */
+typedef GrBackendApi GrBackend;
+
 static constexpr GrBackendApi kMetal_GrBackend = GrBackendApi::kMetal;
 static constexpr GrBackendApi kOpenGL_GrBackend = GrBackendApi::kOpenGL;
 static constexpr GrBackendApi kVulkan_GrBackend = GrBackendApi::kVulkan;
