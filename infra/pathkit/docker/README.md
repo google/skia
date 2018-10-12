@@ -75,7 +75,7 @@ image (karma-chrome-tests).
     make gold-docker-image
     # check the version of chrome with the following:
     docker run gold-karma-chrome-tests /usr/bin/google-chrome-stable --version
-    CHROME_VERSION="68.0.3440.106_v4"  # use v1, v2, etc for any re-spins of the container.
+    CHROME_VERSION="68.0.3440.106_v5"  # use v1, v2, etc for any re-spins of the container.
     docker tag gold-karma-chrome-tests gcr.io/skia-public/gold-karma-chrome-tests:$CHROME_VERSION
     docker push gcr.io/skia-public/gold-karma-chrome-tests:$CHROME_VERSION
 

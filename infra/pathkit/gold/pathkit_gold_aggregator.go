@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"go.skia.org/infra/golden/go/goldingestion"
+	"go.skia.org/infra/golden/go/jsonio"
 )
 
 // This allows us to use upload_dm_results.py out of the box
@@ -43,7 +44,6 @@ var (
 	gitHash          = flag.String("git_hash", "-", "The git commit hash of the version being tested")
 	hostOS           = flag.String("host_os", "Debian9", "OS Key")
 	issue            = flag.Int64("issue", 0, "issue (if tryjob)")
-	patch_storage    = flag.String("patch_storage", "", "patch storage (if tryjob)")
 	patchset         = flag.Int64("patchset", 0, "patchset (if tryjob)")
 	taskId           = flag.String("task_id", "", "swarming task id")
 )
@@ -62,7 +62,7 @@ type reportBody struct {
 var defaultKeys map[string]string
 
 // contains all the results reported in through report_gold_data
-var results []*goldingestion.Result
+var results []*jsonio.Result
 
 func main() {
 	flag.Parse()
@@ -79,7 +79,7 @@ func main() {
 		"source_type":       "pathkit",
 	}
 
-	results = []*goldingestion.Result{}
+	results = []*jsonio.Result{}
 
 	http.HandleFunc("/report_gold_data", reporter)
 	http.HandleFunc("/dump_json", dumpJSON)
@@ -124,7 +124,7 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results = append(results, &goldingestion.Result{
+	results = append(results, &jsonio.Result{
 		Digest: hash,
 		Key: map[string]string{
 			"name":   testOutput.TestName,
@@ -166,22 +166,23 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results := goldingestion.DMResults{
-		BuildBucketID:  *buildBucketID,
-		Builder:        *builder,
-		GitHash:        *gitHash,
-		Issue:          *issue,
-		Key:            defaultKeys,
-		PatchStorage:   *patch_storage,
-		Patchset:       *patchset,
-		Results:        results,
-		SwarmingBotID:  *botId,
-		SwarmingTaskID: *taskId,
+	dmresults := goldingestion.DMResults{
+		GoldResults: &jsonio.GoldResults{
+			BuildBucketID:  *buildBucketID,
+			Builder:        *builder,
+			GitHash:        *gitHash,
+			Issue:          *issue,
+			Key:            defaultKeys,
+			Patchset:       *patchset,
+			Results:        results,
+			SwarmingBotID:  *botId,
+			SwarmingTaskID: *taskId,
+		},
 	}
 
 	enc := json.NewEncoder(outputFile)
 	enc.SetIndent("", "  ") // Make it human readable.
-	if err := enc.Encode(&results); err != nil {
+	if err := enc.Encode(&dmresults); err != nil {
 		fmt.Println(err)
 		http.Error(w, "Could not write json to disk", 500)
 		return

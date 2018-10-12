@@ -17,7 +17,7 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v4'
+DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v5'
 INNER_KARMA_SCRIPT = '/SRC/skia/infra/pathkit/test_pathkit.sh'
 
 
@@ -119,7 +119,6 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
     cmd.extend([
       '--issue',         api.vars.issue,
       '--patchset',      api.vars.patchset,
-      '--patch_storage', api.vars.patch_storage,
     ])
 
   api.run(
