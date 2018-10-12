@@ -96,8 +96,7 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
             offset->fY = iTop;
 
             return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(fImage->width(), fImage->height()),
-                                                 fImage, ctx.outputProperties().colorSpace(),
-                                                 &source->props());
+                                                 fImage, &source->props());
         }
     }
 

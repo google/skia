@@ -157,20 +157,19 @@ DEF_TEST(SpecialImage_Raster, reporter) {
     }
 }
 
-static void test_specialimage_image(skiatest::Reporter* reporter, SkColorSpace* dstColorSpace) {
+static void test_specialimage_image(skiatest::Reporter* reporter) {
     SkBitmap bm = create_bm();
 
     sk_sp<SkImage> fullImage(SkImage::MakeFromBitmap(bm));
 
     sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromImage(
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
-                                                            fullImage, dstColorSpace));
+                                                            fullImage));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
-        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(subset, fullImage,
-                                                                     dstColorSpace));
+        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(subset, fullImage));
         test_image(subSImg1, reporter, nullptr, false, kPad, kFullSize);
     }
 
@@ -181,13 +180,7 @@ static void test_specialimage_image(skiatest::Reporter* reporter, SkColorSpace* 
 }
 
 DEF_TEST(SpecialImage_Image_Legacy, reporter) {
-    SkColorSpace* legacyColorSpace = nullptr;
-    test_specialimage_image(reporter, legacyColorSpace);
-}
-
-DEF_TEST(SpecialImage_Image_ColorSpaceAware, reporter) {
-    sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeSRGB();
-    test_specialimage_image(reporter, srgbColorSpace.get());
+    test_specialimage_image(reporter);
 }
 
 static void test_texture_backed(skiatest::Reporter* reporter,
@@ -312,8 +305,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_ReadbackAndCachingSubsets_Gpu, r
     }
 
     auto image = surface->makeImageSnapshot();
-    auto redImg  = SkSpecialImage::MakeFromImage(SkIRect::MakeXYWH(10, 30, 10, 10), image, nullptr);
-    auto blueImg = SkSpecialImage::MakeFromImage(SkIRect::MakeXYWH(30, 10, 10, 10), image, nullptr);
+    auto redImg  = SkSpecialImage::MakeFromImage(SkIRect::MakeXYWH(10, 30, 10, 10), image);
+    auto blueImg = SkSpecialImage::MakeFromImage(SkIRect::MakeXYWH(30, 10, 10, 10), image);
 
     // This isn't necessary, but if it ever becomes false, then the cache collision bug that we're
     // checking below is irrelevant.
