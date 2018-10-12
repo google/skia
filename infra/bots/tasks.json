@@ -8596,6 +8596,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:12"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:1"
         }
       ],
       "command": [
