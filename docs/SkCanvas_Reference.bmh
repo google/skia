@@ -4961,8 +4961,37 @@ void draw(SkCanvas* canvas) {
 
 #Enum QuadAAFlags
 #Line # don't use this ##
+#Code
+#Populate
+##
+
 #Private
 ##
+
+#Const kLeft_QuadAAFlag 1
+#Line # antialias the left edge ##
+##
+
+#Const kTop_QuadAAFlag 2
+#Line # antialias the top edge ##
+##
+
+#Const kRight_QuadAAFlag 4
+#Line # antialias the right edge ##
+##
+
+#Const kBottom_QuadAAFlag 8
+#Line # antialias the bottom edge ##
+##
+
+#Const kNone_QuadAAFlags 0
+#Line # antialias none of the edges ##
+##
+
+#Const kAll_QuadAAFlags 15
+#Line # antialias all of the edges ##
+##
+
 #NoExample
 ##
 ##
