@@ -90,8 +90,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
         // DDL TODO: in the promise image version we must not flush here
         fContext->contextPriv().flushSurfaceWrites(renderTargetContext->asSurfaceProxy());
 
-        // cast to non-const
-        (sk_sp<GrTextureProxy>)(fRGBProxy) = renderTargetContext->asTextureProxyRef();
+        fRGBProxy = renderTargetContext->asTextureProxyRef();
     }
 
     return fRGBProxy;
@@ -103,7 +102,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
 sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
                                                      SkYUVColorSpace colorSpace,
                                                      const GrBackendTexture yuvaTextures[],
-                                                     SkYUVAIndex yuvaIndices[4],
+                                                     const SkYUVAIndex yuvaIndices[4],
                                                      SkISize size,
                                                      GrSurfaceOrigin origin,
                                                      sk_sp<SkColorSpace> imageColorSpace) {
@@ -183,6 +182,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
 sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
                                                        SkYUVColorSpace yuvColorSpace,
                                                        const GrBackendFormat yuvaFormats[],
+                                                       const SkISize yuvaSizes[],
                                                        const SkYUVAIndex yuvaIndices[4],
                                                        SkISize size,
                                                        GrSurfaceOrigin imageOrigin,
@@ -204,7 +204,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
     SkPromiseImageHelper promiseHelpers[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
         promiseHelpers[texIdx].set(textureFulfillProc, textureReleaseProc, promiseDoneProc,
-                                  textureContexts[texIdx]);
+                                   textureContexts[texIdx]);
     }
 
     if (!valid) {
@@ -253,12 +253,6 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
 
     // Get lazy proxies
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fWidth = size.width();
-    desc.fHeight = size.height();
-    desc.fConfig = kUnknown_GrPixelConfig;  // We'll replace this for each proxy.
-    desc.fSampleCnt = 1;
     sk_sp<GrTextureProxy> proxies[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
         // for each proxy we need to fill in
@@ -284,7 +278,12 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
 
             return params.fPromiseHelper.getTexture(resourceProvider, params.fConfig);
         };
+        GrSurfaceDesc desc;
+        desc.fFlags = kNone_GrSurfaceFlags;
+        desc.fWidth = yuvaSizes[texIdx].width();
+        desc.fHeight = yuvaSizes[texIdx].height();
         desc.fConfig = params.fConfig;
+        desc.fSampleCnt = 1;
         proxies[texIdx] = proxyProvider->createLazyProxy(
                             std::move(lazyInstCallback), desc, imageOrigin, GrMipMapped::kNo,
                             GrTextureType::k2D, GrInternalSurfaceFlags::kNone,

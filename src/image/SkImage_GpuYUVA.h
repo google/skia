@@ -32,6 +32,8 @@ public:
     GrTextureProxy* peekProxy() const override { return this->asTextureProxyRef().get(); }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override;
 
+    virtual bool onIsTextureBacked() const override { return SkToBool(fProxies[0].get()); }
+
     /**
         Create a new SkImage_GpuYUVA that's very similar to SkImage created by MakeFromYUVATextures.
         The main difference is that the client doesn't have the backend textures on the gpu yet but
@@ -73,6 +75,7 @@ public:
     static sk_sp<SkImage> MakePromiseYUVATexture(GrContext* context,
                                                  SkYUVColorSpace yuvColorSpace,
                                                  const GrBackendFormat yuvaFormats[],
+                                                 const SkISize yuvaSizes[],
                                                  const SkYUVAIndex yuvaIndices[4],
                                                  SkISize imageSize,
                                                  GrSurfaceOrigin imageOrigin,
@@ -85,7 +88,7 @@ public:
     static sk_sp<SkImage> MakeFromYUVATextures(GrContext* context,
                                                SkYUVColorSpace yuvColorSpace,
                                                const GrBackendTexture yuvaTextures[],
-                                               SkYUVAIndex yuvaIndices[4],
+                                               const SkYUVAIndex yuvaIndices[4],
                                                SkISize imageSize,
                                                GrSurfaceOrigin imageOrigin,
                                                sk_sp<SkColorSpace> imageColorSpace);
@@ -98,7 +101,7 @@ private:
     // This is only allocated when the image needs to be flattened rather than
     // using the separate YUVA planes. From thence forth we will only use the
     // the RGBProxy.
-    sk_sp<GrTextureProxy>            fRGBProxy;
+    mutable sk_sp<GrTextureProxy>    fRGBProxy;
     const SkYUVColorSpace            fYUVColorSpace;
     GrSurfaceOrigin                  fOrigin;
 

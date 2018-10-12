@@ -52,6 +52,13 @@ public:
 
     bool onIsValid(GrContext*) const final;
 
+#if GR_TEST_UTILS
+    void resetContext(sk_sp<GrContext> newContext) {
+        SkASSERT(fContext->uniqueID() == newContext->uniqueID());
+        fContext = newContext;
+    }
+#endif
+
     static bool ValidateBackendTexture(GrContext* ctx, const GrBackendTexture& tex,
                                        GrPixelConfig* config, SkColorType ct, SkAlphaType at,
                                        sk_sp<SkColorSpace> cs);

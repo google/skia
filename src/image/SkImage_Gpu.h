@@ -35,7 +35,7 @@ public:
         return fProxy;
     }
 
-    sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
+    virtual bool onIsTextureBacked() const override { return SkToBool(fProxy.get()); }
 
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
@@ -106,11 +106,6 @@ public:
                                                  TextureReleaseProc textureReleaseProc,
                                                  PromiseDoneProc promiseDoneProc,
                                                  TextureContext textureContexts[]);
-
-    void resetContext(sk_sp<GrContext> newContext) {
-        SkASSERT(fContext->uniqueID() == newContext->uniqueID());
-        fContext = newContext;
-    }
 
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(
             GrContext*, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvaTextures[],

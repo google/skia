@@ -58,7 +58,7 @@ void DDLTileHelper::TileData::createDDL() {
         GrContext* newContext = subCanvas->getGrContext();
 
         if (fPromiseImages[i]->isTextureBacked()) {
-            SkImage_Gpu* gpuImage = (SkImage_Gpu*) fPromiseImages[i].get();
+            SkImage_GpuBase* gpuImage = (SkImage_GpuBase*) fPromiseImages[i].get();
             gpuImage->resetContext(sk_ref_sp(newContext));
         }
     }
