@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a6c6ae0e_3e9d40cb",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2628,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-12T13:54:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2ad7f2e_8a312445",
+      "range": {
+        "startLine": 2628,
+        "startChar": 92,
+        "endLine": 2628,
+        "endChar": 98
+      },
+      "revId": "2db8e4f8f97b8926e46684dbd110462758b6ec4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "697f94f4_8dbad6e4",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 15
@@ -39,6 +63,24 @@
       "revId": "2db8e4f8f97b8926e46684dbd110462758b6ec4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19f6c8e6_a0a4a70a",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2642,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-12T13:54:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "697f94f4_8dbad6e4",
+      "revId": "2db8e4f8f97b8926e46684dbd110462758b6ec4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -62,6 +104,30 @@
       "revId": "2db8e4f8f97b8926e46684dbd110462758b6ec4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f3ab9c5_5ddf4465",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1634,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-12T13:54:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f663bac8_8786161f",
+      "range": {
+        "startLine": 1634,
+        "startChar": 40,
+        "endLine": 1634,
+        "endChar": 57
+      },
+      "revId": "2db8e4f8f97b8926e46684dbd110462758b6ec4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
