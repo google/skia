@@ -323,6 +323,8 @@ public:
 
     void deInstantiate();
 
+    bool canSkipResourceAllocator() const;
+
     /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
      */

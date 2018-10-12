@@ -68,7 +68,18 @@ public:
 
     typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
 
-    virtual void visitProxies(const VisitProxyFunc&) const {
+    enum class Visitor : unsigned {
+        /**
+         * Ops *may* skip proxy visitation for allocation for proxies that have the
+         * canSkipResourceAllocator() property.
+         */
+        kAllocatorGather,
+        /**
+         * Ops should visit all proxies.
+         */
+        kOther,
+    };
+    virtual void visitProxies(const VisitProxyFunc&, Visitor = Visitor::kOther) const {
         // This default implementation assumes the op has no proxies
     }
 
