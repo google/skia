@@ -168,14 +168,12 @@ DEF_TEST(ImageFilterCache_RasterBacked, reporter) {
 // Shared test code for both the raster and gpu-backed image cases
 static void test_image_backed(skiatest::Reporter* reporter, const sk_sp<SkImage>& srcImage) {
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
-    SkColorSpace* legacyColorSpace = nullptr;
 
-    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromImage(full, srcImage, legacyColorSpace));
+    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromImage(full, srcImage));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromImage(subset, srcImage,
-                                                                  legacyColorSpace));
+    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromImage(subset, srcImage));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);
