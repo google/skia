@@ -142,29 +142,29 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
     if (curImage.isYUV()) {
         GrBackendFormat backendFormats[4];
         void* contexts[4] = { nullptr, nullptr, nullptr, nullptr };
+        SkISize sizes[4];
 
         for (int i = 0; i < 3; ++i) {
             const GrBackendTexture& backendTex = curImage.backendTexture(i);
             backendFormats[i] = caps->createFormatFromBackendTexture(backendTex);
 
             contexts[i] = curImage.refCallbackContext(i).release();
+            sizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
         }
 
         SkYUVAIndex yuvaIndices[4] = {
                 SkYUVAIndex{0, SkColorChannel::kA},
                 SkYUVAIndex{1, SkColorChannel::kA},
                 SkYUVAIndex{2, SkColorChannel::kA},
-                SkYUVAIndex{-1, SkColorChannel::kA}
+                SkYUVAIndex{-1, SkColorChannel::kA}  // TODO: enable this
         };
-
-        int tempWidth = curImage.backendTexture(0).width();
-        int tempHeight = curImage.backendTexture(0).height();
 
         image = recorder->makeYUVAPromiseTexture(curImage.yuvColorSpace(),
                                                  backendFormats,
+                                                 sizes,
                                                  yuvaIndices,
-                                                 tempWidth,  //curImage.overallWidth(),
-                                                 tempHeight, //curImage.overallHeight(),
+                                                 curImage.overallWidth(),
+                                                 curImage.overallHeight(),
                                                  GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
                                                  curImage.refOverallColorSpace(),
                                                  DDLPromiseImageHelper::PromiseImageFulfillProc,
