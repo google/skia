@@ -11,7 +11,6 @@
 #include <chrono>
 #include "GrSharedEnums.h"
 #include "GrTypes.h"
-#include "SkCanvas.h"
 #include "SkImageInfo.h"
 #include "SkImageInfoPriv.h"
 #include "SkRefCnt.h"
@@ -288,24 +287,30 @@ enum class GrAllowMixedSamples : bool { kNo = false, kYes = true };
 
 GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
 
-enum class GrQuadAAFlags {
-    kLeft   = SkCanvas::kLeft_QuadAAFlag,
-    kTop    = SkCanvas::kTop_QuadAAFlag,
-    kRight  = SkCanvas::kRight_QuadAAFlag,
-    kBottom = SkCanvas::kBottom_QuadAAFlag,
+/**
+ * Controls anti-aliasing of a quad on a per-edge basis. Currently only used by GrTextureOp.
+ * This will be moved to public API and renamed when this functionality is exposed.
+ */
+enum class GrQuadAAFlags : unsigned {
+    kLeft   = 0b0001,
+    kTop    = 0b0010,
+    kRight  = 0b0100,
+    kBottom = 0b1000,
 
-    kNone = SkCanvas::kNone_QuadAAFlags,
-    kAll  = SkCanvas::kAll_QuadAAFlags
+    kNone   = 0b0000,
+    kAll    = 0b1111,
+
+    kTopLeft     = kTop    | kLeft,
+    kTopRight    = kTop    | kRight,
+    kBottomRight = kBottom | kRight,
+    kBottomLeft  = kBottom | kLeft,
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrQuadAAFlags)
 
-static inline GrQuadAAFlags SkToGrQuadAAFlags(unsigned flags) {
-    return static_cast<GrQuadAAFlags>(flags);
-}
-
 /**
- * Types of shader-language-specific boxed variables we can create.
+ * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
+ * but should be applicable to other shader languages.)
  */
 enum GrSLType {
     kVoid_GrSLType,

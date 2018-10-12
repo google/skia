@@ -43,7 +43,6 @@ public:
         kDrawImageLattice_OpType,
         kDrawImageNine_OpType,
         kDrawImageRect_OpType,
-        kDrawImageSet_OpType,
         kDrawOval_OpType,
         kDrawArc_OpType,
         kDrawPaint_OpType,
@@ -360,22 +359,6 @@ private:
     SkRect                      fDst;
     SkTLazy<SkPaint>            fPaint;
     SkCanvas::SrcRectConstraint fConstraint;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkDrawImageSetCommand : public SkDrawCommand {
-public:
-    SkDrawImageSetCommand(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
-                          SkBlendMode);
-    void execute(SkCanvas* canvas) const override;
-
-private:
-    SkAutoTArray<SkCanvas::ImageSetEntry> fSet;
-    int fCount;
-    float fAlpha;
-    SkFilterQuality fFilterQuality;
-    SkBlendMode fMode;
 
     typedef SkDrawCommand INHERITED;
 };

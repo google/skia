@@ -109,7 +109,6 @@ template <> void Draw::draw(const DrawImageLattice& r) {
 
 DRAW(DrawImageRect, legacy_drawImageRect(r.image.get(), r.src, r.dst, r.paint, r.constraint));
 DRAW(DrawImageNine, drawImageNine(r.image.get(), r.center, r.dst, r.paint));
-DRAW(DrawImageSet, experimental_DrawImageSetV0(r.set.get(), r.count, r.alpha, r.quality, r.mode));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
@@ -383,13 +382,6 @@ private:
     }
     Bounds bounds(const DrawImageNine& op) const {
         return this->adjustAndMap(op.dst, op.paint);
-    }
-    Bounds bounds(const DrawImageSet& op) const {
-        SkRect rect = SkRect::MakeEmpty();
-        for (int i = 0; i < op.count; ++i) {
-            rect.join(this->adjustAndMap(op.set[i].fDstRect, nullptr));
-        }
-        return rect;
     }
     Bounds bounds(const DrawPath& op) const {
         return op.path.isInverseFillType() ? fCullRect
