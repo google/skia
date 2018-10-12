@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6716198_65b920b1",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-12T19:00:05Z",
+      "side": 1,
+      "message": "Can we assert the the clip here is full screen?",
+      "range": {
+        "startLine": 181,
+        "startChar": 45,
+        "endLine": 181,
+        "endChar": 61
+      },
+      "revId": "136ee97068ca22568887cce3f500a17219928a61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
