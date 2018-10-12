@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da610a5c_c5533b47",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-12T15:41:46Z",
+      "side": 1,
+      "message": "Think it makes sense to move this down a bit and write the fast-path in terms of fBitmap.colorSpace()?",
+      "range": {
+        "startLine": 338,
+        "startChar": 0,
+        "endLine": 340,
+        "endChar": 0
+      },
+      "revId": "fcdf5e171091151f64885355682d5569e043e141",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90efcbff_43d41e25",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-12T15:41:46Z",
+      "side": 1,
+      "message": "I notice, e.g., if this is tagged sRGB and target is also sRGB, we still make a copy.\n\nDoes it make sense to go a bit more general here?\n\n  // Treat untagged images as sRGB.\n  auto src_cs \u003d src.colorSpace() ? src.colorSpace()\n                                 : sk_srgb_singleton();\n  if (SkColorSpace::Equals(src_cs, target.get())) {\n      return this;\n  }\n  ...",
+      "revId": "fcdf5e171091151f64885355682d5569e043e141",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
