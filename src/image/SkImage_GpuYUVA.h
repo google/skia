@@ -22,8 +22,8 @@ class GrTexture;
 // proxy will be stored and used for any future rendering.
 class SkImage_GpuYUVA : public SkImage_GpuBase {
 public:
-    SkImage_GpuYUVA(sk_sp<GrContext>, uint32_t uniqueID, SkYUVColorSpace,
-                    sk_sp<GrTextureProxy> proxies[], const SkYUVAIndex yuvaIndices[4], SkISize size,
+    SkImage_GpuYUVA(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkYUVColorSpace,
+                    sk_sp<GrTextureProxy> proxies[], const SkYUVAIndex yuvaIndices[4],
                     GrSurfaceOrigin, sk_sp<SkColorSpace>, SkBudgeted);
     ~SkImage_GpuYUVA() override;
 
@@ -62,8 +62,10 @@ public:
         @param context             Gpu context
         @param yuvColorSpace       color range of expected YUV pixels
         @param yuvaFormats         formats of promised gpu textures for each YUVA plane
+        @param yuvaSizes           width and height of promised gpu textures
         @param yuvaIndices         mapping from yuv plane index to texture representing that plane
-        @param imageSize           width and height of promised gpu texture
+        @param width               width of promised gpu texture
+        @param height              height of promised gpu texture
         @param imageOrigin         one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param imageColorSpace     range of colors; may be nullptr
         @param textureFulfillProc  function called to get actual gpu texture
@@ -77,7 +79,8 @@ public:
                                                  const GrBackendFormat yuvaFormats[],
                                                  const SkISize yuvaSizes[],
                                                  const SkYUVAIndex yuvaIndices[4],
-                                                 SkISize imageSize,
+                                                 int width,
+                                                 int height,
                                                  GrSurfaceOrigin imageOrigin,
                                                  sk_sp<SkColorSpace> imageColorSpace,
                                                  TextureFulfillProc textureFulfillProc,
@@ -89,7 +92,8 @@ public:
                                                SkYUVColorSpace yuvColorSpace,
                                                const GrBackendTexture yuvaTextures[],
                                                const SkYUVAIndex yuvaIndices[4],
-                                               SkISize imageSize,
+                                               int width,
+                                               int height,
                                                GrSurfaceOrigin imageOrigin,
                                                sk_sp<SkColorSpace> imageColorSpace);
 
