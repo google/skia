@@ -1135,6 +1135,8 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if strings.Contains(parts["extra_config"], "Skpbench") {
 		recipe = "skpbench"
 		isolate = relpath("skpbench_skia_bundled.isolate")
+	} else if strings.Contains(name, "PathKit") {
+		recipe = "perf_pathkit"
 	}
 	task := kitchenTask(name, recipe, isolate, "", swarmDimensions(parts), nil, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
