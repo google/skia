@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89c5c4fb_c2f14e8c",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T18:29:08Z",
+      "side": 1,
+      "message": "// Proxies do not need to participate in the explicit resource allocation system if they will never be recycled. This skips the effort to collect them, store them and iterate over them when allocating resources.\n\n?",
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e5475dc_838cb825",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T18:29:08Z",
+      "side": 1,
+      "message": "Can we just delete this ?",
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d285753_95e07ba7",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T18:29:08Z",
+      "side": 1,
+      "message": "Add it here too ?",
+      "range": {
+        "startLine": 154,
+        "startChar": 47,
+        "endLine": 154,
+        "endChar": 49
+      },
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6100fe98_65170e7a",
+        "filename": "src/gpu/ops/GrAAConvexPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T18:29:08Z",
+      "side": 1,
+      "message": "pass in type ?",
+      "range": {
+        "startLine": 779,
+        "startChar": 33,
+        "endLine": 779,
+        "endChar": 35
+      },
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c127541_38a83467",
+        "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-10-12T18:29:08Z",
+      "side": 1,
+      "message": "same ?",
+      "range": {
+        "startLine": 211,
+        "startChar": 33,
+        "endLine": 211,
+        "endChar": 35
+      },
+      "revId": "db61b1898321d7fcb343e4c3bd39ffad20d7569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
