@@ -45,7 +45,6 @@ enum class SkPipeVerb : uint8_t {
     kDrawImageRect,     // extra == constraint | has_src_rect | has_paint
     kDrawImageNine,     // extra == has_paint:1
     kDrawImageLattice,  // extra == has_paint:1
-    kDrawImageSet,      // extra == 0
 
     kDrawVertices,
 

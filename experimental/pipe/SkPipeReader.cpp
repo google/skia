@@ -538,23 +538,6 @@ static void drawImageLattice_handler(SkPipeReader& reader, uint32_t packedVerb, 
     canvas->drawImageLattice(image.get(), lattice, *dst, paint);
 }
 
-static void drawImageSet_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
-    SkASSERT(SkPipeVerb::kDrawImageSet == unpack_verb(packedVerb));
-
-    int cnt = reader.readInt();
-    float alpha = SkScalarToFloat(reader.readScalar());
-    SkFilterQuality filterQuality = (SkFilterQuality)reader.readInt();
-    SkBlendMode mode = (SkBlendMode)reader.readInt();
-    SkAutoTArray<SkCanvas::ImageSetEntry> set(cnt);
-    for (int i = 0; i < cnt; ++i) {
-        set[i].fImage = reader.readImage();
-        reader.readRect(&set[i].fSrcRect);
-        reader.readRect(&set[i].fDstRect);
-        set[i].fAAFlags = reader.readUInt();
-    }
-    canvas->experimental_DrawImageSetV0(set.get(), cnt, alpha, filterQuality, mode);
-}
-
 static void drawVertices_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawVertices == unpack_verb(packedVerb));
     SkBlendMode bmode = (SkBlendMode)unpack_verb_extra(packedVerb);
@@ -752,7 +735,6 @@ const HandlerRec gPipeHandlers[] = {
     HANDLER(drawImageRect),
     HANDLER(drawImageNine),
     HANDLER(drawImageLattice),
-    HANDLER(drawImageSet),
 
     HANDLER(drawVertices),
 

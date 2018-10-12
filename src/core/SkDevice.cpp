@@ -202,22 +202,6 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     }
 }
 
-void SkBaseDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int count, float alpha,
-                                SkFilterQuality filterQuality, SkBlendMode mode) {
-    SkPaint paint;
-    paint.setFilterQuality(SkTPin(filterQuality, kNone_SkFilterQuality, kLow_SkFilterQuality));
-    paint.setAlpha(SkToUInt(SkTClamp(SkScalarRoundToInt(alpha * 255), 0, 255)));
-    paint.setBlendMode(mode);
-    for (int i = 0; i < count; ++i) {
-        // TODO: Handle per-edge AA. Right now this mirrors the SkiaRenderer component of Chrome
-        // which turns off antialiasing unless all four edges should be antialiased. This avoids
-        // seaming in tiled composited layers.
-        paint.setAntiAlias(images[i].fAAFlags == SkCanvas::kAll_QuadAAFlags);
-        this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect, paint,
-                            SkCanvas::kFast_SrcRectConstraint);
-    }
-}
-
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
                                      const SkCanvas::Lattice& lattice, const SkRect& dst,
                                      const SkPaint& paint) {

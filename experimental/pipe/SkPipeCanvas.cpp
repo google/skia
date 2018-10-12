@@ -574,22 +574,6 @@ void SkPipeCanvas::onDrawImageLattice(const SkImage* image, const Lattice& latti
     }
 }
 
-void SkPipeCanvas::onDrawImageSet(const ImageSetEntry set[], int count, float alpha,
-                                  SkFilterQuality filterQuality, SkBlendMode mode) {
-    SkPipeWriter writer(this);
-    writer.write32(pack_verb(SkPipeVerb::kDrawImageSet));
-    writer.writeInt(count);
-    writer.writeScalar(SkFloatToScalar(alpha));
-    writer.writeInt((int)filterQuality);
-    writer.writeInt((int)mode);
-    for (int i = 0; i < count; ++i) {
-        writer.writeImage(set[i].fImage.get());
-        writer.writeRect(set[i].fSrcRect);
-        writer.writeRect(set[i].fDstRect);
-        writer.writeUInt(set[i].fAAFlags);
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkPipeCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,

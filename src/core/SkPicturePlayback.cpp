@@ -355,22 +355,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
 
             canvas->legacy_drawImageRect(image, src, dst, paint, constraint);
         } break;
-        case DRAW_IMAGE_SET: {
-            int cnt = reader->readInt();
-            float alpha = SkScalarToFloat(reader->readScalar());
-            SkFilterQuality filterQuality = (SkFilterQuality)reader->readUInt();
-            SkBlendMode mode = (SkBlendMode)reader->readUInt();
-            SkAutoTArray<SkCanvas::ImageSetEntry> set(cnt);
-            for (int i = 0; i < cnt; ++i) {
-                set[i].fImage = sk_ref_sp(fPictureData->getImage(reader));
-                reader->readRect(&set[i].fSrcRect);
-                reader->readRect(&set[i].fDstRect);
-                set[i].fAAFlags = reader->readUInt();
-            }
-            BREAK_ON_READ_ERROR(reader);
-
-            canvas->experimental_DrawImageSetV0(set.get(), cnt, alpha, filterQuality, mode);
-        } break;
         case DRAW_OVAL: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             SkRect rect;

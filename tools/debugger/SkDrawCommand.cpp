@@ -7,15 +7,12 @@
 
 #include "SkDrawCommand.h"
 
-#include <algorithm>
 #include "SkAutoMalloc.h"
-#include "SkClipOpPriv.h"
 #include "SkColorFilter.h"
 #include "SkDashPathEffect.h"
 #include "SkDrawable.h"
 #include "SkImageFilter.h"
 #include "SkJsonWriteBuffer.h"
-#include "SkLatticeIter.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintDefaults.h"
 #include "SkPathEffect.h"
@@ -23,11 +20,13 @@
 #include "SkPngEncoder.h"
 #include "SkReadBuffer.h"
 #include "SkRectPriv.h"
-#include "SkShadowFlags.h"
-#include "SkTHash.h"
 #include "SkTextBlobPriv.h"
+#include "SkTHash.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
+#include "SkClipOpPriv.h"
+#include <SkLatticeIter.h>
+#include <SkShadowFlags.h>
 
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
 #define SKDEBUGCANVAS_ATTRIBUTE_VISIBLE           "visible"
@@ -228,7 +227,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawImageLattice_OpType: return "DrawImageLattice";
         case kDrawImageNine_OpType: return "DrawImageNine";
         case kDrawImageRect_OpType: return "DrawImageRect";
-        case kDrawImageSet_OpType: return "DrawImageSet";
         case kDrawOval_OpType: return "DrawOval";
         case kDrawPaint_OpType: return "DrawPaint";
         case kDrawPatch_OpType: return "DrawPatch";
@@ -1552,22 +1550,6 @@ Json::Value SkDrawImageRectCommand::toJSON(UrlDataManager& urlDataManager) const
     result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fDst)->c_str());
 
     return result;
-}
-
-SkDrawImageSetCommand::SkDrawImageSetCommand(const SkCanvas::ImageSetEntry set[], int count,
-                                             float alpha, SkFilterQuality filterQuality,
-                                             SkBlendMode mode)
-        : INHERITED(kDrawImageSet_OpType)
-        , fSet(count)
-        , fCount(count)
-        , fAlpha(alpha)
-        , fFilterQuality(filterQuality)
-        , fMode(mode) {
-    std::copy_n(set, count, fSet.get());
-}
-
-void SkDrawImageSetCommand::execute(SkCanvas* canvas) const {
-    canvas->experimental_DrawImageSetV0(fSet.get(), fCount, fAlpha, fFilterQuality, fMode);
 }
 
 SkDrawImageNineCommand::SkDrawImageNineCommand(const SkImage* image, const SkIRect& center,
