@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14e41887_20596748",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T02:50:11Z",
+      "side": 1,
+      "message": "Are we missing a \"!\u003d 0\" or an \"\u003d\u003d yuvIndex\", or should we just delete this SkASSERT??\n\nIn any case, on my compiler (g++ 7.3), this doesn\u0027t compile (with -Wall -Werror):\n\nerror: enum constant in boolean context [-Werror\u003dint-in-bool-context]\n\n----\nc++ -MMD -MF obj/src/image/gpu.SkImage_GpuYUVA.o.d -D_GLIBCXX_DEBUG -DSK_SAMPLES_FOR_X -DSK_SUPPORT_ATLAS_TEXT\u003d1 -DSK_GAMMA_APPLY_TO_A8 -DSK_ENABLE_DISCRETE_GPU -DGR_TEST_UTILS\u003d1 -DSKIA_IMPLEMENTATION\u003d1 -DSK_ENABLE_SPIRV_VALIDATION -DSK_ENABLE_DUMP_GPU -I../../include/android -I../../include/c -I../../include/codec -I../../include/config -I../../include/core -I../../include/docs -I../../include/effects -I../../include/encode -I../../include/gpu -I../../include/atlastext -I../../include/pathops -I../../include/ports -I../../include/svg -I../../include/utils -I../../include/utils/mac -I../../include/atlastext -I../../include/private -I../../src/c -I../../src/codec -I../../src/core -I../../src/effects -I../../src/fonts -I../../src/image -I../../src/images -I../../src/lazy -I../../src/opts -I../../src/pathops -I../../src/pdf -I../../src/ports -I../../src/sfnt -I../../src/shaders -I../../src/shaders/gradients -I../../src/sksl -I../../src/utils -I../../src/utils/win -I../../src/xml -I../../third_party/gif -I../../src/gpu -fstrict-aliasing -fPIC -g -Werror -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-implicit-fallthrough -Wno-unused-parameter -isystem /usr/local/google/home/nigeltao/code/skia/third_party/externals/spirv-tools/include -isystem /usr/local/google/home/nigeltao/code/skia/third_party/externals/spirv-tools/source -isystem /usr/local/google/home/nigeltao/code/skia/out/def/spirv-tools -std\u003dc++14 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type -c ../../src/image/SkImage_GpuYUVA.cpp -o obj/src/image/gpu.SkImage_GpuYUVA.o\nIn file included from ../../include/android/../private/../private/SkNoncopyable.h:11:0,\n                 from ../../include/android/../private/SkAtomics.h:12,\n                 from ../../src/gpu/GrProcessor.h:11,\n                 from ../../src/gpu/GrFragmentProcessor.h:11,\n                 from ../../src/gpu/GrAppliedClip.h:11,\n                 from ../../src/gpu/GrClip.h:11,\n                 from ../../src/image/SkImage_GpuYUVA.cpp:12:\n../../src/image/SkImage_GpuYUVA.cpp: In static member function ‘static sk_sp\u003cSkImage\u003e SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext*, SkYUVColorSpace, const GrBackendFormat*, const SkISize*, const SkYUVAIndex*, int, int, GrSurfaceOrigin, sk_sp\u003cSkColorSpace\u003e, SkImage_GpuBase::TextureFulfillProc, SkImage::TextureReleaseProc, SkImage_GpuBase::PromiseDoneProc, void**)’:\n../../include/core/SkTypes.h:50:84: error: enum constant in boolean context [-Werror\u003dint-in-bool-context]\n         static_cast\u003cvoid\u003e( (cond) ? (void)0 : []{ SK_ABORT(\"assert(\" #cond \")\"); }() )\n                                                                                    ^\n../../include/core/SkTypes.h:53:28: note: in expansion of macro ‘SkASSERT_RELEASE’\n     #define SkASSERT(cond) SkASSERT_RELEASE(cond)\n                            ^~~~~~~~~~~~~~~~\n../../src/image/SkImage_GpuYUVA.cpp:241:13: note: in expansion of macro ‘SkASSERT’\n             SkASSERT(SkYUVAIndex::kA_Index);\n             ^~~~~~~~\ncc1plus: all warnings being treated as errors\n----",
+      "revId": "f00b16233d5641df848602b4b1356a4788cf201b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
