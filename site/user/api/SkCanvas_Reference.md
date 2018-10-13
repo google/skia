@@ -194,6 +194,25 @@ public:
                            const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint = nullptr);
     void <a href='#SkCanvas_drawImageLattice'>drawImageLattice</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='#SkCanvas_Lattice'>Lattice</a>& lattice, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
                           const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint = nullptr);
+
+    enum <a href='#SkCanvas_QuadAAFlags'>QuadAAFlags</a> : unsigned {
+        <a href='#SkCanvas_kLeft_QuadAAFlag'>kLeft_QuadAAFlag</a> = 0b0001,
+        <a href='#SkCanvas_kTop_QuadAAFlag'>kTop_QuadAAFlag</a> = 0b0010,
+        <a href='#SkCanvas_kRight_QuadAAFlag'>kRight_QuadAAFlag</a> = 0b0100,
+        <a href='#SkCanvas_kBottom_QuadAAFlag'>kBottom_QuadAAFlag</a> = 0b1000,
+        <a href='#SkCanvas_kNone_QuadAAFlags'>kNone_QuadAAFlags</a> = 0b0000,
+        <a href='#SkCanvas_kAll_QuadAAFlags'>kAll_QuadAAFlags</a> = 0b1111,
+    };
+
+    struct <a href='#SkCanvas_ImageSetEntry'>ImageSetEntry</a> {
+        <a href='undocumented#sk_sp'>sk_sp</a><const <a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkCanvas_ImageSetEntry_fImage'>fImage</a>;
+        <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkCanvas_ImageSetEntry_fSrcRect'>fSrcRect</a>;
+        <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkCanvas_ImageSetEntry_fDstRect'>fDstRect</a>;
+        unsigned <a href='#SkCanvas_ImageSetEntry_fAAFlags'>fAAFlags</a>;
+    };
+
+    void <a href='#SkCanvas_experimental_DrawImageSetV0'>experimental_DrawImageSetV0</a>(const <a href='#SkCanvas_ImageSetEntry'>ImageSetEntry</a> imageSet[], int cnt, float alpha,
+                                     <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode);
     void <a href='#SkCanvas_drawText'>drawText</a>(const void* text, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
                   const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint);
     void <a href='#SkCanvas_drawString'>drawString</a>(const char* string, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint);
@@ -5074,6 +5093,129 @@ are scaled if needed to take up the remaining space; the center is transparent.
 ### See Also
 
 <a href='#SkCanvas_drawBitmapLattice'>drawBitmapLattice</a> <a href='#SkCanvas_drawImage'>drawImage</a><sup><a href='#SkCanvas_drawImage_2'>[2]</a></sup> <a href='#SkCanvas_drawImageNine'>drawImageNine</a><sup><a href='#SkCanvas_drawImageNine_2'>[2]</a></sup> <a href='#SkCanvas_Lattice'>Lattice</a>
+
+---
+
+## <a name='SkCanvas_QuadAAFlags'>Enum SkCanvas::QuadAAFlags</a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    enum <a href='#SkCanvas_QuadAAFlags'>QuadAAFlags</a> : unsigned {
+        <a href='#SkCanvas_kLeft_QuadAAFlag'>kLeft_QuadAAFlag</a> = 0b0001,
+        <a href='#SkCanvas_kTop_QuadAAFlag'>kTop_QuadAAFlag</a> = 0b0010,
+        <a href='#SkCanvas_kRight_QuadAAFlag'>kRight_QuadAAFlag</a> = 0b0100,
+        <a href='#SkCanvas_kBottom_QuadAAFlag'>kBottom_QuadAAFlag</a> = 0b1000,
+        <a href='#SkCanvas_kNone_QuadAAFlags'>kNone_QuadAAFlags</a> = 0b0000,
+        <a href='#SkCanvas_kAll_QuadAAFlags'>kAll_QuadAAFlags</a> = 0b1111,
+    };
+</pre>
+
+Private:
+
+### Constants
+
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
+<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kLeft_QuadAAFlag'><code>SkCanvas::kLeft_QuadAAFlag</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+antialias the left edge</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kTop_QuadAAFlag'><code>SkCanvas::kTop_QuadAAFlag</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+antialias the top edge</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kRight_QuadAAFlag'><code>SkCanvas::kRight_QuadAAFlag</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+antialias the right edge</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kBottom_QuadAAFlag'><code>SkCanvas::kBottom_QuadAAFlag</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>8</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+antialias the bottom edge</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kNone_QuadAAFlags'><code>SkCanvas::kNone_QuadAAFlags</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+antialias none of the edges</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kAll_QuadAAFlags'><code>SkCanvas::kAll_QuadAAFlags</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>15</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+antialias all of the edges</td>
+  </tr>
+</table>
+
+<a name='SkCanvas_ImageSetEntry'></a>Private:<table style='border-collapse: collapse; width: 62.5em'>
+
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkImage*</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_ImageSetEntry_fImage'><code>fImage</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+image to draw</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkRect</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_ImageSetEntry_fSrcRect'><code>fSrcRect</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+image src rectangle</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkRect</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_ImageSetEntry_fDstRect'><code>fDstRect</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+local space rectangle</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>unsigned</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_ImageSetEntry_fAAFlags'><code>fAAFlags</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+antialiasing flags</td>
+  </tr>
+</table>
+
+<a name='SkCanvas_experimental_DrawImageSetV0'></a>
+## experimental_DrawImageSetV0
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkCanvas_experimental_DrawImageSetV0'>experimental DrawImageSetV0</a>(const <a href='#SkCanvas_ImageSetEntry'>ImageSetEntry</a> imageSet[], int cnt, float alpha,
+                                 <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode) ;
+</pre>
+
+Private:
+
+Draws a set of images. Do not use this method.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_imageSet'><code><strong>imageSet</strong></code></a></td>
+    <td>images</td>
+  </tr>
+  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_cnt'><code><strong>cnt</strong></code></a></td>
+    <td>number of images</td>
+  </tr>
+  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_alpha'><code><strong>alpha</strong></code></a></td>
+    <td><a href='#SkCanvas_experimental_DrawImageSetV0_alpha'>alpha</a></td>
+  </tr>
+  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_quality'><code><strong>quality</strong></code></a></td>
+    <td>filter <a href='#SkCanvas_experimental_DrawImageSetV0_quality'>quality</a></td>
+  </tr>
+  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_mode'><code><strong>mode</strong></code></a></td>
+    <td>blend <a href='#SkCanvas_experimental_DrawImageSetV0_mode'>mode</a></td>
+  </tr>
+</table>
 
 ---
 
