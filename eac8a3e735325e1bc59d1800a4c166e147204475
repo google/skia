@@ -772,6 +772,30 @@
     },
     {
       "key": {
+        "uuid": "95b5f194_2c683ec6",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Yes, it includes skipped over frames.",
+      "parentUuid": "4b2bd064_3528f036",
+      "range": {
+        "startLine": 483,
+        "startChar": 33,
+        "endLine": 483,
+        "endChar": 51
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b8d1e01_7cd7093c",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 12
@@ -1005,6 +1029,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49ab3fd2_91bdbd11",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Yes, that\u0027s correct.\n\nComment added.",
+      "parentUuid": "9dbe9cfe_4d6383c7",
+      "range": {
+        "startLine": 611,
+        "startChar": 8,
+        "endLine": 611,
+        "endChar": 25
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1290,6 +1338,30 @@
       "side": 1,
       "message": "Though not mentioned in the spec [1], I\u0027ve found a couple of places that suggest the repeat count should be at the beginning of the file [2][3]. Chromium, however, allows the repeat count to be anywhere in the image [4][5]. Does Wuffs assume that it\u0027s early, or does it only succeed if it\u0027s found the repeat count?\n\n(FWIW, I don\u0027t know how often the repeat count appears late in the stream, but it seems that at some point we thought it was worth supporting it.)\n\n[1] https://www.w3.org/Graphics/GIF/spec-gif89a.txt\n[2] https://en.wikipedia.org/wiki/GIF#Animated_GIF\n[3] http://giflib.sourceforge.net/whatsinagif/bits_and_bytes.html#application_extension_block\n[4] https://cs.chromium.org/chromium/src/third_party/blink/renderer/platform/image-decoders/gif/gif_image_decoder.cc?sq\u003dpackage:chromium\u0026dr\u003dC\u0026g\u003d0\u0026l\u003d110\n[5] https://cs.chromium.org/chromium/src/third_party/blink/renderer/platform/graphics/bitmap_image.cc?sq\u003dpackage:chromium\u0026dr\u003dC\u0026q\u003dBitmapImage::RepetitionCount()\u0026g\u003d0\u0026l\u003d395",
       "parentUuid": "b17a120c_65fbea89",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 22
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be8b33a0_ce965cca",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Yeah, Wuffs assumed that the repeat count is early in the file, but I just fixed that (https://github.com/google/wuffs/commit/7be9c392832d440c5cb44f76b7faa39ae10c6c9a).\n\nFWIW, on my reading of the third_party/gif code, if there are multiple loop counts in the GIF file, the last one wins.",
+      "parentUuid": "f3907d5e_40eca318",
       "range": {
         "startLine": 106,
         "startChar": 4,

@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e36a49e6_98b5bfaf",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "536dc096_a90de1e1",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 6
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd68486b_61ddd2ec",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 17
@@ -45,6 +69,30 @@
       "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68a256fc_d8e98b40",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Good point. Done.",
+      "parentUuid": "dd68486b_61ddd2ec",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 74
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "868aa163_d1e467d5",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ef97538_8b104258",
+      "range": {
+        "startLine": 211,
+        "startChar": 13,
+        "endLine": 211,
+        "endChar": 42
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f6c05a4_8708f2f6",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 17
@@ -82,6 +154,30 @@
       "writtenOn": "2018-10-09T19:00:33Z",
       "side": 1,
       "message": "I think this can just use fPreviousBestNumFullyReceived, and then we can drop the method numFullyReceived. The reason onGetFrameInfo is const is that it\u0027s not expected to move forward in the stream. In the intended call sequence, onGetFrameCount will have updated fPreviousBestNumFullyReceived, and then this will just see the up to date value.",
+      "range": {
+        "startLine": 473,
+        "startChar": 61,
+        "endLine": 473,
+        "endChar": 85
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3f0db57_835201d5",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "True, after onGetFrameCount was changed to actually update fNumFullyReceivedFrames. :-)\n\nI also moved the other place it gets updated from the seekFrame method to the decodeFoo methods, i.e. from where we possibly move backwards to where we move forwards, as that seemed cleaner conceptually.",
+      "parentUuid": "0f6c05a4_8708f2f6",
       "range": {
         "startLine": 473,
         "startChar": 61,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "d29e9ff6_3f9384ac",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "We *do* actually do this. Consider 1 onStartIncrementalDecode call followed by multiple onIncrementalDecode calls. The 1 onStartIncrementalDecode will reset the decoder (via calling this-\u003eseekFrame), but none of the multiple onIncrementalDecode\u0027s will reset the decoder.",
+      "parentUuid": "d58cd8cd_d08c7c21",
+      "range": {
+        "startLine": 614,
+        "startChar": 0,
+        "endLine": 615,
+        "endChar": 58
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2ea3801e_07280c82",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 17
@@ -137,6 +257,30 @@
       "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2b006ad_243c900e",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ea3801e_07280c82",
+      "range": {
+        "startLine": 626,
+        "startChar": 23,
+        "endLine": 626,
+        "endChar": 48
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "06d45b5d_c381647c",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab18aa0a_8a798a6d",
+      "range": {
+        "startLine": 726,
+        "startChar": 52,
+        "endLine": 726,
+        "endChar": 55
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fce2e34c_824e281a",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 17
@@ -183,6 +351,30 @@
       "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5711439d_2357532a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fce2e34c_824e281a",
+      "range": {
+        "startLine": 734,
+        "startChar": 32,
+        "endLine": 734,
+        "endChar": 35
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -220,6 +412,54 @@
       "writtenOn": "2018-10-09T19:00:33Z",
       "side": 1,
       "message": "Should this be named something like SkWuffsCodec_Supports?",
+      "range": {
+        "startLine": 14,
+        "startChar": 25,
+        "endLine": 14,
+        "endChar": 46
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d280eebd_4d17bbac",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "554f5ae1_62319965",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 25
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "96d8e13d_1a99d368",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-13T06:14:51Z",
+      "side": 1,
+      "message": "I\u0027m not particularly fussed either way, but I called it Etc_IsFormat to match the name of the DecoderProc function-pointer-typed field (IsFormat) defined at the top of SkCodec.cpp. Happy to change if you insist.",
+      "parentUuid": "bba78fc8_9fc86dc8",
       "range": {
         "startLine": 14,
         "startChar": 25,
