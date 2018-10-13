@@ -156,7 +156,8 @@ public:
         <a href='#SkImage_kRO_LegacyBitmapMode'>kRO_LegacyBitmapMode</a>,
     };
 
-    bool <a href='#SkImage_asLegacyBitmap'>asLegacyBitmap</a>(<a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>* bitmap, <a href='#SkImage_LegacyBitmapMode'>LegacyBitmapMode</a> legacyBitmapMode = <a href='#SkImage_kRO_LegacyBitmapMode'>kRO_LegacyBitmapMode</a>) const;
+    bool <a href='#SkImage_asLegacyBitmap'>asLegacyBitmap</a>(<a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>* bitmap,
+                        <a href='#SkImage_LegacyBitmapMode'>LegacyBitmapMode</a> legacyBitmapMode = <a href='#SkImage_kRO_LegacyBitmapMode'>kRO_LegacyBitmapMode</a>) const;
     bool <a href='#SkImage_isLazyGenerated'>isLazyGenerated</a>() const;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkImage'>SkImage</a>> <a href='#SkImage_makeColorSpace'>makeColorSpace</a>(sk_sp<<a href='undocumented#SkColorSpace'>SkColorSpace</a>> target) const;
 };
