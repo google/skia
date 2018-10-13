@@ -156,9 +156,9 @@ private:
         }
     }
     static constexpr int kM = 4;
-    static constexpr int kN = 4;
-    static constexpr SkScalar kTileW = 50;
-    static constexpr SkScalar kTileH = 50;
+    static constexpr int kN = 3;
+    static constexpr SkScalar kTileW = 30;
+    static constexpr SkScalar kTileH = 60;
     sk_sp<SkImage> fImage[kM][kN];
 };
 

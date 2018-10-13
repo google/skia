@@ -268,9 +268,11 @@ private:
 // This computes the four edge equations for a quad, then outsets them and optionally computes a new
 // quad as the intersection points of the outset edges. 'x' and 'y' contain the original points as
 // input and the outset points as output. 'a', 'b', and 'c' are the edge equation coefficients on
-// output.
+// output. If outsetCorners is true then 'u' and 'v' should hold the texture coordinates on input
+// and will also be outset.
 static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y, Sk4f* a,
-                                                   Sk4f* b, Sk4f* c, bool outsetCorners) {
+                                                   Sk4f* b, Sk4f* c, bool outsetCorners = false,
+                                                   Sk4f* u = nullptr, Sk4f* v = nullptr) {
     static constexpr auto fma = SkNx_fma<4, float>;
     // These rotate the points/edge values either clockwise or counterclockwise assuming tri strip
     // order.
@@ -319,10 +321,22 @@ static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* 
             auto maskCW = nextCW(mask);
             *x += maskCW * -xdiff + mask * nextCW(xdiff);
             *y += maskCW * -ydiff + mask * nextCW(ydiff);
+            // We want to extend the texture coords by the same proportion as the positions.
+            maskCW *= invLengths;
+            mask *= nextCW(invLengths);
+            Sk4f udiff = nextCCW(*u) - *u;
+            Sk4f vdiff = nextCCW(*v) - *v;
+            *u += maskCW * -udiff + mask * nextCW(udiff);
+            *v += maskCW * -vdiff + mask * nextCW(vdiff);
         }
     } else if (outsetCorners) {
         *x += 0.5f * (-xdiff + nextCW(xdiff));
         *y += 0.5f * (-ydiff + nextCW(ydiff));
+        Sk4f t = 0.5f * invLengths;
+        Sk4f udiff = nextCCW(*u) - *u;
+        Sk4f vdiff = nextCCW(*v) - *v;
+        *u += t * -udiff + nextCW(t) * nextCW(udiff);
+        *v += t * -vdiff + nextCW(t) * nextCW(vdiff);
     }
 }
 
@@ -366,41 +380,26 @@ public:
         auto x = quad.x4f();
         auto y = quad.y4f();
         Sk4f a, b, c;
-        compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, true);
+        Sk4f u{texRect.fLeft, texRect.fLeft, texRect.fRight, texRect.fRight};
+        Sk4f v{texRect.fTop, texRect.fBottom, texRect.fTop, texRect.fBottom};
+        compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, true, &u, &v);
 
         // Faster to store the Sk4fs all at once rather than element-by-element into vertices.
-        float xs[4], ys[4], as[4], bs[4], cs[4];
+        float xs[4], ys[4], as[4], bs[4], cs[4], us[4], vs[4];
         x.store(xs);
         y.store(ys);
         a.store(as);
         b.store(bs);
         c.store(cs);
+        u.store(us);
+        v.store(vs);
         for (int i = 0; i < 4; ++i) {
             vertices[i].fPosition = {xs[i], ys[i]};
+            vertices[i].fTextureCoords = {us[i], vs[i]};
             for (int j = 0; j < 4; ++j) {
                 vertices[i].fEdges[j]  = {as[j], bs[j], cs[j]};
             }
         }
-
-        AssignTexCoords(vertices, quad, texRect);
-    }
-
-private:
-    static void AssignTexCoords(V* vertices, const GrPerspQuad& quad, const SkRect& tex) {
-        SkMatrix q = SkMatrix::MakeAll(quad.x(0), quad.x(1), quad.x(2),
-                                       quad.y(0), quad.y(1), quad.y(2),
-                                             1.f,       1.f,       1.f);
-        SkMatrix qinv;
-        if (!q.invert(&qinv)) {
-            return;
-        }
-        SkMatrix t = SkMatrix::MakeAll(tex.fLeft,    tex.fLeft, tex.fRight,
-                                        tex.fTop,  tex.fBottom,   tex.fTop,
-                                             1.f,          1.f,        1.f);
-        SkMatrix map;
-        map.setConcat(t, qinv);
-        SkMatrixPriv::MapPointsWithStride(map, &vertices[0].fTextureCoords, sizeof(V),
-                                          &vertices[0].fPosition, sizeof(V), 4);
     }
 };
 
@@ -415,9 +414,11 @@ public:
         Sk4f a, b, c;
         auto x2d = x * iw;
         auto y2d = y * iw;
-        compute_quad_edges_and_outset_vertices(aaFlags, &x2d, &y2d, &a, &b, &c, false);
+        compute_quad_edges_and_outset_vertices(aaFlags, &x2d, &y2d, &a, &b, &c);
         auto w = quad.w4f();
         static const float kOutset = 0.5f;
+        Sk4f u{texRect.fLeft, texRect.fLeft, texRect.fRight, texRect.fRight};
+        Sk4f v{texRect.fTop, texRect.fBottom, texRect.fTop, texRect.fBottom};
         if ((GrQuadAAFlags::kLeft | GrQuadAAFlags::kRight) & aaFlags) {
             // For each entry in x the equivalent entry in opX is the left/right opposite and so on.
             Sk4f opX = SkNx_shuffle<2, 3, 0, 1>(x);
@@ -444,6 +445,11 @@ public:
             x = opX + t * (x - opX);
             y = opY + t * (y - opY);
             w = opW + t * (w - opW);
+
+            Sk4f opU = SkNx_shuffle<2, 3, 0, 1>(u);
+            Sk4f opV = SkNx_shuffle<2, 3, 0, 1>(v);
+            u = opU + t * (u - opU);
+            v = opV + t * (v - opV);
             if ((GrQuadAAFlags::kTop | GrQuadAAFlags::kBottom) & aaFlags) {
                 // Update the 2D points for the top/bottom calculation.
                 iw = w.invert();
@@ -475,46 +481,28 @@ public:
             x = opX + t * (x - opX);
             y = opY + t * (y - opY);
             w = opW + t * (w - opW);
+
+            Sk4f opU = SkNx_shuffle<1, 0, 3, 2>(u);
+            Sk4f opV = SkNx_shuffle<1, 0, 3, 2>(v);
+            u = opU + t * (u - opU);
+            v = opV + t * (v - opV);
         }
         // Faster to store the Sk4fs all at once rather than element-by-element into vertices.
-        float xs[4], ys[4], ws[4], as[4], bs[4], cs[4];
+        float xs[4], ys[4], ws[4], as[4], bs[4], cs[4], us[4], vs[4];
         x.store(xs);
         y.store(ys);
         w.store(ws);
         a.store(as);
         b.store(bs);
         c.store(cs);
+        u.store(us);
+        v.store(vs);
         for (int i = 0; i < 4; ++i) {
             vertices[i].fPosition = {xs[i], ys[i], ws[i]};
+            vertices[i].fTextureCoords = {us[i], vs[i]};
             for (int j = 0; j < 4; ++j) {
                 vertices[i].fEdges[j] = {as[j], bs[j], cs[j]};
             }
-        }
-
-        AssignTexCoords(vertices, quad, texRect);
-    }
-
-private:
-    static void AssignTexCoords(V* vertices, const GrPerspQuad& quad, const SkRect& tex) {
-        SkMatrix q = SkMatrix::MakeAll(quad.x(0), quad.x(1), quad.x(2),
-                                       quad.y(0), quad.y(1), quad.y(2),
-                                       quad.w(0), quad.w(1), quad.w(2));
-        SkMatrix qinv;
-        if (!q.invert(&qinv)) {
-            return;
-        }
-        SkMatrix t = SkMatrix::MakeAll(tex.fLeft, tex.fLeft,   tex.fRight,
-                                       tex.fTop,  tex.fBottom, tex.fTop,
-                                       1.f,       1.f,         1.f);
-        SkMatrix map;
-        map.setConcat(t, qinv);
-        SkPoint3 tempTexCoords[4];
-        SkMatrixPriv::MapHomogeneousPointsWithStride(map, tempTexCoords, sizeof(SkPoint3),
-                                                     &vertices[0].fPosition, sizeof(V), 4);
-        for (int i = 0; i < 4; ++i) {
-            auto invW = 1.f / tempTexCoords[i].fZ;
-            vertices[i].fTextureCoords.fX = tempTexCoords[i].fX * invW;
-            vertices[i].fTextureCoords.fY = tempTexCoords[i].fY * invW;
         }
     }
 };
