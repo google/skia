@@ -27,7 +27,7 @@ EXTRA_CFLAGS="\"-DSK_RELEASE\""
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
+  RELEASE_CONF="-O2 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
 fi
 
 GN_GPU="skia_enable_gpu=true"
@@ -104,6 +104,7 @@ echo "Compiling bitcode"
   skia_use_zlib=true \
   \
   skia_enable_ccpr=false \
+  skia_enable_nvpr=false \
   ${GN_GPU} \
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
