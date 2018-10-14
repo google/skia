@@ -377,6 +377,17 @@ public:
     static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
                                             GrQuadAAFlags aaFlags, const SkRect& texRect) {
         SkASSERT((quad.w4f() == Sk4f(1.f)).allTrue());
+        if (aaFlags == GrQuadAAFlags::kNone) {
+            for (int i = 0; i < 4; ++i) {
+                vertices[i].fPosition = {quad.x(i), quad.y(i)};
+                for (int j = 0; j < 4; ++j) {
+                    // This works because the position w components are known to be 1.
+                    vertices[i].fEdges[j] = {0, 0, 1};
+                }
+            }
+            SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
+            return;
+        }
         auto x = quad.x4f();
         auto y = quad.y4f();
         Sk4f a, b, c;
@@ -411,6 +422,17 @@ public:
         auto y = quad.y4f();
         auto iw = quad.iw4f();
 
+        if ((iw == Sk4f(1)).allTrue() && aaFlags == GrQuadAAFlags::kNone) {
+            for (int i = 0; i < 4; ++i) {
+                vertices[i].fPosition = quad.point(i);
+                for (int j = 0; j < 4; ++j) {
+                    // This works because the position w components are known to be 1.
+                    vertices[i].fEdges[j] = {0, 0, 1};
+                }
+            }
+            SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
+            return;
+        }
         Sk4f a, b, c;
         auto x2d = x * iw;
         auto y2d = y * iw;
@@ -849,6 +871,7 @@ private:
         int numTotalQuads = 0;
         auto textureType = fProxies[0].fProxy->textureType();
         auto config = fProxies[0].fProxy->config();
+        GrAAType aaType = this->aaType();
         for (const auto& op : ChainRange<TextureOp>(this)) {
             hasPerspective |= op.fPerspective;
             if (op.fDomain) {
@@ -864,9 +887,13 @@ private:
                 SkASSERT(proxy->config() == config);
                 SkASSERT(proxy->textureType() == textureType);
             }
+            if (op.aaType() == GrAAType::kCoverage) {
+                SkASSERT(aaType == GrAAType::kCoverage || aaType == GrAAType::kNone);
+                aaType = GrAAType::kCoverage;
+            }
         }
 
-        bool coverageAA = GrAAType::kCoverage == this->aaType();
+        bool coverageAA = GrAAType::kCoverage == aaType;
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
                 textureType, config, this->filter(), std::move(fTextureColorSpaceXform),
                 std::move(fPaintColorSpaceXform), coverageAA, hasPerspective, domain,
@@ -876,7 +903,7 @@ private:
         args.fCaps = &target->caps();
         args.fResourceProvider = target->resourceProvider();
         args.fFlags = 0;
-        if (GrAAType::kMSAA == this->aaType()) {
+        if (aaType == GrAAType::kMSAA) {
             args.fFlags |= GrPipeline::kHWAntialias_Flag;
         }
 
@@ -994,10 +1021,13 @@ private:
                                        that->fPaintColorSpaceXform.get())) {
             return CombineResult::kCannotCombine;
         }
-        // TODO: Should we allow kNone and kCoverage to merge by upgrading kNone to kCoverage?
-        // If we allowed chaining the head op would have to pre-iterate to determine the aa-type.
+        bool upgradeToCoverageAAOnMerge = false;
         if (this->aaType() != that->aaType()) {
-            return CombineResult::kCannotCombine;
+            if (!((this->aaType() == GrAAType::kCoverage && that->aaType() == GrAAType::kNone) ||
+                  (that->aaType() == GrAAType::kCoverage && this->aaType() == GrAAType::kNone))) {
+                return CombineResult::kCannotCombine;
+            }
+            upgradeToCoverageAAOnMerge = true;
         }
         if (fFilter != that->fFilter) {
             return CombineResult::kCannotCombine;
@@ -1020,6 +1050,9 @@ private:
         this->joinBounds(*that);
         fPerspective |= that->fPerspective;
         fDomain |= that->fDomain;
+        if (upgradeToCoverageAAOnMerge) {
+            fAAType = static_cast<unsigned>(GrAAType::kCoverage);
+        }
         return CombineResult::kMerged;
     }
 
