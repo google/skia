@@ -111,16 +111,10 @@ skia_gpu_sources = [
   "$_src/gpu/GrOpList.cpp",
   "$_src/gpu/GrPaint.cpp",
   "$_src/gpu/GrPaint.h",
-  "$_src/gpu/GrPath.cpp",
-  "$_src/gpu/GrPath.h",
-  "$_src/gpu/GrPathProcessor.cpp",
-  "$_src/gpu/GrPathProcessor.h",
   "$_src/gpu/GrPathRendererChain.cpp",
   "$_src/gpu/GrPathRendererChain.h",
   "$_src/gpu/GrPathRenderer.cpp",
   "$_src/gpu/GrPathRenderer.h",
-  "$_src/gpu/GrPathRendering.cpp",
-  "$_src/gpu/GrPathRendering.h",
   "$_src/gpu/GrPathUtils.cpp",
   "$_src/gpu/GrPathUtils.h",
   "$_src/gpu/GrPendingIOResource.h",
@@ -286,8 +280,6 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
   "$_src/gpu/ops/GrSmallPathRenderer.cpp",
   "$_src/gpu/ops/GrSmallPathRenderer.h",
-  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
-  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.h",
   "$_src/gpu/ops/GrStencilPathOp.cpp",
   "$_src/gpu/ops/GrStencilPathOp.h",
   "$_src/gpu/ops/GrTessellatingPathRenderer.cpp",
@@ -424,10 +416,6 @@ skia_gpu_sources = [
   "$_src/gpu/gl/GrGLExtensions.cpp",
   "$_src/gpu/gl/GrGLInterface.cpp",
   "$_src/gpu/gl/GrGLIRect.h",
-  "$_src/gpu/gl/GrGLPath.cpp",
-  "$_src/gpu/gl/GrGLPath.h",
-  "$_src/gpu/gl/GrGLPathRendering.cpp",
-  "$_src/gpu/gl/GrGLPathRendering.h",
   "$_src/gpu/gl/GrGLProgram.cpp",
   "$_src/gpu/gl/GrGLProgram.h",
   "$_src/gpu/gl/GrGLProgramDataManager.cpp",
@@ -552,7 +540,23 @@ skia_ccpr_sources = [
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
 ]
 
+skia_nvpr_sources = [
+  "$_src/gpu/GrPath.cpp",
+  "$_src/gpu/GrPath.h",
+  "$_src/gpu/GrPathProcessor.cpp",
+  "$_src/gpu/GrPathProcessor.h",
+  "$_src/gpu/GrPathRendering.cpp",
+  "$_src/gpu/GrPathRendering.h",
+  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
+  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.h",
+  "$_src/gpu/gl/GrGLPath.cpp",
+  "$_src/gpu/gl/GrGLPath.h",
+  "$_src/gpu/gl/GrGLPathRendering.cpp",
+  "$_src/gpu/gl/GrGLPathRendering.h",
+]
+
 skia_gpu_sources += skia_ccpr_sources
+skia_gpu_sources += skia_nvpr_sources
 
 skia_null_gpu_sources = []
 
