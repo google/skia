@@ -5,7 +5,6 @@
 flutter_defines = [
   "SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION",
   "SK_DISABLE_RENDER_TARGET_SORTING",
-  "SK_SUPPORT_LEGACY_VULKAN_INTERFACE",
   "SK_LEGACY_SKCODEC_NONE_ENUM",
 
   # Remove software rasterizers to save some code size.
