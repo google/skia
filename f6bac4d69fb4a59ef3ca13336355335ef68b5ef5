@@ -16,6 +16,24 @@
       "revId": "f6bac4d69fb4a59ef3ca13336355335ef68b5ef5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2d20274_55065cc4",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-10-15T21:39:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab7f51b6_2bc2e304",
+      "revId": "f6bac4d69fb4a59ef3ca13336355335ef68b5ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
