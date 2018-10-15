@@ -21,6 +21,69 @@
 class GrOnFlushResourceProvider;
 class GrRectanizer;
 
+// There are three atlases (A8, 565, ARGB) that are kept in relation with one another. In
+// general, the A8 dimensions are NxN and 565 and ARGB are N/2xN with the constraint that an atlas
+// size will always contain at least one plot. Since the ARGB atlas takes the most space, its
+// dimensions are used to size the other two atlases.
+class GrDrawOpAtlasConfig {
+public:
+    GrDrawOpAtlasConfig(int maxDimension, size_t maxBytes)
+            : fPlotsPerLongDimension{PlotsPerLongDimensionForARGB(maxDimension, maxBytes)} {
+        SkASSERT(kPlotSize >= SkGlyphCacheCommon::kSkSideTooBigForAtlas);
+    }
+
+    // For testing only - make minimum sized atlases -- 1x1 plots wide.
+    GrDrawOpAtlasConfig() : fPlotsPerLongDimension{1} {
+        SkASSERT(kPlotSize >= SkGlyphCacheCommon::kSkSideTooBigForAtlas);
+    }
+
+    SkISize numPlots(GrMaskFormat type) const {
+        switch(type) {
+            case kA8_GrMaskFormat:
+                return {fPlotsPerLongDimension, fPlotsPerLongDimension};
+            case kA565_GrMaskFormat:
+            case kARGB_GrMaskFormat: {
+                int plotsPerWidth = std::max(1, fPlotsPerLongDimension / 2);
+                return {plotsPerWidth, fPlotsPerLongDimension};
+            }
+        }
+
+        // This make some compilers happy.
+        return {1,1};
+    }
+
+    SkISize atlasDimensions(GrMaskFormat type) const {
+        SkISize plots = this->numPlots(type);
+        return {plots.width() * kPlotSize, plots.height() * kPlotSize};
+    }
+
+private:
+    static int PlotsPerLongDimensionForARGB(size_t maxDimension, size_t maxBytes) {
+        // Find the largest area of pixels in a width:height with a proportion of 1:2 that fits in
+        // maxTextureBytes. In the following P is pixel size, H is height, and W is width.
+        // P*H*W = maxTextureSize => P*H*(H/2) = maxTextureSize => H = sqrt(2*maxTextureSize/P)
+        double fitsHeight =
+                std::sqrt(2.0 * maxBytes /  GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat));
+
+        // Because of limitations of the distance field text, the largest an atlas can be is 2048.
+        maxDimension = std::min(maxDimension, SkTo<size_t>(2048));
+
+        // Limit height to the maximum texture dimension and the minimum atlas size.
+        double height = std::max(std::min(fitsHeight, (double)maxDimension), (double)kPlotSize);
+
+        // Find the greatest power of 2 that is less than height.
+        double alignedHeight = std::exp2(std::floor(std::log2(height)));
+
+        // Calculate the atlas dimensions.
+        return (int)alignedHeight / kPlotSize;
+    }
+
+    // The width and height of a plot.
+    static constexpr int kPlotSize = 512;
+
+    // This is the height (longest dimension) of the ARGB atlas divided by the plot size.
+    const int fPlotsPerLongDimension;
+};
 
 /**
  * This class manages one or more atlas textures on behalf of GrDrawOps. The draw ops that use the
@@ -55,8 +118,6 @@ private:
 public:
     /** Is the atlas allowed to use more than one texture? */
     enum class AllowMultitexturing : bool { kNo, kYes };
-
-    static constexpr int kMaxPlots = 32;
 
     /**
      * An AtlasID is an opaque handle which callers can use to determine if the atlas contains
@@ -204,6 +265,7 @@ public:
         }
 
         static constexpr int kMinItems = 4;
+        static constexpr int kMaxPlots = 32;
         SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
         uint32_t fPlotAlreadyUpdated[kMaxMultitexturePages];
 
@@ -407,84 +469,6 @@ private:
     uint32_t fMaxPages;
 
     uint32_t fNumActivePages;
-};
-
-// There are three atlases (A8, 565, ARGB) that are kept in relation with one another. In
-// general, the A8 dimensions are NxN and 565 and ARGB are N/2xN with the constraint that an atlas
-// size will always contain at least one plot. Since the ARGB atlas takes the most space, its
-// dimensions are used to size the other two atlases.
-class GrDrawOpAtlasConfig {
-public:
-    GrDrawOpAtlasConfig(int maxDimension, size_t maxBytes)
-            // TODO(herb): remove - double the number of bytes to mirror legacy behavior.
-            : fPlotsPerLongDimension{PlotsPerLongDimensionForARGB(maxDimension, 2*maxBytes)} {
-        SkASSERT(kPlotSize >= SkGlyphCacheCommon::kSkSideTooBigForAtlas);
-    }
-
-    // For testing only - make minimum sized atlases -- 1x1 plots wide.
-    GrDrawOpAtlasConfig() : fPlotsPerLongDimension{1} {
-        SkASSERT(kPlotSize >= SkGlyphCacheCommon::kSkSideTooBigForAtlas);
-    }
-
-    SkISize numPlots(GrMaskFormat type) const {
-        switch(type) {
-            case kA8_GrMaskFormat:
-                if (fPlotsPerLongDimension * fPlotsPerLongDimension > GrDrawOpAtlas::kMaxPlots) {
-                    return {fPlotsPerLongDimension / 2, fPlotsPerLongDimension / 2};
-                }
-                return {fPlotsPerLongDimension, fPlotsPerLongDimension};
-            // Note: because of the 2048 limit in the longest dimension, the largest atlas can be
-            // 1024 x 2048. The maximum number of plots will be 32 for 256 x 256 so that plot
-            // size is always safe.
-            case kA565_GrMaskFormat:
-            case kARGB_GrMaskFormat: {
-                static_assert((kMaxDistanceFieldDim / kPlotSize)
-                              * (kMaxDistanceFieldDim / kPlotSize) / 2 <= GrDrawOpAtlas::kMaxPlots,
-                              "");
-                int plotsPerWidth = std::max(1, fPlotsPerLongDimension / 2);
-                return {plotsPerWidth, fPlotsPerLongDimension};
-            }
-        }
-
-        // This make some compilers happy.
-        return {1,1};
-    }
-
-    SkISize atlasDimensions(GrMaskFormat type) const {
-        SkISize plots = this->numPlots(type);
-        return {plots.width() * kPlotSize, plots.height() * kPlotSize};
-    }
-
-private:
-    static int PlotsPerLongDimensionForARGB(size_t maxDimension, size_t maxBytes) {
-        // Find the largest area of pixels in a width:height with a proportion of 1:2 that fits in
-        // maxTextureBytes. In the following P is pixel size, H is height, and W is width.
-        // P*H*W = maxTextureSize => P*H*(H/2) = maxTextureSize => H = sqrt(2*maxTextureSize/P)
-        double fitsHeight =
-                std::sqrt(2.0 * maxBytes /  GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat));
-
-        // Because of limitations of the distance field text, the largest an atlas can be is 2048.
-        if (maxDimension > kMaxDistanceFieldDim) {
-            maxDimension = kMaxDistanceFieldDim;
-        }
-
-        // Limit height to the maximum texture dimension and the minimum atlas size.
-        double height = std::max(std::min(fitsHeight, (double)maxDimension), (double)kPlotSize);
-
-        // Find the greatest power of 2 that is less than height.
-        double alignedHeight = std::exp2(std::floor(std::log2(height)));
-
-        // Calculate the atlas dimensions.
-        return (int)alignedHeight / kPlotSize;
-    }
-
-    static constexpr size_t kMaxDistanceFieldDim = 2048;
-
-    // The width and height of a plot.
-    static constexpr int kPlotSize = 256;
-
-    // This is the height (longest dimension) of the ARGB atlas divided by the plot size.
-    const int fPlotsPerLongDimension;
 };
 
 #endif
