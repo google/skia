@@ -57,7 +57,6 @@ static const char* SKSL_FP_INCLUDE =
 ;
 
 static const char* SKSL_PIPELINE_STAGE_INCLUDE =
-#include "sksl_enums.inc"
 #include "sksl_pipeline.inc"
 ;
 
