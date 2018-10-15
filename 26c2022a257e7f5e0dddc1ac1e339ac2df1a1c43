@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cbab862f_42d41dd4",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-15T13:36:13Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "9582e1f9_1b20c302",
+      "range": {
+        "startLine": 597,
+        "startChar": 25,
+        "endLine": 597,
+        "endChar": 36
+      },
+      "revId": "26c2022a257e7f5e0dddc1ac1e339ac2df1a1c43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d9c92652_e62a3708",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7af0d528_ff87cc13",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-15T13:36:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9c92652_e62a3708",
+      "range": {
+        "startLine": 599,
+        "startChar": 26,
+        "endLine": 599,
+        "endChar": 39
+      },
+      "revId": "26c2022a257e7f5e0dddc1ac1e339ac2df1a1c43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fedf08d6_0fd82298",
         "filename": "src/gpu/gl/GrGLPathRendering.h",
         "patchSetId": 4
@@ -62,6 +110,24 @@
       "revId": "26c2022a257e7f5e0dddc1ac1e339ac2df1a1c43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0aa32e5_fa04d04f",
+        "filename": "src/gpu/gl/GrGLPathRendering.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-15T13:36:13Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure if this should return false when NVPR is disabled.  I\u0027ve removed this check.",
+      "parentUuid": "fedf08d6_0fd82298",
+      "revId": "26c2022a257e7f5e0dddc1ac1e339ac2df1a1c43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
