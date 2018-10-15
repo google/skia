@@ -88,7 +88,7 @@ public:
                        bool canDiscardOutsideDstRect) override;
 
     GrGpuRTCommandBuffer* getCommandBuffer(
-                                    GrRenderTarget*, GrSurfaceOrigin,
+                                    GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
                                     const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
                                     const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
