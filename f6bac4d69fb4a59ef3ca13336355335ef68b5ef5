@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab7f51b6_2bc2e304",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-15T21:17:41Z",
+      "side": 1,
+      "message": "let\u0027s name 2048 and static_assert the other Note above?",
+      "revId": "f6bac4d69fb4a59ef3ca13336355335ef68b5ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
