@@ -24,10 +24,10 @@
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
 // (optional) user-provided block of memory, and when that's exhausted it allocates on the heap,
-// starting with an allocation of extraSize bytes.  If your data (plus a small overhead) fits in
-// the user-provided block, SkArenaAlloc never uses the heap, and if it fits in extraSize bytes,
-// it'll use the heap only once.  If you pass extraSize = 0, it allocates blocks for each call to
-// make<T>.
+// starting with an allocation of firstHeapAllocation bytes.  If your data (plus a small overhead)
+// fits in the user-provided block, SkArenaAlloc never uses the heap, and if it fits in
+// firstHeapAllocation bytes, it'll use the heap only once. If 0 is specified for
+// firstHeapAllocation, then blockSize is used unless that too is 0, then 1024 is used.
 //
 // Examples:
 //
@@ -53,9 +53,9 @@
 //
 // In addition, the system is optimized to handle POD data including arrays of PODs (where
 // POD is really data with no destructors). For POD data it has zero overhead per item, and a
-// typical block overhead of 8 bytes. For non-POD objects there is a per item overhead of 4 bytes.
-// For arrays of non-POD objects there is a per array overhead of typically 8 bytes. There is an
-// addition overhead when switching from POD data to non-POD data of typically 8 bytes.
+// typical per block overhead of 8 bytes. For non-POD objects there is a per item overhead of 4
+// bytes. For arrays of non-POD objects there is a per array overhead of typically 8 bytes. There
+// is an addition overhead when switching from POD data to non-POD data of typically 8 bytes.
 //
 // If additional blocks are needed they are increased exponentially. This strategy bounds the
 // recursion of the RunDtorsOnBlock to be limited to O(log size-of-memory). Block size grow using
@@ -63,10 +63,10 @@
 // there are 71 allocations.
 class SkArenaAlloc {
 public:
-    SkArenaAlloc(char* block, size_t blockSize, size_t extraSize);
+    SkArenaAlloc(char* block, size_t blockSize, size_t firstHeapAllocation);
 
-    SkArenaAlloc(size_t extraSize)
-        : SkArenaAlloc(nullptr, 0, extraSize)
+    SkArenaAlloc(size_t firstHeapAllocation)
+        : SkArenaAlloc(nullptr, 0, firstHeapAllocation)
     {}
 
     ~SkArenaAlloc();
@@ -215,10 +215,11 @@ private:
     char*          fEnd;
     char* const    fFirstBlock;
     const uint32_t fFirstSize;
-    const uint32_t fExtraSize;
+    const uint32_t fFirstHeapAllocationSize;
 
     // Use the Fibonacci sequence as the growth factor for block size. The size of the block
-    // allocated is fFib0 * fExtraSize. Using 2 ^ n * fExtraSize had too much slop for Android.
+    // allocated is fFib0 * fFirstHeapAllocationSize. Using 2 ^ n * fFirstHeapAllocationSize
+    // had too much slop for Android.
     uint32_t       fFib0 {1}, fFib1 {1};
 };
 
@@ -227,8 +228,8 @@ private:
 template <size_t InlineStorageSize>
 class SkSTArenaAlloc : public SkArenaAlloc {
 public:
-    explicit SkSTArenaAlloc(size_t extraSize = InlineStorageSize)
-        : INHERITED(fInlineStorage, InlineStorageSize, extraSize) {}
+    explicit SkSTArenaAlloc(size_t firstHeapAllocation = InlineStorageSize)
+        : INHERITED(fInlineStorage, InlineStorageSize, firstHeapAllocation) {}
 
 private:
     char fInlineStorage[InlineStorageSize];

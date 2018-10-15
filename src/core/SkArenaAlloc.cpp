@@ -11,13 +11,18 @@
 
 static char* end_chain(char*) { return nullptr; }
 
-SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
+static uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllocation) {
+    return firstHeapAllocation > 0 ? firstHeapAllocation :
+           blockSize           > 0 ? blockSize           : 1024;
+}
+
+SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
     : fDtorCursor {block}
     , fCursor     {block}
     , fEnd        {block + ToU32(size)}
     , fFirstBlock {block}
     , fFirstSize  {ToU32(size)}
-    , fExtraSize  {ToU32(extraSize)}
+    , fFirstHeapAllocationSize  {first_allocated_block(ToU32(size), ToU32(firstHeapAllocation))}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
@@ -34,7 +39,7 @@ SkArenaAlloc::~SkArenaAlloc() {
 
 void SkArenaAlloc::reset() {
     this->~SkArenaAlloc();
-    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fExtraSize};
+    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
 }
 
 void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
@@ -106,8 +111,8 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     }
 
     uint32_t minAllocationSize;
-    if (fExtraSize <= maxSize / fFib0) {
-        minAllocationSize = fExtraSize * fFib0;
+    if (fFirstHeapAllocationSize <= maxSize / fFib0) {
+        minAllocationSize = fFirstHeapAllocationSize * fFib0;
         fFib0 += fFib1;
         std::swap(fFib0, fFib1);
     } else {
