@@ -161,12 +161,6 @@ const SkMatrix& SkShader::getLocalMatrix() const {
     return as_SB(this)->getLocalMatrix();
 }
 
-#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
-bool SkShader::isABitmap(SkBitmap* outTexture, SkMatrix* outMatrix, TileMode xy[2]) const {
-    return  as_SB(this)->onIsABitmap(outTexture, outMatrix, xy);
-}
-#endif
-
 SkImage* SkShader::isAImage(SkMatrix* localMatrix, TileMode xy[2]) const {
     return as_SB(this)->onIsAImage(localMatrix, xy);
 }

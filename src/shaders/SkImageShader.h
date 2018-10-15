@@ -38,9 +38,6 @@ private:
 
     void flatten(SkWriteBuffer&) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
-#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
-    bool onIsABitmap(SkBitmap*, SkMatrix*, SkShader::TileMode*) const override;
-#endif
     SkImage* onIsAImage(SkMatrix*, SkShader::TileMode*) const override;
 
     bool onAppendStages(const StageRec&) const override;

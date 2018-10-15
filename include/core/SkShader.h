@@ -80,19 +80,6 @@ public:
      */
     virtual bool isOpaque() const { return false; }
 
-#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
-    /**
-     *  Returns true if this shader is just a bitmap, and if not null, returns the bitmap,
-     *  localMatrix, and tilemodes. If this is not a bitmap, returns false and ignores the
-     *  out-parameters.
-     */
-    bool isABitmap(SkBitmap* outTexture, SkMatrix* outMatrix, TileMode xy[2]) const;
-
-    bool isABitmap() const {
-        return this->isABitmap(nullptr, nullptr, nullptr);
-    }
-#endif
-
     /**
      *  Iff this shader is backed by a single SkImage, return its ptr (the caller must ref this
      *  if they want to keep it longer than the lifetime of the shader). If not, return nullptr.

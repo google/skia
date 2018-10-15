@@ -15,22 +15,12 @@
 #include "SkSurface.h"
 #include "SkData.h"
 
-static void check_isabitmap(skiatest::Reporter* reporter, SkShader* shader,
-                            int expectedW, int expectedH,
-                            SkShader::TileMode expectedX, SkShader::TileMode expectedY,
-                            const SkMatrix& expectedM) {
+static void check_isaimage(skiatest::Reporter* reporter, SkShader* shader,
+                           int expectedW, int expectedH,
+                           SkShader::TileMode expectedX, SkShader::TileMode expectedY,
+                           const SkMatrix& expectedM) {
     SkShader::TileMode tileModes[2];
     SkMatrix localM;
-
-#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
-    SkBitmap bm;
-    REPORTER_ASSERT(reporter, shader->isABitmap(&bm, &localM, tileModes));
-    REPORTER_ASSERT(reporter, bm.width() == expectedW);
-    REPORTER_ASSERT(reporter, bm.height() == expectedH);
-    REPORTER_ASSERT(reporter, localM == expectedM);
-    REPORTER_ASSERT(reporter, tileModes[0] == expectedX);
-    REPORTER_ASSERT(reporter, tileModes[1] == expectedY);
-#endif
 
     // wack these so we don't get a false positive
     localM.setScale(9999, -9999);
@@ -45,7 +35,7 @@ static void check_isabitmap(skiatest::Reporter* reporter, SkShader* shader,
     REPORTER_ASSERT(reporter, tileModes[1] == expectedY);
 }
 
-DEF_TEST(Shader_isABitmap, reporter) {
+DEF_TEST(Shader_isAImage, reporter) {
     const int W = 100;
     const int H = 100;
     SkBitmap bm;
@@ -58,8 +48,8 @@ DEF_TEST(Shader_isABitmap, reporter) {
     auto shader0 = SkShader::MakeBitmapShader(bm, tmx, tmy, &localM);
     auto shader1 = SkImage::MakeFromBitmap(bm)->makeShader(tmx, tmy, &localM);
 
-    check_isabitmap(reporter, shader0.get(), W, H, tmx, tmy, localM);
-    check_isabitmap(reporter, shader1.get(), W, H, tmx, tmy, localM);
+    check_isaimage(reporter, shader0.get(), W, H, tmx, tmy, localM);
+    check_isaimage(reporter, shader1.get(), W, H, tmx, tmy, localM);
 }
 
 // Make sure things are ok with just a single leg.
