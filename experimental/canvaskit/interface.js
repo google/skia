@@ -123,6 +123,9 @@
   }
 
   CanvasKit.getWebGLSurface = function(htmlID) {
+    if (!CanvasKit.gpu) {
+      throw 'Not Supported. This is a CPU build';
+    }
     var canvas = document.getElementById(htmlID);
     if (!canvas) {
       throw 'Canvas with id ' + htmlID + ' was not found';
@@ -133,6 +136,9 @@
   }
 
   CanvasKit.getRasterN32PremulSurface = function(htmlID) {
+    if (CanvasKit.gpu) {
+      throw 'Not Supported. This is a GPU build';
+    }
     var canvas = document.getElementById(htmlID);
     if (!canvas) {
       throw 'Canvas with id ' + htmlID + ' was not found';
