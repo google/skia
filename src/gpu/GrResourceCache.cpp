@@ -6,8 +6,8 @@
  */
 
 #include "GrResourceCache.h"
-
 #include "GrCaps.h"
+#include "GrSingleOwner.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrProxyProvider.h"
 #include "GrTexture.h"
@@ -22,6 +22,9 @@
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrGpuResourceFreedMessage);
+
+#define ASSERT_SINGLE_OWNER \
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +66,8 @@ private:
 
  //////////////////////////////////////////////////////////////////////////////
 
-GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
+GrResourceCache::GrResourceCache(const GrCaps* caps, GrSingleOwner* singleOwner,
+                                 uint32_t contextUniqueID)
         : fProxyProvider(nullptr)
         , fTimestamp(0)
         , fMaxCount(kDefaultMaxCount)
@@ -81,6 +85,7 @@ GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
         , fInvalidUniqueKeyInbox(contextUniqueID)
         , fFreedGpuResourceInbox(contextUniqueID)
         , fContextUniqueID(contextUniqueID)
+        , fSingleOwner(singleOwner)
         , fPreferVRAMUseOverFlushes(caps->preferVRAMUseOverFlushes()) {
     SkASSERT(contextUniqueID != SK_InvalidUniqueID);
     SkDEBUGCODE(fCount = 0;)
@@ -98,6 +103,7 @@ void GrResourceCache::setLimits(int count, size_t bytes) {
 }
 
 void GrResourceCache::insertResource(GrGpuResource* resource) {
+    ASSERT_SINGLE_OWNER
     SkASSERT(resource);
     SkASSERT(!this->isInCache(resource));
     SkASSERT(!resource->wasDestroyed());
@@ -136,6 +142,7 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
 }
 
 void GrResourceCache::removeResource(GrGpuResource* resource) {
+    ASSERT_SINGLE_OWNER
     this->validate();
     SkASSERT(this->isInCache(resource));
 
@@ -287,6 +294,7 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
 }
 
 void GrResourceCache::willRemoveScratchKey(const GrGpuResource* resource) {
+    ASSERT_SINGLE_OWNER
     SkASSERT(resource->resourcePriv().getScratchKey().isValid());
     if (!resource->getUniqueKey().isValid()) {
         fScratchMap.remove(resource->resourcePriv().getScratchKey(), resource);
@@ -294,6 +302,7 @@ void GrResourceCache::willRemoveScratchKey(const GrGpuResource* resource) {
 }
 
 void GrResourceCache::removeUniqueKey(GrGpuResource* resource) {
+    ASSERT_SINGLE_OWNER
     // Someone has a ref to this resource in order to have removed the key. When the ref count
     // reaches zero we will get a ref cnt notification and figure out what to do with it.
     if (resource->getUniqueKey().isValid()) {
@@ -310,6 +319,7 @@ void GrResourceCache::removeUniqueKey(GrGpuResource* resource) {
 }
 
 void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const GrUniqueKey& newKey) {
+    ASSERT_SINGLE_OWNER
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
 
@@ -348,6 +358,7 @@ void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const GrUniqueKey
 }
 
 void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
+    ASSERT_SINGLE_OWNER
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
 
@@ -364,6 +375,7 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
 }
 
 void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t flags) {
+    ASSERT_SINGLE_OWNER
     SkASSERT(resource);
     SkASSERT(!resource->wasDestroyed());
     SkASSERT(flags);
@@ -432,6 +444,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
 }
 
 void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
+    ASSERT_SINGLE_OWNER
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
 
