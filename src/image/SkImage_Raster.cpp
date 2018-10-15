@@ -106,6 +106,10 @@ public:
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
     bool onIsValid(GrContext* context) const override { return true; }
+    void notifyAddedToRasterCache() const override {
+        SkASSERT(fBitmap.pixelRef());
+        fBitmap.pixelRef()->notifyAddedToCache();
+    }
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override;
