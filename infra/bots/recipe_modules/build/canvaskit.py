@@ -13,6 +13,7 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST_WASM = [
 def compile_fn(api, checkout_root, _ignore):
   out_dir = api.vars.cache_dir.join('docker', 'canvaskit')
   configuration = api.vars.builder_cfg.get('configuration', '')
+  extra         = api.vars.builder_cfg.get('extra_config',   '')
 
   # We want to make sure the directories exist and were created by chrome-bot,
   # because if that isn't the case, docker will make them and they will be
@@ -34,6 +35,9 @@ def compile_fn(api, checkout_root, _ignore):
   cmd = ['docker', 'run', '--rm', '-v', '%s:/SRC' % checkout_root,
          '-v', '%s:/OUT' % out_dir,
          DOCKER_IMAGE, INNER_BUILD_SCRIPT]
+  if 'CPU' in extra:
+    cmd.append('cpu') # It defaults to gpu
+
   if configuration == 'Debug':
     cmd.append('debug') # It defaults to Release
   api.run(
