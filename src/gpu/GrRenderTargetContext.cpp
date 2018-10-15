@@ -294,12 +294,26 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
     // This path doesn't handle coalescing of full screen clears b.c. it
     // has to clear the entire render target - not just the content area.
     // It could be done but will take more finagling.
-    std::unique_ptr<GrOp> op(GrClearOp::Make(fRenderTargetContext->fContext, rtRect,
-                                             color, !clearRect));
-    if (!op) {
-        return;
+    if (clearRect && fRenderTargetContext->caps()->performPartialClearsAsDraws()) {
+        GrPaint paint;
+        paint.setColor4f(GrColor4f::FromGrColor(color));
+        SkRect scissor = SkRect::Make(rtRect);
+        std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(fRenderTargetContext->fContext,
+                                                                    std::move(paint), SkMatrix::I(),
+                                                                    scissor, GrAAType::kNone));
+        if (!op) {
+            return;
+        }
+        fRenderTargetContext->addDrawOp(GrFixedClip(), std::move(op));
     }
-    fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+    else {
+        std::unique_ptr<GrOp> op(GrClearOp::Make(fRenderTargetContext->fContext, rtRect,
+                                                 color, !clearRect));
+        if (!op) {
+            return;
+        }
+        fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+    }
 }
 
 void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
@@ -329,11 +343,26 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     if (isFull) {
         this->getRTOpList()->fullClear(fContext, color);
     } else {
-        std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, clip, color, this->asSurfaceProxy()));
-        if (!op) {
-            return;
+        if (this->caps()->performPartialClearsAsDraws()) {
+            GrPaint paint;
+            paint.setColor4f(GrColor4f::FromGrColor(color));
+            SkRect scissor = SkRect::Make(clip.scissorRect());
+            std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(fContext, std::move(paint),
+                                                                        SkMatrix::I(), scissor,
+                                                                        GrAAType::kNone));
+            if (!op) {
+                return;
+            }
+            this->addDrawOp(clip, std::move(op));
         }
-        this->getRTOpList()->addOp(std::move(op), *this->caps());
+        else {
+            std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, clip, color,
+                                                     this->asSurfaceProxy()));
+            if (!op) {
+                return;
+            }
+            this->getRTOpList()->addOp(std::move(op), *this->caps());
+        }
     }
 }
 

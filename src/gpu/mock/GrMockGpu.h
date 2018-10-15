@@ -25,7 +25,7 @@ public:
     ~GrMockGpu() override {}
 
     GrGpuRTCommandBuffer* getCommandBuffer(
-                                    GrRenderTarget*, GrSurfaceOrigin,
+                                    GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
                                     const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
                                     const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
