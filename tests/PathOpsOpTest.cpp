@@ -9086,6 +9086,7 @@ static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 #define TEST(name) { name, #name }
 
 static struct TestDesc tests[] = {
+    TEST(cubicOp139),
     TEST(crbug_526025),
     TEST(bug8228),
     TEST(op_4),
