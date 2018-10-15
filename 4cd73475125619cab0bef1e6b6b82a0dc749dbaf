@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27467a72_88f5411d",
+        "filename": "gm/drawimageset.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-15T18:08:03Z",
+      "side": 1,
+      "message": "I may be misunderstanding the comment, but I think this sets up a 2 pixel overlap (although differently for horizontal and vertical):\n\nTo show my thought, adjacent subrows are shown on two separate lines to show where overlap would be.\nNo overlap:                    |****\n                               |    ****\n                               |        ****\nMy interpretation of comment:  |*****\n                               |    *****\n                               |        *****\nMy understanding of code:     |******\n                              |    ******\n                              |        ******\n\nSince it\u0027s not y*tileH-1, the column overlap is different currently, and looks like this (transposed):\n                               |******\n                               |    ******\n                               |         ****** \n                               |            ******\nAnd in this case, the overlap for columns is actually changing per-column.\n\nI think the way to do this is just \"x * tileW, y * tileH, tileW + 1, tileH + 1\" to get a single pixel of overlap.  Or \"x * tileW - 1, y * tileH - 1, tileW + 2, tileH + 2\" to have each tile overlap onto a single original pixel of its neighbors (for a total of 2 if you count that tile\u0027s own extension).",
+      "range": {
+        "startLine": 55,
+        "startChar": 62,
+        "endLine": 55,
+        "endChar": 71
+      },
+      "revId": "4cd73475125619cab0bef1e6b6b82a0dc749dbaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28e909cc_556511cc",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1498,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-15T18:08:03Z",
+      "side": 1,
+      "message": "Splitting the if-else-if-else into an if+clear,if-else felt a little weird when I first saw it, but I think I agree that it\u0027s the way to go here. It makes the draw reset block equivalent between the !proxy and the !sorted cases, and it helps the formatting of the large if condition following it.",
+      "range": {
+        "startLine": 1497,
+        "startChar": 12,
+        "endLine": 1498,
+        "endChar": 8
+      },
+      "revId": "4cd73475125619cab0bef1e6b6b82a0dc749dbaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a66dfa82_8bf70b92",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-15T18:08:03Z",
+      "side": 1,
+      "message": "Missing negation?",
+      "range": {
+        "startLine": 732,
+        "startChar": 57,
+        "endLine": 732,
+        "endChar": 96
+      },
+      "revId": "4cd73475125619cab0bef1e6b6b82a0dc749dbaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
