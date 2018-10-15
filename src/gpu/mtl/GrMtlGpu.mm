@@ -107,10 +107,10 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
 }
 
 GrGpuRTCommandBuffer* GrMtlGpu::getCommandBuffer(
-            GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+            GrRenderTarget* renderTarget, GrSurfaceOrigin origin, const SkRect& bounds,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrMtlGpuRTCommandBuffer(this, renderTarget, origin, colorInfo, stencilInfo);
+    return new GrMtlGpuRTCommandBuffer(this, renderTarget, origin, bounds, colorInfo, stencilInfo);
 }
 
 GrGpuTextureCommandBuffer* GrMtlGpu::getCommandBuffer(GrTexture* texture,

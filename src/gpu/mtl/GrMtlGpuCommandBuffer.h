@@ -43,6 +43,7 @@ private:
 class GrMtlGpuRTCommandBuffer : public GrGpuRTCommandBuffer, private GrMesh::SendToGpuImpl {
 public:
     GrMtlGpuRTCommandBuffer(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                            const SkRect& bounds,
                             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
                             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo);
 
@@ -83,7 +84,7 @@ private:
                 int meshCount,
                 const SkRect& bounds) override;
 
-    void onClear(const GrFixedClip& clip, GrColor color) override {}
+    void onClear(const GrFixedClip& clip, GrColor color) override;
 
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override;
 
@@ -119,6 +120,8 @@ private:
                                        int baseInstance, GrPrimitiveRestart) final;
 
     GrMtlGpu*                                     fGpu;
+    // GrRenderTargetProxy bounds
+    SkRect                                        fBounds;
     GrGpuRTCommandBuffer::LoadAndStoreInfo        fColorLoadAndStoreInfo;
     GrGpuRTCommandBuffer::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 

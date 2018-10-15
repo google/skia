@@ -281,7 +281,7 @@ void GrVkGpu::disconnect(DisconnectType type) {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGpuRTCommandBuffer* GrVkGpu::getCommandBuffer(
-            GrRenderTarget* rt, GrSurfaceOrigin origin,
+            GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
     if (!fCachedRTCommandBuffer) {

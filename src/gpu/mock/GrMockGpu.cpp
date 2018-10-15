@@ -48,7 +48,7 @@ sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
 }
 
 GrGpuRTCommandBuffer* GrMockGpu::getCommandBuffer(
-                                GrRenderTarget* rt, GrSurfaceOrigin origin,
+                                GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
                                 const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
                                 const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) {
     return new GrMockGpuRTCommandBuffer(this, rt, origin);

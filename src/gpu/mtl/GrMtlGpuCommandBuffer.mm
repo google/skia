@@ -15,11 +15,12 @@
 #include "GrRenderTargetPriv.h"
 
 GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
-        GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+        GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
         const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
         const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
         : INHERITED(rt, origin)
         , fGpu(gpu)
+        , fBounds(bounds)
         , fColorLoadAndStoreInfo(colorInfo)
         , fStencilLoadAndStoreInfo(stencilInfo)
         , fRenderPassDesc(this->createRenderPassDesc()) {
@@ -176,6 +177,19 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     }
     this->internalEnd();
     fCommandBufferInfo.fBounds.join(bounds);
+}
+
+void GrMtlGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
+    // if we end up here from absClear, the clear bounds may be bigger than the RT proxy bounds -
+    // but in that case, scissor should be enabled, so this check should still succeed
+    SkASSERT(!clip.scissorEnabled() || clip.scissorRect().contains(fBounds));
+    const auto& clear = GrColor4f::FromGrColor(color).fRGBA;
+    fRenderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clear[0], clear[1], clear[2],
+                                                                       clear[3]);
+    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    this->internalBegin();
+    this->internalEnd();
+    fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
 }
 
 void GrMtlGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
