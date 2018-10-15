@@ -538,7 +538,16 @@ template <> void sample_clut<16>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b)
 #endif
 }
 
+// GCC 7.2.0 hits an internal compiler error with -finline-functions (or -O3)
+// when targeting MIPS 64,  I think attempting to inline clut() into exec_ops().
+#if 1 && defined(__GNUC__) && !defined(__clang__) && defined(__mips64)
+    #define MAYBE_NOINLINE __attribute__((noinline))
+#else
+    #define MAYBE_NOINLINE
+#endif
+
 template <int kBitDepth>
+MAYBE_NOINLINE
 static void clut(const skcms_A2B* a2b, int dim, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
     if (dim == 0) {
         sample_clut<kBitDepth>(a2b,ix, r,g,b);
