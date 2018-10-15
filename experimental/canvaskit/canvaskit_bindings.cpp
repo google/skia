@@ -13,7 +13,6 @@
 #endif
 
 #include "SkCanvas.h"
-#include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "SkCornerPathEffect.h"
 #include "SkDiscretePathEffect.h"
@@ -211,10 +210,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("_getWebGLSurface", &getWebGLSurface, allow_raw_pointers());
     function("currentContext", &emscripten_webgl_get_current_context);
     function("setCurrentContext", &emscripten_webgl_make_context_current);
-#endif
+    constant("gpu", true);
+#else
     function("_getRasterN32PremulSurface", optional_override([](int width, int height)->sk_sp<SkSurface> {
         return SkSurface::MakeRasterN32Premul(width, height, nullptr);
     }), allow_raw_pointers());
+#endif
     function("MakeSkCornerPathEffect", &SkCornerPathEffect::Make, allow_raw_pointers());
     function("MakeSkDiscretePathEffect", &SkDiscretePathEffect::Make, allow_raw_pointers());
     // Won't be called directly, there's a JS helper to deal with typed arrays.
@@ -358,5 +359,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers());
 
     function("MakeAnimation", &MakeAnimation);
+    constant("skottie", true);
 #endif
 }
