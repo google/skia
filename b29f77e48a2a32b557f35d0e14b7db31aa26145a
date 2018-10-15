@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c55739b_17307ba0",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-15T14:46:33Z",
+      "side": 1,
+      "message": "std::move?",
+      "range": {
+        "startLine": 273,
+        "startChar": 35,
+        "endLine": 273,
+        "endChar": 40
+      },
+      "revId": "b29f77e48a2a32b557f35d0e14b7db31aa26145a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
