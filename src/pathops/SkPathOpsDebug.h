@@ -29,7 +29,7 @@ struct SkDLine;
 struct SkDQuad;
 struct SkDConic;
 struct SkDCubic;
-template<typename TCurve, typename OppCurve> class SkTSect;
+class SkTSect;
 
 // dummy classes to fool msvs Visual Studio 2018 Immediate Window
 #define DummyClasses(a, b) \
