@@ -25,6 +25,53 @@
     },
     {
       "key": {
+        "uuid": "587ec2ac_088fc2b1",
+        "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-15T14:29:09Z",
+      "side": 1,
+      "message": "It\u0027s fine as is.  You could also have it return bool so we can add some \"success\" or \"couldn\u0027t decode\" SkDebugfs when we call it from non-Libfuzzer land.",
+      "parentUuid": "a2fe558e_396bfdc0",
+      "range": {
+        "startLine": 16,
+        "startChar": 5,
+        "endLine": 16,
+        "endChar": 21
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08ce6555_fbea4779",
+        "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-15T14:29:09Z",
+      "side": 1,
+      "message": "The dimensions here are controlled by the input, right?  i.e. the fuzzer could pick very large dimensions and we fail gracefully here?",
+      "range": {
+        "startLine": 26,
+        "startChar": 42,
+        "endLine": 26,
+        "endChar": 62
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d8b3d24b_dc571eba",
         "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
         "patchSetId": 1
@@ -41,6 +88,53 @@
         "startChar": 0,
         "endLine": 58,
         "endChar": 57
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "345095fa_94c73c3e",
+        "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-15T14:29:09Z",
+      "side": 1,
+      "message": "Yes, this is fine.  Just if we create a seed corpus from real image files, we\u0027ll need to append a byte to them (which is easy to do).",
+      "parentUuid": "d8b3d24b_dc571eba",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 57
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dedb192_78dfe2b4",
+        "filename": "fuzz/oss_fuzz/FuzzIncrementalImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-15T14:29:09Z",
+      "side": 1,
+      "message": "You may wish to add a check like \nSkASSERT_RELEASE(rowsDecoded \u003e -1)\n\nSometimes MSAN doesn\u0027t report uninitialized errors until the value is \"used\", that is, used in a conditional or something like that.",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 5
       },
       "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
