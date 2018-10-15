@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b5d7cf9_94a8fd1d",
+        "filename": "src/core/SkPixelRef.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-15T13:58:56Z",
+      "side": 1,
+      "message": "I think this can be mildly cheaper if done as \" ,fAddedToCache{false}\", but no biggie.",
+      "revId": "cb8ccfa68760c226e00097b70d251bb642024d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c9070d7_6d29d59a",
+        "filename": "src/core/SkPixelRef.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-15T13:58:56Z",
+      "side": 1,
+      "message": "Since this is actually an std::atomic\u003cbool\u003e, we could just use .exchange() now?\n\nif (fAddedToCache.exchange(false)) {\n  SkNotifyBitmapGenIDIsStale(this-\u003egetGenerationID());\n}",
+      "revId": "cb8ccfa68760c226e00097b70d251bb642024d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb25a3b2_9b1baf82",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-15T13:58:56Z",
+      "side": 1,
+      "message": "No need to also INHERITED::notifyAddedToRasterCache() right?  Might want to note that in a comment?",
+      "revId": "cb8ccfa68760c226e00097b70d251bb642024d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
