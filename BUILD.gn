@@ -16,6 +16,10 @@ if (!defined(is_skia_standalone)) {
 is_skia_dev_build = is_skia_standalone && !is_official_build
 
 declare_args() {
+  skia_enable_flutter_defines = false
+}
+
+declare_args() {
   skia_use_angle = false
   skia_use_egl = false
   skia_use_expat = true
@@ -35,11 +39,10 @@ declare_args() {
 
   skia_android_serial = ""
   skia_enable_ccpr = true
-  skia_enable_nvpr = true
+  skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
   skia_enable_effects_imagefilters = true
-  skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
   skia_enable_pdf = true
