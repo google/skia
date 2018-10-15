@@ -242,8 +242,9 @@ BASE_SRCS_ALL = struct(
         # Exclude multiple definitions.
         # TODO(mtklein): Move to opts?
         "src/pdf/SkDocument_PDF_None.cpp",  # We use src/pdf/SkPDFDocument.cpp.
-        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+        "src/gpu/GrPathRendering_none.cpp",
         "src/gpu/ccpr/GrCoverageCountingPathRenderer_none.cpp",
+        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
 
         # Exclude files that don't compile everywhere.
         "src/svg/**/*",  # Depends on xml, SkJpegCodec, and SkPngCodec.
