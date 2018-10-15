@@ -22,6 +22,30 @@
       "revId": "c67cb7c2fe8599e993364f30671afdc7974a3d3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b85e747_fc9b4c8c",
+        "filename": "include/private/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-10-15T17:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "255da3c8_03e39348",
+      "range": {
+        "startLine": 66,
+        "startChar": 37,
+        "endLine": 66,
+        "endChar": 46
+      },
+      "revId": "c67cb7c2fe8599e993364f30671afdc7974a3d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
