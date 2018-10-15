@@ -70,6 +70,7 @@ bool SkImageShader::isOpaque() const {
     return fImage->isOpaque() && fTileModeX != kDecal_TileMode && fTileModeY != kDecal_TileMode;
 }
 
+#ifdef SK_SUPPORT_LEGACY_BITMAPSHADER
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
     if (!inv.isScaleTranslate()) {
         return false;
@@ -91,9 +92,11 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
     // legacy shader impl should be able to handle these matrices
     return true;
 }
+#endif
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
+#ifdef SK_SUPPORT_LEGACY_BITMAPSHADER
     const auto info = as_IB(fImage)->onImageInfo();
 
     if (info.colorType() != kN32_SkColorType) {
@@ -119,6 +122,9 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
 
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
                                                  SkBitmapProvider(fImage.get()), rec, alloc);
+#else
+    return nullptr;
+#endif
 }
 
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {

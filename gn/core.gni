@@ -31,16 +31,6 @@ skia_core_sources = [
   "$_src/core/SkBitmapController.cpp",
   "$_src/core/SkBitmapDevice.cpp",
   "$_src/core/SkBitmapDevice.h",
-  "$_src/core/SkBitmapProcState.cpp",
-  "$_src/core/SkBitmapProcState.h",
-  "$_src/core/SkBitmapProcState_filter.h",
-  "$_src/core/SkBitmapProcState_matrix.h",
-  "$_src/core/SkBitmapProcState_matrix_template.h",
-  "$_src/core/SkBitmapProcState_matrixProcs.cpp",
-  "$_src/core/SkBitmapProcState_procs.h",
-  "$_src/core/SkBitmapProcState_sample.h",
-  "$_src/core/SkBitmapProcState_shaderproc.h",
-  "$_src/core/SkBitmapProcState_utils.h",
   "$_src/core/SkBitmapProvider.cpp",
   "$_src/core/SkBitmapProvider.h",
   "$_src/core/SkBlendMode.cpp",
@@ -356,8 +346,6 @@ skia_core_sources = [
   #        "$_src/image/SkSurface_Gpu.cpp",
   "$_src/image/SkSurface_Raster.cpp",
 
-  "$_src/shaders/SkBitmapProcShader.cpp",
-  "$_src/shaders/SkBitmapProcShader.h",
   "$_src/shaders/SkColorFilterShader.cpp",
   "$_src/shaders/SkColorFilterShader.h",
   "$_src/shaders/SkColorShader.cpp",
@@ -544,6 +532,21 @@ skia_pathops_sources = [
   "$_src/pathops/SkPathOpsTypes.h",
   "$_src/pathops/SkPathWriter.h",
   "$_src/pathops/SkReduceOrder.h",
+]
+
+skia_bitmapshader_sources = [
+  "$_src/core/SkBitmapProcState.cpp",
+  "$_src/core/SkBitmapProcState.h",
+  "$_src/core/SkBitmapProcState_filter.h",
+  "$_src/core/SkBitmapProcState_matrix.h",
+  "$_src/core/SkBitmapProcState_matrix_template.h",
+  "$_src/core/SkBitmapProcState_matrixProcs.cpp",
+  "$_src/core/SkBitmapProcState_procs.h",
+  "$_src/core/SkBitmapProcState_sample.h",
+  "$_src/core/SkBitmapProcState_shaderproc.h",
+  "$_src/core/SkBitmapProcState_utils.h",
+  "$_src/shaders/SkBitmapProcShader.cpp",
+  "$_src/shaders/SkBitmapProcShader.h",
 ]
 
 skia_core_sources += skia_pathops_sources
