@@ -50,6 +50,24 @@
       "revId": "cb8ccfa68760c226e00097b70d251bb642024d8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28273cb7_947f0263",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-15T14:34:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb25a3b2_9b1baf82",
+      "revId": "cb8ccfa68760c226e00097b70d251bb642024d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
