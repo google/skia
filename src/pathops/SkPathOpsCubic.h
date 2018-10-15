@@ -8,8 +8,9 @@
 #ifndef SkPathOpsCubic_DEFINED
 #define SkPathOpsCubic_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkPath.h"
-#include "SkPathOpsPoint.h"
+#include "SkPathOpsTCurve.h"
 
 struct SkDCubicPair;
 
@@ -180,11 +181,6 @@ struct SkDCubicPair {
     SkDPoint pts[7];
 };
 
-#if PATH_OP_COMPILE_FOR_SIZE
-
-#include "SkArenaAlloc.h"
-#include "SkPathOpsTCurve.h"
-
 class SkTCubic : public SkTCurve {
 public:
     SkDCubic fCubic;
@@ -203,6 +199,9 @@ public:
     bool collapsed() const override { return fCubic.collapsed(); }
     bool controlsInside() const override { return fCubic.controlsInside(); }
     void debugInit() override { return fCubic.debugInit(); }
+#if DEBUG_T_SECT
+    void dumpID(int id) const override { return fCubic.dumpID(id); }
+#endif
     SkDVector dxdyAtT(double t) const override { return fCubic.dxdyAtT(t); }
 #ifdef SK_DEBUG
     SkOpGlobalState* globalState() const override { return fCubic.globalState(); }
@@ -237,7 +236,5 @@ public:
         ((SkTCubic*) curve)->fCubic = fCubic.subDivide(t1, t2);
     }
 };
-
-#endif // PATH_OP_COMPILE_FOR_SIZE
 
 #endif
