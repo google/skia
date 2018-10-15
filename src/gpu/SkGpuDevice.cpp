@@ -1473,6 +1473,14 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, f
         }
     };
     for (int i = 0; i < count; ++i) {
+        // The default SkBaseDevice implementation is based on drawImageRect which does not allow
+        // non-sorted src rects. TODO: Decide this is OK or make sure we handle it.
+        if (!set[i].fSrcRect.isSorted()) {
+            draw();
+            base = i + 1;
+            n = 0;
+            continue;
+        }
         textures[i].fProxy =
                 as_IB(set[i].fImage.get())
                         ->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(), nullptr,
@@ -1486,12 +1494,13 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, f
             draw();
             base = i + 1;
             n = 0;
-        } else if (n > 0 &&
-                   (textures[i].fProxy->textureType() != textures[base].fProxy->textureType() ||
-                    textures[i].fProxy->config() != textures[base].fProxy->config() ||
-                    set[i].fImage->alphaType() != set[base].fImage->alphaType() ||
-                    !SkColorSpace::Equals(set[i].fImage->colorSpace(),
-                                          set[base].fImage->colorSpace()))) {
+            continue;
+        }
+        if (n > 0 &&
+            (textures[i].fProxy->textureType() != textures[base].fProxy->textureType() ||
+             textures[i].fProxy->config() != textures[base].fProxy->config() ||
+             set[i].fImage->alphaType() != set[base].fImage->alphaType() ||
+             !SkColorSpace::Equals(set[i].fImage->colorSpace(), set[base].fImage->colorSpace()))) {
             draw();
             base = i;
             n = 1;
