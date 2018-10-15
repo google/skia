@@ -2314,7 +2314,9 @@ bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile) {
     float min_max_error = INFINITY_;
     for (int i = 0; i < 3; i++) {
         skcms_TransferFunction inv;
-        skcms_TransferFunction_invert(&result.trc[i].parametric, &inv);
+        if (!skcms_TransferFunction_invert(&result.trc[i].parametric, &inv)) {
+            return false;
+        }
 
         float err = 0;
         for (int j = 0; j < 3; ++j) {
