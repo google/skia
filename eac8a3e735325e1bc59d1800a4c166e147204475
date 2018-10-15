@@ -1371,6 +1371,30 @@
       "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0189b6c2_01c4b4b6",
+        "filename": "src/codec/SkWuffsCodec.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-15T20:54:54Z",
+      "side": 1,
+      "message": "\u003e Yeah, Wuffs assumed that the repeat count is early in the file, but I just fixed that (https://github.com/google/wuffs/commit/7be9c392832d440c5cb44f76b7faa39ae10c6c9a).\n\nThanks!\n\n\u003e \n\u003e FWIW, on my reading of the third_party/gif code, if there are multiple loop counts in the GIF file, the last one wins.\n\nAgreed. I don\u0027t know whether the original author intended this or not. My guess is that it\u0027s rare for a file to have more than one loop count.",
+      "parentUuid": "be8b33a0_ce965cca",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 22
+      },
+      "revId": "eac8a3e735325e1bc59d1800a4c166e147204475",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

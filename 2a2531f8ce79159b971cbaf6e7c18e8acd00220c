@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "4829d225_8e2d325a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-15T20:54:54Z",
+      "side": 1,
+      "message": "Do we need it in decodeFrame and decodeFrameConfig? I would have thought that the call in onGetFrameCount would ensure that it\u0027s up to date.",
+      "parentUuid": "e3f0db57_835201d5",
+      "range": {
+        "startLine": 473,
+        "startChar": 61,
+        "endLine": 473,
+        "endChar": 85
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d58cd8cd_d08c7c21",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 17
@@ -234,6 +258,30 @@
       "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dedd193f_d2019654",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-15T20:54:54Z",
+      "side": 1,
+      "message": "Ah, I was getting ahead of myself. When Chromium needs to resume a decode, it calls onGetFrameCount prior to calling incrementalDecode. It seems reasonable that we could update Chromium to skip the call if we are continuing a decode.",
+      "parentUuid": "d29e9ff6_3f9384ac",
+      "range": {
+        "startLine": 614,
+        "startChar": 0,
+        "endLine": 615,
+        "endChar": 58
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
