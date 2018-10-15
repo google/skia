@@ -2134,6 +2134,7 @@ bool skcms_Transform(const void*             src,
                         *args++ = oa.arg;
                     }
                 }
+                *ops++ = Op_clamp;
                 switch (srcProfile->A2B.input_channels) {
                     case 1: *ops++ = srcProfile->A2B.grid_8 ? Op_clut_1D_8 : Op_clut_1D_16; break;
                     case 2: *ops++ = srcProfile->A2B.grid_8 ? Op_clut_2D_8 : Op_clut_2D_16; break;

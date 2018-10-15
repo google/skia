@@ -556,7 +556,7 @@ static void clut(const skcms_A2B* a2b, int dim, I32 ix, int stride, F* r, F* g, 
     const F* srcs[] = { r,g,b,&a };
     F src = *srcs[dim-1];
 
-    F x = max_(F0, min_(src, F1)) * (float)(limit - 1);
+    F x = src * (float)(limit - 1);
 
     I32 lo = cast<I32>(            x      ),
         hi = cast<I32>(minus_1_ulp(x+1.0f));
