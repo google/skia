@@ -571,6 +571,29 @@ static void tessellate_quad(const GrPerspQuad& devQuad, GrQuadAAFlags aaFlags,
     DomainAssigner<V>::Assign(vertices, domain, filter, srcRect, origin, iw, ih);
 }
 
+static bool aa_has_effect_for_rect_stays_rect(const GrPerspQuad& quad) {
+    SkASSERT((quad.w4f() == Sk4f(1)).allTrue());
+    float ql = quad.x(0);
+    float qt = quad.y(0);
+    float qr = quad.x(3);
+    float qb = quad.y(3);
+    return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);
+}
+
+static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const SkRect& srcRect) {
+    SkASSERT((quad.w4f() == Sk4f(1)).allTrue());
+    float ql = quad.x(0);
+    float qt = quad.y(0);
+    float qr = quad.x(3);
+    float qb = quad.y(3);
+    // Disable filtering when there is no scaling of the src rect and the src rect and dst rect
+    // align fractionally. If we allow inverted src rects this logic needs to consider that.
+    SkASSERT(srcRect.isSorted());
+    return (qr - ql) != srcRect.width() || (qb - qt) != srcRect.height() ||
+           SkScalarFraction(ql) != SkScalarFraction(srcRect.fLeft) ||
+           SkScalarFraction(qt) != SkScalarFraction(srcRect.fTop);
+}
+
 /**
  * Op that implements GrTextureOp::Make. It draws textured quads. Each quad can modulate against a
  * the texture by color. The blend with the destination is always src-over. The edges are non-AA.
@@ -681,7 +704,7 @@ private:
             : INHERITED(ClassID())
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
-            , fFilter(filter)
+            , fFilter(static_cast<unsigned>(filter))
             , fAAType(static_cast<unsigned>(aaType))
             , fFinalized(0) {
         switch (aaType) {
@@ -702,41 +725,31 @@ private:
         }
         fPerspective = static_cast<unsigned>(viewMatrix.hasPerspective());
         auto quad = GrPerspQuad(dstRect, viewMatrix);
-        auto bounds = quad.bounds();
         // We expect our caller to have already caught this optimization.
         SkASSERT(!srcRect.contains(proxy->getWorstCaseBoundsRect()) ||
                  constraint == SkCanvas::kFast_SrcRectConstraint);
         if (viewMatrix.rectStaysRect()) {
-            // Disable filtering when there is no scaling or fractional translation.
-            // Disable coverage AA when rect falls on integers in device space.
-            if (SkScalarIsInt(bounds.fLeft) && SkScalarIsInt(bounds.fTop) &&
-                SkScalarIsInt(bounds.fRight) && SkScalarIsInt(bounds.fBottom)) {
-                if (viewMatrix.isScaleTranslate()) {
-                    if (bounds.width() == srcRect.width() && bounds.height() == srcRect.height()) {
-                        fFilter = GrSamplerState::Filter::kNearest;
-                    }
-                } else {
-                    if (bounds.width() == srcRect.height() && bounds.height() == srcRect.width()) {
-                        fFilter = GrSamplerState::Filter::kNearest;
-                    }
-                }
-                if (GrAAType::kCoverage == this->aaType()) {
-                    fAAType = static_cast<unsigned>(GrAAType::kNone);
-                    aaFlags = GrQuadAAFlags::kNone;
-                }
+            if (this->aaType() == GrAAType::kCoverage && !aa_has_effect_for_rect_stays_rect(quad)) {
+                fAAType = static_cast<unsigned>(GrAAType::kNone);
+                aaFlags = GrQuadAAFlags::kNone;
+            }
+            if (this->filter() != GrSamplerState::Filter::kNearest &&
+                !filter_has_effect_for_rect_stays_rect(quad, srcRect)) {
+                fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
             }
         }
         // We may have had a strict constraint with nearest filter solely due to possible AA bloat.
         // If we don't have (or determined we don't need) coverage AA then we can skip using a
         // domain.
         if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
-            fFilter == GrSamplerState::Filter::kNearest &&
+            this->filter() == GrSamplerState::Filter::kNearest &&
             this->aaType() != GrAAType::kCoverage) {
             constraint = SkCanvas::kFast_SrcRectConstraint;
         }
         const auto& draw = fQuads.emplace_back(srcRect, quad, aaFlags, constraint, color);
         fProxyCnt = 1;
         fProxies[0] = {proxy.release(), 1};
+        auto bounds = quad.bounds();
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(draw.domain());
         fCanSkipAllocatorGather =
@@ -749,14 +762,16 @@ private:
             : INHERITED(ClassID())
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
-            , fFilter(filter)
+            , fFilter(static_cast<unsigned>(filter))
             , fAAType(static_cast<unsigned>(aaType))
             , fFinalized(0) {
         fQuads.reserve(cnt);
         fProxyCnt = SkToUInt(cnt);
         SkRect bounds = SkRectPriv::MakeLargestInverted();
-        bool aa = false;
+        bool needAA = false;
+        bool mustFilter = false;
         fCanSkipAllocatorGather = static_cast<unsigned>(true);
+        bool rectStaysRect = viewMatrix.rectStaysRect();
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
             fProxies[p].fQuadCnt = 1;
@@ -773,6 +788,12 @@ private:
                     aaFlags = GrQuadAAFlags::kNone;
                     break;
                 case GrAAType::kCoverage:
+                    if (rectStaysRect) {
+                        if (aaFlags != GrQuadAAFlags::kNone &&
+                            !aa_has_effect_for_rect_stays_rect(quad)) {
+                            aaFlags = GrQuadAAFlags::kNone;
+                        }
+                    }
                     break;
                 case GrAAType::kMSAA:
                     aaFlags = GrQuadAAFlags::kAll;
@@ -781,12 +802,19 @@ private:
                     SK_ABORT("Should not use mixed sample AA");
                     break;
             }
-            aa = aa || (set[p].fAAFlags != GrQuadAAFlags::kNone);
+            needAA = needAA || (set[p].fAAFlags != GrQuadAAFlags::kNone);
+            if (!mustFilter && this->filter() != GrSamplerState::Filter::kNearest) {
+                mustFilter = !rectStaysRect ||
+                             filter_has_effect_for_rect_stays_rect(quad, set[p].fSrcRect);
+            }
             fQuads.emplace_back(set[p].fSrcRect, quad, aaFlags, SkCanvas::kFast_SrcRectConstraint,
                                 color);
         }
-        if (!aa) {
+        if (!needAA) {
             fAAType = static_cast<unsigned>(GrAAType::kNone);
+        }
+        if (!mustFilter) {
+            fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
         }
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
         fPerspective = static_cast<unsigned>(viewMatrix.hasPerspective());
@@ -807,8 +835,8 @@ private:
 
         for (int i = start; i < start + cnt; ++i) {
             const auto q = fQuads[i];
-            tessellate_quad<Vertex>(q.quad(), q.aaFlags(), q.srcRect(), q.color(), origin, fFilter,
-                                    vertices, iw, ih, q.domain());
+            tessellate_quad<Vertex>(q.quad(), q.aaFlags(), q.srcRect(), q.color(), origin,
+                                    this->filter(), vertices, iw, ih, q.domain());
             vertices += 4;
         }
     }
@@ -840,7 +868,7 @@ private:
 
         bool coverageAA = GrAAType::kCoverage == this->aaType();
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
-                textureType, config, fFilter, std::move(fTextureColorSpaceXform),
+                textureType, config, this->filter(), std::move(fTextureColorSpaceXform),
                 std::move(fPaintColorSpaceXform), coverageAA, hasPerspective, domain,
                 *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
@@ -996,6 +1024,7 @@ private:
     }
 
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
+    GrSamplerState::Filter filter() const { return static_cast<GrSamplerState::Filter>(fFilter); }
 
     class Quad {
     public:
@@ -1028,14 +1057,14 @@ private:
     SkSTArray<1, Quad, true> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     sk_sp<GrColorSpaceXform> fPaintColorSpaceXform;
-    GrSamplerState::Filter fFilter;
+    unsigned fFilter : 2;
     unsigned fAAType : 2;
     unsigned fPerspective : 1;
     unsigned fDomain : 1;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
     unsigned fCanSkipAllocatorGather : 1;
-    unsigned fProxyCnt : 32 - 6;
+    unsigned fProxyCnt : 32 - 8;
     Proxy fProxies[1];
 
     typedef GrMeshDrawOp INHERITED;

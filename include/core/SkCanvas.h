@@ -1847,6 +1847,7 @@ public:
      * drawing images independently, though may in the future. The antialiasing flags are intended
      * to allow control over each edge's AA status, to allow perfect seaming for tile sets. The
      * current implementation only antialiases if all edges are flagged, however.
+     * Results are undefined if an image's src rect is not within the image's bounds.
      */
     void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
                                      SkFilterQuality quality, SkBlendMode mode);

@@ -469,6 +469,7 @@ def dm_flags(api, bot):
   bad_serialize_gms.append('all_bitmap_configs')
   bad_serialize_gms.append('makecolorspace')
   bad_serialize_gms.append('readpixels')
+  bad_serialize_gms.append('draw_image_set_rect_to_rect')
 
   # This GM forces a path to be convex. That property doesn't survive
   # serialization.
