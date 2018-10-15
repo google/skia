@@ -238,7 +238,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
     for (int yuvIndex = 0; yuvIndex < 4; ++yuvIndex) {
         int texIdx = yuvaIndices[yuvIndex].fIndex;
         if (texIdx < 0) {
-            SkASSERT(SkYUVAIndex::kA_Index);
+            SkASSERT(SkYUVAIndex::kA_Index == yuvIndex);
             continue;
         }
         if (kUnknown_SkColorType == texColorTypes[texIdx]) {
