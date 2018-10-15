@@ -1196,6 +1196,10 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
                 }
                 break;
             }
+            if (Bracket::kAngle == token.fBracket) {
+                // in template param
+                continue;
+            }
             SkASSERT(0); // incomplete
         }
         if (Definition::Type::kKeyWord == token.fType) {
@@ -1212,6 +1216,7 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
                 case KeyWord::kUint32_t:
                 case KeyWord::kUint64_t:
                 case KeyWord::kUintPtr_t:
+                case KeyWord::kUnsigned:
                 case KeyWord::kSize_t:
                 case KeyWord::kFloat:
                 case KeyWord::kBool:

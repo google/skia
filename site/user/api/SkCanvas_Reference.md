@@ -5109,7 +5109,7 @@ are scaled if needed to take up the remaining space; the center is transparent.
     };
 </pre>
 
-Private:
+Private: Do not use.
 
 ### Constants
 
@@ -5155,7 +5155,12 @@ antialias all of the edges</td>
   </tr>
 </table>
 
-<a name='SkCanvas_ImageSetEntry'></a>Private:<table style='border-collapse: collapse; width: 62.5em'>
+<a name='SkCanvas_ImageSetEntry'></a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+</pre>
+
+Private: Do not use.<table style='border-collapse: collapse; width: 62.5em'>
 
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
@@ -5194,7 +5199,7 @@ void <a href='#SkCanvas_experimental_DrawImageSetV0'>experimental DrawImageSetV0
                                  <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode) ;
 </pre>
 
-Private:
+Private: Do not use.
 
 Draws a set of images. Do not use this method.
 

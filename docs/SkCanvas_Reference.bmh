@@ -4966,6 +4966,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Private
+Do not use.
 ##
 
 #Const kLeft_QuadAAFlag 1
@@ -5000,7 +5001,13 @@ void draw(SkCanvas* canvas) {
 
 #Struct ImageSetEntry
 #Line # don't use this ##
+
+#Code
+#Populate
+##
+
 #Private
+Do not use.
 ##
 
 #Member SkImage* fImage
@@ -5029,6 +5036,7 @@ void draw(SkCanvas* canvas) {
 #Method void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
                                          SkFilterQuality quality, SkBlendMode mode);
 #Private
+Do not use.
 ##
 #In Draw_Image
 #In Draw
