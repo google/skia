@@ -47,7 +47,7 @@ public:
     void disconnect(GrGpu::DisconnectType);
 
     bool shouldBindFragmentInputs() const {
-        return fCaps.bindFragmentInputSupport;
+        return false;
     }
 
     // Functions for "separable shader" texturing support.
