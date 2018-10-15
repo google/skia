@@ -190,7 +190,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider,
         , fNumActivePages(0) {
     fPlotWidth = fTextureWidth / numPlotsX;
     fPlotHeight = fTextureHeight / numPlotsY;
-    SkASSERT(numPlotsX * numPlotsY <= BulkUseTokenUpdater::kMaxPlots);
+    SkASSERT(numPlotsX * numPlotsY <= GrDrawOpAtlas::kMaxPlots);
     SkASSERT(fPlotWidth * numPlotsX == fTextureWidth);
     SkASSERT(fPlotHeight * numPlotsY == fTextureHeight);
 
