@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cab4983f_a300d610",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-15T15:16:22Z",
+      "side": 1,
+      "message": "lets name this and add to the comment about something like \"The passed in bounds is the content rect of the destination\". Otherwise its not obvious what this is for",
+      "range": {
+        "startLine": 245,
+        "startChar": 46,
+        "endLine": 245,
+        "endChar": 59
+      },
+      "revId": "724e04fb614a40e20621a54f546bd563a35de0e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8ebb5c6_ccc951c4",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-15T15:16:22Z",
+      "side": 1,
+      "message": "make this rtRect",
+      "range": {
+        "startLine": 300,
+        "startChar": 39,
+        "endLine": 300,
+        "endChar": 48
+      },
+      "revId": "724e04fb614a40e20621a54f546bd563a35de0e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6533e808_1e67c6a9",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-15T15:16:22Z",
+      "side": 1,
+      "message": "lets comment this to make it clear it is the bounds of the GrRenderTargetProxy and and not necessarily the GrRenderTarget",
+      "range": {
+        "startLine": 123,
+        "startChar": 50,
+        "endLine": 123,
+        "endChar": 57
+      },
+      "revId": "724e04fb614a40e20621a54f546bd563a35de0e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "681579f2_e8306d33",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-15T15:16:22Z",
+      "side": 1,
+      "message": "lets add a comment here that says if we ended up here through via absClear on render target context, the clear bounds may actually be bigger than the RT proxy bounds. However, we always disable the scissor in this case so we should be safe.",
+      "range": {
+        "startLine": 183,
+        "startChar": 36,
+        "endLine": 183,
+        "endChar": 77
+      },
+      "revId": "724e04fb614a40e20621a54f546bd563a35de0e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
