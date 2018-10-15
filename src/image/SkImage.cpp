@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
+#include "SkColorSpacePriv.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilter.h"
@@ -306,12 +307,15 @@ sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
     // No need to create a new image if:
     // (1) The color spaces are equal.
     // (2) The color type is kAlpha8.
-    if (SkColorSpace::Equals(this->colorSpace(), target.get()) ||
+    SkColorSpace* colorSpace = this->colorSpace();
+    if (!colorSpace) {
+        colorSpace = sk_srgb_singleton();
+    }
+    if (SkColorSpace::Equals(colorSpace, target.get()) ||
             kAlpha_8_SkColorType == as_IB(this)->onImageInfo().colorType()) {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    // TODO: We might consider making this a deferred conversion?
     return as_IB(this)->onMakeColorSpace(std::move(target));
 }
 
