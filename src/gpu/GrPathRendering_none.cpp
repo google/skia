@@ -5,16 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrPath.h"
 #include "GrCaps.h"
-#include "gl/GrGLPathRendering.h"
 #include "GrGpu.h"
+#include "GrPath.h"
 #include "GrPathRenderer.h"
 #include "GrPathRendering.h"
 #include "GrResourceProvider.h"
 #include "SkTypes.h"
 #include "gl/GrGLGpu.h"
+#include "gl/GrGLPathRendering.h"
 #include "ops/GrStencilAndCoverPathRenderer.h"
+#include "ops/GrStencilPathOp.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
@@ -28,27 +29,32 @@ GrGLPathRendering::GrGLPathRendering(GrGLGpu* gpu)
 
 GrGLPathRendering::~GrGLPathRendering() {}
 
-void GrGLPathRendering::disconnect(GrGpu::DisconnectType type) {}
+void GrGLPathRendering::disconnect(GrGpu::DisconnectType) {}
 
 void GrGLPathRendering::resetContext() {}
 
-void GrGLPathRendering::setProgramPathFragmentInputTransform(GrGLuint program, GrGLint location,
-                                                             GrGLenum genMode, GrGLint components,
-                                                             const SkMatrix& matrix) {}
+void GrGLPathRendering::setProgramPathFragmentInputTransform(GrGLuint, GrGLint,
+                                                             GrGLenum, GrGLint,
+                                                             const SkMatrix&) {}
 
-void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
-                                            const SkISize& renderTargetSize,
-                                            GrSurfaceOrigin renderTargetOrigin) {}
+void GrGLPathRendering::setProjectionMatrix(const SkMatrix&, const SkISize&, GrSurfaceOrigin) {}
 
-sk_sp<GrPath> GrGLPathRendering::createPath(const SkPath& inPath, const GrStyle& style) {
-    return nullptr;
-}
+sk_sp<GrPath> GrGLPathRendering::createPath(const SkPath&, const GrStyle&) { return nullptr; }
 
-void GrGLPathRendering::onDrawPath(const GrPrimitiveProcessor& primProc,
-                                   const GrPipeline& pipeline,
-                                   const GrPipeline::FixedDynamicState& fixedDynamicState,
-                                   const GrStencilSettings& stencilPassSettings,
-                                   const GrPath* path) {}
+void GrGLPathRendering::onDrawPath(const GrPrimitiveProcessor&,
+                                   const GrPipeline&,
+                                   const GrPipeline::FixedDynamicState&,
+                                   const GrStencilSettings&,
+                                   const GrPath*) {}
 
-void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath* path) {}
+void GrGLPathRendering::onStencilPath(const StencilPathArgs&, const GrPath*) {}
 
+std::unique_ptr<GrOp> GrStencilPathOp::Make(GrContext*,
+                                            const SkMatrix&,
+                                            bool,
+                                            GrPathRendering::FillType,
+                                            bool,
+                                            const GrScissorState&,
+                                            const GrPath*) { return nullptr; }
+
+void GrPath::ComputeKey(const GrShape&, GrUniqueKey*, bool*) {}

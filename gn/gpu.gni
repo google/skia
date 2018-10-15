@@ -280,8 +280,6 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
   "$_src/gpu/ops/GrSmallPathRenderer.cpp",
   "$_src/gpu/ops/GrSmallPathRenderer.h",
-  "$_src/gpu/ops/GrStencilPathOp.cpp",
-  "$_src/gpu/ops/GrStencilPathOp.h",
   "$_src/gpu/ops/GrTessellatingPathRenderer.cpp",
   "$_src/gpu/ops/GrTessellatingPathRenderer.h",
   "$_src/gpu/ops/GrTextureOp.cpp",
@@ -547,12 +545,14 @@ skia_nvpr_sources = [
   "$_src/gpu/GrPathProcessor.h",
   "$_src/gpu/GrPathRendering.cpp",
   "$_src/gpu/GrPathRendering.h",
-  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
-  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.h",
   "$_src/gpu/gl/GrGLPath.cpp",
   "$_src/gpu/gl/GrGLPath.h",
   "$_src/gpu/gl/GrGLPathRendering.cpp",
   "$_src/gpu/gl/GrGLPathRendering.h",
+  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
+  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.h",
+  "$_src/gpu/ops/GrStencilPathOp.cpp",
+  "$_src/gpu/ops/GrStencilPathOp.h",
 ]
 
 skia_gpu_sources += skia_ccpr_sources
