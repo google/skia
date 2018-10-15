@@ -313,7 +313,10 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset) const {
 
 sk_sp<SkImage> SkImage_Lazy::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
     SkAutoExclusive autoAquire(fOnMakeColorSpaceMutex);
-    if (target && fOnMakeColorSpaceTarget &&
+    if (!fInfo.colorSpace() && target->isSRGB()) {
+        return sk_ref_sp(const_cast<SkImage_Lazy*>(this));
+    }
+    if (fOnMakeColorSpaceTarget &&
         SkColorSpace::Equals(target.get(), fOnMakeColorSpaceTarget.get())) {
         return fOnMakeColorSpaceResult;
     }
