@@ -160,16 +160,12 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
         // This is such an important optimization that will bring ~2x speedup for benches like
         // path_fill_small_long_line and path_stroke_small_sawtooth.
         if (canUseMask && !deltas->sorted(y) && deltas->count(y) << 3 >= clip.width()) {
-#ifdef SK_SUPPORT_LEGACY_THREADED_DAA_BUGS
-            SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
-#else
             // Note that deltas->left()/right() may be different than clip.fLeft/fRight because in
             // the threaded backend, deltas are generated in the initFn with full clip, while
             // blitCoverageDeltas is called in drawFn with a subclip. For inverse fill, the clip
             // might be wider than deltas' bounds (which is clippedIR).
             SkIRect rowIR = SkIRect::MakeLTRB(SkTMin(clip.fLeft, deltas->left()), y,
                                               SkTMax(clip.fRight, deltas->right()), y + 1);
-#endif
             SkSTArenaAlloc<SkCoverageDeltaMask::MAX_SIZE> alloc;
             SkCoverageDeltaMask mask(&alloc, rowIR);
             for(int i = 0; i < deltas->count(y); ++i) {
@@ -193,9 +189,7 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
         //   2. deltas generated during init-once phase (threaded backend) that has a wider
         //      clip than the final tile clip.
         for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i) {
-#ifndef SK_SUPPORT_LEGACY_THREADED_DAA_BUGS
             coverage += deltas->getDelta(y, i).fDelta;
-#endif
         }
         for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
             const SkCoverageDelta& delta = deltas->getDelta(y, i);

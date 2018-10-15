@@ -90,11 +90,7 @@ static inline bool TryBlitFatAntiRect(SkBlitter* blitter, const SkPath& path, co
         return true; // The intersection is empty. Hence consider it done.
     }
     SkIRect bounds = rect.roundOut();
-#ifdef SK_SUPPORT_LEGACY_THREADED_DAA_BUGS
-    if (bounds.width() < 3 || bounds.height() < 3) {
-#else
     if (bounds.width() < 3) {
-#endif
         return false; // not fat
     }
     blitter->blitFatAntiRect(rect);
