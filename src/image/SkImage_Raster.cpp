@@ -106,6 +106,13 @@ public:
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
     bool onIsValid(GrContext* context) const override { return true; }
+    void notifyAddedToRasterCache() const override {
+        // We explicitly DON'T want to call INHERITED::notifyAddedToRasterCache. That ties the
+        // lifetime of derived/cached resources to the image. In this case, we only want cached
+        // data (eg mips) tied to the lifetime of the underlying pixelRef.
+        SkASSERT(fBitmap.pixelRef());
+        fBitmap.pixelRef()->notifyAddedToCache();
+    }
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override;
