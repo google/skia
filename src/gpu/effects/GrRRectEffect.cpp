@@ -7,8 +7,6 @@
 
 #include "GrRRectEffect.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrConvexPolyEffect.h"
 #include "GrFragmentProcessor.h"
 #include "GrOvalEffect.h"
@@ -124,7 +122,7 @@ std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::TestCreate(GrProcessor
     do {
         GrClipEdgeType et =
                 (GrClipEdgeType)d->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-        fp = GrRRectEffect::Make(et, rrect, d->context());
+        fp = GrRRectEffect::Make(et, rrect, *d->caps()->shaderCaps());
     } while (nullptr == fp);
     return fp;
 }
@@ -473,7 +471,7 @@ std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::TestCreate(GrProcess
     std::unique_ptr<GrFragmentProcessor> fp;
     do {
         GrClipEdgeType et = (GrClipEdgeType)d->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-        fp = GrRRectEffect::Make(et, rrect, d->context());
+        fp = GrRRectEffect::Make(et, rrect, *d->caps()->shaderCaps());
     } while (nullptr == fp);
     return fp;
 }
@@ -672,14 +670,13 @@ GrGLSLFragmentProcessor* EllipticalRRectEffect::onCreateGLSLInstance() const  {
 
 std::unique_ptr<GrFragmentProcessor> GrRRectEffect::Make(GrClipEdgeType edgeType,
                                                          const SkRRect& rrect,
-                                                         GrContext* context) {
+                                                         const GrShaderCaps& caps) {
     if (rrect.isRect()) {
-        return GrConvexPolyEffect::Make(edgeType, rrect.getBounds(), context);
+        return GrConvexPolyEffect::Make(edgeType, rrect.getBounds());
     }
 
     if (rrect.isOval()) {
-        return GrOvalEffect::Make(edgeType, rrect.getBounds(),
-                                  *context->contextPriv().caps()->shaderCaps());
+        return GrOvalEffect::Make(edgeType, rrect.getBounds(), caps);
     }
 
     if (rrect.isSimple()) {
@@ -687,7 +684,7 @@ std::unique_ptr<GrFragmentProcessor> GrRRectEffect::Make(GrClipEdgeType edgeType
             SkRRectPriv::GetSimpleRadii(rrect).fY < kRadiusMin) {
             // In this case the corners are extremely close to rectangular and we collapse the
             // clip to a rectangular clip.
-            return GrConvexPolyEffect::Make(edgeType, rrect.getBounds(), context);
+            return GrConvexPolyEffect::Make(edgeType, rrect.getBounds());
         }
         if (SkRRectPriv::GetSimpleRadii(rrect).fX == SkRRectPriv::GetSimpleRadii(rrect).fY) {
             return CircularRRectEffect::Make(edgeType, CircularRRectEffect::kAll_CornerFlags,
@@ -752,7 +749,7 @@ std::unique_ptr<GrFragmentProcessor> GrRRectEffect::Make(GrClipEdgeType edgeType
                 return CircularRRectEffect::Make(edgeType, cornerFlags, *rr);
             }
             case CircularRRectEffect::kNone_CornerFlags:
-                return GrConvexPolyEffect::Make(edgeType, rrect.getBounds(), context);
+                return GrConvexPolyEffect::Make(edgeType, rrect.getBounds());
             default: {
                 if (squashedRadii) {
                     // If we got here then we squashed some but not all the radii to zero. (If all

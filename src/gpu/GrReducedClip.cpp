@@ -22,6 +22,7 @@
 #include "GrUserStencilSettings.h"
 #include "SkClipOpPriv.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
+#include "effects/GrAARectEffect.h"
 #include "effects/GrConvexPolyEffect.h"
 #include "effects/GrRRectEffect.h"
 
@@ -33,9 +34,9 @@
  * take a rect in case the caller knows a bound on what is to be drawn through this clip.
  */
 GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
-                             GrContext* context, int maxWindowRectangles,
-                             int maxAnalyticFPs, int maxCCPRClipPaths)
-        : fContext(context)
+                             const GrCaps* caps, int maxWindowRectangles, int maxAnalyticFPs,
+                             int maxCCPRClipPaths)
+        : fCaps(caps)
         , fMaxWindowRectangles(maxWindowRectangles)
         , fMaxAnalyticFPs(maxAnalyticFPs)
         , fMaxCCPRClipPaths(maxCCPRClipPaths) {
@@ -611,14 +612,13 @@ GrClipEdgeType GrReducedClip::GetClipEdgeType(Invert invert, GrAA aa) {
     }
 }
 
-GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRect& deviceSpaceRect, Invert invert,
-                                                       GrAA aa) {
+GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRect& deviceSpaceRect,
+                                                       Invert invert, GrAA aa) {
     if (this->numAnalyticFPs() >= fMaxAnalyticFPs) {
         return ClipResult::kNotClipped;
     }
 
-    fAnalyticFPs.push_back(GrConvexPolyEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRect,
-                                                    fContext));
+    fAnalyticFPs.push_back(GrAARectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRect));
     SkASSERT(fAnalyticFPs.back());
 
     return ClipResult::kClipped;
@@ -630,7 +630,8 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRRect& deviceSpac
         return ClipResult::kNotClipped;
     }
 
-    if (auto fp = GrRRectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRRect, fContext)) {
+    if (auto fp = GrRRectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRRect,
+                                      *fCaps->shaderCaps())) {
         fAnalyticFPs.push_back(std::move(fp));
         return ClipResult::kClipped;
     }
@@ -647,8 +648,7 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkPath& deviceSpace
         return ClipResult::kNotClipped;
     }
 
-    if (auto fp = GrConvexPolyEffect::Make(GetClipEdgeType(invert, aa), deviceSpacePath,
-                                           fContext)) {
+    if (auto fp = GrConvexPolyEffect::Make(GetClipEdgeType(invert, aa), deviceSpacePath)) {
         fAnalyticFPs.push_back(std::move(fp));
         return ClipResult::kClipped;
     }
@@ -805,7 +805,8 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 1-bit clip mask in the stencil buffer.
 
-bool GrReducedClip::drawStencilClipMask(GrRenderTargetContext* renderTargetContext) const {
+bool GrReducedClip::drawStencilClipMask(GrContext* context,
+                                        GrRenderTargetContext* renderTargetContext) const {
     // We set the current clip to the bounds so that our recursive draws are scissored to them.
     GrStencilClip stencilClip(fScissor, this->maskGenID());
 
@@ -847,14 +848,14 @@ bool GrReducedClip::drawStencilClipMask(GrRenderTargetContext* renderTargetConte
 
             GrShape shape(clipPath, GrStyle::SimpleFill());
             GrPathRenderer::CanDrawPathArgs canDrawArgs;
-            canDrawArgs.fCaps = fContext->contextPriv().caps();
+            canDrawArgs.fCaps = context->contextPriv().caps();
             canDrawArgs.fClipConservativeBounds = &stencilClip.fixedClip().scissorRect();
             canDrawArgs.fViewMatrix = &SkMatrix::I();
             canDrawArgs.fShape = &shape;
             canDrawArgs.fAAType = aaType;
             canDrawArgs.fHasUserStencilSettings = false;
 
-            GrDrawingManager* dm = fContext->contextPriv().drawingManager();
+            GrDrawingManager* dm = context->contextPriv().drawingManager();
             pr = dm->getPathRenderer(canDrawArgs, false, GrPathRendererChain::DrawType::kStencil,
                                      &stencilSupport);
             if (!pr) {
@@ -894,7 +895,7 @@ bool GrReducedClip::drawStencilClipMask(GrRenderTargetContext* renderTargetConte
                         GrPaint paint;
                         paint.setXPFactory(GrDisableColorXPFactory::Get());
 
-                        GrPathRenderer::DrawPathArgs args{fContext,
+                        GrPathRenderer::DrawPathArgs args{context,
                                                           std::move(paint),
                                                           &kDrawToStencil,
                                                           renderTargetContext,
@@ -907,7 +908,7 @@ bool GrReducedClip::drawStencilClipMask(GrRenderTargetContext* renderTargetConte
                         pr->drawPath(args);
                     } else {
                         GrPathRenderer::StencilPathArgs args;
-                        args.fContext = fContext;
+                        args.fContext = context;
                         args.fRenderTargetContext = renderTargetContext;
                         args.fClip = &stencilClip.fixedClip();
                         args.fClipConservativeBounds = &stencilClip.fixedClip().scissorRect();
@@ -932,7 +933,7 @@ bool GrReducedClip::drawStencilClipMask(GrRenderTargetContext* renderTargetConte
                     GrShape shape(clipPath, GrStyle::SimpleFill());
                     GrPaint paint;
                     paint.setXPFactory(GrDisableColorXPFactory::Get());
-                    GrPathRenderer::DrawPathArgs args{fContext,
+                    GrPathRenderer::DrawPathArgs args{context,
                                                       std::move(paint),
                                                       *pass,
                                                       renderTargetContext,
@@ -966,7 +967,7 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(
             SkASSERT(ccpr);
             SkASSERT(fHasScissor);
             auto fp = ccpr->makeClipProcessor(opListID, ccprClipPath, fScissor, rtWidth, rtHeight,
-                                              *fContext->contextPriv().caps());
+                                              *fCaps);
             fAnalyticFPs.push_back(std::move(fp));
         }
         fCCPRClipPaths.reset();

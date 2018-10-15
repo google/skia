@@ -115,10 +115,13 @@ private:
     SkTHashSet<int32_t>               fAllocatedIDs;
 #endif
 
-public:
-    constexpr static size_t kBlockHeaderSize = sizeof(BlockHeader);
-
-    constexpr static size_t kAllocHeaderSize = sizeof(AllocHeader);
+protected:
+    enum {
+        // We assume this alignment is good enough for everybody.
+        kAlignment    = 8,
+        kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
+        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
+    };
 };
 
 class GrOp;
