@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2fe558e_396bfdc0",
+        "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-15T14:13:06Z",
+      "side": 1,
+      "message": "Is this method signature okay for !IS_FUZZING_WITH_LIBFUZZER?",
+      "range": {
+        "startLine": 16,
+        "startChar": 5,
+        "endLine": 16,
+        "endChar": 21
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8b3d24b_dc571eba",
+        "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-15T14:13:06Z",
+      "side": 1,
+      "message": "My goal here is to try different sample sizes. Is this a sensible way to do it? Or is it problematic that the first byte is treated independently from the rest?",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 57
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
