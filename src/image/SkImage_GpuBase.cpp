@@ -260,17 +260,18 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) con
         return sk_ref_sp(const_cast<SkImage_GpuBase*>(this));
     }
 
+    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
+
     sk_sp<GrRenderTargetContext> renderTargetContext(
         fContext->contextPriv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, this->width(), this->height(),
-            kRGBA_8888_GrPixelConfig, nullptr));
+            SkBackingFit::kExact, this->width(), this->height(), proxy->config(), nullptr));
     if (!renderTargetContext) {
         return nullptr;
     }
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorTextureProcessor(this->asTextureProxyRef(), SkMatrix::I());
+    paint.addColorTextureProcessor(std::move(proxy), SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(xform));
 
     const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
