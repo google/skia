@@ -7,7 +7,6 @@
 
 #include "SkAtomics.h"
 #include "SkBitmapCache.h"
-#include "SkBitmapProvider.h"
 #include "SkImage.h"
 #include "SkResourceCache.h"
 #include "SkMipMap.h"
@@ -343,18 +342,12 @@ static SkResourceCache::DiscardableFactory get_fact(SkResourceCache* localCache)
                       : SkResourceCache::GetDiscardableFactory();
 }
 
-const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmapProvider& provider,
-                                         SkResourceCache* localCache) {
-    SkBitmap src;
-    if (!provider.asBitmap(&src)) {
-        return nullptr;
-    }
-
+const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmap& src, SkResourceCache* localCache) {
     SkMipMap* mipmap = SkMipMap::Build(src, get_fact(localCache));
     if (mipmap) {
-        MipMapRec* rec = new MipMapRec(provider.makeCacheDesc(), mipmap);
+        MipMapRec* rec = new MipMapRec(SkBitmapCacheDesc::Make(src), mipmap);
         CHECK_LOCAL(localCache, add, Add, rec);
-        provider.notifyAddedToCache();
+        src.pixelRef()->notifyAddedToCache();
     }
     return mipmap;
 }
