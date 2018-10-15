@@ -22,6 +22,9 @@ public:
     virtual bool collapsed() const = 0;
     virtual bool controlsInside() const = 0;
     virtual void debugInit() = 0;
+#if DEBUG_T_SECT
+    virtual void dumpID(int id) const = 0;
+#endif
     virtual SkDVector dxdyAtT(double t) const = 0;
     virtual bool hullIntersects(const SkDQuad& , bool* isLinear) const = 0;
     virtual bool hullIntersects(const SkDConic& , bool* isLinear) const = 0;
