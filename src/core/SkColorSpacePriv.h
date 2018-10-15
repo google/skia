@@ -15,17 +15,11 @@
 #define SkColorSpacePrintf(...)
 
 static constexpr float gSRGB_toXYZD50[] {
-#ifdef SK_LEGACY_SRGB_GAMUT
-    0.4360747f, 0.3850649f, 0.1430804f, // Rx, Gx, Bx
-    0.2225045f, 0.7168786f, 0.0606169f, // Ry, Gy, By
-    0.0139322f, 0.0971045f, 0.7141733f, // Rz, Gz, Bz
-#else
     // These are taken from skcms, and there originally from 16-bit fixed point.
     // For best results, please keep them exactly in sync with skcms.
     0.436065674f, 0.385147095f, 0.143066406f,
     0.222488403f, 0.716873169f, 0.060607910f,
     0.013916016f, 0.097076416f, 0.714096069f,
-#endif
 };
 
 static constexpr float gAdobeRGB_toXYZD50[] {
