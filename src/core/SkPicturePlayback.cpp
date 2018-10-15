@@ -357,6 +357,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_IMAGE_SET: {
             int cnt = reader->readInt();
+            if (!reader->validate(cnt >= 0)) {
+                break;
+            }
             float alpha = SkScalarToFloat(reader->readScalar());
             SkFilterQuality filterQuality = (SkFilterQuality)reader->readUInt();
             SkBlendMode mode = (SkBlendMode)reader->readUInt();
