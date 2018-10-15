@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30604e02_0bde94d5",
+        "filename": "third_party/gif/SkGifImageReader.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-15T21:20:50Z",
+      "side": 1,
+      "message": "It\u0027s not your fault, but the field name here confuses me. The name \"suffixLength\" instead of \"codeLength\" makes me think that this stores the length of just the suffix, instead of the length of the code: a code is the concatenation of a prefix and a suffix. For example, after your change (with SK_DICTIONARY_WORD_SIZE \u003d\u003d 8), a code length of 47 bytes would be a 40 byte prefix and a 7 byte suffix. Before your change, a suffix was always 1 byte, so the \"suffixLength\" name looks weird.\n\nPerhaps \"codeLength\", \"totalLength\" or \"length\" might be a better field name. I\u0027ll leave it up to scroggo@ what color we should paint the bikeshed, and whether we\u0027d rather change that in this CL or in a separate CL, since my comment also applies to the old code.",
+      "range": {
+        "startLine": 131,
+        "startChar": 13,
+        "endLine": 131,
+        "endChar": 18
+      },
+      "revId": "7b2d6ff02fc0198d8e47764cc22a31e6a3064cbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
