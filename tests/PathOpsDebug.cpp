@@ -416,424 +416,56 @@ void SkOpContour::dumpContoursSpans() const {
     } while ((contour = contour->next()));
 }
 
-template <typename TCurve, typename OppCurve>
-const SkTSpan<TCurve, OppCurve>* DebugSpan(const SkTSect<TCurve, OppCurve>* sect, int id) {
+const SkTSpan* DebugSpan(const SkTSect* sect, int id) {
     return sect->debugSpan(id);
 }
 
-void DontCallDebugSpan(int id);
-void DontCallDebugSpan(int id) {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkDQuad quad;
-    SkDConic conic;
-    SkDCubic cubic;
-    SkTSect<SkDQuad, SkDQuad> q1q2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDConic> q1k2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDCubic> q1c2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDQuad> k1q2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDConic> k1k2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDCubic> k1c2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDQuad> c1q2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDConic> c1k2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDCubic> c1c2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    DebugSpan(&q1q2, id);
-    DebugSpan(&q1k2, id);
-    DebugSpan(&q1c2, id);
-    DebugSpan(&k1q2, id);
-    DebugSpan(&k1k2, id);
-    DebugSpan(&k1c2, id);
-    DebugSpan(&c1q2, id);
-    DebugSpan(&c1k2, id);
-    DebugSpan(&c1c2, id);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-const SkTSpan<TCurve, OppCurve>* DebugT(const SkTSect<TCurve, OppCurve>* sect, double t) {
+const SkTSpan* DebugT(const SkTSect* sect, double t) {
     return sect->debugT(t);
 }
 
-void DontCallDebugT(double t);
-void DontCallDebugT(double t) {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkDQuad quad;
-    SkDConic conic;
-    SkDCubic cubic;
-    SkTSect<SkDQuad, SkDQuad> q1q2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDConic> q1k2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDCubic> q1c2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDQuad> k1q2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDConic> k1k2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDCubic> k1c2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDQuad> c1q2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDConic> c1k2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDCubic> c1c2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    DebugT(&q1q2, t);
-    DebugT(&q1k2, t);
-    DebugT(&q1c2, t);
-    DebugT(&k1q2, t);
-    DebugT(&k1k2, t);
-    DebugT(&k1c2, t);
-    DebugT(&c1q2, t);
-    DebugT(&c1k2, t);
-    DebugT(&c1c2, t);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void Dump(const SkTSect<TCurve, OppCurve>* sect) {
+void Dump(const SkTSect* sect) {
     sect->dump();
 }
 
-void DontCallDumpTSect();
-void DontCallDumpTSect() {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkDQuad quad;
-    SkDConic conic;
-    SkDCubic cubic;
-    SkTSect<SkDQuad, SkDQuad> q1q2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDConic> q1k2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDCubic> q1c2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDQuad> k1q2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDConic> k1k2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDCubic> k1c2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDQuad> c1q2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDConic> c1k2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDCubic> c1c2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    Dump(&q1q2);
-    Dump(&q1k2);
-    Dump(&q1c2);
-    Dump(&k1q2);
-    Dump(&k1k2);
-    Dump(&k1c2);
-    Dump(&c1q2);
-    Dump(&c1k2);
-    Dump(&c1c2);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void DumpBoth(SkTSect<TCurve, OppCurve>* sect1, SkTSect<OppCurve, TCurve>* sect2) {
+void DumpBoth(SkTSect* sect1, SkTSect* sect2) {
     sect1->dumpBoth(sect2);
 }
 
-void DontCallDumpBoth();
-void DontCallDumpBoth() {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkDQuad quad;
-    SkDConic conic;
-    SkDCubic cubic;
-    SkTSect<SkDQuad, SkDQuad> q1q2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDConic> q1k2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDCubic> q1c2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDQuad> k1q2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDConic> k1k2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDCubic> k1c2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDQuad> c1q2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDConic> c1k2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDCubic> c1c2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    DumpBoth(&q1q2, &q1q2);
-    DumpBoth(&q1k2, &k1q2);
-    DumpBoth(&q1c2, &c1q2);
-    DumpBoth(&k1q2, &q1k2);
-    DumpBoth(&k1k2, &k1k2);
-    DumpBoth(&k1c2, &c1k2);
-    DumpBoth(&c1q2, &q1c2);
-    DumpBoth(&c1k2, &k1c2);
-    DumpBoth(&c1c2, &c1c2);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void DumpBounded(SkTSect<TCurve, OppCurve>* sect1, int id) {
+void DumpBounded(SkTSect* sect1, int id) {
     sect1->dumpBounded(id);
 }
 
-void DontCallDumpBounded();
-void DontCallDumpBounded() {
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkDQuad quad;
-    SkDConic conic;
-    SkDCubic cubic;
-    SkTSect<SkDQuad, SkDQuad> q1q2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDConic> q1k2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDCubic> q1c2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDQuad> k1q2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDConic> k1k2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDCubic> k1c2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDQuad> c1q2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDConic> c1k2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDCubic> c1c2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    DumpBounded(&q1q2, 0);
-    DumpBounded(&q1k2, 0);
-    DumpBounded(&q1c2, 0);
-    DumpBounded(&k1q2, 0);
-    DumpBounded(&k1k2, 0);
-    DumpBounded(&k1c2, 0);
-    DumpBounded(&c1q2, 0);
-    DumpBounded(&c1k2, 0);
-    DumpBounded(&c1c2, 0);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void DumpBounds(SkTSect<TCurve, OppCurve>* sect1) {
+void DumpBounds(SkTSect* sect1) {
     sect1->dumpBounds();
 }
 
-void DontCallDumpBounds();
-void DontCallDumpBounds() {
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkDQuad quad;
-    SkDConic conic;
-    SkDCubic cubic;
-    SkTSect<SkDQuad, SkDQuad> q1q2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDConic> q1k2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDCubic> q1c2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDQuad> k1q2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDConic> k1k2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDCubic> k1c2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDQuad> c1q2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDConic> c1k2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDCubic> c1c2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    DumpBounds(&q1q2);
-    DumpBounds(&q1k2);
-    DumpBounds(&q1c2);
-    DumpBounds(&k1q2);
-    DumpBounds(&k1k2);
-    DumpBounds(&k1c2);
-    DumpBounds(&c1q2);
-    DumpBounds(&c1k2);
-    DumpBounds(&c1c2);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void DumpCoin(SkTSect<TCurve, OppCurve>* sect1) {
+void DumpCoin(SkTSect* sect1) {
     sect1->dumpCoin();
 }
 
-void DontCallDumpCoin();
-void DontCallDumpCoin() {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkDQuad quad;
-    SkDConic conic;
-    SkDCubic cubic;
-    SkTSect<SkDQuad, SkDQuad> q1q2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDConic> q1k2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDCubic> q1c2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDQuad> k1q2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDConic> k1k2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDCubic> k1c2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDQuad> c1q2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDConic> c1k2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDCubic> c1c2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    DumpCoin(&q1q2);
-    DumpCoin(&q1k2);
-    DumpCoin(&q1c2);
-    DumpCoin(&k1q2);
-    DumpCoin(&k1k2);
-    DumpCoin(&k1c2);
-    DumpCoin(&c1q2);
-    DumpCoin(&c1k2);
-    DumpCoin(&c1c2);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void DumpCoinCurves(SkTSect<TCurve, OppCurve>* sect1) {
+void DumpCoinCurves(SkTSect* sect1) {
     sect1->dumpCoinCurves();
 }
 
-void DontCallDumpCoinCurves();
-void DontCallDumpCoinCurves() {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkDQuad quad;
-    SkDConic conic;
-    SkDCubic cubic;
-    SkTSect<SkDQuad, SkDQuad> q1q2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDConic> q1k2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDCubic> q1c2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDQuad> k1q2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDConic> k1k2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDCubic> k1c2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDQuad> c1q2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDConic> c1k2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDCubic> c1c2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    DumpCoinCurves(&q1q2);
-    DumpCoinCurves(&q1k2);
-    DumpCoinCurves(&q1c2);
-    DumpCoinCurves(&k1q2);
-    DumpCoinCurves(&k1k2);
-    DumpCoinCurves(&k1c2);
-    DumpCoinCurves(&c1q2);
-    DumpCoinCurves(&c1k2);
-    DumpCoinCurves(&c1c2);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void DumpCurves(const SkTSect<TCurve, OppCurve>* sect) {
+void DumpCurves(const SkTSect* sect) {
     sect->dumpCurves();
 }
 
-void DontCallDumpCurves();
-void DontCallDumpCurves() {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkDQuad quad;
-    SkDConic conic;
-    SkDCubic cubic;
-    SkTSect<SkDQuad, SkDQuad> q1q2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDConic> q1k2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDQuad, SkDCubic> q1c2(quad  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDQuad> k1q2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDConic> k1k2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDConic, SkDCubic> k1c2(conic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDQuad> c1q2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDConic> c1k2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    SkTSect<SkDCubic, SkDCubic> c1c2(cubic  SkDEBUGPARAMS(nullptr)  PATH_OPS_DEBUG_T_SECT_PARAMS(1));
-    DumpCurves(&q1q2);
-    DumpCurves(&q1k2);
-    DumpCurves(&q1c2);
-    DumpCurves(&k1q2);
-    DumpCurves(&k1k2);
-    DumpCurves(&k1c2);
-    DumpCurves(&c1q2);
-    DumpCurves(&c1k2);
-    DumpCurves(&c1c2);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void Dump(const SkTSpan<TCurve, OppCurve>* span) {
+void Dump(const SkTSpan* span) {
     span->dump();
 }
 
-void DontCallDumpTSpan();
-void DontCallDumpTSpan() {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkArenaAlloc heap(0);
-    SkDQuad quad;
-    SkTSpan<SkDQuad, SkDQuad> q1q2(quad, heap); q1q2.debugInit();
-    SkTSpan<SkDQuad, SkDConic> q1k2(quad, heap); q1k2.debugInit();
-    SkTSpan<SkDQuad, SkDCubic> q1c2(quad, heap); q1c2.debugInit();
-    SkDConic conic;
-    SkTSpan<SkDConic, SkDQuad> k1q2(conic, heap); k1q2.debugInit();
-    SkTSpan<SkDConic, SkDConic> k1k2(conic, heap); k1k2.debugInit();
-    SkTSpan<SkDConic, SkDCubic> k1c2(conic, heap); k1c2.debugInit();
-    SkDCubic cubic;
-    SkTSpan<SkDCubic, SkDQuad> c1q2(cubic, heap); c1q2.debugInit();
-    SkTSpan<SkDCubic, SkDConic> c1k2(cubic, heap); c1k2.debugInit();
-    SkTSpan<SkDCubic, SkDCubic> c1c2(cubic, heap); c1c2.debugInit();
-    Dump(&q1q2);
-    Dump(&q1k2);
-    Dump(&q1c2);
-    Dump(&k1q2);
-    Dump(&k1k2);
-    Dump(&k1c2);
-    Dump(&c1q2);
-    Dump(&c1k2);
-    Dump(&c1c2);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void DumpAll(const SkTSpan<TCurve, OppCurve>* span) {
+void DumpAll(const SkTSpan* span) {
     span->dumpAll();
 }
 
-void DontCallDumpSpanAll();
-void DontCallDumpSpanAll() {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkArenaAlloc heap(0);
-    SkDQuad quad;
-    SkTSpan<SkDQuad, SkDQuad> q1q2(quad, heap); q1q2.debugInit();
-    SkTSpan<SkDQuad, SkDConic> q1k2(quad, heap); q1k2.debugInit();
-    SkTSpan<SkDQuad, SkDCubic> q1c2(quad, heap); q1c2.debugInit();
-    SkDConic conic;
-    SkTSpan<SkDConic, SkDQuad> k1q2(conic, heap); k1q2.debugInit();
-    SkTSpan<SkDConic, SkDConic> k1k2(conic, heap); k1k2.debugInit();
-    SkTSpan<SkDConic, SkDCubic> k1c2(conic, heap); k1c2.debugInit();
-    SkDCubic cubic;
-    SkTSpan<SkDCubic, SkDQuad> c1q2(cubic, heap); c1q2.debugInit();
-    SkTSpan<SkDCubic, SkDConic> c1k2(cubic, heap); c1k2.debugInit();
-    SkTSpan<SkDCubic, SkDCubic> c1c2(cubic, heap); c1c2.debugInit();
-    DumpAll(&q1q2);
-    DumpAll(&q1k2);
-    DumpAll(&q1c2);
-    DumpAll(&k1q2);
-    DumpAll(&k1k2);
-    DumpAll(&k1c2);
-    DumpAll(&c1q2);
-    DumpAll(&c1k2);
-    DumpAll(&c1c2);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void DumpBounded(const SkTSpan<TCurve, OppCurve>* span) {
+void DumpBounded(const SkTSpan* span) {
     span->dumpBounded(0);
 }
 
-void DontCallDumpSpanBounded();
-void DontCallDumpSpanBounded() {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkArenaAlloc heap(0);
-    SkDQuad quad;
-    SkTSpan<SkDQuad, SkDQuad> q1q2(quad, heap); q1q2.debugInit();
-    SkTSpan<SkDQuad, SkDConic> q1k2(quad, heap); q1k2.debugInit();
-    SkTSpan<SkDQuad, SkDCubic> q1c2(quad, heap); q1c2.debugInit();
-    SkDConic conic;
-    SkTSpan<SkDConic, SkDQuad> k1q2(conic, heap); k1q2.debugInit();
-    SkTSpan<SkDConic, SkDConic> k1k2(conic, heap); k1k2.debugInit();
-    SkTSpan<SkDConic, SkDCubic> k1c2(conic, heap); k1c2.debugInit();
-    SkDCubic cubic;
-    SkTSpan<SkDCubic, SkDQuad> c1q2(cubic, heap); c1q2.debugInit();
-    SkTSpan<SkDCubic, SkDConic> c1k2(cubic, heap); c1k2.debugInit();
-    SkTSpan<SkDCubic, SkDCubic> c1c2(cubic, heap); c1c2.debugInit();
-    DumpBounded(&q1q2);
-    DumpBounded(&q1k2);
-    DumpBounded(&q1c2);
-    DumpBounded(&k1q2);
-    DumpBounded(&k1k2);
-    DumpBounded(&k1c2);
-    DumpBounded(&c1q2);
-    DumpBounded(&c1k2);
-    DumpBounded(&c1c2);
-#endif
-}
-
-template <typename TCurve, typename OppCurve>
-void DumpCoin(const SkTSpan<TCurve, OppCurve>* span) {
+void DumpCoin(const SkTSpan* span) {
     span->dumpCoin();
-}
-
-void DontCallDumpSpanCoin();
-void DontCallDumpSpanCoin() {  // exists to instantiate the templates
-#if !PATH_OP_COMPILE_FOR_SIZE
-    SkArenaAlloc heap(0);
-    SkDQuad quad;
-    SkTSpan<SkDQuad, SkDQuad> q1q2(quad, heap); q1q2.debugInit();
-    SkTSpan<SkDQuad, SkDConic> q1k2(quad, heap); q1k2.debugInit();
-    SkTSpan<SkDQuad, SkDCubic> q1c2(quad, heap); q1c2.debugInit();
-    SkDConic conic;
-    SkTSpan<SkDConic, SkDQuad> k1q2(conic, heap); k1q2.debugInit();
-    SkTSpan<SkDConic, SkDConic> k1k2(conic, heap); k1k2.debugInit();
-    SkTSpan<SkDConic, SkDCubic> k1c2(conic, heap); k1c2.debugInit();
-    SkDCubic cubic;
-    SkTSpan<SkDCubic, SkDQuad> c1q2(cubic, heap); c1q2.debugInit();
-    SkTSpan<SkDCubic, SkDConic> c1k2(cubic, heap); c1k2.debugInit();
-    SkTSpan<SkDCubic, SkDCubic> c1c2(cubic, heap); c1c2.debugInit();
-    DumpCoin(&q1q2);
-    DumpCoin(&q1k2);
-    DumpCoin(&q1c2);
-    DumpCoin(&k1q2);
-    DumpCoin(&k1k2);
-    DumpCoin(&k1c2);
-    DumpCoin(&c1q2);
-    DumpCoin(&c1k2);
-    DumpCoin(&c1c2);
-#endif
 }
 
 static void dumpTestCase(const SkDQuad& quad1, const SkDQuad& quad2, int testNo) {
@@ -1693,69 +1325,4 @@ namespace SkOpDebug {
         angle.dump();
     }
 
-// dummy definitions to fool msvs Visual Studio 2018 Immediate Window
-#define DummyDefinitions(a, b)                                                                     \
-                                                                                                   \
-    void Dump(const SkDebugTCoincident##a##b& curve) {                                             \
-        ((const SkTCoincident<SkD##a, SkD##b>& ) curve).dump();                                    \
-    }                                                                                              \
-                                                                                                   \
-    void Dump(const SkDebugTSect##a##b& curve) {                                                   \
-        ((const SkTSect<SkD##a, SkD##b>& ) curve).dump();                                          \
-    }                                                                                              \
-                                                                                                   \
-    void DumpBoth(const SkDebugTSect##a##b& curve, SkDebugTSect##a##b* opp) {                      \
-        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpBoth((SkTSect<SkD##b, SkD##a>* ) opp);       \
-    }                                                                                              \
-                                                                                                   \
-    void DumpBounded(const SkDebugTSect##a##b& curve, int id) {                                    \
-        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpBounded(id);                                 \
-    }                                                                                              \
-                                                                                                   \
-    void DumpBounds(const SkDebugTSect##a##b& curve) {                                             \
-        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpBounds();                                    \
-    }                                                                                              \
-                                                                                                   \
-    void DumpCoin(const SkDebugTSect##a##b& curve) {                                               \
-        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpCoin();                                      \
-    }                                                                                              \
-                                                                                                   \
-    void DumpCoinCurves(const SkDebugTSect##a##b& curve) {                                         \
-        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpCoinCurves();                                \
-    }                                                                                              \
-                                                                                                   \
-    void DumpCurves(const SkDebugTSect##a##b& curve) {                                             \
-        ((const SkTSect<SkD##a, SkD##b>& ) curve).dumpCurves();                                    \
-    }                                                                                              \
-                                                                                                   \
-    void Dump(const SkDebugTSpan##a##b& curve) {                                                   \
-        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dump();                                          \
-    }                                                                                              \
-                                                                                                   \
-    void DumpAll(const SkDebugTSpan##a##b& curve) {                                                \
-        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dumpAll();                                       \
-    }                                                                                              \
-                                                                                                   \
-    void DumpBounded(const SkDebugTSpan##a##b& curve, int id) {                                    \
-        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dumpBounded(id);                                 \
-    }                                                                                              \
-                                                                                                   \
-    void DumpBounds(const SkDebugTSpan##a##b& curve) {                                             \
-        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dumpBounds();                                    \
-    }                                                                                              \
-                                                                                                   \
-    void DumpCoin(const SkDebugTSpan##a##b& curve) {                                               \
-        ((const SkTSpan<SkD##a, SkD##b>& ) curve).dumpCoin();                                      \
-    }
-
-#if !PATH_OP_COMPILE_FOR_SIZE
-    DummyDefinitions(Quad, Quad);
-    DummyDefinitions(Conic, Quad);
-    DummyDefinitions(Conic, Conic);
-    DummyDefinitions(Cubic, Quad);
-    DummyDefinitions(Cubic, Conic);
-    DummyDefinitions(Cubic, Cubic);
-#endif
-
-#undef DummyDefinitions
 }
