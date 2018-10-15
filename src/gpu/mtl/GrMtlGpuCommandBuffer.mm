@@ -20,7 +20,9 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
         const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
         : INHERITED(rt, origin)
         , fGpu(gpu)
+#ifdef SK_DEBUG
         , fBounds(bounds)
+#endif
         , fColorLoadAndStoreInfo(colorInfo)
         , fStencilLoadAndStoreInfo(stencilInfo)
         , fRenderPassDesc(this->createRenderPassDesc()) {
