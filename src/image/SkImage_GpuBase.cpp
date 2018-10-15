@@ -263,7 +263,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) con
     sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fContext->contextPriv().makeDeferredRenderTargetContext(
+        fContext->contextPriv().makeDeferredRenderTargetContextWithFallback(
             SkBackingFit::kExact, this->width(), this->height(), proxy->config(), nullptr));
     if (!renderTargetContext) {
         return nullptr;
