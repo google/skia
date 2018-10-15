@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aeb5ce84_c2717e1a",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-15T14:57:59Z",
+      "side": 1,
+      "message": "is it any clearer to do this as\n\n   cs \u003d this-\u003ecs() ? this-\u003ecs() : sRGB;\n\nand then let that fall through the Equals() case?",
+      "revId": "e36634198408ffee131b8a89b3d058e13fae3417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
