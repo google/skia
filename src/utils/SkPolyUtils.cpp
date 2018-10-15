@@ -1538,7 +1538,9 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
 
     // get bounds
     SkRect bounds;
-    bounds.setBounds(polygonVerts, polygonSize);
+    if (!bounds.setBoundsCheck(polygonVerts, polygonSize)) {
+        return false;
+    }
     // get winding direction
     // TODO: we do this for all the polygon routines -- might be better to have the client
     // compute it and pass it in
