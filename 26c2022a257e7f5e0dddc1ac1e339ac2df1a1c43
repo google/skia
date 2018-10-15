@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9582e1f9_1b20c302",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-15T13:21:22Z",
+      "side": 1,
+      "message": "SK_DISABLE_NVPR?",
+      "range": {
+        "startLine": 597,
+        "startChar": 25,
+        "endLine": 597,
+        "endChar": 36
+      },
+      "revId": "26c2022a257e7f5e0dddc1ac1e339ac2df1a1c43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9c92652_e62a3708",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-15T13:21:22Z",
+      "side": 1,
+      "message": "GrPathRendering_none.cpp?",
+      "range": {
+        "startLine": 599,
+        "startChar": 26,
+        "endLine": 599,
+        "endChar": 39
+      },
+      "revId": "26c2022a257e7f5e0dddc1ac1e339ac2df1a1c43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fedf08d6_0fd82298",
+        "filename": "src/gpu/gl/GrGLPathRendering.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-15T13:21:22Z",
+      "side": 1,
+      "message": "Why do we need this?",
+      "revId": "26c2022a257e7f5e0dddc1ac1e339ac2df1a1c43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
