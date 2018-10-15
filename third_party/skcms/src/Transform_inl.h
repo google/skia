@@ -549,10 +549,7 @@ template <> void sample_clut<16>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b)
 template <int kBitDepth>
 MAYBE_NOINLINE
 static void clut(const skcms_A2B* a2b, int dim, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
-    if (dim == 0) {
-        sample_clut<kBitDepth>(a2b,ix, r,g,b);
-        return;
-    }
+    assert (0 < dim && dim <= 4);
 
     I32 limit = cast<I32>(F0);
     limit += a2b->grid_points[dim-1];
@@ -566,8 +563,14 @@ static void clut(const skcms_A2B* a2b, int dim, I32 ix, I32 stride, F* r, F* g, 
         hi = cast<I32>(minus_1_ulp(x+1.0f));
     F lr = *r, lg = *g, lb = *b,
       hr = *r, hg = *g, hb = *b;
-    clut<kBitDepth>(a2b, dim-1, stride*lo + ix, stride*limit, &lr,&lg,&lb,a);
-    clut<kBitDepth>(a2b, dim-1, stride*hi + ix, stride*limit, &hr,&hg,&hb,a);
+
+    if (dim == 1) {
+        sample_clut<kBitDepth>(a2b, stride*lo + ix, &lr,&lg,&lb);
+        sample_clut<kBitDepth>(a2b, stride*hi + ix, &hr,&hg,&hb);
+    } else {
+        clut<kBitDepth>(a2b, dim-1, stride*lo + ix, stride*limit, &lr,&lg,&lb,a);
+        clut<kBitDepth>(a2b, dim-1, stride*hi + ix, stride*limit, &hr,&hg,&hb,a);
+    }
 
     F t = x - cast<F>(lo);
     *r = lr + (hr-lr)*t;
