@@ -1,0 +1,134 @@
+
+describe('CanvasKit\'s Path Behavior', function() {
+    // Note, don't try to print the CanvasKit object - it can cause Karma/Jasmine to lock up.
+    var CanvasKit = null;
+    const LoadCanvasKit = new Promise(function(resolve, reject) {
+        if (CanvasKit) {
+            resolve();
+        } else {
+            CanvasKitInit({
+                locateFile: (file) => '/canvaskit/'+file,
+            }).then((_CanvasKit) => {
+                CanvasKit = _CanvasKit;
+                CanvasKit.initFonts();
+                resolve();
+            });
+        }
+    });
+
+    let container = document.createElement('div');
+    document.body.appendChild(container);
+
+    beforeEach(function() {
+        container.innerHTML = '<canvas width=600 height=600 id=test>';
+    });
+
+    afterEach(function() {
+        container.innerHTML = '';
+    });
+
+    it('can draw a path', function(done) {
+        LoadCanvasKit.then(() => {
+            // This is taken from example.html
+            const surface = CanvasKit.getWebGLSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setStrokeWidth(1.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+            paint.setStyle(CanvasKit.PaintStyle.STROKE);
+
+            const path = new CanvasKit.SkPath();
+            path.moveTo(20, 5);
+            path.lineTo(30, 20);
+            path.lineTo(40, 10);
+            path.lineTo(50, 20);
+            path.lineTo(60, 0);
+            path.lineTo(20, 5);
+
+            path.moveTo(20, 80);
+            path.cubicTo(90, 10, 160, 150, 190, 10);
+
+            path.moveTo(36, 148);
+            path.quadTo(66, 188, 120, 136);
+            path.lineTo(36, 148);
+
+            path.moveTo(150, 180);
+            path.arcTo(150, 100, 50, 200, 20);
+            path.lineTo(160, 160);
+
+            path.moveTo(20, 120);
+            path.lineTo(20, 120);
+
+            path.transform([2, 0, 0,
+                            0, 2, 0,
+                            0, 0, 1 ])
+
+            canvas.drawPath(path, paint);
+
+            canvas.flush();
+
+            path.delete();
+            paint.delete();
+
+            reportCanvas(container.firstElementChild, 'path_api_example').then(() => {
+                done();
+            }).catch(reportError(done));
+        });
+        // See CanvasKit for more tests, since they share implementation
+    });
+
+    function starPath(CanvasKit, X=128, Y=128, R=116) {
+        let p = new CanvasKit.SkPath();
+        p.moveTo(X + R, Y);
+        for (let i = 1; i < 8; i++) {
+          let a = 2.6927937 * i;
+          p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
+        }
+        return p;
+      }
+
+    it('can apply an effect and draw text', function(done) {
+        LoadCanvasKit.then(() => {
+            const surface = CanvasKit.getWebGLSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const path = starPath(CanvasKit);
+
+            const paint = new CanvasKit.SkPaint();
+
+            const textPaint = new CanvasKit.SkPaint();
+            textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
+            textPaint.setTextSize(30);
+            textPaint.setAntiAlias(true);
+
+            const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], 1);
+
+            paint.setPathEffect(dpe);
+            paint.setStyle(CanvasKit.PaintStyle.STROKE);
+            paint.setStrokeWidth(5.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
+
+            canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
+
+            canvas.drawPath(path, paint);
+            canvas.drawText('This is text', 10, 280, textPaint);
+            canvas.flush();
+            dpe.delete();
+            path.delete();
+            reportCanvas(container.firstElementChild, 'effect_and_text_example').then(() => {
+                done();
+            }).catch(reportError(done));
+        });
+    });
+});

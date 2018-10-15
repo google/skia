@@ -13,7 +13,6 @@
 #endif
 
 #include "SkCanvas.h"
-#include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "SkCornerPathEffect.h"
 #include "SkDiscretePathEffect.h"
@@ -211,10 +210,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("_getWebGLSurface", &getWebGLSurface, allow_raw_pointers());
     function("currentContext", &emscripten_webgl_get_current_context);
     function("setCurrentContext", &emscripten_webgl_make_context_current);
-#endif
+    constant("gpu", true);
+#else
     function("_getRasterN32PremulSurface", optional_override([](int width, int height)->sk_sp<SkSurface> {
         return SkSurface::MakeRasterN32Premul(width, height, nullptr);
     }), allow_raw_pointers());
+#endif
     function("MakeSkCornerPathEffect", &SkCornerPathEffect::Make, allow_raw_pointers());
     function("MakeSkDiscretePathEffect", &SkDiscretePathEffect::Make, allow_raw_pointers());
     // Won't be called directly, there's a JS helper to deal with typed arrays.
@@ -236,6 +237,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawPath", &SkCanvas::drawPath)
         .function("drawRect", &SkCanvas::drawRect)
         .function("drawText", optional_override([](SkCanvas& self, std::string text, SkScalar x, SkScalar y, const SkPaint& p) {
+            // TODO(kjlubick): This does not work well for non-ascii
+            // Need to maybe add a helper in interface.js that supports UTF-8
+            // Otherwise, go with std::wstring and set UTF-32 encoding.
             self.drawText(text.c_str(), text.length(), x, y, p);
         }))
         .function("flush", &SkCanvas::flush)
@@ -271,7 +275,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkPathEffect>("SkPathEffect")
         .smart_ptr<sk_sp<SkPathEffect>>("sk_sp<SkPathEffect>");
 
-    //TODO make these chainable like PathKit
     class_<SkPath>("SkPath")
         .constructor<>()
         .constructor<const SkPath&>()
@@ -358,5 +361,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers());
 
     function("MakeAnimation", &MakeAnimation);
+    constant("skottie", true);
 #endif
 }

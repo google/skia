@@ -31,6 +31,8 @@ var CanvasKit = {
 	MakeSkDashPathEffect: function(intervals, phase) {},
 	setCurrentContext: function() {},
 	LTRBRect: function(l, t, r, b) {},
+	gpu: {},
+	skottie: {},
 
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)

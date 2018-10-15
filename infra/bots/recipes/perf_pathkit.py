@@ -17,7 +17,7 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/perf-karma-chrome-tests:68.0.3440.106_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/perf-karma-chrome-tests:68.0.3440.106_v6'
 INNER_KARMA_SCRIPT = '/SRC/skia/infra/pathkit/perf_pathkit.sh'
 
 
@@ -105,6 +105,7 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
          '--task_id',              api.vars.swarming_task_id,
          '--browser',              'Chrome',
          '--config',               api.vars.configuration,
+         '--source_type',          'pathkit',
          ])
 
   if 'asmjs' in api.vars.builder_name:
