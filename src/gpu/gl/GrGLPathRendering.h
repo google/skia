@@ -47,7 +47,11 @@ public:
     void disconnect(GrGpu::DisconnectType);
 
     bool shouldBindFragmentInputs() const {
+    #ifdef DISABLE_NVPR
+        return false;
+    #else
         return fCaps.bindFragmentInputSupport;
+    #endif
     }
 
     // Functions for "separable shader" texturing support.

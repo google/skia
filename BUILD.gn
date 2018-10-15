@@ -35,6 +35,7 @@ declare_args() {
 
   skia_android_serial = ""
   skia_enable_ccpr = true
+  skia_enable_nvpr = true
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
   skia_enable_effects_imagefilters = true
@@ -591,6 +592,10 @@ optional("gpu") {
   if (!skia_enable_ccpr) {
     sources -= skia_ccpr_sources
     sources += [ "src/gpu/ccpr/GrCoverageCountingPathRenderer_none.cpp" ]
+  }
+  if (!skia_enable_nvpr) {
+    sources -= skia_nvpr_sources
+    sources += [ "src/gpu/GrPathRendering_none.cpp" ]
   }
 
   # These paths need to be absolute to match the ones produced by shared_sources.gni.
