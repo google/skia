@@ -121,7 +121,9 @@ private:
 
     GrMtlGpu*                                     fGpu;
     // GrRenderTargetProxy bounds
+#ifdef SK_DEBUG
     SkRect                                        fBounds;
+#endif
     GrGpuRTCommandBuffer::LoadAndStoreInfo        fColorLoadAndStoreInfo;
     GrGpuRTCommandBuffer::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
