@@ -914,19 +914,6 @@ DEF_SIMPLE_GM(gradient_many_stops, canvas, 500, 500) {
     draw_many_stops(canvas);
 }
 
-static void draw_subpixel_gradient(SkCanvas* canvas) {
-    const SkPoint pts[] = { {50, 50}, {50.1f, 50.1f}};
-    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
-    SkPaint p;
-    p.setShader(SkGradientShader::MakeLinear(
-        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kRepeat_TileMode));
-    canvas->drawRect(SkRect::MakeXYWH(0, 0, 500, 500), p);
-}
-
-DEF_SIMPLE_GM(gradient_subpixel, canvas, 500, 500) {
-    draw_subpixel_gradient(canvas);
-}
-
 #include "SkPictureRecorder.h"
 
 static void draw_circle_shader(SkCanvas* canvas, SkScalar cx, SkScalar cy, SkScalar r,
