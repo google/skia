@@ -1294,7 +1294,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restore() restoreToCount
+#SeeAlso save saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restore() restoreToCount
 
 #Method int save()
 
@@ -1334,7 +1334,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restore() restoreToCount
+#SeeAlso saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restore restoreToCount
 
 ##
 
@@ -1358,7 +1358,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restoreToCount
+#SeeAlso save saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restoreToCount
 
 ##
 
@@ -1390,7 +1390,7 @@ depth = 1
 ##
 ##
 
-#SeeAlso save() restore() restoreToCount
+#SeeAlso save restore restoreToCount
 
 ##
 
@@ -1424,7 +1424,7 @@ depth = 1
 ##
 ##
 
-#SeeAlso restore() getSaveCount save()
+#SeeAlso restore getSaveCount save
 
 ##
 
@@ -1498,7 +1498,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
+#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 ##
 
@@ -1551,7 +1551,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save() restore() saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
+#SeeAlso save restore saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 ##
 
@@ -1608,7 +1608,7 @@ incorrect blending.
     }
     ##
 
-#SeeAlso save() restore() saveLayer saveLayerAlpha SaveLayerRec
+#SeeAlso save restore saveLayer saveLayerAlpha SaveLayerRec
 
 ##
 
@@ -1650,7 +1650,7 @@ Call restoreToCount with returned value to restore this and subsequent saves.
     canvas->restore();
 ##
 
-#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests SaveLayerRec
+#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests SaveLayerRec
 
 ##
 
@@ -1712,7 +1712,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
+#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 #Enum ##
 
@@ -1815,7 +1815,7 @@ Sets fBounds, fPaint, and fBackdrop to nullptr. Clears fSaveLayerFlags.
     ##
 ##
 
-#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
 
 ##
 
@@ -1841,7 +1841,7 @@ Sets fBounds, fPaint, and fSaveLayerFlags; sets fBackdrop to nullptr.
     ##
 ##
 
-#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
 
 ##
 
@@ -1872,7 +1872,7 @@ Sets fBounds, fPaint, fBackdrop, and fSaveLayerFlags.
     ##
 ##
 
-#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
 
 ##
 
@@ -1903,7 +1903,7 @@ Implementation is not complete; has no effect if Device is GPU-backed.
 
 #Return                SaveLayerRec fully specified ##
 
-#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
 
 ##
 
@@ -1954,7 +1954,7 @@ Outside of the circle the mandrill is brightened.
 
 #ToDo above example needs to replace GetResourceAsImage with way to select image in fiddle ##
 
-#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
 
 ##
 
