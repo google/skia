@@ -22,12 +22,14 @@ public:
 protected:
     sk_sp<SkData> onRefEncodedData() override;
 
-    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts)
-                     override;
+    bool onGetPixels(
+        const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts) override;
 
-    bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const override;
+    bool onQueryYUVA8(
+        SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount], SkYUVColorSpace*) const override;
 
-    bool onGetYUV8Planes(const SkYUVSizeInfo&, void* planes[3]) override;
+    bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
+                          void* planes[]) override;
 
 private:
     /*
