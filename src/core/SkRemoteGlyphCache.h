@@ -143,6 +143,9 @@ private:
     SkTHashSet<SkFontID> fCachedTypefaces;
     size_t fMaxEntriesInDescriptorMap = kMaxEntriesInDescriptorMap;
 
+    // Cached serialized typefaces.
+    SkTHashMap<SkFontID, sk_sp<SkData>> fSerializedTypefaces;
+
     // State cached until the next serialization.
     SkDescriptorSet fLockedDescs;
     std::vector<WireTypeface> fTypefacesToSend;
