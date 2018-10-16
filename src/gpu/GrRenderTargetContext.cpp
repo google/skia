@@ -296,7 +296,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
     // It could be done but will take more finagling.
     if (clearRect && fRenderTargetContext->caps()->performPartialClearsAsDraws()) {
         GrPaint paint;
-        paint.setColor4f(GrColor4f::FromGrColor(color));
+        paint.setColor4f(SkPMColor4f::FromBytes_RGBA(color));
         SkRect scissor = SkRect::Make(rtRect);
         std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(fRenderTargetContext->fContext,
                                                                     std::move(paint), SkMatrix::I(),
@@ -345,7 +345,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     } else {
         if (this->caps()->performPartialClearsAsDraws()) {
             GrPaint paint;
-            paint.setColor4f(GrColor4f::FromGrColor(color));
+            paint.setColor4f(SkPMColor4f::FromBytes_RGBA(color));
             SkRect scissor = SkRect::Make(clip.scissorRect());
             std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(fContext, std::move(paint),
                                                                         SkMatrix::I(), scissor,

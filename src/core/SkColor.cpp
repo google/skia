@@ -127,6 +127,18 @@ SkPMColor4f SkPMColor4f::FromPMColor(SkPMColor c) {
 }
 
 template <>
+uint32_t SkPMColor4f::toBytes_RGBA() const {
+    return Sk4f_toL32(Sk4f::Load(this->vec()));
+}
+
+template <>
+SkPMColor4f SkPMColor4f::FromBytes_RGBA(uint32_t c) {
+    SkPMColor4f color;
+    Sk4f_fromL32(c).store(&color);
+    return color;
+}
+
+template <>
 SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
     SkColor4f c4;
     Sk4f::Min(Sk4f::Max(Sk4f(r, g, b, a), Sk4f(0)), Sk4f(1)).store(c4.vec());
