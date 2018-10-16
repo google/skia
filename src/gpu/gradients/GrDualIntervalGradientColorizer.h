@@ -15,22 +15,22 @@
 #include "GrCoordTransform.h"
 class GrDualIntervalGradientColorizer : public GrFragmentProcessor {
 public:
-    const GrColor4f& scale01() const { return fScale01; }
-    const GrColor4f& bias01() const { return fBias01; }
-    const GrColor4f& scale23() const { return fScale23; }
-    const GrColor4f& bias23() const { return fBias23; }
+    const SkPMColor4f& scale01() const { return fScale01; }
+    const SkPMColor4f& bias01() const { return fBias01; }
+    const SkPMColor4f& scale23() const { return fScale23; }
+    const SkPMColor4f& bias23() const { return fBias23; }
     float threshold() const { return fThreshold; }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(const GrColor4f& c0, const GrColor4f& c1,
-                                                     const GrColor4f& c2, const GrColor4f& c3,
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkPMColor4f& c0, const SkPMColor4f& c1,
+                                                     const SkPMColor4f& c2, const SkPMColor4f& c3,
                                                      float threshold);
     GrDualIntervalGradientColorizer(const GrDualIntervalGradientColorizer& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DualIntervalGradientColorizer"; }
 
 private:
-    GrDualIntervalGradientColorizer(GrColor4f scale01, GrColor4f bias01, GrColor4f scale23,
-                                    GrColor4f bias23, float threshold)
+    GrDualIntervalGradientColorizer(SkPMColor4f scale01, SkPMColor4f bias01, SkPMColor4f scale23,
+                                    SkPMColor4f bias23, float threshold)
             : INHERITED(kGrDualIntervalGradientColorizer_ClassID, kNone_OptimizationFlags)
             , fScale01(scale01)
             , fBias01(bias01)
@@ -41,10 +41,10 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    GrColor4f fScale01;
-    GrColor4f fBias01;
-    GrColor4f fScale23;
-    GrColor4f fBias23;
+    SkPMColor4f fScale01;
+    SkPMColor4f fBias01;
+    SkPMColor4f fScale23;
+    SkPMColor4f fBias23;
     float fThreshold;
     typedef GrFragmentProcessor INHERITED;
 };

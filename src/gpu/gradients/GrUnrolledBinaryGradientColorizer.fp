@@ -14,23 +14,23 @@ layout(key) in int intervalCount;
 // With the current hardstop detection threshold of 0.00024, the maximum scale and bias values
 // will be on the order of 4k (since they divide by dt). That is well outside the precision
 // capabilities of half floats, which can lead to inaccurate gradient calculations
-layout(ctype=GrColor4f) in uniform float4 scale0_1;
-layout(ctype=GrColor4f, when=intervalCount > 1) in uniform float4 scale2_3;
-layout(ctype=GrColor4f, when=intervalCount > 2) in uniform float4 scale4_5;
-layout(ctype=GrColor4f, when=intervalCount > 3) in uniform float4 scale6_7;
-layout(ctype=GrColor4f, when=intervalCount > 4) in uniform float4 scale8_9;
-layout(ctype=GrColor4f, when=intervalCount > 5) in uniform float4 scale10_11;
-layout(ctype=GrColor4f, when=intervalCount > 6) in uniform float4 scale12_13;
-layout(ctype=GrColor4f, when=intervalCount > 7) in uniform float4 scale14_15;
+layout(ctype=SkPMColor4f) in uniform float4 scale0_1;
+layout(ctype=SkPMColor4f, when=intervalCount > 1) in uniform float4 scale2_3;
+layout(ctype=SkPMColor4f, when=intervalCount > 2) in uniform float4 scale4_5;
+layout(ctype=SkPMColor4f, when=intervalCount > 3) in uniform float4 scale6_7;
+layout(ctype=SkPMColor4f, when=intervalCount > 4) in uniform float4 scale8_9;
+layout(ctype=SkPMColor4f, when=intervalCount > 5) in uniform float4 scale10_11;
+layout(ctype=SkPMColor4f, when=intervalCount > 6) in uniform float4 scale12_13;
+layout(ctype=SkPMColor4f, when=intervalCount > 7) in uniform float4 scale14_15;
 
-layout(ctype=GrColor4f) in uniform float4 bias0_1;
-layout(ctype=GrColor4f, when=intervalCount > 1) in uniform float4 bias2_3;
-layout(ctype=GrColor4f, when=intervalCount > 2) in uniform float4 bias4_5;
-layout(ctype=GrColor4f, when=intervalCount > 3) in uniform float4 bias6_7;
-layout(ctype=GrColor4f, when=intervalCount > 4) in uniform float4 bias8_9;
-layout(ctype=GrColor4f, when=intervalCount > 5) in uniform float4 bias10_11;
-layout(ctype=GrColor4f, when=intervalCount > 6) in uniform float4 bias12_13;
-layout(ctype=GrColor4f, when=intervalCount > 7) in uniform float4 bias14_15;
+layout(ctype=SkPMColor4f) in uniform float4 bias0_1;
+layout(ctype=SkPMColor4f, when=intervalCount > 1) in uniform float4 bias2_3;
+layout(ctype=SkPMColor4f, when=intervalCount > 2) in uniform float4 bias4_5;
+layout(ctype=SkPMColor4f, when=intervalCount > 3) in uniform float4 bias6_7;
+layout(ctype=SkPMColor4f, when=intervalCount > 4) in uniform float4 bias8_9;
+layout(ctype=SkPMColor4f, when=intervalCount > 5) in uniform float4 bias10_11;
+layout(ctype=SkPMColor4f, when=intervalCount > 6) in uniform float4 bias12_13;
+layout(ctype=SkPMColor4f, when=intervalCount > 7) in uniform float4 bias14_15;
 
 // The 7 threshold positions that define the boundaries of the 8 intervals (excluding t = 0, and t =
 // 1) are packed into two half4's instead of having up to 7 separate scalar uniforms. For low
@@ -114,7 +114,7 @@ void main() {
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(const GrColor4f* colors,
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkPMColor4f* colors,
                                                      const SkScalar* positions,
                                                      int count);
 }
@@ -122,7 +122,7 @@ void main() {
 @cppEnd {
     static const int kMaxIntervals = 8;
     std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::Make(
-            const GrColor4f* colors, const SkScalar* positions, int count) {
+            const SkPMColor4f* colors, const SkScalar* positions, int count) {
         // Depending on how the positions resolve into hard stops or regular stops, the number of
         // intervals specified by the number of colors/positions can change. For instance, a plain
         // 3 color gradient is two intervals, but a 4 color gradient with a hard stop is also
@@ -136,8 +136,8 @@ void main() {
 
         // The raster implementation also uses scales and biases, but since they must be calculated
         // after the dst color space is applied, it limits our ability to cache their values.
-        GrColor4f scales[kMaxIntervals];
-        GrColor4f biases[kMaxIntervals];
+        SkPMColor4f scales[kMaxIntervals];
+        SkPMColor4f biases[kMaxIntervals];
         SkScalar thresholds[kMaxIntervals];
 
         int intervalCount = 0;
@@ -159,8 +159,8 @@ void main() {
                 continue;
             }
 
-            auto c0 = Sk4f::Load(colors[i].fRGBA);
-            auto c1 = Sk4f::Load(colors[i + 1].fRGBA);
+            auto c0 = Sk4f::Load(colors[i].vec());
+            auto c1 = Sk4f::Load(colors[i + 1].vec());
 
             auto scale = (c1 - c0) / dt;
             auto bias = c0 - t0 * scale;
@@ -173,8 +173,8 @@ void main() {
 
         // For isEqual to make sense, set the unused values to something consistent
         for (int i = intervalCount; i < kMaxIntervals; i++) {
-            scales[i] = GrColor4f::TransparentBlack();
-            biases[i] = GrColor4f::TransparentBlack();
+            scales[i] = SK_PMColor4fTRANSPARENT;
+            biases[i] = SK_PMColor4fTRANSPARENT;
             thresholds[i] = 0.0;
         }
 

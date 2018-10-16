@@ -59,20 +59,20 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrClampedGradientEffect& _outer = _proc.cast<GrClampedGradientEffect>();
         {
-            const GrColor4f& leftBorderColorValue = _outer.leftBorderColor();
+            const SkPMColor4f& leftBorderColorValue = _outer.leftBorderColor();
             if (fLeftBorderColorPrev != leftBorderColorValue) {
                 fLeftBorderColorPrev = leftBorderColorValue;
-                pdman.set4fv(fLeftBorderColorVar, 1, leftBorderColorValue.fRGBA);
+                pdman.set4fv(fLeftBorderColorVar, 1, leftBorderColorValue.vec());
             }
-            const GrColor4f& rightBorderColorValue = _outer.rightBorderColor();
+            const SkPMColor4f& rightBorderColorValue = _outer.rightBorderColor();
             if (fRightBorderColorPrev != rightBorderColorValue) {
                 fRightBorderColorPrev = rightBorderColorValue;
-                pdman.set4fv(fRightBorderColorVar, 1, rightBorderColorValue.fRGBA);
+                pdman.set4fv(fRightBorderColorVar, 1, rightBorderColorValue.vec());
             }
         }
     }
-    GrColor4f fLeftBorderColorPrev = GrColor4f::kIllegalConstructor;
-    GrColor4f fRightBorderColorPrev = GrColor4f::kIllegalConstructor;
+    SkPMColor4f fLeftBorderColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f fRightBorderColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle fLeftBorderColorVar;
     UniformHandle fRightBorderColorVar;
 };

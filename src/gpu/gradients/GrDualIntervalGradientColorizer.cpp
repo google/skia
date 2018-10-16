@@ -60,25 +60,25 @@ private:
         const GrDualIntervalGradientColorizer& _outer =
                 _proc.cast<GrDualIntervalGradientColorizer>();
         {
-            const GrColor4f& scale01Value = _outer.scale01();
+            const SkPMColor4f& scale01Value = _outer.scale01();
             if (fScale01Prev != scale01Value) {
                 fScale01Prev = scale01Value;
-                pdman.set4fv(fScale01Var, 1, scale01Value.fRGBA);
+                pdman.set4fv(fScale01Var, 1, scale01Value.vec());
             }
-            const GrColor4f& bias01Value = _outer.bias01();
+            const SkPMColor4f& bias01Value = _outer.bias01();
             if (fBias01Prev != bias01Value) {
                 fBias01Prev = bias01Value;
-                pdman.set4fv(fBias01Var, 1, bias01Value.fRGBA);
+                pdman.set4fv(fBias01Var, 1, bias01Value.vec());
             }
-            const GrColor4f& scale23Value = _outer.scale23();
+            const SkPMColor4f& scale23Value = _outer.scale23();
             if (fScale23Prev != scale23Value) {
                 fScale23Prev = scale23Value;
-                pdman.set4fv(fScale23Var, 1, scale23Value.fRGBA);
+                pdman.set4fv(fScale23Var, 1, scale23Value.vec());
             }
-            const GrColor4f& bias23Value = _outer.bias23();
+            const SkPMColor4f& bias23Value = _outer.bias23();
             if (fBias23Prev != bias23Value) {
                 fBias23Prev = bias23Value;
-                pdman.set4fv(fBias23Var, 1, bias23Value.fRGBA);
+                pdman.set4fv(fBias23Var, 1, bias23Value.vec());
             }
             float thresholdValue = _outer.threshold();
             if (fThresholdPrev != thresholdValue) {
@@ -87,10 +87,10 @@ private:
             }
         }
     }
-    GrColor4f fScale01Prev = GrColor4f::kIllegalConstructor;
-    GrColor4f fBias01Prev = GrColor4f::kIllegalConstructor;
-    GrColor4f fScale23Prev = GrColor4f::kIllegalConstructor;
-    GrColor4f fBias23Prev = GrColor4f::kIllegalConstructor;
+    SkPMColor4f fScale01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f fBias01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f fScale23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f fBias23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     float fThresholdPrev = SK_FloatNaN;
     UniformHandle fScale01Var;
     UniformHandle fBias01Var;
@@ -125,24 +125,24 @@ std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::clone() co
     return std::unique_ptr<GrFragmentProcessor>(new GrDualIntervalGradientColorizer(*this));
 }
 
-std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::Make(const GrColor4f& c0,
-                                                                           const GrColor4f& c1,
-                                                                           const GrColor4f& c2,
-                                                                           const GrColor4f& c3,
+std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::Make(const SkPMColor4f& c0,
+                                                                           const SkPMColor4f& c1,
+                                                                           const SkPMColor4f& c2,
+                                                                           const SkPMColor4f& c3,
                                                                            float threshold) {
     // Derive scale and biases from the 4 colors and threshold
-    auto vc0 = Sk4f::Load(c0.fRGBA);
-    auto vc1 = Sk4f::Load(c1.fRGBA);
+    auto vc0 = Sk4f::Load(c0.vec());
+    auto vc1 = Sk4f::Load(c1.vec());
     auto scale01 = (vc1 - vc0) / threshold;
     // bias01 = c0
 
-    auto vc2 = Sk4f::Load(c2.fRGBA);
-    auto vc3 = Sk4f::Load(c3.fRGBA);
+    auto vc2 = Sk4f::Load(c2.vec());
+    auto vc3 = Sk4f::Load(c3.vec());
     auto scale23 = (vc3 - vc2) / (1 - threshold);
     auto bias23 = vc2 - threshold * scale23;
 
     return std::unique_ptr<GrFragmentProcessor>(new GrDualIntervalGradientColorizer(
-            GrColor4f(scale01[0], scale01[1], scale01[2], scale01[3]), c0,
-            GrColor4f(scale23[0], scale23[1], scale23[2], scale23[3]),
-            GrColor4f(bias23[0], bias23[1], bias23[2], bias23[3]), threshold));
+            {scale01[0], scale01[1], scale01[2], scale01[3]}, c0,
+            {scale23[0], scale23[1], scale23[2], scale23[3]},
+            {bias23[0], bias23[1], bias23[2], bias23[3]}, threshold));
 }
