@@ -233,6 +233,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
     }
 
     // Set up color types
+    // TODO: pass in the correct color type rather than deducing it?
     SkColorType texColorTypes[4] = { kUnknown_SkColorType, kUnknown_SkColorType,
                                      kUnknown_SkColorType, kUnknown_SkColorType };
     for (int yuvIndex = 0; yuvIndex < 4; ++yuvIndex) {
@@ -247,10 +248,6 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
             texColorTypes[texIdx] = kRGBA_8888_SkColorType;
         }
     }
-    // If UV is interleaved, then Y will have RGBA color type
-    if (kRGBA_8888_SkColorType == texColorTypes[yuvaIndices[SkYUVAIndex::kU_Index].fIndex]) {
-        texColorTypes[yuvaIndices[SkYUVAIndex::kY_Index].fIndex] = kRGBA_8888_SkColorType;
-    }
 
     // Get lazy proxies
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
@@ -261,9 +258,17 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
             GrPixelConfig fConfig;
             SkPromiseImageHelper fPromiseHelper;
         } params;
-        if (!context->contextPriv().caps()->getConfigFromBackendFormat(yuvaFormats[texIdx],
-                                                                       texColorTypes[texIdx],
-                                                                       &params.fConfig)) {
+        bool res = context->contextPriv().caps()->getConfigFromBackendFormat(yuvaFormats[texIdx],
+                                                                             texColorTypes[texIdx],
+                                                                             &params.fConfig);
+        // Even though the data is single channel, we might be handed a multi-channel texture.
+        // To cover this case, we'll re-try with the RGBA colortype on failure.
+        if (!res && kAlpha_8_SkColorType == texColorTypes[texIdx]) {
+            res = context->contextPriv().caps()->getConfigFromBackendFormat(yuvaFormats[texIdx],
+                                                                            kRGBA_8888_SkColorType,
+                                                                            &params.fConfig);
+        }
+        if (!res) {
             return nullptr;
         }
         params.fPromiseHelper = promiseHelpers[texIdx];
