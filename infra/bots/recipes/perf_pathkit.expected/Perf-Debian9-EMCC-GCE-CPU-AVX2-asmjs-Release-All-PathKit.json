@@ -202,7 +202,7 @@
       "[START_DIR]/[SWARM_OUT_DIR]:/OUT",
       "-e",
       "ASM_JS=1",
-      "gcr.io/skia-public/perf-karma-chrome-tests:68.0.3440.106_v1",
+      "gcr.io/skia-public/perf-karma-chrome-tests:68.0.3440.106_v6",
       "/SRC/skia/infra/pathkit/perf_pathkit.sh",
       "--builder",
       "Perf-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit",
@@ -218,6 +218,8 @@
       "Chrome",
       "--config",
       "Release",
+      "--source_type",
+      "pathkit",
       "--compiled_language",
       "asmjs"
     ],

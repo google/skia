@@ -13,8 +13,6 @@ if [[ ! -d $EMSDK ]]; then
   exit 1
 fi
 
-BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
-mkdir -p $BUILD_DIR
 # Navigate to SKIA_HOME from where this file is located.
 pushd $BASE_DIR/../..
 
@@ -24,17 +22,24 @@ EMCXX=`which em++`
 
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE"
 EXTRA_CFLAGS="\"-DSK_RELEASE\""
+
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
+  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
+  BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
+else
+  BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
 fi
+
+mkdir -p $BUILD_DIR
 
 GN_GPU="skia_enable_gpu=true"
 WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1"
-if [[ $@ == *no_gpu* ]]; then
-  echo "Omitting the GPU backend"
+if [[ $@ == *cpu* ]]; then
+  echo "Using the CPU backend instead of the GPU backend"
   GN_GPU="skia_enable_gpu=false"
+  GN_GPU_FLAGS=""
   WASM_GPU="-DSK_SUPPORT_GPU=0"
 fi
 

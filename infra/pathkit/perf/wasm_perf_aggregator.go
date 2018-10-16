@@ -22,6 +22,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"go.skia.org/infra/perf/go/ingestcommon"
@@ -49,6 +50,7 @@ var (
 	patch_storage    = flag.String("patch_storage", "", "patch storage (if tryjob)")
 	patchset         = flag.Int64("patchset", 0, "patchset (if tryjob)")
 	taskId           = flag.String("task_id", "", "swarming task id")
+	sourceType       = flag.String("source_type", "pathkit", "Gold Source type, like pathkit,canvaskit")
 )
 
 // Received from the JS side.
@@ -81,16 +83,20 @@ type BenchData struct {
 func main() {
 	flag.Parse()
 
+	cpuGPU := "CPU"
+	if strings.Index(*builder, "-GPU-") != -1 {
+		cpuGPU = "GPU"
+	}
 	defaultKeys = map[string]string{
 		"arch":              "WASM",
 		"browser":           *browser,
 		"compiled_language": *compiledLanguage,
 		"compiler":          "emsdk",
 		"configuration":     *config,
-		"cpu_or_gpu":        "CPU",
+		"cpu_or_gpu":        cpuGPU,
 		"cpu_or_gpu_value":  "Browser",
 		"os":                *hostOS,
-		"source_type":       "pathkit",
+		"source_type":       *sourceType,
 	}
 
 	results = make(map[string][]reportBody)

@@ -46,6 +46,7 @@ var (
 	issue            = flag.Int64("issue", 0, "issue (if tryjob)")
 	patchset         = flag.Int64("patchset", 0, "patchset (if tryjob)")
 	taskId           = flag.String("task_id", "", "swarming task id")
+	sourceType       = flag.String("source_type", "pathkit", "Gold Source type, like pathkit,canvaskit")
 )
 
 // Received from the JS side.
@@ -67,16 +68,20 @@ var results []*jsonio.Result
 func main() {
 	flag.Parse()
 
+	cpuGPU := "CPU"
+	if strings.Index(*builder, "-GPU-") != -1 {
+		cpuGPU = "GPU"
+	}
 	defaultKeys = map[string]string{
 		"arch":              "WASM",
 		"browser":           *browser,
 		"compiled_language": *compiledLanguage,
 		"compiler":          "emsdk",
 		"configuration":     *config,
-		"cpu_or_gpu":        "CPU",
+		"cpu_or_gpu":        cpuGPU,
 		"cpu_or_gpu_value":  "Browser",
 		"os":                *hostOS,
-		"source_type":       "pathkit",
+		"source_type":       *sourceType,
 	}
 
 	results = []*jsonio.Result{}
