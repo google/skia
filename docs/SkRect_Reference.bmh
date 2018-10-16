@@ -42,8 +42,6 @@ May contain any value, including infinities and NaN. The larger of the
 vertical values when sorted. When equal to or less than fTop, Rect is empty.
 ##
 
-#Subtopic Constructors
-
 # ------------------------------------------------------------------------------
 
 #Method static constexpr SkRect MakeEmpty()
@@ -293,8 +291,6 @@ than fBottom.
 #SeeAlso MakeLTRB
 
 ##
-
-#Subtopic Constructors ##
 
 #Subtopic Property
 #Line # member values, center, validity ##
