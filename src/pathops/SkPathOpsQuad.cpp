@@ -399,18 +399,22 @@ void SkDQuad::SetABC(const double* quad, double* a, double* b, double* c) {
     *b -= *c;          // b =     2*B - 2*C
 }
 
-int SkTQuad::intersectRay(SkIntersections* i, const SkDLine& line) const {
-    return i->intersectRay(fQuad, line);
-}
+#if PATH_OP_COMPILE_FOR_SIZE
 
-bool SkTQuad::hullIntersects(const SkDConic& conic, bool* isLinear) const  {
-    return conic.hullIntersects(fQuad, isLinear);
-}
+    int SkTQuad::intersectRay(SkIntersections* i, const SkDLine& line) const {
+        return i->intersectRay(fQuad, line);
+    }
 
-bool SkTQuad::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {
-    return cubic.hullIntersects(fQuad, isLinear);
-}
+    bool SkTQuad::hullIntersects(const SkDConic& conic, bool* isLinear) const  {
+        return conic.hullIntersects(fQuad, isLinear);
+    }
 
-void SkTQuad::setBounds(SkDRect* rect) const {
-    rect->setBounds(fQuad);
-}
+    bool SkTQuad::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {
+        return cubic.hullIntersects(fQuad, isLinear);
+    }
+
+    void SkTQuad::setBounds(SkDRect* rect) const {
+        rect->setBounds(fQuad);
+    }
+
+#endif

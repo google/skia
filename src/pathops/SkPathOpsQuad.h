@@ -8,8 +8,7 @@
 #ifndef SkPathOpsQuad_DEFINED
 #define SkPathOpsQuad_DEFINED
 
-#include "SkArenaAlloc.h"
-#include "SkPathOpsTCurve.h"
+#include "SkPathOpsPoint.h"
 
 struct SkOpCurve;
 
@@ -123,6 +122,10 @@ struct SkDQuad {
     SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState);
 };
 
+#if PATH_OP_COMPILE_FOR_SIZE
+
+#include "SkArenaAlloc.h"
+#include "SkPathOpsTCurve.h"
 
 class SkTQuad : public SkTCurve {
 public:
@@ -142,9 +145,6 @@ public:
     bool collapsed() const override { return fQuad.collapsed(); }
     bool controlsInside() const override { return fQuad.controlsInside(); }
     void debugInit() override { return fQuad.debugInit(); }
-#if DEBUG_T_SECT
-    void dumpID(int id) const override { return fQuad.dumpID(id); }
-#endif
     SkDVector dxdyAtT(double t) const override { return fQuad.dxdyAtT(t); }
 #ifdef SK_DEBUG
     SkOpGlobalState* globalState() const override { return fQuad.globalState(); }
@@ -180,5 +180,7 @@ public:
         ((SkTQuad*) curve)->fQuad = fQuad.subDivide(t1, t2);
     }
 };
+
+#endif // PATH_OP_COMPILE_FOR_SIZE
 
 #endif

@@ -985,17 +985,15 @@ bool SkOpSegment::markAngle(int maxWinding, int sumWinding, int oppMaxWinding,
         return false;
     }
 #if DEBUG_WINDING
-    if (result) {
-        SkOpSpanBase* last = *result;
-        if (last) {
-            SkDebugf("%s last segment=%d span=%d", __FUNCTION__,
-                    last->segment()->debugID(), last->debugID());
-            if (!last->final()) {
-                SkDebugf(" windSum=");
-                SkPathOpsDebug::WindingPrintf(last->upCast()->windSum());
-            }
-            SkDebugf(" \n");
+    SkOpSpanBase* last = *result;
+    if (last) {
+        SkDebugf("%s last segment=%d span=%d", __FUNCTION__,
+                last->segment()->debugID(), last->debugID());
+        if (!last->final()) {
+            SkDebugf(" windSum=");
+            SkPathOpsDebug::WindingPrintf(last->upCast()->windSum());
         }
+        SkDebugf(" \n");
     }
 #endif
     return true;

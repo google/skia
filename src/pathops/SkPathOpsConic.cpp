@@ -173,18 +173,22 @@ SkDPoint SkDConic::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, do
     return chopped[1];
 }
 
-int SkTConic::intersectRay(SkIntersections* i, const SkDLine& line) const {
-    return i->intersectRay(fConic, line);
-}
+#if PATH_OP_COMPILE_FOR_SIZE
 
-bool SkTConic::hullIntersects(const SkDQuad& quad, bool* isLinear) const  {
-    return quad.hullIntersects(fConic, isLinear);
-}
+    int SkTConic::intersectRay(SkIntersections* i, const SkDLine& line) const {
+        return i->intersectRay(fConic, line);
+    }
 
-bool SkTConic::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {
-    return cubic.hullIntersects(fConic, isLinear);
-}
+    bool SkTConic::hullIntersects(const SkDQuad& quad, bool* isLinear) const  {
+        return quad.hullIntersects(fConic, isLinear);
+    }
 
-void SkTConic::setBounds(SkDRect* rect) const {
-    rect->setBounds(fConic);
-}
+    bool SkTConic::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {
+        return cubic.hullIntersects(fConic, isLinear);
+    }
+
+    void SkTConic::setBounds(SkDRect* rect) const {
+        rect->setBounds(fConic);
+    }
+
+#endif
