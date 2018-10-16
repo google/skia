@@ -16,8 +16,6 @@
 #include "SkSafe_math.h"  // for fabs, sqrt
 #include "SkScalar.h"
 
-#define PATH_OP_COMPILE_FOR_SIZE 1
-
 enum SkPathOpsMask {
     kWinding_PathOpsMask = -1,
     kNo_PathOpsMask = 0,
