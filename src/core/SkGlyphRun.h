@@ -151,6 +151,7 @@ public:
 
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
+    bool anyRunsSubpixelPositioned() const;
     void temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const;
 
     bool canCache() const { return fOriginalTextBlob != nullptr; }

@@ -196,7 +196,7 @@ public:
         }
     }
 
-    bool mustRegenerate(const SkPaint&, const SkMaskFilterBase::BlurRec& blurRec,
+    bool mustRegenerate(const SkPaint&, bool, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     void flush(GrTextTarget*, const SkSurfaceProps& props,

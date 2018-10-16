@@ -104,6 +104,15 @@ bool SkGlyphRunList::anyRunsLCD() const {
     return false;
 }
 
+bool SkGlyphRunList::anyRunsSubpixelPositioned() const {
+    for (const auto& r : fGlyphRuns) {
+        if (r.paint().isSubpixelText()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
     SkASSERT(fOriginalTextBlob != nullptr);
     fOriginalTextBlob->notifyAddedToCache(cacheID);

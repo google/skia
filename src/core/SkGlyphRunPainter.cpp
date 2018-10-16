@@ -388,7 +388,8 @@ void GrTextContext::drawGlyphRunList(
     }
 
     if (cacheBlob) {
-        if (cacheBlob->mustRegenerate(listPaint, blurRec, viewMatrix, origin.x(), origin.y())) {
+        if (cacheBlob->mustRegenerate(listPaint, glyphRunList.anyRunsSubpixelPositioned(),
+                                      blurRec, viewMatrix, origin.x(),origin.y())) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
