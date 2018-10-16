@@ -47,13 +47,13 @@ public:
     /**
      * The initial color of the drawn primitive. Defaults to solid white.
      */
-    void setColor4f(const GrColor4f& color) { fColor = color; }
-    const GrColor4f& getColor4f() const { return fColor; }
+    void setColor4f(const SkPMColor4f& color) { fColor = color; }
+    const SkPMColor4f& getColor4f() const { return fColor; }
 
     /**
      * Legacy getter, until all code handles 4f directly.
      */
-    GrColor getColor() const { return fColor.toGrColor(); }
+    GrColor getColor() const { return fColor.toBytes_RGBA(); }
 
     void setXPFactory(const GrXPFactory* xpFactory) {
         fXPFactory = xpFactory;
@@ -132,7 +132,7 @@ private:
     SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fColorFragmentProcessors;
     SkSTArray<2, std::unique_ptr<GrFragmentProcessor>> fCoverageFragmentProcessors;
     bool fTrivial = true;
-    GrColor4f fColor = GrColor4f::OpaqueWhite();
+    SkPMColor4f fColor = SK_PMColor4fWHITE;
 };
 
 #endif
