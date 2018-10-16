@@ -1523,9 +1523,6 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
             }
             found = found || restartChecks;
         } while (restartChecks);
-#ifdef SK_DEBUG
-        validate_edge_list(&activeEdges, c);
-#endif
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
             remove_edge(e, &activeEdges);
         }
@@ -1534,6 +1531,9 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
             insert_edge(e, leftEdge, &activeEdges);
             leftEdge = e;
         }
+#ifdef SK_DEBUG
+        validate_edge_list(&activeEdges, c);
+#endif
     }
     SkASSERT(!activeEdges.fHead && !activeEdges.fTail);
     return found;
