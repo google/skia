@@ -757,9 +757,11 @@ void SkPath::setConvexity(Convexity c) {
         fFirstDirection = SkPathPriv::kUnknown_FirstDirection;  \
     } while (0)
 
-void SkPath::incReserve(U16CPU inc) {
+void SkPath::incReserve(int inc) {
     SkDEBUGCODE(this->validate();)
-    SkPathRef::Editor(&fPathRef, inc, inc);
+    if (inc > 0) {
+        SkPathRef::Editor(&fPathRef, inc, inc);
+    }
     SkDEBUGCODE(this->validate();)
 }
 
