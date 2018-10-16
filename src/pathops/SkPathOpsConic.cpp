@@ -94,8 +94,8 @@ SkDPoint SkDConic::ptAtT(double t) const {
     }
     double denominator = conic_eval_denominator(fWeight, t);
     SkDPoint result = {
-        conic_eval_numerator(&fPts[0].fX, fWeight, t) / denominator,
-        conic_eval_numerator(&fPts[0].fY, fWeight, t) / denominator
+        sk_ieee_double_divide(conic_eval_numerator(&fPts[0].fX, fWeight, t), denominator),
+        sk_ieee_double_divide(conic_eval_numerator(&fPts[0].fY, fWeight, t), denominator)
     };
     return result;
 }
