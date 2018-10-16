@@ -185,6 +185,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
 
     SkSpriteBlitter* blitter = nullptr;
 
+#ifdef SK_SUPPORT_LEGACY_SPRITEBLITS
     if (!blitter && SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
         blitter = allocator->make<SkSpriteBlitter_Memcpy>(source);
     }
@@ -210,5 +211,6 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     if (blitter) {
         blitter->setup(dst, left, top, paint);
     }
+#endif
     return blitter;
 }

@@ -1194,9 +1194,11 @@ static bool clipped_out(const SkMatrix& matrix, const SkRasterClip& clip,
     return clipped_out(matrix, clip, r);
 }
 
+#ifdef SK_SUPPORT_LEGACY_SPRITEBLITS
 static bool clipHandlesSprite(const SkRasterClip& clip, int x, int y, const SkPixmap& pmap) {
     return clip.isBW() || clip.quickContains(x, y, x + pmap.width(), y + pmap.height());
 }
+#endif
 
 void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
                         const SkRect* dstBounds, const SkPaint& origPaint) const {
@@ -1221,6 +1223,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         return;
     }
 
+#ifdef SK_SUPPORT_LEGACY_SPRITEBLITS
     if (bitmap.colorType() != kAlpha_8_SkColorType
         && SkTreatAsSprite(matrix, bitmap.dimensions(), *paint)) {
         //
@@ -1245,6 +1248,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
             // if !blitter, then we fall-through to the slower case
         }
     }
+#endif
 
     // now make a temp draw on the stack, and use it
     //
@@ -1288,6 +1292,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
         return;
     }
 
+#ifdef SK_SUPPORT_LEGACY_SPRITEBLITS
     if (nullptr == paint.getColorFilter() && clipHandlesSprite(*fRC, x, y, pmap)) {
         // blitter will be owned by the allocator.
         SkSTArenaAlloc<kSkBlitterContextSize> allocator;
@@ -1297,6 +1302,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
             return;
         }
     }
+#endif
 
     SkMatrix        matrix;
     SkRect          r;
