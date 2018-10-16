@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56e8bb14_d163f343",
+        "filename": "src/gpu/gradients/GrClampedGradientEffect.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-16T20:01:15Z",
+      "side": 1,
+      "message": "One potential location to comment on nature of premul aliasing (would be paired with GrTiledGradientEffect.fp).",
+      "range": {
+        "startLine": 23,
+        "startChar": 20,
+        "endLine": 23,
+        "endChar": 30
+      },
+      "revId": "8b460861d5645d24d36372f56b5a99502848b286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "232e82d9_7f91666a",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-16T20:01:15Z",
+      "side": 1,
+      "message": "One potential location to comment on nature of premul aliasing.",
+      "range": {
+        "startLine": 168,
+        "startChar": 8,
+        "endLine": 169,
+        "endChar": 100
+      },
+      "revId": "8b460861d5645d24d36372f56b5a99502848b286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
