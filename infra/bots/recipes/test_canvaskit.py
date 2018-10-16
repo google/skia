@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Recipe which runs the PathKit tests using docker
+# Recipe which runs the Canvaskit tests using docker
 
 DEPS = [
   'checkout',
@@ -18,7 +18,7 @@ DEPS = [
 
 
 DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v6'
-INNER_KARMA_SCRIPT = '/SRC/skia/infra/pathkit/test_pathkit.sh'
+INNER_KARMA_SCRIPT = '/SRC/skia/infra/canvaskit/test_canvaskit.sh'
 
 
 def RunSteps(api):
@@ -30,23 +30,13 @@ def RunSteps(api):
   # Make sure this exists, otherwise Docker will make it with root permissions.
   api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
 
-  # The karma script is configured to look in ./npm-(asmjs|wasm)/bin/test/ for
+  # The karma script is configured to look in ./canvaskit/bin/ for
   # the test files to load, so we must copy them there (see Set up for docker).
-  copy_dest = checkout_root.join('skia', 'modules', 'pathkit',
-                                 'npm-wasm', 'bin', 'test')
-  if 'asmjs' in api.vars.builder_name:
-    copy_dest = checkout_root.join('skia', 'modules', 'pathkit',
-                                   'npm-asmjs', 'bin', 'test')
+  copy_dest = checkout_root.join('skia', 'experimental', 'canvaskit',
+                                 'canvaskit', 'bin')
 
   base_dir = api.vars.build_dir
-  bundle_name = 'pathkit.wasm'
-  if 'asmjs' in api.vars.builder_name:
-    # release mode has a .js.mem file that needs to come with.
-    # debug mode has an optional .map file, but we can omit that for tests
-    if 'Debug' in api.vars.builder_name:
-      bundle_name = ''
-    else:
-      bundle_name = 'pathkit.js.mem'
+  bundle_name = 'canvaskit.wasm'
 
   api.python.inline(
       name='Set up for docker',
@@ -74,10 +64,10 @@ except OSError as e:
   if e.errno != errno.EEXIST:
     raise
 
-# Copy binaries (pathkit.js and pathkit.wasm) to where the karma tests
-# expect them ($SKIA_ROOT/modules/pathkit/npm-wasm/bin/test/)
-dest = os.path.join(copy_dest, 'pathkit.js')
-shutil.copyfile(os.path.join(base_dir, 'pathkit.js'), dest)
+# Copy binaries (canvaskit.js and canvaskit.wasm) to where the karma tests
+# expect them ($SKIA_ROOT/experimental/canvaskit/canvaskit/bin/)
+dest = os.path.join(copy_dest, 'canvaskit.js')
+shutil.copyfile(os.path.join(base_dir, 'canvaskit.js'), dest)
 os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
 
 if bundle_name:
@@ -97,9 +87,6 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
          '--volume', '%s:/SRC' % checkout_root,
          '--volume', '%s:/OUT' % out_dir]
 
-  if 'asmjs' in api.vars.builder_name:
-    cmd.extend(['--env', 'ASM_JS=1'])
-
   cmd.extend([
       DOCKER_IMAGE,             INNER_KARMA_SCRIPT,
       '--builder',              api.vars.builder_name,
@@ -110,11 +97,8 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
       '--task_id',              api.vars.swarming_task_id,
       '--browser',              'Chrome',
       '--config',               api.vars.configuration,
-      '--source_type',          'pathkit',
+      '--source_type',          'canvaskit',
       ])
-
-  if 'asmjs' in api.vars.builder_name:
-    cmd.extend(['--compiled_language', 'asmjs']) # the default is wasm
 
   if api.vars.is_trybot:
     cmd.extend([
@@ -124,15 +108,15 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
 
   api.run(
     api.step,
-    'Test PathKit with Docker',
+    'Test CanvasKit with Docker',
     cmd=cmd)
 
 
 def GenTests(api):
   yield (
-      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit') +
-      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
-                                  '-wasm-Debug-All-PathKit'),
+      api.test('Test-Debian9-EMCC-GCE-GPU-WEBGL1-wasm-Debug-All-CanvasKit') +
+      api.properties(buildername=('Test-Debian9-EMCC-GCE-GPU-WEBGL1'
+                                  '-wasm-Debug-All-CanvasKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
@@ -140,29 +124,9 @@ def GenTests(api):
   )
 
   yield (
-      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Debug-All-PathKit') +
+      api.test('canvaskit_trybot') +
       api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
-                                  '-asmjs-Debug-All-PathKit'),
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
-  )
-
-  yield (
-      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit') +
-      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
-                                  '-asmjs-Release-All-PathKit'),
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
-  )
-
-  yield (
-      api.test('pathkit_trybot') +
-      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
-                                  '-wasm-Debug-All-PathKit'),
+                                  '-wasm-Debug-All-CanvasKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',

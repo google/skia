@@ -19,7 +19,6 @@
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
-    SkDEBUGFAIL("NVPR disabled");
     return nullptr;
 }
 

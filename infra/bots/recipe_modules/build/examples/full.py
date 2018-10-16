@@ -47,7 +47,7 @@ TEST_BUILDERS = [
   'Build-Debian9-EMCC-asmjs-Release-PathKit',
   'Build-Debian9-EMCC-wasm-Debug-CanvasKit',
   'Build-Debian9-EMCC-wasm-Debug-PathKit',
-  'Build-Debian9-EMCC-wasm-Release-CanvasKit',
+  'Build-Debian9-EMCC-wasm-Release-CanvasKit_CPU',
   'Build-Debian9-EMCC-wasm-Release-PathKit',
   'Build-Debian9-GCC-arm-Release-Chromecast',
   'Build-Debian9-GCC-loongson3a-Release',
