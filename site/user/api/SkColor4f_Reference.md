@@ -16,7 +16,7 @@ struct <a href='#SkRGBA4f'>SkRGBA4f</a> {
     <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_multiply_operator'>operator*(float scale)_const</a>;
     <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_multiply1_operator'>operator*(const SkRGBA4f& scale)_const</a>;
     const float* <a href='#SkRGBA4f_vec'>vec</a>() const;
-          float* <a href='#SkRGBA4f_vec'>vec</a>();
+    float* <a href='#SkRGBA4f_vec'>vec</a>();
     float <a href='#SkRGBA4f_array_operator'>operator[](int index)_const</a>;
     float& <a href='#SkRGBA4f_array1_operator'>operator[](int index)</a>;
     bool <a href='#SkRGBA4f_isOpaque'>isOpaque</a>() const;
