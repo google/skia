@@ -17,26 +17,26 @@ class GrUnrolledBinaryGradientColorizer : public GrFragmentProcessor {
 public:
     static const int kMaxColorCount = 16;
     int32_t intervalCount() const { return fIntervalCount; }
-    const GrColor4f& scale0_1() const { return fScale0_1; }
-    const GrColor4f& scale2_3() const { return fScale2_3; }
-    const GrColor4f& scale4_5() const { return fScale4_5; }
-    const GrColor4f& scale6_7() const { return fScale6_7; }
-    const GrColor4f& scale8_9() const { return fScale8_9; }
-    const GrColor4f& scale10_11() const { return fScale10_11; }
-    const GrColor4f& scale12_13() const { return fScale12_13; }
-    const GrColor4f& scale14_15() const { return fScale14_15; }
-    const GrColor4f& bias0_1() const { return fBias0_1; }
-    const GrColor4f& bias2_3() const { return fBias2_3; }
-    const GrColor4f& bias4_5() const { return fBias4_5; }
-    const GrColor4f& bias6_7() const { return fBias6_7; }
-    const GrColor4f& bias8_9() const { return fBias8_9; }
-    const GrColor4f& bias10_11() const { return fBias10_11; }
-    const GrColor4f& bias12_13() const { return fBias12_13; }
-    const GrColor4f& bias14_15() const { return fBias14_15; }
+    const SkPMColor4f& scale0_1() const { return fScale0_1; }
+    const SkPMColor4f& scale2_3() const { return fScale2_3; }
+    const SkPMColor4f& scale4_5() const { return fScale4_5; }
+    const SkPMColor4f& scale6_7() const { return fScale6_7; }
+    const SkPMColor4f& scale8_9() const { return fScale8_9; }
+    const SkPMColor4f& scale10_11() const { return fScale10_11; }
+    const SkPMColor4f& scale12_13() const { return fScale12_13; }
+    const SkPMColor4f& scale14_15() const { return fScale14_15; }
+    const SkPMColor4f& bias0_1() const { return fBias0_1; }
+    const SkPMColor4f& bias2_3() const { return fBias2_3; }
+    const SkPMColor4f& bias4_5() const { return fBias4_5; }
+    const SkPMColor4f& bias6_7() const { return fBias6_7; }
+    const SkPMColor4f& bias8_9() const { return fBias8_9; }
+    const SkPMColor4f& bias10_11() const { return fBias10_11; }
+    const SkPMColor4f& bias12_13() const { return fBias12_13; }
+    const SkPMColor4f& bias14_15() const { return fBias14_15; }
     const SkRect& thresholds1_7() const { return fThresholds1_7; }
     const SkRect& thresholds9_13() const { return fThresholds9_13; }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(const GrColor4f* colors,
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkPMColor4f* colors,
                                                      const SkScalar* positions,
                                                      int count);
     GrUnrolledBinaryGradientColorizer(const GrUnrolledBinaryGradientColorizer& src);
@@ -45,22 +45,22 @@ public:
 
 private:
     GrUnrolledBinaryGradientColorizer(int32_t intervalCount,
-                                      GrColor4f scale0_1,
-                                      GrColor4f scale2_3,
-                                      GrColor4f scale4_5,
-                                      GrColor4f scale6_7,
-                                      GrColor4f scale8_9,
-                                      GrColor4f scale10_11,
-                                      GrColor4f scale12_13,
-                                      GrColor4f scale14_15,
-                                      GrColor4f bias0_1,
-                                      GrColor4f bias2_3,
-                                      GrColor4f bias4_5,
-                                      GrColor4f bias6_7,
-                                      GrColor4f bias8_9,
-                                      GrColor4f bias10_11,
-                                      GrColor4f bias12_13,
-                                      GrColor4f bias14_15,
+                                      SkPMColor4f scale0_1,
+                                      SkPMColor4f scale2_3,
+                                      SkPMColor4f scale4_5,
+                                      SkPMColor4f scale6_7,
+                                      SkPMColor4f scale8_9,
+                                      SkPMColor4f scale10_11,
+                                      SkPMColor4f scale12_13,
+                                      SkPMColor4f scale14_15,
+                                      SkPMColor4f bias0_1,
+                                      SkPMColor4f bias2_3,
+                                      SkPMColor4f bias4_5,
+                                      SkPMColor4f bias6_7,
+                                      SkPMColor4f bias8_9,
+                                      SkPMColor4f bias10_11,
+                                      SkPMColor4f bias12_13,
+                                      SkPMColor4f bias14_15,
                                       SkRect thresholds1_7,
                                       SkRect thresholds9_13)
             : INHERITED(kGrUnrolledBinaryGradientColorizer_ClassID, kNone_OptimizationFlags)
@@ -88,22 +88,22 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     int32_t fIntervalCount;
-    GrColor4f fScale0_1;
-    GrColor4f fScale2_3;
-    GrColor4f fScale4_5;
-    GrColor4f fScale6_7;
-    GrColor4f fScale8_9;
-    GrColor4f fScale10_11;
-    GrColor4f fScale12_13;
-    GrColor4f fScale14_15;
-    GrColor4f fBias0_1;
-    GrColor4f fBias2_3;
-    GrColor4f fBias4_5;
-    GrColor4f fBias6_7;
-    GrColor4f fBias8_9;
-    GrColor4f fBias10_11;
-    GrColor4f fBias12_13;
-    GrColor4f fBias14_15;
+    SkPMColor4f fScale0_1;
+    SkPMColor4f fScale2_3;
+    SkPMColor4f fScale4_5;
+    SkPMColor4f fScale6_7;
+    SkPMColor4f fScale8_9;
+    SkPMColor4f fScale10_11;
+    SkPMColor4f fScale12_13;
+    SkPMColor4f fScale14_15;
+    SkPMColor4f fBias0_1;
+    SkPMColor4f fBias2_3;
+    SkPMColor4f fBias4_5;
+    SkPMColor4f fBias6_7;
+    SkPMColor4f fBias8_9;
+    SkPMColor4f fBias10_11;
+    SkPMColor4f fBias12_13;
+    SkPMColor4f fBias14_15;
     SkRect fThresholds1_7;
     SkRect fThresholds9_13;
     typedef GrFragmentProcessor INHERITED;

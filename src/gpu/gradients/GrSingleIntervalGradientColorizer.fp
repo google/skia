@@ -9,8 +9,8 @@
 // two end points based on t. But it serves as a good test for connecting all of the plumbing into a
 // functional gradient shader.
 
-layout(ctype=GrColor4f, tracked) in uniform half4 start;
-layout(ctype=GrColor4f, tracked) in uniform half4 end;
+layout(ctype=SkPMColor4f, tracked) in uniform half4 start;
+layout(ctype=SkPMColor4f, tracked) in uniform half4 end;
 
 void main() {
     half t = sk_InColor.x;

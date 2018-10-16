@@ -12,7 +12,7 @@
 #include "SkBitmap.h"
 #include "SkMutex.h"
 #include "SkNoncopyable.h"
-#include "GrColor.h"
+#include "SkPM4f.h"
 
 class GrGradientBitmapCache : SkNoncopyable {
 public:
@@ -21,7 +21,7 @@ public:
 
     // Assumes colors are compatible with the specified alphaType (e.g. if it's premul then colors
     // are already premultiplied). Thread safe.
-    void getGradient(const GrColor4f* colors, const SkScalar* positions, int count,
+    void getGradient(const SkPMColor4f* colors, const SkScalar* positions, int count,
                      SkColorType colorType, SkAlphaType alphaType, SkBitmap* bitmap);
 
 private:
@@ -41,7 +41,7 @@ private:
     bool find(const void* buffer, size_t len, SkBitmap*) const;
     void add(const void* buffer, size_t len, const SkBitmap&);
 
-    void fillGradient(const GrColor4f* colors, const SkScalar* positions, int count,
+    void fillGradient(const SkPMColor4f* colors, const SkScalar* positions, int count,
                       SkColorType colorType, SkBitmap* bitmap);
 
 #ifdef SK_DEBUG

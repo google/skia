@@ -15,14 +15,14 @@
 #include "GrCoordTransform.h"
 class GrClampedGradientEffect : public GrFragmentProcessor {
 public:
-    const GrColor4f& leftBorderColor() const { return fLeftBorderColor; }
-    const GrColor4f& rightBorderColor() const { return fRightBorderColor; }
+    const SkPMColor4f& leftBorderColor() const { return fLeftBorderColor; }
+    const SkPMColor4f& rightBorderColor() const { return fRightBorderColor; }
     bool makePremul() const { return fMakePremul; }
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
     static std::unique_ptr<GrFragmentProcessor> Make(
             std::unique_ptr<GrFragmentProcessor> colorizer,
-            std::unique_ptr<GrFragmentProcessor> gradLayout, GrColor4f leftBorderColor,
-            GrColor4f rightBorderColor, bool makePremul, bool colorsAreOpaque) {
+            std::unique_ptr<GrFragmentProcessor> gradLayout, SkPMColor4f leftBorderColor,
+            SkPMColor4f rightBorderColor, bool makePremul, bool colorsAreOpaque) {
         return std::unique_ptr<GrFragmentProcessor>(new GrClampedGradientEffect(
                 std::move(colorizer), std::move(gradLayout), leftBorderColor, rightBorderColor,
                 makePremul, colorsAreOpaque));
@@ -34,8 +34,8 @@ public:
 private:
     GrClampedGradientEffect(std::unique_ptr<GrFragmentProcessor> colorizer,
                             std::unique_ptr<GrFragmentProcessor> gradLayout,
-                            GrColor4f leftBorderColor, GrColor4f rightBorderColor, bool makePremul,
-                            bool colorsAreOpaque)
+                            SkPMColor4f leftBorderColor, SkPMColor4f rightBorderColor,
+                            bool makePremul, bool colorsAreOpaque)
             : INHERITED(kGrClampedGradientEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
                                 (colorsAreOpaque && gradLayout->preservesOpaqueInput()
@@ -52,8 +52,8 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    GrColor4f fLeftBorderColor;
-    GrColor4f fRightBorderColor;
+    SkPMColor4f fLeftBorderColor;
+    SkPMColor4f fRightBorderColor;
     bool fMakePremul;
     bool fColorsAreOpaque;
     typedef GrFragmentProcessor INHERITED;

@@ -17,8 +17,8 @@
 in fragmentProcessor colorizer;
 in fragmentProcessor gradLayout;
 
-layout(ctype=GrColor4f, tracked) in uniform half4 leftBorderColor;  // t < 0.0
-layout(ctype=GrColor4f, tracked) in uniform half4 rightBorderColor; // t > 1.0
+layout(ctype=SkPMColor4f, tracked) in uniform half4 leftBorderColor;  // t < 0.0
+layout(ctype=SkPMColor4f, tracked) in uniform half4 rightBorderColor; // t > 1.0
 
 layout(key) in bool makePremul;
 // Trust the creator that this matches the color spec of the gradient

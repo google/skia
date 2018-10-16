@@ -125,7 +125,7 @@ void GrGradientBitmapCache::add(const void* buffer, size_t len, const SkBitmap& 
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void GrGradientBitmapCache::fillGradient(const GrColor4f* colors, const SkScalar* positions,
+void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors, const SkScalar* positions,
                                          int count, SkColorType colorType, SkBitmap* bitmap) {
     SkHalf* pixelsF16 = reinterpret_cast<SkHalf*>(bitmap->getPixels());
     uint32_t* pixels32 = reinterpret_cast<uint32_t*>(bitmap->getPixels());
@@ -155,8 +155,8 @@ void GrGradientBitmapCache::fillGradient(const GrColor4f* colors, const SkScalar
                                SkIntToScalar(fResolution - 1));
 
         if (nextIndex > prevIndex) {
-            Sk4f          c0 = Sk4f::Load(colors[i - 1].fRGBA),
-                          c1 = Sk4f::Load(colors[i    ].fRGBA);
+            Sk4f          c0 = Sk4f::Load(colors[i - 1].vec()),
+                          c1 = Sk4f::Load(colors[i    ].vec());
 
             Sk4f step = Sk4f(1.0f / static_cast<float>(nextIndex - prevIndex));
             Sk4f delta = (c1 - c0) * step;
@@ -171,11 +171,11 @@ void GrGradientBitmapCache::fillGradient(const GrColor4f* colors, const SkScalar
     SkASSERT(prevIndex == fResolution - 1);
 }
 
-void GrGradientBitmapCache::getGradient(const GrColor4f* colors, const SkScalar* positions,
+void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors, const SkScalar* positions,
         int count, SkColorType colorType, SkAlphaType alphaType, SkBitmap* bitmap) {
     // build our key: [numColors + colors[] + positions[] + alphaType + colorType ]
-    static_assert(sizeof(GrColor4f) % sizeof(int32_t) == 0, "");
-    const int colorsAsIntCount = count * sizeof(GrColor4f) / sizeof(int32_t);
+    static_assert(sizeof(SkPMColor4f) % sizeof(int32_t) == 0, "");
+    const int colorsAsIntCount = count * sizeof(SkPMColor4f) / sizeof(int32_t);
     int keyCount = 1 + colorsAsIntCount + 1 + 1;
     if (count > 2) {
         keyCount += count - 1;
@@ -185,7 +185,7 @@ void GrGradientBitmapCache::getGradient(const GrColor4f* colors, const SkScalar*
     int32_t* buffer = storage.get();
 
     *buffer++ = count;
-    memcpy(buffer, colors, count * sizeof(GrColor4f));
+    memcpy(buffer, colors, count * sizeof(SkPMColor4f));
     buffer += colorsAsIntCount;
     if (count > 2) {
         for (int i = 1; i < count; i++) {

@@ -36,7 +36,7 @@ static const int kGradientTextureSize = 256;
 
 // NOTE: signature takes raw pointers to the color/pos arrays and a count to make it easy for
 // MakeColorizer to transparently take care of hard stops at the end points of the gradient.
-static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const GrColor4f* colors,
+static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMColor4f* colors,
         const SkScalar* positions, int count, bool premul, const GrFPArgs& args) {
     static GrGradientBitmapCache gCache(kMaxNumCachedGradientBitmaps, kGradientTextureSize);
 
@@ -66,7 +66,7 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const GrColo
 
 // Analyze the shader's color stops and positions and chooses an appropriate colorizer to represent
 // the gradient.
-static std::unique_ptr<GrFragmentProcessor> make_colorizer(const GrColor4f* colors,
+static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* colors,
         const SkScalar* positions, int count, bool premul, const GrFPArgs& args) {
     // If there are hard stops at the beginning or end, the first and/or last color should be
     // ignored by the colorizer since it should only be used in a clamped border color. By detecting
@@ -156,19 +156,18 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
         return nullptr;
     }
 
-    // Convert all colors into destination space and into GrColor4fs, and handle
+    // Convert all colors into destination space and into SkPMColor4fs, and handle
     // premul issues depending on the interpolation mode
     bool inputPremul = shader.getGradFlags() & SkGradientShader::kInterpolateColorsInPremul_Flag;
     bool allOpaque = true;
-    SkAutoSTMalloc<4, GrColor4f> colors(shader.fColorCount);
+    SkAutoSTMalloc<4, SkPMColor4f> colors(shader.fColorCount);
     SkColor4fXformer xformedColors(shader.fOrigColors4f, shader.fColorCount,
             shader.fColorSpace.get(), args.fDstColorSpaceInfo->colorSpace());
     for (int i = 0; i < shader.fColorCount; i++) {
-        colors[i] = GrColor4f::FromRGBA4f(xformedColors.fColors[i]);
-        if (inputPremul) {
-            colors[i] = colors[i].premul();
-        }
-        if (allOpaque && !SkScalarNearlyEqual(colors[i].fRGBA[3], 1.0)) {
+        const SkColor4f& upmColor = xformedColors.fColors[i];
+        colors[i] = inputPremul ? upmColor.premul()
+                                : SkPMColor4f{ upmColor.fR, upmColor.fG, upmColor.fB, upmColor.fA };
+        if (allOpaque && !SkScalarNearlyEqual(colors[i].fA, 1.0)) {
             allOpaque = false;
         }
     }
@@ -226,7 +225,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
             // Even if the gradient colors are opaque, the decal borders are transparent so
             // disable that optimization
             master = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
-                    GrColor4f::TransparentBlack(), GrColor4f::TransparentBlack(),
+                    SK_PMColor4fTRANSPARENT, SK_PMColor4fTRANSPARENT,
                     makePremul, /* colorsAreOpaque */ false);
             break;
     }
