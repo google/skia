@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baacb06d_fefa534a",
+        "filename": "src/pdf/SkPDFFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-16T19:01:50Z",
+      "side": 1,
+      "message": "This can be private now, and maybe not needed as a result (users can just use fFontType).",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 77
+      },
+      "revId": "1f6bb9eac1a3e59d81665f59648609f36c0c8532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf84722c_be4fe0b5",
+        "filename": "src/pdf/SkPDFFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-16T19:01:50Z",
+      "side": 1,
+      "message": "This can also be private now? In fact, I don\u0027t think it needs to be in the header at all?",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 90
+      },
+      "revId": "1f6bb9eac1a3e59d81665f59648609f36c0c8532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dcd9322_414c8e14",
+        "filename": "src/pdf/SkPDFFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-16T19:01:50Z",
+      "side": 1,
+      "message": "Looks like this can be private?",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 5
+      },
+      "revId": "1f6bb9eac1a3e59d81665f59648609f36c0c8532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
