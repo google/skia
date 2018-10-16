@@ -23,6 +23,7 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fBindBuffer = bind_to_member(this, &GrGLTestInterface::bindBuffer);
     fFunctions.fBindFramebuffer = bind_to_member(this, &GrGLTestInterface::bindFramebuffer);
     fFunctions.fBindRenderbuffer = bind_to_member(this, &GrGLTestInterface::bindRenderbuffer);
+    fFunctions.fBindSampler = bind_to_member(this, &GrGLTestInterface::bindSampler);
     fFunctions.fBindTexture = bind_to_member(this, &GrGLTestInterface::bindTexture);
     fFunctions.fBindFragDataLocation = bind_to_member(this, &GrGLTestInterface::bindFragDataLocation);
     fFunctions.fBindFragDataLocationIndexed = bind_to_member(this, &GrGLTestInterface::bindFragDataLocationIndexed);
@@ -51,6 +52,7 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fDeleteProgram = bind_to_member(this, &GrGLTestInterface::deleteProgram);
     fFunctions.fDeleteQueries = bind_to_member(this, &GrGLTestInterface::deleteQueries);
     fFunctions.fDeleteRenderbuffers = bind_to_member(this, &GrGLTestInterface::deleteRenderbuffers);
+    fFunctions.fDeleteSamplers = bind_to_member(this, &GrGLTestInterface::deleteSamplers);
     fFunctions.fDeleteShader = bind_to_member(this, &GrGLTestInterface::deleteShader);
     fFunctions.fDeleteTextures = bind_to_member(this, &GrGLTestInterface::deleteTextures);
     fFunctions.fDeleteVertexArrays = bind_to_member(this, &GrGLTestInterface::deleteVertexArrays);
@@ -81,6 +83,7 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fGenerateMipmap = bind_to_member(this, &GrGLTestInterface::generateMipmap);
     fFunctions.fGenQueries = bind_to_member(this, &GrGLTestInterface::genQueries);
     fFunctions.fGenRenderbuffers = bind_to_member(this, &GrGLTestInterface::genRenderbuffers);
+    fFunctions.fGenSamplers = bind_to_member(this, &GrGLTestInterface::genSamplers);
     fFunctions.fGenTextures = bind_to_member(this, &GrGLTestInterface::genTextures);
     fFunctions.fGenVertexArrays = bind_to_member(this, &GrGLTestInterface::genVertexArrays);
     fFunctions.fGetBufferParameteriv = bind_to_member(this, &GrGLTestInterface::getBufferParameteriv);
@@ -131,6 +134,8 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fResolveMultisampleFramebuffer = bind_to_member(this, &GrGLTestInterface::resolveMultisampleFramebuffer);
     fFunctions.fScissor = bind_to_member(this, &GrGLTestInterface::scissor);
     fFunctions.fBindUniformLocation = bind_to_member(this, &GrGLTestInterface::bindUniformLocation);
+    fFunctions.fSamplerParameteri = bind_to_member(this, &GrGLTestInterface::samplerParameteri);
+    fFunctions.fSamplerParameteriv = bind_to_member(this, &GrGLTestInterface::samplerParameteriv);
     fFunctions.fShaderSource = bind_to_member(this, &GrGLTestInterface::shaderSource);
     fFunctions.fStencilFunc = bind_to_member(this, &GrGLTestInterface::stencilFunc);
     fFunctions.fStencilFuncSeparate = bind_to_member(this, &GrGLTestInterface::stencilFuncSeparate);
