@@ -1,3 +1,4 @@
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
 describe('CanvasKit\'s Path Behavior', function() {
     // Note, don't try to print the CanvasKit object - it can cause Karma/Jasmine to lock up.
