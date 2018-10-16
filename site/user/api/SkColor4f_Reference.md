@@ -1,8 +1,14 @@
 SkColor4f Reference
 ===
 
+
 <a name='SkPM4f'></a>
+
+---
+
 <a name='SkRGBA4f'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 struct <a href='#SkRGBA4f'>SkRGBA4f</a> {
@@ -78,7 +84,8 @@ Single precision float for <a href='SkColor_Reference#Alpha'>Alpha</a> ranges fr
 </table>
 
 <a name='SkRGBA4f_equal1_operator'></a>
-## operator==
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool operator==(const SkRGBA4f& other) const
@@ -113,10 +120,9 @@ colorRed == colorNamedRed
 
 <a href='#SkRGBA4f_notequal1_operator'>operator!=(const SkRGBA4f& other) const</a>
 
----
-
 <a name='SkRGBA4f_notequal1_operator'></a>
-## operator!=
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool operator!=(const SkRGBA4f& other) const
@@ -152,10 +158,9 @@ colorGray != colorNamedGray
 
 <a href='#SkRGBA4f_equal1_operator'>operator==(const SkRGBA4f& other) const</a>
 
----
-
 <a name='SkRGBA4f_multiply_operator'></a>
-## operator*
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRGBA4f'>SkRGBA4f</a> operator*(float scale) const
@@ -178,10 +183,9 @@ scaled color
 
 <a href='SkBlendMode_Reference#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a>
 
----
-
 <a name='SkRGBA4f_multiply1_operator'></a>
-## operator*
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRGBA4f'>SkRGBA4f</a> operator*(const SkRGBA4f& scale) const
@@ -204,12 +208,11 @@ scaled color
 
 <a href='SkBlendMode_Reference#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a>
 
----
-
-## <a name='Property_Functions'>Property Functions</a>
+<a name='Property_Functions'></a>
 
 <a name='SkRGBA4f_vec'></a>
-## vec
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const float* <a href='#SkRGBA4f_vec'>vec</a>() const
@@ -238,9 +241,9 @@ red=0.266667 green=0.533333 blue=0.8 alpha=0.533333
 
 <a href='#SkColor4f'>SkColor4f</a>
 
----
-
 <a name='SkRGBA4f_vec_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 float* <a href='#SkRGBA4f_vec'>vec</a>()
@@ -269,10 +272,9 @@ red=0.266667 green=0.533333 blue=0.8 alpha=0.533333
 
 <a href='#SkColor4f'>SkColor4f</a>
 
----
-
 <a name='SkRGBA4f_array_operator'></a>
-## operator[]
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 float <a href='#SkRGBA4f_array1_operator'>operator[](int index)</a> const
@@ -296,10 +298,9 @@ component by <a href='#SkRGBA4f_array_operator_index'>index</a>
 
 <a href='#SkRGBA4f_vec'>vec</a><sup><a href='#SkRGBA4f_vec_2'>[2]</a></sup>
 
----
-
 <a name='SkRGBA4f_array1_operator'></a>
-## operator[]
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 float& <a href='#SkRGBA4f_array1_operator'>operator[](int index)</a>
@@ -323,12 +324,11 @@ writable component reference by <a href='#SkRGBA4f_array1_operator_index'>index<
 
 <a href='#SkRGBA4f_vec'>vec</a><sup><a href='#SkRGBA4f_vec_2'>[2]</a></sup>
 
----
-
-## <a name='Utility_Functions'>Utility Functions</a>
+<a name='Utility_Functions'></a>
 
 <a name='SkRGBA4f_isOpaque'></a>
-## isOpaque
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRGBA4f_isOpaque'>isOpaque</a>() const
@@ -346,10 +346,9 @@ true if <a href='SkColor_Reference#Alpha'>Alpha</a> is one
 
 <a href='#SkRGBA4f_vec'>vec</a><sup><a href='#SkRGBA4f_vec_2'>[2]</a></sup> <a href='SkColor_Reference#SkColorGetA'>SkColorGetA</a>
 
----
-
 <a name='SkRGBA4f_Pin'></a>
-## Pin
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_Pin'>Pin</a>(float r, float g, float b, float a)
@@ -385,10 +384,9 @@ Constructs and returns <a href='#SkRGBA4f'>SkRGBA4f</a> with each component pinn
 
 <a href='#SkRGBA4f_pin'>pin</a>() <a href='#SkRGBA4f_FromColor'>FromColor</a>
 
----
-
 <a name='SkRGBA4f_pin'></a>
-## pin
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_pin'>pin</a>() const
@@ -408,10 +406,9 @@ Returns <a href='#SkRGBA4f'>SkRGBA4f</a> with all components in the range from z
 
 <a href='#SkRGBA4f_Pin'>Pin</a>
 
----
-
 <a name='SkRGBA4f_FromColor'></a>
-## FromColor
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_FromColor'>FromColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a>)
@@ -447,10 +444,9 @@ red=77 green=101 blue=153 alpha=43
 
 <a href='#SkRGBA4f_toSkColor'>toSkColor</a>
 
----
-
 <a name='SkRGBA4f_toSkColor'></a>
-## toSkColor
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkRGBA4f_toSkColor'>toSkColor</a>() const
@@ -479,10 +475,9 @@ red=0.0705882 green=0.129412 blue=0.321569 alpha=0.168627
 
 <a href='#SkRGBA4f_FromColor'>FromColor</a>
 
----
-
 <a name='SkRGBA4f_FromPMColor'></a>
-## FromPMColor
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_FromPMColor'>FromPMColor</a>(<a href='SkColor_Reference#SkPMColor'>SkPMColor</a>)
@@ -506,10 +501,9 @@ components.
 
 <a href='#SkRGBA4f_FromColor'>FromColor</a>
 
----
-
 <a name='SkRGBA4f_premul'></a>
-## premul
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRGBA4f'>SkRGBA4f</a>&lt;<a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>&gt; <a href='#SkRGBA4f_premul'>premul</a>() const
@@ -525,10 +519,9 @@ Returns <a href='#SkColor4f'>SkColor4f</a> with all components premultiplied by 
 
 <a href='#SkRGBA4f_unpremul'>unpremul</a>
 
----
-
 <a name='SkRGBA4f_unpremul'></a>
-## unpremul
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkRGBA4f'>SkRGBA4f</a>&lt;<a href='SkImageInfo_Reference#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a>&gt; <a href='#SkRGBA4f_unpremul'>unpremul</a>() const
@@ -544,9 +537,9 @@ Returns <a href='#SkRGBA4f'>SkRGBA4f</a> with all components independent of <a h
 
 <a href='#SkRGBA4f_premul'>premul</a>
 
----
+<a name='SkColor4f'></a>
 
-## <a name='SkColor4f'>Typedef SkColor4f</a>
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 using <a href='#SkColor4f'>SkColor4f</a> = <a href='#SkRGBA4f'>SkRGBA4f</a><<a href='SkImageInfo_Reference#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a>>;

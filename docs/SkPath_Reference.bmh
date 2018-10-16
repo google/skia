@@ -1128,7 +1128,8 @@ after reset path is empty
 #Line # returns if final Contour forms a loop ##
 Returns if Contour is closed.
 Contour is closed if Path Verb array was last modified by close(). When stroked,
-closed Contour draws Paint_Stroke_Join instead of Paint_Stroke_Cap at first and last Point.
+closed Contour draws Paint_Stroke_Join instead of Paint_Stroke_Cap at first and
+last Point.
 
 #Return  true if the last Contour ends with a kClose_Verb ##
 

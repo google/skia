@@ -200,6 +200,8 @@ bool SpellCheck::check(Definition* def) {
             break;
         case MarkType::kFile:
             break;
+        case MarkType::kFilter:
+            break;
         case MarkType::kFormula:
             fInFormula = true;
             break;

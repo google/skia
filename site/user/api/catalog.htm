@@ -309,11 +309,11 @@
         "stdout": "rowBytes: 4 rowBytesAsPixels: 1\\nrowBytes: 5 rowBytesAsPixels: 1\\nrowBytes: 6 rowBytesAsPixels: 1\\nrowBytes: 7 rowBytesAsPixels: 1\\nrowBytes: 8 rowBytesAsPixels: 2\\n"
     },
         "SkBitmap_setAlphaType": {
-    "code": "void draw(SkCanvas* canvas) {\n    const char* colors[] = { \"Unknown\", \"Alpha_8\", \"RGB_565\", \"ARGB_4444\", \"RGBA_8888\", \"RGB_888x\",\n                             \"BGRA_8888\", \"RGBA_1010102\", \"RGB_101010x\", \"Gray_8\", \"RGBA_F16\" };\n    const char* alphas[] = {\"Unknown \", \"Opaque  \", \"Premul  \", \"Unpremul\"};\n    SkBitmap bitmap;\n    SkAlphaType alphaTypes[] = { kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,\n    kUnpremul_SkAlphaType\n                               };\n    SkDebugf(\"%88s\", \"Canonical    Unknown           Opaque            Premul            Unpremul\\n\");\n    for (SkColorType colorType : {\n    kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,\n    kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,\n    kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,\n    kGray_8_SkColorType, kRGBA_F16_SkColorType\n                                 } ) {\n        for (SkAlphaType canonicalAlphaType : alphaTypes) {\n            SkColorTypeValidateAlphaType(colorType, kUnknown_SkAlphaType, &canonicalAlphaType );\n            SkDebugf(\"%10s %10s \", colors[(int) colorType], alphas[(int) canonicalAlphaType ]);\n            for (SkAlphaType alphaType : alphaTypes) {\n                bitmap.setInfo(SkImageInfo::Make(4, 4, colorType, canonicalAlphaType));\n                bool result = bitmap.setAlphaType(alphaType);\n                SkDebugf(\"%s %s    \", result ? \"true \" : \"false\", alphas[(int) bitmap.alphaType()]);\n            }\n            SkDebugf(\"\\n\");\n        }\n    }\n}\n",
-    "hash": "dd73f0f927a049b17982c8cf06dd2d00",
+    "code": "void draw(SkCanvas* canvas) {\n    const char* colors[] = { \"Unknown\", \"Alpha_8\", \"RGB_565\", \"ARGB_4444\", \"RGBA_8888\", \"RGB_888x\",\n                             \"BGRA_8888\", \"RGBA_1010102\", \"RGB_101010x\", \"Gray_8\", \"RGBA_F16\" };\n    const char* alphas[] = {\"Unknown \", \"Opaque  \", \"Premul  \", \"Unpremul\"};\n    SkBitmap bitmap;\n    SkAlphaType alphaTypes[] = { kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,\n    kUnpremul_SkAlphaType\n                               };\n    SkDebugf(\"%18s%15s%17s%18s%19s\\n\", \"Canonical\", \"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\");\n    for (SkColorType colorType : {\n    kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,\n    kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,\n    kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,\n    kGray_8_SkColorType, kRGBA_F16_SkColorType\n                                 } ) {\n        for (SkAlphaType canonicalAlphaType : alphaTypes) {\n            SkColorTypeValidateAlphaType(colorType, kUnknown_SkAlphaType, &canonicalAlphaType );\n            SkDebugf(\"%12s %9s  \", colors[(int) colorType], alphas[(int) canonicalAlphaType ]);\n            for (SkAlphaType alphaType : alphaTypes) {\n                bitmap.setInfo(SkImageInfo::Make(4, 4, colorType, canonicalAlphaType));\n                bool result = bitmap.setAlphaType(alphaType);\n                SkDebugf(\"%s %s    \", result ? \"true \" : \"false\", alphas[(int) bitmap.alphaType()]);\n            }\n            SkDebugf(\"\\n\");\n        }\n    }\n}\n",
+    "hash": "af3adcbea7b58bf90298ca5e0ea93030",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::setAlphaType",
-        "stdout": "Canonical    Unknown           Opaque            Premul            Unpremul\\n   Unknown   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n   Unknown   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n   Unknown   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n   Unknown   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n   Alpha_8   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n   Alpha_8   Opaque   false Opaque      true  Opaque      true  Premul      true  Premul      \\n   Alpha_8   Premul   false Premul      true  Opaque      true  Premul      true  Premul      \\n   Alpha_8   Unpremul false Premul      true  Opaque      true  Premul      true  Premul      \\n   RGB_565   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n   RGB_565   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n   RGB_565   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n   RGB_565   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n ARGB_4444   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n ARGB_4444   Opaque   false Opaque      true  Opaque      true  Premul      true  Unpremul    \\n ARGB_4444   Premul   false Premul      true  Opaque      true  Premul      true  Unpremul    \\n ARGB_4444   Unpremul false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\n RGBA_8888   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n RGBA_8888   Opaque   false Opaque      true  Opaque      true  Premul      true  Unpremul    \\n RGBA_8888   Premul   false Premul      true  Opaque      true  Premul      true  Unpremul    \\n RGBA_8888   Unpremul false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\n  RGB_888x   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n  RGB_888x   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n  RGB_888x   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n  RGB_888x   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n BGRA_8888   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n BGRA_8888   Opaque   false Opaque      true  Opaque      true  Premul      true  Unpremul    \\n BGRA_8888   Premul   false Premul      true  Opaque      true  Premul      true  Unpremul    \\n BGRA_8888   Unpremul false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\nRGBA_1010102   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\nRGBA_1010102   Opaque   false Opaque      true  Opaque      true  Premul      true  Unpremul    \\nRGBA_1010102   Premul   false Premul      true  Opaque      true  Premul      true  Unpremul    \\nRGBA_1010102   Unpremul false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\nRGB_101010x   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\nRGB_101010x   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\nRGB_101010x   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\nRGB_101010x   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n    Gray_8   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n    Gray_8   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n    Gray_8   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n    Gray_8   Opaque   true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n  RGBA_F16   Unknown  true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n  RGBA_F16   Opaque   false Opaque      true  Opaque      true  Premul      true  Unpremul    \\n  RGBA_F16   Premul   false Premul      true  Opaque      true  Premul      true  Unpremul    \\n  RGBA_F16   Unpremul false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\n"
+        "stdout": "Canonical        Unknown           Opaque            Premul           Unpremul\\n     Unknown  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n     Unknown  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n     Unknown  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n     Unknown  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n     Alpha_8  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n     Alpha_8  Opaque    false Opaque      true  Opaque      true  Premul      true  Premul      \\n     Alpha_8  Premul    false Premul      true  Opaque      true  Premul      true  Premul      \\n     Alpha_8  Unpremul  false Premul      true  Opaque      true  Premul      true  Premul      \\n     RGB_565  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n     RGB_565  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n     RGB_565  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n     RGB_565  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n   ARGB_4444  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n   ARGB_4444  Opaque    false Opaque      true  Opaque      true  Premul      true  Unpremul    \\n   ARGB_4444  Premul    false Premul      true  Opaque      true  Premul      true  Unpremul    \\n   ARGB_4444  Unpremul  false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\n   RGBA_8888  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n   RGBA_8888  Opaque    false Opaque      true  Opaque      true  Premul      true  Unpremul    \\n   RGBA_8888  Premul    false Premul      true  Opaque      true  Premul      true  Unpremul    \\n   RGBA_8888  Unpremul  false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\n    RGB_888x  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n    RGB_888x  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n    RGB_888x  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n    RGB_888x  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n   BGRA_8888  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n   BGRA_8888  Opaque    false Opaque      true  Opaque      true  Premul      true  Unpremul    \\n   BGRA_8888  Premul    false Premul      true  Opaque      true  Premul      true  Unpremul    \\n   BGRA_8888  Unpremul  false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\nRGBA_1010102  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\nRGBA_1010102  Opaque    false Opaque      true  Opaque      true  Premul      true  Unpremul    \\nRGBA_1010102  Premul    false Premul      true  Opaque      true  Premul      true  Unpremul    \\nRGBA_1010102  Unpremul  false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\n RGB_101010x  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n RGB_101010x  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n RGB_101010x  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n RGB_101010x  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n      Gray_8  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n      Gray_8  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n      Gray_8  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n      Gray_8  Opaque    true  Opaque      true  Opaque      true  Opaque      true  Opaque      \\n    RGBA_F16  Unknown   true  Unknown     true  Unknown     true  Unknown     true  Unknown     \\n    RGBA_F16  Opaque    false Opaque      true  Opaque      true  Premul      true  Unpremul    \\n    RGBA_F16  Premul    false Premul      true  Opaque      true  Premul      true  Unpremul    \\n    RGBA_F16  Unpremul  false Unpremul    true  Opaque      true  Premul      true  Unpremul    \\n"
     },
         "SkBitmap_setImmutable": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.setInfo(SkImageInfo::MakeN32(4, 4, kPremul_SkAlphaType));\n    bitmap.allocPixels();\n    SkCanvas offscreen(bitmap);\n    SkDebugf(\"draw white\\n\");\n    offscreen.clear(SK_ColorWHITE);\n    bitmap.setImmutable();\n    SkDebugf(\"draw black\\n\");\n    offscreen.clear(SK_ColorBLACK);\n}",
@@ -3856,21 +3856,21 @@
     "file": "SkCanvas_Reference",
     "name": "State_Stack_2"
 },
-    "Color_Alpha_Constants_Opaque": {
-    "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> srcPixels;\n    srcPixels.resize(source.height() * source.rowBytes());\n    SkPixmap pixmap(SkImageInfo::MakeN32Premul(source.width(), source.height()),\n                    &srcPixels.front(), source.rowBytes());\n    source.readPixels(pixmap, 0, 0);\n    for (int y = 0; y < source.height(); ++y) {\n        for (int x = 0; x < source.width(); ++x) {\n            SkPMColor pixel = srcPixels[y * source.width() + x];\n            const SkColor color = SkUnPreMultiply::PMColorToColor(pixel);\n            if (SkColorGetA(color) == SK_AlphaOPAQUE) {\n                srcPixels[y * source.width() + x] = SK_ColorGREEN;\n            }\n        }\n    }\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
-    "width": 256,
-    "height": 128,
-    "hash": "0424f67ebc2858e8fd04ae3367b115ff",
-    "file": "SkColor_Reference",
-    "name": "Alpha_Constants_Opaque"
-},
-    "Color_Alpha_Constants_Transparent": {
+    "Color_Alpha_Constants": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> srcPixels;\n    srcPixels.resize(source.height() * source.rowBytes());\n    SkPixmap pixmap(SkImageInfo::MakeN32Premul(source.width(), source.height()),\n                    &srcPixels.front(), source.rowBytes());\n    source.readPixels(pixmap, 0, 0);\n    for (int y = 0; y < 16; ++y) {\n        for (int x = 0; x < 16; ++x) {\n            int32_t* blockStart = &srcPixels.front() + y * source.width() * 16 + x * 16;\n            size_t transparentCount = 0;\n            for (int fillY = 0; fillY < source.height() / 16; ++fillY) {\n                for (int fillX = 0; fillX < source.width() / 16; ++fillX) {\n                    const SkColor color = SkUnPreMultiply::PMColorToColor(blockStart[fillX]);\n                    transparentCount += SkColorGetA(color) == SK_AlphaTRANSPARENT;\n                }\n                blockStart += source.width();\n            }\n            if (transparentCount > 200) {\n                blockStart = &srcPixels.front() + y * source.width() * 16 + x * 16;\n                for (int fillY = 0; fillY < source.height() / 16; ++fillY) {\n                    for (int fillX = 0; fillX < source.width() / 16; ++fillX) {\n                        blockStart[fillX] = SK_ColorRED;\n                    }\n                    blockStart += source.width();\n                }\n            }\n        }\n    }\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
     "height": 128,
     "hash": "bc9c7ea424d10bbcd1e5a88770d4794e",
     "file": "SkColor_Reference",
-    "name": "Alpha_Constants_Transparent"
+    "name": "Alpha_Constants"
+},
+    "Color_Alpha_Constants_a": {
+    "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> srcPixels;\n    srcPixels.resize(source.height() * source.rowBytes());\n    SkPixmap pixmap(SkImageInfo::MakeN32Premul(source.width(), source.height()),\n                    &srcPixels.front(), source.rowBytes());\n    source.readPixels(pixmap, 0, 0);\n    for (int y = 0; y < source.height(); ++y) {\n        for (int x = 0; x < source.width(); ++x) {\n            SkPMColor pixel = srcPixels[y * source.width() + x];\n            const SkColor color = SkUnPreMultiply::PMColorToColor(pixel);\n            if (SkColorGetA(color) == SK_AlphaOPAQUE) {\n                srcPixels[y * source.width() + x] = SK_ColorGREEN;\n            }\n        }\n    }\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "0424f67ebc2858e8fd04ae3367b115ff",
+    "file": "SkColor_Reference",
+    "name": "Alpha_Constants_2"
 },
     "Color_Color_Constants": {
     "code": "#define SKIA_COLOR_PAIR(name) \"SK_Color\" #name, SK_Color##name\n\nvoid draw(SkCanvas* canvas) {\n    struct ColorCompare {\n        const char* fSVGName;\n        SkColor fSVGColor;\n        const char* fSkiaName;\n        SkColor fSkiaColor;\n    } colorCompare[] = {  // see https://www.w3.org/TR/SVG/types.html#ColorKeywords\n        {\"black\",     SkColorSetRGB(  0,   0,   0),    SKIA_COLOR_PAIR(BLACK) },\n        {\"darkgray\",  SkColorSetRGB(169, 169, 169),    SKIA_COLOR_PAIR(DKGRAY) },\n        {\"gray\",      SkColorSetRGB(128, 128, 128),    SKIA_COLOR_PAIR(GRAY) },\n        {\"lightgray\", SkColorSetRGB(211, 211, 211),    SKIA_COLOR_PAIR(LTGRAY) },\n        {\"white\",     SkColorSetRGB(255, 255, 255),    SKIA_COLOR_PAIR(WHITE) },\n        {\"red\",       SkColorSetRGB(255,   0,   0),    SKIA_COLOR_PAIR(RED) },\n        {\"green\",     SkColorSetRGB(  0, 128,   0),    SKIA_COLOR_PAIR(GREEN) },\n        {\"blue\",      SkColorSetRGB(  0,   0, 255),    SKIA_COLOR_PAIR(BLUE) },\n        {\"yellow\",    SkColorSetRGB(255, 255,   0),    SKIA_COLOR_PAIR(YELLOW) },\n        {\"aqua\",      SkColorSetRGB(  0, 255, 255),    SKIA_COLOR_PAIR(CYAN) },\n        {\"fuchsia\",   SkColorSetRGB(255,   0, 255),    SKIA_COLOR_PAIR(MAGENTA) },\n    };\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(14);\n    for (auto compare : colorCompare) {\n        paint.setStyle(SkPaint::kFill_Style);\n        paint.setColor(compare.fSVGColor);\n        canvas->drawRect({5, 5, 15, 15}, paint);\n        paint.setColor(SK_ColorBLACK);\n        canvas->drawString(compare.fSVGName, 20, 16, paint);\n        paint.setColor(compare.fSkiaColor);\n        canvas->drawRect({105, 5, 115, 15}, paint);\n        paint.setColor(SK_ColorBLACK);\n        canvas->drawString(compare.fSkiaName, 120, 16, paint);\n        paint.setStyle(SkPaint::kStroke_Style);\n        canvas->drawRect({5, 5, 15, 15}, paint);\n        canvas->drawRect({105, 5, 115, 15}, paint);\n        canvas->translate(0, 20);\n    }\n}\n",
@@ -3880,29 +3880,29 @@
     "file": "SkColor_Reference",
     "name": "Color_Constants"
 },
-    "Color_Color_Constants_Black": {
-    "code": "void draw(SkCanvas* canvas) {\n    std::vector<uint32_t> srcPixels;\n    constexpr int width = 256;\n    constexpr int height = 256;\n    srcPixels.resize(width * height);\n    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());\n    pixmap.erase(SK_ColorTRANSPARENT);\n    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );\n    pixmap.erase(SK_ColorBLACK, { 48, 48, 168, 168 } );\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, 48, 48);\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "6971489f28291f08e429cc6ccc73b09b",
-    "file": "SkColor_Reference",
-    "name": "Color_Constants_Black"
-},
-    "Color_Color_Constants_Transparent": {
+    "Color_Color_Constants_a": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<uint32_t> srcPixels;\n    constexpr int width = 256;\n    constexpr int height = 256;\n    srcPixels.resize(width * height);\n    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());\n    pixmap.erase(SK_ColorTRANSPARENT);\n    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );\n    pixmap.erase(SK_ColorTRANSPARENT, { 48, 48, 168, 168 } );\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, 48, 48);\n}",
     "width": 256,
     "height": 256,
     "hash": "9ca1e2a5b9b4c92ecf4409d0813867d6",
     "file": "SkColor_Reference",
-    "name": "Color_Constants_Transparent"
+    "name": "Color_Constants_2"
 },
-    "Color_Color_Constants_White": {
+    "Color_Color_Constants_b": {
+    "code": "void draw(SkCanvas* canvas) {\n    std::vector<uint32_t> srcPixels;\n    constexpr int width = 256;\n    constexpr int height = 256;\n    srcPixels.resize(width * height);\n    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());\n    pixmap.erase(SK_ColorTRANSPARENT);\n    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );\n    pixmap.erase(SK_ColorBLACK, { 48, 48, 168, 168 } );\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, 48, 48);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "6971489f28291f08e429cc6ccc73b09b",
+    "file": "SkColor_Reference",
+    "name": "Color_Constants_3"
+},
+    "Color_Color_Constants_c": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<uint32_t> srcPixels;\n    constexpr int width = 256;\n    constexpr int height = 256;\n    srcPixels.resize(width * height);\n    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap pixmap(imageInfo, &srcPixels.front(), imageInfo.minRowBytes());\n    pixmap.erase(SK_ColorTRANSPARENT);\n    pixmap.erase(SK_ColorRED, { 24, 24, 192, 192 } );\n    pixmap.erase(SK_ColorWHITE, { 48, 48, 168, 168 } );\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawBitmap(bitmap, 48, 48);\n}",
     "width": 256,
     "height": 256,
     "hash": "fce650f997e802d4e55edf62b8437a2d",
     "file": "SkColor_Reference",
-    "name": "Color_Constants_White"
+    "name": "Color_Constants_4"
 },
     "Illustrations_Blend_Mode_Overview_Color_Blends": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    labelPaint.setTextAlign(SkPaint::kCenter_Align);\n    labelPaint.setTextSize(16);\n    SkPaint dstPaint = labelPaint;\n    dstPaint.setTextSize(80);\n    dstPaint.setColor(0xFF606080);\n    dstPaint.setTypeface(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()));\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    for (auto blend : { SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor,\n                        SkBlendMode::kLuminosity } ) {\n        canvas->drawString(\"&\", 50, 80, dstPaint);\n        srcPaint.setBlendMode(blend);\n        canvas->drawPath(srcPath, srcPaint);\n        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);\n        canvas->translate(90, 0);\n    }\n}",
@@ -4271,22 +4271,6 @@
     "hash": "fe80fd80b98a20823db7fb9a077243c7",
     "file": "SkPaint_Reference",
     "name": "Shader_Methods_2"
-},
-    "Paint_Stroke_Cap": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    SkPath path;\n    path.moveTo(30, 30);\n    path.lineTo(30, 30);\n    path.moveTo(70, 30);\n    path.lineTo(90, 40);\n    for (SkPaint::Cap c : { SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap } ) {\n        paint.setStrokeCap(c);\n        canvas->drawPath(path, paint);\n        canvas->translate(0, 70);\n    }\n}",
-    "width": 256,
-    "height": 200,
-    "hash": "2bffb6384cc20077e632e7d01da045ca",
-    "file": "SkPaint_Reference",
-    "name": "Stroke_Cap"
-},
-    "Paint_Stroke_Join": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    SkPath path;\n    path.moveTo(30, 20);\n    path.lineTo(40, 40);\n    path.conicTo(70, 20, 100, 20, .707f);\n    for (SkPaint::Join j : { SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join } ) {\n        paint.setStrokeJoin(j);\n        canvas->drawPath(path, paint);\n        canvas->translate(0, 70);\n    }\n}",
-    "width": 256,
-    "height": 200,
-    "hash": "917c44b504d3f9308571fd3835d90a0d",
-    "file": "SkPaint_Reference",
-    "name": "Stroke_Join"
 },
     "Paint_Stroke_Width": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    for (bool antialias : { false, true }) {\n        paint.setAntiAlias(antialias);\n        for (int width = 0; width <= 4; ++width) {\n            SkScalar offset = antialias * 100 + width * 20;\n            paint.setStrokeWidth(width * 0.25f);\n            canvas->drawLine(10 + offset,  10, 20 + offset,  60, paint);\n            canvas->drawLine(10 + offset, 110, 60 + offset, 160, paint);\n        }\n    }\n}\n",
@@ -7128,6 +7112,14 @@
     "file": "SkMemoryStream_Reference",
     "name": "SkMemoryStream::skipToAlign4"
 },
+    "SkPaint": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    SkPath path;\n    path.moveTo(30, 30);\n    path.lineTo(30, 30);\n    path.moveTo(70, 30);\n    path.lineTo(90, 40);\n    for (SkPaint::Cap c : { SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap } ) {\n        paint.setStrokeCap(c);\n        canvas->drawPath(path, paint);\n        canvas->translate(0, 70);\n    }\n}",
+    "width": 256,
+    "height": 200,
+    "hash": "2bffb6384cc20077e632e7d01da045ca",
+    "file": "SkPaint_Reference",
+    "name": "SkPaint"
+},
     "SkPaint_Join": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.moveTo(10, 50);\n    path.quadTo(35, 110, 60, 210);\n    path.quadTo(105, 110, 130, 10);\n    SkPaint paint;  // set to default kMiter_Join\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    canvas->drawPath(path, paint);\n    canvas->translate(150, 0);\n    paint.setStrokeJoin(SkPaint::kBevel_Join);\n    canvas->drawPath(path, paint);\n    canvas->translate(150, 0);\n    paint.setStrokeJoin(SkPaint::kRound_Join);\n    canvas->drawPath(path, paint);\n}\n",
     "width": 462,
@@ -7135,6 +7127,14 @@
     "hash": "3b1aebacc21c1836a52876b9b0b3905e",
     "file": "SkPaint_Reference",
     "name": "SkPaint::Join"
+},
+    "SkPaint_a": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    SkPath path;\n    path.moveTo(30, 20);\n    path.lineTo(40, 40);\n    path.conicTo(70, 20, 100, 20, .707f);\n    for (SkPaint::Join j : { SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join } ) {\n        paint.setStrokeJoin(j);\n        canvas->drawPath(path, paint);\n        canvas->translate(0, 70);\n    }\n}",
+    "width": 256,
+    "height": 200,
+    "hash": "917c44b504d3f9308571fd3835d90a0d",
+    "file": "SkPaint_Reference",
+    "name": "SkPaint_2"
 },
     "SkPaint_breakText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    const char str[] = \"Breakfast\";\n    const int count = sizeof(str) - 1;\n    canvas->drawText(str, count, 25, 50, paint);\n    SkScalar measuredWidth;\n    int partialBytes = paint.breakText(str, count, 100, &measuredWidth);\n    canvas->drawText(str, partialBytes, 25, 100, paint);\n    canvas->drawLine(25, 60, 25 + 100, 60, paint);\n    canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);\n}\n",

@@ -43,10 +43,7 @@ is useful to position one or more Bitmaps within a shared pixel array.
 #Class Allocator
 #Line # abstract subclass of HeapAllocator ##
 #Code
-    class Allocator : public SkRefCnt {
-    public:
-        virtual bool allocPixelRef(SkBitmap* bitmap) = 0;
-    };
+#Populate
 ##
 
 Abstract subclass of HeapAllocator.
@@ -79,10 +76,7 @@ or setPixelRef was called.
 #Line # allocates pixel memory from heap ##
 
 #Code
-    class HeapAllocator : public Allocator {
-    public:
-        bool allocPixelRef(SkBitmap* bitmap) override;
-    };
+#Populate
 ##
 
 Subclass of SkBitmap::Allocator that returns a Pixel_Ref that allocates its pixel
@@ -877,12 +871,12 @@ void draw(SkCanvas* canvas) {
     SkBitmap bitmap;
     SkAlphaType alphaTypes[] = { #list_of_alpha_types#
                                };
-    SkDebugf("%88s", "Canonical    Unknown           Opaque            Premul            Unpremul\n");
+    SkDebugf("%18s%15s%17s%18s%19s\n", "Canonical", "Unknown", "Opaque", "Premul", "Unpremul");
     for (SkColorType colorType : { #list_of_color_types#
                                  } ) {
         for (SkAlphaType canonicalAlphaType : alphaTypes) {
             SkColorTypeValidateAlphaType(colorType, kUnknown_SkAlphaType, &canonicalAlphaType );
-            SkDebugf("%10s %10s ", colors[(int) colorType], alphas[(int) canonicalAlphaType ]);
+            SkDebugf("%12s %9s  ", colors[(int) colorType], alphas[(int) canonicalAlphaType ]);
             for (SkAlphaType alphaType : alphaTypes) {
                 bitmap.setInfo(SkImageInfo::Make(4, 4, colorType, canonicalAlphaType));
                 bool result = bitmap.setAlphaType(alphaType);
@@ -1309,7 +1303,7 @@ Returns ISize { width(), height() }.
     SkDebugf("dimensionsAsBounds %c= bounds\n", dimensionsAsBounds == bounds ? '=' : '!');
 ##
 
-#SeeAlso height() width()
+#SeeAlso height width
 
 ##
 
@@ -1403,9 +1397,7 @@ canvas->drawBitmap(bitmap, 0, 0);
 #Enum AllocFlags
 #Line # zero pixel memory ##
 #Code
-    enum AllocFlags {
-        kZeroPixels_AllocFlag = 1 << 0,
-    };
+#Populate
 ##
 
 AllocFlags provides the option to zero pixel memory when allocated.
@@ -1418,7 +1410,7 @@ AllocFlags provides the option to zero pixel memory when allocated.
 #NoExample
 ##
 
-#SeeAlso tryAllocPixelsFlags allocPixelsFlags erase() eraseColor
+#SeeAlso tryAllocPixelsFlags allocPixelsFlags erase eraseColor
 
 ##
 
@@ -3213,7 +3205,7 @@ x---x-
     #StdOut ##
 ##
 
-#SeeAlso pixmap() installPixels readPixels writePixels
+#SeeAlso pixmap installPixels readPixels writePixels
 
 ##
 

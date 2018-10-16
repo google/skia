@@ -1494,17 +1494,18 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         case MarkType::kBug:
             break;
         case MarkType::kClass:
-        case MarkType::kStruct: {
+        case MarkType::kStruct:
             fRoot = def->asRoot();
-        //    this->mdHeaderOut(1);
-            this->lfAlways(1);
+            this->lfAlways(2);
             if (MarkType::kStruct == def->fMarkType) {
                 this->htmlOut(anchorDef(def->fFiddle, ""));
             } else {
                 this->htmlOut(anchorDef(this->linkName(def), ""));
             }
-        //    this->lf(1);
-            } break;
+            this->lfAlways(2);
+            FPRINTF("---");
+            this->lf(2);
+            break;
         case MarkType::kCode:
             this->lfAlways(2);
             FPRINTF("<pre style=\"padding: 1em 1em 1em 1em;"
@@ -1596,11 +1597,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             FPRINTF("%s", out_table_data_description_start().c_str()); // start of Description
             this->lfAlways(1);
         } break;
-        case MarkType::kDefine:
-            this->mdHeaderOut(2);
-            this->htmlOut(anchorDef(def->fFiddle, "Define " + def->fName));
-            this->lf(2);
-            break;
         case MarkType::kDeprecated:
             this->writeString(def->fParent->incompleteMessage(
                     Definition::DetailsType::kSentence).c_str());
@@ -1615,10 +1611,13 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             break;
         case MarkType::kDuration:
             break;
+        case MarkType::kDefine:
         case MarkType::kEnum:
         case MarkType::kEnumClass:
-            this->mdHeaderOut(2);
-            this->htmlOut(anchorDef(def->fFiddle, "Enum " + def->fName));
+            this->lfAlways(2);
+            this->htmlOut(anchorDef(def->fFiddle, ""));
+            this->lfAlways(2);
+            FPRINTF("---");
             this->lf(2);
             break;
         case MarkType::kExample: {
@@ -1666,6 +1665,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         case MarkType::kExternal:
             break;
         case MarkType::kFile:
+            break;
+        case MarkType::kFilter:
             break;
         case MarkType::kFormula:
             break;
@@ -1717,19 +1718,22 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             fBmhParser.fMC = def->fContentStart[0];
             break;
         case MarkType::kMethod: {
-            string method_name = def->methodName();
-            string formattedStr = def->formatFunction(Definition::Format::kIncludeReturn);
-			this->lfAlways(2);
-            this->htmlOut(this->anchorDef(def->fFiddle, ""));
-			if (!def->isClone()) {
+            this->lfAlways(2);
+			if (false && !def->isClone()) {
+                string method_name = def->methodName();
                 this->mdHeaderOutLF(2, 1);
-                FPRINTF("%s", method_name.c_str());
-			}
+                this->htmlOut(this->anchorDef(def->fFiddle, method_name));
+			} else {
+                this->htmlOut(this->anchorDef(def->fFiddle, ""));
+            }
+            this->lfAlways(2);
+            FPRINTF("---");
 			this->lf(2);
 
             // TODO: put in css spec that we can define somewhere else (if markup supports that)
             // TODO: 50em below should match limit = 80 in formatFunction()
             this->writePending();
+            string formattedStr = def->formatFunction(Definition::Format::kIncludeReturn);
             string preformattedStr = preformat(formattedStr);
             string references = this->addReferences(&preformattedStr.front(),
                     &preformattedStr.back() + 1, BmhParser::Resolvable::kSimple);
@@ -1845,83 +1849,62 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             break;
         case MarkType::kPlatform:
             break;
-        case MarkType::kPopulate:
-            if (MarkType::kSubtopic == def->fParent->fMarkType) {
-                string name = def->fParent->fName;
-                if (string::npos != name.find(SubtopicKeys::kOverview)) {
-                    this->subtopicsOut(def->fParent);
-                } else {
-                    this->subtopicOut(name);
-                }
-            } else if (MarkType::kClass == def->fParent->fMarkType
-                    || MarkType::kStruct == def->fParent->fMarkType) {
-                Definition* parent = def->fParent;
- //               SkASSERT(parent->csParent());
-                if (!parent->csParent()) {
-                    this->subtopicsOut(def->fParent);
-                }
-                // if class or struct contains constants, and doesn't contain subtopic kConstant,
-                //add it and add a child populate
-                const Definition* subtopic = parent->subtopicParent();
-                const Definition* topic = parent->topicParent();
-                for (auto item : SubtopicKeys::kGeneratedSubtopics) {
-                    if (SubtopicKeys::kRelatedFunctions == item) {
-                        continue;
-                    }
-                    if (SubtopicKeys::kMemberFunctions == item) {
-                        continue;
-                    }
-                    string subname;
-                    if (subtopic != topic) {
-                        subname = subtopic->fName + '_';
-                    }
-                    subname += item;
-                    if (fRoot->populator(item).fMembers.size()
-                            && !std::any_of(fRoot->fChildren.begin(), fRoot->fChildren.end(),
-                            [subname](const Definition* child) {
-                                return MarkType::kSubtopic == child->fMarkType
-                                        && subname == child->fName;
-                            } )) {
-                        // generate subtopic
-                        this->mdHeaderOut(2);
-                        string itemStr(item);
-                        std::replace(itemStr.begin(), itemStr.end(), '_', ' ');
-                        this->htmlOut(anchorDef(subname, itemStr));
-                        this->lf(2);
-                        // generate populate
-                        this->subtopicOut(item);
-                    }
-                }
-            } else {
-                Definition* parent = def->fParent;
-                SkASSERT(parent && MarkType::kCode == parent->fMarkType);
-                // find include matching code parent
-                Definition* grand = parent->fParent;
-                SkASSERT(grand);
-                if (MarkType::kClass == grand->fMarkType
-                        || MarkType::kStruct == grand->fMarkType
-                        || MarkType::kEnum == grand->fMarkType
-                        || MarkType::kEnumClass == grand->fMarkType) {
-                    string codeBlock = fIncludeParser.codeBlock(*grand, fInProgress);
-                    this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
-                            this->resolvable(parent));
-                } else {
-                    SkASSERT(MarkType::kTopic == grand->fMarkType);
-                    // use bmh file name to find include file name
-                    size_t start = grand->fFileName.rfind("Sk");
-                    SkASSERT(start != string::npos);
-                    size_t end = grand->fFileName.rfind("_Reference");
-                    SkASSERT(end != string::npos && end > start);
-                    string incName(grand->fFileName.substr(start, end - start));
-                    const Definition* includeDef = fIncludeParser.include(incName + ".h");
-                    SkASSERT(includeDef);
-                    string codeBlock;
-                    this->addCodeBlock(includeDef, codeBlock);
-                    this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
-                            this->resolvable(parent));
-                }
+        case MarkType::kPopulate: {
+            Definition* parent = def->fParent;
+            SkASSERT(parent && MarkType::kCode == parent->fMarkType);
+            auto inDef = std::find_if(parent->fChildren.begin(), parent->fChildren.end(),
+                    [](const Definition* child) { return MarkType::kIn == child->fMarkType; });
+            if (parent->fChildren.end() != inDef) {
+                auto filterDef = std::find_if(parent->fChildren.begin(), parent->fChildren.end(),
+                        [](const Definition* child) { return MarkType::kFilter == child->fMarkType; });
+                SkASSERT(parent->fChildren.end() != filterDef);
+                string codeBlock = fIncludeParser.filteredBlock(
+                        string((*inDef)->fContentStart, (*inDef)->length()),
+                        string((*filterDef)->fContentStart, (*filterDef)->length()));
+                this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
+                        this->resolvable(parent));
+                break;
             }
-            break;
+            // find include matching code parent
+            Definition* grand = parent->fParent;
+            SkASSERT(grand);
+            if (MarkType::kClass == grand->fMarkType
+                    || MarkType::kStruct == grand->fMarkType
+                    || MarkType::kEnum == grand->fMarkType
+                    || MarkType::kEnumClass == grand->fMarkType
+                    || MarkType::kTypedef == grand->fMarkType
+                    || MarkType::kDefine == grand->fMarkType) {
+                string codeBlock = fIncludeParser.codeBlock(*grand, fInProgress);
+                this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
+                        this->resolvable(parent));
+            } else if (MarkType::kTopic == grand->fMarkType) {
+                // use bmh file name to find include file name
+                size_t start = grand->fFileName.rfind("Sk");
+                SkASSERT(start != string::npos);
+                size_t end = grand->fFileName.rfind("_Reference");
+                SkASSERT(end != string::npos && end > start);
+                string incName(grand->fFileName.substr(start, end - start));
+                const Definition* includeDef = fIncludeParser.include(incName + ".h");
+                SkASSERT(includeDef);
+                string codeBlock;
+                this->addCodeBlock(includeDef, codeBlock);
+                this->resolveOut(codeBlock.c_str(), codeBlock.c_str() + codeBlock.length(),
+                        this->resolvable(parent));
+            } else {
+                SkASSERT(MarkType::kSubtopic == grand->fMarkType);
+                auto inTag = std::find_if(grand->fChildren.begin(), grand->fChildren.end(),
+                        [](Definition* child){return MarkType::kIn == child->fMarkType;});
+                SkASSERT(grand->fChildren.end() != inTag);
+                auto filterTag = std::find_if(grand->fChildren.begin(), grand->fChildren.end(),
+                        [](Definition* child){return MarkType::kFilter == child->fMarkType;});
+                SkASSERT(grand->fChildren.end() != filterTag);
+                string inContents((*inTag)->fContentStart, (*inTag)->length());
+                string filterContents((*filterTag)->fContentStart, (*filterTag)->length());
+                string filteredBlock = fIncludeParser.filteredBlock(inContents, filterContents);
+                this->resolveOut(filteredBlock.c_str(), filteredBlock.c_str()
+                        + filteredBlock.length(), this->resolvable(parent));
+            }
+            } break;
         case MarkType::kPrivate:
             this->writeString("Private:");
             this->writeSpace();
@@ -1971,18 +1954,29 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             break;
         case MarkType::kSubtopic:
             fSubtopic = def->asRoot();
-            this->mdHeaderOut(2);
-            if (SubtopicKeys::kOverview == def->fName) {
+            if (false && SubtopicKeys::kOverview == def->fName) {
                 this->writeString(def->fName);
             } else {
-                this->htmlOut(anchorDef(def->fName, printable));
+                this->lfAlways(2);
+                this->htmlOut(anchorDef(def->fName, ""));
+            }
+            if (std::any_of(def->fChildren.begin(), def->fChildren.end(),
+                    [](Definition* child) {
+                    return MarkType::kSeeAlso == child->fMarkType
+                    || MarkType::kExample == child->fMarkType
+                    || MarkType::kNoExample == child->fMarkType;
+            })) {
+                this->lfAlways(2);
+                FPRINTF("---");
             }
             this->lf(2);
+#if 0
             // if a subtopic child is const, generate short table of const name, value, line desc
             if (std::any_of(def->fChildren.begin(), def->fChildren.end(),
                     [](Definition* child){return MarkType::kConst == child->fMarkType;})) {
                 this->summaryOut(def, MarkType::kConst, fPopulators[SubtopicKeys::kConstants].fPlural);
             }
+#endif
             // if a subtopic child is member, generate short table of const name, value, line desc
             if (std::any_of(def->fChildren.begin(), def->fChildren.end(),
                     [](Definition* child){return MarkType::kMember == child->fMarkType;})) {
@@ -2023,9 +2017,11 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
 //            this->lf(1);
             } break;
         case MarkType::kTypedef:
-            this->mdHeaderOut(2);
-            this->htmlOut(anchorDef(def->fFiddle, "Typedef " + def->fName));
-            this->lf(1);
+            this->lfAlways(2);
+            this->htmlOut(anchorDef(def->fFiddle, ""));
+            this->lfAlways(2);
+            FPRINTF("---");
+            this->lf(2);
             break;
         case MarkType::kUnion:
             break;
@@ -2131,9 +2127,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             } break;
         case MarkType::kMethod:
             fMethod = nullptr;
-            this->lfAlways(2);
-            FPRINTF("---");
-            this->lf(2);
             break;
         case MarkType::kConst:
         case MarkType::kMember:

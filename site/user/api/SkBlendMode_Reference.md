@@ -41,7 +41,9 @@ enum class <a href='#SkBlendMode'>SkBlendMode</a> {
 const char* <a href='#SkBlendMode_Name'>SkBlendMode_Name</a>(<a href='#SkBlendMode'>SkBlendMode</a> blendMode);
 </pre>
 
-## <a name='SkBlendMode'>Enum SkBlendMode</a>
+<a name='SkBlendMode'></a>
+
+---
 
 ### Constants
 
@@ -322,7 +324,9 @@ Used by tests to iterate through all valid values.
 
 <a href='SkCanvas_Reference#SkCanvas_drawColor'>SkCanvas::drawColor</a> <a href='SkCanvas_Reference#SkCanvas_drawVertices'>SkCanvas::drawVertices</a><sup><a href='SkCanvas_Reference#SkCanvas_drawVertices_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_drawVertices_3'>[3]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_drawVertices_4'>[4]</a></sup> <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='undocumented#SkShader_MakeCompose'>SkShader::MakeCompose</a> <a href='undocumented#SkXfermodeImageFilter'>SkXfermodeImageFilter</a>
 
-## <a name='Clear'>Clear</a>
+<a name='Clear'></a>
+
+---
 
 <a href='#SkBlendMode_kClear'>SkBlendMode::kClear</a> sets destination to: <code>\[0, 0\]</code>.
 Use <a href='#SkBlendMode_kClear'>SkBlendMode::kClear</a> to initialize a buffer to fully transparent pixels when
@@ -338,7 +342,9 @@ value and the destination pixel value, always setting the destination to zero.
 
 <a href='SkCanvas_Reference#SkCanvas_clear'>SkCanvas::clear</a>
 
-## <a name='Src'>Src</a>
+<a name='Src'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kSrc'>SkBlendMode::kSrc</a> sets destination to: <code>\[Sa, Sc\]</code>.
@@ -356,7 +362,9 @@ it punches a transparent hole in the existing image.
 
 <a href='SkSurface_Reference#SkSurface_draw'>SkSurface::draw</a><sup><a href='SkSurface_Reference#SkSurface_draw_2'>[2]</a></sup> <a href='SkSurface_Reference#SkSurface_readPixels'>SkSurface::readPixels</a><sup><a href='SkSurface_Reference#SkSurface_readPixels_2'>[2]</a></sup><sup><a href='SkSurface_Reference#SkSurface_readPixels_3'>[3]</a></sup>
 
-## <a name='Dst'>Dst</a>
+<a name='Dst'></a>
+
+---
 
 Given: <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kDst'>SkBlendMode::kDst</a> preserves destination set to: <code>\[Da, Dc\]</code>.
@@ -368,7 +376,9 @@ selects colors and ignores sprites.
 
 <div><fiddle-embed name="35915a2273be1076f00f2e47998ce808"></fiddle-embed></div>
 
-## <a name='Src_Over'>Src Over</a>
+<a name='Src_Over'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -382,7 +392,9 @@ be at least as opaque as the less transparent of source and original destination
 
 <div><fiddle-embed name="2ea9c149964a06cdb4929158cb4f15f8"></fiddle-embed></div>
 
-## <a name='Dst_Over'>Dst Over</a>
+<a name='Dst_Over'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -393,7 +405,9 @@ drawing destination over source. Has no effect destination if is opaque.
 
 <div><fiddle-embed name="10dbb4d97902956ef5f5f8562f65119e"></fiddle-embed></div>
 
-## <a name='Src_In'>Src In</a>
+<a name='Src_In'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>;
@@ -404,7 +418,9 @@ drawing source with destination opacity.
 
 <div><fiddle-embed name="b0833c18fe8b0eeaab9bd6d2160d272f"></fiddle-embed></div>
 
-## <a name='Dst_In'>Dst In</a>
+<a name='Dst_In'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -416,7 +432,9 @@ destination is visible where source is visible.
 
 <div><fiddle-embed name="a5eeba05ccf6097a5d110a9d64f97c25"></fiddle-embed></div>
 
-## <a name='Src_Out'>Src Out</a>
+<a name='Src_Out'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>;
@@ -428,7 +446,9 @@ is opaque, has no effect.
 
 <div><fiddle-embed name="ccc1e74226e0c9eacbc21f1eed017b84"></fiddle-embed></div>
 
-## <a name='Dst_Out'>Dst Out</a>
+<a name='Dst_Out'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -441,7 +461,9 @@ has no effect.
 
 <div><fiddle-embed name="b9a894c9accfc5d94081bbd77d5d790a"></fiddle-embed></div>
 
-## <a name='Src_Atop'>Src Atop</a>
+<a name='Src_Atop'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -453,7 +475,9 @@ is transparent, has no effect.
 
 <div><fiddle-embed name="a13148977bfc985934a92752c83a2041"></fiddle-embed></div>
 
-## <a name='Dst_Atop'>Dst Atop</a>
+<a name='Dst_Atop'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -464,7 +488,9 @@ making destination transparent where source is transparent.
 
 <div><fiddle-embed name="1955856d45773a4fd914fcc1f813222f"></fiddle-embed></div>
 
-## <a name='Xor'>Xor</a>
+<a name='Xor'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -476,7 +502,9 @@ exchanging the transparency of the source and destination.
 
 <div><fiddle-embed name="29db2c7493d9098b8a086ddbe30dd6d6"></fiddle-embed></div>
 
-## <a name='Plus'>Plus</a>
+<a name='Plus'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -487,7 +515,9 @@ summing the <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='#Color'>Col
 
 <div><fiddle-embed name="05383441e510d54008402e128fc8ad2b"></fiddle-embed></div>
 
-## <a name='Modulate'>Modulate</a>
+<a name='Modulate'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -508,7 +538,9 @@ and destination using <a href='undocumented#Unpremultiply'>Unpremultiplied</a> c
 <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a> produce the same results.
 </div></fiddle-embed></div>
 
-## <a name='Screen'>Screen</a>
+<a name='Screen'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -518,7 +550,9 @@ Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <c
 
 <div><fiddle-embed name="b7b42965927788d853f449f08ddf46de"></fiddle-embed></div>
 
-## <a name='Overlay'>Overlay</a>
+<a name='Overlay'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -530,7 +564,9 @@ Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <c
 
 <div><fiddle-embed name="03bf042201de02d6d131938ccd3172eb"></fiddle-embed></div>
 
-## <a name='Darken'>Darken</a>
+<a name='Darken'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -543,7 +579,9 @@ component with source if source is darker.
 
 <div><fiddle-embed name="23c974d2759f523ca2f4a78ae86855c3"></fiddle-embed></div>
 
-## <a name='Lighten'>Lighten</a>
+<a name='Lighten'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -556,7 +594,9 @@ component with source if source is lighter.
 
 <div><fiddle-embed name="95cb08b8c8db3af3b2c9ad56ae7d6bc1"></fiddle-embed></div>
 
-## <a name='Color_Dodge'>Color Dodge</a>
+<a name='Color_Dodge'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -569,7 +609,9 @@ making destination brighter to reflect source.
 
 <div><fiddle-embed name="280ad6267a7d2d77b6d2c4531c6fc0bf"></fiddle-embed></div>
 
-## <a name='Color_Burn'>Color Burn</a>
+<a name='Color_Burn'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -582,7 +624,9 @@ making destination darker to reflect source.
 
 <div><fiddle-embed name="3eeef529375d8083ae0d615789d55e89"></fiddle-embed></div>
 
-## <a name='Hard_Light'>Hard Light</a>
+<a name='Hard_Light'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -595,7 +639,9 @@ making destination lighter or darker, depending on source.
 
 <div><fiddle-embed name="ac2fe555e2196e15863ea4ce74db3d54"></fiddle-embed></div>
 
-## <a name='Soft_Light'>Soft Light</a>
+<a name='Soft_Light'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -609,7 +655,9 @@ making destination lighter or darker, depending on source.
 
 <div><fiddle-embed name="ac93f30dff13f8a8bb31398de370863b"></fiddle-embed></div>
 
-## <a name='Difference'>Difference</a>
+<a name='Difference'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -621,7 +669,9 @@ replacing destination with lighter less darker.
 
 <div><fiddle-embed name="52d2c8d1b9b428de4477b4caa1543a3d"></fiddle-embed></div>
 
-## <a name='Exclusion'>Exclusion</a>
+<a name='Exclusion'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -633,7 +683,9 @@ replacing destination with lighter less darker, ignoring <a href='SkColor_Refere
 
 <div><fiddle-embed name="a544ee1c67c7c557a9e54d5e99f94bb6"></fiddle-embed></div>
 
-## <a name='Multiply'>Multiply</a>
+<a name='Multiply'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
@@ -646,7 +698,9 @@ the product of <a href='undocumented#Unpremultiply'>Unpremultiplied</a> source a
 
 <div><fiddle-embed name="eb29c896f008dfbef09e16b85114fc3a"></fiddle-embed></div>
 
-## <a name='Hue'>Hue</a>
+<a name='Hue'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
@@ -658,7 +712,9 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 <div><fiddle-embed name="41e45570d682397d3b8ff2f51bd9c574"></fiddle-embed></div>
 
-## <a name='Saturation'>Saturation</a>
+<a name='Saturation'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
@@ -670,7 +726,9 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 <div><fiddle-embed name="a48698975d236573cef512f94a7e360b"></fiddle-embed></div>
 
-## <a name='Color'>Color</a>
+<a name='Color'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
@@ -682,7 +740,9 @@ source hue and saturation, leaving destination luminosity unchanged.
 
 <div><fiddle-embed name="5d7c6e23a34ca9bf3ba8cda4cdc94cc4"></fiddle-embed></div>
 
-## <a name='Luminosity'>Luminosity</a>
+<a name='Luminosity'></a>
+
+---
 
 Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
 <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
@@ -695,7 +755,8 @@ source luminosity, leaving destination hue and saturation unchanged.
 <div><fiddle-embed name="7d42fe34ae20dd9e12c39dc3950e9989"></fiddle-embed></div>
 
 <a name='SkBlendMode_Name'></a>
-## SkBlendMode_Name
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 SK_API const char* <a href='#SkBlendMode_Name'>SkBlendMode Name</a>(<a href='#SkBlendMode'>SkBlendMode</a> blendMode)
@@ -738,6 +799,4 @@ default blend: SkBlendMode::kSrcOver
 ### See Also
 
 <a href='#SkBlendMode'>SkBlendMode</a>
-
----
 
