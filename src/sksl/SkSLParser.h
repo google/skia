@@ -91,7 +91,6 @@ public:
         KEY,
         TRACKED,
         CTYPE,
-        GRCOLOR4F,
         SKPMCOLOR4F,
         SKRECT,
         SKIRECT,

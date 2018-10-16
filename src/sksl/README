@@ -115,8 +115,8 @@ Within an '.fp' fragment processor file:
   (below) to override this default mapping.
 * global variables support an additional 'ctype' layout key, providing the type
   they should be represented as from within the C++ code. For instance, you can
-  use 'layout(ctype=GrColor4f) in half4 color;' to create a variable that looks
-  like a half4 on the SkSL side of things, and a GrColor4f on the C++ side of
+  use 'layout(ctype=SkPMColor4f) in half4 color;' to create a variable that looks
+  like a half4 on the SkSL side of things, and a SkPMColor4f on the C++ side of
   things.
 * 'uniform' variables become, as one would expect, top-level uniforms. By
   default they do not have any data provided to them; you will need to provide

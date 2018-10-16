@@ -204,18 +204,18 @@ DEF_TEST(SkSLFPInUniform, r) {
 // As above, but tests in uniform's ability to override the default ctype.
 DEF_TEST(SkSLFPInUniformCType, r) {
     test(r,
-         "layout(ctype=GrColor4f) in uniform half4 color;"
+         "layout(ctype=SkPMColor4f) in uniform half4 color;"
          "void main() {"
          "sk_OutColor = color;"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
-             "static std::unique_ptr<GrFragmentProcessor> Make(GrColor4f color) {",
+             "static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f color) {",
          },
          {
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
                                                          "kDefault_GrSLPrecision, \"color\");",
-            "pdman.set4fv(fColorVar, 1, (_outer.color()).fRGBA);"
+            "pdman.set4fv(fColorVar, 1, (_outer.color()).vec());"
          });
 }
 
@@ -268,7 +268,7 @@ DEF_TEST(SkSLFPNonInlinedInUniform, r) {
 DEF_TEST(SkSLFPConditionalInUniform, r) {
     test(r,
          "in bool test;"
-         "layout(ctype=GrColor4f, tracked, when=test) in uniform half4 color;"
+         "layout(ctype=SkPMColor4f, tracked, when=test) in uniform half4 color;"
          "void main() {"
          "  if (test) {"
          "    sk_OutColor = color;"
@@ -278,19 +278,19 @@ DEF_TEST(SkSLFPConditionalInUniform, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
-             "static std::unique_ptr<GrFragmentProcessor> Make(bool test, GrColor4f color) {",
+             "static std::unique_ptr<GrFragmentProcessor> Make(bool test, SkPMColor4f color) {",
          },
          {
-            "GrColor4f fColorPrev = GrColor4f::kIllegalConstructor",
+            "SkPMColor4f fColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}",
             "auto test = _outer.test();",
             "if (test) {",
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
                                                          "kDefault_GrSLPrecision, \"color\");",
             "if (fColorVar.isValid()) {",
-            "const GrColor4f& colorValue = _outer.color();",
+            "const SkPMColor4f& colorValue = _outer.color();",
             "if (fColorPrev != colorValue) {",
             "fColorPrev = colorValue;",
-            "pdman.set4fv(fColorVar, 1, colorValue.fRGBA);"
+            "pdman.set4fv(fColorVar, 1, colorValue.vec());"
          });
 }
 

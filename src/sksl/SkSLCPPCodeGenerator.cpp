@@ -132,9 +132,7 @@ static String default_value(const Type& type) {
 }
 
 static String default_value(const Variable& var) {
-    if (var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kGrColor4f) {
-        return "GrColor4f::kIllegalConstructor";
-    } else if (var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kSkPMColor4f) {
+    if (var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kSkPMColor4f) {
         return "{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}";
     }
     return default_value(var.fType);
@@ -176,12 +174,6 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
                 fFormatArgs.push_back("SkGetPackedG32(" + cppCode + ") / 255.0");
                 fFormatArgs.push_back("SkGetPackedB32(" + cppCode + ") / 255.0");
                 fFormatArgs.push_back("SkGetPackedA32(" + cppCode + ") / 255.0");
-                break;
-            case Layout::CType::kGrColor4f:
-                fFormatArgs.push_back(cppCode + ".fRGBA[0]");
-                fFormatArgs.push_back(cppCode + ".fRGBA[1]");
-                fFormatArgs.push_back(cppCode + ".fRGBA[2]");
-                fFormatArgs.push_back(cppCode + ".fRGBA[3]");
                 break;
             case Layout::CType::kSkPMColor4f:
                 fFormatArgs.push_back(cppCode + ".fR");
