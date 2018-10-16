@@ -46,6 +46,30 @@
       "revId": "7b2d6ff02fc0198d8e47764cc22a31e6a3064cbf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ee76a6d_4f819656",
+        "filename": "third_party/gif/SkGifImageReader.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-16T18:54:36Z",
+      "side": 1,
+      "message": "+1 to changing in a separate patch.",
+      "parentUuid": "c5f223ef_f1b3417f",
+      "range": {
+        "startLine": 131,
+        "startChar": 13,
+        "endLine": 131,
+        "endChar": 18
+      },
+      "revId": "7b2d6ff02fc0198d8e47764cc22a31e6a3064cbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
