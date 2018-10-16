@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "e838cd1b_c5342016",
+        "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-16T20:00:28Z",
+      "side": 1,
+      "message": "The only consumer of the bool would be something like:\nhttps://github.com/google/skia/blob/master/fuzz/FuzzMain.cpp#L633\n\nLLVMFuzzerTest can ignore it.\n\nAs you\u0027ve written it, perfect.",
+      "parentUuid": "1396f783_c640df23",
+      "range": {
+        "startLine": 16,
+        "startChar": 5,
+        "endLine": 16,
+        "endChar": 21
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08ce6555_fbea4779",
         "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
         "patchSetId": 1
@@ -117,6 +141,30 @@
       "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecc9c8d4_f902b56f",
+        "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-16T20:00:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9821c727_ffbe829b",
+      "range": {
+        "startLine": 26,
+        "startChar": 42,
+        "endLine": 26,
+        "endChar": 62
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -191,6 +239,30 @@
     },
     {
       "key": {
+        "uuid": "62c7dcdc_a6e3f6d5",
+        "filename": "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-16T20:00:28Z",
+      "side": 1,
+      "message": "Sorry, I misspoke.  I meant prepend.  We would prepend a 1 and the fuzzer would figure out what it can do with that byte from there.",
+      "parentUuid": "08644bf3_24e0ec12",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 57
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3dedb192_78dfe2b4",
         "filename": "fuzz/oss_fuzz/FuzzIncrementalImage.cpp",
         "patchSetId": 1
@@ -235,6 +307,30 @@
       "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea8382d7_c47f081f",
+        "filename": "fuzz/oss_fuzz/FuzzIncrementalImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-16T20:00:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d1b528cc_fb11de9a",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 5
+      },
+      "revId": "86926c018c91359ef2b6f6b7f9b0e4f794a61b7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
