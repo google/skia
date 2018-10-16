@@ -82,7 +82,6 @@ struct Layout {
         kInt32,
         kSkRect,
         kSkIRect,
-        kGrColor4f,
         kSkPMColor4f,
         kSkPMColor,
         kSkPoint,
@@ -149,8 +148,6 @@ struct Layout {
                 return "SkRect";
             case CType::kSkIRect:
                 return "SkIRect";
-            case CType::kGrColor4f:
-                return "GrColor4f";
             case CType::kSkPMColor4f:
                 return "SkPMColor4f";
             case CType::kSkPMColor:

@@ -48,12 +48,6 @@ bool GrColorSpaceXform::Equals(const GrColorSpaceXform* a, const GrColorSpaceXfo
     return true;
 }
 
-GrColor4f GrColorSpaceXform::apply(const GrColor4f& srcColor) {
-    GrColor4f result = srcColor;
-    fSteps.apply(result.fRGBA);
-    return result;
-}
-
 SkColor4f GrColorSpaceXform::apply(const SkColor4f& srcColor) {
     SkColor4f result = srcColor;
     fSteps.apply(result.vec());

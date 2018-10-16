@@ -157,10 +157,6 @@ static const std::vector<UniformCTypeMapper>& get_mappers() {
         "SkIRect::MakeEmpty()",                                                    // default value
         "${oldVar}.isEmpty() || ${oldVar} != ${newVar}"),                          // dirty check
 
-    REGISTER(Layout::CType::kGrColor4f, { "half4", "float4", "double4" },
-        "${pdman}.set4fv(${uniform}, 1, ${var}.fRGBA)",                            // to gpu
-        "GrColor4f::kIllegalConstructor"),                                         // default value
-
     REGISTER(Layout::CType::kSkPMColor4f, { "half4", "float4", "double4" },
         "${pdman}.set4fv(${uniform}, 1, ${var}.vec())",                            // to gpu
         "{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}"),                   // default value
