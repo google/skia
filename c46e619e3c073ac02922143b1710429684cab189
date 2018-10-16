@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48fb8d0c_fb26ca11",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-16T13:48:17Z",
+      "side": 1,
+      "message": "I don\u0027t really understand this comment.",
+      "range": {
+        "startLine": 621,
+        "startChar": 4,
+        "endLine": 623,
+        "endChar": 41
+      },
+      "revId": "c46e619e3c073ac02922143b1710429684cab189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de11f191_415bda0e",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-16T13:48:17Z",
+      "side": 1,
+      "message": "Nit: indent",
+      "range": {
+        "startLine": 36,
+        "startChar": 22,
+        "endLine": 36,
+        "endChar": 23
+      },
+      "revId": "c46e619e3c073ac02922143b1710429684cab189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3041402_171fc66d",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-10-16T13:48:17Z",
+      "side": 1,
+      "message": "Nit: 4-space indent",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 9
+      },
+      "revId": "c46e619e3c073ac02922143b1710429684cab189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
