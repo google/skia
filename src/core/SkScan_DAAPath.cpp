@@ -320,6 +320,10 @@ void gen_alpha_deltas(const SkPath& path, const SkIRect& clippedIR, const SkIRec
 
 void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
                          const SkIRect& clipBounds, bool forceRLE, SkDAARecord* record) {
+#if defined(SK_DISABLE_DAA)
+    SkDEBUGFAIL("DAA Disabled");
+    return;
+#else
     bool containedInClip = clipBounds.contains(ir);
     bool isEvenOdd  = path.getFillType() & 1;
     bool isConvex   = path.isConvex();
@@ -383,4 +387,5 @@ void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
             blitter->blitCoverageDeltas(record->fList, clipBounds, isEvenOdd, isInverse, isConvex);
         }
     }
+#endif //defined(SK_DISABLE_DAA)
 }
