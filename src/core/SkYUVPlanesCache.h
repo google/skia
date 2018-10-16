@@ -10,21 +10,23 @@
 
 #include "SkCachedData.h"
 #include "SkImageInfo.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVAIndex.h"
+#include "SkYUVASizeInfo.h"
 
 class SkResourceCache;
 
 class SkYUVPlanesCache {
 public:
     /**
-     * The Info struct contains data about the 3 Y, U and V planes of memory stored
+     * The Info struct contains data about the 4 Y, U, V, and A planes of memory stored
      * contiguously, in that order, as a single block of memory within SkYUVPlanesCache.
      *
-     * fSizeInfo: fWidth, fHeight, and fWidthBytes of each of the Y, U, and V planes.
+     * fSizeInfo: fWidth, fHeight, and fWidthBytes of each of the Y, U, V, and A planes.
      * fColorSpace: color space that will be used for the YUV -> RGB conversion.
      */
     struct Info {
-        SkYUVSizeInfo   fSizeInfo;
+        SkYUVASizeInfo  fSizeInfo;
+        SkYUVAIndex     fYUVAIndices[SkYUVAIndex::kIndexCount];
         SkYUVColorSpace fColorSpace;
     };
     /**

@@ -20,7 +20,7 @@
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkTypes.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 
 #include <vector>
 
@@ -351,16 +351,30 @@ public:
      *  returns false and does not modify any of the parameters.
      *
      *  @param sizeInfo   Output parameter indicating the sizes and required
-     *                    allocation widths of the Y, U, and V planes.
+     *                    allocation widths of the Y, U, V, and A planes. Given current codec
+     *                    limitations the size of the A plane will always be 0 and the Y, U, V
+     *                    channels will always be planar.
      *  @param colorSpace Output parameter.  If non-NULL this is set to kJPEG,
      *                    otherwise this is ignored.
      */
-    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+    bool queryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
         if (nullptr == sizeInfo) {
             return false;
         }
 
-        return this->onQueryYUV8(sizeInfo, colorSpace);
+        bool result = this->onQueryYUV8(sizeInfo, colorSpace);
+        if (result) {
+            for (int i = SkYUVAIndex::kY_Index; i <= SkYUVAIndex::kV_Index; ++i) {
+                SkASSERT(kAlpha_8_SkColorType == sizeInfo->fColorTypes[i]);
+                SkASSERT(sizeInfo->fSizes[i].fWidth > 0 && sizeInfo->fSizes[i].fHeight > 0 &&
+                         sizeInfo->fWidthBytes[i] > 0);
+            }
+            SkASSERT(kUnknown_SkColorType == sizeInfo->fColorTypes[SkYUVAIndex::kA_Index]);
+            SkASSERT(!sizeInfo->fSizes[SkYUVAIndex::kA_Index].fWidth &&
+                     !sizeInfo->fSizes[SkYUVAIndex::kA_Index].fHeight &&
+                     !sizeInfo->fWidthBytes[SkYUVAIndex::kA_Index]);
+        }
+        return result;
     }
 
     /**
@@ -373,11 +387,12 @@ public:
      *                    recommendation (but not smaller).
      *  @param planes     Memory for each of the Y, U, and V planes.
      */
-    Result getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
-        if (nullptr == planes || nullptr == planes[0] || nullptr == planes[1] ||
-                nullptr == planes[2]) {
+    Result getYUV8Planes(const SkYUVASizeInfo& sizeInfo, void* planes[SkYUVASizeInfo::kMaxCount]) {
+        if (!planes || !planes[0] || !planes[1] || !planes[2]) {
             return kInvalidInput;
         }
+        SkASSERT(kUnknown_SkColorType == sizeInfo.fColorTypes[3]);
+        SkASSERT(!planes[3]); // TODO: is this a fair assumption?
 
         if (!this->rewindIfNeeded()) {
             return kCouldNotRewind;
@@ -708,11 +723,12 @@ protected:
                                void* pixels, size_t rowBytes, const Options&,
                                int* rowsDecoded) = 0;
 
-    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const {
+    virtual bool onQueryYUV8(SkYUVASizeInfo*, SkYUVColorSpace*) const {
         return false;
     }
 
-    virtual Result onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) {
+    virtual Result onGetYUV8Planes(const SkYUVASizeInfo&,
+                                   void*[SkYUVASizeInfo::kMaxCount] /*planes*/) {
         return kUnimplemented;
     }
 
