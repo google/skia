@@ -14,8 +14,6 @@ from position, width, and height. SkIRect describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
 its top, it is considered empty.
 
-#Subtopic Members
-
 #Member int32_t  fLeft
 #Line # smaller x-axis bounds ##
 May contain any value. The smaller of the horizontal values when sorted.
@@ -39,10 +37,6 @@ When equal to or less than fLeft, IRect is empty.
 May contain any value. The larger of the vertical values when sorted.
 When equal to or less than fTop, IRect is empty.
 ##
-
-#Subtopic Members ##
-
-#Subtopic Constructors
 
 # ------------------------------------------------------------------------------
 
@@ -202,8 +196,6 @@ rect: -10, 35, 5, 60  isEmpty: false
 #SeeAlso MakeLTRB SkRect::MakeXYWH
 
 ##
-
-#Subtopic Constructors ##
 
 #Subtopic Property
 #Line # member values, center, validity ##

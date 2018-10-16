@@ -34,6 +34,9 @@ DEFINE_bool2(skip, z, false, "Skip degenerate missed in legacy preprocessor.");
 
 /* todos:
 
+if #Subtopic contains #SeeAlso or #Example generate horizontal rule at end
+constexpr populated with filter inside subtopic does not have definition body
+
 #List needs '# content ##', formatting
 rewrap text to fit in some number of columns
 #Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
@@ -120,13 +123,14 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "Experimental", MarkType::kExperimental, R_Y, E_N, M_CS | M_MDCM | M_E }
 , { "External",     MarkType::kExternal,     R_Y, E_N, 0 }
 , { "File",         MarkType::kFile,         R_Y, E_N, M(Topic) }
+, { "Filter",       MarkType::kFilter,       R_N, E_N, M(Subtopic) | M(Code) }
 , { "Formula",      MarkType::kFormula,      R_F, E_N, M(Column) | M(Description)
                                                      | M_E | M_ST | M_MDCM }
 , { "Function",     MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
 , { "Height",       MarkType::kHeight,       R_N, E_N, M(Example) | M(NoExample) }
 , { "Illustration", MarkType::kIllustration, R_N, E_N, M_CSST | M_MD }
 , { "Image",        MarkType::kImage,        R_N, E_N, M(Example) | M(NoExample) }
-, { "In",           MarkType::kIn,           R_N, E_N, M_CSST | M_E | M(Method) | M(Typedef) }
+, { "In",           MarkType::kIn,           R_N, E_N, M_CSST | M_E | M(Method) | M(Typedef) | M(Code) }
 , { "Legend",       MarkType::kLegend,       R_Y, E_N, M(Table) }
 , { "Line",         MarkType::kLine,         R_N, E_N, M_CSST | M_E | M(Method) | M(Typedef) }
 , { "",             MarkType::kLink,         R_N, E_N, M(Anchor) }
@@ -143,7 +147,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "",             MarkType::kPhraseParam,  R_Y, E_N, 0 }
 , { "",             MarkType::kPhraseRef,    R_N, E_N, 0 }
 , { "Platform",     MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
-, { "Populate",     MarkType::kPopulate,     R_N, E_N, M_CS | M(Code) }
+, { "Populate",     MarkType::kPopulate,     R_N, E_N, M(Code) }
 , { "Private",      MarkType::kPrivate,      R_N, E_N, M_CSST | M_MDCM | M_E }
 , { "Return",       MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",             MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
@@ -562,6 +566,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kDetails:
         case MarkType::kDuration:
         case MarkType::kExperimental:
+        case MarkType::kFilter:
         case MarkType::kHeight:
         case MarkType::kIllustration:
         case MarkType::kImage:
@@ -2312,6 +2317,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kDuration:
         case MarkType::kExperimental:
         case MarkType::kFile:
+        case MarkType::kFilter:
         case MarkType::kHeight:
         case MarkType::kIllustration:
         case MarkType::kImage:
@@ -2767,7 +2773,7 @@ int main(int argc, char** const argv) {
                 ParserCommon::OneFile::kYes)) {
             return -1;
         }
-        includeParser.writeCodeBlock(bmhParser);
+        includeParser.writeCodeBlock();
         MdOut mdOut(bmhParser, includeParser);
         mdOut.fDebugOut = FLAGS_stdout;
         mdOut.fValidate = FLAGS_validate;

@@ -106,6 +106,7 @@ enum class MarkType {
     kExperimental,
     kExternal,
     kFile,
+    kFilter,
     kFormula,
     kFunction,
     kHeight,
@@ -1009,6 +1010,11 @@ public:
         fParentIndex = fParent ? (int) fParent->fTokens.size() : -1;
     }
 
+    string simpleName() {
+        size_t doubleColon = fName.rfind("::");
+        return string::npos == doubleColon ? fName : fName.substr(doubleColon + 2);
+    }
+
     const Definition* subtopicParent() const {
         Definition* test = fParent;
         while (test) {
@@ -1711,9 +1717,24 @@ public:
             SkASSERT(fIClassMap.end() != map || inProgress);
             return fIClassMap.end() != map ? map->second.fCode : "";
         }
+        if (MarkType::kConst == markType) {
+            auto map = fIConstMap.find(name);
+            SkASSERT(fIConstMap.end() != map);
+            return map->second->fCode;
+        }
+        if (MarkType::kDefine == markType) {
+            auto map = fIDefineMap.find(name);
+            SkASSERT(fIDefineMap.end() != map);
+            return map->second->fCode;
+        }
         if (MarkType::kEnum == markType || MarkType::kEnumClass == markType) {
             auto map = fIEnumMap.find(name);
             SkASSERT(fIEnumMap.end() != map);
+            return map->second->fCode;
+        }
+        if (MarkType::kTypedef == markType) {
+            auto map = fITypedefMap.find(name);
+            SkASSERT(fITypedefMap.end() != map);
             return map->second->fCode;
         }
         SkASSERT(0);
@@ -1739,6 +1760,7 @@ public:
     void dumpTypedef(const Definition& , string className);
 
     string elidedCodeBlock(const Definition& );
+    string filteredBlock(string inContents, string filterContents);
     bool findComments(const Definition& includeDef, Definition* markupDef);
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
                                   string typeName);
@@ -1810,7 +1832,6 @@ public:
         fLastObject = nullptr;
         fPriorEnum = nullptr;
         fPriorObject = nullptr;
-        fAttrDeprecated = nullptr;
         fPrev = '\0';
         fInChar = false;
         fInCharCommentString = false;
@@ -1849,7 +1870,7 @@ public:
     }
 
     void validate() const;
-    void writeCodeBlock(const BmhParser& );
+    void writeCodeBlock();
     string writeCodeBlock(const Definition&, MarkType );
     string writeCodeBlock(TextParser& i, MarkType , int indent);
 
@@ -1990,9 +2011,6 @@ protected:
         MarkType fMarkType;
     };
 
-    static const char gAttrDeprecated[];
-    static const size_t kAttrDeprecatedLen;
-
     vector<DefinitionMap> fMaps;
     unordered_map<string, Definition> fIncludeMap;
     list<Definition> fGlobals;
@@ -2012,7 +2030,6 @@ protected:
     Definition* fLastObject;
     Definition* fPriorEnum;
     Definition* fPriorObject;
-    const Definition* fAttrDeprecated;
     int fPriorIndex;
     const char* fIncludeWord;
     Elided fElided;
