@@ -1885,7 +1885,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method void incReserve(unsigned extraPtCount)
+#Method void incReserve(int extraPtCount)
 #In Utility
 #Line # reserves space for additional data ##
 Grows Path Verb_Array and Point_Array to contain extraPtCount additional Points.
