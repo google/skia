@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e333dbc_8654610f",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 977,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-16T14:20:59Z",
+      "side": 1,
+      "message": "This is the only *really* lossy fallback (1010102 -\u003e 8888 loses precision, but not much). There\u0027s not much we can do, though.",
+      "revId": "9b4095ea088a3e8912c1cb3ccf65107427ac7beb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
