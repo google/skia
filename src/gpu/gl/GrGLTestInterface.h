@@ -24,6 +24,7 @@ public:
     virtual GrGLvoid bindBuffer(GrGLenum target, GrGLuint buffer) {}
     virtual GrGLvoid bindFramebuffer(GrGLenum target, GrGLuint framebuffer) {}
     virtual GrGLvoid bindRenderbuffer(GrGLenum target, GrGLuint renderbuffer) {}
+    virtual GrGLvoid bindSampler(GrGLuint unit, GrGLuint sampler) {}
     virtual GrGLvoid bindTexture(GrGLenum target, GrGLuint texture) {}
     virtual GrGLvoid bindFragDataLocation(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name) {}
     virtual GrGLvoid bindFragDataLocationIndexed(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name) {}
@@ -52,6 +53,7 @@ public:
     virtual GrGLvoid deleteProgram(GrGLuint program) {}
     virtual GrGLvoid deleteQueries(GrGLsizei n, const GrGLuint *ids) {}
     virtual GrGLvoid deleteRenderbuffers(GrGLsizei n, const GrGLuint *renderbuffers) {}
+    virtual GrGLvoid deleteSamplers(GrGLsizei n, const GrGLuint* samplers) {}
     virtual GrGLvoid deleteShader(GrGLuint shader) {}
     virtual GrGLvoid deleteTextures(GrGLsizei n, const GrGLuint* textures) {}
     virtual GrGLvoid deleteVertexArrays(GrGLsizei n, const GrGLuint *arrays) {}
@@ -82,6 +84,7 @@ public:
     virtual GrGLvoid generateMipmap(GrGLenum target) {}
     virtual GrGLvoid genQueries(GrGLsizei n, GrGLuint *ids) {}
     virtual GrGLvoid genRenderbuffers(GrGLsizei n, GrGLuint *renderbuffers) {}
+    virtual GrGLvoid genSamplers(GrGLsizei n, GrGLuint *samplers) {}
     virtual GrGLvoid genTextures(GrGLsizei n, GrGLuint* textures) {}
     virtual GrGLvoid genVertexArrays(GrGLsizei n, GrGLuint *arrays) {}
     virtual GrGLvoid getBufferParameteriv(GrGLenum target, GrGLenum pname, GrGLint* params) {}
@@ -130,6 +133,8 @@ public:
     virtual GrGLvoid renderbufferStorage(GrGLenum target, GrGLenum internalformat, GrGLsizei width, GrGLsizei height) {}
     virtual GrGLvoid renderbufferStorageMultisample(GrGLenum target, GrGLsizei samples, GrGLenum internalformat, GrGLsizei width, GrGLsizei height) {}
     virtual GrGLvoid resolveMultisampleFramebuffer() {}
+    virtual GrGLvoid samplerParameteri(GrGLuint sampler, GrGLenum pname, GrGLint param) {}
+    virtual GrGLvoid samplerParameteriv(GrGLuint sampler, GrGLenum pname, const GrGLint* param) {}
     virtual GrGLvoid scissor(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height) {}
     virtual GrGLvoid bindUniformLocation(GrGLuint program, GrGLint location, const char* name) {}
 #if GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE

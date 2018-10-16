@@ -408,6 +408,14 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC(ProgramParameteri);
     }
 
+    if (glVer >= GR_GL_VER(3,2) || extensions.has("GL_ARB_sampler_objects")) {
+        GET_PROC(BindSampler);
+        GET_PROC(DeleteSamplers);
+        GET_PROC(GenSamplers);
+        GET_PROC(SamplerParameteri);
+        GET_PROC(SamplerParameteriv);
+    }
+
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
@@ -845,6 +853,14 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC(GetProgramBinary);
         GET_PROC(ProgramBinary);
         GET_PROC(ProgramParameteri);
+    }
+
+    if (version >= GR_GL_VER(3,0)) {
+        GET_PROC(BindSampler);
+        GET_PROC(DeleteSamplers);
+        GET_PROC(GenSamplers);
+        GET_PROC(SamplerParameteri);
+        GET_PROC(SamplerParameteriv);
     }
 
     interface->fStandard = kGLES_GrGLStandard;
