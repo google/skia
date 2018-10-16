@@ -106,10 +106,14 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
 
     SkCodec::Result result = fCodec->getAndroidPixels(decodeInfo, dst, bitmap->rowBytes(),
             &options);
-    if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
-        SkCodecPrintf("Error: Could not get pixels.\n");
-        return false;
+    switch (result) {
+        case SkCodec::kSuccess:
+        case SkCodec::kIncompleteInput:
+        case SkCodec::kErrorInInput:
+            return true;
+        default:
+            SkCodecPrintf("Error: Could not get pixels with message \"%s\".\n",
+                          SkCodec::ResultToString(result));
+            return false;
     }
-
-    return true;
 }
