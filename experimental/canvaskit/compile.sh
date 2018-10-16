@@ -35,12 +35,12 @@ fi
 mkdir -p $BUILD_DIR
 
 GN_GPU="skia_enable_gpu=true"
-WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1"
+WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 --pre-js $BASE_DIR/gpu.js"
 if [[ $@ == *cpu* ]]; then
   echo "Using the CPU backend instead of the GPU backend"
   GN_GPU="skia_enable_gpu=false"
   GN_GPU_FLAGS=""
-  WASM_GPU="-DSK_SUPPORT_GPU=0"
+  WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js"
 fi
 
 WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=1 \
