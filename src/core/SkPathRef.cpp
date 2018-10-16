@@ -30,6 +30,9 @@ SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
                           int incReserveVerbs,
                           int incReservePoints)
 {
+    SkASSERT(incReserveVerbs >= 0);
+    SkASSERT(incReservePoints >= 0);
+
     if ((*pathRef)->unique()) {
         (*pathRef)->incReserve(incReserveVerbs, incReservePoints);
     } else {

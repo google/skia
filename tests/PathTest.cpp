@@ -5191,3 +5191,14 @@ DEF_TEST(Path_setLastPt, r) {
     REPORTER_ASSERT(r, p.isValid());
     REPORTER_ASSERT(r, p.pathRefIsValid());
 }
+
+DEF_TEST(Path_increserve, r) {
+    SkPath path;
+
+    path.conicTo({0, 0}, {1, 1}, SK_FloatNegativeInfinity);
+
+    SkPath shallowPath = path;    // <== use a copy path object to force program run into SkPathRef::copy() and SkPathRef::resetToSize()
+
+    shallowPath.incReserve(0xffffffff);    // <== add 0xffffffff points trigger integer-overflow
+}
+
