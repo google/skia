@@ -10,9 +10,23 @@ release:
 	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
 
+release_cpu:
+	# Does an incremental build where possible.
+	./compile.sh cpu
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+
 debug:
 	# Does an incremental build where possible.
 	./compile.sh debug
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
+
+debug_cpu:
+	# Does an incremental build where possible.
+	./compile.sh debug cpu
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
@@ -28,3 +42,6 @@ test-continuous:
 	echo "Assuming npm install has been run by user"
 	echo "Also assuming make debug or release has also been run by a user (if needed)"
 	npx karma start ./karma.conf.js --no-single-run --watch-poll
+
+node-example:
+	node ./canvaskit/node.example.js --expose-wasm
