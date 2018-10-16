@@ -63,6 +63,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRequiresFlushBetweenNonAndInstancedDraws = false;
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fProgramBinarySupport = false;
+    fSamplerObjectSupport = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
     fMaxInstancesPerDrawWithoutCrashing = 0;
@@ -590,6 +591,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         GrGLint count;
         GR_GL_GetIntegerv(gli, GR_GL_NUM_PROGRAM_BINARY_FORMATS, &count);
         fProgramBinarySupport = count > 0;
+    }
+    if (kGL_GrGLStandard == standard) {
+        fSamplerObjectSupport =
+                version >= GR_GL_VER(3,3) || ctxInfo.hasExtension("GL_ARB_sampler_objects");
+    } else {
+        fSamplerObjectSupport = version >= GR_GL_VER(3,0);
     }
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.

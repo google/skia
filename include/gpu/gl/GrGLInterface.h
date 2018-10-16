@@ -88,6 +88,7 @@ public:
         GrGLFunction<GrGLBindFragDataLocationIndexedFn> fBindFragDataLocationIndexed;
         GrGLFunction<GrGLBindFramebufferFn> fBindFramebuffer;
         GrGLFunction<GrGLBindRenderbufferFn> fBindRenderbuffer;
+        GrGLFunction<GrGLBindSamplerFn> fBindSampler;
         GrGLFunction<GrGLBindTextureFn> fBindTexture;
         GrGLFunction<GrGLBindVertexArrayFn> fBindVertexArray;
         GrGLFunction<GrGLBlendBarrierFn> fBlendBarrier;
@@ -116,6 +117,7 @@ public:
         GrGLFunction<GrGLDeleteProgramFn> fDeleteProgram;
         GrGLFunction<GrGLDeleteQueriesFn> fDeleteQueries;
         GrGLFunction<GrGLDeleteRenderbuffersFn> fDeleteRenderbuffers;
+        GrGLFunction<GrGLDeleteSamplersFn> fDeleteSamplers;
         GrGLFunction<GrGLDeleteShaderFn> fDeleteShader;
         GrGLFunction<GrGLDeleteTexturesFn> fDeleteTextures;
         GrGLFunction<GrGLDeleteVertexArraysFn> fDeleteVertexArrays;
@@ -146,6 +148,7 @@ public:
         GrGLFunction<GrGLGenerateMipmapFn> fGenerateMipmap;
         GrGLFunction<GrGLGenQueriesFn> fGenQueries;
         GrGLFunction<GrGLGenRenderbuffersFn> fGenRenderbuffers;
+        GrGLFunction<GrGLGenSamplersFn> fGenSamplers;
         GrGLFunction<GrGLGenTexturesFn> fGenTextures;
         GrGLFunction<GrGLGenVertexArraysFn> fGenVertexArrays;
         GrGLFunction<GrGLGetBufferParameterivFn> fGetBufferParameteriv;
@@ -224,6 +227,8 @@ public:
         GrGLFunction<GrGLBindUniformLocationFn> fBindUniformLocation;
 
         GrGLFunction<GrGLResolveMultisampleFramebufferFn> fResolveMultisampleFramebuffer;
+        GrGLFunction<GrGLSamplerParameteriFn> fSamplerParameteri;
+        GrGLFunction<GrGLSamplerParameterivFn> fSamplerParameteriv;
         GrGLFunction<GrGLScissorFn> fScissor;
         GrGLFunction<GrGLShaderSourceFn> fShaderSource;
         GrGLFunction<GrGLStencilFuncFn> fStencilFunc;
