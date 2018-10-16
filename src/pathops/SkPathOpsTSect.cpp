@@ -533,7 +533,7 @@ SkTSpan* SkTSect::addOne() {
     PATH_OPS_DEBUG_T_SECT_CODE(result->fID = fDebugCount++ * 2 + fID);
     SkDEBUGCODE(result->fDebugSect = this);
 #ifdef SK_DEBUG
-    result->debugInit();
+    result->debugInit(fCurve, fHeap);
     result->fCoinStart.debugInit();
     result->fCoinEnd.debugInit();
     result->fPrev = result->fNext = nullptr;

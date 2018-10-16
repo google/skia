@@ -96,11 +96,12 @@ public:
     double closestBoundedT(const SkDPoint& pt) const;
     bool contains(double t) const;
 
-    void debugInit() {
+    void debugInit(const SkTCurve& curve, SkArenaAlloc& heap) {
 #ifdef SK_DEBUG
-        fPart->debugInit();
-        init(*fPart);
-        initBounds(*fPart);
+        SkTCurve* dummy = curve.make(heap);
+        dummy->debugInit();
+        init(*dummy);
+        initBounds(*dummy);
         fCoinStart.init();
         fCoinEnd.init();
 #endif
