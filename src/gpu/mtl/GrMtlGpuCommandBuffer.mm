@@ -241,7 +241,8 @@ MTLRenderPassDescriptor* GrMtlGpuRTCommandBuffer::createRenderPassDesc() const {
             static_cast<GrMtlRenderTarget*>(fRenderTarget)->mtlRenderTexture();
     renderPassDesc.colorAttachments[0].slice = 0;
     renderPassDesc.colorAttachments[0].level = 0;
-    const auto& clearColor = GrColor4f::FromGrColor(fColorLoadAndStoreInfo.fClearColor).fRGBA;
+    float clearColor[4];
+    GrColorToRGBAFloat(fColorLoadAndStoreInfo.fClearColor, clearColor);
     renderPassDesc.colorAttachments[0].clearColor =
             MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
     renderPassDesc.colorAttachments[0].loadAction =

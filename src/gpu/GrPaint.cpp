@@ -70,7 +70,7 @@ bool GrPaint::isConstantBlendedColor(GrColor* constantColor) const {
         return false;
     }
     if (kSrc == fXPFactory || (!fXPFactory && fColor.isOpaque())) {
-        *constantColor = fColor.toGrColor();
+        *constantColor = fColor.toBytes_RGBA();
         return true;
     }
     return false;
