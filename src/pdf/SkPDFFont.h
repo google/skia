@@ -23,7 +23,7 @@
     This class uses the same pattern as SkPDFGraphicState, a static weak
     reference to each instantiated class.
 */
-class SkPDFFont : public SkPDFDict {
+class SkPDFFont final : public SkPDFDict {
 
 public:
     ~SkPDFFont() override;
@@ -99,7 +99,7 @@ public:
     /** Subset the font based on current usage.
      *  Must be called before emitObject().
      */
-    virtual void getFontSubset(SkPDFCanon*) = 0;
+    void getFontSubset(SkPDFCanon*);
 
     /**
      *  Return false iff the typeface has its NotEmbeddable flag set.
@@ -107,23 +107,18 @@ public:
      */
     static bool CanEmbedTypeface(SkTypeface*, SkPDFCanon*);
 
-protected:
-    // Common constructor to handle common members.
-    struct Info {
-        sk_sp<SkTypeface> fTypeface;
-        SkGlyphID fFirstGlyphID;
-        SkGlyphID fLastGlyphID;
-        SkAdvancedTypefaceMetrics::FontType fFontType;
-    };
-    SkPDFFont(Info);
-
     SkGlyphID firstGlyphID() const { return fFirstGlyphID; }
     SkGlyphID lastGlyphID() const { return fLastGlyphID; }
     const SkBitSet& glyphUsage() const { return fGlyphUsage; }
-    sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
     void drop() override;
 
+#ifdef SK_DEBUG
+    void emitObject(SkWStream* s, const SkPDFObjNumMap& m) const override {
+        SkASSERT(fSubsetted);
+        return this->INHERITED::emitObject(s, m);
+    }
+#endif
 private:
     sk_sp<SkTypeface> fTypeface;
     SkBitSet fGlyphUsage;
@@ -133,6 +128,12 @@ private:
     const SkGlyphID fFirstGlyphID;
     const SkGlyphID fLastGlyphID;
     const SkAdvancedTypefaceMetrics::FontType fFontType;
+    SkDEBUGCODE(bool fSubsetted = false;)
+
+    SkPDFFont(sk_sp<SkTypeface> typeface,
+              SkGlyphID firstGlyphID,
+              SkGlyphID lastGlyphID,
+              SkAdvancedTypefaceMetrics::FontType fontType);
 
     typedef SkPDFDict INHERITED;
 };
