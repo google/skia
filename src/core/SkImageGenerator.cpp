@@ -8,6 +8,7 @@
 #include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkNextID.h"
+#include "SkYUVAIndex.h"
 
 SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     : fInfo(info)
@@ -29,28 +30,32 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     return this->onGetPixels(info, pixels, rowBytes, defaultOpts);
 }
 
-bool SkImageGenerator::queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+bool SkImageGenerator::queryYUVA8(SkYUVASizeInfo* sizeInfo,
+                                  SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                                  SkYUVColorSpace* colorSpace) const {
     SkASSERT(sizeInfo);
 
-    return this->onQueryYUV8(sizeInfo, colorSpace);
+    return this->onQueryYUVA8(sizeInfo, yuvaIndices, colorSpace);
 }
 
-bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kU].fWidth >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kU].fHeight >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kV].fWidth >= 0);
-    SkASSERT(sizeInfo.fSizes[SkYUVSizeInfo::kV].fHeight >= 0);
-    SkASSERT(sizeInfo.fWidthBytes[SkYUVSizeInfo::kY] >=
-            (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth);
-    SkASSERT(sizeInfo.fWidthBytes[SkYUVSizeInfo::kU] >=
-            (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kU].fWidth);
-    SkASSERT(sizeInfo.fWidthBytes[SkYUVSizeInfo::kV] >=
-            (size_t) sizeInfo.fSizes[SkYUVSizeInfo::kV].fWidth);
-    SkASSERT(planes && planes[0] && planes[1] && planes[2]);
+bool SkImageGenerator::getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
+                                      const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                                      void* planes[SkYUVASizeInfo::kMaxCount]) {
 
-    return this->onGetYUV8Planes(sizeInfo, planes);
+    for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
+        SkASSERT(sizeInfo.fSizes[i].fWidth >= 0);
+        SkASSERT(sizeInfo.fSizes[i].fHeight >= 0);
+        SkASSERT(sizeInfo.fWidthBytes[i] >= (size_t) sizeInfo.fSizes[i].fWidth);
+    }
+
+    int numPlanes = 0;
+    SkASSERT(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
+    SkASSERT(planes);
+    for (int i = 0; i < numPlanes; ++i) {
+        SkASSERT(planes[i]);
+    }
+
+    return this->onGetYUVA8Planes(sizeInfo, yuvaIndices, planes);
 }
 
 #if SK_SUPPORT_GPU
