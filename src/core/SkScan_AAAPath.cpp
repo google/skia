@@ -1680,6 +1680,10 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
 
 void SkScan::AAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
                          const SkIRect& clipBounds, bool forceRLE) {
+#if defined(SK_DISABLE_AAA)
+    SkDEBUGFAIL("AAA Disabled");
+    return;
+#else
     bool containedInClip = clipBounds.contains(ir);
     bool isInverse = path.isInverseFillType();
 
@@ -1714,4 +1718,5 @@ void SkScan::AAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
         aaa_fill_path(path, clipBounds, &additiveBlitter, ir.fTop, ir.fBottom,
                 containedInClip, false, forceRLE);
     }
+#endif //defined(SK_DISABLE_AAA)
 }
