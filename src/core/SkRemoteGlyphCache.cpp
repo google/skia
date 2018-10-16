@@ -390,7 +390,6 @@ struct WireTypeface {
     WireTypeface(SkFontID typeface_id, int glyph_count, SkFontStyle style, bool is_fixed)
             : typefaceID(typeface_id), glyphCount(glyph_count), style(style), isFixed(is_fixed) {}
 
-    // std::thread::id thread_id;  // TODO:need to figure a good solution
     SkFontID        typefaceID;
     int             glyphCount;
     SkFontStyle     style;
@@ -407,9 +406,16 @@ SkStrikeServer::SkStrikeServer(DiscardableHandleManager* discardableHandleManage
 SkStrikeServer::~SkStrikeServer() = default;
 
 sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
+    auto* data = fSerializedTypefaces.find(SkTypeface::UniqueID(tf));
+    if (data) {
+        return *data;
+    }
+
     WireTypeface wire(SkTypeface::UniqueID(tf), tf->countGlyphs(), tf->fontStyle(),
                       tf->isFixedPitch());
-    return SkData::MakeWithCopy(&wire, sizeof(wire));
+    data = fSerializedTypefaces.set(SkTypeface::UniqueID(tf),
+                                    SkData::MakeWithCopy(&wire, sizeof(wire)));
+    return *data;
 }
 
 void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
