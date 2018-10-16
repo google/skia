@@ -23,7 +23,7 @@ struct SwitchStatement : public Statement {
     : INHERITED(offset, kSwitch_Kind)
     , fIsStatic(isStatic)
     , fValue(std::move(value))
-    , fSymbols(std::move(symbols))
+    , fSymbols(symbols)
     , fCases(std::move(cases)) {}
 
     std::unique_ptr<Statement> clone() const override {

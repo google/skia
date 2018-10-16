@@ -120,7 +120,7 @@ void GradientAdapter::apply() {
         stops.push_back({ pos, ValueTraits<VectorValue>::As<SkColor>(rgb) });
     }
 
-    fGradient->setColorStops(std::move(stops));
+    fGradient->setColorStops(stops);
 }
 
 LinearGradientAdapter::LinearGradientAdapter(sk_sp<sksg::LinearGradient> grad, size_t stopCount)

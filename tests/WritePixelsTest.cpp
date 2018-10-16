@@ -538,11 +538,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
     sk_sp<SkSurface> leftSurf = create_surf(context, kHalfSize, kFullSize);
     sk_sp<SkSurface> rightSurf = create_surf(context, kHalfSize, kFullSize);
 
-    sk_sp<SkImage> leftImg = upload(std::move(leftSurf), kLeftColor);
-    dest->getCanvas()->drawImage(std::move(leftImg), 0, 0);
+    sk_sp<SkImage> leftImg = upload(leftSurf, kLeftColor);
+    dest->getCanvas()->drawImage(leftImg, 0, 0);
 
-    sk_sp<SkImage> rightImg = upload(std::move(rightSurf), kRightColor);
-    dest->getCanvas()->drawImage(std::move(rightImg), kHalfSize, 0);
+    sk_sp<SkImage> rightImg = upload(rightSurf, kRightColor);
+    dest->getCanvas()->drawImage(rightImg, kHalfSize, 0);
 
     SkBitmap bm;
     bm.allocPixels(fullII);

@@ -11,7 +11,7 @@
 #include "SkSVGValue.h"
 
 void SkSVGGradient::setHref(const SkSVGStringType& href) {
-    fHref = std::move(href);
+    fHref = href;
 }
 
 void SkSVGGradient::setGradientTransform(const SkSVGTransformType& t) {

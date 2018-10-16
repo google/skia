@@ -355,7 +355,7 @@ sk_sp<SkPDFObject> SkPDFMakeShader(SkPDFDocument* doc,
             return *shaderPtr;
         }
         sk_sp<SkPDFObject> pdfShader = make_image_shader(doc, key, skimg);
-        canon->fImageShaderMap.set(std::move(key), pdfShader);
+        canon->fImageShaderMap.set(key, pdfShader);
         return pdfShader;
     }
     // Don't bother to de-dup fallback shader.

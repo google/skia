@@ -1457,7 +1457,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     const sk_sp<SkImage> permutationsImage = paintingData->getPermutationsImage();
     SkASSERT(SkIsPow2(permutationsImage->width()) && SkIsPow2(permutationsImage->height()));
     sk_sp<GrTextureProxy> permutationsProxy = GrMakeCachedImageProxy(proxyProvider,
-                                                                     std::move(permutationsImage));
+                                                                     permutationsImage);
 
     const sk_sp<SkImage> noiseImage = paintingData->getNoiseImage();
     SkASSERT(SkIsPow2(noiseImage->width()) && SkIsPow2(noiseImage->height()));

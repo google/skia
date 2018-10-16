@@ -148,7 +148,7 @@ bool SkBitmap::setAlphaType(SkAlphaType newAlphaType) {
     }
     if (this->alphaType() != newAlphaType) {
         auto newInfo = fPixmap.info().makeAlphaType(newAlphaType);
-        fPixmap.reset(std::move(newInfo), fPixmap.addr(), fPixmap.rowBytes());
+        fPixmap.reset(newInfo, fPixmap.addr(), fPixmap.rowBytes());
     }
     SkDEBUGCODE(this->validate();)
     return true;

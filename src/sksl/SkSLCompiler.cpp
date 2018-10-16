@@ -979,6 +979,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* s, SwitchCase*
         }
     }
     std::vector<std::unique_ptr<Statement>> statements;
+    statements.reserve(statementPtrs.size());
     for (const auto& s : statementPtrs) {
         statements.push_back(std::move(*s));
     }

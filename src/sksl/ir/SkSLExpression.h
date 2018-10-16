@@ -48,7 +48,7 @@ struct Expression : public IRNode {
     Expression(int offset, Kind kind, const Type& type)
     : INHERITED(offset)
     , fKind(kind)
-    , fType(std::move(type)) {}
+    , fType(type) {}
 
     /**
      * Returns true if this expression is constant. compareConstant must be implemented for all

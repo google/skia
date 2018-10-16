@@ -36,7 +36,7 @@ private:
             : INHERITED(kGrYUVtoRGBEffect_ClassID, kNone_OptimizationFlags)
             , fColorSpaceMatrix(colorSpaceMatrix) {
         for (int i = 0; i < numPlanes; ++i) {
-            fSamplers[i].reset(std::move(proxies[i]),
+            fSamplers[i].reset(proxies[i],
                                GrSamplerState(GrSamplerState::WrapMode::kClamp, filterModes[i]));
             fSamplerTransforms[i] = SkMatrix::MakeScale(scales[i].width(), scales[i].height());
             fSamplerCoordTransforms[i].reset(fSamplerTransforms[i], fSamplers[i].proxy(), true);

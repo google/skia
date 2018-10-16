@@ -31,7 +31,7 @@ void SkSVGPattern::setHeight(const SkSVGLength& h) {
 }
 
 void SkSVGPattern::setHref(const SkSVGStringType& href) {
-    fHref = std::move(href);
+    fHref = href;
 }
 
 void SkSVGPattern::setPatternTransform(const SkSVGTransformType& patternTransform) {

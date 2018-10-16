@@ -20,7 +20,7 @@ struct Block : public Statement {
     Block(int offset, std::vector<std::unique_ptr<Statement>> statements,
           const std::shared_ptr<SymbolTable> symbols = nullptr)
     : INHERITED(offset, kBlock_Kind)
-    , fSymbols(std::move(symbols))
+    , fSymbols(symbols)
     , fStatements(std::move(statements)) {}
 
     bool isEmpty() const override {

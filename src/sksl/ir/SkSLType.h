@@ -30,7 +30,7 @@ public:
         Field(Modifiers modifiers, StringFragment name, const Type* type)
         : fModifiers(modifiers)
         , fName(name)
-        , fType(std::move(type)) {}
+        , fType(type) {}
 
         const String description() const {
             return fType->description() + " " + fName + ";";
