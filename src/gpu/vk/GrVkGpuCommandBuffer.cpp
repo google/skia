@@ -99,10 +99,10 @@ void GrVkGpuRTCommandBuffer::init() {
                                                                      vkStencilOps);
     }
 
-    cbInfo.fColorClearValue.color.float32[0] = fClearColor.fRGBA[0];
-    cbInfo.fColorClearValue.color.float32[1] = fClearColor.fRGBA[1];
-    cbInfo.fColorClearValue.color.float32[2] = fClearColor.fRGBA[2];
-    cbInfo.fColorClearValue.color.float32[3] = fClearColor.fRGBA[3];
+    cbInfo.fColorClearValue.color.float32[0] = fClearColor[0];
+    cbInfo.fColorClearValue.color.float32[1] = fClearColor[1];
+    cbInfo.fColorClearValue.color.float32[2] = fClearColor[2];
+    cbInfo.fColorClearValue.color.float32[3] = fClearColor[3];
 
     if (VK_ATTACHMENT_LOAD_OP_CLEAR == fVkColorLoadOp) {
         cbInfo.fBounds = SkRect::MakeWH(vkRT->width(), vkRT->height());
@@ -240,7 +240,7 @@ void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
 
     this->INHERITED::set(rt, origin);
 
-    fClearColor = GrColor4f::FromGrColor(colorInfo.fClearColor);
+    GrColorToRGBAFloat(colorInfo.fClearColor, fClearColor);
 
     get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
                           &fVkColorLoadOp, &fVkColorStoreOp);
