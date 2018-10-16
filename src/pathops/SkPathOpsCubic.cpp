@@ -733,18 +733,22 @@ double SkDCubic::top(const SkDCubic& dCurve, double startT, double endT, SkDPoin
     return topT;
 }
 
-int SkTCubic::intersectRay(SkIntersections* i, const SkDLine& line) const {
-    return i->intersectRay(fCubic, line);
-}
+#if PATH_OP_COMPILE_FOR_SIZE
 
-bool SkTCubic::hullIntersects(const SkDQuad& quad, bool* isLinear) const {
-    return quad.hullIntersects(fCubic, isLinear);
-}
+    int SkTCubic::intersectRay(SkIntersections* i, const SkDLine& line) const {
+        return i->intersectRay(fCubic, line);
+    }
 
-bool SkTCubic::hullIntersects(const SkDConic& conic, bool* isLinear) const  {
-    return conic.hullIntersects(fCubic, isLinear);
-}
+    bool SkTCubic::hullIntersects(const SkDQuad& quad, bool* isLinear) const {
+        return quad.hullIntersects(fCubic, isLinear);
+    }
 
-void SkTCubic::setBounds(SkDRect* rect) const {
-    rect->setBounds(fCubic);
-}
+    bool SkTCubic::hullIntersects(const SkDConic& conic, bool* isLinear) const  {
+        return conic.hullIntersects(fCubic, isLinear);
+    }
+
+    void SkTCubic::setBounds(SkDRect* rect) const {
+        rect->setBounds(fCubic);
+    }
+
+#endif
