@@ -549,7 +549,7 @@ public:
 
         @param extraPtCount  number of additional SkPoint to allocate
     */
-    void incReserve(unsigned extraPtCount);
+    void incReserve(int extraPtCount);
 
     /** Shrinks SkPath verb array and SkPoint array storage to discard unused capacity.
         May reduce the heap overhead for SkPath known to be fully constructed.
