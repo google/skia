@@ -231,16 +231,16 @@ static GrColor input_texel_color(int i, int j, SkScalar delta) {
     // Delta must be less than 0.5 to prevent over/underflow issues with the input color
     SkASSERT(delta <= 0.5);
 
-    GrColor color = GrColorPackRGBA((uint8_t)j, (uint8_t)(i + j), (uint8_t)(2 * j - i), (uint8_t)i);
-    GrColor4f color4f = GrColor4f::FromGrColor(color);
+    SkColor color = SkColorSetARGB((uint8_t)i, (uint8_t)j, (uint8_t)(i + j), (uint8_t)(2 * j - i));
+    SkColor4f color4f = SkColor4f::FromColor(color);
     for (int i = 0; i < 4; i++) {
-        if (color4f.fRGBA[i] > 0.5) {
-            color4f.fRGBA[i] -= delta;
+        if (color4f[i] > 0.5) {
+            color4f[i] -= delta;
         } else {
-            color4f.fRGBA[i] += delta;
+            color4f[i] += delta;
         }
     }
-    return color4f.premul().toGrColor();
+    return color4f.premul().toBytes_RGBA();
 }
 
 void test_draw_op(GrContext* context,
@@ -378,12 +378,12 @@ bool legal_modulation(const GrColor& in1, const GrColor& in2, const GrColor& in3
                       const GrColor& out1, const GrColor& out2, const GrColor& out3,
                       bool alphaModulation) {
     // Convert to floating point, which is the number space the FP operates in (more or less)
-    SkPMColor4f in1f = GrColor4f::FromGrColor(in1).asRGBA4f<kPremul_SkAlphaType>();
-    SkPMColor4f in2f = GrColor4f::FromGrColor(in2).asRGBA4f<kPremul_SkAlphaType>();
-    SkPMColor4f in3f = GrColor4f::FromGrColor(in3).asRGBA4f<kPremul_SkAlphaType>();
-    SkPMColor4f out1f = GrColor4f::FromGrColor(out1).asRGBA4f<kPremul_SkAlphaType>();
-    SkPMColor4f out2f = GrColor4f::FromGrColor(out2).asRGBA4f<kPremul_SkAlphaType>();
-    SkPMColor4f out3f = GrColor4f::FromGrColor(out3).asRGBA4f<kPremul_SkAlphaType>();
+    SkPMColor4f in1f = SkPMColor4f::FromBytes_RGBA(in1);
+    SkPMColor4f in2f = SkPMColor4f::FromBytes_RGBA(in2);
+    SkPMColor4f in3f = SkPMColor4f::FromBytes_RGBA(in3);
+    SkPMColor4f out1f = SkPMColor4f::FromBytes_RGBA(out1);
+    SkPMColor4f out2f = SkPMColor4f::FromBytes_RGBA(out2);
+    SkPMColor4f out3f = SkPMColor4f::FromBytes_RGBA(out3);
 
     // Reconstruct the output of the FP before the shader modulated its color with the input value.
     // When the original input is very small, it may cause the final output color to round
@@ -402,19 +402,16 @@ bool legal_modulation(const GrColor& in1, const GrColor& in2, const GrColor& in3
 
     // With reconstructed pre-modulated FP output, derive the expected value of fp * input for each
     // of the transformed input colors.
-    int mR = modulation_index(0, alphaModulation);
-    int mG = modulation_index(1, alphaModulation);
-    int mB = modulation_index(2, alphaModulation);
-    GrColor4f expected1 = GrColor4f(fpPreModulation.fR * in1f[mR], fpPreModulation.fG * in1f[mG],
-                                    fpPreModulation.fB * in1f[mB], fpPreModulation.fA * in1f.fA);
-    GrColor4f expected2 = GrColor4f(fpPreModulation.fR * in2f[mR], fpPreModulation.fG * in2f[mG],
-                                    fpPreModulation.fB * in2f[mB], fpPreModulation.fA * in2f.fA);
-    GrColor4f expected3 = GrColor4f(fpPreModulation.fR * in3f[mR], fpPreModulation.fG * in3f[mG],
-                                    fpPreModulation.fB * in3f[mB], fpPreModulation.fA * in3f.fA);
+    SkPMColor4f expected1 = alphaModulation ? (fpPreModulation * in1f.fA)
+                                            : (fpPreModulation * in1f);
+    SkPMColor4f expected2 = alphaModulation ? (fpPreModulation * in2f.fA)
+                                            : (fpPreModulation * in2f);
+    SkPMColor4f expected3 = alphaModulation ? (fpPreModulation * in3f.fA)
+                                            : (fpPreModulation * in3f);
 
-    return fuzzy_color_equals(out1f, expected1.asRGBA4f<kPremul_SkAlphaType>()) &&
-           fuzzy_color_equals(out2f, expected2.asRGBA4f<kPremul_SkAlphaType>()) &&
-           fuzzy_color_equals(out3f, expected3.asRGBA4f<kPremul_SkAlphaType>());
+    return fuzzy_color_equals(out1f, expected1) &&
+           fuzzy_color_equals(out2f, expected2) &&
+           fuzzy_color_equals(out3f, expected3);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
@@ -555,15 +552,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                         }
                     }
 
-                    SkPMColor4f input4f =
-                            GrColor4f::FromGrColor(input).asRGBA4f<kPremul_SkAlphaType>();
-                    GrColor4f output4f = GrColor4f::FromGrColor(output);
+                    SkPMColor4f input4f = SkPMColor4f::FromBytes_RGBA(input);
+                    SkPMColor4f output4f = SkPMColor4f::FromBytes_RGBA(output);
                     SkPMColor4f expected4f;
                     if (fp->hasConstantOutputForConstantInput(input4f, &expected4f)) {
-                        float rDiff = fabsf(output4f.fRGBA[0] - expected4f.fR);
-                        float gDiff = fabsf(output4f.fRGBA[1] - expected4f.fG);
-                        float bDiff = fabsf(output4f.fRGBA[2] - expected4f.fB);
-                        float aDiff = fabsf(output4f.fRGBA[3] - expected4f.fA);
+                        float rDiff = fabsf(output4f.fR - expected4f.fR);
+                        float gDiff = fabsf(output4f.fG - expected4f.fG);
+                        float bDiff = fabsf(output4f.fB - expected4f.fB);
+                        float aDiff = fabsf(output4f.fA - expected4f.fA);
                         static constexpr float kTol = 4 / 255.f;
                         if (rDiff > kTol || gDiff > kTol || bDiff > kTol || aDiff > kTol) {
                             if (constMessage.isEmpty()) {
@@ -575,9 +571,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                                         "expected(%f, %f, %f, %f)", fp->name(),
                                         SkTMax(rDiff, SkTMax(gDiff, SkTMax(bDiff, aDiff))), kTol,
                                         input4f.fR, input4f.fG, input4f.fB, input4f.fA,
-                                        output4f.fRGBA[0], output4f.fRGBA[1], output4f.fRGBA[2],
-                                        output4f.fRGBA[3], expected4f.fR, expected4f.fG,
-                                        expected4f.fB, expected4f.fA);
+                                        output4f.fR, output4f.fG, output4f.fB, output4f.fA,
+                                        expected4f.fR, expected4f.fG, expected4f.fB, expected4f.fA);
                             }
                         }
                     }

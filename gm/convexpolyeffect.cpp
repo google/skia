@@ -211,7 +211,7 @@ protected:
                 }
 
                 GrPaint grPaint;
-                grPaint.setColor4f(GrColor4f(0, 0, 0, 1.f));
+                grPaint.setColor4f({ 0, 0, 0, 1.f });
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
@@ -251,7 +251,7 @@ protected:
                 }
 
                 GrPaint grPaint;
-                grPaint.setColor4f(GrColor4f(0, 0, 0, 1.f));
+                grPaint.setColor4f({ 0, 0, 0, 1.f });
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 

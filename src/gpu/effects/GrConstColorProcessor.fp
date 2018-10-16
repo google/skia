@@ -71,7 +71,7 @@ void main() {
             uint32_t r = d->fRandom->nextULessThan(a+1);
             uint32_t g = d->fRandom->nextULessThan(a+1);
             uint32_t b = d->fRandom->nextULessThan(a+1);
-            color = GrColorToPMColor4f(GrColorPackRGBA(r, g, b, a));
+            color = SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(r, g, b, a));
             break;
         }
         case 1:
@@ -79,7 +79,7 @@ void main() {
             break;
         case 2:
             uint32_t c = d->fRandom->nextULessThan(0x100);
-            color = GrColorToPMColor4f(c | (c << 8) | (c << 16) | (c << 24));
+            color = SkPMColor4f::FromBytes_RGBA(c | (c << 8) | (c << 16) | (c << 24));
             break;
     }
     InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));

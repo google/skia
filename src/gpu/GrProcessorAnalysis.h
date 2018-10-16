@@ -124,7 +124,7 @@ public:
      */
     int initialProcessorsToEliminate(GrColor* newPipelineInputColor) const {
         if (fProcessorsToEliminate > 0) {
-            *newPipelineInputColor = GrColor4f::FromRGBA4f(fLastKnownOutputColor).toGrColor();
+            *newPipelineInputColor = fLastKnownOutputColor.toBytes_RGBA();
         }
         return fProcessorsToEliminate;
     }
@@ -141,7 +141,7 @@ public:
      */
     GrProcessorAnalysisColor outputColor() const {
         if (fKnowOutputColor) {
-            return GrColor4f::FromRGBA4f(fLastKnownOutputColor).toGrColor();
+            return fLastKnownOutputColor.toBytes_RGBA();
         }
         return fIsOpaque ? GrProcessorAnalysisColor::Opaque::kYes
                          : GrProcessorAnalysisColor::Opaque::kNo;

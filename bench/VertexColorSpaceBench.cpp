@@ -141,7 +141,7 @@ public:
         this->setBounds(SkRect::MakeWH(100.f, 100.f), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    Op(GrColor4f color4f, Mode mode)
+    Op(const SkColor4f& color4f, Mode mode)
             : INHERITED(ClassID())
             , fMode(mode)
             , fColor4f(color4f) {
@@ -174,7 +174,7 @@ private:
         size_t vertexStride = sizeof(SkPoint);
         switch (fMode) {
             case kFloat_Mode:
-                vertexStride += sizeof(GrColor4f);
+                vertexStride += sizeof(SkColor4f);
                 break;
             case kHalf_Mode:
             case kShort_Mode:
@@ -198,7 +198,7 @@ private:
         if (kFloat_Mode == fMode) {
             struct V {
                 SkPoint fPos;
-                GrColor4f fColor;
+                SkColor4f fColor;
             };
             SkASSERT(sizeof(V) == vertexStride);
             V* v = (V*)verts;
@@ -272,7 +272,7 @@ private:
 
     Mode fMode;
     GrColor fColor;
-    GrColor4f fColor4f;
+    SkColor4f fColor4f;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     typedef GrMeshDrawOp INHERITED;
@@ -328,7 +328,7 @@ public:
                     case kHalf_Mode:
                     case kShort_Mode:
                     case kFloat_Mode: {
-                        GrColor4f c4f = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c));
+                        SkColor4f c4f = SkColor4f::FromColor(c);
                         c4f = xform->apply(c4f);
                         op = pool->allocate<Op>(c4f, fMode);
                     }

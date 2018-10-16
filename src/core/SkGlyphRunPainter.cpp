@@ -326,12 +326,15 @@ void SkGlyphRunListPainter::processARGBFallback(
 #if SK_SUPPORT_GPU
 // -- GrTextContext --------------------------------------------------------------------------------
 GrColor generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
-    GrColor4f filteredColor = SkColor4fToUnpremulGrColor4f(paint.getColor4f(), colorSpaceInfo);
-    if (paint.getColorFilter() != nullptr) {
-        filteredColor = GrColor4f::FromRGBA4f(paint.getColorFilter()->filterColor4f(
-                filteredColor.asRGBA4f<kUnpremul_SkAlphaType>(),colorSpaceInfo.colorSpace()));
+    SkColor4f filteredColor = paint.getColor4f();
+    if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
+        filteredColor = xform->apply(filteredColor);
     }
-    return filteredColor.premul().toGrColor();
+    if (paint.getColorFilter() != nullptr) {
+        filteredColor = paint.getColorFilter()->filterColor4f(filteredColor,
+                                                              colorSpaceInfo.colorSpace());
+    }
+    return filteredColor.premul().toBytes_RGBA();
 }
 
 void GrTextContext::drawGlyphRunList(
