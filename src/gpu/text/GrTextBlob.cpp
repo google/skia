@@ -144,9 +144,9 @@ void GrTextBlob::appendPathGlyph(int runIndex, const SkPath& path, SkScalar x, S
     run.fPathGlyphs.push_back(GrTextBlob::Run::PathGlyph(path, x, y, scale, preTransformed));
 }
 
-bool GrTextBlob::mustRegenerate(const SkPaint& paint,
-                                     const SkMaskFilterBase::BlurRec& blurRec,
-                                     const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
+bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosition,
+                                const SkMaskFilterBase::BlurRec& blurRec,
+                                const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
     // If we have LCD text then our canonical color will be set to transparent, in this case we have
     // to regenerate the blob on any color change
     // We use the grPaint to get any color filter effects
@@ -196,20 +196,22 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint,
             return true;
         }
 
-        // We can update the positions in the cachedtextblobs without regenerating the whole blob,
-        // but only for integer translations.
-        // This cool bit of math will determine the necessary translation to apply to the already
-        // generated vertex coordinates to move them to the correct position
-        SkScalar transX = viewMatrix.getTranslateX() +
-                          viewMatrix.getScaleX() * (x - fInitialX) +
-                          viewMatrix.getSkewX() * (y - fInitialY) -
-                          fInitialViewMatrix.getTranslateX();
-        SkScalar transY = viewMatrix.getTranslateY() +
-                          viewMatrix.getSkewY() * (x - fInitialX) +
-                          viewMatrix.getScaleY() * (y - fInitialY) -
-                          fInitialViewMatrix.getTranslateY();
-        if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY)) {
-            return true;
+        if (!anyRunHasSubpixelPosition) {
+            // We can update the positions in the cachedtextblobs without regenerating the whole
+            // blob, but only for integer translations.
+            // This cool bit of math will determine the necessary translation to apply to the
+            // already generated vertex coordinates to move them to the correct position.
+            SkScalar transX = viewMatrix.getTranslateX() +
+                              viewMatrix.getScaleX() * (x - fInitialX) +
+                              viewMatrix.getSkewX() * (y - fInitialY) -
+                              fInitialViewMatrix.getTranslateX();
+            SkScalar transY = viewMatrix.getTranslateY() +
+                              viewMatrix.getSkewY() * (x - fInitialX) +
+                              viewMatrix.getScaleY() * (y - fInitialY) -
+                              fInitialViewMatrix.getTranslateY();
+            if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY)) {
+                return true;
+            }
         }
     } else if (this->hasDistanceField()) {
         // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
