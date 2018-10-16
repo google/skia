@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "957fbcee_72804381",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-16T14:32:12Z",
+      "side": 1,
+      "message": "Clarified and moved.",
+      "parentUuid": "48fb8d0c_fb26ca11",
+      "range": {
+        "startLine": 621,
+        "startChar": 4,
+        "endLine": 623,
+        "endChar": 41
+      },
+      "revId": "c46e619e3c073ac02922143b1710429684cab189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de11f191_415bda0e",
         "filename": "infra/bots/recipes/test_canvaskit.py",
         "patchSetId": 9
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "657ae31d_ead0a6a0",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-16T14:32:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de11f191_415bda0e",
+      "range": {
+        "startLine": 36,
+        "startChar": 22,
+        "endLine": 36,
+        "endChar": 23
+      },
+      "revId": "c46e619e3c073ac02922143b1710429684cab189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3041402_171fc66d",
         "filename": "infra/bots/recipes/test_canvaskit.py",
         "patchSetId": 9
@@ -68,6 +116,30 @@
       "revId": "c46e619e3c073ac02922143b1710429684cab189",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1096f92_54bfd3d3",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-16T14:32:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3041402_171fc66d",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 9
+      },
+      "revId": "c46e619e3c073ac02922143b1710429684cab189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
