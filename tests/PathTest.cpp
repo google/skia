@@ -5191,3 +5191,16 @@ DEF_TEST(Path_setLastPt, r) {
     REPORTER_ASSERT(r, p.isValid());
     REPORTER_ASSERT(r, p.pathRefIsValid());
 }
+
+DEF_TEST(Path_increserve_handle_neg_crbug_883666, r) {
+    SkPath path;
+
+    path.conicTo({0, 0}, {1, 1}, SK_FloatNegativeInfinity);
+
+    // <== use a copy path object to force SkPathRef::copy() and SkPathRef::resetToSize()
+    SkPath shallowPath = path;
+
+    // make sure we don't assert/crash on this.
+    shallowPath.incReserve(0xffffffff);
+}
+
