@@ -27,6 +27,9 @@ SkPictureImageGenerator::Make(const SkISize& size, sk_sp<SkPicture> picture, con
     if (SkImage::BitDepth::kF16 == bitDepth) {
         colorType = kRGBA_F16_SkColorType;
     }
+    if (!colorSpace) {
+        colorSpace = SkColorSpace::MakeSRGB();
+    }
 
     SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType,
                                          kPremul_SkAlphaType, std::move(colorSpace));
