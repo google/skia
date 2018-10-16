@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8aa2da45_71834a6c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-10-16T07:43:51Z",
+      "side": 1,
+      "message": "Sk4fLinear should not draw noise, but a color average: https://gold.skia.org/detail?test\u003dgradient_subpixel\u0026digest\u003d26443b00fa328d02f800fb410092c784\n\nThis is arguably better than blind sampling as it avoids jarring discontinuities when the scale is animating.\n\nIt makes sense to align gradient impls though, so if we\u0027re not interested in adding this feature to RP/GPU I suggest we remove not just the GM but also this code: https://cs.chromium.org/chromium/src/third_party/skia/src/shaders/gradients/Sk4fLinearGradient.cpp?rcl\u003d198b87e5be2083d15901a91c82caad1912e8209a\u0026l\u003d297",
+      "revId": "4eb3b6c85fb1a77d0a641f7eba6651463d5fd09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
