@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5365b87_89ec44b6",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-10-16T20:59:25Z",
+      "side": 1,
+      "message": "The fact that we never purge this is wrong, and the same goes for the typeface proxies on the client. But I\u0027ll take that in a follow up change. WireTypeface is tiny, we\u0027ll need a lot of typefaces before this becomes noticeable.",
+      "range": {
+        "startLine": 147,
+        "startChar": 4,
+        "endLine": 147,
+        "endChar": 61
+      },
+      "revId": "ea6465078f3312fd46da02170d69dab2f224d953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
