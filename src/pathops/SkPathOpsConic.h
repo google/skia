@@ -8,7 +8,6 @@
 #ifndef SkPathOpsConic_DEFINED
 #define SkPathOpsConic_DEFINED
 
-#include "SkPathOpsPoint.h"
 #include "SkPathOpsQuad.h"
 
 struct SkDConic {
@@ -29,6 +28,7 @@ struct SkDConic {
 
     void debugInit() {
         fPts.debugInit();
+        fWeight = 0;
     }
 
     void debugSet(const SkDPoint* pts, SkScalar weight);
@@ -133,11 +133,6 @@ struct SkDConic {
 
 };
 
-#if PATH_OP_COMPILE_FOR_SIZE
-
-#include "SkArenaAlloc.h"
-#include "SkPathOpsTCurve.h"
-
 class SkTConic : public SkTCurve {
 public:
     SkDConic fConic;
@@ -156,6 +151,9 @@ public:
     bool collapsed() const override { return fConic.collapsed(); }
     bool controlsInside() const override { return fConic.controlsInside(); }
     void debugInit() override { return fConic.debugInit(); }
+#if DEBUG_T_SECT
+    void dumpID(int id) const override { return fConic.dumpID(id); }
+#endif
     SkDVector dxdyAtT(double t) const override { return fConic.dxdyAtT(t); }
 #ifdef SK_DEBUG
     SkOpGlobalState* globalState() const override { return fConic.globalState(); }
@@ -192,5 +190,4 @@ public:
     }
 };
 
-#endif // PATH_OP_COMPILE_FOR_SIZE
 #endif
