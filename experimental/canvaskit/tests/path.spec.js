@@ -31,14 +31,6 @@ describe('CanvasKit\'s Path Behavior', function() {
         container.innerHTML = '';
     });
 
-    function getSurface() {
-        if (CanvasKit.gpu) {
-            return CanvasKit.getWebGLSurface('test');
-        }
-        return CanvasKit.getRasterN32PremulSurface('test');
-    }
-
-
     function reportSurface(surface, testname, done) {
         // In docker, the webgl canvas is blank, but the surface has the pixel
         // data. So, we copy it out and draw it to a normal canvas to take a picture.
@@ -66,7 +58,7 @@ describe('CanvasKit\'s Path Behavior', function() {
     it('can draw a path', function(done) {
         LoadCanvasKit.then(() => {
             // This is taken from example.html
-            const surface = getSurface();
+            const surface = CanvasKit.MakeCanvasSurface('test');
             expect(surface).toBeTruthy('Could not make surface')
             if (!surface) {
                 done();
@@ -128,7 +120,7 @@ describe('CanvasKit\'s Path Behavior', function() {
 
     it('can apply an effect and draw text', function(done) {
         LoadCanvasKit.then(() => {
-            const surface = getSurface();
+            const surface = CanvasKit.MakeCanvasSurface('test');
             expect(surface).toBeTruthy('Could not make surface')
             if (!surface) {
                 done();

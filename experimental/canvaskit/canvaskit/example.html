@@ -16,7 +16,7 @@
 
 </style>
 
-<h2> CanvasKit draws Paths to WebGL</h2>
+<h2> CanvasKit draws Paths to the browser</h2>
 <canvas id=patheffect width=300 height=300></canvas>
 <canvas id=paths width=200 height=200></canvas>
 <canvas id=ink width=300 height=300></canvas>
@@ -30,7 +30,7 @@
 <!-- Doesn't work yet. -->
 <button id=lego_btn>Take a picture of the legos</button>
 
-<script type="text/javascript" src="/node_modules/canvas-kit/bin/canvaskit.js"></script>
+<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
 
@@ -41,7 +41,7 @@
   var onboardingJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
   CanvasKitInit({
-    locateFile: (file) => '/node_modules/canvas-kit/bin/'+file,
+    locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).then((CK) => {
     CK.initFonts();
     CanvasKit = CK;
@@ -49,7 +49,8 @@
     PathExample(CanvasKit);
     InkExample(CanvasKit);
     // Set bounds to fix the 4:3 resolution of the legos
-    SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+    addScreenshotListener(SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+                            {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300}));
     // Re-size to fit
     SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
@@ -59,7 +60,8 @@
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
     resp.text().then((str) => {
       legoJSON = str;
-      SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+      addScreenshotListener(SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+                            {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300}));
     });
   });
 
@@ -84,30 +86,35 @@
     });
   });
 
-  // crashes the lego drawing
-  const btn = document.getElementById('lego_btn');
-  btn.addEventListener('click', () => {
-    const surface = CanvasKit.getWebGLSurface('sk_legos');
+  function addScreenshotListener(surface) {
     if (!surface) {
-      console.log('Could not get lego surface');
+      return;
     }
-
-    const img = surface.makeImageSnapshot()
-    if (!img) { return }
-    const png = img.encodeToData()
-    if (!png) { return }
-    const pngBytes = CanvasKit.getSkDataBytes(png);
-    // See https://stackoverflow.com/a/12713326
-    let b64encoded = btoa(String.fromCharCode.apply(null, pngBytes));
-    console.log("base64 encoded image", b64encoded);
-  });
+    if (CanvasKit.gpu) {
+      // Doesn't work on GPU (yet)
+      document.getElementById('lego_btn').remove();
+      return;
+    }
+    const btn = document.getElementById('lego_btn');
+    btn.addEventListener('click', () => {
+      const img = surface.makeImageSnapshot()
+      if (!img) { return }
+      const png = img.encodeToData()
+      if (!png) { return }
+      const pngBytes = CanvasKit.getSkDataBytes(png);
+      // See https://stackoverflow.com/a/12713326
+      let b64encoded = btoa(String.fromCharCode.apply(null, pngBytes));
+      console.log("base64 encoded image", b64encoded);
+    });
+  }
 
   function DrawingExample(CanvasKit) {
-    const surface = CanvasKit.getWebGLSurface('patheffect');
+    const surface = CanvasKit.MakeCanvasSurface('patheffect');
     if (!surface) {
-      console.log('Could not make surface');
+      console.error('Could not make surface');
+      return;
     }
-    const context = CanvasKit.currentContext();
+    const context = CanvasKit.currentContext(); // only needed for WebGL; no-op for CPU
 
     const canvas = surface.getCanvas();
 
@@ -139,7 +146,9 @@
 
       canvas.drawPath(path, paint);
       canvas.drawText('Try Clicking!', 10, 280, textPaint);
-      canvas.flush();
+
+      surface.flush();
+
       dpe.delete();
       path.delete();
       window.requestAnimationFrame(drawFrame);
@@ -162,9 +171,10 @@
   }
 
   function PathExample(CanvasKit) {
-    const surface = CanvasKit.getWebGLSurface('paths');
+    const surface = CanvasKit.MakeCanvasSurface('paths');
     if (!surface) {
-      console.log('Could not make surface');
+      console.error('Could not make surface');
+      return;
     }
     const context = CanvasKit.currentContext();
 
@@ -202,7 +212,7 @@
 
       canvas.drawPath(path, paint);
 
-      canvas.flush();
+      surface.flush();
 
       path.delete();
       paint.delete();
@@ -220,9 +230,10 @@
   }
 
   function InkExample(CanvasKit) {
-    const surface = CanvasKit.getWebGLSurface('ink');
+    const surface = CanvasKit.MakeCanvasSurface('ink');
     if (!surface) {
-      console.log('Could not make surface');
+      console.error('Could not make surface');
+      return;
     }
     const context = CanvasKit.currentContext();
 
@@ -256,11 +267,12 @@
 
     function drawFrame() {
       CanvasKit.setCurrentContext(context);
+      canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
       for (let i = 0; i < paints.length && i < paths.length; i++) {
         canvas.drawPath(paths[i], paints[i]);
       }
-      canvas.flush();
+      surface.flush();
 
       window.requestAnimationFrame(drawFrame);
     }
@@ -320,9 +332,10 @@
     let c = document.getElementById(id);
     bounds = bounds || {fLeft: 0, fTop: 0, fRight: size.w, fBottom: size.h};
 
-    const surface = CanvasKit.getWebGLSurface(id);
+    const surface = CanvasKit.MakeCanvasSurface(id);
     if (!surface) {
-      console.log('Could not make surface');
+      console.error('Could not make surface');
+      return;
     }
     const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
@@ -334,14 +347,15 @@
       let seek = ((now - firstFrame) / duration) % 1.0;
       CanvasKit.setCurrentContext(context);
       animation.seek(seek);
-
+      canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
       animation.render(canvas, bounds);
-      canvas.flush();
+      surface.flush();
       window.requestAnimationFrame(drawFrame);
     }
     window.requestAnimationFrame(drawFrame);
 
     //animation.delete();
+    return surface;
   }
 
 </script>
