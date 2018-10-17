@@ -258,7 +258,7 @@ sk_sp<sksg::Merge> Merge(std::vector<sk_sp<sksg::GeometryNode>>&& geos, sksg::Me
     std::vector<sksg::Merge::Rec> merge_recs;
     merge_recs.reserve(geos.size());
 
-    for (const auto& geo : geos) {
+    for (auto& geo : geos) {
         merge_recs.push_back(
             {std::move(geo), merge_recs.empty() ? sksg::Merge::Mode::kMerge : mode});
     }
@@ -308,7 +308,7 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
     std::vector<sk_sp<sksg::GeometryNode>> trimmed;
     trimmed.reserve(inputs.size());
     for (const auto& i : inputs) {
-        const auto trimEffect = sksg::TrimEffect::Make(i);
+        auto trimEffect = sksg::TrimEffect::Make(i);
         trimmed.push_back(trimEffect);
 
         const auto adapter = sk_make_sp<TrimEffectAdapter>(std::move(trimEffect));
@@ -336,7 +336,7 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachRoundGeometryEffect(
     std::vector<sk_sp<sksg::GeometryNode>> rounded;
     rounded.reserve(geos.size());
 
-    for (const auto& g : geos) {
+    for (auto& g : geos) {
         const auto roundEffect = sksg::RoundEffect::Make(std::move(g));
         rounded.push_back(roundEffect);
 
@@ -608,7 +608,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
     }
 
     // Push transformed local geometries to parent list, for subsequent paints.
-    for (const auto& geo : geos) {
+    for (auto& geo : geos) {
         ctx->fGeometryStack->push_back(shape_matrix
             ? sksg::GeometryTransform::Make(std::move(geo), shape_matrix)
             : std::move(geo));
