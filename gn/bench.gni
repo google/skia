@@ -44,7 +44,7 @@ bench_sources = [
   "$_bench/DisplacementBench.cpp",
   "$_bench/DrawBitmapAABench.cpp",
   "$_bench/DrawLatticeBench.cpp",
-  "$_bench/EncoderBench.cpp",
+  "$_bench/EncodeBench.cpp",
   "$_bench/FontCacheBench.cpp",
   "$_bench/FontScalerBench.cpp",
   "$_bench/FSRectBench.cpp",
