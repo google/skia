@@ -383,7 +383,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
             return false;
         }
     }
-    SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
+    SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 1, 0));
 
     VkPhysicalDevice physDev;
     VkDevice device;
@@ -500,6 +500,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     VkPhysicalDeviceProperties physDeviceProperties;
     grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
     int physDeviceVersion = physDeviceProperties.apiVersion;
+    SkASSERT(physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0));
 
     // query to get the initial queue props size
     uint32_t queueCount;
