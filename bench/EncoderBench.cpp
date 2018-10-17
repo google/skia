@@ -13,6 +13,8 @@
 #include "SkWebpEncoder.h"
 #include "SkStream.h"
 
+// TODO: rename this file from EncoderBench.cpp to EncodeBench.cpp, without the
+// "r"? onGetName returns "Encode_etc", not "Encoder_etc".
 class EncodeBench : public Benchmark {
 public:
     using Encoder = bool (*)(SkWStream*, const SkPixmap&);
@@ -25,6 +27,8 @@ public:
 
     const char* onGetName() override { return fName.c_str(); }
 
+    // TODO: move this from onPreDraw to onDelayedSetup? We don't need to load
+    // the bitmap more than once.
     void onPreDraw(SkCanvas*) override {
         SkAssertResult(GetResourceAsBitmap(fSourceFilename, &fBitmap));
     }
