@@ -66,6 +66,12 @@
     #pragma GCC diagnostic ignored "-Wpsabi"
 #endif
 
+#if defined(__clang__)
+    #define FALLTHROUGH [[clang::fallthrough]]
+#else
+    #define FALLTHROUGH
+#endif
+
 // We tag most helper functions as SI, to enforce good code generation
 // but also work around what we think is a bug in GCC: when targeting 32-bit
 // x86, GCC tends to pass U16 (4x uint16_t vector) function arguments in the
@@ -539,27 +545,28 @@ static void clut(const skcms_A2B* a2b, F* r, F* g, F* b, F a) {
     const int dim = (int)a2b->input_channels;
     assert (0 < dim && dim <= 4);
 
-    // Each of these arrays is really foo[dim], but we use foo[4] since we know dim <= 4.
-    I32 lo[4],   // Lower bound index contribution for each dimension.
-        hi[4];   // Upper bound index contribution for each dimension.
-    F    t[4];   // Weight for upper bound pixel; lower gets 1-t.
+    // For each of these arrays, think foo[2*dim], but we use foo[8] since we know dim <= 4.
+    I32 index [8];  // Index contribution by dimension, first low from 0, then high from 4.
+    F   weight[8];  // Weight for each contribution, again first low, then high.
 
-    // O(dim) work first: calculate lo,hi,t, from r,g,b,a.
+    // O(dim) work first: calculate index,weight from r,g,b,a.
     const F inputs[] = { *r,*g,*b,a };
     for (int i = dim-1, stride = 1; i >= 0; i--) {
-        {  // This block could be done in any order...
-            F x = inputs[i] * (float)(a2b->grid_points[i] - 1);
+        // x is where we logically want to sample the grid in the i-th dimension.
+        F x = inputs[i] * (float)(a2b->grid_points[i] - 1);
 
-            lo[i] = cast<I32>(            x      );   // i.e. trunc(x) == floor(x) here.
-            hi[i] = cast<I32>(minus_1_ulp(x+1.0f));
-            t [i] = x - cast<F>(lo[i]);               // i.e. fract(x)
-        }
+        // But we can't index at floats.  lo and hi are the two integer grid points surrounding x.
+        I32 lo = cast<I32>(            x      ),   // i.e. trunc(x) == floor(x) here.
+            hi = cast<I32>(minus_1_ulp(x+1.0f));
+        // Notice how we fold in the accumulated stride across previous dimensions here.
+        index[i+0] = lo * stride;
+        index[i+4] = hi * stride;
+        stride *= a2b->grid_points[i];
 
-        {  // ... but this block must go back to front to get stride right.
-            lo[i] *= stride;
-            hi[i] *= stride;
-            stride *= a2b->grid_points[i];
-        }
+        // We'll interpolate between those two integer grid points by t.
+        F t = x - cast<F>(lo);  // i.e. fract(x)
+        weight[i+0] = 1-t;
+        weight[i+4] = t;
     }
 
     *r = *g = *b = F0;
@@ -567,17 +574,29 @@ static void clut(const skcms_A2B* a2b, F* r, F* g, F* b, F a) {
     // We'll sample 2^dim == 1<<dim table entries per pixel,
     // in all combinations of low and high in each dimension.
     for (int combo = 0; combo < (1<<dim); combo++) {  // This loop can be done in any order.
-        I32 ix = cast<I32>(F0);
-        F    w = F1;
 
-        for (int i = 0; i < dim; i++) {   // This loop can be done in any order.
-            if (combo & (1<<i)) {  // It's arbitrary whether lo=0,hi=1 or lo=1,hi=0.
-                ix += hi[i];
-                w *= t[i];
-            } else {
-                ix += lo[i];
-                w *= 1-t[i];
-            }
+        // Each of these upcoming (combo&N)*K expressions here evaluates to 0 or 4,
+        // where 0 selects the low index contribution and its weight 1-t,
+        // or 4 the high index contribution and its weight t.
+
+        // Since 0<dim≤4, we can always just start off with the 0-th channel,
+        // then handle the others conditionally.
+        I32 ix = index [0 + (combo&1)*4];
+        F    w = weight[0 + (combo&1)*4];
+
+        switch ((dim-1)&3) {  // This lets the compiler know there are no other cases to handle.
+            case 3: ix += index [3 + (combo&8)/2];
+                    w  *= weight[3 + (combo&8)/2];
+                    FALLTHROUGH;
+                    // fall through
+
+            case 2: ix += index [2 + (combo&4)*1];
+                    w  *= weight[2 + (combo&4)*1];
+                    FALLTHROUGH;
+                    // fall through
+
+            case 1: ix += index [1 + (combo&2)*2];
+                    w  *= weight[1 + (combo&2)*2];
         }
 
         F R,G,B;
@@ -1191,3 +1210,5 @@ static void run_program(const Op* program, const void** arguments,
 #if defined(USING_NEON_F16C)
     #undef  USING_NEON_F16C
 #endif
+
+#undef FALLTHROUGH
