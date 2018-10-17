@@ -509,10 +509,7 @@ SI F table_16(const skcms_Curve* curve, F v) {
     return l + (h-l)*t;
 }
 
-template <int>
-static void sample_clut(const skcms_A2B*, I32 ix, F* r, F* g, F* b);
-
-template <> void sample_clut<8>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b) {
+SI void sample_clut_8(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b) {
     U32 rgb = gather_24(a2b->grid_8, ix);
 
     *r = cast<F>((rgb >>  0) & 0xff) * (1/255.0f);
@@ -520,7 +517,7 @@ template <> void sample_clut<8>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b) 
     *b = cast<F>((rgb >> 16) & 0xff) * (1/255.0f);
 }
 
-template <> void sample_clut<16>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b) {
+SI void sample_clut_16(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b) {
 #if defined(__arm__)
     // This is up to 2x faster on 32-bit ARM than the #else-case fast path.
     *r = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+0));
@@ -546,9 +543,9 @@ template <> void sample_clut<16>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b)
     #define MAYBE_NOINLINE
 #endif
 
-template <int kBitDepth>
 MAYBE_NOINLINE
-static void clut(const skcms_A2B* a2b, int dim, F* r, F* g, F* b, F a) {
+static void clut(const skcms_A2B* a2b, F* r, F* g, F* b, F a) {
+    const int dim = (int)a2b->input_channels;
     assert (0 < dim && dim <= 4);
 
     // Each of these arrays is really foo[dim], but we use foo[4] since we know dim <= 4.
@@ -574,10 +571,7 @@ static void clut(const skcms_A2B* a2b, int dim, F* r, F* g, F* b, F a) {
         }
     }
 
-    // It's sometimes a little faster to accumulate into R,G,B than into *r,*g,*b.
-    F R = F0,
-      G = F0,
-      B = F0;
+    *r = *g = *b = F0;
 
     // We'll sample 2^dim == 1<<dim table entries per pixel,
     // in all combinations of low and high in each dimension.
@@ -595,17 +589,17 @@ static void clut(const skcms_A2B* a2b, int dim, F* r, F* g, F* b, F a) {
             }
         }
 
-        F sR,sG,sB;
-        sample_clut<kBitDepth>(a2b,ix, &sR,&sG,&sB);
+        F R,G,B;
+        if (a2b->grid_8) {
+            sample_clut_8 (a2b,ix, &R,&G,&B);
+        } else {
+            sample_clut_16(a2b,ix, &R,&G,&B);
+        }
 
-        R += w*sR;
-        G += w*sG;
-        B += w*sB;
+        *r += w*R;
+        *g += w*G;
+        *b += w*B;
     }
-
-    *r = R;
-    *g = G;
-    *b = B;
 }
 
 static void exec_ops(const Op* ops, const void** args,
@@ -932,48 +926,9 @@ static void exec_ops(const Op* ops, const void** args,
             case Op_table_16_b:{ b = table_16((const skcms_Curve*)*args++, b); } break;
             case Op_table_16_a:{ a = table_16((const skcms_Curve*)*args++, a); } break;
 
-            case Op_clut_1D_8:{
+            case Op_clut: {
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 1, &r,&g,&b,a);
-            } break;
-
-            case Op_clut_1D_16:{
-                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 1,  &r,&g,&b,a);
-            } break;
-
-            case Op_clut_2D_8:{
-                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 2,  &r,&g,&b,a);
-            } break;
-
-            case Op_clut_2D_16:{
-                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 2,  &r,&g,&b,a);
-            } break;
-
-            case Op_clut_3D_8:{
-                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 3,  &r,&g,&b,a);
-            } break;
-
-            case Op_clut_3D_16:{
-                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 3,  &r,&g,&b,a);
-            } break;
-
-            case Op_clut_4D_8:{
-                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 4,  &r,&g,&b,a);
-                // 'a' was really a CMYK K, so our output is actually opaque.
-                a = F1;
-            } break;
-
-            case Op_clut_4D_16:{
-                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 4,  &r,&g,&b,a);
-                // 'a' was really a CMYK K, so our output is actually opaque.
-                a = F1;
+                clut(a2b, &r,&g,&b,a);
             } break;
 
     // Notice, from here on down the store_ ops all return, ending the loop.
