@@ -1560,25 +1560,6 @@ STAGE(store_a8, const SkJumper_MemoryCtx* ctx) {
     store(ptr, packed, tail);
 }
 
-STAGE(load_g8, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint8_t>(ctx, dx,dy);
-
-    r = g = b = from_byte(load<U8>(ptr, tail));
-    a = 1.0f;
-}
-STAGE(load_g8_dst, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint8_t>(ctx, dx,dy);
-
-    dr = dg = db = from_byte(load<U8>(ptr, tail));
-    da = 1.0f;
-}
-STAGE(gather_g8, const SkJumper_GatherCtx* ctx) {
-    const uint8_t* ptr;
-    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    r = g = b = from_byte(gather(ptr, ix));
-    a = 1.0f;
-}
-
 STAGE(load_565, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint16_t>(ctx, dx,dy);
 
@@ -1821,6 +1802,14 @@ STAGE(check_decal_mask, SkJumper_DecalTileCtx* ctx) {
     a = bit_cast<F>( bit_cast<U32>(a) & mask );
 }
 
+STAGE(alpha_to_gray, Ctx::None) {
+    r = g = b = a;
+    a = 1;
+}
+STAGE(alpha_to_gray_dst, Ctx::None) {
+    dr = dg = db = da;
+    da = 1;
+}
 STAGE(luminance_to_alpha, Ctx::None) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;
     r = g = b = 0;
@@ -3002,23 +2991,17 @@ STAGE_GP(gather_a8, const SkJumper_GatherCtx* ctx) {
     a = cast<U16>(gather<U8>(ptr, ix));
 }
 
-STAGE_PP(load_g8, const SkJumper_MemoryCtx* ctx) {
-    r = g = b = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
+STAGE_PP(alpha_to_gray, Ctx::None) {
+    r = g = b = a;
     a = 255;
 }
-STAGE_PP(load_g8_dst, const SkJumper_MemoryCtx* ctx) {
-    dr = dg = db = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
+STAGE_PP(alpha_to_gray_dst, Ctx::None) {
+    dr = dg = db = da;
     da = 255;
 }
 STAGE_PP(luminance_to_alpha, Ctx::None) {
     a = (r*54 + g*183 + b*19)/256;  // 0.2126, 0.7152, 0.0722 with 256 denominator.
     r = g = b = 0;
-}
-STAGE_GP(gather_g8, const SkJumper_GatherCtx* ctx) {
-    const uint8_t* ptr;
-    U32 ix = ix_and_ptr(&ptr, ctx, x,y);
-    r = g = b = cast<U16>(gather<U8>(ptr, ix));
-    a = 255;
 }
 
 // ~~~~~~ Coverage scales / lerps ~~~~~~ //
