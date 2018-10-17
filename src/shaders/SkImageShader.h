@@ -37,7 +37,9 @@ private:
                   bool clampAsIfUnpremul);
 
     void flatten(SkWriteBuffer&) const override;
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
+#endif
     SkImage* onIsAImage(SkMatrix*, SkShader::TileMode*) const override;
 
     bool onAppendStages(const StageRec&) const override;
