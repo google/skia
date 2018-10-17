@@ -59,9 +59,9 @@ public:
 };
 
 // TODO(fmalita): replace with SkFont.
-class SkRunFont : SkNoncopyable {
+class SkRunFont {
 public:
-    SkRunFont(const SkPaint& paint);
+    explicit SkRunFont(const SkPaint& paint);
 
     void applyToPaint(SkPaint* paint) const;
 
@@ -85,12 +85,9 @@ private:
             SkPaint::kAutoHinting_Flag        |
             SkPaint::kVerticalText_Flag       ;
 
+    sk_sp<SkTypeface>        fTypeface;
     SkScalar                 fSize;
     SkScalar                 fScaleX;
-
-    // Keep this sk_sp off the first position, to avoid interfering with SkNoncopyable
-    // empty baseclass optimization (http://code.google.com/p/skia/issues/detail?id=3694).
-    sk_sp<SkTypeface>        fTypeface;
     SkScalar                 fSkewX;
 
     static_assert(SkPaint::kAlignCount < 4, "insufficient_align_bits");
@@ -100,7 +97,10 @@ private:
     static_assert((kFlagsMask & 0xffff) == kFlagsMask, "insufficient_flags_bits");
     uint32_t                 fFlags : 16;
 
-    typedef SkNoncopyable INHERITED;
+    SkRunFont(SkRunFont&&) = delete;
+    SkRunFont(const SkRunFont&) = delete;
+    SkRunFont& operator=(SkRunFont&&) = delete;
+    SkRunFont& operator=(const SkRunFont&) = delete;
 };
 
 //

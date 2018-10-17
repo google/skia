@@ -23,9 +23,9 @@
 #endif
 
 SkRunFont::SkRunFont(const SkPaint& paint)
-        : fSize(paint.getTextSize())
+        : fTypeface(SkPaintPriv::RefTypefaceOrDefault(paint))
+        , fSize(paint.getTextSize())
         , fScaleX(paint.getTextScaleX())
-        , fTypeface(SkPaintPriv::RefTypefaceOrDefault(paint))
         , fSkewX(paint.getTextSkewX())
         , fAlign(paint.getTextAlign())
         , fHinting(paint.getHinting())
