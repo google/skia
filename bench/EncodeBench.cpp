@@ -25,7 +25,7 @@ public:
 
     const char* onGetName() override { return fName.c_str(); }
 
-    void onPreDraw(SkCanvas*) override {
+    void onDelayedSetup() override {
         SkAssertResult(GetResourceAsBitmap(fSourceFilename, &fBitmap));
     }
 
