@@ -17,14 +17,14 @@ class GrGLGpu;
 
 class GrGLTexture : public GrTexture {
 public:
-    struct TexParams {
+    // Texture state that overlaps with sampler object state.
+    struct SamplerParams {
         GrGLenum fMinFilter;
         GrGLenum fMagFilter;
         GrGLenum fWrapS;
         GrGLenum fWrapT;
         GrGLenum fMaxMipMapLevel;
-        GrGLenum fSwizzleRGBA[4];
-        void invalidate() { memset(this, 0xff, sizeof(TexParams)); }
+        void invalidate() { memset(this, 0xff, sizeof(SamplerParams)); }
     };
 
     struct IDDesc {
@@ -43,22 +43,27 @@ public:
 
     GrBackendTexture getBackendTexture() const override;
 
-    void textureParamsModified() override { fTexParams.invalidate(); }
+    void textureParamsModified() override {
+        fSamplerParams.invalidate();
+        fCachedSwizzleKey = ~0U;
+    }
 
     void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
         fReleaseHelper = std::move(releaseHelper);
     }
 
     // These functions are used to track the texture parameters associated with the texture.
-    const TexParams& getCachedTexParams(GrGpu::ResetTimestamp* timestamp) const {
-        *timestamp = fTexParamsTimestamp;
-        return fTexParams;
-    }
+    GrGpu::ResetTimestamp getCachedParamsTimestamp() const { return fParamsTimestamp; }
+    const SamplerParams& getCachedSamplerParams() const { return fSamplerParams; }
+    uint32_t getCacheSwizzleKey() const { return fCachedSwizzleKey; }
 
-    void setCachedTexParams(const TexParams& texParams,
-                            GrGpu::ResetTimestamp timestamp) {
-        fTexParams = texParams;
-        fTexParamsTimestamp = timestamp;
+    void setCachedParams(const SamplerParams* samplerParams, const GrSwizzle& swizzle,
+                         GrGpu::ResetTimestamp currTimestamp) {
+        if (samplerParams) {
+            fSamplerParams = *samplerParams;
+        }
+        fCachedSwizzleKey = swizzle.asKey();
+        fParamsTimestamp = currTimestamp;
     }
 
     GrGLuint textureID() const { return fID; }
@@ -97,14 +102,14 @@ private:
         }
     }
 
-    TexParams                       fTexParams;
-    GrGpu::ResetTimestamp           fTexParamsTimestamp;
-    GrGLuint                        fID;
-    GrGLenum                        fFormat;
-    GrBackendObjectOwnership        fTextureIDOwnership;
-    bool                            fBaseLevelHasBeenBoundToFBO = false;
-
-    sk_sp<GrReleaseProcHelper>      fReleaseHelper;
+    SamplerParams fSamplerParams;
+    GrGpu::ResetTimestamp fParamsTimestamp;
+    sk_sp<GrReleaseProcHelper> fReleaseHelper;
+    uint32_t fCachedSwizzleKey;
+    GrGLuint fID;
+    GrGLenum fFormat;
+    GrBackendObjectOwnership fTextureIDOwnership;
+    bool fBaseLevelHasBeenBoundToFBO = false;
 
     typedef GrTexture INHERITED;
 };
