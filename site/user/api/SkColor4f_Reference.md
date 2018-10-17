@@ -33,9 +33,9 @@ struct <a href='#SkRGBA4f'>SkRGBA4f</a> {
     static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_FromPMColor'>FromPMColor</a>(<a href='SkColor_Reference#SkPMColor'>SkPMColor</a>);
     <a href='#SkRGBA4f'>SkRGBA4f</a><<a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>> <a href='#SkRGBA4f_premul'>premul</a>() const;
     <a href='#SkRGBA4f'>SkRGBA4f</a><<a href='SkImageInfo_Reference#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a>> <a href='#SkRGBA4f_unpremul'>unpremul</a>() const;
-    uint32_t toBytes_RGBA() const;
-    static <a href='#SkRGBA4f'>SkRGBA4f</a> FromBytes_RGBA(uint32_t color);
-    <a href='#SkRGBA4f'>SkRGBA4f</a> makeOpaque() const;
+    uint32_t <a href='#SkRGBA4f_toBytes_RGBA'>toBytes_RGBA</a>() const;
+    static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_FromBytes_RGBA'>FromBytes_RGBA</a>(uint32_t color);
+    <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_makeOpaque'>makeOpaque</a>() const;
 };
 </pre>
 
@@ -539,6 +539,56 @@ Returns <a href='#SkRGBA4f'>SkRGBA4f</a> with all components independent of <a h
 ### See Also
 
 <a href='#SkRGBA4f_premul'>premul</a>
+
+<a name='SkRGBA4f_toBytes_RGBA'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+uint32_t <a href='#SkRGBA4f_toBytes_RGBA'>toBytes RGBA</a>() const
+</pre>
+
+Produces bytes in RGBA order. Component values are not affected by color <a href='SkColor_Reference#Alpha'>Alpha</a>.
+
+### Return Value
+
+color
+
+<a name='SkRGBA4f_FromBytes_RGBA'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_FromBytes_RGBA'>FromBytes RGBA</a>(uint32_t color)
+</pre>
+
+Returns from <a href='#SkRGBA4f_FromBytes_RGBA_color'>color</a> <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a> order. Component values are
+not affected by <a href='#SkRGBA4f_FromBytes_RGBA_color'>color</a> <a href='SkColor_Reference#Alpha'>Alpha</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkRGBA4f_FromBytes_RGBA_color'><code><strong>color</strong></code></a></td>
+    <td><a href='undocumented#Premultiply'>Premultiplied</a> or <a href='undocumented#Unpremultiply'>Unpremultiplied</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+<a href='#SkRGBA4f_FromBytes_RGBA_color'>color</a>
+
+<a name='SkRGBA4f_makeOpaque'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_makeOpaque'>makeOpaque</a>() const
+</pre>
+
+Returns color with <a href='SkColor_Reference#Alpha'>Alpha</a> set to one.
+
+### Return Value
+
+color
 
 <a name='SkColor4f'></a>
 
