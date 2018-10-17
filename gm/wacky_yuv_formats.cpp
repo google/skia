@@ -26,7 +26,7 @@ static const int kPad = 1;
 
 enum YUVFormat {
     // 4:4:4 formats, 32 bpp
-    AYUV_YUVFormat,  // 8-bit YUVA values all interleaved
+    kAYUV_YUVFormat,  // 8-bit YUVA values all interleaved
 
     // 4:2:0 formats, 12 bpp
     kNV12_YUVFormat, // 8-bit Y plane + 2x2 down sampled interleaved U/V planes
@@ -333,7 +333,7 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
     int nextLayer = 0;
 
     switch (yuvFormat) {
-        case AYUV_YUVFormat: {
+        case kAYUV_YUVFormat: {
             SkBitmap yuvaFull;
 
             yuvaFull.allocPixels(SkImageInfo::MakeN32(planes.fYFull.width(), planes.fYFull.height(),
@@ -448,7 +448,7 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             break;
     }
 
-    if (AYUV_YUVFormat != yuvFormat) {
+    if (kAYUV_YUVFormat != yuvFormat) {
         if (opaque) {
             yuvaIndices[3].fIndex = -1;
         } else {
@@ -721,7 +721,7 @@ protected:
                 PlaneData planes;
                 extract_planes(fOriginalBMs[opaque], (SkYUVColorSpace) cs, &planes);
 
-                for (int format = AYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
+                for (int format = kAYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     SkBitmap resultBMs[4];
                     SkYUVAIndex yuvaIndices[4];
                     create_YUV(planes, (YUVFormat) format, resultBMs, yuvaIndices, opaque);
@@ -797,7 +797,7 @@ protected:
                 canvas->drawBitmap(fOriginalBMs[opaque], x, y);
                 y += kTileWidthHeight + kPad;
 
-                for (int format = AYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
+                for (int format = kAYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     draw_row_label(canvas, y, format);
                     canvas->drawImage(fImages[opaque][cs][format], x, y);
 
