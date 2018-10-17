@@ -46,7 +46,6 @@
     M(black_color) M(white_color) M(uniform_color) M(unbounded_uniform_color) \
     M(seed_shader) M(dither)                                       \
     M(load_a8)   M(load_a8_dst)   M(store_a8)   M(gather_a8)       \
-    M(load_g8)   M(load_g8_dst)                 M(gather_g8)       \
     M(load_565)  M(load_565_dst)  M(store_565)  M(gather_565)      \
     M(load_4444) M(load_4444_dst) M(store_4444) M(gather_4444)     \
     M(load_f16)  M(load_f16_dst)  M(store_f16)  M(gather_f16)      \
@@ -54,6 +53,7 @@
     M(load_8888) M(load_8888_dst) M(store_8888) M(gather_8888)     \
     M(load_bgra) M(load_bgra_dst) M(store_bgra) M(gather_bgra)     \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
+    M(alpha_to_gray) M(alpha_to_gray_dst) M(luminance_to_alpha)    \
     M(bilerp_clamp_8888)                                           \
     M(store_u16_be)                                                \
     M(load_rgba) M(store_rgba)                                     \
@@ -66,7 +66,6 @@
     M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight)   \
     M(hue) M(saturation) M(color) M(luminosity)                    \
     M(srcover_rgba_8888) M(srcover_bgra_8888)                      \
-    M(luminance_to_alpha)                                          \
     M(matrix_translate) M(matrix_scale_translate)                  \
     M(matrix_2x3) M(matrix_3x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3) \
     M(matrix_perspective)                                          \
