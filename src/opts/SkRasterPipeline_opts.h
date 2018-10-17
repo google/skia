@@ -1223,31 +1223,6 @@ STAGE(srcover_rgba_8888, const SkJumper_MemoryCtx* ctx) {
     store(ptr, dst, tail);
 }
 
-STAGE(srcover_bgra_8888, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
-
-    U32 dst = load<U32>(ptr, tail);
-    db = cast((dst      ) & 0xff);
-    dg = cast((dst >>  8) & 0xff);
-    dr = cast((dst >> 16) & 0xff);
-    da = cast((dst >> 24)       );
-    // {dr,dg,db,da} are in [0,255]
-    // { r, g, b, a} are in [0,  1] (but may be out of gamut)
-
-    r = mad(dr, inv(a), r*255.0f);
-    g = mad(dg, inv(a), g*255.0f);
-    b = mad(db, inv(a), b*255.0f);
-    a = mad(da, inv(a), a*255.0f);
-    // { r, g, b, a} are now in [0,255]  (but may be out of gamut)
-
-    // to_unorm() clamps back to gamut.  Scaling by 1 since we're already 255-biased.
-    dst = to_unorm(b, 1, 255)
-        | to_unorm(g, 1, 255) <<  8
-        | to_unorm(r, 1, 255) << 16
-        | to_unorm(a, 1, 255) << 24;
-    store(ptr, dst, tail);
-}
-
 STAGE(clamp_0, Ctx::None) {
     r = max(r, 0);
     g = max(g, 0);
@@ -3222,17 +3197,6 @@ STAGE_PP(srcover_rgba_8888, const SkJumper_MemoryCtx* ctx) {
     a = a + div255( da*inv(a) );
     store_8888_(ptr, tail, r,g,b,a);
 }
-STAGE_PP(srcover_bgra_8888, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
-
-    load_8888_(ptr, tail, &db,&dg,&dr,&da);
-    r = r + div255( dr*inv(a) );
-    g = g + div255( dg*inv(a) );
-    b = b + div255( db*inv(a) );
-    a = a + div255( da*inv(a) );
-    store_8888_(ptr, tail, b,g,r,a);
-}
-
 // Now we'll add null stand-ins for stages we haven't implemented in lowp.
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 
