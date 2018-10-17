@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f787e5d3_0a4b241b",
+        "filename": "experimental/canvaskit/compile.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-17T12:06:45Z",
+      "side": 1,
+      "message": "Was defining these not enough on its own?  That\u0027s what we do for Flutter, and the xAAFillPath() methods get stripped away as dead code there.",
+      "range": {
+        "startLine": 38,
+        "startChar": 44,
+        "endLine": 38,
+        "endChar": 77
+      },
+      "revId": "e5dbe567d57be6a09b32c84d9b2cd139a38de6d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64749d7f_c224afc7",
+        "filename": "experimental/canvaskit/tests/path.spec.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-17T12:06:45Z",
+      "side": 1,
+      "message": "?",
+      "revId": "e5dbe567d57be6a09b32c84d9b2cd139a38de6d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
