@@ -196,7 +196,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
             return true;
         }
 
-        if (!anyRunHasSubpixelPosition) {
+        if (anyRunHasSubpixelPosition) {
             // We can update the positions in the cachedtextblobs without regenerating the whole
             // blob, but only for integer translations.
             // This cool bit of math will determine the necessary translation to apply to the
