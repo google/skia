@@ -101,6 +101,7 @@ bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
 }
 
 SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     // We always fall back to raster pipeline when perspective is present.
     if (rec.fMatrix->hasPerspective() ||
         fLocalMatrix.hasPerspective() ||
@@ -110,11 +111,14 @@ SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaA
     }
 
     return this->onMakeContext(rec, alloc);
+#else
+    return nullptr;
+#endif
 }
 
 SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& rec,
                                                               SkArenaAlloc* alloc) const {
-
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     // Always use vanilla stages for perspective.
     if (rec.fMatrix->hasPerspective() || fLocalMatrix.hasPerspective()) {
         return nullptr;
@@ -123,6 +127,9 @@ SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& 
     return this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)
         ? this->onMakeBurstPipelineContext(rec, alloc)
         : nullptr;
+#else
+    return nullptr;
+#endif
 }
 
 SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec)

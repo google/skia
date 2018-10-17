@@ -286,6 +286,8 @@ bool SkPictureShader::onAppendStages(const StageRec& rec) const {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
 const {
     auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
@@ -304,6 +306,7 @@ const {
     }
     return ctx;
 }
+#endif
 
 sk_sp<SkShader> SkPictureShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     sk_sp<SkColorSpace> dstCS = xformer->dst();
