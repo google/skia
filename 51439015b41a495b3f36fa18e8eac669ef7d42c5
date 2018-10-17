@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "28a86fa3_97963f26",
+        "filename": "bench/DecodeBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-17T11:40:24Z",
+      "side": 1,
+      "message": "We already have a benchmark for decoding. See CodecBench.cpp. I think the one thing that\u0027s missing there is decoding all frames? We could add that to CodecBench. That will mean updating nanobench.cpp (around here [1]) to check if the file has more than one frame. If it does, we can test decoding all frames. The images we benchmark on the bots only include one animated image, but I can add some more.\n\n[1] https://skia.googlesource.com/skia/+/483536c242f33e229cb9feceb26c771c17bb7e89/bench/nanobench.cpp#827",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 17
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "052809ac_28015086",
+        "filename": "bench/DecodeBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-17T11:40:24Z",
+      "side": 1,
+      "message": "We *also* run our benchmarks in debug mode. Not for timing, but so we can catch asserts etc.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 64
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "511cded6_06d52524",
+        "filename": "bench/EncoderBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-17T11:40:24Z",
+      "side": 1,
+      "message": "I\u0027d be fine with renaming this EncodeBench.cpp. It also matches the class name.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 58
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67123497_3e354635",
+        "filename": "bench/EncoderBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-17T11:40:24Z",
+      "side": 1,
+      "message": "Sgtm.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 33
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
