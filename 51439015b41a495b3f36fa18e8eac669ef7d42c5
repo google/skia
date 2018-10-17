@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ade77ea3_de51a9f6",
+        "filename": "bench/DecodeBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-17T21:05:52Z",
+      "side": 1,
+      "message": "Ah, I missed that because I grepped the bench directory for \"gif\" and found 0 hits. I was expecting a hard-coded list of test files.\n\nIt looks like the list of test files is set by FLAGS_images? What\u0027s the idiomatic command line to run (is it \"nanobench something something\")? Where\u0027s the list of images that you benchmark on the bots?",
+      "parentUuid": "28a86fa3_97963f26",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 17
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "052809ac_28015086",
         "filename": "bench/DecodeBench.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "634e414f_5aee0558",
+        "filename": "bench/DecodeBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-17T21:05:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "052809ac_28015086",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 64
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fa3a6564_b7993037",
+        "filename": "bench/EncoderBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-17T21:05:52Z",
+      "side": 1,
+      "message": "I\u0027ll cook up a separate CL.",
+      "parentUuid": "511cded6_06d52524",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 58
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "67123497_3e354635",
         "filename": "bench/EncoderBench.cpp",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2018-10-17T11:40:24Z",
       "side": 1,
       "message": "Sgtm.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 33
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce61f0b7_9a3faeda",
+        "filename": "bench/EncoderBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-10-17T21:05:52Z",
+      "side": 1,
+      "message": "I\u0027ll cook up a separate CL.",
+      "parentUuid": "67123497_3e354635",
       "range": {
         "startLine": 30,
         "startChar": 0,
