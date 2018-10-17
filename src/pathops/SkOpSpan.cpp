@@ -166,7 +166,11 @@ SkOpSpanBase::Collapsed SkOpSpanBase::collapsed(double s, double e) const {
     double min = walk->fT;
     double max = min;
     const SkOpSegment* segment = this->segment();
+    int safetyNet = 100000;
     while ((walk = walk->next()) != start) {
+        if (!--safetyNet) {
+            return Collapsed::kError;
+        }
         if (walk == startNext) {
             return Collapsed::kError;
         }

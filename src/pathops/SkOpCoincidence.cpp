@@ -813,7 +813,15 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
         SkOpSegment* outerCoinWritable = const_cast<SkOpSegment*>(outerCoin);
         SkOpSegment* outerOppWritable = const_cast<SkOpSegment*>(outerOpp);
         SkCoincidentSpans* inner = outer;
+#ifdef IS_FUZZING_WITH_LIBFUZZER
+        int safetyNet = 1000;
+#endif
         while ((inner = inner->next())) {
+#ifdef IS_FUZZING_WITH_LIBFUZZER
+            if (!--safetyNet) {
+                return false;
+            }
+#endif
             this->debugValidate();
             double overS, overE;
             const SkOpPtT* ics = inner->coinPtTStart();
