@@ -25,6 +25,13 @@
 
 #include <utility>
 
+#if defined(SK_DISABLE_AAA)
+void SkScan::AAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
+                         const SkIRect& clipBounds, bool forceRLE) {
+    SkDEBUGFAIL("AAA Disabled");
+    return;
+}
+#else
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -1715,3 +1722,4 @@ void SkScan::AAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
                 containedInClip, false, forceRLE);
     }
 }
+#endif //defined(SK_DISABLE_AAA)
