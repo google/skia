@@ -297,10 +297,10 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
                 && !fDst.colorSpace()
                 && fDst.info().alphaType() != kUnpremul_SkAlphaType
                 && fDitherRate == 0.0f) {
-            auto stage = fDst.info().colorType() == kRGBA_8888_SkColorType
-                       ? SkRasterPipeline::srcover_rgba_8888
-                       : SkRasterPipeline::srcover_bgra_8888;
-            p.append(stage, &fDstPtr);
+            if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
+                p.append(SkRasterPipeline::swap_rb);
+            }
+            p.append(SkRasterPipeline::srcover_rgba_8888, &fDstPtr);
         } else {
             if (fBlend != SkBlendMode::kSrc) {
                 this->append_load_dst(&p);
