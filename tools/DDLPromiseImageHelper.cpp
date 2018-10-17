@@ -60,7 +60,9 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
         // DDL TODO: how can we tell if we need mipmapping!
         if (info.isYUV()) {
-            for (int j = 0; j < 3; ++j) {
+            int numPixmaps;
+            SkAssertResult(SkYUVAIndex::AreValidIndices(info.yuvaIndices(), &numPixmaps));
+            for (int j = 0; j < numPixmaps; ++j) {
                 const SkPixmap& yuvPixmap = info.yuvPixmap(j);
 
                 sk_sp<PromiseImageCallbackContext> callbackContext(
@@ -140,11 +142,13 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
 
     sk_sp<SkImage> image;
     if (curImage.isYUV()) {
-        GrBackendFormat backendFormats[4];
-        void* contexts[4] = { nullptr, nullptr, nullptr, nullptr };
-        SkISize sizes[4];
-
-        for (int i = 0; i < 3; ++i) {
+        GrBackendFormat backendFormats[SkYUVSizeInfo::kMaxCount];
+        void* contexts[SkYUVSizeInfo::kMaxCount] = { nullptr, nullptr, nullptr, nullptr };
+        SkISize sizes[SkYUVSizeInfo::kMaxCount];
+        // TODO: store this value somewhere?
+        int textureCount;
+        SkAssertResult(SkYUVAIndex::AreValidIndices(curImage.yuvaIndices(), &textureCount));
+        for (int i = 0; i < textureCount; ++i) {
             const GrBackendTexture& backendTex = curImage.backendTexture(i);
             backendFormats[i] = caps->createFormatFromBackendTexture(backendTex);
 
@@ -152,17 +156,10 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
             sizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
         }
 
-        SkYUVAIndex yuvaIndices[4] = {
-                SkYUVAIndex{0, SkColorChannel::kA},
-                SkYUVAIndex{1, SkColorChannel::kA},
-                SkYUVAIndex{2, SkColorChannel::kA},
-                SkYUVAIndex{-1, SkColorChannel::kA}  // TODO: enable this
-        };
-
         image = recorder->makeYUVAPromiseTexture(curImage.yuvColorSpace(),
                                                  backendFormats,
                                                  sizes,
-                                                 yuvaIndices,
+                                                 curImage.yuvaIndices(),
                                                  curImage.overallWidth(),
                                                  curImage.overallHeight(),
                                                  GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
@@ -219,17 +216,27 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
                                                              image->uniqueID(),
                                                              overallII);
 
-    SkYUVSizeInfo yuvSizeInfo;
+    SkYUVSizeInfo yuvaSizeInfo;
+    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
     SkYUVColorSpace yuvColorSpace;
-    const void* planes[3];
-    sk_sp<SkCachedData> yuvData = ib->getPlanes(&yuvSizeInfo, &yuvColorSpace, planes);
+    const void* planes[SkYUVSizeInfo::kMaxCount];
+    sk_sp<SkCachedData> yuvData = ib->getPlanes(&yuvaSizeInfo, yuvaIndices, &yuvColorSpace, planes);
     if (yuvData) {
-        newImageInfo.setYUVData(std::move(yuvData), yuvColorSpace);
+        newImageInfo.setYUVData(std::move(yuvData), yuvaIndices, yuvColorSpace);
 
-        for (int i = 0; i < 3; ++i) {
-            SkImageInfo planeII = SkImageInfo::MakeA8(yuvSizeInfo.fSizes[i].fWidth,
-                                                      yuvSizeInfo.fSizes[i].fHeight);
-            newImageInfo.addYUVPlane(i, planeII, planes[i], yuvSizeInfo.fWidthBytes[i]);
+        for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
+            if (kUnknown_SkColorType == yuvaSizeInfo.fColorTypes[i]) {
+                SkASSERT(!yuvaSizeInfo.fSizes[i].fWidth &&
+                         !yuvaSizeInfo.fSizes[i].fHeight &&
+                         !yuvaSizeInfo.fWidthBytes[i]);
+                continue;
+            }
+
+            SkImageInfo planeII = SkImageInfo::Make(yuvaSizeInfo.fSizes[i].fWidth,
+                                                    yuvaSizeInfo.fSizes[i].fHeight,
+                                                    yuvaSizeInfo.fColorTypes[i],
+                                                    kUnpremul_SkAlphaType);
+            newImageInfo.addYUVPlane(i, planeII, planes[i], yuvaSizeInfo.fWidthBytes[i]);
         }
     } else {
         sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
