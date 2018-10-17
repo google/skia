@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6f84faf_0e8ac1b3",
+        "filename": "modules/sksg/include/SkSGNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-17T21:18:00Z",
+      "side": 1,
+      "message": "Ah, this is neat.  These are a good example of a place where it\u0027s better to write foo(const T\u0026) and foo(T\u0026\u0026) than just foo(T).",
+      "revId": "55b56aa655f4db3998d225a797896065a5a242fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
