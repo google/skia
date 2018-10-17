@@ -26,10 +26,10 @@ var CanvasKit = {
 	// public API (i.e. things we declare in the pre-js file)
 	Color: function(r, g, b, a) {},
 	currentContext: function() {},
-	getWebGLSurface: function(htmlID) {},
-	getRasterN32PremulSurface: function(htmlID) {},
+	MakeCanvasSurface: function(htmlID) {},
+	MakeSurface: function(w, h) {},
 	MakeSkDashPathEffect: function(intervals, phase) {},
-	setCurrentContext: function() {},
+	setCurrentContext: function(ctx) {},
 	LTRBRect: function(l, t, r, b) {},
 	gpu: {},
 	skottie: {},
@@ -39,6 +39,7 @@ var CanvasKit = {
 	_getWebGLSurface: function(htmlID, w, h) {},
 	_getRasterN32PremulSurface: function(w, h) {},
 	_malloc: function(size) {},
+	_free: function(ptr) {},
 	onRuntimeInitialized: function() {},
 	_MakeSkDashPathEffect: function(ptr, len, phase) {},
 
@@ -75,16 +76,17 @@ var CanvasKit = {
 		_rect: function(x, y, w, h) {},
 		_simplify: function() {},
 		_transform: function(scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2) {},
+		delete: function() {},
 	},
 
 	SkSurface: {
 		// public API should go below because closure still will
 		// remove things declared here and not on the prototype.
 		flush: function() {},
-
 		// private API
 		_readPixels: function(w, h, ptr) {},
 		_flush: function() {},
+		delete: function() {},
 	}
 }
 
@@ -103,6 +105,7 @@ CanvasKit.SkPath.prototype.simplify = function() {};
 CanvasKit.SkPath.prototype.transform = function() {};
 
 CanvasKit.SkSurface.prototype.flush = function() {};
+CanvasKit.SkSurface.prototype.dispose = function() {};
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
 function loadWebAssemblyModule() {}
