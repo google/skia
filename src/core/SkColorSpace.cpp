@@ -20,24 +20,29 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
     return true;
 }
 
-static bool xyz_almost_equal(const SkMatrix44& toXYZD50, const float m33[9]) {
-    return color_space_almost_equal(toXYZD50.getFloat(0, 0), m33[0]) &&
-           color_space_almost_equal(toXYZD50.getFloat(0, 1), m33[1]) &&
-           color_space_almost_equal(toXYZD50.getFloat(0, 2), m33[2]) &&
-           color_space_almost_equal(toXYZD50.getFloat(1, 0), m33[3]) &&
-           color_space_almost_equal(toXYZD50.getFloat(1, 1), m33[4]) &&
-           color_space_almost_equal(toXYZD50.getFloat(1, 2), m33[5]) &&
-           color_space_almost_equal(toXYZD50.getFloat(2, 0), m33[6]) &&
-           color_space_almost_equal(toXYZD50.getFloat(2, 1), m33[7]) &&
-           color_space_almost_equal(toXYZD50.getFloat(2, 2), m33[8]) &&
-           color_space_almost_equal(toXYZD50.getFloat(0, 3), 0.0f) &&
-           color_space_almost_equal(toXYZD50.getFloat(1, 3), 0.0f) &&
-           color_space_almost_equal(toXYZD50.getFloat(2, 3), 0.0f) &&
-           color_space_almost_equal(toXYZD50.getFloat(3, 0), 0.0f) &&
-           color_space_almost_equal(toXYZD50.getFloat(3, 1), 0.0f) &&
-           color_space_almost_equal(toXYZD50.getFloat(3, 2), 0.0f) &&
-           color_space_almost_equal(toXYZD50.getFloat(3, 3), 1.0f);
+static bool is_3x3(const SkMatrix44& m44) {
+    return color_space_almost_equal(m44.getFloat(0, 3), 0.0f) &&
+           color_space_almost_equal(m44.getFloat(1, 3), 0.0f) &&
+           color_space_almost_equal(m44.getFloat(2, 3), 0.0f) &&
+           color_space_almost_equal(m44.getFloat(3, 0), 0.0f) &&
+           color_space_almost_equal(m44.getFloat(3, 1), 0.0f) &&
+           color_space_almost_equal(m44.getFloat(3, 2), 0.0f) &&
+           color_space_almost_equal(m44.getFloat(3, 3), 1.0f);
 }
+
+static bool xyz_almost_equal(const SkMatrix44& m44, const float m33[9]) {
+    return is_3x3(m44) &&
+           color_space_almost_equal(m44.getFloat(0, 0), m33[0]) &&
+           color_space_almost_equal(m44.getFloat(0, 1), m33[1]) &&
+           color_space_almost_equal(m44.getFloat(0, 2), m33[2]) &&
+           color_space_almost_equal(m44.getFloat(1, 0), m33[3]) &&
+           color_space_almost_equal(m44.getFloat(1, 1), m33[4]) &&
+           color_space_almost_equal(m44.getFloat(1, 2), m33[5]) &&
+           color_space_almost_equal(m44.getFloat(2, 0), m33[6]) &&
+           color_space_almost_equal(m44.getFloat(2, 1), m33[7]) &&
+           color_space_almost_equal(m44.getFloat(2, 2), m33[8]);
+}
+
 
 SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
                            const float transferFn[7],
@@ -63,6 +68,9 @@ SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
 
 
 sk_sp<SkColorSpace> SkColorSpace::MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50) {
+    if (!is_3x3(toXYZD50)) {
+        return nullptr;
+    }
     switch (gammaNamed) {
         case kSRGB_SkGammaNamed:
             if (xyz_almost_equal(toXYZD50, gSRGB_toXYZD50)) {
@@ -96,7 +104,8 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(RenderTargetGamma gamma, const SkMatri
 
 sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                           const SkMatrix44& toXYZD50) {
-    if (!is_valid_transfer_fn(coeffs)) {
+    if (!is_valid_transfer_fn(coeffs) ||
+        !is_3x3(toXYZD50)) {
         return nullptr;
     }
 
@@ -239,7 +248,9 @@ sk_sp<SkColorSpace> SkColorSpace::makeSRGBGamma() const {
 
 sk_sp<SkColorSpace> SkColorSpace::makeColorSpin() const {
     SkMatrix44 spin;
-    spin.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
+    spin.set3x3(0, 1, 0,
+                0, 0, 1,
+                1, 0, 0);
 
     SkMatrix44 m44;
     this->toXYZD50(&m44);
