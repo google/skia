@@ -238,6 +238,30 @@
     },
     {
       "key": {
+        "uuid": "615d6439_770e9c18",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-17T11:27:15Z",
+      "side": 1,
+      "message": "When you say continuing a decode, I think you mean attempting to decode the next frame, rather than continuing an incremental decode of an individual frame? The latter (which I was thinking initially) wouldn\u0027t seem to benefit from updating fNumFullyReceivedFrames, but I can see how the former would. Sgtm",
+      "parentUuid": "b86d78d4_f0fbcf22",
+      "range": {
+        "startLine": 473,
+        "startChar": 61,
+        "endLine": 473,
+        "endChar": 85
+      },
+      "revId": "2a2531f8ce79159b971cbaf6e7c18e8acd00220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d58cd8cd_d08c7c21",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 17
