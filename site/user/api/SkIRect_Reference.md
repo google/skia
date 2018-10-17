@@ -1,7 +1,10 @@
 SkIRect Reference
 ===
 
+
 <a name='SkIRect'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 struct <a href='#SkIRect'>SkIRect</a> {
@@ -70,40 +73,8 @@ struct <a href='#SkIRect'>SkIRect</a> {
 lower bounds of a rectangle. <a href='#SkIRect'>SkIRect</a> may be created from outer bounds or
 from position, width, and height. <a href='#SkIRect'>SkIRect</a> describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
-its top, it is considered empty.
+its top, it is considered empty.<table style='border-collapse: collapse; width: 62.5em'>
 
-## <a name='Members'>Members</a>
-
-
-
-### Members
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>int32_t</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fLeft'><code>fLeft</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller x-axis bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>int32_t</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fTop'><code>fTop</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>smaller y-axis bounds</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>int32_t</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fRight'><code>fRight</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>larger x-axis bounds</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>int32_t</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#fBottom'><code>fBottom</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>larger y-axis bounds</td>
-  </tr>
-</table>
-<table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
@@ -139,12 +110,11 @@ May contain any value. The larger of the vertical values when sorted.
 When equal to or less than <a href='#SkIRect_fTop'>fTop</a>, <a href='#IRect'>IRect</a> is empty.
 </td>
   </tr>
-
-
-## <a name='Constructors'>Constructors</a>
+</table>
 
 <a name='SkIRect_MakeEmpty'></a>
-## MakeEmpty
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeEmpty'>MakeEmpty</a>()
@@ -178,10 +148,9 @@ outset rect isEmpty: false
 
 <a href='#SkIRect_EmptyIRect'>EmptyIRect</a> <a href='#SkIRect_isEmpty'>isEmpty</a> <a href='#SkIRect_setEmpty'>setEmpty</a> <a href='SkRect_Reference#SkRect_MakeEmpty'>SkRect::MakeEmpty</a>
 
----
-
 <a name='SkIRect_MakeWH'></a>
-## MakeWH
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeWH'>MakeWH</a>(int32_t w, int32_t h)
@@ -220,10 +189,9 @@ all equal
 
 <a href='#SkIRect_MakeSize'>MakeSize</a> <a href='#SkIRect_MakeXYWH'>MakeXYWH</a> <a href='SkRect_Reference#SkRect_MakeWH'>SkRect::MakeWH</a> <a href='SkRect_Reference#SkRect_MakeIWH'>SkRect::MakeIWH</a>
 
----
-
 <a name='SkIRect_MakeSize'></a>
-## MakeSize
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeSize'>MakeSize</a>(const <a href='undocumented#SkISize'>SkISize</a>& size)
@@ -260,10 +228,9 @@ floor width: 25  height: 35
 
 <a href='#SkIRect_MakeWH'>MakeWH</a> <a href='#SkIRect_MakeXYWH'>MakeXYWH</a> <a href='SkRect_Reference#SkRect_Make'>SkRect::Make</a><sup><a href='SkRect_Reference#SkRect_Make_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_MakeIWH'>SkRect::MakeIWH</a>
 
----
-
 <a name='SkIRect_MakeLTRB'></a>
-## MakeLTRB
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeLTRB'>MakeLTRB</a>(int32_t l, int32_t t, int32_t r, int32_t b)
@@ -309,10 +276,9 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 <a href='#SkIRect_MakeXYWH'>MakeXYWH</a> <a href='SkRect_Reference#SkRect_MakeLTRB'>SkRect::MakeLTRB</a>
 
----
-
 <a name='SkIRect_MakeXYWH'></a>
-## MakeXYWH
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeXYWH'>MakeXYWH</a>(int32_t x, int32_t y, int32_t w, int32_t h)
@@ -358,12 +324,11 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 <a href='#SkIRect_MakeLTRB'>MakeLTRB</a> <a href='SkRect_Reference#SkRect_MakeXYWH'>SkRect::MakeXYWH</a>
 
----
-
-## <a name='Property'>Property</a>
+<a name='Property'></a>
 
 <a name='SkIRect_left'></a>
-## left
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIRect_left'>left</a>() const
@@ -393,10 +358,9 @@ sorted.fLeft: 10 sorted.left(): 10
 
 <a href='#SkIRect_fLeft'>fLeft</a> <a href='#SkIRect_x'>x</a>() <a href='SkRect_Reference#SkRect_left'>SkRect::left</a>()
 
----
-
 <a name='SkIRect_top'></a>
-## top
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIRect_top'>top</a>() const
@@ -426,10 +390,9 @@ sorted.fTop: 5 sorted.top(): 5
 
 <a href='#SkIRect_fTop'>fTop</a> <a href='#SkIRect_y'>y</a>() <a href='SkRect_Reference#SkRect_top'>SkRect::top</a>()
 
----
-
 <a name='SkIRect_right'></a>
-## right
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIRect_right'>right</a>() const
@@ -459,10 +422,9 @@ sorted.fRight: 15 sorted.right(): 15
 
 <a href='#SkIRect_fRight'>fRight</a> <a href='SkRect_Reference#SkRect_right'>SkRect::right</a>()
 
----
-
 <a name='SkIRect_bottom'></a>
-## bottom
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIRect_bottom'>bottom</a>() const
@@ -492,10 +454,9 @@ sorted.fBottom: 25 sorted.bottom(): 25
 
 <a href='#SkIRect_fBottom'>fBottom</a> <a href='SkRect_Reference#SkRect_bottom'>SkRect::bottom</a>()
 
----
-
 <a name='SkIRect_x'></a>
-## x
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIRect_x'>x</a>() const
@@ -525,10 +486,9 @@ sorted.fLeft: 10 sorted.x(): 10
 
 <a href='#SkIRect_fLeft'>fLeft</a> <a href='#SkIRect_left'>left</a>() <a href='#SkIRect_y'>y</a>() <a href='SkRect_Reference#SkRect_x'>SkRect::x</a>()
 
----
-
 <a name='SkIRect_y'></a>
-## y
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIRect_y'>y</a>() const
@@ -558,10 +518,9 @@ sorted.fTop: 5 sorted.y(): 5
 
 <a href='#SkIRect_fTop'>fTop</a> <a href='#SkIRect_top'>top</a>() <a href='#SkIRect_x'>x</a>() <a href='SkRect_Reference#SkRect_y'>SkRect::y</a>()
 
----
-
 <a name='SkIRect_width'></a>
-## width
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIRect_width'>width</a>() const
@@ -591,10 +550,9 @@ large width: -5
 
 <a href='#SkIRect_height'>height</a>() <a href='#SkIRect_width64'>width64</a>() <a href='#SkIRect_height64'>height64</a>() <a href='SkRect_Reference#SkRect_width'>SkRect::width</a>()
 
----
-
 <a name='SkIRect_width64'></a>
-## width64
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int64_t <a href='#SkIRect_width64'>width64</a>() const
@@ -624,10 +582,9 @@ width: -5 width64: 4294967291
 
 <a href='#SkIRect_width'>width</a>() <a href='#SkIRect_height'>height</a>() <a href='#SkIRect_height64'>height64</a>() <a href='SkRect_Reference#SkRect_width'>SkRect::width</a>()
 
----
-
 <a name='SkIRect_height'></a>
-## height
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int32_t <a href='#SkIRect_height'>height</a>() const
@@ -657,10 +614,9 @@ large height: -5
 
 <a href='#SkIRect_width'>width</a>() <a href='SkRect_Reference#SkRect_height'>SkRect::height</a>()
 
----
-
 <a name='SkIRect_height64'></a>
-## height64
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int64_t <a href='#SkIRect_height64'>height64</a>() const
@@ -690,10 +646,9 @@ height: -5 height64: 4294967291
 
 <a href='#SkIRect_width'>width</a>() <a href='#SkIRect_height'>height</a>() <a href='#SkIRect_width64'>width64</a>() <a href='SkRect_Reference#SkRect_height'>SkRect::height</a>()
 
----
-
 <a name='SkIRect_size'></a>
-## size
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkISize'>SkISize</a> <a href='#SkIRect_size'>size</a>() const
@@ -724,10 +679,9 @@ outset rect: 20, 30, 80, 90  size: 60, 60
 
 <a href='#SkIRect_height'>height</a>() <a href='#SkIRect_width'>width</a>() <a href='#SkIRect_MakeSize'>MakeSize</a>
 
----
-
 <a name='SkIRect_isEmpty'></a>
-## isEmpty
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_isEmpty'>isEmpty</a>() const
@@ -758,10 +712,9 @@ sorted: {20, 40, 20, 50} is empty
 
 <a href='#SkIRect_EmptyIRect'>EmptyIRect</a> <a href='#SkIRect_MakeEmpty'>MakeEmpty</a> <a href='#SkIRect_sort'>sort</a> <a href='SkRect_Reference#SkRect_isEmpty'>SkRect::isEmpty</a>
 
----
-
 <a name='SkIRect_isEmpty64'></a>
-## isEmpty64
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_isEmpty64'>isEmpty64</a>() const
@@ -794,12 +747,11 @@ sorted: {20, 40, 20, 50} is empty
 
 <a href='#SkIRect_EmptyIRect'>EmptyIRect</a> <a href='#SkIRect_MakeEmpty'>MakeEmpty</a> <a href='#SkIRect_sort'>sort</a> <a href='SkRect_Reference#SkRect_isEmpty'>SkRect::isEmpty</a>
 
----
-
-## <a name='Operators'>Operators</a>
+<a name='Operators'></a>
 
 <a name='SkIRect_equal_operator'></a>
-## operator==
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_equal_operator'>operator==(const SkIRect& a, const SkIRect& b)</a>
@@ -838,10 +790,9 @@ test == sorted
 
 <a href='#SkIRect_notequal_operator'>operator!=(const SkIRect& a, const SkIRect& b)</a>
 
----
-
 <a name='SkIRect_notequal_operator'></a>
-## operator!=
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_notequal_operator'>operator!=(const SkIRect& a, const SkIRect& b)</a>
@@ -880,12 +831,11 @@ test != sorted
 
 <a href='#SkIRect_equal_operator'>operator==(const SkIRect& a, const SkIRect& b)</a>
 
----
-
-## <a name='Set'>Set</a>
+<a name='Set'></a>
 
 <a name='SkIRect_setEmpty'></a>
-## setEmpty
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_setEmpty'>setEmpty</a>()
@@ -914,10 +864,9 @@ rect: {0, 0, 0, 0} is empty
 
 <a href='#SkIRect_MakeEmpty'>MakeEmpty</a> <a href='SkRect_Reference#SkRect_setEmpty'>SkRect::setEmpty</a>
 
----
-
 <a name='SkIRect_set'></a>
-## set
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_set'>set</a>(int32_t left, int32_t top, int32_t right, int32_t bottom)
@@ -960,10 +909,9 @@ rect2: {3, 4, 1, 2}
 
 <a href='#SkIRect_setLTRB'>setLTRB</a> <a href='#SkIRect_setXYWH'>setXYWH</a> <a href='SkRect_Reference#SkRect_set'>SkRect::set</a><sup><a href='SkRect_Reference#SkRect_set_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_set_3'>[3]</a></sup><sup><a href='SkRect_Reference#SkRect_set_4'>[4]</a></sup>
 
----
-
 <a name='SkIRect_setLTRB'></a>
-## setLTRB
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_setLTRB'>setLTRB</a>(int32_t left, int32_t top, int32_t right, int32_t bottom)
@@ -1006,10 +954,9 @@ rect2: {3, 4, 1, 2}
 
 <a href='#SkIRect_set'>set</a> <a href='#SkIRect_setXYWH'>setXYWH</a> <a href='SkRect_Reference#SkRect_setLTRB'>SkRect::setLTRB</a>
 
----
-
 <a name='SkIRect_setXYWH'></a>
-## setXYWH
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_setXYWH'>setXYWH</a>(int32_t x, int32_t y, int32_t width, int32_t height)
@@ -1051,12 +998,11 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 <a href='#SkIRect_MakeXYWH'>MakeXYWH</a> <a href='#SkIRect_setLTRB'>setLTRB</a> <a href='#SkIRect_set'>set</a> <a href='SkRect_Reference#SkRect_setXYWH'>SkRect::setXYWH</a>
 
----
-
-## <a name='Inset_Outset_Offset'>Inset Outset Offset</a>
+<a name='Inset_Outset_Offset'></a>
 
 <a name='SkIRect_makeOffset'></a>
-## makeOffset
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_makeOffset'>makeOffset</a>(int32_t dx, int32_t dy) const
@@ -1100,10 +1046,9 @@ rect: 25, 82, 35, 92  isEmpty: false
 
 <a href='#SkIRect_offset'>offset</a><sup><a href='#SkIRect_offset_2'>[2]</a></sup>() <a href='#SkIRect_makeInset'>makeInset</a> <a href='#SkIRect_makeOutset'>makeOutset</a> <a href='SkRect_Reference#SkRect_makeOffset'>SkRect::makeOffset</a>
 
----
-
 <a name='SkIRect_makeInset'></a>
-## makeInset
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_makeInset'>makeInset</a>(int32_t dx, int32_t dy) const
@@ -1147,10 +1092,9 @@ rect: 25, 82, 5, 28  isEmpty: true
 
 <a href='#SkIRect_inset'>inset</a>() <a href='#SkIRect_makeOffset'>makeOffset</a> <a href='#SkIRect_makeOutset'>makeOutset</a> <a href='SkRect_Reference#SkRect_makeInset'>SkRect::makeInset</a>
 
----
-
 <a name='SkIRect_makeOutset'></a>
-## makeOutset
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_makeOutset'>makeOutset</a>(int32_t dx, int32_t dy) const
@@ -1194,10 +1138,9 @@ rect: -5, 18, 35, 92  isEmpty: false
 
 <a href='#SkIRect_outset'>outset</a>() <a href='#SkIRect_makeOffset'>makeOffset</a> <a href='#SkIRect_makeInset'>makeInset</a> <a href='SkRect_Reference#SkRect_makeOutset'>SkRect::makeOutset</a>
 
----
-
 <a name='SkIRect_offset'></a>
-## offset
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_offset'>offset</a>(int32_t dx, int32_t dy)
@@ -1236,9 +1179,9 @@ rect: 15, 27, 55, 86
 
 <a href='#SkIRect_offsetTo'>offsetTo</a> <a href='#SkIRect_makeOffset'>makeOffset</a> <a href='SkRect_Reference#SkRect_offset'>SkRect::offset</a><sup><a href='SkRect_Reference#SkRect_offset_2'>[2]</a></sup>
 
----
-
 <a name='SkIRect_offset_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_offset'>offset</a>(const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& delta)
@@ -1275,10 +1218,9 @@ rect: 15, 27, 55, 86
 
 <a href='#SkIRect_offsetTo'>offsetTo</a> <a href='#SkIRect_makeOffset'>makeOffset</a> <a href='SkRect_Reference#SkRect_offset'>SkRect::offset</a><sup><a href='SkRect_Reference#SkRect_offset_2'>[2]</a></sup>
 
----
-
 <a name='SkIRect_offsetTo'></a>
-## offsetTo
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_offsetTo'>offsetTo</a>(int32_t newX, int32_t newY)
@@ -1313,10 +1255,9 @@ rect: 15, 27, 55, 86
 
 <a href='#SkIRect_offset'>offset</a><sup><a href='#SkIRect_offset_2'>[2]</a></sup> <a href='#SkIRect_makeOffset'>makeOffset</a> <a href='#SkIRect_setXYWH'>setXYWH</a> <a href='SkRect_Reference#SkRect_offsetTo'>SkRect::offsetTo</a>
 
----
-
 <a name='SkIRect_inset'></a>
-## inset
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_inset'>inset</a>(int32_t dx, int32_t dy)
@@ -1355,10 +1296,9 @@ rect: 15, 27, 45, 60
 
 <a href='#SkIRect_outset'>outset</a> <a href='#SkIRect_makeInset'>makeInset</a> <a href='SkRect_Reference#SkRect_inset'>SkRect::inset</a>
 
----
-
 <a name='SkIRect_outset'></a>
-## outset
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_outset'>outset</a>(int32_t dx, int32_t dy)
@@ -1397,9 +1337,7 @@ rect: 5, 1, 55, 86
 
 <a href='#SkIRect_inset'>inset</a> <a href='#SkIRect_makeOutset'>makeOutset</a> <a href='SkRect_Reference#SkRect_outset'>SkRect::outset</a>
 
----
-
-## <a name='Intersection'>Intersection</a>
+<a name='Intersection'></a>
 
 <a href='#IRect'>IRects</a> intersect when they enclose a common area. To intersect, each of the pair
 must describe area; <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_fTop'>fTop</a> is less than <a href='#SkIRect_fBottom'>fBottom</a>;
@@ -1411,7 +1349,8 @@ The intersection is only meaningful if the resulting <a href='#IRect'>IRect</a> 
 describes an area: <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_fTop'>fTop</a> is less than <a href='#SkIRect_fBottom'>fBottom</a>.
 
 <a name='SkIRect_adjust'></a>
-## adjust
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_adjust'>adjust</a>(int32_t dL, int32_t dT, int32_t dR, int32_t dB)
@@ -1460,10 +1399,9 @@ rect: 10, 10, 20, 20
 
 <a href='#SkIRect_inset'>inset</a> <a href='#SkIRect_outset'>outset</a>
 
----
-
 <a name='SkIRect_contains'></a>
-## contains
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_contains'>contains</a>(int32_t x, int32_t y) const
@@ -1507,9 +1445,9 @@ rect: (30, 50, 40, 60) does not contain (30, 60)
 
 <a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck</a><sup><a href='#SkIRect_containsNoEmptyCheck_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_contains'>SkRect::contains</a><sup><a href='SkRect_Reference#SkRect_contains_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_contains_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_contains_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_contains'>contains</a>(int32_t left, int32_t top, int32_t right, int32_t bottom) const
@@ -1559,9 +1497,9 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 <a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck</a><sup><a href='#SkIRect_containsNoEmptyCheck_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_contains'>SkRect::contains</a><sup><a href='SkRect_Reference#SkRect_contains_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_contains_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_contains_3'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_contains'>contains</a>(const <a href='#SkIRect'>SkIRect</a>& r) const
@@ -1601,9 +1539,9 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 <a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck</a><sup><a href='#SkIRect_containsNoEmptyCheck_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_contains'>SkRect::contains</a><sup><a href='SkRect_Reference#SkRect_contains_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_contains_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_contains_4'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_contains'>contains</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& r) const
@@ -1643,10 +1581,9 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 <a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck</a><sup><a href='#SkIRect_containsNoEmptyCheck_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_contains'>SkRect::contains</a><sup><a href='SkRect_Reference#SkRect_contains_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_contains_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_containsNoEmptyCheck'></a>
-## containsNoEmptyCheck
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck</a>(int32_t left, int32_t top, int32_t right, int32_t bottom) const
@@ -1698,9 +1635,9 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 <a href='#SkIRect_contains'>contains</a><sup><a href='#SkIRect_contains_2'>[2]</a></sup><sup><a href='#SkIRect_contains_3'>[3]</a></sup><sup><a href='#SkIRect_contains_4'>[4]</a></sup> <a href='SkRect_Reference#SkRect_contains'>SkRect::contains</a><sup><a href='SkRect_Reference#SkRect_contains_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_contains_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_containsNoEmptyCheck_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck</a>(const <a href='#SkIRect'>SkIRect</a>& r) const
@@ -1740,10 +1677,9 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 <a href='#SkIRect_contains'>contains</a><sup><a href='#SkIRect_contains_2'>[2]</a></sup><sup><a href='#SkIRect_contains_3'>[3]</a></sup><sup><a href='#SkIRect_contains_4'>[4]</a></sup> <a href='SkRect_Reference#SkRect_contains'>SkRect::contains</a><sup><a href='SkRect_Reference#SkRect_contains_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_contains_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_intersect'></a>
-## intersect
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_intersect'>intersect</a>(const <a href='#SkIRect'>SkIRect</a>& r)
@@ -1784,9 +1720,9 @@ intersection: 30, 60, 50, 80
 
 <a href='#SkIRect_Intersects'>Intersects</a> <a href='#SkIRect_intersectNoEmptyCheck'>intersectNoEmptyCheck</a> <a href='#SkIRect_join'>join</a><sup><a href='#SkIRect_join_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_intersect'>SkRect::intersect</a><sup><a href='SkRect_Reference#SkRect_intersect_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_intersect_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_intersect_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_intersect'>intersect</a>(const <a href='#SkIRect'>SkIRect</a>& a, const <a href='#SkIRect'>SkIRect</a>& b)
@@ -1827,10 +1763,9 @@ intersection: 30, 60, 50, 80
 
 <a href='#SkIRect_Intersects'>Intersects</a> <a href='#SkIRect_intersectNoEmptyCheck'>intersectNoEmptyCheck</a> <a href='#SkIRect_join'>join</a><sup><a href='#SkIRect_join_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_intersect'>SkRect::intersect</a><sup><a href='SkRect_Reference#SkRect_intersect_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_intersect_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_intersectNoEmptyCheck'></a>
-## intersectNoEmptyCheck
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_intersectNoEmptyCheck'>intersectNoEmptyCheck</a>(const <a href='#SkIRect'>SkIRect</a>& a, const <a href='#SkIRect'>SkIRect</a>& b)
@@ -1871,9 +1806,9 @@ intersection: 30, 60, 50, 80
 
 <a href='#SkIRect_Intersects'>Intersects</a> <a href='#SkIRect_intersect'>intersect</a><sup><a href='#SkIRect_intersect_2'>[2]</a></sup><sup><a href='#SkIRect_intersect_3'>[3]</a></sup> <a href='#SkIRect_join'>join</a><sup><a href='#SkIRect_join_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_intersect'>SkRect::intersect</a><sup><a href='SkRect_Reference#SkRect_intersect_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_intersect_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_intersect_3'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkIRect_intersect'>intersect</a>(int32_t left, int32_t top, int32_t right, int32_t bottom)
@@ -1926,10 +1861,9 @@ intersection: 30, 60, 50, 80
 
 <a href='#SkIRect_intersectNoEmptyCheck'>intersectNoEmptyCheck</a> <a href='#SkIRect_Intersects'>Intersects</a> <a href='#SkIRect_join'>join</a><sup><a href='#SkIRect_join_2'>[2]</a></sup> <a href='SkRect_Reference#SkRect_intersect'>SkRect::intersect</a><sup><a href='SkRect_Reference#SkRect_intersect_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_intersect_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_Intersects'></a>
-## Intersects
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static bool <a href='#SkIRect_Intersects'>Intersects</a>(const <a href='#SkIRect'>SkIRect</a>& a, const <a href='#SkIRect'>SkIRect</a>& b)
@@ -1968,10 +1902,9 @@ intersection
 
 <a href='#SkIRect_IntersectsNoEmptyCheck'>IntersectsNoEmptyCheck</a> <a href='#SkIRect_intersect'>intersect</a><sup><a href='#SkIRect_intersect_2'>[2]</a></sup><sup><a href='#SkIRect_intersect_3'>[3]</a></sup> <a href='SkRect_Reference#SkRect_intersect'>SkRect::intersect</a><sup><a href='SkRect_Reference#SkRect_intersect_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_intersect_3'>[3]</a></sup>
 
----
-
 <a name='SkIRect_IntersectsNoEmptyCheck'></a>
-## IntersectsNoEmptyCheck
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static bool <a href='#SkIRect_IntersectsNoEmptyCheck'>IntersectsNoEmptyCheck</a>(const <a href='#SkIRect'>SkIRect</a>& a, const <a href='#SkIRect'>SkIRect</a>& b)
@@ -2010,12 +1943,11 @@ intersection
 
 <a href='#SkIRect_Intersects'>Intersects</a> <a href='#SkIRect_intersect'>intersect</a><sup><a href='#SkIRect_intersect_2'>[2]</a></sup><sup><a href='#SkIRect_intersect_3'>[3]</a></sup> <a href='SkRect_Reference#SkRect_intersect'>SkRect::intersect</a><sup><a href='SkRect_Reference#SkRect_intersect_2'>[2]</a></sup><sup><a href='SkRect_Reference#SkRect_intersect_3'>[3]</a></sup>
 
----
-
-## <a name='Join'>Join</a>
+<a name='Join'></a>
 
 <a name='SkIRect_join'></a>
-## join
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_join'>join</a>(int32_t left, int32_t top, int32_t right, int32_t bottom)
@@ -2061,9 +1993,9 @@ join: 10, 20, 55, 65
 
 <a href='#SkIRect_set'>set</a> <a href='SkRect_Reference#SkRect_join'>SkRect::join</a><sup><a href='SkRect_Reference#SkRect_join_2'>[2]</a></sup>
 
----
-
 <a name='SkIRect_join_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_join'>join</a>(const <a href='#SkIRect'>SkIRect</a>& r)
@@ -2096,12 +2028,11 @@ join: 10, 20, 55, 65
 
 <a href='#SkIRect_set'>set</a> <a href='SkRect_Reference#SkRect_join'>SkRect::join</a><sup><a href='SkRect_Reference#SkRect_join_2'>[2]</a></sup>
 
----
-
-## <a name='Sorting'>Sorting</a>
+<a name='Sorting'></a>
 
 <a name='SkIRect_sort'></a>
-## sort
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkIRect_sort'>sort</a>()
@@ -2128,10 +2059,9 @@ sorted: 20, 10, 30, 50
 
 <a href='#SkIRect_makeSorted'>makeSorted</a> <a href='SkRect_Reference#SkRect_sort'>SkRect::sort</a>
 
----
-
 <a name='SkIRect_makeSorted'></a>
-## makeSorted
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_makeSorted'>makeSorted</a>() const
@@ -2162,10 +2092,9 @@ sorted: 20, 10, 30, 50
 
 <a href='#SkIRect_sort'>sort</a> <a href='SkRect_Reference#SkRect_makeSorted'>SkRect::makeSorted</a>
 
----
-
 <a name='SkIRect_EmptyIRect'></a>
-## EmptyIRect
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static const <a href='#SkIRect'>SkIRect</a>& <a href='#SkIRect_EmptyIRect'>EmptyIRect</a>()
@@ -2192,6 +2121,4 @@ rect: 0, 0, 0, 0
 ### See Also
 
 <a href='#SkIRect_MakeEmpty'>MakeEmpty</a>
-
----
 

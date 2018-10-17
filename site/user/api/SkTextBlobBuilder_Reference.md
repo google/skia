@@ -1,7 +1,10 @@
 SkTextBlobBuilder Reference
 ===
 
+
 <a name='SkTextBlobBuilder'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='#SkTextBlobBuilder'>SkTextBlobBuilder</a> {
@@ -29,6 +32,8 @@ public:
 Helper class for constructing <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>.
 
 <a name='SkTextBlobBuilder_RunBuffer'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     struct <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a> {
@@ -89,7 +94,8 @@ Reserved for future use. clusters should not be read or written.
 <a href='#SkTextBlobBuilder_allocRun'>allocRun</a> <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a> <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>
 
 <a name='SkTextBlobBuilder_empty_constructor'></a>
-## SkTextBlobBuilder
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkTextBlobBuilder'>SkTextBlobBuilder</a>()
@@ -117,10 +123,9 @@ blob equals nullptr
 
 <a href='#SkTextBlobBuilder_make'>make</a> <a href='SkTextBlob_Reference#SkTextBlob_MakeFromText'>SkTextBlob::MakeFromText</a>
 
----
-
 <a name='SkTextBlobBuilder_destructor'></a>
-## ~SkTextBlobBuilder
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkTextBlobBuilder_destructor'>~SkTextBlobBuilder</a>()
@@ -132,10 +137,9 @@ Deletes data allocated internally by <a href='#Text_Blob_Builder'>Text Blob Buil
 
 <a href='#SkTextBlobBuilder_empty_constructor'>SkTextBlobBuilder()</a>
 
----
-
 <a name='SkTextBlobBuilder_make'></a>
-## make
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlobBuilder_make'>make</a>()
@@ -170,10 +174,9 @@ blob equals nullptr
 
 <a href='SkTextBlob_Reference#SkTextBlob_MakeFromText'>SkTextBlob::MakeFromText</a>
 
----
-
 <a name='SkTextBlobBuilder_allocRun'></a>
-## allocRun
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
@@ -228,10 +231,9 @@ writable glyph buffer
 
 <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a> <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>
 
----
-
 <a name='SkTextBlobBuilder_allocRunPosH'></a>
-## allocRunPosH
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
@@ -284,10 +286,9 @@ writable glyph buffer and x-axis position buffer
 
 <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a> <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>
 
----
-
 <a name='SkTextBlobBuilder_allocRunPos'></a>
-## allocRunPos
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count, const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr)
@@ -335,6 +336,4 @@ writable glyph buffer and <a href='SkPoint_Reference#Point'>Point</a> buffer
 ### See Also
 
 <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a> <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>
-
----
 

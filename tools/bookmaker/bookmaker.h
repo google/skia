@@ -106,6 +106,7 @@ enum class MarkType {
     kExperimental,
     kExternal,
     kFile,
+    kFilter,
     kFormula,
     kFunction,
     kHeight,
@@ -958,7 +959,7 @@ public:
     string formatFunction(Format format) const;
     const Definition* hasChild(MarkType markType) const;
     bool hasMatch(string name) const;
-    const Definition* hasParam(string ref) const;
+    Definition* hasParam(string ref);
     string incompleteMessage(DetailsType ) const;
     bool isClone() const { return fClone; }
 
@@ -1007,6 +1008,11 @@ public:
 
     void setParentIndex() {
         fParentIndex = fParent ? (int) fParent->fTokens.size() : -1;
+    }
+
+    string simpleName() {
+        size_t doubleColon = fName.rfind("::");
+        return string::npos == doubleColon ? fName : fName.substr(doubleColon + 2);
     }
 
     const Definition* subtopicParent() const {
@@ -1711,9 +1717,24 @@ public:
             SkASSERT(fIClassMap.end() != map || inProgress);
             return fIClassMap.end() != map ? map->second.fCode : "";
         }
+        if (MarkType::kConst == markType) {
+            auto map = fIConstMap.find(name);
+            SkASSERT(fIConstMap.end() != map);
+            return map->second->fCode;
+        }
+        if (MarkType::kDefine == markType) {
+            auto map = fIDefineMap.find(name);
+            SkASSERT(fIDefineMap.end() != map);
+            return map->second->fCode;
+        }
         if (MarkType::kEnum == markType || MarkType::kEnumClass == markType) {
             auto map = fIEnumMap.find(name);
             SkASSERT(fIEnumMap.end() != map);
+            return map->second->fCode;
+        }
+        if (MarkType::kTypedef == markType) {
+            auto map = fITypedefMap.find(name);
+            SkASSERT(fITypedefMap.end() != map);
             return map->second->fCode;
         }
         SkASSERT(0);
@@ -1739,10 +1760,12 @@ public:
     void dumpTypedef(const Definition& , string className);
 
     string elidedCodeBlock(const Definition& );
+    string filteredBlock(string inContents, string filterContents);
     bool findComments(const Definition& includeDef, Definition* markupDef);
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
                                   string typeName);
     static KeyWord FindKey(const char* start, const char* end);
+    Definition* findMethod(const Definition& bmhDef);
     Bracket grandParentBracket() const;
     const Definition* include(string ) const;
     bool isClone(const Definition& token);
@@ -1810,7 +1833,6 @@ public:
         fLastObject = nullptr;
         fPriorEnum = nullptr;
         fPriorObject = nullptr;
-        fAttrDeprecated = nullptr;
         fPrev = '\0';
         fInChar = false;
         fInCharCommentString = false;
@@ -1849,7 +1871,7 @@ public:
     }
 
     void validate() const;
-    void writeCodeBlock(const BmhParser& );
+    void writeCodeBlock();
     string writeCodeBlock(const Definition&, MarkType );
     string writeCodeBlock(TextParser& i, MarkType , int indent);
 
@@ -1990,9 +2012,6 @@ protected:
         MarkType fMarkType;
     };
 
-    static const char gAttrDeprecated[];
-    static const size_t kAttrDeprecatedLen;
-
     vector<DefinitionMap> fMaps;
     unordered_map<string, Definition> fIncludeMap;
     list<Definition> fGlobals;
@@ -2012,7 +2031,6 @@ protected:
     Definition* fLastObject;
     Definition* fPriorEnum;
     Definition* fPriorObject;
-    const Definition* fAttrDeprecated;
     int fPriorIndex;
     const char* fIncludeWord;
     Elided fElided;
@@ -2422,17 +2440,19 @@ private:
     Definition* checkParentsForMatch(Definition* test, string ref) const;
     void childrenOut(Definition* def, const char* contentStart);
     Definition* csParent();
-    const Definition* findParamType();
+    Definition* findParamType();
     string getMemberTypeName(const Definition* def, string* memberType);
     static bool HasDetails(const Definition* def);
     void htmlOut(string );
-    const Definition* isDefined(const TextParser& , string ref, BmhParser::Resolvable );
-    const Definition* isDefinedByParent(RootDefinition* root, string ref);
+    Definition* isDefined(const TextParser& , string ref, BmhParser::Resolvable );
+    Definition* isDefinedByParent(RootDefinition* root, string ref);
     string linkName(const Definition* ) const;
-    string linkRef(string leadingSpaces, const Definition*, string ref, BmhParser::Resolvable );
+    string linkRef(string leadingSpaces, Definition*, string ref, BmhParser::Resolvable );
     void markTypeOut(Definition* , const Definition** prior);
     void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); }
     void mdHeaderOutLF(int depth, int lf);
+    void parameterHeaderOut(TextParser& paramParser, const Definition** prior, Definition* def);
+    void parameterTrailerOut();
     bool parseFromFile(const char* path) override { return true; }
     void populateOne(Definition* def,
             unordered_map<string, RootDefinition::SubtopicContents>& populator);
@@ -2481,6 +2501,7 @@ private:
     }
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
+    void returnHeaderOut(const Definition** prior, Definition* def);
     void rowOut(string col1, const Definition* col2);
     void rowOut(const char * name, string description, bool literalName);
 

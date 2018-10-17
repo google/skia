@@ -1,7 +1,10 @@
 SkAutoCanvasRestore Reference
 ===
 
+
 <a name='SkAutoCanvasRestore'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='#SkAutoCanvasRestore'>SkAutoCanvasRestore</a> {
@@ -17,7 +20,8 @@ goes out of scope. Use this to guarantee that the canvas is restored to a known
 state.
 
 <a name='SkAutoCanvasRestore_SkCanvas_star'></a>
-## SkAutoCanvasRestore
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* canvas, bool doSave)
@@ -47,10 +51,9 @@ utility to restore <a href='SkCanvas_Reference#Canvas'>Canvas</a> state on destr
 
 <a href='SkCanvas_Reference#SkCanvas_save'>SkCanvas::save</a> <a href='SkCanvas_Reference#SkCanvas_restore'>SkCanvas::restore</a>
 
----
-
 <a name='SkAutoCanvasRestore_destructor'></a>
-## ~SkAutoCanvasRestore
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore</a>()
@@ -63,10 +66,9 @@ scope.
 
 <a href='SkCanvas_Reference#SkCanvas_save'>SkCanvas::save</a> <a href='SkCanvas_Reference#SkCanvas_restore'>SkCanvas::restore</a>
 
----
-
 <a name='SkAutoCanvasRestore_restore'></a>
-## restore
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkAutoCanvasRestore_restore'>restore</a>()
@@ -98,6 +100,4 @@ final count: 1
 ### See Also
 
 <a href='SkCanvas_Reference#SkCanvas_save'>SkCanvas::save</a> <a href='SkCanvas_Reference#SkCanvas_restore'>SkCanvas::restore</a>
-
----
 

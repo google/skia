@@ -1,7 +1,10 @@
 SkBitmap Reference
 ===
 
+
 <a name='SkBitmap'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='#SkBitmap'>SkBitmap</a> {
@@ -132,14 +135,17 @@ pixels. Declaring <a href='#SkBitmap'>SkBitmap</a> const affects <a href='#Bitma
 <a href='#Bitmap'>Bitmap</a> is not thread safe. Each thread must have its own copy of <a href='#Bitmap'>Bitmap</a> fields,
 although threads may share the underlying pixel array.
 
-## <a name='Row_Bytes'>Row Bytes</a>
+<a name='Row_Bytes'></a>
 
 <a href='#Bitmap'>Bitmap</a> pixels may be contiguous, or may have a gap at the end of each row.
 <a href='#Row_Bytes'>Row Bytes</a> is the interval from one row to the next. <a href='#Row_Bytes'>Row Bytes</a> may be specified;
 sometimes passing zero will compute the <a href='#Row_Bytes'>Row Bytes</a> from the row width and the
 number of bytes in a pixel. <a href='#Row_Bytes'>Row Bytes</a> may be larger than the row requires. This
 is useful to position one or more <a href='#Bitmap'>Bitmaps</a> within a shared pixel array.
+
 <a name='SkBitmap_Allocator'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkBitmap_Allocator'>Allocator</a> : public <a href='undocumented#SkRefCnt'>SkRefCnt</a> {
@@ -151,7 +157,8 @@ is useful to position one or more <a href='#Bitmap'>Bitmaps</a> within a shared 
 Abstract subclass of <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a>.
 
 <a name='SkBitmap_Allocator_allocPixelRef'></a>
-## allocPixelRef
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 virtual bool <a href='#SkBitmap_Allocator_allocPixelRef'>allocPixelRef</a>(<a href='#SkBitmap'>SkBitmap</a>* bitmap) = 0
@@ -176,9 +183,9 @@ true if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> was allocated
 
 <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a>
 
----
-
 <a name='SkBitmap_HeapAllocator'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkBitmap_HeapAllocator'>HeapAllocator</a> : public <a href='#SkBitmap_Allocator'>Allocator</a> {
@@ -192,7 +199,8 @@ memory from the heap. This is the default <a href='#SkBitmap_Allocator'>SkBitmap
 <a href='#SkBitmap_allocPixels'>allocPixels</a>.
 
 <a name='SkBitmap_HeapAllocator_allocPixelRef'></a>
-## allocPixelRef
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_HeapAllocator_allocPixelRef'>allocPixelRef</a>(<a href='#SkBitmap'>SkBitmap</a>* bitmap) override
@@ -231,10 +239,9 @@ pixel address = 0x560ddd0ac670
 
 <a href='#SkBitmap_Allocator'>SkBitmap::Allocator</a> <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a><sup><a href='#SkBitmap_tryAllocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_4'>[4]</a></sup>
 
----
-
 <a name='SkBitmap_empty_constructor'></a>
-## SkBitmap
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkBitmap'>SkBitmap</a>()
@@ -268,10 +275,9 @@ width: 25  height: 35  color: kRGBA_8888_SkColorType  alpha: kOpaque_SkAlphaType
 
 <a href='#SkBitmap_setInfo'>setInfo</a>
 
----
-
 <a name='SkBitmap_copy_const_SkBitmap'></a>
-## SkBitmap
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkBitmap'>SkBitmap</a>(const <a href='#SkBitmap'>SkBitmap</a>& src)
@@ -309,10 +315,9 @@ copy has pixels: true
 
 <a href='#SkBitmap_setInfo'>setInfo</a> <a href='#SkBitmap_setPixelRef'>setPixelRef</a> <a href='#SkBitmap_setPixels'>setPixels</a> <a href='#SkBitmap_swap'>swap</a>
 
----
-
 <a name='SkBitmap_move_SkBitmap'></a>
-## SkBitmap
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkBitmap'>SkBitmap</a>(<a href='#SkBitmap'>SkBitmap</a>&& src)
@@ -350,10 +355,9 @@ copy has pixels: true
 
 <a href='#SkBitmap_setInfo'>setInfo</a> <a href='#SkBitmap_setPixelRef'>setPixelRef</a> <a href='#SkBitmap_setPixels'>setPixels</a> <a href='#SkBitmap_swap'>swap</a>
 
----
-
 <a name='SkBitmap_destructor'></a>
-## ~SkBitmap
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkBitmap_destructor'>~SkBitmap</a>()
@@ -365,10 +369,9 @@ Decrements <a href='undocumented#Pixel_Ref'>Pixel Ref</a> reference count, if <a
 
 <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
 
----
-
 <a name='SkBitmap_copy_operator'></a>
-## operator=
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkBitmap'>SkBitmap</a>& <a href='#SkBitmap_copy_operator'>operator=(const SkBitmap& src)</a>
@@ -406,10 +409,9 @@ copy has pixels: true
 
 <a href='#SkBitmap_setInfo'>setInfo</a> <a href='#SkBitmap_setPixelRef'>setPixelRef</a> <a href='#SkBitmap_setPixels'>setPixels</a> <a href='#SkBitmap_swap'>swap</a>
 
----
-
 <a name='SkBitmap_move_operator'></a>
-## operator=
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='#SkBitmap'>SkBitmap</a>& <a href='#SkBitmap_move_operator'>operator=(SkBitmap&& src)</a>
@@ -447,10 +449,9 @@ copy has pixels: true
 
 <a href='#SkBitmap_setInfo'>setInfo</a> <a href='#SkBitmap_setPixelRef'>setPixelRef</a> <a href='#SkBitmap_setPixels'>setPixels</a> <a href='#SkBitmap_swap'>swap</a>
 
----
-
 <a name='SkBitmap_swap'></a>
-## swap
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_swap'>swap</a>(<a href='#SkBitmap'>SkBitmap</a>& other)
@@ -484,12 +485,11 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
 
 <a href='#SkBitmap_move_SkBitmap'>SkBitmap(SkBitmap&& src)</a> <a href='#SkBitmap_move_operator'>operator=(SkBitmap&& src)</a>
 
----
-
-## <a name='Property'>Property</a>
+<a name='Property'></a>
 
 <a name='SkBitmap_pixmap'></a>
-## pixmap
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& <a href='#SkBitmap_pixmap'>pixmap</a>() const
@@ -528,10 +528,9 @@ reference to <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> describing this <a h
 
 <a href='#SkBitmap_peekPixels'>peekPixels</a> <a href='#SkBitmap_installPixels'>installPixels</a><sup><a href='#SkBitmap_installPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_installPixels_3'>[3]</a></sup> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup> <a href='#SkBitmap_writePixels'>writePixels</a><sup><a href='#SkBitmap_writePixels_2'>[2]</a></sup>
 
----
-
 <a name='SkBitmap_info'></a>
-## info
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& <a href='#SkBitmap_info'>info</a>() const
@@ -559,10 +558,9 @@ width: 56 height: 56 color: BGRA_8888 alpha: Opaque
 
 <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>
 
----
-
 <a name='SkBitmap_width'></a>
-## width
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkBitmap_width'>width</a>() const
@@ -593,10 +591,9 @@ bitmap width: 16  info width: 16
 
 <a href='#SkBitmap_height'>height</a>() <a href='undocumented#SkPixelRef_width'>SkPixelRef::width</a>() <a href='SkImageInfo_Reference#SkImageInfo_width'>SkImageInfo::width</a>()
 
----
-
 <a name='SkBitmap_height'></a>
-## height
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkBitmap_height'>height</a>() const
@@ -627,10 +624,9 @@ bitmap height: 32  info height: 32
 
 <a href='#SkBitmap_width'>width</a>() <a href='undocumented#SkPixelRef_height'>SkPixelRef::height</a>() <a href='SkImageInfo_Reference#SkImageInfo_height'>SkImageInfo::height</a>()
 
----
-
 <a name='SkBitmap_colorType'></a>
-## colorType
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='#SkBitmap_colorType'>colorType</a>() const
@@ -661,10 +657,9 @@ color type: kAlpha_8_SkColorType
 
 <a href='#SkBitmap_alphaType'>alphaType</a>() <a href='SkImageInfo_Reference#SkImageInfo_colorType'>SkImageInfo::colorType</a>
 
----
-
 <a name='SkBitmap_alphaType'></a>
-## alphaType
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkBitmap_alphaType'>alphaType</a>() const
@@ -693,10 +688,9 @@ alpha type: kPremul_SkAlphaType
 
 <a href='#SkBitmap_colorType'>colorType</a>() <a href='SkImageInfo_Reference#SkImageInfo_alphaType'>SkImageInfo::alphaType</a>
 
----
-
 <a name='SkBitmap_colorSpace'></a>
-## colorSpace
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkColorSpace'>SkColorSpace</a>* <a href='#SkBitmap_colorSpace'>colorSpace</a>() const
@@ -728,10 +722,9 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 
 <a href='undocumented#Color_Space'>Color Space</a> <a href='SkImageInfo_Reference#SkImageInfo_colorSpace'>SkImageInfo::colorSpace</a>
 
----
-
 <a name='SkBitmap_refColorSpace'></a>
-## refColorSpace
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkBitmap_refColorSpace'>refColorSpace</a>() const
@@ -763,10 +756,9 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 
 <a href='undocumented#Color_Space'>Color Space</a> <a href='SkImageInfo_Reference#SkImageInfo_colorSpace'>SkImageInfo::colorSpace</a>
 
----
-
 <a name='SkBitmap_bytesPerPixel'></a>
-## bytesPerPixel
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkBitmap_bytesPerPixel'>bytesPerPixel</a>() const
@@ -808,10 +800,9 @@ color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 
 <a href='#SkBitmap_rowBytes'>rowBytes</a> <a href='#SkBitmap_rowBytesAsPixels'>rowBytesAsPixels</a> <a href='#SkBitmap_width'>width</a> <a href='#SkBitmap_shiftPerPixel'>shiftPerPixel</a> <a href='SkImageInfo_Reference#SkImageInfo_bytesPerPixel'>SkImageInfo::bytesPerPixel</a>
 
----
-
 <a name='SkBitmap_rowBytesAsPixels'></a>
-## rowBytesAsPixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkBitmap_rowBytesAsPixels'>rowBytesAsPixels</a>() const
@@ -844,10 +835,9 @@ rowBytes: 8 rowBytesAsPixels: 2
 
 <a href='#SkBitmap_rowBytes'>rowBytes</a> <a href='#SkBitmap_shiftPerPixel'>shiftPerPixel</a> <a href='#SkBitmap_width'>width</a> <a href='#SkBitmap_bytesPerPixel'>bytesPerPixel</a>
 
----
-
 <a name='SkBitmap_shiftPerPixel'></a>
-## shiftPerPixel
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkBitmap_shiftPerPixel'>shiftPerPixel</a>() const
@@ -889,10 +879,9 @@ color: kRGBA_F16_SkColorType      shiftPerPixel: 3
 
 <a href='#SkBitmap_rowBytes'>rowBytes</a> <a href='#SkBitmap_rowBytesAsPixels'>rowBytesAsPixels</a> <a href='#SkBitmap_width'>width</a> <a href='#SkBitmap_bytesPerPixel'>bytesPerPixel</a>
 
----
-
 <a name='SkBitmap_empty'></a>
-## empty
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_empty'>empty</a>() const
@@ -926,10 +915,9 @@ width: 2 height: 2 empty: false
 
 <a href='#SkBitmap_height'>height</a>() <a href='#SkBitmap_width'>width</a>() <a href='#SkBitmap_drawsNothing'>drawsNothing</a>
 
----
-
 <a name='SkBitmap_isNull'></a>
-## isNull
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_isNull'>isNull</a>() const
@@ -962,10 +950,9 @@ allocated bitmap does have pixels
 
 <a href='#SkBitmap_empty'>empty</a>() <a href='#SkBitmap_drawsNothing'>drawsNothing</a> <a href='#SkBitmap_pixelRef'>pixelRef</a>
 
----
-
 <a name='SkBitmap_drawsNothing'></a>
-## drawsNothing
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_drawsNothing'>drawsNothing</a>() const
@@ -997,10 +984,9 @@ empty:false isNull:false drawsNothing:false
 
 <a href='#SkBitmap_empty'>empty</a>() <a href='#SkBitmap_isNull'>isNull</a> <a href='#SkBitmap_pixelRef'>pixelRef</a>
 
----
-
 <a name='SkBitmap_rowBytes'></a>
-## rowBytes
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkBitmap_rowBytes'>rowBytes</a>() const
@@ -1033,10 +1019,9 @@ setInfo returned:true  rowBytes:8
 
 <a href='#SkBitmap_info'>info</a>() <a href='#SkBitmap_setInfo'>setInfo</a> <a href='SkImageInfo_Reference#SkImageInfo_minRowBytes'>SkImageInfo::minRowBytes</a>
 
----
-
 <a name='SkBitmap_setAlphaType'></a>
-## setAlphaType
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_setAlphaType'>setAlphaType</a>(<a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkBitmap_alphaType'>alphaType</a>)
@@ -1079,7 +1064,7 @@ true if <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> is set
 
 ### Example
 
-<div><fiddle-embed name="dd73f0f927a049b17982c8cf06dd2d00"><a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
+<div><fiddle-embed name="af3adcbea7b58bf90298ca5e0ea93030"><a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
 <a href='SkImageInfo_Reference#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a> <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
 <a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a>,
@@ -1089,10 +1074,9 @@ true if <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> is set
 
 <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> <a href='#SkBitmap_setInfo'>setInfo</a>
 
----
-
 <a name='SkBitmap_getPixels'></a>
-## getPixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void* <a href='#SkBitmap_getPixels'>getPixels</a>() const
@@ -1121,10 +1105,9 @@ bitmap.getColor(0, 0) == 0xFFFFFFFF
 
 <a href='#SkBitmap_isNull'>isNull</a> <a href='#SkBitmap_drawsNothing'>drawsNothing</a>
 
----
-
 <a name='SkBitmap_computeByteSize'></a>
-## computeByteSize
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkBitmap_computeByteSize'>computeByteSize</a>() const
@@ -1164,10 +1147,9 @@ width: 1000000 height: 1000000 computeByteSize: 4999999000000
 
 <a href='SkImageInfo_Reference#SkImageInfo_computeByteSize'>SkImageInfo::computeByteSize</a>
 
----
-
 <a name='SkBitmap_isImmutable'></a>
-## isImmutable
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_isImmutable'>isImmutable</a>() const
@@ -1198,10 +1180,9 @@ copy is immutable
 
 <a href='#SkBitmap_setImmutable'>setImmutable</a> <a href='undocumented#SkPixelRef_isImmutable'>SkPixelRef::isImmutable</a> <a href='SkImage_Reference#SkImage'>SkImage</a>
 
----
-
 <a name='SkBitmap_setImmutable'></a>
-## setImmutable
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_setImmutable'>setImmutable</a>()
@@ -1222,10 +1203,9 @@ Writing to immutable <a href='#Bitmap'>Bitmap</a> pixels triggers an assert on d
 
 <a href='#SkBitmap_isImmutable'>isImmutable</a> <a href='undocumented#SkPixelRef_setImmutable'>SkPixelRef::setImmutable</a> <a href='SkImage_Reference#SkImage'>SkImage</a>
 
----
-
 <a name='SkBitmap_isOpaque'></a>
-## isOpaque
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_isOpaque'>isOpaque</a>() const
@@ -1262,10 +1242,9 @@ isOpaque: true
 
 <a href='#SkBitmap_ComputeIsOpaque'>ComputeIsOpaque</a> <a href='SkImageInfo_Reference#SkImageInfo_isOpaque'>SkImageInfo::isOpaque</a>
 
----
-
 <a name='SkBitmap_isVolatile'></a>
-## isVolatile
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_isVolatile'>isVolatile</a>() const
@@ -1297,10 +1276,9 @@ copy is not volatile
 
 <a href='#SkBitmap_setIsVolatile'>setIsVolatile</a>
 
----
-
 <a name='SkBitmap_setIsVolatile'></a>
-## setIsVolatile
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_setIsVolatile'>setIsVolatile</a>(bool <a href='#SkBitmap_isVolatile'>isVolatile</a>)
@@ -1328,10 +1306,9 @@ consumption on <a href='undocumented#Device'>Device</a>.
 
 <a href='#SkBitmap_isVolatile'>isVolatile</a>
 
----
-
 <a name='SkBitmap_reset'></a>
-## reset
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_reset'>reset</a>()
@@ -1363,10 +1340,9 @@ width:0 height:0 isNull:true
 
 <a href='#SkBitmap_empty_constructor'>SkBitmap()</a> <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a>
 
----
-
 <a name='SkBitmap_ComputeIsOpaque'></a>
-## ComputeIsOpaque
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static bool <a href='#SkBitmap_ComputeIsOpaque'>ComputeIsOpaque</a>(const <a href='#SkBitmap'>SkBitmap</a>& bm)
@@ -1416,10 +1392,9 @@ computeIsOpaque: true
 
 <a href='#SkBitmap_isOpaque'>isOpaque</a> <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> <a href='SkColor_Reference#Alpha'>Alpha</a>
 
----
-
 <a name='SkBitmap_getBounds'></a>
-## getBounds
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_getBounds'>getBounds</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>* bounds) const
@@ -1442,9 +1417,9 @@ Returns <a href='SkRect_Reference#Rect'>Rect</a> { 0, 0, <a href='#SkBitmap_widt
 
 <a href='#SkBitmap_bounds'>bounds</a>()
 
----
-
 <a name='SkBitmap_getBounds_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_getBounds'>getBounds</a>(<a href='SkIRect_Reference#SkIRect'>SkIRect</a>* bounds) const
@@ -1467,10 +1442,9 @@ Returns <a href='SkIRect_Reference#IRect'>IRect</a> { 0, 0, <a href='#SkBitmap_w
 
 <a href='#SkBitmap_bounds'>bounds</a>()
 
----
-
 <a name='SkBitmap_bounds'></a>
-## bounds
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkBitmap_bounds'>bounds</a>() const
@@ -1490,10 +1464,9 @@ integral rectangle from origin to <a href='#SkBitmap_width'>width</a>() and <a h
 
 <a href='#SkBitmap_getBounds'>getBounds</a><sup><a href='#SkBitmap_getBounds_2'>[2]</a></sup>
 
----
-
 <a name='SkBitmap_dimensions'></a>
-## dimensions
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkISize'>SkISize</a> <a href='#SkBitmap_dimensions'>dimensions</a>() const
@@ -1511,12 +1484,11 @@ integral size of <a href='#SkBitmap_width'>width</a>() and <a href='#SkBitmap_he
 
 ### See Also
 
-<a href='#SkBitmap_height'>height</a>() <a href='#SkBitmap_width'>width</a>()
-
----
+<a href='#SkBitmap_height'>height</a> <a href='#SkBitmap_width'>width</a>
 
 <a name='SkBitmap_getSubset'></a>
-## getSubset
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkBitmap_getSubset'>getSubset</a>() const
@@ -1545,10 +1517,9 @@ subset: 100, 100, 412, 412
 
 <a href='#SkBitmap_extractSubset'>extractSubset</a> <a href='#SkBitmap_getBounds'>getBounds</a><sup><a href='#SkBitmap_getBounds_2'>[2]</a></sup>
 
----
-
 <a name='SkBitmap_setInfo'></a>
-## setInfo
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_setInfo'>setInfo</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, size_t <a href='#SkBitmap_rowBytes'>rowBytes</a> = 0)
@@ -1607,9 +1578,9 @@ true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> set successful
 
 <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> <a href='undocumented#Color_Space'>Color Space</a> <a href='#SkBitmap_height'>height</a> <a href='#SkBitmap_rowBytes'>rowBytes</a> <a href='#SkBitmap_width'>width</a>
 
----
+<a name='SkBitmap_AllocFlags'></a>
 
-## <a name='SkBitmap_AllocFlags'>Enum SkBitmap::AllocFlags</a>
+---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkBitmap_AllocFlags'>AllocFlags</a> {
@@ -1636,12 +1607,13 @@ Instructs <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> and <a
 
 ### See Also
 
-<a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> <a href='#SkBitmap_allocPixelsFlags'>allocPixelsFlags</a> <a href='#SkBitmap_erase'>erase</a>() <a href='#SkBitmap_eraseColor'>eraseColor</a>
+<a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> <a href='#SkBitmap_allocPixelsFlags'>allocPixelsFlags</a> <a href='#SkBitmap_erase'>erase</a> <a href='#SkBitmap_eraseColor'>eraseColor</a>
 
-## <a name='Allocate'>Allocate</a>
+<a name='Allocate'></a>
 
 <a name='SkBitmap_tryAllocPixelsFlags'></a>
-## tryAllocPixelsFlags
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, uint32_t flags)
@@ -1692,10 +1664,9 @@ bitmap allocation succeeded!
 
 <a href='#SkBitmap_allocPixelsFlags'>allocPixelsFlags</a> <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a><sup><a href='#SkBitmap_tryAllocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_4'>[4]</a></sup> <a href='undocumented#SkMallocPixelRef_MakeZeroed'>SkMallocPixelRef::MakeZeroed</a>
 
----
-
 <a name='SkBitmap_allocPixelsFlags'></a>
-## allocPixelsFlags
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_allocPixelsFlags'>allocPixelsFlags</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, uint32_t flags)
@@ -1738,10 +1709,9 @@ lets the first draw show through.
 
 <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup> <a href='undocumented#SkMallocPixelRef_MakeZeroed'>SkMallocPixelRef::MakeZeroed</a>
 
----
-
 <a name='SkBitmap_tryAllocPixels'></a>
-## tryAllocPixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, size_t <a href='#SkBitmap_rowBytes'>rowBytes</a>)
@@ -1781,10 +1751,9 @@ true if pixel storage is allocated
 
 <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup> <a href='undocumented#SkMallocPixelRef_MakeAllocate'>SkMallocPixelRef::MakeAllocate</a>
 
----
-
 <a name='SkBitmap_allocPixels'></a>
-## allocPixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_allocPixels'>allocPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, size_t <a href='#SkBitmap_rowBytes'>rowBytes</a>)
@@ -1821,9 +1790,9 @@ implementation of malloc().
 
 <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a><sup><a href='#SkBitmap_tryAllocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_4'>[4]</a></sup> <a href='#SkBitmap_allocPixelsFlags'>allocPixelsFlags</a> <a href='undocumented#SkMallocPixelRef_MakeAllocate'>SkMallocPixelRef::MakeAllocate</a>
 
----
-
 <a name='SkBitmap_tryAllocPixels_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info)
@@ -1859,9 +1828,9 @@ true if pixel storage is allocated
 
 <a href='#SkBitmap_tryAllocPixelsFlags'>tryAllocPixelsFlags</a> <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup> <a href='undocumented#SkMallocPixelRef_MakeAllocate'>SkMallocPixelRef::MakeAllocate</a>
 
----
-
 <a name='SkBitmap_allocPixels_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_allocPixels'>allocPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info)
@@ -1894,10 +1863,9 @@ implementation of malloc().
 
 <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a><sup><a href='#SkBitmap_tryAllocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_4'>[4]</a></sup> <a href='#SkBitmap_allocPixelsFlags'>allocPixelsFlags</a> <a href='undocumented#SkMallocPixelRef_MakeAllocate'>SkMallocPixelRef::MakeAllocate</a>
 
----
-
 <a name='SkBitmap_tryAllocN32Pixels'></a>
-## tryAllocN32Pixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_tryAllocN32Pixels'>tryAllocN32Pixels</a>(int width, int height, bool <a href='#SkBitmap_isOpaque'>isOpaque</a> = false)
@@ -1940,10 +1908,9 @@ true if pixel storage is allocated
 
 <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a><sup><a href='#SkBitmap_tryAllocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_4'>[4]</a></sup> <a href='#SkBitmap_allocN32Pixels'>allocN32Pixels</a> <a href='undocumented#SkMallocPixelRef_MakeAllocate'>SkMallocPixelRef::MakeAllocate</a>
 
----
-
 <a name='SkBitmap_allocN32Pixels'></a>
-## allocN32Pixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_allocN32Pixels'>allocN32Pixels</a>(int width, int height, bool <a href='#SkBitmap_isOpaque'>isOpaque</a> = false)
@@ -1981,10 +1948,9 @@ the platform. <a href='#Bitmap'>Bitmap</a> drawn to output device skips converti
 
 <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup> <a href='#SkBitmap_tryAllocN32Pixels'>tryAllocN32Pixels</a> <a href='undocumented#SkMallocPixelRef_MakeAllocate'>SkMallocPixelRef::MakeAllocate</a>
 
----
-
 <a name='SkBitmap_installPixels'></a>
-## installPixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_installPixels'>installPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, void* pixels, size_t <a href='#SkBitmap_rowBytes'>rowBytes</a>, void (*releaseProc)
@@ -2048,9 +2014,9 @@ install not successful
 
 <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup>
 
----
-
 <a name='SkBitmap_installPixels_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_installPixels'>installPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, void* pixels, size_t <a href='#SkBitmap_rowBytes'>rowBytes</a>)
@@ -2092,9 +2058,9 @@ true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> is set to info
 
 <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup>
 
----
-
 <a name='SkBitmap_installPixels_3'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_installPixels'>installPixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& pixmap)
@@ -2130,10 +2096,9 @@ true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> was set to pix
 
 <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup>
 
----
-
 <a name='SkBitmap_installMaskPixels'></a>
-## installMaskPixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_installMaskPixels'>installMaskPixels</a>(const <a href='undocumented#SkMask'>SkMask</a>& mask)
@@ -2141,12 +2106,11 @@ bool <a href='#SkBitmap_installMaskPixels'>installMaskPixels</a>(const <a href='
 
 To be deprecated soon.
 
----
-
-## <a name='Pixels'>Pixels</a>
+<a name='Pixels'></a>
 
 <a name='SkBitmap_setPixels'></a>
-## setPixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_setPixels'>setPixels</a>(void* pixels)
@@ -2176,9 +2140,9 @@ of <a href='#Bitmap'>Bitmap</a> and <a href='undocumented#Pixel_Ref'>Pixel Ref</
 
 <a href='#SkBitmap_installPixels'>installPixels</a><sup><a href='#SkBitmap_installPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_installPixels_3'>[3]</a></sup> <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup>
 
----
-
 <a name='SkBitmap_tryAllocPixels_3'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a>()
@@ -2204,9 +2168,9 @@ and erases it to black, but does not alter set1. <a href='#SkBitmap_setPixels'>s
 
 <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup> <a href='#SkBitmap_installPixels'>installPixels</a><sup><a href='#SkBitmap_installPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_installPixels_3'>[3]</a></sup> <a href='#SkBitmap_setPixels'>setPixels</a>
 
----
-
 <a name='SkBitmap_allocPixels_3'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_allocPixels'>allocPixels</a>()
@@ -2230,9 +2194,9 @@ and erases it to black, but does not alter set1. <a href='#SkBitmap_setPixels'>s
 
 <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a><sup><a href='#SkBitmap_tryAllocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_tryAllocPixels_4'>[4]</a></sup> <a href='#SkBitmap_installPixels'>installPixels</a><sup><a href='#SkBitmap_installPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_installPixels_3'>[3]</a></sup> <a href='#SkBitmap_setPixels'>setPixels</a>
 
----
-
 <a name='SkBitmap_tryAllocPixels_4'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a>(<a href='#SkBitmap_Allocator'>Allocator</a>* allocator)
@@ -2267,9 +2231,9 @@ sufficient memory.
 
 <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup> <a href='#SkBitmap_Allocator'>Allocator</a> <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
 
----
-
 <a name='SkBitmap_allocPixels_4'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_allocPixels'>allocPixels</a>(<a href='#SkBitmap_Allocator'>Allocator</a>* allocator)
@@ -2297,10 +2261,9 @@ the user at compile time by defining SK_ABORT.
 
 <a href='#SkBitmap_allocPixels'>allocPixels</a><sup><a href='#SkBitmap_allocPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_allocPixels_3'>[3]</a></sup><sup><a href='#SkBitmap_allocPixels_4'>[4]</a></sup> <a href='#SkBitmap_Allocator'>Allocator</a> <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
 
----
-
 <a name='SkBitmap_pixelRef'></a>
-## pixelRef
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='undocumented#SkPixelRef'>SkPixelRef</a>* <a href='#SkBitmap_pixelRef'>pixelRef</a>() const
@@ -2323,10 +2286,9 @@ If <a href='undocumented#Pixel_Ref'>Pixel Ref</a> has not been set, returns null
 
 <a href='#SkBitmap_getPixels'>getPixels</a> <a href='#SkBitmap_getAddr'>getAddr</a>
 
----
-
 <a name='SkBitmap_pixelRefOrigin'></a>
-## pixelRefOrigin
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='#SkBitmap_pixelRefOrigin'>pixelRefOrigin</a>() const
@@ -2362,12 +2324,11 @@ subset origin: 32, 64
 
 <a href='undocumented#SkPixelRef'>SkPixelRef</a> <a href='#SkBitmap_getSubset'>getSubset</a> <a href='#SkBitmap_setPixelRef'>setPixelRef</a>
 
----
-
-## <a name='Set'>Set</a>
+<a name='Set'></a>
 
 <a name='SkBitmap_setPixelRef'></a>
-## setPixelRef
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_setPixelRef'>setPixelRef</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkPixelRef'>SkPixelRef</a>&gt; <a href='#SkBitmap_pixelRef'>pixelRef</a>, int dx, int dy)
@@ -2404,10 +2365,9 @@ The caller is responsible for ensuring that the pixels match the
 
 <a href='#SkBitmap_setInfo'>setInfo</a>
 
----
-
 <a name='SkBitmap_readyToDraw'></a>
-## readyToDraw
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_readyToDraw'>readyToDraw</a>() const
@@ -2427,10 +2387,9 @@ true if <a href='#SkBitmap_getPixels'>getPixels</a>() is not nullptr
 
 <a href='#SkBitmap_getPixels'>getPixels</a> <a href='#SkBitmap_drawsNothing'>drawsNothing</a>
 
----
-
 <a name='SkBitmap_getGenerationID'></a>
-## getGenerationID
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint32_t <a href='#SkBitmap_getGenerationID'>getGenerationID</a>() const
@@ -2465,10 +2424,9 @@ erase id 6
 
 <a href='#SkBitmap_notifyPixelsChanged'>notifyPixelsChanged</a> <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
 
----
-
 <a name='SkBitmap_notifyPixelsChanged'></a>
-## notifyPixelsChanged
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_notifyPixelsChanged'>notifyPixelsChanged</a>() const
@@ -2485,12 +2443,11 @@ Marks that pixels in <a href='undocumented#Pixel_Ref'>Pixel Ref</a> have changed
 
 <a href='#SkBitmap_getGenerationID'>getGenerationID</a> <a href='#SkBitmap_isVolatile'>isVolatile</a> <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
 
----
-
-## <a name='Draw'>Draw</a>
+<a name='Draw'></a>
 
 <a name='SkBitmap_eraseColor'></a>
-## eraseColor
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_eraseColor'>eraseColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> c) const
@@ -2516,10 +2473,9 @@ then RGB is ignored.
 
 <a href='#SkBitmap_eraseARGB'>eraseARGB</a> <a href='#SkBitmap_erase'>erase</a>
 
----
-
 <a name='SkBitmap_eraseARGB'></a>
-## eraseARGB
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_eraseARGB'>eraseARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> a, <a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b) const
@@ -2555,10 +2511,9 @@ then <a href='#SkBitmap_eraseARGB_r'>r</a>, <a href='#SkBitmap_eraseARGB_g'>g</a
 
 <a href='#SkBitmap_eraseColor'>eraseColor</a> <a href='#SkBitmap_erase'>erase</a>
 
----
-
 <a name='SkBitmap_erase'></a>
-## erase
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_erase'>erase</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> c, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& area) const
@@ -2589,10 +2544,9 @@ then RGB is ignored.
 
 <a href='#SkBitmap_eraseColor'>eraseColor</a> <a href='#SkBitmap_eraseARGB'>eraseARGB</a> <a href='SkCanvas_Reference#SkCanvas_drawRect'>SkCanvas::drawRect</a>
 
----
-
 <a name='SkBitmap_eraseArea'></a>
-## eraseArea
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_eraseArea'>eraseArea</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& area, <a href='SkColor_Reference#SkColor'>SkColor</a> c) const
@@ -2600,10 +2554,9 @@ void <a href='#SkBitmap_eraseArea'>eraseArea</a>(const <a href='SkIRect_Referenc
 
 Deprecated.
 
----
-
 <a name='SkBitmap_getColor'></a>
-## getColor
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkBitmap_getColor'>getColor</a>(int x, int y) const
@@ -2660,10 +2613,9 @@ Unpremultiplied:
 
 <a href='#SkBitmap_getAlphaf'>getAlphaf</a> <a href='#SkBitmap_getAddr'>getAddr</a> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup>
 
----
-
 <a name='SkBitmap_getAlphaf'></a>
-## getAlphaf
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 float <a href='#SkBitmap_getAlphaf'>getAlphaf</a>(int x, int y) const
@@ -2691,10 +2643,9 @@ alpha converted to normalized float
 
 <a href='#SkBitmap_getColor'>getColor</a>
 
----
-
 <a name='SkBitmap_getAddr'></a>
-## getAddr
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void* <a href='#SkBitmap_getAddr'>getAddr</a>(int x, int y) const
@@ -2739,10 +2690,9 @@ addr interval == rowBytes
 
 <a href='#SkBitmap_getAddr8'>getAddr8</a> <a href='#SkBitmap_getAddr16'>getAddr16</a> <a href='#SkBitmap_getAddr32'>getAddr32</a> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup> <a href='SkPixmap_Reference#SkPixmap_addr'>SkPixmap::addr</a><sup><a href='SkPixmap_Reference#SkPixmap_addr_2'>[2]</a></sup>
 
----
-
 <a name='SkBitmap_getAddr32'></a>
-## getAddr32
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint32_t* <a href='#SkBitmap_getAddr32'>getAddr32</a>(int x, int y) const
@@ -2793,10 +2743,9 @@ addr interval == rowBytes
 
 <a href='#SkBitmap_getAddr8'>getAddr8</a> <a href='#SkBitmap_getAddr16'>getAddr16</a> <a href='#SkBitmap_getAddr'>getAddr</a> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup> <a href='SkPixmap_Reference#SkPixmap_addr32'>SkPixmap::addr32</a><sup><a href='SkPixmap_Reference#SkPixmap_addr32_2'>[2]</a></sup>
 
----
-
 <a name='SkBitmap_getAddr16'></a>
-## getAddr16
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint16_t* <a href='#SkBitmap_getAddr16'>getAddr16</a>(int x, int y) const
@@ -2847,10 +2796,9 @@ addr interval == rowBytes
 
 <a href='#SkBitmap_getAddr8'>getAddr8</a> <a href='#SkBitmap_getAddr'>getAddr</a> <a href='#SkBitmap_getAddr32'>getAddr32</a> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup> <a href='SkPixmap_Reference#SkPixmap_addr16'>SkPixmap::addr16</a><sup><a href='SkPixmap_Reference#SkPixmap_addr16_2'>[2]</a></sup>
 
----
-
 <a name='SkBitmap_getAddr8'></a>
-## getAddr8
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 uint8_t* <a href='#SkBitmap_getAddr8'>getAddr8</a>(int x, int y) const
@@ -2901,10 +2849,9 @@ unsigned 8-bit pointer to pixel at (<a href='#SkBitmap_getAddr8_x'>x</a>, <a hre
 
 <a href='#SkBitmap_getAddr'>getAddr</a> <a href='#SkBitmap_getAddr16'>getAddr16</a> <a href='#SkBitmap_getAddr32'>getAddr32</a> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup> <a href='SkPixmap_Reference#SkPixmap_addr8'>SkPixmap::addr8</a><sup><a href='SkPixmap_Reference#SkPixmap_addr8_2'>[2]</a></sup>
 
----
-
 <a name='SkBitmap_extractSubset'></a>
-## extractSubset
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_extractSubset'>extractSubset</a>(<a href='#SkBitmap'>SkBitmap</a>* dst, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& subset) const
@@ -2972,10 +2919,9 @@ subset: 1000,  100, 1000,  200  success; false
 
 <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup> <a href='#SkBitmap_writePixels'>writePixels</a><sup><a href='#SkBitmap_writePixels_2'>[2]</a></sup> <a href='SkCanvas_Reference#SkCanvas_drawBitmap'>SkCanvas::drawBitmap</a>
 
----
-
 <a name='SkBitmap_readPixels'></a>
-## readPixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_readPixels'>readPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) const
@@ -3041,9 +2987,9 @@ creates visible banding.
 
 <a href='#SkBitmap_writePixels'>writePixels</a><sup><a href='#SkBitmap_writePixels_2'>[2]</a></sup> <a href='SkPixmap_Reference#SkPixmap_readPixels'>SkPixmap::readPixels</a><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_2'>[2]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_3'>[3]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_4'>[4]</a></sup> <a href='SkCanvas_Reference#SkCanvas_readPixels'>SkCanvas::readPixels</a><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_3'>[3]</a></sup> <a href='SkImage_Reference#SkImage_readPixels'>SkImage::readPixels</a><sup><a href='SkImage_Reference#SkImage_readPixels_2'>[2]</a></sup> <a href='SkSurface_Reference#SkSurface_readPixels'>SkSurface::readPixels</a><sup><a href='SkSurface_Reference#SkSurface_readPixels_2'>[2]</a></sup><sup><a href='SkSurface_Reference#SkSurface_readPixels_3'>[3]</a></sup>
 
----
-
 <a name='SkBitmap_readPixels_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_readPixels'>readPixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst, int srcX, int srcY) const
@@ -3101,9 +3047,9 @@ true if pixels are copied to <a href='#SkBitmap_readPixels_2_dst'>dst</a>
 
 <a href='#SkBitmap_writePixels'>writePixels</a><sup><a href='#SkBitmap_writePixels_2'>[2]</a></sup> <a href='SkPixmap_Reference#SkPixmap_readPixels'>SkPixmap::readPixels</a><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_2'>[2]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_3'>[3]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_4'>[4]</a></sup> <a href='SkCanvas_Reference#SkCanvas_readPixels'>SkCanvas::readPixels</a><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_3'>[3]</a></sup> <a href='SkImage_Reference#SkImage_readPixels'>SkImage::readPixels</a><sup><a href='SkImage_Reference#SkImage_readPixels_2'>[2]</a></sup> <a href='SkSurface_Reference#SkSurface_readPixels'>SkSurface::readPixels</a><sup><a href='SkSurface_Reference#SkSurface_readPixels_2'>[2]</a></sup><sup><a href='SkSurface_Reference#SkSurface_readPixels_3'>[3]</a></sup>
 
----
-
 <a name='SkBitmap_readPixels_3'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_readPixels'>readPixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst) const
@@ -3151,10 +3097,9 @@ true if pixels are copied to <a href='#SkBitmap_readPixels_3_dst'>dst</a>
 
 <a href='#SkBitmap_writePixels'>writePixels</a><sup><a href='#SkBitmap_writePixels_2'>[2]</a></sup> <a href='SkPixmap_Reference#SkPixmap_readPixels'>SkPixmap::readPixels</a><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_2'>[2]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_3'>[3]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_4'>[4]</a></sup> <a href='SkCanvas_Reference#SkCanvas_readPixels'>SkCanvas::readPixels</a><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_3'>[3]</a></sup> <a href='SkImage_Reference#SkImage_readPixels'>SkImage::readPixels</a><sup><a href='SkImage_Reference#SkImage_readPixels_2'>[2]</a></sup> <a href='SkSurface_Reference#SkSurface_readPixels'>SkSurface::readPixels</a><sup><a href='SkSurface_Reference#SkSurface_readPixels_2'>[2]</a></sup><sup><a href='SkSurface_Reference#SkSurface_readPixels_3'>[3]</a></sup>
 
----
-
 <a name='SkBitmap_writePixels'></a>
-## writePixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_writePixels'>writePixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& src, int dstX, int dstY)
@@ -3212,9 +3157,9 @@ true if <a href='#SkBitmap_writePixels_src'>src</a> pixels are copied to <a href
 
 <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup>
 
----
-
 <a name='SkBitmap_writePixels_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_writePixels'>writePixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& src)
@@ -3262,10 +3207,9 @@ true if <a href='#SkBitmap_writePixels_2_src'>src</a> pixels are copied to <a hr
 
 <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup>
 
----
-
 <a name='SkBitmap_hasHardwareMipMap'></a>
-## hasHardwareMipMap
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>() const
@@ -3281,10 +3225,9 @@ true if <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a> has be
 
 <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a>
 
----
-
 <a name='SkBitmap_setHasHardwareMipMap'></a>
-## setHasHardwareMipMap
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a>(bool <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>)
@@ -3303,10 +3246,9 @@ For use by Android framework only.
 
 <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>
 
----
-
 <a name='SkBitmap_extractAlpha'></a>
-## extractAlpha
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_extractAlpha'>extractAlpha</a>(<a href='#SkBitmap'>SkBitmap</a>* dst) const
@@ -3336,9 +3278,9 @@ true if <a href='SkColor_Reference#Alpha'>Alpha</a> layer was constructed in <a 
 
 <a href='#SkBitmap_extractSubset'>extractSubset</a>
 
----
-
 <a name='SkBitmap_extractAlpha_2'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_extractAlpha'>extractAlpha</a>(<a href='#SkBitmap'>SkBitmap</a>* dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint, <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>* offset) const
@@ -3377,9 +3319,9 @@ true if <a href='SkColor_Reference#Alpha'>Alpha</a> layer was constructed in <a 
 
 <a href='#SkBitmap_extractSubset'>extractSubset</a>
 
----
-
 <a name='SkBitmap_extractAlpha_3'></a>
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_extractAlpha'>extractAlpha</a>(<a href='#SkBitmap'>SkBitmap</a>* dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint, <a href='#SkBitmap_Allocator'>Allocator</a>* allocator, <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>* offset) const
@@ -3422,10 +3364,9 @@ true if <a href='SkColor_Reference#Alpha'>Alpha</a> layer was constructed in <a 
 
 <a href='#SkBitmap_extractSubset'>extractSubset</a>
 
----
-
 <a name='SkBitmap_peekPixels'></a>
-## peekPixels
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkBitmap_peekPixels'>peekPixels</a>(<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>* pixmap) const
@@ -3472,14 +3413,13 @@ x---x-
 
 ### See Also
 
-<a href='#SkBitmap_pixmap'>pixmap</a>() <a href='#SkBitmap_installPixels'>installPixels</a><sup><a href='#SkBitmap_installPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_installPixels_3'>[3]</a></sup> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup> <a href='#SkBitmap_writePixels'>writePixels</a><sup><a href='#SkBitmap_writePixels_2'>[2]</a></sup>
+<a href='#SkBitmap_pixmap'>pixmap</a> <a href='#SkBitmap_installPixels'>installPixels</a><sup><a href='#SkBitmap_installPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_installPixels_3'>[3]</a></sup> <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup> <a href='#SkBitmap_writePixels'>writePixels</a><sup><a href='#SkBitmap_writePixels_2'>[2]</a></sup>
 
----
-
-## <a name='Utility'>Utility</a>
+<a name='Utility'></a>
 
 <a name='SkBitmap_validate'></a>
-## validate
+
+---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 void <a href='#SkBitmap_validate'>validate</a>() const;
@@ -3491,6 +3431,4 @@ SK_DEBUG is defined at compile time.
 ### See Also
 
 <a href='SkImageInfo_Reference#SkImageInfo_validate'>SkImageInfo::validate</a>
-
----
 
