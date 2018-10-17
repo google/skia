@@ -16,6 +16,24 @@
       "revId": "4eb3b6c85fb1a77d0a641f7eba6651463d5fd09c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e83c7adf_f1fda9c3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-10-17T16:22:01Z",
+      "side": 1,
+      "message": "Shall we...\n\n   1) put back the GM\n   2) make sure it looks ok\n   3) remove the subpixel feature\n   4) make sure it looks ok\n   5) remove the GM\n\n?",
+      "parentUuid": "8aa2da45_71834a6c",
+      "revId": "4eb3b6c85fb1a77d0a641f7eba6651463d5fd09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
