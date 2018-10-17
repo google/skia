@@ -142,7 +142,7 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
             std::vector<sksg::Merge::Rec> merge_recs;
             merge_recs.reserve(SkToSizeT(mask_stack.count()));
 
-            for (const auto& mask : mask_stack) {
+            for (auto& mask : mask_stack) {
                 const auto mode = merge_recs.empty() ? sksg::Merge::Mode::kMerge : mask.merge_mode;
                 merge_recs.push_back({std::move(mask.mask_path), mode});
             }
@@ -160,7 +160,7 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     } else {
         std::vector<sk_sp<sksg::RenderNode>> masks;
         masks.reserve(SkToSizeT(mask_stack.count()));
-        for (const auto& rec : mask_stack) {
+        for (auto& rec : mask_stack) {
             masks.push_back(sksg::Draw::Make(std::move(rec.mask_path),
                                              std::move(rec.mask_paint)));
         }
