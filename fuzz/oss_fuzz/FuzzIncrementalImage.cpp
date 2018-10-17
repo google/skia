@@ -9,7 +9,7 @@
 #include "SkCodec.h"
 #include "SkData.h"
 
-bool FuzzIncrementalImage(sk_sp<SkData> bytes) {
+bool FuzzIncrementalImageDecode(sk_sp<SkData> bytes) {
     auto codec = SkCodec::MakeFromData(bytes);
     if (!codec) {
         return false;
@@ -48,7 +48,7 @@ bool FuzzIncrementalImage(sk_sp<SkData> bytes) {
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzIncrementalImage(bytes);
+    FuzzIncrementalImageDecode(bytes);
     return 0;
 }
 #endif
