@@ -311,6 +311,8 @@ public:
                const GrVkRenderPass* compatibleRenderPass);
     void end(const GrVkGpu* gpu);
 
+    VkCommandBuffer vkCommandBuffer() { return fCmdBuffer; }
+
 #ifdef SK_TRACE_VK_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkSecondaryCommandBuffer: %d (%d refs)\n", fCmdBuffer, this->getRefCnt());
