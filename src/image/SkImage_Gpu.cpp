@@ -149,8 +149,8 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
             ct = kAlpha_8_SkColorType;
         } else {
             // The UV planes can either be interleaved or planar. If interleaved the Y plane
-            // will have RBGA color type.
-            ct = nv12 ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
+            // should have A8 color type but may be RGBA. We fall back in the latter case below.
+            ct = nv12 && SkYUVAIndex::kY_Index != i ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
         }
 
         if (!yuvaTexturesCopy[yuvaIndex.fIndex].isValid()) {
@@ -161,7 +161,12 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
             if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[yuvaIndex.fIndex],
                                         &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig,
                                         ct, kPremul_SkAlphaType, nullptr)) {
-                return nullptr;
+                // Try RGBA in case the assumed colortype is wrong
+                if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[yuvaIndex.fIndex],
+                                            &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig,
+                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr)) {
+                    return nullptr;
+                }
             }
         }
 
