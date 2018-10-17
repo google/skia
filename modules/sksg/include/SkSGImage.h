@@ -33,7 +33,7 @@ public:
 protected:
     explicit Image(sk_sp<SkImage>);
 
-    void onRender(SkCanvas*, const RenderContext*) const override;
+    void onRender(SGCanvas*, const RenderContext*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 

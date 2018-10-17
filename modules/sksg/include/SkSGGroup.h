@@ -37,7 +37,7 @@ protected:
     explicit Group(std::vector<sk_sp<RenderNode>>);
     ~Group() override;
 
-    void onRender(SkCanvas*, const RenderContext*) const override;
+    void onRender(SGCanvas*, const RenderContext*) const override;
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:

@@ -7,7 +7,7 @@
 
 #include "SkSGScene.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkSGInvalidationController.h"
@@ -41,7 +41,7 @@ Scene::Scene(sk_sp<RenderNode> root, AnimatorList&& animators)
 
 Scene::~Scene() = default;
 
-void Scene::render(SkCanvas* canvas) const {
+void Scene::render(SGCanvas* canvas) const {
     InvalidationController ic;
     fRoot->revalidate(&ic, SkMatrix::I());
     fRoot->render(canvas);

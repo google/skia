@@ -13,7 +13,6 @@
 
 #include <vector>
 
-class SkCanvas;
 class SkMatrix;
 
 namespace sksg {

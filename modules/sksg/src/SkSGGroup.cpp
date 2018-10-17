@@ -47,7 +47,7 @@ void Group::removeChild(const sk_sp<RenderNode>& node) {
     this->invalidate();
 }
 
-void Group::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+void Group::onRender(SGCanvas* canvas, const RenderContext* ctx) const {
     // TODO: this heuristic works at the moment, but:
     //   a) it is fragile because it relies on all leaf render nodes being atomic draws
     //   b) could be improved by e.g. detecting all leaf render draws are non-overlapping

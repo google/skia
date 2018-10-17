@@ -14,7 +14,7 @@
 #include <memory>
 #include <vector>
 
-class SkCanvas;
+class SGCanvas;
 
 namespace sksg {
 
@@ -65,7 +65,7 @@ public:
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
 
-    void render(SkCanvas*) const;
+    void render(SGCanvas*) const;
     void animate(float t);
 
     void setShowInval(bool show) { fShowInval = show; }

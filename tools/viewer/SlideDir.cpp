@@ -72,7 +72,7 @@ protected:
         return SkRect::MakeIWH(isize.width(), isize.height());
     }
 
-    void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
+    void onRender(SGCanvas* canvas, const RenderContext* ctx) const override {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->clipRect(SkRect::Make(fSlide->getDimensions()), true);
 
@@ -348,7 +348,7 @@ SkISize SlideDir::getDimensions() const {
 }
 
 void SlideDir::draw(SkCanvas* canvas) {
-    fScene->render(canvas);
+    fScene->render((SGCanvas*)canvas);
 }
 
 bool SlideDir::animate(const SkAnimTimer& timer) {

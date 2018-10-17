@@ -27,7 +27,7 @@ public:
 protected:
     OpacityEffect(sk_sp<RenderNode>, float);
 
-    void onRender(SkCanvas*, const RenderContext*) const override;
+    void onRender(SGCanvas*, const RenderContext*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 

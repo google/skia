@@ -13,7 +13,7 @@ OpacityEffect::OpacityEffect(sk_sp<RenderNode> child, float opacity)
     : INHERITED(std::move(child))
     , fOpacity(opacity) {}
 
-void OpacityEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+void OpacityEffect::onRender(SGCanvas* canvas, const RenderContext* ctx) const {
     // opacity <= 0 disables rendering
     if (fOpacity <= 0)
         return;

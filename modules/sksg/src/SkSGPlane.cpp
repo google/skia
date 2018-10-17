@@ -7,16 +7,16 @@
 
 #include "SkSGPlane.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkPath.h"
 
 namespace sksg {
 
 Plane::Plane() = default;
 
-void Plane::onClip(SkCanvas*, bool) const {}
+void Plane::onClip(SGCanvas*, bool) const {}
 
-void Plane::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+void Plane::onDraw(SGCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPaint(paint);
 }
 
