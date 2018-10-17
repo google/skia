@@ -44,6 +44,8 @@
       "[CLEANUP]/bot_update",
       "--output_json",
       "/path/to/tmp/json",
+      "--patch_ref",
+      "https://skia.googlesource.com/skia.git@89/456789/12",
       "--revision",
       "skia@abc123"
     ],
@@ -112,10 +114,10 @@
     "cmd": [
       "python",
       "-u",
-      "import errno\nimport os\nimport shutil\nimport sys\n\ncopy_dest = sys.argv[1]\nbase_dir = sys.argv[2]\nbundle_name = sys.argv[3]\nout_dir = sys.argv[4]\n\n# Clean out old binaries (if any)\ntry:\n  shutil.rmtree(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.ENOENT:\n    raise\n\n# Make folder\ntry:\n  os.makedirs(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\n# Copy binaries (pathkit.js and pathkit.wasm) to where the karma tests\n# expect them ($SKIA_ROOT/modules/pathkit/npm-wasm/bin/)\ndest = os.path.join(copy_dest, 'pathkit.js')\nshutil.copyfile(os.path.join(base_dir, 'pathkit.js'), dest)\nos.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\nif bundle_name:\n  dest = os.path.join(copy_dest, bundle_name)\n  shutil.copyfile(os.path.join(base_dir, bundle_name), dest)\n  os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\n# Prepare output folder, api.file.ensure_directory doesn't touch\n# the permissions of the out directory if it already exists.\nos.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.\n",
-      "[START_DIR]/cache/work/skia/modules/pathkit/npm-asmjs/bin",
+      "import errno\nimport os\nimport shutil\nimport sys\n\ncopy_dest = sys.argv[1]\nbase_dir = sys.argv[2]\nbundle_name = sys.argv[3]\nout_dir = sys.argv[4]\n\n# Clean out old binaries (if any)\ntry:\n  shutil.rmtree(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.ENOENT:\n    raise\n\n# Make folder\ntry:\n  os.makedirs(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\n# Copy binaries (canvaskit.js and canvaskit.wasm) to where the karma tests\n# expect them ($SKIA_ROOT/experimental/canvaskit/canvaskit/bin/)\ndest = os.path.join(copy_dest, 'canvaskit.js')\nshutil.copyfile(os.path.join(base_dir, 'canvaskit.js'), dest)\nos.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\nif bundle_name:\n  dest = os.path.join(copy_dest, bundle_name)\n  shutil.copyfile(os.path.join(base_dir, bundle_name), dest)\n  os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\n# Prepare output folder, api.file.ensure_directory doesn't touch\n# the permissions of the out directory if it already exists.\nos.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.\n",
+      "[START_DIR]/cache/work/skia/experimental/canvaskit/canvaskit/bin",
       "[START_DIR]/build",
-      "pathkit.js.mem",
+      "canvaskit.wasm",
       "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
@@ -145,10 +147,10 @@
       "@@@STEP_LOG_LINE@python.inline@  if e.errno != errno.EEXIST:@@@",
       "@@@STEP_LOG_LINE@python.inline@    raise@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Copy binaries (pathkit.js and pathkit.wasm) to where the karma tests@@@",
-      "@@@STEP_LOG_LINE@python.inline@# expect them ($SKIA_ROOT/modules/pathkit/npm-wasm/bin/)@@@",
-      "@@@STEP_LOG_LINE@python.inline@dest = os.path.join(copy_dest, 'pathkit.js')@@@",
-      "@@@STEP_LOG_LINE@python.inline@shutil.copyfile(os.path.join(base_dir, 'pathkit.js'), dest)@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Copy binaries (canvaskit.js and canvaskit.wasm) to where the karma tests@@@",
+      "@@@STEP_LOG_LINE@python.inline@# expect them ($SKIA_ROOT/experimental/canvaskit/canvaskit/bin/)@@@",
+      "@@@STEP_LOG_LINE@python.inline@dest = os.path.join(copy_dest, 'canvaskit.js')@@@",
+      "@@@STEP_LOG_LINE@python.inline@shutil.copyfile(os.path.join(base_dir, 'canvaskit.js'), dest)@@@",
       "@@@STEP_LOG_LINE@python.inline@os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@if bundle_name:@@@",
@@ -200,12 +202,10 @@
       "[START_DIR]/cache/work:/SRC",
       "--volume",
       "[START_DIR]/[SWARM_OUT_DIR]:/OUT",
-      "--env",
-      "ASM_JS=1",
       "gcr.io/skia-public/perf-karma-chrome-tests:68.0.3440.106_v6",
-      "/SRC/skia/infra/pathkit/perf_pathkit.sh",
+      "/SRC/skia/infra/canvaskit/perf_canvaskit.sh",
       "--builder",
-      "Perf-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit",
+      "Perf-Debian9-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
       "--git_hash",
       "abc123",
       "--buildbucket_build_id",
@@ -219,15 +219,19 @@
       "--config",
       "Release",
       "--source_type",
-      "pathkit",
-      "--compiled_language",
-      "asmjs"
+      "canvaskit",
+      "--issue",
+      "1234",
+      "--patchset",
+      "7",
+      "--patch_storage",
+      "gerrit"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
-    "name": "Performance tests of PathKit with Docker"
+    "name": "Performance tests of canvaskit with Docker"
   },
   {
     "name": "$result",
