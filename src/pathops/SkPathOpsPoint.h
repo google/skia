@@ -100,7 +100,9 @@ struct SkDPoint {
         fY = pt.fY;
     }
 
-    friend SkDVector operator-(const SkDPoint& a, const SkDPoint& b);
+    friend SkDVector operator-(const SkDPoint& a, const SkDPoint& b) {
+        return { a.fX - b.fX, a.fY - b.fY };
+    }
 
     friend bool operator==(const SkDPoint& a, const SkDPoint& b) {
         return a.fX == b.fX && a.fY == b.fY;

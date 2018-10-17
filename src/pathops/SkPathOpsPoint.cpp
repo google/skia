@@ -6,7 +6,9 @@
  */
 #include "SkPathOpsPoint.h"
 
+#if 0
 SkDVector operator-(const SkDPoint& a, const SkDPoint& b) {
     SkDVector v = {a.fX - b.fX, a.fY - b.fY};
     return v;
 }
+#endif
