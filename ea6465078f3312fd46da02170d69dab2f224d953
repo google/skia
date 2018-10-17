@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e50a2b3d_72fedc01",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-10-17T02:32:56Z",
+      "side": 1,
+      "message": "I\u0027m guessing you want me to use the braces? Done.",
+      "parentUuid": "51a000c5_790437f9",
+      "range": {
+        "startLine": 410,
+        "startChar": 8,
+        "endLine": 410,
+        "endChar": 12
+      },
+      "revId": "ea6465078f3312fd46da02170d69dab2f224d953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5365b87_89ec44b6",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 1
