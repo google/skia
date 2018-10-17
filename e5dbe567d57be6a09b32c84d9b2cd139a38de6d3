@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a3ee2cfc_9c30aa50",
+        "filename": "experimental/canvaskit/compile.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-17T12:30:34Z",
+      "side": 1,
+      "message": "AAAFillPath got stripped, but DAA did not.  On close inspection, tt might be because this if might be true (if daaRecord):\nhttps://github.com/google/skia/blob/483536c242f33e229cb9feceb26c771c17bb7e89/src/core/SkScan_AntiPath.cpp#L839\n\nIn practice, it appears that daarecord is always nullptr unless DAAFillPath changes it. Perhaps the enscripten compiler isn\u0027t smart enough to see that.",
+      "parentUuid": "f787e5d3_0a4b241b",
+      "range": {
+        "startLine": 38,
+        "startChar": 44,
+        "endLine": 38,
+        "endChar": 77
+      },
+      "revId": "e5dbe567d57be6a09b32c84d9b2cd139a38de6d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64749d7f_c224afc7",
         "filename": "experimental/canvaskit/tests/path.spec.js",
         "patchSetId": 5
