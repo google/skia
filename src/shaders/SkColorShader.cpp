@@ -31,10 +31,12 @@ uint32_t SkColorShader::ColorShaderContext::getFlags() const {
     return fFlags;
 }
 
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkColorShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
     return alloc->make<ColorShaderContext>(*this, rec);
 }
+#endif
 
 SkColorShader::ColorShaderContext::ColorShaderContext(const SkColorShader& shader,
                                                       const ContextRec& rec)
@@ -146,10 +148,12 @@ uint32_t SkColor4Shader::Color4Context::getFlags() const {
     return fFlags;
 }
 
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkColor4Shader::onMakeContext(const ContextRec& rec,
                                                      SkArenaAlloc* alloc) const {
     return alloc->make<Color4Context>(*this, rec);
 }
+#endif
 
 SkColor4Shader::Color4Context::Color4Context(const SkColor4Shader& shader,
                                                       const ContextRec& rec)

@@ -84,7 +84,9 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+#endif
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
@@ -450,6 +452,7 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
     }
 }
 
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkLightingShaderImpl::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
@@ -468,6 +471,7 @@ SkShaderBase::Context* SkLightingShaderImpl::onMakeContext(
 
     return alloc->make<LightingShaderContext>(*this, rec, diffuseContext, normalProvider, nullptr);
 }
+#endif
 
 sk_sp<SkShader> SkLightingShaderImpl::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     sk_sp<SkShader> xformedDiffuseShader =

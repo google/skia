@@ -81,9 +81,11 @@ public:
     Factory getFactory() const override { SK_ABORT("not reached"); return nullptr; }
 
 protected:
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
         return nullptr;
     }
+#endif
     bool onAppendStages(const StageRec& rec) const override {
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
         rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);

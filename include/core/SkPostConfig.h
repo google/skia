@@ -296,4 +296,8 @@
 #  define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
 #endif
 
+#ifndef SK_DISABLE_LEGACY_SHADERCONTEXT
+#define SK_ENABLE_LEGACY_SHADERCONTEXT
+#endif
+
 #endif // SkPostConfig_DEFINED

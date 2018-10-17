@@ -205,6 +205,7 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     /**
      * Specialize creating a SkShader context using the supplied allocator.
      * @return pointer to context owned by the arena allocator.
@@ -219,6 +220,7 @@ protected:
     virtual Context* onMakeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const {
         return nullptr;
     }
+#endif
 
     virtual bool onAsLuminanceColor(SkColor*) const {
         return false;
