@@ -55,7 +55,9 @@ public:
 protected:
     SkColorShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
+#endif
 
     bool onAsLuminanceColor(SkColor* lum) const override {
         *lum = fColor;
@@ -110,7 +112,9 @@ public:
 protected:
     SkColor4Shader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+#endif
     bool onAsLuminanceColor(SkColor* lum) const override {
         *lum = fCachedByteColor;
         return true;
