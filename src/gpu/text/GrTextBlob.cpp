@@ -196,8 +196,10 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
             return true;
         }
 
-        if (!anyRunHasSubpixelPosition) {
-            // We can update the positions in the cachedtextblobs without regenerating the whole
+        // If the text blob only has full pixel glyphs, then fractional part of the position does
+        // not affect the SkGlyphs used.
+        if (anyRunHasSubpixelPosition) {
+            // We can update the positions in the text blob without regenerating the whole
             // blob, but only for integer translations.
             // This cool bit of math will determine the necessary translation to apply to the
             // already generated vertex coordinates to move them to the correct position.
