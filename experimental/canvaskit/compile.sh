@@ -22,7 +22,6 @@ EMCXX=`which em++`
 
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE"
 EXTRA_CFLAGS="\"-DSK_RELEASE\""
-
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
@@ -35,7 +34,9 @@ fi
 mkdir -p $BUILD_DIR
 
 GN_GPU="skia_enable_gpu=true"
-WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 --pre-js $BASE_DIR/gpu.js"
+GN_GPU_FLAGS="\"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_DAA\", \"-DIS_WEBGL=1\","
+WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 -DSK_DISABLE_AAA -DSK_DISABLE_DAA \
+          --pre-js $BASE_DIR/gpu.js"
 if [[ $@ == *cpu* ]]; then
   echo "Using the CPU backend instead of the GPU backend"
   GN_GPU="skia_enable_gpu=false"
@@ -84,7 +85,8 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
-    \"-DIS_WEBGL=1\", \"-DSKNX_NO_SIMD\",
+    \"-DSKNX_NO_SIMD\",
+    ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
   ] \
   is_debug=false \

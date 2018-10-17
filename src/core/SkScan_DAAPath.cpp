@@ -24,6 +24,13 @@
 #include "SkTemplates.h"
 #include "SkUTF.h"
 
+#if defined(SK_DISABLE_DAA)
+void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
+                         const SkIRect& clipBounds, bool forceRLE, SkDAARecord* record) {
+    SkDEBUGFAIL("DAA Disabled");
+    return;
+}
+#else
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -384,3 +391,4 @@ void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
         }
     }
 }
+#endif //defined(SK_DISABLE_DAA)
