@@ -33,6 +33,9 @@ struct <a href='#SkRGBA4f'>SkRGBA4f</a> {
     static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_FromPMColor'>FromPMColor</a>(<a href='SkColor_Reference#SkPMColor'>SkPMColor</a>);
     <a href='#SkRGBA4f'>SkRGBA4f</a><<a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>> <a href='#SkRGBA4f_premul'>premul</a>() const;
     <a href='#SkRGBA4f'>SkRGBA4f</a><<a href='SkImageInfo_Reference#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a>> <a href='#SkRGBA4f_unpremul'>unpremul</a>() const;
+    uint32_t toBytes_RGBA() const;
+    static <a href='#SkRGBA4f'>SkRGBA4f</a> FromBytes_RGBA(uint32_t color);
+    <a href='#SkRGBA4f'>SkRGBA4f</a> makeOpaque() const;
 };
 </pre>
 
