@@ -754,6 +754,7 @@ class Sk3DShader : public SkShaderBase {
 public:
     Sk3DShader(sk_sp<SkShader> proxy) : fProxy(std::move(proxy)) {}
 
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
         SkShaderBase::Context* proxyContext = nullptr;
         if (fProxy) {
@@ -764,6 +765,7 @@ public:
         }
         return alloc->make<Sk3DShaderContext>(*this, rec, proxyContext);
     }
+#endif
 
     class Sk3DShaderContext : public Context {
     public:
@@ -1068,10 +1070,10 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         // if there is one, the shader will take care of it.
     }
 
+    SkShaderBase::Context* shaderContext = nullptr;
     /*
      *  We create a SkShader::Context object, and store it on the blitter.
      */
-    SkShaderBase::Context* shaderContext = nullptr;
     if (shader) {
         const SkShaderBase::ContextRec rec(*legacyPaint, matrix, nullptr, device.colorSpace());
         // Try to create the ShaderContext

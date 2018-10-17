@@ -35,6 +35,7 @@ void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fProxyShader.get());
 }
 
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
@@ -48,6 +49,7 @@ SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(
 
     return as_SB(fProxyShader)->makeContext(newRec, alloc);
 }
+#endif
 
 SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, enum TileMode* mode) const {
     SkMatrix imageMatrix;

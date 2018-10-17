@@ -369,7 +369,9 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+#endif
 
 private:
     const SkPerlinNoiseShaderImpl::Type fType;
@@ -646,10 +648,12 @@ SkPMColor SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::shade(
     return SkPreMultiplyARGB(rgba[3], rgba[0], rgba[1], rgba[2]);
 }
 
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkPerlinNoiseShaderImpl::onMakeContext(const ContextRec& rec,
                                                               SkArenaAlloc* alloc) const {
     return alloc->make<PerlinNoiseShaderContext>(*this, rec);
 }
+#endif
 
 static inline SkMatrix total_matrix(const SkShaderBase::ContextRec& rec,
                                     const SkShaderBase& shader) {
