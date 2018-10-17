@@ -11,9 +11,11 @@
 #include "SkFlattenable.h"
 #include "SkScalar.h"
 
+class GrBackendDrawableInfo;
 class SkCanvas;
 class SkMatrix;
 class SkPicture;
+enum class GrBackendApi : unsigned;
 struct SkRect;
 
 /**
@@ -25,8 +27,6 @@ struct SkRect;
  */
 class SK_API SkDrawable : public SkFlattenable {
 public:
-    SkDrawable();
-
     /**
      *  Draws into the specified content. The drawing sequence will be balanced upon return
      *  (i.e. the saveLevel() on the canvas will match what it was when draw() was called,
@@ -34,6 +34,42 @@ public:
      */
     void draw(SkCanvas*, const SkMatrix* = nullptr);
     void draw(SkCanvas*, SkScalar x, SkScalar y);
+
+    /**
+     *  This class is used for when we want to draw the SkDrawble with the GPU backend and have the
+     *  drawables backend specfic draws executed inline with the Skia's normal gpu draws. Since the
+     *  GPU backend will defer when it actually calls the draw function, we must snap this helper
+     *  class off of the SkDrawable since the SkDrawable itself is allowed to be mutable.
+     *
+     *  When the GPU backend flushes its work to the GPU it will call the draw method on the
+     *  GpuDrawHandler and pass in a GrBackendDrawableInfo. See GrBackendDrawableInfo for more
+     *  specific details on what information is sent and requirements for different backend APIs.
+     *
+     *  Additionaly there may be a slightly delay from when the draw call is called during flush and
+     *  when the actual work is submitted to the GPU. Thus the SkDrawable or GpuDrawHanlder is
+     *  required to keep any resources that are used during the draw call alive and valid until we
+     *  delete the GpuDrawHandler. The GpuDrawHandler will get deleted as soon as the work is
+     *  submitted to the GPU. Therefore the dtor should be overriden to handle any work that needs
+     *  to happen post submission to the GPU.
+     *
+     *  Currently this is only supported for the GPU Vulkan backend.
+     */
+
+    class GpuDrawHandler {
+    public:
+        virtual ~GpuDrawHandler() {}
+
+        virtual void draw(const GrBackendDrawableInfo&) {}
+    };
+
+    /**
+     * Snaps off a GpuDrawHandler to represent the state of the SkDrawable at the time the snap is
+     * called. This is used for executing gpu backend specific draws intermix with normal skia gpu
+     * draws.
+     */
+    std::unique_ptr<GpuDrawHandler> snapGpuDrawHandler(GrBackendApi backendApi) {
+        return this->onSnapGpuDrawHandler(backendApi);
+    }
 
     SkPicture* newPictureSnapshot();
 
@@ -78,8 +114,14 @@ public:
     Factory getFactory() const override { return nullptr; }
 
 protected:
+    SkDrawable();
+
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
+
+    virtual std::unique_ptr<GpuDrawHandler> onSnapGpuDrawHandler(GrBackendApi) {
+        return nullptr;
+    }
 
     /**
      *  Default implementation calls onDraw() with a canvas that records into a picture. Subclasses

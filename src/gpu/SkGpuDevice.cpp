@@ -1693,6 +1693,19 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkCanvas* canvas) {
+    GrBackendApi api = this->context()->contextPriv().getBackend();
+    if (GrBackendApi::kVulkan == api) {
+        if (std::unique_ptr<SkDrawable::GpuDrawHandler> gpuDraw = drawable->snapGpuDrawHandler(api)) {
+            // TODO: send the gpuDraw to the renderTargetContext and make an Op out of it
+            // return;
+        }
+    }
+    this->INHERITED::drawDrawable(drawable, matrix, canvas);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkGpuDevice::flush() {
     this->flushAndSignalSemaphores(0, nullptr);
 }
