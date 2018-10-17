@@ -71,7 +71,7 @@ public:
     void <a href='#SkPath_updateBoundsCache'>updateBoundsCache</a>() const;
     <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPath_computeTightBounds'>computeTightBounds</a>() const;
     bool <a href='#SkPath_conservativelyContainsRect'>conservativelyContainsRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect) const;
-    void <a href='#SkPath_incReserve'>incReserve</a>(unsigned extraPtCount);
+    void <a href='#SkPath_incReserve'>incReserve</a>(int extraPtCount);
     void <a href='#SkPath_shrinkToFit'>shrinkToFit</a>();
     <a href='#SkPath'>SkPath</a>& <a href='#SkPath_moveTo'>moveTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y);
     <a href='#SkPath'>SkPath</a>& <a href='#SkPath_moveTo_2'>moveTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p);
@@ -2004,7 +2004,7 @@ true if <a href='#SkPath_conservativelyContainsRect_rect'>rect</a> is contained
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_incReserve'>incReserve</a>(unsigned extraPtCount)
+void <a href='#SkPath_incReserve'>incReserve</a>(int extraPtCount)
 </pre>
 
 Grows <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> and <a href='#Point_Array'>Point Array</a> to contain <a href='#SkPath_incReserve_extraPtCount'>extraPtCount</a> additional <a href='SkPoint_Reference#Point'>Points</a>.
