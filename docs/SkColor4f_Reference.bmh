@@ -424,6 +424,47 @@ Returns SkRGBA4f with all components independent of Alpha.
 
 #Method ##
 
+#Method uint32_t toBytes_RGBA() const
+#In Utility
+#Line # returns kRGBA_8888_SkColorType color ##
+
+Produces bytes in RGBA order. Component values are not affected by color Alpha.
+
+#Return color ##
+
+#NoExample
+##
+
+#Method ##
+
+#Method static SkRGBA4f FromBytes_RGBA(uint32_t color)
+#In Utility
+#Line # sets kRGBA_8888_SkColorType color ##
+
+Returns from color kRGBA_8888_SkColorType order. Component values are
+not affected by color Alpha.
+
+#Param color  Premultiplied or Unpremultiplied ##
+#Return color ##
+
+#NoExample
+##
+
+#Method ##
+
+#Method SkRGBA4f makeOpaque() const
+#In Utility
+#Line # returns color without transparency ##
+
+Returns color with Alpha set to one.
+
+#Return color ##
+
+#NoExample
+##
+
+#Method ##
+
 #Struct ##
 
 #Typedef SkRGBA4f SkColor4f
