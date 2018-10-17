@@ -210,8 +210,7 @@ static SkGlyphID first_nonzero_glyph_for_single_byte_encoding(SkGlyphID gid) {
 
 static bool has_outline_glyph(SkGlyphID gid, SkGlyphCache* cache) {
     const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
-    const SkPath* path = cache->findPath(glyph);
-    return (path && !path->isEmpty()) || (glyph.fWidth == 0 && glyph.fHeight == 0);
+    return glyph.isEmpty() || cache->findPath(glyph);
 }
 
 sk_sp<SkPDFFont> SkPDFFont::GetFontResource(SkPDFCanon* canon,
