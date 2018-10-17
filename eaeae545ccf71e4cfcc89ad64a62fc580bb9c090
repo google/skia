@@ -16,6 +16,24 @@
       "revId": "eaeae545ccf71e4cfcc89ad64a62fc580bb9c090",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5f593e6_81716cc4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-10-17T14:29:44Z",
+      "side": 1,
+      "message": "Maybe chrome will never want to remove this... but it would be nice down the road.\n\nI guess we just need to write a pipeline for perlin. Android is (in theory) on track to drop emboss, so maybe we can just wait that one out.",
+      "parentUuid": "a9a08eaa_c0ee4093",
+      "revId": "eaeae545ccf71e4cfcc89ad64a62fc580bb9c090",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
