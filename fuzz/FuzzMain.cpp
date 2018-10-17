@@ -45,11 +45,13 @@ DEFINE_bool2(verbose, v, false, "Print more information while fuzzing.");
 
 // This cannot be inlined in DEFINE_string2 due to interleaved ifdefs
 static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
+                                         "android_codec\n"
                                          "animated_image_decode\n"
                                          "api\n"
                                          "color_deserialize\n"
                                          "filter_fuzz (equivalent to Chrome's filter_fuzz_stub)\n"
                                          "image_decode\n"
+                                         "image_decode_incremental\n"
                                          "image_mode\n"
                                          "image_scale\n"
                                          "json\n"
@@ -69,11 +71,13 @@ static int fuzz_file(SkString path, SkString type);
 static uint8_t calculate_option(SkData*);
 static SkString try_auto_detect(SkString path, SkString* name);
 
+static void fuzz_android_codec(sk_sp<SkData>);
+static void fuzz_animated_img(sk_sp<SkData>);
 static void fuzz_api(sk_sp<SkData> bytes, SkString name);
 static void fuzz_color_deserialize(sk_sp<SkData>);
 static void fuzz_filter_fuzz(sk_sp<SkData>);
-static void fuzz_img2(sk_sp<SkData>);
-static void fuzz_animated_img(sk_sp<SkData>);
+static void fuzz_image_decode(sk_sp<SkData>);
+static void fuzz_image_decode_incremental(sk_sp<SkData>);
 static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_json(sk_sp<SkData>);
 static void fuzz_path_deserialize(sk_sp<SkData>);
@@ -135,7 +139,10 @@ static int fuzz_file(SkString path, SkString type) {
         SkDebugf("Could not autodetect type of %s\n", path.c_str());
         return 1;
     }
-
+    if (type.equals("android_codec")) {
+        fuzz_android_codec(bytes);
+        return 0;
+    }
     if (type.equals("animated_image_decode")) {
         fuzz_animated_img(bytes);
         return 0;
@@ -153,7 +160,11 @@ static int fuzz_file(SkString path, SkString type) {
         return 0;
     }
     if (type.equals("image_decode")) {
-        fuzz_img2(bytes);
+        fuzz_image_decode(bytes);
+        return 0;
+    }
+    if (type.equals("image_decode_incremental")) {
+        fuzz_image_decode_incremental(bytes);
         return 0;
     }
     if (type.equals("image_scale")) {
@@ -229,8 +240,10 @@ static std::map<std::string, std::string> cf_api_map = {
 
 // maps clusterfuzz/oss-fuzz -> Skia's name
 static std::map<std::string, std::string> cf_map = {
+    {"android_codec", "android_codec"},
     {"animated_image_decode", "animated_image_decode"},
     {"image_decode", "image_decode"},
+    {"image_decode_incremental", "image_decode_incremental"},
     {"image_filter_deserialize", "filter_fuzz"},
     {"image_filter_deserialize_width", "filter_fuzz"},
     {"path_deserialize", "path_deserialize"},
@@ -332,20 +345,53 @@ static void dump_png(SkBitmap bitmap) {
     }
 }
 
-void FuzzAnimatedImage(sk_sp<SkData> bytes);
+bool FuzzAnimatedImage(sk_sp<SkData> bytes);
 
 static void fuzz_animated_img(sk_sp<SkData> bytes) {
-    FuzzAnimatedImage(bytes);
-    SkDebugf("[terminated] Didn't crash while decoding/drawing animated image!\n");
+    if (FuzzAnimatedImage(bytes)) {
+        SkDebugf("[terminated] Success from decoding/drawing animated image!\n");
+        return;
+    }
+    SkDebugf("[terminated] Could not decode or draw animated image.\n");
 }
 
-void FuzzImage(sk_sp<SkData> bytes);
+bool FuzzImageDecode(sk_sp<SkData> bytes);
 
-static void fuzz_img2(sk_sp<SkData> bytes) {
-    FuzzImage(bytes);
-    SkDebugf("[terminated] Didn't crash while decoding/drawing image!\n");
+static void fuzz_image_decode(sk_sp<SkData> bytes) {
+    if (FuzzImageDecode(bytes)) {
+         SkDebugf("[terminated] Success from decoding/drawing image!\n");
+         return;
+    }
+    SkDebugf("[terminated] Could not decode or draw image.\n");
 }
 
+bool FuzzIncrementalImageDecode(sk_sp<SkData> bytes);
+
+static void fuzz_image_decode_incremental(sk_sp<SkData> bytes) {
+    if (FuzzIncrementalImageDecode(bytes)) {
+        SkDebugf("[terminated] Success using incremental decode!\n");
+        return;
+    }
+    SkDebugf("[terminated] Could not incrementally decode and image.\n");
+}
+
+bool FuzzAndroidCodec(sk_sp<SkData> bytes, uint8_t sampleSize);
+
+static void fuzz_android_codec(sk_sp<SkData> bytes) {
+    Fuzz fuzz(bytes);
+    uint8_t sampleSize;
+    fuzz.nextRange(&sampleSize, 1, 64);
+    bytes = SkData::MakeSubset(bytes.get(), 1, bytes->size() - 1);
+    if (FuzzAndroidCodec(bytes, sampleSize)) {
+        SkDebugf("[terminated] Success on Android Codec sampleSize=%u!\n", sampleSize);
+        return;
+    }
+    SkDebugf("[terminated] Could not use Android Codec sampleSize=%u!\n", sampleSize);
+}
+
+// This is a "legacy" fuzzer that likely does too much. It was based off of how
+// DM reads in images. image_decode, image_decode_incremental and android_codec
+// are more targeted fuzzers that do a subset of what this one does.
 static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     // We can scale 1x, 2x, 4x, 8x, 16x
     scale = scale % 5;
