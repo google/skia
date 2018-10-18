@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b2db157_2ff63414",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-10-18T13:48:32Z",
+      "side": 1,
+      "message": "Should this be explicit?",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 9
+      },
+      "revId": "da579e2f81072b8a8c82a553bb5e73c8ccaa7f6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
