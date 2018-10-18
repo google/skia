@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "054b2897_54e5420b",
+        "filename": "include/core/SkYUVSizeInfo.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T00:02:31Z",
+      "side": 1,
+      "message": "If you want to rename this you can keep the current name and add using SkYUVASizeInfo \u003d SkYUVSizeInfo below, update Chrome to use the new name, and then do the rename.\n\nSimilarly for the file you can make SkYUVASizeInfo.h which just includes this file, update Chrome to include the new file, and then cleanup Skia later.",
+      "revId": "bd2455a6eacba85ce940c1d30407ad6614e344e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6273f2bf_079aa1c5",
+        "filename": "src/core/SkImageGenerator.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T00:02:31Z",
+      "side": 1,
+      "message": "Not my pref, but we indent cases.",
+      "revId": "bd2455a6eacba85ce940c1d30407ad6614e344e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9cfd31c_277b8599",
+        "filename": "src/core/SkYUVPlanesCache.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T00:02:31Z",
+      "side": 1,
+      "message": "add space?",
+      "range": {
+        "startLine": 28,
+        "startChar": 22,
+        "endLine": 28,
+        "endChar": 23
+      },
+      "revId": "bd2455a6eacba85ce940c1d30407ad6614e344e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
