@@ -146,6 +146,10 @@ void* GrBufferAllocPool::makeSpace(size_t size,
 
     SkASSERT(buffer);
     SkASSERT(offset);
+    // Avoid overflow issues by rejecting pathologically large allocation requests (> .25GiB).
+    if (size > (1 << 28)) {
+        return nullptr;
+    }
 
     if (fBufferPtr) {
         BufferBlock& back = fBlocks.back();
