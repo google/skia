@@ -37,6 +37,11 @@ extern "C" {
     static inline float fabsf_(float x) { return x < 0 ? -x : x; }
     float powf_(float, float);
 
+// ~~~~ Does this pixel format need a palette pointer to be usable? ~~~~
+    static inline bool needs_palette(skcms_PixelFormat fmt) {
+        return (fmt >> 1) == (skcms_PixelFormat_RGBA_8888_Palette8 >> 1);
+    }
+
 #ifdef __cplusplus
 }
 #endif

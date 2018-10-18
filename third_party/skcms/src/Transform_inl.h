@@ -348,52 +348,69 @@ SI U8 gather_8(const uint8_t* p, I32 ix) {
     return v;
 }
 
-// Helper for gather_16(), loading the ix'th 16-bit value from p.
-SI uint16_t load_16(const uint8_t* p, int ix) {
-    return load<uint16_t>(p + 2*ix);
-}
-
 SI U16 gather_16(const uint8_t* p, I32 ix) {
+    // Load the i'th 16-bit value from p.
+    auto load_16 = [p](int i) {
+        return load<uint16_t>(p + 2*i);
+    };
 #if N == 1
-    U16 v = load_16(p,ix);
+    U16 v = load_16(ix);
 #elif N == 4
-    U16 v = { load_16(p,ix[0]), load_16(p,ix[1]), load_16(p,ix[2]), load_16(p,ix[3]) };
+    U16 v = { load_16(ix[0]), load_16(ix[1]), load_16(ix[2]), load_16(ix[3]) };
 #elif N == 8
-    U16 v = { load_16(p,ix[0]), load_16(p,ix[1]), load_16(p,ix[2]), load_16(p,ix[3]),
-              load_16(p,ix[4]), load_16(p,ix[5]), load_16(p,ix[6]), load_16(p,ix[7]) };
+    U16 v = { load_16(ix[0]), load_16(ix[1]), load_16(ix[2]), load_16(ix[3]),
+              load_16(ix[4]), load_16(ix[5]), load_16(ix[6]), load_16(ix[7]) };
 #elif N == 16
-    U16 v = { load_16(p,ix[ 0]), load_16(p,ix[ 1]), load_16(p,ix[ 2]), load_16(p,ix[ 3]),
-              load_16(p,ix[ 4]), load_16(p,ix[ 5]), load_16(p,ix[ 6]), load_16(p,ix[ 7]),
-              load_16(p,ix[ 8]), load_16(p,ix[ 9]), load_16(p,ix[10]), load_16(p,ix[11]),
-              load_16(p,ix[12]), load_16(p,ix[13]), load_16(p,ix[14]), load_16(p,ix[15]) };
+    U16 v = { load_16(ix[ 0]), load_16(ix[ 1]), load_16(ix[ 2]), load_16(ix[ 3]),
+              load_16(ix[ 4]), load_16(ix[ 5]), load_16(ix[ 6]), load_16(ix[ 7]),
+              load_16(ix[ 8]), load_16(ix[ 9]), load_16(ix[10]), load_16(ix[11]),
+              load_16(ix[12]), load_16(ix[13]), load_16(ix[14]), load_16(ix[15]) };
 #endif
     return v;
 }
 
-#if !defined(USING_AVX2)
-    // Helpers for gather_24/48(), loading the ix'th 24/48-bit value from p, and 1/2 extra bytes.
-    SI uint32_t load_24_32(const uint8_t* p, int ix) {
-        return load<uint32_t>(p + 3*ix);
-    }
-    SI uint64_t load_48_64(const uint8_t* p, int ix) {
-        return load<uint64_t>(p + 6*ix);
-    }
+SI U32 gather_32(const uint8_t* p, I32 ix) {
+    // Load the i'th 32-bit value from p.
+    auto load_32 = [p](int i) {
+        return load<uint32_t>(p + 4*i);
+    };
+#if N == 1
+    U32 v = load_32(ix);
+#elif N == 4
+    U32 v = { load_32(ix[0]), load_32(ix[1]), load_32(ix[2]), load_32(ix[3]) };
+#elif N == 8
+    U32 v = { load_32(ix[0]), load_32(ix[1]), load_32(ix[2]), load_32(ix[3]),
+              load_32(ix[4]), load_32(ix[5]), load_32(ix[6]), load_32(ix[7]) };
+#elif N == 16
+    U32 v = { load_32(ix[ 0]), load_32(ix[ 1]), load_32(ix[ 2]), load_32(ix[ 3]),
+              load_32(ix[ 4]), load_32(ix[ 5]), load_32(ix[ 6]), load_32(ix[ 7]),
+              load_32(ix[ 8]), load_32(ix[ 9]), load_32(ix[10]), load_32(ix[11]),
+              load_32(ix[12]), load_32(ix[13]), load_32(ix[14]), load_32(ix[15]) };
 #endif
+    // TODO: AVX2 and AVX-512 gathers (c.f. gather_24).
+    return v;
+}
 
 SI U32 gather_24(const uint8_t* p, I32 ix) {
     // First, back up a byte.  Any place we're gathering from has a safe junk byte to read
     // in front of it, either a previous table value, or some tag metadata.
     p -= 1;
 
+    // Load the i'th 24-bit value from p, and 1 extra byte.
+    auto load_24_32 = [p](int i) {
+        return load<uint32_t>(p + 3*i);
+    };
+
     // Now load multiples of 4 bytes (a junk byte, then r,g,b).
 #if N == 1
-    U32 v = load_24_32(p,ix);
+    U32 v = load_24_32(ix);
 #elif N == 4
-    U32 v = { load_24_32(p,ix[0]), load_24_32(p,ix[1]), load_24_32(p,ix[2]), load_24_32(p,ix[3]) };
+    U32 v = { load_24_32(ix[0]), load_24_32(ix[1]), load_24_32(ix[2]), load_24_32(ix[3]) };
 #elif N == 8 && !defined(USING_AVX2)
-    U32 v = { load_24_32(p,ix[0]), load_24_32(p,ix[1]), load_24_32(p,ix[2]), load_24_32(p,ix[3]),
-              load_24_32(p,ix[4]), load_24_32(p,ix[5]), load_24_32(p,ix[6]), load_24_32(p,ix[7]) };
+    U32 v = { load_24_32(ix[0]), load_24_32(ix[1]), load_24_32(ix[2]), load_24_32(ix[3]),
+              load_24_32(ix[4]), load_24_32(ix[5]), load_24_32(ix[6]), load_24_32(ix[7]) };
 #elif N == 8
+    (void)load_24_32;
     // The gather instruction here doesn't need any particular alignment,
     // but the intrinsic takes a const int*.
     const int* p4 = bit_pun<const int*>(p);
@@ -405,6 +422,7 @@ SI U32 gather_24(const uint8_t* p, I32 ix) {
         U32 v = (U32)__builtin_ia32_gathersiv8si(zero, p4, 3*ix, mask, 1);
     #endif
 #elif N == 16
+    (void)load_24_32;
     // The intrinsic is supposed to take const void* now, but it takes const int*, just like AVX2.
     // And AVX-512 swapped the order of arguments.  :/
     const int* p4 = bit_pun<const int*>(p);
@@ -420,18 +438,24 @@ SI U32 gather_24(const uint8_t* p, I32 ix) {
         // As in gather_24(), with everything doubled.
         p -= 2;
 
+        // Load the i'th 48-bit value from p, and 2 extra bytes.
+        auto load_48_64 = [p](int i) {
+            return load<uint64_t>(p + 6*i);
+        };
+
     #if N == 1
-        *v = load_48_64(p,ix);
+        *v = load_48_64(ix);
     #elif N == 4
         *v = U64{
-            load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
+            load_48_64(ix[0]), load_48_64(ix[1]), load_48_64(ix[2]), load_48_64(ix[3]),
         };
     #elif N == 8 && !defined(USING_AVX2)
         *v = U64{
-            load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
-            load_48_64(p,ix[4]), load_48_64(p,ix[5]), load_48_64(p,ix[6]), load_48_64(p,ix[7]),
+            load_48_64(ix[0]), load_48_64(ix[1]), load_48_64(ix[2]), load_48_64(ix[3]),
+            load_48_64(ix[4]), load_48_64(ix[5]), load_48_64(ix[6]), load_48_64(ix[7]),
         };
     #elif N == 8
+        (void)load_48_64;
         typedef int32_t   __attribute__((vector_size(16))) Half_I32;
         typedef long long __attribute__((vector_size(32))) Half_I64;
 
@@ -456,6 +480,7 @@ SI U32 gather_24(const uint8_t* p, I32 ix) {
         store((char*)v +  0, lo);
         store((char*)v + 32, hi);
     #elif N == 16
+        (void)load_48_64;
         const long long int* p8 = bit_pun<const long long int*>(p);
         __m512i lo = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 0), p8, 1),
                 hi = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 1), p8, 1);
@@ -669,6 +694,17 @@ static void exec_ops(const Op* ops, const void** args,
 
             case Op_load_8888:{
                 U32 rgba = load<U32>(src + 4*i);
+
+                r = cast<F>((rgba >>  0) & 0xff) * (1/255.0f);
+                g = cast<F>((rgba >>  8) & 0xff) * (1/255.0f);
+                b = cast<F>((rgba >> 16) & 0xff) * (1/255.0f);
+                a = cast<F>((rgba >> 24) & 0xff) * (1/255.0f);
+            } break;
+
+            case Op_load_8888_palette8:{
+                const uint8_t* palette = (const uint8_t*) *args++;
+                I32 ix = cast<I32>(load<U8>(src + 1*i));
+                U32 rgba = gather_32(palette, ix);
 
                 r = cast<F>((rgba >>  0) & 0xff) * (1/255.0f);
                 g = cast<F>((rgba >>  8) & 0xff) * (1/255.0f);
