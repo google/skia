@@ -43,6 +43,7 @@ declare_args() {
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
   skia_enable_effects_imagefilters = true
+  skia_enable_effect_deserialization = !skia_enable_flutter_defines
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
   skia_enable_pdf = true
@@ -380,16 +381,27 @@ optional("effects") {
   deps = [
     ":compile_processors",
   ]
-  sources =
-      skia_effects_sources + [ "src/ports/SkGlobalInitialization_default.cpp" ]
+  sources = skia_effects_sources
   if (skia_enable_effects_imagefilters) {
-    sources += skia_effects_imagefilter_sources
+    sources += skia_effects_imagefilter_sources_no_global_initialization
     if (!skia_enable_skpicture) {
       sources -= [ "//src/effects/imagefilters/SkPictureImageFilter.cpp" ]
     }
+  }
+}
+
+optional("effect_deserialization") {
+  enabled = skia_enable_effects && skia_enable_effect_deserialization
+
+  sources = [
+    "src/ports/SkGlobalInitialization_default.cpp",
+  ]
+  if (skia_enable_effects_imagefilters) {
+    sources += [ "src/ports/SkGlobalInitialization_default_imagefilters.cpp" ]
   } else {
     sources += [ "src/ports/SkGlobalInitialization_none_imagefilters.cpp" ]
   }
+
   sources_when_disabled = [
     "src/ports/SkGlobalInitialization_none.cpp",
     "src/ports/SkGlobalInitialization_none_imagefilters.cpp",
@@ -841,6 +853,7 @@ component("skia") {
     ":armv7",
     ":avx",
     ":crc32",
+    ":effect_deserialization",
     ":effects",
     ":fontmgr_android",
     ":fontmgr_custom",

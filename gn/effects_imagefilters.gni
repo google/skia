@@ -7,9 +7,7 @@
 _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
-skia_effects_imagefilter_sources = [
-  "$_src/ports/SkGlobalInitialization_default_imagefilters.cpp",
-
+skia_effects_imagefilter_sources_no_global_initialization = [
   "$_src/effects/imagefilters/SkAlphaThresholdFilter.cpp",
   "$_src/effects/imagefilters/SkArithmeticImageFilter.cpp",
   "$_src/effects/imagefilters/SkBlurImageFilter.cpp",
@@ -44,3 +42,8 @@ skia_effects_imagefilter_sources = [
   "$_include/effects/SkTileImageFilter.h",
   "$_include/effects/SkXfermodeImageFilter.h",
 ]
+
+# Chrome's using this target, so we need to keep it around for now.
+skia_effects_imagefilter_sources =
+    skia_effects_imagefilter_sources_no_global_initialization +
+    [ "$_src/ports/SkGlobalInitialization_default_imagefilters.cpp" ]
