@@ -8,6 +8,7 @@
 #include "SkCodecImageGenerator.h"
 #include "SkMakeUnique.h"
 #include "SkPixmapPriv.h"
+#include "SkYUVAIndex.h"
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
     auto codec = SkCodec::MakeFromData(data);
@@ -58,13 +59,27 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* re
     return SkPixmapPriv::Orient(dst, fCodec->getOrigin(), decode);
 }
 
-bool SkCodecImageGenerator::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const
-{
+bool SkCodecImageGenerator::onQueryYUVA8(SkYUVSizeInfo* sizeInfo,
+                                         SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                                         SkYUVColorSpace* colorSpace) const {
+    // This image generator always returns 3 separate non-interleaved planes
+    yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
+    yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
+    yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
+    yuvaIndices[SkYUVAIndex::kU_Index].fChannel = SkColorChannel::kR;
+    yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 2;
+    yuvaIndices[SkYUVAIndex::kV_Index].fChannel = SkColorChannel::kR;
+    yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
+    yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
+
     return fCodec->queryYUV8(sizeInfo, colorSpace);
 }
 
-bool SkCodecImageGenerator::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
+bool SkCodecImageGenerator::onGetYUVA8Planes(const SkYUVSizeInfo& sizeInfo,
+                                             const SkYUVAIndex indices[SkYUVAIndex::kIndexCount],
+                                             void* planes[]) {
     SkCodec::Result result = fCodec->getYUV8Planes(sizeInfo, planes);
+    // TODO: check indices
 
     switch (result) {
         case SkCodec::kSuccess:
