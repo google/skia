@@ -68,8 +68,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& 
 void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(0 != idDesc.fInfo.fID);
     SkASSERT(0 != idDesc.fInfo.fFormat);
-    fTexParams.invalidate();
-    fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
+    fParamsTimestamp = GrGpu::kExpiredTimestamp;
     fID = idDesc.fInfo.fID;
     fFormat = idDesc.fInfo.fFormat;
     fTextureIDOwnership = idDesc.fOwnership;
