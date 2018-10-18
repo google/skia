@@ -34,9 +34,9 @@ We have a macro for this:
 
 <!--?prettify?-->
 ~~~~
-public:
+private:
 
-SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNewClass)
+SK_FLATTENABLE_HOOKS(SkNewClass)
 ~~~~
 
 4: If your class is declared in a `.cpp` file or in a private header file, create a 

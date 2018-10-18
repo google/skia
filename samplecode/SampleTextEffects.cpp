@@ -29,7 +29,6 @@ public:
                     SkTDArray<SkPoint>* pts)
     : Sk2DPathEffect(matrix), fRadius(radius), fPts(pts) {}
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
     class Registrar {
     public:
         Registrar() {
@@ -60,6 +59,8 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(Dot2DPathEffect)
+
     SkScalar fRadius;
     SkTDArray<SkPoint>* fPts;
 
@@ -84,9 +85,9 @@ public:
         return true;
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(InverseFillPE)
-
 private:
+    SK_FLATTENABLE_HOOKS(InverseFillPE)
+
     typedef SkPathEffect INHERITED;
 };
 

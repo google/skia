@@ -10,7 +10,6 @@
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
-#include "SkFlattenablePriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkShader.h"
 
@@ -33,8 +32,6 @@ public:
         return sk_sp<SkImageFilter>(new FailImageFilter);
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
-
 protected:
     FailImageFilter() : INHERITED(nullptr, 0, nullptr) {}
 
@@ -47,6 +44,8 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(FailImageFilter)
+
     typedef SkImageFilter INHERITED;
 };
 
@@ -71,7 +70,6 @@ public:
         return sk_sp<SkImageFilter>(new IdentityImageFilter(std::move(input)));
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(IdentityImageFilter)
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
@@ -84,6 +82,7 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(IdentityImageFilter)
     IdentityImageFilter(sk_sp<SkImageFilter> input) : INHERITED(&input, 1, nullptr) {}
 
     typedef SkImageFilter INHERITED;

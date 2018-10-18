@@ -9,7 +9,6 @@
 
 #include "SkDashImpl.h"
 #include "SkDashPathPriv.h"
-#include "SkFlattenablePriv.h"
 #include "SkReadBuffer.h"
 #include "SkStrokeRec.h"
 #include "SkTo.h"

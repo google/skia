@@ -17,8 +17,6 @@ public:
                                      sk_sp<SkImageFilter> input,
                                      const CropRect* cropRect = nullptr);
 
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
@@ -29,11 +27,11 @@ protected:
     bool affectsTransparentBlack() const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkColorFilterImageFilter)
+
     SkColorFilterImageFilter(sk_sp<SkColorFilter> cf,
                              sk_sp<SkImageFilter> input,
                              const CropRect* cropRect);
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     sk_sp<SkColorFilter> fColorFilter;
 

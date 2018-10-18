@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkFlattenablePriv.h"
 #include "SkAlphaThresholdFilter.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilterImageFilter.h"

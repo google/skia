@@ -52,21 +52,8 @@ public:
 
     /**
      *  Returns the name of the object's class.
-     *
-     *  Subclasses should override this function if they intend to provide
-     *  support for flattening without using the global registry.
-     *
-     *  If the flattenable is registered, there is no need to override.
      */
-    virtual const char* getTypeName() const {
-    #ifdef SK_DISABLE_READBUFFER
-        // Should not be reachable by PathKit WebAssembly Code.
-        SkASSERT(false);
-        return nullptr;
-    #else
-        return FactoryToName(getFactory());
-    #endif
-    }
+    virtual const char* getTypeName() const = 0;
 
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);
@@ -109,5 +96,16 @@ private:
 
     typedef SkRefCnt INHERITED;
 };
+
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(type)     \
+    SkFlattenable::Register(#type,                      \
+                            type::CreateProc,           \
+                            type::GetFlattenableType());
+
+#define SK_FLATTENABLE_HOOKS(type)                                   \
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);           \
+    friend class SkFlattenable::PrivateInitializer;                  \
+    Factory getFactory() const override { return type::CreateProc; } \
+    const char* getTypeName() const override { return #type; }
 
 #endif

@@ -9,7 +9,6 @@
 #define SkShaderBase_DEFINED
 
 #include "SkFilterQuality.h"
-#include "SkFlattenablePriv.h"
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkNoncopyable.h"

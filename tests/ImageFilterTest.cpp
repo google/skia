@@ -57,8 +57,6 @@ public:
         return sk_sp<SkImageFilter>(new MatrixTestImageFilter(reporter, expectedMatrix));
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
-
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context& ctx,
                                         SkIPoint* offset) const override {
@@ -75,6 +73,8 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(MatrixTestImageFilter)
+
     MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
         : INHERITED(nullptr, 0, nullptr)
         , fReporter(reporter)
@@ -100,7 +100,7 @@ public:
         return nullptr;
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
+    SK_FLATTENABLE_HOOKS(FailImageFilter)
 
 private:
     typedef SkImageFilter INHERITED;
@@ -289,6 +289,7 @@ public:
 
 private:
     Factory getFactory() const override { return nullptr; }
+    const char* getTypeName() const override { return nullptr; }
 
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* src, const Context&,
                                         SkIPoint* offset) const override {
@@ -1831,6 +1832,7 @@ DEF_TEST(ImageFilterColorSpaceDAG, reporter) {
         TestFilter() : INHERITED(nullptr, 0, nullptr) {}
 
         Factory getFactory() const override { return nullptr; }
+        const char* getTypeName() const override { return nullptr; }
 
         size_t cloneCount() const { return fCloneCount; }
 

@@ -21,12 +21,12 @@ public:
     SkNormalSource::Provider* asProvider(const SkShaderBase::ContextRec& rec,
                                          SkArenaAlloc* alloc) const override;
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNormalFlatSourceImpl)
-
 protected:
     void flatten(SkWriteBuffer& buf) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkNormalFlatSourceImpl)
+
     class Provider : public SkNormalSource::Provider {
     public:
         Provider();

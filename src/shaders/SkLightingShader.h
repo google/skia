@@ -8,7 +8,6 @@
 #ifndef SkLightingShader_DEFINED
 #define SkLightingShader_DEFINED
 
-#include "SkFlattenablePriv.h"
 #include "SkLights.h"
 #include "SkShader.h"
 

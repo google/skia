@@ -11,7 +11,6 @@
 #include "SkColorShader.h"
 #include "SkComposeShader.h"
 #include "SkEmptyShader.h"
-#include "SkFlattenablePriv.h"
 #include "SkImageShader.h"
 #include "SkLocalMatrixShader.h"
 #include "SkMatrixImageFilter.h"

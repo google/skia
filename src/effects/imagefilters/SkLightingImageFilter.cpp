@@ -9,7 +9,6 @@
 #include "SkBitmap.h"
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
-#include "SkFlattenablePriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
@@ -529,7 +528,6 @@ public:
                                      sk_sp<SkImageFilter>,
                                      const CropRect*);
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiffuseLightingImageFilter)
     SkScalar kd() const { return fKD; }
 
 protected:
@@ -550,6 +548,7 @@ protected:
 #endif
 
 private:
+    SK_FLATTENABLE_HOOKS(SkDiffuseLightingImageFilter)
     friend class SkLightingImageFilter;
     SkScalar fKD;
 
@@ -562,8 +561,6 @@ public:
                                      SkScalar surfaceScale,
                                      SkScalar ks, SkScalar shininess,
                                      sk_sp<SkImageFilter>, const CropRect*);
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpecularLightingImageFilter)
 
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
@@ -587,6 +584,8 @@ protected:
 #endif
 
 private:
+    SK_FLATTENABLE_HOOKS(SkSpecularLightingImageFilter)
+
     SkScalar fKS;
     SkScalar fShininess;
     friend class SkLightingImageFilter;

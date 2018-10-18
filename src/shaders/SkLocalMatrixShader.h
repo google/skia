@@ -38,8 +38,6 @@ public:
         return fProxyShader;
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixShader)
-
 protected:
     void flatten(SkWriteBuffer&) const override;
 
@@ -57,6 +55,8 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(SkLocalMatrixShader)
+
     sk_sp<SkShader> fProxyShader;
 
     typedef SkShaderBase INHERITED;
