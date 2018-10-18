@@ -959,7 +959,7 @@ public:
     string formatFunction(Format format) const;
     const Definition* hasChild(MarkType markType) const;
     bool hasMatch(string name) const;
-    const Definition* hasParam(string ref) const;
+    Definition* hasParam(string ref);
     string incompleteMessage(DetailsType ) const;
     bool isClone() const { return fClone; }
 
@@ -1765,6 +1765,7 @@ public:
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
                                   string typeName);
     static KeyWord FindKey(const char* start, const char* end);
+    Definition* findMethod(const Definition& bmhDef);
     Bracket grandParentBracket() const;
     const Definition* include(string ) const;
     bool isClone(const Definition& token);
@@ -2439,17 +2440,19 @@ private:
     Definition* checkParentsForMatch(Definition* test, string ref) const;
     void childrenOut(Definition* def, const char* contentStart);
     Definition* csParent();
-    const Definition* findParamType();
+    Definition* findParamType();
     string getMemberTypeName(const Definition* def, string* memberType);
     static bool HasDetails(const Definition* def);
     void htmlOut(string );
-    const Definition* isDefined(const TextParser& , string ref, BmhParser::Resolvable );
-    const Definition* isDefinedByParent(RootDefinition* root, string ref);
+    Definition* isDefined(const TextParser& , string ref, BmhParser::Resolvable );
+    Definition* isDefinedByParent(RootDefinition* root, string ref);
     string linkName(const Definition* ) const;
-    string linkRef(string leadingSpaces, const Definition*, string ref, BmhParser::Resolvable );
+    string linkRef(string leadingSpaces, Definition*, string ref, BmhParser::Resolvable );
     void markTypeOut(Definition* , const Definition** prior);
     void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); }
     void mdHeaderOutLF(int depth, int lf);
+    void parameterHeaderOut(TextParser& paramParser, const Definition** prior, Definition* def);
+    void parameterTrailerOut();
     bool parseFromFile(const char* path) override { return true; }
     void populateOne(Definition* def,
             unordered_map<string, RootDefinition::SubtopicContents>& populator);
@@ -2498,6 +2501,7 @@ private:
     }
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
+    void returnHeaderOut(const Definition** prior, Definition* def);
     void rowOut(string col1, const Definition* col2);
     void rowOut(const char * name, string description, bool literalName);
 

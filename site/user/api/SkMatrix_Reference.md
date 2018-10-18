@@ -790,15 +790,15 @@ Skews are not similar and do not preserve right angles.
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    static constexpr int <a href='#SkMatrix_kMPersp2'>kMPersp2</a> = 8;
-    static constexpr int <a href='#SkMatrix_kMPersp0'>kMPersp0</a> = 6;
     static constexpr int <a href='#SkMatrix_kMPersp1'>kMPersp1</a> = 7;
-    static constexpr int <a href='#SkMatrix_kMSkewX'>kMSkewX</a> = 1;
+    static constexpr int <a href='#SkMatrix_kMPersp2'>kMPersp2</a> = 8;
+    static constexpr int <a href='#SkMatrix_kMSkewY'>kMSkewY</a> = 3;
     static constexpr int <a href='#SkMatrix_kMTransX'>kMTransX</a> = 2;
     static constexpr int <a href='#SkMatrix_kMScaleX'>kMScaleX</a> = 0;
-    static constexpr int <a href='#SkMatrix_kMSkewY'>kMSkewY</a> = 3;
-    static constexpr int <a href='#SkMatrix_kMScaleY'>kMScaleY</a> = 4;
+    static constexpr int <a href='#SkMatrix_kMSkewX'>kMSkewX</a> = 1;
     static constexpr int <a href='#SkMatrix_kMTransY'>kMTransY</a> = 5;
+    static constexpr int <a href='#SkMatrix_kMScaleY'>kMScaleY</a> = 4;
+    static constexpr int <a href='#SkMatrix_kMPersp0'>kMPersp0</a> = 6;
 </pre>
 
 <a href='#Matrix'>Matrix</a> organizes its values in row order. These members correspond to

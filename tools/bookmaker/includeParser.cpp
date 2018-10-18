@@ -1844,6 +1844,21 @@ Definition* IncludeParser::findIncludeObject(const Definition& includeDef, MarkT
     return &markupDef;
 }
 
+Definition* IncludeParser::findMethod(const Definition& bmhDef) {
+    auto doubleColon = bmhDef.fName.find("::");
+    SkASSERT(string::npos != doubleColon);  // more work to do to support global refs
+    string className = bmhDef.fName.substr(0, doubleColon);
+    const auto& iClass = fIClassMap.find(className);
+    SkASSERT(fIClassMap.end() != iClass);
+    string methodName = bmhDef.fName.substr(doubleColon + 2);
+    auto& iTokens = iClass->second.fTokens;
+    const auto& iMethod = std::find_if(iTokens.begin(), iTokens.end(),
+            [methodName](Definition& token) {
+            return MarkType::kMethod == token.fMarkType && methodName == token.fName; } );
+    SkASSERT(iTokens.end() != iMethod);
+    return &*iMethod;
+}
+
 Definition* IncludeParser::parentBracket(Definition* parent) const {
     while (parent && Definition::Type::kBracket != parent->fType) {
         parent = parent->fParent;

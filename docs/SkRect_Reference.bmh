@@ -246,12 +246,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 #In Constructors
 #Line # constructs from ISize returning (0, 0, width, height) ##
-Returns constructed IRect set to (0, 0, size.width(), size.height()).
-Does not validate input; size.width() or size.height() may be negative.
-
-#Param size  integer values for Rect width and height ##
-
-#Return bounds (0, 0, size.width(), size.height()) ##
+#Populate
 
 #Example
     SkRect rect1 = SkRect::MakeSize({2, 35});

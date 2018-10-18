@@ -890,46 +890,67 @@ void IncludeWriter::methodOut(Definition* method, const Definition& child) {
         this->indentIn(IndentKind::kMethodOut);
         fIndentNext = false;
     }
-    this->writeCommentHeader();
-    fIndent += 4;
-    this->descriptionOut(method, SkipFirstLine::kNo, Phrase::kNo);
-    // compute indention column
-    size_t column = 0;
-    bool hasParmReturn = false;
-    for (auto methodPart : method->fChildren) {
-        if (MarkType::kParam == methodPart->fMarkType) {
-            column = SkTMax(column, methodPart->fName.length());
-            hasParmReturn = true;
-        } else if (MarkType::kReturn == methodPart->fMarkType) {
-            hasParmReturn = true;
+    if (method->fChildren.end() != std::find_if(method->fChildren.begin(), method->fChildren.end(),
+            [](const Definition* def) { return MarkType::kPopulate == def->fMarkType; } )) {
+        int commentIndex = child.fParentIndex;
+        auto iter = child.fParent->fTokens.begin();
+        std::advance(iter, commentIndex);
+        SkDEBUGCODE(bool sawMethod = false);
+        while (--commentIndex >= 0) {
+            std::advance(iter, -1);
+            if (Bracket::kSlashStar == iter->fBracket) {
+                SkASSERT(sawMethod);
+                break;
+            }
+            SkASSERT(!sawMethod);
+            SkDEBUGCODE(sawMethod = MarkType::kMethod == iter->fMarkType);
         }
-    }
-    if (hasParmReturn) {
         this->lf(2);
-        column += fIndent + sizeof("@return ");
-        int saveIndent = fIndent;
+        this->writeString("/");
+        this->writeBlock(iter->length(), iter->fContentStart);
+        this->lfcr();
+    } else {
+        this->writeCommentHeader();
+        fIndent += 4;
+        this->descriptionOut(method, SkipFirstLine::kNo, Phrase::kNo);
+        // compute indention column
+        size_t column = 0;
+        bool hasParmReturn = false;
         for (auto methodPart : method->fChildren) {
             if (MarkType::kParam == methodPart->fMarkType) {
-                this->writeString("@param");
-                this->writeSpace();
-                this->writeString(methodPart->fName.c_str());
+                column = SkTMax(column, methodPart->fName.length());
+                hasParmReturn = true;
             } else if (MarkType::kReturn == methodPart->fMarkType) {
-                this->writeString("@return");
-            } else {
-                continue;
+                hasParmReturn = true;
             }
-            this->indentToColumn(column);
-            fIndent = column;
-            this->descriptionOut(methodPart, SkipFirstLine::kNo, Phrase::kYes);
-            fIndent = saveIndent;
+        }
+        if (hasParmReturn) {
+            this->lf(2);
+            column += fIndent + sizeof("@return ");
+            int saveIndent = fIndent;
+            for (auto methodPart : method->fChildren) {
+                if (MarkType::kParam == methodPart->fMarkType) {
+                    this->writeString("@param");
+                    this->writeSpace();
+                    this->writeString(methodPart->fName.c_str());
+                } else if (MarkType::kReturn == methodPart->fMarkType) {
+                    this->writeString("@return");
+                } else {
+                    continue;
+                }
+                this->indentToColumn(column);
+                fIndent = column;
+                this->descriptionOut(methodPart, SkipFirstLine::kNo, Phrase::kYes);
+                fIndent = saveIndent;
+                this->lfcr();
+            }
+        } else {
             this->lfcr();
         }
-    } else {
+        fIndent -= 4;
         this->lfcr();
+        this->writeCommentTrailer(OneLine::kNo);
     }
-    fIndent -= 4;
-    this->lfcr();
-    this->writeCommentTrailer(OneLine::kNo);
     fBmhMethod = nullptr;
     fMethodDef = nullptr;
     fEnumDef = nullptr;

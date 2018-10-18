@@ -147,7 +147,7 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "",             MarkType::kPhraseParam,  R_Y, E_N, 0 }
 , { "",             MarkType::kPhraseRef,    R_N, E_N, 0 }
 , { "Platform",     MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
-, { "Populate",     MarkType::kPopulate,     R_N, E_N, M(Code) }
+, { "Populate",     MarkType::kPopulate,     R_N, E_N, M(Code) | M(Method) }
 , { "Private",      MarkType::kPrivate,      R_N, E_N, M_CSST | M_MDCM | M_E }
 , { "Return",       MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",             MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
