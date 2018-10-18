@@ -9,6 +9,7 @@
 
 #include "SkColorFilter.h"
 #include "SkDraw.h"
+#include "SkDrawable.h"
 #include "SkGlyphRun.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
@@ -271,6 +272,12 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     SkPaint p(paint);
     p.setShader(atlas->makeShader());
     this->drawVertices(builder.detach().get(), nullptr, 0, mode, p);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkBaseDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkCanvas* canvas) {
+    drawable->draw(canvas, matrix);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
