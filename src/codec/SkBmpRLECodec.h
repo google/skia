@@ -41,6 +41,8 @@ public:
 
     int setSampleX(int);
 
+    int fillWidth() const;
+
 protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
