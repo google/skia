@@ -22,6 +22,30 @@
       "revId": "14ba6a8f46eb2b525022b49ca9713d8cb56109b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93310ee8_406ac050",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-18T17:43:09Z",
+      "side": 1,
+      "message": "That\u0027s kind of the trick... is_skia_standalone is defined only by our BUILDCONFIG.gn (to true), so defined(is_skia_standalone) is basically the same as \"are we using Skia\u0027s GN environment?\".  :)",
+      "parentUuid": "2b080f1a_ae6e959d",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 30
+      },
+      "revId": "14ba6a8f46eb2b525022b49ca9713d8cb56109b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
