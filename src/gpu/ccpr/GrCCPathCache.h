@@ -171,7 +171,7 @@ private:
     void invalidateAtlas();
 
     // Called when our corresponding path is modified or deleted. Not threadsafe.
-    void onChange() override {
+    void notifyPathGenIDChanged() override {
         GrCCPathCache::PostThreadsafeEvictionMessage(sk_ref_sp(this));
     }
 
