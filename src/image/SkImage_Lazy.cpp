@@ -248,7 +248,6 @@ bool SkImage_Lazy::lockAsBitmap(SkBitmap* bitmap, SkImage::CachingHint chint,
 
 bool SkImage_Lazy::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                 int srcX, int srcY, CachingHint chint) const {
-    SkColorSpace* dstColorSpace = dstInfo.colorSpace();
     SkBitmap bm;
     if (kDisallow_CachingHint == chint) {
         if (this->lockAsBitmapOnlyIfAlreadyCached(&bm, dstInfo)) {
@@ -264,7 +263,7 @@ bool SkImage_Lazy::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
         }
     }
 
-    if (this->getROPixels(&bm, dstColorSpace, chint)) {
+    if (this->getROPixels(&bm, dstInfo.colorType(), dstInfo.colorSpace(), chint)) {
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }
     return false;
@@ -275,9 +274,40 @@ sk_sp<SkData> SkImage_Lazy::onRefEncoded() const {
     return generator->refEncodedData();
 }
 
-bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,
-                               CachingHint chint) const {
-    return this->lockAsBitmap(bitmap, chint, fInfo);
+bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkColorType lazyColorType,
+                               SkColorSpace* lazyColorSpace, CachingHint chint) const {
+    // Respect supplied decoding hints
+    SkImageInfo info = fInfo;
+#if defined(SK_USE_LEGACY_LAZY_IMAGE_DECODE)
+    (void)lazyColorType;
+    (void)lazyColorSpace;
+#else
+    if (kUnknown_SkColorType != lazyColorType) {
+        info = info.makeColorType(lazyColorType);
+    }
+    if (nullptr != lazyColorSpace) {
+        info = info.makeColorSpace(sk_ref_sp(lazyColorSpace));
+    }
+#endif
+    return this->lockAsBitmap(bitmap, chint, info);
+}
+
+SkBitmapCacheDesc SkImage_Lazy::makeCacheDesc(SkColorType lazyColorType,
+                                              SkColorSpace* lazyColorSpace) const {
+    SkColorType ct = fInfo.colorType();
+    SkColorSpace* cs = fInfo.colorSpace();
+#if defined(SK_USE_LEGACY_LAZY_IMAGE_DECODE)
+    (void)lazyColorType;
+    (void)lazyColorSpace;
+#else
+    if (kUnknown_SkColorType != lazyColorType) {
+        ct = lazyColorType;
+    }
+    if (nullptr != lazyColorSpace) {
+        cs = lazyColorSpace;
+    }
+#endif
+    return SkBitmapCacheDesc::Make(fUniqueID, ct, cs, SkIRect::MakeSize(fInfo.dimensions()));
 }
 
 bool SkImage_Lazy::onIsValid(GrContext* context) const {
