@@ -32,7 +32,7 @@ public:
     */
     static sk_sp<SkPathEffect> Make(SkScalar segLength, SkScalar dev, uint32_t seedAssist = 0);
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiscretePathEffect);
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     bool exposedInAndroidJavaAPI() const override { return true; }
@@ -46,9 +46,6 @@ protected:
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     SkScalar fSegLength, fPerterb;
 
     /* Caller-supplied 32 bit seed assist */

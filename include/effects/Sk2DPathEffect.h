@@ -60,7 +60,7 @@ public:
     }
 
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLine2DPathEffect);
 
 protected:
     SkLine2DPathEffect(SkScalar width, const SkMatrix& matrix)
@@ -73,9 +73,6 @@ protected:
     void nextSpan(int u, int v, int ucount, SkPath*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     SkScalar fWidth;
 
     typedef Sk2DPathEffect INHERITED;

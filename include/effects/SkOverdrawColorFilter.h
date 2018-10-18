@@ -32,8 +32,7 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOverdrawColorFilter);
     static void InitializeFlattenables();
 
 protected:

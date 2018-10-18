@@ -25,7 +25,7 @@ public:
         return radius > 0 ? sk_sp<SkPathEffect>(new SkCornerPathEffect(radius)) : nullptr;
     }
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCornerPathEffect);
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     bool exposedInAndroidJavaAPI() const override { return true; }
@@ -33,8 +33,6 @@ public:
 
 protected:
     ~SkCornerPathEffect() override;
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     explicit SkCornerPathEffect(SkScalar radius);
     void flatten(SkWriteBuffer&) const override;

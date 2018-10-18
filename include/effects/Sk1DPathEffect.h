@@ -58,7 +58,7 @@ public:
     */
     static sk_sp<SkPathEffect> Make(const SkPath& path, SkScalar advance, SkScalar phase, Style);
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPath1DPathEffect);
 
 protected:
     SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkScalar phase, Style);
@@ -70,9 +70,6 @@ protected:
     SkScalar next(SkPath*, SkScalar, SkPathMeasure&) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     SkPath      fPath;          // copied from constructor
     SkScalar    fAdvance;       // copied from constructor
     SkScalar    fInitialOffset; // computed from phase

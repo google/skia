@@ -19,7 +19,7 @@ class SkLocalMatrixImageFilter : public SkImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(const SkMatrix& localM, sk_sp<SkImageFilter> input);
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixImageFilter);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -31,8 +31,6 @@ protected:
 
 private:
     SkLocalMatrixImageFilter(const SkMatrix& localM, sk_sp<SkImageFilter> input);
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     SkMatrix fLocalM;
 

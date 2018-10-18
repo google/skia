@@ -24,9 +24,7 @@ public:
 
     void flatten(SkWriteBuffer& buffer) const override;
 
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
-
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRecordedDrawable);
 
 protected:
     SkRect onGetBounds() override { return fBounds; }

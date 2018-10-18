@@ -36,7 +36,7 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLumaColorFilter);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -45,8 +45,6 @@ private:
     SkLumaColorFilter();
     void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         bool shaderIsOpaque) const override;
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     typedef SkColorFilter INHERITED;
 };

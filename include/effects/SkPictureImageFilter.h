@@ -26,7 +26,7 @@ public:
     static sk_sp<SkImageFilter> Make(sk_sp<SkPicture> picture, const SkRect& cropRect);
 
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureImageFilter);
 
 protected:
     /*  Constructs an SkPictureImageFilter object from an SkReadBuffer.
@@ -43,8 +43,6 @@ protected:
 private:
     explicit SkPictureImageFilter(sk_sp<SkPicture> picture);
     SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRect& cropRect, sk_sp<SkColorSpace>);
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     sk_sp<SkPicture>    fPicture;
     SkRect              fCropRect;

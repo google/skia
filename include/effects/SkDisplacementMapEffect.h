@@ -39,7 +39,7 @@ public:
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDisplacementMapEffect);
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
@@ -52,9 +52,6 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     ChannelSelectorType fXChannelSelector;
     ChannelSelectorType fYChannelSelector;
     SkScalar fScale;

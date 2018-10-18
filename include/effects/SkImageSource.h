@@ -22,7 +22,7 @@ public:
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageSource);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -40,8 +40,6 @@ private:
                   const SkRect& srcRect,
                   const SkRect& dstRect,
                   SkFilterQuality);
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     sk_sp<SkImage>   fImage;
     SkRect           fSrcRect, fDstRect;

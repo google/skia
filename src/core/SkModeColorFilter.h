@@ -20,7 +20,7 @@ public:
     bool asColorMode(SkColor*, SkBlendMode*) const override;
     uint32_t getFlags() const override;
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter);
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
@@ -38,9 +38,6 @@ protected:
     sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     SkColor     fColor;
     SkBlendMode fMode;
 

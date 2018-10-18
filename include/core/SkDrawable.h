@@ -76,6 +76,7 @@ public:
     }
 
     Factory getFactory() const override { return nullptr; }
+    const char* getTypeName() const override { return nullptr; }
 
 protected:
     virtual SkRect onGetBounds() = 0;

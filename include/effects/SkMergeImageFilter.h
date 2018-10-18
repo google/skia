@@ -25,7 +25,7 @@ public:
         return Make(array, 2, cropRect);
     }
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMergeImageFilter);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -36,8 +36,6 @@ protected:
 
 private:
     SkMergeImageFilter(sk_sp<SkImageFilter>* const filters, int count, const CropRect* cropRect);
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     typedef SkImageFilter INHERITED;
 };

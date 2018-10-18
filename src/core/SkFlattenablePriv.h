@@ -43,9 +43,13 @@
 
 #define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable)    \
     private:                                                                \
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);                        \
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);                  \
     friend class SkFlattenable::PrivateInitializer;                         \
     public:                                                                 \
+    const char* getTypeName() const override {                              \
+        (void)flattenable::CreateProc; /*ensures we got the name right*/    \
+        return #flattenable;                                                \
+    }                                                                       \
     Factory getFactory() const override { return CreateProc; }
 
 /** For SkFlattenable derived objects with a valid type

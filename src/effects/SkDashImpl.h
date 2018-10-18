@@ -14,7 +14,7 @@ class SkDashImpl : public SkPathEffect {
 public:
     SkDashImpl(const SkScalar intervals[], int count, SkScalar phase);
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDashImpl);
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     bool exposedInAndroidJavaAPI() const override { return true; }
@@ -31,9 +31,6 @@ protected:
     DashType onAsADash(DashInfo* info) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     SkScalar*   fIntervals;
     int32_t     fCount;
     SkScalar    fPhase;

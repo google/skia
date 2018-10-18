@@ -289,6 +289,7 @@ public:
 
 private:
     Factory getFactory() const override { return nullptr; }
+    const char* getTypeName() const override { return nullptr; }
 
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* src, const Context&,
                                         SkIPoint* offset) const override {
@@ -1831,6 +1832,7 @@ DEF_TEST(ImageFilterColorSpaceDAG, reporter) {
         TestFilter() : INHERITED(nullptr, 0, nullptr) {}
 
         Factory getFactory() const override { return nullptr; }
+        const char* getTypeName() const override { return nullptr; }
 
         size_t cloneCount() const { return fCloneCount; }
 

@@ -14,16 +14,13 @@ class SkOpPE : public SkPathEffect {
 public:
     SkOpPE(sk_sp<SkPathEffect> one, sk_sp<SkPathEffect> two, SkPathOp op);
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOpPE);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     sk_sp<SkPathEffect> fOne;
     sk_sp<SkPathEffect> fTwo;
     SkPathOp            fOp;
@@ -35,16 +32,13 @@ class SkMatrixPE : public SkPathEffect {
 public:
     SkMatrixPE(const SkMatrix&);
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixPE);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     SkMatrix    fMatrix;
 
     typedef SkPathEffect INHERITED;
@@ -54,7 +48,7 @@ class SkStrokePE : public SkPathEffect {
 public:
     SkStrokePE(SkScalar width, SkPaint::Join, SkPaint::Cap, SkScalar miter);
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkStrokePE);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -62,9 +56,6 @@ protected:
     // TODO: override onComputeFastBounds (I think)
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     SkScalar        fWidth,
                     fMiter;
     SkPaint::Join   fJoin;

@@ -32,7 +32,7 @@ public:
 
     SkRect computeFastBounds(const SkRect&) const override;
 
-    Factory getFactory() const override { return CreateProc; }
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixImageFilter);
 
 protected:
     SkMatrixImageFilter(const SkMatrix& transform,
@@ -47,9 +47,6 @@ protected:
                                MapDirection, const SkIRect* inputRect) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
     SkMatrix              fTransform;
     SkFilterQuality       fFilterQuality;
     typedef SkImageFilter INHERITED;
