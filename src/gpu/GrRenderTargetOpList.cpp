@@ -345,6 +345,7 @@ uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                                         const GrCaps& caps,
                                         GrAppliedClip* clip,
                                         const DstProxy* dstProxy) {
+    SkDEBUGCODE(op->validate();)
     SkASSERT(fTarget.get());
 
     // A closed GrOpList should never receive new/more ops

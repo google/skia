@@ -46,6 +46,14 @@ public:
      */
     virtual RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) = 0;
 
+#ifdef SK_DEBUG
+    bool fAddDrawOpCalled = false;
+
+    void validate() const override {
+        SkASSERT(fAddDrawOpCalled);
+    }
+#endif
+
 private:
     typedef GrOp INHERITED;
 };
