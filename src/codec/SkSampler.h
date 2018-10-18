@@ -68,11 +68,7 @@ public:
     static void Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
                      SkCodec::ZeroInitialized zeroInit);
 
-    /**
-     * Allow subclasses to implement unique versions of fill().
-     */
-    virtual void fill(const SkImageInfo& info, void* dst, size_t rowBytes,
-                      SkCodec::ZeroInitialized zeroInit) {} // FIXME: Can this be abstract?
+    virtual int fillWidth() const = 0;
 
     SkSampler()
         : fSampleY(1)

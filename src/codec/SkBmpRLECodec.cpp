@@ -275,11 +275,10 @@ SkCodec::Result SkBmpRLECodec::onPrepareToDecode(const SkImageInfo& dstInfo,
  */
 int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowBytes,
         const Options& opts) {
-    const int width = this->dimensions().width();
     int height = info.height();
 
     // Account for sampling.
-    SkImageInfo dstInfo = info.makeWH(get_scaled_dimension(width, fSampleX), height);
+    SkImageInfo dstInfo = info.makeWH(this->fillWidth(), height);
 
     // Set the background as transparent.  Then, if the RLE code skips pixels,
     // the skipped pixels will be transparent.
@@ -538,6 +537,10 @@ public:
         SkASSERT(fCodec);
     }
 
+    int fillWidth() const override {
+        return fCodec->fillWidth();
+    }
+
 private:
     int onSetSampleX(int sampleX) override {
         return fCodec->setSampleX(sampleX);
@@ -547,20 +550,19 @@ private:
     SkBmpRLECodec* fCodec;
 };
 
-SkSampler* SkBmpRLECodec::getSampler(bool /*createIfNecessary*/) {
-    // We will always create an SkBmpRLESampler if one is requested.
-    // This allows clients to always use the SkBmpRLESampler's
-    // version of fill(), which does nothing since RLE decodes have
-    // already filled pixel memory.  This seems fine, since creating
-    // an SkBmpRLESampler is pretty inexpensive.
-    if (!fSampler) {
+SkSampler* SkBmpRLECodec::getSampler(bool createIfNecessary) {
+    if (!fSampler && createIfNecessary) {
         fSampler.reset(new SkBmpRLESampler(this));
     }
 
     return fSampler.get();
 }
 
-int SkBmpRLECodec::setSampleX(int sampleX){
+int SkBmpRLECodec::setSampleX(int sampleX) {
     fSampleX = sampleX;
-    return get_scaled_dimension(this->dimensions().width(), sampleX);
+    return this->fillWidth();
+}
+
+int SkBmpRLECodec::fillWidth() const {
+    return get_scaled_dimension(this->dimensions().width(), fSampleX);
 }

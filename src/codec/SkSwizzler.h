@@ -53,13 +53,8 @@ public:
      */
     void swizzle(void* dst, const uint8_t* SK_RESTRICT src);
 
-    /**
-     * Implement fill using a custom width.
-     */
-    void fill(const SkImageInfo& info, void* dst, size_t rowBytes,
-            SkCodec::ZeroInitialized zeroInit) override {
-        const SkImageInfo fillInfo = info.makeWH(fAllocatedWidth, info.height());
-        SkSampler::Fill(fillInfo, dst, rowBytes, zeroInit);
+    int fillWidth() const override {
+        return fAllocatedWidth;
     }
 
     /**

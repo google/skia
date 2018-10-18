@@ -559,41 +559,22 @@ int SkCodec::onOutputScanline(int inputScanline) const {
     }
 }
 
-static void fill_proc(const SkImageInfo& info, void* dst, size_t rowBytes,
-                      SkCodec::ZeroInitialized zeroInit, SkSampler* sampler) {
-    if (sampler) {
-        sampler->fill(info, dst, rowBytes, zeroInit);
-    } else {
-        SkSampler::Fill(info, dst, rowBytes, zeroInit);
-    }
-}
-
 void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t rowBytes,
         ZeroInitialized zeroInit, int linesRequested, int linesDecoded) {
+    if (kYes_ZeroInitialized == zeroInit) {
+        return;
+    }
 
-    void* fillDst;
     const int linesRemaining = linesRequested - linesDecoded;
     SkSampler* sampler = this->getSampler(false);
 
-    int fillWidth = info.width();
-    if (fOptions.fSubset) {
-        fillWidth = fOptions.fSubset->width();
-    }
-
-    switch (this->getScanlineOrder()) {
-        case kTopDown_SkScanlineOrder: {
-            const SkImageInfo fillInfo = info.makeWH(fillWidth, linesRemaining);
-            fillDst = SkTAddOffset<void>(dst, linesDecoded * rowBytes);
-            fill_proc(fillInfo, fillDst, rowBytes, zeroInit, sampler);
-            break;
-        }
-        case kBottomUp_SkScanlineOrder: {
-            fillDst = dst;
-            const SkImageInfo fillInfo = info.makeWH(fillWidth, linesRemaining);
-            fill_proc(fillInfo, fillDst, rowBytes, zeroInit, sampler);
-            break;
-        }
-    }
+    const int fillWidth = sampler          ? sampler->fillWidth()      :
+                          fOptions.fSubset ? fOptions.fSubset->width() :
+                                             info.width()              ;
+    void* fillDst = this->getScanlineOrder() == kBottomUp_SkScanlineOrder ? dst :
+                        SkTAddOffset<void>(dst, linesDecoded * rowBytes);
+    const auto fillInfo = info.makeWH(fillWidth, linesRemaining);
+    SkSampler::Fill(fillInfo, fillDst, rowBytes, kNo_ZeroInitialized);
 }
 
 static inline bool select_xform_format(SkColorType colorType, bool forColorTable,
