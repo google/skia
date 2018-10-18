@@ -262,6 +262,11 @@
       "gm",
       "image",
       "colorImage",
+      "--blacklist",
+      "_",
+      "image",
+      "gen_platf",
+      "error",
       "--nonativeFonts",
       "--verbose"
     ],

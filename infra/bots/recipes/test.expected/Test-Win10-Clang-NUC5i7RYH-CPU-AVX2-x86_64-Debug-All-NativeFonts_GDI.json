@@ -310,6 +310,10 @@
       "image",
       "gen_platf",
       "rle4-height-negative.bmp",
+      "_",
+      "image",
+      "gen_platf",
+      "error",
       "--gdi",
       "--verbose"
     ],
