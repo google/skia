@@ -43,7 +43,7 @@ declare_args() {
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
   skia_enable_effects_imagefilters = true
-  skia_enable_effect_deserialization = !skia_enable_flutter_defines
+  skia_enable_effect_deserialization = true  #!skia_enable_flutter_defines
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
   skia_enable_pdf = true
