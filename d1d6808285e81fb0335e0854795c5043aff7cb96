@@ -22,6 +22,30 @@
       "revId": "d1d6808285e81fb0335e0854795c5043aff7cb96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d899517_532aae3a",
+        "filename": "src/gpu/GrBufferAllocPool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T18:31:32Z",
+      "side": 1,
+      "message": "So \u0027pad\u0027 can only be as big as the largest vertex size we use internally. It doesn\u0027t come from Skia\u0027s calling code. I\u0027m not sure what that value is but it would be in the 100s of bytes, way way less than 2^32 - 2^28.",
+      "parentUuid": "c67523bf_3070cbf4",
+      "range": {
+        "startLine": 150,
+        "startChar": 8,
+        "endLine": 150,
+        "endChar": 24
+      },
+      "revId": "d1d6808285e81fb0335e0854795c5043aff7cb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
