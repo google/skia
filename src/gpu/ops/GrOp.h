@@ -225,6 +225,10 @@ public:
     /** The next op in the chain. */
     const GrOp* nextInChain() const { return fNextInChain; }
 
+#ifdef SK_DEBUG
+    virtual void validate() const {}
+#endif
+
 protected:
     GrOp(uint32_t classID);
 
