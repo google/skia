@@ -1268,10 +1268,16 @@ STAGE(unbounded_set_rgb, const float* rgb) {
     g = rgb[1];
     b = rgb[2];
 }
+
 STAGE(swap_rb, Ctx::None) {
     auto tmp = r;
     r = b;
     b = tmp;
+}
+STAGE(swap_rb_dst, Ctx::None) {
+    auto tmp = dr;
+    dr = db;
+    db = tmp;
 }
 
 STAGE(move_src_dst, Ctx::None) {
@@ -1603,29 +1609,6 @@ STAGE(store_8888, const SkJumper_MemoryCtx* ctx) {
     U32 px = to_unorm(r, 255)
            | to_unorm(g, 255) <<  8
            | to_unorm(b, 255) << 16
-           | to_unorm(a, 255) << 24;
-    store(ptr, px, tail);
-}
-
-STAGE(load_bgra, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
-    from_8888(load<U32>(ptr, tail), &b,&g,&r,&a);
-}
-STAGE(load_bgra_dst, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
-    from_8888(load<U32>(ptr, tail), &db,&dg,&dr,&da);
-}
-STAGE(gather_bgra, const SkJumper_GatherCtx* ctx) {
-    const uint32_t* ptr;
-    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    from_8888(gather(ptr, ix), &b,&g,&r,&a);
-}
-STAGE(store_bgra, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
-
-    U32 px = to_unorm(b, 255)
-           | to_unorm(g, 255) <<  8
-           | to_unorm(r, 255) << 16
            | to_unorm(a, 255) << 24;
     store(ptr, px, tail);
 }
@@ -2573,6 +2556,11 @@ STAGE_PP(swap_rb, Ctx::None) {
     r = b;
     b = tmp;
 }
+STAGE_PP(swap_rb_dst, Ctx::None) {
+    auto tmp = dr;
+    dr = db;
+    db = tmp;
+}
 
 STAGE_PP(move_src_dst, Ctx::None) {
     dr = r;
@@ -2828,26 +2816,10 @@ STAGE_PP(load_8888_dst, const SkJumper_MemoryCtx* ctx) {
 STAGE_PP(store_8888, const SkJumper_MemoryCtx* ctx) {
     store_8888_(ptr_at_xy<uint32_t>(ctx, dx,dy), tail, r,g,b,a);
 }
-
-STAGE_PP(load_bgra, const SkJumper_MemoryCtx* ctx) {
-    load_8888_(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &b,&g,&r,&a);
-}
-STAGE_PP(load_bgra_dst, const SkJumper_MemoryCtx* ctx) {
-    load_8888_(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &db,&dg,&dr,&da);
-}
-STAGE_PP(store_bgra, const SkJumper_MemoryCtx* ctx) {
-    store_8888_(ptr_at_xy<uint32_t>(ctx, dx,dy), tail, b,g,r,a);
-}
-
 STAGE_GP(gather_8888, const SkJumper_GatherCtx* ctx) {
     const uint32_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, x,y);
     from_8888(gather<U32>(ptr, ix), &r, &g, &b, &a);
-}
-STAGE_GP(gather_bgra, const SkJumper_GatherCtx* ctx) {
-    const uint32_t* ptr;
-    U32 ix = ix_and_ptr(&ptr, ctx, x,y);
-    from_8888(gather<U32>(ptr, ix), &b, &g, &r, &a);
 }
 
 // ~~~~~~ 16-bit memory loads and stores ~~~~~~ //

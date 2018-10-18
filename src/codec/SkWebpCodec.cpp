@@ -333,44 +333,6 @@ static bool is_8888(SkColorType colorType) {
     }
 }
 
-static void pick_memory_stages(SkColorType ct, SkRasterPipeline::StockStage* load,
-                                               SkRasterPipeline::StockStage* store) {
-    switch(ct) {
-        case kUnknown_SkColorType:
-        case kAlpha_8_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kGray_8_SkColorType:
-        case kRGB_888x_SkColorType:
-        case kRGB_101010x_SkColorType:
-            SkASSERT(false);
-            break;
-        case kRGB_565_SkColorType:
-            if (load) *load = SkRasterPipeline::load_565;
-            if (store) *store = SkRasterPipeline::store_565;
-            break;
-        case kRGBA_8888_SkColorType:
-            if (load) *load = SkRasterPipeline::load_8888;
-            if (store) *store = SkRasterPipeline::store_8888;
-            break;
-        case kBGRA_8888_SkColorType:
-            if (load) *load = SkRasterPipeline::load_bgra;
-            if (store) *store = SkRasterPipeline::store_bgra;
-            break;
-        case kRGBA_1010102_SkColorType:
-            if (load) *load = SkRasterPipeline::load_1010102;
-            if (store) *store = SkRasterPipeline::store_1010102;
-            break;
-        case kRGBA_F16_SkColorType:
-            if (load) *load = SkRasterPipeline::load_f16;
-            if (store) *store = SkRasterPipeline::store_f16;
-            break;
-        case kRGBA_F32_SkColorType:
-            if (load) *load = SkRasterPipeline::load_f32;
-            if (store) *store = SkRasterPipeline::store_f32;
-            break;
-    }
-}
-
 // Requires that the src input be unpremultiplied (or opaque).
 static void blend_line(SkColorType dstCT, void* dst,
                        SkColorType srcCT, const void* src,
@@ -381,31 +343,23 @@ static void blend_line(SkColorType dstCT, void* dst,
                        src_ctx = { (void*)src, 0 };
 
     SkRasterPipeline_<256> p;
-    SkRasterPipeline::StockStage load_dst, store_dst;
-    pick_memory_stages(dstCT, &load_dst, &store_dst);
 
-    // Load the final dst.
-    p.append(load_dst, &dst_ctx);
+    p.append_load_dst(dstCT, &dst_ctx);
     if (kUnpremul_SkAlphaType == dstAt) {
-        p.append(SkRasterPipeline::premul);
+        p.append(SkRasterPipeline::premul_dst);
     }
-    p.append(SkRasterPipeline::move_src_dst);
 
-    // Load the src.
-    SkRasterPipeline::StockStage load_src;
-    pick_memory_stages(srcCT, &load_src, nullptr);
-    p.append(load_src, &src_ctx);
+    p.append_load(srcCT, &src_ctx);
     if (srcHasAlpha) {
         p.append(SkRasterPipeline::premul);
     }
 
     p.append(SkRasterPipeline::srcover);
 
-    // Convert back to dst.
     if (kUnpremul_SkAlphaType == dstAt) {
         p.append(SkRasterPipeline::unpremul);
     }
-    p.append(store_dst, &dst_ctx);
+    p.append_store(dstCT, &dst_ctx);
 
     p.run(0,0, width,1);
 }
