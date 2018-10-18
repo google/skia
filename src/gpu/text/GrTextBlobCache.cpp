@@ -9,6 +9,11 @@
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage)
 
+static inline bool SkShouldPostMessageToBus(
+        const GrTextBlobCache::PurgeBlobMessage& msg, uint32_t msgBusUniqueID) {
+    return msg.fContextID == msgBusUniqueID;
+}
+
 GrTextBlobCache::~GrTextBlobCache() {
     this->freeAll();
 }

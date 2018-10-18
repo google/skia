@@ -30,14 +30,16 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
 }
 
 sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSupported(
-        const GrCaps& caps, AllowCaching allowCaching) {
-    return sk_sp<GrCoverageCountingPathRenderer>(
-            IsSupported(caps) ? new GrCoverageCountingPathRenderer(allowCaching) : nullptr);
+        const GrCaps& caps, AllowCaching allowCaching, uint32_t contextUniqueID) {
+    return sk_sp<GrCoverageCountingPathRenderer>((IsSupported(caps))
+            ? new GrCoverageCountingPathRenderer(allowCaching, contextUniqueID)
+            : nullptr);
 }
 
-GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(AllowCaching allowCaching) {
+GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(AllowCaching allowCaching,
+                                                               uint32_t contextUniqueID) {
     if (AllowCaching::kYes == allowCaching) {
-        fPathCache = skstd::make_unique<GrCCPathCache>();
+        fPathCache = skstd::make_unique<GrCCPathCache>(contextUniqueID);
     }
 }
 
@@ -304,6 +306,10 @@ void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint
 
         // We wait to erase these until after flush, once Ops and FPs are done accessing their data.
         fFlushingPaths.reset();
+    }
+
+    if (fPathCache) {
+        fPathCache->purgeAsNeeded();
     }
 
     SkDEBUGCODE(fFlushing = false);

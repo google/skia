@@ -9,13 +9,18 @@
 #include "Test.h"
 
 namespace {
+
 struct TestMessage {
-    bool shouldSend(uint32_t inboxID) const { return true; }
     TestMessage(int i, float f) : x(i), y(f) {}
 
     int x;
     float y;
 };
+
+static inline bool SkShouldPostMessageToBus(const TestMessage&, uint32_t) {
+    return true;
+}
+
 }
 DECLARE_SKMESSAGEBUS_MESSAGE(TestMessage)
 
@@ -56,21 +61,24 @@ DEF_TEST(MessageBus, r) {
 }
 
 namespace {
+
 struct AddressedMessage {
     uint32_t fInboxID;
-
-    bool shouldSend(uint32_t inboxID) const {
-        SkASSERT(inboxID);
-        if (!fInboxID) {
-            return true;
-        }
-        return inboxID == fInboxID;
-    }
 };
+
+static inline bool SkShouldPostMessageToBus(const AddressedMessage& msg, uint32_t msgBusUniqueID) {
+    SkASSERT(msgBusUniqueID);
+    if (!msg.fInboxID) {
+        return true;
+    }
+    return msgBusUniqueID == msg.fInboxID;
 }
+
+}
+
 DECLARE_SKMESSAGEBUS_MESSAGE(AddressedMessage)
 
-DEF_TEST(MessageBus_shouldSend, r) {
+DEF_TEST(MessageBus_SkShouldPostMessageToBus, r) {
     SkMessageBus<AddressedMessage>::Inbox inbox1(1), inbox2(2);
 
     SkMessageBus<AddressedMessage>::Post({0});  // Should go to both

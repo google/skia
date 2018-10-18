@@ -10,6 +10,13 @@
 #include "GrShape.h"
 #include "SkNx.h"
 
+DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCacheEntry>);
+
+static inline bool SkShouldPostMessageToBus(
+        const sk_sp<GrCCPathCacheEntry>& entry, uint32_t msgBusUniqueID) {
+    return entry->pathCacheUniqueID() == msgBusUniqueID;
+}
+
 // The maximum number of cache entries we allow in our own cache.
 static constexpr int kMaxCacheCount = 1 << 16;
 
@@ -94,14 +101,14 @@ private:
 
 }
 
-inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* cache, const MaskTransform& m,
+inline GrCCPathCache::HashNode::HashNode(uint32_t pathCacheUniqueID, const MaskTransform& m,
                                          const GrShape& shape) {
     SkASSERT(shape.hasUnstyledKey());
 
     WriteStyledKey writeKey(shape);
     void* memory = ::operator new (sizeof(GrCCPathCacheEntry) +
                                    writeKey.allocCountU32() * sizeof(uint32_t));
-    fEntry = new (memory) GrCCPathCacheEntry(cache, m);
+    fEntry.reset(new (memory) GrCCPathCacheEntry(pathCacheUniqueID, m));
 
     // The shape key is a variable-length footer to the entry allocation.
     uint32_t* keyData = (uint32_t*)((char*)memory + sizeof(GrCCPathCacheEntry));
@@ -121,22 +128,17 @@ inline uint32_t GrCCPathCache::HashNode::Hash(HashKey key) {
     return GrResourceKeyHash(&key.fData[1], key.fData[0]);
 }
 
-GrCCPathCache::HashNode::~HashNode() {
-    if (!fEntry) {
-        return;
+#ifdef SK_DEBUG
+GrCCPathCache::~GrCCPathCache() {
+    // Ensure the hash table and LRU list are still coherent.
+    int lruCount = 0;
+    for (const GrCCPathCacheEntry* entry : fLRU) {
+        SkASSERT(fHashTable.find(HashNode::GetKey(entry))->entry() == entry);
+        ++lruCount;
     }
-
-    // Finalize our eviction from the path cache.
-    SkASSERT(fEntry->fCacheWeakPtr);
-    fEntry->fCacheWeakPtr->fLRU.remove(fEntry);
-    fEntry->fCacheWeakPtr = nullptr;
-    fEntry->unref();
+    SkASSERT(fHashTable.count() == lruCount);
 }
-
-GrCCPathCache::HashNode& GrCCPathCache::HashNode::operator=(HashNode&& node) {
-    this->~HashNode();
-    return *new (this) HashNode(std::move(node));
-}
+#endif
 
 sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTransform& m,
                                               CreateIfAbsent createIfAbsent) {
@@ -151,7 +153,7 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
     GrCCPathCacheEntry* entry = nullptr;
     if (HashNode* node = fHashTable.find({keyData.get()})) {
         entry = node->entry();
-        SkASSERT(this == entry->fCacheWeakPtr);
+        SkASSERT(fLRU.isInList(entry));
         if (fuzzy_equals(m, entry->fMaskTransform)) {
             ++entry->fHitCount;  // The path was reused with a compatible matrix.
         } else if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
@@ -173,7 +175,7 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
         if (fHashTable.count() >= kMaxCacheCount) {
             this->evict(fLRU.tail());  // We've exceeded our limit.
         }
-        entry = fHashTable.set(HashNode(this, m, shape))->entry();
+        entry = fHashTable.set(HashNode(fInvalidatedEntriesInbox.uniqueID(), m, shape))->entry();
         shape.addGenIDChangeListener(sk_ref_sp(entry));
         SkASSERT(fHashTable.count() <= kMaxCacheCount);
     } else {
@@ -184,32 +186,35 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
     return sk_ref_sp(entry);
 }
 
-void GrCCPathCache::evict(const GrCCPathCacheEntry* entry) {
-    SkASSERT(entry);
-    SkASSERT(this == entry->fCacheWeakPtr);
-    SkASSERT(fLRU.isInList(entry));
-    SkASSERT(fHashTable.find(HashNode::GetKey(entry))->entry() == entry);
+void GrCCPathCache::evict(GrCCPathCacheEntry* entry) {
+    bool isInCache = entry->fNext || (fLRU.tail() == entry);
+    SkASSERT(isInCache == fLRU.isInList(entry));
+    if (isInCache) {
+        fLRU.remove(entry);
+        fHashTable.remove(HashNode::GetKey(entry));  // Do this last, as it might delete the entry.
+    }
+}
 
-    fHashTable.remove(HashNode::GetKey(entry));  // ~HashNode() handles the rest.
+void GrCCPathCache::purgeAsNeeded() {
+    SkTArray<sk_sp<GrCCPathCacheEntry>> invalidatedEntries;
+    fInvalidatedEntriesInbox.poll(&invalidatedEntries);
+    for (const sk_sp<GrCCPathCacheEntry>& entry : invalidatedEntries) {
+        this->evict(entry.get());
+    }
 }
 
 
 GrCCPathCacheEntry::~GrCCPathCacheEntry() {
-    SkASSERT(!fCacheWeakPtr);  // HashNode should have cleared our cache pointer.
     SkASSERT(!fCurrFlushAtlas);  // Client is required to reset fCurrFlushAtlas back to null.
-
     this->invalidateAtlas();
 }
 
-void GrCCPathCacheEntry::initAsStashedAtlas(const GrUniqueKey& atlasKey, uint32_t contextUniqueID,
+void GrCCPathCacheEntry::initAsStashedAtlas(const GrUniqueKey& atlasKey,
                                             const SkIVector& atlasOffset, const SkRect& devBounds,
                                             const SkRect& devBounds45, const SkIRect& devIBounds,
                                             const SkIVector& maskShift) {
-    SkASSERT(contextUniqueID != SK_InvalidUniqueID);
     SkASSERT(atlasKey.isValid());
     SkASSERT(!fCurrFlushAtlas);  // Otherwise we should reuse the atlas from last time.
-
-    fContextUniqueID = contextUniqueID;
 
     fAtlasKey = atlasKey;
     fAtlasOffset = atlasOffset + maskShift;
@@ -221,14 +226,11 @@ void GrCCPathCacheEntry::initAsStashedAtlas(const GrUniqueKey& atlasKey, uint32_
     fDevIBounds = devIBounds.makeOffset(-maskShift.fX, -maskShift.fY);
 }
 
-void GrCCPathCacheEntry::updateToCachedAtlas(const GrUniqueKey& atlasKey, uint32_t contextUniqueID,
+void GrCCPathCacheEntry::updateToCachedAtlas(const GrUniqueKey& atlasKey,
                                              const SkIVector& newAtlasOffset,
                                              sk_sp<GrCCAtlas::CachedAtlasInfo> info) {
-    SkASSERT(contextUniqueID != SK_InvalidUniqueID);
     SkASSERT(atlasKey.isValid());
     SkASSERT(!fCurrFlushAtlas);  // Otherwise we should reuse the atlas from last time.
-
-    fContextUniqueID = contextUniqueID;
 
     fAtlasKey = atlasKey;
     fAtlasOffset = newAtlasOffset;
@@ -245,8 +247,10 @@ void GrCCPathCacheEntry::invalidateAtlas() {
         if (!fCachedAtlasInfo->fIsPurgedFromResourceCache &&
             fCachedAtlasInfo->fNumInvalidatedPathPixels >= fCachedAtlasInfo->fNumPathPixels / 2) {
             // Too many invalidated pixels: purge the atlas texture from the resource cache.
+            // The GrContext and CCPR path cache both share the same unique ID.
+            uint32_t contextUniqueID = fPathCacheUniqueID;
             SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-                    GrUniqueKeyInvalidatedMessage(fAtlasKey, fContextUniqueID));
+                    GrUniqueKeyInvalidatedMessage(fAtlasKey, contextUniqueID));
             fCachedAtlasInfo->fIsPurgedFromResourceCache = true;
         }
     }
@@ -256,8 +260,6 @@ void GrCCPathCacheEntry::invalidateAtlas() {
 }
 
 void GrCCPathCacheEntry::onChange() {
-    // Our corresponding path was modified or deleted. Evict ourselves.
-    if (fCacheWeakPtr) {
-        fCacheWeakPtr->evict(this);
-    }
+    // Post a thread-safe eviction message.
+    SkMessageBus<sk_sp<GrCCPathCacheEntry>>::Post(sk_ref_sp(this));
 }

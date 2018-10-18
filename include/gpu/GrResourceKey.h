@@ -348,12 +348,16 @@ public:
     GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage&) = default;
 
     const GrUniqueKey& key() const { return fKey; }
-
-    bool shouldSend(uint32_t inboxID) const { return fContextID == inboxID; }
+    uint32_t contextID() const { return fContextID; }
 
 private:
     GrUniqueKey fKey;
     uint32_t fContextID;
 };
+
+static inline bool SkShouldPostMessageToBus(
+        const GrUniqueKeyInvalidatedMessage& msg, uint32_t msgBusUniqueID) {
+    return msg.contextID() == msgBusUniqueID;
+}
 
 #endif
