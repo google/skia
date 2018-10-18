@@ -46,6 +46,30 @@
       "revId": "d1d6808285e81fb0335e0854795c5043aff7cb96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1acc90cf_7268df89",
+        "filename": "src/gpu/GrBufferAllocPool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 8766
+      },
+      "writtenOn": "2018-10-18T18:40:39Z",
+      "side": 1,
+      "message": "Sure, I get that, and it might be true today, but we should not operate based on an assumption that it will never change. And even it\u0027s written in stone, there are still no guarantees that any calling code won\u0027t mess that up and end up having a larger value. This is just another assumption. And one more assumption here is that we should not allocate \u003e.25GiB buffers. How can we know that this will be so forever? How are we going to change it when we need to? Search for all possible variants of 1 \u003c\u003c 28 literal across bunch of different files?",
+      "parentUuid": "7d899517_532aae3a",
+      "range": {
+        "startLine": 150,
+        "startChar": 8,
+        "endLine": 150,
+        "endChar": 24
+      },
+      "revId": "d1d6808285e81fb0335e0854795c5043aff7cb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
