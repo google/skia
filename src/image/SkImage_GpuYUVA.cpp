@@ -16,6 +16,7 @@
 #include "GrTexture.h"
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuYUVA.h"
+#include "SkYUVSizeInfo.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
 SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
@@ -182,7 +183,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
 sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
                                                        SkYUVColorSpace yuvColorSpace,
                                                        const GrBackendFormat yuvaFormats[],
-                                                       const SkISize yuvaSizes[],
+                                                       const SkYUVSizeInfo& yuvaSizeInfo,
                                                        const SkYUVAIndex yuvaIndices[4],
                                                        int imageWidth,
                                                        int imageHeight,
@@ -232,24 +233,20 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         return nullptr;
     }
 
-    // Set up color types
-    SkColorType texColorTypes[4] = { kUnknown_SkColorType, kUnknown_SkColorType,
-                                     kUnknown_SkColorType, kUnknown_SkColorType };
-    for (int yuvIndex = 0; yuvIndex < 4; ++yuvIndex) {
-        int texIdx = yuvaIndices[yuvIndex].fIndex;
-        if (texIdx < 0) {
-            SkASSERT(SkYUVAIndex::kA_Index == yuvIndex);
-            continue;
-        }
-        if (kUnknown_SkColorType == texColorTypes[texIdx]) {
-            texColorTypes[texIdx] = kAlpha_8_SkColorType;
-        } else {
-            texColorTypes[texIdx] = kRGBA_8888_SkColorType;
+    // verify sizeInfo with expected texture count
+    for (int i = 0; i < numTextures; ++i) {
+        if (kUnknown_SkColorType == yuvaSizeInfo.fColorTypes[i] ||
+            yuvaSizeInfo.fSizes[i].isEmpty() ||
+            !yuvaSizeInfo.fWidthBytes[i]) {
+            return nullptr;
         }
     }
-    // If UV is interleaved, then Y will have RGBA color type
-    if (kRGBA_8888_SkColorType == texColorTypes[yuvaIndices[SkYUVAIndex::kU_Index].fIndex]) {
-        texColorTypes[yuvaIndices[SkYUVAIndex::kY_Index].fIndex] = kRGBA_8888_SkColorType;
+    for (int i = numTextures; i < SkYUVSizeInfo::kMaxCount; ++i) {
+        if (kUnknown_SkColorType != yuvaSizeInfo.fColorTypes[i] ||
+            !yuvaSizeInfo.fSizes[i].isEmpty() ||
+            yuvaSizeInfo.fWidthBytes[i]) {
+            return nullptr;
+        }
     }
 
     // Get lazy proxies
@@ -261,9 +258,11 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
             GrPixelConfig fConfig;
             SkPromiseImageHelper fPromiseHelper;
         } params;
-        if (!context->contextPriv().caps()->getConfigFromBackendFormat(yuvaFormats[texIdx],
-                                                                       texColorTypes[texIdx],
-                                                                       &params.fConfig)) {
+        bool res = context->contextPriv().caps()->getConfigFromBackendFormat(
+                       yuvaFormats[texIdx],
+                       yuvaSizeInfo.fColorTypes[texIdx],
+                       &params.fConfig);
+        if (!res) {
             return nullptr;
         }
         params.fPromiseHelper = promiseHelpers[texIdx];
@@ -281,8 +280,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         };
         GrSurfaceDesc desc;
         desc.fFlags = kNone_GrSurfaceFlags;
-        desc.fWidth = yuvaSizes[texIdx].width();
-        desc.fHeight = yuvaSizes[texIdx].height();
+        desc.fWidth = yuvaSizeInfo.fSizes[texIdx].width();
+        desc.fHeight = yuvaSizeInfo.fSizes[texIdx].height();
         desc.fConfig = params.fConfig;
         desc.fSampleCnt = 1;
         proxies[texIdx] = proxyProvider->createLazyProxy(
