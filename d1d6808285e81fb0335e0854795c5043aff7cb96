@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c67523bf_3070cbf4",
+        "filename": "src/gpu/GrBufferAllocPool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 8766
+      },
+      "writtenOn": "2018-10-18T18:06:04Z",
+      "side": 1,
+      "message": "I\u0027m not sure that this is a proper fix. It doesn\u0027t make the overflow impossible. Plus, using some magic literal constant just makes the code harder to maintain. IMO it would be much better to use something like base/numerics to eliminate the overflow possibility completely.",
+      "range": {
+        "startLine": 150,
+        "startChar": 8,
+        "endLine": 150,
+        "endChar": 24
+      },
+      "revId": "d1d6808285e81fb0335e0854795c5043aff7cb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
