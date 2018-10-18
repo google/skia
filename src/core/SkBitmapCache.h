@@ -33,7 +33,6 @@ struct SkBitmapCacheDesc {
         SkASSERT(kUnknown_SkColorType != fColorType);
     }
 
-    static SkBitmapCacheDesc Make(const SkBitmap&);
     static SkBitmapCacheDesc Make(const SkImage*);
     static SkBitmapCacheDesc Make(uint32_t genID, SkColorType, SkColorSpace*,
                                   const SkIRect& subset);
