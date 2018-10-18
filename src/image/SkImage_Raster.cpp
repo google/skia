@@ -188,6 +188,10 @@ sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrContext* context,
         return adjuster.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
     }
 
+    if (texColorSpace) {
+        *texColorSpace = fBitmap.refColorSpace();
+    }
+
     return GrRefCachedBitmapTextureProxy(context, fBitmap, params, scaleAdjust);
 }
 #endif
