@@ -350,3 +350,9 @@ pathops_tests_sources = [
   "$_tests/PathOpsTightBoundsTest.cpp",
   "$_tests/PathOpsTypesTest.cpp",
 ]
+
+_sg_tests = get_path_info("../modules/sksg/tests", "abspath")
+sg_tests_sources = [ "$_sg_tests/SGTest.cpp" ]
+
+_skottie_tests = get_path_info("../modules/skottie/src", "abspath")
+skottie_tests_sources = [ "$_skottie_tests/SkottieTest.cpp" ]
