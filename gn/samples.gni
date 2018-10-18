@@ -115,3 +115,6 @@ if (is_win && is_clang) {
     "$_samplecode/SampleNima.cpp",
   ]
 }
+
+_sg_samplecode = get_path_info("../modules/sksg/samples", "abspath")
+sg_samples_sources = [ "$_sg_samplecode/SampleSVGPong.cpp" ]

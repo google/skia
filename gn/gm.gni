@@ -350,3 +350,6 @@ gm_sources = [
   "$_gm/xfermodes3.cpp",
   "$_gm/yuvtorgbeffect.cpp",
 ]
+
+_skottie_gm = get_path_info("../modules/skottie/gm", "abspath")
+skottie_gm_sources = [ "$_skottie_gm/SkottieGM.cpp" ]

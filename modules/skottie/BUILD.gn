@@ -3,105 +3,19 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-declare_args() {
-  skia_enable_skottie = true
-}
-
 config("public_config") {
-  if (skia_enable_skottie) {
-    defines = [ "SK_ENABLE_SKOTTIE" ]
-    include_dirs = [ "include" ]
-  }
+  defines = [ "SK_ENABLE_SKOTTIE" ]
+  include_dirs = [ "include" ]
 }
 
 source_set("skottie") {
-  if (skia_enable_skottie) {
-    import("skottie.gni")
-    public_configs = [ ":public_config" ]
-    public = skia_skottie_public
-    sources = skia_skottie_sources
-    configs += [ "../../:skia_private" ]
-    deps = [
-      "../..:skia",
-      "../sksg",
-    ]
-  }
-}
-
-source_set("tests") {
-  if (skia_enable_skottie) {
-    testonly = true
-
-    configs += [
-      "../..:skia_private",
-      "../..:tests_config",
-    ]
-    sources = [
-      "src/SkottieTest.cpp",
-    ]
-
-    deps = [
-      ":skottie",
-      "../..:gpu_tool_utils",
-      "../..:skia",
-    ]
-  }
-}
-
-source_set("fuzz") {
-  if (skia_enable_skottie) {
-    testonly = true
-
-    configs += [ "../..:skia_private" ]
-    sources = [
-      "fuzz/FuzzSkottieJSON.cpp",
-    ]
-
-    deps = [
-      "../..:skia",
-    ]
-
-    public_deps = [
-      ":skottie",
-    ]
-  }
-}
-
-source_set("tool") {
-  testonly = true
-
-  configs += [ "../..:skia_private" ]
-  sources = [
-    "src/SkottieTool.cpp",
-  ]
-
+  import("skottie.gni")
+  public_configs = [ ":public_config" ]
+  public = skia_skottie_public
+  sources = skia_skottie_sources
+  configs += [ "../../:skia_private" ]
   deps = [
-    "../..:flags",
     "../..:skia",
+    "../sksg",
   ]
-
-  public_deps = [
-    ":skottie",
-  ]
-}
-
-source_set("gm") {
-  if (skia_enable_skottie) {
-    testonly = true
-
-    # would be nice to have a gm_config
-    include_dirs = [ "../../gm" ]
-
-    configs += [ "../..:skia_private" ]
-    sources = [
-      "gm/SkottieGM.cpp",
-    ]
-
-    deps = [
-      ":skottie",
-      "../..:gpu_tool_utils",
-      "../..:skia",
-      "../..:tool_utils",
-    ]
-  }
 }

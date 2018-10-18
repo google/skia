@@ -1478,13 +1478,12 @@ if (skia_enable_tools) {
   import("gn/gm.gni")
   test_lib("gm") {
     public_include_dirs = [ "gm" ]
-    sources = gm_sources
+    sources = gm_sources + skottie_gm_sources
     deps = [
       ":flags",
       ":skia",
       ":tool_utils",
       "modules/skottie",
-      "modules/skottie:gm",
       "modules/sksg",
     ]
     public_deps = [
@@ -1495,7 +1494,8 @@ if (skia_enable_tools) {
   import("gn/tests.gni")
   test_lib("tests") {
     public_include_dirs = [ "tests" ]
-    sources = tests_sources + pathops_tests_sources
+    sources = tests_sources + pathops_tests_sources + skottie_tests_sources +
+              sg_tests_sources
     if (!fontmgr_android_enabled) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
@@ -1507,8 +1507,8 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
-      "modules/skottie:tests",
-      "modules/sksg:tests",
+      "modules/skottie",
+      "modules/sksg",
       "//third_party/libpng",
       "//third_party/zlib",
     ]
@@ -1627,8 +1627,13 @@ if (skia_enable_tools) {
 
   if (is_linux || is_mac) {
     test_app("skottie_tool") {
+      sources = [
+        "modules/skottie/src/SkottieTool.cpp",
+      ]
       deps = [
-        "modules/skottie:tool",
+        ":flags",
+        ":skia",
+        "modules/skottie",
       ]
     }
   }
@@ -1638,7 +1643,7 @@ if (skia_enable_tools) {
     test_lib("samples") {
       public_include_dirs = [ "samplecode" ]
       include_dirs = [ "experimental" ]
-      sources = samples_sources
+      sources = samples_sources + sg_samples_sources
       public_deps = [
         ":tool_utils",
       ]
@@ -1646,6 +1651,7 @@ if (skia_enable_tools) {
         ":experimental_svg_model",
         ":flags",
         ":xml",
+        "modules/sksg",
         "modules/skshaper",
       ]
 
@@ -1860,6 +1866,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
+      "modules/skottie/fuzz/FuzzSkottieJSON.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/SkDebugCanvas.cpp",
       "tools/debugger/SkDrawCommand.cpp",
@@ -1869,7 +1876,7 @@ if (skia_enable_tools) {
       ":flags",
       ":gpu_tool_utils",
       ":skia",
-      "modules/skottie:fuzz",
+      "modules/skottie",
       "//third_party/jsoncpp",
       "//third_party/libpng",
     ]
@@ -1982,9 +1989,9 @@ if (skia_enable_tools) {
 
       include_dirs = []
       deps = [
+        ":samples",
         ":skia",
         "modules/skottie",
-        "modules/sksg:samples",
       ]
     }
   }
@@ -2131,7 +2138,6 @@ if (skia_enable_tools) {
       ":tool_utils",
       "modules/skottie",
       "modules/sksg",
-      "modules/sksg:samples",
       "//third_party/imgui",
     ]
 
