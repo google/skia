@@ -34,21 +34,13 @@ struct BitmapShaderKey : public SkResourceCache::Key {
 public:
     BitmapShaderKey(SkColorSpace* colorSpace,
                     uint32_t shaderID,
-                    const SkRect& tile,
-                    SkShader::TileMode tmx,
-                    SkShader::TileMode tmy,
                     const SkSize& scale)
         : fColorSpaceXYZHash(colorSpace->toXYZD50Hash())
         , fColorSpaceTransferFnHash(colorSpace->transferFnHash())
-        , fTile(tile)
-        , fTmx(tmx)
-        , fTmy(tmy)
         , fScale(scale) {
 
         static const size_t keySize = sizeof(fColorSpaceXYZHash) +
                                       sizeof(fColorSpaceTransferFnHash) +
-                                      sizeof(fTile) +
-                                      sizeof(fTmx) + sizeof(fTmy) +
                                       sizeof(fScale);
         // This better be packed.
         SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - &fColorSpaceXYZHash) == keySize);
@@ -63,8 +55,6 @@ public:
 private:
     uint32_t                   fColorSpaceXYZHash;
     uint32_t                   fColorSpaceTransferFnHash;
-    SkRect                     fTile;
-    SkShader::TileMode         fTmx, fTmy;
     SkSize                     fScale;
 
     SkDEBUGCODE(uint32_t fEndOfStruct;)
@@ -228,9 +218,6 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     sk_sp<SkShader> tileShader;
     BitmapShaderKey key(imgCS.get(),
                         fUniqueID,
-                        fTile,
-                        fTmx,
-                        fTmy,
                         tileScale);
 
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
