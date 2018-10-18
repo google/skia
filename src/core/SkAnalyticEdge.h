@@ -170,8 +170,7 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
         return false;
     }
     SkFDot6 dx = SkFixedToFDot6(x1 - x0);
-    SkFixed slope = QuickSkFDot6Div(dx, dy);
-    SkFixed absSlope = SkAbs32(slope);
+    SkFixed slope = SkFDot6Div(dx, dy);
 
     fX          = x0;
     fDX         = slope;
@@ -179,9 +178,7 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
     fY          = y0;
     fUpperY     = y0;
     fLowerY     = y1;
-    fDY         = dx == 0 || slope == 0 ? SK_MaxS32 : absSlope < kInverseTableSize
-                                                    ? QuickFDot6Inverse::Lookup(absSlope)
-                                                    : SkAbs32(QuickSkFDot6Div(dy, dx));
+    fDY         = dx == 0 || slope == 0 ? SK_MaxS32 : SkAbs32(SkFDot6Div(dy, dx));
     fCurveCount = 0;
     fWinding    = SkToS8(winding);
     fCurveShift = 0;

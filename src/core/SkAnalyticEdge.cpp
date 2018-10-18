@@ -44,7 +44,6 @@ bool SkAnalyticEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1, 
 
     SkASSERT(slope < SK_MaxS32);
 
-    SkFDot6     absSlope = SkAbs32(SkFixedToFDot6(slope));
     fX          = x0;
     fDX         = slope;
     fUpperX     = x0;
@@ -53,9 +52,7 @@ bool SkAnalyticEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1, 
     fLowerY     = y1;
     fDY         = (dx == 0 || slope == 0)
                   ? SK_MaxS32
-                  : absSlope < kInverseTableSize
-                    ? QuickFDot6Inverse::Lookup(absSlope)
-                    : SkAbs32(QuickSkFDot6Div(dy, dx));
+                  : SkAbs32(SkFDot6Div(dy, dx));
 
     return true;
 }
@@ -117,7 +114,7 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
             newy    = oldy + (dy >> shift);
             if (SkAbs32(dy >> shift) >= SK_Fixed1 * 2) { // only snap when dy is large enough
                 SkFDot6 diffY = SkFixedToFDot6(newy - fSnappedY);
-                slope = diffY ? QuickSkFDot6Div(SkFixedToFDot6(newx - fSnappedX), diffY)
+                slope = diffY ? SkFDot6Div(SkFixedToFDot6(newx - fSnappedX), diffY)
                               : SK_MaxS32;
                 newSnappedY = SkTMin<SkFixed>(fQEdge.fQLastY, SkFixedRoundToFixed(newy));
                 newSnappedX = newx - SkFixedMul(slope, newy - newSnappedY);
@@ -125,7 +122,7 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
                 newSnappedY = SkTMin(fQEdge.fQLastY, SnapY(newy));
                 newSnappedX = newx;
                 SkFDot6 diffY = SkFixedToFDot6(newSnappedY - fSnappedY);
-                slope = diffY ? QuickSkFDot6Div(SkFixedToFDot6(newx - fSnappedX), diffY)
+                slope = diffY ? SkFDot6Div(SkFixedToFDot6(newx - fSnappedX), diffY)
                               : SK_MaxS32;
             }
             dx += fQEdge.fQDDx;
@@ -138,7 +135,7 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
             newSnappedY = newy;
             newSnappedX = newx;
             SkFDot6 diffY = (newy - fSnappedY) >> 10;
-            slope = diffY ? QuickSkFDot6Div((newx - fSnappedX) >> 10, diffY) : SK_MaxS32;
+            slope = diffY ? SkFDot6Div((newx - fSnappedX) >> 10, diffY) : SK_MaxS32;
         }
         if (slope < SK_MaxS32) {
             success = this->updateLine(fSnappedX, fSnappedY, newSnappedX, newSnappedY, slope);
