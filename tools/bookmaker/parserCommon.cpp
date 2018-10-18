@@ -9,11 +9,6 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
-static void debug_out(int len, const char* data) {
-    // convenient place to intercept arbitrary output
-    SkDebugf("%.*s", len, data);
-}
-
 void ParserCommon::checkLineLength(size_t len, const char* str) {
     if (!fWritingIncludes) {
         return;
@@ -198,10 +193,7 @@ bool ParserCommon::writeBlockIndent(int size, const char* data, bool ignoreIdent
         int len = lineEnd ? (int) (lineEnd - data) : size;
         this->writePending();
         this->indentToColumn(indent);
-        if (fDebugOut) {
-            debug_out(len, data);
-        }
-        fprintf(fOut, "%.*s", len, data);
+        FPRINTF("%.*s", len, data);
         checkLineLength(len, data);
         size -= len;
         data += len;
@@ -241,10 +233,7 @@ bool ParserCommon::writeBlockTrim(int size, const char* data) {
         fPendingSpace = 0;
     }
     this->writePending();
-    if (fDebugOut) {
-        debug_out(size, data);
-    }
-    fprintf(fOut, "%.*s", size, data);
+    FPRINTF("%.*s", size, data);
     checkLineLength(size, data);
     fWroteSomething = true;
     int added = 0;
@@ -311,10 +300,7 @@ void ParserCommon::writeString(const char* str) {
         fPendingSpace = 0;
     }
     this->writePending();
-    if (fDebugOut) {
-        debug_out((int) strlen(str), str);
-    }
-    fprintf(fOut, "%s", str);
+    FPRINTF("%s", str);
     checkLineLength(strlen(str), str);
     fColumn += len;
     fSpaces = 0;
