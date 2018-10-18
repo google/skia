@@ -17,38 +17,40 @@ component("sksg") {
   ]
 }
 
-source_set("tests") {
-  testonly = true
-
-  configs += [
-    "../..:skia_private",
-    "../..:tests_config",  # TODO: refactor to make this nicer
-  ]
-  sources = [
-    "tests/SGTest.cpp",
-  ]
-  deps = [
-    ":sksg",
-    "../..:gpu_tool_utils",  # TODO: refactor to make this nicer
-    "../..:skia",
-  ]
-}
-
-source_set("samples") {
-  if (target_cpu != "wasm") {  # TODO: clean up wasm test
+if (defined(is_skia_standalone)) {
+  source_set("tests") {
     testonly = true
 
     configs += [
       "../..:skia_private",
-      "../..:samples_config",  # TODO: refactor to make this nicer
+      "../..:tests_config",  # TODO: refactor to make this nicer
     ]
     sources = [
-      "samples/SampleSVGPong.cpp",
+      "tests/SGTest.cpp",
     ]
     deps = [
       ":sksg",
+      "../..:gpu_tool_utils",  # TODO: refactor to make this nicer
       "../..:skia",
-      "../..:samples",
     ]
+  }
+
+  source_set("samples") {
+    if (target_cpu != "wasm") {  # TODO: clean up wasm test
+      testonly = true
+
+      configs += [
+        "../..:skia_private",
+        "../..:samples_config",  # TODO: refactor to make this nicer
+      ]
+      sources = [
+        "samples/SampleSVGPong.cpp",
+      ]
+      deps = [
+        ":sksg",
+        "../..:samples",
+        "../..:skia",
+      ]
+    }
   }
 }
