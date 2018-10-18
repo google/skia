@@ -28,36 +28,56 @@ source_set("skottie") {
   }
 }
 
-source_set("tests") {
-  if (skia_enable_skottie) {
-    testonly = true
+if (defined(is_skia_standalone)) {
+  source_set("tests") {
+    if (skia_enable_skottie) {
+      testonly = true
 
-    configs += [
-      "../..:skia_private",
-      "../..:tests_config",
-    ]
-    sources = [
-      "src/SkottieTest.cpp",
-    ]
+      configs += [
+        "../..:skia_private",
+        "../..:tests_config",
+      ]
+      sources = [
+        "src/SkottieTest.cpp",
+      ]
 
-    deps = [
-      ":skottie",
-      "../..:gpu_tool_utils",
-      "../..:skia",
-    ]
+      deps = [
+        ":skottie",
+        "../..:gpu_tool_utils",
+        "../..:skia",
+      ]
+    }
   }
-}
 
-source_set("fuzz") {
-  if (skia_enable_skottie) {
+  source_set("fuzz") {
+    if (skia_enable_skottie) {
+      testonly = true
+
+      configs += [ "../..:skia_private" ]
+      sources = [
+        "fuzz/FuzzSkottieJSON.cpp",
+      ]
+
+      deps = [
+        "../..:skia",
+      ]
+
+      public_deps = [
+        ":skottie",
+      ]
+    }
+  }
+
+  source_set("tool") {
     testonly = true
 
     configs += [ "../..:skia_private" ]
     sources = [
-      "fuzz/FuzzSkottieJSON.cpp",
+      "src/SkottieTool.cpp",
     ]
 
     deps = [
+      "../..:flags",
       "../..:skia",
     ]
 
@@ -65,43 +85,25 @@ source_set("fuzz") {
       ":skottie",
     ]
   }
-}
 
-source_set("tool") {
-  testonly = true
+  source_set("gm") {
+    if (skia_enable_skottie) {
+      testonly = true
 
-  configs += [ "../..:skia_private" ]
-  sources = [
-    "src/SkottieTool.cpp",
-  ]
+      # would be nice to have a gm_config
+      include_dirs = [ "../../gm" ]
 
-  deps = [
-    "../..:flags",
-    "../..:skia",
-  ]
+      configs += [ "../..:skia_private" ]
+      sources = [
+        "gm/SkottieGM.cpp",
+      ]
 
-  public_deps = [
-    ":skottie",
-  ]
-}
-
-source_set("gm") {
-  if (skia_enable_skottie) {
-    testonly = true
-
-    # would be nice to have a gm_config
-    include_dirs = [ "../../gm" ]
-
-    configs += [ "../..:skia_private" ]
-    sources = [
-      "gm/SkottieGM.cpp",
-    ]
-
-    deps = [
-      ":skottie",
-      "../..:gpu_tool_utils",
-      "../..:skia",
-      "../..:tool_utils",
-    ]
+      deps = [
+        ":skottie",
+        "../..:gpu_tool_utils",
+        "../..:skia",
+        "../..:tool_utils",
+      ]
+    }
   }
 }
