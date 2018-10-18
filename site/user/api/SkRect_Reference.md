@@ -402,13 +402,13 @@ rect: -10, 35, 5, 60  isEmpty: false
 static <a href='#SkRect'>SkRect</a> <a href='#SkRect_Make'>Make</a>(const <a href='undocumented#SkISize'>SkISize</a>& size)
 </pre>
 
-Returns constructed <a href='SkIRect_Reference#IRect'>IRect</a> set to (0, 0, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>(), <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>()).
+Returns constructed <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to (0, 0, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>(), <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>()).
 Does not validate input; <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>() or <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>() may be negative.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_Make_size'><code><strong>size</strong></code></a></td>
-    <td>integer values for <a href='#Rect'>Rect</a> width and height</td>
+    <td>integer values for <a href='#SkRect'>SkRect</a> width and height</td>
   </tr>
 </table>
 

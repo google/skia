@@ -467,9 +467,11 @@ bool Definition::checkMethod() const {
     bool expectReturn = this->methodHasReturn(name, &methodParser);
     bool foundReturn = false;
     bool foundException = false;
+    bool foundPopulate = false;
     for (auto& child : fChildren) {
         foundException |= MarkType::kDeprecated == child->fMarkType
                 || MarkType::kExperimental == child->fMarkType;
+        foundPopulate |= MarkType::kPopulate == child->fMarkType;
         if (MarkType::kReturn != child->fMarkType) {
             if (MarkType::kParam == child->fMarkType) {
                 child->fVisited = false;
@@ -484,7 +486,7 @@ bool Definition::checkMethod() const {
         }
         foundReturn = true;
     }
-    if (expectReturn && !foundReturn && !foundException) {
+    if (expectReturn && !foundReturn && !foundException && !foundPopulate) {
         return methodParser.reportError<bool>("missing #Return marker");
     }
     const char* paren = methodParser.strnchr('(', methodParser.fEnd);
@@ -518,7 +520,7 @@ bool Definition::checkMethod() const {
             foundParam = true;
 
         }
-        if (!foundParam && !foundException) {
+        if (!foundParam && !foundException && !foundPopulate) {
             return methodParser.reportError<bool>("no #Param found");
         }
         if (')' == nextEnd[0]) {
@@ -587,7 +589,8 @@ bool Definition::checkMethod() const {
         priorDef = nullptr;
     }
     if (!descEnd) {
-        return incomplete ? true : methodParser.reportError<bool>("missing description");
+        return incomplete || foundPopulate ? true :
+                methodParser.reportError<bool>("missing description");
     }
     TextParser description(fFileName, descStart, descEnd, fLineCount);
     // expect first word capitalized and pluralized. expect a trailing period
@@ -891,7 +894,7 @@ const Definition* Definition::hasChild(MarkType markType) const {
     return nullptr;
 }
 
-const Definition* Definition::hasParam(string ref) const {
+Definition* Definition::hasParam(string ref) {
     SkASSERT(MarkType::kMethod == fMarkType);
     for (auto iter : fChildren) {
         if (MarkType::kParam != iter->fMarkType) {
@@ -900,7 +903,18 @@ const Definition* Definition::hasParam(string ref) const {
         if (iter->fName == ref) {
             return &*iter;
         }
-
+    }
+    for (auto& iter : fTokens) {
+        if (MarkType::kComment != iter.fMarkType) {
+            continue;
+        }
+        TextParser parser(&iter);
+        if (!parser.skipExact("@param ")) {
+            continue;
+        }
+        if (parser.skipExact(ref.c_str())) {
+            return &iter;
+        }
     }
     return nullptr;
 }
