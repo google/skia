@@ -46,6 +46,23 @@
       "revId": "da579e2f81072b8a8c82a553bb5e73c8ccaa7f6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40b0257f_65d21505",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-10-18T15:25:39Z",
+      "side": 1,
+      "message": "By the way, did anyone notice that we were creating a RunFont just for comparison?\n\nmaybe make a operator\u003d\u003d between these two types?",
+      "revId": "da579e2f81072b8a8c82a553bb5e73c8ccaa7f6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
