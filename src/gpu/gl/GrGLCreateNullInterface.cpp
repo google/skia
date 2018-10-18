@@ -419,6 +419,10 @@ public:
         SK_ABORT("Not implemented");
     }
 
+    GrGLvoid genSamplers(GrGLsizei n, GrGLuint* samplers) override {
+        this->genGenericIds(n, samplers);
+    }
+
     GrGLvoid genTextures(GrGLsizei n, GrGLuint *textures) override {
         this->genGenericIds(n, textures);
     }
