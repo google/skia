@@ -10,7 +10,6 @@
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformer.h"
 #include "SkConvertPixels.h"
-#include "SkFlattenablePriv.h"
 #include "SkFloatBits.h"
 #include "SkGradientShaderPriv.h"
 #include "SkHalf.h"

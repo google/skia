@@ -23,13 +23,13 @@ public:
 
     bool isOpaque() const override;
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)
-
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
 private:
+    SK_FLATTENABLE_HOOKS(SkImageShader)
+
     SkImageShader(sk_sp<SkImage>,
                   SkShader::TileMode tx,
                   SkShader::TileMode ty,

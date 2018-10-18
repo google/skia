@@ -52,7 +52,6 @@
 #include "SkClipOp.h"
 #include "SkClipOpPriv.h"
 #include "SkColor.h"
-#include "SkFlattenablePriv.h"
 #include "SkImageFilter.h"
 #include "SkImageInfo.h"
 #include "SkMalloc.h"
@@ -838,8 +837,6 @@ class ZeroBoundsImageFilter : public SkImageFilter {
 public:
     static sk_sp<SkImageFilter> Make() { return sk_sp<SkImageFilter>(new ZeroBoundsImageFilter); }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(ZeroBoundsImageFilter)
-
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage*, const Context&, SkIPoint*) const override {
         return nullptr;
@@ -851,6 +848,8 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(ZeroBoundsImageFilter)
+
     ZeroBoundsImageFilter() : INHERITED(nullptr, 0, nullptr) {}
 
     typedef SkImageFilter INHERITED;

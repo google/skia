@@ -12,7 +12,6 @@
 #include "SkColorData.h"
 #include "SkDevice.h"
 #include "SkDrawShadowInfo.h"
-#include "SkFlattenablePriv.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
 #include "SkRandom.h"
@@ -45,8 +44,6 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkGaussianColorFilter)
-
 protected:
     void flatten(SkWriteBuffer&) const override {}
     void onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
@@ -54,6 +51,8 @@ protected:
         pipeline->append(SkRasterPipeline::gauss_a_to_rgba);
     }
 private:
+    SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)
+
     SkGaussianColorFilter() : INHERITED() {}
 
     typedef SkColorFilter INHERITED;

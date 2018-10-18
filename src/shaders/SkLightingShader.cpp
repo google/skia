@@ -80,8 +80,6 @@ public:
         typedef Context INHERITED;
     };
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLightingShaderImpl)
-
 protected:
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -90,6 +88,8 @@ protected:
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkLightingShaderImpl)
+
     sk_sp<SkShader> fDiffuseShader;
     sk_sp<SkNormalSource> fNormalSource;
     sk_sp<SkLights> fLights;
