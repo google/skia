@@ -327,7 +327,6 @@ skia_core_sources = [
   "$_src/core/SkXfermodeInterpretation.h",
   "$_src/core/SkYUVPlanesCache.cpp",
   "$_src/core/SkYUVPlanesCache.h",
-  "$_src/core/SkYUVSizeInfo.cpp",
 
   "$_src/image/SkImage.cpp",
 
@@ -420,7 +419,6 @@ skia_core_sources = [
   "$_include/core/SkUnPreMultiply.h",
   "$_include/core/SkVertices.h",
   "$_include/core/SkYUVAIndex.h",
-  "$_include/core/SkYUVSizeInfo.h",
 
   "$_src/jumper/SkJumper.cpp",
 
