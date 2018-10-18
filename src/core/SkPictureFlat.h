@@ -157,7 +157,7 @@ static inline bool ClipParams_unpackDoAA(uint32_t packed) {
 class SkTypefacePlayback {
 public:
     SkTypefacePlayback() : fCount(0), fArray(nullptr) {}
-    ~SkTypefacePlayback();
+    ~SkTypefacePlayback() = default;
 
     void setCount(size_t count);
 
