@@ -76,7 +76,6 @@ public:
 private:
     friend SkPaint;
     const static uint32_t kFlagsMask =
-            SkPaint::kAntiAlias_Flag          |
             SkPaint::kFakeBoldText_Flag       |
             SkPaint::kLinearText_Flag         |
             SkPaint::kSubpixelText_Flag       |
