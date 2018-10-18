@@ -120,8 +120,9 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
+    SkBitmapProvider provider(fImage.get(), rec.fDstColorType, rec.fDstColorSpace);
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get()), rec, alloc);
+                                                 provider, rec, alloc);
 }
 #endif
 
@@ -258,7 +259,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     }
     auto quality = rec.fPaint.getFilterQuality();
 
-    SkBitmapProvider provider(fImage.get());
+    SkBitmapProvider provider(fImage.get(), rec.fDstColorType, rec.fDstCS);
     const auto* state = SkBitmapController::RequestBitmap(provider, matrix, quality, alloc);
     if (!state) {
         return false;

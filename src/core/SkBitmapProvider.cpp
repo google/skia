@@ -32,7 +32,14 @@ bool SkBitmapProvider::isVolatile() const {
 }
 
 SkBitmapCacheDesc SkBitmapProvider::makeCacheDesc() const {
-    return SkBitmapCacheDesc::Make(fImage);
+    // TODO: This is ugly. Perhaps we should add SkImage_Base::getCacheDesc(colorType, colorSpace),
+    // so that we can ask the image what cache entry it's going to use when we call getROPixels?
+    if (fImage->isLazyGenerated()) {
+        return SkBitmapCacheDesc::Make(fImage->uniqueID(), fLazyColorType, fLazyColorSpace,
+                                       SkIRect::MakeWH(fImage->width(), fImage->height()));
+    } else {
+        return SkBitmapCacheDesc::Make(fImage);
+    }
 }
 
 void SkBitmapProvider::notifyAddedToCache() const {
@@ -40,5 +47,5 @@ void SkBitmapProvider::notifyAddedToCache() const {
 }
 
 bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
-    return as_IB(fImage)->getROPixels(bm, nullptr, SkImage::kAllow_CachingHint);
+    return as_IB(fImage)->getROPixels(bm, fLazyColorType, fLazyColorSpace);
 }
