@@ -41,7 +41,7 @@
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_dst) M(clamp_gamut) \
     M(unpremul) M(premul) M(premul_dst)                            \
     M(force_opaque) M(force_opaque_dst)                            \
-    M(set_rgb) M(unbounded_set_rgb) M(swap_rb)                     \
+    M(set_rgb) M(unbounded_set_rgb) M(swap_rb) M(swap_rb_dst)      \
     M(from_srgb) M(to_srgb)                                        \
     M(black_color) M(white_color) M(uniform_color) M(unbounded_uniform_color) \
     M(seed_shader) M(dither)                                       \
@@ -51,7 +51,6 @@
     M(load_f16)  M(load_f16_dst)  M(store_f16)  M(gather_f16)      \
     M(load_f32)  M(load_f32_dst)  M(store_f32)  M(gather_f32)      \
     M(load_8888) M(load_8888_dst) M(store_8888) M(gather_8888)     \
-    M(load_bgra) M(load_bgra_dst) M(store_bgra) M(gather_bgra)     \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
     M(alpha_to_gray) M(alpha_to_gray_dst) M(luminance_to_alpha)    \
     M(bilerp_clamp_8888)                                           \
