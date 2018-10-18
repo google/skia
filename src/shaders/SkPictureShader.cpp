@@ -16,7 +16,6 @@
 #include "SkImageShader.h"
 #include "SkMatrixUtils.h"
 #include "SkPicturePriv.h"
-#include "SkPictureImageGenerator.h"
 #include "SkReadBuffer.h"
 #include "SkResourceCache.h"
 
@@ -29,32 +28,31 @@
 #endif
 
 namespace {
-static unsigned gBitmapSkaderKeyNamespaceLabel;
+static unsigned gBitmapShaderKeyNamespaceLabel;
 
 struct BitmapShaderKey : public SkResourceCache::Key {
 public:
-    BitmapShaderKey(sk_sp<SkColorSpace> colorSpace,
+    BitmapShaderKey(SkColorSpace* colorSpace,
                     uint32_t shaderID,
                     const SkRect& tile,
                     SkShader::TileMode tmx,
                     SkShader::TileMode tmy,
-                    const SkSize& scale,
-                    bool hasDstColorSpace)
-        : fColorSpace(std::move(colorSpace))
+                    const SkSize& scale)
+        : fColorSpaceXYZHash(colorSpace->toXYZD50Hash())
+        , fColorSpaceTransferFnHash(colorSpace->transferFnHash())
         , fTile(tile)
         , fTmx(tmx)
         , fTmy(tmy)
-        , fScale(scale)
-        , fHasDstColorSpace(hasDstColorSpace ? 1 : 0) {
+        , fScale(scale) {
 
-        static const size_t keySize = sizeof(fColorSpace) +
+        static const size_t keySize = sizeof(fColorSpaceXYZHash) +
+                                      sizeof(fColorSpaceTransferFnHash) +
                                       sizeof(fTile) +
                                       sizeof(fTmx) + sizeof(fTmy) +
-                                      sizeof(fScale) +
-                                      sizeof(fHasDstColorSpace);
+                                      sizeof(fScale);
         // This better be packed.
-        SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - (uint32_t*)&fColorSpace) == keySize);
-        this->init(&gBitmapSkaderKeyNamespaceLabel, MakeSharedID(shaderID), keySize);
+        SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - &fColorSpaceXYZHash) == keySize);
+        this->init(&gBitmapShaderKeyNamespaceLabel, MakeSharedID(shaderID), keySize);
     }
 
     static uint64_t MakeSharedID(uint32_t shaderID) {
@@ -63,18 +61,11 @@ public:
     }
 
 private:
-    // TODO: there are some fishy things about using CS sk_sps in the key:
-    //   - false negatives: keys are memcmp'ed, so we don't detect equivalent CSs
-    //     (SkColorspace::Equals)
-    //   - we're keeping the CS alive, even when the client releases it
-    //
-    // Ideally we'd be using unique IDs or some other weak ref + purge mechanism
-    // when the CS is deleted.
-    sk_sp<SkColorSpace>        fColorSpace;
+    uint32_t                   fColorSpaceXYZHash;
+    uint32_t                   fColorSpaceTransferFnHash;
     SkRect                     fTile;
     SkShader::TileMode         fTmx, fTmy;
     SkSize                     fScale;
-    uint32_t                   fHasDstColorSpace;
 
     SkDEBUGCODE(uint32_t fEndOfStruct;)
 };
@@ -224,35 +215,34 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
                                           SkIntToScalar(tileSize.height()) / fTile.height());
 
     // |fColorSpace| will only be set when using an SkColorSpaceXformCanvas to do pre-draw xforms.
-    // This canvas is strictly for legacy mode.  A non-null |dstColorSpace| indicates that we
-    // should perform color correct rendering and xform at draw time.
-    SkASSERT(!fColorSpace || !dstColorSpace);
-    sk_sp<SkColorSpace> keyCS = dstColorSpace ? sk_ref_sp(dstColorSpace) : fColorSpace;
-    bool hasDstColorSpace = SkToBool(dstColorSpace);
+    // A non-null |dstColorSpace| indicates that the surface we're drawing to is tagged. In all
+    // cases, picture-backed images behave the same (using a tagged surface for rasterization),
+    // and (as sources) they require a valid color space, so default to sRGB.
 
+    // With SkColorSpaceXformCanvas, the surface should never have a color space attached.
+    SkASSERT(!fColorSpace || !dstColorSpace);
+
+    sk_sp<SkColorSpace> imgCS = dstColorSpace ? sk_ref_sp(dstColorSpace)
+                                              : fColorSpace ? fColorSpace
+                                                            : SkColorSpace::MakeSRGB();
     sk_sp<SkShader> tileShader;
-    BitmapShaderKey key(std::move(keyCS),
+    BitmapShaderKey key(imgCS.get(),
                         fUniqueID,
                         fTile,
                         fTmx,
                         fTmy,
-                        tileScale,
-                        hasDstColorSpace);
+                        tileScale);
 
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
         SkMatrix tileMatrix;
         tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
                                  SkMatrix::kFill_ScaleToFit);
 
-        sk_sp<SkImage> tileImage = SkImage::MakeFromGenerator(
-                SkPictureImageGenerator::Make(tileSize, fPicture, &tileMatrix, nullptr,
-                                              SkImage::BitDepth::kU8, sk_ref_sp(dstColorSpace)));
+        sk_sp<SkImage> tileImage = SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix,
+                                                            nullptr, SkImage::BitDepth::kU8,
+                                                            std::move(imgCS));
         if (!tileImage) {
             return nullptr;
-        }
-
-        if (fColorSpace) {
-            tileImage = tileImage->makeColorSpace(fColorSpace);
         }
 
         tileShader = tileImage->makeShader(fTmx, fTmy);
