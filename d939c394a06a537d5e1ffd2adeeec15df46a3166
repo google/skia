@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5af39723_0836a424",
+        "filename": "src/core/SkBitmapProvider.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-18T17:42:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17bc1b00_0f36a3b5",
+      "range": {
+        "startLine": 17,
+        "startChar": 42,
+        "endLine": 17,
+        "endChar": 55
+      },
+      "revId": "d939c394a06a537d5e1ffd2adeeec15df46a3166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a1fd8fdd_da5bdbcf",
         "filename": "src/image/SkImage_Base.h",
         "patchSetId": 9
