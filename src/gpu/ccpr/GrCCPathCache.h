@@ -24,13 +24,8 @@ class GrShape;
  */
 class GrCCPathCache {
 public:
-#ifdef SK_DEBUG
-    ~GrCCPathCache() {
-        // Ensure the hash table and LRU list are still coherent.
-        fHashTable.reset();
-        SkASSERT(fLRU.isEmpty());
-    }
-#endif
+    GrCCPathCache(uint32_t contextUniqueID) : fInvalidatedEntriesInbox(contextUniqueID) {}
+    SkDEBUGCODE(~GrCCPathCache();)
 
     // Stores the components of a transformation that affect a path mask (i.e. everything but
     // integer translation). During construction, any integer portions of the matrix's translate are
@@ -55,7 +50,9 @@ public:
     sk_sp<GrCCPathCacheEntry> find(const GrShape&, const MaskTransform&,
                                    CreateIfAbsent = CreateIfAbsent::kNo);
 
-    void evict(const GrCCPathCacheEntry*);
+    void evict(GrCCPathCacheEntry*);
+
+    void purgeAsNeeded();
 
 private:
     // Wrapper around a raw GrShape key that has a specialized operator==. Used by the hash table.
@@ -64,32 +61,38 @@ private:
     };
     friend bool operator==(const HashKey&, const HashKey&);
 
-    // This is a special ref ptr for GrCCPathCacheEntry, used by the hash table. It can only be
-    // moved, which guarantees the hash table holds exactly one reference for each entry. When a
-    // HashNode goes out of scope, it therefore means the entry has been evicted from the cache.
+    // This is a special ref ptr for GrCCPathCacheEntry, used by the hash table. It provides static
+    // methods for SkTHash, and can only be moved. This guarantees the hash table holds exactly one
+    // reference for each entry.
     class HashNode : SkNoncopyable {
     public:
-        static HashKey GetKey(const HashNode& node) { return GetKey(node.fEntry); }
+        static HashKey GetKey(const HashNode& node) { return GetKey(node.entry()); }
         static HashKey GetKey(const GrCCPathCacheEntry*);
         static uint32_t Hash(HashKey);
 
         HashNode() = default;
-        HashNode(GrCCPathCache*, const MaskTransform&, const GrShape&);
-        HashNode(HashNode&& node) { fEntry = skstd::exchange(node.fEntry, nullptr); }
-        ~HashNode();  // Called when fEntry (if not null) has been evicted from the cache.
+        HashNode(uint32_t pathCacheUniqueID, const MaskTransform&, const GrShape&);
+        HashNode(HashNode&& node) : fEntry(std::move(node.fEntry)) {
+            SkASSERT(!node.fEntry);
+        }
 
-        HashNode& operator=(HashNode&&);
+        HashNode& operator=(HashNode&& node) {
+            fEntry = std::move(node.fEntry);
+            SkASSERT(!node.fEntry);
+            return *this;
+        }
 
-        GrCCPathCacheEntry* entry() const { return fEntry; }
+        GrCCPathCacheEntry* entry() const { return fEntry.get(); }
 
     private:
-        GrCCPathCacheEntry* fEntry = nullptr;
+        sk_sp<GrCCPathCacheEntry> fEntry;
         // The GrShape's unstyled key is stored as a variable-length footer to the 'fEntry'
         // allocation. GetKey provides access to it.
     };
 
     SkTHashTable<HashNode, HashKey> fHashTable;
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
+    SkMessageBus<sk_sp<GrCCPathCacheEntry>>::Inbox fInvalidatedEntriesInbox;
 };
 
 /**
@@ -101,6 +104,8 @@ public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCPathCacheEntry);
 
     ~GrCCPathCacheEntry() override;
+
+    uint32_t pathCacheUniqueID() const { return fPathCacheUniqueID; }
 
     // The number of times this specific entry (path + matrix combination) has been pulled from
     // the path cache. As long as the caller does exactly one lookup per draw, this translates to
@@ -121,15 +126,14 @@ public:
     // Called once our path has been rendered into the mainline CCPR (fp16, coverage count) atlas.
     // The caller will stash this atlas texture away after drawing, and during the next flush,
     // recover it and attempt to copy any paths that got reused into permanent 8-bit atlases.
-    void initAsStashedAtlas(const GrUniqueKey& atlasKey, uint32_t contextUniqueID,
-                            const SkIVector& atlasOffset, const SkRect& devBounds,
-                            const SkRect& devBounds45, const SkIRect& devIBounds,
-                            const SkIVector& maskShift);
+    void initAsStashedAtlas(const GrUniqueKey& atlasKey, const SkIVector& atlasOffset,
+                            const SkRect& devBounds, const SkRect& devBounds45,
+                            const SkIRect& devIBounds, const SkIVector& maskShift);
 
     // Called once our path mask has been copied into a permanent, 8-bit atlas. This method points
     // the entry at the new atlas and updates the CachedAtlasInfo data.
-    void updateToCachedAtlas(const GrUniqueKey& atlasKey, uint32_t contextUniqueID,
-                             const SkIVector& newAtlasOffset, sk_sp<GrCCAtlas::CachedAtlasInfo>);
+    void updateToCachedAtlas(const GrUniqueKey& atlasKey, const SkIVector& newAtlasOffset,
+                             sk_sp<GrCCAtlas::CachedAtlasInfo>);
 
     const GrUniqueKey& atlasKey() const { return fAtlasKey; }
 
@@ -153,18 +157,19 @@ public:
 private:
     using MaskTransform = GrCCPathCache::MaskTransform;
 
-    GrCCPathCacheEntry(GrCCPathCache* cache, const MaskTransform& m)
-            : fCacheWeakPtr(cache), fMaskTransform(m) {}
+    GrCCPathCacheEntry(uint32_t pathCacheUniqueID, const MaskTransform& maskTransform)
+            : fPathCacheUniqueID(pathCacheUniqueID), fMaskTransform(maskTransform) {
+        SkASSERT(SK_InvalidUniqueID != fPathCacheUniqueID);
+    }
 
     // Resets this entry back to not having an atlas, and purges its previous atlas texture from the
     // resource cache if needed.
     void invalidateAtlas();
 
-    // Called when our corresponding path is modified or deleted.
+    // Called when our corresponding path is modified or deleted. Not threadsafe.
     void onChange() override;
 
-    uint32_t fContextUniqueID;
-    GrCCPathCache* fCacheWeakPtr;  // Gets manually reset to null by the path cache upon eviction.
+    const uint32_t fPathCacheUniqueID;
     MaskTransform fMaskTransform;
     int fHitCount = 1;
 
