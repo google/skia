@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c38646fb_0d9b0ba9",
+        "filename": "include/private/SkMessageBus.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T20:37:34Z",
+      "side": 1,
+      "message": "If this is necessary for your message type maybe we should get rid of shouldSend and have the other message types implement a specialization of this, too. It\u0027d be nice for this to be consistent.",
+      "revId": "94679a496716fb8dfe18bbce1eade9c258e861ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
