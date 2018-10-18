@@ -47,6 +47,7 @@ declare_args() {
   skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
+  skia_enable_skpicture = true
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_header = ""  # temporary as we remove the use from clients
@@ -383,6 +384,9 @@ optional("effects") {
       skia_effects_sources + [ "src/ports/SkGlobalInitialization_default.cpp" ]
   if (skia_enable_effects_imagefilters) {
     sources += skia_effects_imagefilter_sources
+    if (!skia_enable_skpicture) {
+      sources -= [ "//src/effects/imagefilters/SkPictureImageFilter.cpp" ]
+    }
   } else {
     sources += [ "src/ports/SkGlobalInitialization_none_imagefilters.cpp" ]
   }
@@ -902,6 +906,13 @@ component("skia") {
     "src/utils/mac/SkStream_mac.cpp",
     "third_party/gif/SkGifImageReader.cpp",
   ]
+
+  defines = []
+  if (!skia_enable_skpicture) {
+    defines = [ "SK_DISABLE_SKPICTURE" ]
+    sources -= skia_skpicture_sources
+    sources += [ "src/core/SkPicture_none.cpp" ]
+  }
 
   libs = []
 
