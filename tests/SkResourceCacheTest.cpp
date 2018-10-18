@@ -45,7 +45,7 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
     src.allocN32Pixels(5, 5);
     src.setImmutable();
     sk_sp<SkImage> img = SkImage::MakeFromBitmap(src);
-    SkBitmapProvider provider(img.get());
+    SkBitmapProvider provider(img.get(), kUnknown_SkColorType, nullptr);
     const auto desc = provider.makeCacheDesc();
 
     const SkMipMap* mipmap = SkMipMapCache::FindAndRef(desc, cache);
@@ -88,7 +88,7 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
         src[i].allocN32Pixels(5, 5);
         src[i].setImmutable();
         img[i] = SkImage::MakeFromBitmap(src[i]);
-        SkBitmapProvider provider(img[i].get());
+        SkBitmapProvider provider(img[i].get(), kUnknown_SkColorType, nullptr);
         SkMipMapCache::AddAndRef(provider, cache)->unref();
         desc[i] = provider.makeCacheDesc();
     }
