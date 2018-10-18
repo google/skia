@@ -46,7 +46,8 @@ protected:
 
     bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override;
 
-    Result onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override;
+    Result onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo,
+                           void* planes[SkYUVSizeInfo::kMaxCount]) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
         return SkEncodedImageFormat::kJPEG;
