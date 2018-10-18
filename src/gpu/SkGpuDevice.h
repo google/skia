@@ -108,6 +108,8 @@ public:
     void drawImageSet(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
                       SkBlendMode) override;
 
+    void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas* canvas) override;
+
     void drawSpecial(SkSpecialImage*, int left, int top, const SkPaint& paint,
                      SkImage*, const SkMatrix&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
