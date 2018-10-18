@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6106cc55_8ac89eb7",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-18T18:31:30Z",
+      "side": 1,
+      "message": "Maybe reorder this?\n\nif (!fSamplers[index]) {\n  // Generate and configure new sampler\n}\n// Now, sampler definitely exists\nBindSampler;\nfHWBoundSamplers[unitIdx] \u003d fSamplers[index];",
+      "range": {
+        "startLine": 226,
+        "startChar": 1,
+        "endLine": 250,
+        "endChar": 0
+      },
+      "revId": "ed0bd48e7fba02929155e59ce186cc8a0cb2537a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e738f04c_23530c45",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-18T18:31:30Z",
+      "side": 1,
+      "message": "missing \"know\" ?",
+      "revId": "ed0bd48e7fba02929155e59ce186cc8a0cb2537a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "110109fa_64010dba",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 723,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-18T18:31:30Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "ed0bd48e7fba02929155e59ce186cc8a0cb2537a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e72f652_8ed0d30f",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-18T18:31:30Z",
+      "side": 1,
+      "message": "not",
+      "range": {
+        "startLine": 40,
+        "startChar": 31,
+        "endLine": 40,
+        "endChar": 33
+      },
+      "revId": "ed0bd48e7fba02929155e59ce186cc8a0cb2537a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
