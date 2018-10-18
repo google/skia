@@ -52,6 +52,24 @@
       "revId": "4eb3b6c85fb1a77d0a641f7eba6651463d5fd09c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a8fe736_b848d343",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-18T13:24:38Z",
+      "side": 1,
+      "message": "Ok!  New plan then!\n\n  1) put the GM back\n  2) eventually fix all the other gradients to do the same\n\n?",
+      "parentUuid": "ca60d62d_ff95086c",
+      "revId": "4eb3b6c85fb1a77d0a641f7eba6651463d5fd09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
