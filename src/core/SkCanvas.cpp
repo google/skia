@@ -2732,7 +2732,13 @@ void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+#ifdef SK_DISABLE_SKPICTURE
+void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {}
 
+
+void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                             const SkPaint* paint) {}
+#else
 /**
  *  This constant is trying to balance the speed of ref'ing a subpicture into a parent picture,
  *  against the playback cost of recursing into the subpicture to get at its actual ops.
@@ -2775,6 +2781,7 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
     picture->playback(this);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

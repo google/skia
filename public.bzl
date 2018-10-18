@@ -240,7 +240,7 @@ BASE_SRCS_ALL = struct(
         "src/utils/win/**/*",
 
         # Exclude multiple definitions.
-        # TODO(mtklein): Move to opts?
+        "src/core/SkPicture_none.cpp"
         "src/gpu/GrPathRendering_none.cpp",
         "src/gpu/ccpr/GrCoverageCountingPathRenderer_none.cpp",
         "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
