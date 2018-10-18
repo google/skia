@@ -1,6 +1,6 @@
 // The increased timeout is especially needed with larger binaries
 // like in the debug/gpu build
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
 
 describe('CanvasKit\'s Animation', function() {
     // Note, don't try to print the CanvasKit object - it can cause Karma/Jasmine to lock up.
