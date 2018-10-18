@@ -45,6 +45,8 @@ XFERMODE(Screen) {
     // in 8-bit space without overflow.  S + (1-S)*D is a touch faster because inv() is cheap.
     return s + d.approxMulDiv255(s.inv());
 }
+
+#if defined(SK_LEGACY_COMPLEX_XFERMODES)
 XFERMODE(Multiply) { return (s * d.alphas().inv() + d * s.alphas().inv() + s*d).div255(); }
 // [ Sa + Da - Sa*Da, Sc + Dc - 2*min(Sc*Da, Dc*Sa) ]  (And notice Sa*Da == min(Sa*Da, Da*Sa).)
 XFERMODE(Difference) {
@@ -110,6 +112,8 @@ XFERMODE(Lighten) {
          colors = (dsa < sda).thenElse(srcover, dstover);
     return alphas.zeroColors() + colors.zeroAlphas();
 }
+#endif//SK_LEGACY_COMPLEX_XFERMODES
+
 #undef XFERMODE
 
 // A reasonable fallback mode for doing AA is to simply apply the transfermode first,
@@ -180,6 +184,7 @@ namespace SK_OPTS_NS {
         CASE(Plus);
         CASE(Modulate);
         CASE(Screen);
+#if defined(SK_LEGACY_COMPLEX_XFERMODES)
         CASE(Multiply);
         CASE(Difference);
         CASE(Exclusion);
@@ -187,6 +192,7 @@ namespace SK_OPTS_NS {
         CASE(Overlay);
         CASE(Darken);
         CASE(Lighten);
+#endif
     #undef CASE
 
         default: break;
