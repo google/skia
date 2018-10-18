@@ -229,6 +229,15 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
                             VK_NULL_HANDLE);
     }
 
+    // Functions for VK_KHR_sampler_ycbcr_conversion
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        ACQUIRE_PROC(CreateSamplerYcbcrConversion, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(DestroySamplerYcbcrConversion, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(CreateSamplerYcbcrConversion, KHR, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(DestroySamplerYcbcrConversion, KHR, VK_NULL_HANDLE, device);
+    }
+
 #ifdef SK_BUILD_FOR_ANDROID
     // Functions for VK_ANDROID_external_memory_android_hardware_buffer
     if (extensions->hasExtension(
@@ -444,6 +453,15 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fGetPhysicalDeviceExternalBufferProperties) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_KHR_sampler_ycbcr_conversion
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fCreateSamplerYcbcrConversion ||
+            nullptr == fFunctions.fDestroySamplerYcbcrConversion) {
             RETURN_FALSE_INTERFACE
         }
     }
