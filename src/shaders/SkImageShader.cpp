@@ -111,6 +111,10 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
+    // legacy shadercontext needs dimensions to fit in 16bits
+    if (info.width() > 65535 || info.height() > 65535) {
+        return nullptr;
+    }
     SkMatrix inv;
     if (!this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &inv) ||
         !legacy_shader_can_handle(inv)) {
@@ -132,21 +136,32 @@ SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
     return const_cast<SkImage*>(fImage.get());
 }
 
-static bool bitmap_is_too_big(int w, int h) {
-    // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer, as it
-    // communicates between its matrix-proc and its sampler-proc. Until we can
-    // widen that, we have to reject bitmaps that are larger.
-    //
-    static const int kMaxSize = 65535;
+#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
+bool SkImageShader::onIsABitmap(SkBitmap* texture, SkMatrix* texM, TileMode xy[]) const {
+    const SkBitmap* bm = as_IB(fImage)->onPeekBitmap();
+    if (!bm) {
+        return false;
+    }
 
-    return w > kMaxSize || h > kMaxSize;
+    if (texture) {
+        *texture = *bm;
+    }
+    if (texM) {
+        *texM = this->getLocalMatrix();
+    }
+    if (xy) {
+        xy[0] = (TileMode)fTileModeX;
+        xy[1] = (TileMode)fTileModeY;
+    }
+    return true;
 }
+#endif
 
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
                                     TileMode tx, TileMode ty,
                                     const SkMatrix* localMatrix,
                                     bool clampAsIfUnpremul) {
-    if (!image || bitmap_is_too_big(image->width(), image->height())) {
+    if (!image) {
         return sk_make_sp<SkEmptyShader>();
     }
     return sk_sp<SkShader>{ new SkImageShader(image, tx,ty, localMatrix, clampAsIfUnpremul) };

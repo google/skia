@@ -431,3 +431,17 @@ DEF_SIMPLE_GM(image_subset, canvas, 440, 220) {
     sub = serial_deserial(sub.get());
     canvas->drawImage(sub, 220+110, 10);
 }
+
+DEF_SIMPLE_GM(image_huge, canvas, 400, 400) {
+    int big = 1 << 20;
+    int lil = 1 << 2;
+
+    auto surf = SkSurface::MakeRasterN32Premul(big, lil);
+    surf->getCanvas()->drawColor(SK_ColorRED);
+    canvas->drawImage(surf->makeImageSnapshot(), 10, 10, nullptr);
+
+    surf = SkSurface::MakeRasterN32Premul(lil, big);
+    surf->getCanvas()->drawColor(SK_ColorBLUE);
+    canvas->drawImage(surf->makeImageSnapshot(), 10, 10, nullptr);
+}
+
