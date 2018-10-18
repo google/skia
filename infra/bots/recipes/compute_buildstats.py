@@ -38,7 +38,7 @@ def RunSteps(api):
         test_data=['pathkit.wasm'])
     analyzed += len(files)
     if len(files):
-      analyze_web_file(api, checkout_root, out_dir, files)
+      analyze_wasm_file(api, checkout_root, out_dir, files)
 
     files = api.file.glob_paths(
         'find JS files',
@@ -160,6 +160,32 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
         logs['perf_json'] = sections[5].split('\n')
 
 
+# Get the size of skia in flutter and a few metrics from bloaty
+def analyze_wasm_file(api, checkout_root, out_dir, files):
+  (keystr, propstr) = keys_and_props(api)
+  bloaty_exe = api.path['start_dir'].join('bloaty', 'bloaty')
+
+  for f in files:
+
+    skia_dir = checkout_root.join('skia')
+    with api.context(cwd=skia_dir):
+      script = skia_dir.join('infra', 'bots', 'buildstats',
+                             'buildstats_wasm.py')
+      step_data = api.run(api.python, 'Analyze wasm', script=script,
+                         args=[f, out_dir, keystr, propstr, bloaty_exe],
+                         stdout=api.raw_io.output())
+      if step_data and step_data.stdout:
+        magic_seperator = '#$%^&*'
+        sections = step_data.stdout.split(magic_seperator)
+        result = api.step.active_result
+        logs = result.presentation.logs
+        # Skip section 0 because it's everything before first print,
+        # which is probably the empty string.
+        logs['bloaty_symbol_short'] = sections[1].split('\n')
+        logs['bloaty_symbol_full']  = sections[2].split('\n')
+        logs['perf_json']           = sections[3].split('\n')
+
+
 def GenTests(api):
   builder = 'BuildStats-Debian9-EMCC-wasm-Release-PathKit'
   yield (
@@ -173,8 +199,10 @@ def GenTests(api):
         stdout=api.raw_io.output('skia-bot-123')) +
     api.step_data('get swarming task id',
         stdout=api.raw_io.output('123456abc')) +
+    api.step_data('Analyze wasm',
+        stdout=api.raw_io.output(sample_wasm)) +
     api.step_data('Analyze flutter',
-        stdout=api.raw_io.output(sample_output))
+          stdout=api.raw_io.output(sample_flutter))
   )
 
   yield (
@@ -195,11 +223,26 @@ def GenTests(api):
         gerrit_project='skia',
         gerrit_url='https://skia-review.googlesource.com/',
       ) +
+    api.step_data('Analyze wasm',
+        stdout=api.raw_io.output(sample_wasm)) +
     api.step_data('Analyze flutter',
-          stdout=api.raw_io.output(sample_output))
+          stdout=api.raw_io.output(sample_flutter))
   )
 
-sample_output = """
+sample_wasm = """
+#$%^&*
+Report A
+    Total size: 50 bytes
+#$%^&*
+Report B
+    Total size: 60 bytes
+#$%^&*
+{
+  "some": "json"
+}
+"""
+
+sample_flutter = """
 #$%^&*
 Report A
     Total size: 50 bytes
