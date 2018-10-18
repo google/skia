@@ -895,7 +895,7 @@ void IncludeWriter::methodOut(Definition* method, const Definition& child) {
         int commentIndex = child.fParentIndex;
         auto iter = child.fParent->fTokens.begin();
         std::advance(iter, commentIndex);
-        SkDEBUGCODE(bool sawMethod = false);
+        SkDEBUGCODE(bool sawMethod = MarkType::kMethod == iter->fMarkType);
         while (--commentIndex >= 0) {
             std::advance(iter, -1);
             if (Bracket::kSlashStar == iter->fBracket) {

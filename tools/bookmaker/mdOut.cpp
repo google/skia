@@ -10,12 +10,6 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
-#define FPRINTF(...)                \
-    if (fDebugOut) {                \
-        SkDebugf(__VA_ARGS__);      \
-    }                               \
-    fprintf(fOut, __VA_ARGS__)
-
 const char* SubtopicKeys::kGeneratedSubtopics[] = {
     kConstants, kDefines, kTypedefs, kMembers, kClasses, kStructs, kConstructors,
     kOperators, kMemberFunctions, kRelatedFunctions
@@ -440,6 +434,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         if (BmhParser::Resolvable::kCode == resolvable) {
             fixup_const_function_name(&ref);
         }
+        if ("SkScalarRoundToInt" == ref) {
+            SkDebugf("");
+        }
         if (Definition* def = this->isDefined(t, ref, resolvable)) {
             if (MarkType::kExternal == def->fMarkType) {
                 (void) this->anchorRef("undocumented#" + ref, "");   // for anchor validate
@@ -448,6 +445,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             }
             SkASSERT(def->fFiddle.length());
             if (BmhParser::Resolvable::kSimple != resolvable
+                    && BmhParser::Resolvable::kInclude != resolvable
                     && !t.eof() && '(' == t.peek() && t.strnchr(')', t.fEnd)) {
                 TextParserSave tSave(&t);
                 if (!t.skipToBalancedEndBracket('(', ')')) {
@@ -511,6 +509,12 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             }
 			result += linkRef(leadingSpaces, def, ref, resolvable);
             if (!t.eof() && '(' == t.peek()) {
+                if (BmhParser::Resolvable::kInclude == resolvable
+                       && std::any_of(ref.begin(), ref.end(), [](char c){ return !islower(c); } )) {
+                    t.next();  // skip open paren
+                    SkAssertResult(')' == t.next());  // skip close paren
+                    continue;
+                }
                 result += t.next();  // skip open paren
             }
             continue;
@@ -577,6 +581,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                         }
                     }
                     if (BmhParser::Resolvable::kSimple != resolvable
+                            && BmhParser::Resolvable::kInclude != resolvable
                             && BmhParser::Resolvable::kOut != resolvable
                             && !formula_or_code(resolvable)) {
                         t.reportError("missed camelCase");
@@ -1244,6 +1249,16 @@ string MdOut::linkName(const Definition* ref) const {
 // def should not include SkXXX_
 string MdOut::linkRef(string leadingSpaces, Definition* def,
         string ref, BmhParser::Resolvable resolvable) {
+    if ("isEmpty" == ref) {
+        SkDebugf("");
+    }
+    bool trimRef = BmhParser::Resolvable::kInclude == resolvable && "Sk" == ref.substr(0, 2);
+    if (trimRef) {
+        for (auto c : ref) {
+            SkASSERT(isalpha(c) || isdigit(c));
+        }
+        ref = ref.substr(2);
+    }
     string buildup;
     string refName;
     const string* str = &def->fFiddle;
@@ -1285,6 +1300,13 @@ string MdOut::linkRef(string leadingSpaces, Definition* def,
         }
         if (!fromInclude) {
             refName = def->fFiddle;
+            if (trimRef) {
+                SkASSERT("Sk" == refName.substr(0, 2));
+                for (auto c : refName) {
+                    SkASSERT(isalpha(c) || isdigit(c));
+                }
+                refName = refName.substr(2);
+            }
         }
     }
     bool classMatch = fRoot->fFileName == def->fFileName || fromInclude;
@@ -1903,7 +1925,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                     TextParser parser(&entry);
                     if (parser.skipExact("@param ")) { // write parameters, if any
                         this->parameterHeaderOut(parser, prior, def);
-                        this->resolveOut(parser.fChar, parser.fEnd, BmhParser::Resolvable::kYes);
+                        this->resolveOut(parser.fChar, parser.fEnd,
+                                BmhParser::Resolvable::kInclude);
                         this->parameterTrailerOut();
                         wroteParam = true;
                         continue;
@@ -1917,7 +1940,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                     }
                     if (parser.skipExact("@return ")) { // write return, if any
                         this->returnHeaderOut(prior, def);
-                        this->resolveOut(parser.fChar, parser.fEnd, BmhParser::Resolvable::kYes);
+                        this->resolveOut(parser.fChar, parser.fEnd,
+                                BmhParser::Resolvable::kInclude);
                         this->lf(2);
                         continue;
                     }
@@ -1925,7 +1949,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                         continue;
                     }
                     this->resolveOut(entry.fContentStart, entry.fContentEnd,
-                            BmhParser::Resolvable::kYes);  // write description
+                            BmhParser::Resolvable::kInclude);  // write description
                     this->lf(1);
                 }
                 fMethod = nullptr;
