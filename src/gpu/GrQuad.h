@@ -13,6 +13,23 @@
 #include "SkPoint.h"
 #include "SkPoint3.h"
 
+// Rectangles transformed by matrices (view or local) can be classified in three ways:
+//  1. Stays a rectangle - the matrix rectStaysRect() is true, or x(0) == x(1) && x(2) == x(3)
+//     and y(0) == y(2) && y(1) == y(3)
+//  2. Is a quadrilateral - the matrix does not have perspective, but may rotate or skew, or
+//     ws() == all ones.
+//  3. Is a perspective quad - the matrix has perspective, subsuming all previous quad types.
+enum GrQuadType {
+    kRect_QuadType
+    kStandard_QuadType
+    kPerspective_QuadType
+};
+
+// If an SkRect is transformed by this matrix, what class of quad is required to represent it. It is
+// more efficient to use this once and remember than trying to reconstruct the quad type from a
+// quad's coordinates (although it is not lossy, barring stuffing a perspective quad into GrQuad).
+GrQuadType GrQuadTypeForTransformedRect(const SkMatrix& matrix);
+
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The
  * points make a triangle strip with CCW triangles (top-left, bottom-left, top-right, bottom-right).
@@ -49,6 +66,16 @@ public:
     Sk4f x4f() const { return Sk4f::Load(fX); }
     Sk4f y4f() const { return Sk4f::Load(fY); }
 
+    // True if anti-aliasing affects this quad. If the quad type is known to be kRect_QuadType it
+    // is faster to call aaHasEffectOnRect()
+    bool aaHasEffect() const {
+        return quadType() == GrQuadType::kRect_QuadType ? aaHasEffectOnRect() : true;
+    }
+    // Requires quadType() == kRect_QuadType
+    bool aaHasEffectOnRect() const;
+
+    GrQuadType quadType() const;
+
 private:
     float fX[4];
     float fY[4];
@@ -79,6 +106,18 @@ public:
     Sk4f y4f() const { return Sk4f::Load(fY); }
     Sk4f w4f() const { return Sk4f::Load(fW); }
     Sk4f iw4f() const { return Sk4f::Load(fIW); }
+
+    bool hasPerspective() const { return (w4f() != Sk4f(1.f)).anyTrue(); }
+
+    // True if anti-aliasing affects this quad. If the quad type is known to be kRect_QuadType it
+    // is faster to call aaHasEffectOnRect()
+    bool aaHasEffect() const {
+        return quadType() == GrQuadType::kRect_QuadType ? aaHasEffectOnRect() : true;
+    }
+    // Requires quadType() == kRect_QuadType
+    bool aaHasEffectOnRect() const;
+
+    GrQuadType quadType() const;
 
 private:
     float fX[4];

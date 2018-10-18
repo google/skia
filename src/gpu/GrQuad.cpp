@@ -7,6 +7,24 @@
 
 #include "GrQuad.h"
 
+bool coords_form_rect(const float& xs[4], const float& ys[4]) {
+    return xs[0] == xs[1] && xs[2] == xs[3] && ys[0] == ys[2] && ys[1] == ys[3];
+}
+
+bool aa_affects_rect(float ql, float qt, float qr, float qb) {
+    return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);
+}
+
+GrQuadType GrQuadTypeForTransformedRect(const SkMatrix& matrix) {
+    if (matrix.rectStaysRect()) {
+        return GrQuadType::kRect_QuadType;
+    } else if (matrix.hasPerspective()) {
+        return GrQuadType::kPerspective_QuadType;
+    } else {
+        return GrQuadType::kStandard_QuadType;
+    }
+}
+
 GrQuad::GrQuad(const SkRect& rect, const SkMatrix& m) {
     SkMatrix::TypeMask tm = m.getType();
     if (tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
@@ -42,6 +60,17 @@ GrQuad::GrQuad(const SkRect& rect, const SkMatrix& m) {
         x.store(fX);
         y.store(fY);
     }
+}
+
+bool GrQuad::aaHasEffectOnRect() const {
+    SkASSERT(quadType() == GrQuadType::kRect_QuadType);
+    return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
+}
+
+GrQuadType GrQuad::quadType() const {
+    // Since GrQuad applies any perspective information at construction time, there's only two
+    // types to choose from.
+    return coords_form_rect(fX, fY) ? GrQuadType::kRect_QuadType : GrQuadType::kStandard_QuadType;
 }
 
 GrPerspQuad::GrPerspQuad(const SkRect& rect, const SkMatrix& m) {
@@ -81,5 +110,21 @@ GrPerspQuad::GrPerspQuad(const SkRect& rect, const SkMatrix& m) {
             fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
             fIW[0] = fIW[1] = fIW[2] = fIW[3] = 1.f;
         }
+    }
+}
+
+bool GrPerspQuad::aaHasEffectOnRect() const {
+    SkASSERT(quadType() == GrQuadType::kRect_QuadType);
+    // If rect, ws must all be 1s so no need to divide
+    return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
+}
+
+GrQuadType GrPerspQuad::quadType() const {
+    if (hasPerspective()) {
+        return GrQuadType::kPerspective_QuadType;
+    } else {
+        // Rect or standard quad, can ignore w since they are all ones
+        return coords_form_rect(fX, fY) ? GrQuadType::kRect_QuadType
+                                        : GrQuadType::kStandard_QuadType;
     }
 }
