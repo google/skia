@@ -123,6 +123,7 @@ public:
     }
 
     Factory getFactory() const override { return nullptr; }
+    const char* getTypeName() const override { return nullptr; }
 
 protected:
     SkDrawable();

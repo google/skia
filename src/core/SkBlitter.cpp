@@ -859,14 +859,14 @@ public:
         typedef Context INHERITED;
     };
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
-
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeFlattenable(fProxy.get());
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(Sk3DShader)
+
     sk_sp<SkShader> fProxy;
 
     typedef SkShaderBase INHERITED;

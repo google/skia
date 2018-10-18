@@ -17,8 +17,6 @@ public:
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     explicit SkComposeImageFilter(sk_sp<SkImageFilter> inputs[2]) : INHERITED(inputs, 2, nullptr) {
         SkASSERT(inputs[0].get());
@@ -32,8 +30,7 @@ protected:
     bool onCanHandleComplexCTM() const override { return true; }
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
+    SK_FLATTENABLE_HOOKS(SkComposeImageFilter)
 
     typedef SkImageFilter INHERITED;
 };

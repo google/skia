@@ -60,8 +60,6 @@ public:
     }
 
 
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     SkLine2DPathEffect(SkScalar width, const SkMatrix& matrix)
         : Sk2DPathEffect(matrix), fWidth(width) {
@@ -73,8 +71,7 @@ protected:
     void nextSpan(int u, int v, int ucount, SkPath*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
+    SK_FLATTENABLE_HOOKS(SkLine2DPathEffect)
 
     SkScalar fWidth;
 
@@ -91,8 +88,6 @@ public:
         return sk_sp<SkPathEffect>(new SkPath2DPathEffect(matrix, path));
     }
 
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     SkPath2DPathEffect(const SkMatrix&, const SkPath&);
     void flatten(SkWriteBuffer&) const override;
@@ -100,8 +95,7 @@ protected:
     void next(const SkPoint&, int u, int v, SkPath*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
+    SK_FLATTENABLE_HOOKS(SkPath2DPathEffect)
 
     SkPath  fPath;
 

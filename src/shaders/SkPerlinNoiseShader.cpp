@@ -365,8 +365,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPerlinNoiseShaderImpl)
-
 protected:
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -374,6 +372,8 @@ protected:
 #endif
 
 private:
+    SK_FLATTENABLE_HOOKS(SkPerlinNoiseShaderImpl)
+
     const SkPerlinNoiseShaderImpl::Type fType;
     const SkScalar                  fBaseFrequencyX;
     const SkScalar                  fBaseFrequencyY;

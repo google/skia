@@ -19,8 +19,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRadialGradient)
-
 protected:
     SkRadialGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
@@ -30,6 +28,8 @@ protected:
                               SkRasterPipeline* postPipeline) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkRadialGradient)
+
     const SkPoint fCenter;
     const SkScalar fRadius;
 

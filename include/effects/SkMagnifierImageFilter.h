@@ -18,8 +18,6 @@ public:
                                      sk_sp<SkImageFilter> input,
                                      const CropRect* cropRect = nullptr);
 
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     SkMagnifierImageFilter(const SkRect& srcRect,
                            SkScalar inset,
@@ -32,8 +30,7 @@ protected:
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
+    SK_FLATTENABLE_HOOKS(SkMagnifierImageFilter)
 
     SkRect   fSrcRect;
     SkScalar fInset;

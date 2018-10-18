@@ -23,8 +23,6 @@ public:
     SkNormalSource::Provider* asProvider(const SkShaderBase::ContextRec& rec,
                                          SkArenaAlloc* alloc) const override;
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNormalMapSourceImpl)
-
 protected:
     void flatten(SkWriteBuffer& buf) const override;
 
@@ -32,6 +30,8 @@ protected:
                                  SkMatrix* normTotalInverse) const;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkNormalMapSourceImpl)
+
     class Provider : public SkNormalSource::Provider {
     public:
         Provider(const SkNormalMapSourceImpl& source, SkShaderBase::Context* mapContext);

@@ -18,14 +18,14 @@ public:
     SkMask::Format getFormat() const override;
     bool filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*) const override;
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilterImpl)
-
 protected:
     ~SkTableMaskFilterImpl() override;
 
     void flatten(SkWriteBuffer&) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkTableMaskFilterImpl)
+
     SkTableMaskFilterImpl();
 
     uint8_t fTable[256];

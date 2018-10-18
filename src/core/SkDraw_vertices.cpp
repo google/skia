@@ -77,8 +77,6 @@ public:
 
     bool isOpaque() const override { return fIsOpaque; }
 
-    // For serialization.  This will never be called.
-    Factory getFactory() const override { SK_ABORT("not reached"); return nullptr; }
 
 protected:
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -93,6 +91,10 @@ protected:
     }
 
 private:
+    // For serialization.  This will never be called.
+    Factory getFactory() const override { return nullptr; }
+    const char* getTypeName() const override { return nullptr; }
+
     Matrix43 fM43;
     const bool fIsOpaque;
 

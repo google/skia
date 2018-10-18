@@ -121,8 +121,6 @@ public:
     }
 #endif
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeColorFilter)
-
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeFlattenable(fOuter.get());
@@ -130,6 +128,8 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(SkComposeColorFilter)
+
     SkComposeColorFilter(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner,
                          int composedFilterCount)
         : fOuter(std::move(outer))
@@ -216,8 +216,6 @@ public:
     }
 #endif
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSRGBGammaColorFilter)
-
     void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
                         bool shaderIsOpaque) const override {
         if (!shaderIsOpaque) {
@@ -242,6 +240,8 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(SkSRGBGammaColorFilter)
+
     const Direction fDir;
 
     friend class SkColorFilter;

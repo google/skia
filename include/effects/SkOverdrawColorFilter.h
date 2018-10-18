@@ -32,14 +32,14 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
-    Factory getFactory() const override { return CreateProc; }
     static void InitializeFlattenables();
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkOverdrawColorFilter)
+
     SkOverdrawColorFilter(const SkPMColor colors[kNumColors]) {
         memcpy(fColors, colors, kNumColors * sizeof(SkPMColor));
     }

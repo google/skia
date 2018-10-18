@@ -28,16 +28,14 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkColorMatrixFilterRowMajor255)
+
     void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         bool shaderIsOpaque) const override;
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     SkScalar        fMatrix[20];
     float           fTranspose[20]; // for Sk4s

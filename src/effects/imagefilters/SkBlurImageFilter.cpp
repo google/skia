@@ -41,8 +41,6 @@ public:
 
     SkRect computeFastBounds(const SkRect&) const override;
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilterImpl)
-
 protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
@@ -52,6 +50,8 @@ protected:
                                MapDirection, const SkIRect* inputRect) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkBlurImageFilterImpl)
+
     typedef SkImageFilter INHERITED;
     friend class SkImageFilter;
 

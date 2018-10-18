@@ -28,8 +28,6 @@ public:
                                MapDirection, const SkIRect* inputRect) const override;
     SkRect computeFastBounds(const SkRect& src) const override;
 
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
@@ -38,10 +36,10 @@ protected:
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkTileImageFilter)
+
     SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, sk_sp<SkImageFilter> input)
         : INHERITED(&input, 1, nullptr), fSrcRect(srcRect), fDstRect(dstRect) {}
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     SkRect fSrcRect;
     SkRect fDstRect;

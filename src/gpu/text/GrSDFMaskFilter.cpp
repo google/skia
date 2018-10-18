@@ -26,11 +26,11 @@ public:
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(GrSDFMaskFilterImpl)
-
 protected:
 
 private:
+    SK_FLATTENABLE_HOOKS(GrSDFMaskFilterImpl)
+
     typedef SkMaskFilter INHERITED;
     friend void gr_register_sdf_maskfilter_createproc();
 };

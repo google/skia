@@ -50,8 +50,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorShader)
-
 protected:
     SkColorShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
@@ -71,6 +69,8 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(SkColorShader)
+
     SkColor fColor;
 
     typedef SkShaderBase INHERITED;
@@ -107,8 +107,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColor4Shader)
-
 protected:
     SkColor4Shader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
@@ -124,6 +122,8 @@ protected:
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkColor4Shader)
+
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor4;
     const SkColor       fCachedByteColor;

@@ -22,8 +22,6 @@ public:
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     void flatten(SkWriteBuffer&) const override;
 
@@ -35,13 +33,13 @@ protected:
                                MapDirection, const SkIRect* inputRect) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkImageSource)
+
     explicit SkImageSource(sk_sp<SkImage>);
     SkImageSource(sk_sp<SkImage>,
                   const SkRect& srcRect,
                   const SkRect& dstRect,
                   SkFilterQuality);
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
 
     sk_sp<SkImage>   fImage;
     SkRect           fSrcRect, fDstRect;

@@ -24,8 +24,6 @@ public:
 
     SkScalar getTScale() const { return fTScale; }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSweepGradient)
-
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
@@ -34,6 +32,8 @@ protected:
                               SkRasterPipeline* postPipeline) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkSweepGradient)
+
     const SkPoint  fCenter;
     const SkScalar fTBias,
                    fTScale;

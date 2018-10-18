@@ -91,8 +91,6 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTable_ColorFilter)
-
     enum {
         kA_Flag = 1 << 0,
         kR_Flag = 1 << 1,
@@ -129,6 +127,8 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkTable_ColorFilter)
+
     mutable const SkBitmap* fBitmap; // lazily allocated
 
     uint8_t fStorage[256 * 4];

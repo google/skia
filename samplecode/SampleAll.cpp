@@ -40,8 +40,6 @@ public:
     Dot2DPathEffect(SkScalar radius, const SkMatrix& matrix)
         : Sk2DPathEffect(matrix), fRadius(radius) {}
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
-
 protected:
     void next(const SkPoint& loc, int u, int v, SkPath* dst) const override {
         dst->addCircle(loc.fX, loc.fY, fRadius);
@@ -53,6 +51,8 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(Dot2DPathEffect)
+
     SkScalar fRadius;
 
     typedef Sk2DPathEffect INHERITED;

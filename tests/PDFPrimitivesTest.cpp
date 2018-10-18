@@ -359,7 +359,6 @@ public:
         return sk_sp<DummyImageFilter>(new DummyImageFilter(visited));
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyImageFilter)
     bool visited() const { return fVisited; }
 
 protected:
@@ -374,6 +373,7 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(DummyImageFilter)
     DummyImageFilter(bool visited) : INHERITED(nullptr, 0, nullptr), fVisited(visited) {}
 
     mutable bool fVisited;
