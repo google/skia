@@ -351,7 +351,7 @@ public:
                                             GrQuadAAFlags aaFlags, const SkRect& texRect) {
         // Should be kNone for non-AA and kAll for MSAA.
         SkASSERT(aaFlags == GrQuadAAFlags::kNone || aaFlags == GrQuadAAFlags::kAll);
-        SkASSERT((quad.w4f() == Sk4f(1.f)).allTrue());
+        SkASSERT(!quad.hasPerspective());
         SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
         for (int i = 0; i < 4; ++i) {
             vertices[i].fPosition = {quad.x(i), quad.y(i)};
@@ -376,7 +376,7 @@ template<typename V> class VertexAAHandler<V, GrAA::kYes, SkPoint> {
 public:
     static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
                                             GrQuadAAFlags aaFlags, const SkRect& texRect) {
-        SkASSERT((quad.w4f() == Sk4f(1.f)).allTrue());
+        SkASSERT(!quad.hasPerspective());
         if (aaFlags == GrQuadAAFlags::kNone) {
             for (int i = 0; i < 4; ++i) {
                 vertices[i].fPosition = {quad.x(i), quad.y(i)};
@@ -593,17 +593,8 @@ static void tessellate_quad(const GrPerspQuad& devQuad, GrQuadAAFlags aaFlags,
     DomainAssigner<V>::Assign(vertices, domain, filter, srcRect, origin, iw, ih);
 }
 
-static bool aa_has_effect_for_rect_stays_rect(const GrPerspQuad& quad) {
-    SkASSERT((quad.w4f() == Sk4f(1)).allTrue());
-    float ql = quad.x(0);
-    float qt = quad.y(0);
-    float qr = quad.x(3);
-    float qb = quad.y(3);
-    return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);
-}
-
 static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const SkRect& srcRect) {
-    SkASSERT((quad.w4f() == Sk4f(1)).allTrue());
+    SkASSERT(quad.quadType() == GrQuadType::kRect_QuadType);
     float ql = quad.x(0);
     float qt = quad.y(0);
     float qr = quad.x(3);
@@ -751,7 +742,7 @@ private:
         SkASSERT(!srcRect.contains(proxy->getWorstCaseBoundsRect()) ||
                  constraint == SkCanvas::kFast_SrcRectConstraint);
         if (viewMatrix.rectStaysRect()) {
-            if (this->aaType() == GrAAType::kCoverage && !aa_has_effect_for_rect_stays_rect(quad)) {
+            if (this->aaType() == GrAAType::kCoverage && !quad.aaHasEffectOnRect()) {
                 fAAType = static_cast<unsigned>(GrAAType::kNone);
                 aaFlags = GrQuadAAFlags::kNone;
             }
@@ -811,8 +802,7 @@ private:
                     break;
                 case GrAAType::kCoverage:
                     if (rectStaysRect) {
-                        if (aaFlags != GrQuadAAFlags::kNone &&
-                            !aa_has_effect_for_rect_stays_rect(quad)) {
+                        if (aaFlags != GrQuadAAFlags::kNone && !quad.aaHasEffectOnRect()) {
                             aaFlags = GrQuadAAFlags::kNone;
                         }
                     }
