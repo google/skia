@@ -8,6 +8,7 @@
 #ifndef SkImage_Base_DEFINED
 #define SkImage_Base_DEFINED
 
+#include "SkBitmapCache.h"
 #include "SkImage.h"
 #include "SkSurface.h"
 #include <atomic>
@@ -65,10 +66,35 @@ public:
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                                  GrSurfaceOrigin* origin) const;
 
-    // return a read-only copy of the pixels. We promise to not modify them,
-    // but only inspect them (or encode them).
-    virtual bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace,
+    // Return a read-only copy of the pixels. We promise to not modify them, but only inspect them
+    // (or encode them). The behavior of this function is different for lazy images vs other types.
+    //
+    // For raster or GPU-backed images, the bitmap will always be provided in the stored format and
+    // color space, minimizing the work done.
+    // For lazy images, lazyColorType and lazyColorSpace are used as hints to choose the decoded
+    // color type and color space. If lazyColorType is kUnknown, or lazyColorSpace is nullptr,
+    // then the most natural format of the encoded data will be used.
+    //
+    // If data is always needed in a specific or high-quality format, use readPixels.
+    // If no specific format is required, passing kUnknown_SkColorType and nullptr may give faster
+    // results with lazy images.
+    virtual bool getROPixels(SkBitmap*,
+                             SkColorType lazyColorType = kUnknown_SkColorType,
+                             SkColorSpace* lazyColorSpace = nullptr,
                              CachingHint = kAllow_CachingHint) const = 0;
+
+    // Construct the SkBitmapCacheDesc that will be used to perform any bitmap/mipmap caching of
+    // this image. This follows the same rules as getROPixels - lazyColorType and lazyColorSpace
+    // are used as hints to override the natural format of the encoded data. The result of this
+    // function will exactly match the results (but skip the decoding step) of:
+    //
+    // SkBitmap bm;
+    // this->getROPixels(&bm, lazyColorType, lazyColorSpace);
+    // SkBitmapCacheDesc::Make(bm);
+    virtual SkBitmapCacheDesc makeCacheDesc(SkColorType lazyColorType,
+                                            SkColorSpace* lazyColorSpace) const {
+        return SkBitmapCacheDesc::Make(this);
+    }
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
