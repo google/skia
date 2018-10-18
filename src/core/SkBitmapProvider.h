@@ -13,20 +13,22 @@
 
 class SkBitmapProvider {
 public:
-    explicit SkBitmapProvider(const SkImage* img)
-        : fImage(img) {
+    // Concrete image types will provide bitmaps in the stored format and color space.
+    // For lazy images, lazyColorType and lazyColorSpace are used as hints to choose the decoded
+    // color type and color space. If lazyColorType is kUnknown, or lazyColorSpace is nullptr,
+    // then the most natural format of the encoded data will be used.
+    explicit SkBitmapProvider(const SkImage* img,
+                              SkColorType lazyColorType, SkColorSpace* lazyColorSpace)
+        : fImage(img)
+        , fLazyColorType(lazyColorType)
+        , fLazyColorSpace(lazyColorSpace) {
         SkASSERT(img);
     }
     SkBitmapProvider(const SkBitmapProvider& other)
         : fImage(other.fImage)
+        , fLazyColorType(other.fLazyColorType)
+        , fLazyColorSpace(other.fLazyColorSpace)
     {}
-
-    int width() const;
-    int height() const;
-    uint32_t getID() const;
-
-    SkImageInfo info() const;
-    bool isVolatile() const;
 
     SkBitmapCacheDesc makeCacheDesc() const;
     void notifyAddedToCache() const;
@@ -43,6 +45,8 @@ private:
     // SkBitmapProvider is always short-lived/stack allocated, and the source image is guaranteed
     // to outlive its scope => we can store a raw ptr to avoid ref churn.
     const SkImage* fImage;
+    SkColorType    fLazyColorType;
+    SkColorSpace*  fLazyColorSpace;
 };
 
 #endif

@@ -54,7 +54,10 @@ public:
 #endif
     sk_sp<SkData> onRefEncoded() const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
-    bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
+
+    bool getROPixels(SkBitmap*, SkColorType, SkColorSpace*, CachingHint) const override;
+    SkBitmapCacheDesc makeCacheDesc(SkColorType, SkColorSpace*) const override;
+
     bool onIsLazyGenerated() const override { return true; }
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
