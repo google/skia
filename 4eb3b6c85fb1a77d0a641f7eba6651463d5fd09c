@@ -34,6 +34,24 @@
       "revId": "4eb3b6c85fb1a77d0a641f7eba6651463d5fd09c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca60d62d_ff95086c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-10-18T09:38:30Z",
+      "side": 1,
+      "message": "I started removing the subpixel feature from 4fLinear, but then I realized it\u0027s not just visual candy: with the interval-burst approach, there\u0027s an attack vector where one can lock up the thread for arbitrary duration by passing in super-tiny gradients (which produce close-to-zero advance/progress).\n\nThis defends against that scenario: https://cs.chromium.org/chromium/src/third_party/skia/src/shaders/gradients/Sk4fLinearGradient.cpp?rcl\u003d198b87e5be2083d15901a91c82caad1912e8209a\u0026l\u003d299\n\nIIRC we added that code because cluster-fuzz found the attack.\n\nMaybe there\u0027s another solution, but if we\u0027re going to apply special treatment to squashed gradients, drawing the color average seems the only reasonable outcome.",
+      "parentUuid": "e83c7adf_f1fda9c3",
+      "revId": "4eb3b6c85fb1a77d0a641f7eba6651463d5fd09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
