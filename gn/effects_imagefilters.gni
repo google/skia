@@ -8,8 +8,6 @@ _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
 skia_effects_imagefilter_sources = [
-  "$_src/ports/SkGlobalInitialization_default_imagefilters.cpp",
-
   "$_src/effects/imagefilters/SkAlphaThresholdFilter.cpp",
   "$_src/effects/imagefilters/SkArithmeticImageFilter.cpp",
   "$_src/effects/imagefilters/SkBlurImageFilter.cpp",
