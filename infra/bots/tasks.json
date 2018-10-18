@@ -17539,7 +17539,7 @@
         {
           "name": "skia/bots/bloaty",
           "path": "bloaty",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -17640,7 +17640,7 @@
         {
           "name": "skia/bots/bloaty",
           "path": "bloaty",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -17741,7 +17741,7 @@
         {
           "name": "skia/bots/bloaty",
           "path": "bloaty",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -17843,7 +17843,7 @@
         {
           "name": "skia/bots/bloaty",
           "path": "bloaty",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -17945,7 +17945,7 @@
         {
           "name": "skia/bots/bloaty",
           "path": "bloaty",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -18047,7 +18047,7 @@
         {
           "name": "skia/bots/bloaty",
           "path": "bloaty",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
