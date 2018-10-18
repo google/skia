@@ -175,6 +175,8 @@ typedef enum skcms_PixelFormat {
     skcms_PixelFormat_A_8_,
     skcms_PixelFormat_G_8,
     skcms_PixelFormat_G_8_,
+    skcms_PixelFormat_RGBA_8888_Palette8,
+    skcms_PixelFormat_BGRA_8888_Palette8,
 
     skcms_PixelFormat_RGB_565,
     skcms_PixelFormat_BGR_565,
@@ -247,6 +249,18 @@ SKCMS_API bool skcms_Transform(const void*             src,
                                skcms_AlphaFormat       dstAlpha,
                                const skcms_ICCProfile* dstProfile,
                                size_t                  npixels);
+
+// As skcms_Transform(), supporting srcFmts with a palette.
+SKCMS_API bool skcms_TransformWithPalette(const void*             src,
+                                          skcms_PixelFormat       srcFmt,
+                                          skcms_AlphaFormat       srcAlpha,
+                                          const skcms_ICCProfile* srcProfile,
+                                          void*                   dst,
+                                          skcms_PixelFormat       dstFmt,
+                                          skcms_AlphaFormat       dstAlpha,
+                                          const skcms_ICCProfile* dstProfile,
+                                          size_t                  npixels,
+                                          const void*             palette);
 
 // If profile can be used as a destination in skcms_Transform, return true. Otherwise, attempt to
 // rewrite it with approximations where reasonable. If successful, return true. If no reasonable
