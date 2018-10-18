@@ -6,20 +6,45 @@
  */
 
 #include "SkImage_Base.h"
+#include "SkImageGenerator.h"
 #include "SkCanvas.h"
-#include "SkColorSpaceXformCanvas.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
-#include "SkPictureImageGenerator.h"
 #include "SkSurface.h"
+#include "SkTLazy.h"
+
+class SkPictureImageGenerator : public SkImageGenerator {
+public:
+    SkPictureImageGenerator(const SkImageInfo& info, sk_sp<SkPicture>, const SkMatrix*,
+                            const SkPaint*);
+
+protected:
+    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts)
+        override;
+
+#if SK_SUPPORT_GPU
+    TexGenType onCanGenerateTexture() const override { return TexGenType::kExpensive; }
+    sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
+                                            bool willNeedMipMaps) override;
+#endif
+
+private:
+    sk_sp<SkPicture>    fPicture;
+    SkMatrix            fMatrix;
+    SkTLazy<SkPaint>    fPaint;
+
+    typedef SkImageGenerator INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<SkImageGenerator>
-SkPictureImageGenerator::Make(const SkISize& size, sk_sp<SkPicture> picture, const SkMatrix* matrix,
-                              const SkPaint* paint, SkImage::BitDepth bitDepth,
-                              sk_sp<SkColorSpace> colorSpace) {
-    if (!picture || size.isEmpty()) {
+SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
+                                  const SkMatrix* matrix, const SkPaint* paint,
+                                  SkImage::BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace) {
+    if (!picture || !colorSpace || size.isEmpty()) {
         return nullptr;
     }
 
@@ -31,8 +56,10 @@ SkPictureImageGenerator::Make(const SkISize& size, sk_sp<SkPicture> picture, con
     SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType,
                                          kPremul_SkAlphaType, std::move(colorSpace));
     return std::unique_ptr<SkImageGenerator>(
-                             new SkPictureImageGenerator(info, std::move(picture), matrix, paint));
+        new SkPictureImageGenerator(info, std::move(picture), matrix, paint));
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkPictureImageGenerator::SkPictureImageGenerator(const SkImageInfo& info, sk_sp<SkPicture> picture,
                                                  const SkMatrix* matrix, const SkPaint* paint)
@@ -60,22 +87,6 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
     canvas->clear(0);
     canvas->drawPicture(fPicture, &fMatrix, fPaint.getMaybeNull());
     return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::unique_ptr<SkImageGenerator>
-SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
-                                  const SkMatrix* matrix, const SkPaint* paint,
-                                  SkImage::BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace) {
-    // Check this here (rather than in SkPictureImageGenerator::Create) so SkPictureShader
-    // has a private entry point to create legacy picture backed images.
-    if (!colorSpace) {
-        return nullptr;
-    }
-
-    return SkPictureImageGenerator::Make(size, std::move(picture), matrix, paint, bitDepth,
-                                         std::move(colorSpace));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
