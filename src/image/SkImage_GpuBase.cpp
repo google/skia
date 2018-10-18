@@ -256,9 +256,7 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
 sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
     auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), fAlphaType,
                                                target.get(),      fAlphaType);
-    if (!xform) {
-        return sk_ref_sp(const_cast<SkImage_GpuBase*>(this));
-    }
+    SkASSERT(xform);
 
     sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
 
@@ -274,10 +272,8 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) con
     paint.addColorTextureProcessor(std::move(proxy), SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(xform));
 
-    const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
-
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
-
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                  SkRect::MakeIWH(this->width(), this->height()));
     if (!renderTargetContext->asTextureProxy()) {
         return nullptr;
     }
