@@ -141,7 +141,7 @@ static void compare_pixel(const char* label,
     }
 }
 
-DEF_SIMPLE_GM(p3, canvas, 450, 1200) {
+DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
     auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                     SkColorSpace::kDCIP3_D65_Gamut);
     auto srgb = SkColorSpace::MakeSRGB();
@@ -209,6 +209,28 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1200) {
 
         canvas->drawBitmap(bm, 10,10);
         compare_pixel("drawBitmap P3 red, from SkPixmap::erase",
+                      canvas, 10,10,
+                      {1,0,0,1}, p3.get());
+    }
+
+    canvas->translate(0,80);
+
+    // Draw a P3 red bitmap wrapped in a shader, using SkPixmap::erase().
+    {
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::Make(60,60, kRGBA_F16_SkColorType, kPremul_SkAlphaType, p3));
+
+        // At the moment only SkPixmap has an erase() that takes an SkColor4f.
+        SkPixmap pm;
+        SkAssertResult(bm.peekPixels(&pm));
+        SkAssertResult(pm.erase({1,0,0,1} /*in p3*/));
+
+        SkPaint paint;
+        paint.setShader(SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                                   SkShader::kRepeat_TileMode));
+
+        canvas->drawRect({10,10,70,70}, paint);
+        compare_pixel("drawBitmapAsShader P3 red, from SkPixmap::erase",
                       canvas, 10,10,
                       {1,0,0,1}, p3.get());
     }
