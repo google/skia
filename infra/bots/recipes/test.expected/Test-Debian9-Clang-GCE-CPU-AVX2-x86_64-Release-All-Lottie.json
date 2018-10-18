@@ -209,6 +209,11 @@
       "8888",
       "--src",
       "lottie",
+      "--blacklist",
+      "_",
+      "image",
+      "gen_platf",
+      "error",
       "--nonativeFonts",
       "--verbose"
     ],
