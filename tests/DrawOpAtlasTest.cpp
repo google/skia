@@ -223,3 +223,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     flushState.setOpArgs(nullptr);
     opMemoryPool->release(std::move(op));
 }
+
+DEF_GPUTEST(GrDrawOpAtlasConfig_Basic, reporter, options) {
+    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(   1) == 1);
+    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB( 256) == 1);
+    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB( 512) == 2);
+    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(1024) == 4);
+    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(2048) == 8);
+    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(4096) == 8);
+}

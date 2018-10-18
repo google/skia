@@ -595,3 +595,55 @@ inline void GrDrawOpAtlas::deactivateLastPage() {
     fProxies[lastPageIndex]->deInstantiate();
     --fNumActivePages;
 }
+
+GrDrawOpAtlasConfig::GrDrawOpAtlasConfig(int maxDimension, size_t maxBytes)
+        : fPlotsPerLongDimension{PlotsPerLongDimensionForARGB(maxDimension)} {
+    SkASSERT(kPlotSize >= SkGlyphCacheCommon::kSkSideTooBigForAtlas);
+}
+
+GrDrawOpAtlasConfig::GrDrawOpAtlasConfig() : fPlotsPerLongDimension{1} {
+    SkASSERT(kPlotSize >= SkGlyphCacheCommon::kSkSideTooBigForAtlas);
+}
+
+SkISize GrDrawOpAtlasConfig::numPlots(GrMaskFormat type) const {
+    switch(type) {
+        case kA8_GrMaskFormat:
+            if (fPlotsPerLongDimension * fPlotsPerLongDimension > GrDrawOpAtlas::kMaxPlots) {
+                return {fPlotsPerLongDimension / 2, fPlotsPerLongDimension / 2};
+            }
+            return {fPlotsPerLongDimension, fPlotsPerLongDimension};
+            // Note: because of the 2048 limit in the longest dimension, the largest atlas can be
+            // 1024 x 2048. The maximum number of plots will be 32 for 256 x 256 so that plot
+            // size is always safe.
+        case kA565_GrMaskFormat:
+        case kARGB_GrMaskFormat: {
+            static_assert((kMaxDistanceFieldDim / kPlotSize)
+                          * (kMaxDistanceFieldDim / kPlotSize) / 2 <= GrDrawOpAtlas::kMaxPlots,
+                          "");
+            int plotsPerWidth = std::max(1, fPlotsPerLongDimension / 2);
+            return {plotsPerWidth, fPlotsPerLongDimension};
+        }
+    }
+
+    // This make some compilers happy.
+    return {1,1};
+}
+
+SkISize GrDrawOpAtlasConfig::atlasDimensions(GrMaskFormat type) const {
+    SkISize plots = this->numPlots(type);
+    return {plots.width() * kPlotSize, plots.height() * kPlotSize};
+}
+
+int GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(int maxDimension) {
+
+    SkASSERT(maxDimension > 0);
+
+    // Must be as large as a plot and small enough for distance fields.
+    int dimension = SkTClamp(maxDimension, kPlotSize, kMaxDistanceFieldDim);
+
+    // Return the number of plots along the longest dimension aligned down to a power of 2.
+    return SkPrevPow2(dimension / kPlotSize);
+}
+
+constexpr int GrDrawOpAtlasConfig::kMaxDistanceFieldDim;
+constexpr int GrDrawOpAtlasConfig::kPlotSize;
