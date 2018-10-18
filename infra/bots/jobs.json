@@ -114,6 +114,8 @@
   "BuildStats-Debian9-Clang-arm-Release-Flutter_Android",
   "BuildStats-Debian9-Clang-x86_64-Release-Mini",
   "BuildStats-Debian9-EMCC-asmjs-Release-PathKit",
+  "BuildStats-Debian9-EMCC-wasm-Debug-CanvasKit",
+  "BuildStats-Debian9-EMCC-wasm-Debug-CanvasKit_CPU",
   "BuildStats-Debian9-EMCC-wasm-Release-CanvasKit",
   "BuildStats-Debian9-EMCC-wasm-Release-CanvasKit_CPU",
   "BuildStats-Debian9-EMCC-wasm-Release-PathKit",
