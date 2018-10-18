@@ -86,30 +86,23 @@ public:
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
      *  returns false and does not modify any of the parameters.
      *
-     *  @param sizeInfo    Output parameter indicating the sizes and required
-     *                     allocation widths of the Y, U, V, and A planes.
-     *  @param yuvaIndices How the YUVA planes are organized/used
-     *  @param colorSpace  Output parameter.
+     *  @param sizeInfo   Output parameter indicating the sizes and required
+     *                    allocation widths of the Y, U, and V planes.
+     *  @param colorSpace Output parameter.
      */
-    bool queryYUVA8(SkYUVSizeInfo* sizeInfo,
-                    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                    SkYUVColorSpace* colorSpace) const;
+    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const;
 
     /**
      *  Returns true on success and false on failure.
      *  This always attempts to perform a full decode.  If the client only
-     *  wants size, it should call queryYUVA8().
+     *  wants size, it should call queryYUV8().
      *
-     *  @param sizeInfo    Needs to exactly match the values returned by the
-     *                     query, except the WidthBytes may be larger than the
-     *                     recommendation (but not smaller).
-     *  @param yuvaIndices Needs to exactly match the values returned by the query.
-     *  @param planes      Memory for the Y, U, V, and A planes. Note that, depending on the
-     *                     settings in yuvaIndices, anywhere from 1..4 planes could be returned.
+     *  @param sizeInfo   Needs to exactly match the values returned by the
+     *                    query, except the WidthBytes may be larger than the
+     *                    recommendation (but not smaller).
+     *  @param planes     Memory for each of the Y, U, and V planes.
      */
-    bool getYUVA8Planes(const SkYUVSizeInfo& sizeInfo,
-                        const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                        void* planes[]);
+    bool getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]);
 
 #if SK_SUPPORT_GPU
     /**
@@ -170,13 +163,9 @@ protected:
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrContext*) const { return true; }
-    virtual bool onQueryYUVA8(SkYUVSizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
-                              SkYUVColorSpace*) const { return false; }
-    virtual bool onGetYUVA8Planes(const SkYUVSizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
-                                  void*[4] /*planes*/) { return false; }
-    // Deprecated methods
     virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }
     virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) { return false; }
+
 #if SK_SUPPORT_GPU
     enum class TexGenType {
         kNone,           //image generator does not implement onGenerateTexture
