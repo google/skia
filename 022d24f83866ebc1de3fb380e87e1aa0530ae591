@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72d91c3e_469a96b5",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T13:55:38Z",
+      "side": 1,
+      "message": "I think this could some editing to be made a little terser and clearer.\n\n\"When using the GPU backend it is possible for a drawable to execute using the underlying 3D API rather than the SkCanvas API. It does so by creating a GpuDrawHandler. The GPU backend is deferred so the handler will be given access to the 3D API at the correct point in the drawing stream as the GPU backend flushes. Since the drawable may mutate, each time it is drawn to a GPU-backed canvas a new handler is snapped, representing the drawable\u0027s state at the time of the snap.\n\n...",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 68
+      },
+      "revId": "022d24f83866ebc1de3fb380e87e1aa0530ae591",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42401d97_32097087",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T13:55:38Z",
+      "side": 1,
+      "message": "Skia GPU?",
+      "range": {
+        "startLine": 67,
+        "startChar": 92,
+        "endLine": 67,
+        "endChar": 100
+      },
+      "revId": "022d24f83866ebc1de3fb380e87e1aa0530ae591",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c873bae_094fcff1",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T13:55:38Z",
+      "side": 1,
+      "message": "GPU?",
+      "range": {
+        "startLine": 67,
+        "startChar": 42,
+        "endLine": 67,
+        "endChar": 45
+      },
+      "revId": "022d24f83866ebc1de3fb380e87e1aa0530ae591",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2283c290_569307f2",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T13:55:38Z",
+      "side": 1,
+      "message": "GPU API?",
+      "range": {
+        "startLine": 68,
+        "startChar": 29,
+        "endLine": 68,
+        "endChar": 36
+      },
+      "revId": "022d24f83866ebc1de3fb380e87e1aa0530ae591",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98ef9b12_c61bd1b6",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T13:55:38Z",
+      "side": 1,
+      "message": "In general, I think comments meant to be read by clients should void first person plural :)",
+      "range": {
+        "startLine": 68,
+        "startChar": 14,
+        "endLine": 68,
+        "endChar": 16
+      },
+      "revId": "022d24f83866ebc1de3fb380e87e1aa0530ae591",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ff8e4f6_4957c345",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-18T13:55:38Z",
+      "side": 1,
+      "message": "Vulkan?",
+      "range": {
+        "startLine": 118,
+        "startChar": 3,
+        "endLine": 118,
+        "endChar": 9
+      },
+      "revId": "022d24f83866ebc1de3fb380e87e1aa0530ae591",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
