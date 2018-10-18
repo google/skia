@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b080f1a_ae6e959d",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-10-18T17:01:27Z",
+      "side": 1,
+      "message": "Wasn\u0027t there some issue accessing variables outside the current BUILD scope?\n\nWould be awesome if this works :)",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 30
+      },
+      "revId": "14ba6a8f46eb2b525022b49ca9713d8cb56109b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
