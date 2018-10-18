@@ -8,6 +8,8 @@
 #include "SkPicture.h"
 
 #include "SkAtomics.h"
+#include "SkCanvas.h"
+#include "SkCanvasPriv.h"
 #include "SkImageGenerator.h"
 #include "SkMathPriv.h"
 #include "SkPictureCommon.h"
@@ -18,6 +20,7 @@
 #include "SkPictureRecorder.h"
 #include "SkSerialProcs.h"
 #include "SkTo.h"
+#include "SkTraceEvent.h"
 
 // When we read/write the SkPictInfo via a stream, we have a sentinel byte right after the info.
 // Note: in the read/write buffer versions, we have a slightly different convention:
@@ -337,4 +340,52 @@ sk_sp<SkPicture> SkPicture::MakePlaceholder(SkRect cull) {
           SkRect fCull;
     };
     return sk_make_sp<Placeholder>(cull);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  This constant is trying to balance the speed of ref'ing a subpicture into a parent picture,
+ *  against the playback cost of recursing into the subpicture to get at its actual ops.
+ *
+ *  For now we pick a conservatively small value, though measurement (and other heuristics like
+ *  the type of ops contained) may justify changing this value.
+ */
+#define kMaxPictureOpsToUnrollInsteadOfRef  1
+
+void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    if (!picture) {
+        return;
+    }
+
+    if (matrix && matrix->isIdentity()) {
+        matrix = nullptr;
+    }
+    if (picture->approximateOpCount() <= kMaxPictureOpsToUnrollInsteadOfRef) {
+        SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
+        picture->playback(this);
+    } else {
+        this->onDrawPicture(picture, matrix, paint);
+    }
+}
+
+void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
+                             const SkPaint* paint) {
+    if (!paint || paint->canComputeFastBounds()) {
+        SkRect bounds = picture->cullRect();
+        if (paint) {
+            paint->computeFastBounds(bounds, &bounds);
+        }
+        if (matrix) {
+            matrix->mapRect(&bounds);
+        }
+        if (this->quickReject(bounds)) {
+            return;
+        }
+    }
+
+    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
+    picture->playback(this);
 }
