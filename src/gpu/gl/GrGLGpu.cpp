@@ -2897,15 +2897,17 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
             this->setTextureUnit(unitIdx);
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, newSamplerParams.fMinFilter));
         }
-        // Min and max LOD are actually floats. We don't curently support glTexParameterf. However,
-        // we only ever set these to integral floats (see above).
-        if (setAll || newSamplerParams.fMinLOD != oldSamplerParams.fMinLOD) {
-            this->setTextureUnit(unitIdx);
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_LOD, newSamplerParams.fMinLOD));
-        }
-        if (setAll || newSamplerParams.fMaxLOD != oldSamplerParams.fMaxLOD) {
-            this->setTextureUnit(unitIdx);
-            GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LOD, newSamplerParams.fMaxLOD));
+        if (this->glCaps().mipMapLevelAndLodControlSupport()) {
+            // Min and max LOD are actually floats. We don't curently support glTexParameterf.
+            // However, we only set these to integral floats (see above).
+            if (setAll || newSamplerParams.fMinLOD != oldSamplerParams.fMinLOD) {
+                this->setTextureUnit(unitIdx);
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_LOD, newSamplerParams.fMinLOD));
+            }
+            if (setAll || newSamplerParams.fMaxLOD != oldSamplerParams.fMaxLOD) {
+                this->setTextureUnit(unitIdx);
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LOD, newSamplerParams.fMaxLOD));
+            }
         }
         if (setAll || newSamplerParams.fWrapS != oldSamplerParams.fWrapS) {
             this->setTextureUnit(unitIdx);
