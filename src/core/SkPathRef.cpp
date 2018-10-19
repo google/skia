@@ -707,31 +707,19 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
     if (nullptr == listener || this == gEmpty) {
         return;
     }
-
     SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
-
-    // Clean out any stale listeners before we append the new one.
-    for (int i = 0; i < fGenIDChangeListeners.count(); ++i) {
-        if (fGenIDChangeListeners[i]->shouldUnregisterFromPath()) {
-            fGenIDChangeListeners.removeShuffle(i--);  // No need to preserve the order after i.
-        }
-    }
-
-    SkASSERT(!listener->shouldUnregisterFromPath());
-    fGenIDChangeListeners.push_back(std::move(listener));
+    *fGenIDChangeListeners.append() = listener.release();
 }
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
     SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
-    for (const sk_sp<GenIDChangeListener>& listener : fGenIDChangeListeners) {
-        if (!listener->shouldUnregisterFromPath()) {
-            listener->onChange();
-        }
+    for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
+        fGenIDChangeListeners[i]->onChange();
     }
 
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
-    fGenIDChangeListeners.reset();
+    fGenIDChangeListeners.unrefAll();
 }
 
 SkRRect SkPathRef::getRRect() const {

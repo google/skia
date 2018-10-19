@@ -15,7 +15,6 @@
 #include "SkRRect.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
 #include "SkTo.h"
@@ -310,24 +309,9 @@ public:
      */
     uint32_t genID() const;
 
-    class GenIDChangeListener : public SkRefCnt {
-    public:
-        GenIDChangeListener() : fShouldUnregisterFromPath(false) {}
+    struct GenIDChangeListener : SkRefCnt {
         virtual ~GenIDChangeListener() {}
-
         virtual void onChange() = 0;
-
-        // The caller can use this method to notify the path that it no longer needs to listen. Once
-        // called, the path will remove this listener from the list at some future point.
-        void markShouldUnregisterFromPath() {
-            fShouldUnregisterFromPath.store(true, std::memory_order_relaxed);
-        }
-        bool shouldUnregisterFromPath() {
-            return fShouldUnregisterFromPath.load(std::memory_order_relaxed);
-        }
-
-    private:
-        mutable std::atomic<bool> fShouldUnregisterFromPath;
     };
 
     void addGenIDChangeListener(sk_sp<GenIDChangeListener>);  // Threadsafe.
@@ -561,8 +545,8 @@ private:
     mutable uint32_t    fGenerationID;
     SkDEBUGCODE(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
 
-    SkMutex fGenIDChangeListenersMutex;
-    SkTArray<sk_sp<GenIDChangeListener>> fGenIDChangeListeners;
+    SkMutex                         fGenIDChangeListenersMutex;
+    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are reffed
 
     mutable uint8_t  fBoundsIsDirty;
     mutable bool     fIsFinite;    // only meaningful if bounds are valid
