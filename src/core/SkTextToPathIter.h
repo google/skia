@@ -26,7 +26,6 @@ protected:
     SkPaint::GlyphCacheProc fGlyphCacheProc;
 
     SkScalar        fXPos;      // accumulated xpos, returned in next
-    int             fXYIndex;   // cache for horizontal -vs- vertical text
 };
 
 class SkTextToPathIter : SkTextBaseIter {
@@ -67,7 +66,7 @@ public:
     bool next(SkScalar* array, int* count);
 
     void setPosition(SkScalar x, SkScalar y) {
-        SkScalar xOffset = TextType::kText == fTextType && fXYIndex ? fXPos : 0;
+        SkScalar xOffset = 0;
         if (TextType::kPosText == fTextType
                 && fPaint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
             const char* text = fText;
@@ -80,14 +79,11 @@ public:
         }
 
         for (int i = 0; i < (int) SK_ARRAY_COUNT(fBounds); ++i) {
-            SkScalar bound = fBoundsBase[i] - (fXYIndex ? x : y);
-            if (fXYIndex) {
-                bound += xOffset;
-            }
+            SkScalar bound = fBoundsBase[i] - y;
             fBounds[i] = bound / fScale;
         }
 
-        fXPos = xOffset + (fXYIndex ? y : x);
+        fXPos = xOffset + x;
         fPrevAdvance = 0;
     }
 

@@ -35,7 +35,6 @@ enum SkTextEncoding {
      kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
      kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
      kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
-     kVerticalText_Flag    = 0x1000,
  };
 
  SkFont would absorb these:
@@ -46,7 +45,6 @@ enum SkTextEncoding {
      kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
      kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
      kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
-     kVerticalText_Flag    = 0x1000,
 
  leaving these still in paint
 
@@ -97,8 +95,6 @@ public:
          */
         kUseNonlinearMetrics_Flag   = 1 << 3,
 
-        kVertical_Flag              = 1 << 4,
-
         kEmbolden_Flag              = 1 << 6,
     };
 
@@ -129,7 +125,6 @@ public:
     uint32_t    getFlags() const { return fFlags; }
     MaskType    getMaskType() const { return (MaskType)fMaskType; }
 
-    bool isVertical() const { return SkToBool(fFlags & kVertical_Flag); }
     bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_Flag); }
     bool isEnableAutoHints() const { return SkToBool(fFlags & kEnableAutoHints_Flag); }
     bool isEnableByteCodeHints() const { return SkToBool(fFlags & kEnableByteCodeHints_Flag); }

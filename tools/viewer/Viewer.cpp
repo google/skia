@@ -708,8 +708,6 @@ void Viewer::updateTitle() {
               "Bitmap Text", "No Bitmap Text");
     paintFlag(SkPaint::kAutoHinting_Flag, &SkPaint::isAutohinted,
               "Force Autohint", "No Force Autohint");
-    paintFlag(SkPaint::kVerticalText_Flag, &SkPaint::isVerticalText,
-              "Vertical Text", "No Vertical Text");
 
     if (fPaintOverrides.fHinting) {
         switch (fPaint.getHinting()) {
@@ -1086,9 +1084,6 @@ public:
         }
         if (fPaintOverrides->fFlags & SkPaint::kAutoHinting_Flag) {
             paint->writable()->setAutohinted(fPaint->isAutohinted());
-        }
-        if (fPaintOverrides->fFlags & SkPaint::kVerticalText_Flag) {
-            paint->writable()->setVerticalText(fPaint->isVerticalText());
         }
 
         return true;
@@ -1731,11 +1726,6 @@ void Viewer::drawImGui() {
                           "Default\0No Force Auto-Hinting\0Force Auto-Hinting\0\0",
                           SkPaint::kAutoHinting_Flag,
                           &SkPaint::isAutohinted, &SkPaint::setAutohinted);
-
-                paintFlag("Vertical Text",
-                          "Default\0No Vertical Text\0Vertical Text\0\0",
-                          SkPaint::kVerticalText_Flag,
-                          &SkPaint::isVerticalText, &SkPaint::setVerticalText);
 
                 ImGui::Checkbox("Override TextSize", &fPaintOverrides.fTextSize);
                 if (fPaintOverrides.fTextSize) {
