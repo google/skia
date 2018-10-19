@@ -348,7 +348,8 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
                     uint8_t A = *planes.fAFull.getAddr8(x, y);
 
                     // NOT premul!
-                    *yuvaFull.getAddr32(x, y) = SkColorSetARGB(A, Y, U, V);
+                    SkColor c = SkColorSetARGB(A, Y, U, V);
+                    *yuvaFull.getAddr32(x, y) = SkSwizzle_BGRA_to_PMColor(c);
                 }
             }
 
@@ -378,7 +379,8 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
                     uint8_t V = *planes.fVQuarter.getAddr8(x, y);
 
                     // NOT premul!
-                    *uvQuarter.getAddr32(x, y) = SkColorSetARGB(0, U, V, 0);
+                    SkColor c = SkColorSetARGB(0, U, V, 0);
+                    *uvQuarter.getAddr32(x, y) = SkSwizzle_BGRA_to_PMColor(c);
                 }
             }
 
@@ -407,7 +409,8 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
                     uint8_t V = *planes.fVQuarter.getAddr8(x, y);
 
                     // NOT premul!
-                    *vuQuarter.getAddr32(x, y) = SkColorSetARGB(0, V, U, 0);
+                    SkColor c = SkColorSetARGB(0, V, U, 0);
+                    *vuQuarter.getAddr32(x, y) = SkSwizzle_BGRA_to_PMColor(c);
                 }
             }
 
@@ -739,6 +742,7 @@ protected:
                         }
 
                         GrBackendTexture yuvaTextures[4];
+                        SkColorType colorTypes[4];
 
                         for (int i = 0; i < 4; ++i) {
                             if (!used[i]) {
@@ -753,12 +757,14 @@ protected:
                                 false,
                                 GrMipMapped::kNo,
                                 resultBMs[i].rowBytes());
+                            colorTypes[i] = resultBMs[i].colorType();
                         }
 
                         fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
                             context,
                             (SkYUVColorSpace) cs,
                             yuvaTextures,
+                            colorTypes,
                             yuvaIndices,
                             { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
                             kTopLeft_GrSurfaceOrigin);
