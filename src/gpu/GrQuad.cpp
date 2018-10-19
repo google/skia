@@ -7,6 +7,59 @@
 
 #include "GrQuad.h"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions for identifying the quad type from its coordinates, which are kept debug-only since
+// production code should rely on the matrix to derive the quad type more efficiently. These are
+// useful in asserts that the quad type is as expected.
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_DEBUG
+// Allow some tolerance from floating point matrix transformations, but SkScalarNearlyEqual doesn't
+// support comparing infinity, and coords_form_rect should return true for infinite edges
+#define NEARLY_EQUAL(f1, f2) (f1 == f2 || SkScalarNearlyEqual(f1, f2, 1e-5f))
+
+// This is not the most performance critical function; code using GrQuad should rely on the faster
+// quad type from matrix path, so this will only be called as part of SkASSERT.
+static bool coords_form_rect(const float xs[4], const float ys[4]) {
+    return (NEARLY_EQUAL(xs[0], xs[1]) && NEARLY_EQUAL(xs[2], xs[3]) &&
+            NEARLY_EQUAL(ys[0], ys[2]) && NEARLY_EQUAL(ys[1], ys[3])) ||
+           (NEARLY_EQUAL(xs[0], xs[2]) && NEARLY_EQUAL(xs[1], xs[3]) &&
+            NEARLY_EQUAL(ys[0], ys[1]) && NEARLY_EQUAL(ys[2], ys[3]));
+}
+
+GrQuadType GrQuad::quadType() const {
+    // Since GrQuad applies any perspective information at construction time, there's only two
+    // types to choose from.
+    return coords_form_rect(fX, fY) ? GrQuadType::kRect_QuadType : GrQuadType::kStandard_QuadType;
+}
+
+GrQuadType GrPerspQuad::quadType() const {
+    if (this->hasPerspective()) {
+        return GrQuadType::kPerspective_QuadType;
+    } else {
+        // Rect or standard quad, can ignore w since they are all ones
+        return coords_form_rect(fX, fY) ? GrQuadType::kRect_QuadType
+                                        : GrQuadType::kStandard_QuadType;
+    }
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static bool aa_affects_rect(float ql, float qt, float qr, float qb) {
+    return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);
+}
+
+GrQuadType GrQuadTypeForTransformedRect(const SkMatrix& matrix) {
+    if (matrix.rectStaysRect()) {
+        return GrQuadType::kRect_QuadType;
+    } else if (matrix.hasPerspective()) {
+        return GrQuadType::kPerspective_QuadType;
+    } else {
+        return GrQuadType::kStandard_QuadType;
+    }
+}
+
 GrQuad::GrQuad(const SkRect& rect, const SkMatrix& m) {
     SkMatrix::TypeMask tm = m.getType();
     if (tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
@@ -42,6 +95,11 @@ GrQuad::GrQuad(const SkRect& rect, const SkMatrix& m) {
         x.store(fX);
         y.store(fY);
     }
+}
+
+bool GrQuad::aaHasEffectOnRect() const {
+    SkASSERT(this->quadType() == GrQuadType::kRect_QuadType);
+    return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
 }
 
 GrPerspQuad::GrPerspQuad(const SkRect& rect, const SkMatrix& m) {
@@ -82,4 +140,10 @@ GrPerspQuad::GrPerspQuad(const SkRect& rect, const SkMatrix& m) {
             fIW[0] = fIW[1] = fIW[2] = fIW[3] = 1.f;
         }
     }
+}
+
+bool GrPerspQuad::aaHasEffectOnRect() const {
+    SkASSERT(this->quadType() == GrQuadType::kRect_QuadType);
+    // If rect, ws must all be 1s so no need to divide
+    return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
 }
