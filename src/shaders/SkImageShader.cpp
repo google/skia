@@ -202,9 +202,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     GrSamplerState samplerState(wrapModes, textureFilterMode);
     sk_sp<SkColorSpace> texColorSpace;
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(
-            args.fContext, samplerState, args.fDstColorSpaceInfo->colorSpace(), &texColorSpace,
-            scaleAdjust));
+    sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(args.fContext, samplerState,
+                                                                 &texColorSpace, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }

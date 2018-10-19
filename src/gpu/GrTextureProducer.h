@@ -86,23 +86,21 @@ public:
      * Places the color space of the texture in (*proxyColorSpace).
      */
     sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
-                                                   SkColorSpace* dstColorSpace,
                                                    sk_sp<SkColorSpace>* proxyColorSpace,
                                                    SkScalar scaleAdjust[2]);
 
     sk_sp<GrTextureProxy> refTextureProxyForParams(GrSamplerState::Filter filter,
-                                                   SkColorSpace* dstColorSpace,
                                                    sk_sp<SkColorSpace>* proxyColorSpace,
                                                    SkScalar scaleAdjust[2]) {
         return this->refTextureProxyForParams(
-                GrSamplerState(GrSamplerState::WrapMode::kClamp, filter), dstColorSpace,
+                GrSamplerState(GrSamplerState::WrapMode::kClamp, filter),
                 proxyColorSpace, scaleAdjust);
     }
 
     /**
-     * Returns a texture that is safe for use with the dstColorSpace. If willNeedMips is true then
-     * the returned texture is guaranteed to have allocated mip map levels. This can be a
-     * performance win if future draws with the texture require mip maps.
+     * Returns a texture. If willNeedMips is true then the returned texture is guaranteed to have
+     * allocated mip map levels. This can be a performance win if future draws with the texture
+     * require mip maps.
      *
      * Places the color space of the texture in (*proxyColorSpace).
      */
@@ -111,7 +109,6 @@ public:
     // refTextureProxyForParams, however the current public API that uses this call does not expose
     // that array.
     sk_sp<GrTextureProxy> refTextureProxy(GrMipMapped willNeedMips,
-                                          SkColorSpace* dstColorSpace,
                                           sk_sp<SkColorSpace>* proxyColorSpace);
 
     virtual ~GrTextureProducer() {}
@@ -189,7 +186,6 @@ protected:
 
 private:
     virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
-                                                             SkColorSpace* dstColorSpace,
                                                              sk_sp<SkColorSpace>* proxyColorSpace,
                                                              bool willBeMipped,
                                                              SkScalar scaleAdjust[2]) = 0;

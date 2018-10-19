@@ -344,11 +344,9 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
 
 static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,
                                                  SkAlphaType at, uint32_t id,
-                                                 SkColorSpace* dstColorSpace,
                                                  GrMipMapped mipMapped) {
     sk_sp<SkColorSpace> texColorSpace;
-    sk_sp<GrTextureProxy> proxy(producer->refTextureProxy(mipMapped, dstColorSpace,
-                                                          &texColorSpace));
+    sk_sp<GrTextureProxy> proxy(producer->refTextureProxy(mipMapped, &texColorSpace));
     if (!proxy) {
         return nullptr;
     }
@@ -373,19 +371,19 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
         GrTextureAdjuster adjuster(context, std::move(proxy), this->alphaType(),
                                    this->uniqueID(), this->colorSpace());
         return create_image_from_producer(context, &adjuster, this->alphaType(),
-                                          this->uniqueID(), dstColorSpace, mipMapped);
+                                          this->uniqueID(), mipMapped);
     }
 
     if (this->isLazyGenerated()) {
         GrImageTextureMaker maker(context, this, kDisallow_CachingHint);
         return create_image_from_producer(context, &maker, this->alphaType(),
-                                          this->uniqueID(), dstColorSpace, mipMapped);
+                                          this->uniqueID(), mipMapped);
     }
 
     if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
         GrBitmapTextureMaker maker(context, *bmp);
         return create_image_from_producer(context, &maker, this->alphaType(),
-                                          this->uniqueID(), dstColorSpace, mipMapped);
+                                          this->uniqueID(), mipMapped);
     }
     return nullptr;
 }
@@ -665,7 +663,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
             GrSamplerState::WrapMode::kClamp,
             buildMips ? GrSamplerState::Filter::kMipMap : GrSamplerState::Filter::kBilerp);
     sk_sp<GrTextureProxy> proxy(
-            maker.refTextureProxyForParams(samplerState, dstColorSpace, &texColorSpace, nullptr));
+            maker.refTextureProxyForParams(samplerState, &texColorSpace, nullptr));
     if (!proxy) {
         return codecImage;
     }

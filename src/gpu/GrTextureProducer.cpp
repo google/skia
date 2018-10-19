@@ -217,7 +217,6 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorF
 
 sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
         const GrSamplerState& sampler,
-        SkColorSpace* dstColorSpace,
         sk_sp<SkColorSpace>* proxyColorSpace,
         SkScalar scaleAdjust[2]) {
     // Check that the caller pre-initialized scaleAdjust
@@ -232,9 +231,8 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
     bool willBeMipped = GrSamplerState::Filter::kMipMap == sampler.filter() && mipCount &&
                         fContext->contextPriv().caps()->mipMapSupport();
 
-    auto result =
-            this->onRefTextureProxyForParams(sampler, dstColorSpace, proxyColorSpace, willBeMipped,
-                                             scaleAdjust);
+    auto result = this->onRefTextureProxyForParams(sampler, proxyColorSpace, willBeMipped,
+                                                   scaleAdjust);
 
     // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
     // maps, unless the config is not copyable.
@@ -249,7 +247,6 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
 }
 
 sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxy(GrMipMapped willNeedMips,
-                                                         SkColorSpace* dstColorSpace,
                                                          sk_sp<SkColorSpace>* proxyColorSpace) {
     GrSamplerState::Filter filter =
             GrMipMapped::kNo == willNeedMips ? GrSamplerState::Filter::kNearest
@@ -260,9 +257,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxy(GrMipMapped willNeedMip
     bool willBeMipped = GrSamplerState::Filter::kMipMap == sampler.filter() && mipCount &&
                         fContext->contextPriv().caps()->mipMapSupport();
 
-    auto result =
-            this->onRefTextureProxyForParams(sampler, dstColorSpace, proxyColorSpace,
-                                             willBeMipped, nullptr);
+    auto result = this->onRefTextureProxyForParams(sampler, proxyColorSpace, willBeMipped, nullptr);
 
     // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
     // maps, unless the config is not copyable.
