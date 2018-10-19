@@ -101,10 +101,8 @@ public:
 
     T*        begin() { return fArray; }
     const T*  begin() const { return fArray; }
-    const T* cbegin() const { return fArray; }
     T*        end() { return fArray ? fArray + fCount : nullptr; }
     const T*  end() const { return fArray ? fArray + fCount : nullptr; }
-    const T* cend() const { return fArray ? fArray + fCount : nullptr; }
 
     T&  operator[](int index) {
         SkASSERT(index < fCount);
@@ -118,9 +116,7 @@ public:
     T&  getAt(int index)  {
         return (*this)[index];
     }
-    const T&  getAt(int index) const {
-        return (*this)[index];
-    }
+
 
     void reset() {
         if (fArray) {
@@ -183,12 +179,6 @@ public:
             }
         }
         return fArray + oldCount;
-    }
-
-    T* appendClear() {
-        T* result = this->append();
-        *result = 0;
-        return result;
     }
 
     T* insert(int index) {
@@ -318,15 +308,6 @@ public:
             iter += 1;
         }
         this->reset();
-    }
-
-    void visitAll(void visitor(T&)) {
-        T* stop = this->end();
-        for (T* curr = this->begin(); curr < stop; curr++) {
-            if (*curr) {
-                visitor(*curr);
-            }
-        }
     }
 
 #ifdef SK_DEBUG
