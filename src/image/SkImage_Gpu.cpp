@@ -118,8 +118,8 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
 
 sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
         GrContext* ctx, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvaTextures[],
-        const SkYUVAIndex yuvaIndices[4], SkISize size, GrSurfaceOrigin origin,
-        SkBudgeted isBudgeted, GrRenderTargetContext* renderTargetContext) {
+        const SkColorType colorTypes[], const SkYUVAIndex yuvaIndices[4], SkISize size,
+        GrSurfaceOrigin origin, SkBudgeted isBudgeted, GrRenderTargetContext* renderTargetContext) {
     SkASSERT(renderTargetContext);
 
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
@@ -152,6 +152,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
             // should have A8 color type but may be RGBA. We fall back in the latter case below.
             ct = nv12 && SkYUVAIndex::kY_Index != i ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
         }
+        ct = colorTypes[yuvaIndex.fIndex];
 
         if (!yuvaTexturesCopy[yuvaIndex.fIndex].isValid()) {
             yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
@@ -226,6 +227,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
 sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
                                                  SkYUVColorSpace yuvColorSpace,
                                                  const GrBackendTexture yuvaTextures[],
+                                                 const SkColorType colorTypes[],
                                                  const SkYUVAIndex yuvaIndices[4],
                                                  SkISize imageSize,
                                                  GrSurfaceOrigin imageOrigin,
@@ -242,15 +244,16 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
         return nullptr;
     }
 
-    return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, yuvaIndices,
-                                                 imageSize, imageOrigin, SkBudgeted::kYes,
-                                                 renderTargetContext.get());
+    return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, colorTypes,
+                                                 yuvaIndices, imageSize, imageOrigin,
+                                                 SkBudgeted::kYes, renderTargetContext.get());
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
         GrContext* ctx,
         SkYUVColorSpace yuvColorSpace,
         const GrBackendTexture yuvaTextures[],
+        const SkColorType colorTypes[],
         const SkYUVAIndex yuvaIndices[4],
         SkISize imageSize,
         GrSurfaceOrigin imageOrigin,
@@ -274,9 +277,9 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
         return nullptr;
     }
 
-    return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, yuvaIndices,
-                                                 imageSize, imageOrigin, SkBudgeted::kNo,
-                                                 renderTargetContext.get());
+    return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, colorTypes,
+                                                 yuvaIndices, imageSize, imageOrigin,
+                                                 SkBudgeted::kNo, renderTargetContext.get());
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace yuvColorSpace,
@@ -284,20 +287,25 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
                                                 GrSurfaceOrigin imageOrigin,
                                                 sk_sp<SkColorSpace> imageColorSpace) {
     // TODO: SkImageSourceChannel input is being ingored right now. Setup correctly in the future.
+    SkColorType colorTypes[4] = { kAlpha_8_SkColorType, kAlpha_8_SkColorType,
+                                  kAlpha_8_SkColorType, kUnknown_SkColorType };
     SkYUVAIndex yuvaIndices[4] = {
             SkYUVAIndex{0, SkColorChannel::kR},
             SkYUVAIndex{1, SkColorChannel::kR},
             SkYUVAIndex{2, SkColorChannel::kR},
             SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
-    return SkImage_Gpu::MakeFromYUVATexturesCopy(ctx, yuvColorSpace, yuvTextures, yuvaIndices,
-                                                 size, imageOrigin, std::move(imageColorSpace));
+    return SkImage_Gpu::MakeFromYUVATexturesCopy(ctx, yuvColorSpace, yuvTextures, colorTypes,
+                                                 yuvaIndices, size, imageOrigin,
+                                                 std::move(imageColorSpace));
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
         GrContext* ctx, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvTextures[3],
         GrSurfaceOrigin imageOrigin, const GrBackendTexture& backendTexture,
         sk_sp<SkColorSpace> imageColorSpace) {
+    SkColorType colorTypes[4] = { kAlpha_8_SkColorType, kAlpha_8_SkColorType,
+                                  kAlpha_8_SkColorType, kUnknown_SkColorType };
     SkYUVAIndex yuvaIndices[4] = {
             SkYUVAIndex{0, SkColorChannel::kR},
             SkYUVAIndex{1, SkColorChannel::kR},
@@ -305,8 +313,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
             SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackend(
-            ctx, yuvColorSpace, yuvTextures, yuvaIndices, size, imageOrigin, backendTexture,
-            std::move(imageColorSpace));
+            ctx, yuvColorSpace, yuvTextures, colorTypes, yuvaIndices, size, imageOrigin,
+            backendTexture, std::move(imageColorSpace));
 }
 
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace yuvColorSpace,
@@ -314,13 +322,16 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
                                                  GrSurfaceOrigin imageOrigin,
                                                  sk_sp<SkColorSpace> imageColorSpace) {
     // TODO: SkImageSourceChannel input is being ingored right now. Setup correctly in the future.
+    SkColorType colorTypes[4] = { kRGBA_8888_SkColorType, kRGBA_8888_SkColorType,
+                                  kUnknown_SkColorType, kUnknown_SkColorType };
     SkYUVAIndex yuvaIndices[4] = {
             SkYUVAIndex{0, SkColorChannel::kR},
             SkYUVAIndex{1, SkColorChannel::kR},
             SkYUVAIndex{1, SkColorChannel::kG},
             SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{nv12Textures[0].width(), nv12Textures[0].height()};
-    return SkImage_Gpu::MakeFromYUVATexturesCopy(ctx, yuvColorSpace, nv12Textures, yuvaIndices,
+    return SkImage_Gpu::MakeFromYUVATexturesCopy(ctx, yuvColorSpace, nv12Textures, colorTypes,
+                                                 yuvaIndices,
                                                  size, imageOrigin, std::move(imageColorSpace));
 }
 
@@ -331,6 +342,8 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
         GrSurfaceOrigin imageOrigin,
         const GrBackendTexture& backendTexture,
         sk_sp<SkColorSpace> imageColorSpace) {
+    SkColorType colorTypes[4] = { kRGBA_8888_SkColorType, kRGBA_8888_SkColorType,
+                                  kUnknown_SkColorType, kUnknown_SkColorType };
     SkYUVAIndex yuvaIndices[4] = {
             SkYUVAIndex{0, SkColorChannel::kR},
             SkYUVAIndex{1, SkColorChannel::kR},
@@ -338,8 +351,8 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
             SkYUVAIndex{-1, SkColorChannel::kA}};
     SkISize size{nv12Textures[0].width(), nv12Textures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackend(
-            ctx, yuvColorSpace, nv12Textures, yuvaIndices, size, imageOrigin, backendTexture,
-            std::move(imageColorSpace));
+            ctx, yuvColorSpace, nv12Textures, colorTypes, yuvaIndices, size, imageOrigin,
+            backendTexture, std::move(imageColorSpace));
 }
 
 static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,
