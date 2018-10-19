@@ -21,6 +21,13 @@
 #include <unordered_map>
 #include <vector>
 
+#define FPRINTF(...)                \
+    if (fDebugOut) {                \
+        SkDebugf(__VA_ARGS__);      \
+    }                               \
+    fprintf(fOut, __VA_ARGS__)
+
+
 // std::to_string isn't implemented on android
 #include <sstream>
 
@@ -1220,7 +1227,6 @@ public:
 
     void checkLineLength(size_t len, const char* str);
     static void CopyToFile(string oldFile, string newFile);
-
     static char* FindDateTime(char* buffer, int size);
 
     void indentIn(IndentKind kind) {
@@ -1239,10 +1245,7 @@ public:
         SkASSERT(column >= fColumn);
         SkASSERT(!fReturnOnWrite);
         SkASSERT(column < 80);
-        if (fDebugOut) {
-            SkDebugf("%*s", column - fColumn, "");
-        }
-        fprintf(fOut, "%*s", column - fColumn, "");
+        FPRINTF("%*s", column - fColumn, "");
         fColumn = column;
         fSpaces += column - fColumn;
     }
@@ -1455,6 +1458,7 @@ public:
         kLiteral, // output untouched
 		kClone,   // resolved, output, with references to clones as well
         kSimple,  // resolve simple words (used to resolve method declarations)
+        kInclude, // like simple, plus reverse resolve SkXXX to XXX
     };
 
     enum class ExampleOptions {
@@ -1602,6 +1606,10 @@ public:
     unordered_map<string, Definition*> fTopicMap;
     unordered_map<string, Definition*> fAliasMap;
     unordered_map<string, Definition*> fPhraseMap;
+    unordered_map<string, string> fGlobalLinkMap;  // from SkRect to SkRect_Reference#Rect
+    unordered_map<string, string> fLocalLinkMap;   // from SkRect to #Rect
+    // sub map includes "xxx", "xxx ", "xxx yyy", "xxx zzz", etc.
+    unordered_map<string, string> fSubstituteMap;  // e.g., from #Substitute entry to #Topic entry
     RootDefinition* fRoot;
     Definition* fWorkingColumn;
     Definition* fRow;
@@ -2363,9 +2371,6 @@ public:
         this->reset();
     }
 
-    void addOneLiner(const Definition* defTable, const Definition* child, bool hasLine,
-            bool lfAfter);
-
     bool parseFromFile(const char* path) override {
         if (!INHERITED::parseSetup(path)) {
             return false;
@@ -2377,20 +2382,10 @@ public:
         INHERITED::resetCommon();
     }
 
-    string searchTable(const Definition* tableHolder, const Definition* match);
-
-    void topicIter(const Definition* );
+    void replaceWithPop(const Definition* );
 
 private:
     const BmhParser& fBmhParser;
-    const Definition* fClasses;
-    const Definition* fConstants;
-    const Definition* fConstructors;
-    const Definition* fMemberFunctions;
-    const Definition* fMembers;
-    const Definition* fOperators;
-    const Definition* fRelatedFunctions;
-    const Definition* fStructs;
     bool hackFiles();
 
     typedef ParserCommon INHERITED;
@@ -2604,6 +2599,7 @@ public:
             }
         }
         if (BmhParser::Resolvable::kSimple != resolvable
+                && BmhParser::Resolvable::kInclude != resolvable
                 && (this->startsWith(name.c_str()) || this->startsWith("operator"))) {
             const char* ptr = this->anyOf("\n (");
             if (ptr && '(' ==  *ptr && strncmp(ptr, "(...", 4)) {
