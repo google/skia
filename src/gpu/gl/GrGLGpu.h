@@ -56,7 +56,7 @@ public:
     }
 
     // Used by GrGLProgram to configure OpenGL state.
-    void bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture* texture);
+    void bindTexture(int unitIdx, const GrSamplerState& samplerState, GrGLTexture* texture);
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
@@ -208,7 +208,7 @@ private:
     // The texture is populated with |texels|, if it exists.
     // The texture parameters are cached in |initialTexParams|.
     bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, bool renderTarget,
-                           GrGLTexture::SamplerParams* initialTexParams, const GrMipLevel texels[],
+                           GrGLTexture::TexParams* initialTexParams, const GrMipLevel texels[],
                            int mipLevelCount, GrMipMapsStatus* mipMapsStatus);
 
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the
@@ -630,9 +630,6 @@ private:
     float fHWMinSampleShading;
     GrPrimitiveType fLastPrimitiveType;
     bool fRequiresFlushBeforeNextInstancedDraw = false;
-
-    class SamplerObjectCache;
-    std::unique_ptr<SamplerObjectCache> fSamplerObjectCache;
 
     std::unique_ptr<GrGLGpuRTCommandBuffer>      fCachedRTCommandBuffer;
     std::unique_ptr<GrGLGpuTextureCommandBuffer> fCachedTexCommandBuffer;
