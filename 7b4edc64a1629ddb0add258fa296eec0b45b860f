@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46764f26_7bb5af5e",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-19T20:12:17Z",
+      "side": 1,
+      "message": "lambda?",
+      "range": {
+        "startLine": 184,
+        "startChar": 45,
+        "endLine": 184,
+        "endChar": 64
+      },
+      "revId": "7b4edc64a1629ddb0add258fa296eec0b45b860f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd4a9931_e78d4b4e",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-19T20:12:17Z",
+      "side": 1,
+      "message": "bitmap-\u003e, etc?",
+      "range": {
+        "startLine": 197,
+        "startChar": 13,
+        "endLine": 197,
+        "endChar": 23
+      },
+      "revId": "7b4edc64a1629ddb0add258fa296eec0b45b860f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0239e3b1_cf3747d3",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-19T20:12:17Z",
+      "side": 1,
+      "message": "SkAssertResult?",
+      "range": {
+        "startLine": 200,
+        "startChar": 8,
+        "endLine": 200,
+        "endChar": 12
+      },
+      "revId": "7b4edc64a1629ddb0add258fa296eec0b45b860f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd45d794_8f2190cf",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-19T20:12:17Z",
+      "side": 1,
+      "message": "maybe dupe these lines and have completely separate flows for cache/no-cache?",
+      "range": {
+        "startLine": 205,
+        "startChar": 0,
+        "endLine": 208,
+        "endChar": 5
+      },
+      "revId": "7b4edc64a1629ddb0add258fa296eec0b45b860f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
