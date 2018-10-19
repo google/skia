@@ -187,15 +187,12 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
 }
 
 void GrCCPathCache::evict(GrCCPathCacheEntry* entry) {
-    // Has the entry already been evicted? (SkPaths can post eviction messages from any thread.)
-    if (entry->shouldUnregisterFromPath()) {
-        SkASSERT(!fLRU.isInList(entry));
-        return;
+    bool isInCache = entry->fNext || (fLRU.tail() == entry);
+    SkASSERT(isInCache == fLRU.isInList(entry));
+    if (isInCache) {
+        fLRU.remove(entry);
+        fHashTable.remove(HashNode::GetKey(entry));  // Do this last, as it might delete the entry.
     }
-
-    entry->markShouldUnregisterFromPath();
-    fLRU.remove(entry);
-    fHashTable.remove(HashNode::GetKey(entry));  // Do this last, as it might delete the entry.
 }
 
 void GrCCPathCache::purgeAsNeeded() {
