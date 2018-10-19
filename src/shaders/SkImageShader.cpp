@@ -105,11 +105,9 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     if (info.alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
-#ifndef SK_SUPPORT_LEGACY_TILED_BITMAPS
     if (fTileModeX != fTileModeY) {
         return nullptr;
     }
-#endif
     if (fTileModeX == kDecal_TileMode || fTileModeY == kDecal_TileMode) {
         return nullptr;
     }
