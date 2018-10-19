@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0bc3100f_8cbe4abb",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T19:10:54Z",
+      "side": 1,
+      "message": "Maybe we should just make this test actually use RGBA instead of N32? N32 is in general a bad idea.",
+      "range": {
+        "startLine": 371,
+        "startChar": 54,
+        "endLine": 371,
+        "endChar": 58
+      },
+      "revId": "41006af3fa034f03d8b52a79ffc0da86203e7b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd753cf8_d15acbd9",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T19:10:54Z",
+      "side": 1,
+      "message": "Why do we need color types in this API? It seems to me like the texture format at indices should be enough. YUV data doesn\u0027t really have a SkColorTyp.e",
+      "range": {
+        "startLine": 350,
+        "startChar": 51,
+        "endLine": 350,
+        "endChar": 82
+      },
+      "revId": "41006af3fa034f03d8b52a79ffc0da86203e7b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
