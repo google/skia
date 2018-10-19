@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bad92465_e54fe58f",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-19T19:39:35Z",
+      "side": 1,
+      "message": "If I do that I have to swap R \u0026 B on Windows. Does that colorType match SkColor\u0027s order?",
+      "parentUuid": "0bc3100f_8cbe4abb",
+      "range": {
+        "startLine": 371,
+        "startChar": 54,
+        "endLine": 371,
+        "endChar": 58
+      },
+      "revId": "41006af3fa034f03d8b52a79ffc0da86203e7b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bd753cf8_d15acbd9",
         "filename": "include/core/SkImage.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2018-10-19T19:10:54Z",
       "side": 1,
       "message": "Why do we need color types in this API? It seems to me like the texture format at indices should be enough. YUV data doesn\u0027t really have a SkColorTyp.e",
+      "range": {
+        "startLine": 350,
+        "startChar": 51,
+        "endLine": 350,
+        "endChar": 82
+      },
+      "revId": "41006af3fa034f03d8b52a79ffc0da86203e7b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d64509a0_1cac69e9",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-19T19:39:35Z",
+      "side": 1,
+      "message": "We\u0027re calling validateBackendTexture() to get the config and validate the color type. There are some configs that are failing to create an image because we\u0027ve been guessing the wrong color type and failing validation. I can remove the validation if you don\u0027t think we need it.",
+      "parentUuid": "bd753cf8_d15acbd9",
       "range": {
         "startLine": 350,
         "startChar": 51,
