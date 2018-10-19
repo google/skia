@@ -13,8 +13,8 @@
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLUtil.h"
 
-typedef void* (*WGLGetCurrentContextProc)(void);
-typedef GrGLFuncPtr (*WGLGetProcAddressProc)(LPCSTR name);
+typedef HGLRC (WINAPI *WGLGetCurrentContextProc)(VOID);
+typedef PROC (WINAPI *WGLGetProcAddressProc)(LPCSTR name);
 
 class AutoLibraryUnload {
 public:
