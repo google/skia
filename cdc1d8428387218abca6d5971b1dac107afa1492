@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "892bce09_3a2cdb29",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:26:58Z",
+      "side": 1,
+      "message": "space",
+      "range": {
+        "startLine": 37,
+        "startChar": 9,
+        "endLine": 37,
+        "endChar": 12
+      },
+      "revId": "cdc1d8428387218abca6d5971b1dac107afa1492",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97fb374a_199d6ebc",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:26:58Z",
+      "side": 1,
+      "message": "I\u0027ve never seen this pattern for keeping the template definition private before but I like it.",
+      "revId": "cdc1d8428387218abca6d5971b1dac107afa1492",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c264098_9d39d10c",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:26:58Z",
+      "side": 1,
+      "message": "Do you need this to be optional for forthcoming changes?",
+      "range": {
+        "startLine": 42,
+        "startChar": 42,
+        "endLine": 42,
+        "endChar": 74
+      },
+      "revId": "cdc1d8428387218abca6d5971b1dac107afa1492",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5845199_6b040ccb",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:26:58Z",
+      "side": 1,
+      "message": "Maybe change this one also to just \"aaType\"?",
+      "range": {
+        "startLine": 754,
+        "startChar": 43,
+        "endLine": 754,
+        "endChar": 57
+      },
+      "revId": "cdc1d8428387218abca6d5971b1dac107afa1492",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfc1e93f_e81cc807",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:26:58Z",
+      "side": 1,
+      "message": "Could we assert this?",
+      "range": {
+        "startLine": 792,
+        "startChar": 15,
+        "endLine": 794,
+        "endChar": 49
+      },
+      "revId": "cdc1d8428387218abca6d5971b1dac107afa1492",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
