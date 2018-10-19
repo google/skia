@@ -496,8 +496,6 @@ sk_sp<SkShader> SkLightingShader::Make(sk_sp<SkShader> diffuseShader,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkLightingShader)
+void SkLightingShader::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingShaderImpl)
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
-
-///////////////////////////////////////////////////////////////////////////////
+}

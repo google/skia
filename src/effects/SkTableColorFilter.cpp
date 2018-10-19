@@ -473,6 +473,6 @@ sk_sp<SkColorFilter> SkTableColorFilter::MakeARGB(const uint8_t tableA[256],
     return sk_make_sp<SkTable_ColorFilter>(tableA, tableR, tableG, tableB);
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkTableColorFilter)
+void SkTableColorFilter::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTable_ColorFilter)
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+}

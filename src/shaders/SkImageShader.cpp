@@ -242,9 +242,9 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
                                tmx, tmy, localMatrix);
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkShaderBase)
-SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageShader)
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+void SkShaderBase::InitializeFlattenables() {
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageShader)
+}
 
 bool SkImageShader::onAppendStages(const StageRec& rec) const {
     SkRasterPipeline* p = rec.fPipeline;
