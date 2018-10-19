@@ -153,6 +153,7 @@ ${EMCXX} \
     --bind \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
+    --pre-js $BASE_DIR/htmlcanvas/canvas2d.js \
     $BASE_DIR/canvaskit_bindings.cpp \
     tools/fonts/SkTestFontMgr.cpp \
     tools/fonts/SkTestTypeface.cpp \

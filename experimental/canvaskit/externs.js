@@ -28,6 +28,7 @@ var CanvasKit = {
 	currentContext: function() {},
 	MakeCanvasSurface: function(htmlID) {},
 	MakeSurface: function(w, h) {},
+	MakeCanvas: function(w, h) {},
 	MakeSkDashPathEffect: function(intervals, phase) {},
 	setCurrentContext: function(ctx) {},
 	LTRBRect: function(l, t, r, b) {},
@@ -103,6 +104,14 @@ CanvasKit.SkPath.prototype.quadTo = function(x1, y1, x2, y2) {};
 CanvasKit.SkPath.prototype.rect = function(x, y, w, h) {};
 CanvasKit.SkPath.prototype.simplify = function() {};
 CanvasKit.SkPath.prototype.transform = function() {};
+
+CanvasKit.SkCanvas.prototype.rotate = function(radians, px, py) {};
+CanvasKit.SkCanvas.prototype.skew = function(sx, sy) {};
+CanvasKit.SkCanvas.prototype.scale = function(sx, sy) {};
+CanvasKit.SkCanvas.prototype.drawPath = function(path, paint) {};
+CanvasKit.SkCanvas.prototype.drawText = function(text, x, y, paint) {};
+CanvasKit.SkCanvas.prototype.setMatrix = function() {};
+
 
 CanvasKit.SkSurface.prototype.flush = function() {};
 CanvasKit.SkSurface.prototype.dispose = function() {};
