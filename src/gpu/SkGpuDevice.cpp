@@ -1398,14 +1398,12 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
 
     auto dstColorSpace = fRenderTargetContext->colorSpaceInfo().colorSpace();
     const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
-    sk_sp<SkColorSpace> proxyColorSpace;
-    auto proxy =
-            producer->refTextureProxyForParams(filter, &proxyColorSpace, nullptr);
+    auto proxy = producer->refTextureProxyForParams(filter, nullptr);
     if (!proxy) {
         return;
     }
-    auto csxf = GrColorSpaceXform::Make(proxyColorSpace.get(), producer->alphaType(),
-                                        dstColorSpace,         kPremul_SkAlphaType);
+    auto csxf = GrColorSpaceXform::Make(producer->colorSpace(), producer->alphaType(),
+                                        dstColorSpace,          kPremul_SkAlphaType);
 
     fRenderTargetContext->drawImageLattice(this->clip(), std::move(grPaint), this->ctm(),
                                            std::move(proxy), std::move(csxf), filter,
@@ -1481,8 +1479,7 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, f
         }
         textures[i].fProxy =
                 as_IB(set[i].fImage.get())
-                        ->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(), nullptr,
-                                            nullptr);
+                        ->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(), nullptr);
         textures[i].fSrcRect = set[i].fSrcRect;
         textures[i].fDstRect = set[i].fDstRect;
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);

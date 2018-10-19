@@ -113,6 +113,6 @@ SkAlphaType GrBitmapTextureMaker::alphaType() const {
     return fBitmap.alphaType();
 }
 
-sk_sp<SkColorSpace> GrBitmapTextureMaker::getColorSpace() {
-    return fBitmap.refColorSpace();
+SkColorSpace* GrBitmapTextureMaker::colorSpace() const {
+    return fBitmap.colorSpace();
 }

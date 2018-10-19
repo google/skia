@@ -54,7 +54,6 @@ public:
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&,
-                                                    sk_sp<SkColorSpace>*,
                                                     SkScalar scaleAdjust[2]) const = 0;
     virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
         return nullptr;

@@ -47,7 +47,6 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*,
                                             const GrSamplerState&,
-                                            sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
     sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVAIndex[4],
                                   SkYUVColorSpace*, const void* planes[4]) override;

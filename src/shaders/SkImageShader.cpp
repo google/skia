@@ -200,10 +200,9 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
             args.fFilterQuality, *args.fViewMatrix, *lm,
             args.fContext->contextPriv().sharpenMipmappedTextures(), &doBicubic);
     GrSamplerState samplerState(wrapModes, textureFilterMode);
-    sk_sp<SkColorSpace> texColorSpace;
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(args.fContext, samplerState,
-                                                                 &texColorSpace, scaleAdjust));
+                                                                 scaleAdjust));
     if (!proxy) {
         return nullptr;
     }
@@ -219,7 +218,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     } else {
         inner = GrSimpleTextureEffect::Make(std::move(proxy), lmInverse, samplerState);
     }
-    inner = GrColorSpaceXformEffect::Make(std::move(inner), texColorSpace.get(),
+    inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(),
                                           fImage->alphaType(),
                                           args.fDstColorSpaceInfo->colorSpace());
     if (isAlphaOnly) {

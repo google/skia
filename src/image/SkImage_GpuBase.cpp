@@ -187,7 +187,6 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
 
 sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrContext* context,
                                                          const GrSamplerState& params,
-                                                         sk_sp<SkColorSpace>* texColorSpace,
                                                          SkScalar scaleAdjust[2]) const {
     if (context->uniqueID() != fContext->uniqueID()) {
         SkASSERT(0);
@@ -196,7 +195,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrContext* context,
 
     GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(), fAlphaType,
                                this->uniqueID(), fColorSpace.get());
-    return adjuster.refTextureProxyForParams(params, texColorSpace, scaleAdjust);
+    return adjuster.refTextureProxyForParams(params, scaleAdjust);
 }
 
 GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContextIO,

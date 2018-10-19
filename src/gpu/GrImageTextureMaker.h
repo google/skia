@@ -30,7 +30,7 @@ protected:
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
 
     SkAlphaType alphaType() const override;
-    sk_sp<SkColorSpace> getColorSpace() override;
+    SkColorSpace* colorSpace() const override;
 
 private:
     const SkImage_Lazy*     fImage;

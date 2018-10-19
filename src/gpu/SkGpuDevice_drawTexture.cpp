@@ -165,15 +165,15 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
                                    const SkMatrix& viewMatrix, const SkPaint& paint) {
     GrAA aa = GrAA(paint.isAntiAlias());
     if (can_use_draw_texture(paint)) {
-        sk_sp<SkColorSpace> cs;
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto proxy = maker->refTextureProxyForParams(GrSamplerState::ClampNearest(), &cs, nullptr);
+        auto proxy = maker->refTextureProxyForParams(GrSamplerState::ClampNearest(), nullptr);
         if (!proxy) {
             return;
         }
         draw_texture(paint, viewMatrix, srcRect, dstRect, aa, constraint, std::move(proxy),
-                     maker->alphaType(), cs.get(), this->clip(), fRenderTargetContext.get());
+                     maker->alphaType(), maker->colorSpace(), this->clip(),
+                     fRenderTargetContext.get());
         return;
     }
     this->drawTextureProducer(maker, srcRect, dstRect, constraint, viewMatrix, paint);
