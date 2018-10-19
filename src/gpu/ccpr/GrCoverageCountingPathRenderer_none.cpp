@@ -12,7 +12,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
 }
 
 sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSupported(
-        const GrCaps& caps, AllowCaching allowCaching) {
+        const GrCaps& caps, AllowCaching allowCaching, uint32_t contextUniqueID) {
     return nullptr;
 }
 
