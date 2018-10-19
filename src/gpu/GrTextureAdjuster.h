@@ -35,6 +35,7 @@ public:
 
 protected:
     SkAlphaType alphaType() const override { return fAlphaType; }
+    SkColorSpace* colorSpace() const override { return fColorSpace; }
     void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
 
@@ -43,7 +44,6 @@ protected:
 
 private:
     sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
-                                                     sk_sp<SkColorSpace>* proxyColorSpace,
                                                      bool willBeMipped,
                                                      SkScalar scaleAdjust[2]) override;
 

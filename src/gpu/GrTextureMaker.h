@@ -40,16 +40,10 @@ protected:
     virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
                                                           AllowedTexGenType genType) = 0;
 
-    /**
-     *  Returns the color space of the maker's "original" texture.
-     */
-    virtual sk_sp<SkColorSpace> getColorSpace() = 0;
-
     GrContext* context() const { return fContext; }
 
 private:
     sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
-                                                     sk_sp<SkColorSpace>* proxyColorSpace,
                                                      bool willBeMipped,
                                                      SkScalar scaleAdjust[2]) override;
 

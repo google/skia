@@ -36,6 +36,6 @@ void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* pa
 SkAlphaType GrImageTextureMaker::alphaType() const {
     return fImage->alphaType();
 }
-sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace() {
-    return fImage->refColorSpace();
+SkColorSpace* GrImageTextureMaker::colorSpace() const {
+    return fImage->colorSpace();
 }

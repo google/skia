@@ -344,13 +344,12 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
 static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,
                                                  SkAlphaType at, uint32_t id,
                                                  GrMipMapped mipMapped) {
-    sk_sp<SkColorSpace> texColorSpace;
-    sk_sp<GrTextureProxy> proxy(producer->refTextureProxy(mipMapped, &texColorSpace));
+    sk_sp<GrTextureProxy> proxy(producer->refTextureProxy(mipMapped));
     if (!proxy) {
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), id, at, std::move(proxy),
-                                   std::move(texColorSpace), SkBudgeted::kNo);
+                                   sk_ref_sp(producer->colorSpace()), SkBudgeted::kNo);
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
@@ -657,12 +656,10 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
 
     // Turn the codec image into a GrTextureProxy
     GrImageTextureMaker maker(context, codecImage.get(), kDisallow_CachingHint);
-    sk_sp<SkColorSpace> texColorSpace;
     GrSamplerState samplerState(
             GrSamplerState::WrapMode::kClamp,
             buildMips ? GrSamplerState::Filter::kMipMap : GrSamplerState::Filter::kBilerp);
-    sk_sp<GrTextureProxy> proxy(
-            maker.refTextureProxyForParams(samplerState, &texColorSpace, nullptr));
+    sk_sp<GrTextureProxy> proxy(maker.refTextureProxyForParams(samplerState, nullptr));
     if (!proxy) {
         return codecImage;
     }
@@ -682,7 +679,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
                                                     std::move(sema),
                                                     as_IB(codecImage)->onImageInfo().colorType(),
                                                     codecImage->alphaType(),
-                                                    std::move(texColorSpace));
+                                                    codecImage->refColorSpace());
     return SkImage::MakeFromGenerator(std::move(gen));
 }
 

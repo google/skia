@@ -14,7 +14,6 @@
 #include "GrProxyProvider.h"
 
 sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSamplerState& params,
-                                                                 sk_sp<SkColorSpace>* texColorSpace,
                                                                  bool willBeMipped,
                                                                  SkScalar scaleAdjust[2]) {
     if (this->width() > fContext->contextPriv().caps()->maxTextureSize() ||
@@ -23,10 +22,6 @@ sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSampler
     }
 
     CopyParams copyParams;
-
-    if (texColorSpace) {
-        *texColorSpace = this->getColorSpace();
-    }
 
     sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped,
                                                                  AllowedTexGenType::kCheap));
@@ -133,10 +128,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         // Bicubic doesn't use filtering for it's texture accesses.
         samplerState = GrSamplerState::ClampNearest();
     }
-    sk_sp<SkColorSpace> texColorSpace;
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(this->refTextureProxyForParams(samplerState, &texColorSpace,
-                                                               scaleAdjust));
+    sk_sp<GrTextureProxy> proxy(this->refTextureProxyForParams(samplerState, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }
@@ -149,6 +142,6 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     SkASSERT(kTightCopy_DomainMode != domainMode);
     auto fp = CreateFragmentProcessorForDomainAndFilter(std::move(proxy), adjustedMatrix,
                                                         domainMode, domain, filterOrNullForBicubic);
-    return GrColorSpaceXformEffect::Make(std::move(fp), texColorSpace.get(), this->alphaType(),
+    return GrColorSpaceXformEffect::Make(std::move(fp), this->colorSpace(), this->alphaType(),
                                          dstColorSpace);
 }

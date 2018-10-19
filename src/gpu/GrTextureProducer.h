@@ -82,34 +82,26 @@ public:
      * proxy will always be unscaled and nullptr can be passed for scaleAdjust. There is a weird
      * contract that if scaleAdjust is not null it must be initialized to {1, 1} before calling
      * this method. (TODO: Fix this and make this function always initialize scaleAdjust).
-     *
-     * Places the color space of the texture in (*proxyColorSpace).
      */
     sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
-                                                   sk_sp<SkColorSpace>* proxyColorSpace,
                                                    SkScalar scaleAdjust[2]);
 
     sk_sp<GrTextureProxy> refTextureProxyForParams(GrSamplerState::Filter filter,
-                                                   sk_sp<SkColorSpace>* proxyColorSpace,
                                                    SkScalar scaleAdjust[2]) {
         return this->refTextureProxyForParams(
-                GrSamplerState(GrSamplerState::WrapMode::kClamp, filter),
-                proxyColorSpace, scaleAdjust);
+                GrSamplerState(GrSamplerState::WrapMode::kClamp, filter), scaleAdjust);
     }
 
     /**
      * Returns a texture. If willNeedMips is true then the returned texture is guaranteed to have
      * allocated mip map levels. This can be a performance win if future draws with the texture
      * require mip maps.
-     *
-     * Places the color space of the texture in (*proxyColorSpace).
      */
     // TODO: Once we remove support for npot textures, we should add a flag for must support repeat
     // wrap mode. To support that flag now would require us to support scaleAdjust array like in
     // refTextureProxyForParams, however the current public API that uses this call does not expose
     // that array.
-    sk_sp<GrTextureProxy> refTextureProxy(GrMipMapped willNeedMips,
-                                          sk_sp<SkColorSpace>* proxyColorSpace);
+    sk_sp<GrTextureProxy> refTextureProxy(GrMipMapped willNeedMips);
 
     virtual ~GrTextureProducer() {}
 
@@ -117,6 +109,7 @@ public:
     int height() const { return fHeight; }
     bool isAlphaOnly() const { return fIsAlphaOnly; }
     virtual SkAlphaType alphaType() const = 0;
+    virtual SkColorSpace* colorSpace() const = 0;
 
 protected:
     friend class GrTextureProducer_TestAccess;
@@ -186,7 +179,6 @@ protected:
 
 private:
     virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
-                                                             sk_sp<SkColorSpace>* proxyColorSpace,
                                                              bool willBeMipped,
                                                              SkScalar scaleAdjust[2]) = 0;
 
