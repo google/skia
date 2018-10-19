@@ -20,57 +20,17 @@
 #include "SkReader32.h"
 #include "SkRefCnt.h"
 #include "SkShaderBase.h"
-#include "SkTHash.h"
 #include "SkWriteBuffer.h"
 
 class SkData;
 class SkImage;
-class SkInflator;
-
-#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_MAC)
-    #define DEBUG_NON_DETERMINISTIC_ASSERT
-#endif
 
 class SkReadBuffer {
 public:
     SkReadBuffer();
     SkReadBuffer(const void* data, size_t size);
-    ~SkReadBuffer();
-
-    SkReadBuffer* clone(const void* data, size_t size) const {
-        return new SkReadBuffer(data, size);
-    }
 
     enum Version {
-        /*
-        kFilterLevelIsEnum_Version         = 23,
-        kGradientFlippedFlag_Version       = 24,
-        kDashWritesPhaseIntervals_Version  = 25,
-        kColorShaderNoBool_Version         = 26,
-        kNoUnitMappers_Version             = 27,
-        kNoMoreBitmapFlatten_Version       = 28,
-        kSimplifyLocalMatrix_Version       = 30,
-        kImageFilterUniqueID_Version       = 31,
-        kRemoveAndroidPaintOpts_Version    = 32,
-        kFlattenCreateProc_Version         = 33,
-        kRemoveColorTableAlpha_Version     = 36,
-        kDropShadowMode_Version            = 37,
-        kPictureImageFilterResolution_Version = 38,
-        kPictureImageFilterLevel_Version   = 39,
-        kImageFilterNoUniqueID_Version     = 40,
-        kBitmapSourceFilterQuality_Version = 41,
-        kPictureShaderHasPictureBool_Version = 42,
-        kHasDrawImageOpCodes_Version       = 43,
-        kAnnotationsMovedToCanvas_Version  = 44,
-        kLightingShaderWritesInvNormRotation = 45,
-        kBlurMaskFilterWritesOccluder      = 47,
-        kGradientShaderFloatColor_Version  = 49,
-        kXfermodeToBlendMode_Version       = 50,
-        kXfermodeToBlendMode2_Version      = 51,
-        kTextBlobImplicitRunCount_Version  = 52,
-        kComposeShaderCanLerp_Version      = 54,
-        kNoModesInMergeImageFilter_Verison = 55,
-         */
         kTileModeInBlurImageFilter_Version = 56,
         kTileInfoInSweepGradient_Version   = 57,
         k2PtConicalNoFlip_Version          = 58,
@@ -196,20 +156,6 @@ public:
         fFactoryCount = count;
     }
 
-    /**
-     *  For an input flattenable (specified by name), set a custom factory proc
-     *  to use when unflattening.  Will make a copy of |name|.
-     *
-     *  If the global registry already has a default factory for the flattenable,
-     *  this will override that factory.  If a custom factory has already been
-     *  set for the flattenable, this will override that factory.
-     *
-     *  Custom factories can be removed by calling setCustomFactory("...", nullptr).
-     */
-    void setCustomFactory(const SkString& name, SkFlattenable::Factory factory) {
-        fCustomFactory.set(name, factory);
-    }
-
     void setDeserialProcs(const SkDeserialProcs& procs);
 
     /**
@@ -238,9 +184,6 @@ public:
         return this->validate(index >= 0 && index < count);
     }
 
-    SkInflator* getInflator() const { return fInflator; }
-    void setInflator(SkInflator* inf) { fInflator = inf; }
-
     // Utilities that mark the buffer invalid if the requested value is out-of-range
 
     // If the read value is outside of the range, validate(false) is called, and min
@@ -254,35 +197,17 @@ public:
 
     SkFilterQuality checkFilterQuality();
 
-protected:
-    /**
-     *  Allows subclass to check if we are using factories for expansion
-     *  of flattenables.
-     */
-    int factoryCount() { return fFactoryCount; }
-
-    /**
-     *  Checks if a custom factory has been set for a given flattenable.
-     *  Returns the custom factory if it exists, or nullptr otherwise.
-     */
-    SkFlattenable::Factory getCustomFactory(const SkString& name) {
-        SkFlattenable::Factory* factoryPtr = fCustomFactory.find(name);
-        return factoryPtr ? *factoryPtr : nullptr;
-    }
+private:
+    void setInvalid();
+    bool readArray(void* value, size_t size, size_t elementSize);
+    void setMemory(const void*, size_t);
 
     SkReader32 fReader;
 
     // Only used if we do not have an fFactoryArray.
     SkTHashMap<uint32_t, SkString> fFlattenableDict;
 
-private:
-    void setInvalid();
-    bool readArray(void* value, size_t size, size_t elementSize);
-    void setMemory(const void*, size_t);
-
     int fVersion;
-
-    void* fMemoryPtr;
 
     sk_sp<SkTypeface>* fTFArray;
     int                fTFCount;
@@ -290,19 +215,8 @@ private:
     SkFlattenable::Factory* fFactoryArray;
     int                     fFactoryCount;
 
-    // Only used if we do not have an fFactoryArray.
-    SkTHashMap<SkString, SkFlattenable::Factory> fCustomFactory;
-
     SkDeserialProcs fProcs;
     friend class SkPicturePriv;
-
-#ifdef DEBUG_NON_DETERMINISTIC_ASSERT
-    // Debugging counter to keep track of how many bitmaps we
-    // have decoded.
-    int fDecodedBitmapIndex;
-#endif // DEBUG_NON_DETERMINISTIC_ASSERT
-
-    SkInflator* fInflator = nullptr;
 
     static bool IsPtrAlign4(const void* ptr) {
         return SkIsAlign4((uintptr_t)ptr);

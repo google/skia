@@ -8,7 +8,6 @@
 #include "SkAutoMalloc.h"
 #include "SkBitmap.h"
 #include "SkData.h"
-#include "SkDeduper.h"
 #include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkMakeUnique.h"
@@ -40,35 +39,23 @@ namespace {
 
 SkReadBuffer::SkReadBuffer() {
     fVersion = 0;
-    fMemoryPtr = nullptr;
 
     fTFArray = nullptr;
     fTFCount = 0;
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
-#ifdef DEBUG_NON_DETERMINISTIC_ASSERT
-    fDecodedBitmapIndex = -1;
-#endif // DEBUG_NON_DETERMINISTIC_ASSERT
 }
 
 SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
     fVersion = 0;
     this->setMemory(data, size);
-    fMemoryPtr = nullptr;
 
     fTFArray = nullptr;
     fTFCount = 0;
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
-#ifdef DEBUG_NON_DETERMINISTIC_ASSERT
-    fDecodedBitmapIndex = -1;
-#endif // DEBUG_NON_DETERMINISTIC_ASSERT
-}
-
-SkReadBuffer::~SkReadBuffer() {
-    sk_free(fMemoryPtr);
 }
 
 void SkReadBuffer::setMemory(const void* data, size_t size) {
@@ -289,11 +276,6 @@ uint32_t SkReadBuffer::getArrayCount() {
  *  data [ encoded, with raw width/height ]
  */
 sk_sp<SkImage> SkReadBuffer::readImage() {
-    if (fInflator) {
-        SkImage* img = fInflator->getImage(this->read32());
-        return img ? sk_ref_sp(img) : nullptr;
-    }
-
     SkIRect bounds;
     if (this->isVersionLT(kStoreImageBounds_Version)) {
         bounds.fLeft = bounds.fTop = 0;
@@ -363,10 +345,6 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
 }
 
 sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
-    if (fInflator) {
-        return sk_ref_sp(fInflator->getTypeface(this->read32()));
-    }
-
     // Read 32 bits (signed)
     //   0 -- return null (default font)
     //  >0 -- index
@@ -393,12 +371,7 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
 SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     SkFlattenable::Factory factory = nullptr;
 
-    if (fInflator) {
-        factory = fInflator->getFactory(this->read32());
-        if (!factory) {
-            return nullptr;
-        }
-    } else if (fFactoryCount > 0) {
+    if (fFactoryCount > 0) {
         int32_t index = this->read32();
         if (0 == index || !this->isValid()) {
             return nullptr; // writer failed to give us the flattenable
@@ -431,12 +404,8 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
             name = *namePtr;
         }
 
-        // Check if a custom Factory has been specified for this flattenable.
-        if (!(factory = this->getCustomFactory(name))) {
-            // If there is no custom Factory, check for a default.
-            if (!(factory = SkFlattenable::NameToFactory(name.c_str()))) {
-                return nullptr; // writer failed to give us the flattenable
-            }
+        if (!(factory = SkFlattenable::NameToFactory(name.c_str()))) {
+            return nullptr; // writer failed to give us the flattenable
         }
     }
 

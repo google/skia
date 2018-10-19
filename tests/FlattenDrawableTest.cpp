@@ -7,7 +7,6 @@
 
 #include "SkCanvas.h"
 #include "SkDrawable.h"
-#include "SkOnce.h"
 #include "SkPictureRecorder.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
@@ -197,12 +196,15 @@ private:
     sk_sp<SkDrawable>       fDrawable;
 };
 
-static void register_test_drawables(SkReadBuffer& buffer) {
-    buffer.setCustomFactory(SkString("IntDrawable"), IntDrawable::CreateProc);
-    buffer.setCustomFactory(SkString("PaintDrawable"), PaintDrawable::CreateProc);
-    buffer.setCustomFactory(SkString("CompoundDrawable"), CompoundDrawable::CreateProc);
-    buffer.setCustomFactory(SkString("RootDrawable"), RootDrawable::CreateProc);
-}
+// Register these drawables for deserialization some time before main().
+static struct Initializer {
+    Initializer() {
+        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(IntDrawable)
+        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(PaintDrawable)
+        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(CompoundDrawable)
+        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(RootDrawable)
+    }
+} initializer;
 
 DEF_TEST(FlattenDrawable, r) {
     // Create and serialize the test drawable
@@ -217,7 +219,6 @@ DEF_TEST(FlattenDrawable, r) {
     sk_sp<SkData> data = SkData::MakeUninitialized(writeBuffer.bytesWritten());
     writeBuffer.writeToMemory(data->writable_data());
     SkReadBuffer readBuffer(data->data(), data->size());
-    register_test_drawables(readBuffer);
 
     // Deserialize and verify the drawable
     sk_sp<SkDrawable> out((SkDrawable*)readBuffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
@@ -277,7 +278,6 @@ DEF_TEST(FlattenRecordedDrawable, r) {
     sk_sp<SkData> data = SkData::MakeUninitialized(writeBuffer.bytesWritten());
     writeBuffer.writeToMemory(data->writable_data());
     SkReadBuffer readBuffer(data->data(), data->size());
-    register_test_drawables(readBuffer);
 
     // Deserialize and verify the drawable
     sk_sp<SkDrawable> out((SkDrawable*)readBuffer.readFlattenable(SkFlattenable::kSkDrawable_Type));

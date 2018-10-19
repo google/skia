@@ -69,7 +69,6 @@ tests_sources = [
   "$_tests/F16StagesTest.cpp",
   "$_tests/FillPathTest.cpp",
   "$_tests/FitsInTest.cpp",
-  "$_tests/FlattenableCustomFactory.cpp",
   "$_tests/FlattenableFactoryToName.cpp",
   "$_tests/FlattenableNameToFactory.cpp",
   "$_tests/FlattenDrawableTest.cpp",
