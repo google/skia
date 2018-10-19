@@ -15,7 +15,7 @@
 #include "SkStream.h"
 #include "SkTo.h"
 
-static const int kMaximumGlyphCount = UINT16_MAX + 1;
+static constexpr SkGlyphID kMaximumGlyphIndex = UINT16_MAX;
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {
@@ -37,7 +37,7 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
 DEF_TEST(SkPDF_ToUnicode, reporter) {
     SkTDArray<SkUnichar> glyphToUnicode;
     SkTDArray<uint16_t> glyphsInSubset;
-    SkBitSet subset(kMaximumGlyphCount);
+    SkPDFGlyphUse subset(1, kMaximumGlyphIndex);
 
     glyphToUnicode.push_back(0);  // 0
     glyphToUnicode.push_back(0);  // 1
@@ -155,7 +155,7 @@ endbfrange\n";
 
     glyphToUnicode.reset();
     glyphsInSubset.reset();
-    SkBitSet subset2(kMaximumGlyphCount);
+    SkPDFGlyphUse subset2(1, kMaximumGlyphIndex);
 
     // Test mapping:
     //           I  n  s  t  a  l
