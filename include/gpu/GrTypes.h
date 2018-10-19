@@ -238,7 +238,6 @@ enum GrSurfaceOrigin {
  */
 enum GrGLBackendState {
     kRenderTarget_GrGLBackendState     = 1 << 0,
-    // Also includes samplers bound to texture units.
     kTextureBinding_GrGLBackendState   = 1 << 1,
     // View state stands for scissor and viewport
     kView_GrGLBackendState             = 1 << 2,
