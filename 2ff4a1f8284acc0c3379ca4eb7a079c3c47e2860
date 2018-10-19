@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1de72399_0fd63965",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-19T13:38:54Z",
+      "side": 1,
+      "message": "Moved this and the quadType() functions into SK_DEBUG.",
+      "parentUuid": "afda9394_789f3d1f",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 79
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca3fc922_636b2d31",
         "filename": "src/gpu/GrQuad.cpp",
         "patchSetId": 3
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "8cffe378_cd1c665f",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-19T13:38:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca3fc922_636b2d31",
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9dc9a1b8_a5f1a4df",
         "filename": "src/gpu/GrQuad.cpp",
         "patchSetId": 3
@@ -56,6 +98,24 @@
       "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a10a0ea8_7d407fc9",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-19T13:38:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9dc9a1b8_a5f1a4df",
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "cd8f5be9_fb62b71e",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-19T13:38:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d82374f2_caa161c5",
+      "range": {
+        "startLine": 75,
+        "startChar": 13,
+        "endLine": 75,
+        "endChar": 21
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f127d6f_28fce3f6",
         "filename": "src/gpu/GrQuad.h",
         "patchSetId": 3
@@ -96,6 +180,24 @@
       "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c7dab3a_330a3902",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-19T13:38:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f127d6f_28fce3f6",
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -119,6 +221,30 @@
       "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa4c009a_363ebc0b",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-19T13:38:54Z",
+      "side": 1,
+      "message": "Removed since it is unused and quadType() is debug-only now.",
+      "parentUuid": "cf4960fc_6ac15518",
+      "range": {
+        "startLine": 72,
+        "startChar": 9,
+        "endLine": 72,
+        "endChar": 20
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -165,6 +291,54 @@
       "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5f5e7c6_38fa23ba",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-19T13:38:54Z",
+      "side": 1,
+      "message": "Gone",
+      "parentUuid": "cb6e2c70_7fd20542",
+      "range": {
+        "startLine": 73,
+        "startChar": 58,
+        "endLine": 73,
+        "endChar": 75
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28a4bf81_67da4a26",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-19T13:38:54Z",
+      "side": 1,
+      "message": "Gone",
+      "parentUuid": "3d39b4b5_110c3263",
+      "range": {
+        "startLine": 73,
+        "startChar": 15,
+        "endLine": 73,
+        "endChar": 23
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
