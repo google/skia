@@ -515,7 +515,7 @@ protected:
                      const Options&) override {
 
         if (kUnknown_SkColorType == fFlattened.colorType()) {
-            fFlattened.allocPixels(info);
+            fFlattened.allocPixels(this->getInfo());
 
             for (int y = 0; y < info.height(); ++y) {
                 for (int x = 0; x < info.width(); ++x) {
