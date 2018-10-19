@@ -718,34 +718,22 @@ private:
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
             , fFilter(static_cast<unsigned>(filter))
-            , fAAType(static_cast<unsigned>(aaType))
             , fFinalized(0) {
-        switch (aaType) {
-            case GrAAType::kNone:
-                aaFlags = GrQuadAAFlags::kNone;
-                break;
-            case GrAAType::kCoverage:
-                if (aaFlags == GrQuadAAFlags::kNone) {
-                    fAAType = static_cast<unsigned>(GrAAType::kNone);
-                }
-                break;
-            case GrAAType::kMSAA:
-                aaFlags = GrQuadAAFlags::kAll;
-                break;
-            case GrAAType::kMixedSamples:
-                SK_ABORT("Should not use mixed sample AA");
-                break;
-        }
-        fPerspective = static_cast<unsigned>(viewMatrix.hasPerspective());
+        GrQuadType quadType = GrQuadTypeForTransformedRect(viewMatrix);
         auto quad = GrPerspQuad(dstRect, viewMatrix);
+
+        // Clean up disparities between the overall aa type and edge configuration and apply
+        // optimizations based on the rect and matrix when appropriate
+        GrResolveAATypeForQuad(aaType, aaFlags, quad, quadType, &aaType, &aaFlags);
+        fAAType = static_cast<unsigned>(aaType);
+
+        fPerspective = static_cast<unsigned>(quadType == GrQuadType::kPerspective_QuadType);
         // We expect our caller to have already caught this optimization.
         SkASSERT(!srcRect.contains(proxy->getWorstCaseBoundsRect()) ||
                  constraint == SkCanvas::kFast_SrcRectConstraint);
-        if (viewMatrix.rectStaysRect()) {
-            if (this->aaType() == GrAAType::kCoverage && !quad.aaHasEffectOnRect()) {
-                fAAType = static_cast<unsigned>(GrAAType::kNone);
-                aaFlags = GrQuadAAFlags::kNone;
-            }
+        if (quadType == GrQuadType::kRect_QuadType) {
+            // Disable filtering if possible (note AA optimizations for rects are automatically
+            // handled above in GrResolveAATypeForQuad).
             if (this->filter() != GrSamplerState::Filter::kNearest &&
                 !filter_has_effect_for_rect_stays_rect(quad, srcRect)) {
                 fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
@@ -756,14 +744,14 @@ private:
         // domain.
         if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
             this->filter() == GrSamplerState::Filter::kNearest &&
-            this->aaType() != GrAAType::kCoverage) {
+            aaType != GrAAType::kCoverage) {
             constraint = SkCanvas::kFast_SrcRectConstraint;
         }
         const auto& draw = fQuads.emplace_back(srcRect, quad, aaFlags, constraint, color);
         fProxyCnt = 1;
         fProxies[0] = {proxy.release(), 1};
         auto bounds = quad.bounds();
-        this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
+        this->setBounds(bounds, HasAABloat(aaType == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(draw.domain());
         fCanSkipAllocatorGather =
                 static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
@@ -776,15 +764,15 @@ private:
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
             , fFilter(static_cast<unsigned>(filter))
-            , fAAType(static_cast<unsigned>(aaType))
             , fFinalized(0) {
         fQuads.reserve(cnt);
         fProxyCnt = SkToUInt(cnt);
         SkRect bounds = SkRectPriv::MakeLargestInverted();
-        bool needAA = false;
+        GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
         bool mustFilter = false;
         fCanSkipAllocatorGather = static_cast<unsigned>(true);
-        bool rectStaysRect = viewMatrix.rectStaysRect();
+        // All dst rects are transformed by the same view matrix, so their quad types are identical
+        GrQuadType quadType = GrQuadTypeForTransformedRect(viewMatrix);
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
             fProxies[p].fQuadCnt = 1;
@@ -795,36 +783,23 @@ private:
             }
             auto quad = GrPerspQuad(set[p].fDstRect, viewMatrix);
             bounds.joinPossiblyEmptyRect(quad.bounds());
-            GrQuadAAFlags aaFlags = set[p].fAAFlags;
-            switch (aaType) {
-                case GrAAType::kNone:
-                    aaFlags = GrQuadAAFlags::kNone;
-                    break;
-                case GrAAType::kCoverage:
-                    if (rectStaysRect) {
-                        if (aaFlags != GrQuadAAFlags::kNone && !quad.aaHasEffectOnRect()) {
-                            aaFlags = GrQuadAAFlags::kNone;
-                        }
-                    }
-                    break;
-                case GrAAType::kMSAA:
-                    aaFlags = GrQuadAAFlags::kAll;
-                    break;
-                case GrAAType::kMixedSamples:
-                    SK_ABORT("Should not use mixed sample AA");
-                    break;
+            GrQuadAAFlags aaFlags;
+            // Don't update the overall aaType, might be inappropriate for some of the quads
+            GrAAType aaForQuad;
+            GrResolveAATypeForQuad(aaType, set[p].fAAFlags, quad, quadType, &aaForQuad, &aaFlags);
+            // Resolve sets aaForQuad to aaType or None, there is never a change between aa methods
+            SkASSERT(aaForQuad == GrAAType::kNone || aaForQuad == aaType);
+            if (overallAAType == GrAAType::kNone && aaForQuad != GrAAType::kNone) {
+                overallAAType = aaType;
             }
-            needAA = needAA || (set[p].fAAFlags != GrQuadAAFlags::kNone);
             if (!mustFilter && this->filter() != GrSamplerState::Filter::kNearest) {
-                mustFilter = !rectStaysRect ||
+                mustFilter = quadType != GrQuadType::kRect_QuadType ||
                              filter_has_effect_for_rect_stays_rect(quad, set[p].fSrcRect);
             }
             fQuads.emplace_back(set[p].fSrcRect, quad, aaFlags, SkCanvas::kFast_SrcRectConstraint,
                                 color);
         }
-        if (!needAA) {
-            fAAType = static_cast<unsigned>(GrAAType::kNone);
-        }
+        fAAType = static_cast<unsigned>(overallAAType);
         if (!mustFilter) {
             fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
         }

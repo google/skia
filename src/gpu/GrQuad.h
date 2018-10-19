@@ -13,6 +13,9 @@
 #include "SkPoint.h"
 #include "SkPoint3.h"
 
+enum class GrAAType : unsigned;
+enum class GrQuadAAFlags;
+
 // Rectangles transformed by matrices (view or local) can be classified in three ways:
 //  1. Stays a rectangle - the matrix rectStaysRect() is true, or x(0) == x(1) && x(2) == x(3)
 //     and y(0) == y(2) && y(1) == y(3). Or under mirrors, x(0) == x(2) && x(1) == x(3) and
@@ -30,6 +33,14 @@ enum class GrQuadType {
 // quadType() is only provided on Gr[Persp]Quad in debug builds, production code should use this
 // to efficiently determine quad types.
 GrQuadType GrQuadTypeForTransformedRect(const SkMatrix& matrix);
+
+// Resolve disagreements between the overall requested AA type and the per-edge quad AA flags.
+// knownQuadType must have come from GrQuadtypeForTransformedRect with the matrix that created the
+// provided quad. Both outAAType and outEdgeFlags will be updated.
+template <typename Q>
+void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags,
+                            const Q& quad, GrQuadType knownQuadType,
+                            GrAAType* outAAtype, GrQuadAAFlags* outEdgeFlags);
 
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The
