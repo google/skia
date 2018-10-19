@@ -102,38 +102,32 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
     AutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
-    std::unique_ptr<SkReadBuffer> reader;
-    if (buffer) {
-        reader.reset(buffer->clone(fPictureData->opData()->bytes(),
-                                   fPictureData->opData()->size()));
-    } else {
-        reader.reset(new SkReadBuffer(fPictureData->opData()->bytes(),
-                                      fPictureData->opData()->size()));
-    }
+    SkReadBuffer reader(fPictureData->opData()->bytes(),
+                        fPictureData->opData()->size());
 
     // Record this, so we can concat w/ it if we encounter a setMatrix()
     SkMatrix initialMatrix = canvas->getTotalMatrix();
 
     SkAutoCanvasRestore acr(canvas, false);
 
-    while (!reader->eof()) {
+    while (!reader.eof()) {
         if (callback && callback->abort()) {
             return;
         }
 
-        fCurOffset = reader->offset();
+        fCurOffset = reader.offset();
         uint32_t size;
-        DrawType op = ReadOpAndSize(reader.get(), &size);
-        if (!reader->validate(op > UNUSED && op <= LAST_DRAWTYPE_ENUM)) {
+        DrawType op = ReadOpAndSize(&reader, &size);
+        if (!reader.validate(op > UNUSED && op <= LAST_DRAWTYPE_ENUM)) {
             return;
         }
 
-        this->handleOp(reader.get(), op, size, canvas, initialMatrix);
+        this->handleOp(&reader, op, size, canvas, initialMatrix);
     }
 
     // need to propagate invalid state to the parent reader
     if (buffer) {
-        buffer->validate(reader->isValid());
+        buffer->validate(reader.isValid());
     }
 }
 
