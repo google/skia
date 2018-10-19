@@ -169,7 +169,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
 
     for (int i = firstGlyphID - glyphOffset; i < limit + 1; ++i) {
         bool inSubset = i < limit &&
-                        (subset == nullptr || subset->has(i + glyphOffset));
+                        (subset == nullptr || subset->has(i + glyphOffset - firstGlyphID + 1));
         if (!rangeEmpty) {
             // PDF spec requires bfrange not changing the higher byte,
             // e.g. <1035> <10FF> <2222> is ok, but
