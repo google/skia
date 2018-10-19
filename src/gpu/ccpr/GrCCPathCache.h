@@ -157,9 +157,11 @@ public:
 private:
     using MaskTransform = GrCCPathCache::MaskTransform;
 
-    GrCCPathCacheEntry(uint32_t pathCacheUniqueID, const MaskTransform& maskTransform)
-            : fPathCacheUniqueID(pathCacheUniqueID), fMaskTransform(maskTransform) {
-        SkASSERT(SK_InvalidUniqueID != fPathCacheUniqueID);
+    GrCCPathCacheEntry(uint32_t pathCacheUniqueID, const MaskTransform&, const GrShape&);
+
+    bool hasExternalRefs() {
+        SkASSERT(this->peekRefCnt() >= fNumInternalRefs);
+        return this->peekRefCnt() > fNumInternalRefs;
     }
 
     // Resets this entry back to not having an atlas, and purges its previous atlas texture from the
@@ -167,9 +169,10 @@ private:
     void invalidateAtlas();
 
     // Called when our corresponding path is modified or deleted. Not threadsafe.
-    void onChange() override;
+    void notifyPathGenIDChanged(sk_sp<GenIDChangeListener> releasedListener) override;
 
     const uint32_t fPathCacheUniqueID;
+    int fNumInternalRefs;
     MaskTransform fMaskTransform;
     int fHitCount = 1;
 

@@ -224,7 +224,7 @@ public:
 private:
     GrUniqueKeyInvalidatedMessage fMsg;
 
-    void onChange() override {
+    void notifyPathGenIDChanged(sk_sp<GenIDChangeListener>) override {
         SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
     }
 };
