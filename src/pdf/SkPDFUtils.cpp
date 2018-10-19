@@ -327,7 +327,7 @@ bool SkPDFUtils::ToBitmap(const SkImage* img, SkBitmap* dst) {
     SkASSERT(img);
     SkASSERT(dst);
     SkBitmap bitmap;
-    if(as_IB(img)->getROPixels(&bitmap, nullptr)) {
+    if(as_IB(img)->getROPixels(&bitmap)) {
         SkASSERT(bitmap.dimensions() == img->dimensions());
         SkASSERT(!bitmap.drawsNothing());
         *dst = std::move(bitmap);

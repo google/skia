@@ -25,6 +25,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrFragmentProcessor.h"
+#include "SkGr.h"
 #endif
 
 namespace {
@@ -33,14 +34,17 @@ static unsigned gBitmapShaderKeyNamespaceLabel;
 struct BitmapShaderKey : public SkResourceCache::Key {
 public:
     BitmapShaderKey(SkColorSpace* colorSpace,
+                    SkImage::BitDepth bitDepth,
                     uint32_t shaderID,
                     const SkSize& scale)
         : fColorSpaceXYZHash(colorSpace->toXYZD50Hash())
         , fColorSpaceTransferFnHash(colorSpace->transferFnHash())
+        , fBitDepth(bitDepth)
         , fScale(scale) {
 
         static const size_t keySize = sizeof(fColorSpaceXYZHash) +
                                       sizeof(fColorSpaceTransferFnHash) +
+                                      sizeof(fBitDepth) +
                                       sizeof(fScale);
         // This better be packed.
         SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - &fColorSpaceXYZHash) == keySize);
@@ -55,6 +59,7 @@ public:
 private:
     uint32_t                   fColorSpaceXYZHash;
     uint32_t                   fColorSpaceTransferFnHash;
+    SkImage::BitDepth          fBitDepth;
     SkSize                     fScale;
 
     SkDEBUGCODE(uint32_t fEndOfStruct;)
@@ -157,6 +162,7 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
 // CTM/local matrix.  Also adjusts the local matrix for tile scaling.
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
                                                  SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
+                                                 SkColorType dstColorType,
                                                  SkColorSpace* dstColorSpace,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
@@ -215,19 +221,20 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     sk_sp<SkColorSpace> imgCS = dstColorSpace ? sk_ref_sp(dstColorSpace)
                                               : fColorSpace ? fColorSpace
                                                             : SkColorSpace::MakeSRGB();
-    sk_sp<SkShader> tileShader;
-    BitmapShaderKey key(imgCS.get(),
-                        fUniqueID,
-                        tileScale);
+    SkImage::BitDepth bitDepth =
+            kRGBA_F16_SkColorType == dstColorType || kRGBA_F32_SkColorType == dstColorType
+            ? SkImage::BitDepth::kF16 : SkImage::BitDepth::kU8;
 
+    BitmapShaderKey key(imgCS.get(), bitDepth, fUniqueID, tileScale);
+
+    sk_sp<SkShader> tileShader;
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
         SkMatrix tileMatrix;
         tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
                                  SkMatrix::kFill_ScaleToFit);
 
         sk_sp<SkImage> tileImage = SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix,
-                                                            nullptr, SkImage::BitDepth::kU8,
-                                                            std::move(imgCS));
+                                                            nullptr, bitDepth, std::move(imgCS));
         if (!tileImage) {
             return nullptr;
         }
@@ -250,7 +257,7 @@ bool SkPictureShader::onAppendStages(const StageRec& rec) const {
 
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->refBitmapShader(rec.fCTM, &lm, rec.fDstCS);
+    bitmapShader = this->refBitmapShader(rec.fCTM, &lm, rec.fDstColorType, rec.fDstCS);
 
     if (!bitmapShader) {
         return false;
@@ -268,7 +275,8 @@ bool SkPictureShader::onAppendStages(const StageRec& rec) const {
 SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
 const {
     auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
-    sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix, &lm, rec.fDstColorSpace);
+    sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix, &lm, rec.fDstColorType,
+                                                         rec.fDstColorSpace);
     if (!bitmapShader) {
         return nullptr;
     }
@@ -326,7 +334,9 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     }
 
     auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
-    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, &lm,
+    SkColorType dstColorType = kN32_SkColorType;
+    GrPixelConfigToColorType(args.fDstColorSpaceInfo->config(), &dstColorType);
+    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, &lm, dstColorType,
                                                        args.fDstColorSpaceInfo->colorSpace(),
                                                        maxTextureSize));
     if (!bitmapShader) {
