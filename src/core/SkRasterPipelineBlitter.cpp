@@ -98,6 +98,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
 #else
     SkColorSpace* dstCS = dst.colorSpace();
 #endif
+    SkColorType dstCT = dst.colorType();
     SkColor4f paintColor = premul_in_dst_colorspace(paint.getColor4f(), sk_srgb_singleton(), dstCS);
 
     auto shader = as_SB(paint.getShader());
@@ -118,13 +119,13 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
 
     // Check whether the shader prefers to run in burst mode.
     if (auto* burstCtx = shader->makeBurstPipelineContext(
-        SkShaderBase::ContextRec(paint, ctm, nullptr, dstCS), alloc)) {
+        SkShaderBase::ContextRec(paint, ctm, nullptr, dstCT, dstCS), alloc)) {
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, burstCtx,
                                                is_opaque, is_constant);
     }
 
-    if (shader->appendStages({&shaderPipeline, alloc, dstCS, paint, nullptr, ctm})) {
+    if (shader->appendStages({&shaderPipeline, alloc, dstCT, dstCS, paint, nullptr, ctm})) {
         if (paintColor.fA != 1.0f) {
             shaderPipeline.append(SkRasterPipeline::scale_1_float,
                                   alloc->make<float>(paintColor.fA));
