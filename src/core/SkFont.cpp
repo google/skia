@@ -118,9 +118,6 @@ SkScalar SkFont::measureText(const void* text, size_t byteLength, SkTextEncoding
 
 sk_sp<SkFont> SkFont::Testing_CreateFromPaint(const SkPaint& paint) {
     uint32_t flags = 0;
-    if (paint.isVerticalText()) {
-        flags |= kVertical_Flag;
-    }
     if (paint.isEmbeddedBitmapText()) {
         flags |= kEmbeddedBitmaps_Flag;
     }

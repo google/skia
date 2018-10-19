@@ -33,7 +33,6 @@ static void test_cachedfont(skiatest::Reporter* reporter, const SkPaint& paint) 
     REPORTER_ASSERT(reporter, font->getScaleX() == paint.getTextScaleX());
     REPORTER_ASSERT(reporter, font->getSkewX() == paint.getTextSkewX());
 
-    REPORTER_ASSERT(reporter, font->isVertical() == paint.isVerticalText());
     REPORTER_ASSERT(reporter, font->isEmbolden() == paint.isFakeBoldText());
 
     REPORTER_ASSERT(reporter, font->isUseNonLinearMetrics() == is_use_nonlinear_metrics(paint));
