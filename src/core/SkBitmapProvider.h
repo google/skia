@@ -21,13 +21,6 @@ public:
         : fImage(other.fImage)
     {}
 
-    int width() const;
-    int height() const;
-    uint32_t getID() const;
-
-    SkImageInfo info() const;
-    bool isVolatile() const;
-
     SkBitmapCacheDesc makeCacheDesc() const;
     void notifyAddedToCache() const;
 
