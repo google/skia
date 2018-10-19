@@ -277,9 +277,7 @@ sk_sp<SkPDFFont> SkPDFFont::GetFontResource(SkPDFCanon* canon,
 SkPDFFont::SkPDFFont(SkPDFFont::Info info)
     : SkPDFDict("Font")
     , fTypeface(std::move(info.fTypeface))
-    , fGlyphUsage(info.fLastGlyphID + 1)  // TODO(halcanary): Adjust mapping?
-    , fFirstGlyphID(info.fFirstGlyphID)
-    , fLastGlyphID(info.fLastGlyphID)
+    , fGlyphUsage(info.fFirstGlyphID, info.fLastGlyphID)
     , fFontType(info.fFontType) {
     SkASSERT(fTypeface);
 }
@@ -349,7 +347,7 @@ static sk_sp<SkData> stream_to_data(std::unique_ptr<SkStreamAsset> stream) {
 
 static sk_sp<SkPDFStream> get_subset_font_stream(
         std::unique_ptr<SkStreamAsset> fontAsset,
-        const SkBitSet& glyphUsage,
+        const SkPDFGlyphUse& glyphUsage,
         const char* fontName,
         int ttcIndex) {
     // Generate glyph id array in format needed by sfntly.
@@ -425,6 +423,7 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
                 #ifdef SK_PDF_USE_SFNTLY
                 if (!SkToBool(metrics.fFlags &
                               SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag)) {
+                    SkASSERT(this->firstGlyphID() == 1);
                     sk_sp<SkPDFStream> subsetStream = get_subset_font_stream(
                             std::move(fontAsset), this->glyphUsage(),
                             metrics.fFontName.c_str(), ttcIndex);
@@ -696,7 +695,7 @@ static ImageAndOffset to_image(SkGlyphID gid, SkGlyphCache* cache) {
 static void add_type3_font_info(SkPDFCanon* canon,
                                 SkPDFDict* font,
                                 SkTypeface* typeface,
-                                const SkBitSet& subset,
+                                const SkPDFGlyphUse& subset,
                                 SkGlyphID firstGlyphID,
                                 SkGlyphID lastGlyphID) {
     const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, canon);
@@ -860,6 +859,6 @@ bool SkPDFFont::CanEmbedTypeface(SkTypeface* typeface, SkPDFCanon* canon) {
 
 void SkPDFFont::drop() {
     fTypeface = nullptr;
-    fGlyphUsage = SkBitSet(0);
+    fGlyphUsage = SkPDFGlyphUse();
     this->SkPDFDict::drop();
 }
