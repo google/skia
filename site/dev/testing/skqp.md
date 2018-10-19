@@ -19,7 +19,7 @@ To run tests:
 
 Monitor the output with:
 
-    adb logcat org.skia.skqp skia DEBUG "*:S"
+    adb logcat TestRunner org.skia.skqp skia DEBUG "*:S"
 
 Note the test's output path on the device.  It will look something like this:
 
