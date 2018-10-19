@@ -358,7 +358,7 @@ static sk_sp<SkPDFStream> get_subset_font_stream(
     if (!glyphUsage.has(0)) {
         subset.push_back(0);  // Always include glyph 0.
     }
-    glyphUsage.exportTo(&subset);
+    glyphUsage.getSetValues([&subset](unsigned v) { subset.push_back(v); });
 
     unsigned char* subsetFont{nullptr};
     sk_sp<SkData> fontData(stream_to_data(std::move(fontAsset)));
