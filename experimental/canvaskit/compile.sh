@@ -67,6 +67,12 @@ if [[ $@ == *no_skottie* ]]; then
   WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=0"
 fi
 
+HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/canvas2d.js"
+if [[ $@ == *no_canvas* ]]; then
+  echo "Omitting bindings for HTML Canvas API"
+  HTML_CANVAS_API=""
+fi
+
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
 NINJA=`which ninja`
@@ -153,6 +159,7 @@ ${EMCXX} \
     --bind \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
+    $HTML_CANVAS_API \
     $BASE_DIR/canvaskit_bindings.cpp \
     tools/fonts/SkTestFontMgr.cpp \
     tools/fonts/SkTestTypeface.cpp \
