@@ -157,6 +157,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
 
             // TODO: Instead of using assumption about whether it is NV12 format to guess colorType,
             // actually use channel information here.
+            // Alternate TODO: Don't bother validating.
             if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[yuvaIndex.fIndex],
                                         &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig,
                                         ct, kPremul_SkAlphaType, nullptr)) {
