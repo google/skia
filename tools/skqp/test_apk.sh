@@ -48,7 +48,7 @@ filter() {
 adb install -r "$APK" || exit 2
 adb logcat -c
 
-adb logcat org.skia.skqp skia DEBUG "*:S" | tee "${TDIR}/logcat.txt" | filter &
+adb logcat TestRunner org.skia.skqp skia DEBUG "*:S" | tee "${TDIR}/logcat.txt" | filter &
 LOGCAT_PID=$!
 
 ADBSHELL_PID=''
