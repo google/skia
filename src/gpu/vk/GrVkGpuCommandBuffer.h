@@ -74,6 +74,8 @@ public:
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
               const SkIPoint& dstPoint) override;
 
+    void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
+
     void set(GrRenderTarget*, GrSurfaceOrigin,
              const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
              const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&);

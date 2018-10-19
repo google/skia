@@ -17,6 +17,7 @@
 #include "GrTypesPriv.h"
 #include "GrXferProcessor.h"
 #include "SkCanvas.h"
+#include "SkDrawable.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
 #include "text/GrTextTarget.h"
@@ -337,6 +338,12 @@ public:
                           GrSamplerState::Filter,
                           std::unique_ptr<SkLatticeIter>,
                           const SkRect& dst);
+
+    /**
+     * Adds the necessary signal and wait semaphores and adds the passed in SkDrawable to the
+     * command stream.
+     */
+    void drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and
