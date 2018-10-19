@@ -233,10 +233,6 @@ void SkPaint::setLinearText(bool doLinearText) {
     this->setFlags(set_clear_mask(fBitfields.fFlags, doLinearText, kLinearText_Flag));
 }
 
-void SkPaint::setVerticalText(bool doVertical) {
-    this->setFlags(set_clear_mask(fBitfields.fFlags, doVertical, kVerticalText_Flag));
-}
-
 void SkPaint::setFakeBoldText(bool doFakeBold) {
     this->setFlags(set_clear_mask(fBitfields.fFlags, doFakeBold, kFakeBoldText_Flag));
 }

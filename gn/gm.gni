@@ -339,8 +339,6 @@ gm_sources = [
   "$_gm/typeface.cpp",
   "$_gm/variedtext.cpp",
   "$_gm/vertices.cpp",
-  "$_gm/verttext.cpp",
-  "$_gm/verttext2.cpp",
   "$_gm/verylargebitmap.cpp",
   "$_gm/wacky_yuv_formats.cpp",
   "$_gm/windowrectangles.cpp",
