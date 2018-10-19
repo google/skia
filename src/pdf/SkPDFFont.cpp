@@ -274,10 +274,15 @@ sk_sp<SkPDFFont> SkPDFFont::GetFontResource(SkPDFCanon* canon,
     return font;
 }
 
+static int glyph_count(SkGlyphID firstNonZeroGlyph, SkGlyphID lastGlyph) {
+    SkASSERT((int)lastGlyph + 2 > (int)firstNonZeroGlyph);
+    return (int)lastGlyph - firstNonZeroGlyph + 2;
+}
+
 SkPDFFont::SkPDFFont(SkPDFFont::Info info)
     : SkPDFDict("Font")
     , fTypeface(std::move(info.fTypeface))
-    , fGlyphUsage(info.fLastGlyphID + 1)  // TODO(halcanary): Adjust mapping?
+    , fGlyphUsage(glyph_count(info.fFirstGlyphID, info.fLastGlyphID))
     , fFirstGlyphID(info.fFirstGlyphID)
     , fLastGlyphID(info.fLastGlyphID)
     , fFontType(info.fFontType) {
@@ -425,6 +430,7 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
                 #ifdef SK_PDF_USE_SFNTLY
                 if (!SkToBool(metrics.fFlags &
                               SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag)) {
+                    SkASSERT(this->firstGlyphID() == 1);
                     sk_sp<SkPDFStream> subsetStream = get_subset_font_stream(
                             std::move(fontAsset), this->glyphUsage(),
                             metrics.fFontName.c_str(), ttcIndex);
@@ -703,7 +709,7 @@ static void add_type3_font_info(SkPDFCanon* canon,
     SkASSERT(lastGlyphID >= firstGlyphID);
     // Remove unused glyphs at the end of the range.
     // Keep the lastGlyphID >= firstGlyphID invariant true.
-    while (lastGlyphID > firstGlyphID && !subset.has(lastGlyphID)) {
+    while (lastGlyphID > firstGlyphID && !subset.has(lastGlyphID - firstGlyphID + 1)) {
         --lastGlyphID;
     }
     int unitsPerEm;
@@ -735,7 +741,7 @@ static void add_type3_font_info(SkPDFCanon* canon,
     SkIRect bbox = SkIRect::MakeEmpty();
 
     for (SkGlyphID gID : SingleByteGlyphIdIterator(firstGlyphID, lastGlyphID)) {
-        bool skipGlyph = gID != 0 && !subset.has(gID);
+        bool skipGlyph = gID != 0 && !subset.has(gID - firstGlyphID + 1);
         SkString characterName;
         SkScalar advance = 0.0f;
         SkIRect glyphBBox;

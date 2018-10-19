@@ -70,7 +70,7 @@ public:
 
     void noteGlyphUsage(SkGlyphID glyph) {
         SkASSERT(this->hasGlyph(glyph));
-        fGlyphUsage.set(glyph);
+        fGlyphUsage.set(this->glyphToPDFFontEncoding(glyph));
     }
 
     /** Get the font resource for the passed typeface and glyphID. The

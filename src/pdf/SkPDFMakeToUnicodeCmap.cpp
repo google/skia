@@ -123,6 +123,13 @@ static void append_bfrange_section(const std::vector<BFRange>& bfrange,
     }
 }
 
+static SkGlyphID to_subset_code(SkGlyphID firstGlyphID,
+                                SkGlyphID gid,
+                                bool multiByteGlyphs) {
+    return 0 == gid || multiByteGlyphs ? gid
+                                       : gid - firstGlyphID + 1;
+}
+
 // Generate <bfchar> and <bfrange> table according to PDF spec 1.4 and Adobe
 // Technote 5014.
 // The function is not static so we can test it in unit tests.
@@ -168,8 +175,10 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
     const int limit = (int)lastGlyphID + 1 - glyphOffset;
 
     for (int i = firstGlyphID - glyphOffset; i < limit + 1; ++i) {
+        SkGlyphID gid = i + glyphOffset;
+        SkGlyphID subsetCode = to_subset_code(firstGlyphID, gid, multiByteGlyphs);
         bool inSubset = i < limit &&
-                        (subset == nullptr || subset->has(i + glyphOffset));
+                        (subset == nullptr || subset->has(subsetCode));
         if (!rangeEmpty) {
             // PDF spec requires bfrange not changing the higher byte,
             // e.g. <1035> <10FF> <2222> is ok, but
@@ -178,7 +187,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
                 i == currentRangeEntry.fEnd + 1 &&
                 i >> 8 == currentRangeEntry.fStart >> 8 &&
                 i < limit &&
-                glyphToUnicode[i + glyphOffset] ==
+                glyphToUnicode[gid] ==
                     currentRangeEntry.fUnicode + i - currentRangeEntry.fStart;
             if (!inSubset || !inRange) {
                 if (currentRangeEntry.fEnd > currentRangeEntry.fStart) {
@@ -193,7 +202,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
             currentRangeEntry.fEnd = i;
             if (rangeEmpty) {
               currentRangeEntry.fStart = i;
-              currentRangeEntry.fUnicode = glyphToUnicode[i + glyphOffset];
+              currentRangeEntry.fUnicode = glyphToUnicode[gid];
               rangeEmpty = false;
             }
         }
