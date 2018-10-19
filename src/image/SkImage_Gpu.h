@@ -109,8 +109,8 @@ public:
 
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(
             GrContext*, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvaTextures[],
-            const SkYUVAIndex yuvaIndices[4], SkISize imageSize, GrSurfaceOrigin imageOrigin,
-            SkBudgeted, GrRenderTargetContext*);
+            const SkColorType colorTypes[], const SkYUVAIndex yuvaIndices[4], SkISize imageSize,
+            GrSurfaceOrigin imageOrigin, SkBudgeted, GrRenderTargetContext*);
 
 private:
     sk_sp<GrTextureProxy> fProxy;

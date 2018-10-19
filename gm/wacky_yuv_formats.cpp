@@ -739,6 +739,7 @@ protected:
                         }
 
                         GrBackendTexture yuvaTextures[4];
+                        SkColorType colorTypes[4];
 
                         for (int i = 0; i < 4; ++i) {
                             if (!used[i]) {
@@ -753,12 +754,14 @@ protected:
                                 false,
                                 GrMipMapped::kNo,
                                 resultBMs[i].rowBytes());
+                            colorTypes[i] = resultBMs[i].colorType();
                         }
 
                         fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
                             context,
                             (SkYUVColorSpace) cs,
                             yuvaTextures,
+                            colorTypes,
                             yuvaIndices,
                             { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
                             kTopLeft_GrSurfaceOrigin);
