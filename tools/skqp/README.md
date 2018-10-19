@@ -68,7 +68,7 @@ How to build and run the SkQP tests
 
 6.  Monitor the output with:
 
-        adb logcat org.skia.skqp skia "*:S"
+        adb logcat TestRunner org.skia.skqp skia "*:S"
 
     Note the test's output path on the device.  It will look something like this:
 

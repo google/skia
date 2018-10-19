@@ -106,17 +106,16 @@ public class SkQPRunner extends Runner implements Filterable {
 
     @Override
     public void run(RunNotifier notifier) {
-        int testNumber = 1;  // out of number of actually run tests.
+        int testNumber = 0;  // out of number of actually run tests.
         int testIndex = 0;  // out of potential tests.
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             for (int gm = 0; gm < impl.mGMs.length; gm++, testIndex++) {
+                ++testNumber;
                 Description desc = mTests[testIndex];
                 String name = desc.getMethodName();
                 if (mShouldSkipTest[testIndex]) {
                     continue;
                 }
-                Log.v(TAG, String.format("Rendering Test '%s' started (%d/%d).",
-                                         name, testNumber++, mShouldRunTestCount));
                 notifier.fireTestStarted(desc);
                 float value = java.lang.Float.MAX_VALUE;
                 String error = null;
@@ -125,40 +124,43 @@ public class SkQPRunner extends Runner implements Filterable {
                 } catch (SkQPException exept) {
                     error = exept.getMessage();
                 }
+                String result = "pass";
                 if (error != null) {
                     SkQPRunner.Fail(desc, notifier, String.format("Exception: %s", error));
                     Log.w(TAG, String.format("[ERROR] '%s': %s", name, error));
+                    result = "ERROR";
                 } else if (value != 0) {
                     SkQPRunner.Fail(desc, notifier, String.format(
                                 "Image mismatch: max channel diff = %f", value));
                     Log.w(TAG, String.format("[FAIL] '%s': %f > 0", name, value));
-                } else {
-                    Log.i(TAG, String.format("Rendering Test '%s' passed", name));
+                    result = "FAIL";
                 }
                 notifier.fireTestFinished(desc);
+                Log.i(TAG, String.format("Rendering Test '%s' complete (%d/%d). [%s]",
+                                         name, testNumber, mShouldRunTestCount, result));
             }
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++, testIndex++) {
+            ++testNumber;
             Description desc = mTests[testIndex];
             String name = desc.getMethodName();
             if (mShouldSkipTest[testIndex]) {
                 continue;
             }
-
-            Log.v(TAG, String.format("Test '%s' started (%d/%d).",
-                                     name, testNumber++, mShouldRunTestCount));
             notifier.fireTestStarted(desc);
             String[] errors = impl.nExecuteUnitTest(unitTest);
+            String result = "pass";
             if (errors != null && errors.length > 0) {
                 Log.w(TAG, String.format("[FAIL] Test '%s' had %d failures.", name, errors.length));
                 for (String error : errors) {
                     SkQPRunner.Fail(desc, notifier, error);
                     Log.w(TAG, String.format("[FAIL] '%s': %s", name, error));
                 }
-            } else {
-                Log.i(TAG, String.format("Test '%s' passed.", name));
+                result = "FAIL";
             }
             notifier.fireTestFinished(desc);
+            Log.i(TAG, String.format("Test '%s' complete (%d/%d). [%s]",
+                                     name, testNumber, mShouldRunTestCount, result));
         }
         impl.nMakeReport();
         Log.i(TAG, String.format("output written to \"%s\"", GetOutputDir().getAbsolutePath()));
