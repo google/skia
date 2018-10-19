@@ -22,6 +22,30 @@
       "revId": "705b62f5ad3fce6d52b6f03ce647494e193825e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6107e71_ad2321c7",
+        "filename": "src/gpu/GrGpuCommandBuffer.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-19T19:17:05Z",
+      "side": 1,
+      "message": "Done. For now we are only supporting this code path on Vulkan. It could be nice down the road to also allow GL to execute client code in our stream, but until we have a good reason to add that we\u0027re not going to support it.",
+      "parentUuid": "f7708965_299241c7",
+      "range": {
+        "startLine": 123,
+        "startChar": 7,
+        "endLine": 123,
+        "endChar": 15
+      },
+      "revId": "705b62f5ad3fce6d52b6f03ce647494e193825e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
