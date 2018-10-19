@@ -36,7 +36,6 @@
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPathOps.h"
-#include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkRasterClip.h"
 #include "SkScopeExit.h"

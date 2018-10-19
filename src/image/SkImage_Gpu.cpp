@@ -38,7 +38,6 @@
 #include "SkImageInfoPriv.h"
 #include "SkImage_Gpu.h"
 #include "SkMipMap.h"
-#include "SkPixelRef.h"
 #include "SkTraceEvent.h"
 #include "SkYUVAIndex.h"
 #include "effects/GrYUVtoRGBEffect.h"

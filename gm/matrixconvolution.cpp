@@ -10,7 +10,6 @@
 #include "SkColor.h"
 #include "SkGradientShader.h"
 #include "SkMatrixConvolutionImageFilter.h"
-#include "SkPixelRef.h"
 
 namespace skiagm {
 

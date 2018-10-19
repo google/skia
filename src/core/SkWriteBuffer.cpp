@@ -12,7 +12,6 @@
 #include "SkDeduper.h"
 #include "SkImagePriv.h"
 #include "SkPaintPriv.h"
-#include "SkPixelRef.h"
 #include "SkPtrRecorder.h"
 #include "SkStream.h"
 #include "SkTo.h"

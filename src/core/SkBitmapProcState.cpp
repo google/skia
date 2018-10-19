@@ -14,7 +14,6 @@
 #include "SkShader.h"   // for tilemodes
 #include "SkUtilsArm.h"
 #include "SkMipMap.h"
-#include "SkPixelRef.h"
 #include "SkImageEncoder.h"
 #include "SkResourceCache.h"
 

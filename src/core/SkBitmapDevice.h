@@ -14,7 +14,6 @@
 #include "SkDevice.h"
 #include "SkGlyphRunPainter.h"
 #include "SkImageInfo.h"
-#include "SkPixelRef.h"
 #include "SkRasterClip.h"
 #include "SkRasterClipStack.h"
 #include "SkRect.h"
@@ -26,7 +25,6 @@ class SkImageFilterCache;
 class SkMatrix;
 class SkPaint;
 class SkPath;
-class SkPixelRef;
 class SkPixmap;
 class SkRasterHandleAllocator;
 class SkRRect;
