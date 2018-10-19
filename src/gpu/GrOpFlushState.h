@@ -25,7 +25,11 @@ class GrResourceProvider;
 /** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpList flush. */
 class GrOpFlushState final : public GrDeferredUploadTarget, public GrMeshDrawOp::Target {
 public:
-    GrOpFlushState(GrGpu*, GrResourceProvider*, GrTokenTracker*);
+    // vertexSpace and indexSpace may either be null or an alloation of size
+    // GrBufferAllocPool::kDefaultBufferSize. If the latter, then CPU memory is only allocated for
+    // vertices/indices when a buffer larger than kDefaultBufferSize is required.
+    GrOpFlushState(GrGpu*, GrResourceProvider*, GrTokenTracker*, void* vertexSpace,
+                   void* indexSpace);
 
     ~GrOpFlushState() final { this->reset(); }
 

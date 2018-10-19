@@ -229,9 +229,14 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     fActiveOpList = nullptr;
 
     fDAG.prepForFlush();
+    SkASSERT(SkToBool(fVertexBufferSpace) == SkToBool(fIndexBufferSpace));
+    if (!fVertexBufferSpace) {
+        fVertexBufferSpace.reset(new char[GrBufferAllocPool::kDefaultBufferSize]);
+        fIndexBufferSpace.reset(new char[GrBufferAllocPool::kDefaultBufferSize]);
+    }
 
-    GrOpFlushState flushState(gpu, fContext->contextPriv().resourceProvider(),
-                              &fTokenTracker);
+    GrOpFlushState flushState(gpu, fContext->contextPriv().resourceProvider(), &fTokenTracker,
+                              fVertexBufferSpace.get(), fIndexBufferSpace.get());
 
     GrOnFlushResourceProvider onFlushProvider(this);
     // TODO: AFAICT the only reason fFlushState is on GrDrawingManager rather than on the
