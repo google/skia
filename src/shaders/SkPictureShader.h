@@ -48,7 +48,7 @@ private:
                     sk_sp<SkColorSpace>);
 
     sk_sp<SkShader> refBitmapShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
-                                    SkColorSpace* dstColorSpace,
+                                    SkColorType dstColorType, SkColorSpace* dstColorSpace,
                                     const int maxTextureSize = 0) const;
 
     class PictureShaderContext : public Context {
