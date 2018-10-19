@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "afda9394_789f3d1f",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:10:48Z",
+      "side": 1,
+      "message": "Maybe put this behind #ifdef SK_DEBUG? I suppose that would require putting quadType() behind SK_DEBUG. Should we? Seems like it is only used for asserts now.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 79
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca3fc922_636b2d31",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:10:48Z",
+      "side": 1,
+      "message": "static",
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dc9a1b8_a5f1a4df",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:10:48Z",
+      "side": 1,
+      "message": "static",
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d82374f2_caa161c5",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:10:48Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 75,
+        "startChar": 13,
+        "endLine": 75,
+        "endChar": 21
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f127d6f_28fce3f6",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:10:48Z",
+      "side": 1,
+      "message": "We\u0027ve mostly been using enum class for newer enums.",
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf4960fc_6ac15518",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:10:48Z",
+      "side": 1,
+      "message": "Seems like we don\u0027t use this or the one on GrPerspQuad. Do we need it (Maybe I\u0027ll answer that myself when I look at your next change :))",
+      "range": {
+        "startLine": 72,
+        "startChar": 9,
+        "endLine": 72,
+        "endChar": 20
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d39b4b5_110c3263",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:10:48Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 73,
+        "startChar": 15,
+        "endLine": 73,
+        "endChar": 23
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb6e2c70_7fd20542",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-19T00:10:48Z",
+      "side": 1,
+      "message": "this-?",
+      "range": {
+        "startLine": 73,
+        "startChar": 58,
+        "endLine": 73,
+        "endChar": 75
+      },
+      "revId": "2ff4a1f8284acc0c3379ca4eb7a079c3c47e2860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
