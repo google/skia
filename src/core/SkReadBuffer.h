@@ -35,9 +35,9 @@ class SkReadBuffer {
 public:
     SkReadBuffer();
     SkReadBuffer(const void* data, size_t size);
-    virtual ~SkReadBuffer();
+    ~SkReadBuffer();
 
-    virtual SkReadBuffer* clone(const void* data, size_t size) const {
+    SkReadBuffer* clone(const void* data, size_t size) const {
         return new SkReadBuffer(data, size);
     }
 
@@ -147,7 +147,7 @@ public:
     void readRegion(SkRegion* region);
 
     void readPath(SkPath* path);
-    virtual bool readPaint(SkPaint* paint) { return SkPaintPriv::Unflatten(paint, *this); }
+    bool readPaint(SkPaint* paint) { return SkPaintPriv::Unflatten(paint, *this); }
 
     SkFlattenable* readFlattenable(SkFlattenable::Type);
     template <typename T> sk_sp<T> readFlattenable() {
