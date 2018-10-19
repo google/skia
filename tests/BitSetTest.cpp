@@ -26,7 +26,8 @@ DEF_TEST(BitSet, reporter) {
     REPORTER_ASSERT(reporter, set0.has(35) == true);
 
     std::vector<unsigned int> data;
-    set0.exportTo(&data);
+    set0.getSetValues([&data](unsigned v) { data.push_back(v); });
+
     REPORTER_ASSERT(reporter, data.size() == 3);
     REPORTER_ASSERT(reporter, data[0] == 22);
     REPORTER_ASSERT(reporter, data[1] == 24);

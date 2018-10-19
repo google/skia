@@ -333,7 +333,9 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
     //CreateFontPackage wants unsigned short.
     //Microsoft, Y U NO stdint.h?
     std::vector<unsigned short> keepList;
-    current->glyphsUsed->exportTo(&keepList);
+    current->glyphsUsed->getSetValues([&keepList](unsigned v) {
+            keepList.push_back((unsigned short)v);
+    });
 
     int ttcCount = (current->ttcIndex + 1);
 

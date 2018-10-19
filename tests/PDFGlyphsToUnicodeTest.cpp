@@ -78,7 +78,9 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
     SkGlyphID lastGlyphID = SkToU16(glyphToUnicode.count() - 1);
 
     SkDynamicMemoryWStream buffer;
-    subset.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
+    for (uint16_t v : glyphsInSubset) {
+        subset.set(v);
+    }
     SkPDFAppendCmapSections(&glyphToUnicode[0], &subset, &buffer, true, 0,
                             SkTMin<SkGlyphID>(0xFFFF,  lastGlyphID));
 
@@ -172,7 +174,9 @@ endbfrange\n";
     glyphsInSubset.push_back(0x57);
 
     SkDynamicMemoryWStream buffer2;
-    subset2.setAll(glyphsInSubset.begin(), glyphsInSubset.count());
+    for (uint16_t v : glyphsInSubset) {
+        subset2.set(v);
+    }
     SkPDFAppendCmapSections(&glyphToUnicode[0], &subset2, &buffer2, true, 0,
                             SkTMin<SkGlyphID>(0xFFFF, lastGlyphID));
 
