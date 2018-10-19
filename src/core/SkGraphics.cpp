@@ -17,7 +17,6 @@
 #include "SkOpts.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
-#include "SkPixelRef.h"
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
 #include "SkScalerContext.h"

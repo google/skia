@@ -19,7 +19,6 @@
 #include "SkImage_Base.h"
 #include "SkNextID.h"
 #include "SkPicture.h"
-#include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
 #include "SkSpecialImage.h"
 #include "SkString.h"
@@ -209,8 +208,7 @@ bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint c
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkImage> SkImage::MakeFromBitmap(const SkBitmap& bm) {
-    SkPixelRef* pr = bm.pixelRef();
-    if (nullptr == pr) {
+    if (!bm.pixelRef()) {
         return nullptr;
     }
 

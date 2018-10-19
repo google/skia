@@ -13,7 +13,6 @@
 #include "SkImage_Base.h"
 #include "SkMatrixPriv.h"
 #include "SkPatchUtils.h"
-#include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkRSXform.h"
 #include "SkTSearch.h"

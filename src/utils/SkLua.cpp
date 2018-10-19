@@ -24,7 +24,6 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPictureRecorder.h"
-#include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkShaper.h"
 #include "SkString.h"

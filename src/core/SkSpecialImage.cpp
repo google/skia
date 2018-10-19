@@ -13,7 +13,6 @@
 #include "SkImage_Base.h"
 #include "SkSpecialSurface.h"
 #include "SkSurfacePriv.h"
-#include "SkPixelRef.h"
 #include <atomic>
 
 #if SK_SUPPORT_GPU

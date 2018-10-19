@@ -120,13 +120,7 @@ private:
     void restoreMutability();
     friend class SkSurface_Raster;   // For the two methods above.
 
-    friend class SkImage_Raster;
-    friend class SkSpecialImage_Raster;
-
     void setImmutableWithID(uint32_t genID);
-    friend class SkImage_Gpu;
-    friend class SkImage_Lazy;
-    friend class SkSpecialImage_Gpu;
     friend void SkBitmapCache_setImmutableWithID(SkPixelRef*, uint32_t);
 
     typedef SkRefCnt INHERITED;

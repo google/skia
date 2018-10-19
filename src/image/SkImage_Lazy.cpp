@@ -13,7 +13,6 @@
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"
 #include "SkNextID.h"
-#include "SkPixelRef.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"

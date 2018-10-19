@@ -9,7 +9,6 @@
 #include "SkBitmapRegionCodec.h"
 #include "SkBitmapRegionDecoderPriv.h"
 #include "SkCodecPriv.h"
-#include "SkPixelRef.h"
 
 SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
     : INHERITED(codec->getInfo().width(), codec->getInfo().height())
