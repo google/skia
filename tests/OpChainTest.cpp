@@ -123,7 +123,8 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
              ++chainabilityBits) {
             GrTokenTracker tracker;
             GrOpFlushState flushState(context->contextPriv().getGpu(),
-                                      context->contextPriv().resourceProvider(), &tracker);
+                                      context->contextPriv().resourceProvider(), &tracker, nullptr,
+                                      nullptr);
             GrRenderTargetOpList opList(context->contextPriv().resourceProvider(),
                                         sk_ref_sp(context->contextPriv().opMemoryPool()),
                                         proxy->asRenderTargetProxy(),
