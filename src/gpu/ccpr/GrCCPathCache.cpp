@@ -108,7 +108,7 @@ inline GrCCPathCache::HashNode::HashNode(uint32_t pathCacheUniqueID, const MaskT
     WriteStyledKey writeKey(shape);
     void* memory = ::operator new (sizeof(GrCCPathCacheEntry) +
                                    writeKey.allocCountU32() * sizeof(uint32_t));
-    fEntry.reset(new (memory) GrCCPathCacheEntry(pathCacheUniqueID, m));
+    fEntry.reset(new (memory) GrCCPathCacheEntry(pathCacheUniqueID, m, shape));
 
     // The shape key is a variable-length footer to the entry allocation.
     uint32_t* keyData = (uint32_t*)((char*)memory + sizeof(GrCCPathCacheEntry));
@@ -156,12 +156,13 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
         SkASSERT(fLRU.isInList(entry));
         if (fuzzy_equals(m, entry->fMaskTransform)) {
             ++entry->fHitCount;  // The path was reused with a compatible matrix.
-        } else if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
-            // This entry is unique: we can recycle it instead of deleting and malloc-ing a new one.
+        } else if (CreateIfAbsent::kYes == createIfAbsent && !entry->hasExternalRefs()) {
+            // Nobody external is using this entry: we can recycle it instead of deleting and
+            // malloc-ing a new one.
             entry->fMaskTransform = m;
             entry->fHitCount = 1;
             entry->invalidateAtlas();
-            SkASSERT(!entry->fCurrFlushAtlas);  // Should be null because 'entry' is unique.
+            SkASSERT(!entry->fCurrFlushAtlas);  // Should be null because no exernal users.
         } else {
             this->evict(entry);
             entry = nullptr;
@@ -176,7 +177,6 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
             this->evict(fLRU.tail());  // We've exceeded our limit.
         }
         entry = fHashTable.set(HashNode(fInvalidatedEntriesInbox.uniqueID(), m, shape))->entry();
-        shape.addGenIDChangeListener(sk_ref_sp(entry));
         SkASSERT(fHashTable.count() <= kMaxCacheCount);
     } else {
         fLRU.remove(entry);  // Will be re-added at head.
@@ -206,6 +206,14 @@ void GrCCPathCache::purgeAsNeeded() {
     }
 }
 
+
+GrCCPathCacheEntry::GrCCPathCacheEntry(uint32_t pathCacheUniqueID,
+                                       const MaskTransform& maskTransform, const GrShape& shape)
+        : fPathCacheUniqueID(pathCacheUniqueID), fMaskTransform(maskTransform) {
+    SkASSERT(SK_InvalidUniqueID != fPathCacheUniqueID);
+    shape.addGenIDChangeListener(sk_ref_sp(this));
+    fNumInternalRefs = this->peekRefCnt();  // We may or may not be a registered listener on a path.
+}
 
 GrCCPathCacheEntry::~GrCCPathCacheEntry() {
     SkASSERT(!fCurrFlushAtlas);  // Client is required to reset fCurrFlushAtlas back to null.
@@ -262,7 +270,10 @@ void GrCCPathCacheEntry::invalidateAtlas() {
     fCachedAtlasInfo = nullptr;
 }
 
-void GrCCPathCacheEntry::onChange() {
+void GrCCPathCacheEntry::notifyPathGenIDChanged(sk_sp<GenIDChangeListener> releasedListener) {
     // Post a thread-safe eviction message.
-    SkMessageBus<sk_sp<GrCCPathCacheEntry>>::Post(sk_ref_sp(this));
+    auto thisRef = sk_sp<GrCCPathCacheEntry>(
+            static_cast<GrCCPathCacheEntry*>(releasedListener.release()));
+    SkASSERT(thisRef.get() == this);
+    SkMessageBus<sk_sp<GrCCPathCacheEntry>>::Post(std::move(thisRef));
 }

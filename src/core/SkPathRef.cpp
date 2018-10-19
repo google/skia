@@ -724,9 +724,10 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
     SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
-    for (const sk_sp<GenIDChangeListener>& listener : fGenIDChangeListeners) {
+    for (sk_sp<GenIDChangeListener>& listener : fGenIDChangeListeners) {
         if (!listener->shouldUnregisterFromPath()) {
-            listener->onChange();
+            listener->notifyPathGenIDChanged(std::move(listener));
+            SkASSERT(!listener);
         }
     }
 
