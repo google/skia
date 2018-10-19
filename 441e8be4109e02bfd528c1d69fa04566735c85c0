@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2be515f_40666b8a",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-19T15:14:00Z",
+      "side": 1,
+      "message": "Is this used for rendering? Do we need this flag here? Of course, I\u0027m not sure we need this bit on the paint either...",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 33
+      },
+      "revId": "441e8be4109e02bfd528c1d69fa04566735c85c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "602ef45f_91897a26",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-19T15:14:00Z",
+      "side": 1,
+      "message": "Does anyone use this at this point? This isn\u0027t a glyph flag, it is a shaper flag, it\u0027s kind of a metrics flag.",
+      "range": {
+        "startLine": 58,
+        "startChar": 7,
+        "endLine": 58,
+        "endChar": 45
+      },
+      "revId": "441e8be4109e02bfd528c1d69fa04566735c85c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
