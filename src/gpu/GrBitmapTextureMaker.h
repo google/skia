@@ -20,14 +20,13 @@ public:
 
 protected:
     sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                  SkColorSpace* dstColorSpace,
                                                   AllowedTexGenType onlyIfFast) override;
 
     void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
 
     SkAlphaType alphaType() const override;
-    sk_sp<SkColorSpace> getColorSpace(SkColorSpace* dstColorSpace) override;
+    sk_sp<SkColorSpace> getColorSpace() override;
 
 private:
     const SkBitmap  fBitmap;

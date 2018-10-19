@@ -20,10 +20,9 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* clie
 }
 
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
-                                                                   SkColorSpace* dstColorSpace,
                                                                    AllowedTexGenType onlyIfFast) {
     return fImage->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
-                                    willBeMipped, dstColorSpace, onlyIfFast);
+                                    willBeMipped, onlyIfFast);
 }
 
 void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {
@@ -37,6 +36,6 @@ void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* pa
 SkAlphaType GrImageTextureMaker::alphaType() const {
     return fImage->alphaType();
 }
-sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
+sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace() {
     return fImage->refColorSpace();
 }

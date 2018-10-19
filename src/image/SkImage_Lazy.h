@@ -46,7 +46,7 @@ public:
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*,
-                                            const GrSamplerState&, SkColorSpace*,
+                                            const GrSamplerState&,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
     sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVAIndex[4],
@@ -74,7 +74,6 @@ public:
                                            const GrUniqueKey& key,
                                            SkImage::CachingHint,
                                            bool willBeMipped,
-                                           SkColorSpace* dstColorSpace,
                                            GrTextureMaker::AllowedTexGenType genType) const;
 
     // TODO: Need to pass in dstColorSpace to fold into key here?

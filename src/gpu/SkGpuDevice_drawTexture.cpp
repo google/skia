@@ -168,9 +168,7 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
         sk_sp<SkColorSpace> cs;
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto proxy = maker->refTextureProxyForParams(
-                GrSamplerState::ClampNearest(), fRenderTargetContext->colorSpaceInfo().colorSpace(),
-                &cs, nullptr);
+        auto proxy = maker->refTextureProxyForParams(GrSamplerState::ClampNearest(), &cs, nullptr);
         if (!proxy) {
             return;
         }

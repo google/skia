@@ -73,7 +73,6 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
 sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
         const GrSamplerState& params,
-        SkColorSpace* dstColorSpace,
         sk_sp<SkColorSpace>* texColorSpace,
         bool willBeMipped,
         SkScalar scaleAdjust[2]) {
@@ -130,7 +129,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(
-            this->refTextureProxyForParams(samplerState, nullptr, nullptr, scaleAdjust));
+            this->refTextureProxyForParams(samplerState, nullptr, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }

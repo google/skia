@@ -38,20 +38,17 @@ protected:
      *  by drawing into a render target).
      */
     virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                          SkColorSpace* dstColorSpace,
                                                           AllowedTexGenType genType) = 0;
 
     /**
-     *  Returns the color space of the maker's "original" texture, assuming it was retrieved with
-     *  the same destination color space.
+     *  Returns the color space of the maker's "original" texture.
      */
-    virtual sk_sp<SkColorSpace> getColorSpace(SkColorSpace* dstColorSpace) = 0;
+    virtual sk_sp<SkColorSpace> getColorSpace() = 0;
 
     GrContext* context() const { return fContext; }
 
 private:
     sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
-                                                     SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* proxyColorSpace,
                                                      bool willBeMipped,
                                                      SkScalar scaleAdjust[2]) override;

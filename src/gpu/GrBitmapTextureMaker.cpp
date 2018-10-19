@@ -31,7 +31,6 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
 }
 
 sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeMipped,
-                                                                    SkColorSpace* dstColorSpace,
                                                                     AllowedTexGenType onlyIfFast) {
     if (AllowedTexGenType::kCheap == onlyIfFast) {
         return nullptr;
@@ -114,7 +113,6 @@ SkAlphaType GrBitmapTextureMaker::alphaType() const {
     return fBitmap.alphaType();
 }
 
-sk_sp<SkColorSpace> GrBitmapTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
-    // Color space doesn't depend on destination color space - it's just whatever is in the bitmap
+sk_sp<SkColorSpace> GrBitmapTextureMaker::getColorSpace() {
     return fBitmap.refColorSpace();
 }
