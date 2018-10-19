@@ -15,15 +15,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrOpFlushState::GrOpFlushState(GrGpu* gpu,
-                               GrResourceProvider* resourceProvider,
-                               GrTokenTracker* tokenTracker)
-        : fVertexPool(gpu)
-        , fIndexPool(gpu)
+GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider,
+                               GrTokenTracker* tokenTracker, void* vertexSpace, void* indexSpace)
+        : fVertexPool(gpu, vertexSpace)
+        , fIndexPool(gpu, indexSpace)
         , fGpu(gpu)
         , fResourceProvider(resourceProvider)
-        , fTokenTracker(tokenTracker) {
-}
+        , fTokenTracker(tokenTracker) {}
 
 const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
