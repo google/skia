@@ -631,7 +631,7 @@ public:
 
     SkMask::Format getFormat() const override { return as_MFB(fFilter)->getFormat(); }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixMF)
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixMF)
 
 protected:
 #if SK_SUPPORT_GPU

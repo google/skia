@@ -55,9 +55,9 @@ private:
     typedef SkImageFilter INHERITED;
 };
 
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkAlphaThresholdFilter)
+void SkAlphaThresholdFilter::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAlphaThresholdFilterImpl)
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+}
 
 static SkScalar pin_0_1(SkScalar x) {
     return SkMinScalar(SkMaxScalar(x, 0), 1);

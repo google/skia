@@ -49,22 +49,20 @@ need to add:
 ~~~~
 public:
 
-SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+static void InitializeFlattenables();
 ~~~~
 
 Then in the cpp file you define all the members of the group together:
 
 <!--?prettify?-->
 ~~~~
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkGroupClass)
-
+void SkGroupClass::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMemberClass1)
 
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMemberClass2)
 
     // etc
-
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+}
 ~~~~
 
 
