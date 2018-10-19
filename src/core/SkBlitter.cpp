@@ -1081,7 +1081,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
      *  We create a SkShader::Context object, and store it on the blitter.
      */
     if (shader) {
-        const SkShaderBase::ContextRec rec(*legacyPaint, matrix, nullptr, device.colorSpace());
+        const SkShaderBase::ContextRec rec(*legacyPaint, matrix, nullptr,
+                                           device.colorType(), device.colorSpace());
         // Try to create the ShaderContext
         shaderContext = shader->makeContext(rec, alloc);
         if (!shaderContext) {
