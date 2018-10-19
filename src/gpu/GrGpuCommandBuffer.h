@@ -10,6 +10,7 @@
 
 #include "GrColor.h"
 #include "GrPipeline.h"
+#include "SkDrawable.h"
 #include "ops/GrDrawOp.h"
 
 class GrOpFlushState;
@@ -19,6 +20,7 @@ class GrMesh;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
+class GrSemaphore;
 struct SkIRect;
 struct SkRect;
 
@@ -116,6 +118,11 @@ public:
      */
     // TODO: This should be removed in the future to favor using the load and store ops for discard
     virtual void discard() = 0;
+
+    /**
+     * Executes the SkDrawable object for the underlying backend.
+     */
+    virtual void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) {}
 
 protected:
     GrGpuRTCommandBuffer() : fOrigin(kTopLeft_GrSurfaceOrigin), fRenderTarget(nullptr) {}

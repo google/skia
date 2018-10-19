@@ -1696,12 +1696,13 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
         std::unique_ptr<SkDrawable::GpuDrawHandler> gpuDraw =
                 drawable->snapGpuDrawHandler(api, combinedMatrix);
         if (gpuDraw) {
-            // TODO: send the gpuDraw to the renderTargetContext and make an Op out of it
-            // return;
+            fRenderTargetContext->drawDrawable(std::move(gpuDraw), drawable->getBounds());
+            return;
         }
     }
     this->INHERITED::drawDrawable(drawable, matrix, canvas);
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

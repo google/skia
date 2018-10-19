@@ -307,6 +307,9 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 
     fCurrentCmdBuffer->submitToQueue(this, fQueue, sync, fSemaphoresToSignal, fSemaphoresToWaitOn);
 
+    // We must delete and drawables that have been waitint till submit for us to destroy.
+    fDrawables.reset();
+
     for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
         fSemaphoresToWaitOn[i]->unref(this);
     }
@@ -2151,5 +2154,9 @@ sk_sp<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* textur
 
     // The image layout change serves as a barrier, so no semaphore is needed
     return nullptr;
+}
+
+void GrVkGpu::addDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
+    fDrawables.emplace_back(std::move(drawable));
 }
 
