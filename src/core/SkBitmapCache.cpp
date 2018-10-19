@@ -39,13 +39,6 @@ SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, SkColorType colorTyp
              subset };
 }
 
-SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
-    SkASSERT(bm.pixelRef());
-    SkIPoint origin = bm.pixelRefOrigin();
-    SkIRect bounds = SkIRect::MakeXYWH(origin.fX, origin.fY, bm.width(), bm.height());
-    return Make(bm.getGenerationID(), bm.colorType(), bm.colorSpace(), bounds);
-}
-
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image) {
     SkIRect bounds = SkIRect::MakeWH(image->width(), image->height());
     return Make(image->uniqueID(), image->colorType(), image->colorSpace(), bounds);
