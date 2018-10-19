@@ -113,6 +113,7 @@ echo "Compiling bitcode"
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
   skia_enable_skpicture=false \
+  skia_enable_effect_deserialization = false \
   ${GN_GPU} \
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
@@ -125,6 +126,9 @@ echo "Generating final wasm"
 
 # Skottie doesn't end up in libskia and is currently not its own library
 # so we just hack in the .cpp files we need for now.
+# Emscripten prefers that libskia.a goes last in order, otherwise, it
+# may drop symbols that it incorrectly thinks aren't used. One day,
+# Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
     $RELEASE_CONF \
     -Iinclude/c \
@@ -150,10 +154,10 @@ ${EMCXX} \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
     $BASE_DIR/canvaskit_bindings.cpp \
-    $BUILD_DIR/libskia.a \
     tools/fonts/SkTestFontMgr.cpp \
     tools/fonts/SkTestTypeface.cpp \
     $WASM_SKOTTIE \
+    $BUILD_DIR/libskia.a \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
