@@ -31,6 +31,9 @@ class GrGpu;
  */
 class GrBufferAllocPool : SkNoncopyable {
 public:
+    // Some systems have 32KiB pages.
+    static constexpr size_t kDefaultBufferSize = 1 << 15;
+
     /**
      * Ensures all buffers are unmapped and have all data written to them.
      * Call before drawing using buffers from the pool.
@@ -53,13 +56,11 @@ protected:
      *
      * @param gpu                   The GrGpu used to create the buffers.
      * @param bufferType            The type of buffers to create.
-     * @param bufferSize            The minimum size of created buffers.
-     *                              This value will be clamped to some
-     *                              reasonable minimum.
+     * @param initialBuffer         If non-null this should be a kDefaultBufferSize byte allocation.
+     *                              This parameter can be used to avoid malloc/free when all
+     *                              usages can be satisfied with default-sized buffers.
      */
-     GrBufferAllocPool(GrGpu* gpu,
-                       GrBufferType bufferType,
-                       size_t   bufferSize = 0);
+     GrBufferAllocPool(GrGpu* gpu, GrBufferType bufferType, void* initialBuffer);
 
      virtual ~GrBufferAllocPool();
 
@@ -135,15 +136,15 @@ private:
 #ifdef SK_DEBUG
     void validate(bool unusedBlockAllowed = false) const;
 #endif
-    size_t                          fBytesInUse;
-
-    GrGpu*                          fGpu;
-    size_t                          fMinBlockSize;
-    GrBufferType                    fBufferType;
+    size_t                          fBytesInUse = 0;
 
     SkTArray<BufferBlock>           fBlocks;
-    void*                           fCpuData;
-    void*                           fBufferPtr;
+    GrGpu*                          fGpu;
+    GrBufferType                    fBufferType;
+    void*                           fInitialCpuData = nullptr;
+    void*                           fCpuData = nullptr;
+    size_t                          fCpuDataSize = 0;
+    void*                           fBufferPtr = nullptr;
     size_t                          fBufferMapThreshold;
 };
 
@@ -156,8 +157,11 @@ public:
      * Constructor
      *
      * @param gpu                   The GrGpu used to create the vertex buffers.
+     * @param initialBuffer         If non-null this should be a kDefaultBufferSize byte allocation.
+     *                              This parameter can be used to avoid malloc/free when all
+     *                              usages can be satisfied with default-sized buffers.
      */
-    GrVertexBufferAllocPool(GrGpu* gpu);
+    GrVertexBufferAllocPool(GrGpu* gpu, void* initialBuffer);
 
     /**
      * Returns a block of memory to hold vertices. A buffer designated to hold
@@ -232,8 +236,11 @@ public:
      * Constructor
      *
      * @param gpu                   The GrGpu used to create the index buffers.
+     * @param initialBuffer         If non-null this should be a kDefaultBufferSize byte allocation.
+     *                              This parameter can be used to avoid malloc/free when all
+     *                              usages can be satisfied with default-sized buffers.
      */
-    GrIndexBufferAllocPool(GrGpu* gpu);
+    GrIndexBufferAllocPool(GrGpu* gpu, void* initialBuffer);
 
     /**
      * Returns a block of memory to hold indices. A buffer designated to hold

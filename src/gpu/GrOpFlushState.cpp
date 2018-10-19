@@ -17,9 +17,9 @@
 
 GrOpFlushState::GrOpFlushState(GrGpu* gpu,
                                GrResourceProvider* resourceProvider,
-                               GrTokenTracker* tokenTracker)
-        : fVertexPool(gpu)
-        , fIndexPool(gpu)
+                               GrTokenTracker* tokenTracker, void* vertexSpace, void* indexSpace)
+        : fVertexPool(gpu, vertexSpace)
+        , fIndexPool(gpu, indexSpace)
         , fGpu(gpu)
         , fResourceProvider(resourceProvider)
         , fTokenTracker(tokenTracker) {

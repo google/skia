@@ -157,6 +157,8 @@ private:
     GrPathRendererChain::Options      fOptionsForPathRendererChain;
     GrTextContext::Options            fOptionsForTextContext;
 
+    std::unique_ptr<char[]>           fVertexBufferSpace;
+    std::unique_ptr<char[]>           fIndexBufferSpace;
     // In debug builds we guard against improper thread handling
     GrSingleOwner*                    fSingleOwner;
 
