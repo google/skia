@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e46a1ad_c1413d21",
+        "filename": "src/pathops/SkPathOpsPoint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-10-19T06:45:15Z",
+      "side": 1,
+      "message": "Is there a reason to keep this around?",
+      "revId": "b1a0613f4a6267c6949c24f7d5acd626e19a4ec9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
