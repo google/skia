@@ -3,7 +3,7 @@
 (function(CanvasKit){
     CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
     CanvasKit._extraInitializations.push(function() {
-        CanvasKit.MakeCanvasSurface = function(htmlID) {
+      CanvasKit.MakeCanvasSurface = function(htmlID) {
         var canvas = document.getElementById(htmlID);
         if (!canvas) {
           throw 'Canvas with id ' + htmlID + ' was not found';

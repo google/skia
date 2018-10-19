@@ -245,7 +245,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawText(text.c_str(), text.length(), x, y, p);
         }))
         .function("flush", &SkCanvas::flush)
+        .function("rotate", select_overload<void (SkScalar degrees, SkScalar px, SkScalar py)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
+        .function("scale", &SkCanvas::scale)
+        .function("setMatrix", &SkCanvas::setMatrix)
+        .function("skew", &SkCanvas::skew)
         .function("translate", &SkCanvas::translate);
 
     class_<SkData>("SkData")
@@ -261,6 +265,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("copy", optional_override([](const SkPaint& self)->SkPaint {
             SkPaint p(self);
             return p;
+        }))
+        .function("measureText", optional_override([](SkPaint& self, std::string text) {
+            // TODO(kjlubick): This does not work well for non-ascii
+            // Need to maybe add a helper in interface.js that supports UTF-8
+            // Otherwise, go with std::wstring and set UTF-32 encoding.
+            return self.measureText(text.c_str(), text.length());
         }))
         .function("setAntiAlias", &SkPaint::setAntiAlias)
         .function("setColor", optional_override([](SkPaint& self, JSColor color)->void {

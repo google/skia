@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  svg, canvas {
+  svg, canvas, img {
     border: 1px dashed #AAA;
   }
 
@@ -29,6 +29,9 @@
 
 <!-- Doesn't work yet. -->
 <button id=lego_btn>Take a picture of the legos</button>
+
+<h2>Drop in replacement for HTML Canvas (e.g. node.js)</h2>
+<img id=api1 width=300 height=300/>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -55,6 +58,8 @@
     SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+
+    CanvasAPI1(CanvasKit);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -356,6 +361,27 @@
 
     //animation.delete();
     return surface;
+  }
+
+  function CanvasAPI1(CanvasKit) {
+    let canvas = CanvasKit.MakeCanvas(300, 300);
+
+    let ctx = canvas.getContext('2d');
+    ctx.font = '30px Impact'
+    ctx.rotate(.1);
+    let text = ctx.measureText('Awesome');
+    ctx.fillText('Awesome ', 50, 100);
+    ctx.strokeText('Groovy!', 60+text.width, 100);
+
+    // Draw line under Awesome
+    ctx.strokeStyle = 'rgba(125,0,0,0.5)';
+    ctx.beginPath();
+    ctx.lineTo(50, 102);
+    ctx.lineTo(50 + text.width, 102);
+    ctx.stroke();
+
+    // TODO load image
+    document.getElementById('api1').src = canvas.toDataURL();
   }
 
 </script>

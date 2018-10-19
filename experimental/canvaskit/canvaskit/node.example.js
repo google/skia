@@ -6,6 +6,27 @@ CanvasKitInit({
   locateFile: (file) => __dirname + '/bin/'+file,
 }).then((CK) => {
   CanvasKit = CK;
+  let canvas = CanvasKit.MakeCanvas(300, 300);
+
+  let ctx = canvas.getContext('2d');
+  ctx.font = '30px Impact'
+  ctx.rotate(.1);
+  let text = ctx.measureText('Awesome');
+  ctx.fillText('Awesome ', 50, 100);
+  ctx.strokeText('Groovy!', 60+text.width, 100);
+
+  // Draw line under Awesome
+  ctx.strokeStyle = 'rgba(125,0,0,0.5)';
+  ctx.beginPath();
+  ctx.lineTo(50, 102);
+  ctx.lineTo(50 + text.width, 102);
+  ctx.stroke();
+
+  // TODO load an image from file
+  console.log('<img src="' + canvas.toDataURL() + '" />');
+});
+
+function fancyAPI() {
   CanvasKit.initFonts();
   console.log('loaded');
 
@@ -57,7 +78,7 @@ CanvasKitInit({
   paint.delete();
 
   surface.dispose();
-});
+}
 
 function starPath(CanvasKit, X=128, Y=128, R=116) {
   let p = new CanvasKit.SkPath();
