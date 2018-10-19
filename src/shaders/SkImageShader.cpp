@@ -97,12 +97,7 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
-    const auto info = as_IB(fImage)->onImageInfo();
-
-    if (info.colorType() != kN32_SkColorType) {
-        return nullptr;
-    }
-    if (info.alphaType() == kUnpremul_SkAlphaType) {
+    if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
     if (fTileModeX != fTileModeY) {
@@ -118,8 +113,12 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
+    SkBitmapProvider provider(fImage.get());
+    if (kN32_SkColorType != provider.makeCacheDesc().fColorType) {
+        return nullptr;
+    }
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get()), rec, alloc);
+                                                 provider, rec, alloc);
 }
 #endif
 
