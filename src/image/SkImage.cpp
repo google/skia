@@ -63,7 +63,7 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
     //       can scale more efficiently) we should take advantage of it here.
     //
     SkBitmap bm;
-    if (as_IB(this)->getROPixels(&bm, dst.info().colorSpace(), chint)) {
+    if (as_IB(this)->getROPixels(&bm, chint)) {
         SkPixmap pmap;
         // Note: By calling the pixmap scaler, we never cache the final result, so the chint
         //       is (currently) only being applied to the getROPixels. If we get a request to
@@ -99,8 +99,7 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
 
 sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) const {
     SkBitmap bm;
-    SkColorSpace* legacyColorSpace = nullptr;
-    if (as_IB(this)->getROPixels(&bm, legacyColorSpace)) {
+    if (as_IB(this)->getROPixels(&bm)) {
         return SkEncodeBitmap(bm, type, quality);
     }
     return nullptr;
@@ -111,13 +110,7 @@ sk_sp<SkData> SkImage::encodeToData() const {
         return encoded;
     }
 
-    SkBitmap bm;
-    SkPixmap pmap;
-    SkColorSpace* legacyColorSpace = nullptr;
-    if (as_IB(this)->getROPixels(&bm, legacyColorSpace) && bm.peekPixels(&pmap)) {
-        return SkEncodePixmap(pmap, SkEncodedImageFormat::kPNG, 100);
-    }
-    return nullptr;
+    return this->encodeToData(SkEncodedImageFormat::kPNG, 100);
 }
 
 sk_sp<SkData> SkImage::refEncodedData() const {

@@ -142,7 +142,7 @@ void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
 void SkBaseDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm, this->imageInfo().colorSpace())) {
+    if (as_IB(image)->getROPixels(&bm)) {
         this->drawBitmap(bm, x, y, paint);
     }
 }
@@ -151,7 +151,7 @@ void SkBaseDevice::drawImageRect(const SkImage* image, const SkRect* src,
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint) {
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm, this->imageInfo().colorSpace())) {
+    if (as_IB(image)->getROPixels(&bm)) {
         this->drawBitmapRect(bm, src, dst, paint, constraint);
     }
 }

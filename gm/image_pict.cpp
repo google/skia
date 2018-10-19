@@ -259,7 +259,7 @@ protected:
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
         SkBitmap bitmap;
-        as_IB(image)->getROPixels(&bitmap, canvas->imageInfo().colorSpace());
+        as_IB(image)->getROPixels(&bitmap);
         canvas->drawBitmap(bitmap, x, y);
     }
 

@@ -23,7 +23,7 @@ public:
 
     GrContext* context() const final { return fContext.get(); }
 
-    bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const final;
+    bool getROPixels(SkBitmap*, CachingHint) const final;
     sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const final;
 
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
