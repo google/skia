@@ -7,7 +7,7 @@
 
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
 
-#include "SkBitSet.h"
+#include "SkPDFGlyphUse.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkTo.h"
@@ -144,7 +144,7 @@ static void compose_advance_data(const AdvanceMetric& range,
 // TODO(halcanary): this function is complex enough to need its logic
 // tested with unit tests.
 sk_sp<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(SkGlyphCache* cache,
-                                               const SkBitSet* subset,
+                                               const SkPDFGlyphUse* subset,
                                                uint16_t emSize,
                                                int16_t* defaultAdvance) {
     // Assuming that on average, the ASCII representation of an advance plus

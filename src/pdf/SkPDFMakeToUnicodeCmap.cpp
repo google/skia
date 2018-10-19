@@ -150,7 +150,7 @@ static void append_bfrange_section(const std::vector<BFRange>& bfrange,
 // one of them), the possible savings by aggressive optimization is 416KB
 // pre-compressed and does not provide enough motivation for implementation.
 void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
-                             const SkBitSet* subset,
+                             const SkPDFGlyphUse* subset,
                              SkDynamicMemoryWStream* cmap,
                              bool multiByteGlyphs,
                              SkGlyphID firstGlyphID,
@@ -168,8 +168,8 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
     const int limit = (int)lastGlyphID + 1 - glyphOffset;
 
     for (int i = firstGlyphID - glyphOffset; i < limit + 1; ++i) {
-        bool inSubset = i < limit &&
-                        (subset == nullptr || subset->has(i + glyphOffset));
+        SkGlyphID gid = i + glyphOffset;
+        bool inSubset = i < limit && (subset == nullptr || subset->has(gid));
         if (!rangeEmpty) {
             // PDF spec requires bfrange not changing the higher byte,
             // e.g. <1035> <10FF> <2222> is ok, but
@@ -178,7 +178,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
                 i == currentRangeEntry.fEnd + 1 &&
                 i >> 8 == currentRangeEntry.fStart >> 8 &&
                 i < limit &&
-                glyphToUnicode[i + glyphOffset] ==
+                glyphToUnicode[gid] ==
                     currentRangeEntry.fUnicode + i - currentRangeEntry.fStart;
             if (!inSubset || !inRange) {
                 if (currentRangeEntry.fEnd > currentRangeEntry.fStart) {
@@ -193,7 +193,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
             currentRangeEntry.fEnd = i;
             if (rangeEmpty) {
               currentRangeEntry.fStart = i;
-              currentRangeEntry.fUnicode = glyphToUnicode[i + glyphOffset];
+              currentRangeEntry.fUnicode = glyphToUnicode[gid];
               rangeEmpty = false;
             }
         }
@@ -207,7 +207,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
 
 sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
         const SkUnichar* glyphToUnicode,
-        const SkBitSet* subset,
+        const SkPDFGlyphUse* subset,
         bool multiByteGlyphs,
         SkGlyphID firstGlyphID,
         SkGlyphID lastGlyphID) {
