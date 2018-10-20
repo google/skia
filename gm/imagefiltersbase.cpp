@@ -20,18 +20,11 @@
 
 class FailImageFilter : public SkImageFilter {
 public:
-    class Registrar {
-    public:
-        Registrar() {
-            SkFlattenable::Register("FailImageFilter",
-                                    FailImageFilter::CreateProc,
-                                    FailImageFilter::GetFlattenableType());
-        }
-    };
     static sk_sp<SkImageFilter> Make() {
         return sk_sp<SkImageFilter>(new FailImageFilter);
     }
 
+    SK_FLATTENABLE_HOOKS(FailImageFilter)
 protected:
     FailImageFilter() : INHERITED(nullptr, 0, nullptr) {}
 
@@ -44,12 +37,9 @@ protected:
     }
 
 private:
-    SK_FLATTENABLE_HOOKS(FailImageFilter)
 
     typedef SkImageFilter INHERITED;
 };
-
-static FailImageFilter::Registrar gReg0;
 
 sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
@@ -58,19 +48,12 @@ sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
 
 class IdentityImageFilter : public SkImageFilter {
 public:
-    class Registrar {
-    public:
-        Registrar() {
-            SkFlattenable::Register("IdentityImageFilter",
-                                    IdentityImageFilter::CreateProc,
-                                    IdentityImageFilter::GetFlattenableType());
-        }
-    };
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> input) {
         return sk_sp<SkImageFilter>(new IdentityImageFilter(std::move(input)));
     }
 
 
+    SK_FLATTENABLE_HOOKS(IdentityImageFilter)
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override {
@@ -82,13 +65,20 @@ protected:
     }
 
 private:
-    SK_FLATTENABLE_HOOKS(IdentityImageFilter)
     IdentityImageFilter(sk_sp<SkImageFilter> input) : INHERITED(&input, 1, nullptr) {}
 
     typedef SkImageFilter INHERITED;
 };
 
-static IdentityImageFilter::Registrar gReg1;
+// Register these image filters as deserializable before main().
+namespace {
+    static struct Initializer {
+        Initializer() {
+            SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(IdentityImageFilter);
+            SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(FailImageFilter);
+        }
+    } initializer;
+}
 
 sk_sp<SkFlattenable> IdentityImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);

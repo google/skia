@@ -29,14 +29,7 @@ public:
                     SkTDArray<SkPoint>* pts)
     : Sk2DPathEffect(matrix), fRadius(radius), fPts(pts) {}
 
-    class Registrar {
-    public:
-        Registrar() {
-            SkFlattenable::Register("Dot2DPathEffect",
-                                    Dot2DPathEffect::CreateProc,
-                                    Dot2DPathEffect::GetFlattenableType());
-        }
-    };
+    SK_FLATTENABLE_HOOKS(Dot2DPathEffect)
 protected:
     void begin(const SkIRect& uvBounds, SkPath* dst) const override {
         if (fPts) {
@@ -59,7 +52,6 @@ protected:
     }
 
 private:
-    SK_FLATTENABLE_HOOKS(Dot2DPathEffect)
 
     SkScalar fRadius;
     SkTDArray<SkPoint>* fPts;
@@ -67,7 +59,15 @@ private:
     typedef Sk2DPathEffect INHERITED;
 };
 
-static Dot2DPathEffect::Registrar gReg0;
+// Register this path effect as deserializable before main().
+namespace {
+    static struct Initializer {
+        Initializer() {
+            SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Dot2DPathEffect);
+        }
+    } initializer;
+}
+
 
 sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
