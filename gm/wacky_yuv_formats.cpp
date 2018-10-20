@@ -336,8 +336,8 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
         case kAYUV_YUVFormat: {
             SkBitmap yuvaFull;
 
-            yuvaFull.allocPixels(SkImageInfo::MakeN32(planes.fYFull.width(), planes.fYFull.height(),
-                                                      kUnpremul_SkAlphaType));
+            yuvaFull.allocPixels(SkImageInfo::Make(planes.fYFull.width(), planes.fYFull.height(),
+                                                   kRGBA_8888_SkColorType, kUnpremul_SkAlphaType));
 
             for (int y = 0; y < planes.fYFull.height(); ++y) {
                 for (int x = 0; x < planes.fYFull.width(); ++x) {
@@ -348,7 +348,8 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
                     uint8_t A = *planes.fAFull.getAddr8(x, y);
 
                     // NOT premul!
-                    *yuvaFull.getAddr32(x, y) = SkColorSetARGB(A, Y, U, V);
+                    // V and Y swapped to match RGBA layout
+                    *yuvaFull.getAddr32(x, y) = SkColorSetARGB(A, V, U, Y);
                 }
             }
 
@@ -368,9 +369,10 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             SkBitmap uvQuarter;
 
             // There isn't a RG color type. Approx w/ RGBA.
-            uvQuarter.allocPixels(SkImageInfo::MakeN32(planes.fYFull.width()/2,
-                                                       planes.fYFull.height()/2,
-                                                       kUnpremul_SkAlphaType));
+            uvQuarter.allocPixels(SkImageInfo::Make(planes.fYFull.width()/2,
+                                                    planes.fYFull.height()/2,
+                                                    kRGBA_8888_SkColorType,
+                                                    kUnpremul_SkAlphaType));
 
             for (int y = 0; y < planes.fYFull.height()/2; ++y) {
                 for (int x = 0; x < planes.fYFull.width()/2; ++x) {
@@ -378,7 +380,8 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
                     uint8_t V = *planes.fVQuarter.getAddr8(x, y);
 
                     // NOT premul!
-                    *uvQuarter.getAddr32(x, y) = SkColorSetARGB(0, U, V, 0);
+                    // U and 0 swapped to match RGBA layout
+                    *uvQuarter.getAddr32(x, y) = SkColorSetARGB(0, 0, V, U);
                 }
             }
 
@@ -397,9 +400,10 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             SkBitmap vuQuarter;
 
             // There isn't a RG color type. Approx w/ RGBA.
-            vuQuarter.allocPixels(SkImageInfo::MakeN32(planes.fYFull.width()/2,
-                                                       planes.fYFull.height()/2,
-                                                       kUnpremul_SkAlphaType));
+            vuQuarter.allocPixels(SkImageInfo::Make(planes.fYFull.width()/2,
+                                                    planes.fYFull.height()/2,
+                                                    kRGBA_8888_SkColorType,
+                                                    kUnpremul_SkAlphaType));
 
             for (int y = 0; y < planes.fYFull.height()/2; ++y) {
                 for (int x = 0; x < planes.fYFull.width()/2; ++x) {
@@ -407,7 +411,8 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
                     uint8_t V = *planes.fVQuarter.getAddr8(x, y);
 
                     // NOT premul!
-                    *vuQuarter.getAddr32(x, y) = SkColorSetARGB(0, V, U, 0);
+                    // V and 0 swapped to match RGBA layout
+                    *vuQuarter.getAddr32(x, y) = SkColorSetARGB(0, 0, U, V);
                 }
             }
 
@@ -471,7 +476,7 @@ static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel  c
         SkASSERT(SkColorChannel::kA == channel);
         result = *bm.getAddr8(x, y);
     } else {
-        SkASSERT(kN32_SkColorType == bm.colorType());
+        SkASSERT(kRGBA_8888_SkColorType == bm.colorType());
 
         switch (channel) {
             case SkColorChannel::kR:
