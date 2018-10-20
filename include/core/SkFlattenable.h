@@ -57,9 +57,8 @@ public:
 
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);
-    static bool NameToType(const char name[], Type* type);
 
-    static void Register(const char name[], Factory, Type);
+    static void Register(const char name[], Factory);
 
     /**
      *  Override this if your subclass needs to record data that it will need to recreate itself
@@ -97,10 +96,8 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-#define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(type)     \
-    SkFlattenable::Register(#type,                      \
-                            type::CreateProc,           \
-                            type::GetFlattenableType());
+#define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(type) \
+    SkFlattenable::Register(#type, type::CreateProc);
 
 #define SK_FLATTENABLE_HOOKS(type)                                   \
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);           \
