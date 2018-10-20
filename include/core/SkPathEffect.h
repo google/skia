@@ -144,7 +144,7 @@ public:
 
     DashType asADash(DashInfo* info) const;
 
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
 
     static SkFlattenable::Type GetFlattenableType() {
         return kSkPathEffect_Type;

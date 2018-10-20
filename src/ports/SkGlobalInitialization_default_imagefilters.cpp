@@ -34,25 +34,25 @@
  *  or modify/replace this file as needed.
  */
 void SkFlattenable::PrivateInitializer::InitImageFilters() {
-    SkAlphaThresholdFilter::InitializeFlattenables();
-    SkImageFilter::InitializeFlattenables();
-    SkArithmeticImageFilter::InitializeFlattenables();
-    SkXfermodeImageFilter::InitializeFlattenables();
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDilateImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDisplacementMapEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDropShadowImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkErodeImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageSource)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLocalMatrixImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPaintImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPictureImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTileImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMagnifierImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixConvolutionImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOffsetImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMergeImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterImageFilter)
-    SkLightingImageFilter::InitializeFlattenables();
+    SkAlphaThresholdFilter::RegisterFlattenables();
+    SkImageFilter::RegisterFlattenables();
+    SkArithmeticImageFilter::RegisterFlattenables();
+    SkXfermodeImageFilter::RegisterFlattenables();
+    SK_REGISTER_FLATTENABLE(SkDilateImageFilter)
+    SK_REGISTER_FLATTENABLE(SkDisplacementMapEffect)
+    SK_REGISTER_FLATTENABLE(SkDropShadowImageFilter)
+    SK_REGISTER_FLATTENABLE(SkErodeImageFilter)
+    SK_REGISTER_FLATTENABLE(SkImageSource)
+    SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter)
+    SK_REGISTER_FLATTENABLE(SkPaintImageFilter)
+    SK_REGISTER_FLATTENABLE(SkPictureImageFilter)
+    SK_REGISTER_FLATTENABLE(SkTileImageFilter)
+    SK_REGISTER_FLATTENABLE(SkMagnifierImageFilter)
+    SK_REGISTER_FLATTENABLE(SkMatrixConvolutionImageFilter)
+    SK_REGISTER_FLATTENABLE(SkMatrixImageFilter)
+    SK_REGISTER_FLATTENABLE(SkOffsetImageFilter)
+    SK_REGISTER_FLATTENABLE(SkComposeImageFilter)
+    SK_REGISTER_FLATTENABLE(SkMergeImageFilter)
+    SK_REGISTER_FLATTENABLE(SkColorFilterImageFilter)
+    SkLightingImageFilter::RegisterFlattenables();
 }

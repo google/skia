@@ -207,7 +207,7 @@ public:
         return sk_sp<SkShaderBase>(static_cast<SkShaderBase*>(
                 SkFlattenable::Deserialize(GetFlattenableType(), data, size, procs).release()));
     }
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
 
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);

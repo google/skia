@@ -48,47 +48,47 @@
  */
 void SkFlattenable::PrivateInitializer::InitEffects() {
     // Shaders.
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColor4Shader)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterShader)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorShader)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeShader)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmptyShader)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLocalMatrixShader)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPictureShader)
-    SkGradientShader::InitializeFlattenables();
-    SkLightingShader::InitializeFlattenables();
-    SkPerlinNoiseShader::InitializeFlattenables();
-    SkShaderBase::InitializeFlattenables();
+    SK_REGISTER_FLATTENABLE(SkColor4Shader)
+    SK_REGISTER_FLATTENABLE(SkColorFilterShader)
+    SK_REGISTER_FLATTENABLE(SkColorShader)
+    SK_REGISTER_FLATTENABLE(SkComposeShader)
+    SK_REGISTER_FLATTENABLE(SkEmptyShader)
+    SK_REGISTER_FLATTENABLE(SkLocalMatrixShader)
+    SK_REGISTER_FLATTENABLE(SkPictureShader)
+    SkGradientShader::RegisterFlattenables();
+    SkLightingShader::RegisterFlattenables();
+    SkPerlinNoiseShader::RegisterFlattenables();
+    SkShaderBase::RegisterFlattenables();
 
     // Color filters.
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilterRowMajor255)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaColorFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkToSRGBColorFilter)
-    SkColorFilter::InitializeFlattenables();
-    SkHighContrastFilter::InitializeFlattenables();
-    SkOverdrawColorFilter::InitializeFlattenables();
-    SkTableColorFilter::InitializeFlattenables();
+    SK_REGISTER_FLATTENABLE(SkColorMatrixFilterRowMajor255)
+    SK_REGISTER_FLATTENABLE(SkLumaColorFilter)
+    SK_REGISTER_FLATTENABLE(SkToSRGBColorFilter)
+    SkColorFilter::RegisterFlattenables();
+    SkHighContrastFilter::RegisterFlattenables();
+    SkOverdrawColorFilter::RegisterFlattenables();
+    SkTableColorFilter::RegisterFlattenables();
 
     // Mask filters.
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
-    SkMaskFilter::InitializeFlattenables();
-    SkShaderMaskFilter::InitializeFlattenables();
+    SK_REGISTER_FLATTENABLE(SkEmbossMaskFilter)
+    SkMaskFilter::RegisterFlattenables();
+    SkShaderMaskFilter::RegisterFlattenables();
 
     // Path effects.
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCornerPathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDashImpl)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDiscretePathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLine2DPathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixPE)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOpPE)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath1DPathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath2DPathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkStrokePE)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTrimPE)
-    SkPathEffect::InitializeFlattenables();
+    SK_REGISTER_FLATTENABLE(SkCornerPathEffect)
+    SK_REGISTER_FLATTENABLE(SkDashImpl)
+    SK_REGISTER_FLATTENABLE(SkDiscretePathEffect)
+    SK_REGISTER_FLATTENABLE(SkLine2DPathEffect)
+    SK_REGISTER_FLATTENABLE(SkMatrixPE)
+    SK_REGISTER_FLATTENABLE(SkOpPE)
+    SK_REGISTER_FLATTENABLE(SkPath1DPathEffect)
+    SK_REGISTER_FLATTENABLE(SkPath2DPathEffect)
+    SK_REGISTER_FLATTENABLE(SkStrokePE)
+    SK_REGISTER_FLATTENABLE(SkTrimPE)
+    SkPathEffect::RegisterFlattenables();
 
     // Misc.
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkRecordedDrawable)
-    SkNormalSource::InitializeFlattenables();
+    SK_REGISTER_FLATTENABLE(SkLayerDrawLooper)
+    SK_REGISTER_FLATTENABLE(SkRecordedDrawable)
+    SkNormalSource::RegisterFlattenables();
 }

@@ -471,6 +471,6 @@ sk_sp<SkImageFilter> SkArithmeticImageFilter::Make(float k1, float k2, float k3,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkArithmeticImageFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(ArithmeticImageFilterImpl)
+void SkArithmeticImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(ArithmeticImageFilterImpl)
 }
