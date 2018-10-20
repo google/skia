@@ -83,8 +83,8 @@ sk_sp<SkFlattenable> SkOverdrawColorFilter::CreateProc(SkReadBuffer& buffer) {
     return SkOverdrawColorFilter::Make(colors);
 }
 
-void SkOverdrawColorFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOverdrawColorFilter)
+void SkOverdrawColorFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkOverdrawColorFilter)
 }
 #if SK_SUPPORT_GPU
 

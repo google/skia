@@ -274,8 +274,8 @@ sk_sp<SkColorFilter> SkColorFilter::MakeSRGBToLinearGamma() {
 
 #include "SkModeColorFilter.h"
 
-void SkColorFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeColorFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkModeColorFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSRGBGammaColorFilter)
+void SkColorFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkComposeColorFilter)
+    SK_REGISTER_FLATTENABLE(SkModeColorFilter)
+    SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter)
 }

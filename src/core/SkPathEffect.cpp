@@ -197,7 +197,7 @@ sk_sp<SkPathEffect> SkPathEffect::MakeCompose(sk_sp<SkPathEffect> outer,
     return SkComposePathEffect::Make(std::move(outer), std::move(inner));
 }
 
-void SkPathEffect::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposePathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSumPathEffect)
+void SkPathEffect::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkComposePathEffect)
+    SK_REGISTER_FLATTENABLE(SkSumPathEffect)
 }

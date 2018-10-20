@@ -74,8 +74,8 @@ private:
 namespace {
     static struct Initializer {
         Initializer() {
-            SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(IdentityImageFilter);
-            SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(FailImageFilter);
+            SK_REGISTER_FLATTENABLE(IdentityImageFilter);
+            SK_REGISTER_FLATTENABLE(FailImageFilter);
         }
     } initializer;
 }

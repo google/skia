@@ -33,7 +33,7 @@ public:
     static sk_sp<SkShader> Make(sk_sp<SkShader> diffuseShader, sk_sp<SkNormalSource> normalSource,
                                 sk_sp<SkLights> lights);
 
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
 };
 
 #endif
