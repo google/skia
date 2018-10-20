@@ -66,8 +66,8 @@ private:
     SkBlurImageFilter::TileMode fTileMode;
 };
 
-void SkImageFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurImageFilterImpl)
+void SkImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkBlurImageFilterImpl)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
