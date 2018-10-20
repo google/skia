@@ -16,6 +16,7 @@
 #include "SkLocalMatrixImageFilter.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
+#include "SkMatrixImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
@@ -25,12 +26,12 @@
 #include "SkXfermodeImageFilter.h"
 
 /*
- *  None of these are strictly "required" for Skia to operate.
+ *  Register SkImageFilters for deserialization.
  *
- *  These are the bulk of our "effects" -- subclasses of various effects on SkPaint.
- *
- *  Clients should feel free to dup this file and modify it as needed. This function "InitEffects"
- *  will automatically be called before any of skia's effects are asked to be deserialized.
+ *  None of these are strictly required for Skia to operate,
+ *  so if you're not using deserialization yourself, you can
+ *  build and link SkGlobalInitialization_none_imagefilters.cpp instead,
+ *  or modify/replace this file as needed.
  */
 void SkFlattenable::PrivateInitializer::InitImageFilters() {
     SkAlphaThresholdFilter::InitializeFlattenables();
@@ -48,6 +49,7 @@ void SkFlattenable::PrivateInitializer::InitImageFilters() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTileImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMagnifierImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixConvolutionImageFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOffsetImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMergeImageFilter)

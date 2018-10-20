@@ -5,68 +5,90 @@
  * found in the LICENSE file.
  */
 
+#include "../../src/effects/SkDashImpl.h"
+#include "../../src/effects/SkEmbossMaskFilter.h"
+#include "../../src/effects/SkOpPE.h"
+#include "../../src/effects/SkTrimPE.h"
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
+#include "SkBitmapProcShader.h"
+#include "SkColorFilter.h"
+#include "SkColorFilterShader.h"
 #include "SkColorMatrixFilterRowMajor255.h"
+#include "SkColorShader.h"
+#include "SkComposeShader.h"
 #include "SkCornerPathEffect.h"
-#include "../../src/effects/SkDashImpl.h"
 #include "SkDiscretePathEffect.h"
-#include "../../src/effects/SkEmbossMaskFilter.h"
+#include "SkEmptyShader.h"
 #include "SkGradientShader.h"
 #include "SkHighContrastFilter.h"
+#include "SkImageShader.h"
 #include "SkLayerDrawLooper.h"
 #include "SkLightingShader.h"
+#include "SkLocalMatrixShader.h"
 #include "SkLumaColorFilter.h"
 #include "SkNormalSource.h"
 #include "SkOverdrawColorFilter.h"
+#include "SkPathEffect.h"
 #include "SkPerlinNoiseShader.h"
+#include "SkPictureShader.h"
+#include "SkRecordedDrawable.h"
+#include "SkShaderBase.h"
 #include "SkShaderMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkToSRGBColorFilter.h"
-#include "../../src/effects/SkOpPE.h"
-#include "../../src/effects/SkTrimPE.h"
 
 /*
- *  None of these are strictly "required" for Skia to operate.
+ *  Register most effects for deserialization.
  *
- *  These are the bulk of our "effects" -- subclasses of various effects on SkPaint.
- *
- *  Clients should feel free to dup this file and modify it as needed. This function "InitEffects"
- *  will automatically be called before any of skia's effects are asked to be deserialized.
+ *  None of these are strictly required for Skia to operate,
+ *  so if you're not using deserialization yourself, you can
+ *  build and link SkGlobalInitialization_none.cpp instead,
+ *  or modify/replace this file as needed.
  */
 void SkFlattenable::PrivateInitializer::InitEffects() {
-    // MaskFilter
-    SkMaskFilter::InitializeFlattenables();
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
-    SkShaderMaskFilter::InitializeFlattenables();
+    // Shaders.
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColor4Shader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterShader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorShader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeShader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmptyShader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLocalMatrixShader)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPictureShader)
+    SkGradientShader::InitializeFlattenables();
+    SkLightingShader::InitializeFlattenables();
+    SkPerlinNoiseShader::InitializeFlattenables();
+    SkShaderBase::InitializeFlattenables();
 
-    // DrawLooper
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
-
-    // ColorFilter
+    // Color filters.
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilterRowMajor255)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkToSRGBColorFilter)
-    SkTableColorFilter::InitializeFlattenables();
-    SkOverdrawColorFilter::InitializeFlattenables();
+    SkColorFilter::InitializeFlattenables();
     SkHighContrastFilter::InitializeFlattenables();
+    SkOverdrawColorFilter::InitializeFlattenables();
+    SkTableColorFilter::InitializeFlattenables();
 
-    // Shader
-    SkPerlinNoiseShader::InitializeFlattenables();
-    SkGradientShader::InitializeFlattenables();
-    SkLightingShader::InitializeFlattenables();
-    SkNormalSource::InitializeFlattenables();
+    // Mask filters.
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
+    SkMaskFilter::InitializeFlattenables();
+    SkShaderMaskFilter::InitializeFlattenables();
 
-    // PathEffect
+    // Path effects.
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCornerPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDashImpl)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDiscretePathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath1DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLine2DPathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath2DPathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTrimPE)
-
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOpPE)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixPE)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOpPE)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath1DPathEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath2DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkStrokePE)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTrimPE)
+    SkPathEffect::InitializeFlattenables();
+
+    // Misc.
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkRecordedDrawable)
+    SkNormalSource::InitializeFlattenables();
 }
