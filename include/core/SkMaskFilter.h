@@ -70,7 +70,7 @@ public:
     }
 
 private:
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
     friend class SkFlattenable;
 };
 

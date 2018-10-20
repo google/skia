@@ -2189,7 +2189,7 @@ void GrGLSpotLight::emitLightColor(GrGLSLUniformHandler* uniformHandler,
 
 #endif
 
-void SkLightingImageFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDiffuseLightingImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSpecularLightingImageFilter)
+void SkLightingImageFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkDiffuseLightingImageFilter)
+    SK_REGISTER_FLATTENABLE(SkSpecularLightingImageFilter)
 }

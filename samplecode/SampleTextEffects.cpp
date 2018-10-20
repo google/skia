@@ -63,7 +63,7 @@ private:
 namespace {
     static struct Initializer {
         Initializer() {
-            SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Dot2DPathEffect);
+            SK_REGISTER_FLATTENABLE(Dot2DPathEffect);
         }
     } initializer;
 }

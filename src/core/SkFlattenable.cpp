@@ -89,7 +89,7 @@ void SkFlattenable::Register(const char name[], Factory factory) {
 }
 
 SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
-    InitializeFlattenablesIfNeeded();
+    RegisterFlattenablesIfNeeded();
 
     SkASSERT(std::is_sorted(gEntries, gEntries + gCount, EntryComparator()));
     auto pair = std::equal_range(gEntries, gEntries + gCount, name, EntryComparator());
@@ -100,7 +100,7 @@ SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
 }
 
 const char* SkFlattenable::FactoryToName(Factory fact) {
-    InitializeFlattenablesIfNeeded();
+    RegisterFlattenablesIfNeeded();
 
     const Entry* entries = gEntries;
     for (int i = gCount - 1; i >= 0; --i) {

@@ -199,10 +199,10 @@ private:
 // Register these drawables for deserialization some time before main().
 static struct Initializer {
     Initializer() {
-        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(IntDrawable)
-        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(PaintDrawable)
-        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(CompoundDrawable)
-        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(RootDrawable)
+        SK_REGISTER_FLATTENABLE(IntDrawable)
+        SK_REGISTER_FLATTENABLE(PaintDrawable)
+        SK_REGISTER_FLATTENABLE(CompoundDrawable)
+        SK_REGISTER_FLATTENABLE(RootDrawable)
     }
 } initializer;
 

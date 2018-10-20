@@ -8,7 +8,7 @@
 #include "SkFlattenable.h"
 #include "SkOnce.h"
 
-void SkFlattenable::InitializeFlattenablesIfNeeded() {
+void SkFlattenable::RegisterFlattenablesIfNeeded() {
     static SkOnce once;
     once([]{
         SkFlattenable::PrivateInitializer::InitEffects();

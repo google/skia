@@ -26,7 +26,7 @@ public:
                                      const SkImageFilter::CropRect* cropRect = nullptr);
 
 
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
 };
 
 #endif

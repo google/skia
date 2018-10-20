@@ -12,8 +12,8 @@
 // Generating vtable
 SkNormalSource::~SkNormalSource() {}
 
-void SkNormalSource::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkNormalMapSourceImpl)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkNormalFlatSourceImpl)
+void SkNormalSource::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkNormalMapSourceImpl)
+    SK_REGISTER_FLATTENABLE(SkNormalFlatSourceImpl)
 }
 

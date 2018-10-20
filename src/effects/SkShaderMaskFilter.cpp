@@ -128,6 +128,6 @@ sk_sp<SkMaskFilter> SkShaderMaskFilter::Make(sk_sp<SkShader> shader) {
     return shader ? sk_sp<SkMaskFilter>(new SkShaderMF(std::move(shader))) : nullptr;
 }
 
-void SkShaderMaskFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkShaderMF)
+void SkShaderMaskFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkShaderMF)
 }

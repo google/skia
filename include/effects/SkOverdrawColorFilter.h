@@ -32,7 +32,7 @@ public:
             GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;

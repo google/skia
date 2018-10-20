@@ -31,7 +31,7 @@ public:
                                SkScalar outerThreshold, sk_sp<SkImageFilter> input,
                                const CropRect* cropRect = nullptr);
 
-    friend void SkAlphaThresholdFilter::InitializeFlattenables();
+    friend void SkAlphaThresholdFilter::RegisterFlattenables();
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -56,8 +56,8 @@ private:
     typedef SkImageFilter INHERITED;
 };
 
-void SkAlphaThresholdFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAlphaThresholdFilterImpl)
+void SkAlphaThresholdFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkAlphaThresholdFilterImpl)
 }
 
 static SkScalar pin_0_1(SkScalar x) {

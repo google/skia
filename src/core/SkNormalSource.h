@@ -76,7 +76,7 @@ public:
         return sk_sp<SkNormalSource>(static_cast<SkNormalSource*>(
                 SkFlattenable::Deserialize(GetFlattenableType(), data, size, procs).release()));
     }
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
 };
 
 #endif

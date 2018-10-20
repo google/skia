@@ -26,7 +26,7 @@ public:
                                      sk_sp<SkImageFilter> foreground,
                                      const SkImageFilter::CropRect* cropRect);
 
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
 
 private:
     SkArithmeticImageFilter();  // can't instantiate
