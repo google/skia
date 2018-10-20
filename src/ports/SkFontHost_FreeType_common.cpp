@@ -17,7 +17,7 @@
 
 #include <utility>
 
-#include <ft2build.h>
+#include "../../third_party/externals/freetype/include/ft2build.h"
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
 #include FT_IMAGE_H
