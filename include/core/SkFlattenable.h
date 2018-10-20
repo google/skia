@@ -87,7 +87,7 @@ protected:
     };
 
 private:
-    static void InitializeFlattenablesIfNeeded();
+    static void RegisterFlattenablesIfNeeded();
     static void Finalize();
 
     friend class SkGraphics;
@@ -95,7 +95,7 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-#define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(type) \
+#define SK_REGISTER_FLATTENABLE(type) \
     SkFlattenable::Register(#type, type::CreateProc);
 
 #define SK_FLATTENABLE_HOOKS(type)                                   \
