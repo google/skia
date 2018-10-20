@@ -82,7 +82,6 @@ public:
 protected:
     class PrivateInitializer {
     public:
-        static void InitCore();
         static void InitEffects();
         static void InitImageFilters();
     };
