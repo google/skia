@@ -706,10 +706,10 @@ sk_sp<SkMaskFilter> SkMaskFilter::makeWithMatrix(const SkMatrix& lm) const {
     return sk_sp<SkMaskFilter>(new SkMatrixMF(std::move(me), lm));
 }
 
-void SkMaskFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixMF)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeMF)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCombineMF)
+void SkMaskFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkMatrixMF)
+    SK_REGISTER_FLATTENABLE(SkComposeMF)
+    SK_REGISTER_FLATTENABLE(SkCombineMF)
     sk_register_blur_maskfilter_createproc();
 #if SK_SUPPORT_GPU
     gr_register_sdf_maskfilter_createproc();

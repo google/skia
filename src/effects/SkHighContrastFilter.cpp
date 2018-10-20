@@ -151,8 +151,8 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(
     return sk_make_sp<SkHighContrast_Filter>(config);
 }
 
-void SkHighContrastFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkHighContrast_Filter)
+void SkHighContrastFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkHighContrast_Filter)
 }
 
 #if SK_SUPPORT_GPU

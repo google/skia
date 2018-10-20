@@ -1537,6 +1537,6 @@ sk_sp<SkShader> SkPerlinNoiseShader::MakeImprovedNoise(SkScalar baseFrequencyX,
                                                  nullptr));
 }
 
-void SkPerlinNoiseShader::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPerlinNoiseShaderImpl)
+void SkPerlinNoiseShader::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkPerlinNoiseShaderImpl)
 }
