@@ -371,13 +371,4 @@ sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::LegacyArithmeticCreateProc(SkRe
 
 void SkXfermodeImageFilter::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkXfermodeImageFilter_Base)
-
-    // TODO(mtklein): remove these old factory registrations?
-
-    // Register the legacy serialized name "SkXfermodeImageFilter" too.
-    SkFlattenable::Register("SkXfermodeImageFilter",
-                            SkXfermodeImageFilter_Base::CreateProc);
-    // "SkArithmeticImageFilter" used to be implemented as an xfermode image filter.
-    SkFlattenable::Register("SkArithmeticImageFilter",
-                            SkXfermodeImageFilter_Base::LegacyArithmeticCreateProc);
 }
