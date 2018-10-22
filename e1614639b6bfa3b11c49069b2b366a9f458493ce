@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85a271cb_ffdc947e",
+        "filename": "tools/DDLPromiseImageHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-22T16:48:28Z",
+      "side": 1,
+      "message": "Are you sure that the row bytes are always tight on the yuv planes?",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 244,
+        "endChar": 13
+      },
+      "revId": "e1614639b6bfa3b11c49069b2b366a9f458493ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
