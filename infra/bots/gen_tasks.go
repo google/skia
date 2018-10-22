@@ -871,7 +871,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 	}
 
-	task.MaxAttempts = 1
+	task.MaxAttempts = 2
 
 	// Add the task.
 	b.MustAddTask(name, task)
@@ -1020,7 +1020,7 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 	usesGit(task, name)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
-	task.MaxAttempts = 1
+	task.MaxAttempts = 2
 	if parts["cpu_or_gpu_value"] == "QuadroP400" {
 		// Specify "rack" dimension for consistent test results.
 		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
@@ -1112,7 +1112,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		task.Dependencies = append(task.Dependencies, deps...)
 	}
 	task.Expiration = 20 * time.Hour
-	task.MaxAttempts = 1
+	task.MaxAttempts = 2
 	timeout(task, 4*time.Hour)
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		timeout(task, 9*time.Hour)
@@ -1161,7 +1161,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
 	task.Dependencies = append(task.Dependencies, compileTaskName)
 	task.Expiration = 20 * time.Hour
-	task.MaxAttempts = 1
+	task.MaxAttempts = 2
 	timeout(task, 4*time.Hour)
 	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
 		task.Dependencies = append(task.Dependencies, deps...)
