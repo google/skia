@@ -1,7 +1,8 @@
 #!/bin/bash
 
-export MLSDK='/mnt/c/Users/avaer/MagicLeap/mlsdk/v0.16.0'
+export MLSDK='/mnt/c/Users/chris/MagicLeap/mlsdk/v0.16.0'
 export MLSDK_WIN=$(echo "$MLSDK" | sed 's/^\/mnt\/\([a-z]\)\//\1:\\/' | sed 's/\//\\/g')
+export LUMIN=1
 
 
 if [ ! -d magicleap-js ]; then
@@ -23,5 +24,5 @@ cd ..
 
 
 ./magicleap-js/hack-toolchain.js
-./bin/gn gen out/Static --args="cc="'"'"$MLSDK/tools/toolchains/bin/aarch64-linux-android-clang"'"'" cxx="'"'"$MLSDK/tools/toolchains/bin/aarch64-linux-android-clang++"'"'" ar="'"'"$MLSDK/tools/toolchains/bin/aarch64-linux-android-ar"'"'" extra_cflags_c=["'"'"-I$MLSDK/lumin/stl/libc++/include"'"'", "'"'"-I$MLSDK/lumin/usr/include"'"'", "'"'"-I$PWD/third_party/externals/freetype/include"'"'"] extra_cflags_cc=["'"'"-I$MLSDK/lumin/stl/libc++/include"'"'", "'"'"-I$MLSDK/lumin/usr/include"'"'", "'"'"-I$PWD/third_party/externals/freetype/include"'"'"] is_official_build=true target_cpu="'"'"arm64"'"'" skia_use_angle=false skia_use_egl=true skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_system_expat=false skia_use_system_freetype2=true"
+./bin/gn gen out/Static --args="cc="'"'"$MLSDK/tools/toolchains/bin/aarch64-linux-android-clang"'"'" cxx="'"'"$MLSDK/tools/toolchains/bin/aarch64-linux-android-clang++"'"'" ar="'"'"$MLSDK/tools/toolchains/bin/aarch64-linux-android-ar"'"'" extra_cflags_c=["'"'"-I$MLSDK/lumin/stl/libc++/include"'"'", "'"'"-I$MLSDK/lumin/usr/include"'"'", "'"'"-I$PWD/third_party/externals/freetype/include"'"'"] extra_cflags_cc=["'"'"-I$MLSDK/lumin/stl/libc++/include"'"'", "'"'"-I$MLSDK/lumin/usr/include"'"'", "'"'"-I$PWD/third_party/externals/freetype/include"'"'"] is_official_build=true target_cpu="'"'"arm64"'"'" skia_use_angle=false skia_use_egl=true skia_use_system_icu=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_system_expat=false skia_use_system_freetype2=false"
 ./bin/ninja -C out/Static
