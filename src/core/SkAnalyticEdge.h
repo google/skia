@@ -80,8 +80,8 @@ struct SkAnalyticEdge {
         fSavedDY = dY;
     }
 
-    inline bool setLine(const SkPoint& p0, const SkPoint& p1);
-    inline bool updateLine(SkFixed ax, SkFixed ay, SkFixed bx, SkFixed by, SkFixed slope);
+    bool setLine(const SkPoint& p0, const SkPoint& p1);
+    bool updateLine(SkFixed ax, SkFixed ay, SkFixed bx, SkFixed by, SkFixed slope);
 
     // return true if we're NOT done with this edge
     bool update(SkFixed last_y, bool sortY = true);
@@ -135,59 +135,6 @@ struct SkAnalyticCubicEdge : public SkAnalyticEdge {
         fSnappedY = fY;
     }
 };
-
-bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
-    fRiteE = nullptr;
-
-    // We must set X/Y using the same way (e.g., times 4, to FDot6, then to Fixed) as Quads/Cubics.
-    // Otherwise the order of the edge might be wrong due to precision limit.
-    const int accuracy = kDefaultAccuracy;
-#ifdef SK_RASTERIZE_EVEN_ROUNDING
-    SkFixed x0 = SkFDot6ToFixed(SkScalarRoundToFDot6(p0.fX, accuracy)) >> accuracy;
-    SkFixed y0 = SnapY(SkFDot6ToFixed(SkScalarRoundToFDot6(p0.fY, accuracy)) >> accuracy);
-    SkFixed x1 = SkFDot6ToFixed(SkScalarRoundToFDot6(p1.fX, accuracy)) >> accuracy;
-    SkFixed y1 = SnapY(SkFDot6ToFixed(SkScalarRoundToFDot6(p1.fY, accuracy)) >> accuracy);
-#else
-    const int multiplier = (1 << kDefaultAccuracy);
-    SkFixed x0 = SkFDot6ToFixed(SkScalarToFDot6(p0.fX * multiplier)) >> accuracy;
-    SkFixed y0 = SnapY(SkFDot6ToFixed(SkScalarToFDot6(p0.fY * multiplier)) >> accuracy);
-    SkFixed x1 = SkFDot6ToFixed(SkScalarToFDot6(p1.fX * multiplier)) >> accuracy;
-    SkFixed y1 = SnapY(SkFDot6ToFixed(SkScalarToFDot6(p1.fY * multiplier)) >> accuracy);
-#endif
-
-    int winding = 1;
-
-    if (y0 > y1) {
-        using std::swap;
-        swap(x0, x1);
-        swap(y0, y1);
-        winding = -1;
-    }
-
-    // are we a zero-height line?
-    SkFDot6 dy = SkFixedToFDot6(y1 - y0);
-    if (dy == 0) {
-        return false;
-    }
-    SkFDot6 dx = SkFixedToFDot6(x1 - x0);
-    SkFixed slope = QuickSkFDot6Div(dx, dy);
-    SkFixed absSlope = SkAbs32(slope);
-
-    fX          = x0;
-    fDX         = slope;
-    fUpperX     = x0;
-    fY          = y0;
-    fUpperY     = y0;
-    fLowerY     = y1;
-    fDY         = dx == 0 || slope == 0 ? SK_MaxS32 : absSlope < kInverseTableSize
-                                                    ? QuickFDot6Inverse::Lookup(absSlope)
-                                                    : SkAbs32(QuickSkFDot6Div(dy, dx));
-    fCurveCount = 0;
-    fWinding    = SkToS8(winding);
-    fCurveShift = 0;
-
-    return true;
-}
 
 struct SkBezier {
     int fCount; // 2 line, 3 quad, 4 cubic
