@@ -17,37 +17,14 @@ class GrGLGpu;
 
 class GrGLTexture : public GrTexture {
 public:
-    // Texture state that overlaps with sampler object state. We don't need to track this if we
-    // are using sampler objects.
-    struct SamplerParams {
-        // These are the OpenGL defaults.
-        GrGLenum fMinFilter = GR_GL_NEAREST_MIPMAP_LINEAR;
-        GrGLenum fMagFilter = GR_GL_LINEAR;
-        GrGLenum fWrapS = GR_GL_REPEAT;
-        GrGLenum fWrapT = GR_GL_REPEAT;
-        GrGLfloat fMinLOD = -1000.f;
-        GrGLfloat fMaxLOD = 1000.f;
-        void invalidate() {
-            fMinFilter = ~0U;
-            fMagFilter = ~0U;
-            fWrapS = ~0U;
-            fWrapT = ~0U;
-            fMinLOD = SK_ScalarNaN;
-            fMaxLOD = SK_ScalarNaN;
-        }
-    };
-
-    // Texture state that does not overlap with sampler object state.
-    struct NonSamplerParams {
-        // These are the OpenGL defaults.
-        uint32_t fSwizzleKey = GrSwizzle::RGBA().asKey();
-        GrGLint fBaseMipMapLevel = 0;
-        GrGLint fMaxMipMapLevel = 1000;
-        void invalidate() {
-            fSwizzleKey = ~0U;
-            fBaseMipMapLevel = ~0;
-            fMaxMipMapLevel = ~0;
-        }
+    struct TexParams {
+        GrGLenum fMinFilter;
+        GrGLenum fMagFilter;
+        GrGLenum fWrapS;
+        GrGLenum fWrapT;
+        GrGLenum fMaxMipMapLevel;
+        GrGLenum fSwizzleRGBA[4];
+        void invalidate() { memset(this, 0xff, sizeof(TexParams)); }
     };
 
     struct IDDesc {
@@ -66,28 +43,22 @@ public:
 
     GrBackendTexture getBackendTexture() const override;
 
-    void textureParamsModified() override {
-        fSamplerParams.invalidate();
-        fNonSamplerParams.invalidate();
-    }
+    void textureParamsModified() override { fTexParams.invalidate(); }
 
     void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
         fReleaseHelper = std::move(releaseHelper);
     }
 
     // These functions are used to track the texture parameters associated with the texture.
-    GrGpu::ResetTimestamp getCachedParamsTimestamp() const { return fParamsTimestamp; }
-    const SamplerParams& getCachedSamplerParams() const { return fSamplerParams; }
-    const NonSamplerParams& getCachedNonSamplerParams() const { return fNonSamplerParams; }
+    const TexParams& getCachedTexParams(GrGpu::ResetTimestamp* timestamp) const {
+        *timestamp = fTexParamsTimestamp;
+        return fTexParams;
+    }
 
-    void setCachedParams(const SamplerParams* samplerParams,
-                         const NonSamplerParams& nonSamplerParams,
-                         GrGpu::ResetTimestamp currTimestamp) {
-        if (samplerParams) {
-            fSamplerParams = *samplerParams;
-        }
-        fNonSamplerParams = nonSamplerParams;
-        fParamsTimestamp = currTimestamp;
+    void setCachedTexParams(const TexParams& texParams,
+                            GrGpu::ResetTimestamp timestamp) {
+        fTexParams = texParams;
+        fTexParamsTimestamp = timestamp;
     }
 
     GrGLuint textureID() const { return fID; }
@@ -126,14 +97,14 @@ private:
         }
     }
 
-    SamplerParams fSamplerParams;
-    NonSamplerParams fNonSamplerParams;
-    GrGpu::ResetTimestamp fParamsTimestamp;
-    sk_sp<GrReleaseProcHelper> fReleaseHelper;
-    GrGLuint fID;
-    GrGLenum fFormat;
-    GrBackendObjectOwnership fTextureIDOwnership;
-    bool fBaseLevelHasBeenBoundToFBO = false;
+    TexParams                       fTexParams;
+    GrGpu::ResetTimestamp           fTexParamsTimestamp;
+    GrGLuint                        fID;
+    GrGLenum                        fFormat;
+    GrBackendObjectOwnership        fTextureIDOwnership;
+    bool                            fBaseLevelHasBeenBoundToFBO = false;
+
+    sk_sp<GrReleaseProcHelper>      fReleaseHelper;
 
     typedef GrTexture INHERITED;
 };
