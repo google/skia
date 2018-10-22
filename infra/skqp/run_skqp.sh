@@ -22,6 +22,30 @@ timeout 60 adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) 
 sleep 10
 
 adb install -r /OUT/*.apk
-adb logcat -c
-adb shell am instrument -w org.skia.skqp | fold -s
-adb logcat -d TestRunner org.skia.skqp skia DEBUG "*:S"
+adb logcat -G 4M || echo ':('  # Increase size of log ring buffer.
+
+set +x
+
+ASSETS="$(cd "$(dirname "$0")/../../platform_tools/android/apps/skqp/src/main/assets"; pwd)"
+
+# Run all tests independently, See: b/116540140 
+
+run_tests() {
+    TYPE="$2"
+    exec 3<"$1"
+    while IFS= read -r line <&3; do
+        if [ "$line" ]; then
+            test="${TYPE}_$line"
+            printf '\n==== %s ====\n' "$test"
+            adb logcat -c
+            adb shell am instrument -e class "org.skia.skqp.SkQPRunner#$test" -w org.skia.skqp
+            adb logcat -d
+            printf '\n'
+        fi
+    done
+    exec 3<&-
+}
+
+run_tests "$ASSETS/skqp/KnownGpuUnitTests.txt" 'unitTest'
+run_tests "$ASSETS/skqp/KnownGMs.txt"          'gles'
+run_tests "$ASSETS/skqp/KnownGMs.txt"          'vk'
