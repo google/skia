@@ -22,6 +22,21 @@ timeout 60 adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) 
 sleep 10
 
 adb install -r /OUT/*.apk
-adb logcat -c
-adb shell am instrument -w org.skia.skqp | fold -s
-adb logcat -d TestRunner org.skia.skqp skia DEBUG "*:S"
+adb logcat -G 1M || echo ':('
+
+ASSETS="$(dirname "$0")/../../platform_tools/android/apps/skqp/src/main/assets"
+
+test() {
+    adb logcat -c
+    adb shell am instrument -e class "$1" -w org.skia.skqp
+    adb logcat -d TestRunner org.skia.skqp skia DEBUG "*:S"
+}
+
+while IFS= read -r line; do
+    [ "$line" ] && test "org.skia.skqp.SkQPRunner#gles_$line"
+done < "$ASSETS/skqp/KnownGMs.txt"
+
+while IFS= read -r line; do
+    [ "$line" ] && test "org.skia.skqp.SkQPRunner#unitTest_$line"
+done < "$ASSETS/skqp/KnownGpuUnitTests.txt"
+
