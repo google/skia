@@ -104,6 +104,16 @@ public:
         return true;
     }
 
+    bool getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
+                                        GrPixelConfig* config) const override {
+        const GrPixelConfig* mockFormat = format.getMockFormat();
+        if (!mockFormat) {
+            return false;
+        }
+        *config = *mockFormat;
+        return true;
+    }
+
 private:
 #ifdef GR_TEST_UTILS
     GrBackendFormat onCreateFormatFromBackendTexture(

@@ -576,13 +576,11 @@ protected:
 
         int i = 0;
         for ( ; i < fNumBitmaps; ++i) {
-            size->fColorTypes[i] = fYUVBitmaps[i].colorType();
             size->fSizes[i].fWidth = fYUVBitmaps[i].width();
             size->fSizes[i].fHeight = fYUVBitmaps[i].height();
             size->fWidthBytes[i] = fYUVBitmaps[i].rowBytes();
         }
         for ( ; i < SkYUVSizeInfo::kMaxCount; ++i) {
-            size->fColorTypes[i] = kUnknown_SkColorType;
             size->fSizes[i].fWidth = 0;
             size->fSizes[i].fHeight = 0;
             size->fWidthBytes[i] = 0;
