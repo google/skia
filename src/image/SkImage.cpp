@@ -7,6 +7,7 @@
 
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
+#include "SkCachedData.h"
 #include "SkCanvas.h"
 #include "SkColorSpacePriv.h"
 #include "SkData.h"

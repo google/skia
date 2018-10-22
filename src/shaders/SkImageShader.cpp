@@ -100,6 +100,9 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
+    if (fImage->colorType() != kN32_SkColorType) {
+        return nullptr;
+    }
     if (fTileModeX != fTileModeY) {
         return nullptr;
     }
@@ -113,12 +116,8 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
-    SkBitmapProvider provider(fImage.get());
-    if (kN32_SkColorType != provider.makeCacheDesc().fColorType) {
-        return nullptr;
-    }
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 provider, rec, alloc);
+                                                 SkBitmapProvider(fImage.get()), rec, alloc);
 }
 #endif
 
