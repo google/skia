@@ -69,7 +69,6 @@ public:
                                            bool willBeMipped,
                                            GrTextureMaker::AllowedTexGenType genType) const;
 
-    // TODO: Need to pass in dstColorSpace to fold into key here?
     void makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, GrUniqueKey* cacheKey) const;
 #endif
 

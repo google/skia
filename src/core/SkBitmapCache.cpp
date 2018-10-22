@@ -28,20 +28,15 @@ void SkNotifyBitmapGenIDIsStale(uint32_t bitmapGenID) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, SkColorType colorType,
-                                          SkColorSpace* colorSpace, const SkIRect& subset) {
+SkBitmapCacheDesc SkBitmapCacheDesc::Make(uint32_t imageID, const SkIRect& subset) {
     SkASSERT(imageID);
     SkASSERT(subset.width() > 0 && subset.height() > 0);
-    return { imageID,
-             colorType,
-             colorSpace ? colorSpace->toXYZD50Hash() : 0,
-             colorSpace ? colorSpace->transferFnHash() : 0,
-             subset };
+    return { imageID, subset };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image) {
     SkIRect bounds = SkIRect::MakeWH(image->width(), image->height());
-    return Make(image->uniqueID(), image->colorType(), image->colorSpace(), bounds);
+    return Make(image->uniqueID(), bounds);
 }
 
 namespace {
@@ -226,10 +221,6 @@ SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc, const 
     // Ensure that the info matches the subset (i.e. the subset is the entire image)
     SkASSERT(info.width() == desc.fSubset.width());
     SkASSERT(info.height() == desc.fSubset.height());
-    SkASSERT(info.colorType() == desc.fColorType);
-    SkASSERT((info.colorSpace() ? info.colorSpace()->toXYZD50Hash() : 0) == desc.fCSXYZHash);
-    SkASSERT((info.colorSpace() ? info.colorSpace()->transferFnHash() : 0) ==
-             desc.fCSTransferFnHash);
 
     const size_t rb = info.minRowBytes();
     size_t size = info.computeByteSize(rb);

@@ -9,6 +9,7 @@
 
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
+#include "SkCachedData.h"
 #include "SkData.h"
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"
@@ -282,7 +283,6 @@ sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> gene
 
 void SkImage_Lazy::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey,
                                            GrUniqueKey* cacheKey) const {
-    // TODO: Take dstColorSpace, include hash in key
     SkASSERT(!cacheKey->isValid());
     if (origKey.isValid()) {
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
