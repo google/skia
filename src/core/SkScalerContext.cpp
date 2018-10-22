@@ -853,8 +853,7 @@ static SkScalar sk_relax(SkScalar x) {
     return n / 1024.0f;
 }
 
-static SkMask::Format compute_mask_format(const SkPaint& paint) {
-    uint32_t flags = paint.getFlags();
+static SkMask::Format compute_mask_format(uint32_t flags) {
 
     // Antialiasing being disabled trumps all other settings.
     if (!(flags & SkPaint::kAntiAlias_Flag)) {
@@ -887,16 +886,6 @@ static bool too_big_for_lcd(const SkScalerContextRec& rec, bool checkPost2x2) {
     }
 }
 
-// if linear-text is on, then we force hinting to be off (since that's sort of
-// the point of linear-text.
-static SkPaint::Hinting computeHinting(const SkPaint& paint) {
-    SkPaint::Hinting h = paint.getHinting();
-    if (paint.isLinearText()) {
-        h = SkPaint::kNo_Hinting;
-    }
-    return h;
-}
-
 // The only reason this is not file static is because it needs the context of SkScalerContext to
 // access SkPaint::computeLuminanceColor.
 void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
@@ -906,16 +895,18 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
                                         SkScalerContextRec* rec,
                                         SkScalerContextEffects* effects,
                                         bool enableTypefaceFiltering) {
+
+    SkRunFont font{paint};
     SkASSERT(deviceMatrix == nullptr || !deviceMatrix->hasPerspective());
 
     sk_bzero(rec, sizeof(SkScalerContextRec));
 
-    SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
+    SkTypeface* typeface = font.fTypeface.get();
 
     rec->fFontID = typeface->uniqueID();
-    rec->fTextSize = paint.getTextSize();
-    rec->fPreScaleX = paint.getTextScaleX();
-    rec->fPreSkewX  = paint.getTextSkewX();
+    rec->fTextSize = font.fSize;
+    rec->fPreScaleX = font.fScaleX;
+    rec->fPreSkewX  = font.fSkewX;
 
     bool checkPost2x2 = false;
 
@@ -945,15 +936,15 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
 
     unsigned flags = 0;
 
-    if (paint.isFakeBoldText()) {
+    if (font.fakeBoldText()) {
 #ifdef SK_USE_FREETYPE_EMBOLDEN
         flags |= SkScalerContext::kEmbolden_Flag;
 #else
-        SkScalar fakeBoldScale = SkScalarInterpFunc(paint.getTextSize(),
+        SkScalar fakeBoldScale = SkScalarInterpFunc(font.fSize,
                                                     kStdFakeBoldInterpKeys,
                                                     kStdFakeBoldInterpValues,
                                                     kStdFakeBoldInterpLength);
-        SkScalar extra = paint.getTextSize() * fakeBoldScale;
+        SkScalar extra = font.fSize * fakeBoldScale;
 
         if (style == SkPaint::kFill_Style) {
             style = SkPaint::kStrokeAndFill_Style;
@@ -980,7 +971,7 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         rec->fStrokeCap = 0;
     }
 
-    rec->fMaskFormat = SkToU8(compute_mask_format(paint));
+    rec->fMaskFormat = SkToU8(compute_mask_format(font.flags()));
 
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
         if (too_big_for_lcd(*rec, checkPost2x2)) {
@@ -1013,22 +1004,23 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         }
     }
 
-    if (paint.isEmbeddedBitmapText()) {
+    uint32_t fontFlags = font.flags();
+    if (SkToBool(fontFlags & SkPaint::kEmbeddedBitmapText_Flag)) {
         flags |= SkScalerContext::kEmbeddedBitmapText_Flag;
     }
-    if (paint.isSubpixelText()) {
+    if (SkToBool(fontFlags & SkPaint::kSubpixelText_Flag)) {
         flags |= SkScalerContext::kSubpixelPositioning_Flag;
     }
-    if (paint.isAutohinted()) {
+    if (SkToBool(fontFlags & SkPaint::kAutoHinting_Flag)) {
         flags |= SkScalerContext::kForceAutohinting_Flag;
     }
-    if (paint.isVerticalText()) {
+    if (SkToBool(fontFlags & SkPaint::kVerticalText_Flag)) {
         flags |= SkScalerContext::kVertical_Flag;
     }
     rec->fFlags = SkToU16(flags);
 
     // these modify fFlags, so do them after assigning fFlags
-    rec->setHinting(computeHinting(paint));
+    rec->setHinting(font.hinting());
 
     rec->setLuminanceColor(paint.computeLuminanceColor());
 

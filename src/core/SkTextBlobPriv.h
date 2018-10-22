@@ -73,8 +73,23 @@ public:
 
     uint32_t flags() const { return fFlags; }
 
+    // if linear-text is on, then we force hinting to be off (since that's sort of
+    // the point of linear-text.
+    SkPaint::Hinting hinting() const {
+        SkPaint::Hinting h = (SkPaint::Hinting)fHinting;
+        if (SkToBool(fFlags & SkPaint::kLinearText_Flag)) {
+            h = SkPaint::kNo_Hinting;
+        }
+        return h;
+    }
+
+    bool fakeBoldText() const {
+        return SkToBool(fFlags & SkPaint::kFakeBoldText_Flag);
+    }
+
 private:
     friend SkPaint;
+    friend SkScalerContext;
     const static uint32_t kFlagsMask =
             SkPaint::kAntiAlias_Flag          |
             SkPaint::kFakeBoldText_Flag       |
