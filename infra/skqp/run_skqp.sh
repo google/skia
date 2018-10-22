@@ -22,6 +22,8 @@ timeout 60 adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) 
 sleep 10
 
 adb install -r /OUT/*.apk
+adb logcat -G 4M || echo ':('  # Increase size of log ring buffer.
+
 adb logcat -c
 adb shell am instrument -w org.skia.skqp | fold -s
-adb logcat -d TestRunner org.skia.skqp skia DEBUG "*:S"
+adb logcat -d # TestRunner org.skia.skqp skia DEBUG "*:S"
