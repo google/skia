@@ -438,7 +438,7 @@ static sk_sp<SkPDFDict> make_top_resource_dict() {
     for (const char* proc : kProcs) {
         procSet->appendName(proc);
     }
-    dict->insertObject("ProcSets", std::move(procSet));
+    dict->insertObject("ProcSet", std::move(procSet));
     return dict;
 }
 
