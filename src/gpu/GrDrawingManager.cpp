@@ -231,8 +231,8 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     fDAG.prepForFlush();
     SkASSERT(SkToBool(fVertexBufferSpace) == SkToBool(fIndexBufferSpace));
     if (!fVertexBufferSpace) {
-        fVertexBufferSpace.reset(new char[GrBufferAllocPool::kDefaultBufferSize]);
-        fIndexBufferSpace.reset(new char[GrBufferAllocPool::kDefaultBufferSize]);
+        fVertexBufferSpace.reset(new char[GrBufferAllocPool::kDefaultBufferSize]());
+        fIndexBufferSpace.reset(new char[GrBufferAllocPool::kDefaultBufferSize]());
     }
 
     GrOpFlushState flushState(gpu, fContext->contextPriv().resourceProvider(), &fTokenTracker,
