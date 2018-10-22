@@ -67,8 +67,7 @@ public:
             const SkRect& constraintRect,
             FilterConstraint filterConstraint,
             bool coordsLimitedToConstraintRect,
-            const GrSamplerState::Filter* filterOrNullForBicubic,
-            SkColorSpace* dstColorSpace) = 0;
+            const GrSamplerState::Filter* filterOrNullForBicubic) = 0;
 
     /**
      *  Returns a texture that is safe for use with the params.

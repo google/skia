@@ -25,8 +25,7 @@ public:
             const SkRect& constraintRect,
             FilterConstraint,
             bool coordsLimitedToConstraintRect,
-            const GrSamplerState::Filter* filterOrNullForBicubic,
-            SkColorSpace* dstColorSpace) override;
+            const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.

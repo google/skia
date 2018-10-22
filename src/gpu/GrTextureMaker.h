@@ -23,8 +23,7 @@ public:
             const SkRect& constraintRect,
             FilterConstraint filterConstraint,
             bool coordsLimitedToConstraintRect,
-            const GrSamplerState::Filter* filterOrNullForBicubic,
-            SkColorSpace* dstColorSpace) override;
+            const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
 protected:
     GrTextureMaker(GrContext* context, int width, int height, bool isAlphaOnly)

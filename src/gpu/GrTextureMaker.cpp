@@ -107,8 +107,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         const SkRect& constraintRect,
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
-        const GrSamplerState::Filter* filterOrNullForBicubic,
-        SkColorSpace* dstColorSpace) {
+        const GrSamplerState::Filter* filterOrNullForBicubic) {
     const GrSamplerState::Filter* fmForDetermineDomain = filterOrNullForBicubic;
     if (filterOrNullForBicubic && GrSamplerState::Filter::kMipMap == *filterOrNullForBicubic &&
         kYes_FilterConstraint == filterConstraint) {
@@ -140,8 +139,6 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                             proxy.get(), fmForDetermineDomain, &domain);
     SkASSERT(kTightCopy_DomainMode != domainMode);
-    auto fp = CreateFragmentProcessorForDomainAndFilter(std::move(proxy), adjustedMatrix,
-                                                        domainMode, domain, filterOrNullForBicubic);
-    return GrColorSpaceXformEffect::Make(std::move(fp), this->colorSpace(), this->alphaType(),
-                                         dstColorSpace);
+    return CreateFragmentProcessorForDomainAndFilter(std::move(proxy), adjustedMatrix, domainMode,
+                                                     domain, filterOrNullForBicubic);
 }
