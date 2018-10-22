@@ -287,6 +287,14 @@ public:
     virtual bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
                                             GrPixelConfig*) const = 0;
 
+    /**
+     * Special method only for YUVA images. Returns true if the format can be used for a
+     * YUVA plane, and the passed in GrPixelConfig will be set to a config that matches
+     * the backend format.
+     */
+    virtual bool getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
+                                                GrPixelConfig*) const = 0;
+
 #ifdef GR_TEST_UTILS
     /**
      * Creates a GrBackendFormat which matches the backend texture. If the backend texture is

@@ -154,12 +154,10 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
 
             contexts[i] = curImage.refCallbackContext(i).release();
             sizeInfo.fSizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
-            sizeInfo.fColorTypes[i] = curImage.yuvPixmap(i).colorType();
             sizeInfo.fWidthBytes[i] = curImage.yuvPixmap(i).rowBytes();
         }
         for (int i = textureCount; i < SkYUVSizeInfo::kMaxCount; ++i) {
             sizeInfo.fSizes[i] = SkISize::MakeEmpty();
-            sizeInfo.fColorTypes[i] = kUnknown_SkColorType;
             sizeInfo.fWidthBytes[i] = 0;
         }
 
@@ -231,17 +229,34 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
     if (yuvData) {
         newImageInfo.setYUVData(std::move(yuvData), yuvaIndices, yuvColorSpace);
 
+        // determine colortypes from index data
+        // for testing we only ever use A8 or RGBA8888
+        SkColorType colorTypes[SkYUVSizeInfo::kMaxCount] = {
+            kUnknown_SkColorType, kUnknown_SkColorType,
+            kUnknown_SkColorType, kUnknown_SkColorType
+        };
+        for (int yuvIndex = 0; yuvIndex < SkYUVAIndex::kIndexCount; ++yuvIndex) {
+            int texIdx = yuvaIndices[yuvIndex].fIndex;
+            if (texIdx < 0) {
+                SkASSERT(SkYUVAIndex::kA_Index == yuvIndex);
+                continue;
+            }
+            if (kUnknown_SkColorType == colorTypes[texIdx]) {
+                colorTypes[texIdx] = kAlpha_8_SkColorType;
+            } else {
+                colorTypes[texIdx] = kRGBA_8888_SkColorType;
+            }
+        }
+
         for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
-            if (kUnknown_SkColorType == yuvaSizeInfo.fColorTypes[i]) {
-                SkASSERT(!yuvaSizeInfo.fSizes[i].fWidth &&
-                         !yuvaSizeInfo.fSizes[i].fHeight &&
-                         !yuvaSizeInfo.fWidthBytes[i]);
+            if (yuvaSizeInfo.fSizes[i].isEmpty()) {
+                SkASSERT(!yuvaSizeInfo.fWidthBytes[i] && kUnknown_SkColorType == colorTypes[i]);
                 continue;
             }
 
             SkImageInfo planeII = SkImageInfo::Make(yuvaSizeInfo.fSizes[i].fWidth,
                                                     yuvaSizeInfo.fSizes[i].fHeight,
-                                                    yuvaSizeInfo.fColorTypes[i],
+                                                    colorTypes[i],
                                                     kUnpremul_SkAlphaType);
             newImageInfo.addYUVPlane(i, planeII, planes[i], yuvaSizeInfo.fWidthBytes[i]);
         }
