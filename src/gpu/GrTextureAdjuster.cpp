@@ -114,8 +114,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         const SkRect& constraintRect,
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
-        const GrSamplerState::Filter* filterOrNullForBicubic,
-        SkColorSpace* dstColorSpace) {
+        const GrSamplerState::Filter* filterOrNullForBicubic) {
     SkMatrix textureMatrix = origTextureMatrix;
 
     SkRect domain;
@@ -154,7 +153,6 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
-    auto fp = CreateFragmentProcessorForDomainAndFilter(std::move(proxy), textureMatrix,
-                                                        domainMode, domain, filterOrNullForBicubic);
-    return GrColorSpaceXformEffect::Make(std::move(fp), fColorSpace, fAlphaType, dstColorSpace);
+    return CreateFragmentProcessorForDomainAndFilter(std::move(proxy), textureMatrix, domainMode,
+                                                     domain, filterOrNullForBicubic);
 }
