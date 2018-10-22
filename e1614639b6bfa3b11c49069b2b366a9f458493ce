@@ -22,6 +22,30 @@
       "revId": "e1614639b6bfa3b11c49069b2b366a9f458493ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "662dd9ff_8c82fb5f",
+        "filename": "tools/DDLPromiseImageHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-22T17:28:00Z",
+      "side": 1,
+      "message": "Good point -- changed to use the YUVAIndices to deduce the colortype.",
+      "parentUuid": "85a271cb_ffdc947e",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 244,
+        "endChar": 13
+      },
+      "revId": "e1614639b6bfa3b11c49069b2b366a9f458493ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
