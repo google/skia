@@ -111,3 +111,34 @@ SkISize skiagm::SimpleGM::onISize() {
 SkString skiagm::SimpleGM::onShortName() {
     return fName;
 }
+//////////////
+#include "SkGradientShader.h"
+sk_sp<SkShader> shader() {
+    SkPoint points[2] = {{0, 0}, {0, 128}};
+    SkColor colors[2] = {SK_ColorBLUE, SK_ColorGREEN};
+    return SkGradientShader::MakeLinear(
+                     points, colors, nullptr, 2,
+                     SkShader::kClamp_TileMode, 0, nullptr);
+}
+DEF_SIMPLE_GM(crbug_883026, canvas, 612, 792) {
+    canvas->saveLayer(nullptr, nullptr);
+    SkPaint shaderPaint;
+    shaderPaint.setShader(shader());
+    canvas->drawRect({0, 0, 256, 128}, shaderPaint);
+    SkPaint layerPaint;
+    layerPaint.setBlendMode(SkBlendMode::kDstIn);
+    canvas->saveLayer(nullptr, &layerPaint);
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setTextSize(80);
+    canvas->drawString("TEST", 20, 90, p);
+    canvas->restore();
+}
+
+DEF_SIMPLE_GM(crbug_883026_2, canvas, 612, 792) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setTextSize(80);
+    p.setShader(shader());
+    canvas->drawString("TEST", 20, 90, p);
+}
