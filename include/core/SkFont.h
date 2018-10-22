@@ -38,14 +38,12 @@ public:
 
         kSubpixel_Flag              = 1 << 2,
         kLinearMetrics_Flag         = 1 << 3,
+        kEmbolden_Flag              = 1 << 4,
 
-        kVertical_Flag              = 1 << 4,
-        kEmbolden_Flag              = 1 << 5,
-
-        kHinting_FlagShift          = 6,
+        kHinting_FlagShift          = 5,
         kHinting_FlagMask           = 3,    // 2 bits
 
-        kDEPRECATED_Antialias_Flag  = 1 << 8,   // want to rely on paint for this
+        kDEPRECATED_Antialias_Flag  = 1 << 7,   // want to rely on paint for this
     };
 
     SkFont(sk_sp<SkTypeface>, SkScalar size, uint32_t flags);
@@ -89,7 +87,7 @@ public:
     static SkFont LEGACY_ExtractFromPaint(const SkPaint&);
 
 private:
-    static constexpr unsigned kAllFlags = 0x1FF;
+    static constexpr unsigned kAllFlags = 0xFF;
 
     sk_sp<SkTypeface> fTypeface;
     SkScalar    fSize;
