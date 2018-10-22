@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d086abd8_264b926a",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-10-22T19:18:09Z",
+      "side": 1,
+      "message": "Using the YUVAIndex enums is fragile here.",
+      "range": {
+        "startLine": 834,
+        "startChar": 17,
+        "endLine": 834,
+        "endChar": 18
+      },
+      "revId": "df8d75b8caaf7752a4300b605a667eaae6f8c207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
