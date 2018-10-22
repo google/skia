@@ -178,19 +178,19 @@ outset rect isEmpty: false
 static constexpr <a href='#SkRect'>SkRect</a> <a href='#SkRect_MakeWH'>MakeWH</a>(<a href='undocumented#SkScalar'>SkScalar</a> w, <a href='undocumented#SkScalar'>SkScalar</a> h)
 </pre>
 
-Returns constructed <a href='#Rect'>Rect</a> set to <a href='undocumented#SkScalar'>SkScalar</a> values (0, 0, <a href='#SkRect_MakeWH_w'>w</a>, <a href='#SkRect_MakeWH_h'>h</a>). Does not
+Returns constructed <a href='#Rect'>Rect</a> set to <a href='undocumented#Scalar'>Scalar</a> values (0, 0, <a href='#SkRect_MakeWH_w'>w</a>, <a href='#SkRect_MakeWH_h'>h</a>). Does not
 validate input; <a href='#SkRect_MakeWH_w'>w</a> or <a href='#SkRect_MakeWH_h'>h</a> may be negative.
 
 Passing integer values may generate a compiler warning since <a href='#Rect'>Rect</a> cannot
-represent 32-bit integers exactly. Use <a href='SkIRect_Reference#SkIRect'>SkIRect</a> for an exact integer rectangle.
+represent 32-bit integers exactly. Use <a href='SkIRect_Reference#IRect'>IRect</a> for an exact integer rectangle.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_MakeWH_w'><code><strong>w</strong></code></a></td>
-    <td><a href='undocumented#SkScalar'>SkScalar</a> width of constructed <a href='#Rect'>Rect</a></td>
+    <td><a href='undocumented#Scalar'>Scalar</a> width of constructed <a href='#Rect'>Rect</a></td>
   </tr>
   <tr>    <td><a name='SkRect_MakeWH_h'><code><strong>h</strong></code></a></td>
-    <td><a href='undocumented#SkScalar'>SkScalar</a> height of constructed <a href='#Rect'>Rect</a></td>
+    <td><a href='undocumented#Scalar'>Scalar</a> height of constructed <a href='#Rect'>Rect</a></td>
   </tr>
 </table>
 
@@ -226,7 +226,7 @@ Returns constructed <a href='#Rect'>Rect</a> set to integer values (0, 0, <a hre
 input; <a href='#SkRect_MakeIWH_w'>w</a> or <a href='#SkRect_MakeIWH_h'>h</a> may be negative.
 
 Use to avoid a compiler warning that input may lose precision when stored.
-Use <a href='SkIRect_Reference#SkIRect'>SkIRect</a> for an exact integer rectangle.
+Use <a href='SkIRect_Reference#IRect'>IRect</a> for an exact integer rectangle.
 
 ### Parameters
 
@@ -273,7 +273,7 @@ validate input; <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkRect_width'
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_MakeSize_size'><code><strong>size</strong></code></a></td>
-    <td><a href='undocumented#SkScalar'>SkScalar</a> values for <a href='#Rect'>Rect</a> width and height</td>
+    <td><a href='undocumented#Scalar'>Scalar</a> values for <a href='#Rect'>Rect</a> width and height</td>
   </tr>
 </table>
 
@@ -312,16 +312,16 @@ result in <a href='#SkRect_fLeft'>fLeft</a> greater than <a href='#SkRect_fRight
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_MakeLTRB_l'><code><strong>l</strong></code></a></td>
-    <td><a href='undocumented#SkScalar'>SkScalar</a> stored in <a href='#SkRect_fLeft'>fLeft</a></td>
+    <td><a href='undocumented#Scalar'>Scalar</a> stored in <a href='#SkRect_fLeft'>fLeft</a></td>
   </tr>
   <tr>    <td><a name='SkRect_MakeLTRB_t'><code><strong>t</strong></code></a></td>
-    <td><a href='undocumented#SkScalar'>SkScalar</a> stored in <a href='#SkRect_fTop'>fTop</a></td>
+    <td><a href='undocumented#Scalar'>Scalar</a> stored in <a href='#SkRect_fTop'>fTop</a></td>
   </tr>
   <tr>    <td><a name='SkRect_MakeLTRB_r'><code><strong>r</strong></code></a></td>
-    <td><a href='undocumented#SkScalar'>SkScalar</a> stored in <a href='#SkRect_fRight'>fRight</a></td>
+    <td><a href='undocumented#Scalar'>Scalar</a> stored in <a href='#SkRect_fRight'>fRight</a></td>
   </tr>
   <tr>    <td><a name='SkRect_MakeLTRB_b'><code><strong>b</strong></code></a></td>
-    <td><a href='undocumented#SkScalar'>SkScalar</a> stored in <a href='#SkRect_fBottom'>fBottom</a></td>
+    <td><a href='undocumented#Scalar'>Scalar</a> stored in <a href='#SkRect_fBottom'>fBottom</a></td>
   </tr>
 </table>
 
@@ -402,13 +402,13 @@ rect: -10, 35, 5, 60  isEmpty: false
 static <a href='#SkRect'>SkRect</a> <a href='#SkRect_Make'>Make</a>(const <a href='undocumented#SkISize'>SkISize</a>& size)
 </pre>
 
-Returns constructed <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to (0, 0, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>(), <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>()).
+Returns constructed <a href='SkIRect_Reference#IRect'>IRect</a> set to (0, 0, <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>(), <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>()).
 Does not validate input; <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_width'>width</a>() or <a href='#SkRect_Make_size'>size</a>.<a href='#SkRect_height'>height</a>() may be negative.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_Make_size'><code><strong>size</strong></code></a></td>
-    <td>integer values for <a href='#SkRect'>SkRect</a> width and height</td>
+    <td>integer values for <a href='#Rect'>Rect</a> width and height</td>
   </tr>
 </table>
 
@@ -440,7 +440,7 @@ rect1 == rect2
 static <a href='#SkRect'>SkRect</a> <a href='#SkRect_Make'>Make</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& irect)
 </pre>
 
-Returns constructed <a href='SkIRect_Reference#IRect'>IRect</a> set to <a href='#SkRect_Make_2_irect'>irect</a>, promoting integers to <a href='undocumented#Scalar'>Scalar</a>.
+Returns constructed <a href='SkIRect_Reference#IRect'>IRect</a> set to <a href='#SkRect_Make_2_irect'>irect</a>, promoting integers to scalar.
 Does not validate input; <a href='#SkRect_fLeft'>fLeft</a> may be greater than <a href='#SkRect_fRight'>fRight</a>, <a href='#SkRect_fTop'>fTop</a> may be greater
 than <a href='#SkRect_fBottom'>fBottom</a>.
 
@@ -453,7 +453,7 @@ than <a href='#SkRect_fBottom'>fBottom</a>.
 
 ### Return Value
 
-<a href='#SkRect_Make_2_irect'>irect</a> members converted to <a href='undocumented#SkScalar'>SkScalar</a>
+<a href='#SkRect_Make_2_irect'>irect</a> members converted to <a href='undocumented#Scalar'>Scalar</a>
 
 ### Example
 
@@ -479,7 +479,7 @@ to or greater than <a href='#SkRect_fBottom'>fBottom</a>. Call <a href='#SkRect_
 
 ### Return Value
 
-true if <a href='#SkRect_width'>width</a>() or <a href='#SkRect_height'>height</a>() are not positive and valid
+true if <a href='#SkRect_width'>width</a>() or <a href='#SkRect_height'>height</a>() are zero or negative
 
 ### Example
 
@@ -1186,7 +1186,7 @@ rect: {0, 0, 0, 0} is empty
 void <a href='#SkRect_set'>set</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& src)
 </pre>
 
-Sets <a href='#Rect'>Rect</a> to <a href='#SkRect_set_src'>src</a>, promoting <a href='#SkRect_set_src'>src</a> members from integer to <a href='undocumented#Scalar'>Scalar</a>.
+Sets <a href='#Rect'>Rect</a> to <a href='#SkRect_set_src'>src</a>, promoting <a href='#SkRect_set_src'>src</a> members from integer to scalar.
 Very large values in <a href='#SkRect_set_src'>src</a> may lose precision.
 
 ### Parameters
@@ -1355,7 +1355,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0
 void <a href='#SkRect_set'>set</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p0, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1)
 </pre>
 
-Sets bounds to the smallest <a href='#Rect'>Rect</a> enclosing <a href='SkPoint_Reference#Point'>Points</a> <a href='#SkRect_set_4_p0'>p0</a> and <a href='#SkRect_set_4_p1'>p1</a>. The result is
+Sets bounds to the smallest <a href='#Rect'>Rect</a> enclosing <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkRect_set_4_p0'>p0</a> and <a href='#SkRect_set_4_p1'>p1</a>. The result is
 sorted and may be empty. Does not check to see if values are finite.
 
 ### Parameters
@@ -1370,7 +1370,7 @@ sorted and may be empty. Does not check to see if values are finite.
 
 ### Example
 
-<div><fiddle-embed name="ee72450381f768f3869153cdbeccdc3e"><div><a href='#SkRect_set_4_p0'>p0</a> and <a href='#SkRect_set_4_p1'>p1</a> may be swapped and have the same effect unless one contains NaN.
+<div><fiddle-embed name="ee72450381f768f3869153cdbeccdc3e"><div>p0 and p1 may be swapped and have the same effect unless one contains NaN.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -1470,23 +1470,23 @@ void <a href='#SkRect_iset'>iset</a>(int left, int top, int right, int bottom)
 </pre>
 
 Sets <a href='#Rect'>Rect</a> to (left, top, right, bottom).
-All parameters are promoted from integer to <a href='undocumented#Scalar'>Scalar</a>.
+All parameters are promoted from integer to scalar.
 left and right are not sorted; left is not necessarily less than right.
 top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_iset_left'><code><strong>left</strong></code></a></td>
-    <td>promoted to <a href='undocumented#SkScalar'>SkScalar</a> and stored in <a href='#SkRect_fLeft'>fLeft</a></td>
+    <td>promoted to <a href='undocumented#Scalar'>Scalar</a> and stored in <a href='#SkRect_fLeft'>fLeft</a></td>
   </tr>
   <tr>    <td><a name='SkRect_iset_top'><code><strong>top</strong></code></a></td>
-    <td>promoted to <a href='undocumented#SkScalar'>SkScalar</a> and stored in <a href='#SkRect_fTop'>fTop</a></td>
+    <td>promoted to <a href='undocumented#Scalar'>Scalar</a> and stored in <a href='#SkRect_fTop'>fTop</a></td>
   </tr>
   <tr>    <td><a name='SkRect_iset_right'><code><strong>right</strong></code></a></td>
-    <td>promoted to <a href='undocumented#SkScalar'>SkScalar</a> and stored in <a href='#SkRect_fRight'>fRight</a></td>
+    <td>promoted to <a href='undocumented#Scalar'>Scalar</a> and stored in <a href='#SkRect_fRight'>fRight</a></td>
   </tr>
   <tr>    <td><a name='SkRect_iset_bottom'><code><strong>bottom</strong></code></a></td>
-    <td>promoted to <a href='undocumented#SkScalar'>SkScalar</a> and stored in <a href='#SkRect_fBottom'>fBottom</a></td>
+    <td>promoted to <a href='undocumented#Scalar'>Scalar</a> and stored in <a href='#SkRect_fBottom'>fBottom</a></td>
   </tr>
 </table>
 
@@ -1517,15 +1517,15 @@ void <a href='#SkRect_isetWH'>isetWH</a>(int width, int height)
 
 Sets <a href='#Rect'>Rect</a> to (0, 0, width, height).
 width and height may be zero or negative. width and height are promoted from
-integer to <a href='undocumented#SkScalar'>SkScalar</a>, large values may lose precision.
+integer to <a href='undocumented#Scalar'>Scalar</a>, large values may lose precision.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_isetWH_width'><code><strong>width</strong></code></a></td>
-    <td>promoted to <a href='undocumented#SkScalar'>SkScalar</a> and stored in <a href='#SkRect_fRight'>fRight</a></td>
+    <td>promoted to <a href='undocumented#Scalar'>Scalar</a> and stored in <a href='#SkRect_fRight'>fRight</a></td>
   </tr>
   <tr>    <td><a name='SkRect_isetWH_height'><code><strong>height</strong></code></a></td>
-    <td>promoted to <a href='undocumented#SkScalar'>SkScalar</a> and stored in <a href='#SkRect_fBottom'>fBottom</a></td>
+    <td>promoted to <a href='undocumented#Scalar'>Scalar</a> and stored in <a href='#SkRect_fBottom'>fBottom</a></td>
   </tr>
 </table>
 
@@ -1905,7 +1905,7 @@ bool <a href='#SkRect_contains'>contains</a>(<a href='undocumented#SkScalar'>SkS
 </pre>
 
 Returns true if: <a href='#SkRect_fLeft'>fLeft</a> <= x < <a href='#SkRect_fRight'>fRight</a> && <a href='#SkRect_fTop'>fTop</a> <= y < <a href='#SkRect_fBottom'>fBottom</a>.
-Returns false if <a href='#SkRect'>SkRect</a> is empty.
+Returns false if <a href='#Rect'>Rect</a> is empty.
 
 ### Parameters
 
@@ -2734,7 +2734,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 const <a href='undocumented#SkScalar'>SkScalar</a>* <a href='#SkRect_asScalars'>asScalars</a>() const
 </pre>
 
-Returns pointer to first <a href='undocumented#Scalar'>Scalar</a> in <a href='#Rect'>Rect</a>, to treat it as an array with four
+Returns pointer to first scalar in <a href='#Rect'>Rect</a>, to treat it as an array with four
 entries.
 
 ### Return Value
@@ -2771,7 +2771,7 @@ generate exact binary representations of floating point numbers.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_dump_asHex'><code><strong>asHex</strong></code></a></td>
-    <td>true if <a href='undocumented#SkScalar'>SkScalar</a> values are written as hexadecimal</td>
+    <td>true if <a href='undocumented#Scalar'>Scalar</a> values are written as hexadecimal</td>
   </tr>
 </table>
 
