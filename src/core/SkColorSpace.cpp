@@ -21,13 +21,13 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
 }
 
 static bool is_3x3(const SkMatrix44& m44) {
-    return color_space_almost_equal(m44.getFloat(0, 3), 0.0f) &&
-           color_space_almost_equal(m44.getFloat(1, 3), 0.0f) &&
-           color_space_almost_equal(m44.getFloat(2, 3), 0.0f) &&
-           color_space_almost_equal(m44.getFloat(3, 0), 0.0f) &&
-           color_space_almost_equal(m44.getFloat(3, 1), 0.0f) &&
-           color_space_almost_equal(m44.getFloat(3, 2), 0.0f) &&
-           color_space_almost_equal(m44.getFloat(3, 3), 1.0f);
+    return m44.getFloat(0, 3) == 0.0f
+        && m44.getFloat(1, 3) == 0.0f
+        && m44.getFloat(2, 3) == 0.0f
+        && m44.getFloat(3, 0) == 0.0f
+        && m44.getFloat(3, 1) == 0.0f
+        && m44.getFloat(3, 2) == 0.0f
+        && m44.getFloat(3, 3) == 1.0f;
 }
 
 static bool xyz_almost_equal(const SkMatrix44& m44, const float m33[9]) {
@@ -49,11 +49,11 @@ SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
                            const SkMatrix44& toXYZD50)
     : fGammaNamed(gammaNamed)
 {
+    SkASSERT(is_3x3(toXYZD50));
     for (int r = 0; r < 3; r++)
     for (int c = 0; c < 3; c++) {
         fToXYZD50_3x3[3*r+c] = toXYZD50.get(r,c);
     }
-    SkASSERT(xyz_almost_equal(toXYZD50, fToXYZD50_3x3));
     fToXYZD50Hash = SkOpts::hash_fn(fToXYZD50_3x3, 9*sizeof(float), 0);
 
     switch (fGammaNamed) {
