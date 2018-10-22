@@ -910,9 +910,6 @@ protected:
 private:
     static void CTPathElement(void *info, const CGPathElement *element);
 
-    /** Returns the offset from the horizontal origin to the vertical origin in SkGlyph units. */
-    void getVerticalOffset(CGGlyph glyphID, SkPoint* offset) const;
-
     Offscreen fOffscreen;
 
     /** Unrotated variant of fCTFont.
@@ -942,7 +939,6 @@ private:
     SkUniqueCFRef<CGFontRef> fCGFont;
     uint16_t fGlyphCount;
     const bool fDoSubPosition;
-    const bool fVertical;
 
     friend class Offscreen;
 
@@ -976,7 +972,6 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
                                          const SkDescriptor* desc)
         : INHERITED(std::move(typeface), effects, desc)
         , fDoSubPosition(SkToBool(fRec.fFlags & kSubpixelPositioning_Flag))
-        , fVertical(SkToBool(fRec.fFlags & kVertical_Flag))
 
 {
     AUTO_CG_LOCK();
@@ -1105,14 +1100,6 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         subY = SkFixedToFloat(glyph.getSubYFixed());
     }
 
-    // CoreText and CoreGraphics always draw using the horizontal baseline origin.
-    if (context.fVertical) {
-        SkPoint offset;
-        context.getVerticalOffset(glyphID, &offset);
-        subX += offset.fX;
-        subY += offset.fY;
-    }
-
     CGPoint point = CGPointMake(-glyph.fLeft + subX, glyph.fTop + glyph.fHeight - subY);
     // Prior to 10.10, CTFontDrawGlyphs acted like CGContextShowGlyphsAtPositions and took
     // 'positions' which are in text space. The glyph location (in device space) must be
@@ -1128,17 +1115,6 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     SkASSERT(rowBytesPtr);
     *rowBytesPtr = rowBytes;
     return image;
-}
-
-void SkScalerContext_Mac::getVerticalOffset(CGGlyph glyphID, SkPoint* offset) const {
-    // CTFontGetVerticalTranslationsForGlyphs produces cgVertOffset in CG units (pixels, y up).
-    CGSize cgVertOffset;
-    CTFontGetVerticalTranslationsForGlyphs(fCTFont.get(), &glyphID, &cgVertOffset, 1);
-    cgVertOffset = CGSizeApplyAffineTransform(cgVertOffset, fTransform);
-    SkPoint skVertOffset = { CGToScalar(cgVertOffset.width), CGToScalar(cgVertOffset.height) };
-    // From CG units (pixels, y up) to SkGlyph units (pixels, y down).
-    skVertOffset.fY = -skVertOffset.fY;
-    *offset = skVertOffset;
 }
 
 unsigned SkScalerContext_Mac::generateGlyphCount(void) {
@@ -1176,17 +1152,8 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
 
     // The following block produces cgAdvance in CG units (pixels, y up).
     CGSize cgAdvance;
-    if (fVertical) {
-        CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontOrientationVertical,
-                                   &cgGlyph, &cgAdvance, 1);
-        // Vertical advances are returned as widths instead of heights.
-        using std::swap;
-        swap(cgAdvance.height, cgAdvance.width);
-        cgAdvance.height = -cgAdvance.height;
-    } else {
-        CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontOrientationHorizontal,
-                                   &cgGlyph, &cgAdvance, 1);
-    }
+    CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontOrientationHorizontal,
+                               &cgGlyph, &cgAdvance, 1);
     cgAdvance = CGSizeApplyAffineTransform(cgAdvance, fTransform);
     glyph->fAdvanceX =  CGToFloat(cgAdvance.width);
     glyph->fAdvanceY = -CGToFloat(cgAdvance.height);
@@ -1226,14 +1193,6 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         // Convert cgBounds to SkGlyph units (pixels, y down).
         skBounds = SkRect::MakeXYWH(cgBounds.origin.x, -cgBounds.origin.y - cgBounds.size.height,
                                     cgBounds.size.width, cgBounds.size.height);
-    }
-
-    if (fVertical) {
-        // Due to possible vertical bounds bugs and simplicity, skBounds is the horizontal bounds.
-        // Convert these horizontal bounds into vertical bounds.
-        SkPoint offset;
-        this->getVerticalOffset(cgGlyph, &offset);
-        skBounds.offset(offset);
     }
 
     // Currently the bounds are based on being rendered at (0,0).
@@ -1497,11 +1456,6 @@ bool SkScalerContext_Mac::generatePath(SkGlyphID glyph, SkPath* path) {
         SkMatrix m;
         m.setScale(SkScalarInvert(scaleX), SkScalarInvert(scaleY));
         path->transform(m);
-    }
-    if (fVertical) {
-        SkPoint offset;
-        getVerticalOffset(cgGlyph, &offset);
-        path->offset(offset.fX, offset.fY);
     }
     return true;
 }

@@ -235,7 +235,6 @@ public:
         kEmbolden_Flag            = 0x0008,
         kSubpixelPositioning_Flag = 0x0010,
         kForceAutohinting_Flag    = 0x0020,  // Use auto instead of bytcode hinting if hinting.
-        kVertical_Flag            = 0x0040,
 
         // together, these two flags resulting in a two bit value which matches
         // up with the SkPaint::Hinting enum.
@@ -269,10 +268,6 @@ public:
 
     bool isSubpixel() const {
         return SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
-    }
-
-    bool isVertical() const {
-        return SkToBool(fRec.fFlags & kVertical_Flag);
     }
 
     /** Return the corresponding glyph for the specified unichar. Since contexts
