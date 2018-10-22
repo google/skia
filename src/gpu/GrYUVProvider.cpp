@@ -36,8 +36,7 @@ sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
 
         for (int i = 1; i < SkYUVSizeInfo::kMaxCount; ++i) {
             if (!yuvInfo.fSizeInfo.fWidthBytes[i]) {
-                SkASSERT(kUnknown_SkColorType == yuvInfo.fSizeInfo.fColorTypes[i] &&
-                         !yuvInfo.fSizeInfo.fWidthBytes[i] &&
+                SkASSERT(!yuvInfo.fSizeInfo.fWidthBytes[i] &&
                          !yuvInfo.fSizeInfo.fSizes[i].fHeight);
                 planes[i] = nullptr;
                 continue;
@@ -55,7 +54,7 @@ sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
         // Allocate the memory for YUVA
         size_t totalSize(0);
         for (int i = 0; i < SkYUVSizeInfo::kMaxCount; i++) {
-            SkASSERT(kUnknown_SkColorType != yuvInfo.fSizeInfo.fColorTypes[i] ||
+            SkASSERT((yuvInfo.fSizeInfo.fWidthBytes[i] && yuvInfo.fSizeInfo.fSizes[i].fHeight) ||
                      (!yuvInfo.fSizeInfo.fWidthBytes[i] && !yuvInfo.fSizeInfo.fSizes[i].fHeight));
 
             totalSize += yuvInfo.fSizeInfo.fWidthBytes[i] * yuvInfo.fSizeInfo.fSizes[i].fHeight;
@@ -67,8 +66,7 @@ sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
 
         for (int i = 1; i < SkYUVSizeInfo::kMaxCount; ++i) {
             if (!yuvInfo.fSizeInfo.fWidthBytes[i]) {
-                SkASSERT(kUnknown_SkColorType == yuvInfo.fSizeInfo.fColorTypes[i] &&
-                         !yuvInfo.fSizeInfo.fWidthBytes[i] &&
+                SkASSERT(!yuvInfo.fSizeInfo.fWidthBytes[i] &&
                          !yuvInfo.fSizeInfo.fSizes[i].fHeight);
                 planes[i] = nullptr;
                 continue;
@@ -119,10 +117,8 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
 
     sk_sp<GrTextureProxy> yuvTextureProxies[SkYUVSizeInfo::kMaxCount];
     for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
-        if (kUnknown_SkColorType == yuvSizeInfo.fColorTypes[i]) {
-            SkASSERT(!yuvSizeInfo.fSizes[i].fWidth ||
-                     !yuvSizeInfo.fSizes[i].fHeight ||
-                     !yuvSizeInfo.fWidthBytes[i]);
+        if (yuvSizeInfo.fSizes[i].isEmpty()) {
+            SkASSERT(!yuvSizeInfo.fWidthBytes[i]);
             continue;
         }
 
