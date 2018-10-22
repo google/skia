@@ -9,6 +9,7 @@
 
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
+#include "SkCachedData.h"
 #include "SkData.h"
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"

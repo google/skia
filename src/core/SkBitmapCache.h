@@ -8,11 +8,15 @@
 #ifndef SkBitmapCache_DEFINED
 #define SkBitmapCache_DEFINED
 
-#include "SkBitmap.h"
-#include "SkMipMap.h"
+#include "SkRect.h"
+#include <memory>
 
+class SkBitmap;
 class SkBitmapProvider;
 class SkImage;
+struct SkImageInfo;
+class SkMipMap;
+class SkPixmap;
 class SkResourceCache;
 
 uint64_t SkMakeResourceCacheSharedIDForBitmap(uint32_t bitmapGenID);
@@ -21,21 +25,16 @@ void SkNotifyBitmapGenIDIsStale(uint32_t bitmapGenID);
 
 struct SkBitmapCacheDesc {
     uint32_t    fImageID;       // != 0
-    SkColorType fColorType;
-    uint32_t    fCSXYZHash;
-    uint32_t    fCSTransferFnHash;
     SkIRect     fSubset;        // always set to a valid rect (entire or subset)
 
     void validate() const {
         SkASSERT(fImageID);
         SkASSERT(fSubset.fLeft >= 0 && fSubset.fTop >= 0);
         SkASSERT(fSubset.width() > 0 && fSubset.height() > 0);
-        SkASSERT(kUnknown_SkColorType != fColorType);
     }
 
     static SkBitmapCacheDesc Make(const SkImage*);
-    static SkBitmapCacheDesc Make(uint32_t genID, SkColorType, SkColorSpace*,
-                                  const SkIRect& subset);
+    static SkBitmapCacheDesc Make(uint32_t genID, const SkIRect& subset);
 };
 
 class SkBitmapCache {
