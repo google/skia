@@ -46,74 +46,6 @@ XFERMODE(Screen) {
     return s + d.approxMulDiv255(s.inv());
 }
 
-#if defined(SK_LEGACY_COMPLEX_XFERMODES)
-XFERMODE(Multiply) { return (s * d.alphas().inv() + d * s.alphas().inv() + s*d).div255(); }
-// [ Sa + Da - Sa*Da, Sc + Dc - 2*min(Sc*Da, Dc*Sa) ]  (And notice Sa*Da == min(Sa*Da, Da*Sa).)
-XFERMODE(Difference) {
-    auto m = Sk4px::Wide::Min(s * d.alphas(), d * s.alphas()).div255();
-    // There's no chance of underflow, and if we subtract m before adding s+d, no overflow.
-    return (s - m) + (d - m.zeroAlphas());
-}
-// [ Sa + Da - Sa*Da, Sc + Dc - 2*Sc*Dc ]
-XFERMODE(Exclusion) {
-    auto p = s.approxMulDiv255(d);
-    // There's no chance of underflow, and if we subtract p before adding src+dst, no overflow.
-    return (s - p) + (d - p.zeroAlphas());
-}
-
-// We take care to use exact math for these next few modes where alphas
-// and colors are calculated using significantly different math.  We need
-// to preserve premul invariants, and exact math makes this easier.
-//
-// TODO: Some of these implementations might be able to be sped up a bit
-// while maintaining exact math, but let's follow up with that.
-
-XFERMODE(HardLight) {
-    auto sa = s.alphas(),
-         da = d.alphas();
-
-    auto srcover = s + (d * sa.inv()).div255();
-
-    auto isLite = ((sa-s) < s).widenLoHi();
-
-    auto lite = sa*da - ((da-d)*(sa-s) << 1),
-         dark = s*d << 1,
-         both = s*da.inv() + d*sa.inv();
-
-    auto alphas = srcover;
-    auto colors = (both + isLite.thenElse(lite, dark)).div255();
-    return alphas.zeroColors() + colors.zeroAlphas();
-}
-XFERMODE(Overlay) { return HardLight()(s,d); }
-
-XFERMODE(Darken) {
-    auto sa = s.alphas(),
-         da = d.alphas();
-
-    auto sda = (s*da).div255(),
-         dsa = (d*sa).div255();
-
-    auto srcover = s + (d * sa.inv()).div255(),
-         dstover = d + (s * da.inv()).div255();
-    auto alphas = srcover,
-         colors = (sda < dsa).thenElse(srcover, dstover);
-    return alphas.zeroColors() + colors.zeroAlphas();
-}
-XFERMODE(Lighten) {
-    auto sa = s.alphas(),
-         da = d.alphas();
-
-    auto sda = (s*da).div255(),
-         dsa = (d*sa).div255();
-
-    auto srcover = s + (d * sa.inv()).div255(),
-         dstover = d + (s * da.inv()).div255();
-    auto alphas = srcover,
-         colors = (dsa < sda).thenElse(srcover, dstover);
-    return alphas.zeroColors() + colors.zeroAlphas();
-}
-#endif//SK_LEGACY_COMPLEX_XFERMODES
-
 #undef XFERMODE
 
 // A reasonable fallback mode for doing AA is to simply apply the transfermode first,
@@ -184,15 +116,6 @@ namespace SK_OPTS_NS {
         CASE(Plus);
         CASE(Modulate);
         CASE(Screen);
-#if defined(SK_LEGACY_COMPLEX_XFERMODES)
-        CASE(Multiply);
-        CASE(Difference);
-        CASE(Exclusion);
-        CASE(HardLight);
-        CASE(Overlay);
-        CASE(Darken);
-        CASE(Lighten);
-#endif
     #undef CASE
 
         default: break;
