@@ -235,15 +235,13 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
 
     // verify sizeInfo with expected texture count
     for (int i = 0; i < numTextures; ++i) {
-        if (kUnknown_SkColorType == yuvaSizeInfo.fColorTypes[i] ||
-            yuvaSizeInfo.fSizes[i].isEmpty() ||
+        if (yuvaSizeInfo.fSizes[i].isEmpty() ||
             !yuvaSizeInfo.fWidthBytes[i]) {
             return nullptr;
         }
     }
     for (int i = numTextures; i < SkYUVSizeInfo::kMaxCount; ++i) {
-        if (kUnknown_SkColorType != yuvaSizeInfo.fColorTypes[i] ||
-            !yuvaSizeInfo.fSizes[i].isEmpty() ||
+        if (!yuvaSizeInfo.fSizes[i].isEmpty() ||
             yuvaSizeInfo.fWidthBytes[i]) {
             return nullptr;
         }
@@ -258,9 +256,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
             GrPixelConfig fConfig;
             SkPromiseImageHelper fPromiseHelper;
         } params;
-        bool res = context->contextPriv().caps()->getConfigFromBackendFormat(
+        bool res = context->contextPriv().caps()->getYUVAConfigFromBackendFormat(
                        yuvaFormats[texIdx],
-                       yuvaSizeInfo.fColorTypes[texIdx],
                        &params.fConfig);
         if (!res) {
             return nullptr;

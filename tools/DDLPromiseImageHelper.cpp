@@ -154,12 +154,10 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
 
             contexts[i] = curImage.refCallbackContext(i).release();
             sizeInfo.fSizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
-            sizeInfo.fColorTypes[i] = curImage.yuvPixmap(i).colorType();
             sizeInfo.fWidthBytes[i] = curImage.yuvPixmap(i).rowBytes();
         }
         for (int i = textureCount; i < SkYUVSizeInfo::kMaxCount; ++i) {
             sizeInfo.fSizes[i] = SkISize::MakeEmpty();
-            sizeInfo.fColorTypes[i] = kUnknown_SkColorType;
             sizeInfo.fWidthBytes[i] = 0;
         }
 
@@ -232,16 +230,21 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
         newImageInfo.setYUVData(std::move(yuvData), yuvaIndices, yuvColorSpace);
 
         for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
-            if (kUnknown_SkColorType == yuvaSizeInfo.fColorTypes[i]) {
-                SkASSERT(!yuvaSizeInfo.fSizes[i].fWidth &&
-                         !yuvaSizeInfo.fSizes[i].fHeight &&
-                         !yuvaSizeInfo.fWidthBytes[i]);
+            if (yuvaSizeInfo.fSizes[i].isEmpty()) {
+                SkASSERT(!yuvaSizeInfo.fWidthBytes[i]);
                 continue;
             }
 
+            // For testing we only ever use two colortypes
+            SkColorType ct = kUnknown_SkColorType;
+            if (yuvaSizeInfo.fSizes[i].width() == yuvaSizeInfo.fWidthBytes[i]) {
+                ct = kAlpha_8_SkColorType;
+            } else if (4*yuvaSizeInfo.fSizes[i].width() == yuvaSizeInfo.fWidthBytes[i]) {
+                ct = kRGBA_8888_SkColorType;
+            }
             SkImageInfo planeII = SkImageInfo::Make(yuvaSizeInfo.fSizes[i].fWidth,
                                                     yuvaSizeInfo.fSizes[i].fHeight,
-                                                    yuvaSizeInfo.fColorTypes[i],
+                                                    ct,
                                                     kUnpremul_SkAlphaType);
             newImageInfo.addYUVPlane(i, planeII, planes[i], yuvaSizeInfo.fWidthBytes[i]);
         }

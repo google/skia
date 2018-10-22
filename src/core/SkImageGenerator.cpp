@@ -39,8 +39,8 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
         // try the deprecated method and make a guess at the other data
         if (this->onQueryYUV8(sizeInfo, colorSpace)) {
             // take a guess at the number of planes
-            int numPlanes = SkYUVSizeInfo::kMaxCount;
-            for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
+            int numPlanes = 3;
+            for (int i = 0; i < 3; ++i) {
                 if (sizeInfo->fSizes[i].isEmpty()) {
                     numPlanes = i;
                     break;
@@ -52,10 +52,6 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
             switch (numPlanes) {
                 case 1:
                     // Assume 3 interleaved planes
-                    sizeInfo->fColorTypes[0] = kRGBA_8888_SkColorType;
-                    sizeInfo->fColorTypes[1] = kUnknown_SkColorType;
-                    sizeInfo->fColorTypes[2] = kUnknown_SkColorType;
-                    sizeInfo->fColorTypes[3] = kUnknown_SkColorType;
                     yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
                     yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
                     yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 0;
@@ -66,11 +62,7 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
                     yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
                     break;
                 case 2:
-                    // Assume 1 Y plane and interleaved UV planes
-                    sizeInfo->fColorTypes[0] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[1] = kRGBA_8888_SkColorType;
-                    sizeInfo->fColorTypes[2] = kUnknown_SkColorType;
-                    sizeInfo->fColorTypes[3] = kUnknown_SkColorType;
+                    // Assume 1 Y plane and interleaved UV planes (NV12)
                     yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
                     yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
                     yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
@@ -81,11 +73,8 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
                     yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
                     break;
                 case 3:
+                default:
                     // Assume 3 separate non-interleaved planes
-                    sizeInfo->fColorTypes[0] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[1] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[2] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[3] = kUnknown_SkColorType;
                     yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
                     yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
                     yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
@@ -93,22 +82,6 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
                     yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 2;
                     yuvaIndices[SkYUVAIndex::kV_Index].fChannel = SkColorChannel::kR;
                     yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-                    yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
-                    break;
-                case 4:
-                default:
-                    // Assume 4 separate non-interleaved planes
-                    sizeInfo->fColorTypes[0] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[1] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[2] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[3] = kAlpha_8_SkColorType;
-                    yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-                    yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
-                    yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
-                    yuvaIndices[SkYUVAIndex::kU_Index].fChannel = SkColorChannel::kR;
-                    yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 2;
-                    yuvaIndices[SkYUVAIndex::kV_Index].fChannel = SkColorChannel::kR;
-                    yuvaIndices[SkYUVAIndex::kA_Index].fIndex = 3;
                     yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
                     break;
             }
