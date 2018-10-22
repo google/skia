@@ -23,6 +23,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef LUMIN
+#define LMP_SYSTEM_FONTS_FILE "/package/etc/fonts.xml"
+#define OLD_SYSTEM_FONTS_FILE "/package/etc/system_fonts.xml"
+#define FALLBACK_FONTS_FILE "/package/etc/fallback_fonts.xml"
+#define VENDOR_FONTS_FILE "/package/etc/fallback_fonts.xml"
+
+#define LOCALE_FALLBACK_FONTS_SYSTEM_DIR "/package/etc"
+#define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/package/etc"
+#define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts-"
+#define LOCALE_FALLBACK_FONTS_SUFFIX ".xml"
+#endif
+
+
+#ifndef LUMIN
 #define LMP_SYSTEM_FONTS_FILE "/system/etc/fonts.xml"
 #define OLD_SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"
 #define FALLBACK_FONTS_FILE "/system/etc/fallback_fonts.xml"
@@ -32,6 +46,7 @@
 #define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/vendor/etc"
 #define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts-"
 #define LOCALE_FALLBACK_FONTS_SUFFIX ".xml"
+#endif
 
 #ifndef SK_FONT_FILE_PREFIX
 #    define SK_FONT_FILE_PREFIX "/fonts/"
