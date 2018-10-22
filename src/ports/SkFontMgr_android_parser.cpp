@@ -29,9 +29,9 @@
 #define FALLBACK_FONTS_FILE "/package/etc/fallback_fonts.xml"
 #define VENDOR_FONTS_FILE "/package/etc/fallback_fonts.xml"
 
-#define LOCALE_FALLBACK_FONTS_SYSTEM_DIR "/package/etc"
-#define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/package/etc"
-#define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts-"
+#define LOCALE_FALLBACK_FONTS_SYSTEM_DIR "/package/etc/fonts"
+#define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/package/etc/fonts"
+#define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts"
 #define LOCALE_FALLBACK_FONTS_SUFFIX ".xml"
 #endif
 
