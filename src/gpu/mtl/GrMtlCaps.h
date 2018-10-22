@@ -80,11 +80,6 @@ public:
         return false;
     }
 
-    bool getYUVAConfigFromBackendFormat(const GrBackendFormat&,
-                                        GrPixelConfig*) const override {
-        return false;
-    }
-
     bool performPartialClearsAsDraws() const override {
         return true;
     }

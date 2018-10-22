@@ -60,9 +60,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
         // DDL TODO: how can we tell if we need mipmapping!
         if (info.isYUV()) {
-            int numPixmaps;
-            SkAssertResult(SkYUVAIndex::AreValidIndices(info.yuvaIndices(), &numPixmaps));
-            for (int j = 0; j < numPixmaps; ++j) {
+            for (int j = 0; j < 3; ++j) {
                 const SkPixmap& yuvPixmap = info.yuvPixmap(j);
 
                 sk_sp<PromiseImageCallbackContext> callbackContext(
@@ -142,29 +140,29 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
 
     sk_sp<SkImage> image;
     if (curImage.isYUV()) {
-        GrBackendFormat backendFormats[SkYUVSizeInfo::kMaxCount];
-        void* contexts[SkYUVSizeInfo::kMaxCount] = { nullptr, nullptr, nullptr, nullptr };
-        SkYUVSizeInfo sizeInfo;
-        // TODO: store this value somewhere?
-        int textureCount;
-        SkAssertResult(SkYUVAIndex::AreValidIndices(curImage.yuvaIndices(), &textureCount));
-        for (int i = 0; i < textureCount; ++i) {
+        GrBackendFormat backendFormats[4];
+        void* contexts[4] = { nullptr, nullptr, nullptr, nullptr };
+        SkISize sizes[4];
+
+        for (int i = 0; i < 3; ++i) {
             const GrBackendTexture& backendTex = curImage.backendTexture(i);
             backendFormats[i] = caps->createFormatFromBackendTexture(backendTex);
 
             contexts[i] = curImage.refCallbackContext(i).release();
-            sizeInfo.fSizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
-            sizeInfo.fWidthBytes[i] = curImage.yuvPixmap(i).rowBytes();
+            sizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
         }
-        for (int i = textureCount; i < SkYUVSizeInfo::kMaxCount; ++i) {
-            sizeInfo.fSizes[i] = SkISize::MakeEmpty();
-            sizeInfo.fWidthBytes[i] = 0;
-        }
+
+        SkYUVAIndex yuvaIndices[4] = {
+                SkYUVAIndex{0, SkColorChannel::kA},
+                SkYUVAIndex{1, SkColorChannel::kA},
+                SkYUVAIndex{2, SkColorChannel::kA},
+                SkYUVAIndex{-1, SkColorChannel::kA}  // TODO: enable this
+        };
 
         image = recorder->makeYUVAPromiseTexture(curImage.yuvColorSpace(),
                                                  backendFormats,
-                                                 sizeInfo,
-                                                 curImage.yuvaIndices(),
+                                                 sizes,
+                                                 yuvaIndices,
                                                  curImage.overallWidth(),
                                                  curImage.overallHeight(),
                                                  GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
@@ -221,44 +219,17 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
                                                              image->uniqueID(),
                                                              overallII);
 
-    SkYUVSizeInfo yuvaSizeInfo;
-    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
+    SkYUVSizeInfo yuvSizeInfo;
     SkYUVColorSpace yuvColorSpace;
-    const void* planes[SkYUVSizeInfo::kMaxCount];
-    sk_sp<SkCachedData> yuvData = ib->getPlanes(&yuvaSizeInfo, yuvaIndices, &yuvColorSpace, planes);
+    const void* planes[3];
+    sk_sp<SkCachedData> yuvData = ib->getPlanes(&yuvSizeInfo, &yuvColorSpace, planes);
     if (yuvData) {
-        newImageInfo.setYUVData(std::move(yuvData), yuvaIndices, yuvColorSpace);
+        newImageInfo.setYUVData(std::move(yuvData), yuvColorSpace);
 
-        // determine colortypes from index data
-        // for testing we only ever use A8 or RGBA8888
-        SkColorType colorTypes[SkYUVSizeInfo::kMaxCount] = {
-            kUnknown_SkColorType, kUnknown_SkColorType,
-            kUnknown_SkColorType, kUnknown_SkColorType
-        };
-        for (int yuvIndex = 0; yuvIndex < SkYUVAIndex::kIndexCount; ++yuvIndex) {
-            int texIdx = yuvaIndices[yuvIndex].fIndex;
-            if (texIdx < 0) {
-                SkASSERT(SkYUVAIndex::kA_Index == yuvIndex);
-                continue;
-            }
-            if (kUnknown_SkColorType == colorTypes[texIdx]) {
-                colorTypes[texIdx] = kAlpha_8_SkColorType;
-            } else {
-                colorTypes[texIdx] = kRGBA_8888_SkColorType;
-            }
-        }
-
-        for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
-            if (yuvaSizeInfo.fSizes[i].isEmpty()) {
-                SkASSERT(!yuvaSizeInfo.fWidthBytes[i] && kUnknown_SkColorType == colorTypes[i]);
-                continue;
-            }
-
-            SkImageInfo planeII = SkImageInfo::Make(yuvaSizeInfo.fSizes[i].fWidth,
-                                                    yuvaSizeInfo.fSizes[i].fHeight,
-                                                    colorTypes[i],
-                                                    kUnpremul_SkAlphaType);
-            newImageInfo.addYUVPlane(i, planeII, planes[i], yuvaSizeInfo.fWidthBytes[i]);
+        for (int i = 0; i < 3; ++i) {
+            SkImageInfo planeII = SkImageInfo::MakeA8(yuvSizeInfo.fSizes[i].fWidth,
+                                                      yuvSizeInfo.fSizes[i].fHeight);
+            newImageInfo.addYUVPlane(i, planeII, planes[i], yuvSizeInfo.fWidthBytes[i]);
         }
     } else {
         sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images

@@ -48,8 +48,7 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*,
                                             const GrSamplerState&,
                                             SkScalar scaleAdjust[2]) const override;
-    sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVAIndex[4],
-                                  SkYUVColorSpace*, const void* planes[4]) override;
+    sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*, const void* planes[3]) override;
 #endif
     sk_sp<SkData> onRefEncoded() const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
