@@ -831,15 +831,13 @@ bool SkJpegCodec::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpa
     }
 
     jpeg_component_info * comp_info = dinfo->comp_info;
-    for (auto i : { SkYUVAIndex::kY_Index, SkYUVAIndex::kU_Index, SkYUVAIndex::kV_Index }) {
+    for (int i = 0; i < 3; ++i) {
         sizeInfo->fSizes[i].set(comp_info[i].downsampled_width, comp_info[i].downsampled_height);
         sizeInfo->fWidthBytes[i] = comp_info[i].width_in_blocks * DCTSIZE;
     }
 
     // JPEG never has an alpha channel
-    sizeInfo->fSizes[SkYUVAIndex::kA_Index].fHeight =
-        sizeInfo->fSizes[SkYUVAIndex::kA_Index].fWidth =
-        sizeInfo->fWidthBytes[SkYUVAIndex::kA_Index] = 0;
+    sizeInfo->fSizes[3].fHeight = sizeInfo->fSizes[3].fWidth = sizeInfo->fWidthBytes[3] = 0;
 
     if (colorSpace) {
         *colorSpace = kJPEG_SkYUVColorSpace;

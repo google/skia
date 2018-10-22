@@ -62,7 +62,7 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
                     yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
                     break;
                 case 2:
-                    // Assume 1 Y plane and interleaved UV planes (NV12)
+                    // Assume Y plane and interleaved UV plane (NV12)
                     yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
                     yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
                     yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
@@ -85,6 +85,8 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
                     yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
                     break;
             }
+            // clear fourth element in sizeInfo to ensure it's initialized
+            sizeInfo->fSizes[3].fWidth = sizeInfo->fSizes[3].fHeight = sizeInfo->fWidthBytes[3] = 0;
 
             return true;
         }
