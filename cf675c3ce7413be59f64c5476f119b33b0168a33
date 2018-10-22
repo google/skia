@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c4675b1_6882c351",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-22T15:59:15Z",
+      "side": 1,
+      "message": "This is subpixel positioning of right? (As opposed to subpixel coverage, which is on the paint.) As a result this should be called kSubpixelPosition_Flag (please avoid kSubpixelRender_Flag, as that is still ambiguous with subpixel coverage).",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 22
+      },
+      "revId": "cf675c3ce7413be59f64c5476f119b33b0168a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
