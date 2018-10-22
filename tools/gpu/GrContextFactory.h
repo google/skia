@@ -42,6 +42,7 @@ public:
         kNullGL_ContextType,         //! Non-rendering OpenGL mock context.
         kVulkan_ContextType,         //! Vulkan
         kMetal_ContextType,          //! Metal
+        kDawn_ContextType,            //! Dawn
         kMock_ContextType,           //! Mock context that does not draw.
         kLastContextType = kMock_ContextType
     };
@@ -78,6 +79,8 @@ public:
                 return kMetal_GrBackend;
             case kMock_ContextType:
                 return kMock_GrBackend;
+            case kDawn_ContextType:
+                return kDawn_GrBackend;
             default:
                 return kOpenGL_GrBackend;
         }
@@ -109,6 +112,8 @@ public:
                 return "Metal";
             case kMock_ContextType:
                 return "Mock";
+            case kDawn_ContextType:
+                return "Dawn";
         }
         SK_ABORT("Unreachable");
         return "Unknown";

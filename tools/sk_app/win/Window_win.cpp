@@ -354,6 +354,16 @@ bool Window_win::attach(BackendType attachType) {
             fWindowContext = window_context_factory::NewANGLEForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
+#ifdef SK_DAWN
+        case kDawn_BackendType:
+#ifdef SK_DAWN_OPENGL
+            fWindowContext = window_context_factory::NewDawnGLForWin(fHWnd, fRequestedDisplayParams);
+#endif
+#ifdef SK_DAWN_D3D12
+            fWindowContext = window_context_factory::NewDawnD3D12ForWin(fHWnd, fRequestedDisplayParams);
+#endif
+            break;
+#endif
         case kRaster_BackendType:
             fWindowContext = window_context_factory::NewRasterForWin(fHWnd,
                                                                      fRequestedDisplayParams);
