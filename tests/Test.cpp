@@ -67,3 +67,7 @@ SkMSec skiatest::Timer::elapsedMsInt() const {
     SkASSERT(SK_MSecMax >= elapsedMs);
     return static_cast<SkMSec>(elapsedMs);
 }
+
+DEF_GPUTEST(FAILER, r, o) {
+    ERRORF(r, "SORRY!");
+}
