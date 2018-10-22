@@ -27,8 +27,16 @@ public:
     // Returns the total number of "random" bytes available.
     size_t size() { return fBytes->size(); }
     // Returns if there are no bytes remaining for fuzzing.
-    bool exhausted(){
+    bool exhausted() {
         return fBytes->size() == fNextByte;
+    }
+
+    size_t remaining() {
+        return fBytes->size() - fNextByte;
+    }
+
+    void deplete() {
+        fNextByte = fBytes->size();
     }
 
     // next() loads fuzzed bytes into the variable passed in by pointer.
