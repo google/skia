@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a90e158a_52cd75cd",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-10-22T18:17:53Z",
+      "side": 1,
+      "message": "nit about naming, maybe: I think in current usage on paint is more like kForceAutoHinting_Flag. The idea was for this to work with kEnableByteCodeHints_Flag so users could specify more directly what they want. It turns out that because FontConfig has a \u0027force autohinting\u0027 bit the existing AutoHinting flag on SkPaint is currently used as a \u0027force autohinting\u0027 bit.",
+      "range": {
+        "startLine": 32,
+        "startChar": 9,
+        "endLine": 32,
+        "endChar": 15
+      },
+      "revId": "6c52793879f8c8607f3c9130c43763c08a76e02d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
