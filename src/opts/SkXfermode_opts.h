@@ -13,6 +13,14 @@
 #include "SkNx.h"
 #include "SkXfermodePriv.h"
 
+#ifdef SK_FORCE_RASTER_PIPELINE_BLITTER
+
+namespace SK_OPTS_NS {
+    /*not static*/ inline SkXfermode* create_xfermode(SkBlendMode) { return nullptr; }
+}
+
+#else
+
 namespace {
 
 // Most xfermodes can be done most efficiently 4 pixels at a time in 8 or 16-bit fixed point.
@@ -124,5 +132,7 @@ namespace SK_OPTS_NS {
 }
 
 } // namespace SK_OPTS_NS
+
+#endif // #ifdef SK_FORCE_RASTER_PIPELINE_BLITTER
 
 #endif//Sk4pxXfermode_DEFINED
