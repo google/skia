@@ -1477,20 +1477,25 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, f
             n = 0;
             continue;
         }
-        textures[i].fProxy =
-                as_IB(set[i].fImage.get())
-                        ->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(), nullptr);
+        uint32_t uniqueID;
+        textures[i].fProxy = as_IB(set[i].fImage.get())->refPinnedTextureProxy(&uniqueID);
+        if (!textures[i].fProxy) {
+            textures[i].fProxy =
+                    as_IB(set[i].fImage.get())
+                            ->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(),
+                                                nullptr);
+            // If we failed to make a proxy then flush the accumulated set and reset for the next
+            // image.
+            if (!textures[i].fProxy) {
+                draw();
+                base = i + 1;
+                n = 0;
+                continue;
+            }
+        }
         textures[i].fSrcRect = set[i].fSrcRect;
         textures[i].fDstRect = set[i].fDstRect;
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
-        // If we failed to make a proxy or our proxy can't be grouped with the previous proxies then
-        // draw the accumulated set and reset.
-        if (!textures[i].fProxy) {
-            draw();
-            base = i + 1;
-            n = 0;
-            continue;
-        }
         if (n > 0 &&
             (textures[i].fProxy->textureType() != textures[base].fProxy->textureType() ||
              textures[i].fProxy->config() != textures[base].fProxy->config() ||
