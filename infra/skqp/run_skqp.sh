@@ -22,6 +22,25 @@ timeout 60 adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) 
 sleep 10
 
 adb install -r /OUT/*.apk
+adb logcat -G 4M || echo ':('  # Increase size of log ring buffer.
+
 adb logcat -c
-adb shell am instrument -w org.skia.skqp | fold -s
-adb logcat -d TestRunner org.skia.skqp skia DEBUG "*:S"
+adb shell am instrument -w org.skia.skqp &
+I_PID=$!
+
+looper() {
+    while true; do
+        printf '\n\n>>>>>> %s <<<<<<\n' "$(date +%T.%N)"
+        adb logcat -d
+        adb logcat -c
+        adb shell dumpsys meminfo
+        echo
+        sleep 30
+    done
+}
+looper &
+L_PID=$!
+wait $I_PID
+kill $L_PID
+
+#adb logcat -d # TestRunner org.skia.skqp skia DEBUG "*:S"
