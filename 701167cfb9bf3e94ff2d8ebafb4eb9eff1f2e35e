@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3589dbbd_c4d45bc9",
+        "filename": "src/codec/SkStreamBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 8766
+      },
+      "writtenOn": "2018-10-22T23:07:06Z",
+      "side": 1,
+      "message": "Would it be possible to use SkSafeMath like here https://skia-review.googlesource.com/c/skia/+/163485/2/src/gpu/GrBufferAllocPool.cpp\n\ninstead of manually written check?",
+      "range": {
+        "startLine": 75,
+        "startChar": 13,
+        "endLine": 76,
+        "endChar": 55
+      },
+      "revId": "701167cfb9bf3e94ff2d8ebafb4eb9eff1f2e35e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
