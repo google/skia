@@ -144,12 +144,8 @@ struct SkBezier {
     // See if left shift, covert to SkFDot6, and round has the same top and bottom y.
     // If so, the edge will be empty.
     static inline bool IsEmpty(SkScalar y0, SkScalar y1, int shift = 2) {
-#ifdef SK_RASTERIZE_EVEN_ROUNDING
-        return SkScalarRoundToFDot6(y0, shift) == SkScalarRoundToFDot6(y1, shift);
-#else
         SkScalar scale = (1 << (shift + 6));
         return SkFDot6Round(int(y0 * scale)) == SkFDot6Round(int(y1 * scale));
-#endif
     }
 };
 
