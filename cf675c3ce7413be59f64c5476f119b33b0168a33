@@ -22,6 +22,30 @@
       "revId": "cf675c3ce7413be59f64c5476f119b33b0168a33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a1215a8_1c884efe",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-10-22T16:31:23Z",
+      "side": 1,
+      "message": "They are one and the same today -- subpixel means fractional(ish) metrics and fractional positioning of outline when we build the (multiple) masks.",
+      "parentUuid": "4c4675b1_6882c351",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 22
+      },
+      "revId": "cf675c3ce7413be59f64c5476f119b33b0168a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
