@@ -52,10 +52,6 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
             switch (numPlanes) {
                 case 1:
                     // Assume 3 interleaved planes
-                    sizeInfo->fColorTypes[0] = kRGBA_8888_SkColorType;
-                    sizeInfo->fColorTypes[1] = kUnknown_SkColorType;
-                    sizeInfo->fColorTypes[2] = kUnknown_SkColorType;
-                    sizeInfo->fColorTypes[3] = kUnknown_SkColorType;
                     yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
                     yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
                     yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 0;
@@ -67,10 +63,6 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
                     break;
                 case 2:
                     // Assume 1 Y plane and interleaved UV planes (NV12)
-                    sizeInfo->fColorTypes[0] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[1] = kRGBA_8888_SkColorType;
-                    sizeInfo->fColorTypes[2] = kUnknown_SkColorType;
-                    sizeInfo->fColorTypes[3] = kUnknown_SkColorType;
                     yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
                     yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
                     yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
@@ -83,10 +75,6 @@ bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
                 case 3:
                 default:
                     // Assume 3 separate non-interleaved planes
-                    sizeInfo->fColorTypes[0] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[1] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[2] = kAlpha_8_SkColorType;
-                    sizeInfo->fColorTypes[3] = kUnknown_SkColorType;
                     yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
                     yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
                     yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;

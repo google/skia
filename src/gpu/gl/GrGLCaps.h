@@ -436,6 +436,8 @@ public:
 
     bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
                                     GrPixelConfig*) const override;
+    bool getYUVAConfigFromBackendFormat(const GrBackendFormat&,
+                                        GrPixelConfig*) const override;
 
 #if GR_TEST_UTILS
     GrGLStandard standard() const { return fStandard; }

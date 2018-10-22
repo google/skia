@@ -15,7 +15,6 @@
 struct SkYUVSizeInfo {
     static constexpr auto kMaxCount = 4;
 
-    SkColorType fColorTypes[kMaxCount];
     SkISize     fSizes[kMaxCount];
 
     /**
@@ -34,17 +33,8 @@ struct SkYUVSizeInfo {
 
     bool operator==(const SkYUVSizeInfo& that) const {
         for (int i = 0; i < kMaxCount; ++i) {
-            if (fColorTypes[i] != that.fColorTypes[i]) {
-                return false;
-            }
-
-            if (kUnknown_SkColorType == fColorTypes[i]) {
-                SkASSERT(!fSizes[i].fWidth && !fSizes[i].fHeight && !fWidthBytes[i]);
-                SkASSERT(!that.fSizes[i].fWidth && !that.fSizes[i].fHeight && !that.fWidthBytes[i]);
-                continue;
-            }
-
-            SkASSERT(fSizes[i].fWidth && fSizes[i].fHeight && fWidthBytes[i]);
+            SkASSERT((!fSizes[i].isEmpty() && fWidthBytes[i]) ||
+                     (fSizes[i].isEmpty() && !fWidthBytes[i]));
             if (fSizes[i] != that.fSizes[i] || fWidthBytes[i] != that.fWidthBytes[i]) {
                 return false;
             }
@@ -57,9 +47,8 @@ struct SkYUVSizeInfo {
         size_t totalBytes = 0;
 
         for (int i = 0; i < kMaxCount; ++i) {
-            SkASSERT(kUnknown_SkColorType != fColorTypes[i] ||
-                        (!fSizes[i].fWidth && !fSizes[i].fHeight && !fWidthBytes[i]));
-
+            SkASSERT((!fSizes[i].isEmpty() && fWidthBytes[i]) ||
+                     (fSizes[i].isEmpty() && !fWidthBytes[i]));
             totalBytes += fWidthBytes[i] * fSizes[i].height();
         }
 

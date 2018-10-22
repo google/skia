@@ -2927,6 +2927,37 @@ bool GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColor
     return validate_sized_format(*glFormat, ct, config, fStandard);
 }
 
+bool GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
+                                              GrPixelConfig* config) const {
+    const GrGLenum* glFormat = format.getGLFormat();
+    if (!glFormat) {
+        return false;
+    }
+
+    switch (*glFormat) {
+    case GR_GL_ALPHA8:
+        *config = kAlpha_8_as_Alpha_GrPixelConfig;
+        break;
+    case GR_GL_R8:
+        *config = kAlpha_8_as_Red_GrPixelConfig;
+        break;
+    case GR_GL_RGBA8:
+        *config = kRGBA_8888_GrPixelConfig;
+        break;
+    case GR_GL_RGB8:
+        *config = kRGB_888_GrPixelConfig;
+        break;
+    case GR_GL_BGRA8:
+        *config = kBGRA_8888_GrPixelConfig;
+        break;
+    default:
+        return false;
+    }
+
+    return true;
+}
+
+
 #ifdef GR_TEST_UTILS
 GrBackendFormat GrGLCaps::onCreateFormatFromBackendTexture(
         const GrBackendTexture& backendTex) const {

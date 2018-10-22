@@ -832,13 +832,11 @@ bool SkJpegCodec::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpa
 
     jpeg_component_info * comp_info = dinfo->comp_info;
     for (auto i : { SkYUVAIndex::kY_Index, SkYUVAIndex::kU_Index, SkYUVAIndex::kV_Index }) {
-        sizeInfo->fColorTypes[i] = kAlpha_8_SkColorType;
         sizeInfo->fSizes[i].set(comp_info[i].downsampled_width, comp_info[i].downsampled_height);
         sizeInfo->fWidthBytes[i] = comp_info[i].width_in_blocks * DCTSIZE;
     }
 
     // JPEG never has an alpha channel
-    sizeInfo->fColorTypes[SkYUVAIndex::kA_Index] = kUnknown_SkColorType;
     sizeInfo->fSizes[SkYUVAIndex::kA_Index].fHeight =
         sizeInfo->fSizes[SkYUVAIndex::kA_Index].fWidth =
         sizeInfo->fWidthBytes[SkYUVAIndex::kA_Index] = 0;
@@ -857,9 +855,6 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo,
     // This will check is_yuv_supported(), so we don't need to here.
     bool supportsYUV = this->onQueryYUV8(&defaultInfo, nullptr);
     if (!supportsYUV ||
-            kAlpha_8_SkColorType != sizeInfo.fColorTypes[0] ||
-            kAlpha_8_SkColorType != sizeInfo.fColorTypes[1] ||
-            kAlpha_8_SkColorType != sizeInfo.fColorTypes[2] ||
             sizeInfo.fSizes[0] != defaultInfo.fSizes[0] ||
             sizeInfo.fSizes[1] != defaultInfo.fSizes[1] ||
             sizeInfo.fSizes[2] != defaultInfo.fSizes[2] ||

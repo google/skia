@@ -365,11 +365,9 @@ public:
         bool result = this->onQueryYUV8(sizeInfo, colorSpace);
         if (result) {
             for (int i = 0; i <= 2; ++i) {
-                SkASSERT(kAlpha_8_SkColorType == sizeInfo->fColorTypes[i]);
                 SkASSERT(sizeInfo->fSizes[i].fWidth > 0 && sizeInfo->fSizes[i].fHeight > 0 &&
                          sizeInfo->fWidthBytes[i] > 0);
             }
-            SkASSERT(kUnknown_SkColorType == sizeInfo->fColorTypes[3]);
             SkASSERT(!sizeInfo->fSizes[3].fWidth &&
                      !sizeInfo->fSizes[3].fHeight &&
                      !sizeInfo->fWidthBytes[3]);
@@ -391,7 +389,6 @@ public:
         if (!planes || !planes[0] || !planes[1] || !planes[2]) {
             return kInvalidInput;
         }
-        SkASSERT(kUnknown_SkColorType == sizeInfo.fColorTypes[3]);
         SkASSERT(!planes[3]); // TODO: is this a fair assumption?
 
         if (!this->rewindIfNeeded()) {
