@@ -19,18 +19,17 @@
 
 static void test_font(skiatest::Reporter* reporter) {
     uint32_t flags = 0;
-    sk_sp<SkFont> font(SkFont::Make(nullptr, 24, SkFont::kA8_MaskType, flags));
+    SkFont font(nullptr, 24, flags);
 
-    REPORTER_ASSERT(reporter, font->getTypeface());
-    REPORTER_ASSERT(reporter, 24 == font->getSize());
-    REPORTER_ASSERT(reporter, 1 == font->getScaleX());
-    REPORTER_ASSERT(reporter, 0 == font->getSkewX());
-    REPORTER_ASSERT(reporter, SkFont::kA8_MaskType == font->getMaskType());
+    REPORTER_ASSERT(reporter, font.getTypeface());
+    REPORTER_ASSERT(reporter, 24 == font.getSize());
+    REPORTER_ASSERT(reporter, 1 == font.getScaleX());
+    REPORTER_ASSERT(reporter, 0 == font.getSkewX());
 
     uint16_t glyphs[5];
     sk_bzero(glyphs, sizeof(glyphs));
 
-    int count = font->textToGlyphs("Hello", 5, kUTF8_SkTextEncoding, glyphs, SK_ARRAY_COUNT(glyphs));
+    int count = font.textToGlyphs("Hello", 5, kUTF8_SkTextEncoding, glyphs, SK_ARRAY_COUNT(glyphs));
 
     REPORTER_ASSERT(reporter, 5 == count);
     for (int i = 0; i < count; ++i) {
@@ -39,18 +38,15 @@ static void test_font(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, glyphs[0] != glyphs[1]); // 'h' != 'e'
     REPORTER_ASSERT(reporter, glyphs[2] == glyphs[3]); // 'l' == 'l'
 
-    sk_sp<SkFont> newFont(font->makeWithSize(36));
-    REPORTER_ASSERT(reporter, newFont.get());
-    REPORTER_ASSERT(reporter, font->getTypeface() == newFont->getTypeface());
-    REPORTER_ASSERT(reporter, 36 == newFont->getSize());   // double check we haven't changed
-    REPORTER_ASSERT(reporter, 24 == font->getSize());   // double check we haven't changed
+    const SkFont newFont(font.makeWithSize(36));
+    REPORTER_ASSERT(reporter, font.getTypeface() == newFont.getTypeface());
+    REPORTER_ASSERT(reporter, 36 == newFont.getSize());   // double check we haven't changed
+    REPORTER_ASSERT(reporter, 24 == font.getSize());   // double check we haven't changed
 
     SkPaint paint;
     paint.setTextSize(18);
-    font = SkFont::Testing_CreateFromPaint(paint);
-    REPORTER_ASSERT(reporter, font.get());
-    REPORTER_ASSERT(reporter, font->getSize() == paint.getTextSize());
-    REPORTER_ASSERT(reporter, SkFont::kBW_MaskType == font->getMaskType());
+    font = SkFont::LEGACY_ExtractFromPaint(paint);
+    REPORTER_ASSERT(reporter, font.getSize() == paint.getTextSize());
 }
 
 /*

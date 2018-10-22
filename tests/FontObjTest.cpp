@@ -10,35 +10,28 @@
 #include "SkTypeface.h"
 #include "Test.h"
 
-static bool is_use_nonlinear_metrics(const SkPaint& paint) {
-    return !paint.isSubpixelText() && !paint.isLinearText();
-}
-
-static bool is_enable_auto_hints(const SkPaint& paint) {
-    return paint.isAutohinted();
-}
-
-static bool is_enable_bytecode_hints(const SkPaint& paint) {
-    return paint.getHinting() >= SkPaint::kFull_Hinting;
-}
-
-static void test_cachedfont(skiatest::Reporter* reporter, const SkPaint& paint) {
-    sk_sp<SkFont> font(SkFont::Testing_CreateFromPaint(paint));
-
+static void test_cachedfont(skiatest::Reporter* reporter,
+                            const SkPaint& paint, const SkFont& font) {
     // Currently SkFont resolves null into the default, so only test if paint's is not null
     if (paint.getTypeface()) {
-        REPORTER_ASSERT(reporter, font->getTypeface() == paint.getTypeface());
+        REPORTER_ASSERT(reporter, font.getTypeface() == paint.getTypeface());
     }
-    REPORTER_ASSERT(reporter, font->getSize() == paint.getTextSize());
-    REPORTER_ASSERT(reporter, font->getScaleX() == paint.getTextScaleX());
-    REPORTER_ASSERT(reporter, font->getSkewX() == paint.getTextSkewX());
+    REPORTER_ASSERT(reporter, font.getSize() == paint.getTextSize());
+    REPORTER_ASSERT(reporter, font.getScaleX() == paint.getTextScaleX());
+    REPORTER_ASSERT(reporter, font.getSkewX() == paint.getTextSkewX());
 
-    REPORTER_ASSERT(reporter, font->isVertical() == paint.isVerticalText());
-    REPORTER_ASSERT(reporter, font->isEmbolden() == paint.isFakeBoldText());
+    uint32_t mask = SkPaint::kLinearText_Flag |
+                    SkPaint::kSubpixelText_Flag |
+                    SkPaint::kFakeBoldText_Flag |
+                    SkPaint::kEmbeddedBitmapText_Flag |
+                    SkPaint::kAutoHinting_Flag;
 
-    REPORTER_ASSERT(reporter, font->isUseNonLinearMetrics() == is_use_nonlinear_metrics(paint));
-    REPORTER_ASSERT(reporter, font->isEnableAutoHints() == is_enable_auto_hints(paint));
-    REPORTER_ASSERT(reporter, font->isEnableByteCodeHints() == is_enable_bytecode_hints(paint));
+    SkPaint p;
+    font.LEGACY_applyToPaint(&p);
+    uint32_t oldFlags = paint.getFlags() & mask;
+    uint32_t newFlags = p.getFlags() & mask;
+    REPORTER_ASSERT(reporter, oldFlags == newFlags);
+    REPORTER_ASSERT(reporter, paint.getHinting() == p.getHinting());
 }
 
 static void test_cachedfont(skiatest::Reporter* reporter) {
@@ -89,7 +82,9 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
                 paint.setTextScaleX(gScaleRec[k].fScaleX);
                 paint.setTextSkewX(gScaleRec[k].fSkewX);
 
-                test_cachedfont(reporter, paint);
+                const SkFont font(SkFont::LEGACY_ExtractFromPaint(paint));
+
+                test_cachedfont(reporter, paint, font);
 
                 SkRect bounds;
 
@@ -102,8 +97,7 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
 
                 REPORTER_ASSERT(reporter, width1 == width2);
 
-                sk_sp<SkFont> font(SkFont::Testing_CreateFromPaint(paint));
-                SkScalar font_width1 = font->measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
+                SkScalar font_width1 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
                 // measureText not yet implemented...
                 REPORTER_ASSERT(reporter, font_width1 == -1);
 //                REPORTER_ASSERT(reporter, width1 == font_width1);
@@ -112,8 +106,26 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_aa_hinting(skiatest::Reporter* reporter) {
+    SkPaint paint;
+
+    for (bool aa : {false, true}) {
+        paint.setAntiAlias(aa);
+        for (int hint = 0; hint <= 3; ++hint) {
+            paint.setHinting((SkPaint::Hinting)hint);
+            SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+
+            SkPaint p2;
+            font.LEGACY_applyToPaint(&p2);
+            REPORTER_ASSERT(reporter, paint.isAntiAlias() == p2.isAntiAlias());
+            REPORTER_ASSERT(reporter, paint.getHinting() == p2.getHinting());
+        }
+    }
+}
+
 DEF_TEST(FontObj, reporter) {
     test_cachedfont(reporter);
+    test_aa_hinting(reporter);
 }
 
 // need tests for SkStrSearch
