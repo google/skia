@@ -50,6 +50,8 @@ void EMSCRIPTEN_KEEPALIVE initFonts() {
 
 #if SK_SUPPORT_GPU
 // Wraps the WebGL context in an SkSurface and returns it.
+// This function based on the work of
+// https://github.com/Zubnix/skia-wasm-port/, used under the terms of the MIT license.
 sk_sp<SkSurface> getWebGLSurface(std::string id, int width, int height) {
     // Context configurations
     EmscriptenWebGLContextAttributes attrs;
