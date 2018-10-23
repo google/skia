@@ -395,28 +395,6 @@ public:
     */
     void setAutohinted(bool useAutohinter);
 
-#ifdef SK_SUPPORT_LEGACY_VERTICALTEXTAPI
-    /** DEPRECATED
-        Returns true if glyphs are drawn top to bottom instead of left to right.
-
-        Equivalent to getFlags() masked with kVerticalText_Flag.
-
-        @return  kVerticalText_Flag state
-    */
-    bool isVerticalText() const { return false; }
-
-    /** DEPRECATED
-        Returns true if text advance positions the next glyph below the previous glyph instead of to the
-        right of previous glyph.
-
-        Sets kVerticalText_Flag if vertical is true.
-        Clears kVerticalText_Flag if vertical is false.
-
-        @param verticalText  setting for kVerticalText_Flag
-    */
-    void setVerticalText(bool) {}
-#endif
-
     /** Returns true if approximate bold by increasing the stroke width when creating glyph bitmaps
         from outlines.
 
