@@ -526,34 +526,57 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
     }
 }
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunText(const SkPaint& font, int count,
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunText(const SkFont& font, int count,
                                                                     SkScalar x, SkScalar y,
                                                                     int textByteCount,
                                                                     SkString lang,
                                                                     const SkRect* bounds) {
-    this->allocInternal(font, SkTextBlob::kDefault_Positioning, count, textByteCount, SkPoint::Make(x, y), bounds);
+    SkPaint paint;
+    font.LEGACY_applyToPaint(&paint);
+    this->allocInternal(paint, SkTextBlob::kDefault_Positioning, count, textByteCount, SkPoint::Make(x, y), bounds);
     return fCurrentRunBuffer;
 }
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPosH(const SkPaint& font, int count,
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPosH(const SkFont& font, int count,
                                                                         SkScalar y,
                                                                         int textByteCount,
                                                                         SkString lang,
                                                                         const SkRect* bounds) {
-    this->allocInternal(font, SkTextBlob::kHorizontal_Positioning, count, textByteCount, SkPoint::Make(0, y),
+    SkPaint paint;
+    font.LEGACY_applyToPaint(&paint);
+    this->allocInternal(paint, SkTextBlob::kHorizontal_Positioning, count, textByteCount, SkPoint::Make(0, y),
                         bounds);
 
     return fCurrentRunBuffer;
 }
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPos(const SkPaint& font, int count,
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPos(const SkFont& font, int count,
                                                                        int textByteCount,
                                                                        SkString lang,
                                                                        const SkRect *bounds) {
-    this->allocInternal(font, SkTextBlob::kFull_Positioning, count, textByteCount, SkPoint::Make(0, 0), bounds);
+    SkPaint paint;
+    font.LEGACY_applyToPaint(&paint);
+    this->allocInternal(paint, SkTextBlob::kFull_Positioning, count, textByteCount, SkPoint::Make(0, 0), bounds);
 
     return fCurrentRunBuffer;
 }
+
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOBBUILDER_PAINT
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRun(const SkPaint& paint, int count,
+                                                                SkScalar x, SkScalar y,
+                                                                const SkRect* bounds) {
+    return this->allocRun(SkFont::LEGACY_ExtractFromPaint(paint), count, x, y, bounds);
+}
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPosH(const SkPaint& paint,
+                                                                    int count, SkScalar y,
+                                                                    const SkRect* bounds) {
+    return this->allocRunPosH(SkFont::LEGACY_ExtractFromPaint(paint), count, y, bounds);
+}
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPos(const SkPaint& paint, int count,
+                                                                   const SkRect* bounds) {
+    return this->allocRunPos(SkFont::LEGACY_ExtractFromPaint(paint), count, bounds);
+}
+#endif
 
 sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
     if (!fRunCount) {
@@ -669,8 +692,9 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
         SkPoint offset;
         reader.readPoint(&offset);
-        SkPaint font;
-        reader.readPaint(&font);
+        SkPaint paint;
+        reader.readPaint(&paint);
+        SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
 
         // Compute the expected size of the buffer and ensure we have enough to deserialize
         // a run before allocating it.
