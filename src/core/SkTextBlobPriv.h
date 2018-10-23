@@ -42,17 +42,17 @@ public:
 class SkTextBlobBuilderPriv {
 public:
     static const SkTextBlobBuilder::RunBuffer& AllocRunText(SkTextBlobBuilder* builder,
-            const SkPaint& font, int count, SkScalar x, SkScalar y, int textByteCount,
+            const SkFont& font, int count, SkScalar x, SkScalar y, int textByteCount,
             SkString lang, const SkRect* bounds = nullptr) {
         return builder->allocRunText(font, count, x, y, textByteCount, lang, bounds);
     }
     static const SkTextBlobBuilder::RunBuffer& AllocRunTextPosH(SkTextBlobBuilder* builder,
-            const SkPaint& font, int count, SkScalar y, int textByteCount, SkString lang,
+            const SkFont& font, int count, SkScalar y, int textByteCount, SkString lang,
             const SkRect* bounds = nullptr) {
         return builder->allocRunTextPosH(font, count, y, textByteCount, lang, bounds);
     }
     static const SkTextBlobBuilder::RunBuffer& AllocRunTextPos(SkTextBlobBuilder* builder,
-            const SkPaint& font, int count, int textByteCount, SkString lang,
+            const SkFont& font, int count, int textByteCount, SkString lang,
             const SkRect* bounds = nullptr) {
         return builder->allocRunTextPos(font, count, textByteCount, lang, bounds);
     }
