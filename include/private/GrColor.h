@@ -14,6 +14,7 @@
 #include "GrTypes.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkNx.h"
 #include "SkUnPreMultiply.h"
 
 /**
@@ -151,5 +152,31 @@ static inline GrColor GrUnpremulColor(GrColor color) {
 
     return GrColorPackRGBA(r, g, b, a);
 }
+
+/**
+ * GrColor4s is 8 bytes for for R, G, B, A, in a specific order defined below. Whether the color is
+ * premultiplied or not depends on the context in which it is being used. The values are encoded
+ * with a fixed point scale (1.3.12), allowing us to store a wide range of out-of-gamut colors in
+ * vertex attributes.
+ */
+struct GrColor4s {
+    GrColor4s() {}
+    GrColor4s(int32_t r, int32_t g, int32_t b, int32_t a) {
+        fR = static_cast<int16_t>(r);
+        fG = static_cast<int16_t>(g);
+        fB = static_cast<int16_t>(b);
+        fA = static_cast<int16_t>(a);
+    }
+
+    static GrColor4s FromFloat4(const float* c4f) {
+        Sk4i c4i = Sk4i::Max(-32768, Sk4i::Min(Sk4f_round(Sk4f::Load(c4f) * 4096.0f), 32767));
+        return { c4i[0], c4i[1], c4i[2], c4i[3] };
+    }
+
+    int16_t fR;
+    int16_t fG;
+    int16_t fB;
+    int16_t fA;
+};
 
 #endif
