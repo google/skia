@@ -687,11 +687,11 @@ outset rect: 20, 30, 80, 90  size: 60, 60
 bool <a href='#SkIRect_isEmpty'>isEmpty</a>() const
 </pre>
 
-Returns true if <a href='#SkIRect_width'>width</a>() or <a href='#SkIRect_height'>height</a>() are zero or negative or they exceed int32_t.
+Returns true if <a href='#SkIRect_width'>width</a>() or <a href='#SkIRect_height'>height</a>() are zero or negative.
 
 ### Return Value
 
-true if <a href='#SkIRect_width'>width</a>() or <a href='#SkIRect_height'>height</a>() are not positive and valid
+true if <a href='#SkIRect_width'>width</a>() or <a href='#SkIRect_height'>height</a>() are zero or negative
 
 ### Example
 
@@ -722,11 +722,11 @@ bool <a href='#SkIRect_isEmpty64'>isEmpty64</a>() const
 
 Returns true if <a href='#SkIRect_fLeft'>fLeft</a> is equal to or greater than <a href='#SkIRect_fRight'>fRight</a>, or if <a href='#SkIRect_fTop'>fTop</a> is equal
 to or greater than <a href='#SkIRect_fBottom'>fBottom</a>. Call <a href='#SkIRect_sort'>sort</a>() to reverse rectangles with negative
-<a href='#SkIRect_width64'>width64</a>() or <a href='#SkIRect_height64'>height64</a>().
+<a href='#SkIRect_width64'>width64</a> or <a href='#SkIRect_height64'>height64</a>.
 
 ### Return Value
 
-true if <a href='#SkIRect_width64'>width64</a>() or <a href='#SkIRect_height64'>height64</a>() are not positive
+true if <a href='#SkIRect_width64'>width64</a> or <a href='#SkIRect_height64'>height64</a> are zero or negative
 
 ### Example
 

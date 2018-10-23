@@ -466,11 +466,10 @@ FT_Load_Glyph
 #Topic Nine_Patch
 ##
 
-# to be in Topic Number_Types
+# to be in Topic Number_Types ?
     #Typedef uint16_t SkGlyphID
     #Typedef ##
     #Topic Scalar
-    #Alias Scalar ##
     #Alias Scalars ##
     #Typedef float SkScalar
     #Typedef ##
@@ -802,8 +801,4 @@ FT_Load_Glyph
 #Topic Xfermode_Image_Filter
 #Class SkXfermodeImageFilter
 ##
-##
-
-# temporary while ref is separated from overview
-#Topic Zero_Length_Contour
 ##
