@@ -57,7 +57,9 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* writer) {
                 writer->finishContour();
             } else {
                 SkOpSpanBase* last;
-                SkAssertResult(current->markAndChaseDone(start, end, &last));
+                 if (!current->markAndChaseDone(start, end, &last)) {
+                    return false;
+                }
                 if (last && !last->chased()) {
                     last->setChased(true);
                     SkASSERT(!SkPathOpsDebug::ChaseContains(chase, last));
