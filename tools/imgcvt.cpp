@@ -6,10 +6,17 @@
 */
 
 #include "../third_party/skcms/skcms.h"
+#include "SkCanvas.h"
 #include "SkColorSpacePriv.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkStream.h"
+#include "SkSurface.h"
+
+static void write_png(const char* path, sk_sp<SkImage> img) {
+    sk_sp<SkData>  png = img->encodeToData();
+    SkFILEWStream(path).write(png->data(), png->size());
+}
 
 int main(int argc, char** argv) {
     const char* source_path = argc > 1 ? argv[1] : nullptr;
@@ -81,40 +88,72 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    SkColorSpace* src_cs = image->colorSpace() ? image->colorSpace()
-                                               : sk_srgb_singleton();
-    src_cs->toProfile(&src_profile);
+    sk_sp<SkColorSpace> dst_cs = SkColorSpace::Make(dst_profile);
+    if (!dst_cs) {
+        SkDebugf("We can't convert to this destination profile.\n");
+        return 1;
+    }
 
-    skcms_PixelFormat fmt;
-    switch (pixmap.colorType()) {
-        case kRGBA_8888_SkColorType: fmt = skcms_PixelFormat_RGBA_8888; break;
-        case kBGRA_8888_SkColorType: fmt = skcms_PixelFormat_BGRA_8888; break;
-        default:
-            SkDebugf("color type %d not yet supported, imgcvt.cpp needs an update.\n",
-                     pixmap.colorType());
+    { // transform with skcms
+        SkColorSpace* src_cs = image->colorSpace() ? image->colorSpace()
+                                                   : sk_srgb_singleton();
+        src_cs->toProfile(&src_profile);
+
+        skcms_PixelFormat fmt;
+        switch (pixmap.colorType()) {
+            case kRGBA_8888_SkColorType: fmt = skcms_PixelFormat_RGBA_8888; break;
+            case kBGRA_8888_SkColorType: fmt = skcms_PixelFormat_BGRA_8888; break;
+            default:
+                SkDebugf("color type %d not yet supported, imgcvt.cpp needs an update.\n",
+                         pixmap.colorType());
+                return 1;
+        }
+
+        if (pixmap.alphaType() != kPremul_SkAlphaType) {
+            SkDebugf("not premul, that's weird.\n");
             return 1;
+        }
+        auto alpha = skcms_AlphaFormat_PremulAsEncoded;
+
+        if (pixmap.rowBytes() != (size_t)pixmap.width() * pixmap.info().bytesPerPixel()) {
+            SkDebugf("not a tight pixmap, need a loop here\n");
+            return 1;
+        }
+
+        if (!skcms_Transform(pixmap.addr(),          fmt,alpha, &src_profile,
+                             pixmap.writable_addr(), fmt,alpha, &dst_profile,
+                             pixmap.width() * pixmap.height())) {
+            SkDebugf("skcms_Transform() failed\n");
+            return 1;
+        }
+        pixmap.setColorSpace(dst_cs);
+
+        write_png("transformed-skcms.png", SkImage::MakeRasterCopy(pixmap));
     }
 
-    if (pixmap.alphaType() != kPremul_SkAlphaType) {
-        SkDebugf("not premul, that's weird.\n");
-        return 1;
+    { // transform with writePixels()
+        sk_sp<SkSurface> surface = SkSurface::MakeRaster(pixmap.info().makeColorSpace(dst_cs));
+        if (!surface) {
+            SkDebugf("couldn't create a surface\n");
+            return 1;
+        }
+
+        surface->writePixels(pixmap, 0,0);
+
+        write_png("transformed-writepixels.png", surface->makeImageSnapshot());
     }
-    auto alpha = skcms_AlphaFormat_PremulAsEncoded;
 
-    if (pixmap.rowBytes() != (size_t)pixmap.width() * pixmap.info().bytesPerPixel()) {
-        SkDebugf("not a tight pixmap, need a loop here\n");
-        return 1;
+    { // transform by drawing
+        sk_sp<SkSurface> surface = SkSurface::MakeRaster(pixmap.info().makeColorSpace(dst_cs));
+        if (!surface) {
+            SkDebugf("couldn't create a surface\n");
+            return 1;
+        }
+
+        surface->getCanvas()->drawImage(image, 0,0);
+
+        write_png("transformed-draw.png", surface->makeImageSnapshot());
     }
-
-    skcms_Transform(pixmap.addr(),          fmt,alpha, &src_profile,
-                    pixmap.writable_addr(), fmt,alpha, &dst_profile,
-                    pixmap.width() * pixmap.height());
-    pixmap.setColorSpace(SkColorSpace::Make(dst_profile));
-
-    sk_sp<SkImage> transformed = SkImage::MakeRasterCopy(pixmap);
-    sk_sp<SkData>  png = transformed->encodeToData();
-
-    SkFILEWStream("transformed.png").write(png->data(), png->size());
 
     return 0;
 }
