@@ -1022,9 +1022,6 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
     if (paint.isAutohinted()) {
         flags |= SkScalerContext::kForceAutohinting_Flag;
     }
-    if (paint.isVerticalText()) {
-        flags |= SkScalerContext::kVertical_Flag;
-    }
     rec->fFlags = SkToU16(flags);
 
     // these modify fFlags, so do them after assigning fFlags

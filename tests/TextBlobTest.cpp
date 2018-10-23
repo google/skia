@@ -195,7 +195,6 @@ public:
         font.setLCDRenderText(true);
         font.setEmbeddedBitmapText(true);
         font.setAutohinted(true);
-        font.setVerticalText(true);
 
         // Ensure we didn't pick default values by mistake.
         SkPaint defaultPaint;
@@ -213,7 +212,6 @@ public:
         REPORTER_ASSERT(reporter,
                         defaultPaint.isEmbeddedBitmapText() != font.isEmbeddedBitmapText());
         REPORTER_ASSERT(reporter, defaultPaint.isAutohinted() != font.isAutohinted());
-        REPORTER_ASSERT(reporter, defaultPaint.isVerticalText() != font.isVerticalText());
 
         SkTextBlobBuilder builder;
         AddRun(font, 1, SkTextBlobRunIterator::kDefault_Positioning, SkPoint::Make(0, 0), builder);
@@ -240,7 +238,6 @@ public:
             REPORTER_ASSERT(reporter, paint.isLCDRenderText() == font.isLCDRenderText());
             REPORTER_ASSERT(reporter, paint.isEmbeddedBitmapText() == font.isEmbeddedBitmapText());
             REPORTER_ASSERT(reporter, paint.isAutohinted() == font.isAutohinted());
-            REPORTER_ASSERT(reporter, paint.isVerticalText() == font.isVerticalText());
 
             it.next();
         }

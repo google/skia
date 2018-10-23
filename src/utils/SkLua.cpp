@@ -772,11 +772,6 @@ static int lpaint_isAutohinted(lua_State* L) {
     return 1;
 }
 
-static int lpaint_isVerticalText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isVerticalText());
-    return 1;
-}
-
 static int lpaint_getAlpha(lua_State* L) {
     SkLua(L).pushScalar(byte2unit(get_obj<SkPaint>(L, 1)->getAlpha()));
     return 1;
@@ -1074,7 +1069,6 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "setLCDRenderText", lpaint_setLCDRenderText },
     { "isEmbeddedBitmapText", lpaint_isEmbeddedBitmapText },
     { "isAutohinted", lpaint_isAutohinted },
-    { "isVerticalText", lpaint_isVerticalText },
     { "getAlpha", lpaint_getAlpha },
     { "setAlpha", lpaint_setAlpha },
     { "getColor", lpaint_getColor },

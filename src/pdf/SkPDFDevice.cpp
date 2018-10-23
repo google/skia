@@ -1099,7 +1099,6 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     }
     if (srcPaint.getPathEffect()
         || srcPaint.getMaskFilter()
-        || srcPaint.isVerticalText()
         || srcPaint.isFakeBoldText()
         || this->ctm().hasPerspective()
         || SkPaint::kFill_Style != srcPaint.getStyle()) {

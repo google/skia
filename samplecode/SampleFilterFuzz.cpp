@@ -500,7 +500,6 @@ static SkPaint make_paint() {
     paint.setLCDRenderText(make_bool());
     paint.setEmbeddedBitmapText(make_bool());
     paint.setAutohinted(make_bool());
-    paint.setVerticalText(make_bool());
     paint.setFakeBoldText(make_bool());
     paint.setDevKernText(make_bool());
     paint.setFilterQuality(make_filter_quality());

@@ -227,7 +227,7 @@ public:
         kLCDRenderText_Flag      = 0x200,  //!< mask for setting LCD text
         kEmbeddedBitmapText_Flag = 0x400,  //!< mask for setting font embedded bitmaps
         kAutoHinting_Flag        = 0x800,  //!< mask for setting auto-hinting
-        kVerticalText_Flag       = 0x1000, //!< mask for setting vertical text
+                                           // 0x1000 used to be kVertical
         kAllFlags                = 0xFFFF, //!< mask of all Flags
     };
 
@@ -395,17 +395,18 @@ public:
     */
     void setAutohinted(bool useAutohinter);
 
-    /** Returns true if glyphs are drawn top to bottom instead of left to right.
+#ifdef SK_SUPPORT_LEGACY_VERTICALTEXTAPI
+    /** DEPRECATED
+        Returns true if glyphs are drawn top to bottom instead of left to right.
 
         Equivalent to getFlags() masked with kVerticalText_Flag.
 
         @return  kVerticalText_Flag state
     */
-    bool isVerticalText() const {
-        return SkToBool(this->getFlags() & kVerticalText_Flag);
-    }
+    bool isVerticalText() const { return false; }
 
-    /** Returns true if text advance positions the next glyph below the previous glyph instead of to the
+    /** DEPRECATED
+        Returns true if text advance positions the next glyph below the previous glyph instead of to the
         right of previous glyph.
 
         Sets kVerticalText_Flag if vertical is true.
@@ -413,7 +414,8 @@ public:
 
         @param verticalText  setting for kVerticalText_Flag
     */
-    void setVerticalText(bool verticalText);
+    void setVerticalText(bool) {}
+#endif
 
     /** Returns true if approximate bold by increasing the stroke width when creating glyph bitmaps
         from outlines.
@@ -873,10 +875,9 @@ public:
         and SkCanvas::drawString;
         as well as calls that place text glyphs like getTextWidths() and getTextPath().
 
-        The text position is set by the font for both horizontal and vertical text.
+        The text position is set by the font.
         Typically, for horizontal text, the position is to the left side of the glyph on the
-        base line; and for vertical text, the position is the horizontal center of the glyph
-        at the caps height.
+        base line.
 
         Align adjusts the glyph position to center it or move it to abut the position
         using the metrics returned by the font.
@@ -1187,8 +1188,7 @@ public:
     */
     int countText(const void* text, size_t byteLength) const;
 
-    /** Returns the advance width of text if kVerticalText_Flag is clear,
-        and the height of text if kVerticalText_Flag is set.
+    /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
         and text size, text scale x, text skew x, stroke width, and
@@ -1203,8 +1203,7 @@ public:
     */
     SkScalar measureText(const void* text, size_t length, SkRect* bounds) const;
 
-    /** Returns the advance width of text if kVerticalText_Flag is clear,
-        and the height of text if kVerticalText_Flag is set.
+    /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
         and text size to scale the metrics.
@@ -1219,10 +1218,7 @@ public:
     }
 
     /** Returns the bytes of text that fit within maxWidth.
-        If kVerticalText_Flag is clear, the text fragment fits if its advance width is less than or
-        equal to maxWidth.
-        If kVerticalText_Flag is set, the text fragment fits if its advance height is less than or
-        equal to maxWidth.
+        Tthe text fragment fits if its advance width is less than or equal to maxWidth.
         Measures only while the advance is less than or equal to maxWidth.
         Returns the advance or the text fragment in measuredWidth if it not nullptr.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
@@ -1243,8 +1239,6 @@ public:
         Both widths and bounds may be nullptr.
         If widths is not nullptr, widths must be an array of glyph count entries.
         if bounds is not nullptr, bounds must be an array of glyph count entries.
-        If kVerticalText_Flag is clear, widths returns the horizontal advance.
-        If kVerticalText_Flag is set, widths returns the vertical advance.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
         and text size to scale the widths and bounds.
         Does not scale the advance by fake bold or SkPathEffect.

@@ -112,9 +112,6 @@ void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
 
 SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
     uint32_t flags = 0;
-    if (paint.isVerticalText()) {
-        flags |= kVertical_Flag;
-    }
     if (paint.isEmbeddedBitmapText()) {
         flags |= kEmbeddedBitmaps_Flag;
     }

@@ -152,8 +152,6 @@ static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> font) {
     p.setTextSkewX(x);
     fuzz->next(&x);
     p.setTextSize(x);
-    fuzz->next(&b);
-    p.setVerticalText(b);
 
     SkCanvas* cnv = surface->getCanvas();
     cnv->drawPosText(text, (kTxtLen-1), pts, p);
