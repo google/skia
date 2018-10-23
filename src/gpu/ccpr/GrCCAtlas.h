@@ -74,11 +74,13 @@ public:
     // potentially be reused (i.e., those which still represent an extant path). When the percentage
     // of useful pixels drops below 50%, the entire texture is purged from the resource cache.
     struct CachedAtlasInfo : public GrNonAtomicRef<CachedAtlasInfo> {
+        CachedAtlasInfo(uint32_t contextUniqueID) : fContextUniqueID(contextUniqueID) {}
+        const uint32_t fContextUniqueID;
         int fNumPathPixels = 0;
         int fNumInvalidatedPathPixels = 0;
         bool fIsPurgedFromResourceCache = false;
     };
-    sk_sp<CachedAtlasInfo> refOrMakeCachedAtlasInfo();
+    sk_sp<CachedAtlasInfo> refOrMakeCachedAtlasInfo(uint32_t contextUniqueID);
 
     // Instantiates our texture proxy for the atlas and returns a pre-cleared GrRenderTargetContext
     // that the caller may use to render the content. After this call, it is no longer valid to call
