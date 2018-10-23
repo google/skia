@@ -657,6 +657,9 @@ public:
 
     bool insert(const SkPoint& p0, const SkPoint& p1, uint16_t index0, uint16_t index1) {
         SkVector v = p1 - p0;
+        if (!v.isFinite()) {
+            return false;
+        }
         // empty tree case -- easy
         if (!fTreeHead.fChild[1]) {
             ActiveEdge* root = fTreeHead.fChild[1] = this->allocate(p0, v, index0, index1);
