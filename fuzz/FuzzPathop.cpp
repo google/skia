@@ -19,16 +19,16 @@ DEF_FUZZ(Pathop, fuzz) {
     fuzz->nextRange(&choice, 0, 4);
     switch (choice) {
         case 0: {
-            SkPath path;
-            FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
-            SkPath::FillType ft;
-            fuzz->nextEnum(&ft, 0, SkPath::kInverseEvenOdd_FillType);
-            path.setFillType(ft);
-
             uint8_t ops;
             fuzz->nextRange(&ops, 0, MAX_OPS);
             SkOpBuilder builder;
-            for (uint8_t i = 0; i < ops; i++) {
+            for (uint8_t i = 0; i < ops && !fuzz->exhausted(); i++) {
+                SkPath path;
+                FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+                SkPath::FillType ft;
+                fuzz->nextEnum(&ft, 0, SkPath::kInverseEvenOdd_FillType);
+                path.setFillType(ft);
+
                 SkPathOp op;
                 fuzz->nextEnum(&op, 0, SkPathOp::kReverseDifference_SkPathOp);
                 builder.add(path, op);
