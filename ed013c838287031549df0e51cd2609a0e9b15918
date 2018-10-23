@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93c0b46a_c3018ab0",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-23T20:02:47Z",
+      "side": 1,
+      "message": "oops, meant to remove this. Will do in next PS.",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 426,
+        "endChar": 9
+      },
+      "revId": "ed013c838287031549df0e51cd2609a0e9b15918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
