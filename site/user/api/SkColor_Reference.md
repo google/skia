@@ -371,18 +371,18 @@ fully transparent; to 255, fully opaque.
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLUE'>SK_ColorBLUE</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorMAGENTA'>SK_ColorMAGENTA</a>;
 constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGREEN'>SK_ColorGREEN</a>;
-constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorLTGRAY'>SK_ColorLTGRAY</a>;
 constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorRED'>SK_ColorRED</a>;
-constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGRAY'>SK_ColorGRAY</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorWHITE'>SK_ColorWHITE</a>;
 constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorYELLOW'>SK_ColorYELLOW</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorCYAN'>SK_ColorCYAN</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorLTGRAY'>SK_ColorLTGRAY</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorTRANSPARENT'>SK_ColorTRANSPARENT</a>;
 constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLACK'>SK_ColorBLACK</a>;
 constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorDKGRAY'>SK_ColorDKGRAY</a>;
-constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorTRANSPARENT'>SK_ColorTRANSPARENT</a>;
-constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorCYAN'>SK_ColorCYAN</a>;
-constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorWHITE'>SK_ColorWHITE</a>;
-constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorMAGENTA'>SK_ColorMAGENTA</a>;
-constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorBLUE'>SK_ColorBLUE</a>;
+constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorGRAY'>SK_ColorGRAY</a>;
 </pre>
 
 <a href='#Color'>Color</a> names are provided as conveniences, but are not otherwise special.

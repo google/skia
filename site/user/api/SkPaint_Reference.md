@@ -39,7 +39,6 @@ public:
         <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText_Flag</a> = 0x200,
         <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> = 0x400,
         <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a> = 0x800,
-        <a href='#SkPaint_kVerticalText_Flag'>kVerticalText_Flag</a> = 0x1000,
         <a href='#SkPaint_kAllFlags'>kAllFlags</a> = 0xFFFF,
     };
 
@@ -65,7 +64,7 @@ public:
     bool <a href='#SkPaint_isAutohinted'>isAutohinted</a>() const;
     void <a href='#SkPaint_setAutohinted'>setAutohinted</a>(bool useAutohinter);
     bool <a href='#SkPaint_isVerticalText'>isVerticalText</a>() const;
-    void <a href='#SkPaint_setVerticalText'>setVerticalText</a>(bool verticalText);
+    void <a href='#SkPaint_setVerticalText'>setVerticalText</a>(bool);
     bool <a href='#SkPaint_isFakeBoldText'>isFakeBoldText</a>() const;
     void <a href='#SkPaint_setFakeBoldText'>setFakeBoldText</a>(bool fakeBoldText);
     bool <a href='#SkPaint_isDevKernText'>isDevKernText</a>() const;
@@ -312,7 +311,6 @@ Constructs <a href='#Paint'>Paint</a> with default values.
 | <a href='#Stroke_Join'>Stroke Join</a> | <a href='#SkPaint_kMiter_Join'>kMiter Join</a> |
 | <a href='#Stroke_Width'>Stroke Width</a> | 0 |
 | <a href='#Subpixel_Text'>Subpixel Text</a> | false |
-| <a href='#Vertical_Text'>Vertical Text</a> | false |
 
 The flags, text size, hinting, and miter limit may be overridden at compile time by defining
 paint default values. The overrides may be included in "SkUserConfig.h" or predefined by the
@@ -800,7 +798,6 @@ paint1 == paint2
         <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText_Flag</a> = 0x200,
         <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> = 0x400,
         <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a> = 0x800,
-        <a href='#SkPaint_kVerticalText_Flag'>kVerticalText_Flag</a> = 0x1000,
         <a href='#SkPaint_kAllFlags'>kAllFlags</a> = 0xFFFF,
     };
 </pre>
@@ -866,12 +863,6 @@ mask for setting Font_Embedded_Bitmaps</td>
 mask for setting Automatic_Hinting</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kVerticalText_Flag'><code>SkPaint::kVerticalText_Flag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x1000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-mask for setting Vertical_Text</td>
-  </tr>
-  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kAllFlags'><code>SkPaint::kAllFlags</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
@@ -1578,34 +1569,6 @@ Clears <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting Flag</a> if <a href='#S
 
 <a href='#SkPaint_isAutohinted'>isAutohinted</a> <a href='#SkPaint_Hinting'>Hinting</a>
 
-<a name='Vertical_Text'></a>
-
----
-
-<a href='undocumented#Text'>Text</a> may be drawn by positioning each glyph, or by positioning the first glyph and
-using <a href='undocumented#Advance'>Font Advance</a> to position subsequent <a href='undocumented#Glyph'>Glyphs</a>. By default, each successive glyph
-is positioned to the right of the preceding glyph. <a href='#Vertical_Text'>Vertical Text</a> sets successive
-<a href='undocumented#Glyph'>Glyphs</a> to position below the preceding glyph.
-
-Skia can translate text character codes as a series of <a href='undocumented#Glyph'>Glyphs</a>, but does not implement
-font substitution,
-textual substitution, line layout, or contextual spacing like <a href='undocumented#Kerning'>Kerning</a> pairs. Use
-a text shaping engine like <a href='https://harfbuzz.org/'>HarfBuzz</a></a> to translate text runs
-into glyph series.
-
-<a href='#Vertical_Text'>Vertical Text</a> is clear if text is drawn left to right or set if drawn from top to bottom.
-
-<a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> if clear draws text left to right.
-<a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> if set draws text top to bottom.
-
-<a href='#Vertical_Text'>Vertical Text</a> is clear by default.
-<a href='#Vertical_Text'>Vertical Text</a> can be set by default by setting <a href='undocumented#SkPaintDefaults_Flags'>SkPaintDefaults Flags</a> to
-<a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> at compile time.
-
-### Example
-
-<div><fiddle-embed name="8df5800819311b71373d9abb669b49b8"></fiddle-embed></div>
-
 <a name='SkPaint_isVerticalText'></a>
 
 ---
@@ -1614,59 +1577,17 @@ into glyph series.
 bool <a href='#SkPaint_isVerticalText'>isVerticalText</a>() const
 </pre>
 
-Returns true if <a href='undocumented#Glyph'>Glyphs</a> are drawn top to bottom instead of left to right.
-
-Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a>.
-
-### Return Value
-
-<a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> state
-
-### Example
-
-<div><fiddle-embed name="4a269b16e644d473870ffa873396f139">
-
-#### Example Output
-
-~~~~
-paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)
-paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)
-~~~~
-
-</fiddle-embed></div>
+Deprecated.
 
 <a name='SkPaint_setVerticalText'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setVerticalText'>setVerticalText</a>(bool verticalText)
+void <a href='#SkPaint_setVerticalText'>setVerticalText</a>(bool)
 </pre>
 
-Returns true if text advance positions the next glyph below the previous glyph instead of to the
-right of previous glyph.
-
-Sets <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> if vertical is true.
-Clears <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> if vertical is false.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_setVerticalText_verticalText'><code><strong>verticalText</strong></code></a></td>
-    <td>setting for <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="6fbd7e9e1a346cb8d7f537786009c736">
-
-#### Example Output
-
-~~~~
-paint1 == paint2
-~~~~
-
-</fiddle-embed></div>
+Deprecated.
 
 <a name='Fake_Bold'></a>
 
@@ -3783,16 +3704,14 @@ Leaves the glyph at the position computed by the font offset by the text positio
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kCenter_Align'><code>SkPaint::kCenter_Align</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Moves the glyph half its width if <a href='#SkPaint_Flags'>Flags</a> has <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> clear, and
-half its height if <a href='#SkPaint_Flags'>Flags</a> has <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> set.
+Moves the glyph half its width.
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kRight_Align'><code>SkPaint::kRight_Align</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Moves the glyph by its width if <a href='#SkPaint_Flags'>Flags</a> has <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> clear,
-and by its height if <a href='#SkPaint_Flags'>Flags</a> has <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> set.
+Moves the glyph by its width.
 </td>
   </tr>
   <tr>
@@ -3807,11 +3726,6 @@ May be used to verify that <a href='#SkPaint_Align'>Align</a> is a legal value.
 ### Example
 
 <div><fiddle-embed name="702617fd9ebc3f12e30081b5db93e8a8"><div>Each position separately moves the glyph in drawPosText.
-</div></fiddle-embed></div>
-
-### Example
-
-<div><fiddle-embed name="f1cbbbafe6b3c52b81309cccbf96a308"><div><a href='#Vertical_Text'>Vertical Text</a> treats <a href='#SkPaint_kLeft_Align'>kLeft Align</a> as top align, and <a href='#SkPaint_kRight_Align'>kRight Align</a> as bottom align.
 </div></fiddle-embed></div>
 
 <a name='SkPaint_getTextAlign'></a>
@@ -4801,8 +4715,7 @@ Only supported on platforms that use FreeType as the <a href='undocumented#Engin
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* text, size_t length, <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds) const
 </pre>
 
-Returns the advance width of <a href='#SkPaint_measureText_text'>text</a> if <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> is clear,
-and the height of <a href='#SkPaint_measureText_text'>text</a> if <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> is set.
+Returns the advance width of <a href='#SkPaint_measureText_text'>text</a>.
 The advance is the normal distance to move before drawing additional <a href='#SkPaint_measureText_text'>text</a>.
 Uses <a href='#Text_Encoding'>Text Encoding</a> to decode <a href='#SkPaint_measureText_text'>text</a>, <a href='undocumented#Typeface'>Typeface</a> to get the font metrics,
 and <a href='#Text_Size'>Text Size</a>, <a href='#Text_Scale_X'>Text Scale X</a>, <a href='#Text_Skew_X'>Text Skew X</a>, <a href='#Stroke_Width'>Stroke Width</a>, and
@@ -4839,8 +4752,7 @@ advance width or height
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* text, size_t length) const
 </pre>
 
-Returns the advance width of <a href='#SkPaint_measureText_2_text'>text</a> if <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> is clear,
-and the height of <a href='#SkPaint_measureText_2_text'>text</a> if <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> is set.
+Returns the advance width of <a href='#SkPaint_measureText_2_text'>text</a>.
 The advance is the normal distance to move before drawing additional <a href='#SkPaint_measureText_2_text'>text</a>.
 Uses <a href='#Text_Encoding'>Text Encoding</a> to decode <a href='#SkPaint_measureText_2_text'>text</a>, <a href='undocumented#Typeface'>Typeface</a> to get the font metrics,
 and <a href='#Text_Size'>Text Size</a> to scale the metrics.
@@ -4883,10 +4795,7 @@ size_t <a href='#SkPaint_breakText'>breakText</a>(const void* text, size_t lengt
 </pre>
 
 Returns the bytes of <a href='#SkPaint_breakText_text'>text</a> that fit within <a href='#SkPaint_breakText_maxWidth'>maxWidth</a>.
-If <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> is clear, the <a href='#SkPaint_breakText_text'>text</a> fragment fits if its advance width is less than or
-equal to <a href='#SkPaint_breakText_maxWidth'>maxWidth</a>.
-If <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> is set, the <a href='#SkPaint_breakText_text'>text</a> fragment fits if its advance height is less than or
-equal to <a href='#SkPaint_breakText_maxWidth'>maxWidth</a>.
+The <a href='#SkPaint_breakText_text'>text</a> fragment fits if its advance width is less than or equal to <a href='#SkPaint_breakText_maxWidth'>maxWidth</a>.
 Measures only while the advance is less than or equal to <a href='#SkPaint_breakText_maxWidth'>maxWidth</a>.
 Returns the advance or the <a href='#SkPaint_breakText_text'>text</a> fragment in <a href='#SkPaint_breakText_measuredWidth'>measuredWidth</a> if it not nullptr.
 Uses <a href='#Text_Encoding'>Text Encoding</a> to decode <a href='#SkPaint_breakText_text'>text</a>, <a href='undocumented#Typeface'>Typeface</a> to get the font metrics,
@@ -4932,8 +4841,7 @@ the glyph count in <a href='#SkPaint_getTextWidths_text'>text</a>.
 Both <a href='#SkPaint_getTextWidths_widths'>widths</a> and <a href='#SkPaint_getTextWidths_bounds'>bounds</a> may be nullptr.
 If <a href='#SkPaint_getTextWidths_widths'>widths</a> is not nullptr, <a href='#SkPaint_getTextWidths_widths'>widths</a> must be an array of glyph count entries.
 if <a href='#SkPaint_getTextWidths_bounds'>bounds</a> is not nullptr, <a href='#SkPaint_getTextWidths_bounds'>bounds</a> must be an array of glyph count entries.
-If <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> is clear, <a href='#SkPaint_getTextWidths_widths'>widths</a> returns the horizontal advance.
-If <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> is set, <a href='#SkPaint_getTextWidths_widths'>widths</a> returns the vertical advance.
+Widths returns the horizontal advance.
 Uses <a href='#Text_Encoding'>Text Encoding</a> to decode <a href='#SkPaint_getTextWidths_text'>text</a>, <a href='undocumented#Typeface'>Typeface</a> to get the font metrics,
 and <a href='#Text_Size'>Text Size</a> to scale the <a href='#SkPaint_getTextWidths_widths'>widths</a> and <a href='#SkPaint_getTextWidths_bounds'>bounds</a>.
 Does not scale the advance by <a href='#Fake_Bold'>Fake Bold</a> or <a href='undocumented#Path_Effect'>Path Effect</a>.
