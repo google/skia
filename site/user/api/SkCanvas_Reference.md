@@ -443,15 +443,15 @@ empty <a href='#Canvas'>Canvas</a>
 
 ### Example
 
-<div><fiddle-embed name="903451d6c93bf69e2833747a3e8cc8f7"><div>Passes a placeholder to a function that requires one.
+<div><fiddle-embed name="4a00e6589e862fde5be532f4b6e316ce"><div>Passes a placeholder to a function that requires one.
 </div>
 
 #### Example Output
 
 ~~~~
-paint draws text left to right
-paint draws text top to bottom
-paint draws text top to bottom
+rect stays rect is true
+rect stays rect is false
+rect stays rect is true
 ~~~~
 
 </fiddle-embed></div>
@@ -5230,7 +5230,7 @@ Draws <a href='#SkCanvas_drawText_text'>text</a>, with origin at (<a href='#SkCa
 <a href='#SkCanvas_drawText_text'>text</a> meaning depends on <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a>; by default, <a href='#SkCanvas_drawText_text'>text</a> is encoded as
 UTF-8.
 
-<a href='#SkCanvas_drawText_x'>x</a> and <a href='#SkCanvas_drawText_y'>y</a> meaning depends on <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a> and <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>; by default
+<a href='#SkCanvas_drawText_x'>x</a> and <a href='#SkCanvas_drawText_y'>y</a> meaning depends on <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>; by default
 <a href='#SkCanvas_drawText_text'>text</a> draws left to right, positioning the first glyph left side bearing at <a href='#SkCanvas_drawText_x'>x</a>
 and its baseline at <a href='#SkCanvas_drawText_y'>y</a>. <a href='undocumented#Text'>Text</a> size is affected by <a href='#Matrix'>Matrix</a> and <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
 
@@ -5282,8 +5282,7 @@ Draws null terminated <a href='#SkCanvas_drawString_string'>string</a>, with ori
 as UTF-8. Other values of <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a> are unlikely to produce the desired
 results, since zero bytes may be embedded in the <a href='#SkCanvas_drawString_string'>string</a>.
 
-<a href='#SkCanvas_drawString_x'>x</a> and <a href='#SkCanvas_drawString_y'>y</a> meaning depends on <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a> and <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>; by default
-<a href='#SkCanvas_drawString_string'>string</a> draws left to right, positioning the first glyph left side bearing at <a href='#SkCanvas_drawString_x'>x</a>
+The <a href='#SkCanvas_drawString_string'>string</a> draws left to right, positioning the first glyph left side bearing at <a href='#SkCanvas_drawString_x'>x</a>
 and its baseline at <a href='#SkCanvas_drawString_y'>y</a>. <a href='undocumented#Text'>Text</a> size is affected by <a href='#Matrix'>Matrix</a> and <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
 
 All elements of <a href='#SkCanvas_drawString_paint'>paint</a>: <a href='undocumented#Path_Effect'>Path Effect</a>, <a href='undocumented#Mask_Filter'>Mask Filter</a>, <a href='undocumented#Shader'>Shader</a>,
@@ -5330,8 +5329,7 @@ Draws null terminated <a href='#SkCanvas_drawString_2_string'>string</a>, with o
 as UTF-8. Other values of <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a> are unlikely to produce the desired
 results, since zero bytes may be embedded in the <a href='#SkCanvas_drawString_2_string'>string</a>.
 
-<a href='#SkCanvas_drawString_2_x'>x</a> and <a href='#SkCanvas_drawString_2_y'>y</a> meaning depends on <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a> and <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>; by default
-<a href='#SkCanvas_drawString_2_string'>string</a> draws left to right, positioning the first glyph left side bearing at <a href='#SkCanvas_drawString_2_x'>x</a>
+The <a href='#SkCanvas_drawString_2_string'>string</a> draws left to right, positioning the first glyph left side bearing at <a href='#SkCanvas_drawString_2_x'>x</a>
 and its baseline at <a href='#SkCanvas_drawString_2_y'>y</a>. <a href='undocumented#Text'>Text</a> size is affected by <a href='#Matrix'>Matrix</a> and <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
 
 All elements of <a href='#SkCanvas_drawString_2_paint'>paint</a>: <a href='undocumented#Path_Effect'>Path Effect</a>, <a href='undocumented#Mask_Filter'>Mask Filter</a>, <a href='undocumented#Shader'>Shader</a>,
@@ -5376,8 +5374,7 @@ Draws each glyph in <a href='#SkCanvas_drawPosText_text'>text</a> with the origi
 described by <a href='#SkCanvas_drawPosText_byteLength'>byteLength</a> of <a href='#SkCanvas_drawPosText_text'>text</a>.
 
 <a href='#SkCanvas_drawPosText_text'>text</a> meaning depends on <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a>; by default, <a href='#SkCanvas_drawPosText_text'>text</a> is encoded as
-UTF-8. <a href='#SkCanvas_drawPosText_pos'>pos</a> elements meaning depends on <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>; by default
-glyph left side bearing and baseline are relative to <a href='SkPoint_Reference#Point'>Point</a> in <a href='#SkCanvas_drawPosText_pos'>pos</a> array.
+UTF-8. glyph left side bearing and baseline are relative to <a href='SkPoint_Reference#Point'>Point</a> in <a href='#SkCanvas_drawPosText_pos'>pos</a> array.
 <a href='undocumented#Text'>Text</a> size is affected by <a href='#Matrix'>Matrix</a> and <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
 
 All elements of <a href='#SkCanvas_drawPosText_paint'>paint</a>: <a href='undocumented#Path_Effect'>Path Effect</a>, <a href='undocumented#Mask_Filter'>Mask Filter</a>, <a href='undocumented#Shader'>Shader</a>,
@@ -5425,8 +5422,7 @@ Draws each glyph in <a href='#SkCanvas_drawPosTextH_text'>text</a> with its (x, 
 must match the number of <a href='undocumented#Glyph'>Glyphs</a> described by <a href='#SkCanvas_drawPosTextH_byteLength'>byteLength</a> of <a href='#SkCanvas_drawPosTextH_text'>text</a>.
 
 <a href='#SkCanvas_drawPosTextH_text'>text</a> meaning depends on <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a>; by default, <a href='#SkCanvas_drawPosTextH_text'>text</a> is encoded as
-UTF-8. <a href='#SkCanvas_drawPosTextH_xpos'>xpos</a> elements meaning depends on <a href='SkPaint_Reference#Vertical_Text'>Paint Vertical Text</a>;
-by default each glyph left side bearing is positioned at an <a href='#SkCanvas_drawPosTextH_xpos'>xpos</a> element and
+UTF-8. Each glyph left side bearing is positioned at an <a href='#SkCanvas_drawPosTextH_xpos'>xpos</a> element and
 its baseline is positioned at <a href='#SkCanvas_drawPosTextH_constY'>constY</a>. <a href='undocumented#Text'>Text</a> size is affected by <a href='#Matrix'>Matrix</a> and
 <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>.
 

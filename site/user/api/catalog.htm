@@ -414,11 +414,11 @@
         "stdout": "-----\\n---x-\\n---x-\\n---x-\\n---x-\\n---x-\\n---x-\\n-----\\n---x-\\n---x-\\n-----\\n"
     },
         "SkCanvas_empty_constructor": {
-    "code": "// Returns true if either the canvas rotates the text by 90 degrees, or the paint does.\nstatic void check_for_up_and_down_text(const SkCanvas* canvas, const SkPaint& paint) {\n    bool paintHasVertical = paint.isVerticalText();\n    const SkMatrix& matrix = canvas->getTotalMatrix();\n    bool matrixIsVertical = matrix.preservesRightAngles() && !matrix.isScaleTranslate();\n    SkDebugf(\"paint draws text %s\\n\", paintHasVertical != matrixIsVertical ?\n            \"top to bottom\" : \"left to right\");\n}\nstatic void check_for_up_and_down_text(const SkPaint& paint) {\n    SkCanvas canvas;  // placeholder only, does not have an associated device\n    check_for_up_and_down_text(&canvas, paint);\n}\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint paint;\n    check_for_up_and_down_text(paint);  // paint draws text left to right\n    paint.setVerticalText(true);\n    check_for_up_and_down_text(paint);  // paint draws text top to bottom\n    paint.setVerticalText(false);\n    canvas->rotate(90);\n    check_for_up_and_down_text(canvas, paint);  // paint draws text top to bottom\n}\n",
-    "hash": "903451d6c93bf69e2833747a3e8cc8f7",
+    "code": "static void check_for_rotated_ctm(const SkCanvas* canvas) {\n    const SkMatrix& matrix = canvas->getTotalMatrix();\n    SkDebugf(\"rect stays rect is %s\\n\", matrix.rectStaysRect() ? \"true\" : \"false\");\n}\n\nvoid draw(SkCanvas* canvas) {\n    check_for_rotated_ctm(canvas);\n    canvas->rotate(30);\n    check_for_rotated_ctm(canvas);\n    SkCanvas defaultCanvas;\n    check_for_rotated_ctm(&defaultCanvas);\n}\n",
+    "hash": "4a00e6589e862fde5be532f4b6e316ce",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::SkCanvas()",
-        "stdout": "paint draws text left to right\\npaint draws text top to bottom\\npaint draws text top to bottom\\n"
+        "stdout": "rect stays rect is true\\nrect stays rect is false\\nrect stays rect is true\\n"
     },
         "SkCanvas_getBaseLayerSize": {
     "code": "void draw(SkCanvas* ) {\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(20, 30));\n    SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));\n    canvas.clipRect(SkRect::MakeWH(10, 40));\n    SkIRect clipDeviceBounds = canvas.getDeviceClipBounds();\n    if (clipDeviceBounds.isEmpty()) {\n        SkDebugf(\"Empty clip bounds is unexpected!\\n\");\n    }\n    SkDebugf(\"clip=%d,%d\\n\", clipDeviceBounds.width(), clipDeviceBounds.height());\n    SkISize baseLayerSize = canvas.getBaseLayerSize();\n    SkDebugf(\"size=%d,%d\\n\", baseLayerSize.width(), baseLayerSize.height());\n}",
@@ -1680,13 +1680,6 @@
     "name": "SkPaint::isSubpixelText",
         "stdout": "paint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)\\npaint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)\\n"
     },
-        "SkPaint_isVerticalText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"paint.isVerticalText() %c= !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\\n\",\n        paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag) ? '=' : '!');\n    paint.setVerticalText(true);\n    SkDebugf(\"paint.isVerticalText() %c= !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\\n\",\n        paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag) ? '=' : '!');\n}",
-    "hash": "4a269b16e644d473870ffa873396f139",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::isVerticalText",
-        "stdout": "paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\\npaint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\\n"
-    },
         "SkPaint_measureText_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"default width = %g\\n\", paint.measureText(\"!\", 1));\n    paint.setTextSize(paint.getTextSize() * 2);\n    SkDebugf(\"double width = %g\\n\", paint.measureText(\"!\", 1));\n}",
     "hash": "f1139a5ddd17fd47c2f45f6e642cac76",
@@ -1931,13 +1924,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::setTextSkewX",
         "stdout": "text scale not-finite\\n"
-    },
-        "SkPaint_setVerticalText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setVerticalText(true);\n    paint2.setFlags(paint2.getFlags() | SkPaint::kVerticalText_Flag);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : '!');\n}",
-    "hash": "6fbd7e9e1a346cb8d7f537786009c736",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::setVerticalText",
-        "stdout": "paint1 == paint2\\n"
     },
         "SkPath_ConvertToNonInverseFillType": {
     "code": "#define nameValue(fill) { SkPath::fill, #fill }\n\nvoid draw(SkCanvas* canvas) {\n    struct {\n        SkPath::FillType fill;\n        const char* name;\n    } fills[] = {\n        nameValue(kWinding_FillType),\n        nameValue(kEvenOdd_FillType),\n        nameValue(kInverseWinding_FillType),\n        nameValue(kInverseEvenOdd_FillType),\n    };\n    for (unsigned i = 0; i < SK_ARRAY_COUNT(fills); ++i) {\n        if (fills[i].fill != (SkPath::FillType) i) {\n            SkDebugf(\"fills array order does not match FillType enum order\");\n            break;\n        }\n        SkDebugf(\"ConvertToNonInverseFillType(%s) == %s\\n\", fills[i].name,\n                fills[(int) SkPath::ConvertToNonInverseFillType(fills[i].fill)].name);\n    }\n}\n",
@@ -4288,14 +4274,6 @@
     "file": "SkPaint_Reference",
     "name": "Text_Align"
 },
-    "Paint_Text_Align_a": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(40);\n    paint.setVerticalText(true);\n    for (SkPaint::Align a : { SkPaint::kLeft_Align,\n                              SkPaint::kCenter_Align,\n                              SkPaint::kRight_Align }) {\n        paint.setTextAlign(a);\n        canvas->drawString(\"Aa\", 50, 80, paint);\n        canvas->translate(50, 0);\n    }\n}\n",
-    "width": 256,
-    "height": 160,
-    "hash": "f1cbbbafe6b3c52b81309cccbf96a308",
-    "file": "SkPaint_Reference",
-    "name": "Text_Align_2"
-},
     "Paint_Text_Encoding": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello8[] = \"Hello\" \"\\xE2\" \"\\x98\" \"\\xBA\";\n    const uint16_t hello16[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    paint.setTextSize(24);\n    canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);\n    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);\n    canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);\n    paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);\n    canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);\n    uint16_t glyphs[SK_ARRAY_COUNT(hello32)];\n    paint.textToGlyphs(hello32, sizeof(hello32), glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);\n}\n",
     "width": 256,
@@ -4335,14 +4313,6 @@
     "hash": "1a7a5062725139760962582f599f1b97",
     "file": "SkPaint_Reference",
     "name": "Typeface_Methods"
-},
-    "Paint_Vertical_Text": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    for (bool vertical : { false, true } ) {\n        paint.setVerticalText(vertical);\n        canvas->drawString(\"aAlL\", 25, 50, paint);\n    }\n}\n",
-    "width": 256,
-    "height": 256,
-    "hash": "8df5800819311b71373d9abb669b49b8",
-    "file": "SkPaint_Reference",
-    "name": "Vertical_Text"
 },
     "Path_Arc": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect oval = {8, 8, 56, 56};\n    SkPaint ovalPaint;\n    ovalPaint.setAntiAlias(true);\n    SkPaint textPaint(ovalPaint);\n    ovalPaint.setStyle(SkPaint::kStroke_Style);\n    SkPaint arcPaint(ovalPaint);\n    arcPaint.setStrokeWidth(5);\n    arcPaint.setColor(SK_ColorBLUE);\n    canvas->translate(-64, 0);\n    for (char arcStyle = '1'; arcStyle <= '6'; ++arcStyle) {\n        '4' == arcStyle ? canvas->translate(-96, 55) : canvas->translate(64, 0);\n        canvas->drawText(&arcStyle, 1, 30, 36, textPaint);\n        canvas->drawOval(oval, ovalPaint);\n        SkPath path;\n        path.moveTo({56, 32});\n        switch (arcStyle) {\n            case '1':\n                path.arcTo(oval, 0, 90, false);\n                break;\n            case '2':\n                canvas->drawArc(oval, 0, 90, false, arcPaint);\n                continue;\n            case '3':\n                path.addArc(oval, 0, 90);\n                break;\n            case '4':\n                path.arcTo({56, 56}, {32, 56}, 24);\n                break;\n            case '5':\n                path.arcTo({24, 24}, 0, SkPath::kSmall_ArcSize, SkPath::kCW_Direction, {32, 56});\n                break;\n            case '6':\n                path.conicTo({56, 56}, {32, 56}, SK_ScalarRoot2Over2);\n                break;\n         }\n         canvas->drawPath(path, arcPaint);\n     }\n}\n",

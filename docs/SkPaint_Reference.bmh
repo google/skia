@@ -1254,6 +1254,14 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
 
 # ------------------------------------------------------------------------------
 
+#Method bool isVerticalText() const
+#Deprecated
+##
+
+#Method void setVerticalText(bool)
+#Deprecated
+##
+
 #Subtopic Fake_Bold
 #Line # approximate font styles ##
 
