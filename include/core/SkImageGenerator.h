@@ -12,7 +12,7 @@
 #include "SkColor.h"
 #include "SkImage.h"
 #include "SkImageInfo.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 
 class GrContext;
 class GrContextThreadSafeProxy;

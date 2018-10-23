@@ -127,8 +127,6 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
     // of validate_backend_texture.
     GrBackendTexture yuvaTexturesCopy[4];
 
-    bool nv12 = (yuvaIndices[1].fIndex == yuvaIndices[2].fIndex);
-
     for (int i = 0; i < 4; ++i) {
         // Validate that the yuvaIndices refer to valid backend textures.
         const SkYUVAIndex& yuvaIndex = yuvaIndices[i];
@@ -142,32 +140,8 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
             return nullptr;
         }
 
-        SkColorType ct = kUnknown_SkColorType;
-        if (SkYUVAIndex::kA_Index == i) {
-            // The A plane is always kAlpha8 (for now)
-            ct = kAlpha_8_SkColorType;
-        } else {
-            // The UV planes can either be interleaved or planar. If interleaved the Y plane
-            // should have A8 color type but may be RGBA. We fall back in the latter case below.
-            ct = nv12 && SkYUVAIndex::kY_Index != i ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
-        }
-
         if (!yuvaTexturesCopy[yuvaIndex.fIndex].isValid()) {
             yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
-
-            // TODO: Instead of using assumption about whether it is NV12 format to guess colorType,
-            // actually use channel information here.
-            // Alternate TODO: Don't bother validating.
-            if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[yuvaIndex.fIndex],
-                                        &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig,
-                                        ct, kPremul_SkAlphaType, nullptr)) {
-                // Try RGBA in case the assumed colortype is wrong
-                if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[yuvaIndex.fIndex],
-                                            &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig,
-                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr)) {
-                    return nullptr;
-                }
-            }
         }
 
         // TODO: Check that for each plane, the channel actually exist in the image source we are

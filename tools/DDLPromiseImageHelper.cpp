@@ -144,7 +144,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
     if (curImage.isYUV()) {
         GrBackendFormat backendFormats[SkYUVSizeInfo::kMaxCount];
         void* contexts[SkYUVSizeInfo::kMaxCount] = { nullptr, nullptr, nullptr, nullptr };
-        SkYUVSizeInfo sizeInfo;
+        SkISize sizes[SkYUVSizeInfo::kMaxCount];
         // TODO: store this value somewhere?
         int textureCount;
         SkAssertResult(SkYUVAIndex::AreValidIndices(curImage.yuvaIndices(), &textureCount));
@@ -153,17 +153,15 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
             backendFormats[i] = caps->createFormatFromBackendTexture(backendTex);
 
             contexts[i] = curImage.refCallbackContext(i).release();
-            sizeInfo.fSizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
-            sizeInfo.fWidthBytes[i] = curImage.yuvPixmap(i).rowBytes();
+            sizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
         }
         for (int i = textureCount; i < SkYUVSizeInfo::kMaxCount; ++i) {
-            sizeInfo.fSizes[i] = SkISize::MakeEmpty();
-            sizeInfo.fWidthBytes[i] = 0;
+            sizes[i] = SkISize::MakeEmpty();
         }
 
         image = recorder->makeYUVAPromiseTexture(curImage.yuvColorSpace(),
                                                  backendFormats,
-                                                 sizeInfo,
+                                                 sizes,
                                                  curImage.yuvaIndices(),
                                                  curImage.overallWidth(),
                                                  curImage.overallHeight(),
