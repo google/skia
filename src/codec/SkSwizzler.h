@@ -27,8 +27,6 @@ public:
      *                 Contains partial scanline information.
      *  @param frame   Is non-NULL if the source pixels are part of an image
      *                 frame that is a subset of the full image.
-     *  @param skipFormatConversion Indicates that we should skip format conversion.
-     *                              The swizzler only needs to sample and/or subset.
      *
      *  Note that a deeper discussion of partial scanline subsets and image frame
      *  subsets is below.  Currently, we do not support both simultaneously.  If
@@ -38,8 +36,21 @@ public:
      */
     static SkSwizzler* CreateSwizzler(const SkEncodedInfo& encodedInfo, const SkPMColor* ctable,
                                       const SkImageInfo& dstInfo, const SkCodec::Options&,
-                                      const SkIRect* frame = nullptr,
-                                      bool skipFormatConversion = false);
+                                      const SkIRect* frame = nullptr);
+
+    /**
+     *  Create a simplified swizzler that does not need to do format conversion. The swizzler
+     *  only needs to sample and/or subset.
+     *
+     *  @param srcBPP Bytes per pixel of the source.
+     *  @param dstInfo Describes the destination.
+     *  @param options Indicates if dst is zero-initialized. The
+     *                         implementation may choose to skip writing zeroes
+     *                         if set to kYes_ZeroInitialized.
+     *                 Contains partial scanline information.
+     *  @return A new SkSwizzler or nullptr on failure.
+     */
+    static SkSwizzler* Create(int srcBPP, const SkImageInfo& dstInfo, const SkCodec::Options&);
 
     /**
      *  Swizzle a line. Generally this will be called height times, once
@@ -204,6 +215,9 @@ private:
 
     SkSwizzler(RowProc fastProc, RowProc proc, const SkPMColor* ctable, int srcOffset,
             int srcWidth, int dstOffset, int dstWidth, int srcBPP, int dstBPP);
+    static SkSwizzler* Create(const SkImageInfo& dstInfo, RowProc fastProc, RowProc proc,
+                              const SkPMColor* ctable, int srcBPP, int dstBPP,
+                              const SkCodec::Options& options, const SkIRect* frame);
 
     int onSetSampleX(int) override;
 

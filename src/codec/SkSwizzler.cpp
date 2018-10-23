@@ -773,75 +773,44 @@ void SkSwizzler::SkipLeading8888ZerosThen(
     proc(dst32, (const uint8_t*)src32, dstWidth, bpp, deltaSrc, 0, ctable);
 }
 
+SkSwizzler* SkSwizzler::Create(int srcBPP, const SkImageInfo& dstInfo, const SkCodec::Options& options) {
+    RowProc proc = nullptr;
+    switch (srcBPP) {
+        case 1:     // kGray_8_SkColorType
+            proc = &sample1;
+            break;
+        case 2:     // kRGB_565_SkColorType
+            proc = &sample2;
+            break;
+        case 4:     // kRGBA_8888_SkColorType
+                    // kBGRA_8888_SkColorType
+            proc = &sample4;
+            break;
+        case 6:     // 16 bit PNG no alpha
+            proc = &sample6;
+            break;
+        case 8:     // 16 bit PNG with alpha
+            proc = &sample8;
+            break;
+        default:
+            return nullptr;
+    }
+
+    return Create(dstInfo, &copy, proc, nullptr /*ctable*/,
+                  srcBPP, dstInfo.bytesPerPixel(), options, nullptr /*frame*/);
+}
+
 SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                                        const SkPMColor* ctable,
                                        const SkImageInfo& dstInfo,
                                        const SkCodec::Options& options,
-                                       const SkIRect* frame,
-                                       bool skipFormatConversion) {
+                                       const SkIRect* frame) {
     if (SkEncodedInfo::kPalette_Color == encodedInfo.color() && nullptr == ctable) {
         return nullptr;
     }
 
     RowProc fastProc = nullptr;
     RowProc proc = nullptr;
-    int srcBPP;
-    const int dstBPP = dstInfo.bytesPerPixel();
-    if (skipFormatConversion) {
-        switch (encodedInfo.color()) {
-            case SkEncodedInfo::kGray_Color:
-            case SkEncodedInfo::kYUV_Color:
-                // We have a jpeg that has already been converted to the dstColorType.
-                srcBPP = dstBPP;
-                switch (dstInfo.colorType()) {
-                    case kGray_8_SkColorType:
-                        proc = &sample1;
-                        fastProc = &copy;
-                        break;
-                    case kRGB_565_SkColorType:
-                        proc = &sample2;
-                        fastProc = &copy;
-                        break;
-                    case kRGBA_8888_SkColorType:
-                    case kBGRA_8888_SkColorType:
-                        proc = &sample4;
-                        fastProc = &copy;
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kInvertedCMYK_Color:
-            case SkEncodedInfo::kYCCK_Color:
-                // We have a jpeg that remains in its original format.
-                srcBPP = 4;
-                proc = &sample4;
-                fastProc = &copy;
-                break;
-            case SkEncodedInfo::kRGBA_Color:
-                // We have a png that should remain in its original format.
-                SkASSERT(16 == encodedInfo.bitsPerComponent() ||
-                          8 == encodedInfo.bitsPerComponent());
-                if (8 == encodedInfo.bitsPerComponent()) {
-                    srcBPP = 4;
-                    proc = &sample4;
-                } else {
-                    srcBPP = 8;
-                    proc = &sample8;
-                }
-                fastProc = &copy;
-                break;
-            case SkEncodedInfo::kRGB_Color:
-                // We have a png that remains in its original format.
-                SkASSERT(16 == encodedInfo.bitsPerComponent());
-                srcBPP = 6;
-                proc = &sample6;
-                fastProc = &copy;
-                break;
-            default:
-                return nullptr;
-        }
-    } else {
         SkCodec::ZeroInitialized zeroInit = options.fZeroInitialized;
         const bool premultiply = (SkEncodedInfo::kOpaque_Alpha != encodedInfo.alpha()) &&
                 (kPremul_SkAlphaType == dstInfo.alphaType());
@@ -1165,9 +1134,14 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
 
         // Store bpp in bytes if it is an even multiple, otherwise use bits
         uint8_t bitsPerPixel = encodedInfo.bitsPerPixel();
-        srcBPP = SkIsAlign8(bitsPerPixel) ? bitsPerPixel / 8 : bitsPerPixel;
-    }
+    int srcBPP = SkIsAlign8(bitsPerPixel) ? bitsPerPixel / 8 : bitsPerPixel;
+    int dstBPP = dstInfo.bytesPerPixel();
+    return Create(dstInfo, fastProc, proc, ctable, srcBPP, dstBPP, options, frame);
+}
 
+SkSwizzler* SkSwizzler::Create(const SkImageInfo& dstInfo, RowProc fastProc, RowProc proc,
+                               const SkPMColor* ctable, int srcBPP, int dstBPP,
+                               const SkCodec::Options& options, const SkIRect* frame) {
     int srcOffset = 0;
     int srcWidth = dstInfo.width();
     int dstOffset = 0;
