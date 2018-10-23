@@ -34,8 +34,7 @@ public:
         kYes = true
     };
 
-    static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&, AllowCaching,
-                                                                   uint32_t contextUniqueID);
+    static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&, AllowCaching);
 
     using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpListPaths>>;
 
@@ -83,7 +82,7 @@ public:
                                    float* inflationRadius = nullptr);
 
 private:
-    GrCoverageCountingPathRenderer(AllowCaching, uint32_t contextUniqueID);
+    GrCoverageCountingPathRenderer(AllowCaching);
 
     // GrPathRenderer overrides.
     StencilSupport onGetStencilSupport(const GrShape&) const override {

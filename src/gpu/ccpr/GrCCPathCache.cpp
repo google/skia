@@ -12,6 +12,16 @@
 
 DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCacheEntry>);
 
+static inline uint32_t next_path_cache_id() {
+    static std::atomic<uint32_t> gNextID(1);
+    for (;;) {
+        uint32_t id = gNextID.fetch_add(+1, std::memory_order_acquire);
+        if (SK_InvalidUniqueID != id) {
+            return id;
+        }
+    }
+}
+
 static inline bool SkShouldPostMessageToBus(
         const sk_sp<GrCCPathCacheEntry>& entry, uint32_t msgBusUniqueID) {
     return entry->pathCacheUniqueID() == msgBusUniqueID;
@@ -19,6 +29,7 @@ static inline bool SkShouldPostMessageToBus(
 
 // The maximum number of cache entries we allow in our own cache.
 static constexpr int kMaxCacheCount = 1 << 16;
+
 
 GrCCPathCache::MaskTransform::MaskTransform(const SkMatrix& m, SkIVector* shift)
         : fMatrix2x2{m.getScaleX(), m.getSkewX(), m.getSkewY(), m.getScaleY()} {
@@ -126,6 +137,11 @@ inline GrCCPathCache::HashKey GrCCPathCache::HashNode::GetKey(const GrCCPathCach
 
 inline uint32_t GrCCPathCache::HashNode::Hash(HashKey key) {
     return GrResourceKeyHash(&key.fData[1], key.fData[0]);
+}
+
+
+GrCCPathCache::GrCCPathCache()
+    : fInvalidatedEntriesInbox(next_path_cache_id()) {
 }
 
 #ifdef SK_DEBUG
@@ -248,9 +264,8 @@ void GrCCPathCacheEntry::invalidateAtlas() {
             fCachedAtlasInfo->fNumInvalidatedPathPixels >= fCachedAtlasInfo->fNumPathPixels / 2) {
             // Too many invalidated pixels: purge the atlas texture from the resource cache.
             // The GrContext and CCPR path cache both share the same unique ID.
-            uint32_t contextUniqueID = fPathCacheUniqueID;
             SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-                    GrUniqueKeyInvalidatedMessage(fAtlasKey, contextUniqueID));
+                    GrUniqueKeyInvalidatedMessage(fAtlasKey, fCachedAtlasInfo->fContextUniqueID));
             fCachedAtlasInfo->fIsPurgedFromResourceCache = true;
         }
     }
