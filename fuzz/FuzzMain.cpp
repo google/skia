@@ -234,7 +234,7 @@ static std::map<std::string, std::string> cf_api_map = {
     {"api_raster_n32_canvas", "RasterN32Canvas"},
     {"jpeg_encoder", "JPEGEncoder"},
     {"png_encoder", "PNGEncoder"},
-    {"skia_pathop_fuzzer", "Pathop"},
+    {"skia_pathop_fuzzer", "LegacyChromiumPathop"},
     {"webp_encoder", "WEBPEncoder"}
 };
 
