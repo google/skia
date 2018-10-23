@@ -1439,18 +1439,30 @@ static bool point_in_triangle(const SkPoint& p0, const SkPoint& p1, const SkPoin
 // Data structure to track reflex vertices and check whether any are inside a given triangle
 class ReflexHash {
 public:
-    ReflexHash(const SkRect& bounds, int vertexCount)
-            : fBounds(bounds)
-            , fNumVerts(0) {
+    bool init(const SkRect& bounds, int vertexCount) {
+        fBounds = bounds;
+        fNumVerts = 0;
+
         // We want vertexCount grid cells, roughly distributed to match the bounds ratio
-        SkScalar hCount = SkScalarSqrt(vertexCount*bounds.width()/bounds.height());
+        SkScalar hCount = SkScalarSqrt(sk_ieee_float_divide(vertexCount*bounds.width(),
+                                                            bounds.height()));
+        if (!SkScalarIsFinite(hCount)) {
+            return false;
+        }
         fHCount = SkTMax(SkTMin(SkScalarRoundToInt(hCount), vertexCount), 1);
         fVCount = vertexCount/fHCount;
-        fGridConversion.set((fHCount - 0.001f)/bounds.width(), (fVCount - 0.001f)/bounds.height());
+        fGridConversion.set(sk_ieee_float_divide(fHCount - 0.001f, bounds.width()),
+                            sk_ieee_float_divide(fVCount - 0.001f, bounds.height()));
+        if (!fGridConversion.isFinite()) {
+            return false;
+        }
+
         fGrid.setCount(fHCount*fVCount);
         for (int i = 0; i < fGrid.count(); ++i) {
             fGrid[i].reset();
         }
+
+        return true;
     }
 
     void add(TriangulationVertex* v) {
@@ -1501,6 +1513,7 @@ private:
     int hash(TriangulationVertex* vert) const {
         int h = (vert->fPosition.fX - fBounds.fLeft)*fGridConversion.fX;
         int v = (vert->fPosition.fY - fBounds.fTop)*fGridConversion.fY;
+        SkASSERT(v*fHCount + h >= 0);
         return v*fHCount + h;
     }
 
@@ -1578,7 +1591,10 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     // Classify initial vertices into a list of convex vertices and a hash of reflex vertices
     // TODO: possibly sort the convexList in some way to get better triangles
     SkTInternalLList<TriangulationVertex> convexList;
-    ReflexHash reflexHash(bounds, polygonSize);
+    ReflexHash reflexHash;
+    if (!reflexHash.init(bounds, polygonSize)) {
+        return false;
+    }
     prevIndex = polygonSize - 1;
     for (int currIndex = 0; currIndex < polygonSize; prevIndex = currIndex, ++currIndex) {
         TriangulationVertex::VertexType currType = triangulationVertices[currIndex].fVertexType;
