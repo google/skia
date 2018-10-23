@@ -24,7 +24,7 @@ class GrShape;
  */
 class GrCCPathCache {
 public:
-    GrCCPathCache(uint32_t contextUniqueID) : fInvalidatedEntriesInbox(contextUniqueID) {}
+    GrCCPathCache();
     SkDEBUGCODE(~GrCCPathCache();)
 
     // Stores the components of a transformation that affect a path mask (i.e. everything but
