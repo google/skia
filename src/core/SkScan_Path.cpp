@@ -406,8 +406,8 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     shiftedClip.fTop = SkLeftShift(shiftedClip.fTop, shiftEdgesUp);
     shiftedClip.fBottom = SkLeftShift(shiftedClip.fBottom, shiftEdgesUp);
 
-    SkEdgeBuilder builder;
-    int count = builder.build_edges(path, &shiftedClip, shiftEdgesUp, pathContainedInClip);
+    SkEdgeBuilder builder(SkEdgeBuilder::kEdge, shiftEdgesUp);
+    int count = builder.buildEdges(path, &shiftedClip, pathContainedInClip);
     SkEdge** list = builder.edgeList();
 
     if (0 == count) {

@@ -37,23 +37,15 @@ public:
         kBezier
     };
 
-    // static constexpr int kEdgeSizes[3] = {sizeof(SkEdge), sizeof(SkAnalyticEdge), sizeof(SkBezier)};
+    SkEdgeBuilder(EdgeType, int shiftEdgesUp);
 
-    SkEdgeBuilder();
+    int buildEdges(const SkPath& path,
+                   const SkIRect* shiftedClip,
+                   bool pathContainedInClip);
 
-    // returns the number of built edges. The array of those edge pointers
-    // is returned from edgeList().
-    int build(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight,
-              EdgeType edgeType = kEdge);
-
-    int build_edges(const SkPath& path, const SkIRect* shiftedClip,
-            int shiftEdgesUp, bool pathContainedInClip, EdgeType edgeType = kEdge);
-
-    SkEdge** edgeList() { return (SkEdge**)fEdgeList; }
+    SkEdge**                 edgeList() { return         (SkEdge**)fEdgeList; }
     SkAnalyticEdge** analyticEdgeList() { return (SkAnalyticEdge**)fEdgeList; }
-    SkBezier** bezierList() { return (SkBezier**)fEdgeList; }
-
-    bool isFinite() const { return fIsFinite; }
+    SkBezier**             bezierList() { return       (SkBezier**)fEdgeList; }
 
 private:
     enum Combine {
@@ -62,63 +54,33 @@ private:
         kTotal_Combine
     };
 
-    Combine CombineVertical(const SkEdge* edge, SkEdge* last);
-    Combine CombineVertical(const SkAnalyticEdge* edge, SkAnalyticEdge* last);
-    Combine checkVertical(const SkEdge* edge, SkEdge** edgePtr);
-    Combine checkVertical(const SkAnalyticEdge* edge, SkAnalyticEdge** edgePtr);
-    bool vertical_line(const SkEdge* edge);
-    bool vertical_line(const SkAnalyticEdge* edge);
+    int build    (const SkPath& path, const SkIRect* clip, bool clipToTheRight);
+    int buildPoly(const SkPath& path, const SkIRect* clip, bool clipToTheRight);
 
-    SkSTArenaAlloc<512> fAlloc;
-    SkTDArray<void*>    fList;
+    Combine combineVertical(const SkEdge* edge, SkEdge* last);
+    Combine   checkVertical(const SkEdge* edge, SkEdge** edgePtr);
+    bool       verticalLine(const SkEdge* edge);
 
-    /*
-     *  If we're in general mode, we allcoate the pointers in fList, and this
-     *  will point at fList.begin(). If we're in polygon mode, fList will be
-     *  empty, as we will have preallocated room for the pointers in fAlloc's
-     *  block, and fEdgeList will point into that.
-     */
-    void**      fEdgeList;
+    Combine combineVertical(const SkAnalyticEdge* edge, SkAnalyticEdge* last);
+    Combine   checkVertical(const SkAnalyticEdge* edge, SkAnalyticEdge** edgePtr);
+    bool       verticalLine(const SkAnalyticEdge* edge);
 
-    int         fShiftUp;
-    EdgeType    fEdgeType;
-    bool        fIsFinite = true;
-
-public:
     void addLine(const SkPoint pts[]);
     void addQuad(const SkPoint pts[]);
     void addCubic(const SkPoint pts[]);
     void addClipper(SkEdgeClipper*);
+    void addPolyLine(SkPoint pts[], char* &edge, size_t edgeSize, char** &edgePtr);
 
-    EdgeType edgeType() const { return fEdgeType; }
 
-    int buildPoly(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight);
+    // In general mode we allocate pointers in fList and this points to its head.
+    // In polygon mode we preallocated pointers in fAlloc and this points there.
+    void**              fEdgeList;
+    SkSTArenaAlloc<512> fAlloc;
+    SkTDArray<void*>    fList;
 
-    inline void addPolyLine(SkPoint pts[], char* &edge, size_t edgeSize, char** &edgePtr,
-            int shiftUp) {
-        if (fEdgeType == kBezier) {
-            if (((SkLine*)edge)->set(pts)) {
-                *edgePtr++ = edge;
-                edge += edgeSize;
-            }
-            return;
-        }
-        bool analyticAA = fEdgeType == kAnalyticEdge;
-        bool setLineResult = analyticAA ?
-                ((SkAnalyticEdge*)edge)->setLine(pts[0], pts[1]) :
-                ((SkEdge*)edge)->setLine(pts[0], pts[1], shiftUp);
-        if (setLineResult) {
-            Combine combine = analyticAA ?
-                    checkVertical((SkAnalyticEdge*)edge, (SkAnalyticEdge**)edgePtr) :
-                    checkVertical((SkEdge*)edge, (SkEdge**)edgePtr);
-            if (kNo_Combine == combine) {
-                *edgePtr++ = edge;
-                edge += edgeSize;
-            } else if (kTotal_Combine == combine) {
-                --edgePtr;
-            }
-        }
-    }
+    const EdgeType    fEdgeType;
+    const int         fShiftUp;
+    bool              fIsFinite;
 };
 
 #endif
