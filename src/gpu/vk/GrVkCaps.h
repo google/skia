@@ -129,6 +129,9 @@ public:
     // Returns true if the device supports importing Android hardware buffers into Vulkan memory.
     bool supportsAndroidHWBExternalMemory() const { return fSupportsAndroidHWBExternalMemory; }
 
+    // Returns true if it supports ycbcr conversion for samplers
+    bool supportsYcbcrConversion() const { return fSupportsYcbcrConversion; }
+
     /**
      * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
      * the surface is not a render target, otherwise it is the number of samples in the render
@@ -231,6 +234,8 @@ private:
     bool fSupportsDedicatedAllocation = false;
     bool fSupportsExternalMemory = false;
     bool fSupportsAndroidHWBExternalMemory = false;
+
+    bool fSupportsYcbcrConversion = false;
 
     typedef GrCaps INHERITED;
 };

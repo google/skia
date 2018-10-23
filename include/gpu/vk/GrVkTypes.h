@@ -56,14 +56,50 @@ private:
     friend class GrVkHeap; // For access to usesSystemHeap
     bool fUsesSystemHeap;
 };
+
+// Vulkan requires that the min/max filters on a VkSampler match that of the chromaFilter of a
+// GrYcbcrConversion. In general the chromaFilter must be VK_FILTER_NEAREST, however if the image
+// has the VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT then it can be
+// VK_FILTER_LINEAR. Additionally, if the image also has the format features
+// VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT then the
+// samplers filters can differ from the chroma filter.
+//
+// This enum tells out what sampler filters are allowed to be used when a given VkYcbcrConversion is
+// also used.
+enum class GrYcbcrConversionFilters {
+    kNearestOnly,
+    kLinearOnly,
+    kNearestOrLinear,
+};
+
+struct GrVkYcbcrConversionInfo {
+    GrVkYcbcrConversionInfo()
+            : fYcbcrConversion(VK_NULL_HANDLE)
+            , fAllowableFilters(GrYcbcrConversionFilters::kNearestOnly) {}
+
+    GrVkYcbcrConversionInfo(VkSamplerYcbcrConversion conversion,
+                            GrYcbcrConversionFilters allowableFilters)
+            : fYcbcrConversion(conversion)
+            , fAllowableFilters(allowableFilters) {}
+
+    bool operator==(const GrVkYcbcrConversionInfo& that) const {
+        return this->fYcbcrConversion == that.fYcbcrConversion &&
+               this->fAllowableFilters == that.fAllowableFilters;
+    }
+
+    VkSamplerYcbcrConversion  fYcbcrConversion;
+    GrYcbcrConversionFilters  fAllowableFilters;
+};
+
 struct GrVkImageInfo {
-    VkImage        fImage;
-    GrVkAlloc      fAlloc;
-    VkImageTiling  fImageTiling;
-    VkImageLayout  fImageLayout;
-    VkFormat       fFormat;
-    uint32_t       fLevelCount;
-    uint32_t       fCurrentQueueFamily;
+    VkImage                  fImage;
+    GrVkAlloc                fAlloc;
+    VkImageTiling            fImageTiling;
+    VkImageLayout            fImageLayout;
+    VkFormat                 fFormat;
+    uint32_t                 fLevelCount;
+    uint32_t                 fCurrentQueueFamily;
+    GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
 
     GrVkImageInfo()
             : fImage(VK_NULL_HANDLE)
@@ -72,18 +108,21 @@ struct GrVkImageInfo {
             , fImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
             , fFormat(VK_FORMAT_UNDEFINED)
             , fLevelCount(0)
-            , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED) {}
+            , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED)
+            , fYcbcrConversionInfo() {}
 
     GrVkImageInfo(VkImage image, GrVkAlloc alloc, VkImageTiling imageTiling, VkImageLayout layout,
                   VkFormat format, uint32_t levelCount,
-                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED)
+                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+                  GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo())
             : fImage(image)
             , fAlloc(alloc)
             , fImageTiling(imageTiling)
             , fImageLayout(layout)
             , fFormat(format)
             , fLevelCount(levelCount)
-            , fCurrentQueueFamily(currentQueueFamily) {}
+            , fCurrentQueueFamily(currentQueueFamily)
+            , fYcbcrConversionInfo(ycbcrConversionInfo) {}
 
     GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
             : fImage(info.fImage)
@@ -92,7 +131,8 @@ struct GrVkImageInfo {
             , fImageLayout(layout)
             , fFormat(info.fFormat)
             , fLevelCount(info.fLevelCount)
-            , fCurrentQueueFamily(info.fCurrentQueueFamily) {}
+            , fCurrentQueueFamily(info.fCurrentQueueFamily)
+            , fYcbcrConversionInfo(info.fYcbcrConversionInfo) {}
 
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle

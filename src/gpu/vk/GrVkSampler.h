@@ -10,7 +10,9 @@
 
 #include "GrVkResource.h"
 
+#include "SkOpts.h"
 #include "vk/GrVkDefines.h"
+#include "vk/GrVkTypes.h"
 
 class GrSamplerState;
 class GrVkGpu;
@@ -18,15 +20,36 @@ class GrVkGpu;
 
 class GrVkSampler : public GrVkResource {
 public:
-    static GrVkSampler* Create(const GrVkGpu* gpu, const GrSamplerState&, uint32_t maxMipLevel);
+    static GrVkSampler* Create(const GrVkGpu* gpu, const GrSamplerState&,
+                               uint32_t maxMipLevel, const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     VkSampler sampler() const { return fSampler; }
 
-    // Helpers for hashing GrVkSampler
-    static uint16_t GenerateKey(const GrSamplerState&, uint32_t maxMipLevel);
+    struct Key {
+        Key(uint16_t samplerKey, const GrVkYcbcrConversionInfo& ycbcrInfo) {
+            // We must memset here since the GrVkYcbcrConversion has a 64 bit value which may force
+            // alignment padded to occur in the middle of the Key struct.
+            memset(this, 0, sizeof(Key));
+            fSamplerKey = samplerKey;
+            fYcbcrInfo = ycbcrInfo;
+        }
+        uint16_t                fSamplerKey;
+        GrVkYcbcrConversionInfo fYcbcrInfo;
 
-    static const uint16_t& GetKey(const GrVkSampler& sampler) { return sampler.fKey; }
-    static uint32_t Hash(const uint16_t& key) { return key; }
+        bool operator==(const Key& that) const {
+            return this->fSamplerKey == that.fSamplerKey &&
+                   this->fYcbcrInfo == that.fYcbcrInfo;
+        }
+    };
+
+    // Helpers for hashing GrVkSampler
+    static Key GenerateKey(const GrSamplerState&, uint32_t maxMipLevel,
+                           const GrVkYcbcrConversionInfo& ycbcrInfo);
+
+    static const Key& GetKey(const GrVkSampler& sampler) { return sampler.fKey; }
+    static uint32_t Hash(const Key& key) {
+        return SkOpts::hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
+    }
 
 #ifdef SK_TRACE_VK_RESOURCES
     void dumpInfo() const override {
@@ -35,12 +58,13 @@ public:
 #endif
 
 private:
-    GrVkSampler(VkSampler sampler, uint16_t key) : INHERITED(), fSampler(sampler), fKey(key) {}
+    GrVkSampler(VkSampler sampler, Key key) : INHERITED(), fSampler(sampler), fKey(key) {}
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 
     VkSampler  fSampler;
-    uint16_t   fKey;
+
+    Key fKey;
 
     typedef GrVkResource INHERITED;
 };
