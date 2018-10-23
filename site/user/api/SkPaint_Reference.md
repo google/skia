@@ -63,8 +63,6 @@ public:
     void <a href='#SkPaint_setEmbeddedBitmapText'>setEmbeddedBitmapText</a>(bool useEmbeddedBitmapText);
     bool <a href='#SkPaint_isAutohinted'>isAutohinted</a>() const;
     void <a href='#SkPaint_setAutohinted'>setAutohinted</a>(bool useAutohinter);
-    bool <a href='#SkPaint_isVerticalText'>isVerticalText</a>() const;
-    void <a href='#SkPaint_setVerticalText'>setVerticalText</a>(bool);
     bool <a href='#SkPaint_isFakeBoldText'>isFakeBoldText</a>() const;
     void <a href='#SkPaint_setFakeBoldText'>setFakeBoldText</a>(bool fakeBoldText);
     bool <a href='#SkPaint_isDevKernText'>isDevKernText</a>() const;
@@ -1568,26 +1566,6 @@ Clears <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting Flag</a> if <a href='#S
 ### See Also
 
 <a href='#SkPaint_isAutohinted'>isAutohinted</a> <a href='#SkPaint_Hinting'>Hinting</a>
-
-<a name='SkPaint_isVerticalText'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isVerticalText'>isVerticalText</a>() const
-</pre>
-
-Deprecated.
-
-<a name='SkPaint_setVerticalText'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setVerticalText'>setVerticalText</a>(bool)
-</pre>
-
-Deprecated.
 
 <a name='Fake_Bold'></a>
 
