@@ -22,20 +22,20 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 
-#ifdef LUMIN
+//#if defined(LUMIN)
 #define LMP_SYSTEM_FONTS_FILE "/package/etc/fonts.xml"
 #define OLD_SYSTEM_FONTS_FILE "/package/etc/system_fonts.xml"
 #define FALLBACK_FONTS_FILE "/package/etc/fallback_fonts.xml"
 #define VENDOR_FONTS_FILE "/package/etc/fallback_fonts.xml"
-
 #define LOCALE_FALLBACK_FONTS_SYSTEM_DIR "/package/etc/fonts"
 #define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/package/etc/fonts"
 #define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts"
 #define LOCALE_FALLBACK_FONTS_SUFFIX ".xml"
-#endif
+//#endif
 
-
+/*
 #ifndef LUMIN
 #define LMP_SYSTEM_FONTS_FILE "/system/etc/fonts.xml"
 #define OLD_SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"
@@ -47,6 +47,7 @@
 #define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts-"
 #define LOCALE_FALLBACK_FONTS_SUFFIX ".xml"
 #endif
+*/
 
 #ifndef SK_FONT_FILE_PREFIX
 #    define SK_FONT_FILE_PREFIX "/fonts/"
@@ -632,55 +633,90 @@ static const XML_Memory_Handling_Suite sk_XML_alloc = {
 static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& families,
                              const SkString& basePath, bool isFallback)
 {
+	std::cout << "parseconfigfile-1" << std::endl;
     SkFILEStream file(filename);
+	std::cout << "parseconfigfile-2" << std::endl;
 
     // Some of the files we attempt to parse (in particular, /vendor/etc/fallback_fonts.xml)
     // are optional - failure here is okay because one of these optional files may not exist.
     if (!file.isValid()) {
+	std::cout << "parseconfigfile-3" << std::endl;
         SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "'%s' could not be opened\n", filename);
+	std::cout << "parseconfigfile-4" << std::endl;
         return -1;
+	std::cout << "parseconfigfile-5" << std::endl;
     }
+	std::cout << "parseconfigfile-6" << std::endl;
 
     SkAutoTCallVProc<skstd::remove_pointer_t<XML_Parser>, XML_ParserFree> parser(
         XML_ParserCreate_MM(nullptr, &sk_XML_alloc, nullptr));
+	std::cout << "parseconfigfile-7" << std::endl;
     if (!parser) {
+	std::cout << "parseconfigfile-8" << std::endl;
         SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "could not create XML parser\n");
+	std::cout << "parseconfigfile-9" << std::endl;
         return -1;
+	std::cout << "parseconfigfile-10" << std::endl;
     }
 
+	std::cout << "parseconfigfile-11" << std::endl;
     FamilyData self(parser, families, basePath, isFallback, filename, &topLevelHandler);
+	std::cout << "parseconfigfile-12" << std::endl;
     XML_SetUserData(parser, &self);
+	std::cout << "parseconfigfile-13" << std::endl;
 
     // Disable entity processing, to inhibit internal entity expansion. See expat CVE-2013-0340
+	std::cout << "parseconfigfile-14" << std::endl;
     XML_SetEntityDeclHandler(parser, xml_entity_decl_handler);
+	std::cout << "parseconfigfile-15" << std::endl;
 
     // Start parsing oldschool; switch these in flight if we detect a newer version of the file.
     XML_SetElementHandler(parser, start_element_handler, end_element_handler);
+	std::cout << "parseconfigfile-16" << std::endl;
 
     // One would assume it would be faster to have a buffer on the stack and call XML_Parse.
     // But XML_Parse will call XML_GetBuffer anyway and memmove the passed buffer into it.
     // (Unless XML_CONTEXT_BYTES is undefined, but all users define it.)
     // In debug, buffer a small odd number of bytes to detect slicing in XML_CharacterDataHandler.
     static const int bufferSize = 512 SkDEBUGCODE( - 507);
+	std::cout << "parseconfigfile-17" << std::endl;
     bool done = false;
+	std::cout << "parseconfigfile-18" << std::endl;
     while (!done) {
+	std::cout << "parseconfigfile-19" << std::endl;
         void* buffer = XML_GetBuffer(parser, bufferSize);
+	std::cout << "parseconfigfile-20" << std::endl;
         if (!buffer) {
+	std::cout << "parseconfigfile-21" << std::endl;
             SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "could not buffer enough to continue\n");
+	std::cout << "parseconfigfile-22" << std::endl;
             return -1;
+	std::cout << "parseconfigfile-23" << std::endl;
         }
+	std::cout << "parseconfigfile-24" << std::endl;
         size_t len = file.read(buffer, bufferSize);
+	std::cout << "parseconfigfile-25" << std::endl;
         done = file.isAtEnd();
+	std::cout << "parseconfigfile-26" << std::endl;
         XML_Status status = XML_ParseBuffer(parser, len, done);
+	std::cout << "parseconfigfile-27" << std::endl;
         if (XML_STATUS_ERROR == status) {
+	std::cout << "parseconfigfile-28" << std::endl;
             XML_Error error = XML_GetErrorCode(parser);
+	std::cout << "parseconfigfile-29" << std::endl;
             int line = XML_GetCurrentLineNumber(parser);
+	std::cout << "parseconfigfile-30" << std::endl;
             int column = XML_GetCurrentColumnNumber(parser);
+	std::cout << "parseconfigfile-31" << std::endl;
             const XML_LChar* errorString = XML_ErrorString(error);
+	std::cout << "parseconfigfile-32" << std::endl;
             SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "%s:%d:%d error %d: %s.\n",
                      filename, line, column, error, errorString);
+	std::cout << "parseconfigfile-33" << std::endl;
             return -1;
+	std::cout << "parseconfigfile-34" << std::endl;
         }
+	std::cout << "parseconfigfile-35" << std::endl;
     }
     return self.fVersion;
 }
@@ -786,18 +822,34 @@ static void mixin_vendor_fallback_font_families(SkTDArray<FontFamily*>& fallback
 
 void SkFontMgr_Android_Parser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamilies) {
     // Version 21 of the system font configuration does not need any fallback configuration files.
-    SkString basePath(getenv("ANDROID_ROOT"));
-    basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1);
+	/*
+    #ifndef LUMIN
+	    SkString basePath(getenv("ANDROID_ROOT"));
+	    std::cout << "parseval2" << std::endl;
+	    basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1);
+	    std::cout << "parseval3" << std::endl;
 
-    if (append_system_font_families(fontFamilies, basePath) >= 21) {
-        return;
-    }
+	    if (append_system_font_families(fontFamilies, basePath) >= 21) {
+	    std::cout << "parseval4" << std::endl;
+		return;
+	    }
+    #endif
+    */
+
+    //#if defined(LUMIN)
+	    SkString basePath("/");
+//    #endif
 
     // Append all the fallback fonts to system fonts
+    std::cout << "parseval5" << std::endl;
     SkTDArray<FontFamily*> fallbackFonts;
+    std::cout << "parseval6" << std::endl;
     append_system_fallback_font_families(fallbackFonts, basePath);
+    std::cout << "parseval7" << std::endl;
     mixin_vendor_fallback_font_families(fallbackFonts, basePath);
+    std::cout << "parseval8" << std::endl;
     fontFamilies.append(fallbackFonts.count(), fallbackFonts.begin());
+    std::cout << "parseval9" << std::endl;
 }
 
 void SkFontMgr_Android_Parser::GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
@@ -806,17 +858,27 @@ void SkFontMgr_Android_Parser::GetCustomFontFamilies(SkTDArray<FontFamily*>& fon
                                                      const char* fallbackFontsXml,
                                                      const char* langFallbackFontsDir)
 {
+    std::cout << "parseval10" << std::endl;
     if (fontsXml) {
+    std::cout << "parseval11" << std::endl;
         parse_config_file(fontsXml, fontFamilies, basePath, false);
+    std::cout << "parseval12" << std::endl;
     }
+    std::cout << "parseval13" << std::endl;
     if (fallbackFontsXml) {
+    std::cout << "parseval14" << std::endl;
         parse_config_file(fallbackFontsXml, fontFamilies, basePath, true);
+    std::cout << "parseval16" << std::endl;
     }
+    std::cout << "parseval17" << std::endl;
     if (langFallbackFontsDir) {
+    std::cout << "parseval18" << std::endl;
         append_fallback_font_families_for_locale(fontFamilies,
                                                  langFallbackFontsDir,
                                                  basePath);
+    std::cout << "parseval19" << std::endl;
     }
+    std::cout << "parseval20" << std::endl;
 }
 
 SkLanguage SkLanguage::getParent() const {

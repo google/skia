@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <iostream>
 
 class SkData;
 
@@ -288,25 +289,40 @@ struct NameToFamily {
 class SkFontMgr_Android : public SkFontMgr {
 public:
     SkFontMgr_Android(const SkFontMgr_Android_CustomFonts* custom) {
+	std::cout << "logval1 " << std::endl;
         SkTDArray<FontFamily*> families;
+	std::cout << "logval2" << std::endl;
         if (custom && SkFontMgr_Android_CustomFonts::kPreferSystem != custom->fSystemFontUse) {
+       	    std::cout << "logval3" << std::endl;
             SkString base(custom->fBasePath);
+       	    std::cout << "logval4" << std::endl;
             SkFontMgr_Android_Parser::GetCustomFontFamilies(
                 families, base, custom->fFontsXml, custom->fFallbackFontsXml);
+       	        std::cout << "logval6" << std::endl;
         }
+       	        std::cout << "logval7" << std::endl;
         if (!custom ||
             (custom && SkFontMgr_Android_CustomFonts::kOnlyCustom != custom->fSystemFontUse))
         {
+       	        std::cout << "logval8" << std::endl;
             SkFontMgr_Android_Parser::GetSystemFontFamilies(families);
+       	        std::cout << "logval9" << std::endl;
         }
+       	        std::cout << "logval10" << std::endl;
         if (custom && SkFontMgr_Android_CustomFonts::kPreferSystem == custom->fSystemFontUse) {
             SkString base(custom->fBasePath);
+       	        std::cout << "logval11" << std::endl;
             SkFontMgr_Android_Parser::GetCustomFontFamilies(
                 families, base, custom->fFontsXml, custom->fFallbackFontsXml);
+       	        std::cout << "logval12" << std::endl;
         }
+       	        std::cout << "logval13" << std::endl;
         this->buildNameToFamilyMap(families, custom ? custom->fIsolated : false);
+       	        std::cout << "logval14" << std::endl;
         this->findDefaultStyleSet();
+       	        std::cout << "logval15" << std::endl;
         families.deleteAll();
+       	        std::cout << "logval16" << std::endl;
     }
 
 protected:
@@ -333,22 +349,38 @@ protected:
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
+	    std::cout << "onMatchFamily-1" << std::endl;
         if (!familyName) {
+	    std::cout << "onMatchFamily-2" << std::endl;
             return nullptr;
+	    std::cout << "onMatchFamily-3" << std::endl;
         }
+	    std::cout << "onMatchFamily-4" << std::endl;
         SkAutoAsciiToLC tolc(familyName);
+	    std::cout << "onMatchFamily-5" << std::endl;
         for (int i = 0; i < fNameToFamilyMap.count(); ++i) {
+	    std::cout << "onMatchFamily-6" << std::endl;
             if (fNameToFamilyMap[i].name.equals(tolc.lc())) {
+	    std::cout << "onMatchFamily-7" << std::endl;
                 return SkRef(fNameToFamilyMap[i].styleSet);
+	    std::cout << "onMatchFamily-8" << std::endl;
             }
+	    std::cout << "onMatchFamily-9" << std::endl;
         }
+	    std::cout << "onMatchFamily-10" << std::endl;
         // TODO: eventually we should not need to name fallback families.
         for (int i = 0; i < fFallbackNameToFamilyMap.count(); ++i) {
+	    std::cout << "onMatchFamily-11" << std::endl;
             if (fFallbackNameToFamilyMap[i].name.equals(tolc.lc())) {
+	    std::cout << "onMatchFamily-12" << std::endl;
                 return SkRef(fFallbackNameToFamilyMap[i].styleSet);
+	    std::cout << "onMatchFamily-13" << std::endl;
             }
+	    std::cout << "onMatchFamily-14" << std::endl;
         }
+	    std::cout << "onMatchFamily-15" << std::endl;
         return nullptr;
+	    std::cout << "onMatchFamily-16" << std::endl;
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
@@ -522,46 +554,84 @@ private:
     SkTArray<NameToFamily, true> fFallbackNameToFamilyMap;
 
     void buildNameToFamilyMap(SkTDArray<FontFamily*> families, const bool isolated) {
+       	        std::cout << "logvalFAMILYMAP-2" << std::endl;
         for (int i = 0; i < families.count(); i++) {
+       	        std::cout << "logvalFAMILYMAP-3" << std::endl;
             FontFamily& family = *families[i];
+       	        std::cout << "logvalFAMILYMAP-4" << std::endl;
 
             SkTArray<NameToFamily, true>* nameToFamily = &fNameToFamilyMap;
+       	        std::cout << "logvalFAMILYMAP-5" << std::endl;
             if (family.fIsFallbackFont) {
+       	        std::cout << "logvalFAMILYMAP-6" << std::endl;
                 nameToFamily = &fFallbackNameToFamilyMap;
+       	        std::cout << "logvalFAMILYMAP-7" << std::endl;
 
                 if (0 == family.fNames.count()) {
+       	        std::cout << "logvalFAMILYMAP-8" << std::endl;
                     SkString& fallbackName = family.fNames.push_back();
+       	        std::cout << "logvalFAMILYMAP-9" << std::endl;
                     fallbackName.printf("%.2x##fallback", i);
+       	        std::cout << "logvalFAMILYMAP-10" << std::endl;
                 }
+       	        std::cout << "logvalFAMILYMAP-11" << std::endl;
             }
+       	        std::cout << "logvalFAMILYMAP-12" << std::endl;
 
             sk_sp<SkFontStyleSet_Android> newSet =
                 sk_make_sp<SkFontStyleSet_Android>(family, fScanner, isolated);
+       	        std::cout << "logvalFAMILYMAP-13" << std::endl;
             if (0 == newSet->count()) {
+       	        std::cout << "logvalFAMILYMAP-14" << std::endl;
                 continue;
+       	        std::cout << "logvalFAMILYMAP-15" << std::endl;
             }
+       	        std::cout << "logvalFAMILYMAP-16" << std::endl;
 
             for (const SkString& name : family.fNames) {
+       	        std::cout << "logvalFAMILYMAP-17" << std::endl;
                 nameToFamily->emplace_back(NameToFamily{name, newSet.get()});
+       	        std::cout << "logvalFAMILYMAP-18" << std::endl;
             }
+       	        std::cout << "logvalFAMILYMAP-19" << std::endl;
             fStyleSets.emplace_back(std::move(newSet));
+       	        std::cout << "logvalFAMILYMAP-20" << std::endl;
         }
     }
 
     void findDefaultStyleSet() {
+       	        std::cout << "logval17" << std::endl;
         SkASSERT(!fStyleSets.empty());
 
+       	        std::cout << "logval18" << std::endl;
         static const char* defaultNames[] = { "sans-serif" };
+       	        std::cout << "logval19" << std::endl;
         for (const char* defaultName : defaultNames) {
+       	        std::cout << "logval20" << std::endl;
             fDefaultStyleSet.reset(this->onMatchFamily(defaultName));
+       	        std::cout << "logval21" << std::endl;
             if (fDefaultStyleSet) {
+       	        std::cout << "logval22" << std::endl;
                 break;
+       	        std::cout << "logval23" << std::endl;
             }
+       	        std::cout << "logval24" << std::endl;
         }
+       	        std::cout << "logval25" << std::endl;
         if (nullptr == fDefaultStyleSet) {
+       	        std::cout << "logval26" << std::endl;
+       	        std::cout << "logval26-fStyleSets[0] =" << fStyleSets[0] << std::endl;
+		int size = (sizeof(fStyleSets) / sizeof(fStyleSets[0]));
+		for (int i = size - 1; i >= 0; i--){
+      	        std::cout << "logval26-fStyleSets[" << i << "] =" << fStyleSets[i] << std::endl;
+		}	
+       	        std::cout << "logval26- END LOOP" << std::endl;
             fDefaultStyleSet = fStyleSets[0];
+       	        std::cout << "logval27" << std::endl;
         }
+       	        std::cout << "logval28" << std::endl;
         SkASSERT(fDefaultStyleSet);
+       	        std::cout << "logval29" << std::endl;
     }
 
     typedef SkFontMgr INHERITED;
