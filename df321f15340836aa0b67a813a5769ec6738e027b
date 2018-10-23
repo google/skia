@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cc33378_fbb4c540",
+        "filename": "src/gpu/ops/GrPerEdgeAAQuadHelper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-23T19:59:23Z",
+      "side": 1,
+      "message": "I\u0027m going to turn this review over the Brian O. as he is looking at either adding yet another template param or possibly changing the model away from templating.\n\nBut my one contribution would be to somehow include the word Quad in the namespace name, e.g. GrQuadPerEdgeAA, GrPerEdgeAAQuadTess...\n\nAlso maybe make the name of the file and namespace match?",
+      "range": {
+        "startLine": 19,
+        "startChar": 10,
+        "endLine": 19,
+        "endChar": 21
+      },
+      "revId": "df321f15340836aa0b67a813a5769ec6738e027b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
