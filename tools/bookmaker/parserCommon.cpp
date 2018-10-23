@@ -9,11 +9,6 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
-static void debug_out(int len, const char* data) {
-    // convenient place to intercept arbitrary output
-    SkDebugf("%.*s", len, data);
-}
-
 void ParserCommon::checkLineLength(size_t len, const char* str) {
     if (!fWritingIncludes) {
         return;
@@ -36,6 +31,21 @@ void ParserCommon::checkLineLength(size_t len, const char* str) {
     }
 }
 
+// change Xxx_Xxx to xxx xxx
+string ParserCommon::ConvertRef(const string str, bool first) {
+    string substitute;
+    for (char c : str) {
+        if ('_' == c) {
+            c = ' ';
+        } else if (isupper(c) && !first) {
+            c = tolower(c);
+        }
+        substitute += c;
+        first = false;
+    }
+    return substitute;
+}
+
 void ParserCommon::CopyToFile(string oldFile, string newFile) {
     int bufferSize;
     char* buffer = ParserCommon::ReadToBuffer(newFile, &bufferSize);
@@ -49,7 +59,16 @@ void ParserCommon::CopyToFile(string oldFile, string newFile) {
     remove(newFile.c_str());
 }
 
+string ParserCommon::HtmlFileName(string bmhFileName) {
+    SkASSERT("docs" == bmhFileName.substr(0, 4));
+    SkASSERT('\\' == bmhFileName[4] || '/' == bmhFileName[4]);
+    SkASSERT(".bmh" == bmhFileName.substr(bmhFileName.length() - 4));
+    string result = bmhFileName.substr(5, bmhFileName.length() - 4 - 5);
+    return result;
+}
+
 bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix, OneFile oneFile) {
+    fRawFilePathDir = string(fileOrPath);
     if (!sk_isdir(fileOrPath)) {
         if (!this->parseFromFile(fileOrPath)) {
             SkDebugf("failed to parse %s\n", fileOrPath);
@@ -80,6 +99,7 @@ bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix, OneFile
 }
 
 bool ParserCommon::parseStatus(const char* statusFile, const char* suffix, StatusFilter filter) {
+    fRawFilePathDir = string(statusFile);
     StatusIter iter(statusFile, suffix, filter);
     if (iter.empty()) {
         return false;
@@ -198,10 +218,7 @@ bool ParserCommon::writeBlockIndent(int size, const char* data, bool ignoreIdent
         int len = lineEnd ? (int) (lineEnd - data) : size;
         this->writePending();
         this->indentToColumn(indent);
-        if (fDebugOut) {
-            debug_out(len, data);
-        }
-        fprintf(fOut, "%.*s", len, data);
+        FPRINTF("%.*s", len, data);
         checkLineLength(len, data);
         size -= len;
         data += len;
@@ -241,10 +258,7 @@ bool ParserCommon::writeBlockTrim(int size, const char* data) {
         fPendingSpace = 0;
     }
     this->writePending();
-    if (fDebugOut) {
-        debug_out(size, data);
-    }
-    fprintf(fOut, "%.*s", size, data);
+    FPRINTF("%.*s", size, data);
     checkLineLength(size, data);
     fWroteSomething = true;
     int added = 0;
@@ -311,10 +325,7 @@ void ParserCommon::writeString(const char* str) {
         fPendingSpace = 0;
     }
     this->writePending();
-    if (fDebugOut) {
-        debug_out((int) strlen(str), str);
-    }
-    fprintf(fOut, "%s", str);
+    FPRINTF("%s", str);
     checkLineLength(strlen(str), str);
     fColumn += len;
     fSpaces = 0;
