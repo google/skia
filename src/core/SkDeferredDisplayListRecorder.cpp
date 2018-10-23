@@ -64,7 +64,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuYUVA.h"
 #include "SkSurface_Gpu.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c)
         : fCharacterization(c) {
@@ -231,7 +231,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         SkYUVColorSpace yuvColorSpace,
         const GrBackendFormat yuvaFormats[],
-        const SkYUVSizeInfo& yuvaSizeInfo,
+        const SkYUVASizeInfo& yuvaSizeInfo,
         const SkYUVAIndex yuvaIndices[4],
         int imageWidth,
         int imageHeight,

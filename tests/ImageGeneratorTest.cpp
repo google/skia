@@ -62,7 +62,7 @@ public:
 
 DEF_TEST(ImageGenerator, reporter) {
     MyImageGenerator ig;
-    SkYUVSizeInfo sizeInfo;
+    SkYUVASizeInfo sizeInfo;
     sizeInfo.fSizes[0] = SkISize::Make(200, 200);
     sizeInfo.fSizes[1] = SkISize::Make(100, 100);
     sizeInfo.fSizes[2] = SkISize::Make( 50,  50);

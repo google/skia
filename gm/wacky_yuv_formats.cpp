@@ -502,13 +502,13 @@ public:
     YUVGenerator(const SkImageInfo& ii,
                  SkYUVColorSpace yuvColorSpace,
                  SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                 SkBitmap bitmaps[SkYUVSizeInfo::kMaxCount])
+                 SkBitmap bitmaps[SkYUVASizeInfo::kMaxCount])
             : SkImageGenerator(ii)
             , fYUVColorSpace(yuvColorSpace) {
         memcpy(fYUVAIndices, yuvaIndices, sizeof(fYUVAIndices));
 
         SkAssertResult(SkYUVAIndex::AreValidIndices(fYUVAIndices, &fNumBitmaps));
-        SkASSERT(fNumBitmaps > 0 && fNumBitmaps <= SkYUVSizeInfo::kMaxCount);
+        SkASSERT(fNumBitmaps > 0 && fNumBitmaps <= SkYUVASizeInfo::kMaxCount);
 
         for (int i = 0; i < fNumBitmaps; ++i) {
             fYUVBitmaps[i] = bitmaps[i];
@@ -567,7 +567,7 @@ protected:
         return fFlattened.readPixels(info, pixels, rowBytes, 0, 0);
     }
 
-    bool onQueryYUVA8(SkYUVSizeInfo* size,
+    bool onQueryYUVA8(SkYUVASizeInfo* size,
                       SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                       SkYUVColorSpace* yuvColorSpace) const override {
 
@@ -580,7 +580,7 @@ protected:
             size->fSizes[i].fHeight = fYUVBitmaps[i].height();
             size->fWidthBytes[i] = fYUVBitmaps[i].rowBytes();
         }
-        for ( ; i < SkYUVSizeInfo::kMaxCount; ++i) {
+        for ( ; i < SkYUVASizeInfo::kMaxCount; ++i) {
             size->fSizes[i].fWidth = 0;
             size->fSizes[i].fHeight = 0;
             size->fWidthBytes[i] = 0;
@@ -589,8 +589,8 @@ protected:
         return true;
     }
 
-    bool onGetYUVA8Planes(const SkYUVSizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
-                          void* planes[SkYUVSizeInfo::kMaxCount]) override {
+    bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
+                          void* planes[SkYUVASizeInfo::kMaxCount]) override {
         for (int i = 0; i < fNumBitmaps; ++i) {
             planes[i] = fYUVBitmaps[i].getPixels();
         }
@@ -601,7 +601,7 @@ private:
     SkYUVColorSpace fYUVColorSpace;
     SkYUVAIndex     fYUVAIndices[SkYUVAIndex::kIndexCount];
     int             fNumBitmaps;
-    SkBitmap        fYUVBitmaps[SkYUVSizeInfo::kMaxCount];
+    SkBitmap        fYUVBitmaps[SkYUVASizeInfo::kMaxCount];
     SkBitmap        fFlattened;
 
 };
