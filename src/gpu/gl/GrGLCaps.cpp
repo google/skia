@@ -2316,6 +2316,13 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
 void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
                                                  const GrContextOptions& contextOptions,
                                                  GrShaderCaps* shaderCaps) {
+    bool isX86PowerVRRogue = false;
+#if defined(SK_CPU_X86)
+    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+        isX86PowerVRRogue = true;
+    }
+#endif
+
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
@@ -2333,7 +2340,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fClearTextureSupport = false;
     }
 
-    // Calling glClearTexImage crashes on the NexusPlayer.
+    // Calling glClearTexImage crashes on the NexusPlayer. TODO: Use isX86PowerVRRogue?
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
         fClearTextureSupport = false;
     }
@@ -2383,6 +2390,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMipMapSupport = false;
     }
 
+    // TODO: Use isX86PowerVRRogue?
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
         // Temporarily disabling clip analytic fragments processors on Nexus player while we work
         // around a driver bug related to gl_FragCoord.
@@ -2466,6 +2474,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDetachStencilFromMSAABuffersBeforeReadPixels = true;
     }
 
+    // TODO: Don't apply this on iOS?
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
         // Our Chromebook with kPowerVRRogue_GrGLRenderer crashes on large instanced draws. The
         // current minimum number of instances observed to crash is somewhere between 2^14 and 2^15.
@@ -2701,6 +2710,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // https://bugreport.apple.com/web/?problemID=39948888
     fUnpackRowLengthSupport = false;
 #endif
+
+    if (isX86PowerVRRogue) {
+        // On Nexus Player we get incorrect filter modes when using sampler objects.
+        fSamplerObjectSupport = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
