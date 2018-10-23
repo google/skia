@@ -1038,8 +1038,8 @@ void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset)
     SkPath path;
     SkASSERT(paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
 
-    paint.getPosTextPath(glyphRun.shuntGlyphsIDs().data(),
-                         glyphRun.shuntGlyphsIDs().size() * sizeof(SkGlyphID),
+    paint.getPosTextPath(glyphRun.glyphsIDs().data(),
+                         glyphRun.glyphsIDs().size() * sizeof(SkGlyphID),
                          glyphRun.positions().data(),
                          &path);
     path.offset(offset.x(), offset.y());
@@ -1088,8 +1088,8 @@ static bool needs_new_font(SkPDFFont* font, SkGlyphID gid, SkGlyphCache* cache,
 
 void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset) {
 
-    const SkGlyphID* glyphs = glyphRun.shuntGlyphsIDs().data();
-    uint32_t glyphCount = SkToU32(glyphRun.shuntGlyphsIDs().size());
+    const SkGlyphID* glyphs = glyphRun.glyphsIDs().data();
+    uint32_t glyphCount = SkToU32(glyphRun.glyphsIDs().size());
     SkPaint srcPaint{glyphRun.paint()};
     srcPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
     srcPaint.setTextAlign(SkPaint::kLeft_Align);
