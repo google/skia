@@ -203,35 +203,25 @@ Passes a placeholder to a function that requires one.
 ##
 
 #Function
-// Returns true if either the canvas rotates the text by 90 degrees, or the paint does.
-static void check_for_up_and_down_text(const SkCanvas* canvas, const SkPaint& paint) {
-    bool paintHasVertical = paint.isVerticalText();
+static void check_for_rotated_ctm(const SkCanvas* canvas) {
     const SkMatrix& matrix = canvas->getTotalMatrix();
-    bool matrixIsVertical = matrix.preservesRightAngles() && !matrix.isScaleTranslate();
-    SkDebugf("paint draws text %s\n", paintHasVertical != matrixIsVertical ?
-            "top to bottom" : "left to right");
-}
-
-static void check_for_up_and_down_text(const SkPaint& paint) {
-    SkCanvas canvas;  // placeholder only, does not have an associated device
-    check_for_up_and_down_text(&canvas, paint);
+    SkDebugf("rect stays rect is %s\n", matrix.rectStaysRect() ? "true" : "false");
 }
 
 ##
 void draw(SkCanvas* canvas) {
-    SkPaint paint;
-    check_for_up_and_down_text(paint);  // paint draws text left to right
-    paint.setVerticalText(true);
-    check_for_up_and_down_text(paint);  // paint draws text top to bottom
-    paint.setVerticalText(false);
-    canvas->rotate(90);
-    check_for_up_and_down_text(canvas, paint);  // paint draws text top to bottom
+    check_for_rotated_ctm(canvas);
+    canvas->rotate(30);
+    check_for_rotated_ctm(canvas);
+
+    SkCanvas defaultCanvas;
+    check_for_rotated_ctm(&defaultCanvas);
 }
 
     #StdOut
-        paint draws text left to right
-        paint draws text top to bottom
-        paint draws text top to bottom
+        rect stays rect is true
+        rect stays rect is false
+        rect stays rect is true
     ##
 ##
 
@@ -5073,7 +5063,7 @@ Draws text, with origin at (x, y), using Clip, Matrix, and Paint paint.
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
 UTF-8.
 
-x and y meaning depends on Paint_Text_Align and Paint_Vertical_Text; by default
+x and y meaning depends on Paint_Text_Align; by default
 text draws left to right, positioning the first glyph left side bearing at x
 and its baseline at y. Text size is affected by Matrix and Paint_Text_Size.
 
@@ -5131,8 +5121,7 @@ string meaning depends on Paint_Text_Encoding; by default, strings are encoded
 as UTF-8. Other values of Paint_Text_Encoding are unlikely to produce the desired
 results, since zero bytes may be embedded in the string.
 
-x and y meaning depends on Paint_Text_Align and Paint_Vertical_Text; by default
-string draws left to right, positioning the first glyph left side bearing at x
+The string draws left to right, positioning the first glyph left side bearing at x
 and its baseline at y. Text size is affected by Matrix and Paint_Text_Size.
 
 All elements of paint: Path_Effect, Mask_Filter, Shader,
@@ -5165,8 +5154,7 @@ string meaning depends on Paint_Text_Encoding; by default, strings are encoded
 as UTF-8. Other values of Paint_Text_Encoding are unlikely to produce the desired
 results, since zero bytes may be embedded in the string.
 
-x and y meaning depends on Paint_Text_Align and Paint_Vertical_Text; by default
-string draws left to right, positioning the first glyph left side bearing at x
+The string draws left to right, positioning the first glyph left side bearing at x
 and its baseline at y. Text size is affected by Matrix and Paint_Text_Size.
 
 All elements of paint: Path_Effect, Mask_Filter, Shader,
@@ -5203,8 +5191,7 @@ Paint paint. The number of entries in pos array must match the number of Glyphs
 described by byteLength of text.
 
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
-UTF-8. pos elements meaning depends on Paint_Vertical_Text; by default
-glyph left side bearing and baseline are relative to Point in pos array.
+UTF-8. glyph left side bearing and baseline are relative to Point in pos array.
 Text size is affected by Matrix and Paint_Text_Size.
 
 All elements of paint: Path_Effect, Mask_Filter, Shader,
@@ -5248,8 +5235,7 @@ constY, using Clip, Matrix, and Paint paint. The number of entries in xpos array
 must match the number of Glyphs described by byteLength of text.
 
 text meaning depends on Paint_Text_Encoding; by default, text is encoded as
-UTF-8. xpos elements meaning depends on Paint_Vertical_Text;
-by default each glyph left side bearing is positioned at an xpos element and
+UTF-8. Each glyph left side bearing is positioned at an xpos element and
 its baseline is positioned at constY. Text size is affected by Matrix and
 Paint_Text_Size.
 

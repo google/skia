@@ -79,7 +79,6 @@ Constructs Paint with default values.
 # Stroke_Join            # kMiter_Join              ##
 # Stroke_Width           # 0                        ##
 # Subpixel_Text          # false                    ##
-# Vertical_Text          # false                    ##
 #Table ##
 
 The flags, text size, hinting, and miter limit may be overridden at compile time by defining
@@ -513,9 +512,6 @@ multiple settings at once.
     ##
     #Const kAutoHinting_Flag        0x0800
     #Line # mask for setting Automatic_Hinting ##
-    ##
-    #Const kVerticalText_Flag       0x1000
-    #Line # mask for setting Vertical_Text ##
     ##
     #Const kAllFlags                0xFFFF
     #Line # mask of all Flags ##
@@ -1253,96 +1249,6 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
     ##
 
     #SeeAlso isAutohinted Hinting
-
-##
-
-# ------------------------------------------------------------------------------
-#Subtopic Vertical_Text
-#Line # orient text from top to bottom ##
-
-Text may be drawn by positioning each glyph, or by positioning the first glyph and
-using Font_Advance to position subsequent Glyphs. By default, each successive glyph
-is positioned to the right of the preceding glyph. Vertical_Text sets successive
-Glyphs to position below the preceding glyph.
-
-Skia can translate text character codes as a series of Glyphs, but does not implement
-font substitution,
-textual substitution, line layout, or contextual spacing like Kerning pairs. Use
-a text shaping engine like
-#A HarfBuzz # https://harfbuzz.org/ ##
- to translate text runs
-into glyph series.
-
-Vertical_Text is clear if text is drawn left to right or set if drawn from top to bottom.
-
-Flags kVerticalText_Flag if clear draws text left to right.
-Flags kVerticalText_Flag if set draws text top to bottom.
-
-Vertical_Text is clear by default.
-Vertical_Text can be set by default by setting SkPaintDefaults_Flags to
-kVerticalText_Flag at compile time.
-
-#Example
-
-void draw(SkCanvas* canvas) {
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setTextSize(50);
-    for (bool vertical : { false, true } ) {
-        paint.setVerticalText(vertical);
-        canvas->drawString("aAlL", 25, 50, paint);
-    }
-}
-
-##
-#Subtopic Vertical_Text ##
-
-#Method bool isVerticalText() const
-#In Vertical_Text
-#Line # returns true if Vertical_Text is set ##
-    Returns true if Glyphs are drawn top to bottom instead of left to right.
-
-    Equivalent to getFlags masked with kVerticalText_Flag.
-
-    #Return  kVerticalText_Flag state ##
-
-    #Example
-    SkPaint paint;
-    SkDebugf("paint.isVerticalText() %c= !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\n",
-        paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag) ? '=' : '!');
-    paint.setVerticalText(true);
-    SkDebugf("paint.isVerticalText() %c= !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\n",
-        paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag) ? '=' : '!');
-
-        #StdOut
-            paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)
-            paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)
-        ##
-    ##
-
-##
-
-#Method void setVerticalText(bool verticalText)
-#In Vertical_Text
-#Line # sets or clears Vertical_Text ##
-    Returns true if text advance positions the next glyph below the previous glyph instead of to the
-    right of previous glyph.
-
-    Sets kVerticalText_Flag if vertical is true.
-    Clears kVerticalText_Flag if vertical is false.
-
-    #Param verticalText  setting for kVerticalText_Flag ##
-
-    #Example
-        SkPaint paint1, paint2;
-        paint1.setVerticalText(true);
-        paint2.setFlags(paint2.getFlags() | SkPaint::kVerticalText_Flag);
-        SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
-
-        #StdOut
-            paint1 == paint2
-        ##
-    ##
 
 ##
 
@@ -3435,14 +3341,12 @@ Align defaults to kLeft_Align.
 
 #Const kCenter_Align 1
 #Line # centers line of glyphs by its width or height ##
-    Moves the glyph half its width if Flags has kVerticalText_Flag clear, and
-    half its height if Flags has kVerticalText_Flag set.
+    Moves the glyph half its width.
 ##
 
 #Const kRight_Align 2
 #Line # moves lines of glyphs by its width or height ##
-    Moves the glyph by its width if Flags has kVerticalText_Flag clear,
-    and by its height if Flags has kVerticalText_Flag set.
+    Moves the glyph by its width.
 ##
 
 #Const kAlignCount 3
@@ -3467,25 +3371,6 @@ May be used to verify that Align is a legal value.
             paint.setTextAlign(a);
             canvas->drawPosText("Aa", 2, position, paint);
             canvas->translate(0, 50);
-        }
-    }
-##
-
-#Example
-    #Height 160
-    #Description
-    Vertical_Text treats kLeft_Align as top align, and kRight_Align as bottom align.
-    ##
-    void draw(SkCanvas* canvas) {
-        SkPaint paint;
-        paint.setTextSize(40);
-        paint.setVerticalText(true);
-        for (SkPaint::Align a : { SkPaint::kLeft_Align,
-                                  SkPaint::kCenter_Align,
-                                  SkPaint::kRight_Align }) {
-            paint.setTextAlign(a);
-            canvas->drawString("Aa", 50, 80, paint);
-            canvas->translate(50, 0);
         }
     }
 ##
@@ -4388,8 +4273,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
 #In Measure_Text
 #Line # returns advance width and bounds of text ##
-    Returns the advance width of text if kVerticalText_Flag is clear,
-    and the height of text if kVerticalText_Flag is set.
+    Returns the advance width of text.
     The advance is the normal distance to move before drawing additional text.
     Uses Text_Encoding to decode text, Typeface to get the font metrics,
     and Text_Size, Text_Scale_X, Text_Skew_X, Stroke_Width, and
@@ -4425,8 +4309,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 #Method SkScalar measureText(const void* text, size_t length) const
 
 #In Measure_Text
-    Returns the advance width of text if kVerticalText_Flag is clear,
-    and the height of text if kVerticalText_Flag is set.
+    Returns the advance width of text.
     The advance is the normal distance to move before drawing additional text.
     Uses Text_Encoding to decode text, Typeface to get the font metrics,
     and Text_Size to scale the metrics.
@@ -4457,10 +4340,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 #Line # returns text that fits in a width ##
 
     Returns the bytes of text that fit within maxWidth.
-    If kVerticalText_Flag is clear, the text fragment fits if its advance width is less than or
-    equal to maxWidth.
-    If kVerticalText_Flag is set, the text fragment fits if its advance height is less than or
-    equal to maxWidth.
+    The text fragment fits if its advance width is less than or equal to maxWidth.
     Measures only while the advance is less than or equal to maxWidth.
     Returns the advance or the text fragment in measuredWidth if it not nullptr.
     Uses Text_Encoding to decode text, Typeface to get the font metrics,
@@ -4507,8 +4387,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
     Both widths and bounds may be nullptr.
     If widths is not nullptr, widths must be an array of glyph count entries.
     if bounds is not nullptr, bounds must be an array of glyph count entries.
-    If kVerticalText_Flag is clear, widths returns the horizontal advance.
-    If kVerticalText_Flag is set, widths returns the vertical advance.
+    Widths returns the horizontal advance.
     Uses Text_Encoding to decode text, Typeface to get the font metrics,
     and Text_Size to scale the widths and bounds.
     Does not scale the advance by Fake_Bold or Path_Effect.
