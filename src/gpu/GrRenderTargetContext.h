@@ -135,10 +135,10 @@ public:
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
      * device space.
      */
-    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
-                     const SkRect& srcRect, const SkRect& dstRect, GrQuadAAFlags,
+    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
+                     const GrColor4s&, const SkRect& srcRect, const SkRect& dstRect, GrQuadAAFlags,
                      SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
-                     sk_sp<GrColorSpaceXform> texXform, sk_sp<GrColorSpaceXform> colorXform);
+                     sk_sp<GrColorSpaceXform> texXform);
 
     /** Used with drawTextureSet */
     struct TextureSetEntry {
@@ -152,8 +152,8 @@ public:
      * texture color xform. The textures must all have the same GrTextureType and GrConfig.
      */
     void drawTextureSet(const GrClip&, const TextureSetEntry[], int cnt, GrSamplerState::Filter,
-                        GrColor, const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform,
-                        sk_sp<GrColorSpaceXform> colorXform);
+                        const GrColor4s&, const SkMatrix& viewMatrix,
+                        sk_sp<GrColorSpaceXform> texXform);
 
     /**
      * Draw a roundrect using a paint.

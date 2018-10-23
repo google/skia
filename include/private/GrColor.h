@@ -152,4 +152,37 @@ static inline GrColor GrUnpremulColor(GrColor color) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
+/**
+ * GrColor4s is 8 bytes for for R, G, B, A, in a specific order defined below. Whether the color is
+ * premultiplied or not depends on the context in which it is being used. The values are encoded
+ * with a fixed point scale (1.3.12), allowing us to store a wide range of out-of-gamut colors in
+ * vertex attributes.
+ */
+struct GrColor4s {
+    static GrColor4s FromFloat4(const float* c4f);
+
+    static GrColor4s FromGrColor(GrColor color) {
+        unsigned r = GrColorUnpackR(color);
+        unsigned g = GrColorUnpackG(color);
+        unsigned b = GrColorUnpackB(color);
+        unsigned a = GrColorUnpackA(color);
+        // GrColor4s has 12 fractional bits, so to map a [0-1] byte value, we need to shift up,
+        // and then replicate the top nibble into the bottom nibble.
+        return { static_cast<int16_t>(r << 4 | r >> 4),
+                 static_cast<int16_t>(g << 4 | g >> 4),
+                 static_cast<int16_t>(b << 4 | b >> 4),
+                 static_cast<int16_t>(a << 4 | a >> 4) };
+    }
+
+    SkColor4f toSkColor4f() const {
+        const float scale = 1 / 4095.0f;
+        return { fR * scale, fG * scale, fB * scale, fA * scale };
+    }
+
+    int16_t fR;
+    int16_t fG;
+    int16_t fB;
+    int16_t fA;
+};
+
 #endif

@@ -28,6 +28,7 @@
 #include "SkMaskFilterBase.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
+#include "SkNx.h"
 #include "SkPaintPriv.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
@@ -258,6 +259,14 @@ SkPMColor4f SkColorToPMColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo
         color = xform->apply(color);
     }
     return color.premul();
+}
+
+GrColor4s GrColor4s::FromFloat4(const float* c4f) {
+    Sk4i c4i = Sk4i::Max(-32768, Sk4i::Min(Sk4f_round(Sk4f::Load(c4f) * 4095.0f), 32767));
+    return { static_cast<int16_t>(c4i[0]),
+             static_cast<int16_t>(c4i[1]),
+             static_cast<int16_t>(c4i[2]),
+             static_cast<int16_t>(c4i[3]) };
 }
 
 ///////////////////////////////////////////////////////////////////////////////

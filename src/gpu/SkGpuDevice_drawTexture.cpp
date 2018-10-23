@@ -126,19 +126,19 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
         case kHigh_SkFilterQuality:
             SK_ABORT("Quality level not allowed.");
     }
-    GrColor color;
-    sk_sp<GrColorSpaceXform> paintColorXform = nullptr;
+    GrColor4s color;
     if (GrPixelConfigIsAlphaOnly(proxy->config())) {
-        // Leave the color unpremul if we're going to transform it in the vertex shader
-        paintColorXform = rtc->colorSpaceInfo().refColorSpaceXformFromSRGB();
-        color = paintColorXform ? SkColorToUnpremulGrColor(paint.getColor())
-                                : SkColorToPremulGrColor(paint.getColor());
+        SkColor4f paintColor = paint.getColor4f();
+        if (auto* xform = rtc->colorSpaceInfo().colorSpaceXformFromSRGB()) {
+            paintColor = xform->apply(paintColor);
+        }
+        color = GrColor4s::FromFloat4(paintColor.premul().vec());
     } else {
-        color = GrColorPackA4(paint.getAlpha());
+        color = GrColor4s::FromGrColor(GrColorPackA4(paint.getAlpha()));
     }
     GrQuadAAFlags aaFlags = aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
     rtc->drawTexture(clip, std::move(proxy), filter, color, srcRect, dstRect, aaFlags, constraint,
-                     ctm, std::move(textureXform), std::move(paintColorXform));
+                     ctm, std::move(textureXform));
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -1464,8 +1464,8 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, f
                     set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
                     fRenderTargetContext->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType);
             fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
-                                                 sampler.filter(), color, this->ctm(),
-                                                 std::move(textureXform), nullptr);
+                                                 sampler.filter(), GrColor4s::FromGrColor(color),
+                                                 this->ctm(), std::move(textureXform));
         }
     };
     for (int i = 0; i < count; ++i) {
