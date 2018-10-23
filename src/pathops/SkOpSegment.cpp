@@ -1159,10 +1159,14 @@ bool SkOpSegment::missingCoincidence() {
     SkOpSpan* prior = nullptr;
     SkOpSpanBase* spanBase = &fHead;
     bool result = false;
+    int safetyNet = 100000;
     do {
         SkOpPtT* ptT = spanBase->ptT(), * spanStopPtT = ptT;
         SkOPASSERT(ptT->span() == spanBase);
         while ((ptT = ptT->next()) != spanStopPtT) {
+            if (!--safetyNet) {
+                return false;
+            }
             if (ptT->deleted()) {
                 continue;
             }
