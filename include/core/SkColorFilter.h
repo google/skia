@@ -120,6 +120,17 @@ public:
      */
     static sk_sp<SkColorFilter> MakeSRGBToLinearGamma();
 
+    /**
+     *  Returns a new filter that returns the weighted average between the outputs of
+     *  two other filters. If either is null, then it is treated as an identity filter.
+     *
+     *  result = cf0(color) * (1 - weight) + cf1(color) * weight
+     *
+     *  If both filters are null, or if weight is NaN, then null is returned.
+     */
+    static sk_sp<SkColorFilter> MakeMixer(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
+                                          float weight);
+
 #if SK_SUPPORT_GPU
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns
