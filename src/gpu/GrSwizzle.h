@@ -52,6 +52,11 @@ public:
     /** 4 char null terminated string consisting only of chars 'r', 'g', 'b', 'a'. */
     const char* c_str() const { return fSwiz; }
 
+    char operator[](int i) const {
+        SkASSERT(i >= 0 && i < 4);
+        return fSwiz[i];
+    }
+
     /** Applies this swizzle to the input color and returns the swizzled color. */
     GrColor applyTo(GrColor color) const {
         int idx;
@@ -116,7 +121,7 @@ private:
             case GrColor_SHIFT_G : return 'g';
             case GrColor_SHIFT_B : return 'b';
             case GrColor_SHIFT_A : return 'a';
-            default:  return -1;
+            default:               return -1;
         }
     }
 
