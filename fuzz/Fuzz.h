@@ -27,8 +27,16 @@ public:
     // Returns the total number of "random" bytes available.
     size_t size() { return fBytes->size(); }
     // Returns if there are no bytes remaining for fuzzing.
-    bool exhausted(){
+    bool exhausted() {
         return fBytes->size() == fNextByte;
+    }
+
+    size_t remaining() {
+        return fBytes->size() - fNextByte;
+    }
+
+    void deplete() {
+        fNextByte = fBytes->size();
     }
 
     // next() loads fuzzed bytes into the variable passed in by pointer.
@@ -124,8 +132,7 @@ inline void Fuzz::nextRange(T* n, Min min, Max max) {
 
 template <typename T, typename Min, typename Max>
 inline void Fuzz::nextEnum(T* value, Min rmin, Max rmax) {
-    using U = skstd::underlying_type_t<T>;
-    this->nextRange((U*)value, (U)rmin, (U)rmax);
+    this->nextRange((uint32_t*)value, (uint32_t)rmin, (uint32_t)rmax);
 }
 
 template <typename T>
