@@ -63,7 +63,7 @@ public:
         @param context             Gpu context
         @param yuvColorSpace       color range of expected YUV pixels
         @param yuvaFormats         formats of promised gpu textures for each YUVA plane
-        @param yuvaSizeInfo        width, height, and colortype of promised gpu textures
+        @param yuvaSizes           width and height of promised gpu textures
         @param yuvaIndices         mapping from yuv plane index to texture representing that plane
         @param width               width of promised gpu texture
         @param height              height of promised gpu texture
@@ -78,7 +78,7 @@ public:
     static sk_sp<SkImage> MakePromiseYUVATexture(GrContext* context,
                                                  SkYUVColorSpace yuvColorSpace,
                                                  const GrBackendFormat yuvaFormats[],
-                                                 const SkYUVSizeInfo& yuvaSizeInfo,
+                                                 const SkISize yuvaSizes[],
                                                  const SkYUVAIndex yuvaIndices[4],
                                                  int width,
                                                  int height,

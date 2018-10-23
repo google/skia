@@ -129,24 +129,9 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
             // at most 4 image sources being passed in, could not have a index more than 3.
             return nullptr;
         }
-        SkColorType ct = kUnknown_SkColorType;
-        if (SkYUVAIndex::kY_Index == i || SkYUVAIndex::kA_Index == i) {
-            // The Y and A planes are always kAlpha8 (for now)
-            ct = kAlpha_8_SkColorType;
-        } else {
-            // The UV planes can either be interleaved or planar
-            ct = nv12 ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
-        }
 
         if (!yuvaTexturesCopy[yuvaIndex.fIndex].isValid()) {
             yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
-            // TODO: Instead of using assumption about whether it is NV12 format to guess colorType,
-            // actually use channel information here.
-            if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[yuvaIndex.fIndex],
-                                        &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig,
-                                        ct, kUnpremul_SkAlphaType, nullptr)) {
-                return nullptr;
-            }
         }
 
         // TODO: Check that for each plane, the channel actually exist in the image source we are
@@ -183,7 +168,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
 sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
                                                        SkYUVColorSpace yuvColorSpace,
                                                        const GrBackendFormat yuvaFormats[],
-                                                       const SkYUVSizeInfo& yuvaSizeInfo,
+                                                       const SkISize yuvaSizes[],
                                                        const SkYUVAIndex yuvaIndices[4],
                                                        int imageWidth,
                                                        int imageHeight,
@@ -233,16 +218,14 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         return nullptr;
     }
 
-    // verify sizeInfo with expected texture count
+    // verify sizes with expected texture count
     for (int i = 0; i < numTextures; ++i) {
-        if (yuvaSizeInfo.fSizes[i].isEmpty() ||
-            !yuvaSizeInfo.fWidthBytes[i]) {
+        if (yuvaSizes[i].isEmpty()) {
             return nullptr;
         }
     }
     for (int i = numTextures; i < SkYUVSizeInfo::kMaxCount; ++i) {
-        if (!yuvaSizeInfo.fSizes[i].isEmpty() ||
-            yuvaSizeInfo.fWidthBytes[i]) {
+        if (!yuvaSizes[i].isEmpty()) {
             return nullptr;
         }
     }
@@ -277,8 +260,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         };
         GrSurfaceDesc desc;
         desc.fFlags = kNone_GrSurfaceFlags;
-        desc.fWidth = yuvaSizeInfo.fSizes[texIdx].width();
-        desc.fHeight = yuvaSizeInfo.fSizes[texIdx].height();
+        desc.fWidth = yuvaSizes[texIdx].width();
+        desc.fHeight = yuvaSizes[texIdx].height();
         desc.fConfig = params.fConfig;
         desc.fSampleCnt = 1;
         proxies[texIdx] = proxyProvider->createLazyProxy(
