@@ -22,7 +22,8 @@ public:
     };
 
     static const GrVkImageView* Create(const GrVkGpu* gpu, VkImage image, VkFormat format,
-                                       Type viewType, uint32_t miplevels);
+                                       Type viewType, uint32_t miplevels,
+                                       VkSamplerYcbcrConversion ycbcrConversion);
 
     VkImageView imageView() const { return fImageView; }
 

@@ -249,6 +249,15 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fSupportsExternalMemory = true;
     }
 
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        (extensions.hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1) &&
+         this->supportsMaintenance1() &&
+         this->supportsBindMemory2() &&
+         this->supportsMemoryRequirements2() &&
+         this->supportsPhysicalDeviceProperties2())) {
+        fSupportsYcbcrConversion = true;
+    }
+
 #ifdef SK_BUILD_FOR_ANDROID
     // Currently Adreno devices are not supporting the QUEUE_FAMILY_FOREIGN_EXTENSION, so until they
     // do we don't explicitly require it here even the spec says it is required.
