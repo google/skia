@@ -9,10 +9,9 @@
 #define SkFont_DEFINED
 
 #include "SkScalar.h"
-#include "SkRefCnt.h"
+#include "SkTypeface.h"
 
 class SkPaint;
-class SkTypeface;
 
 enum SkTextEncoding {
     kUTF8_SkTextEncoding,

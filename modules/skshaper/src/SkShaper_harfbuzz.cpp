@@ -405,8 +405,9 @@ static constexpr bool is_LTR(UBiDiLevel level) {
 }
 
 static void append(SkTextBlobBuilder* b, const ShapedRun& run, int start, int end, SkPoint* p) {
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(run.fPaint);
     unsigned len = end - start;
-    auto runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(b, run.fPaint, len,
+    auto runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(b, font, len,
             run.fUtf8End - run.fUtf8Start, SkString());
     memcpy(runBuffer.utf8text, run.fUtf8Start, run.fUtf8End - run.fUtf8Start);
 
