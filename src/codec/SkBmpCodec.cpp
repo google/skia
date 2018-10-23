@@ -374,7 +374,7 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                     //
                     // Header types are matched based on size.  If the header is
                     // V3+, we are guaranteed to be able to read at least this size.
-                    SkASSERT(infoBytesRemaining > 52);
+                    SkASSERT(infoBytesRemaining >= 52);
                     inputMasks.alpha = get_int(iBuffer.get(), 48);
                     break;
                 case kOS2VX_BmpHeaderType:
