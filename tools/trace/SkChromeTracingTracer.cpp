@@ -105,6 +105,8 @@ SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
         }
     }
 
+    size = SkAlign8(size);
+
     SkSTArray<128, uint8_t, true> storage;
     uint8_t* storagePtr = storage.push_back_n(size);
 
