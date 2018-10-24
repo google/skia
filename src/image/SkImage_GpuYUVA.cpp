@@ -96,94 +96,11 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     return fRGBProxy;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-//*** bundle this into a helper function used by this and SkImage_Gpu?
-sk_sp<SkImage> SkImage_GpuYUVA::MakeFromYUVATextures(GrContext* ctx,
-                                                     SkYUVColorSpace colorSpace,
-                                                     const GrBackendTexture yuvaTextures[],
-                                                     const SkYUVAIndex yuvaIndices[4],
-                                                     int width,
-                                                     int height,
-                                                     GrSurfaceOrigin origin,
-                                                     sk_sp<SkColorSpace> imageColorSpace) {
-    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
-
-    // Right now this still only deals with YUV and NV12 formats. Assuming that YUV has different
-    // textures for U and V planes, while NV12 uses same texture for U and V planes.
-    bool nv12 = (yuvaIndices[SkYUVAIndex::kU_Index].fIndex ==
-                 yuvaIndices[SkYUVAIndex::kV_Index].fIndex);
-
-    // We need to make a copy of the input backend textures because we need to preserve the result
-    // of validate_backend_texture.
-    GrBackendTexture yuvaTexturesCopy[4];
-    for (int i = 0; i < 4; ++i) {
-        // Validate that the yuvaIndices refer to valid backend textures.
-        const SkYUVAIndex& yuvaIndex = yuvaIndices[i];
-        if (SkYUVAIndex::kA_Index == i && yuvaIndex.fIndex == -1) {
-            // Meaning the A plane isn't passed in.
-            continue;
-        }
-        if (yuvaIndex.fIndex == -1 || yuvaIndex.fIndex > 3) {
-            // Y plane, U plane, and V plane must refer to image sources being passed in. There are
-            // at most 4 image sources being passed in, could not have a index more than 3.
-            return nullptr;
-        }
-        SkColorType ct = kUnknown_SkColorType;
-        if (SkYUVAIndex::kY_Index == i || SkYUVAIndex::kA_Index == i) {
-            // The Y and A planes are always kAlpha8 (for now)
-            ct = kAlpha_8_SkColorType;
-        } else {
-            // The UV planes can either be interleaved or planar
-            ct = nv12 ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
-        }
-
-        if (!yuvaTexturesCopy[yuvaIndex.fIndex].isValid()) {
-            yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
-            // TODO: Instead of using assumption about whether it is NV12 format to guess colorType,
-            // actually use channel information here.
-            if (!ValidateBackendTexture(ctx, yuvaTexturesCopy[yuvaIndex.fIndex],
-                                        &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig,
-                                        ct, kUnpremul_SkAlphaType, nullptr)) {
-                return nullptr;
-            }
-        }
-
-        // TODO: Check that for each plane, the channel actually exist in the image source we are
-        // reading from.
-    }
-
-    sk_sp<GrTextureProxy> tempTextureProxies[4]; // build from yuvaTextures
-    for (int i = 0; i < 4; ++i) {
-        // Fill in tempTextureProxies to avoid duplicate texture proxies.
-        int textureIndex = yuvaIndices[i].fIndex;
-
-        // Safely ignore since this means we are missing the A plane.
-        if (textureIndex == -1) {
-            SkASSERT(SkYUVAIndex::kA_Index == i);
-            continue;
-        }
-
-        if (!tempTextureProxies[textureIndex]) {
-            SkASSERT(yuvaTexturesCopy[textureIndex].isValid());
-            tempTextureProxies[textureIndex] =
-                proxyProvider->wrapBackendTexture(yuvaTexturesCopy[textureIndex], origin);
-            if (!tempTextureProxies[textureIndex]) {
-                return nullptr;
-            }
-        }
-    }
-
-    return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(ctx), width, height, kNeedNewImageUniqueID,
-                                       colorSpace, tempTextureProxies, yuvaIndices, origin,
-                                       imageColorSpace, SkBudgeted::kYes);
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
                                                        SkYUVColorSpace yuvColorSpace,
                                                        const GrBackendFormat yuvaFormats[],
-                                                       const SkYUVSizeInfo& yuvaSizeInfo,
+                                                       const SkISize yuvaSizes[],
                                                        const SkYUVAIndex yuvaIndices[4],
                                                        int imageWidth,
                                                        int imageHeight,
@@ -233,16 +150,14 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         return nullptr;
     }
 
-    // verify sizeInfo with expected texture count
+    // verify sizes with expected texture count
     for (int i = 0; i < numTextures; ++i) {
-        if (yuvaSizeInfo.fSizes[i].isEmpty() ||
-            !yuvaSizeInfo.fWidthBytes[i]) {
+        if (yuvaSizes[i].isEmpty()) {
             return nullptr;
         }
     }
     for (int i = numTextures; i < SkYUVSizeInfo::kMaxCount; ++i) {
-        if (!yuvaSizeInfo.fSizes[i].isEmpty() ||
-            yuvaSizeInfo.fWidthBytes[i]) {
+        if (!yuvaSizes[i].isEmpty()) {
             return nullptr;
         }
     }
@@ -277,8 +192,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         };
         GrSurfaceDesc desc;
         desc.fFlags = kNone_GrSurfaceFlags;
-        desc.fWidth = yuvaSizeInfo.fSizes[texIdx].width();
-        desc.fHeight = yuvaSizeInfo.fSizes[texIdx].height();
+        desc.fWidth = yuvaSizes[texIdx].width();
+        desc.fHeight = yuvaSizes[texIdx].height();
         desc.fConfig = params.fConfig;
         desc.fSampleCnt = 1;
         proxies[texIdx] = proxyProvider->createLazyProxy(
