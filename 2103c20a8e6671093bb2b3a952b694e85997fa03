@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a01eae10_96dd61ca",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-24T17:39:45Z",
+      "side": 1,
+      "message": "[8,8)  ?",
+      "range": {
+        "startLine": 158,
+        "startChar": 24,
+        "endLine": 158,
+        "endChar": 31
+      },
+      "revId": "2103c20a8e6671093bb2b3a952b694e85997fa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7af4bc2d_8304c91f",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-24T17:39:45Z",
+      "side": 1,
+      "message": "Think we should name this (e.g. kBias) and use it in the two places we use 4095.0f?",
+      "range": {
+        "startLine": 163,
+        "startChar": 71,
+        "endLine": 163,
+        "endChar": 78
+      },
+      "revId": "2103c20a8e6671093bb2b3a952b694e85997fa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c52a872b_2b908af6",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-24T17:39:45Z",
+      "side": 1,
+      "message": "// The smallest normalized value is 0x0000 \u003d\u003d 0.0, and anything negative sets the top sign bit.\n// The largest normalized value is 0x0fff \u003d\u003d 1.0, and anything above that sets some of the next 3 bits.\n// So a [0,1] check is easy... are the top four bits clear?\n\n?",
+      "revId": "2103c20a8e6671093bb2b3a952b694e85997fa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
