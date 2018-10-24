@@ -236,7 +236,7 @@ protected:
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(0xFFFFCCCC);
-        canvas->drawRect(SkRect::MakeIWH(bm.width(), bm.height()).makeOffset(x, y).makeOutset(0.5f, 0.5f), paint);
+        //canvas->drawRect(SkRect::MakeIWH(bm.width(), bm.height()).makeOffset(x, y).makeOutset(0.5f, 0.5f), paint);
     }
 
     void drawLevels(SkCanvas* canvas, const SkBitmap& baseBM) {
