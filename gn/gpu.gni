@@ -249,7 +249,6 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrDashLinePathRenderer.h",
   "$_src/gpu/ops/GrDashOp.cpp",
   "$_src/gpu/ops/GrDashOp.h",
-  "$_src/gpu/ops/GrDebugMarkerOp.h",
   "$_src/gpu/ops/GrDefaultPathRenderer.cpp",
   "$_src/gpu/ops/GrDefaultPathRenderer.h",
   "$_src/gpu/ops/GrDebugMarkerOp.cpp",
