@@ -12,17 +12,15 @@
 #include "SkUTF.h"
 
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar skewX,
-               uint32_t flags)
+               uint32_t flags, int align)
     : fTypeface(face ? std::move(face) : SkTypeface::MakeDefault())
-    , fSize(size)
+    , fSize(SkTMax<SkScalar>(0, size))
     , fScaleX(scaleX)
     , fSkewX(skewX)
-    , fFlags(flags)
+    , fFlags(flags & kAllFlags)
+    , fAlign(SkToU8(align))
 {
-    SkASSERT(size > 0);
-    SkASSERT(scaleX > 0);
-    SkASSERT(SkScalarIsFinite(skewX));
-    SkASSERT(0 == (flags & ~kAllFlags));
+    SkASSERT(align >= 0 && align <= 2);
 }
 
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, uint32_t flags)
@@ -98,6 +96,11 @@ SkScalar SkFont::measureText(const void* text, size_t byteLength, SkTextEncoding
 #include "SkPaint.h"
 
 void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
+    paint->setTypeface(fTypeface);
+    paint->setTextSize(fSize);
+    paint->setTextScaleX(fScaleX);
+    paint->setTextSkewX(fSkewX);
+
     paint->setEmbeddedBitmapText(SkToBool(fFlags & kEmbeddedBitmaps_Flag));
     paint->setFakeBoldText(SkToBool(fFlags & kEmbolden_Flag));
     paint->setAutohinted(SkToBool(fFlags & kForceAutoHinting_Flag));
@@ -108,6 +111,9 @@ void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
     paint->setHinting((SkPaint::Hinting)hinting);
 
     paint->setAntiAlias(SkToBool(fFlags & kDEPRECATED_Antialias_Flag));
+    paint->setLCDRenderText(SkToBool(fFlags & kDEPRECATED_LCDRender_Flag));
+
+    paint->setTextAlign((SkPaint::Align)fAlign);
 }
 
 SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
@@ -131,10 +137,13 @@ SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
     if (paint.isAntiAlias()) {
         flags |= kDEPRECATED_Antialias_Flag;
     }
+    if (paint.isLCDRenderText()) {
+        flags |= kDEPRECATED_LCDRender_Flag;
+    }
 
     unsigned hinting = (unsigned)paint.getHinting();
     flags |= (hinting << kHinting_FlagShift);
 
     return SkFont(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
-                paint.getTextSkewX(), flags);
+                paint.getTextSkewX(), flags, (int)paint.getTextAlign());
 }
