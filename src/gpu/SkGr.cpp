@@ -28,6 +28,7 @@
 #include "SkMaskFilterBase.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
+#include "SkNx.h"
 #include "SkPaintPriv.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
