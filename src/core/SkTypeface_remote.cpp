@@ -15,7 +15,7 @@
 SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
                                            const SkScalerContextEffects& effects,
                                            const SkDescriptor* desc,
-                                           sk_sp<SkStrikeClient::DiscardableHandleManager> manager)
+                                           sk_sp<SkGPUProcessStrikeCache::DiscardableHandleManager> manager)
         : SkScalerContext{std::move(tf), effects, desc}
         , fDiscardableManager{std::move(manager)} {}
 
@@ -57,20 +57,20 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
                     fCache->getCachedGlyphAnySubPix(glyph->getGlyphID(), glyph->getPackedID())) {
             fCache->initializeGlyphFromFallback(glyph, *fallback);
             fDiscardableManager->notifyCacheMiss(
-                    SkStrikeClient::CacheMissType::kGlyphMetricsFallback);
+                    SkGPUProcessStrikeCache::CacheMissType::kGlyphMetricsFallback);
             return;
         }
 
         // Now check other caches for a desc mismatch.
         if (fStrikeCache->desperationSearchForImage(fCache->getDescriptor(), glyph, fCache)) {
             fDiscardableManager->notifyCacheMiss(
-                    SkStrikeClient::CacheMissType::kGlyphMetricsFallback);
+                    SkGPUProcessStrikeCache::CacheMissType::kGlyphMetricsFallback);
             return;
         }
     }
 
     glyph->zeroMetrics();
-    fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphMetrics);
+    fDiscardableManager->notifyCacheMiss(SkGPUProcessStrikeCache::CacheMissType::kGlyphMetrics);
 }
 
 void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
@@ -81,7 +81,7 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
 
     // There is no desperation search here, because if there was an image to be found it was
     // copied over with the metrics search.
-    fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphImage);
+    fDiscardableManager->notifyCacheMiss(SkGPUProcessStrikeCache::CacheMissType::kGlyphImage);
 }
 
 bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
@@ -95,8 +95,8 @@ bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
     auto desc = SkScalerContext::DescriptorGivenRecAndEffects(this->getRec(), this->getEffects());
     bool foundPath = fStrikeCache && fStrikeCache->desperationSearchForPath(*desc, glyphID, path);
     fDiscardableManager->notifyCacheMiss(foundPath
-                                                 ? SkStrikeClient::CacheMissType::kGlyphPathFallback
-                                                 : SkStrikeClient::CacheMissType::kGlyphPath);
+                                                 ? SkGPUProcessStrikeCache::CacheMissType::kGlyphPathFallback
+                                                 : SkGPUProcessStrikeCache::CacheMissType::kGlyphPath);
     return foundPath;
 }
 
@@ -109,7 +109,7 @@ void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     }
 
     // Font metrics aren't really used for render, so just zero out the data and return.
-    fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kFontMetrics);
+    fDiscardableManager->notifyCacheMiss(SkGPUProcessStrikeCache::CacheMissType::kFontMetrics);
     sk_bzero(metrics, sizeof(*metrics));
 }
 

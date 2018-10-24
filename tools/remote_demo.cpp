@@ -26,7 +26,7 @@ static bool gUseGpu = true;
 static bool gPurgeFontCaches = true;
 static bool gUseProcess = true;
 
-class ServerDiscardableManager : public SkStrikeServer::DiscardableHandleManager {
+class ServerDiscardableManager : public SkRendererProcessStrikeCache::DiscardableHandleManager {
 public:
     ServerDiscardableManager() = default;
     ~ServerDiscardableManager() override = default;
@@ -42,7 +42,7 @@ private:
     SkDiscardableHandleId lastPurgedHandleId = 0u;
 };
 
-class ClientDiscardableManager : public SkStrikeClient::DiscardableHandleManager {
+class ClientDiscardableManager : public SkGPUProcessStrikeCache::DiscardableHandleManager {
 public:
     class ScopedPurgeCache {
     public:
@@ -132,7 +132,7 @@ private:
     std::chrono::duration<double>                       fElapsedSeconds{0.0};
 };
 
-static bool push_font_data(const SkPicture& pic, SkStrikeServer* strikeServer, int writeFd) {
+static bool push_font_data(const SkPicture& pic, SkRendererProcessStrikeCache* strikeServer, int writeFd) {
     SkMatrix deviceMatrix = SkMatrix::I();
     const SkIRect bounds = pic.cullRect().round();
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
@@ -146,11 +146,11 @@ static bool push_font_data(const SkPicture& pic, SkStrikeServer* strikeServer, i
     return write_SkData(writeFd, *data);
 }
 
-static void final_draw(std::string outFilename, SkData* picData, SkStrikeClient* client,
+static void final_draw(std::string outFilename, SkData* picData, SkGPUProcessStrikeCache* client,
                        ClientDiscardableManager* discardableManager, int readFd, int writeFd) {
     SkDeserialProcs procs;
     auto decode = [](const void* data, size_t length, void* ctx) -> sk_sp<SkTypeface> {
-        return reinterpret_cast<SkStrikeClient*>(ctx)->deserializeTypeface(data, length);
+        return reinterpret_cast<SkGPUProcessStrikeCache*>(ctx)->deserializeTypeface(data, length);
     };
     procs.fTypefaceProc = decode;
     procs.fTypefaceCtx = client;
@@ -208,7 +208,7 @@ static void gpu(int readFd, int writeFd) {
         }
 
         sk_sp<ClientDiscardableManager> discardableManager = sk_make_sp<ClientDiscardableManager>();
-        SkStrikeClient strikeClient(discardableManager);
+        SkGPUProcessStrikeCache strikeClient(discardableManager);
 
         final_draw("test.png", picData.get(), &strikeClient, discardableManager.get(), readFd,
                    writeFd);
@@ -224,7 +224,7 @@ static int renderer(
     const std::string& skpName, int readFd, int writeFd)
 {
     ServerDiscardableManager discardableManager;
-    SkStrikeServer server(&discardableManager);
+    SkRendererProcessStrikeCache server(&discardableManager);
     auto closeAll = [readFd, writeFd]() {
         ::close(writeFd);
         ::close(readFd);
@@ -238,7 +238,7 @@ static int renderer(
         auto pic = SkPicture::MakeFromData(skpData.get());
         SkSerialProcs procs;
         auto encode = [](SkTypeface* tf, void* ctx) -> sk_sp<SkData> {
-            return reinterpret_cast<SkStrikeServer*>(ctx)->serializeTypeface(tf);
+            return reinterpret_cast<SkRendererProcessStrikeCache*>(ctx)->serializeTypeface(tf);
         };
         procs.fTypefaceProc = encode;
         procs.fTypefaceCtx = &server;

@@ -13,7 +13,7 @@
 #include "SkGlyphRunPainter.h"
 #include "SkRemoteGlyphCache.h"
 
-class SkStrikeServer::SkGlyphCacheState : public SkGlyphCacheInterface {
+class SkRendererProcessStrikeCache::SkGlyphCacheState : public SkGlyphCacheInterface {
 public:
     // N.B. SkGlyphCacheState is not valid until ensureScalerContext is called.
     SkGlyphCacheState(const SkDescriptor& keyDescriptor,
@@ -87,7 +87,7 @@ private:
 
 class SkTextBlobCacheDiffCanvas::TrackLayerDevice : public SkNoPixelsDevice {
 public:
-    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props, SkStrikeServer* server,
+    TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props, SkRendererProcessStrikeCache* server,
                      const SkTextBlobCacheDiffCanvas::Settings& settings);
 
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override;
@@ -109,7 +109,7 @@ private:
             const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin);
 #endif
 
-    SkStrikeServer* const fStrikeServer;
+    SkRendererProcessStrikeCache* const fStrikeServer;
     const SkTextBlobCacheDiffCanvas::Settings fSettings;
     SkGlyphRunListPainter fPainter;
 };

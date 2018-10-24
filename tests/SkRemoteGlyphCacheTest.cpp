@@ -20,8 +20,8 @@
 
 #include "text/GrTextContext.h"
 
-class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
-                           public SkStrikeClient::DiscardableHandleManager {
+class DiscardableManager : public SkRendererProcessStrikeCache::DiscardableHandleManager,
+                           public SkGPUProcessStrikeCache::DiscardableHandleManager {
 public:
     DiscardableManager() { sk_bzero(&fCacheMissCount, sizeof(fCacheMissCount)); }
     ~DiscardableManager() override = default;
@@ -40,7 +40,7 @@ public:
 
     // Client implementation.
     bool deleteHandle(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
-    void notifyCacheMiss(SkStrikeClient::CacheMissType type) override { fCacheMissCount[type]++; }
+    void notifyCacheMiss(SkGPUProcessStrikeCache::CacheMissType type) override { fCacheMissCount[type]++; }
     bool isHandleDeleted(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
 
     void unlockAll() { fLockedHandles.reset(); }
@@ -52,7 +52,7 @@ public:
     SkDiscardableHandleId handleCount() { return fNextHandleId; }
     int cacheMissCount(uint32_t type) { return fCacheMissCount[type]; }
     bool hasCacheMiss() const {
-        for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
+        for (uint32_t i = 0; i <= SkGPUProcessStrikeCache::CacheMissType::kLast; ++i) {
             if (fCacheMissCount[i] > 0) return true;
         }
         return false;
@@ -62,7 +62,7 @@ private:
     SkDiscardableHandleId fNextHandleId = 0u;
     SkDiscardableHandleId fLastDeletedHandleId = 0u;
     SkTHashSet<SkDiscardableHandleId> fLockedHandles;
-    int fCacheMissCount[SkStrikeClient::CacheMissType::kLast + 1u];
+    int fCacheMissCount[SkGPUProcessStrikeCache::CacheMissType::kLast + 1u];
 };
 
 sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
@@ -134,8 +134,8 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint
 
 DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     auto server_tf = SkTypeface::MakeDefault();
     auto tf_data = server.serializeTypeface(server_tf.get());
@@ -151,8 +151,8 @@ DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
     const SkPaint paint;
 
     // Server.
@@ -186,8 +186,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_ReleaseTypeFace, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     // Server.
     auto serverTf = SkTestEmptyTypeface::Make();
@@ -215,8 +215,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_ReleaseTypeFace, reporter,
 
 DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     server.serializeTypeface(serverTf.get());
@@ -249,8 +249,8 @@ DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
 
 DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     server.serializeTypeface(serverTf.get());
@@ -277,8 +277,8 @@ DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
 
 DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -304,7 +304,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
     SkGraphics::PurgeFontCache();
     REPORTER_ASSERT(reporter, !clientTf->unique());
 
-    // Once the strike is unpinned and purged, SkStrikeClient should be the only owner of the
+    // Once the strike is unpinned and purged, SkGPUProcessStrikeCache should be the only owner of the
     // clientTf.
     discardableManager->unlockAndDeleteAll();
     SkGraphics::PurgeFontCache();
@@ -316,8 +316,8 @@ DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
 
 DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -345,9 +345,9 @@ DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
 
 DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
+    SkRendererProcessStrikeCache server(discardableManager.get());
     server.setMaxEntriesInDescriptorMapForTesting(1u);
-    SkStrikeClient client(discardableManager, false);
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     {
         auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
@@ -389,8 +389,8 @@ DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);
@@ -466,8 +466,8 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsMaskWithPathFallback,
         reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     SkPaint paint;
 
@@ -507,8 +507,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsMaskWithPathFall
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setSubpixelText(true);
@@ -546,8 +546,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY, reporter, ctxI
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
     SkPaint paint;
 
     // A perspective transform forces fallback to dft.
@@ -593,8 +593,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     auto tfData = server.serializeTypeface(serverTf.get());
@@ -608,14 +608,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting, report
     SkMatrix matrix = SkMatrix::I();
     RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
     REPORTER_ASSERT(reporter,
-                    discardableManager->cacheMissCount(SkStrikeClient::kFontMetrics) == 1);
+                    discardableManager->cacheMissCount(SkGPUProcessStrikeCache::kFontMetrics) == 1);
     REPORTER_ASSERT(reporter,
-                    discardableManager->cacheMissCount(SkStrikeClient::kGlyphMetrics) == 10);
+                    discardableManager->cacheMissCount(SkGPUProcessStrikeCache::kGlyphMetrics) == 10);
 
     // There shouldn't be any image or path requests, since we mark the glyph as empty on a cache
     // miss.
-    REPORTER_ASSERT(reporter, discardableManager->cacheMissCount(SkStrikeClient::kGlyphImage) == 0);
-    REPORTER_ASSERT(reporter, discardableManager->cacheMissCount(SkStrikeClient::kGlyphPath) == 0);
+    REPORTER_ASSERT(reporter, discardableManager->cacheMissCount(SkGPUProcessStrikeCache::kGlyphImage) == 0);
+    REPORTER_ASSERT(reporter, discardableManager->cacheMissCount(SkGPUProcessStrikeCache::kGlyphPath) == 0);
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -624,8 +624,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting, report
 DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     // Build proxy typeface on the client for initializing the cache.
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     auto tfData = server.serializeTypeface(serverTf.get());
@@ -711,9 +711,9 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
         REPORTER_ASSERT(reporter, memcmp(lostGlyph.fImage, glyphImage, sizeof(glyphImage)) == 0);
     }
 
-    for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
-        if (i == SkStrikeClient::CacheMissType::kGlyphMetricsFallback ||
-            i == SkStrikeClient::CacheMissType::kFontMetrics) {
+    for (uint32_t i = 0; i <= SkGPUProcessStrikeCache::CacheMissType::kLast; ++i) {
+        if (i == SkGPUProcessStrikeCache::CacheMissType::kGlyphMetricsFallback ||
+            i == SkGPUProcessStrikeCache::CacheMissType::kFontMetrics) {
             REPORTER_ASSERT(reporter, discardableManager->cacheMissCount(i) == 2);
         } else {
             REPORTER_ASSERT(reporter, discardableManager->cacheMissCount(i) == 0);
@@ -728,8 +728,8 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
 DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
     // Build proxy typeface on the client for initializing the cache.
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
+    SkRendererProcessStrikeCache server(discardableManager.get());
+    SkGPUProcessStrikeCache client(discardableManager, false);
 
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
     auto tfData = server.serializeTypeface(serverTf.get());

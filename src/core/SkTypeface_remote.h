@@ -25,7 +25,7 @@ public:
     SkScalerContextProxy(sk_sp<SkTypeface> tf,
                          const SkScalerContextEffects& effects,
                          const SkDescriptor* desc,
-                         sk_sp<SkStrikeClient::DiscardableHandleManager> manager);
+                         sk_sp<SkGPUProcessStrikeCache::DiscardableHandleManager> manager);
 
     void initCache(SkGlyphCache*, SkStrikeCache*);
 
@@ -40,7 +40,7 @@ protected:
     SkTypefaceProxy* getProxyTypeface() const;
 
 private:
-    sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
+    sk_sp<SkGPUProcessStrikeCache::DiscardableHandleManager> fDiscardableManager;
     SkGlyphCache* fCache = nullptr;
     SkStrikeCache* fStrikeCache = nullptr;
     typedef SkScalerContext INHERITED;
@@ -52,7 +52,7 @@ public:
                     int glyphCount,
                     const SkFontStyle& style,
                     bool isFixed,
-                    sk_sp<SkStrikeClient::DiscardableHandleManager> manager,
+                    sk_sp<SkGPUProcessStrikeCache::DiscardableHandleManager> manager,
                     bool isLogging = true)
             : INHERITED{style, false}
             , fFontId{fontId}
@@ -141,7 +141,7 @@ private:
     const SkFontID                                  fFontId;
     const int                                       fGlyphCount;
     const bool                                      fIsLogging;
-    sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
+    sk_sp<SkGPUProcessStrikeCache::DiscardableHandleManager> fDiscardableManager;
 
 
     typedef SkTypeface INHERITED;

@@ -34,7 +34,7 @@ class SkStrikeCache;
 class SkTypefaceProxy;
 struct WireTypeface;
 
-class SkStrikeServer;
+class SkRendererProcessStrikeCache;
 
 struct SkDescriptorMapOperators {
     size_t operator()(const SkDescriptor* key) const;
@@ -48,8 +48,8 @@ using SkDescriptorMap = std::unordered_map<const SkDescriptor*, T, SkDescriptorM
 using SkDescriptorSet =
         std::unordered_set<const SkDescriptor*, SkDescriptorMapOperators, SkDescriptorMapOperators>;
 
-// A SkTextBlobCacheDiffCanvas is used to populate the SkStrikeServer with ops
-// which will be serialized and renderered using the SkStrikeClient.
+// A SkTextBlobCacheDiffCanvas is used to populate the SkRendererProcessStrikeCache with ops
+// which will be serialized and renderered using the SkGPUProcessStrikeCache.
 class SK_API SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
 public:
     struct SK_API Settings {
@@ -62,11 +62,11 @@ public:
         size_t fMaxTextureBytes = 0u;
     };
     SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
-                              SkStrikeServer* strikeServer, Settings settings = Settings());
+                              SkRendererProcessStrikeCache* strikeServer, Settings settings = Settings());
 
     // TODO(khushalsagar): Remove once removed from chromium.
     SkTextBlobCacheDiffCanvas(int width, int height, const SkMatrix& deviceMatrix,
-                              const SkSurfaceProps& props, SkStrikeServer* strikeserver,
+                              const SkSurfaceProps& props, SkRendererProcessStrikeCache* strikeserver,
                               Settings settings = Settings());
     ~SkTextBlobCacheDiffCanvas() override;
 
@@ -80,11 +80,13 @@ private:
 
 
 };
+using SkStrikeServer = SkRendererProcessStrikeCache;
+
 
 using SkDiscardableHandleId = uint32_t;
 
 // This class is not thread-safe.
-class SK_API SkStrikeServer {
+class SK_API SkRendererProcessStrikeCache {
 public:
     // An interface used by the server to create handles for pinning SkGlyphCache
     // entries on the remote client.
@@ -98,7 +100,7 @@ public:
 
         // Returns true if the handle could be successfully locked. The server can
         // assume it will remain locked until the next set of serialized entries is
-        // pulled from the SkStrikeServer.
+        // pulled from the SkRendererProcessStrikeCache.
         // If returns false, the cache entry mapped to the handle has been deleted
         // on the client. Any subsequent attempts to lock the same handle are not
         // allowed.
@@ -110,8 +112,8 @@ public:
         virtual bool isHandleDeleted(SkDiscardableHandleId) { return false; }
     };
 
-    explicit SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
-    ~SkStrikeServer();
+    explicit SkRendererProcessStrikeCache(DiscardableHandleManager* discardableHandleManager);
+    ~SkRendererProcessStrikeCache();
 
     // Serializes the typeface to be remoted using this server.
     sk_sp<SkData> serializeTypeface(SkTypeface*);
@@ -151,7 +153,7 @@ private:
     std::vector<WireTypeface> fTypefacesToSend;
 };
 
-class SK_API SkStrikeClient {
+class SK_API SkGPUProcessStrikeCache {
 public:
     // This enum is used in histogram reporting in chromium. Please don't re-order the list of
     // entries, and consider it to be append-only.
@@ -181,16 +183,16 @@ public:
         virtual void notifyCacheMiss(CacheMissType) {}
     };
 
-    explicit SkStrikeClient(sk_sp<DiscardableHandleManager>,
+    explicit SkGPUProcessStrikeCache(sk_sp<DiscardableHandleManager>,
                             bool isLogging = true,
                             SkStrikeCache* strikeCache = nullptr);
-    ~SkStrikeClient();
+    ~SkGPUProcessStrikeCache();
 
-    // Deserializes the typeface previously serialized using the SkStrikeServer. Returns null if the
+    // Deserializes the typeface previously serialized using the SkRendererProcessStrikeCache. Returns null if the
     // data is invalid.
     sk_sp<SkTypeface> deserializeTypeface(const void* data, size_t length);
 
-    // Deserializes the strike data from a SkStrikeServer. All messages generated
+    // Deserializes the strike data from a SkRendererProcessStrikeCache. All messages generated
     // from a server when serializing the ops must be deserialized before the op
     // is rasterized.
     // Returns false if the data is invalid.
@@ -206,5 +208,6 @@ private:
     SkStrikeCache* const fStrikeCache;
     const bool fIsLogging;
 };
+using SkStrikeClient = SkGPUProcessStrikeCache;
 
 #endif  // SkRemoteGlyphCache_DEFINED
