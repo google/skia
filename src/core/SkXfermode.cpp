@@ -15,7 +15,6 @@
 #include "SkString.h"
 #include "SkWriteBuffer.h"
 #include "SkXfermodePriv.h"
-#include "../jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
@@ -36,7 +35,7 @@ public:
 
         SkRasterPipeline_<256> p;
 
-        SkJumper_MemoryCtx dst_ctx = { (void*)dst, 0 },
+        SkRasterPipeline_MemoryCtx dst_ctx = { (void*)dst, 0 },
                            src_ctx = { (void*)src, 0 },
                             aa_ctx = { (void*)aa,  0 };
 

@@ -21,7 +21,6 @@
 #include "SkShaderBase.h"
 #include "SkTLazy.h"
 #include "SkWriteBuffer.h"
-#include "../jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
@@ -221,7 +220,7 @@ bool SkShaderBase::onAppendStages(const StageRec& rec) const {
 
     ContextRec cr(*opaquePaint, rec.fCTM, rec.fLocalM, rec.fDstColorType, rec.fDstCS);
 
-    struct CallbackCtx : SkJumper_CallbackCtx {
+    struct CallbackCtx : SkRasterPipeline_CallbackCtx {
         sk_sp<SkShader> shader;
         Context*        ctx;
     };
@@ -229,7 +228,7 @@ bool SkShaderBase::onAppendStages(const StageRec& rec) const {
     cb->shader = rec.fDstCS ? SkColorSpaceXformer::Make(sk_ref_sp(rec.fDstCS))->apply(this)
                             : sk_ref_sp((SkShader*)this);
     cb->ctx = as_SB(cb->shader)->makeContext(cr, rec.fAlloc);
-    cb->fn  = [](SkJumper_CallbackCtx* self, int active_pixels) {
+    cb->fn  = [](SkRasterPipeline_CallbackCtx* self, int active_pixels) {
         auto c = (CallbackCtx*)self;
         int x = (int)c->rgba[0],
         y = (int)c->rgba[1];

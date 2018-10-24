@@ -10,7 +10,6 @@
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
-#include "../jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
 #include "effects/GrSkSLFP.h"
@@ -46,13 +45,13 @@ void SkOverdrawColorFilter::onAppendStages(SkRasterPipeline* p,
                                            SkColorSpace* dstCS,
                                            SkArenaAlloc* alloc,
                                            bool shader_is_opaque) const {
-    struct Ctx : public SkJumper_CallbackCtx {
+    struct Ctx : public SkRasterPipeline_CallbackCtx {
         const SkPMColor* colors;
     };
     // TODO: do we care about transforming to dstCS?
     auto ctx = alloc->make<Ctx>();
     ctx->colors = fColors;
-    ctx->fn = [](SkJumper_CallbackCtx* arg, int active_pixels) {
+    ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
         auto ctx = (Ctx*)arg;
         auto pixels = (SkPMColor4f*)ctx->rgba;
         for (int i = 0; i < active_pixels; i++) {

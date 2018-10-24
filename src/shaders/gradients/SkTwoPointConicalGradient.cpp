@@ -10,7 +10,6 @@
 #include "SkReadBuffer.h"
 #include "SkTwoPointConicalGradient.h"
 #include "SkWriteBuffer.h"
-#include "../../jumper/SkJumper.h"
 
 #include <utility>
 
@@ -200,7 +199,7 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
     }
 
     if (fType == Type::kStrip) {
-        auto* ctx = alloc->make<SkJumper_2PtConicalCtx>();
+        auto* ctx = alloc->make<SkRasterPipeline_2PtConicalCtx>();
         SkScalar scaledR0 = fRadius1 / this->getCenterX1();
         ctx->fP0 = scaledR0 * scaledR0;
         p->append(SkRasterPipeline::xy_to_2pt_conical_strip, ctx);
@@ -209,7 +208,7 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         return;
     }
 
-    auto* ctx = alloc->make<SkJumper_2PtConicalCtx>();
+    auto* ctx = alloc->make<SkRasterPipeline_2PtConicalCtx>();
     ctx->fP0 = 1/fFocalData.fR1;
     ctx->fP1 = fFocalData.fFocalX;
 

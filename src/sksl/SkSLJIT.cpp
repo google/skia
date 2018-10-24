@@ -13,7 +13,6 @@
 
 #include "SkCpu.h"
 #include "SkRasterPipeline.h"
-#include "../jumper/SkJumper.h"
 #include "ir/SkSLAppendStage.h"
 #include "ir/SkSLExpressionStatement.h"
 #include "ir/SkSLFunctionCall.h"
