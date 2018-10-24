@@ -231,7 +231,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         SkYUVColorSpace yuvColorSpace,
         const GrBackendFormat yuvaFormats[],
-        const SkISize yuvaSizes[],
+        const SkYUVSizeInfo& yuvaSizeInfo,
         const SkYUVAIndex yuvaIndices[4],
         int imageWidth,
         int imageHeight,
@@ -248,7 +248,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
     return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
                                                    yuvColorSpace,
                                                    yuvaFormats,
-                                                   yuvaSizes,
+                                                   yuvaSizeInfo,
                                                    yuvaIndices,
                                                    imageWidth,
                                                    imageHeight,

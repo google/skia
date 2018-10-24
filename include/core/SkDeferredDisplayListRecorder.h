@@ -126,7 +126,7 @@ public:
      */
     sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
                                           const GrBackendFormat yuvaFormats[],
-                                          const SkISize yuvaSizes[],
+                                          const SkYUVSizeInfo& yuvaSizeInfo,
                                           const SkYUVAIndex yuvaIndices[4],
                                           int imageWidth,
                                           int imageHeight,
