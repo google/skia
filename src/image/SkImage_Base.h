@@ -58,7 +58,9 @@ public:
     virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
         return nullptr;
     }
-
+    virtual bool isYUVA() const { return false; }
+    virtual bool asYUVATextureProxiesRef(sk_sp<GrTextureProxy>[4], SkYUVAIndex[4],
+                                         SkYUVColorSpace*) const { return false; }
     virtual GrTexture* onGetTexture() const { return nullptr; }
 #endif
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
