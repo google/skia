@@ -118,7 +118,9 @@ protected:
         SkPaint paint;
 
         paint.setAntiAlias(true);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         paint.setTextAlign(SkPaint::kCenter_Align);
+#endif
 
         SkString    str;
 

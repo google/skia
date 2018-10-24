@@ -52,7 +52,9 @@ public:
 
         paint.setColor(0xFFFFFFFF);
         paint.setTextSize(16);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         paint.setTextAlign(SkPaint::kCenter_Align);
+#endif
         paint.setLCDRenderText(true);
         canvas->drawString(fLabel, fRect.centerX(), fRect.fTop + 0.68f * fRect.height(), paint);
     }

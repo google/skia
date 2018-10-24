@@ -82,7 +82,9 @@ protected:
                     if (i == 0) {
                         SkPaint p;
                         p.setAntiAlias(true);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
                         p.setTextAlign(SkPaint::kCenter_Align);
+#endif
                         p.setTextSize(SkIntToScalar(18));
                         SkString s("dither=");
                         s.appendS32(paint.isDither());
