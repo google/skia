@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2214bd16_59a79dad",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-24T18:27:46Z",
+      "side": 1,
+      "message": "I think this is going to have to combine the planes to a single texture and return that. I believe this is what gets used when we\u0027re doing a more complicated effect (e.g. applying an image filter, wrap modes, ...)",
+      "revId": "8b5c1318209f17e9d0c5db0e77058e3034427634",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c2437bd_e1565562",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-24T18:27:46Z",
+      "side": 1,
+      "message": "Maybe you can punt to the base class if there is anything GrYUVtoRGBEffect doesn\u0027t support?\n\nRe. mip-mapping, maybe we can say YUVA images don\u0027t support it?",
+      "revId": "8b5c1318209f17e9d0c5db0e77058e3034427634",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
