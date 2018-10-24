@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35254488_c4dd731d",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-24T13:43:48Z",
+      "side": 1,
+      "message": "How drastic is the follow-up rewrite going to be? Want to fix comments that refer to code/logic that won\u0027t be coming back? Or are these tests going to be reinstated?",
+      "range": {
+        "startLine": 389,
+        "startChar": 83,
+        "endLine": 390,
+        "endChar": 39
+      },
+      "revId": "932df62102e0bcc8a05ac59bd1a1a4e2fe541410",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
