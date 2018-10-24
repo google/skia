@@ -45,6 +45,8 @@ public:
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
 private:
+    static SkGlyph kIgnoreGlyph;
+
     bool hasPendingGlyphs() const {
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
     }
