@@ -1594,8 +1594,8 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
         bool isUsingMask, bool forceRLE) { // forceRLE implies that SkAAClip is calling us
     SkASSERT(blitter);
 
-    SkEdgeBuilder builder(SkEdgeBuilder::kAnalyticEdge, 0);
-    int count = builder.buildEdges(path, &clipRect, pathContainedInClip);
+    SkAnalyticEdgeBuilder builder;
+    int count = builder.buildEdges(path, pathContainedInClip ? nullptr : &clipRect);
     SkAnalyticEdge** list = builder.analyticEdgeList();
 
     SkIRect rect = clipRect;
