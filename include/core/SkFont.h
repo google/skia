@@ -9,10 +9,9 @@
 #define SkFont_DEFINED
 
 #include "SkScalar.h"
-#include "SkRefCnt.h"
+#include "SkTypeface.h"
 
 class SkPaint;
-class SkTypeface;
 
 enum SkTextEncoding {
     kUTF8_SkTextEncoding,
@@ -44,10 +43,12 @@ public:
         kHinting_FlagMask           = 3,    // 2 bits
 
         kDEPRECATED_Antialias_Flag  = 1 << 7,   // want to rely on paint for this
+        kDEPRECATED_LCDRender_Flag  = 1 << 8,   // and this
     };
 
     SkFont(sk_sp<SkTypeface>, SkScalar size, uint32_t flags);
-    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, uint32_t flags);
+    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, uint32_t flags,
+           int align = 0);
 
     /**
      *  Return a font with the same attributes of this font, but with the specified size.
@@ -87,13 +88,14 @@ public:
     static SkFont LEGACY_ExtractFromPaint(const SkPaint&);
 
 private:
-    static constexpr unsigned kAllFlags = 0xFF;
+    static constexpr unsigned kAllFlags = 0x01FF;
 
     sk_sp<SkTypeface> fTypeface;
     SkScalar    fSize;
     SkScalar    fScaleX;
     SkScalar    fSkewX;
-    uint32_t    fFlags;
+    uint16_t    fFlags;
+    uint8_t     fAlign; // try to remove this
 };
 
 #endif
