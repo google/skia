@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "../jumper/SkJumper.h"
 #include "SkArenaAlloc.h"
 #include "SkBlendModePriv.h"
 #include "SkBlitter.h"
@@ -62,9 +61,10 @@ private:
     SkShaderBase::Context* fBurstCtx;
     SkRasterPipeline       fColorPipeline;
 
-    SkJumper_MemoryCtx fShaderOutput = {nullptr,0},  // Possibly updated each call to burst_shade().
-                       fDstPtr       = {nullptr,0},  // Always points to the top-left of fDst.
-                       fMaskPtr      = {nullptr,0};  // Updated each call to blitMask().
+    SkRasterPipeline_MemoryCtx
+        fShaderOutput = {nullptr,0},  // Possibly updated each call to burst_shade().
+        fDstPtr       = {nullptr,0},  // Always points to the top-left of fDst.
+        fMaskPtr      = {nullptr,0};  // Updated each call to blitMask().
 
     // We may be able to specialize blitH() or blitRect() into a memset.
     bool     fCanMemsetInBlitRect = false;
@@ -203,7 +203,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     // A pipeline that's still constant here can collapse back into a constant color.
     if (is_constant) {
         SkColor4f constantColor;
-        SkJumper_MemoryCtx constantColorPtr = { &constantColor, 0 };
+        SkRasterPipeline_MemoryCtx constantColorPtr = { &constantColor, 0 };
         colorPipeline->append_gamut_clamp_if_normalized(dst.info());
         colorPipeline->append(SkRasterPipeline::store_f32, &constantColorPtr);
         colorPipeline->run(0,0,1,1);
@@ -227,14 +227,14 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         SkRasterPipeline_<256> p;
         p.extend(*colorPipeline);
         p.append_gamut_clamp_if_normalized(dst.info());
-        blitter->fDstPtr = SkJumper_MemoryCtx{&blitter->fMemsetColor, 0};
+        blitter->fDstPtr = SkRasterPipeline_MemoryCtx{&blitter->fMemsetColor, 0};
         blitter->append_store(&p);
         p.run(0,0,1,1);
 
         blitter->fCanMemsetInBlitRect = true;
     }
 
-    blitter->fDstPtr = SkJumper_MemoryCtx{
+    blitter->fDstPtr = SkRasterPipeline_MemoryCtx{
         blitter->fDst.writable_addr(),
         blitter->fDst.rowBytesAsPixels(),
     };
@@ -267,7 +267,7 @@ void SkRasterPipelineBlitter::burst_shade(int x, int y, int w) {
     }
     fBurstCtx->shadeSpan4f(x,y, fShaderBuffer.data(), w);
     // We'll be reading from fShaderOutput.pixels + x, so back up by x.
-    fShaderOutput = SkJumper_MemoryCtx{ fShaderBuffer.data() - x, 0 };
+    fShaderOutput = SkRasterPipeline_MemoryCtx{ fShaderBuffer.data() - x, 0 };
 }
 
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {

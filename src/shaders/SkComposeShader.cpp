@@ -15,7 +15,6 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkString.h"
-#include "../jumper/SkJumper.h"
 
 sk_sp<SkShader> SkShader::MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode mode,
                                       float lerpT) {
@@ -81,7 +80,7 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
 
 bool SkComposeShader::onAppendStages(const StageRec& rec) const {
     struct Storage {
-        float   fRGBA[4 * SkJumper_kMaxStride];
+        float   fRGBA[4 * SkRasterPipeline_kMaxStride];
         float   fAlpha;
     };
     auto storage = rec.fAlloc->make<Storage>();

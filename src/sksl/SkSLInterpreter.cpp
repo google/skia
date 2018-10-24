@@ -24,7 +24,6 @@
 #include "ir/SkSLVarDeclarationsStatement.h"
 #include "ir/SkSLVariableReference.h"
 #include "SkRasterPipeline.h"
-#include "../jumper/SkJumper.h"
 
 namespace SkSL {
 
@@ -213,12 +212,12 @@ Interpreter::StackIndex Interpreter::getLValue(const Expression& expr) {
     ABORT("unsupported lvalue");
 }
 
-struct CallbackCtx : public SkJumper_CallbackCtx {
+struct CallbackCtx : public SkRasterPipeline_CallbackCtx {
     Interpreter* fInterpreter;
     const FunctionDefinition* fFunction;
 };
 
-static void do_callback(SkJumper_CallbackCtx* raw, int activePixels) {
+static void do_callback(SkRasterPipeline_CallbackCtx* raw, int activePixels) {
     CallbackCtx& ctx = (CallbackCtx&) *raw;
     for (int i = 0; i < activePixels; ++i) {
         ctx.fInterpreter->push(Interpreter::Value(ctx.rgba[i * 4 + 0]));

@@ -17,7 +17,6 @@
 #include "SkTDArray.h"
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
-#include "../jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
@@ -72,7 +71,7 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSp
 
     pipeline.append_constant_color(&alloc, src.vec());
     this->onAppendStages(&pipeline, colorSpace, &alloc, c.fA == 1);
-    SkJumper_MemoryCtx dstPtr = { &dst, 0 };
+    SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);
 

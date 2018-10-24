@@ -15,7 +15,6 @@
 #include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
 #include "SkUnPreMultiplyPriv.h"
-#include "../jumper/SkJumper.h"
 
 static bool rect_memcpy(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
                         const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
@@ -170,8 +169,8 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
                                   const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
                                   const SkColorSpaceXformSteps& steps) {
 
-    SkJumper_MemoryCtx src = { (void*)srcRow, (int)(srcRB / srcInfo.bytesPerPixel()) },
-                       dst = { (void*)dstRow, (int)(dstRB / dstInfo.bytesPerPixel()) };
+    SkRasterPipeline_MemoryCtx src = { (void*)srcRow, (int)(srcRB / srcInfo.bytesPerPixel()) },
+                               dst = { (void*)dstRow, (int)(dstRB / dstInfo.bytesPerPixel()) };
 
     SkRasterPipeline_<256> pipeline;
     pipeline.append_load(srcInfo.colorType(), &src);

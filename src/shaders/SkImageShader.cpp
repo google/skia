@@ -16,7 +16,6 @@
 #include "SkImageShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "../jumper/SkJumper.h"
 
 /**
  *  We are faster in clamp, so always use that tiling when we can.
@@ -286,23 +285,23 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     p->append(SkRasterPipeline::seed_shader);
     p->append_matrix(alloc, matrix);
 
-    auto gather = alloc->make<SkJumper_GatherCtx>();
+    auto gather = alloc->make<SkRasterPipeline_GatherCtx>();
     gather->pixels = pm.addr();
     gather->stride = pm.rowBytesAsPixels();
     gather->width  = pm.width();
     gather->height = pm.height();
 
-    auto limit_x = alloc->make<SkJumper_TileCtx>(),
-         limit_y = alloc->make<SkJumper_TileCtx>();
+    auto limit_x = alloc->make<SkRasterPipeline_TileCtx>(),
+         limit_y = alloc->make<SkRasterPipeline_TileCtx>();
     limit_x->scale = pm.width();
     limit_x->invScale = 1.0f / pm.width();
     limit_y->scale = pm.height();
     limit_y->invScale = 1.0f / pm.height();
 
-    SkJumper_DecalTileCtx* decal_ctx = nullptr;
+    SkRasterPipeline_DecalTileCtx* decal_ctx = nullptr;
     bool decal_x_and_y = fTileModeX == kDecal_TileMode && fTileModeY == kDecal_TileMode;
     if (fTileModeX == kDecal_TileMode || fTileModeY == kDecal_TileMode) {
-        decal_ctx = alloc->make<SkJumper_DecalTileCtx>();
+        decal_ctx = alloc->make<SkRasterPipeline_DecalTileCtx>();
         decal_ctx->limit_x = limit_x->scale;
         decal_ctx->limit_y = limit_y->scale;
     }
@@ -404,9 +403,9 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         return append_misc();
     }
 
-    SkJumper_SamplerCtx* sampler = nullptr;
+    SkRasterPipeline_SamplerCtx* sampler = nullptr;
     if (quality != kNone_SkFilterQuality) {
-        sampler = alloc->make<SkJumper_SamplerCtx>();
+        sampler = alloc->make<SkRasterPipeline_SamplerCtx>();
     }
 
     auto sample = [&](SkRasterPipeline::StockStage setup_x,

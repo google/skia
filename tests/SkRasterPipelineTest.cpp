@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "../src/jumper/SkJumper.h"
 #include "SkHalf.h"
 #include "SkRasterPipeline.h"
 #include "SkTo.h"
@@ -18,9 +17,9 @@ DEF_TEST(SkRasterPipeline, r) {
              blue = 0x3800380000000000ull,
              result;
 
-    SkJumper_MemoryCtx load_s_ctx = { &blue, 0 },
-                       load_d_ctx = { &red, 0 },
-                       store_ctx  = { &result, 0 };
+    SkRasterPipeline_MemoryCtx load_s_ctx = { &blue, 0 },
+                               load_d_ctx = { &red, 0 },
+                               store_ctx  = { &result, 0 };
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16,     &load_s_ctx);
@@ -62,7 +61,7 @@ DEF_TEST(SkRasterPipeline_JIT, r) {
          0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     };
 
-    SkJumper_MemoryCtx src = { buf +  0, 0 },
+    SkRasterPipeline_MemoryCtx src = { buf +  0, 0 },
                        dst = { buf + 36, 0 };
 
     // Copy buf[x] to buf[x+36] for x in [15,35).
@@ -105,7 +104,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
 
         float buffer[4][4];
 
-        SkJumper_MemoryCtx src = { &data[0][0], 0 },
+        SkRasterPipeline_MemoryCtx src = { &data[0][0], 0 },
                            dst = { &buffer[0][0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
@@ -137,7 +136,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             {h(30), h(31), h(32), h(33)},
         };
         alignas(8) uint16_t buffer[4][4];
-        SkJumper_MemoryCtx src = { &data[0][0], 0 },
+        SkRasterPipeline_MemoryCtx src = { &data[0][0], 0 },
                            dst = { &buffer[0][0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
@@ -168,7 +167,7 @@ DEF_TEST(SkRasterPipeline_lowp, r) {
                 | (4*i+3) << 24;
     }
 
-    SkJumper_MemoryCtx ptr = { rgba, 0 };
+    SkRasterPipeline_MemoryCtx ptr = { rgba, 0 };
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888,  &ptr);
@@ -193,7 +192,7 @@ DEF_TEST(SkRasterPipeline_lowp_clamp01, r) {
 
     uint32_t rgba = 0xff00ff00;
 
-    SkJumper_MemoryCtx ptr = { &rgba, 0 };
+    SkRasterPipeline_MemoryCtx ptr = { &rgba, 0 };
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888,  &ptr);

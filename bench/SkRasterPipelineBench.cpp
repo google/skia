@@ -8,7 +8,6 @@
 #include "Benchmark.h"
 #include "SkOpts.h"
 #include "SkRasterPipeline.h"
-#include "../src/jumper/SkJumper.h"
 
 static const int N = 15;
 
@@ -36,9 +35,9 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        SkJumper_MemoryCtx mask_ctx = {mask, 0},
-                            src_ctx = {src,  0},
-                            dst_ctx = {dst,  0};
+        SkRasterPipeline_MemoryCtx mask_ctx = {mask, 0},
+                                   src_ctx = {src,  0},
+                                   dst_ctx = {dst,  0};
 
         SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::load_8888, &src_ctx);
@@ -77,8 +76,8 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        SkJumper_MemoryCtx src_ctx = {src, 0},
-                           dst_ctx = {dst, 0};
+        SkRasterPipeline_MemoryCtx src_ctx = {src, 0},
+                                   dst_ctx = {dst, 0};
 
         SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::load_8888, &dst_ctx);

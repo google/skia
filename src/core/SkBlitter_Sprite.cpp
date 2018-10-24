@@ -13,7 +13,6 @@
 #include "SkOpts.h"
 #include "SkRasterPipeline.h"
 #include "SkSpriteBlitter.h"
-#include "../jumper/SkJumper.h"
 
 SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source)
     : fSource(source) {}
@@ -156,10 +155,10 @@ public:
     }
 
 private:
-    SkArenaAlloc*      fAlloc;
-    SkBlitter*         fBlitter;
-    SkJumper_MemoryCtx fSrcPtr;
-    SkColor4f          fPaintColor;
+    SkArenaAlloc*              fAlloc;
+    SkBlitter*                 fBlitter;
+    SkRasterPipeline_MemoryCtx fSrcPtr;
+    SkColor4f                  fPaintColor;
 
     typedef SkSpriteBlitter INHERITED;
 };

@@ -21,7 +21,6 @@
 #include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
 #include "SkUnPreMultiplyPriv.h"
-#include "../jumper/SkJumper.h"
 
 /**
  * Function template for transforming scanlines.
@@ -255,8 +254,8 @@ static inline void transform_scanline_101010x(char* dst, const char* src,
 
 static inline void transform_scanline_1010102(char* dst, const char* src,
                                               int width, int, const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { (void*)src, 0 },
+                               dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_1010102, &src_ctx);
     p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
@@ -265,8 +264,8 @@ static inline void transform_scanline_1010102(char* dst, const char* src,
 
 static inline void transform_scanline_1010102_premul(char* dst, const char* src,
                                                      int width, int, const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { (void*)src, 0 },
+                               dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_1010102, &src_ctx);
     p.append(SkRasterPipeline::unpremul);
@@ -279,8 +278,8 @@ static inline void transform_scanline_1010102_premul(char* dst, const char* src,
  */
 static inline void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                           int width, int, const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { (void*)src, 0 },
+                               dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
     p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
@@ -294,8 +293,8 @@ static inline void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_
  */
 static inline void transform_scanline_F16_premul(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                                  int width, int, const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { (void*)src, 0 },
+                               dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
     p.append(SkRasterPipeline::unpremul);
@@ -311,8 +310,8 @@ static inline void transform_scanline_F16_premul(char* SK_RESTRICT dst, const ch
 static inline void transform_scanline_F16_to_8888(char* SK_RESTRICT dst,
                                                   const char* SK_RESTRICT src, int width, int,
                                                   const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { (void*)src, 0 },
+                               dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
     p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
@@ -327,8 +326,8 @@ static inline void transform_scanline_F16_to_8888(char* SK_RESTRICT dst,
 static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
                                                          const char* SK_RESTRICT src, int width,
                                                          int, const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { (void*)src, 0 },
+                               dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
     p.append(SkRasterPipeline::unpremul);
@@ -343,8 +342,8 @@ static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
  */
 static inline void transform_scanline_F16_to_premul_8888(char* SK_RESTRICT dst,
         const char* SK_RESTRICT src, int width, int, const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { (void*)src, 0 },
+                               dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
     p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
@@ -359,8 +358,8 @@ static inline void transform_scanline_F16_to_premul_8888(char* SK_RESTRICT dst,
  */
 static inline void transform_scanline_F32(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                           int width, int, const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { (void*)src, 0 },
+                               dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f32, &src_ctx);
     p.append(SkRasterPipeline::clamp_0);  // F32 values may be out of [0,1] range, so clamp.
@@ -374,8 +373,8 @@ static inline void transform_scanline_F32(char* SK_RESTRICT dst, const char* SK_
  */
 static inline void transform_scanline_F32_premul(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                                  int width, int, const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { (void*)src, 0 },
+                               dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f32, &src_ctx);
     p.append(SkRasterPipeline::unpremul);
