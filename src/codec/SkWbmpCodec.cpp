@@ -89,10 +89,6 @@ bool SkWbmpCodec::onRewind() {
     return read_header(this->stream(), nullptr);
 }
 
-SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info, const Options& opts) {
-    return SkSwizzler::CreateSwizzler(this->getEncodedInfo(), nullptr, info, opts);
-}
-
 bool SkWbmpCodec::readRow(uint8_t* row) {
     return this->stream()->read(row, fSrcRowBytes) == fSrcRowBytes;
 }
@@ -125,7 +121,8 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
     }
 
     // Initialize the swizzler
-    std::unique_ptr<SkSwizzler> swizzler(this->initializeSwizzler(info, options));
+    std::unique_ptr<SkSwizzler> swizzler = SkSwizzler::Make(this->getEncodedInfo(), nullptr, info,
+                                                            options);
     SkASSERT(swizzler);
 
     // Perform the decode
@@ -187,8 +184,7 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    // Initialize the swizzler
-    fSwizzler.reset(this->initializeSwizzler(dstInfo, options));
+    fSwizzler = SkSwizzler::Make(this->getEncodedInfo(), nullptr, dstInfo, options);
     SkASSERT(fSwizzler);
 
     fSrcBuffer.reset(fSrcRowBytes);

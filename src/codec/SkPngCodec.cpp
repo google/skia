@@ -1066,9 +1066,31 @@ void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& o
         swizzlerOptions.fZeroInitialized = kNo_ZeroInitialized;
     }
 
-    const SkPMColor* colors = get_color_ptr(fColorTable.get());
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, swizzlerInfo,
-                                               swizzlerOptions, nullptr, skipFormatConversion));
+    if (skipFormatConversion) {
+        // We cannot skip format conversion when there is a color table.
+        SkASSERT(!fColorTable);
+        int srcBPP = 0;
+        switch (this->getEncodedInfo().color()) {
+            case SkEncodedInfo::kRGB_Color:
+                SkASSERT(this->getEncodedInfo().bitsPerComponent() == 16);
+                srcBPP = 6;
+                break;
+            case SkEncodedInfo::kRGBA_Color:
+                srcBPP = this->getEncodedInfo().bitsPerComponent() / 2;
+                break;
+            case SkEncodedInfo::kGray_Color:
+                srcBPP = 1;
+                break;
+            default:
+                SkASSERT(false);
+                break;
+        }
+        fSwizzler = SkSwizzler::MakeSimple(srcBPP, swizzlerInfo, swizzlerOptions);
+    } else {
+        const SkPMColor* colors = get_color_ptr(fColorTable.get());
+        fSwizzler = SkSwizzler::Make(this->getEncodedInfo(), colors, swizzlerInfo,
+                                     swizzlerOptions);
+    }
     SkASSERT(fSwizzler);
 }
 
