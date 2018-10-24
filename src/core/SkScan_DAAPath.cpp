@@ -160,7 +160,7 @@ template<class Deltas> static SK_ALWAYS_INLINE
 void gen_alpha_deltas(const SkPath& path, const SkIRect& clippedIR, const SkIRect& clipBounds,
         Deltas& result, SkBlitter* blitter, bool skipRect, bool pathContainedInClip) {
     // 1. Build edges
-    SkEdgeBuilder builder(SkEdgeBuilder::kBezier, 0);
+    SkBezierEdgeBuilder builder;
     // We have to use clipBounds instead of clippedIR to build edges because of "canCullToTheRight":
     // if the builder finds a right edge past the right clip, it won't build that right edge.
     int  count = builder.buildEdges(path, &clipBounds, pathContainedInClip);
