@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkFont.h"
 #include "SkFontStyle.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
@@ -107,6 +108,7 @@ protected:
             sk_sp<SkTextBlob> blob(this->makeBlob(b));
 
             SkPaint p;
+            p.setAntiAlias(true);
             SkPoint offset = SkPoint::Make(SkIntToScalar(10 + 300 * (b % 2)),
                                            SkIntToScalar(20 + 150 * (b / 2)));
 
@@ -125,10 +127,9 @@ private:
     sk_sp<SkTextBlob> makeBlob(unsigned blobIndex) {
         SkTextBlobBuilder builder;
 
-        SkPaint font;
-        font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        font.setAntiAlias(true);
-        font.setSubpixelText(true);
+        SkFont font;
+        font.setFlags(font.getFlags() | SkFont::kDEPRECATED_Antialias_Flag);
+        font.setSubpixel(true);
         font.setTypeface(fTypeface);
 
         for (unsigned l = 0; l < SK_ARRAY_COUNT(blobConfigs[blobIndex]); ++l) {
@@ -145,9 +146,9 @@ private:
                     break;
                 }
 
-                font.setTextSize(kFontSize * cfg->scale);
-                const SkScalar advanceX = font.getTextSize() * 0.85f;
-                const SkScalar advanceY = font.getTextSize() * 1.5f;
+                font.setSize(kFontSize * cfg->scale);
+                const SkScalar advanceX = font.getSize() * 0.85f;
+                const SkScalar advanceY = font.getSize() * 1.5f;
 
                 SkPoint offset = SkPoint::Make(currentGlyph * advanceX + c * advanceX,
                                                advanceY * l);

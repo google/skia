@@ -9,6 +9,7 @@
 
 #include "Resources.h"
 #include "SkCommonFlags.h"
+#include "SkFont.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
 #include "SkMutex.h"
@@ -80,6 +81,10 @@ sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style) 
 
 void set_portable_typeface(SkPaint* paint, const char* name, SkFontStyle style) {
     paint->setTypeface(create_font(name, style));
+}
+
+void set_portable_typeface(SkFont* font, const char* name, SkFontStyle style) {
+    font->setTypeface(create_font(name, style));
 }
 
 }
