@@ -189,9 +189,7 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
         swizzlerOptions.fZeroInitialized = kNo_ZeroInitialized;
     }
 
-
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(encodedInfo, colorPtr, swizzlerInfo,
-                                               swizzlerOptions));
+    fSwizzler = SkSwizzler::Make(encodedInfo, colorPtr, swizzlerInfo, swizzlerOptions);
     SkASSERT(fSwizzler);
 }
 

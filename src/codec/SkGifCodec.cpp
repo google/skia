@@ -254,8 +254,8 @@ void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, int frameIndex) 
     // - the swizzler does not need to know about the frame.
     // We may not be able to use the real Options anyway, since getPixels does not store it (due to
     // a bug).
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(),
-                    fCurrColorTable->readColors(), swizzlerInfo, Options(), &swizzleRect));
+    fSwizzler = SkSwizzler::Make(this->getEncodedInfo(), fCurrColorTable->readColors(),
+                                 swizzlerInfo, Options(), &swizzleRect);
     SkASSERT(fSwizzler.get());
 }
 
