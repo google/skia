@@ -22,6 +22,30 @@
       "revId": "932df62102e0bcc8a05ac59bd1a1a4e2fe541410",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e01ecac_2757e0c5",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-24T13:54:57Z",
+      "side": 1,
+      "message": "Probably pretty drastic and in a different place. Removed the comment. Overall I wanted to limit the amount of cleanup here because this will probably be cherry picked (without the unit test).",
+      "parentUuid": "35254488_c4dd731d",
+      "range": {
+        "startLine": 389,
+        "startChar": 83,
+        "endLine": 390,
+        "endChar": 39
+      },
+      "revId": "932df62102e0bcc8a05ac59bd1a1a4e2fe541410",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
