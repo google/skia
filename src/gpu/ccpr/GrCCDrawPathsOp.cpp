@@ -216,7 +216,6 @@ GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&
     }
 
     fDraws.append(std::move(that->fDraws), &fOwningPerOpListPaths->fAllocator);
-    this->joinBounds(*that);
 
     SkDEBUGCODE(fNumDraws += that->fNumDraws);
     SkDEBUGCODE(that->fNumDraws = 0);

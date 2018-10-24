@@ -424,7 +424,6 @@ GrOp::CombineResult AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& c
     }
 
     fRects.push_back_n(that->fRects.count(), that->fRects.begin());
-    this->joinBounds(*that);
     return CombineResult::kMerged;
 }
 

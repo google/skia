@@ -306,7 +306,6 @@ private:
         }
 
         fPatches.move_back_n(that->fPatches.count(), that->fPatches.begin());
-        this->joinBounds(*that);
         return CombineResult::kMerged;
     }
 
