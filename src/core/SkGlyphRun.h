@@ -82,7 +82,7 @@ public:
     }
 };
 
-class SkGlyphRun {
+class SkGlyphRunInfo {
 public:
     SkGlyphRun() = default;
     SkGlyphRun(const SkPaint& basePaint,
@@ -119,6 +119,40 @@ private:
     SkPaint fRunPaint;
 };
 
+class SkGlyphRun {
+public:
+    struct Info;
+    SkGlyphRun(const SkPaint& paint, SkPoint origin, const SkGlyphRun::Info& info)
+            : fPaint{paint}
+            , fOrigin{origin}
+            , fInfo{info} {}
+    SkPoint origin() const { return fOrigin; }
+    const SkPaint& paint() const { return fPaint; }
+    size_t runSize() const { return fRun.runSize(); }
+    SkSpan<const SkPoint> positions() const { return fRun.positions(); }
+    SkSpan<const SkGlyphID> glyphsIDs() const { return fRun.glyphsIDs(); }
+    SkSpan<const uint32_t> clusters() const { return fRun.clusters(); }
+    SkSpan<const char> text() const {return fRun.text(); }
+
+    struct Info {
+        // Positions relative to the list's origin.
+        const SkSpan<const SkPoint> positions;
+        // This is temporary while converting from the old per glyph code to the bulk code.
+        const SkSpan<const SkGlyphID> glyphIDs;
+        // Original text from SkTextBlob if present. Will be empty of not present.
+        const SkSpan<const char> text;
+        // Original clusters from SkTextBlob if present. Will be empty if not present.
+        const SkSpan<const uint32_t>   clusters;
+        // Paint for this run modified to have glyph encoding and left alignment.
+        SkRunFont fFont;
+    };
+
+private:
+    const SkPaint& fPaint;
+    const SkPoint fOrigin;
+    const Info& fInfo;
+};
+
 class SkGlyphRunList {
     const SkPaint* fOriginalPaint{nullptr};  // This should be deleted soon.
     // The text blob is needed to hookup the call back that the SkTextBlob destructor calls. It
@@ -126,6 +160,7 @@ class SkGlyphRunList {
     const SkTextBlob*  fOriginalTextBlob{nullptr};
     SkPoint fOrigin = {0, 0};
     SkSpan<const SkGlyphRun> fGlyphRuns;
+
 
 public:
     SkGlyphRunList();
@@ -135,6 +170,7 @@ public:
             const SkTextBlob* blob,
             SkPoint origin,
             SkSpan<const SkGlyphRun> glyphRunList);
+
 
     SkGlyphRunList(const SkGlyphRun& glyphRun);
 
@@ -157,13 +193,33 @@ public:
     const SkPaint& paint() const { return *fOriginalPaint; }
     const SkTextBlob* blob() const { return fOriginalTextBlob; }
 
-    auto begin() -> decltype(fGlyphRuns.begin())               { return fGlyphRuns.begin();  }
-    auto end()   -> decltype(fGlyphRuns.end())                 { return fGlyphRuns.end();    }
-    auto begin() const -> decltype(fGlyphRuns.cbegin())        { return fGlyphRuns.cbegin(); }
-    auto end()   const -> decltype(fGlyphRuns.cend())          { return fGlyphRuns.cend();   }
+    SkGlyphRun operator [] (size_t i) const {
+        return SkGlyphRun{fOriginalPaint, fOrigin, fGlyphRuns[i]};
+    }
+
+    class Iterator {
+    public:
+        Iterator(const SkGlyphRun* run, const SkGlyphRunList& list)
+                : fRun{run}
+                , fList{list} { }
+
+        SkGlyphRun operator*() const { return SkGlyphRun{*fRun, fList}; }
+        Iterator& operator++() {fRun++; return *this;}
+        Iterator operator++(int) {Iterator retval = *this; ++(*this); return retval;}
+        bool operator==(const Iterator& that) const { return fRun == that.fRun; }
+        bool operator!=(const Iterator& that) const {return !(*this == that);}
+
+    private:
+        const SkGlyphRun* fRun;
+        const SkGlyphRunList& fList;
+    };
+
+    Iterator begin() { return Iterator{fGlyphRuns.begin(), *this}; }
+    Iterator end()   { return Iterator{fGlyphRuns.end(), *this};   }
+    Iterator begin() const { return Iterator{fGlyphRuns.cbegin(), *this}; }
+    Iterator end()   const { return Iterator{fGlyphRuns.cend(), *this};   }
     auto size()  const -> decltype(fGlyphRuns.size())          { return fGlyphRuns.size();   }
     auto empty() const -> decltype(fGlyphRuns.empty())         { return fGlyphRuns.empty();  }
-    auto operator [] (size_t i) const -> decltype(fGlyphRuns[i]) { return fGlyphRuns[i];     }
 };
 
 class SkGlyphIDSet {
@@ -226,7 +282,7 @@ private:
     size_t fMaxTotalRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
 
-    std::vector<SkGlyphRun> fGlyphRunListStorage;
+    std::vector<SkGlyphRunInfo> fGlyphRunListStorage;
     SkGlyphRunList fGlyphRunList;
 
     // Used as a temporary for preparing using utfN text. This implies that only one run of
@@ -241,5 +297,6 @@ private:
     SkAutoTMalloc<SkGlyphID> fUniqueGlyphIDs;
     SkAutoTMalloc<uint16_t> fUniqueGlyphIDIndices;
 };
+
 
 #endif  // SkGlyphRun_DEFINED
