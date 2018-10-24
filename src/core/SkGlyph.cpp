@@ -90,3 +90,9 @@ size_t SkGlyph::computeImageSize() const {
 
     return size;
 }
+
+const SkGlyph& SkGlyph::ImpossibleGlyph() {
+    static const SkGlyph impossible;
+
+    return impossible;
+}

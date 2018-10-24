@@ -150,16 +150,17 @@ class SkGlyph {
     };
 
 public:
+    SkGlyph() = default;
     static const SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedID::kSubBits;
-    void* fImage;
-    PathData* fPathData;
-    float       fAdvanceX, fAdvanceY;
+    void* fImage = nullptr;
+    PathData* fPathData = nullptr;
+    float       fAdvanceX = 0, fAdvanceY = 0;
 
-    uint16_t    fWidth, fHeight;
-    int16_t     fTop, fLeft;
-    int8_t      fForceBW;
+    uint16_t    fWidth = 0, fHeight = 0;
+    int16_t     fTop = 0, fLeft = 0;
+    int8_t      fForceBW = 0;
 
-    uint8_t     fMaskFormat;
+    uint8_t     fMaskFormat = 0;
 
     void initWithGlyphID(SkPackedGlyphID glyph_id);
 
@@ -237,6 +238,8 @@ public:
             return glyphId.hash();
         }
     };
+
+    static const SkGlyph& ImpossibleGlyph();
 
  private:
     // TODO(herb) remove friend statement after SkGlyphCache cleanup.
