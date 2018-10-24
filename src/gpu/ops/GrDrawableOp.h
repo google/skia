@@ -33,9 +33,8 @@ private:
 
     GrDrawableOp(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
-    CombineResult onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
-        return CombineResult::kCannotCombine;
-    }
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
+
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override;

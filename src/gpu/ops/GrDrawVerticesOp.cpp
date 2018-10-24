@@ -481,41 +481,41 @@ void GrDrawVerticesOp::drawVertices(Target* target,
     target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
 }
 
-GrOp::CombineResult GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawVerticesOp* that = t->cast<GrDrawVerticesOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     // Meshes with bones cannot be combined because different meshes use different bones, so to
     // combine them, the matrices would have to be combined, and the bone indices on each vertex
     // would change, thus making the vertices uncacheable.
     if (this->hasBones() || that->hasBones()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     // Non-volatile meshes cannot batch, because if a non-volatile mesh batches with another mesh,
     // then on the next frame, if that non-volatile mesh is drawn, it will draw the other mesh
     // that was saved in its vertex buffer, which is not necessarily there anymore.
     if (!this->fMeshes[0].fVertices->isVolatile() || !that->fMeshes[0].fVertices->isVolatile()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (!this->combinablePrimitive() || this->primitiveType() != that->primitiveType()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (fMeshes[0].fVertices->hasIndices() != that->fMeshes[0].fVertices->hasIndices()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (fColorArrayType != that->fColorArrayType) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (fVertexCount + that->fVertexCount > SkTo<int>(UINT16_MAX)) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     // NOTE: For SkColor vertex colors, the source color space is always sRGB, and the destination
@@ -539,7 +539,7 @@ GrOp::CombineResult GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps&
     fVertexCount += that->fVertexCount;
     fIndexCount += that->fIndexCount;
 
-    return CombineResult::kMerged;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

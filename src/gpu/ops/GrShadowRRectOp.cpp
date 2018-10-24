@@ -598,12 +598,12 @@ private:
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
-        return CombineResult::kMerged;
+        return true;
     }
 
     SkSTArray<1, Geometry, true> fGeoData;

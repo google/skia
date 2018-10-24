@@ -78,7 +78,6 @@ void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
     // Loop over the ops that haven't yet generated their geometry
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (fRecordedOps[i]) {
-            SkASSERT(fRecordedOps[i]->isChainHead());
             GrOpFlushState::OpArgs opArgs = {
                 fRecordedOps[i].get(),
                 nullptr,
@@ -108,7 +107,6 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
         if (!fRecordedOps[i]) {
             continue;
         }
-        SkASSERT(fRecordedOps[i]->isChainHead());
         GrOpFlushState::OpArgs opArgs = {
             fRecordedOps[i].get(),
             nullptr,

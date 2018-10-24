@@ -1494,21 +1494,21 @@ private:
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         CircleOp* that = t->cast<CircleOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
         if (fVertCount + that->fVertCount > 65536) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // Because we've set up the ops that don't use the planes with noop values
@@ -1522,7 +1522,7 @@ private:
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
-        return CombineResult::kMerged;
+        return true;
     }
 
     struct Circle {
@@ -1811,27 +1811,27 @@ private:
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         ButtCapDashedCircleOp* that = t->cast<ButtCapDashedCircleOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
         if (fVertCount + that->fVertCount > 65536) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
-        return CombineResult::kMerged;
+        return true;
     }
 
     struct Circle {
@@ -2058,24 +2058,24 @@ private:
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         EllipseOp* that = t->cast<EllipseOp>();
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fStroked != that->fStroked) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
-        return CombineResult::kMerged;
+        return true;
     }
 
     struct Ellipse {
@@ -2290,23 +2290,23 @@ private:
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DIEllipseOp* that = t->cast<DIEllipseOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->style() != that->style()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // TODO rewrite to allow positioning on CPU
         if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
-        return CombineResult::kMerged;
+        return false;
     }
 
     const SkMatrix& viewMatrix() const { return fEllipses[0].fViewMatrix; }
@@ -2745,28 +2745,28 @@ private:
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         CircularRRectOp* that = t->cast<CircularRRectOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
         if (fVertCount + that->fVertCount > 65536) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
-        return CombineResult::kMerged;
+        return true;
     }
 
     struct RRect {
@@ -3011,24 +3011,24 @@ private:
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         EllipticalRRectOp* that = t->cast<EllipticalRRectOp>();
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fStroked != that->fStroked) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
-        return CombineResult::kMerged;
+        return false;
     }
 
     struct RRect {

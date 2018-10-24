@@ -850,40 +850,40 @@ private:
     GrColor color() const { return fShapes[0].fColor; }
     bool usesDistanceField() const { return fUsesDistanceField; }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         SmallPathOp* that = t->cast<SmallPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->usesDistanceField() != that->usesDistanceField()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         const SkMatrix& thisCtm = this->fShapes[0].fViewMatrix;
         const SkMatrix& thatCtm = that->fShapes[0].fViewMatrix;
 
         if (thisCtm.hasPerspective() != thatCtm.hasPerspective()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // We can position on the cpu unless we're in perspective,
         // but also need to make sure local matrices are identical
         if ((thisCtm.hasPerspective() || fHelper.usesLocalCoords()) &&
             !thisCtm.cheapEqualTo(thatCtm)) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // Depending on the ctm we may have a different shader for SDF paths
         if (this->usesDistanceField()) {
             if (thisCtm.isScaleTranslate() != thatCtm.isScaleTranslate() ||
                 thisCtm.isSimilarity() != thatCtm.isSimilarity()) {
-                return CombineResult::kCannotCombine;
+                return false;
             }
         }
 
         fShapes.push_back_n(that->fShapes.count(), that->fShapes.begin());
-        return CombineResult::kMerged;
+        return false;
     }
 
     bool fUsesDistanceField;

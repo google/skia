@@ -946,22 +946,22 @@ private:
         }
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAConvexPathOp* that = t->cast<AAConvexPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
         if (fHelper.usesLocalCoords() &&
             !fPaths[0].fViewMatrix.cheapEqualTo(that->fPaths[0].fViewMatrix)) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fLinesOnly != that->fLinesOnly) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
-        return CombineResult::kMerged;
+        return true;
     }
 
     struct PathData {

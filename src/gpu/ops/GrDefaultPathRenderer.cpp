@@ -439,30 +439,30 @@ private:
         }
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DefaultPathOp* that = t->cast<DefaultPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->color() != that->color()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->coverage() != that->coverage()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->isHairline() != that->isHairline()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
-        return CombineResult::kMerged;
+        return true;
     }
 
     GrColor color() const { return fColor; }

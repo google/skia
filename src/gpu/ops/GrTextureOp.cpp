@@ -830,38 +830,23 @@ private:
 
     void onPrepareDraws(Target* target) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
-        bool hasPerspective = false;
-        Domain domain = Domain::kNo;
-        int numProxies = 0;
-        int numTotalQuads = 0;
         auto textureType = fProxies[0].fProxy->textureType();
         auto config = fProxies[0].fProxy->config();
         GrAAType aaType = this->aaType();
-        for (const auto& op : ChainRange<TextureOp>(this)) {
-            hasPerspective |= op.fPerspective;
-            if (op.fDomain) {
-                domain = Domain::kYes;
+        for (unsigned p = 0; p < fProxyCnt; ++p) {
+            auto* proxy = fProxies[p].fProxy;
+            if (!proxy->instantiate(target->resourceProvider())) {
+                return;
             }
-            numProxies += op.fProxyCnt;
-            for (unsigned p = 0; p < op.fProxyCnt; ++p) {
-                numTotalQuads += op.fProxies[p].fQuadCnt;
-                auto* proxy = op.fProxies[p].fProxy;
-                if (!proxy->instantiate(target->resourceProvider())) {
-                    return;
-                }
-                SkASSERT(proxy->config() == config);
-                SkASSERT(proxy->textureType() == textureType);
-            }
-            if (op.aaType() == GrAAType::kCoverage) {
-                SkASSERT(aaType == GrAAType::kCoverage || aaType == GrAAType::kNone);
-                aaType = GrAAType::kCoverage;
-            }
+            SkASSERT(proxy->config() == config);
+            SkASSERT(proxy->textureType() == textureType);
         }
-
+        Domain domain = static_cast<Domain>(fDomain);
         bool coverageAA = GrAAType::kCoverage == aaType;
+        bool hasPerspective = static_cast<bool>(fPerspective);
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
                 textureType, config, this->filter(), std::move(fTextureColorSpaceXform),
-                std::move(fPaintColorSpaceXform), coverageAA, hasPerspective, domain,
+                std::move(fPaintColorSpaceXform), coverageAA, fPerspective, domain,
                 *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
@@ -877,8 +862,8 @@ private:
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.
         GrPipeline::DynamicStateArrays* dynamicStateArrays = nullptr;
         GrPipeline::FixedDynamicState* fixedDynamicState;
-        if (numProxies > 1) {
-            dynamicStateArrays = target->allocDynamicStateArrays(numProxies, 1, false);
+        if (fProxyCnt > 1) {
+            dynamicStateArrays = target->allocDynamicStateArrays(fProxyCnt, 1, false);
             fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 0);
         } else {
             fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 1);
@@ -914,101 +899,87 @@ private:
         size_t vertexSize = kTessFnsAndVertexSizes[tessFnIdx].fVertexSize;
         SkASSERT(vertexSize == gp->debugOnly_vertexStride());
 
-        GrMesh* meshes = target->allocMeshes(numProxies);
+        GrMesh* meshes = target->allocMeshes(fProxyCnt);
         const GrBuffer* vbuffer;
         int vertexOffsetInBuffer = 0;
-        int numQuadVerticesLeft = numTotalQuads * 4;
+        int numQuadVerticesLeft = fQuads.count() * 4;
         int numAllocatedVertices = 0;
         void* vdata = nullptr;
 
-        int m = 0;
-        for (const auto& op : ChainRange<TextureOp>(this)) {
-            int q = 0;
-            for (unsigned p = 0; p < op.fProxyCnt; ++p) {
-                int quadCnt = op.fProxies[p].fQuadCnt;
-                auto* proxy = op.fProxies[p].fProxy;
-                int meshVertexCnt = quadCnt * 4;
-                if (numAllocatedVertices < meshVertexCnt) {
-                    vdata = target->makeVertexSpaceAtLeast(
-                            vertexSize, meshVertexCnt, numQuadVerticesLeft, &vbuffer,
-                            &vertexOffsetInBuffer, &numAllocatedVertices);
-                    SkASSERT(numAllocatedVertices <= numQuadVerticesLeft);
-                    if (!vdata) {
-                        SkDebugf("Could not allocate vertices\n");
-                        return;
-                    }
+        for (unsigned p = 0, q = 0; p < fProxyCnt; q += fProxies[p].fQuadCnt, ++p) {
+            int quadCnt = fProxies[p].fQuadCnt;
+            auto* proxy = fProxies[p].fProxy;
+            int meshVertexCnt = quadCnt * 4;
+            if (numAllocatedVertices < meshVertexCnt) {
+                vdata = target->makeVertexSpaceAtLeast(
+                        vertexSize, meshVertexCnt, numQuadVerticesLeft, &vbuffer,
+                        &vertexOffsetInBuffer, &numAllocatedVertices);
+                SkASSERT(numAllocatedVertices <= numQuadVerticesLeft);
+                if (!vdata) {
+                    SkDebugf("Could not allocate vertices\n");
+                    return;
                 }
-                SkASSERT(numAllocatedVertices >= meshVertexCnt);
-
-                (op.*(kTessFnsAndVertexSizes[tessFnIdx].fTessFn))(vdata, gp.get(), proxy, q,
-                                                                  quadCnt);
-
-                if (quadCnt > 1) {
-                    meshes[m].setPrimitiveType(GrPrimitiveType::kTriangles);
-                    sk_sp<const GrBuffer> ibuffer =
-                            target->resourceProvider()->refQuadIndexBuffer();
-                    if (!ibuffer) {
-                        SkDebugf("Could not allocate quad indices\n");
-                        return;
-                    }
-                    meshes[m].setIndexedPatterned(ibuffer.get(), 6, 4, quadCnt,
-                                                  GrResourceProvider::QuadCountOfQuadBuffer());
-                } else {
-                    meshes[m].setPrimitiveType(GrPrimitiveType::kTriangleStrip);
-                    meshes[m].setNonIndexedNonInstanced(4);
-                }
-                meshes[m].setVertexData(vbuffer, vertexOffsetInBuffer);
-                if (dynamicStateArrays) {
-                    dynamicStateArrays->fPrimitiveProcessorTextures[m] = proxy;
-                }
-                ++m;
-                numAllocatedVertices -= meshVertexCnt;
-                numQuadVerticesLeft -= meshVertexCnt;
-                vertexOffsetInBuffer += meshVertexCnt;
-                vdata = reinterpret_cast<char*>(vdata) + vertexSize * meshVertexCnt;
-                q += quadCnt;
             }
+            SkASSERT(numAllocatedVertices >= meshVertexCnt);
+
+            (this->*kTessFnsAndVertexSizes[tessFnIdx].fTessFn)(vdata, gp.get(), proxy, q, quadCnt);
+
+            if (quadCnt > 1) {
+                meshes[p].setPrimitiveType(GrPrimitiveType::kTriangles);
+                sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
+                if (!ibuffer) {
+                    SkDebugf("Could not allocate quad indices\n");
+                    return;
+                }
+                meshes[p].setIndexedPatterned(ibuffer.get(), 6, 4, quadCnt,
+                                              GrResourceProvider::QuadCountOfQuadBuffer());
+            } else {
+                meshes[p].setPrimitiveType(GrPrimitiveType::kTriangleStrip);
+                meshes[p].setNonIndexedNonInstanced(4);
+            }
+            meshes[p].setVertexData(vbuffer, vertexOffsetInBuffer);
+            if (dynamicStateArrays) {
+                dynamicStateArrays->fPrimitiveProcessorTextures[p] = proxy;
+            }
+            numAllocatedVertices -= meshVertexCnt;
+            numQuadVerticesLeft -= meshVertexCnt;
+            vertexOffsetInBuffer += meshVertexCnt;
+            vdata = reinterpret_cast<char*>(vdata) + vertexSize * meshVertexCnt;
         }
         SkASSERT(!numQuadVerticesLeft);
         SkASSERT(!numAllocatedVertices);
         target->draw(std::move(gp), pipeline, fixedDynamicState, dynamicStateArrays, meshes,
-                     numProxies);
+                     fProxyCnt);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
         if (!GrColorSpaceXform::Equals(fTextureColorSpaceXform.get(),
                                        that->fTextureColorSpaceXform.get())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
         if (!GrColorSpaceXform::Equals(fPaintColorSpaceXform.get(),
                                        that->fPaintColorSpaceXform.get())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
         bool upgradeToCoverageAAOnMerge = false;
         if (this->aaType() != that->aaType()) {
             if (!((this->aaType() == GrAAType::kCoverage && that->aaType() == GrAAType::kNone) ||
                   (that->aaType() == GrAAType::kCoverage && this->aaType() == GrAAType::kNone))) {
-                return CombineResult::kCannotCombine;
+                return false;
             }
             upgradeToCoverageAAOnMerge = true;
         }
         if (fFilter != that->fFilter) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
+        // We only merge when both ops have the same single proxy.
         auto thisProxy = fProxies[0].fProxy;
         auto thatProxy = that->fProxies[0].fProxy;
         if (fProxyCnt > 1 || that->fProxyCnt > 1 ||
-            thisProxy->uniqueID() != thatProxy->uniqueID() || that->isChained()) {
-            // We can't merge across different proxies (and we're disallowed from merging when
-            // 'that' is chained. Check if we can be chained with 'that'.
-            if (thisProxy->config() == thatProxy->config() &&
-                thisProxy->textureType() == thatProxy->textureType() &&
-                caps.dynamicStateArrayGeometryProcessorTextureSupport()) {
-                return CombineResult::kMayChain;
-            }
-            return CombineResult::kCannotCombine;
+            thisProxy->uniqueID() != thatProxy->uniqueID()) {
+            return false;
         }
         fProxies[0].fQuadCnt += that->fQuads.count();
         fQuads.push_back_n(that->fQuads.count(), that->fQuads.begin());
@@ -1017,7 +988,7 @@ private:
         if (upgradeToCoverageAAOnMerge) {
             fAAType = static_cast<unsigned>(GrAAType::kCoverage);
         }
-        return CombineResult::kMerged;
+        return true;
     }
 
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }

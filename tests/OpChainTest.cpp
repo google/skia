@@ -13,6 +13,7 @@
 #include "Test.h"
 #include "ops/GrOp.h"
 
+#if 0
 // We create Ops that write a value into a range of a buffer. We create ranges from
 // kNumOpPositions starting positions x kRanges canonical ranges. We repeat each range kNumRepeats
 // times (with a different value written by each of the repeats).
@@ -205,3 +206,5 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
         }
     }
 }
+
+#endif

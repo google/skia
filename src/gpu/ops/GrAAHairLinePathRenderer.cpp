@@ -849,40 +849,40 @@ private:
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAHairlineOp* that = t->cast<AAHairlineOp>();
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->viewMatrix().hasPerspective() != that->viewMatrix().hasPerspective()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // We go to identity if we don't have perspective
         if (this->viewMatrix().hasPerspective() &&
             !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // TODO we can actually combine hairlines if they are the same color in a kind of bulk
         // method but we haven't implemented this yet
         // TODO investigate going to vertex color and coverage?
         if (this->coverage() != that->coverage()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->color() != that->color()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fHelper.usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
-        return CombineResult::kMerged;
+        return true;
     }
 
     GrColor color() const { return fColor; }

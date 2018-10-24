@@ -290,23 +290,23 @@ private:
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAALatticeOp* that = t->cast<NonAALatticeOp>();
         if (fProxy != that->fProxy) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
         if (fFilter != that->fFilter) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
         if (GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fPatches.move_back_n(that->fPatches.count(), that->fPatches.begin());
-        return CombineResult::kMerged;
+        return true;
     }
 
     struct Patch {

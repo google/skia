@@ -150,30 +150,30 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
     helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
-GrOp::CombineResult GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawAtlasOp* that = t->cast<GrDrawAtlasOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     // We currently use a uniform viewmatrix for this op.
     if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (this->hasColors() != that->hasColors()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (!this->hasColors() && this->color() != that->color()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
     fQuadCount += that->quadCount();
 
-    return CombineResult::kMerged;
+    return true;
 }
 
 GrDrawOp::FixedFunctionFlags GrDrawAtlasOp::fixedFunctionFlags() const {

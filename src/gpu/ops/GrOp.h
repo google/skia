@@ -31,11 +31,9 @@ class GrRenderTargetOpList;
  * subclasses complete freedom to decide how/when to combine in order to produce fewer draw calls
  * and minimize state changes.
  *
- * Ops of the same subclass may be merged or chained using combineIfPossible. When two ops merge,
- * one takes on the union of the data and the other is left empty. The merged op becomes responsible
- * for drawing the data from both the original ops. When ops are chained each op maintains its own
- * data but they are linked in a list and the head op becomes responsible for executing the work for
- * the chain.
+ * Ops of the same subclass may be merged using combineIfPossible. When two ops merge, one takes on
+ * the union of the data and the other op will be destroyed. The merged op becomes responsible for
+ * drawing the data from both the original ops.
  *
  * The bounds of the op must contain all the vertices in device space *irrespective* of the clip.
  * The bounds are used in determining which clip elements must be applied and thus the bounds cannot
@@ -87,27 +85,7 @@ public:
         // This default implementation assumes the op has no proxies
     }
 
-    enum class CombineResult {
-        /**
-         * The op that combineIfPossible was called on now represents its own work plus that of
-         * the passed op. The passed op should be destroyed without being flushed. Currently it
-         * is not legal to merge an op passed to combineIfPossible() the passed op is already in a
-         * chain (though the op on which combineIfPossible() was called may be).
-         */
-        kMerged,
-        /**
-         * The caller *may* (but is not required) to chain these ops together. If they are chained
-         * then prepare() and execute() will be called on the head op but not the other ops in the
-         * chain. The head op will prepare and execute on behalf of all the ops in the chain.
-         */
-        kMayChain,
-        /**
-         * The ops cannot be combined.
-         */
-        kCannotCombine
-    };
-
-    CombineResult combineIfPossible(GrOp* that, const GrCaps& caps);
+    bool combineIfPossible(GrOp* that, const GrCaps& caps);
 
     const SkRect& bounds() const {
         SkASSERT(kUninitialized_BoundsFlag != fBoundsFlags);
@@ -186,45 +164,6 @@ public:
         return string;
     }
 
-    /**
-     * A helper for iterating over an op chain in a range for loop that also downcasts to a GrOp
-     * subclass. E.g.:
-     *     for (MyOpSubClass& op : ChainRange<MyOpSubClass>(this)) {
-     *         // ...
-     *     }
-     */
-    template <typename OpSubclass> class ChainRange {
-    private:
-        class Iter {
-        public:
-            explicit Iter(const GrOp* head) : fCurr(head) {}
-            inline Iter& operator++() { return *this = Iter(fCurr->nextInChain()); }
-            const OpSubclass& operator*() const { return fCurr->cast<OpSubclass>(); }
-            bool operator!=(const Iter& that) const { return fCurr != that.fCurr; }
-
-        private:
-            const GrOp* fCurr;
-        };
-        const GrOp* fHead;
-
-    public:
-        explicit ChainRange(const GrOp* head) : fHead(head) {}
-        Iter begin() { return Iter(fHead); }
-        Iter end() { return Iter(nullptr); }
-    };
-
-    void setNextInChain(GrOp*);
-    /** Returns true if this is the head of a chain (including a length 1 chain). */
-    bool isChainHead() const { return !fChainHead || (fChainHead == this); }
-    /** Gets the head op of the chain. */
-    const GrOp* chainHead() const { return fChainHead ? fChainHead : this; }
-    /** Returns true if this is the tail of a chain (including a length 1 chain). */
-    bool isChainTail() const { return !fNextInChain; }
-    /** Returns true if this is part of chain with length > 1. */
-    bool isChained() const { return SkToBool(fChainHead); }
-    /** The next op in the chain. */
-    const GrOp* nextInChain() const { return fNextInChain; }
-
 #ifdef SK_DEBUG
     virtual void validate() const {}
 #endif
@@ -277,9 +216,7 @@ private:
         return fBounds.joinPossiblyEmptyRect(that.fBounds);
     }
 
-    virtual CombineResult onCombineIfPossible(GrOp*, const GrCaps&) {
-        return CombineResult::kCannotCombine;
-    }
+    virtual bool onCombineIfPossible(GrOp*, const GrCaps&) { return false; }
 
     virtual void onPrepare(GrOpFlushState*) = 0;
     virtual void onExecute(GrOpFlushState*) = 0;
@@ -311,8 +248,6 @@ private:
         SkDEBUGCODE(kUninitialized_BoundsFlag   = 0x4)
     };
 
-    GrOp*                               fNextInChain = nullptr;
-    GrOp*                               fChainHead = nullptr;    // null if this is not in a chain.
     const uint16_t                      fClassID;
     uint16_t                            fBoundsFlags;
 

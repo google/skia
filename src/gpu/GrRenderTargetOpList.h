@@ -171,8 +171,8 @@ private:
 
     void forwardCombine(const GrCaps&);
 
-    GrOp::CombineResult combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
-                                          const DstProxy* bDstTexture, const GrCaps&);
+    bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
+                           const DstProxy* bDstTexture, const GrCaps&);
 
     uint32_t                       fLastClipStackGenID;
     SkIRect                        fLastDevClipBounds;

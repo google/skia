@@ -439,47 +439,47 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     flushInfo->fGlyphsToFlush = 0;
 }
 
-GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
     if (fProcessors != that->fProcessors) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (!fCanCombineOnTouchOrOverlap && GrRectsTouchOrOverlap(this->bounds(), that->bounds())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (fMaskType != that->fMaskType) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     const SkMatrix& thisFirstMatrix = fGeoData[0].fViewMatrix;
     const SkMatrix& thatFirstMatrix = that->fGeoData[0].fViewMatrix;
 
     if (this->usesLocalCoords() && !thisFirstMatrix.cheapEqualTo(thatFirstMatrix)) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (fNeedsGlyphTransform != that->fNeedsGlyphTransform) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (fNeedsGlyphTransform &&
         (thisFirstMatrix.hasPerspective() != thatFirstMatrix.hasPerspective())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (this->usesDistanceFields()) {
         if (fDFGPFlags != that->fDFGPFlags) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fLuminanceColor != that->fLuminanceColor) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
     } else {
         if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
     }
 
@@ -488,7 +488,7 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
     static const int kVertexSize = sizeof(SkPoint) + sizeof(SkColor) + 2 * sizeof(uint16_t);
     static const int kMaxGlyphs = 32768 / (kVerticesPerGlyph * kVertexSize);
     if (this->fNumGlyphs + that->fNumGlyphs > kMaxGlyphs) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     fNumGlyphs += that->numGlyphs();
@@ -517,7 +517,7 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
     that->fGeoCount = 0;
     fGeoCount = newGeoCount;
 
-    return CombineResult::kMerged;
+    return true;
 }
 
 // TODO trying to figure out why lcd is so whack

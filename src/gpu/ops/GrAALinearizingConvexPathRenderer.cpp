@@ -318,14 +318,14 @@ private:
         sk_free(indices);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAFlatteningConvexPathOp* that = t->cast<AAFlatteningConvexPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
-        return CombineResult::kMerged;
+        return true;
     }
 
     const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }

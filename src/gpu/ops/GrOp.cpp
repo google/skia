@@ -33,34 +33,13 @@ GrOp::GrOp(uint32_t classID) : fClassID(classID) {
 
 GrOp::~GrOp() {}
 
-GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, const GrCaps& caps) {
+bool GrOp::combineIfPossible(GrOp* that, const GrCaps& caps) {
     if (this->classID() != that->classID()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
-    SkDEBUGCODE(bool thatWasChained = that->isChained());
-    auto result = this->onCombineIfPossible(that, caps);
-    // Merging a chained 'that' would cause problems given the way op lists currently manage chains.
-    SkASSERT(!(thatWasChained && result == CombineResult::kMerged));
-    if (result == CombineResult::kMerged) {
+    if (this->onCombineIfPossible(that, caps)) {
         this->joinBounds(*that);
-        if (fChainHead) {
-            fChainHead->joinBounds(*that);
-        }
+        return true;
     }
-    return result;
-}
-
-void GrOp::setNextInChain(GrOp* next) {
-    SkASSERT(next);
-    SkASSERT(this->classID() == next->classID());
-    // Each op begins life as a 1 element list. We assume lists are appended only with
-    SkASSERT(this->isChainTail());
-    SkASSERT(!next->isChained());
-    if (!fChainHead) {
-        // We were using null to mark 'this' as unchained. Now 'this' is the head of the new chain.
-        fChainHead = this;
-    }
-    fNextInChain = next;
-    fChainHead->joinBounds(*next);
-    next->fChainHead = this->fChainHead;
+    return false;
 }

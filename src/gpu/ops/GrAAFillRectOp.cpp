@@ -294,15 +294,15 @@ private:
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAFillRectOp* that = t->cast<AAFillRectOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fRectData.push_back_n(that->fRectData.count(), that->fRectData.begin());
         fRectCnt += that->fRectCnt;
-        return CombineResult::kMerged;
+        return true;
     }
 
     struct RectInfo {

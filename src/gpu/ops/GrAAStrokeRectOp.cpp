@@ -227,7 +227,7 @@ private:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool miterStroke() const { return fMiterStroke; }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     void generateAAStrokeRectGeometry(void* vertices,
                                       size_t offset,
@@ -405,26 +405,26 @@ sk_sp<const GrBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourc
     }
 }
 
-GrOp::CombineResult AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     AAStrokeRectOp* that = t->cast<AAStrokeRectOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     // TODO combine across miterstroke changes
     if (this->miterStroke() != that->miterStroke()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
     // local coords then we won't be able to combine. TODO: Upload local coords as an attribute.
     if (fHelper.usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     fRects.push_back_n(that->fRects.count(), that->fRects.begin());
-    return CombineResult::kMerged;
+    return true;
 }
 
 static void setup_scale(int* scale, SkScalar inset) {

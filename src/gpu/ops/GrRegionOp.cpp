@@ -147,18 +147,18 @@ private:
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         RegionOp* that = t->cast<RegionOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fViewMatrix != that->fViewMatrix) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fRegions.push_back_n(that->fRegions.count(), that->fRegions.begin());
-        return CombineResult::kMerged;
+        return false;
     }
 
     struct RegionInfo {

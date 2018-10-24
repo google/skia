@@ -699,39 +699,39 @@ private:
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DashOp* that = t->cast<DashOp>();
         if (fProcessorSet != that->fProcessorSet) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
         if (fDisallowCombineOnTouchOrOverlap &&
             GrRectsTouchOrOverlap(this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->aaMode() != that->aaMode()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->fullDash() != that->fullDash()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->cap() != that->cap()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // TODO vertex color
         if (this->color() != that->color()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fUsesLocalCoords && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fLines.push_back_n(that->fLines.count(), that->fLines.begin());
-        return CombineResult::kMerged;
+        return true;
     }
 
     GrColor color() const { return fColor; }
