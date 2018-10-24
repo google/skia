@@ -25,6 +25,7 @@
 
 class SkBitmap;
 class SkCanvas;
+class SkFont;
 class SkFontStyle;
 class SkImage;
 class SkPaint;
@@ -66,6 +67,8 @@ namespace sk_tool_utils {
      * Sets the paint to use a platform-independent text renderer
      */
     void set_portable_typeface(SkPaint* paint, const char* name = nullptr,
+                               SkFontStyle style = SkFontStyle());
+    void set_portable_typeface(SkFont* font, const char* name = nullptr,
                                SkFontStyle style = SkFontStyle());
 
     /**

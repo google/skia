@@ -19,6 +19,7 @@
 #define SkTextBlob_DEFINED
 
 #include "../private/SkTemplates.h"
+#include "SkFont.h"
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkRefCnt.h"
@@ -27,6 +28,8 @@
 
 struct SkSerialProcs;
 struct SkDeserialProcs;
+
+#define SK_SUPPORT_LEGACY_TEXTBLOBBUILDER_PAINT
 
 /** \class SkTextBlob
     SkTextBlob combines multiple text runs into an immutable container. Each text
@@ -245,7 +248,7 @@ public:
         @param bounds  optional run bounding box
         @return        writable glyph buffer
     */
-    const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
+    const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y,
                               const SkRect* bounds = nullptr) {
         return this->allocRunText(font, count, x, y, 0, SkString(), bounds);
     }
@@ -269,13 +272,13 @@ public:
         bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
         is computed from y, RunBuffer.pos(), and RunBuffer.glyphs() SkPaint::FontMetrics.
 
-        @param font    SkPaint used for this run
+        @param font    SkFont used for this run
         @param count   number of glyphs
         @param y       vertical offset within the blob
         @param bounds  optional run bounding box
         @return        writable glyph buffer and x-axis position buffer
     */
-    const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
+    const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y,
                                   const SkRect* bounds = nullptr) {
         return this->allocRunTextPosH(font, count, y, 0, SkString(), bounds);
     }
@@ -299,30 +302,40 @@ public:
         bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
         is computed from RunBuffer.pos(), and RunBuffer.glyphs() SkPaint::FontMetrics.
 
-        @param font    SkPaint used for this run
+        @param font    SkFont used for this run
         @param count   number of glyphs
         @param bounds  optional run bounding box
         @return        writable glyph buffer and SkPoint buffer
     */
-    const RunBuffer& allocRunPos(const SkPaint& font, int count,
+    const RunBuffer& allocRunPos(const SkFont& font, int count,
                                  const SkRect* bounds = nullptr) {
         return this->allocRunTextPos(font, count, 0, SkString(), bounds);
     }
 
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOBBUILDER_PAINT
+    const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
+                              const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunPosH(const SkPaint& paint, int count, SkScalar y,
+                                  const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunPos(const SkPaint& font, int count,
+                                 const SkRect* bounds = nullptr);
+#endif
+
 private:
-    const RunBuffer& allocRunText(const SkPaint& font,
+    const RunBuffer& allocRunText(const SkFont& font,
                                   int count,
                                   SkScalar x,
                                   SkScalar y,
                                   int textByteCount,
                                   SkString lang,
                                   const SkRect* bounds = nullptr);
-    const RunBuffer& allocRunTextPosH(const SkPaint& font, int count, SkScalar y,
+    const RunBuffer& allocRunTextPosH(const SkFont& font, int count, SkScalar y,
                                       int textByteCount, SkString lang,
                                       const SkRect* bounds = nullptr);
-    const RunBuffer& allocRunTextPos(const SkPaint& font, int count,
+    const RunBuffer& allocRunTextPos(const SkFont& font, int count,
                                      int textByteCount, SkString lang,
                                      const SkRect* bounds = nullptr);
+
     void reserve(size_t size);
     void allocInternal(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
                        int count, int textBytes, SkPoint offset, const SkRect* bounds);

@@ -39,16 +39,35 @@ public:
         kLinearMetrics_Flag         = 1 << 3,
         kEmbolden_Flag              = 1 << 4,
 
-        kHinting_FlagShift          = 5,
-        kHinting_FlagMask           = 3,    // 2 bits
-
-        kDEPRECATED_Antialias_Flag  = 1 << 7,   // want to rely on paint for this
-        kDEPRECATED_LCDRender_Flag  = 1 << 8,   // and this
+        kDEPRECATED_Antialias_Flag  = 1 << 5,
+        kDEPRECATED_LCDRender_Flag  = 1 << 6,
     };
 
+    enum Hinting {
+        kNo_Hinting     = 0, //!< glyph outlines unchanged
+        kSlight_Hinting = 1, //!< minimal modification to improve constrast
+        kNormal_Hinting = 2, //!< glyph outlines modified to improve constrast
+        kFull_Hinting   = 3, //!< modifies glyph outlines for maximum constrast
+    };
+
+    SkFont();
     SkFont(sk_sp<SkTypeface>, SkScalar size, uint32_t flags);
     SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, uint32_t flags,
            int align = 0);
+
+    bool isForceAutoHinting() const { return SkToBool(fFlags & kForceAutoHinting_Flag); }
+    bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_Flag); }
+    bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_Flag); }
+    bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_Flag); }
+    bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_Flag); }
+    Hinting getHinting() const { return (Hinting)fHinting; }
+
+    void setForceAutoHinting(bool);
+    void setEmbeddedBitmaps(bool);
+    void setSubpixel(bool);
+    void setLinearMetrics(bool);
+    void setEmbolden(bool);
+    void setHinting(Hinting);
 
     /**
      *  Return a font with the same attributes of this font, but with the specified size.
@@ -69,7 +88,7 @@ public:
 
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
-    void setTypeface(sk_sp<SkTypeface>);
+    void setTypeface(sk_sp<SkTypeface> tf) { fTypeface = tf; }
     void setSize(SkScalar);
     void setScaleX(SkScalar);
     void setSkewX(SkScalar);
@@ -88,14 +107,15 @@ public:
     static SkFont LEGACY_ExtractFromPaint(const SkPaint&);
 
 private:
-    static constexpr unsigned kAllFlags = 0x01FF;
+    static constexpr unsigned kAllFlags = 0x07F;
 
     sk_sp<SkTypeface> fTypeface;
     SkScalar    fSize;
     SkScalar    fScaleX;
     SkScalar    fSkewX;
-    uint16_t    fFlags;
-    uint8_t     fAlign; // try to remove this
+    uint8_t     fFlags;
+    uint8_t     fAlign;
+    uint8_t     fHinting;
 };
 
 #endif
