@@ -704,8 +704,8 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
         xformBuffer.reset(new uint32_t[dstInfo.width()]);
     }
 
-    std::unique_ptr<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(
-            this->getEncodedInfo(), nullptr, swizzlerInfo, options));
+    std::unique_ptr<SkSwizzler> swizzler = SkSwizzler::Make(
+            this->getEncodedInfo(), nullptr, swizzlerInfo, options);
     SkASSERT(swizzler);
 
     const int width = dstInfo.width();

@@ -312,8 +312,12 @@ void SkHeifCodec::initializeSwizzler(
         swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_8888_SkColorType);
     }
 
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), nullptr,
-            swizzlerDstInfo, options, nullptr, true));
+    int srcBPP = 4;
+    if (dstInfo.colorType() == kRGB_565_SkColorType && !this->colorXform()) {
+        srcBPP = 2;
+    }
+
+    fSwizzler = SkSwizzler::MakeSimple(srcBPP, swizzlerDstInfo, options);
     SkASSERT(fSwizzler);
 }
 

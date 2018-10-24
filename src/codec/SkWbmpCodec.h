@@ -33,11 +33,6 @@ protected:
     // No need to Xform; all pixels are either black or white.
     bool usesColorXform() const override { return false; }
 private:
-    /*
-     * Returns a swizzler on success, nullptr on failure
-     */
-    SkSwizzler* initializeSwizzler(const SkImageInfo& info,
-                                   const Options& opts);
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler || !createIfNecessary);
         return fSwizzler.get();
