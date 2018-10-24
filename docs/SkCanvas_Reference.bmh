@@ -28,12 +28,8 @@ destination.
 Canvas can be constructed to draw to Bitmap without first creating Raster_Surface.
 This approach may be deprecated in the future.
 
-#Subtopic Constructors
-
-Create the desired type of Surface to obtain its Canvas when possible. Useful
-when no Surface is required, and some helpers implicitly create Raster_Surface.
-
-##
+Canvas may be created directly when no Surface is required; some Canvas methods
+implicitly create Raster_Surface.
 
 # ------------------------------------------------------------------------------
 

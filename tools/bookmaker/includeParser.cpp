@@ -1854,7 +1854,9 @@ Definition* IncludeParser::findMethod(const Definition& bmhDef) {
     auto& iTokens = iClass->second.fTokens;
     const auto& iMethod = std::find_if(iTokens.begin(), iTokens.end(),
             [methodName](Definition& token) {
-            return MarkType::kMethod == token.fMarkType && methodName == token.fName; } );
+            return MarkType::kMethod == token.fMarkType
+                    && (methodName == token.fName
+                    || methodName == token.fName + "()"); } );
     SkASSERT(iTokens.end() != iMethod);
     return &*iMethod;
 }
