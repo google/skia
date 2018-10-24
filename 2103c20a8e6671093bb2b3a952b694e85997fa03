@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "edf24d00_e3c6e4d9",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-24T17:52:53Z",
+      "side": 1,
+      "message": "With the scale being 4095, the actual range is ~\u003d -8.00195 .. 8.00171",
+      "parentUuid": "a01eae10_96dd61ca",
+      "range": {
+        "startLine": 158,
+        "startChar": 24,
+        "endLine": 158,
+        "endChar": 31
+      },
+      "revId": "2103c20a8e6671093bb2b3a952b694e85997fa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7af4bc2d_8304c91f",
         "filename": "include/private/GrColor.h",
         "patchSetId": 10
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d4290ce1_5a4f4a2d",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-24T17:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af4bc2d_8304c91f",
+      "range": {
+        "startLine": 163,
+        "startChar": 71,
+        "endLine": 163,
+        "endChar": 78
+      },
+      "revId": "2103c20a8e6671093bb2b3a952b694e85997fa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c52a872b_2b908af6",
         "filename": "include/private/GrColor.h",
         "patchSetId": 10
@@ -62,6 +110,24 @@
       "revId": "2103c20a8e6671093bb2b3a952b694e85997fa03",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf20b5eb_253a8669",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-24T17:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c52a872b_2b908af6",
+      "revId": "2103c20a8e6671093bb2b3a952b694e85997fa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
