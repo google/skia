@@ -67,7 +67,9 @@ protected:
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&textPaint);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         textPaint.setTextAlign(SkPaint::kCenter_Align);
+#endif
 
         sk_tool_utils::draw_checkerboard(canvas,
                                          kWhite,

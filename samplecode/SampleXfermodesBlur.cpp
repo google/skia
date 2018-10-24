@@ -131,7 +131,9 @@ protected:
         SkPaint labelP;
         labelP.setAntiAlias(true);
         labelP.setLCDRenderText(true);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         labelP.setTextAlign(SkPaint::kCenter_Align);
+#endif
         setNamedTypeface(&labelP, "Menlo Regular");
 
         const int W = 5;

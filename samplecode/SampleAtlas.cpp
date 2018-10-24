@@ -50,7 +50,9 @@ static sk_sp<SkImage> make_atlas(int atlasSize, int cellSize) {
     const SkScalar half = cellSize * SK_ScalarHalf;
     const char* s = "01234567890!@#$%^&*=+<>?abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     paint.setTextSize(28);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     paint.setTextAlign(SkPaint::kCenter_Align);
+#endif
     int i = 0;
     for (int y = 0; y < atlasSize; y += cellSize) {
         for (int x = 0; x < atlasSize; x += cellSize) {

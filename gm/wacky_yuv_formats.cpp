@@ -621,7 +621,9 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace+1);
 
     SkPaint textPaint;
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     textPaint.setTextAlign(SkPaint::kCenter_Align);
+#endif
     sk_tool_utils::set_portable_typeface(&textPaint, nullptr, SkFontStyle::Bold());
     textPaint.setTextSize(16);
 
@@ -646,7 +648,6 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVFormatNames) == kLast_YUVFormat+1);
 
     SkPaint textPaint;
-    textPaint.setTextAlign(SkPaint::kLeft_Align);
     sk_tool_utils::set_portable_typeface(&textPaint, nullptr, SkFontStyle::Bold());
     textPaint.setTextSize(16);
 
