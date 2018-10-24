@@ -11,20 +11,73 @@
 #include "SkTypeface.h"
 #include "SkUTF.h"
 
+#define kDefault_Size       12
+#define kDefault_Flags      0
+#define kDefault_Hinting    SkFont::kNormal_Hinting
+
+static inline SkScalar valid_size(SkScalar size) {
+    return SkTMax<SkScalar>(0, size);
+}
+
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar skewX,
                uint32_t flags, int align)
     : fTypeface(face ? std::move(face) : SkTypeface::MakeDefault())
-    , fSize(SkTMax<SkScalar>(0, size))
+    , fSize(valid_size(size))
     , fScaleX(scaleX)
     , fSkewX(skewX)
     , fFlags(flags & kAllFlags)
     , fAlign(SkToU8(align))
+    , fHinting(kDefault_Hinting)
 {
     SkASSERT(align >= 0 && align <= 2);
 }
 
+SkFont::SkFont() : SkFont(nullptr, kDefault_Size, 1, 0, kDefault_Flags, 0)
+{}
+
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, uint32_t flags)
     : SkFont(std::move(face), size, 1, 0, flags) {}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
+    return cond ? bits | mask : bits & ~mask;
+}
+
+void SkFont::setForceAutoHinting(bool predicate) {
+    fFlags = set_clear_mask(fFlags, predicate, kForceAutoHinting_Flag);
+}
+void SkFont::setEmbeddedBitmaps(bool predicate) {
+    fFlags = set_clear_mask(fFlags, predicate, kEmbeddedBitmaps_Flag);
+}
+void SkFont::setSubpixel(bool predicate) {
+    fFlags = set_clear_mask(fFlags, predicate, kSubpixel_Flag);
+}
+void SkFont::setLinearMetrics(bool predicate) {
+    fFlags = set_clear_mask(fFlags, predicate, kLinearMetrics_Flag);
+}
+void SkFont::setEmbolden(bool predicate) {
+    fFlags = set_clear_mask(fFlags, predicate, kEmbolden_Flag);
+}
+
+void SkFont::setHinting(Hinting h) {
+    fHinting = SkToU8(h);
+}
+
+void SkFont::setSize(SkScalar size) {
+    fSize = valid_size(size);
+}
+void SkFont::setScaleX(SkScalar scale) {
+    fScaleX = scale;
+}
+void SkFont::setSkewX(SkScalar skew) {
+    fSkewX = skew;
+}
+void SkFont::setFlags(uint32_t flags) {
+    fFlags = flags & kAllFlags;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkFont SkFont::makeWithSize(SkScalar newSize) const {
     return {this->refTypeface(), newSize, this->getScaleX(), this->getSkewX(), this->getFlags()};
@@ -106,12 +159,10 @@ void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
     paint->setAutohinted(SkToBool(fFlags & kForceAutoHinting_Flag));
     paint->setSubpixelText(SkToBool(fFlags & kSubpixel_Flag));
     paint->setLinearText(SkToBool(fFlags & kLinearMetrics_Flag));
-
-    unsigned hinting = (fFlags >> kHinting_FlagShift) & kHinting_FlagMask;
-    paint->setHinting((SkPaint::Hinting)hinting);
-
     paint->setAntiAlias(SkToBool(fFlags & kDEPRECATED_Antialias_Flag));
     paint->setLCDRenderText(SkToBool(fFlags & kDEPRECATED_LCDRender_Flag));
+
+    paint->setHinting((SkPaint::Hinting)this->getHinting());
 
     paint->setTextAlign((SkPaint::Align)fAlign);
 }
@@ -141,9 +192,8 @@ SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
         flags |= kDEPRECATED_LCDRender_Flag;
     }
 
-    unsigned hinting = (unsigned)paint.getHinting();
-    flags |= (hinting << kHinting_FlagShift);
-
-    return SkFont(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
+    SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
                 paint.getTextSkewX(), flags, (int)paint.getTextAlign());
+    font.setHinting((Hinting)paint.getHinting());
+    return font;
 }
