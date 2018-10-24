@@ -50,6 +50,7 @@
 #include "SkVertState.h"
 #include "SkVertices.h"
 #include "SkWritePixelsRec.h"
+#include "SkYUVAIndex.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
@@ -1274,6 +1275,12 @@ void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y, const 
     ASSERT_SINGLE_OWNER
     SkMatrix viewMatrix = this->ctm();
     viewMatrix.preTranslate(x, y);
+    if (as_IB(image)->isYUVA()) {
+        GrYUVAImageTextureMaker maker(fContext.get(), image);
+        this->drawTextureProducer(&maker, nullptr, nullptr,
+                                  SkCanvas::kFast_SrcRectConstraint, viewMatrix, paint);
+        return;
+    }
     uint32_t pinnedUniqueID;
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
         this->drawPinnedTextureProxy(std::move(proxy), pinnedUniqueID, as_IB(image)->colorSpace(),
