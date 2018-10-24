@@ -293,7 +293,6 @@ void SkRasterPipeline::append_gamut_clamp_if_normalized(const SkImageInfo& dstIn
 }
 
 SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) const {
-#ifndef SK_JUMPER_DISABLE_8BIT
     // We'll try to build a lowp pipeline, but if that fails fallback to a highp float pipeline.
     void** reset_point = ip;
 
@@ -314,7 +313,6 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
     if (ip != reset_point) {
         return SkOpts::start_pipeline_lowp;
     }
-#endif
 
     *--ip = (void*)SkOpts::just_return_highp;
     for (const StageList* st = fStages; st; st = st->prev) {

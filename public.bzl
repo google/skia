@@ -608,7 +608,7 @@ def base_defines(os_conditions):
         # Should remove after we update golden images
         "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
         # Experiment to diagnose image diffs in Google3
-        "SK_JUMPER_DISABLE_8BIT",
+        "SK_DISABLE_LOWP_RASTER_PIPELINE",
         # JPEG is in codec_limited
         "SK_HAS_JPEG_LIBRARY",
     ] + skia_select(
