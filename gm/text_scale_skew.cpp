@@ -12,7 +12,9 @@ DEF_SIMPLE_GM(text_scale_skew, canvas, 256, 128) {
     SkPaint p;
     p.setTextSize(18.0f);
     p.setAntiAlias(true);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     p.setTextAlign(SkPaint::kCenter_Align);
+#endif
     float y = 10.0f;
     for (float scale : { 0.5f, 0.71f, 1.0f, 1.41f, 2.0f }) {
         p.setTextScaleX(scale);

@@ -604,9 +604,11 @@ void SkSVGDevice::AutoElement::addPathAttributes(const SkPath& path) {
 void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
     this->addAttribute("font-size", paint.getTextSize());
 
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     if (const char* textAlign = svg_text_align(paint.getTextAlign())) {
         this->addAttribute("text-anchor", textAlign);
     }
+#endif
 
     SkString familyName;
     SkTHashSet<SkString> familySet;

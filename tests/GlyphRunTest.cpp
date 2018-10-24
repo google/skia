@@ -61,7 +61,6 @@ DEF_TEST(GlyphRunBlob, reporter) {
     SkPaint font;
     font.setTypeface(tf);
     font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    font.setTextAlign(SkPaint::kLeft_Align);
     font.setStyle(SkPaint::kFill_Style);
     font.setHinting(SkPaint::kNormal_Hinting);
     font.setTextSize(1u);
