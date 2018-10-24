@@ -668,6 +668,10 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::getGlyphMetrics(
     SkPackedGlyphID packedGlyphID = fIsSubpixel ? SkPackedGlyphID{glyphID, lookupPoint}
                                                 : SkPackedGlyphID{glyphID};
 
+    if (fCachedGlyphImages.contains(packedGlyphID)) {
+        return SkGlyph::ImpossibleGlyph();
+    }
+
     return this->findGlyph(packedGlyphID);
 }
 
