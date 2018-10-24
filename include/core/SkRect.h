@@ -887,7 +887,7 @@ struct SK_API SkRect {
     /** Returns average of left edge and right edge. Result does not change if SkRect
         is sorted. Result may overflow to infinity if SkRect is far from the origin.
 
-        @return  midpoint in x
+        @return  midpoint on x-axis
     */
     SkScalar centerX() const {
         // don't use SkScalarHalf(fLeft + fBottom) as that might overflow before the 0.5
@@ -897,7 +897,7 @@ struct SK_API SkRect {
     /** Returns average of top edge and bottom edge. Result does not change if SkRect
         is sorted.
 
-        @return  midpoint in y
+        @return  midpoint on y-axis
     */
     SkScalar centerY() const {
         // don't use SkScalarHalf(fTop + fBottom) as that might overflow before the 0.5

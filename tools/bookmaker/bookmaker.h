@@ -21,6 +21,13 @@
 #include <unordered_map>
 #include <vector>
 
+#define FPRINTF(...)                \
+    if (fDebugOut) {                \
+        SkDebugf(__VA_ARGS__);      \
+    }                               \
+    fprintf(fOut, __VA_ARGS__)
+
+
 // std::to_string isn't implemented on android
 #include <sstream>
 
@@ -290,6 +297,19 @@ public:
         return nullptr;
     }
 
+    bool back(const char* pattern) {
+        size_t len = strlen(pattern);
+        const char* start = fChar - len;
+        if (start <= fStart) {
+            return false;
+        }
+        if (strncmp(start, pattern, len)) {
+            return false;
+        }
+        fChar = start;
+        return true;
+    }
+
     char backup(const char* pattern) const {
         size_t len = strlen(pattern);
         const char* start = fChar - len;
@@ -300,6 +320,12 @@ public:
             return '\0';
         }
         return start[-1];
+    }
+
+    void backupWord() {
+        while (fChar > fStart && isalpha(fChar[-1])) {
+            --fChar;
+        }
     }
 
     bool contains(const char* match, const char* lineEnd, const char** loc) const {
@@ -1219,9 +1245,10 @@ public:
     }
 
     void checkLineLength(size_t len, const char* str);
+    static string ConvertRef(const string str, bool first);
     static void CopyToFile(string oldFile, string newFile);
-
     static char* FindDateTime(char* buffer, int size);
+    static string HtmlFileName(string bmhFileName);
 
     void indentIn(IndentKind kind) {
         fIndent += 4;
@@ -1239,10 +1266,7 @@ public:
         SkASSERT(column >= fColumn);
         SkASSERT(!fReturnOnWrite);
         SkASSERT(column < 80);
-        if (fDebugOut) {
-            SkDebugf("%*s", column - fColumn, "");
-        }
-        fprintf(fOut, "%*s", column - fColumn, "");
+        FPRINTF("%*s", column - fColumn, "");
         fColumn = column;
         fSpaces += column - fColumn;
     }
@@ -1384,6 +1408,7 @@ public:
     vector<IndentState> fIndentStack;
     Definition* fParent;
     FILE* fOut;
+    string fRawFilePathDir;
     int fLinefeeds;    // number of linefeeds last written, zeroed on non-space
     int fMaxLF;        // number of linefeeds allowed
     int fPendingLF;    // number of linefeeds to write (can be suppressed)
@@ -1455,6 +1480,7 @@ public:
         kLiteral, // output untouched
 		kClone,   // resolved, output, with references to clones as well
         kSimple,  // resolve simple words (used to resolve method declarations)
+        kInclude, // like simple, plus reverse resolve SkXXX to XXX
     };
 
     enum class ExampleOptions {
@@ -1480,9 +1506,14 @@ public:
         kYes,
     };
 
+    enum class Substitutes {
+        kLocal,
+        kGlobal,
+    };
+
     enum class TrimExtract {
         kNo,
-        kYes
+        kYes,
     };
 
     BmhParser(bool skip) : ParserCommon()
@@ -1558,6 +1589,12 @@ public:
         fCheckMethods = false;
     }
 
+    void setUpGlobalSubstitutes();
+    void setUpLocalSubstitutes(Definition* topic);
+    void setUpPartialSubstitute(string name);
+    void setUpSubstitute(string name, Definition* def);
+    static void SetUpSubstitutes(const Definition* parent, Substitutes sub,
+            unordered_map<string, string>& linkMap, unordered_map<string, Definition*>& refMap);
     void setWrapper(Definition* def) const;
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
@@ -1602,6 +1639,11 @@ public:
     unordered_map<string, Definition*> fTopicMap;
     unordered_map<string, Definition*> fAliasMap;
     unordered_map<string, Definition*> fPhraseMap;
+    unordered_map<string, string> fGlobalLinkMap;  // from SkRect to SkRect_Reference#Rect
+    unordered_map<string, string> fLocalLinkMap;   // from SkRect to #Rect
+    // ref map includes "xxx", "xxx ", "xxx yyy", "xxx zzz", etc.
+    unordered_map<string, Definition*> fRefMap;    // e.g., from #Substitute entry to #Topic entry
+    unordered_map<string, Definition*> fLocalRefMap;
     RootDefinition* fRoot;
     Definition* fWorkingColumn;
     Definition* fRow;
@@ -2363,9 +2405,6 @@ public:
         this->reset();
     }
 
-    void addOneLiner(const Definition* defTable, const Definition* child, bool hasLine,
-            bool lfAfter);
-
     bool parseFromFile(const char* path) override {
         if (!INHERITED::parseSetup(path)) {
             return false;
@@ -2377,20 +2416,10 @@ public:
         INHERITED::resetCommon();
     }
 
-    string searchTable(const Definition* tableHolder, const Definition* match);
-
-    void topicIter(const Definition* );
+    void replaceWithPop(const Definition* );
 
 private:
     const BmhParser& fBmhParser;
-    const Definition* fClasses;
-    const Definition* fConstants;
-    const Definition* fConstructors;
-    const Definition* fMemberFunctions;
-    const Definition* fMembers;
-    const Definition* fOperators;
-    const Definition* fRelatedFunctions;
-    const Definition* fStructs;
     bool hackFiles();
 
     typedef ParserCommon INHERITED;
@@ -2410,6 +2439,7 @@ public:
         , fIncludeParser(inc) {
         this->reset();
         this->addPopulators();
+        fBmhParser.setUpGlobalSubstitutes();
     }
 
     bool buildReferences(const char* docDir, const char* mdOutDirOrFile);
@@ -2430,6 +2460,7 @@ private:
 
     void addCodeBlock(const Definition* def, string& str) const;
     void addPopulators();
+    string addIncludeReferences(const char* refStart, const char* refEnd);
     string addReferences(const char* start, const char* end, BmhParser::Resolvable );
     string anchorDef(string def, string name);
     string anchorLocalRef(string ref, string name);
@@ -2522,6 +2553,8 @@ private:
     vector<const Definition*> fClassStack;
     unordered_map<string, vector<AnchorDef> > fAllAnchorDefs;
     unordered_map<string, vector<string> > fAllAnchorRefs;
+    unordered_map<string, Definition* > fParamRefMap;
+    unordered_map<string, string > fParamLinkMap;
 
     BmhParser& fBmhParser;
     IncludeParser& fIncludeParser;
@@ -2604,6 +2637,7 @@ public:
             }
         }
         if (BmhParser::Resolvable::kSimple != resolvable
+                && BmhParser::Resolvable::kInclude != resolvable
                 && (this->startsWith(name.c_str()) || this->startsWith("operator"))) {
             const char* ptr = this->anyOf("\n (");
             if (ptr && '(' ==  *ptr && strncmp(ptr, "(...", 4)) {
