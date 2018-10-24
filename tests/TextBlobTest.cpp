@@ -185,7 +185,9 @@ public:
         font.setTextScaleX(4.2f);
         font.setTypeface(SkTypeface::MakeDefault());
         font.setTextSkewX(0.42f);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         font.setTextAlign(SkPaint::kCenter_Align);
+#endif
         font.setHinting(SkPaint::kFull_Hinting);
         font.setAntiAlias(true);
         font.setFakeBoldText(true);

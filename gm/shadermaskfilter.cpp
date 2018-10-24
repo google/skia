@@ -108,7 +108,9 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     SkPaint labelP;
     labelP.setAntiAlias(true);
     labelP.setTextSize(20);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     labelP.setTextAlign(SkPaint::kCenter_Align);
+#endif
 
     const SkRect r2 = r.makeOutset(1.5f, 1.5f);
     SkPaint strokePaint;

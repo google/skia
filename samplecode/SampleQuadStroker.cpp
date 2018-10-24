@@ -504,7 +504,9 @@ protected:
         canvas->drawRect(button.fBounds, paint);
         paint.setTextSize(25.0f);
         paint.setColor(button.fEnabled ? 0xFF3F0000 : 0x6F3F0000);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         paint.setTextAlign(SkPaint::kCenter_Align);
+#endif
         paint.setStyle(SkPaint::kFill_Style);
         canvas->drawText(&button.fLabel, 1, button.fBounds.centerX(), button.fBounds.fBottom - 5,
                 paint);

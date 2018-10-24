@@ -42,7 +42,9 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     paint.setAntiAlias(true);
     sk_tool_utils::set_portable_typeface(&paint);
     paint.setTextSize(r.height()/2);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     paint.setTextAlign(SkPaint::kCenter_Align);
+#endif
     canvas->save();
     canvas->clipRect(r);
     canvas->drawString("Text", r.centerX(), r.centerY(), paint);

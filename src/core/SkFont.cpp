@@ -113,7 +113,9 @@ void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
     paint->setAntiAlias(SkToBool(fFlags & kDEPRECATED_Antialias_Flag));
     paint->setLCDRenderText(SkToBool(fFlags & kDEPRECATED_LCDRender_Flag));
 
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     paint->setTextAlign((SkPaint::Align)fAlign);
+#endif
 }
 
 SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {

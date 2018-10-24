@@ -879,12 +879,14 @@ public:
     */
     Align   getTextAlign() const { return (Align)fBitfields.fTextAlign; }
 
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     /** Sets SkPaint::Align to align.
         Has no effect if align is an invalid value.
 
         @param align  text placement relative to position
     */
     void    setTextAlign(Align align);
+#endif
 
     /** Returns text size in points.
 
