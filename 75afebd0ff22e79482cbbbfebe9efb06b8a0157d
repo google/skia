@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee9e14a5_098b071f",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-10-24T19:03:39Z",
+      "side": 1,
+      "message": "Is it possible to ever require a path for this glyph if an image has been sent before?",
+      "range": {
+        "startLine": 671,
+        "startChar": 8,
+        "endLine": 671,
+        "endChar": 50
+      },
+      "revId": "75afebd0ff22e79482cbbbfebe9efb06b8a0157d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
