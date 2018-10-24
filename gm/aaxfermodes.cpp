@@ -106,7 +106,9 @@ protected:
             canvas->save();
 
             if (kShape_Pass == drawingPass) {
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
                 fLabelPaint.setTextAlign(SkPaint::kCenter_Align);
+#endif
                 canvas->drawString("Src Unknown",
                         kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2,
                         kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
@@ -179,7 +181,9 @@ protected:
         SkPaint titlePaint(fLabelPaint);
         titlePaint.setTextSize(9 * titlePaint.getTextSize() / 8);
         titlePaint.setFakeBoldText(true);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         titlePaint.setTextAlign(SkPaint::kCenter_Align);
+#endif
         canvas->drawString("Porter Duff",
                          kLabelSpacing + 4 * kShapeTypeSpacing,
                          kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint);
@@ -193,7 +197,9 @@ protected:
 
     void drawModeName(SkCanvas* canvas, SkBlendMode mode) {
         const char* modeName = SkBlendMode_Name(mode);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         fLabelPaint.setTextAlign(SkPaint::kRight_Align);
+#endif
         canvas->drawString(modeName, kLabelSpacing - kShapeSize / 4,
                          fLabelPaint.getTextSize() / 4, fLabelPaint);
     }

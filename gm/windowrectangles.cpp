@@ -265,7 +265,9 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
 void WindowRectanglesMaskGM::fail(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     paint.setTextAlign(SkPaint::kCenter_Align);
+#endif
     paint.setTextSize(20);
     sk_tool_utils::set_portable_typeface(&paint);
 
