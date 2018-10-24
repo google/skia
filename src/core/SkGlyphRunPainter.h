@@ -212,18 +212,20 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
     const SkPoint* positionCursor = glyphRun.positions().data();
     for (auto glyphID : glyphRun.glyphsIDs()) {
         const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, {0, 0});
-        SkPoint glyphPos = origin + *positionCursor++;
-        if (glyph.fMaskFormat == SkMask::kSDF_Format || glyph.isEmpty()) {
-            if (!SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
-                perSDF(glyph, glyphPos);
+        if (glyph.getPackedID().value() != SkPackedID::kImpossibleID) {
+            SkPoint glyphPos = origin + *positionCursor++;
+            if (glyph.fMaskFormat == SkMask::kSDF_Format || glyph.isEmpty()) {
+                if (!SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
+                    perSDF(glyph, glyphPos);
+                } else {
+                    perPath(glyph, glyphPos);
+                }
             } else {
-                perPath(glyph, glyphPos);
+                SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
+                maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
+                fARGBGlyphsIDs.push_back(glyphID);
+                fARGBPositions.push_back(glyphPos);
             }
-        } else {
-            SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
-            maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
-            fARGBGlyphsIDs.push_back(glyphID);
-            fARGBPositions.push_back(glyphPos);
         }
     }
 

@@ -33,6 +33,7 @@ class SkGlyphCacheInterface {
 public:
     virtual ~SkGlyphCacheInterface() = default;
     virtual SkVector rounding() const = 0;
+    // If the glyph returned has the SkPackedID::kImpossibleID, ignore this glyph.
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
 };
 
