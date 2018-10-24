@@ -16,6 +16,24 @@
       "revId": "149381142b228754ddf323eb0cd6f699a53a7c2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0396b38a_5126c134",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-10-24T21:34:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fc89a0b_0f3fc7a6",
+      "revId": "149381142b228754ddf323eb0cd6f699a53a7c2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
