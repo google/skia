@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f99d1a3f_d96cc6ac",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-24T14:54:26Z",
+      "side": 1,
+      "message": "Why not just have this in GrColor4s?",
+      "revId": "9828fbb4cde2c9fb90ed5e786785eb46277b862e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b91ea3e2_0e6b1eec",
+        "filename": "tests/ColorTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-24T14:54:26Z",
+      "side": 1,
+      "message": "Ah! They don\u0027t!",
+      "revId": "9828fbb4cde2c9fb90ed5e786785eb46277b862e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
