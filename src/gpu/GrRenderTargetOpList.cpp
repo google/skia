@@ -366,7 +366,6 @@ uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(kMaxOpLookback, fRecordedOps.count());
-    int firstChainableIdx = -1;
     if (maxCandidates) {
         int i = 0;
         while (true) {
@@ -374,11 +373,7 @@ uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
             auto combineResult = this->combineIfPossible(candidate, op.get(), clip, dstProxy, caps);
             switch (combineResult) {
                 case GrOp::CombineResult::kMayChain:
-                    if (candidate.fOp->isChainTail() && firstChainableIdx < 0) {
-                        GrOP_INFO("\t\tBackward: Can chain with (%s, opID: %u)\n",
-                                  candidate.fOp->name(), candidate.fOp->uniqueID());
-                        firstChainableIdx = i;
-                    }
+                    // See skbug.com/8491 for an explanation of why op chaining is disabled.
                     break;
                 case GrOp::CombineResult::kMerged:
                     GrOP_INFO("\t\tBackward: Combining with (%s, opID: %u)\n",
@@ -391,11 +386,8 @@ uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                 case GrOp::CombineResult::kCannotCombine:
                     break;
             }
-            // Stop going backwards if we would cause a painter's order violation. We only need to
-            // test against chain heads as elements of a chain always draw in their chain head's
-            // slot.
-            if (candidate.fOp->isChainHead() &&
-                !can_reorder(candidate.fOp->bounds(), op->bounds())) {
+            // Stop going backwards if we would cause a painter's order violation.
+            if (!can_reorder(candidate.fOp->bounds(), op->bounds())) {
                 GrOP_INFO("\t\tBackward: Intersects with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
@@ -414,50 +406,18 @@ uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
     }
-    if (firstChainableIdx >= 0) {
-        // If we chain this op it will draw in the slot of the head of the chain. We have to check
-        // that the new op's bounds don't intersect any of the other ops between firstChainableIdx
-        // and the head of that op's chain. We only need to test against chain heads as elements of
-        // a chain always draw in their chain head's slot.
-        const GrOp* chainHead = fRecordedOps.fromBack(firstChainableIdx).fOp->chainHead();
-        int idx = firstChainableIdx;
-        bool chain = true;
-        while (fRecordedOps.fromBack(idx).fOp.get() != chainHead) {
-            // If idx is not in the same chain then we have to check against its bounds as we will
-            // draw before it (when chainHead draws).
-            const GrOp* testOp = fRecordedOps.fromBack(idx).fOp.get();
-            if (testOp->isChainHead() && !can_reorder(testOp->bounds(), op->bounds())) {
-                GrOP_INFO("\t\tBackward: Intersects with (%s, opID: %u). Cannot chain.\n",
-                          testOp->name(), testOp->uniqueID());
-                chain = false;
-                break;
-            }
-            ++idx;
-            // We must encounter the chain head before running off the beginning of the list.
-            SkASSERT(idx < fRecordedOps.count());
-        }
-        if (chain) {
-            GrOp* prevOp = fRecordedOps.fromBack(firstChainableIdx).fOp.get();
-            GrOP_INFO("\t\t\tBackward: Chained to (%s, opID: %u)\n", prevOp->name(),
-                      prevOp->uniqueID());
-            prevOp->setNextInChain(op.get());
-        }
-    }
     fRecordedOps.emplace_back(std::move(op), clip, dstProxy);
     return this->uniqueID();
 }
 
 void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
     SkASSERT(!this->isClosed());
-
     GrOP_INFO("opList: %d ForwardCombine %d ops:\n", this->uniqueID(), fRecordedOps.count());
 
     for (int i = 0; i < fRecordedOps.count() - 1; ++i) {
         GrOp* op = fRecordedOps[i].fOp.get();
-
         int maxCandidateIdx = SkTMin(i + kMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
-        int firstChainableIdx = -1;
         while (true) {
             const RecordedOp& candidate = fRecordedOps[j];
             auto combineResult =
@@ -465,12 +425,7 @@ void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
                                             candidate.fAppliedClip, &candidate.fDstProxy, caps);
             switch (combineResult) {
                 case GrOp::CombineResult::kMayChain:
-                    if (firstChainableIdx < 0 && !fRecordedOps[i].fOp->isChained() &&
-                        !fRecordedOps[j].fOp->isChained()) {
-                        GrOP_INFO("\t\tForward: Can chain with (%s, opID: %u)\n",
-                                  candidate.fOp->name(), candidate.fOp->uniqueID());
-                        firstChainableIdx = j;
-                    }
+                    // See skbug.com/8491 for an explanation of why op chaining is disabled.
                     break;
                 case GrOp::CombineResult::kMerged:
                     GrOP_INFO("\t\t%d: (%s opID: %u) -> Combining with (%s, opID: %u)\n", i,
@@ -487,29 +442,15 @@ void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
                 break;
             }
             // Stop traversing if we would cause a painter's order violation.
-            if (candidate.fOp->isChainHead() &&
-                !can_reorder(candidate.fOp->bounds(), op->bounds())) {
+            if (!can_reorder(candidate.fOp->bounds(), op->bounds())) {
                 GrOP_INFO("\t\t%d: (%s opID: %u) -> Intersects with (%s, opID: %u)\n",
                           i, op->name(), op->uniqueID(),
                           candidate.fOp->name(), candidate.fOp->uniqueID());
                 break;
             }
-            ++j;
-            if (j > maxCandidateIdx) {
-                if (firstChainableIdx >= 0) {
-                    GrOp* nextOp = fRecordedOps[firstChainableIdx].fOp.get();
-                    GrOP_INFO("\t\t\tForward: Chained to (%s, opID: %u)\n", nextOp->name(),
-                              nextOp->uniqueID());
-                    // We have to chain i before firstChainableIdx in order to preserve their
-                    // relative order as they may overlap.
-                    fRecordedOps[i].fOp->setNextInChain(nextOp);
-                    // However we want to draw them *after* any ops that occur between them. So move
-                    // the head of the new chain to the later slot as we only execute chain heads.
-                    std::swap(fRecordedOps[i].fOp, fRecordedOps[firstChainableIdx].fOp);
-                } else {
-                    GrOP_INFO("\t\t%d: (%s opID: %u) -> Reached max lookahead or end of array\n", i,
-                              op->name(), op->uniqueID());
-                }
+            if (++j > maxCandidateIdx) {
+                GrOP_INFO("\t\t%d: (%s opID: %u) -> Reached max lookahead or end of array\n", i,
+                          op->name(), op->uniqueID());
                 break;
             }
         }
