@@ -22,6 +22,30 @@
       "revId": "75afebd0ff22e79482cbbbfebe9efb06b8a0157d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fe44ba0_36e6307b",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-24T21:16:00Z",
+      "side": 1,
+      "message": "Yes, this is possible, but unlikely.  I think we can\u0027t land this, but we probably can use it as an early indication of how performance would change with something like this done bug-free.",
+      "parentUuid": "ee9e14a5_098b071f",
+      "range": {
+        "startLine": 671,
+        "startChar": 8,
+        "endLine": 671,
+        "endChar": 50
+      },
+      "revId": "75afebd0ff22e79482cbbbfebe9efb06b8a0157d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
