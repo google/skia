@@ -7,6 +7,8 @@
 
 #include "SkGlyph.h"
 
+#include "SkArenaAlloc.h"
+
 void SkGlyph::initWithGlyphID(SkPackedGlyphID glyph_id) {
     fID             = glyph_id;
     fImage          = nullptr;
@@ -90,3 +92,23 @@ size_t SkGlyph::computeImageSize() const {
 
     return size;
 }
+
+size_t SkGlyph::copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
+    fMaskFormat = from.fMaskFormat;
+    fWidth = from.fWidth;
+    fHeight = from.fHeight;
+    fLeft = from.fLeft;
+    fTop = from.fTop;
+    fForceBW = from.fForceBW;
+
+    if (from.fImage != nullptr) {
+        auto imageSize = this->allocImage(alloc);
+        SkASSERT(imageSize == from.computeImageSize());
+
+        memcpy(fImage, from.fImage, imageSize);
+        return imageSize;
+    }
+
+    return 0u;
+}
+
