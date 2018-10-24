@@ -23,6 +23,7 @@
 class GrPipeline;
 
 class GrVkBufferImpl;
+class GrVkCommandPool;
 class GrVkGpuRTCommandBuffer;
 class GrVkGpuTextureCommandBuffer;
 class GrVkMemoryAllocator;
@@ -55,7 +56,8 @@ public:
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
     uint32_t  queueIndex() const { return fQueueIndex; }
-    VkCommandPool cmdPool() const { return fCmdPool; }
+    GrVkCommandPool* cmdPool() const { return fActiveCmdPool; }
+    const GrVkBackendContext& backendContext() const { return fBackendContext; }
     VkPhysicalDeviceProperties physicalDeviceProperties() const {
         return fPhysDevProps;
     }
@@ -155,6 +157,8 @@ public:
                     VkDeviceSize dstOffset, VkDeviceSize size);
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);
 
+    void commandBufferDestroyed(const GrVkCommandBuffer* buffer) const;
+
 private:
     GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext&,
             sk_sp<const GrVkInterface>);
@@ -247,7 +251,11 @@ private:
 
     // Created by GrVkGpu
     GrVkResourceProvider                                  fResourceProvider;
-    VkCommandPool                                         fCmdPool;
+
+    // FIXME remove mutable
+    mutable SkTArray<GrVkCommandPool*>                    fCmdPools;
+    GrVkCommandPool*                                      fActiveCmdPool;
+    const GrVkBackendContext&                             fBackendContext;
 
     GrVkPrimaryCommandBuffer*                             fCurrentCmdBuffer;
 

@@ -70,7 +70,7 @@ public:
 
     /** Increment the reference count. Must be balanced by a call to unref().
     */
-    void ref() const {
+    virtual void ref() const {
         SkASSERT(getRefCnt() > 0);
         // No barrier required.
         (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);

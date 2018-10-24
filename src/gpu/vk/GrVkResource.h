@@ -19,6 +19,10 @@ class GrVkGpu;
 #define SK_TRACE_VK_RESOURCES
 #endif
 
+#ifdef SK_TRACE_VK_RESOURCES
+#include <mutex>
+#endif
+
 /** \class GrVkResource
 
   GrVkResource is the base class for Vulkan resources that may be shared by multiple
@@ -53,11 +57,21 @@ public:
             });
             SkASSERT(0 == fHashSet.count());
         }
-        void add(const GrVkResource* r) { fHashSet.add(r); }
-        void remove(const GrVkResource* r) { fHashSet.remove(r); }
+
+        void add(const GrVkResource* r) {
+            std::unique_lock<std::mutex> lock(fMutex);
+            fHashSet.add(r);
+        }
+
+        void remove(const GrVkResource* r) {
+            std::unique_lock<std::mutex> lock(fMutex);
+            fHashSet.remove(r);
+        }
 
     private:
         SkTHashSet<const GrVkResource*, GrVkResource::Hash> fHashSet;
+
+        std::mutex fMutex;
     };
 
     static uint32_t fKeyCounter;
@@ -102,7 +116,7 @@ public:
     /** Increment the reference count.
         Must be balanced by a call to unref() or unrefAndFreeResources().
      */
-    void ref() const {
+    virtual void ref() const {
         SkASSERT(fRefCnt > 0);
         (void)sk_atomic_fetch_add(&fRefCnt, +1, sk_memory_order_relaxed);  // No barrier required.
     }

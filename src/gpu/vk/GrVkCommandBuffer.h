@@ -125,11 +125,17 @@ public:
 
     void reset(GrVkGpu* gpu);
 
+    GrVkCommandPool* commandPool() const {
+        return fPool;
+    }
+
 protected:
-        GrVkCommandBuffer(VkCommandBuffer cmdBuffer, const GrVkRenderPass* rp = VK_NULL_HANDLE)
+        GrVkCommandBuffer(GrVkCommandPool* pool, VkCommandBuffer cmdBuffer,
+                          const GrVkRenderPass* rp = VK_NULL_HANDLE)
             : fIsActive(false)
             , fActiveRenderPass(rp)
             , fCmdBuffer(cmdBuffer)
+            , fPool(pool)
             , fNumResets(0) {
             fTrackedResources.setReserve(kInitialTrackedResourcesCount);
             fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
@@ -166,6 +172,8 @@ private:
     VkBuffer fBoundInputBuffers[kMaxInputBuffers];
     VkBuffer fBoundIndexBuffer;
 
+    mutable GrVkCommandPool* fPool;
+
     // When resetting the command buffer, we remove the tracked resources from their arrays, and
     // we prefer to not free all the memory every time so usually we just rewind. However, to avoid
     // all arrays growing to the max size, after so many resets we'll do a full reset of the tracked
@@ -185,7 +193,7 @@ class GrVkPrimaryCommandBuffer : public GrVkCommandBuffer {
 public:
     ~GrVkPrimaryCommandBuffer() override;
 
-    static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool);
+    static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, GrVkCommandPool* cmdPool);
 
     void begin(const GrVkGpu* gpu);
     void end(const GrVkGpu* gpu);
@@ -289,8 +297,8 @@ public:
 #endif
 
 private:
-    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer)
-        : INHERITED(cmdBuffer)
+    explicit GrVkPrimaryCommandBuffer(GrVkCommandPool* pool, VkCommandBuffer cmdBuffer)
+        : INHERITED(pool, cmdBuffer)
         , fSubmitFence(VK_NULL_HANDLE) {}
 
     void onFreeGPUData(const GrVkGpu* gpu) const override;
@@ -305,7 +313,7 @@ private:
 
 class GrVkSecondaryCommandBuffer : public GrVkCommandBuffer {
 public:
-    static GrVkSecondaryCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool);
+    static GrVkSecondaryCommandBuffer* Create(const GrVkGpu* gpu, GrVkCommandPool* cmdPool);
 
     void begin(const GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
                const GrVkRenderPass* compatibleRenderPass);
@@ -320,8 +328,8 @@ public:
 #endif
 
 private:
-    explicit GrVkSecondaryCommandBuffer(VkCommandBuffer cmdBuffer)
-        : INHERITED(cmdBuffer) {
+    explicit GrVkSecondaryCommandBuffer(GrVkCommandPool* pool, VkCommandBuffer cmdBuffer)
+        : INHERITED(pool, cmdBuffer) {
     }
 
     void onFreeGPUData(const GrVkGpu* gpu) const override {}

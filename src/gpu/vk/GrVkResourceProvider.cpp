@@ -21,9 +21,28 @@
 uint32_t GrVkResource::fKeyCounter = 0;
 #endif
 
+static void unref_thread(GrVkGpu* gpu, SkTArray<GrVkResource*>* resources, std::mutex* mutex,
+                         std::condition_variable* cv) {
+    std::unique_lock<std::mutex> lock(*mutex);
+    for (;;) {
+        while (!resources->count()) {
+            cv->wait(lock);
+        }
+        for (GrVkResource* resource : *resources) {
+            if (!resource) {
+                return;
+            }
+            resource->unref(gpu);
+        }
+        resources->reset();
+        cv->notify_all();
+    }
+}
+
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
     : fGpu(gpu)
-    , fPipelineCache(VK_NULL_HANDLE) {
+    , fPipelineCache(VK_NULL_HANDLE)
+    , fUnrefThread(unref_thread, gpu, &fPendingUnrefs, &fUnrefMutex, &fUnrefCV) {
     fPipelineStateCache = new PipelineStateCache(gpu);
 }
 
@@ -31,6 +50,8 @@ GrVkResourceProvider::~GrVkResourceProvider() {
     SkASSERT(0 == fRenderPassArray.count());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
     delete fPipelineStateCache;
+    this->backgroundUnref(nullptr);
+    fUnrefThread.join();
 }
 
 void GrVkResourceProvider::init() {
@@ -257,14 +278,7 @@ void GrVkResourceProvider::recycleDescriptorSet(const GrVkDescriptorSet* descSet
 
 GrVkPrimaryCommandBuffer* GrVkResourceProvider::findOrCreatePrimaryCommandBuffer() {
     GrVkPrimaryCommandBuffer* cmdBuffer = nullptr;
-    int count = fAvailableCommandBuffers.count();
-    if (count > 0) {
-        cmdBuffer = fAvailableCommandBuffers[count - 1];
-        SkASSERT(cmdBuffer->finished(fGpu));
-        fAvailableCommandBuffers.removeShuffle(count - 1);
-    } else {
-        cmdBuffer = GrVkPrimaryCommandBuffer::Create(fGpu, fGpu->cmdPool());
-    }
+    cmdBuffer = GrVkPrimaryCommandBuffer::Create(fGpu, fGpu->cmdPool());
     fActiveCommandBuffers.push_back(cmdBuffer);
     cmdBuffer->ref();
     return cmdBuffer;
@@ -275,7 +289,7 @@ void GrVkResourceProvider::checkCommandBuffers() {
         if (fActiveCommandBuffers[i]->finished(fGpu)) {
             GrVkPrimaryCommandBuffer* cmdBuffer = fActiveCommandBuffers[i];
             cmdBuffer->reset(fGpu);
-            fAvailableCommandBuffers.push_back(cmdBuffer);
+            cmdBuffer->unref(fGpu);
             fActiveCommandBuffers.removeShuffle(i);
         }
     }
@@ -467,6 +481,19 @@ GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
     renderPass->init(gpu, *this->getCompatibleRenderPass(), colorOps, stencilOps);
     fLastReturnedIndex = fRenderPasses.count() - 1;
     return renderPass;
+}
+
+void GrVkResourceProvider::backgroundUnref(GrVkResource* resource) const {
+    std::unique_lock<std::mutex> lock(fUnrefMutex);
+    fPendingUnrefs.push_back(resource);
+    fUnrefCV.notify_all();
+}
+
+void GrVkResourceProvider::waitForBackgroundUnrefs() const {
+    std::unique_lock<std::mutex> lock(fUnrefMutex);
+    while (fPendingUnrefs.count()) {
+        fUnrefCV.wait(lock);
+    }
 }
 
 void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources(const GrVkGpu* gpu) {

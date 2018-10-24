@@ -22,6 +22,10 @@
 
 #include "vk/GrVkDefines.h"
 
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrSamplerState;
@@ -146,6 +150,10 @@ public:
     // can be reused by the next uniform buffer resource request.
     void recycleStandardUniformBufferResource(const GrVkResource*);
 
+    void backgroundUnref(GrVkResource* resource) const;
+
+    void waitForBackgroundUnrefs() const;
+
     // Destroy any cached resources. To be called before destroying the VkDevice.
     // The assumption is that all queues are idle and all command buffers are finished.
     // For resource tracing to work properly, this should be called after unrefing all other
@@ -260,6 +268,14 @@ private:
     SkSTArray<4, std::unique_ptr<GrVkDescriptorSetManager>> fDescriptorSetManagers;
 
     GrVkDescriptorSetManager::Handle fUniformDSHandle;
+
+    mutable SkTArray<GrVkResource*> fPendingUnrefs;
+
+    mutable std::mutex fUnrefMutex;
+
+    mutable std::condition_variable fUnrefCV;
+
+    mutable std::thread fUnrefThread;
 };
 
 #endif

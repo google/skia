@@ -20,6 +20,7 @@
 #include "gl/GrGLUtil.h"
 
 #ifdef SK_VULKAN
+#include "vk/GrVkCommandPool.h"
 #include "vk/GrVkGpu.h"
 #include "vk/GrVkTypes.h"
 #include "vk/GrVkUtil.h"
@@ -245,7 +246,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
         const GrVkInterface* interface = gpu->vkInterface();
         VkDevice device = gpu->device();
         VkQueue queue = gpu->queue();
-        VkCommandPool cmdPool = gpu->cmdPool();
+        VkCommandPool cmdPool = gpu->cmdPool()->vkCommandPool();
         VkCommandBuffer cmdBuffer;
 
         // Create Command Buffer
