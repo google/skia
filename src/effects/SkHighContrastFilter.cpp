@@ -12,7 +12,6 @@
 #include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkWriteBuffer.h"
-#include "../jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
 #include "GrColorSpaceInfo.h"
@@ -69,7 +68,7 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
     if (!dstCS) {
         // In legacy draws this effect approximately linearizes by squaring.
         // When non-legacy, we're already (better) linearized.
-        auto square = alloc->make<SkJumper_ParametricTransferFunction>();
+        auto square = alloc->make<SkRasterPipeline_ParametricTransferFunction>();
         square->G = 2.0f; square->A = 1.0f;
         square->B = square->C = square->D = square->E = square->F = 0;
 
@@ -116,7 +115,7 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
 
     if (!dstCS) {
         // See the previous if(!dstCS) { ... }
-        auto sqrt = alloc->make<SkJumper_ParametricTransferFunction>();
+        auto sqrt = alloc->make<SkRasterPipeline_ParametricTransferFunction>();
         sqrt->G = 0.5f; sqrt->A = 1.0f;
         sqrt->B = sqrt->C = sqrt->D = sqrt->E = sqrt->F = 0;
 

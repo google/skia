@@ -215,7 +215,6 @@ BASE_SRCS_ALL = struct(
         "src/**/*.h",
         "src/**/*.cpp",
         "src/**/*.inc",
-        "src/jumper/SkJumper_generated.S",
 
         # Third Party
         "third_party/gif/*.cpp",

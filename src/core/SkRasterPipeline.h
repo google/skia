@@ -16,7 +16,6 @@
 #include "SkTypes.h"
 #include <functional>
 #include <vector>
-#include "../jumper/SkJumper.h"
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -31,8 +30,6 @@
  * arbitrary context pointer.  The stage funciton arguments and calling convention are
  * designed to maximize the amount of data we can pass along the pipeline cheaply, and
  * vary depending on CPU feature detection.
- *
- * If you'd like to see how this works internally, you want to start digging around src/jumper.
  */
 
 #define SK_RASTER_PIPELINE_STAGES(M)                               \
@@ -97,6 +94,85 @@
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \
     M(gauss_a_to_rgba)
 
+// The largest number of pixels we handle at a time.
+static const int SkRasterPipeline_kMaxStride = 16;
+
+// Structs representing the arguments to some common stages.
+
+struct SkRasterPipeline_MemoryCtx {
+    void* pixels;
+    int   stride;
+};
+
+struct SkRasterPipeline_GatherCtx {
+    const void* pixels;
+    int         stride;
+    float       width;
+    float       height;
+};
+
+// State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
+struct SkRasterPipeline_SamplerCtx {
+    float      x[SkRasterPipeline_kMaxStride];
+    float      y[SkRasterPipeline_kMaxStride];
+    float     fx[SkRasterPipeline_kMaxStride];
+    float     fy[SkRasterPipeline_kMaxStride];
+    float scalex[SkRasterPipeline_kMaxStride];
+    float scaley[SkRasterPipeline_kMaxStride];
+};
+
+struct SkRasterPipeline_TileCtx {
+    float scale;
+    float invScale; // cache of 1/scale
+};
+
+struct SkRasterPipeline_DecalTileCtx {
+    uint32_t mask[SkRasterPipeline_kMaxStride];
+    float    limit_x;
+    float    limit_y;
+};
+
+struct SkRasterPipeline_CallbackCtx {
+    void (*fn)(SkRasterPipeline_CallbackCtx* self, int active_pixels/*<= SkRasterPipeline_kMaxStride*/);
+
+    // When called, fn() will have our active pixels available in rgba.
+    // When fn() returns, the pipeline will read back those active pixels from read_from.
+    float rgba[4*SkRasterPipeline_kMaxStride];
+    float* read_from = rgba;
+};
+
+// This should line up with the memory layout of SkColorSpaceTransferFn.
+struct SkRasterPipeline_ParametricTransferFunction {
+    float G, A,B,C,D,E,F;
+};
+
+struct SkRasterPipeline_GradientCtx {
+    size_t stopCount;
+    float* fs[4];
+    float* bs[4];
+    float* ts;
+    bool interpolatedInPremul;
+};
+
+struct SkRasterPipeline_EvenlySpaced2StopGradientCtx {
+    float f[4];
+    float b[4];
+    bool interpolatedInPremul;
+};
+
+struct SkRasterPipeline_2PtConicalCtx {
+    uint32_t fMask[SkRasterPipeline_kMaxStride];
+    float    fP0,
+             fP1;
+};
+
+struct SkRasterPipeline_UniformColorCtx {
+    float r,g,b,a;
+    uint16_t rgba[4];  // [0,255] in a 16-bit lane.
+};
+
+
+
 class SkRasterPipeline {
 public:
     explicit SkRasterPipeline(SkArenaAlloc*);
@@ -150,9 +226,9 @@ public:
         this->append_set_rgb(alloc, color.vec());
     }
 
-    void append_load    (SkColorType, const SkJumper_MemoryCtx*);
-    void append_load_dst(SkColorType, const SkJumper_MemoryCtx*);
-    void append_store   (SkColorType, const SkJumper_MemoryCtx*);
+    void append_load    (SkColorType, const SkRasterPipeline_MemoryCtx*);
+    void append_load_dst(SkColorType, const SkRasterPipeline_MemoryCtx*);
+    void append_store   (SkColorType, const SkRasterPipeline_MemoryCtx*);
 
     void append_gamut_clamp_if_normalized(const SkImageInfo&);
 

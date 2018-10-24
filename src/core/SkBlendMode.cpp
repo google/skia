@@ -8,7 +8,6 @@
 #include "SkBlendModePriv.h"
 #include "SkCoverageModePriv.h"
 #include "SkRasterPipeline.h"
-#include "../jumper/SkJumper.h"
 
 bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
     // The most important things we do here are:
@@ -139,9 +138,9 @@ SkPMColor4f SkBlendMode_Apply(SkBlendMode mode, const SkPMColor4f& src, const Sk
     SkPMColor4f            src_storage = src,
                            dst_storage = dst,
                            res_storage;
-    SkJumper_MemoryCtx src_ctx = { &src_storage, 0 },
-                       dst_ctx = { &dst_storage, 0 },
-                       res_ctx = { &res_storage, 0 };
+    SkRasterPipeline_MemoryCtx src_ctx = { &src_storage, 0 },
+                               dst_ctx = { &dst_storage, 0 },
+                               res_ctx = { &res_storage, 0 };
 
     p.append(SkRasterPipeline::load_f32, &dst_ctx);
     p.append(SkRasterPipeline::move_src_dst);

@@ -6,7 +6,6 @@
  */
 
 #include "DMSrcSink.h"
-#include "../src/jumper/SkJumper.h"
 #include "DDLPromiseImageHelper.h"
 #include "DDLTileHelper.h"
 #include "GrBackendSurface.h"
@@ -973,7 +972,7 @@ void clamp_if_necessary(const SkBitmap& bitmap, SkColorType dstCT) {
         return;
     }
 
-    SkJumper_MemoryCtx ptr = { bitmap.getAddr(0,0), bitmap.rowBytesAsPixels() };
+    SkRasterPipeline_MemoryCtx ptr = { bitmap.getAddr(0,0), bitmap.rowBytesAsPixels() };
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &ptr);

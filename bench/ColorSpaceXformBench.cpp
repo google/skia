@@ -5,7 +5,6 @@
 * found in the LICENSE file.
 */
 
-#include "../src/jumper/SkJumper.h"
 #include "Benchmark.h"
 #include "SkColor.h"
 #include "SkColorSpaceXformer.h"

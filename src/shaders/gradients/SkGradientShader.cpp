@@ -20,7 +20,6 @@
 #include "SkSweepGradient.h"
 #include "SkTwoPointConicalGradient.h"
 #include "SkWriteBuffer.h"
-#include "../../jumper/SkJumper.h"
 
 enum GradientSerializationFlags {
     // Bits 29:31 used for various boolean flags
@@ -216,7 +215,7 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     desc.flatten(buffer);
 }
 
-static void add_stop_color(SkJumper_GradientCtx* ctx, size_t stop, SkPMColor4f Fs, SkPMColor4f Bs) {
+static void add_stop_color(SkRasterPipeline_GradientCtx* ctx, size_t stop, SkPMColor4f Fs, SkPMColor4f Bs) {
     (ctx->fs[0])[stop] = Fs.fR;
     (ctx->fs[1])[stop] = Fs.fG;
     (ctx->fs[2])[stop] = Fs.fB;
@@ -227,14 +226,14 @@ static void add_stop_color(SkJumper_GradientCtx* ctx, size_t stop, SkPMColor4f F
     (ctx->bs[3])[stop] = Bs.fA;
 }
 
-static void add_const_color(SkJumper_GradientCtx* ctx, size_t stop, SkPMColor4f color) {
+static void add_const_color(SkRasterPipeline_GradientCtx* ctx, size_t stop, SkPMColor4f color) {
     add_stop_color(ctx, stop, { 0, 0, 0, 0 }, color);
 }
 
 // Calculate a factor F and a bias B so that color = F*t + B when t is in range of
 // the stop. Assume that the distance between stops is 1/gapCount.
 static void init_stop_evenly(
-    SkJumper_GradientCtx* ctx, float gapCount, size_t stop, SkPMColor4f c_l, SkPMColor4f c_r) {
+    SkRasterPipeline_GradientCtx* ctx, float gapCount, size_t stop, SkPMColor4f c_l, SkPMColor4f c_r) {
     // Clankium's GCC 4.9 targeting ARMv7 is barfing when we use Sk4f math here, so go scalar...
     SkPMColor4f Fs = {
         (c_r.fR - c_l.fR) * gapCount,
@@ -254,7 +253,7 @@ static void init_stop_evenly(
 // For each stop we calculate a bias B and a scale factor F, such that
 // for any t between stops n and n+1, the color we want is B[n] + F[n]*t.
 static void init_stop_pos(
-    SkJumper_GradientCtx* ctx, size_t stop, float t_l, float t_r, SkPMColor4f c_l, SkPMColor4f c_r) {
+    SkRasterPipeline_GradientCtx* ctx, size_t stop, float t_l, float t_r, SkPMColor4f c_l, SkPMColor4f c_r) {
     // See note about Clankium's old compiler in init_stop_evenly().
     SkPMColor4f Fs = {
         (c_r.fR - c_l.fR) / (t_r - t_l),
@@ -275,7 +274,7 @@ static void init_stop_pos(
 bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
-    SkJumper_DecalTileCtx* decal_ctx = nullptr;
+    SkRasterPipeline_DecalTileCtx* decal_ctx = nullptr;
 
     SkMatrix matrix;
     if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &matrix)) {
@@ -293,7 +292,7 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
         case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x_1); break;
         case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x_1); break;
         case kDecal_TileMode:
-            decal_ctx = alloc->make<SkJumper_DecalTileCtx>();
+            decal_ctx = alloc->make<SkRasterPipeline_DecalTileCtx>();
             decal_ctx->limit_x = SkBits2Float(SkFloat2Bits(1.0f) + 1);
             // reuse mask + limit_x stage, or create a custom decal_1 that just stores the mask
             p->append(SkRasterPipeline::decal_x, decal_ctx);
@@ -326,14 +325,14 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
                           c_r = prepareColor(1);
 
         // See F and B below.
-        auto ctx = alloc->make<SkJumper_EvenlySpaced2StopGradientCtx>();
+        auto ctx = alloc->make<SkRasterPipeline_EvenlySpaced2StopGradientCtx>();
         (Sk4f::Load(c_r.vec()) - Sk4f::Load(c_l.vec())).store(ctx->f);
         (                        Sk4f::Load(c_l.vec())).store(ctx->b);
         ctx->interpolatedInPremul = premulGrad;
 
         p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, ctx);
     } else {
-        auto* ctx = alloc->make<SkJumper_GradientCtx>();
+        auto* ctx = alloc->make<SkRasterPipeline_GradientCtx>();
         ctx->interpolatedInPremul = premulGrad;
 
         // Note: In order to handle clamps in search, the search assumes a stop conceptully placed

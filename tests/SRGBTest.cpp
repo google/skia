@@ -8,7 +8,6 @@
 #include "SkRasterPipeline.h"
 #include "SkTypes.h"
 #include "Test.h"
-#include "../src/jumper/SkJumper.h"
 
 #include <math.h>
 
@@ -18,7 +17,7 @@ DEF_TEST(sk_pipeline_srgb_roundtrip, r) {
         reds[i] = i;
     }
 
-    SkJumper_MemoryCtx ptr = { reds, 0 };
+    SkRasterPipeline_MemoryCtx ptr = { reds, 0 };
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888,  &ptr);
@@ -40,7 +39,7 @@ DEF_TEST(sk_pipeline_srgb_edge_cases, r) {
     float colors[4][4] = { {0,1,1,1}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0} };
     auto& color = colors[0];
 
-    SkJumper_MemoryCtx dst = { &color, 0 };
+    SkRasterPipeline_MemoryCtx dst = { &color, 0 };
 
     SkSTArenaAlloc<256> alloc;
     SkRasterPipeline p(&alloc);
