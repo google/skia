@@ -7,6 +7,7 @@
 
 #include "mac/SkUniqueCFRef.h"
 #include "SkCGUtils.h"
+#include "SkColor.h"
 #include "SkEncodedOrigin.h"
 #include "SkImageGeneratorCG.h"
 #include "SkPixmapPriv.h"
@@ -143,6 +144,9 @@ bool ImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size_t
 
     SkPixmap dst(info, pixels, rowBytes);
     auto decode = [&image](const SkPixmap& pm) {
+        // We cannot rely on CG initializing all the pixels, even if it returns
+        // true. So erase first.
+        pm.erase(SK_ColorTRANSPARENT);
         // FIXME: Using SkCopyPixelsFromCGImage (as opposed to swizzling
         // ourselves) greatly restricts the color and alpha types that we
         // support.  If we swizzle ourselves, we can add support for:

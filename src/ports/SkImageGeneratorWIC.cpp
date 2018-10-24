@@ -6,7 +6,9 @@
  */
 
 #include "SkImageGeneratorWIC.h"
+#include "SkColor.h"
 #include "SkIStream.h"
+#include "SkPixmap.h"
 #include "SkStream.h"
 #include "SkTScopedComPtr.h"
 #include "SkTemplates.h"
@@ -196,6 +198,11 @@ bool ImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_
     if (FAILED(hr)) {
         return false;
     }
+
+    // We cannot rely on WIC initializing all the pixels, even if it returns
+    // true. So erase first.
+    SkPixmap pm(info, pixels, rowBytes);
+    pm.erase(SK_ColorTRANSPARENT);
 
     // Set the destination pixels.
     hr = formatConverterSrc->CopyPixels(nullptr, (UINT) rowBytes, (UINT) rowBytes * info.height(),
