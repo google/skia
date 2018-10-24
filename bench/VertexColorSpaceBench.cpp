@@ -85,7 +85,7 @@ public:
                     vertBuilder->codeAppendf("color = %s;", xformedColor.c_str());
                     vertBuilder->codeAppend("color = half4(color.rgb * color.a, color.a);");
                 } else if (kShort_Mode == gp.fMode) {
-                    vertBuilder->codeAppend("color = color * (1 / 4096.0);");
+                    vertBuilder->codeAppend("color = color * (1 / 4095.0);");
                 }
 
                 vertBuilder->codeAppendf("%s = color;", varying.vsOut());
@@ -228,18 +228,12 @@ private:
                 v[i + 1].fColor = color;
             }
         } else if (kShort_Mode == fMode) {
-            struct ShortColor { int16_t fRGBA[4]; };
             struct V {
                 SkPoint fPos;
-                ShortColor fColor;
+                GrColor4s fColor;
             };
             SkASSERT(sizeof(V) == vertexStride);
-            Sk4i c = Sk4f_round(Sk4f::Load(&fColor4f) * 4096.0f);
-            c = Sk4i::Max(-32768, Sk4i::Min(c, 32767));
-            ShortColor color;
-            for (int i = 0; i < 4; ++i) {
-                color.fRGBA[i] = c[i];
-            }
+            GrColor4s color = GrColor4s::FromFloat4(fColor4f.vec());
             V* v = (V*)verts;
             for (int i = 0; i < kVertexCount; i += 2) {
                 v[i + 0].fPos.set(dx * i, 0.0f);
