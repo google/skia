@@ -152,4 +152,56 @@ static inline GrColor GrUnpremulColor(GrColor color) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
+/**
+ * GrColor4s is 8 bytes (4 shorts) for for R, G, B, A, in that order. This is intended for storing
+ * wide-gamut (non-normalized) colors in vertex attributes. The shorts are fixed point (1.3.12),
+ * giving us a range of ~[-8,8], and plenty of precision.
+ */
+struct GrColor4s {
+    static GrColor4s FromFloat4(const float* c4f) {
+        auto convert = [](float x) {
+            return static_cast<uint16_t>(SkTPin(sk_float_round2int(x * 4095.0f), -32768, 32767));
+        };
+        return { convert(c4f[0]), convert(c4f[1]), convert(c4f[2]), convert(c4f[3]) };
+    }
+
+    static GrColor4s FromGrColor(GrColor color) {
+        unsigned r = GrColorUnpackR(color);
+        unsigned g = GrColorUnpackG(color);
+        unsigned b = GrColorUnpackB(color);
+        unsigned a = GrColorUnpackA(color);
+        // GrColor4s has 12 fractional bits, so to map a [0-1] byte value, we need to shift up,
+        // and then replicate the top nibble into the bottom nibble.
+        return { static_cast<uint16_t>(r << 4 | r >> 4),
+                 static_cast<uint16_t>(g << 4 | g >> 4),
+                 static_cast<uint16_t>(b << 4 | b >> 4),
+                 static_cast<uint16_t>(a << 4 | a >> 4) };
+    }
+
+    bool isNormalized() const {
+        return !((fR | fG | fB | fA) & 0xF000);
+    }
+
+    SkColor4f toSkColor4f() const {
+        const float scale = 1 / 4095.0f;
+        return { static_cast<int16_t>(fR) * scale,
+                 static_cast<int16_t>(fG) * scale,
+                 static_cast<int16_t>(fB) * scale,
+                 static_cast<int16_t>(fA) * scale };
+    }
+
+    GrColor toGrColor() const {
+        SkASSERT(isNormalized());
+        return GrColorPackRGBA(fR >> 4, fG >> 4, fB >> 4, fA >> 4);
+    }
+
+    // These values are actually signed shorts (as seen by the GPU), but we store them here as
+    // unsigned, so that we can safely/easily use bitwise operations to go to/from 8-bit, and to
+    // check for normalized values.
+    uint16_t fR;
+    uint16_t fG;
+    uint16_t fB;
+    uint16_t fA;
+};
+
 #endif
