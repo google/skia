@@ -637,9 +637,9 @@ bool SkOpAngle::endToSide(const SkOpAngle* rh, bool* inside) const {
         maxY = SkTMax(maxY, curve[idx2].fY);
     }
     double maxWidth = SkTMax(maxX - minX, maxY - minY);
-    endDist /= maxWidth;
-    if (endDist < 5e-12) {  // empirically found
-        return false;
+    endDist = sk_ieee_double_divide(endDist, maxWidth);
+    if (!(endDist >= 5e-12)) {  // empirically found
+        return false; // ! above catches NaN
     }
     const SkDPoint* endPt = &rayEnd[0];
     SkDPoint oppPt = iEnd.pt(closestEnd);
