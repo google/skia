@@ -35,6 +35,112 @@
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
+class GrChainableOp : public GrMeshDrawOp {
+public:
+
+protected:
+    class Node {
+    public:
+        Node(const SkRect& bounds) : fBounds(bounds) {}
+        virtual ~Node() {}
+    private:
+        friend class GrChainableOp;
+        SkRect fBounds;
+        std::unique_ptr<Node> fNext = nullptr;
+        Node* fPrev = nullptr;
+    };
+
+    GrChainableOp(uint32_t classID, std::unique_ptr<Node> node) : GrMeshDrawOp(classID) {
+        // fHead is a self-owning single node circular linked list.
+        fHead = node->fPrev = node.get();
+        node->fNext = std::move(node);
+    }
+
+
+    /**
+     * A helper for iterating over an op chain in a range for loop that also downcasts to a GrOp
+     * subclass. E.g.:
+     *     for (MyOpSubClass& op : ChainRange<MyOpSubClass>(this)) {
+     *         // ...
+     *     }
+     */
+    template <typename NodeSubclass> class NodeRange {
+    private:
+        class Iter {
+        public:
+            explicit Iter(const NodeSubclass* head) : fCurr(head) {}
+            inline Iter& operator++() { return *this = Iter(fCurr->fNext.get()); }
+            const NodeSubclass& operator*() const { return *fCurr; }
+            bool operator!=(const Iter& that) const { return fCurr != that.fCurr; }
+
+        private:
+            const NodeSubclass* fCurr;
+        };
+        const NodeSubclass* fHead;
+
+    public:
+        explicit NodeRange(const NodeSubclass* head) : fHead(head) {}
+        Iter begin() { return Iter(fHead); }
+        Iter end() { return Iter(nullptr); }
+    };
+
+private:
+    bool onCombineIfPossible(GrOp* op, const GrCaps& caps) final {
+        auto that = op->cast<GrChainableOp>();
+        if (!this->compatible(that)) {
+            return false;
+        }
+        auto initialTail = fHead->fPrev;
+        while (auto thatNode = that->detachHead()) {
+            auto thisNode = fHead->fPrev;
+            bool seenInitialTail = false;
+            while (true) {
+                seenInitialTail |= thisNode == initialTail;
+                if (seenInitialTail && this->combine(thisNode, thatNode.get())) {
+                    thisNode->fBounds.join(thatNode->fBounds);
+                    break;
+                }
+                // If we already tried all this's nodes or we hit a bounds intersection then
+                // append that's node to the end of our list.
+                if (thisNode == fHead || thisNode->fBounds.intersects(thatNode->fBounds)) {
+                    this->appendNode(std::move(thatNode));
+                    break;
+                }
+                thisNode = thisNode->fPrev;
+            }
+        }
+        return true;
+    }
+
+    std::unique_ptr<Node> detachHead() {
+        auto oldHead = std::move(fHead->fPrev->fNext);
+        fHead = fHead->fNext.get();
+        if (oldHead.get()->fNext) { // will be null in single node case.
+            oldHead.get()->fNext->fPrev = fHead->fPrev;
+            oldHead.get()->fPrev->fNext = std::move(fHead->fNext);
+        }
+        oldHead.get()->fPrev = nullptr;
+        return oldHead;
+    }
+
+    void appendNode(std::unique_ptr<Node> node) {
+        SkASSERT(!node->fNext && !node->fPrev);
+        auto oldTail = fHead->fPrev;
+        node->fNext = std::move(oldTail->fNext);
+        oldTail->fNext = std::move(node);
+        oldTail->fNext->fPrev = oldTail;
+        fHead->fPrev = oldTail->fNext.get();
+    }
+
+    // Must be transitive.
+    virtual bool compatible(const GrOp* that, const GrCaps&) = 0;
+
+    // Only called if canChain returns true.
+    virtual bool combine(Node* a, Node* b) const = 0;
+
+    Node* fHead;
+};
+
 namespace {
 
 enum class Domain : bool { kNo = false, kYes = true };
@@ -611,7 +717,7 @@ static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const
  * Op that implements GrTextureOp::Make. It draws textured quads. Each quad can modulate against a
  * the texture by color. The blend with the destination is always src-over. The edges are non-AA.
  */
-class TextureOp final : public GrMeshDrawOp {
+class TextureOp final : public GrChainableOp {
 public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<GrTextureProxy> proxy,
@@ -952,7 +1058,46 @@ private:
                      fProxyCnt);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool compatible(GrOp* t, const GrCaps& caps) override {
+        TRACE_EVENT0("skia", TRACE_FUNC);
+        const auto* that = t->cast<TextureOp>();
+        if (!GrColorSpaceXform::Equals(fTextureColorSpaceXform.get(),
+                                       that->fTextureColorSpaceXform.get())) {
+            return false;
+        }
+        if (!GrColorSpaceXform::Equals(fPaintColorSpaceXform.get(),
+                                       that->fPaintColorSpaceXform.get())) {
+            return false;
+        }
+        bool upgradeToCoverageAAOnMerge = false;
+        if (this->aaType() != that->aaType()) {
+            if (!((this->aaType() == GrAAType::kCoverage && that->aaType() == GrAAType::kNone) ||
+                  (that->aaType() == GrAAType::kCoverage && this->aaType() == GrAAType::kNone))) {
+                return false;
+            }
+            upgradeToCoverageAAOnMerge = true;
+        }
+        if (fFilter != that->fFilter) {
+            return false;
+        }
+        // We only merge when both ops have the same single proxy.
+        auto thisProxy = fProxies[0].fProxy;
+        auto thatProxy = that->fProxies[0].fProxy;
+        if (fProxyCnt > 1 || that->fProxyCnt > 1 ||
+            thisProxy->uniqueID() != thatProxy->uniqueID()) {
+            return false;
+        }
+        fProxies[0].fQuadCnt += that->fQuads.count();
+        fQuads.push_back_n(that->fQuads.count(), that->fQuads.begin());
+        fPerspective |= that->fPerspective;
+        fDomain |= that->fDomain;
+        if (upgradeToCoverageAAOnMerge) {
+            fAAType = static_cast<unsigned>(GrAAType::kCoverage);
+        }
+        return true;
+    }
+
+    bool combine(GrOp* t, const GrCaps& caps) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
         if (!GrColorSpaceXform::Equals(fTextureColorSpaceXform.get(),
@@ -1018,9 +1163,9 @@ private:
         unsigned fHasDomain : 1;
         unsigned fAAFlags : 4;
     };
-    struct Proxy {
+    class Proxy : public Node {
         GrTextureProxy* fProxy;
-        int fQuadCnt;
+        SkSTArray<1, Quad> fQuads;
     };
     SkSTArray<1, Quad, true> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
