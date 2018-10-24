@@ -169,11 +169,12 @@ inline void GrCCPathCache::HashNode::willExitHashTable() {
 
 GrCCPathCache::GrCCPathCache()
         : fInvalidatedEntriesInbox(next_path_cache_id()) {
-    SkDEBUGCODE(fGraphicsThreadID = SkGetThreadID());
 }
 
 GrCCPathCache::~GrCCPathCache() {
-    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
+    // DDL threads never use the cache, in which case it doesn't matter what thread we
+    // clean up on.
+    SkASSERT(kIllegalThreadID == fGraphicsThreadID || SkGetThreadID() == fGraphicsThreadID);
 
     fHashTable.reset();  // Must be cleared first; ~HashNode calls fLRU.remove() on us.
     SkASSERT(fLRU.isEmpty());  // Ensure the hash table and LRU list were coherent.
@@ -181,6 +182,11 @@ GrCCPathCache::~GrCCPathCache() {
 
 sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTransform& m,
                                               CreateIfAbsent createIfAbsent) {
+#ifdef SK_DEBUG
+    if (kIllegalThreadID == fGraphicsThreadID) {
+        fGraphicsThreadID = SkGetThreadID();
+    }
+#endif
     SkASSERT(SkGetThreadID() == fGraphicsThreadID);
 
     if (!shape.hasUnstyledKey()) {
@@ -244,8 +250,6 @@ void GrCCPathCache::evict(GrCCPathCacheEntry* entry) {
 }
 
 void GrCCPathCache::purgeAsNeeded() {
-    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
-
     SkTArray<sk_sp<GrCCPathCacheEntry>> invalidatedEntries;
     fInvalidatedEntriesInbox.poll(&invalidatedEntries);
     for (const sk_sp<GrCCPathCacheEntry>& entry : invalidatedEntries) {

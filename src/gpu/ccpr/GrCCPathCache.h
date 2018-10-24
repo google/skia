@@ -97,7 +97,7 @@ private:
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
     SkMessageBus<sk_sp<GrCCPathCacheEntry>>::Inbox fInvalidatedEntriesInbox;
 
-    SkDEBUGCODE(SkThreadID fGraphicsThreadID);
+    SkDEBUGCODE(SkThreadID fGraphicsThreadID = kIllegalThreadID);
 };
 
 /**
