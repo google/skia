@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fc89a0b_0f3fc7a6",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-24T21:01:18Z",
+      "side": 1,
+      "message": "Let\u0027s make these constexpr?  That\u0027d mean you can get rid of ImpossibleGlyph() and just write\n\n    static constexpr SkGlyph kImpossible;\n\nwhere you need it.  It\u0027ll also require making SkPackedUnicharID() constexpr... it can be trivially, but it\u0027s just not tagged.\n\nThey can be either\n\n   constexpr SkPackedUnicharID() \u003d default;\n   constexpr SkGlyph() \u003d default;\n\nor you can use {}... as long as you can tag them constexpr and they compile, should be ok.",
+      "revId": "149381142b228754ddf323eb0cd6f699a53a7c2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
