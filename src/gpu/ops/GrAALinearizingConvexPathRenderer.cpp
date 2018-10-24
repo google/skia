@@ -325,7 +325,6 @@ private:
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
-        this->joinBounds(*that);
         return CombineResult::kMerged;
     }
 

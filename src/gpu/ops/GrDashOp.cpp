@@ -731,7 +731,6 @@ private:
         }
 
         fLines.push_back_n(that->fLines.count(), that->fLines.begin());
-        this->joinBounds(*that);
         return CombineResult::kMerged;
     }
 

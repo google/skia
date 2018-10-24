@@ -517,7 +517,6 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
     that->fGeoCount = 0;
     fGeoCount = newGeoCount;
 
-    this->joinBounds(*that);
     return CombineResult::kMerged;
 }
 

@@ -41,8 +41,11 @@ GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, const GrCaps& caps) {
     auto result = this->onCombineIfPossible(that, caps);
     // Merging a chained 'that' would cause problems given the way op lists currently manage chains.
     SkASSERT(!(thatWasChained && result == CombineResult::kMerged));
-    if (fChainHead && result == CombineResult::kMerged) {
-        fChainHead->joinBounds(*that);
+    if (result == CombineResult::kMerged) {
+        this->joinBounds(*that);
+        if (fChainHead) {
+            fChainHead->joinBounds(*that);
+        }
     }
     return result;
 }

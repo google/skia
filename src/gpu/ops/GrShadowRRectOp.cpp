@@ -601,7 +601,6 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
-        this->joinBounds(*that);
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         return CombineResult::kMerged;

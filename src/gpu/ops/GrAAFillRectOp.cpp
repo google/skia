@@ -302,7 +302,6 @@ private:
 
         fRectData.push_back_n(that->fRectData.count(), that->fRectData.begin());
         fRectCnt += that->fRectCnt;
-        this->joinBounds(*that);
         return CombineResult::kMerged;
     }
 
