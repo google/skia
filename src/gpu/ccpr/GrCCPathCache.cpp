@@ -112,20 +112,6 @@ private:
 
 }
 
-inline GrCCPathCache::HashNode::HashNode(uint32_t pathCacheUniqueID, const MaskTransform& m,
-                                         const GrShape& shape) {
-    SkASSERT(shape.hasUnstyledKey());
-
-    WriteStyledKey writeKey(shape);
-    void* memory = ::operator new (sizeof(GrCCPathCacheEntry) +
-                                   writeKey.allocCountU32() * sizeof(uint32_t));
-    fEntry.reset(new (memory) GrCCPathCacheEntry(pathCacheUniqueID, m));
-
-    // The shape key is a variable-length footer to the entry allocation.
-    uint32_t* keyData = (uint32_t*)((char*)memory + sizeof(GrCCPathCacheEntry));
-    writeKey.write(shape, keyData);
-}
-
 inline bool operator==(const GrCCPathCache::HashKey& key1, const GrCCPathCache::HashKey& key2) {
     return key1.fData[0] == key2.fData[0] && !memcmp(&key1.fData[1], &key2.fData[1], key1.fData[0]);
 }
@@ -139,25 +125,64 @@ inline uint32_t GrCCPathCache::HashNode::Hash(HashKey key) {
     return GrResourceKeyHash(&key.fData[1], key.fData[0]);
 }
 
+inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* pathCache, const MaskTransform& m,
+                                         const GrShape& shape)
+        : fPathCache(pathCache) {
+    SkASSERT(SkGetThreadID() == fPathCache->fGraphicsThreadID);
+    SkASSERT(shape.hasUnstyledKey());
+
+    WriteStyledKey writeKey(shape);
+    void* mem = ::operator new (sizeof(GrCCPathCacheEntry) +
+                                writeKey.allocCountU32() * sizeof(uint32_t));
+    fEntry.reset(new (mem) GrCCPathCacheEntry(fPathCache->fInvalidatedEntriesInbox.uniqueID(), m));
+
+    // The shape key is a variable-length footer to the entry allocation.
+    uint32_t* keyData = (uint32_t*)((char*)mem + sizeof(GrCCPathCacheEntry));
+    writeKey.write(shape, keyData);
+}
+
+inline GrCCPathCache::HashNode::~HashNode() {
+    this->willExitHashTable();
+}
+
+inline GrCCPathCache::HashNode& GrCCPathCache::HashNode::operator=(HashNode&& node) {
+    this->willExitHashTable();
+    fPathCache = node.fPathCache;
+    fEntry = std::move(node.fEntry);
+    SkASSERT(!node.fEntry);
+    return *this;
+}
+
+inline void GrCCPathCache::HashNode::willExitHashTable() {
+    if (!fEntry) {
+        return;  // We were moved.
+    }
+
+    SkASSERT(fPathCache);
+    SkASSERT(SkGetThreadID() == fPathCache->fGraphicsThreadID);
+    SkASSERT(fPathCache->fLRU.isInList(fEntry.get()));
+
+    fEntry->invalidateAtlas();  // Must happen on graphics thread.
+    fPathCache->fLRU.remove(fEntry.get());
+}
+
 
 GrCCPathCache::GrCCPathCache()
-    : fInvalidatedEntriesInbox(next_path_cache_id()) {
+        : fInvalidatedEntriesInbox(next_path_cache_id()) {
+    SkDEBUGCODE(fGraphicsThreadID = SkGetThreadID());
 }
 
-#ifdef SK_DEBUG
 GrCCPathCache::~GrCCPathCache() {
-    // Ensure the hash table and LRU list are still coherent.
-    int lruCount = 0;
-    for (const GrCCPathCacheEntry* entry : fLRU) {
-        SkASSERT(fHashTable.find(HashNode::GetKey(entry))->entry() == entry);
-        ++lruCount;
-    }
-    SkASSERT(fHashTable.count() == lruCount);
+    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
+
+    fHashTable.reset();  // Must be cleared first; ~HashNode calls fLRU.remove() on us.
+    SkASSERT(fLRU.isEmpty());  // Ensure the hash table and LRU list were coherent.
 }
-#endif
 
 sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTransform& m,
                                               CreateIfAbsent createIfAbsent) {
+    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
+
     if (!shape.hasUnstyledKey()) {
         return nullptr;
     }
@@ -191,27 +216,36 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
         if (fHashTable.count() >= kMaxCacheCount) {
             this->evict(fLRU.tail());  // We've exceeded our limit.
         }
-        entry = fHashTable.set(HashNode(fInvalidatedEntriesInbox.uniqueID(), m, shape))->entry();
+        SkASSERT(!fHashTable.find({keyData.get()}));
+        entry = fHashTable.set(HashNode(this, m, shape))->entry();
         shape.addGenIDChangeListener(sk_ref_sp(entry));
         SkASSERT(fHashTable.count() <= kMaxCacheCount);
     } else {
         fLRU.remove(entry);  // Will be re-added at head.
     }
 
+    SkDEBUGCODE(HashNode* node = fHashTable.find(HashNode::GetKey(entry)));
+    SkASSERT(node && node->entry() == entry);
     fLRU.addToHead(entry);
     return sk_ref_sp(entry);
 }
 
 void GrCCPathCache::evict(GrCCPathCacheEntry* entry) {
+    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
+
     bool isInCache = entry->fNext || (fLRU.tail() == entry);
     SkASSERT(isInCache == fLRU.isInList(entry));
     if (isInCache) {
-        fLRU.remove(entry);
-        fHashTable.remove(HashNode::GetKey(entry));  // Do this last, as it might delete the entry.
+        SkDEBUGCODE(HashNode* node = fHashTable.find(HashNode::GetKey(entry)));
+        SkASSERT(node && node->entry() == entry);
+        fHashTable.remove(HashNode::GetKey(entry));
+        // HashNode::willExitHashTable() takes care of the rest.
     }
 }
 
 void GrCCPathCache::purgeAsNeeded() {
+    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
+
     SkTArray<sk_sp<GrCCPathCacheEntry>> invalidatedEntries;
     fInvalidatedEntriesInbox.poll(&invalidatedEntries);
     for (const sk_sp<GrCCPathCacheEntry>& entry : invalidatedEntries) {
@@ -220,15 +254,24 @@ void GrCCPathCache::purgeAsNeeded() {
 }
 
 
+GrCCPathCacheEntry::GrCCPathCacheEntry(uint32_t pathCacheUniqueID,
+                                       const MaskTransform& maskTransform)
+        : fPathCacheUniqueID(pathCacheUniqueID), fMaskTransform(maskTransform) {
+    SkASSERT(SK_InvalidUniqueID != fPathCacheUniqueID);
+    SkDEBUGCODE(fGraphicsThreadID = SkGetThreadID());
+}
+
 GrCCPathCacheEntry::~GrCCPathCacheEntry() {
+    // This might get called from a different thread.
+    SkASSERT(!fCachedAtlasInfo);  // Should have been cleared when the entry was evicted.
     SkASSERT(!fCurrFlushAtlas);  // Client is required to reset fCurrFlushAtlas back to null.
-    this->invalidateAtlas();
 }
 
 void GrCCPathCacheEntry::initAsStashedAtlas(const GrUniqueKey& atlasKey,
                                             const SkIVector& atlasOffset, const SkRect& devBounds,
                                             const SkRect& devBounds45, const SkIRect& devIBounds,
                                             const SkIVector& maskShift) {
+    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
     SkASSERT(atlasKey.isValid());
     SkASSERT(!fCurrFlushAtlas);  // Otherwise we should reuse the atlas from last time.
 
@@ -245,6 +288,7 @@ void GrCCPathCacheEntry::initAsStashedAtlas(const GrUniqueKey& atlasKey,
 void GrCCPathCacheEntry::updateToCachedAtlas(const GrUniqueKey& atlasKey,
                                              const SkIVector& newAtlasOffset,
                                              sk_sp<GrCCAtlas::CachedAtlasInfo> info) {
+    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
     SkASSERT(atlasKey.isValid());
     SkASSERT(!fCurrFlushAtlas);  // Otherwise we should reuse the atlas from last time.
 
@@ -257,6 +301,8 @@ void GrCCPathCacheEntry::updateToCachedAtlas(const GrUniqueKey& atlasKey,
 }
 
 void GrCCPathCacheEntry::invalidateAtlas() {
+    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
+
     if (fCachedAtlasInfo) {
         // Mark our own pixels invalid in the cached atlas texture.
         fCachedAtlasInfo->fNumInvalidatedPathPixels += this->height() * this->width();
