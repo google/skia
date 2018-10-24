@@ -104,7 +104,9 @@ protected:
                 p.setDither(true);
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
                 p.setTextAlign(SkPaint::kCenter_Align);
+#endif
                 canvas->drawString(str, x + r.width()/2, y, p);
 
                 x += r.width() * 4 / 3;
@@ -223,7 +225,9 @@ protected:
         SkPaint p;
         p.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&p);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         p.setTextAlign(SkPaint::kCenter_Align);
+#endif
 
         for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
             SkString str(gModeNames[kx]);
@@ -232,7 +236,9 @@ protected:
         }
 
         y += SkIntToScalar(16) + h;
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         p.setTextAlign(SkPaint::kRight_Align);
+#endif
 
         for (size_t ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
             x = SkIntToScalar(16) + w;
