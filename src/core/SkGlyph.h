@@ -8,13 +8,13 @@
 #ifndef SkGlyph_DEFINED
 #define SkGlyph_DEFINED
 
-#include "SkArenaAlloc.h"
 #include "SkChecksum.h"
 #include "SkFixed.h"
 #include "SkMask.h"
 #include "SkTo.h"
 #include "SkTypes.h"
 
+class SkArenaAlloc;
 class SkPath;
 class SkGlyphCache;
 
@@ -70,7 +70,7 @@ struct SkPackedID {
         return fID & kCodeMask;
     }
 
-    uint32_t getPackedID() const {
+    uint32_t value() const {
         return fID;
     }
 
@@ -117,7 +117,7 @@ struct SkPackedGlyphID : public SkPackedID {
     SkPackedGlyphID(SkGlyphID code) : SkPackedID(code) { }
     SkPackedGlyphID(SkGlyphID code, SkFixed x, SkFixed y) : SkPackedID(code, x, y) { }
     SkPackedGlyphID(SkGlyphID code, SkIPoint pt) : SkPackedID(code, pt.x(), pt.y()) { }
-    SkPackedGlyphID() : SkPackedID() { }
+    constexpr SkPackedGlyphID() = default;
     SkGlyphID code() const {
         return SkTo<SkGlyphID>(SkPackedID::code());
     }
@@ -126,13 +126,78 @@ struct SkPackedGlyphID : public SkPackedID {
 struct SkPackedUnicharID : public SkPackedID {
     SkPackedUnicharID(SkUnichar code) : SkPackedID(code) { }
     SkPackedUnicharID(SkUnichar code, SkFixed x, SkFixed y) : SkPackedID(code, x, y) { }
-    SkPackedUnicharID() : SkPackedID() { }
+    constexpr SkPackedUnicharID() = default;
     SkUnichar code() const {
         return SkTo<SkUnichar>(SkPackedID::code());
     }
 };
 
 class SkGlyph {
+    struct PathData;
+
+public:
+    constexpr SkGlyph() = default;
+    static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedID::kSubBits;
+
+    bool isEmpty() const { return fWidth == 0 || fHeight == 0; }
+    bool isJustAdvance() const { return MASK_FORMAT_JUST_ADVANCE == fMaskFormat; }
+    bool isFullMetrics() const { return MASK_FORMAT_JUST_ADVANCE != fMaskFormat; }
+    SkGlyphID getGlyphID() const { return fID.code(); }
+    SkPackedGlyphID getPackedID() const { return fID; }
+    SkFixed getSubXFixed() const { return fID.getSubXFixed(); }
+    SkFixed getSubYFixed() const { return fID.getSubYFixed(); }
+
+    void initWithGlyphID(SkPackedGlyphID glyph_id);
+    size_t formatAlignment() const;
+    size_t allocImage(SkArenaAlloc* alloc);
+    size_t rowBytes() const;
+    size_t computeImageSize() const;
+    size_t rowBytesUsingFormat(SkMask::Format format) const;
+
+    // Call this to set all of the metrics fields to 0 (e.g. if the scaler
+    // encounters an error measuring a glyph). Note: this does not alter the
+    // fImage, fPath, fID, fMaskFormat fields.
+    void zeroMetrics();
+
+    void toMask(SkMask* mask) const;
+
+    // Returns the size allocated on the arena.
+    size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
+
+    class HashTraits {
+    public:
+        static SkPackedGlyphID GetKey(const SkGlyph& glyph) {
+            return glyph.fID;
+        }
+        static uint32_t Hash(SkPackedGlyphID glyphId) {
+            return glyphId.hash();
+        }
+    };
+
+    void*     fImage    = nullptr;
+    PathData* fPathData = nullptr;
+
+    // The advance for this glyph.
+    float     fAdvanceX = 0,
+              fAdvanceY = 0;
+
+    // The width and height of the glyph mask.
+    uint16_t  fWidth  = 0,
+              fHeight = 0;
+
+    // The offset from the glyphs origin on the baseline to the top left of the glyph mask.
+    int16_t   fTop  = 0,
+              fLeft = 0;
+
+    // Used by the GDI scaler to track state.
+    int8_t    fForceBW = 0;
+
+    // This is a combination of SkMask::Format and SkGlyph state. The SkGlyph can be in one of two
+    // states, just the advances have been calculated, and all the metrics are available. The
+    // illegal mask format is used to signal that only the advances are available.
+    uint8_t   fMaskFormat = 0;
+
+private:
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
     // the fBounds contains the top and bottom of the underline. The fInterval pair contains the
@@ -149,96 +214,6 @@ class SkGlyph {
         SkPath*    fPath;
     };
 
-public:
-    static const SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedID::kSubBits;
-    void* fImage;
-    PathData* fPathData;
-    float       fAdvanceX, fAdvanceY;
-
-    uint16_t    fWidth, fHeight;
-    int16_t     fTop, fLeft;
-    int8_t      fForceBW;
-
-    uint8_t     fMaskFormat;
-
-    void initWithGlyphID(SkPackedGlyphID glyph_id);
-
-    bool isEmpty() const {
-        return fWidth == 0 || fHeight == 0;
-    }
-
-    size_t formatAlignment() const;
-    size_t allocImage(SkArenaAlloc* alloc);
-
-    size_t rowBytes() const;
-    size_t rowBytesUsingFormat(SkMask::Format format) const;
-
-    bool isJustAdvance() const {
-        return MASK_FORMAT_JUST_ADVANCE == fMaskFormat;
-    }
-
-    bool isFullMetrics() const {
-        return MASK_FORMAT_JUST_ADVANCE != fMaskFormat;
-    }
-
-    SkGlyphID getGlyphID() const {
-        return fID.code();
-    }
-
-    SkPackedGlyphID getPackedID() const {
-        return fID;
-    }
-
-    SkFixed getSubXFixed() const {
-        return fID.getSubXFixed();
-    }
-
-    SkFixed getSubYFixed() const {
-        return fID.getSubYFixed();
-    }
-
-    size_t computeImageSize() const;
-
-    /** Call this to set all of the metrics fields to 0 (e.g. if the scaler
-        encounters an error measuring a glyph). Note: this does not alter the
-        fImage, fPath, fID, fMaskFormat fields.
-     */
-    void zeroMetrics();
-
-    void toMask(SkMask* mask) const;
-
-    /** Returns the size allocated on the arena.
-     */
-    size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc) {
-        fMaskFormat = from.fMaskFormat;
-        fWidth = from.fWidth;
-        fHeight = from.fHeight;
-        fLeft = from.fLeft;
-        fTop = from.fTop;
-        fForceBW = from.fForceBW;
-
-        if (from.fImage != nullptr) {
-            auto imageSize = this->allocImage(alloc);
-            SkASSERT(imageSize == from.computeImageSize());
-
-            memcpy(fImage, from.fImage, imageSize);
-            return imageSize;
-        }
-
-        return 0u;
-    }
-
-    class HashTraits {
-    public:
-        static SkPackedGlyphID GetKey(const SkGlyph& glyph) {
-            return glyph.fID;
-        }
-        static uint32_t Hash(SkPackedGlyphID glyphId) {
-            return glyphId.hash();
-        }
-    };
-
- private:
     // TODO(herb) remove friend statement after SkGlyphCache cleanup.
     friend class SkGlyphCache;
     SkPackedGlyphID fID;
