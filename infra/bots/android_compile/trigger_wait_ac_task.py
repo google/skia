@@ -23,6 +23,7 @@ import utils
 
 
 ANDROID_COMPILE_BUCKET = 'android-compile-tasks'
+ANDROID_COMPILE_BUCKET_POST_COMMIT = 'android-compile-tasks-post-commit'
 
 GS_RETRIES = 5
 GS_RETRY_WAIT_BASE = 15
@@ -48,16 +49,19 @@ class AndroidCompileException(Exception):
 
 def _create_task_dict(options):
   """Creates a dict representation of the requested task."""
-  params = {}
-  params['issue'] = options.issue
-  params['patchset'] = options.patchset
-  params['hash'] = options.hash
-  return params
+  task = {}
+  task['issue'] = options.issue
+  task['patchset'] = options.patchset
+  task['hash'] = options.hash
+  return task
 
 
-def _get_gs_bucket():
+def _get_gs_bucket(task):
   """Returns the Google storage bucket with the gs:// prefix."""
-  return 'gs://%s' % ANDROID_COMPILE_BUCKET
+  if task['hash'] == '':
+    return 'gs://%s' % ANDROID_COMPILE_BUCKET
+  else:
+    return 'gs://%s' % ANDROID_COMPILE_BUCKET_POST_COMMIT
 
 
 def _write_to_storage(task):
@@ -66,13 +70,20 @@ def _write_to_storage(task):
     json_file = os.path.join(os.getcwd(), _get_task_file_name(task))
     with open(json_file, 'w') as f:
       json.dump(task, f)
-    subprocess.check_call(['gsutil', 'cp', json_file, '%s/' % _get_gs_bucket()])
-    print 'Created %s/%s' % (_get_gs_bucket(), os.path.basename(json_file))
+    subprocess.check_call(
+        ['gsutil', 'cp', json_file, '%s/' % _get_gs_bucket(task)])
+    print 'Created %s/%s' % (_get_gs_bucket(task), os.path.basename(json_file))
 
 
 def _get_task_file_name(task):
-  """Returns the file name of the compile task. Eg: ${issue}-${patchset}.json"""
-  return '%s-%s.json' % (task['issue'], task['patchset'])
+  """Returns the file name of the compile task.
+
+  Eg: ${issue}-${patchset}.json OR ${hash}.json
+  """
+  if task['hash'] == '':
+    return '%s-%s.json' % (task['issue'], task['patchset'])
+  else:
+    return '%s.json' % task['hash']
 
 
 # Checks to see if task already exists in Google storage.
@@ -83,7 +94,7 @@ def _does_task_exist_in_storage(task):
   If the file exists and the task has already completed then the storage file is
   deleted and False is returned.
   """
-  gs_file = '%s/%s' % (_get_gs_bucket(), _get_task_file_name(task))
+  gs_file = '%s/%s' % (_get_gs_bucket(task), _get_task_file_name(task))
   try:
     output = subprocess.check_output(['gsutil', 'cat', gs_file])
   except subprocess.CalledProcessError:
@@ -112,9 +123,10 @@ def _trigger_task(options):
 def trigger_and_wait(options):
   """Triggers a task on the compile server and waits for it to complete."""
   task = _trigger_task(options)
-  print 'Android Compile Task for %d/%d has been successfully added to %s.' % (
-      options.issue, options.patchset, ANDROID_COMPILE_BUCKET)
-  print '%s will be polled every %d seconds.' % (ANDROID_COMPILE_BUCKET,
+
+  gs_file = '%s/%s' % (_get_gs_bucket(task), _get_task_file_name(task))
+  print 'Android Compile Task has been successfully added to %s' % gs_file
+  print '%s will be polled every %d seconds.' % (gs_file,
                                                  POLLING_FREQUENCY_SECS)
 
   # Now poll the Google storage file till the task completes or till deadline
@@ -127,8 +139,6 @@ def trigger_and_wait(options):
               DEADLINE_SECS))
 
     # Get the status of the task.
-    gs_file = '%s/%s' % (_get_gs_bucket(), _get_task_file_name(task))
-
     for retry in range(GS_RETRIES):
       try:
         output = subprocess.check_output(['gsutil', 'cat', gs_file])

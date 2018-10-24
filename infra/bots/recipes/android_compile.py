@@ -16,6 +16,7 @@ DEPS = [
 ]
 
 
+# TODO(rmistry): Will need similar changes
 def RunSteps(api):
   buildername = api.properties['buildername']
   issue = api.properties.get('patch_issue')
