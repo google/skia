@@ -1012,7 +1012,6 @@ private:
         }
         fProxies[0].fQuadCnt += that->fQuads.count();
         fQuads.push_back_n(that->fQuads.count(), that->fQuads.begin());
-        this->joinBounds(*that);
         fPerspective |= that->fPerspective;
         fDomain |= that->fDomain;
         if (upgradeToCoverageAAOnMerge) {

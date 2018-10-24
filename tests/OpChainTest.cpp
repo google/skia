@@ -111,7 +111,6 @@ private:
         if (result == GrOp::CombineResult::kMerged) {
             std::move(that->fValueRanges.begin(), that->fValueRanges.end(),
                       std::back_inserter(fValueRanges));
-            this->joinBounds(*that);
         }
         return result;
     }

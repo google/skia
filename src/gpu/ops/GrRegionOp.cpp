@@ -158,7 +158,6 @@ private:
         }
 
         fRegions.push_back_n(that->fRegions.count(), that->fRegions.begin());
-        this->joinBounds(*that);
         return CombineResult::kMerged;
     }
 

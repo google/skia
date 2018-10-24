@@ -264,6 +264,9 @@ protected:
                         HasAABloat::kNo, IsZeroArea::kNo);
     }
 
+    static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
+
+private:
     void joinBounds(const GrOp& that) {
         if (that.hasAABloat()) {
             fBoundsFlags |= kAABloat_BoundsFlag;
@@ -274,14 +277,6 @@ protected:
         return fBounds.joinPossiblyEmptyRect(that.fBounds);
     }
 
-    void replaceBounds(const GrOp& that) {
-        fBounds = that.fBounds;
-        fBoundsFlags = that.fBoundsFlags;
-    }
-
-    static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
-
-private:
     virtual CombineResult onCombineIfPossible(GrOp*, const GrCaps&) {
         return CombineResult::kCannotCombine;
     }

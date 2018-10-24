@@ -72,7 +72,6 @@ private:
         }
         if (cb->contains(this)) {
             fClip = cb->fClip;
-            this->replaceBounds(*t);
             fColor = cb->fColor;
             return CombineResult::kMerged;
         } else if (cb->fColor == fColor && this->contains(cb)) {

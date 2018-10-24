@@ -1519,7 +1519,6 @@ private:
         fRoundCaps |= that->fRoundCaps;
 
         fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
-        this->joinBounds(*that);
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
@@ -1830,7 +1829,6 @@ private:
         }
 
         fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
-        this->joinBounds(*that);
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         return CombineResult::kMerged;
@@ -2077,7 +2075,6 @@ private:
         }
 
         fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
-        this->joinBounds(*that);
         return CombineResult::kMerged;
     }
 
@@ -2309,7 +2306,6 @@ private:
         }
 
         fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
-        this->joinBounds(*that);
         return CombineResult::kMerged;
     }
 
@@ -2767,7 +2763,6 @@ private:
         }
 
         fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
-        this->joinBounds(*that);
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
@@ -3033,7 +3028,6 @@ private:
         }
 
         fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
-        this->joinBounds(*that);
         return CombineResult::kMerged;
     }
 

@@ -883,7 +883,6 @@ private:
         }
 
         fShapes.push_back_n(that->fShapes.count(), that->fShapes.begin());
-        this->joinBounds(*that);
         return CombineResult::kMerged;
     }
 
