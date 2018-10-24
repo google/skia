@@ -695,8 +695,28 @@ bool GrVkCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
     return true;
 }
 
-bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config) {
+bool validate_image_info(VkFormat format, SkColorType ct, GrPixelConfig* config,
+                         VkSamplerYcbcrConversion* ycbcrConversion) {
     *config = kUnknown_GrPixelConfig;
+
+    if (format == VK_FORMAT_UNDEFINED) {
+        // If the format is undefined then it is only valid as an external image which requires that
+        // we have a valid VkYcbcrConversion.
+        if (!ycbcrConversion || *ycbcrConversion != VK_NULL_HANDLE) {
+            // We don't actually care what the color type or config are since we won't use those
+            // values for external textures, but since our code requires setting a config here
+            // just default it to RGBA.
+            *config = kRGBA_8888_GrPixelConfig;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    if (ycbcrConversion && *ycbcrConversion != VK_NULL_HANDLE) {
+        // We only support having a ycbcr conversion for external images.
+        return false;
+    }
 
     switch (ct) {
         case kUnknown_SkColorType:
@@ -769,7 +789,8 @@ bool GrVkCaps::validateBackendTexture(const GrBackendTexture& tex, SkColorType c
         return false;
     }
 
-    return validate_image_info(imageInfo.fFormat, ct, config);
+    return validate_image_info(imageInfo.fFormat, ct, config,
+                               &imageInfo.fYcbcrConversionInfo.fYcbcrConversion);
 }
 
 bool GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType ct,
@@ -779,7 +800,8 @@ bool GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkCo
         return false;
     }
 
-    return validate_image_info(imageInfo.fFormat, ct, config);
+    return validate_image_info(imageInfo.fFormat, ct, config,
+                               &imageInfo.fYcbcrConversionInfo.fYcbcrConversion);
 }
 
 bool GrVkCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
@@ -788,7 +810,7 @@ bool GrVkCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColor
     if (!vkFormat) {
         return false;
     }
-    return validate_image_info(*vkFormat, ct, config);
+    return validate_image_info(*vkFormat, ct, config, nullptr);
 }
 
 #ifdef GR_TEST_UTILS
