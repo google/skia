@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SkPath.h"
+#include "SkTextUtils.h"
 #include "SkTypeface.h"
 
 class SkJSCanvas {
@@ -219,7 +220,8 @@ protected:
         SkScalar x = D/2;
         SkScalar y = D/2 - (fm.fAscent + fm.fDescent)/2;
         uint16_t glyphID = 3; // X
-        canvas->drawText((void*) &glyphID, sizeof(glyphID), x, y, *paint);
+        SkTextUtils::DrawText(canvas, &glyphID, sizeof(glyphID), x, y, *paint,
+                              SkPaint::kCenter_Align);
         canvas->restore();
     }
 
@@ -236,7 +238,6 @@ protected:
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
         paint.setStrokeWidth(SkIntToScalar(4));
         paint.setTextSize(SkIntToScalar(40));
-        paint.setTextAlign(SkPaint::kCenter_Align);
 
         canvas->save();
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));

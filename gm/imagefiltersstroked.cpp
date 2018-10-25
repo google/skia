@@ -72,8 +72,6 @@ protected:
         paint.setAntiAlias(true);
         paint.setStrokeWidth(10);
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setTextSize(48);
-        paint.setTextAlign(SkPaint::kCenter_Align);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(drawProc); ++i) {
             canvas->translate(0, margin);
