@@ -11,6 +11,7 @@
 #include "SkColorSpace.h"
 #include "SkData.h"
 #include "SkFrameHolder.h"
+#include "SkGifCodec.h"
 #include "SkHalf.h"
 #ifdef SK_HAS_HEIF_LIBRARY
 #include "SkHeifCodec.h"
@@ -24,11 +25,6 @@
 #include "SkStream.h"
 #include "SkWbmpCodec.h"
 #include "SkWebpCodec.h"
-#ifdef SK_HAS_WUFFS_LIBRARY
-#include "SkWuffsCodec.h"
-#else
-#include "SkGifCodec.h"
-#endif
 
 struct DecoderProc {
     bool (*IsFormat)(const void*, size_t);
@@ -42,11 +38,7 @@ static constexpr DecoderProc gDecoderProcs[] = {
 #ifdef SK_HAS_WEBP_LIBRARY
     { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
 #endif
-#ifdef SK_HAS_WUFFS_LIBRARY
-    { SkWuffsCodec_IsFormat, SkWuffsCodec_MakeFromStream },
-#else
     { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
-#endif
 #ifdef SK_HAS_PNG_LIBRARY
     { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
 #endif
