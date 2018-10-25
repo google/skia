@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3670a0f_602ec924",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-25T15:55:01Z",
+      "side": 0,
+      "message": "do the same in drawUsingPaths() and then we can get rid of forEachGlyphAndPosition() too?",
+      "revId": "a2272ef92640c6039baffc3f509854b1f7604a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
