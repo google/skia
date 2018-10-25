@@ -102,7 +102,7 @@ public:
 
     size_t runSize() const { return fGlyphIDs.size(); }
     SkSpan<const SkPoint> positions() const { return fPositions.toConst(); }
-    SkSpan<const SkGlyphID> shuntGlyphsIDs() const { return fGlyphIDs; }
+    SkSpan<const SkGlyphID> glyphsIDs() const { return fGlyphIDs; }
     const SkPaint& paint() const { return fRunPaint; }
     SkPaint* mutablePaint() { return &fRunPaint; }
     SkSpan<const uint32_t> clusters() const { return fClusters; }
