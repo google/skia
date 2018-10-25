@@ -22,6 +22,30 @@
       "revId": "df321f15340836aa0b67a813a5769ec6738e027b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e3ddf47_b3d1b56f",
+        "filename": "src/gpu/ops/GrPerEdgeAAQuadHelper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-25T19:22:02Z",
+      "side": 1,
+      "message": "Renamed the file and namespace to GrQuadPerEdgeAA.",
+      "parentUuid": "8cc33378_fbb4c540",
+      "range": {
+        "startLine": 19,
+        "startChar": 10,
+        "endLine": 19,
+        "endChar": 21
+      },
+      "revId": "df321f15340836aa0b67a813a5769ec6738e027b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
