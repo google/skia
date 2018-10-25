@@ -28,7 +28,7 @@ static bool is_reversed(const uint32_t* clusters, uint32_t count) {
 SkClusterator::SkClusterator(const SkGlyphRun& run)
     : fClusters(run.clusters().data())
     , fUtf8Text(run.text().data())
-    , fGlyphCount(SkToU32(run.shuntGlyphsIDs().size()))
+    , fGlyphCount(SkToU32(run.glyphsIDs().size()))
     , fTextByteLength(SkToU32(run.text().size()))
 {
     if (fClusters) {

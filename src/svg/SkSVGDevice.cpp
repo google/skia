@@ -872,7 +872,7 @@ public:
         const SkPaint& paint = glyphRun.paint();
         auto runSize = glyphRun.runSize();
         SkAutoSTArray<64, SkUnichar> unichars(runSize);
-        paint.glyphsToUnichars(glyphRun.shuntGlyphsIDs().data(), runSize, unichars.get());
+        paint.glyphsToUnichars(glyphRun.glyphsIDs().data(), runSize, unichars.get());
         auto positions = glyphRun.positions();
         for (size_t i = 0; i < runSize; ++i) {
             this->appendUnichar(unichars[i], positions[i]);
