@@ -93,7 +93,7 @@ private:
     struct SingleDraw {
         SingleDraw(const SkMatrix&, const GrShape&, float strokeDevWidth,
                    const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
-                   Visibility maskVisibility, GrColor);
+                   Visibility maskVisibility, const SkPMColor4f&);
         ~SingleDraw();
 
         SkMatrix fMatrix;
@@ -102,7 +102,7 @@ private:
         const SkIRect fShapeConservativeIBounds;
         SkIRect fMaskDevIBounds;
         Visibility fMaskVisibility;
-        GrColor fColor;
+        SkPMColor4f fColor;
 
         sk_sp<GrCCPathCacheEntry> fCacheEntry;
         sk_sp<GrTextureProxy> fCachedAtlasProxy;

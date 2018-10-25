@@ -56,15 +56,16 @@ public:
         SkRect fDevBounds45;  // Bounding box in "| 1  -1 | * devCoords" space.
                               //                  | 1   1 |
         SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
-        GrColor fColor;
+        SkPMColor4f fColor;
 
         void set(const SkRect& devBounds, const SkRect& devBounds45,
-                 const SkIVector& devToAtlasOffset, GrColor, DoEvenOddFill = DoEvenOddFill::kNo);
-        void set(const GrCCPathCacheEntry&, const SkIVector& shift, GrColor,
+                 const SkIVector& devToAtlasOffset, const SkPMColor4f&,
+                 DoEvenOddFill = DoEvenOddFill::kNo);
+        void set(const GrCCPathCacheEntry&, const SkIVector& shift, const SkPMColor4f&,
                  DoEvenOddFill = DoEvenOddFill::kNo);
     };
 
-    GR_STATIC_ASSERT(4 * 11 == sizeof(Instance));
+    GR_STATIC_ASSERT(4 * 14 == sizeof(Instance));
 
     static sk_sp<const GrBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
@@ -113,7 +114,8 @@ private:
 };
 
 inline void GrCCPathProcessor::Instance::set(const SkRect& devBounds, const SkRect& devBounds45,
-                                             const SkIVector& devToAtlasOffset, GrColor color,
+                                             const SkIVector& devToAtlasOffset,
+                                             const SkPMColor4f& color,
                                              DoEvenOddFill doEvenOddFill) {
     if (DoEvenOddFill::kYes == doEvenOddFill) {
         // "right < left" indicates even-odd fill type.

@@ -37,9 +37,7 @@ public:
         }
 
         if (ce.color() != fColor) {
-            float c[4];
-            GrColorToRGBAFloat(ce.color(), c);
-            pdman.set4fv(fColorUniform, 1, c);
+            pdman.set4fv(fColorUniform, 1, ce.color().vec());
             fColor = ce.color();
         }
 
@@ -52,7 +50,7 @@ public:
 
 private:
     SkMatrix fViewMatrix;
-    GrColor fColor;
+    SkPMColor4f fColor;
     uint8_t fCoverageScale;
     GrClipEdgeType fEdgeType;
     UniformHandle fColorUniform;
@@ -63,7 +61,7 @@ private:
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor)
-    : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL), fCoverageScale(0xff) {
+    : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(SK_PMColor4fINVALID), fCoverageScale(0xff) {
     const GrConicEffect& ce = processor.cast<GrConicEffect>();
     fEdgeType = ce.getEdgeType();
 }
@@ -232,7 +230,7 @@ GrGLSLPrimitiveProcessor* GrConicEffect::createGLSLInstance(const GrShaderCaps&)
     return new GrGLConicEffect(*this);
 }
 
-GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
+GrConicEffect::GrConicEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix, uint8_t coverage,
                              GrClipEdgeType edgeType, const SkMatrix& localMatrix,
                              bool usesLocalCoords)
     : INHERITED(kGrConicEffect_ClassID)
@@ -256,9 +254,9 @@ sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(
                         d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        gp = GrConicEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
-                                 edgeType, *d->caps(), GrTest::TestMatrix(d->fRandom),
-                                 d->fRandom->nextBool());
+        gp = GrConicEffect::Make(SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
+                                 GrTest::TestMatrix(d->fRandom), edgeType, *d->caps(),
+                                 GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
     } while (nullptr == gp);
     return gp;
 }
@@ -290,9 +288,7 @@ public:
         }
 
         if (qe.color() != fColor) {
-            float c[4];
-            GrColorToRGBAFloat(qe.color(), c);
-            pdman.set4fv(fColorUniform, 1, c);
+            pdman.set4fv(fColorUniform, 1, qe.color().vec());
             fColor = qe.color();
         }
 
@@ -305,7 +301,7 @@ public:
 
 private:
     SkMatrix fViewMatrix;
-    GrColor fColor;
+    SkPMColor4f fColor;
     uint8_t fCoverageScale;
     GrClipEdgeType fEdgeType;
     UniformHandle fColorUniform;
@@ -316,7 +312,7 @@ private:
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor)
-    : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL), fCoverageScale(0xff) {
+    : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(SK_PMColor4fINVALID), fCoverageScale(0xff) {
     const GrQuadEffect& ce = processor.cast<GrQuadEffect>();
     fEdgeType = ce.getEdgeType();
 }
@@ -434,7 +430,7 @@ GrGLSLPrimitiveProcessor* GrQuadEffect::createGLSLInstance(const GrShaderCaps&) 
     return new GrGLQuadEffect(*this);
 }
 
-GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
+GrQuadEffect::GrQuadEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix, uint8_t coverage,
                            GrClipEdgeType edgeType, const SkMatrix& localMatrix,
                            bool usesLocalCoords)
     : INHERITED(kGrQuadEffect_ClassID)
@@ -457,9 +453,9 @@ sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
     do {
         GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
                 d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        gp = GrQuadEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom), edgeType,
-                                *d->caps(), GrTest::TestMatrix(d->fRandom),
-                                d->fRandom->nextBool());
+        gp = GrQuadEffect::Make(SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
+                                GrTest::TestMatrix(d->fRandom), edgeType, *d->caps(),
+                                GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
     } while (nullptr == gp);
     return gp;
 }
@@ -498,9 +494,7 @@ public:
         }
 
         if (ce.color() != fColor) {
-            float c[4];
-            GrColorToRGBAFloat(ce.color(), c);
-            pdman.set4fv(fColorUniform, 1, c);
+            pdman.set4fv(fColorUniform, 1, ce.color().vec());
             fColor = ce.color();
         }
 
@@ -510,7 +504,7 @@ public:
 private:
     SkMatrix fViewMatrix;
     SkMatrix fDevKLMMatrix;
-    GrColor fColor;
+    SkPMColor4f fColor;
     GrClipEdgeType fEdgeType;
     UniformHandle fColorUniform;
     UniformHandle fViewMatrixUniform;
@@ -522,7 +516,7 @@ private:
 GrGLCubicEffect::GrGLCubicEffect(const GrGeometryProcessor& processor)
     : fViewMatrix(SkMatrix::InvalidMatrix())
     , fDevKLMMatrix(SkMatrix::InvalidMatrix())
-    , fColor(GrColor_ILLEGAL) {
+    , fColor(SK_PMColor4fINVALID) {
     const GrCubicEffect& ce = processor.cast<GrCubicEffect>();
     fEdgeType = ce.getEdgeType();
 }
@@ -661,7 +655,7 @@ GrGLSLPrimitiveProcessor* GrCubicEffect::createGLSLInstance(const GrShaderCaps&)
     return new GrGLCubicEffect(*this);
 }
 
-GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix, const SkMatrix&
+GrCubicEffect::GrCubicEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix, const SkMatrix&
                              devKLMMatrix, GrClipEdgeType edgeType)
     : INHERITED(kGrCubicEffect_ClassID)
     , fColor(color)
@@ -682,9 +676,9 @@ sk_sp<GrGeometryProcessor> GrCubicEffect::TestCreate(GrProcessorTestData* d) {
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(
                         d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        gp = GrCubicEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
-                                 GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool(), edgeType,
-                                 *d->caps());
+        gp = GrCubicEffect::Make(SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
+                                 GrTest::TestMatrix(d->fRandom), GrTest::TestMatrix(d->fRandom),
+                                 d->fRandom->nextBool(), edgeType, *d->caps());
     } while (nullptr == gp);
     return gp;
 }
