@@ -150,7 +150,7 @@ void SkGlyphRunListPainter::forEachMappedDrawableGlyph(
         mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
         const SkPoint* mappedPtCursor = fPositions;
         const SkPoint* ptCursor = glyphRun.positions().data();
-        for (auto glyphID : glyphRun.glyphsIDs()) {
+        for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
             auto mappedPt = *mappedPtCursor++;
             auto pt = origin + *ptCursor++;
             if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
@@ -234,7 +234,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
     SkScalar maxFallbackDimension{-SK_ScalarInfinity};
 
     const SkPoint* positionCursor = glyphRun.positions().data();
-    for (auto glyphID : glyphRun.glyphsIDs()) {
+    for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
         const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, {0, 0});
         SkPoint glyphPos = origin + *positionCursor++;
         if (glyph.fMaskFormat == SkMask::kSDF_Format || glyph.isEmpty()) {
