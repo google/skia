@@ -16,6 +16,24 @@
       "revId": "a2272ef92640c6039baffc3f509854b1f7604a00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17e6be7b_3effa41f",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-10-25T16:07:45Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "d3670a0f_602ec924",
+      "revId": "a2272ef92640c6039baffc3f509854b1f7604a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
