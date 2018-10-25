@@ -48,9 +48,9 @@ public:
         return Helper::FactoryHelper<NonAARectOp>(context, std::move(paint), r, &local, ClassID());
     }
 
-    GrColor color() const { return fColor; }
+    const SkPMColor4f& color() const { return fColor; }
 
-    NonAARectOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkRect& r,
+    NonAARectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color, const SkRect& r,
                 const SkRect* localRect, int32_t classID)
             : INHERITED(classID)
             , fColor(color)
@@ -83,7 +83,7 @@ public:
     }
 
 protected:
-    GrColor fColor;
+    SkPMColor4f fColor;
     bool    fHasLocalRect;
     GrQuad  fLocalQuad;
     SkRect  fRect;
@@ -144,7 +144,7 @@ private:
         // Setup vertex colors
         GrColor* color = (GrColor*)((intptr_t)vertices + kColorOffset);
         for (int i = 0; i < 4; ++i) {
-            *color = fColor;
+            *color = fColor.toBytes_RGBA();
             color = (GrColor*)((intptr_t)color + vertexStride);
         }
 
@@ -204,14 +204,15 @@ public:
     // We set the initial color of the NonAARectOp based on the ID.
     // Note that we force creation of a NonAARectOp that has local coords in anticipation of
     // pulling from the atlas.
-    AtlasedRectOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkRect& r, int id)
+    AtlasedRectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color, const SkRect& r,
+                  int id)
             : INHERITED(helperArgs, kColors[id], r, &kEmptyRect, ClassID())
             , fID(id)
             , fNext(nullptr) {
         SkASSERT(fID < kMaxIDs);
     }
 
-    void setColor(GrColor color) { fColor = color; }
+    void setColor(const SkPMColor4f& color) { fColor = color; }
     void setLocalRect(const SkRect& localRect) {
         SkASSERT(fHasLocalRect);    // This should've been created to anticipate this
         fLocalQuad = GrQuad(localRect);
@@ -225,7 +226,7 @@ public:
 private:
 
     static const int kMaxIDs = 9;
-    static const SkColor kColors[kMaxIDs];
+    static const SkPMColor4f kColors[kMaxIDs];
 
     int            fID;
     // The Atlased ops have an internal singly-linked list of ops that land in the same opList
@@ -236,16 +237,16 @@ private:
 
 }  // anonymous namespace
 
-const GrColor AtlasedRectOp::kColors[kMaxIDs] = {
-    GrColorPackRGBA(255, 0, 0, 255),
-    GrColorPackRGBA(0, 255, 0, 255),
-    GrColorPackRGBA(0, 0, 255, 255),
-    GrColorPackRGBA(0, 255, 255, 255),
-    GrColorPackRGBA(255, 0, 255, 255),
-    GrColorPackRGBA(255, 255, 0, 255),
-    GrColorPackRGBA(0, 0, 0, 255),
-    GrColorPackRGBA(128, 128, 128, 255),
-    GrColorPackRGBA(255, 255, 255, 255)
+const SkPMColor4f AtlasedRectOp::kColors[kMaxIDs] = {
+    { 1, 0, 0, 1 },
+    { 0, 1, 0, 1 },
+    { 0, 0, 1, 1 },
+    { 0, 1, 1, 1 },
+    { 1, 0, 1, 1 },
+    { 1, 1, 0, 1 },
+    { 0, 0, 0, 1 },
+    { 0.5f, 0.5f, 0.5f, 1 },
+    { 1, 1, 1, 1 },
 };
 
 static const int kDrawnTileSize = 16;
@@ -366,7 +367,8 @@ public:
 
                 // For now, we avoid the resource buffer issues and just use clears
 #if 1
-                rtc->clear(&r, op->color(), GrRenderTargetContext::CanClearFullscreen::kNo);
+                rtc->clear(&r, op->color().toBytes_RGBA(),
+                           GrRenderTargetContext::CanClearFullscreen::kNo);
 #else
                 GrPaint paint;
                 paint.setColor4f(SkPMColor4f::FromBytes_RGBA(op->color()));
@@ -378,7 +380,7 @@ public:
 
                 // Set the atlased Op's color to white (so we know we're not using it for
                 // the final draw).
-                op->setColor(0xFFFFFFFF);
+                op->setColor({ 1, 1, 1, 1 });
 
                 // Set the atlased Op's localRect to point to where it landed in the atlas
                 op->setLocalRect(SkRect::Make(r));

@@ -39,7 +39,7 @@ class DefaultGeoProc : public GrGeometryProcessor {
 public:
     static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps* shaderCaps,
                                            uint32_t gpTypeFlags,
-                                           GrColor color,
+                                           const SkPMColor4f& color,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& viewMatrix,
                                            const SkMatrix& localMatrix,
@@ -54,7 +54,7 @@ public:
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
 
-    GrColor color() const { return fColor; }
+    const SkPMColor4f& color() const { return fColor; }
     bool hasVertexColor() const { return fInColor.isInitialized(); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
@@ -68,7 +68,9 @@ public:
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLSLProcessor()
-            : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
+            : fViewMatrix(SkMatrix::InvalidMatrix())
+            , fColor(SK_PMColor4fINVALID)
+            , fCoverage(0xff) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
@@ -229,10 +231,8 @@ public:
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
             }
 
-            if (dgp.color() != fColor && !dgp.hasVertexColor()) {
-                float c[4];
-                GrColorToRGBAFloat(dgp.color(), c);
-                pdman.set4fv(fColorUniform, 1, c);
+            if (!dgp.hasVertexColor() && dgp.color() != fColor) {
+                pdman.set4fv(fColorUniform, 1, dgp.color().vec());
                 fColor = dgp.color();
             }
 
@@ -281,7 +281,7 @@ public:
 
     private:
         SkMatrix fViewMatrix;
-        GrColor fColor;
+        SkPMColor4f fColor;
         uint8_t fCoverage;
         UniformHandle fViewMatrixUniform;
         UniformHandle fColorUniform;
@@ -303,7 +303,7 @@ public:
 private:
     DefaultGeoProc(const GrShaderCaps* shaderCaps,
                    uint32_t gpTypeFlags,
-                   GrColor color,
+                   const SkPMColor4f& color,
                    sk_sp<GrColorSpaceXform> colorSpaceXform,
                    const SkMatrix& viewMatrix,
                    const SkMatrix& localMatrix,
@@ -370,7 +370,7 @@ private:
     Attribute fInCoverage;
     Attribute fInBoneIndices;
     Attribute fInBoneWeights;
-    GrColor fColor;
+    SkPMColor4f fColor;
     SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;
     uint8_t fCoverage;
@@ -417,7 +417,7 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
 
     return DefaultGeoProc::Make(d->caps()->shaderCaps(),
                                 flags,
-                                GrRandomColor(d->fRandom),
+                                SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                 GrTest::TestColorXform(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
@@ -445,7 +445,7 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const GrShaderCaps* sha
     uint8_t inCoverage = coverage.fCoverage;
     bool localCoordsWillBeRead = localCoords.fType != LocalCoords::kUnused_Type;
 
-    GrColor inColor = color.fColor;
+    SkPMColor4f inColor = color.fColor;
     return DefaultGeoProc::Make(shaderCaps,
                                 flags,
                                 inColor,
@@ -499,7 +499,7 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeWithBones(const GrShader
     uint8_t inCoverage = coverage.fCoverage;
     bool localCoordsWillBeRead = localCoords.fType != LocalCoords::kUnused_Type;
 
-    GrColor inColor = color.fColor;
+    SkPMColor4f inColor = color.fColor;
     return DefaultGeoProc::Make(shaderCaps,
                                 flags,
                                 inColor,

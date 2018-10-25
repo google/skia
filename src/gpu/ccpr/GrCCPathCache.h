@@ -192,11 +192,12 @@ private:
 
     friend class GrCCPathCache;
     friend void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry&, const SkIVector&,
-                                                 uint32_t, DoEvenOddFill);  // To access data.
+                                                 const SkPMColor4f&,
+                                                 DoEvenOddFill);  // To access data.
 };
 
 inline void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry& entry,
-                                             const SkIVector& shift, GrColor color,
+                                             const SkIVector& shift, const SkPMColor4f& color,
                                              DoEvenOddFill doEvenOddFill) {
     float dx = (float)shift.fX, dy = (float)shift.fY;
     this->set(entry.fDevBounds.makeOffset(dx, dy), MakeOffset45(entry.fDevBounds45, dx, dy),

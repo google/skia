@@ -765,8 +765,9 @@ public:
                                                      stencilSettings);
     }
 
-    AAConvexPathOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
-                   const SkPath& path, const GrUserStencilSettings* stencilSettings)
+    AAConvexPathOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+                   const SkMatrix& viewMatrix, const SkPath& path,
+                   const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
         fPaths.emplace_back(PathData{viewMatrix, path, color});
         this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
@@ -843,7 +844,8 @@ private:
                 return;
             }
 
-            extract_lines_only_verts(tess, verts, vertexStride, args.fColor, idxs,
+            // TODO4F: Preserve float colors
+            extract_lines_only_verts(tess, verts, vertexStride, args.fColor.toBytes_RGBA(), idxs,
                                      fHelper.compatibleWithAlphaAsCoverage());
 
             GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
@@ -929,7 +931,8 @@ private:
             }
 
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
-            create_vertices(segments, fanPt, args.fColor, &draws, verts, idxs);
+            // TODO4F: Preserve float colors
+            create_vertices(segments, fanPt, args.fColor.toBytes_RGBA(), &draws, verts, idxs);
 
             GrMesh* meshes = target->allocMeshes(draws.count());
             for (int j = 0; j < draws.count(); ++j) {
@@ -967,7 +970,7 @@ private:
     struct PathData {
         SkMatrix fViewMatrix;
         SkPath fPath;
-        GrColor fColor;
+        SkPMColor4f fColor;
     };
 
     Helper fHelper;

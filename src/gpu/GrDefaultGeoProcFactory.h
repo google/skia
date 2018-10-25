@@ -70,19 +70,19 @@ namespace GrDefaultGeoProcFactory {
             kPremulGrColorAttribute_Type,
             kUnpremulSkColorAttribute_Type,
         };
-        explicit Color(GrColor color)
+        explicit Color(const SkPMColor4f& color)
                 : fType(kPremulGrColorUniform_Type)
                 , fColor(color)
                 , fColorSpaceXform(nullptr) {}
         Color(Type type)
                 : fType(type)
-                , fColor(GrColor_ILLEGAL)
+                , fColor(SK_PMColor4fINVALID)
                 , fColorSpaceXform(nullptr) {
             SkASSERT(type != kPremulGrColorUniform_Type);
         }
 
         Type fType;
-        GrColor fColor;
+        SkPMColor4f fColor;
 
         // This only applies to SkColor. Any GrColors are assumed to have been color converted
         // during paint conversion.
