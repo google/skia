@@ -2004,23 +2004,33 @@ void SkTSect::BinarySearch(SkTSect* sect1,
             }
         }
     }
-    const SkTSpan* tail1 = sect1->tail();
-    if (!(zeroOneSet & kOneS1Set) && approximately_greater_than_one(tail1->fEndT)) {
-        const SkDPoint& end1 = sect1->pointLast();
-        if (tail1->isBounded()) {
-            double t = tail1->closestBoundedT(end1);
-            if (sect2->fCurve.ptAtT(t).approximatelyEqual(end1)) {
-                intersections->insert(1, t, end1);
+    if (!(zeroOneSet & kOneS1Set)) {
+        const SkTSpan* tail1 = sect1->tail();
+        if (!tail1) {
+            return;
+        }
+        if (approximately_greater_than_one(tail1->fEndT)) {
+            const SkDPoint& end1 = sect1->pointLast();
+            if (tail1->isBounded()) {
+                double t = tail1->closestBoundedT(end1);
+                if (sect2->fCurve.ptAtT(t).approximatelyEqual(end1)) {
+                    intersections->insert(1, t, end1);
+                }
             }
         }
     }
-    const SkTSpan* tail2 = sect2->tail();
-    if (!(zeroOneSet & kOneS2Set) && approximately_greater_than_one(tail2->fEndT)) {
-        const SkDPoint& end2 = sect2->pointLast();
-        if (tail2->isBounded()) {
-            double t = tail2->closestBoundedT(end2);
-            if (sect1->fCurve.ptAtT(t).approximatelyEqual(end2)) {
-                intersections->insert(t, 1, end2);
+    if (!(zeroOneSet & kOneS2Set)) {
+        const SkTSpan* tail2 = sect2->tail();
+        if (!tail2) {
+            return;
+        }
+        if (approximately_greater_than_one(tail2->fEndT)) {
+            const SkDPoint& end2 = sect2->pointLast();
+            if (tail2->isBounded()) {
+                double t = tail2->closestBoundedT(end2);
+                if (sect1->fCurve.ptAtT(t).approximatelyEqual(end2)) {
+                    intersections->insert(t, 1, end2);
+                }
             }
         }
     }
