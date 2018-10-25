@@ -502,7 +502,9 @@ struct ButtonPaints {
         fStates[2].setColor(0xFFcf0000);
         fLabel.setAntiAlias(true);
         fLabel.setTextSize(25.0f);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         fLabel.setTextAlign(SkPaint::kCenter_Align);
+#endif
         fLabel.setStyle(SkPaint::kFill_Style);
     }
 };
@@ -864,7 +866,9 @@ public:
         fLegendLeftPaint.setAntiAlias(true);
         fLegendLeftPaint.setTextSize(13);
         fLegendRightPaint = fLegendLeftPaint;
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         fLegendRightPaint.setTextAlign(SkPaint::kRight_Align);
+#endif
         construct_path(fPath);
         fFillButton.fVisible = fSkeletonButton.fVisible = fFilterButton.fVisible
                 = fBisectButton.fVisible = fJoinButton.fVisible = fInOutButton.fVisible = true;

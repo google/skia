@@ -110,7 +110,9 @@ protected:
                     p.setLooper(fLooper);
                     str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
                     p.setTextAlign(SkPaint::kCenter_Align);
+#endif
                     textCanvas->drawString(str, x + r.width()/2, y, p);
 
                     x += r.width() * 4 / 3;

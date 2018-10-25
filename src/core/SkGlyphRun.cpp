@@ -420,6 +420,7 @@ void SkGlyphRunBuilder::simplifyDrawText(
             endOfLastGlyph += fScratchAdvances[i];
         }
 
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         if (paint.getTextAlign() != SkPaint::kLeft_Align) {
             SkVector len = endOfLastGlyph - origin;
             if (paint.getTextAlign() == SkPaint::kCenter_Align) {
@@ -429,6 +430,7 @@ void SkGlyphRunBuilder::simplifyDrawText(
                 pt -= len;
             }
         }
+#endif
 
         this->makeGlyphRun(
                 paint,
