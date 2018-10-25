@@ -86,18 +86,16 @@ bool SkGlyphRunListPainter::ensureBitmapBuffers(size_t runSize) {
 void SkGlyphRunListPainter::drawUsingPaths(
         const SkGlyphRun& glyphRun, SkPoint origin, SkGlyphCache* cache, PerPath perPath) const {
 
-    auto eachGlyph =
-            [perPath{std::move(perPath)}, origin, &cache]
-                    (SkGlyphID glyphID, SkPoint position) {
-                const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
-                if (glyph.fWidth > 0) {
-                    const SkPath* path = cache->findPath(glyph);
-                    SkPoint loc = position + origin;
-                    perPath(path, glyph, loc);
-                }
-            };
-
-    glyphRun.forEachGlyphAndPosition(eachGlyph);
+    const SkPoint* positionCursor = glyphRun.positions().data();
+    for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
+        SkPoint position = *positionCursor++;
+        const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
+        if (glyph.fWidth > 0) {
+            const SkPath* path = cache->findPath(glyph);
+            SkPoint loc = position + origin;
+            perPath(path, glyph, loc);
+        }
+    }
 }
 
 static bool prepare_mask(

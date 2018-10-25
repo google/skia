@@ -98,11 +98,6 @@ public:
     using PerGlyph = std::function<void (SkGlyphRun*, SkPaint*)>;
     void eachGlyphToGlyphRun(PerGlyph perGlyph);
 
-    // The following made a ~5% speed improvement over not using a template.
-    //using PerGlyphPos = std::function<void (SkGlyphID glyphID, SkPoint positions)>;
-    template <typename PerGlyphPos>
-    void forEachGlyphAndPosition(PerGlyphPos perGlyph) const;
-
     void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
 
     size_t runSize() const { return fGlyphIDs.size(); }
@@ -264,13 +259,5 @@ private:
     // Used for collecting the set of unique glyphs.
     SkGlyphIDSet fGlyphIDSet;
 };
-
-template <typename PerGlyphPos>
-inline void SkGlyphRun::forEachGlyphAndPosition(PerGlyphPos perGlyph) const {
-    const SkPoint* ptCursor = fPositions.data();
-    for (auto glyphID : fGlyphIDs) {
-        perGlyph(glyphID, *ptCursor++);
-    }
-}
 
 #endif  // SkGlyphRun_DEFINED
