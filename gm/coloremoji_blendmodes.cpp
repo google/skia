@@ -116,7 +116,9 @@ protected:
         SkPaint labelP;
         labelP.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&labelP);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         labelP.setTextAlign(SkPaint::kCenter_Align);
+#endif
 
         SkPaint textP;
         textP.setAntiAlias(true);

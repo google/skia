@@ -115,7 +115,9 @@ protected:
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(4));
         paint.setTextSize(SkIntToScalar(40));
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         paint.setTextAlign(SkPaint::kCenter_Align);
+#endif
 
         canvas->save();
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
