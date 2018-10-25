@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4a9854d_3072a079",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-25T21:01:24Z",
+      "side": 1,
+      "message": "I\u0027m wondering if this needs to be in a class or could it just be GrQuadPerEdgeAA::Tessellate(...)",
+      "revId": "9c046ad310f8c92877f378f1c03602a8a36f390d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36a1a0a9_544f550f",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-25T21:01:24Z",
+      "side": 1,
+      "message": "... and this would just be static void tessellate_impl in the cpp",
+      "revId": "9c046ad310f8c92877f378f1c03602a8a36f390d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
