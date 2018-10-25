@@ -141,7 +141,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
     SkScalar maxFallbackDimension{-SK_ScalarInfinity};
 
     const SkPoint* positionCursor = glyphRun.positions().data();
-    for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
+    for (auto glyphID : glyphRun.glyphsIDs()) {
         SkPoint position = *positionCursor++;
         if (SkScalarsAreFinite(position.x(), position.y())) {
             const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
@@ -178,7 +178,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
     if (this->ensureBitmapBuffers(runSize)) {
         mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
         const SkPoint* mappedPtCursor = fPositions;
-        for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
+        for (auto glyphID : glyphRun.glyphsIDs()) {
             auto mappedPt = *mappedPtCursor++;
             if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
                 const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
@@ -210,7 +210,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
     SkScalar maxFallbackDimension{-SK_ScalarInfinity};
 
     const SkPoint* positionCursor = glyphRun.positions().data();
-    for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
+    for (auto glyphID : glyphRun.glyphsIDs()) {
         const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, {0, 0});
         SkPoint glyphPos = origin + *positionCursor++;
         if (glyph.fMaskFormat == SkMask::kSDF_Format || glyph.isEmpty()) {
