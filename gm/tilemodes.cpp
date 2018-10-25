@@ -11,6 +11,7 @@
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
+#include "SkTextUtils.h"
 #include "SkUTF.h"
 // effects
 #include "SkGradientShader.h"
@@ -104,8 +105,7 @@ protected:
                 p.setDither(true);
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
-                p.setTextAlign(SkPaint::kCenter_Align);
-                canvas->drawString(str, x + r.width()/2, y, p);
+                SkTextUtils::DrawString(canvas, str, x + r.width()/2, y, p, SkPaint::kCenter_Align);
 
                 x += r.width() * 4 / 3;
             }
@@ -223,22 +223,20 @@ protected:
         SkPaint p;
         p.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&p);
-        p.setTextAlign(SkPaint::kCenter_Align);
 
         for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
             SkString str(gModeNames[kx]);
-            canvas->drawString(str, x + r.width()/2, y, p);
+            SkTextUtils::DrawString(canvas, str, x + r.width()/2, y, p, SkPaint::kCenter_Align);
             x += r.width() * 4 / 3;
         }
 
         y += SkIntToScalar(16) + h;
-        p.setTextAlign(SkPaint::kRight_Align);
 
         for (size_t ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
             x = SkIntToScalar(16) + w;
 
             SkString str(gModeNames[ky]);
-            canvas->drawString(str, x, y + h/2, p);
+            SkTextUtils::DrawString(canvas, str, x, y + h/2, p, SkPaint::kRight_Align);
 
             x += SkIntToScalar(50);
             for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
