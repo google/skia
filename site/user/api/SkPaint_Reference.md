@@ -5034,7 +5034,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="98b2dfc552d0540a7c041fe7a2839bd7"><div><a href='undocumented#Text'>Text</a> intercepts draw on either side of, but not inside, <a href='undocumented#Glyph'>Glyphs</a> in a run.
+<div><fiddle-embed name="5b5754fdb90b44c245d72567854eca04"><div><a href='undocumented#Text'>Text</a> intercepts draw on either side of, but not inside, <a href='undocumented#Glyph'>Glyphs</a> in a run.
 </div></fiddle-embed></div>
 
 <a name='SkPaint_getPosTextHIntercepts'></a>

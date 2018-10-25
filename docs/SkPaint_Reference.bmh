@@ -4613,27 +4613,28 @@ void draw(SkCanvas* canvas) {
     #Description
     Text intercepts draw on either side of, but not inside, Glyphs in a run.
     ##
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            paint.setTextSize(120);
-            paint.setVerticalText(true);
-            SkPoint textPos[] = {{ 60, 40 }, { 60, 140 }};
-            SkScalar bounds[] = { 56, 64 };
-            const char str[] = "A-";
-            int len = sizeof(str) - 1;
-            int count = paint.getPosTextIntercepts(str, len, textPos, bounds, nullptr);
-            std::vector<SkScalar> intervals;
-            intervals.resize(count);
-            (void) paint.getPosTextIntercepts(str, len, textPos, bounds, &intervals.front());
-            canvas->drawPosText(str, len, textPos, paint);
-            paint.setColor(SK_ColorRED);
-            SkScalar y = textPos[0].fY;
-            for (int i = 0; i < count; i+= 2) {
-                canvas->drawRect({bounds[0], y, bounds[1], intervals[i]}, paint);
-                y = intervals[i + 1];
-            }
-            canvas->drawRect({bounds[0], intervals[count - 1], bounds[1], 240}, paint);
+    void draw(SkCanvas* canvas) {
+        SkPaint paint;
+        paint.setTextSize(120);
+        SkPoint textPos[] = {{ 60, 90 }, { 120, 90 }};
+        SkScalar bounds[] = { 40, 70 };
+        const char str[] = "A+";
+        int len = sizeof(str) - 1;
+        int count = paint.getPosTextIntercepts(str, len, textPos, bounds, nullptr);
+        std::vector<SkScalar> intervals;
+        intervals.resize(count);
+        (void) paint.getPosTextIntercepts(str, len, textPos, bounds, &intervals.front());
+        canvas->drawPosText(str, len, textPos, paint);
+        paint.setColor(SK_ColorRED);
+        SkScalar x = textPos[0].fX;
+        for (int i = 0; i < count; i+= 2) {
+            canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);
+            x = intervals[i + 1];
         }
+        if (count) {
+            canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);
+        }
+    }
     ##
 
 ##
