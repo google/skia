@@ -43,6 +43,14 @@ public:
     SkVector rounding() const override;
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
+    const void* findImage(const SkGlyph&) override {
+        SK_ABORT("findImage not implemented");
+        return nullptr;
+    }
+    const SkPath* findPath(const SkGlyph&) override {
+        SK_ABORT("findPath not implemented");
+        return nullptr;
+    }
 
 private:
     bool hasPendingGlyphs() const {
