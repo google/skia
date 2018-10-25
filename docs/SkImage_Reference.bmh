@@ -1001,9 +1001,8 @@ Returns pixel row count.
    canvas->translate(image->width(), 0);
    SkPaint paint;
    paint.setTextAlign(SkPaint::kCenter_Align);
-   paint.setVerticalText(true);
    canvas->drawLine(10, 0, 10, image->height(), paint);
-   canvas->drawString("height", 25, image->height() / 2, paint);
+   canvas->drawString("height", 34, image->height() / 2, paint);
 ##
 
 #SeeAlso dimensions() width()

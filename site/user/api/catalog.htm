@@ -5971,10 +5971,10 @@
     "name": "SkImageInfo::gammaCloseToSRGB"
 },
     "SkImageInfo_height": {
-    "code": "void draw(SkCanvas* canvas) {\n    canvas->translate(10, 20);\n    canvas->drawBitmap(source, 0, 0);\n    SkImageInfo imageInfo = source.info();\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    paint.setVerticalText(true);\n    canvas->drawLine(imageInfo.width() + 10, 0, imageInfo.width() + 10, imageInfo.height(), paint);\n    canvas->drawString(\"height\", imageInfo.width() + 25, imageInfo.height() / 2, paint);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->translate(10, 20);\n    canvas->drawBitmap(source, 0, 0);\n    SkImageInfo imageInfo = source.info();\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawLine(imageInfo.width() + 10, 0, imageInfo.width() + 10, imageInfo.height(), paint);\n    canvas->drawString(\"height\", imageInfo.width() + 34, imageInfo.height() / 2, paint);\n}",
     "width": 256,
     "height": 96,
-    "hash": "1719751fef7fd6040447619d4e66d416",
+    "hash": "b79ea956d4cb89a483bfa48bba09df85",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::height()"
 },
@@ -6179,10 +6179,10 @@
     "name": "SkImage::getBackendTexture"
 },
     "SkImage_height": {
-    "code": "void draw(SkCanvas* canvas) {\n    canvas->translate(10, 10);\n    canvas->drawImage(image, 0, 0);\n    canvas->translate(image->width(), 0);\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    paint.setVerticalText(true);\n    canvas->drawLine(10, 0, 10, image->height(), paint);\n    canvas->drawString(\"height\", 25, image->height() / 2, paint);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->translate(10, 10);\n    canvas->drawImage(image, 0, 0);\n    canvas->translate(image->width(), 0);\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawLine(10, 0, 10, image->height(), paint);\n    canvas->drawString(\"height\", 34, image->height() / 2, paint);\n}",
     "width": 256,
     "height": 96,
-    "hash": "6e563cb8351d34bd8af555a51bcd7a96",
+    "hash": "60a063a2b210915f38401c83d4dba9e6",
     "file": "SkImage_Reference",
     "name": "SkImage::height()"
 },
@@ -7155,10 +7155,10 @@
     "name": "SkPaint::getPosTextHIntercepts"
 },
     "SkPaint_getPosTextIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(120);\n    paint.setVerticalText(true);\n    SkPoint textPos[] = {{ 60, 40 }, { 60, 140 }};\n    SkScalar bounds[] = { 56, 64 };\n    const char str[] = \"A-\";\n    int len = sizeof(str) - 1;\n    int count = paint.getPosTextIntercepts(str, len, textPos, bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getPosTextIntercepts(str, len, textPos, bounds, &intervals.front());\n    canvas->drawPosText(str, len, textPos, paint);\n    paint.setColor(SK_ColorRED);\n    SkScalar y = textPos[0].fY;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({bounds[0], y, bounds[1], intervals[i]}, paint);\n        y = intervals[i + 1];\n    }\n    canvas->drawRect({bounds[0], intervals[count - 1], bounds[1], 240}, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(120);\n    SkPoint textPos[] = {{ 60, 90 }, { 120, 90 }};\n    SkScalar bounds[] = { 40, 70 };\n    const char str[] = \"A+\";\n    int len = sizeof(str) - 1;\n    int count = paint.getPosTextIntercepts(str, len, textPos, bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getPosTextIntercepts(str, len, textPos, bounds, &intervals.front());\n    canvas->drawPosText(str, len, textPos, paint);\n    paint.setColor(SK_ColorRED);\n    SkScalar x = textPos[0].fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    if (count) {\n        canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "98b2dfc552d0540a7c041fe7a2839bd7",
+    "hash": "5b5754fdb90b44c245d72567854eca04",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getPosTextIntercepts"
 },
