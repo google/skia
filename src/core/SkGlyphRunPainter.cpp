@@ -84,12 +84,12 @@ bool SkGlyphRunListPainter::ensureBitmapBuffers(size_t runSize) {
 }
 
 void SkGlyphRunListPainter::drawUsingPaths(
-        const SkGlyphRun& glyphRun, SkPoint origin, SkGlyphCache* cache, PerPath perPath) const {
+        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun, SkPoint origin, PerPath perPath) const {
 
     const SkPoint* positionCursor = glyphRun.positions().data();
     for (auto glyphID : glyphRun.glyphsIDs()) {
         SkPoint position = *positionCursor++;
-        const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
+        const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, {0, 0});
         if (glyph.fWidth > 0) {
             const SkPath* path = cache->findPath(glyph);
             SkPoint loc = position + origin;
@@ -99,7 +99,7 @@ void SkGlyphRunListPainter::drawUsingPaths(
 }
 
 static bool prepare_mask(
-        SkGlyphCache* cache, const SkGlyph& glyph, SkPoint position, SkMask* mask) {
+        SkGlyphCacheInterface* cache, const SkGlyph& glyph, SkPoint position, SkMask* mask) {
     if (glyph.fWidth == 0) { return false; }
 
     // Prevent glyphs from being drawn outside of or straddling the edge of device space.
@@ -138,15 +138,16 @@ static bool prepare_mask(
 }
 
 void SkGlyphRunListPainter::drawGlyphRunAsSubpixelMask(
-        SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         PerMask perMask) {
     auto runSize = glyphRun.runSize();
+
     if (this->ensureBitmapBuffers(runSize)) {
         // Add rounding and origin.
         SkMatrix matrix = deviceMatrix;
-        SkPoint rounding = cache->rounding();
         matrix.preTranslate(origin.x(), origin.y());
+        SkPoint rounding = cache->rounding();
         matrix.postTranslate(rounding.x(), rounding.y());
         matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
 
@@ -166,7 +167,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSubpixelMask(
 }
 
 void SkGlyphRunListPainter::drawGlyphRunAsFullpixelMask(
-        SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         PerMask perMask) {
     auto runSize = glyphRun.runSize();
@@ -182,7 +183,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsFullpixelMask(
         for (auto glyphID : glyphRun.glyphsIDs()) {
             auto position = *positionCursor++;
             if (SkScalarsAreFinite(position.fX, position.fY)) {
-                const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
+                const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, position);
                 SkMask mask;
                 if (prepare_mask(cache, glyph, position, &mask)) {
                     perMask(mask, glyph, position);
@@ -215,7 +216,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     pathPaint, &props, fScalerContextFlags, nullptr);
 
             auto perPath = perPathCreator(paint, matrixScale, &alloc);
-            this->drawUsingPaths(glyphRun, origin, pathCache.get(), perPath);
+            this->drawUsingPaths(pathCache.get(), glyphRun, origin, perPath);
         } else {
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     paint, &props, fScalerContextFlags, &deviceMatrix);
@@ -226,7 +227,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 }
 
 void SkGlyphRunListPainter::drawUsingMasks(
-        SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix, PerMask perMask) {
     if (cache->isSubpixel()) {
         this->drawGlyphRunAsSubpixelMask(cache, glyphRun, origin, deviceMatrix, perMask);

@@ -35,10 +35,11 @@ public:
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             PerMaskCreator perMaskCreator, PerPathCreator perPathCreator);
     void drawUsingMasks(
-            SkGlyphCache* cache, const SkGlyphRun& glyphRun, SkPoint origin,
+            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun, SkPoint origin,
             const SkMatrix& deviceMatrix, PerMask perMask);
     void drawUsingPaths(
-            const SkGlyphRun& glyphRun, SkPoint origin, SkGlyphCache* cache, PerPath perPath) const;
+            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun, SkPoint origin,
+            PerPath perPath) const;
 
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
@@ -83,12 +84,12 @@ private:
             const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback);
 
     void drawGlyphRunAsSubpixelMask(
-            SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
             PerMask perMask);
 
     void drawGlyphRunAsFullpixelMask(
-            SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
             PerMask perMask);
 

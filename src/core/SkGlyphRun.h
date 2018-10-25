@@ -34,6 +34,8 @@ public:
     virtual ~SkGlyphCacheInterface() = default;
     virtual SkVector rounding() const = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
+    virtual void* findImage(const SkGlyph& glyph) = 0;
+    virtual const SkPath* findPath(const SkGlyph& glyph) = 0;
 };
 
 class SkGlyphCacheCommon {
