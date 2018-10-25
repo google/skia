@@ -203,7 +203,8 @@ GrCCAtlas* GrCCPerFlushResources::copyPathToCachedAtlas(const GrCCPathCacheEntry
         retiredAtlas->setFillBatchID(fNextCopyInstanceIdx);
     }
 
-    fPathInstanceData[fNextCopyInstanceIdx++].set(entry, *newAtlasOffset, GrColor_WHITE, evenOdd);
+    fPathInstanceData[fNextCopyInstanceIdx++].set(entry, *newAtlasOffset, SK_PMColor4fWHITE,
+                                                  evenOdd);
     return &fCopyAtlasStack.current();
 }
 
