@@ -1713,7 +1713,7 @@ Retrieves the back-end texture. If <a href='#Image'>Image</a> has no back-end te
 object is returned. Call <a href='undocumented#GrBackendTexture_isValid'>GrBackendTexture::isValid</a> to determine if the result
 is valid.
 
-If <a href='#SkImage_getBackendTexture_flushPendingGrContextIO'>flushPendingGrContextIO</a> is true, completes deferred I/O operations.
+If <a href='#SkImage_getBackendTexture_flushPendingGrContextIO'>flushPendingGrContextIO</a> is true, completes deferred I/ operations.
 
 If <a href='#SkImage_getBackendTexture_origin'>origin</a> in not nullptr, copies location of content drawn into <a href='#Image'>Image</a>.
 
