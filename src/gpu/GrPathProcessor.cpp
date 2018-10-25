@@ -18,7 +18,7 @@
 
 class GrGLPathProcessor : public GrGLSLPrimitiveProcessor {
 public:
-    GrGLPathProcessor() : fColor(GrColor_ILLEGAL) {}
+    GrGLPathProcessor() : fColor(SK_PMColor4fINVALID) {}
 
     static void GenKey(const GrPathProcessor& pathProc,
                        const GrShaderCaps&,
@@ -76,9 +76,7 @@ public:
                  FPCoordTransformIter&& transformIter) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         if (pathProc.color() != fColor) {
-            float c[4];
-            GrColorToRGBAFloat(pathProc.color(), c);
-            pd.set4fv(fColorUniform, 1, c);
+            pd.set4fv(fColorUniform, 1, pathProc.color().vec());
             fColor = pathProc.color();
         }
 
@@ -110,12 +108,12 @@ private:
     SkTArray<TransformVarying, true> fInstalledTransforms;
 
     UniformHandle fColorUniform;
-    GrColor fColor;
+    SkPMColor4f fColor;
 
     typedef GrGLSLPrimitiveProcessor INHERITED;
 };
 
-GrPathProcessor::GrPathProcessor(GrColor color,
+GrPathProcessor::GrPathProcessor(const SkPMColor4f& color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
         : INHERITED(kGrPathProcessor_ClassID)

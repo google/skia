@@ -120,7 +120,7 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
         : GrDrawOp(ClassID())
         , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
         , fDraws(m, shape, strokeDevWidth, shapeConservativeIBounds, maskDevIBounds, maskVisibility,
-                 paint.getColor())
+                 paint.getColor4f())
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
@@ -139,7 +139,7 @@ GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
                                         float strokeDevWidth,
                                         const SkIRect& shapeConservativeIBounds,
                                         const SkIRect& maskDevIBounds, Visibility maskVisibility,
-                                        GrColor color)
+                                        const SkPMColor4f& color)
         : fMatrix(m)
         , fShape(shape)
         , fStrokeDevWidth(strokeDevWidth)
@@ -191,13 +191,11 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
         SkStrokeRec hairlineStroke = draw->fShape.style().strokeRec();
         hairlineStroke.setStrokeStyle(0);
 
-        // How transparent does a 1px stroke have to be in order to appear as thin as the real one?
-        GrColor coverageAsAlpha = GrColorPackA4(SkScalarFloorToInt(draw->fStrokeDevWidth * 255));
-
+        // Adjust opacity to make the stroke appear as thin as the real one.
+        // fShapeConservativeIBounds already accounted for this possibility of inflating the stroke.
+        draw->fColor = draw->fColor * draw->fStrokeDevWidth;
         draw->fShape = GrShape(path, GrStyle(hairlineStroke, nullptr));
         draw->fStrokeDevWidth = 1;
-        // fShapeConservativeIBounds already accounted for this possibility of inflating the stroke.
-        draw->fColor = GrColorMul(draw->fColor, coverageAsAlpha);
     }
 
     return RequiresDstTexture(analysis.requiresDstTexture());

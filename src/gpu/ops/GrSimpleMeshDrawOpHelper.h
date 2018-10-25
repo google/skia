@@ -77,7 +77,7 @@ public:
      */
     GrDrawOp::RequiresDstTexture xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*,
                                                       GrProcessorAnalysisCoverage geometryCoverage,
-                                                      GrColor* geometryColor);
+                                                      SkPMColor4f* geometryColor);
 
     bool usesLocalCoords() const {
         SkASSERT(fDidAnalysis);
@@ -182,7 +182,7 @@ std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrContext* con
     GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
     MakeArgs makeArgs;
-    GrColor color = paint.getColor();
+    SkPMColor4f color = paint.getColor4f();
 
     if (paint.isTrivial()) {
         makeArgs.fProcessorSet = nullptr;
