@@ -209,7 +209,7 @@ sk_sp<SkPicture> SkPicturePriv::MakeFromBuffer(SkReadBuffer& buffer) {
     // size should be 0, 1, or negative
     int32_t ssize = buffer.read32();
     if (ssize < 0) {
-        const SkDeserialProcs& procs = buffer.fProcs;
+        const SkDeserialProcs& procs = buffer.getDeserialProcs();
         if (!procs.fPictureProc) {
             return nullptr;
         }

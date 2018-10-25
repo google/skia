@@ -89,18 +89,12 @@ void SkTrimPE::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkFlattenable> SkTrimPE::CreateProc(SkReadBuffer& buffer) {
-#ifdef SK_DISABLE_READBUFFER
-    // Should not be reachable by PathKit WebAssembly Code.
-    SkASSERT(false);
-    return nullptr;
-#else
     const auto start = buffer.readScalar(),
                stop  = buffer.readScalar();
     const auto mode  = buffer.readUInt();
 
     return SkTrimPathEffect::Make(start, stop,
         (mode & 1) ? SkTrimPathEffect::Mode::kInverted : SkTrimPathEffect::Mode::kNormal);
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
