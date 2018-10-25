@@ -11,6 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkImageGenerator.h"
 #include "SkPath.h"
+#include "SkTextUtils.h"
 #include "SkYUVAIndex.h"
 
 #if SK_SUPPORT_GPU
@@ -621,7 +622,6 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace+1);
 
     SkPaint textPaint;
-    textPaint.setTextAlign(SkPaint::kCenter_Align);
     sk_tool_utils::set_portable_typeface(&textPaint, nullptr, SkFontStyle::Bold());
     textPaint.setTextSize(16);
 
@@ -632,13 +632,14 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
     textPaint.measureText(colLabel.c_str(), colLabel.size(), &textRect);
     int y = textRect.height();
 
-    canvas->drawText(colLabel.c_str(), colLabel.size(), x, y, textPaint);
+    SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkPaint::kCenter_Align);
 
     colLabel.printf("%s", opaque ? "Opaque" : "Transparent");
+
     textPaint.measureText(colLabel.c_str(), colLabel.size(), &textRect);
     y += textRect.height();
 
-    canvas->drawText(colLabel.c_str(), colLabel.size(), x, y, textPaint);
+    SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkPaint::kCenter_Align);
 }
 
 static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
@@ -646,7 +647,6 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVFormatNames) == kLast_YUVFormat+1);
 
     SkPaint textPaint;
-    textPaint.setTextAlign(SkPaint::kLeft_Align);
     sk_tool_utils::set_portable_typeface(&textPaint, nullptr, SkFontStyle::Bold());
     textPaint.setTextSize(16);
 

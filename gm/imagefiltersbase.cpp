@@ -12,6 +12,7 @@
 #include "SkColorPriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkShader.h"
+#include "SkTextUtils.h"
 
 #include "SkBlurImageFilter.h"
 #include "SkColorFilterImageFilter.h"
@@ -129,8 +130,8 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     paint.setAntiAlias(true);
     sk_tool_utils::set_portable_typeface(&paint);
     paint.setTextSize(r.height()/2);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("Text", r.centerX(), r.centerY(), paint);
+    SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), paint,
+                            SkPaint::kCenter_Align);
 }
 
 static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {

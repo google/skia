@@ -20,6 +20,7 @@
 #include "SkShader.h"
 #include "SkSize.h"
 #include "SkString.h"
+#include "SkTextUtils.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
 #include "SkUTF.h"
@@ -116,7 +117,6 @@ protected:
         SkPaint labelP;
         labelP.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&labelP);
-        labelP.setTextAlign(SkPaint::kCenter_Align);
 
         SkPaint textP;
         textP.setAntiAlias(true);
@@ -154,7 +154,8 @@ protected:
             }
 #if 1
             const char* label = SkBlendMode_Name(gModes[i]);
-            canvas->drawString(label, x + w/2, y - labelP.getTextSize()/2, labelP);
+            SkTextUtils::DrawString(canvas, label, x + w/2, y - labelP.getTextSize()/2, labelP,
+                                    SkPaint::kCenter_Align);
 #endif
             x += w + SkIntToScalar(10);
             if ((i % W) == W - 1) {
