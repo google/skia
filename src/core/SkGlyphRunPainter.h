@@ -44,7 +44,7 @@ public:
     void drawGlyphRunAsBMPWithPathFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
-            PerGlyphT perGlyph, PerPathT perPath);
+            PerGlyphT&& perGlyph, PerPathT&& perPath);
 
     enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };
 
@@ -66,13 +66,13 @@ public:
     void drawGlyphRunAsPathWithARGBFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
-            PerPath perPath, ARGBFallback fallbackARGB);
+            PerPath&& perPath, ARGBFallback&& fallbackARGB);
 
     template <typename PerSDFT, typename PerPathT>
     void drawGlyphRunAsSDFWithARGBFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& viewMatrix, SkScalar textRatio,
-            PerSDFT perSDF, PerPathT perPath, ARGBFallback perFallback);
+            PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
 
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
@@ -135,7 +135,7 @@ template <typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
         SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
-        PerPathT perPath, ARGBFallback argbFallback) {
+        PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
     fARGBPositions.clear();
     SkScalar maxFallbackDimension{-SK_ScalarInfinity};
@@ -158,7 +158,8 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
 
     if (!fARGBGlyphsIDs.empty()) {
         this->processARGBFallback(
-            maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale, argbFallback);
+            maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale,
+            std::move(argbFallback));
 
     }
 }
@@ -167,7 +168,7 @@ template <typename PerGlyphT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
         SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
-        PerGlyphT perGlyph, PerPathT perPath) {
+        PerGlyphT&& perGlyph, PerPathT&& perPath) {
 
     SkMatrix mapping = deviceMatrix;
     mapping.preTranslate(origin.x(), origin.y());
@@ -204,7 +205,7 @@ template <typename PerSDFT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
         SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
-        PerSDFT perSDF, PerPathT perPath, ARGBFallback argbFallback) {
+        PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
     fARGBPositions.clear();
     SkScalar maxFallbackDimension{-SK_ScalarInfinity};
@@ -229,7 +230,8 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
 
     if (!fARGBGlyphsIDs.empty()) {
         this->processARGBFallback(
-            maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale, argbFallback);
+            maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale,
+            std::move(argbFallback));
     }
 }
 

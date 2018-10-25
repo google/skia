@@ -560,7 +560,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
 
                 glyphPainter->drawGlyphRunAsSDFWithARGBFallback(
                         cache.get(), glyphRun, origin, viewMatrix, textRatio,
-                        perSDF, perPath, argbFallback);
+                        std::move(perSDF), std::move(perPath), std::move(argbFallback));
             }
 
         } else if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
@@ -592,7 +592,8 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                             glyphCache, filteredColor};
 
             glyphPainter->drawGlyphRunAsPathWithARGBFallback(
-                pathCache.get(), glyphRun, origin, viewMatrix, textScale, perPath, argbFallback);
+                pathCache.get(), glyphRun, origin, viewMatrix, textScale,
+                std::move(perPath), std::move(argbFallback));
         } else {
             // Ensure the blob is set for bitmaptext
             cacheBlob->setHasBitmap();
@@ -630,7 +631,8 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                 };
 
             glyphPainter->drawGlyphRunAsBMPWithPathFallback(
-                    cache.get(), glyphRun, origin, viewMatrix, perGlyph, perPath);
+                    cache.get(), glyphRun, origin, viewMatrix,
+                    std::move(perGlyph), std::move(perPath));
         }
         runIndex += 1;
     }
