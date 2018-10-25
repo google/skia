@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c4e0981_6cfcee60",
+        "filename": "include/private/SkPathRef.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-10-25T20:01:57Z",
+      "side": 1,
+      "message": "The perf regression that caused us to revert last time came from converting this to:\n\n  SkTArray\u003csk_sp\u003cGenIDChangeListener\u003e\u003e fGenIDChangeListeners;",
+      "range": {
+        "startLine": 564,
+        "startChar": 4,
+        "endLine": 564,
+        "endChar": 35
+      },
+      "revId": "cb119567cdd00aa456f7ccd70d684503489c2c36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
