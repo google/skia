@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkShader.h"
+#include "SkTextUtils.h"
 
 enum SrcType {
     //! A WxH image with a rectangle in the lower right.
@@ -227,7 +228,6 @@ protected:
         SkPaint labelP;
         labelP.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&labelP);
-        labelP.setTextAlign(SkPaint::kCenter_Align);
 
         const int W = 5;
 
@@ -258,8 +258,8 @@ protected:
 
 #if 1
                 const char* label = SkBlendMode_Name(gModes[i].fMode);
-                canvas->drawString(label,
-                                 x + w/2, y - labelP.getTextSize()/2, labelP);
+                SkTextUtils::DrawString(canvas, label, x + w/2, y - labelP.getTextSize()/2,
+                                        labelP, SkPaint::kCenter_Align);
 #endif
                 x += w + SkIntToScalar(10);
                 if ((i % W) == W - 1) {

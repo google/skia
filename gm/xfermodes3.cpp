@@ -12,7 +12,7 @@
 #include "SkSurface.h"
 #include "SkBlendModePriv.h"
 #include "SkColorPriv.h"
-
+#include "SkTextUtils.h"
 #include "GrContext.h"
 
 namespace skiagm {

@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkClipStack.h"
 #include "SkRRect.h"
+#include "SkTextUtils.h"
 
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
@@ -265,7 +266,6 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
 void WindowRectanglesMaskGM::fail(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextAlign(SkPaint::kCenter_Align);
     paint.setTextSize(20);
     sk_tool_utils::set_portable_typeface(&paint);
 
@@ -275,8 +275,9 @@ void WindowRectanglesMaskGM::fail(SkCanvas* canvas) {
     canvas->clipRect(SkRect::Make(kCoverRect));
     canvas->clear(SK_ColorWHITE);
 
-    canvas->drawString(errorMsg, SkIntToScalar((kCoverRect.left() + kCoverRect.right())/2),
-                     SkIntToScalar((kCoverRect.top() + kCoverRect.bottom())/2 - 10), paint);
+    SkTextUtils::DrawString(canvas, errorMsg, SkIntToScalar((kCoverRect.left() + kCoverRect.right())/2),
+                     SkIntToScalar((kCoverRect.top() + kCoverRect.bottom())/2 - 10), paint,
+                            SkPaint::kCenter_Align);
 }
 
 DEF_GM( return new WindowRectanglesMaskGM(); )
