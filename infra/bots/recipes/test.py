@@ -380,6 +380,7 @@ def dm_flags(api, bot):
     blacklist('_ image gen_platf inc12.png')
     blacklist('_ image gen_platf inc13.png')
     blacklist('_ image gen_platf inc14.png')
+    blacklist('_ image gen_platf incInterlaced.png')
 
     # These images fail after Mac 10.13.1 upgrade.
     blacklist('_ image gen_platf incInterlaced.gif')
