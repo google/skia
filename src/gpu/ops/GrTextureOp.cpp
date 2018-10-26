@@ -17,6 +17,7 @@
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrQuad.h"
+#include "GrQuadPerEdgeAA.h"
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
 #include "GrTexture.h"
@@ -37,7 +38,7 @@
 
 namespace {
 
-enum class Domain : bool { kNo = false, kYes = true };
+using Domain = GrQuadPerEdgeAA::Domain;
 
 /**
  * Geometry Processor that draws a texture modulated by a vertex color (though, this is meant to be
@@ -46,44 +47,13 @@ enum class Domain : bool { kNo = false, kYes = true };
  */
 class TextureGeometryProcessor : public GrGeometryProcessor {
 public:
-    template <typename Pos> struct VertexCommon {
-        using Position = Pos;
-        Position fPosition;
-        GrColor fColor;
-        SkPoint fTextureCoords;
-    };
-
-    template <typename Pos, Domain D> struct OptionalDomainVertex;
-    template <typename Pos>
-    struct OptionalDomainVertex<Pos, Domain::kNo> : VertexCommon<Pos> {
-        static constexpr Domain kDomain = Domain::kNo;
-    };
-    template <typename Pos>
-    struct OptionalDomainVertex<Pos, Domain::kYes> : VertexCommon<Pos> {
-        static constexpr Domain kDomain = Domain::kYes;
-        SkRect fTextureDomain;
-    };
-
-    template <typename Pos, Domain D, GrAA> struct OptionalAAVertex;
-    template <typename Pos, Domain D>
-    struct OptionalAAVertex<Pos, D, GrAA::kNo> : OptionalDomainVertex<Pos, D> {
-        static constexpr GrAA kAA = GrAA::kNo;
-    };
-    template <typename Pos, Domain D>
-    struct OptionalAAVertex<Pos, D, GrAA::kYes> : OptionalDomainVertex<Pos, D> {
-        static constexpr GrAA kAA = GrAA::kYes;
-        SkPoint3 fEdges[4];
-    };
-
-    template <typename Pos, Domain D, GrAA AA>
-    using Vertex = OptionalAAVertex<Pos, D, AA>;
 
     static sk_sp<GrGeometryProcessor> Make(GrTextureType textureType, GrPixelConfig textureConfig,
                                            const GrSamplerState::Filter filter,
                                            sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                            sk_sp<GrColorSpaceXform> paintColorSpaceXform,
-                                           bool coverageAA, bool perspective, Domain domain,
-                                           const GrShaderCaps& caps) {
+                                           bool coverageAA, bool perspective,
+                                           Domain domain, const GrShaderCaps& caps) {
         return sk_sp<TextureGeometryProcessor>(new TextureGeometryProcessor(
                 textureType, textureConfig, filter, std::move(textureColorSpaceXform),
                 std::move(paintColorSpaceXform), coverageAA, perspective, domain, caps));
@@ -265,334 +235,6 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-// This computes the four edge equations for a quad, then outsets them and optionally computes a new
-// quad as the intersection points of the outset edges. 'x' and 'y' contain the original points as
-// input and the outset points as output. 'a', 'b', and 'c' are the edge equation coefficients on
-// output. If outsetCorners is true then 'u' and 'v' should hold the texture coordinates on input
-// and will also be outset.
-static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y, Sk4f* a,
-                                                   Sk4f* b, Sk4f* c, bool outsetCorners = false,
-                                                   Sk4f* u = nullptr, Sk4f* v = nullptr) {
-    static constexpr auto fma = SkNx_fma<4, float>;
-    // These rotate the points/edge values either clockwise or counterclockwise assuming tri strip
-    // order.
-    auto nextCW  = [](const Sk4f& v) { return SkNx_shuffle<2, 0, 3, 1>(v); };
-    auto nextCCW = [](const Sk4f& v) { return SkNx_shuffle<1, 3, 0, 2>(v); };
-
-    // Compute edge equations for the quad.
-    auto xnext = nextCCW(*x);
-    auto ynext = nextCCW(*y);
-    // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
-    auto xdiff = xnext - *x;
-    auto ydiff = ynext - *y;
-    auto invLengths = fma(xdiff, xdiff, ydiff * ydiff).rsqrt();
-    xdiff *= invLengths;
-    ydiff *= invLengths;
-
-    // Use above vectors to compute edge equations.
-    *c = fma(xnext, *y,  -ynext * *x) * invLengths;
-    // Make sure the edge equations have their normals facing into the quad in device space.
-    auto test = fma(ydiff, nextCW(*x), fma(-xdiff, nextCW(*y), *c));
-    if ((test < Sk4f(0)).anyTrue()) {
-        *a = -ydiff;
-        *b = xdiff;
-        *c = -*c;
-    } else {
-        *a = ydiff;
-        *b = -xdiff;
-    }
-    // Outset the edge equations so aa coverage evaluates to zero half a pixel away from the
-    // original quad edge.
-    *c += 0.5f;
-
-    if (aaFlags != GrQuadAAFlags::kAll) {
-        // This order is the same order the edges appear in xdiff/ydiff and therefore as the
-        // edges in a/b/c.
-        auto mask = Sk4f(GrQuadAAFlags::kLeft & aaFlags ? 1.f : 0.f,
-                         GrQuadAAFlags::kBottom & aaFlags ? 1.f : 0.f,
-                         GrQuadAAFlags::kTop & aaFlags ? 1.f : 0.f,
-                         GrQuadAAFlags::kRight & aaFlags ? 1.f : 0.f);
-        // Outset edge equations for masked out edges another pixel so that they always evaluate
-        // >= 1.
-        *c += (1.f - mask);
-        if (outsetCorners) {
-            // Do the vertex outset.
-            mask *= 0.5f;
-            auto maskCW = nextCW(mask);
-            *x += maskCW * -xdiff + mask * nextCW(xdiff);
-            *y += maskCW * -ydiff + mask * nextCW(ydiff);
-            // We want to extend the texture coords by the same proportion as the positions.
-            maskCW *= invLengths;
-            mask *= nextCW(invLengths);
-            Sk4f udiff = nextCCW(*u) - *u;
-            Sk4f vdiff = nextCCW(*v) - *v;
-            *u += maskCW * -udiff + mask * nextCW(udiff);
-            *v += maskCW * -vdiff + mask * nextCW(vdiff);
-        }
-    } else if (outsetCorners) {
-        *x += 0.5f * (-xdiff + nextCW(xdiff));
-        *y += 0.5f * (-ydiff + nextCW(ydiff));
-        Sk4f t = 0.5f * invLengths;
-        Sk4f udiff = nextCCW(*u) - *u;
-        Sk4f vdiff = nextCCW(*v) - *v;
-        *u += t * -udiff + nextCW(t) * nextCW(udiff);
-        *v += t * -vdiff + nextCW(t) * nextCW(vdiff);
-    }
-}
-
-namespace {
-// This is a class soley so it can be partially specialized (functions cannot be).
-template <typename V, GrAA AA = V::kAA, typename Position = typename V::Position>
-class VertexAAHandler;
-
-template<typename V> class VertexAAHandler<V, GrAA::kNo, SkPoint> {
-public:
-    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
-                                            GrQuadAAFlags aaFlags, const SkRect& texRect) {
-        // Should be kNone for non-AA and kAll for MSAA.
-        SkASSERT(aaFlags == GrQuadAAFlags::kNone || aaFlags == GrQuadAAFlags::kAll);
-        SkASSERT(!quad.hasPerspective());
-        SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
-        for (int i = 0; i < 4; ++i) {
-            vertices[i].fPosition = {quad.x(i), quad.y(i)};
-        }
-    }
-};
-
-template<typename V> class VertexAAHandler<V, GrAA::kNo, SkPoint3> {
-public:
-    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
-                                            GrQuadAAFlags aaFlags, const SkRect& texRect) {
-        // Should be kNone for non-AA and kAll for MSAA.
-        SkASSERT(aaFlags == GrQuadAAFlags::kNone || aaFlags == GrQuadAAFlags::kAll);
-        SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
-        for (int i = 0; i < 4; ++i) {
-            vertices[i].fPosition = quad.point(i);
-        }
-    }
-};
-
-template<typename V> class VertexAAHandler<V, GrAA::kYes, SkPoint> {
-public:
-    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
-                                            GrQuadAAFlags aaFlags, const SkRect& texRect) {
-        SkASSERT(!quad.hasPerspective());
-        if (aaFlags == GrQuadAAFlags::kNone) {
-            for (int i = 0; i < 4; ++i) {
-                vertices[i].fPosition = {quad.x(i), quad.y(i)};
-                for (int j = 0; j < 4; ++j) {
-                    // This works because the position w components are known to be 1.
-                    vertices[i].fEdges[j] = {0, 0, 1};
-                }
-            }
-            SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
-            return;
-        }
-        auto x = quad.x4f();
-        auto y = quad.y4f();
-        Sk4f a, b, c;
-        Sk4f u{texRect.fLeft, texRect.fLeft, texRect.fRight, texRect.fRight};
-        Sk4f v{texRect.fTop, texRect.fBottom, texRect.fTop, texRect.fBottom};
-        compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, true, &u, &v);
-
-        // Faster to store the Sk4fs all at once rather than element-by-element into vertices.
-        float xs[4], ys[4], as[4], bs[4], cs[4], us[4], vs[4];
-        x.store(xs);
-        y.store(ys);
-        a.store(as);
-        b.store(bs);
-        c.store(cs);
-        u.store(us);
-        v.store(vs);
-        for (int i = 0; i < 4; ++i) {
-            vertices[i].fPosition = {xs[i], ys[i]};
-            vertices[i].fTextureCoords = {us[i], vs[i]};
-            for (int j = 0; j < 4; ++j) {
-                vertices[i].fEdges[j]  = {as[j], bs[j], cs[j]};
-            }
-        }
-    }
-};
-
-template<typename V> class VertexAAHandler<V, GrAA::kYes, SkPoint3> {
-public:
-    static void AssignPositionsAndTexCoords(V* vertices, const GrPerspQuad& quad,
-                                            GrQuadAAFlags aaFlags, const SkRect& texRect) {
-        auto x = quad.x4f();
-        auto y = quad.y4f();
-        auto iw = quad.iw4f();
-
-        if ((iw == Sk4f(1)).allTrue() && aaFlags == GrQuadAAFlags::kNone) {
-            for (int i = 0; i < 4; ++i) {
-                vertices[i].fPosition = quad.point(i);
-                for (int j = 0; j < 4; ++j) {
-                    // This works because the position w components are known to be 1.
-                    vertices[i].fEdges[j] = {0, 0, 1};
-                }
-            }
-            SkPointPriv::SetRectTriStrip(&vertices[0].fTextureCoords, texRect, sizeof(V));
-            return;
-        }
-        Sk4f a, b, c;
-        auto x2d = x * iw;
-        auto y2d = y * iw;
-        compute_quad_edges_and_outset_vertices(aaFlags, &x2d, &y2d, &a, &b, &c);
-        auto w = quad.w4f();
-        static const float kOutset = 0.5f;
-        Sk4f u{texRect.fLeft, texRect.fLeft, texRect.fRight, texRect.fRight};
-        Sk4f v{texRect.fTop, texRect.fBottom, texRect.fTop, texRect.fBottom};
-        if ((GrQuadAAFlags::kLeft | GrQuadAAFlags::kRight) & aaFlags) {
-            // For each entry in x the equivalent entry in opX is the left/right opposite and so on.
-            Sk4f opX = SkNx_shuffle<2, 3, 0, 1>(x);
-            Sk4f opW = SkNx_shuffle<2, 3, 0, 1>(w);
-            Sk4f opY = SkNx_shuffle<2, 3, 0, 1>(y);
-            // vx/vy holds the device space left-to-right vectors along top and bottom of the quad.
-            Sk2f vx = SkNx_shuffle<2, 3>(x2d) - SkNx_shuffle<0, 1>(x2d);
-            Sk2f vy = SkNx_shuffle<2, 3>(y2d) - SkNx_shuffle<0, 1>(y2d);
-            Sk2f len = SkNx_fma(vx, vx, vy * vy).sqrt();
-            // For each device space corner, devP, label its left/right opposite device space point
-            // opDevPt. The new device space point is opDevPt + s (devPt - opDevPt) where s is
-            // (length(devPt - opDevPt) + 0.5) / length(devPt - opDevPt);
-            Sk4f s = SkNx_shuffle<0, 1, 0, 1>((len + kOutset) / len);
-            // Compute t in homogeneous space from s using similar triangles so that we can produce
-            // homogeneous outset vertices for perspective-correct interpolation.
-            Sk4f sOpW = s * opW;
-            Sk4f t = sOpW / (sOpW + (1.f - s) * w);
-            // mask is used to make the t values be 1 when the left/right side is not antialiased.
-            Sk4f mask(GrQuadAAFlags::kLeft & aaFlags  ? 1.f : 0.f,
-                      GrQuadAAFlags::kLeft & aaFlags  ? 1.f : 0.f,
-                      GrQuadAAFlags::kRight & aaFlags ? 1.f : 0.f,
-                      GrQuadAAFlags::kRight & aaFlags ? 1.f : 0.f);
-            t = t * mask + (1.f - mask);
-            x = opX + t * (x - opX);
-            y = opY + t * (y - opY);
-            w = opW + t * (w - opW);
-
-            Sk4f opU = SkNx_shuffle<2, 3, 0, 1>(u);
-            Sk4f opV = SkNx_shuffle<2, 3, 0, 1>(v);
-            u = opU + t * (u - opU);
-            v = opV + t * (v - opV);
-            if ((GrQuadAAFlags::kTop | GrQuadAAFlags::kBottom) & aaFlags) {
-                // Update the 2D points for the top/bottom calculation.
-                iw = w.invert();
-                x2d = x * iw;
-                y2d = y * iw;
-            }
-        }
-
-        if ((GrQuadAAFlags::kTop | GrQuadAAFlags::kBottom) & aaFlags) {
-            // This operates the same as above but for top/bottom rather than left/right.
-            Sk4f opX = SkNx_shuffle<1, 0, 3, 2>(x);
-            Sk4f opW = SkNx_shuffle<1, 0, 3, 2>(w);
-            Sk4f opY = SkNx_shuffle<1, 0, 3, 2>(y);
-
-            Sk2f vx = SkNx_shuffle<1, 3>(x2d) - SkNx_shuffle<0, 2>(x2d);
-            Sk2f vy = SkNx_shuffle<1, 3>(y2d) - SkNx_shuffle<0, 2>(y2d);
-            Sk2f len = SkNx_fma(vx, vx, vy * vy).sqrt();
-
-            Sk4f s = SkNx_shuffle<0, 0, 1, 1>((len + kOutset) / len);
-
-            Sk4f sOpW = s * opW;
-            Sk4f t = sOpW / (sOpW + (1.f - s) * w);
-
-            Sk4f mask(GrQuadAAFlags::kTop    & aaFlags ? 1.f : 0.f,
-                      GrQuadAAFlags::kBottom & aaFlags ? 1.f : 0.f,
-                      GrQuadAAFlags::kTop    & aaFlags ? 1.f : 0.f,
-                      GrQuadAAFlags::kBottom & aaFlags ? 1.f : 0.f);
-            t = t * mask + (1.f - mask);
-            x = opX + t * (x - opX);
-            y = opY + t * (y - opY);
-            w = opW + t * (w - opW);
-
-            Sk4f opU = SkNx_shuffle<1, 0, 3, 2>(u);
-            Sk4f opV = SkNx_shuffle<1, 0, 3, 2>(v);
-            u = opU + t * (u - opU);
-            v = opV + t * (v - opV);
-        }
-        // Faster to store the Sk4fs all at once rather than element-by-element into vertices.
-        float xs[4], ys[4], ws[4], as[4], bs[4], cs[4], us[4], vs[4];
-        x.store(xs);
-        y.store(ys);
-        w.store(ws);
-        a.store(as);
-        b.store(bs);
-        c.store(cs);
-        u.store(us);
-        v.store(vs);
-        for (int i = 0; i < 4; ++i) {
-            vertices[i].fPosition = {xs[i], ys[i], ws[i]};
-            vertices[i].fTextureCoords = {us[i], vs[i]};
-            for (int j = 0; j < 4; ++j) {
-                vertices[i].fEdges[j] = {as[j], bs[j], cs[j]};
-            }
-        }
-    }
-};
-
-template <typename V, Domain D = V::kDomain> struct DomainAssigner;
-
-template <typename V> struct DomainAssigner<V, Domain::kYes> {
-    static void Assign(V* vertices, Domain domain, GrSamplerState::Filter filter,
-                       const SkRect& srcRect, GrSurfaceOrigin origin, float iw, float ih) {
-        static constexpr SkRect kLargeRect = {-2, -2, 2, 2};
-        SkRect domainRect;
-        if (domain == Domain::kYes) {
-            auto ltrb = Sk4f::Load(&srcRect);
-            if (filter == GrSamplerState::Filter::kBilerp) {
-                auto rblt = SkNx_shuffle<2, 3, 0, 1>(ltrb);
-                auto whwh = (rblt - ltrb).abs();
-                auto c = (rblt + ltrb) * 0.5f;
-                static const Sk4f kOffsets = {0.5f, 0.5f, -0.5f, -0.5f};
-                ltrb = (whwh < 1.f).thenElse(c, ltrb + kOffsets);
-            }
-            ltrb *= Sk4f(iw, ih, iw, ih);
-            if (origin == kBottomLeft_GrSurfaceOrigin) {
-                static const Sk4f kMul = {1.f, -1.f, 1.f, -1.f};
-                static const Sk4f kAdd = {0.f, 1.f, 0.f, 1.f};
-                ltrb = SkNx_shuffle<0, 3, 2, 1>(kMul * ltrb + kAdd);
-            }
-            ltrb.store(&domainRect);
-        } else {
-            domainRect = kLargeRect;
-        }
-        for (int i = 0; i < 4; ++i) {
-            vertices[i].fTextureDomain = domainRect;
-        }
-    }
-};
-
-template <typename V> struct DomainAssigner<V, Domain::kNo> {
-    static void Assign(V*, Domain domain, GrSamplerState::Filter, const SkRect&, GrSurfaceOrigin,
-                       float iw, float ih) {
-        SkASSERT(domain == Domain::kNo);
-    }
-};
-
-}  // anonymous namespace
-
-template <typename V>
-static void tessellate_quad(const GrPerspQuad& devQuad, GrQuadAAFlags aaFlags,
-                            const SkRect& srcRect, GrColor color, GrSurfaceOrigin origin,
-                            GrSamplerState::Filter filter, V* vertices, SkScalar iw, SkScalar ih,
-                            Domain domain) {
-    SkRect texRect = {
-            iw * srcRect.fLeft,
-            ih * srcRect.fTop,
-            iw * srcRect.fRight,
-            ih * srcRect.fBottom
-    };
-    if (origin == kBottomLeft_GrSurfaceOrigin) {
-        texRect.fTop = 1.f - texRect.fTop;
-        texRect.fBottom = 1.f - texRect.fBottom;
-    }
-    VertexAAHandler<V>::AssignPositionsAndTexCoords(vertices, devQuad, aaFlags, texRect);
-    vertices[0].fColor = color;
-    vertices[1].fColor = color;
-    vertices[2].fColor = color;
-    vertices[3].fColor = color;
-    DomainAssigner<V>::Assign(vertices, domain, filter, srcRect, origin, iw, ih);
-}
-
 static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const SkRect& srcRect) {
     SkASSERT(quad.quadType() == GrQuadType::kRect_QuadType);
     float ql = quad.x(0);
@@ -605,6 +247,52 @@ static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const
     return (qr - ql) != srcRect.width() || (qb - qt) != srcRect.height() ||
            SkScalarFraction(ql) != SkScalarFraction(srcRect.fLeft) ||
            SkScalarFraction(qt) != SkScalarFraction(srcRect.fTop);
+}
+
+static SkRect compute_domain(Domain domain, GrSamplerState::Filter filter,
+                             GrSurfaceOrigin origin, const SkRect& srcRect, float iw, float ih) {
+    static constexpr SkRect kLargeRect = {-2, -2, -2, -2};
+    if (domain == Domain::kNo) {
+        // Either the quad has no domain constraint and is batched with a domain constrained op
+        // (in which case we want a domain that doesn't restrict normalized tex coords), or the
+        // entire op doesn't use the domain, in which case the returned value is ignored.
+        return kLargeRect;
+    }
+
+    auto ltrb = Sk4f::Load(&srcRect);
+    if (filter == GrSamplerState::Filter::kBilerp) {
+        auto rblt = SkNx_shuffle<2, 3, 0, 1>(ltrb);
+        auto whwh = (rblt - ltrb).abs();
+        auto c = (rblt + ltrb) * 0.5f;
+        static const Sk4f kOffsets = {0.5f, 0.5f, -0.5f, -0.5f};
+        ltrb = (whwh < 1.f).thenElse(c, ltrb + kOffsets);
+    }
+    ltrb *= Sk4f(iw, ih, iw, ih);
+    if (origin == kBottomLeft_GrSurfaceOrigin) {
+        static const Sk4f kMul = {1.f, -1.f, 1.f, -1.f};
+        static const Sk4f kAdd = {0.f, 1.f, 0.f, 1.f};
+        ltrb = SkNx_shuffle<0, 3, 2, 1>(kMul * ltrb + kAdd);
+    }
+
+    SkRect domainRect;
+    ltrb.store(&domainRect);
+    return domainRect;
+}
+
+static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const SkRect& srcRect,
+                                    float iw, float ih) {
+    // Convert the pixel-space src rectangle into normalized texture coordinates
+    SkRect texRect = {
+        iw * srcRect.fLeft,
+        ih * srcRect.fTop,
+        iw * srcRect.fRight,
+        ih * srcRect.fBottom
+    };
+    if (origin == kBottomLeft_GrSurfaceOrigin) {
+        texRect.fTop = 1.f - texRect.fTop;
+        texRect.fBottom = 1.f - texRect.fBottom;
+    }
+    return GrPerspQuad(texRect, SkMatrix::I());
 }
 
 /**
@@ -808,11 +496,11 @@ private:
         fDomain = static_cast<unsigned>(false);
     }
 
-    template <typename Pos, Domain D, GrAA AA>
+    template <int PosDim, Domain D, GrAA AA>
     void tess(void* v, const GrGeometryProcessor* gp, const GrTextureProxy* proxy, int start,
               int cnt) const {
         TRACE_EVENT0("skia", TRACE_FUNC);
-        using Vertex = TextureGeometryProcessor::Vertex<Pos, D, AA>;
+        using Vertex = GrQuadPerEdgeAA::Vertex<PosDim, GrColor, 2, D, AA>;
         SkASSERT(gp->debugOnly_vertexStride() == sizeof(Vertex));
         auto vertices = static_cast<Vertex*>(v);
         auto origin = proxy->origin();
@@ -822,8 +510,10 @@ private:
 
         for (int i = start; i < start + cnt; ++i) {
             const auto q = fQuads[i];
-            tessellate_quad<Vertex>(q.quad(), q.aaFlags(), q.srcRect(), q.color(), origin,
-                                    this->filter(), vertices, iw, ih, q.domain());
+            GrPerspQuad srcQuad = compute_src_quad(origin, q.srcRect(), iw, ih);
+            SkRect domain = compute_domain(q.domain(), this->filter(), origin, q.srcRect(), iw, ih);
+            GrQuadPerEdgeAA::Tessellate<Vertex>(
+                    vertices, q.quad(), q.color(), srcQuad, domain, q.aaFlags());
             vertices += 4;
         }
     }
@@ -886,24 +576,24 @@ private:
         }
         const auto* pipeline =
                 target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
-        using TessFn = decltype(&TextureOp::tess<SkPoint, Domain::kNo, GrAA::kNo>);
+        using TessFn = decltype(&TextureOp::tess<2, Domain::kNo, GrAA::kNo>);
 #define TESS_FN_AND_VERTEX_SIZE(Point, Domain, AA)                          \
     {                                                                       \
         &TextureOp::tess<Point, Domain, AA>,                                \
-                sizeof(TextureGeometryProcessor::Vertex<Point, Domain, AA>) \
+                sizeof(GrQuadPerEdgeAA::Vertex<Point, GrColor, 2, Domain, AA>) \
     }
         static constexpr struct {
             TessFn fTessFn;
             size_t fVertexSize;
         } kTessFnsAndVertexSizes[] = {
-                TESS_FN_AND_VERTEX_SIZE(SkPoint,  Domain::kNo,  GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(SkPoint,  Domain::kNo,  GrAA::kYes),
-                TESS_FN_AND_VERTEX_SIZE(SkPoint,  Domain::kYes, GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(SkPoint,  Domain::kYes, GrAA::kYes),
-                TESS_FN_AND_VERTEX_SIZE(SkPoint3, Domain::kNo,  GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(SkPoint3, Domain::kNo,  GrAA::kYes),
-                TESS_FN_AND_VERTEX_SIZE(SkPoint3, Domain::kYes, GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(SkPoint3, Domain::kYes, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(2, Domain::kNo,  GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(2, Domain::kNo,  GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(2, Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(2, Domain::kYes, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(3, Domain::kNo,  GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(3, Domain::kNo,  GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(3, Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(3, Domain::kYes, GrAA::kYes),
         };
 #undef TESS_FN_AND_VERTEX_SIZE
         int tessFnIdx = 0;
