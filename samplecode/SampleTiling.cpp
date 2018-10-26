@@ -17,6 +17,7 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkPicture.h"
+#include "SkTextUtils.h"
 #include "SkTypeface.h"
 
 // effects
@@ -110,8 +111,8 @@ protected:
                     p.setLooper(fLooper);
                     str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
-                    p.setTextAlign(SkPaint::kCenter_Align);
-                    textCanvas->drawString(str, x + r.width()/2, y, p);
+                    SkTextUtils::DrawString(textCanvas, str, x + r.width()/2, y, p,
+                                            SkPaint::kCenter_Align);
 
                     x += r.width() * 4 / 3;
                 }

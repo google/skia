@@ -19,6 +19,7 @@
 #include "SkUTF.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
+#include "SkTextUtils.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
 
@@ -131,7 +132,6 @@ protected:
         SkPaint labelP;
         labelP.setAntiAlias(true);
         labelP.setLCDRenderText(true);
-        labelP.setTextAlign(SkPaint::kCenter_Align);
         setNamedTypeface(&labelP, "Menlo Regular");
 
         const int W = 5;
@@ -158,8 +158,8 @@ protected:
                 canvas->drawRect(r, p);
 
                 const char* label = SkBlendMode_Name(gModes[i]);
-                canvas->drawString(label,
-                                 x + w/2, y - labelP.getTextSize()/2, labelP);
+                SkTextUtils::DrawString(canvas, label, x + w/2, y - labelP.getTextSize()/2, labelP,
+                                        SkPaint::kCenter_Align);
                 x += w + SkIntToScalar(10);
                 if ((i % W) == W - 1) {
                     x = x0;

@@ -13,6 +13,7 @@
 #include "SkMaskFilter.h"
 #include "SkPictureRecorder.h"
 #include "SkShaderMaskFilter.h"
+#include "SkTextUtils.h"
 
 static void draw_masked_image(SkCanvas* canvas, const SkImage* image, SkScalar x, SkScalar y,
                               const SkImage* mask, sk_sp<SkMaskFilter> outer, SkBlendMode mode) {
@@ -108,7 +109,6 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     SkPaint labelP;
     labelP.setAntiAlias(true);
     labelP.setTextSize(20);
-    labelP.setTextAlign(SkPaint::kCenter_Align);
 
     const SkRect r2 = r.makeOutset(1.5f, 1.5f);
     SkPaint strokePaint;
@@ -139,7 +139,8 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     canvas->translate(10, 10 + 20);
     canvas->save();
     for (int i = 0; i < 5; ++i) {
-        canvas->drawText(gCoverageName[i], strlen(gCoverageName[i]), r.width()*0.5f, -10, labelP);
+        SkTextUtils::DrawString(canvas, gCoverageName[i], r.width()*0.5f, -10, labelP,
+                                       SkPaint::kCenter_Align);
 
         SkCoverageMode cmode = static_cast<SkCoverageMode>(i);
         canvas->save();

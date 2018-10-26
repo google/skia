@@ -20,6 +20,7 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkString.h"
+#include "SkTextUtils.h"
 #include "SkUTF.h"
 #include "Sk1DPathEffect.h"
 
@@ -116,17 +117,14 @@ protected:
 
     static void DrawLabel(SkCanvas* canvas, const SkRect& rect, SkScalar start, SkScalar sweep) {
         SkPaint paint;
-
         paint.setAntiAlias(true);
-        paint.setTextAlign(SkPaint::kCenter_Align);
 
         SkString    str;
-
         str.appendScalar(start);
         str.append(", ");
         str.appendScalar(sweep);
-        canvas->drawString(str, rect.centerX(),
-                         rect.fBottom + paint.getTextSize() * 5/4, paint);
+        SkTextUtils::DrawString(canvas, str, rect.centerX(),
+                         rect.fBottom + paint.getTextSize() * 5/4, paint, SkPaint::kCenter_Align);
     }
 
     static void DrawArcs(SkCanvas* canvas) {
