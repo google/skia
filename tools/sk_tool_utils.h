@@ -21,6 +21,7 @@
 #include "SkStream.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
+#include "SkTypeface.h"
 #include "SkTypes.h"
 
 class SkBitmap;
@@ -72,6 +73,10 @@ namespace sk_tool_utils {
      * Returns a platform-independent text renderer.
      */
     sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style);
+
+    static inline sk_sp<SkTypeface> create_portable_typeface() {
+        return create_portable_typeface(nullptr, SkFontStyle());
+    }
 
     /**
      *  Call writePixels() by using the pixels from bitmap, but with an info that claims
