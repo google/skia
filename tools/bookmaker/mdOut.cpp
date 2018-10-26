@@ -10,12 +10,6 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
-#define FPRINTF(...)                \
-    if (fDebugOut) {                \
-        SkDebugf(__VA_ARGS__);      \
-    }                               \
-    fprintf(fOut, __VA_ARGS__)
-
 const char* SubtopicKeys::kGeneratedSubtopics[] = {
     kConstants, kDefines, kTypedefs, kMembers, kClasses, kStructs, kConstructors,
     kOperators, kMemberFunctions, kRelatedFunctions
@@ -55,17 +49,9 @@ const char* kSubMemberTableHeader = "  <tr>" kTH_Left   "Type</th>"             
 const char* kTopicsTableHeader    = "  <tr>" kTH_Left   "Topic</th>"                            "\n"
                                              kTH_Left   "Description</th>" "</tr>";
 
-static string html_file_name(string bmhFileName) {
-    SkASSERT("docs" == bmhFileName.substr(0, 4));
-    SkASSERT('\\' == bmhFileName[4] || '/' == bmhFileName[4]);
-    SkASSERT(".bmh" == bmhFileName.substr(bmhFileName.length() - 4));
-    string result = bmhFileName.substr(5, bmhFileName.length() - 4 - 5);
-    return result;
-}
-
 string MdOut::anchorDef(string str, string name) {
     if (fValidate) {
-        string htmlName = html_file_name(fFileName);
+        string htmlName = ParserCommon::HtmlFileName(fFileName);
         vector<AnchorDef>& allDefs = fAllAnchorDefs[htmlName];
         if (!std::any_of(allDefs.begin(), allDefs.end(),
                 [str](AnchorDef compare) { return compare.fDef == str; } )) {
@@ -91,7 +77,7 @@ string MdOut::anchorRef(string ref, string name) {
         size_t hashIndex = ref.find('#');
         if (string::npos != hashIndex && "https://" != ref.substr(0, 8)) {
             if (0 == hashIndex) {
-                htmlName = html_file_name(fFileName);
+                htmlName = ParserCommon::HtmlFileName(fFileName);
             } else {
                 htmlName = ref.substr(0, hashIndex);
             }
@@ -303,9 +289,138 @@ struct BraceState {
     int fBraceCount;
 };
 
+// start here
+// add spaces to see if found word is part of registered phrase
+// add parens to see if found word is all-lowercase function (parens must be in source as well)
+// look to remove more #Formula to see if that works OK
+string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
+    if (string::npos != fMethod->fName.find("XYWH")) {
+        SkDebugf("");
+    }
+    auto& globals = fBmhParser.fGlobals;
+    string result;
+    const char* start = refStart;
+    string priorWord;
+    string priorLink;
+    string priorSeparator;
+    do {
+        const char* separatorStart = start;
+        bool whiteSpace = start < refEnd && ' ' >= start[0];
+        while (start < refEnd && !isalpha(start[0])) {
+            whiteSpace &= ' ' >= start[0];
+            ++start;
+        }
+        bool priorSpace = false;
+        string separator(separatorStart, start - separatorStart);
+        if ("" != priorWord && whiteSpace) {
+            string wordSpace = priorWord + ' ';
+            if (globals.fRefMap.end() != globals.fRefMap.find(wordSpace)) {
+                priorWord = wordSpace;
+                priorSpace = true;
+            }
+        }
+        if ("()" == separator.substr(0, 2)) {
+            string funcRef = priorWord + "()";
+            if (this->findLink(funcRef, &priorLink)) {
+                priorWord = funcRef;
+                separator = separator.substr(2);
+            }
+        }
+        result += priorSeparator;
+        priorSeparator = separator;
+        const char* end = start;
+        do {
+            while (end < refEnd && (isalnum(end[0]) || '-' == end[0] || '_' == end[0])) {
+                ++end;
+            }
+            if (end + 1 >= refEnd || '/' != end[0] || start == end || !isalpha(end[-1])
+                    || !isalpha(end[1])) {
+                break;  // stop unless pattern is xxx/xxx as in I/O
+            }
+            ++end; // skip slash
+        } while (true);
+        while (start != end && '-' == end[-1]) {
+            --end;
+        }
+        if (start == end) {
+            break;
+        }
+        string word(start, end - start);
+        if (priorSpace) {
+            string phrase = priorWord + word;
+            if (globals.fRefMap.end() != globals.fRefMap.find(phrase)) {
+                priorWord = phrase;
+                priorLink = globals.fLinkMap.end() == globals.fLinkMap.find(phrase) ? "" :
+                        globals.fLinkMap[phrase];
+                continue;
+            }
+            priorWord = priorWord.substr(0, priorWord.length() - 1);
+        }
+        string link;
+        bool found;
+        {
+            auto paramIter = fNames->fRefMap.find(word);
+            if ((found = fNames->fRefMap.end() != paramIter) && paramIter->second) {
+                SkAssertResult(fNames->fLinkMap.end() != fNames->fLinkMap.find(word));
+                link = fNames->fLinkMap[word];
+            }
+        }
+        if (!found && 'f' == word[0] && isupper(word[1])) {
+            if ("." == separator || "->" == separator) {
+                if (fNames->fRefMap.end() != fNames->fRefMap.find(priorWord)) {
+            // find prior word's type in fMethod
+                    TextParser parser(fMethod);
+                    SkAssertResult(parser.contains(priorWord.c_str(), parser.fEnd,
+                            &parser.fChar));
+            // look up class or struct; trival lookup only class/struct [& * const]
+                    while (parser.back(" ") || parser.back("&") || parser.back("*")
+                            || parser.back("const"))
+                        ;
+                    const char* structEnd = parser.fChar;
+                    parser.backupWord();
+                    if (structEnd != parser.fChar) {
+                        string structName(parser.fChar, structEnd - parser.fChar);
+                        structName += "::" + word;
+            // look for word as member of class or struct
+                        auto defIter = globals.fRefMap.find(structName);
+                        if (globals.fRefMap.end() != defIter) {
+                            found = true;
+                            SkASSERT(globals.fLinkMap.end() != globals.fLinkMap.find(structName));
+                            link = globals.fLinkMap[structName];
+                        }
+                    }
+                }
+            }
+        }
+        if (!found) {
+            found = this->findLink(word, &link);
+        }
+        if (!found) {
+            found = globals.fRefMap.end() != globals.fRefMap.find(word + ' ');
+        }
+        if (!found) {
+            found = globals.fRefMap.end() != globals.fRefMap.find(word + "()");
+        }
+        if (!found) {
+            SkDebugf("word %s not found\n", word.c_str());
+            fBmhParser.fGlobals.fRefMap[word] = nullptr;
+        }
+        result += "" == priorLink ? priorWord : this->anchorRef(priorLink, priorWord);
+        priorWord = word;
+        priorLink = link;
+        start = end;
+    } while (true);
+    result += "" == priorLink ? priorWord : this->anchorRef(priorLink, priorWord);
+    result += priorSeparator;
+    return result;
+}
+
 // FIXME: preserve inter-line spaces and don't add new ones
 string MdOut::addReferences(const char* refStart, const char* refEnd,
         BmhParser::Resolvable resolvable) {
+    if (BmhParser::Resolvable::kInclude == resolvable) {  // test include resolving
+        return this->addIncludeReferences(refStart, refEnd);
+    }
     string result;
     MethodParser t(fRoot ? fRoot->fName : string(), fFileName, refStart, refEnd, fLineCount);
     bool lineStart = true;
@@ -372,6 +487,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 }
             }
         } else {
+            if (string::npos != string(t.fChar, t.fEnd - t.fChar).find("I/O")) {
+                SkDebugf("");
+            }
             (void) t.skipToMethodStart();
         }
         const char* start = t.fChar;
@@ -440,6 +558,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         if (BmhParser::Resolvable::kCode == resolvable) {
             fixup_const_function_name(&ref);
         }
+        if ("SkScalarRoundToInt" == ref) {
+            SkDebugf("");
+        }
         if (Definition* def = this->isDefined(t, ref, resolvable)) {
             if (MarkType::kExternal == def->fMarkType) {
                 (void) this->anchorRef("undocumented#" + ref, "");   // for anchor validate
@@ -448,6 +569,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             }
             SkASSERT(def->fFiddle.length());
             if (BmhParser::Resolvable::kSimple != resolvable
+                    && BmhParser::Resolvable::kInclude != resolvable
                     && !t.eof() && '(' == t.peek() && t.strnchr(')', t.fEnd)) {
                 TextParserSave tSave(&t);
                 if (!t.skipToBalancedEndBracket('(', ')')) {
@@ -511,6 +633,12 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             }
 			result += linkRef(leadingSpaces, def, ref, resolvable);
             if (!t.eof() && '(' == t.peek()) {
+                if (BmhParser::Resolvable::kInclude == resolvable
+                       && std::any_of(ref.begin(), ref.end(), [](char c){ return !islower(c); } )) {
+                    t.next();  // skip open paren
+                    SkAssertResult(')' == t.next());  // skip close paren
+                    continue;
+                }
                 result += t.next();  // skip open paren
             }
             continue;
@@ -577,6 +705,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                         }
                     }
                     if (BmhParser::Resolvable::kSimple != resolvable
+                            && BmhParser::Resolvable::kInclude != resolvable
                             && BmhParser::Resolvable::kOut != resolvable
                             && !formula_or_code(resolvable)) {
                         t.reportError("missed camelCase");
@@ -742,6 +871,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
             this->lfAlways(1);
         }
         const Definition* prior = nullptr;
+        fBmhParser.setUpLocalSubstitutes(topicDef);
         this->markTypeOut(topicDef, &prior);
     }
     if (fOut) {
@@ -885,6 +1015,9 @@ void MdOut::childrenOut(Definition* def, const char* start) {
         if (BmhParser::Resolvable::kNo != resolvable) {
             this->resolveOut(start, end, resolvable);
         }
+        if (string::npos != child->fName.find("MakeXYWH")) {
+            SkDebugf("");
+        }
         this->markTypeOut(child, &prior);
         start = child->fTerminator;
     }
@@ -968,6 +1101,33 @@ Definition* MdOut::csParent() {
                 || string::npos != fRoot->fFileName.find("SkBlendMode_Reference.bmh"));
     }
     return csParent;
+}
+
+bool MdOut::findLink(string word, string* linkPtr) {
+    NameMap* names = fNames;
+    while ((names = names->fParent)) {
+        auto localIter = names->fRefMap.find(word);
+        if (names->fRefMap.end() != localIter) {
+            if (localIter->second) {
+                SkAssertResult(names->fLinkMap.end() != names->fLinkMap.find(word));
+                *linkPtr = names->fLinkMap[word];
+            }
+            return true;
+        }
+        if (!names->fParent && isupper(word[0])) {
+            SkASSERT(names == &fBmhParser.fGlobals);
+            string lower = (char) tolower(word[0]) + word.substr(1);
+            auto globalIter = names->fRefMap.find(lower);
+            if (names->fRefMap.end() != globalIter) {
+                if (globalIter->second) {
+                    SkAssertResult(names->fLinkMap.end() != names->fLinkMap.find(lower));
+                    *linkPtr = names->fLinkMap[lower];
+                }
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 Definition* MdOut::findParamType() {
@@ -1244,6 +1404,16 @@ string MdOut::linkName(const Definition* ref) const {
 // def should not include SkXXX_
 string MdOut::linkRef(string leadingSpaces, Definition* def,
         string ref, BmhParser::Resolvable resolvable) {
+    if ("a" == ref) {
+        SkDebugf("");
+    }
+    bool trimRef = BmhParser::Resolvable::kInclude == resolvable && "Sk" == ref.substr(0, 2);
+    if (trimRef) {
+        for (auto c : ref) {
+            SkASSERT(isalpha(c) || isdigit(c));
+        }
+        ref = ref.substr(2);
+    }
     string buildup;
     string refName;
     const string* str = &def->fFiddle;
@@ -1253,7 +1423,17 @@ string MdOut::linkRef(string leadingSpaces, Definition* def,
         const Definition* parent = def->csParent();
         SkASSERT(parent);
         classPart = parent->fName;
-        refName = classPart + '_' + def->fParent->fName + '_' + ref;
+        auto bmhMap = fBmhParser.fClassMap.find(classPart);
+        auto defName = def->fParent->fName;
+        SkASSERT(fBmhParser.fClassMap.end() != bmhMap);
+        string fullName = classPart + "::" + defName;
+        auto bmhDef = bmhMap->second.fLeaves.find(fullName);
+        if (bmhMap->second.fLeaves.end() == bmhDef) {
+            bmhDef = bmhMap->second.fLeaves.find(fullName + "()");
+        }
+        SkASSERT(bmhMap->second.fLeaves.end() != bmhDef);
+        refName = bmhDef->second.fFiddle;
+        refName += '_' + ref;
     }
     SkASSERT(classPart.length() > 0);
     bool globalEnumMember = false;
@@ -1285,6 +1465,13 @@ string MdOut::linkRef(string leadingSpaces, Definition* def,
         }
         if (!fromInclude) {
             refName = def->fFiddle;
+            if (trimRef) {
+                SkASSERT("Sk" == refName.substr(0, 2));
+                for (auto c : refName) {
+                    SkASSERT(isalpha(c) || isdigit(c));
+                }
+                refName = refName.substr(2);
+            }
         }
     }
     bool classMatch = fRoot->fFileName == def->fFileName || fromInclude;
@@ -1896,6 +2083,33 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 SkDebugf("");
                 bool wroteParam = false;
                 fMethod = iMethod;
+                NameMap paramMap;
+                Definition* pParent = def->csParent();
+                if (!pParent) {
+                    pParent = def->fParent->fParent;
+                }
+                paramMap.fParent = &pParent->asRoot()->fNames;
+                fNames = &paramMap;
+                for (auto& param : iMethod->fTokens) {
+                    if (MarkType::kComment != param.fMarkType) {
+                        continue;
+                    }
+                    TextParser paramParser(&param);
+                    if (!paramParser.skipExact("@param ")) { // write parameters, if any
+                        continue;
+                    }
+                    paramParser.skipSpace();
+                    const char* start = paramParser.fChar;
+                    paramParser.skipToSpace();
+                    string paramName(start, paramParser.fChar - start);
+                #ifdef SK_DEBUG
+                    for (char c : paramName) {
+                        SkASSERT(isalnum(c));
+                    }
+                #endif
+                    paramMap.fRefMap[paramName] = &param;
+                    paramMap.fLinkMap[paramName] = '#' + def->fFiddle + '_' + paramName;
+                }
                 for (auto& entry : iMethod->fTokens) {
                     if (MarkType::kComment != entry.fMarkType) {
                         continue;
@@ -1903,7 +2117,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                     TextParser parser(&entry);
                     if (parser.skipExact("@param ")) { // write parameters, if any
                         this->parameterHeaderOut(parser, prior, def);
-                        this->resolveOut(parser.fChar, parser.fEnd, BmhParser::Resolvable::kYes);
+                        this->resolveOut(parser.fChar, parser.fEnd,
+                                BmhParser::Resolvable::kInclude);
                         this->parameterTrailerOut();
                         wroteParam = true;
                         continue;
@@ -1917,18 +2132,32 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                     }
                     if (parser.skipExact("@return ")) { // write return, if any
                         this->returnHeaderOut(prior, def);
-                        this->resolveOut(parser.fChar, parser.fEnd, BmhParser::Resolvable::kYes);
+                        this->resolveOut(parser.fChar, parser.fEnd,
+                                BmhParser::Resolvable::kInclude);
                         this->lf(2);
                         continue;
                     }
                     if (1 == entry.length() && '/' == entry.fContentStart[0]) {
                         continue;
                     }
+                    if ("/!< " == string(entry.fContentStart, entry.length()).substr(0, 4)) {
+                        continue;
+                    }
+                    if ("offset" == iMethod->fName) {
+                        SkDebugf("");
+                    }
+                    const char* backwards = entry.fContentStart;
+                    while (' ' == *--backwards)
+                        ;
+                    if ('\n' == backwards[0] && '\n' == backwards[-1]) {
+                        this->lf(2);
+                    }
                     this->resolveOut(entry.fContentStart, entry.fContentEnd,
-                            BmhParser::Resolvable::kYes);  // write description
+                            BmhParser::Resolvable::kInclude);  // write description
                     this->lf(1);
                 }
                 fMethod = nullptr;
+                fNames = fNames->fParent;
             }
             } break;
         case MarkType::kPrivate:

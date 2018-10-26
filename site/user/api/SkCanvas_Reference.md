@@ -284,10 +284,8 @@ destination.
 <a href='#Canvas'>Canvas</a> can be constructed to draw to <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> without first creating <a href='undocumented#Raster_Surface'>Raster Surface</a>.
 This approach may be deprecated in the future.
 
-<a name='Constructors'></a>
-
-Create the desired type of <a href='SkSurface_Reference#Surface'>Surface</a> to obtain its <a href='#Canvas'>Canvas</a> when possible. Useful
-when no <a href='SkSurface_Reference#Surface'>Surface</a> is required, and some helpers implicitly create <a href='undocumented#Raster_Surface'>Raster Surface</a>.
+<a href='#Canvas'>Canvas</a> may be created directly when no <a href='SkSurface_Reference#Surface'>Surface</a> is required; some <a href='#Canvas'>Canvas</a> methods
+implicitly create <a href='undocumented#Raster_Surface'>Raster Surface</a>.
 
 <a name='SkCanvas_MakeRasterDirect'></a>
 

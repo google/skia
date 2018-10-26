@@ -147,7 +147,7 @@ public:
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_getMaxScale'>getMaxScale</a>() const;
     bool <a href='#SkMatrix_getMinMaxScales'>getMinMaxScales</a>(<a href='undocumented#SkScalar'>SkScalar</a> scaleFactors[2]) const;
     bool <a href='#SkMatrix_decomposeScale'>decomposeScale</a>(<a href='undocumented#SkSize'>SkSize</a>* scale, <a href='#SkMatrix'>SkMatrix</a>* remaining = nullptr) const;
-    static const <a href='#SkMatrix'>SkMatrix</a>& I();
+    static const <a href='#SkMatrix'>SkMatrix</a>& <a href='#SkMatrix_I'>I</a>();
     static const <a href='#SkMatrix'>SkMatrix</a>& <a href='#SkMatrix_InvalidMatrix'>InvalidMatrix</a>();
     static <a href='#SkMatrix'>SkMatrix</a> <a href='#SkMatrix_Concat'>Concat</a>(const <a href='#SkMatrix'>SkMatrix</a>& a, const <a href='#SkMatrix'>SkMatrix</a>& b);
     void <a href='#SkMatrix_dirtyMatrixTypeCache'>dirtyMatrixTypeCache</a>();
@@ -790,15 +790,15 @@ Skews are not similar and do not preserve right angles.
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    static constexpr int <a href='#SkMatrix_kMPersp2'>kMPersp2</a> = 8;
-    static constexpr int <a href='#SkMatrix_kMPersp0'>kMPersp0</a> = 6;
     static constexpr int <a href='#SkMatrix_kMPersp1'>kMPersp1</a> = 7;
-    static constexpr int <a href='#SkMatrix_kMSkewX'>kMSkewX</a> = 1;
+    static constexpr int <a href='#SkMatrix_kMPersp2'>kMPersp2</a> = 8;
+    static constexpr int <a href='#SkMatrix_kMSkewY'>kMSkewY</a> = 3;
     static constexpr int <a href='#SkMatrix_kMTransX'>kMTransX</a> = 2;
     static constexpr int <a href='#SkMatrix_kMScaleX'>kMScaleX</a> = 0;
-    static constexpr int <a href='#SkMatrix_kMSkewY'>kMSkewY</a> = 3;
-    static constexpr int <a href='#SkMatrix_kMScaleY'>kMScaleY</a> = 4;
+    static constexpr int <a href='#SkMatrix_kMSkewX'>kMSkewX</a> = 1;
     static constexpr int <a href='#SkMatrix_kMTransY'>kMTransY</a> = 5;
+    static constexpr int <a href='#SkMatrix_kMScaleY'>kMScaleY</a> = 4;
+    static constexpr int <a href='#SkMatrix_kMPersp0'>kMPersp0</a> = 6;
 </pre>
 
 <a href='#Matrix'>Matrix</a> organizes its values in row order. These members correspond to
@@ -4463,7 +4463,7 @@ success: true  scale: 0.5, 0.25
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static const <a href='#SkMatrix'>SkMatrix</a>& I()
+static const <a href='#SkMatrix'>SkMatrix</a>& <a href='#SkMatrix_I'>I</a>()
 </pre>
 
 Returns reference to const identity <a href='#Matrix'>Matrix</a>. Returned <a href='#Matrix'>Matrix</a> is set to:
