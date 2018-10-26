@@ -120,7 +120,7 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
         : GrDrawOp(ClassID())
         , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
         , fDraws(m, shape, strokeDevWidth, shapeConservativeIBounds, maskDevIBounds, maskVisibility,
-                 paint.getColor())
+                 GrColor4h::FromFloats(paint.getColor4f().vec()))
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
@@ -139,7 +139,7 @@ GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
                                         float strokeDevWidth,
                                         const SkIRect& shapeConservativeIBounds,
                                         const SkIRect& maskDevIBounds, Visibility maskVisibility,
-                                        GrColor color)
+                                        GrColor4h color)
         : fMatrix(m)
         , fShape(shape)
         , fStrokeDevWidth(strokeDevWidth)
@@ -191,13 +191,14 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
         SkStrokeRec hairlineStroke = draw->fShape.style().strokeRec();
         hairlineStroke.setStrokeStyle(0);
 
-        // How transparent does a 1px stroke have to be in order to appear as thin as the real one?
-        GrColor coverageAsAlpha = GrColorPackA4(SkScalarFloorToInt(draw->fStrokeDevWidth * 255));
-
+        // Adjust opacity to make the stroke appear as thin as the real one.
+        // fShapeConservativeIBounds already accounted for this possibility of inflating the stroke.
+        SkColor4f color;
+        draw->fColor.toFloats(color.vec());
+        color = color * draw->fStrokeDevWidth;
+        draw->fColor = GrColor4h::FromFloats(color.vec());
         draw->fShape = GrShape(path, GrStyle(hairlineStroke, nullptr));
         draw->fStrokeDevWidth = 1;
-        // fShapeConservativeIBounds already accounted for this possibility of inflating the stroke.
-        draw->fColor = GrColorMul(draw->fColor, coverageAsAlpha);
     }
 
     return RequiresDstTexture(analysis.requiresDstTexture());
@@ -322,8 +323,9 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
             if (auto proxy = draw.fCachedAtlasProxy.get()) {
                 SkASSERT(!cacheEntry->currFlushAtlas());
                 this->recordInstance(proxy, resources->nextPathInstanceIdx());
+                // TODO4F: Preserve float colors
                 resources->appendDrawPathInstance().set(*cacheEntry, draw.fCachedMaskShift,
-                                                        draw.fColor);
+                                                        draw.fColor.toGrColor());
                 continue;
             }
 
@@ -331,8 +333,9 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
             // drawn more than once during the same flush, with a compatible matrix?)
             if (auto atlas = cacheEntry->currFlushAtlas()) {
                 this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
+                // TODO4F: Preserve float colors
                 resources->appendDrawPathInstance().set(
-                        *cacheEntry, draw.fCachedMaskShift, draw.fColor,
+                        *cacheEntry, draw.fCachedMaskShift, draw.fColor.toGrColor(),
                         cacheEntry->hasCachedAtlas() ? DoEvenOddFill::kNo : doEvenOddFill);
                 continue;
             }
@@ -348,8 +351,9 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
                         atlas->getOrAssignUniqueKey(onFlushRP), newOffset,
                         atlas->refOrMakeCachedAtlasInfo(onFlushRP->contextUniqueID()));
                 this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
+                // TODO4F: Preserve float colors
                 resources->appendDrawPathInstance().set(*cacheEntry, draw.fCachedMaskShift,
-                                                        draw.fColor);
+                                                        draw.fColor.toGrColor());
                 // Remember this atlas in case we encounter the path again during the same flush.
                 cacheEntry->setCurrFlushAtlas(atlas);
                 continue;
@@ -368,8 +372,9 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
                     draw.fMaskDevIBounds, draw.fMatrix, draw.fShape, draw.fStrokeDevWidth,
                     &devBounds, &devBounds45, &devIBounds, &devToAtlasOffset)) {
             this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
+            // TODO4F: Preserve float colors
             resources->appendDrawPathInstance().set(devBounds, devBounds45, devToAtlasOffset,
-                                                    draw.fColor, doEvenOddFill);
+                                                    draw.fColor.toGrColor(), doEvenOddFill);
 
             // If we have a spot in the path cache, try to make a note of where this mask is so we
             // can reuse it in the future.
