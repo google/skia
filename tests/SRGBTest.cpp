@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorSpaceXformSteps.h"
 #include "SkRasterPipeline.h"
 #include "SkTypes.h"
 #include "Test.h"
 
 #include <math.h>
 
-DEF_TEST(sk_pipeline_srgb_roundtrip, r) {
+DEF_TEST(srgb_roundtrip, r) {
     uint32_t reds[256];
     for (int i = 0; i < 256; i++) {
         reds[i] = i;
@@ -19,10 +20,17 @@ DEF_TEST(sk_pipeline_srgb_roundtrip, r) {
 
     SkRasterPipeline_MemoryCtx ptr = { reds, 0 };
 
+    sk_sp<SkColorSpace> sRGB = SkColorSpace::MakeSRGB(),
+                        linear = sRGB->makeLinearGamma();
+    const SkAlphaType upm = kUnpremul_SkAlphaType;
+
+    SkColorSpaceXformSteps linearize{  sRGB.get(),upm,  linear.get(),upm},
+                           reencode {linear.get(),upm,    sRGB.get(),upm};
+
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888,  &ptr);
-    p.append(SkRasterPipeline::from_srgb);
-    p.append(SkRasterPipeline::to_srgb);
+    linearize.apply(&p);
+    reencode .apply(&p);
     p.append(SkRasterPipeline::store_8888, &ptr);
 
     p.run(0,0,256,1);
@@ -34,17 +42,23 @@ DEF_TEST(sk_pipeline_srgb_roundtrip, r) {
     }
 }
 
-DEF_TEST(sk_pipeline_srgb_edge_cases, r) {
+DEF_TEST(srgb_edge_cases, r) {
     // We need to run at least 4 pixels to make sure we hit all specializations.
     float colors[4][4] = { {0,1,1,1}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0} };
     auto& color = colors[0];
 
     SkRasterPipeline_MemoryCtx dst = { &color, 0 };
 
+    sk_sp<SkColorSpace> sRGB = SkColorSpace::MakeSRGB(),
+                        linear = sRGB->makeLinearGamma();
+    const SkAlphaType upm = kUnpremul_SkAlphaType;
+
+    SkColorSpaceXformSteps steps {linear.get(),upm,    sRGB.get(),upm};
+
     SkSTArenaAlloc<256> alloc;
     SkRasterPipeline p(&alloc);
     p.append_constant_color(&alloc, color);
-    p.append(SkRasterPipeline::to_srgb);
+    steps.apply(&p);
     p.append(SkRasterPipeline::store_f32, &dst);
     p.run(0,0,4,1);
 
@@ -57,4 +71,63 @@ DEF_TEST(sk_pipeline_srgb_edge_cases, r) {
         memcpy(&x, &f, 4);
         ERRORF(r, "expected to_srgb() to map 1.0f to 1.0f, got %f (%08x)", color[1], x);
     }
+}
+
+// Linearize and then re-encode pixel values, testing that the output is close to the input.
+static void test_roundtripping(skiatest::Reporter* r,
+                               sk_sp<SkColorSpace> cs,
+                               float range,
+                               float tolerance) {
+    static const int kSteps = 128;
+    SkColor4f rgba[kSteps];
+
+    auto expected = [=](int i) {
+        float scale = range / (3*kSteps);
+        return SkColor4f{
+            (3*i+0) * scale,
+            (3*i+1) * scale,
+            (3*i+2) * scale,
+            1.0f,
+        };
+    };
+
+    for (int i = 0; i < kSteps; i++) {
+        rgba[i] = expected(i);
+    }
+
+    SkRasterPipeline_MemoryCtx ptr = { rgba, 0 };
+
+    sk_sp<SkColorSpace> linear = cs->makeLinearGamma();
+    const SkAlphaType upm = kUnpremul_SkAlphaType;
+
+    SkColorSpaceXformSteps linearize{    cs.get(),upm,  linear.get(),upm},
+                           reencode {linear.get(),upm,      cs.get(),upm};
+
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_f32,  &ptr);
+    linearize.apply(&p);
+    reencode .apply(&p);
+    p.append(SkRasterPipeline::store_f32, &ptr);
+    p.run(0,0,kSteps,1);
+
+    auto close = [=](float x, float y) {
+        return x == y
+            || (x/y < tolerance && y/x < tolerance);
+    };
+
+    for (int i = 0; i < kSteps; i++) {
+        SkColor4f want = expected(i);
+    #if 0
+        SkDebugf("got %g %g %g, want %g %g %g\n",
+                 rgba[i].fR, rgba[i].fG, rgba[i].fB,
+                 want.fR, want.fG, want.fB);
+    #endif
+        REPORTER_ASSERT(r, close(rgba[i].fR, want.fR));
+        REPORTER_ASSERT(r, close(rgba[i].fG, want.fG));
+        REPORTER_ASSERT(r, close(rgba[i].fB, want.fB));
+    }
+}
+
+DEF_TEST(srgb_roundtrip_extended, r) {
+    test_roundtripping(r,  SkColorSpace::MakeSRGB(), 2.0f, 1.025f);
 }
