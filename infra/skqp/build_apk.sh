@@ -6,12 +6,10 @@
 #
 # Assumes this is in a docker container with a skia repo mounted at /SRC
 
-pushd ../../
+SKIA_ROOT="$(cd "$(dirname "$0")/../.."; pwd)"
 
-./tools/skqp/make_universal_apk x86
+"$SKIA_ROOT"/tools/skqp/make_universal_apk x86
 
 # Clean out previous builds
-rm /OUT/*
-cp out/skqp/skqp-universal-debug.apk /OUT/skqp-universal-x86-debug.apk
-
-popd
+rm -rf /OUT/*
+cp "$SKIA_ROOT"/out/skqp/skqp-universal-debug.apk /OUT/skqp-universal-x86-debug.apk
