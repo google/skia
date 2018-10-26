@@ -309,6 +309,7 @@ void SkPaint::setStrokeJoin(Join jt) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
 void SkPaint::setTextAlign(Align align) {
     if ((unsigned)align < kAlignCount) {
         fBitfields.fTextAlign = SkToU8(align);
@@ -318,6 +319,7 @@ void SkPaint::setTextAlign(Align align) {
 #endif
     }
 }
+#endif
 
 void SkPaint::setTextSize(SkScalar ts) {
     if (ts >= 0) {
@@ -422,7 +424,9 @@ static uint32_t pack_paint_flags(unsigned flags, unsigned hint, unsigned align,
 static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
     paint->setFlags(packed >> 16);
     paint->setHinting((SkPaint::Hinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     paint->setTextAlign((SkPaint::Align)((packed >> 12) & BPF_Mask(kAlign_BPF)));
+#endif
     paint->setFilterQuality((SkFilterQuality)((packed >> 10) & BPF_Mask(kFilter_BPF)));
     return (FlatFlags)(packed & kFlatFlagMask);
 }
@@ -454,7 +458,12 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     buffer.writeScalar(paint.getStrokeMiter());
     buffer.writeColor4f(paint.getColor4f());
 
-    buffer.writeUInt(pack_paint_flags(paint.getFlags(), paint.getHinting(), paint.getTextAlign(),
+    buffer.writeUInt(pack_paint_flags(paint.getFlags(), paint.getHinting(),
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
+                                      paint.getTextAlign(),
+#else
+                                      SkPaint::kLeft_Align,
+#endif
                                       paint.getFilterQuality(), flatFlags));
     buffer.writeUInt(pack_4(paint.getStrokeCap(), paint.getStrokeJoin(),
                             (paint.getStyle() << 4) | paint.getTextEncoding(),

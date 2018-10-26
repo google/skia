@@ -968,6 +968,7 @@ static void apply_paint_patheffect(const SkPaint& paint, Json::Value* target,
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
 static void apply_paint_textalign(const SkPaint& paint, Json::Value* target) {
     SkPaint::Align textAlign = paint.getTextAlign();
     if (textAlign != SkPaint::kLeft_Align) {
@@ -984,6 +985,7 @@ static void apply_paint_textalign(const SkPaint& paint, Json::Value* target) {
         }
     }
 }
+#endif
 
 static void apply_paint_typeface(const SkPaint& paint, Json::Value* target,
                                  UrlDataManager& urlDataManager) {
@@ -1069,7 +1071,9 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
     apply_paint_cap(paint, &result);
     apply_paint_join(paint, &result);
     apply_paint_filterquality(paint, &result);
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     apply_paint_textalign(paint, &result);
+#endif
     apply_paint_patheffect(paint, &result, urlDataManager);
     apply_paint_maskfilter(paint, &result, urlDataManager);
     apply_paint_shader(paint, &result, urlDataManager);

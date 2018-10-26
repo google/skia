@@ -846,41 +846,6 @@ static int lpaint_getFontID(lua_State* L) {
     return 1;
 }
 
-static const struct {
-    const char*     fLabel;
-    SkPaint::Align  fAlign;
-} gAlignRec[] = {
-    { "left",   SkPaint::kLeft_Align },
-    { "center", SkPaint::kCenter_Align },
-    { "right",  SkPaint::kRight_Align },
-};
-
-static int lpaint_getTextAlign(lua_State* L) {
-    SkPaint::Align align = get_obj<SkPaint>(L, 1)->getTextAlign();
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gAlignRec); ++i) {
-        if (gAlignRec[i].fAlign == align) {
-            lua_pushstring(L, gAlignRec[i].fLabel);
-            return 1;
-        }
-    }
-    return 0;
-}
-
-static int lpaint_setTextAlign(lua_State* L) {
-    if (lua_isstring(L, 2)) {
-        size_t len;
-        const char* label = lua_tolstring(L, 2, &len);
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gAlignRec); ++i) {
-            if (!strcmp(gAlignRec[i].fLabel, label)) {
-                get_obj<SkPaint>(L, 1)->setTextAlign(gAlignRec[i].fAlign);
-                break;
-            }
-        }
-    }
-    return 0;
-}
-
 static int lpaint_getStroke(lua_State* L) {
     lua_pushboolean(L, SkPaint::kStroke_Style == get_obj<SkPaint>(L, 1)->getStyle());
     return 1;
@@ -1081,8 +1046,6 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "setTypeface", lpaint_setTypeface },
     { "getHinting", lpaint_getHinting },
     { "getFontID", lpaint_getFontID },
-    { "getTextAlign", lpaint_getTextAlign },
-    { "setTextAlign", lpaint_setTextAlign },
     { "getStroke", lpaint_getStroke },
     { "setStroke", lpaint_setStroke },
     { "getStrokeCap", lpaint_getStrokeCap },

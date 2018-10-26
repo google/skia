@@ -872,6 +872,7 @@ public:
     */
     static constexpr int kAlignCount = 3;
 
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     /** Returns SkPaint::Align.
         Returns kLeft_Align if SkPaint::Align has not been set.
 
@@ -885,6 +886,7 @@ public:
         @param align  text placement relative to position
     */
     void    setTextAlign(Align align);
+#endif
 
     /** Returns text size in points.
 
