@@ -48,23 +48,51 @@ void SkDraw::blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const {
     this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
 }
 
-SkGlyphRunListPainter::PerMask SkDraw::drawOneMaskCreator(
-        const SkPaint& paint, SkArenaAlloc* alloc) const {
-    SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, alloc, false);
-    if (fCoverage != nullptr) {
-        auto coverageBlitter = SkBlitter::Choose(*fCoverage, *fMatrix, SkPaint(), alloc, true);
-        blitter = alloc->make<SkPairBlitter>(blitter, coverageBlitter);
+
+
+void SkDraw::drawGlyphRunList(
+        const SkGlyphRunList& glyphRunList, SkGlyphRunListPainter* glyphPainter) const {
+
+    SkDEBUGCODE(this->validate();)
+
+    if (fRC->isEmpty()) {
+        return;
     }
 
-    auto wrapaper = alloc->make<SkAAClipBlitterWrapper>(*fRC, blitter);
+    glyphPainter->drawForBitmapDevice(glyphRunList, *fMatrix, this);
+}
+
+void SkDraw::glyphPainterDrawPaths(
+        const SkPaint& paint,
+        SkScalar scale,
+        SkSpan<const SkGlyphRunListPainter::PathAndPos> pathAndPos) const {
+    SkMatrix renderMatrix = SkMatrix::MakeScale(scale);
+    for (auto& pathInfo : pathAndPos) {
+        renderMatrix[SkMatrix::kMTransX] = pathInfo.pos.x();
+        renderMatrix[SkMatrix::kMTransY] = pathInfo.pos.y();
+        this->drawPath(*pathInfo.path, paint, &renderMatrix, false);
+    }
+}
+
+void SkDraw::glyphPainterDrawMasks(
+        const SkPaint& paint,
+        SkSpan<const SkMask> masks) const {
+    SkSTArenaAlloc<3332> alloc;
+
+    SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, &alloc, false);
+    if (fCoverage != nullptr) {
+        auto coverageBlitter = SkBlitter::Choose(*fCoverage, *fMatrix, SkPaint(), &alloc, true);
+        blitter = alloc.make<SkPairBlitter>(blitter, coverageBlitter);
+    }
+
+    auto wrapaper = alloc.make<SkAAClipBlitterWrapper>(*fRC, blitter);
     blitter = wrapaper->getBlitter();
 
     auto useRegion = fRC->isBW() && !fRC->isRect();
 
     if (useRegion) {
-        return [this, blitter, &paint](const SkMask& mask, const SkGlyph&, SkPoint) {
-            SkRegion::Cliperator clipper(fRC->bwRgn(), mask.fBounds);
-
+        for (const SkMask& mask : masks) {
+                SkRegion::Cliperator clipper(fRC->bwRgn(), mask.fBounds);
             if (!clipper.done()) {
                 if (SkMask::kARGB32_Format == mask.fFormat) {
                     this->blitARGB32Mask(mask, paint);
@@ -76,19 +104,19 @@ SkGlyphRunListPainter::PerMask SkDraw::drawOneMaskCreator(
                     } while (!clipper.done());
                 }
             }
-        };
+        }
     } else {
         SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
                                          : fRC->aaRgn().getBounds();
-        return [this, blitter, clipBounds, &paint](const SkMask& mask, const SkGlyph&, SkPoint) {
-            SkIRect  storage;
+        for (const SkMask& mask : masks) {
+            SkIRect storage;
             const SkIRect* bounds = &mask.fBounds;
 
             // this extra test is worth it, assuming that most of the time it succeeds
             // since we can avoid writing to storage
             if (!clipBounds.containsNoEmptyCheck(mask.fBounds)) {
                 if (!storage.intersectNoEmptyCheck(mask.fBounds, clipBounds)) {
-                    return;
+                    continue;
                 }
                 bounds = &storage;
             }
@@ -98,40 +126,8 @@ SkGlyphRunListPainter::PerMask SkDraw::drawOneMaskCreator(
             } else {
                 blitter->blitMask(mask, *bounds);
             }
-        };
+        }
     }
-}
-
-void SkDraw::drawGlyphRunList(
-        const SkGlyphRunList& glyphRunList, SkGlyphRunListPainter* glyphPainter) const {
-
-    SkDEBUGCODE(this->validate();)
-
-    if (fRC->isEmpty()) {
-        return;
-    }
-
-    SkMatrix renderMatrix{*fMatrix};
-    auto perPathBuilder = [this, &renderMatrix]
-            (const SkPaint& paint, SkScalar scaleMatrix, SkArenaAlloc*) {
-        renderMatrix.setScale(scaleMatrix, scaleMatrix);
-        auto perPath =
-                [this, &renderMatrix, &paint]
-                (const SkPath* path, const SkGlyph&, SkPoint position) {
-            if (path != nullptr) {
-                renderMatrix[SkMatrix::kMTransX] = position.fX;
-                renderMatrix[SkMatrix::kMTransY] = position.fY;
-                this->drawPath(*path, paint, &renderMatrix, false);
-            }
-        };
-        return perPath;
-    };
-
-    auto perMaskBuilder = [this](const SkPaint& paint, SkArenaAlloc* alloc) {
-        return this->drawOneMaskCreator(paint, alloc);
-    };
-
-    glyphPainter->drawForBitmapDevice(glyphRunList, *fMatrix, perMaskBuilder, perPathBuilder);
 }
 
 #if defined _WIN32

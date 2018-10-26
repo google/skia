@@ -29,7 +29,7 @@ class SkRasterClip;
 struct SkRect;
 class SkRRect;
 
-class SkDraw {
+class SkDraw : public SkGlyphRunListPainter::BitmapDeviceGlyphPainter {
 public:
     SkDraw();
 
@@ -60,8 +60,16 @@ public:
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkPaint&) const;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
+    void glyphPainterDrawPaths(
+            const SkPaint& paint,
+            SkScalar scale,
+            SkSpan<const SkGlyphRunListPainter::PathAndPos> pathAndPos) const override;
+    void glyphPainterDrawMasks(
+            const SkPaint& paint,
+            SkSpan<const SkMask> masks) const override;
     void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
                              SkGlyphRunListPainter* glyphPainter) const;
+
     void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
@@ -117,19 +125,17 @@ public:
                                     SkPoint* strokeSize);
 
     static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&, SkScalar sizeLimit = 1024);
-    void        drawPosText_asPaths(const char text[], size_t byteLength, const SkScalar pos[],
-                                    int scalarsPerPosition, const SkPoint& offset,
-                                    const SkPaint&, const SkSurfaceProps*) const;
+
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
+
 private:
     void blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const;
-    SkGlyphRunListPainter::PerMask drawOneMaskCreator(
-            const SkPaint& paint, SkArenaAlloc* alloc) const;
-    void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
-    void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
-                     bool pathIsMutable, bool drawCoverage,
-                     SkBlitter* customBlitter = nullptr) const;
+    void drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
+
+    void drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
+                  bool pathIsMutable, bool drawCoverage,
+                  SkBlitter* customBlitter = nullptr) const;
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
     void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
