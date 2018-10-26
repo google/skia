@@ -8,7 +8,7 @@
 #include "SkArenaAlloc.h"
 #include "SkColorShader.h"
 #include "SkColorSpace.h"
-#include "SkPM4fPriv.h"
+#include "SkColorSpacePriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkUtils.h"

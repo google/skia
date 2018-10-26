@@ -9,8 +9,11 @@
 
 #include <math.h>
 
+#include "SkColor.h"
 #include "SkColorSpace.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkFixed.h"
+#include "SkPM4f.h"
 
 #define SkColorSpacePrintf(...)
 
@@ -191,5 +194,25 @@ static inline bool is_almost_linear(const SkColorSpaceTransferFn& coeffs) {
 // No need to ref/unref these, but if you do, do it in pairs.
 SkColorSpace* sk_srgb_singleton();
 SkColorSpace* sk_srgb_linear_singleton();
+
+// Helpers for doing color space conversion
+static inline SkColor4f premul_in_dst_colorspace(SkColor4f color4f,
+                                                 SkColorSpace* srcCS, SkColorSpace* dstCS) {
+    // TODO: In the very common case of srcCS being sRGB,
+    // can we precompute an sRGB -> dstCS SkColorSpaceXformSteps for each device and use it here?
+    SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
+                           dstCS, kPremul_SkAlphaType)
+        .apply(color4f.vec());
+
+    return color4f;
+}
+
+static inline SkColor4f premul_in_dst_colorspace(SkColor c, SkColorSpace* dstCS) {
+    SkColor4f color4f;
+    swizzle_rb(Sk4f_fromL32(c)).store(color4f.vec());
+
+    // SkColors are always sRGB.
+    return premul_in_dst_colorspace(color4f, sk_srgb_singleton(), dstCS);
+}
 
 #endif  // SkColorSpacePriv_DEFINED
