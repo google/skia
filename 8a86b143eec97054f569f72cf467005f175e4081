@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6692905f_6fb07881",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-26T14:52:27Z",
+      "side": 1,
+      "message": "This looks fishy",
+      "range": {
+        "startLine": 277,
+        "startChar": 5,
+        "endLine": 277,
+        "endChar": 6
+      },
+      "revId": "8a86b143eec97054f569f72cf467005f175e4081",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
