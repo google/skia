@@ -123,10 +123,12 @@ public:
 
     void setFactoryRecorder(sk_sp<SkFactorySet>);
     void setTypefaceRecorder(sk_sp<SkRefCntSet>);
+    void setUseFactoryIndices(bool use) { fUseFactoryIndices = use; }
 
 private:
     sk_sp<SkFactorySet> fFactorySet;
     sk_sp<SkRefCntSet> fTFSet;
+    bool fUseFactoryIndices = false;
 
     SkWriter32 fWriter;
 

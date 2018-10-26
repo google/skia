@@ -196,6 +196,7 @@ public:
     }
 
     SkFilterQuality checkFilterQuality();
+    void setUseFactoryIndices(bool use) { fUseFactoryIndices = use; }
 
 private:
     void setInvalid();
@@ -223,6 +224,7 @@ private:
     }
 
     bool fError = false;
+    bool fUseFactoryIndices = false;
 };
 
 #endif // SkReadBuffer_DEFINED

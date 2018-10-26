@@ -58,6 +58,9 @@ public:
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);
 
+    static Factory IndexToFactory(int index);
+    static int FactoryToIndex(Factory);
+
     static void Register(const char name[], Factory);
 
     /**
@@ -73,11 +76,14 @@ public:
     //
     // public ways to serialize / deserialize
     //
-    sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
+    sk_sp<SkData> serialize(const SkSerialProcs* = nullptr,
+                            bool use_factory_indices = false) const;
     size_t serialize(void* memory, size_t memory_size,
-                     const SkSerialProcs* = nullptr) const;
+                     const SkSerialProcs* = nullptr,
+                     bool use_factory_indices = false) const;
     static sk_sp<SkFlattenable> Deserialize(Type, const void* data, size_t length,
-                                            const SkDeserialProcs* procs = nullptr);
+                                            const SkDeserialProcs* procs = nullptr,
+                                            bool use_factory_indices = false);
 
 protected:
     class PrivateInitializer {

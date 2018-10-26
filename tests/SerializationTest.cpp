@@ -619,6 +619,33 @@ DEF_TEST(Serialization, reporter) {
     }
 }
 
+DEF_TEST(Serialization_with_factory_indices, reporter) {
+    SkScalar intervals[] = {1.f, 1.f};
+    auto path_effect = SkDashPathEffect::Make(intervals, 2, 0);
+    size_t path_size = SkAlign4(path_effect->serialize()->size());
+    REPORTER_ASSERT(reporter, path_size > 4u);
+
+    SkAutoTMalloc<uint8_t> storage;
+    storage.realloc(path_size);
+    REPORTER_ASSERT(reporter,
+                    path_effect->serialize(storage.get(), path_size, nullptr, true) != 0u);
+
+    // Verify that this is read successfully.
+    REPORTER_ASSERT(reporter,
+                    SkFlattenable::Deserialize(SkPathEffect::GetFlattenableType(), storage.get(),
+                                               path_size, nullptr, true));
+
+
+    // Write and then read a null object.
+    SkBinaryWriteBuffer buffer(storage, path_size);
+    buffer.setUseFactoryIndices(true);
+    buffer.writeFlattenable(nullptr);
+    REPORTER_ASSERT(reporter, buffer.bytesWritten() > 0);
+    REPORTER_ASSERT(reporter,
+                    !SkFlattenable::Deserialize(SkPathEffect::GetFlattenableType(), storage.get(),
+                                                buffer.bytesWritten(), nullptr, true));
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "SkAnnotation.h"
 

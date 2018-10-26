@@ -102,7 +102,8 @@ public:
         @param size    size of storage
         @return        bytes written, or zero if required storage is larger than memory_size
     */
-    size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const;
+    size_t serialize(const SkSerialProcs& procs, void* memory,
+                     size_t memory_size, bool use_factory_indices = false) const;
 
     /** Returns storage containing SkData describing SkTextBlob, using optional custom
         encoders.
@@ -115,7 +116,8 @@ public:
         @param procs  custom serial data encoders; may be nullptr
         @return       storage containing serialized SkTextBlob
     */
-    sk_sp<SkData> serialize(const SkSerialProcs& procs) const;
+    sk_sp<SkData> serialize(const SkSerialProcs& procs,
+                            bool use_factory_indices = false) const;
 
     /** Recreates SkTextBlob that was serialized into data. Returns constructed SkTextBlob
         if successful; otherwise, returns nullptr. Fails if size is smaller than
@@ -132,7 +134,8 @@ public:
         @return       SkTextBlob constructed from data in memory
     */
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
-                                         const SkDeserialProcs& procs);
+                                         const SkDeserialProcs& procs,
+                                         bool use_factory_indices = false);
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;

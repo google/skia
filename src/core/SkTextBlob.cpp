@@ -745,9 +745,11 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromText(
     return blobBuilder.make();
 }
 
-sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
+sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs,
+                                    bool use_factory_indices) const {
     SkBinaryWriteBuffer buffer;
     buffer.setSerialProcs(procs);
+    buffer.setUseFactoryIndices(use_factory_indices);
     SkTextBlobPriv::Flatten(*this, buffer);
 
     size_t total = buffer.bytesWritten();
@@ -757,17 +759,21 @@ sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
 }
 
 sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
-                                          const SkDeserialProcs& procs) {
+                                          const SkDeserialProcs& procs,
+                                          bool use_factory_indices) {
     SkReadBuffer buffer(data, length);
     buffer.setDeserialProcs(procs);
+    buffer.setUseFactoryIndices(use_factory_indices);
     return SkTextBlobPriv::MakeFromBuffer(buffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const {
+size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory,
+                             size_t memory_size, bool use_factory_indices) const {
     SkBinaryWriteBuffer buffer(memory, memory_size);
     buffer.setSerialProcs(procs);
+    buffer.setUseFactoryIndices(use_factory_indices);
     SkTextBlobPriv::Flatten(*this, buffer);
     return buffer.usingInitialStorage() ? buffer.bytesWritten() : 0u;
 }

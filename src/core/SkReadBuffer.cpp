@@ -371,7 +371,15 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
 SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     SkFlattenable::Factory factory = nullptr;
 
-    if (fFactoryCount > 0) {
+    if (fUseFactoryIndices) {
+        // Subtract one here to match the addition in SkWriteBuffer.
+        // If the flattenable is null, -1 will naturally return a null factory.
+        int32_t index = this->read32() - 1;
+        factory = SkFlattenable::IndexToFactory(index);
+        if (!factory) {
+            return nullptr; // invalid index, or null flattenable
+        }
+    } else if (fFactoryCount > 0) {
         int32_t index = this->read32();
         if (0 == index || !this->isValid()) {
             return nullptr; // writer failed to give us the flattenable
