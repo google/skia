@@ -10,7 +10,6 @@
 #include "SkColorSpaceXformer.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkMakeUnique.h"
-#include "SkPM4f.h"
 #include "SkRandom.h"
 
 enum class Mode { steps, xformer };
@@ -52,10 +51,9 @@ struct ColorSpaceXformBench : public Benchmark {
                     dst;
             switch (fMode) {
                 case Mode::steps: {
-                    float rgba[4];
-                    swizzle_rb(Sk4f_fromL32(src)).store(rgba);
-                    fSteps->apply(rgba);
-                    dst = Sk4f_toL32(swizzle_rb(Sk4f::Load(rgba)));
+                    SkColor4f rgba = SkColor4f::FromColor(src);
+                    fSteps->apply(rgba.vec());
+                    dst = rgba.toSkColor();
                 } break;
 
                 case Mode::xformer: {
