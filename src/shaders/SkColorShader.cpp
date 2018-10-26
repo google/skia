@@ -8,7 +8,8 @@
 #include "SkArenaAlloc.h"
 #include "SkColorShader.h"
 #include "SkColorSpace.h"
-#include "SkPM4fPriv.h"
+#include "SkColorSpacePriv.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkUtils.h"
@@ -238,13 +239,17 @@ sk_sp<SkShader> SkShader::MakeColorShader(const SkColor4f& color, sk_sp<SkColorS
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkColorShader::onAppendStages(const StageRec& rec) const {
-    rec.fPipeline->append_constant_color(rec.fAlloc,
-            premul_in_dst_colorspace(fColor, rec.fDstCS));
+    SkColor4f color = SkColor4f::FromColor(fColor);
+    SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                           rec.fDstCS,          kUnpremul_SkAlphaType).apply(color.vec());
+    rec.fPipeline->append_constant_color(rec.fAlloc, color.premul().vec());
     return true;
 }
 
 bool SkColor4Shader::onAppendStages(const StageRec& rec) const {
-    rec.fPipeline->append_constant_color(rec.fAlloc,
-            premul_in_dst_colorspace(fColor4, fColorSpace.get(), rec.fDstCS));
+    SkColor4f color = fColor4;
+    SkColorSpaceXformSteps(fColorSpace.get(), kUnpremul_SkAlphaType,
+                           rec.fDstCS,        kUnpremul_SkAlphaType).apply(color.vec());
+    rec.fPipeline->append_constant_color(rec.fAlloc, color.premul().vec());
     return true;
 }
