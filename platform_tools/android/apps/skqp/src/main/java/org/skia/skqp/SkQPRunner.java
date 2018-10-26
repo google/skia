@@ -32,7 +32,7 @@ public class SkQPRunner extends Runner implements Filterable {
     private static final String TAG = SkQP.LOG_PREFIX;
 
     private static void Fail(Description desc, RunNotifier notifier, String failure) {
-        notifier.fireTestFailure(new Failure(desc, new Throwable(failure)));
+        notifier.fireTestFailure(new Failure(desc, new SkQPFailure(failure)));
     }
 
     private static File GetOutputDir() {
@@ -110,12 +110,12 @@ public class SkQPRunner extends Runner implements Filterable {
         int testIndex = 0;  // out of potential tests.
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             for (int gm = 0; gm < impl.mGMs.length; gm++, testIndex++) {
-                ++testNumber;
                 Description desc = mTests[testIndex];
                 String name = desc.getMethodName();
                 if (mShouldSkipTest[testIndex]) {
                     continue;
                 }
+                ++testNumber;
                 notifier.fireTestStarted(desc);
                 float value = java.lang.Float.MAX_VALUE;
                 String error = null;
@@ -141,12 +141,12 @@ public class SkQPRunner extends Runner implements Filterable {
             }
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++, testIndex++) {
-            ++testNumber;
             Description desc = mTests[testIndex];
             String name = desc.getMethodName();
             if (mShouldSkipTest[testIndex]) {
                 continue;
             }
+            ++testNumber;
             notifier.fireTestStarted(desc);
             String[] errors = impl.nExecuteUnitTest(unitTest);
             String result = "pass";
