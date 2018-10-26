@@ -57,6 +57,12 @@ namespace GrDefaultGeoProcFactory {
         SkPoint fLocalCoord;
     };
 
+    struct PositionWideColorLocalCoordAttr {
+        SkPoint   fPosition;
+        GrColor4s fColor;
+        SkPoint   fLocalCoord;
+    };
+
     struct PositionColorLocalCoordCoverageAttr {
         SkPoint fPosition;
         GrColor fColor;

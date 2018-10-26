@@ -22,6 +22,9 @@
  */
 typedef uint32_t GrColor;
 
+// Alias to help with migration of GrColor to GrColor4s
+typedef uint32_t GrColor4b;
+
 // shift amount to assign a component to a GrColor int
 // These shift values are chosen for compatibility with GL attrib arrays
 // ES doesn't allow BGRA vertex attrib order so if they were not in this order
@@ -198,6 +201,13 @@ struct GrColor4s {
     GrColor toGrColor() const {
         SkASSERT(isNormalized());
         return GrColorPackRGBA(fR >> 4, fG >> 4, fB >> 4, fA >> 4);
+    }
+
+    uint64_t asU64() const {
+        return static_cast<uint64_t>(fR) << 48 |
+               static_cast<uint64_t>(fG) << 32 |
+               static_cast<uint64_t>(fB) << 16 |
+               static_cast<uint64_t>(fA) << 0;
     }
 
     // These values are actually signed shorts (as seen by the GPU), but we store them here as
