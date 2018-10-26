@@ -155,13 +155,15 @@ void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetMan
                         &gAssetManager);
     gResourceFactory = &get_resource;
 
-    const char* dataDirString = env->GetStringUTFChars(dataDir, nullptr);
-    jassert(env, dataDirString && dataDirString[0]);
-    gReportDirectory =  std::string(dataDirString) + "/skqp_report";
-    int mkdirRetval = mkdir(gReportDirectory.c_str(), 0777);
-    SkASSERT_RELEASE(0 == mkdirRetval);
+    if (dataDir) {
+        const char* dataDirString = env->GetStringUTFChars(dataDir, nullptr);
+        jassert(env, dataDirString && dataDirString[0]);
+        gReportDirectory =  std::string(dataDirString) + "/skqp_report";
+        int mkdirRetval = mkdir(gReportDirectory.c_str(), 0777);
+        SkASSERT_RELEASE(0 == mkdirRetval);
 
-    env->ReleaseStringUTFChars(dataDir, dataDirString);
+        env->ReleaseStringUTFChars(dataDir, dataDirString);
+    }
 
     gBackends = gm_runner::GetSupportedBackends();
     jassert(env, gBackends.size() > 0);
