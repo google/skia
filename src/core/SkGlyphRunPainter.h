@@ -27,13 +27,30 @@ public:
 #endif
 
     using PerMask = std::function<void(const SkMask&, const SkGlyph&, SkPoint)>;
-    using PerMaskCreator = std::function<PerMask(const SkPaint&, SkArenaAlloc* alloc)>;
-    using PerPath = std::function<void(const SkPath*, const SkGlyph&, SkPoint)>;
-    using PerPathCreator = std::function<PerPath(
-            const SkPaint&, SkScalar matrixScale, SkArenaAlloc* alloc)>;
+
+    struct PathAndPos {
+        const SkPath* path;
+        SkPoint pos;
+    };
+
+    class BitmapDeviceGlyphPainter {
+    public:
+        virtual ~BitmapDeviceGlyphPainter() = default;
+        // Only the paths that need to drawn are passed.
+        virtual void glyphPainterDrawPaths(
+                const SkPaint& paint,
+                SkScalar scale,
+                SkSpan<const PathAndPos> pathAndPos) const = 0;
+        // Only masks that needed to be drawn will be passed.
+        virtual void glyphPainterDrawMasks(
+                const SkPaint& paint,
+                SkSpan<const SkMask> masks) const = 0;
+
+    };
+
     void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
-            PerMaskCreator perMaskCreator, PerPathCreator perPathCreator);
+            const BitmapDeviceGlyphPainter* bitmapPainter);
 
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
@@ -72,6 +89,8 @@ public:
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
     bool ensureBitmapBuffers(size_t runSize);
+    bool ensureGPUBuffers(size_t runSize);
+    void trimBuffers();
 
     void processARGBFallback(
             SkScalar maxGlyphDimension, const SkPaint& runPaint, SkPoint origin,
@@ -83,8 +102,15 @@ private:
     const SkSurfaceProps fBitmapFallbackProps;
     const SkColorType fColorType;
     const SkScalerContextFlags fScalerContextFlags;
-    size_t fMaxRunSize{0};
+    size_t fMaxPositionSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    size_t fMaxGlyphDataSize{0};
+
+    union CombinedGlyphData {
+        SkMask mask;
+        PathAndPos pathAndPos;
+    };
+    SkAutoTMalloc<CombinedGlyphData> fGlyphDrawData;
 
     // Vectors for tracking ARGB fallback information.
     std::vector<SkGlyphID> fARGBGlyphsIDs;
@@ -161,7 +187,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
     mapping.postTranslate(rounding.x(), rounding.y());
 
     auto runSize = glyphRun.runSize();
-    if (this->ensureBitmapBuffers(runSize)) {
+    if (this->ensureGPUBuffers(runSize)) {
         mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
         const SkPoint* mappedPtCursor = fPositions;
         for (auto glyphID : glyphRun.glyphsIDs()) {
