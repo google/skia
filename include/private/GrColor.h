@@ -182,6 +182,18 @@ struct GrColor4h {
                half_is_normalized((fRGBA >> 48) & 0xFFFF);
     }
 
+    bool isOpaque() const {
+        return this->operator[](3) == SK_Half1;
+    }
+
+    bool operator==(GrColor4h that) const {
+        return fRGBA == that.fRGBA;
+    }
+
+    bool operator!=(GrColor4h that) const {
+        return fRGBA != that.fRGBA;
+    }
+
     void toFloats(float* rgba) const {
         SkHalfToFloat_finite_ftz(fRGBA).store(rgba);
     }
@@ -192,7 +204,16 @@ struct GrColor4h {
         return c4f.toBytes_RGBA();
     }
 
+    SkHalf operator[](int index) const {
+        SkASSERT(index >= 0 && index < 4);
+        return reinterpret_cast<const SkHalf*>(&fRGBA)[index];
+    }
+
     uint64_t fRGBA;
 };
+
+constexpr GrColor4h GrColor4h_WHITE       = { 0x3C003C003C003C00ull };  // 1, 1, 1, 1
+constexpr GrColor4h GrColor4h_TRANSPARENT = { 0 };                      // 0, 0, 0, 0
+constexpr GrColor4h GrColor4h_ILLEGAL     = { 0xFFFFFFFFFFFFFFFFull };  // -NaN. -NaN, -NaN, -NaN
 
 #endif

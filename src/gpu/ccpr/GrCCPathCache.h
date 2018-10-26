@@ -192,7 +192,7 @@ private:
 
     friend class GrCCPathCache;
     friend void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry&, const SkIVector&,
-                                                 uint32_t, DoEvenOddFill);  // To access data.
+                                                 GrColor, DoEvenOddFill);  // To access data.
 };
 
 inline void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry& entry,

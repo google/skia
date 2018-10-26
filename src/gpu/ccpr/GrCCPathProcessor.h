@@ -113,7 +113,8 @@ private:
 };
 
 inline void GrCCPathProcessor::Instance::set(const SkRect& devBounds, const SkRect& devBounds45,
-                                             const SkIVector& devToAtlasOffset, GrColor color,
+                                             const SkIVector& devToAtlasOffset,
+                                             GrColor color,
                                              DoEvenOddFill doEvenOddFill) {
     if (DoEvenOddFill::kYes == doEvenOddFill) {
         // "right < left" indicates even-odd fill type.
