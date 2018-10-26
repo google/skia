@@ -10,6 +10,7 @@
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
+#include "SkTextUtils.h"
 
 #define W 200
 #define H 100
@@ -44,9 +45,8 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
 
     paint.setColor(SK_ColorWHITE);
     paint.setTextSize(32);
-    paint.setTextAlign(SkPaint::kCenter_Align);
     sk_tool_utils::set_portable_typeface(&paint);
-    canvas->drawString(label, W / 2, H * 3 / 4, paint);
+    SkTextUtils::DrawString(canvas, label, W / 2, H * 3 / 4, paint, SkPaint::kCenter_Align);
 }
 
 class SurfacePropsGM : public skiagm::GM {

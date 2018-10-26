@@ -27,6 +27,7 @@
 #include "SkSurface.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
+#include "SkTextUtils.h"
 #include "SkTypes.h"
 #include "sk_tool_utils.h"
 
@@ -504,10 +505,9 @@ protected:
         canvas->drawRect(button.fBounds, paint);
         paint.setTextSize(25.0f);
         paint.setColor(button.fEnabled ? 0xFF3F0000 : 0x6F3F0000);
-        paint.setTextAlign(SkPaint::kCenter_Align);
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawText(&button.fLabel, 1, button.fBounds.centerX(), button.fBounds.fBottom - 5,
-                paint);
+        SkTextUtils::DrawText(canvas, &button.fLabel, 1, button.fBounds.centerX(), button.fBounds.fBottom - 5,
+                paint, SkPaint::kCenter_Align);
     }
 
     void draw_control(SkCanvas* canvas, const SkRect& bounds, SkScalar value,

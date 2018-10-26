@@ -159,10 +159,6 @@ static SkBlendMode make_xfermode() {
     return static_cast<SkBlendMode>(R((int)SkBlendMode::kLastMode+1));
 }
 
-static SkPaint::Align make_paint_align() {
-    return static_cast<SkPaint::Align>(R(SkPaint::kRight_Align+1));
-}
-
 static SkPaint::Hinting make_paint_hinting() {
     return static_cast<SkPaint::Hinting>(R(SkPaint::kFull_Hinting+1));
 }
@@ -522,7 +518,6 @@ static SkPaint make_paint() {
 
     paint.setImageFilter(make_image_filter());
     sk_sp<SkData> data(make_3Dlut(nullptr, make_bool(), make_bool(), make_bool()));
-    paint.setTextAlign(make_paint_align());
     paint.setTextSize(make_scalar());
     paint.setTextScaleX(make_scalar());
     paint.setTextSkewX(make_scalar());

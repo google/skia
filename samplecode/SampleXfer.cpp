@@ -15,6 +15,7 @@
 #include "SkRSXform.h"
 #include "SkString.h"
 #include "SkSurface.h"
+#include "SkTextUtils.h"
 #include "SkGradientShader.h"
 
 const SkBlendMode gModes[] = {
@@ -52,9 +53,9 @@ public:
 
         paint.setColor(0xFFFFFFFF);
         paint.setTextSize(16);
-        paint.setTextAlign(SkPaint::kCenter_Align);
         paint.setLCDRenderText(true);
-        canvas->drawString(fLabel, fRect.centerX(), fRect.fTop + 0.68f * fRect.height(), paint);
+        SkTextUtils::DrawString(canvas, fLabel, fRect.centerX(), fRect.fTop + 0.68f * fRect.height(),
+                                paint, SkPaint::kCenter_Align);
     }
 
     bool hitTest(SkScalar x, SkScalar y) {

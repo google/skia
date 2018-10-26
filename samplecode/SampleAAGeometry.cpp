@@ -16,6 +16,7 @@
 // #include "SkPathStroker.h"
 #include "SkPointPriv.h"
 #include "SkString.h"
+#include "SkTextUtils.h"
 
 #if 0
 void SkStrokeSegment::dump() const {
@@ -502,7 +503,6 @@ struct ButtonPaints {
         fStates[2].setColor(0xFFcf0000);
         fLabel.setAntiAlias(true);
         fLabel.setTextSize(25.0f);
-        fLabel.setTextAlign(SkPaint::kCenter_Align);
         fLabel.setStyle(SkPaint::kFill_Style);
     }
 };
@@ -542,7 +542,8 @@ struct Button {
             return;
         }
         canvas->drawRect(fBounds, paints.fStates[fState]);
-        canvas->drawText(&fLabel, 1, fBounds.centerX(), fBounds.fBottom - 5, paints.fLabel);
+        SkTextUtils::DrawText(canvas, &fLabel, 1, fBounds.centerX(), fBounds.fBottom - 5,
+                              paints.fLabel, SkPaint::kCenter_Align);
     }
 
     void toggle() {
@@ -864,7 +865,6 @@ public:
         fLegendLeftPaint.setAntiAlias(true);
         fLegendLeftPaint.setTextSize(13);
         fLegendRightPaint = fLegendLeftPaint;
-        fLegendRightPaint.setTextAlign(SkPaint::kRight_Align);
         construct_path(fPath);
         fFillButton.fVisible = fSkeletonButton.fVisible = fFilterButton.fVisible
                 = fBisectButton.fVisible = fJoinButton.fVisible = fInOutButton.fVisible = true;
@@ -1811,12 +1811,12 @@ void AAGeometryView::draw_legend(SkCanvas* canvas) {
     SkScalar bottomOffset = this->height() - 10;
     for (int index = kKeyCommandCount - 1; index >= 0; --index) {
         bottomOffset -= 15;
-        canvas->drawString(kKeyCommandList[index].fDescriptionL,
+        SkTextUtils::DrawString(canvas, kKeyCommandList[index].fDescriptionL,
                 this->width() - 160, bottomOffset,
                 fLegendLeftPaint);
-        canvas->drawString(kKeyCommandList[index].fDescriptionR,
+        SkTextUtils::DrawString(canvas, kKeyCommandList[index].fDescriptionR,
                 this->width() - 20, bottomOffset,
-                fLegendRightPaint);
+                fLegendRightPaint, SkPaint::kRight_Align);
     }
 }
 

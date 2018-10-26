@@ -144,7 +144,6 @@ DEF_TEST(Paint_copy, reporter) {
     SkPaint paint;
     // set a few member variables
     paint.setStyle(SkPaint::kStrokeAndFill_Style);
-    paint.setTextAlign(SkPaint::kLeft_Align);
     paint.setStrokeWidth(SkIntToScalar(2));
     // set a few pointers
     SkLayerDrawLooper::Builder looperBuilder;
