@@ -33,6 +33,7 @@
 #include "SkMakeUnique.h"
 #include "SkSurface_Gpu.h"
 #include "SkTaskGroup.h"
+#include "SkTraceMemoryDump.h"
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrSkSLFP.h"
@@ -1114,6 +1115,8 @@ void GrContext::setResourceCacheLimits(int maxResources, size_t maxResourceBytes
 void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     ASSERT_SINGLE_OWNER
     fResourceCache->dumpMemoryStatistics(traceMemoryDump);
+    traceMemoryDump->dumpNumericValue("gpu_text_blob_cache", "size", "bytes",
+                                      fTextBlobCache->usedBytes());
 }
 
 //////////////////////////////////////////////////////////////////////////////

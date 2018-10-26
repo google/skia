@@ -125,6 +125,8 @@ public:
 
     void purgeStaleBlobs();
 
+    size_t usedBytes() const { return fCurrentSize; }
+
 private:
     using BitmapBlobList = SkTInternalLList<GrTextBlob>;
 
