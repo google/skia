@@ -11,7 +11,7 @@
  PDF XPS
  RFC
  NaN NaNs
- U16CPU
+ U16CPU int int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t
 
  C C++ SIZE_MAX C_FILE
  CSS HTML
@@ -432,6 +432,9 @@ FT_Load_Glyph
 #Topic ##
 
 # to be in Topic Math
+    #Method float sqrt(float x)
+    # this permits using sqrt(x) in documentation
+    ##
     #Method static inline bool sk_64_isS32(int64_t value)
     ##
     #Method SkIntToScalar(x)
@@ -466,11 +469,10 @@ FT_Load_Glyph
 #Topic Nine_Patch
 ##
 
-# to be in Topic Number_Types
+# to be in Topic Number_Types ?
     #Typedef uint16_t SkGlyphID
     #Typedef ##
     #Topic Scalar
-    #Alias Scalar ##
     #Alias Scalars ##
     #Typedef float SkScalar
     #Typedef ##
@@ -626,9 +628,11 @@ FT_Load_Glyph
 # end of Topic Rasterizer
 
 #Topic Reference_Count
-#Substitute SkRefCnt
 #Class SkRefCnt
 #Class ##
+##
+
+#Topic Smart_Pointer
 #Class sk_sp
 #Class ##
 #Topic ##
@@ -802,8 +806,4 @@ FT_Load_Glyph
 #Topic Xfermode_Image_Filter
 #Class SkXfermodeImageFilter
 ##
-##
-
-# temporary while ref is separated from overview
-#Topic Zero_Length_Contour
 ##
