@@ -30,30 +30,28 @@ public:
 protected:
 
     void onOnceBeforeDraw() override {
-        SkPaint p;
-        p.setAntiAlias(true);
-        p.setSubpixelText(true);
-        p.setTextSize(30);
-        p.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        sk_tool_utils::set_portable_typeface(&p);
+        SkFont font;
+        font.setFlags(font.getFlags() | SkFont::kSubpixel_Flag | SkFont::kDEPRECATED_Antialias_Flag);
+        font.setSize(30);
+        font.setTypeface(sk_tool_utils::create_portable_typeface());
 
         SkTextBlobBuilder builder;
         int glyphCount = fGlyphs.count();
         const SkTextBlobBuilder::RunBuffer* run;
 
-        run = &builder.allocRun(p, glyphCount, 10, 10, nullptr);
+        run = &builder.allocRun(font, glyphCount, 10, 10, nullptr);
         memcpy(run->glyphs, fGlyphs.begin(), glyphCount * sizeof(uint16_t));
 
-        run = &builder.allocRunPosH(p, glyphCount,  80, nullptr);
+        run = &builder.allocRunPosH(font, glyphCount,  80, nullptr);
         memcpy(run->glyphs, fGlyphs.begin(), glyphCount * sizeof(uint16_t));
         for (int i = 0; i < glyphCount; ++i) {
-            run->pos[i] = p.getTextSize() * i * .75f;
+            run->pos[i] = font.getSize() * i * .75f;
         }
 
-        run = &builder.allocRunPos(p, glyphCount, nullptr);
+        run = &builder.allocRunPos(font, glyphCount, nullptr);
         memcpy(run->glyphs, fGlyphs.begin(), glyphCount * sizeof(uint16_t));
         for (int i = 0; i < glyphCount; ++i) {
-            run->pos[i * 2] = p.getTextSize() * i * .75f;
+            run->pos[i * 2] = font.getSize() * i * .75f;
             run->pos[i * 2 + 1] = 150 + 5 * sinf((float)i * 8 / glyphCount);
         }
 
@@ -86,6 +84,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint p;
+        p.setAntiAlias(true);
         p.setStyle(SkPaint::kFill_Style);
         p.setShader(fShader);
 

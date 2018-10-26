@@ -472,10 +472,8 @@ DEF_TEST(TextBlob_serialize, reporter) {
 }
 
 DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
-    SkPaint paint;
-    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
     const char text[] = "Hello";
-    auto blob = SkTextBlob::MakeFromText(text, strlen(text), paint);
+    auto blob = SkTextBlob::MakeFromString(text, SkFont(), SkPaint::kUTF8_TextEncoding);
 
     int runs = 0;
     for(SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {

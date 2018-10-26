@@ -532,6 +532,39 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
     }
 }
 
+// SkFont versions
+
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRun(const SkFont& font, int count,
+                                                                SkScalar x, SkScalar y,
+                                                                const SkRect* bounds) {
+    SkPaint legacyPaint;
+    font.LEGACY_applyToPaint(&legacyPaint);
+    legacyPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    return this->allocRunText(legacyPaint, count, x, y, 0, SkString(), bounds);
+}
+
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPosH(const SkFont& font, int count,
+                                                                    SkScalar y,
+                                                                    const SkRect* bounds) {
+    SkPaint legacyPaint;
+    font.LEGACY_applyToPaint(&legacyPaint);
+    legacyPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    return this->allocRunTextPosH(legacyPaint, count, y, 0, SkString(), bounds);
+}
+
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPos(const SkFont& font, int count,
+                                                                   const SkRect* bounds) {
+    SkPaint legacyPaint;
+    font.LEGACY_applyToPaint(&legacyPaint);
+    legacyPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    return this->allocRunTextPos(legacyPaint, count, 0, SkString(), bounds);
+}
+
+// SkPaint versions
+
 const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunText(const SkPaint& font, int count,
                                                                     SkScalar x, SkScalar y,
                                                                     int textByteCount,
@@ -731,17 +764,21 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
     return blobBuilder.make();
 }
 
-sk_sp<SkTextBlob> SkTextBlob::MakeFromText(
-        const void* text, size_t byteLength, const SkPaint& paint) {
+sk_sp<SkTextBlob> SkTextBlob::MakeFromText(const void* text, size_t byteLength, const SkFont& font,
+                                           SkPaint::TextEncoding encoding) {
+    SkPaint legacyPaint;
+    font.LEGACY_applyToPaint(&legacyPaint);
+    legacyPaint.setTextEncoding(encoding);
+
     SkGlyphRunBuilder runBuilder;
 
-    runBuilder.drawText(paint, text, byteLength, SkPoint::Make(0, 0));
+    runBuilder.drawText(legacyPaint, text, byteLength, SkPoint::Make(0, 0));
 
     auto glyphRunList = runBuilder.useGlyphRunList();
     SkTextBlobBuilder blobBuilder;
     if (!glyphRunList.empty()) {
         auto run = glyphRunList[0];
-        SkPaint blobPaint(paint);
+        SkPaint blobPaint(legacyPaint);
         blobPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
         auto runData = blobBuilder.allocRunPos(blobPaint, run.runSize());
