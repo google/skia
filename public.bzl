@@ -271,7 +271,8 @@ BASE_SRCS_ALL = struct(
 
 def codec_srcs(limited):
     """Sources for the codecs. Excludes Ico, Webp, Png, and Raw if limited."""
-    exclude = []
+    # TODO: Enable wuffs in Google3
+    exclude = [ "src/codec/SkWuffsCodec.cpp" ]
     if limited:
         exclude += [
             "src/codec/*Ico*.cpp",
