@@ -14,6 +14,7 @@
 #include "GrTypes.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkHalf.h"
 #include "SkUnPreMultiply.h"
 
 /**
@@ -151,6 +152,48 @@ static inline GrColor GrUnpremulColor(GrColor color) {
 
     return GrColorPackRGBA(r, g, b, a);
 }
+
+/**
+ * GrColor4h is 8 bytes (4 half-floats) for for R, G, B, A, in that order. This is intended for
+ * storing wide-gamut (non-normalized) colors in ops, vertex attributes.
+ */
+struct GrColor4h {
+    static GrColor4h FromFloats(const float* rgba) {
+        uint64_t packed;
+        SkFloatToHalf_finite_ftz(Sk4f::Load(rgba)).store(&packed);
+        return { packed };
+    }
+
+    static GrColor4h FromGrColor(GrColor color) {
+        SkColor4f c4f = SkColor4f::FromBytes_RGBA(color);
+        return FromFloats(c4f.vec());
+    }
+
+    bool isNormalized() const {
+        auto half_is_normalized = [](SkHalf h) {
+            return h <= SK_Half1 ||  // All positive values in [0, 1]
+                   h == 0x8000;      // Negative 0
+        };
+
+        // Check each component is <= 1.0
+        return half_is_normalized((fRGBA >>  0) & 0xFFFF) &&
+               half_is_normalized((fRGBA >> 16) & 0xFFFF) &&
+               half_is_normalized((fRGBA >> 32) & 0xFFFF) &&
+               half_is_normalized((fRGBA >> 48) & 0xFFFF);
+    }
+
+    void toFloats(float* rgba) const {
+        SkHalfToFloat_finite_ftz(fRGBA).store(rgba);
+    }
+
+    GrColor toGrColor() const {
+        SkColor4f c4f;
+        this->toFloats(c4f.vec());
+        return c4f.toBytes_RGBA();
+    }
+
+    uint64_t fRGBA;
+};
 
 /**
  * GrColor4s is 8 bytes (4 shorts) for for R, G, B, A, in that order. This is intended for storing
