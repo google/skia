@@ -111,28 +111,86 @@ void SkDraw::drawGlyphRunList(
         return;
     }
 
-    SkMatrix renderMatrix{*fMatrix};
-    auto perPathBuilder = [this, &renderMatrix]
-            (const SkPaint& paint, SkScalar scaleMatrix, SkArenaAlloc*) {
-        renderMatrix.setScale(scaleMatrix, scaleMatrix);
-        auto perPath =
-                [this, &renderMatrix, &paint]
-                (const SkPath* path, const SkGlyph&, SkPoint position) {
+    glyphPainter->drawForBitmapDevice(glyphRunList, *fMatrix, this);
+}
+
+    void SkDraw::glyphPainterDrawPaths(
+            const SkPaint& paint,
+            SkSpan<const SkPoint> positions,
+            const SkMatrix& scale,
+            SkSpan<const SkPath*> paths) const {
+        SkMatrix renderMatrix = scale;
+        const SkPoint* positionCursor = positions.begin();
+        for (auto path : paths) {
+            auto position = *positionCursor++;
             if (path != nullptr) {
                 renderMatrix[SkMatrix::kMTransX] = position.fX;
                 renderMatrix[SkMatrix::kMTransY] = position.fY;
                 this->drawPath(*path, paint, &renderMatrix, false);
             }
-        };
-        return perPath;
-    };
+        }
+    }
 
-    auto perMaskBuilder = [this](const SkPaint& paint, SkArenaAlloc* alloc) {
-        return this->drawOneMaskCreator(paint, alloc);
-    };
+    void SkDraw::glyphPainterDrawMasks(
+            const SkPaint& paint,
+            SkSpan<const SkMask> masks) const {
+        SkSTArenaAlloc<3332> alloc;
 
-    glyphPainter->drawForBitmapDevice(glyphRunList, *fMatrix, perMaskBuilder, perPathBuilder);
-}
+        SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, &alloc, false);
+        if (fCoverage != nullptr) {
+            auto coverageBlitter = SkBlitter::Choose(*fCoverage, *fMatrix, SkPaint(), &alloc, true);
+            blitter = alloc.make<SkPairBlitter>(blitter, coverageBlitter);
+        }
+
+        auto wrapaper = alloc.make<SkAAClipBlitterWrapper>(*fRC, blitter);
+        blitter = wrapaper->getBlitter();
+
+        auto useRegion = fRC->isBW() && !fRC->isRect();
+
+        if (useRegion) {
+            for (const SkMask& mask : masks) {
+                if (mask.fImage != nullptr) {
+                    SkRegion::Cliperator clipper(fRC->bwRgn(), mask.fBounds);
+
+                    if (!clipper.done()) {
+                        if (SkMask::kARGB32_Format == mask.fFormat) {
+                            this->blitARGB32Mask(mask, paint);
+                        } else {
+                            const SkIRect& cr = clipper.rect();
+                            do {
+                                blitter->blitMask(mask, cr);
+                                clipper.next();
+                            } while (!clipper.done());
+                        }
+                    }
+                }
+            }
+        } else {
+            SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
+                                             : fRC->aaRgn().getBounds();
+            for (const SkMask& mask : masks) {
+                if (mask.fImage != nullptr) {
+                    SkIRect storage;
+                    const SkIRect* bounds = &mask.fBounds;
+
+                    // this extra test is worth it, assuming that most of the time it succeeds
+                    // since we can avoid writing to storage
+                    if (!clipBounds.containsNoEmptyCheck(mask.fBounds)) {
+                        if (!storage.intersectNoEmptyCheck(mask.fBounds, clipBounds)) {
+                            return;
+                        }
+                        bounds = &storage;
+                    }
+
+                    if (SkMask::kARGB32_Format == mask.fFormat) {
+                        this->blitARGB32Mask(mask, paint);
+                    } else {
+                        blitter->blitMask(mask, *bounds);
+                    }
+                }
+            }
+        }
+    }
 
 #if defined _WIN32
 #pragma warning ( pop )
