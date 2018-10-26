@@ -19,6 +19,7 @@
 #define SkTextBlob_DEFINED
 
 #include "../private/SkTemplates.h"
+#include "SkFont.h"
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkRefCnt.h"
@@ -50,41 +51,41 @@ public:
     */
     uint32_t uniqueID() const { return fUniqueID; }
 
-    /** Creates SkTextBlob with a single run. text meaning depends on SkPaint::TextEncoding;
-        by default, text is encoded as UTF-8.
+    /** Creates SkTextBlob with a single run.
 
-        paint contains attributes used to define the run text:
+        font contains attributes used to define the run text:
         SkTypeface, SkPaint text size, SkPaint text scale x,
-        SkPaint text skew x, SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
-        SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
-        and SkPaint subpixel text.
+        SkFont text skew x, SkPaint::Align, SkFont::Hinting, anti-alias, SkFont fake bold,
+        SkFont font embedded bitmaps, SkFont full hinting spacing, LCD text, SkFont linear text,
+        and SkFont subpixel text.
 
         @param text        character code points or glyphs drawn
         @param byteLength  byte length of text array
-        @param paint       text size, typeface, text scale, and so on, used to draw
+        @param font       text size, typeface, text scale, and so on, used to draw
         @return            SkTextBlob constructed from one run
     */
-    static sk_sp<SkTextBlob> MakeFromText(
-            const void* text, size_t byteLength, const SkPaint& paint);
+    static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
+                                          SkPaint::TextEncoding = SkPaint::kUTF8_TextEncoding);
 
     /** Creates SkTextBlob with a single run. string meaning depends on SkPaint::TextEncoding;
         by default, string is encoded as UTF-8.
 
-        paint contains SkPaint::FontMetrics used to define the run text:
+        font contains attributes used to define the run text:
         SkTypeface, SkPaint text size, SkPaint text scale x,
-        SkPaint text skew x, SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
-        SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
-        and SkPaint subpixel text.
+        SkFont text skew x, SkPaint::Align, SkFont::Hinting, anti-alias, SkFont fake bold,
+        SkFont font embedded bitmaps, SkFont full hinting spacing, LCD text, SkFont linear text,
+        and SkFont subpixel text.
 
         @param string  character code points or glyphs drawn
-        @param paint   text size, typeface, text scale, and so on, used to draw
+        @param font   text size, typeface, text scale, and so on, used to draw
         @return        SkTextBlob constructed from one run
     */
-    static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkPaint& paint) {
+    static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font,
+                                    SkPaint::TextEncoding encoding = SkPaint::kUTF8_TextEncoding) {
         if (!string) {
             return nullptr;
         }
-        return MakeFromText(string, strlen(string), paint);
+        return MakeFromText(string, strlen(string), font, encoding);
     }
 
     /** Writes data to allow later reconstruction of SkTextBlob. memory points to storage
@@ -308,6 +309,14 @@ public:
                                  const SkRect* bounds = nullptr) {
         return this->allocRunTextPos(font, count, 0, SkString(), bounds);
     }
+
+
+    const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y,
+                              const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y,
+                                  const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunPos(const SkFont& font, int count,
+                                 const SkRect* bounds = nullptr);
 
 private:
     const RunBuffer& allocRunText(const SkPaint& font,
