@@ -728,10 +728,12 @@ void SkPathRef::callGenIDChangeListeners() {
     SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
     for (GenIDChangeListener* listener : fGenIDChangeListeners) {
         if (!listener->shouldUnregisterFromPath()) {
-            listener->onChange();
+            // Release our ref on the listener to the callback.
+            listener->notifyPathGenIDChanged(sk_sp<GenIDChangeListener>(listener));
+        } else {
+            // Listeners get at most one shot, so whether these triggered or not, blow them away.
+            listener->unref();
         }
-        // Listeners get at most one shot, so whether these triggered or not, blow them away.
-        listener->unref();
     }
 
     fGenIDChangeListeners.reset();

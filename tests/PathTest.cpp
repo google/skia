@@ -4252,7 +4252,7 @@ class ChangeListener : public SkPathRef::GenIDChangeListener {
 public:
     ChangeListener(bool *changed) : fChanged(changed) { *fChanged = false; }
     ~ChangeListener() override {}
-    void onChange() override {
+    void notifyPathGenIDChanged(sk_sp<GenIDChangeListener>) override {
         *fChanged = true;
     }
 private:

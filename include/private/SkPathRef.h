@@ -309,12 +309,15 @@ public:
      */
     uint32_t genID() const;
 
-    class GenIDChangeListener : public SkRefCnt {
+    class GenIDChangeListener : SkNoncopyable {
     public:
-        GenIDChangeListener() : fShouldUnregisterFromPath(false) {}
+        GenIDChangeListener() : fShouldUnregisterFromPath(false), fRefCnt(1) {}
         virtual ~GenIDChangeListener() {}
 
-        virtual void onChange() = 0;
+        // Called when the path is modified or deleted. 'releasedListener' is the single ref the
+        // path used to hold on this listener, which it has released at this point and transferred
+        // ownership to the callback.
+        virtual void notifyPathGenIDChanged(sk_sp<GenIDChangeListener> releasedListener) = 0;
 
         // The caller can use this method to notify the path that it no longer needs to listen. Once
         // called, the path will remove this listener from the list at some future point.
@@ -325,8 +328,22 @@ public:
             return fShouldUnregisterFromPath.load(std::memory_order_acquire);
         }
 
+        // Ref ptr impl.
+        // NOTE: while it isn't generally meaningful to peek at the ref count in a threaded context,
+        // the caller may wish to use peekRefCnt() to see if the path's list of listeners and/or
+        // itself are the only ref holders on the listener object. The path will always hold exactly
+        // one ref on each listener up until the point that it is released.
+        int32_t peekRefCnt() { return fRefCnt.load(std::memory_order_relaxed); }
+        void ref() const { (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed); }
+        void unref() const {
+            if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+                delete this;
+            }
+        }
+
     private:
         std::atomic<bool> fShouldUnregisterFromPath;
+        mutable std::atomic<int32_t> fRefCnt;
     };
 
     void addGenIDChangeListener(sk_sp<GenIDChangeListener>);  // Threadsafe.
