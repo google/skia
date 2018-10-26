@@ -9,8 +9,11 @@
 
 #include <math.h>
 
+#include "SkColor.h"
 #include "SkColorSpace.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkFixed.h"
+#include "SkPM4f.h"
 
 #define SkColorSpacePrintf(...)
 
