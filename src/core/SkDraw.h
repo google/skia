@@ -29,7 +29,7 @@ class SkRasterClip;
 struct SkRect;
 class SkRRect;
 
-class SkDraw {
+class SkDraw : public SkGlyphRunListPainter::BitmapDeviceGlyphPainter {
 public:
     SkDraw();
 
@@ -60,8 +60,17 @@ public:
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkPaint&) const;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
+    void glyphPainterDrawPaths(
+            const SkPaint& paint,
+            SkSpan<const SkPoint> positions,
+            const SkMatrix& scale,
+            SkSpan<const SkPath*> paths) const override;
+    void glyphPainterDrawMasks(
+            const SkPaint& paint,
+            SkSpan<const SkMask> masks) const override;
     void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
                              SkGlyphRunListPainter* glyphPainter) const;
+
     void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],

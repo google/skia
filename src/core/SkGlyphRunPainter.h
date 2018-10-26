@@ -31,9 +31,30 @@ public:
     using PerPath = std::function<void(const SkPath*, const SkGlyph&, SkPoint)>;
     using PerPathCreator = std::function<PerPath(
             const SkPaint&, SkScalar matrixScale, SkArenaAlloc* alloc)>;
-    void drawForBitmapDevice(
+
+    class BitmapDeviceGlyphPainter {
+    public:
+        virtual ~BitmapDeviceGlyphPainter() = default;
+        // If a path in paths is nullptr, skip the glyph.
+        virtual void glyphPainterDrawPaths(
+                const SkPaint& paint,
+                SkSpan<const SkPoint> positions,
+                const SkMatrix& scale,
+                SkSpan<const SkPath*> paths) const = 0;
+        // If the mask.fImage filed is nullptr then skip the glyph.
+        virtual void glyphPainterDrawMasks(
+                const SkPaint& paint,
+                SkSpan<const SkMask> masks) const = 0;
+
+    };
+
+    void drawForBitmapDevice2(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             PerMaskCreator perMaskCreator, PerPathCreator perPathCreator);
+
+    void drawForBitmapDevice(
+            const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
+            const BitmapDeviceGlyphPainter* bitmapPainter);
 
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(

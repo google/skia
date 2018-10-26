@@ -564,10 +564,6 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         }
     }
 
-    if (resetBits & kBlend_GrGLBackendState) {
-        fHWBlendState.invalidate();
-    }
-
     if (resetBits & kView_GrGLBackendState) {
         fHWScissorSettings.invalidate();
         fHWWindowRectsState.invalidate();
@@ -2780,6 +2776,10 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
         GL_CALL(Enable(GR_GL_BLEND));
 
         fHWBlendState.fEnabled = kYes_TriState;
+    }
+
+    if ((uint32_t)(fHWBlendState.fEquation) == 4294967295) {
+        SkDebugf("oh no\n");
     }
 
     if (fHWBlendState.fEquation != equation) {

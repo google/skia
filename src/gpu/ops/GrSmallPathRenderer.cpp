@@ -703,7 +703,6 @@ private:
         paint.setAntiAlias(true);
 
         SkDraw draw;
-        sk_bzero(&draw, sizeof(draw));
 
         SkRasterClip rasterClip;
         rasterClip.setRect(devPathBounds);
