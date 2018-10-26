@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlitRow.h"
+#include "Sk4px.h"
 #include "SkBlitMask.h"
+#include "SkBlitRow.h"
 #include "SkColorData.h"
 #include "SkOpts.h"
 #include "SkUtils.h"
@@ -115,5 +116,15 @@ void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[], int count, SkPMC
         case   0: memmove(dst, src, count * sizeof(SkPMColor)); return;
         case 255: sk_memset32(dst, color, count);               return;
     }
-    return SkOpts::blit_row_color32(dst, src, count, color);
+
+    unsigned invA = 255 - SkGetPackedA32(color);
+    invA += invA >> 7;
+    SkASSERT(invA < 256);  // We've should have already handled alpha == 0 externally.
+
+    Sk16h colorHighAndRound = Sk4px::DupPMColor(color).widenHi() + Sk16h(128);
+    Sk16b invA_16x(invA);
+
+    Sk4px::MapSrc(count, dst, src, [&](const Sk4px& src4) -> Sk4px {
+        return (src4 * invA_16x).addNarrowHi(colorHighAndRound);
+    });
 }
