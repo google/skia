@@ -21,14 +21,26 @@ installed libraries.
 For testing the image locally, the following flow can be helpful:
 
     docker build -t android-skqp ./android-skqp/
+
     # start an emulator
-    docker run --privileged -d --name android_em -e DEVICE="Samsung Galaxy S6" -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/skqp:/OUT android-skqp
+    docker run --privileged -d --name android_em \
+        -e DEVICE="Samsung Galaxy S6" \
+        -v $SKIA_ROOT:/SRC \
+        -v $SKIA_ROOT/out/skqp:/OUT \
+        android-skqp
+
     # attach to that emulator
     docker exec -it android_em /bin/bash
+
     # Compile SKQP
-    docker run -it --rm -w /SRC/infra/skqp -v $SKIA_ROOT:/SRC android-skqp ./build_apk.sh
-    # Run SKQP (can't mount anything with -v here, must do it on original docker run)
+    docker run -it --rm -w /SRC/infra/skqp \
+        -v $SKIA_ROOT:/SRC \
+        android-skqp ./build_apk.sh
+
+    # Run SKQP (can't mount anything with -v here, must do it on
+    # original docker run)
     docker exec -it android_em /SRC/infra/skqp/run_skqp.sh
+
     # Cleanup
     docker kill android_em
     docker rm android_em
