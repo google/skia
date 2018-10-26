@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "291fae58_6da0629d",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1075,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-26T13:43:14Z",
+      "side": 1,
+      "message": "I don\u0027t think I follow this... aren\u0027t there 24-bit PNGs?",
+      "revId": "e27a46b15ba762aaadb505e1d47f18d358ecea66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
