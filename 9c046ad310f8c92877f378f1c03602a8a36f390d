@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "14d2ba32_0d5ef121",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-26T12:40:48Z",
+      "side": 1,
+      "message": "I realized why you did it this way. The function template definition has to be in the header, so the function it calls needs to be declared in the header and the class was a way to make ApplyImpl appear in the header but be private.\n\nMaybe namespace GrQuadPerEdgeAA should just be class GrQuadPerEdgeAA (which is effectively used as a namespace since it won\u0027t have any non static methods or fields).\n\nWe use that pattern in a few other places.",
+      "parentUuid": "c4a9854d_3072a079",
+      "revId": "9c046ad310f8c92877f378f1c03602a8a36f390d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "36a1a0a9_544f550f",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
         "patchSetId": 5
