@@ -115,7 +115,7 @@ static SkMask prepare_mask(const SkGlyph& glyph, SkPoint position, const void* i
     return mask;
 }
 
-void SkGlyphRunListPainter::drawForBitmapDevice(
+void SkGlyphRunListPainter::drawForBitmapDevice2(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
         PerMaskCreator perMaskCreator, PerPathCreator perPathCreator) {
 
@@ -177,6 +177,92 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+static SkMask empty_mask() {
+    SkMask mask;
+    mask.fImage = nullptr;
+    return mask;
+}
+
+void SkGlyphRunListPainter::drawForBitmapDevice(
+        const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
+        const BitmapDeviceGlyphPainter* bitmapPainter) {
+
+    SkPoint origin = glyphRunList.origin();
+    for (auto& glyphRun : glyphRunList) {
+        // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
+        // convert the lcd text into A8 text. The props communicates this to the scaler.
+        auto& props = (kN32_SkColorType == fColorType && glyphRun.paint().isSrcOver())
+                      ? fDeviceProps
+                      : fBitmapFallbackProps;
+        auto paint = glyphRun.paint();
+        auto runSize = glyphRun.runSize();
+        if (ShouldDrawAsPath(glyphRun.paint(), deviceMatrix)) {
+            if (this->ensureBitmapBuffers(runSize)) {
+                SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
+                        fPositions, glyphRun.positions().data(), runSize);
+                // setup our std pathPaint, in hopes of getting hits in the cache
+                SkPaint pathPaint(paint);
+                SkScalar textScale = pathPaint.setupForAsPaths();
+
+                auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                        pathPaint, &props, fScalerContextFlags, nullptr);
+                std::vector<const SkPath*> paths;
+                const SkPoint* positionsCursor = fPositions;
+                for (auto glyphID : glyphRun.glyphsIDs()) {
+                    auto position = *positionsCursor++;
+                    if (check_glyph_position(position)) {
+                        const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
+                        if (!glyph.isEmpty()) {
+                            const SkPath* path = pathCache->findPath(glyph);
+                            if (path != nullptr) {
+                                paths.push_back(path);
+                                continue;
+                            }
+                        }
+                    }
+                    paths.push_back(nullptr);
+                }
+
+                bitmapPainter->glyphPainterDrawPaths(
+                        paint,
+                        SkSpan<const SkPoint>{fPositions.get(), runSize},
+                        SkMatrix::MakeScale(textScale),
+                        SkSpan<const SkPath*>{paths});
+            }
+        } else {
+            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                    paint, &props, fScalerContextFlags, &deviceMatrix);
+
+            if (this->ensureBitmapBuffers(runSize)) {
+                // Add rounding and origin.
+                SkMatrix matrix = deviceMatrix;
+                matrix.preTranslate(origin.x(), origin.y());
+                SkPoint rounding = cache->rounding();
+                matrix.postTranslate(rounding.x(), rounding.y());
+                matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
+
+                std::vector<SkMask> masks;
+                const SkPoint* positionCursor = fPositions;
+                for (auto glyphID : glyphRun.glyphsIDs()) {
+                    auto position = *positionCursor++;
+                    if (check_glyph_position(position)) {
+                        const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, position);
+                        const void* image;
+                        if (!glyph.isEmpty() && (image = cache->findImage(glyph))) {
+                            masks.emplace_back(prepare_mask(glyph, position, image));
+                            continue;
+                        }
+                    }
+                    masks.emplace_back(empty_mask());
+                }
+                bitmapPainter->glyphPainterDrawMasks(
+                        paint,
+                        SkSpan<const SkMask>{masks});
             }
         }
     }
