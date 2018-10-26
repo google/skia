@@ -30,6 +30,9 @@ DEF_TEST(Codec_trunc, r) {
     if (!data) {
         return;
     }
+    // See also Codec_GifTruncated2 in GifTest.cpp for this magic 23.
+    //
+    // TODO: just move this getFrameInfo call to Codec_GifTruncated2?
     SkCodec::MakeFromData(SkData::MakeSubset(data.get(), 0, 23))->getFrameInfo();
 }
 
