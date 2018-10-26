@@ -1854,9 +1854,32 @@ Definition* IncludeParser::findMethod(const Definition& bmhDef) {
     auto& iTokens = iClass->second.fTokens;
     const auto& iMethod = std::find_if(iTokens.begin(), iTokens.end(),
             [methodName](Definition& token) {
-            return MarkType::kMethod == token.fMarkType && methodName == token.fName; } );
-    SkASSERT(iTokens.end() != iMethod);
-    return &*iMethod;
+            return MarkType::kMethod == token.fMarkType
+                    && (methodName == token.fName
+                    || methodName == token.fName + "()"); } );
+    if (iTokens.end() != iMethod) {
+        return &*iMethod;
+    }
+    // match may be constructor; compare strings to see if this is so
+    SkASSERT(string::npos != methodName.find('('));
+    const auto& cMethod = std::find_if(iTokens.begin(), iTokens.end(),
+            [className, methodName](Definition& token) {
+        if (MarkType::kMethod != token.fMarkType) {
+            return false;
+        }
+        TextParser parser(&token);
+        const char* match = parser.strnstr(className.c_str(), parser.fEnd);
+        if (!match) {
+            return false;
+        }
+        parser.skipTo(match);
+        parser.skipExact(className.c_str());
+        parser.skipToBalancedEndBracket('(', ')');
+        string iMethodName(match, parser.fChar - match);
+        return methodName == iMethodName;
+    } );
+    SkAssertResult(iTokens.end() != cMethod);
+    return &*cMethod;
 }
 
 Definition* IncludeParser::parentBracket(Definition* parent) const {
@@ -2563,7 +2586,6 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     markupDef->fTokens.emplace_back(MarkType::kMethod, start, end, tokenIter->fLineCount,
             markupDef, '\0');
     Definition* markupChild = &markupDef->fTokens.back();
-    // TODO: I wonder if there is a way to prevent looking up by operator[] (creating empty) ?
     {
         auto mapIter = fIClassMap.find(markupDef->fName);
         SkASSERT(fIClassMap.end() != mapIter);

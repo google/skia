@@ -310,7 +310,7 @@ public:
     /** Returns true if bounds and radii in a are equal to bounds and radii in b.
 
         a and b are not equal if either contain NaN. a and b are equal if members
-        contain zeroes width different signs.
+        contain zeroes with different signs.
 
         @param a  SkRect bounds and radii to compare
         @param b  SkRect bounds and radii to compare
@@ -323,7 +323,7 @@ public:
     /** Returns true if bounds and radii in a are not equal to bounds and radii in b.
 
         a and b are not equal if either contain NaN. a and b are equal if members
-        contain zeroes width different signs.
+        contain zeroes with different signs.
 
         @param a  SkRect bounds and radii to compare
         @param b  SkRect bounds and radii to compare

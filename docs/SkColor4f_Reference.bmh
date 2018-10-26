@@ -1,6 +1,5 @@
 #Topic Color4f
 #Alias Color4f_Reference ##
-#Substitute SkColor4f
 
 #Struct SkPM4f
 ##
