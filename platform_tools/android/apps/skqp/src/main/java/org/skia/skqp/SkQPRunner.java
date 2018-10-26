@@ -46,17 +46,26 @@ public class SkQPRunner extends Runner implements Filterable {
 
     public SkQPRunner(Class testClass) {
         impl = new SkQP();
-        File filesDir = SkQPRunner.GetOutputDir();
-        try {
-            SkQP.ensureEmtpyDirectory(filesDir);
-        } catch (IOException e) {
-            Log.w(TAG, "ensureEmtpyDirectory: " + e.getMessage());
+
+        boolean enableLog = (System.getenv("SKQP_ENABLE_LOG") != null);
+
+        if (enableLog) {
+            File filesDir = SkQPRunner.GetOutputDir();
+            try {
+                SkQP.ensureEmtpyDirectory(filesDir);
+            } catch (IOException e) {
+                Log.w(TAG, "ensureEmtpyDirectory: " + e.getMessage());
+            }
+            Log.i(TAG, String.format("output written to \"%s\"", filesDir.getAbsolutePath()));
         }
-        Log.i(TAG, String.format("output written to \"%s\"", filesDir.getAbsolutePath()));
 
         Resources resources = InstrumentationRegistry.getTargetContext().getResources();
         AssetManager mAssetManager = resources.getAssets();
-        impl.nInit(mAssetManager, filesDir.getAbsolutePath(), false);
+        if (enableLog) {
+            impl.nInit(mAssetManager, filesDir.getAbsolutePath(), false);
+        } else {
+            impl.nInit(mAssetManager, null, false);
+        }
 
         mTests = new Description[this.testCount()];
         mShouldSkipTest = new boolean[mTests.length]; // = {false, false, ....};
@@ -163,6 +172,9 @@ public class SkQPRunner extends Runner implements Filterable {
                                      name, testNumber, mShouldRunTestCount, result));
         }
         impl.nMakeReport();
-        Log.i(TAG, String.format("output written to \"%s\"", GetOutputDir().getAbsolutePath()));
+
+        if (System.getenv("SKQP_ENABLE_LOG") != null) {
+            Log.i(TAG, String.format("output written to \"%s\"", GetOutputDir().getAbsolutePath()));
+        }
     }
 }

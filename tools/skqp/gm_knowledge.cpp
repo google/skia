@@ -367,6 +367,9 @@ static Backend get_backend(const SkString& s) {
 
 
 bool MakeReport(const char* report_directory_path) {
+    if (!report_directory_path || report_directory_path[0] == '\0') {
+        return true;
+    }
     int glesErrorCount = 0, vkErrorCount = 0, gles = 0, vk = 0;
 
     SkASSERT_RELEASE(sk_isdir(report_directory_path));
