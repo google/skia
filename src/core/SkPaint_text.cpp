@@ -811,6 +811,7 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     // now compute fXOffset if needed
 
     SkScalar xOffset = 0;
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     if (paint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
         int      count;
         SkScalar width = fPaint.measure_text(fCache.get(), text, length, &count, nullptr) * fScale;
@@ -819,6 +820,7 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
         }
         xOffset = -width;
     }
+#endif
     fXPos = xOffset;
     fPrevAdvance = 0;
 

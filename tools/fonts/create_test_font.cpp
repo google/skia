@@ -198,7 +198,6 @@ static void output_font(sk_sp<SkTypeface> face, const char* identifier, FILE* ou
     int emSize = face->getUnitsPerEm() * 2;
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextAlign(SkPaint::kLeft_Align);
     paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
     paint.setTextSize(emSize);
     paint.setTypeface(std::move(face));

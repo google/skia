@@ -1034,7 +1034,6 @@ static bool contains(const SkRect& r, SkPoint p) {
 void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset) {
     SkPaint paint{glyphRun.paint()};
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    paint.setTextAlign(SkPaint::kLeft_Align);
     SkPath path;
     SkASSERT(paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
 
@@ -1053,7 +1052,9 @@ void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset)
         transparent.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
         transparent.setColor(SK_ColorTRANSPARENT);
         transparent.setTextSize(paint.getTextSize());
+#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         transparent.setTextAlign(paint.getTextAlign());
+#endif
         transparent.setTextScaleX(paint.getTextScaleX());
         transparent.setTextSkewX(paint.getTextSkewX());
         *tmp.mutablePaint() = std::move(transparent);
@@ -1092,7 +1093,6 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     uint32_t glyphCount = SkToU32(glyphRun.glyphsIDs().size());
     SkPaint srcPaint{glyphRun.paint()};
     srcPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    srcPaint.setTextAlign(SkPaint::kLeft_Align);
 
     if (!glyphCount || !glyphs || srcPaint.getTextSize() <= 0 || this->hasEmptyClip()) {
         return;
@@ -1138,7 +1138,6 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     SkScalar textScaleY = textSize / emSize;
     SkScalar textScaleX = advanceScale + paint.getTextSkewX() * textScaleY;
 
-    SkASSERT(paint.getTextAlign() == SkPaint::kLeft_Align);
     SkRect clipStackBounds = this->cs().bounds(this->bounds());
     {
         ScopedContentEntry content(this, paint, true);
