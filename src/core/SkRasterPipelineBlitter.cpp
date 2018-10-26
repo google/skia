@@ -12,9 +12,9 @@
 #include "SkColorFilter.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformer.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkOpts.h"
 #include "SkPM4f.h"
-#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkShaderBase.h"
@@ -99,14 +99,16 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     SkColorSpace* dstCS = dst.colorSpace();
 #endif
     SkColorType dstCT = dst.colorType();
-    SkColor4f paintColor = premul_in_dst_colorspace(paint.getColor4f(), sk_srgb_singleton(), dstCS);
+    SkColor4f paintColor = paint.getColor4f();
+    SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                           dstCS,               kUnpremul_SkAlphaType).apply(paintColor.vec());
 
     auto shader = as_SB(paint.getShader());
 
     SkRasterPipeline_<256> shaderPipeline;
     if (!shader) {
         // Having no shader makes things nice and easy... just use the paint color.
-        shaderPipeline.append_constant_color(alloc, paintColor);
+        shaderPipeline.append_constant_color(alloc, paintColor.premul().vec());
         bool is_opaque    = paintColor.fA == 1.0f,
              is_constant  = true;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
