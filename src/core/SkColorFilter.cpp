@@ -7,6 +7,8 @@
 
 #include "SkArenaAlloc.h"
 #include "SkColorFilter.h"
+#include "SkColorSpacePriv.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkColorSpaceXformer.h"
 #include "SkNx.h"
 #include "SkPM4f.h"
@@ -198,7 +200,16 @@ public:
         kLinearToSRGB,
         kSRGBToLinear,
     };
-    SkSRGBGammaColorFilter(Direction dir) : fDir(dir) {}
+    SkSRGBGammaColorFilter(Direction dir) : fDir(dir), fSteps([&]{
+        // We handle premul/unpremul separately, so here just always upm->upm.
+        if (dir == Direction::kLinearToSRGB) {
+            return SkColorSpaceXformSteps{sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
+                                          sk_srgb_singleton(),        kUnpremul_SkAlphaType};
+        } else {
+            return SkColorSpaceXformSteps{sk_srgb_singleton(),        kUnpremul_SkAlphaType,
+                                          sk_srgb_linear_singleton(), kUnpremul_SkAlphaType};
+        }
+    }()) {}
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
@@ -220,14 +231,7 @@ public:
         if (!shaderIsOpaque) {
             p->append(SkRasterPipeline::unpremul);
         }
-        switch (fDir) {
-            case Direction::kLinearToSRGB:
-                p->append(SkRasterPipeline::to_srgb);
-                break;
-            case Direction::kSRGBToLinear:
-                p->append(SkRasterPipeline::from_srgb);
-                break;
-        }
+        fSteps.apply(p);
         if (!shaderIsOpaque) {
             p->append(SkRasterPipeline::premul);
         }
@@ -242,6 +246,7 @@ private:
     SK_FLATTENABLE_HOOKS(SkSRGBGammaColorFilter)
 
     const Direction fDir;
+    SkColorSpaceXformSteps fSteps;
 
     friend class SkColorFilter;
     typedef SkColorFilter INHERITED;
