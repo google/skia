@@ -95,14 +95,6 @@ static inline void GrColorIsPMAssert(GrColor SkDEBUGCODE(c)) {
 #endif
 }
 
-static inline GrColor GrColorMul(GrColor c0, GrColor c1) {
-    U8CPU r = SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1));
-    U8CPU g = SkMulDiv255Round(GrColorUnpackG(c0), GrColorUnpackG(c1));
-    U8CPU b = SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1));
-    U8CPU a = SkMulDiv255Round(GrColorUnpackA(c0), GrColorUnpackA(c1));
-    return GrColorPackRGBA(r, g, b, a);
-}
-
 /** Converts a GrColor to an rgba array of GrGLfloat */
 static inline void GrColorToRGBAFloat(GrColor color, float rgba[4]) {
     static const float ONE_OVER_255 = 1.f / 255.f;
@@ -121,17 +113,6 @@ static inline float GrNormalizeByteToFloat(uint8_t value) {
 /** Determines whether the color is opaque or not. */
 static inline bool GrColorIsOpaque(GrColor color) {
     return (color & (0xFFU << GrColor_SHIFT_A)) == (0xFFU << GrColor_SHIFT_A);
-}
-
-static inline GrColor GrPremulColor(GrColor color) {
-    unsigned r = GrColorUnpackR(color);
-    unsigned g = GrColorUnpackG(color);
-    unsigned b = GrColorUnpackB(color);
-    unsigned a = GrColorUnpackA(color);
-    return GrColorPackRGBA(SkMulDiv255Round(r, a),
-                           SkMulDiv255Round(g, a),
-                           SkMulDiv255Round(b, a),
-                           a);
 }
 
 /** Returns an unpremuled version of the GrColor. */
