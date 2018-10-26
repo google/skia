@@ -116,5 +116,5 @@ static void test_roundtripping(skiatest::Reporter* r,
 }
 
 DEF_TEST(srgb_roundtrip_extended, r) {
-    test_roundtripping(r,  SkColorSpace::MakeSRGB(), 2.0f, 1.025f);
+    test_roundtripping(r,  SkColorSpace::MakeSRGB(), 10000.0f, 1.001f);
 }
