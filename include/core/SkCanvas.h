@@ -1369,8 +1369,8 @@ public:
         SrcRectConstraint controls the behavior at the edge of source SkRect,
         provided to drawImageRect(), trading off speed for precision.
 
-        SkImageFilter in SkPaint may sample multiple pixels in the image. Source SkRect
-        restricts the bounds of pixels that may be read. SkImageFilter may slow down if
+        SkFilterQuality in SkPaint may sample multiple pixels in the image. Source SkRect
+        restricts the bounds of pixels that may be read. SkFilterQuality may slow down if
         it cannot read outside the bounds, when sampling near the edge of source SkRect.
         SrcRectConstraint specifies whether an SkImageFilter is allowed to read pixels
         outside source SkRect.
@@ -1445,18 +1445,12 @@ public:
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
         replicates the image edge color when it samples outside of its bounds.
 
-        constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
-        sample within image; set to kFast_SrcRectConstraint allows sampling outside to
-        improve performance.
-
         @param image       SkImage containing pixels, dimensions, and format
         @param dst         destination SkRect of image to draw to
         @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                            and so on; or nullptr
-        @param constraint  filter strictly within image or draw faster
     */
-    void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
-                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint);
 
     /** Draws SkRect src of SkImage image, scaled and translated to fill SkRect dst.
         Additionally transform draw using clip, SkMatrix, and optional SkPaint paint.
@@ -1534,11 +1528,9 @@ public:
         @param dst         destination SkRect of image to draw to
         @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                            and so on; or nullptr
-        @param constraint  filter strictly within image or draw faster
     */
-    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint,
-                       SrcRectConstraint constraint = kStrict_SrcRectConstraint) {
-        this->drawImageRect(image.get(), dst, paint, constraint);
+    void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint) {
+        this->drawImageRect(image.get(), dst, paint);
     }
 
     /** Draws SkImage image stretched proportionally to fit into SkRect dst.

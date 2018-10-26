@@ -1723,11 +1723,10 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const Sk
     this->drawImageRect(image, SkRect::Make(isrc), dst, paint, constraint);
 }
 
-void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
-                             SrcRectConstraint constraint) {
+void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint) {
     RETURN_ON_NULL(image);
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
-                        constraint);
+                        kFast_SrcRectConstraint);
 }
 
 namespace {
