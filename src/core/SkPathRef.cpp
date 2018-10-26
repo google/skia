@@ -93,6 +93,7 @@ SkPathRef::~SkPathRef() {
     // Deliberately don't validate() this path ref, otherwise there's no way
     // to read one that's not valid and then free its memory without asserting.
     this->callGenIDChangeListeners();
+    SkASSERT(fGenIDChangeListeners.empty());  // These are raw ptrs.
     sk_free(fPoints);
 
     SkDEBUGCODE(fPoints = nullptr;)
@@ -707,19 +708,33 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
     if (nullptr == listener || this == gEmpty) {
         return;
     }
+
     SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
+
+    // Clean out any stale listeners before we append the new one.
+    for (int i = 0; i < fGenIDChangeListeners.count(); ++i) {
+        if (fGenIDChangeListeners[i]->shouldUnregisterFromPath()) {
+            fGenIDChangeListeners[i]->unref();
+            fGenIDChangeListeners.removeShuffle(i--);  // No need to preserve the order after i.
+        }
+    }
+
+    SkASSERT(!listener->shouldUnregisterFromPath());
     *fGenIDChangeListeners.append() = listener.release();
 }
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
     SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
-    for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
-        fGenIDChangeListeners[i]->onChange();
+    for (GenIDChangeListener* listener : fGenIDChangeListeners) {
+        if (!listener->shouldUnregisterFromPath()) {
+            listener->onChange();
+        }
+        // Listeners get at most one shot, so whether these triggered or not, blow them away.
+        listener->unref();
     }
 
-    // Listeners get at most one shot, so whether these triggered or not, blow them away.
-    fGenIDChangeListeners.unrefAll();
+    fGenIDChangeListeners.reset();
 }
 
 SkRRect SkPathRef::getRRect() const {

@@ -309,9 +309,24 @@ public:
      */
     uint32_t genID() const;
 
-    struct GenIDChangeListener : SkRefCnt {
+    class GenIDChangeListener : public SkRefCnt {
+    public:
+        GenIDChangeListener() : fShouldUnregisterFromPath(false) {}
         virtual ~GenIDChangeListener() {}
+
         virtual void onChange() = 0;
+
+        // The caller can use this method to notify the path that it no longer needs to listen. Once
+        // called, the path will remove this listener from the list at some future point.
+        void markShouldUnregisterFromPath() {
+            fShouldUnregisterFromPath.store(true, std::memory_order_relaxed);
+        }
+        bool shouldUnregisterFromPath() {
+            return fShouldUnregisterFromPath.load(std::memory_order_acquire);
+        }
+
+    private:
+        std::atomic<bool> fShouldUnregisterFromPath;
     };
 
     void addGenIDChangeListener(sk_sp<GenIDChangeListener>);  // Threadsafe.

@@ -163,6 +163,7 @@ inline void GrCCPathCache::HashNode::willExitHashTable() {
     SkASSERT(fPathCache->fLRU.isInList(fEntry.get()));
 
     fEntry->invalidateAtlas();  // Must happen on graphics thread.
+    fEntry->markShouldUnregisterFromPath();
     fPathCache->fLRU.remove(fEntry.get());
 }
 
@@ -237,13 +238,13 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
 }
 
 void GrCCPathCache::evict(GrCCPathCacheEntry* entry) {
-    SkASSERT(SkGetThreadID() == fGraphicsThreadID);
+    // Has the entry already been evicted? (We mark "shouldUnregisterFromPath" upon eviction.)
+    bool isInCache = !entry->shouldUnregisterFromPath();
+    SkDEBUGCODE(HashNode* entryKeyNode = fHashTable.find(HashNode::GetKey(entry)));
+    SkASSERT((entryKeyNode && entryKeyNode->entry() == entry) == isInCache);
+    SkASSERT(fLRU.isInList(entry) == isInCache);
 
-    bool isInCache = entry->fNext || (fLRU.tail() == entry);
-    SkASSERT(isInCache == fLRU.isInList(entry));
     if (isInCache) {
-        SkDEBUGCODE(HashNode* node = fHashTable.find(HashNode::GetKey(entry)));
-        SkASSERT(node && node->entry() == entry);
         fHashTable.remove(HashNode::GetKey(entry));
         // HashNode::willExitHashTable() takes care of the rest.
     }
