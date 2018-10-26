@@ -22,6 +22,30 @@
       "revId": "8a86b143eec97054f569f72cf467005f175e4081",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f925c85_f661edef",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-26T14:55:47Z",
+      "side": 1,
+      "message": "You\u0027re right - this is python, so this should just be a single statement. Went back to the original thing you suggested in chat.",
+      "parentUuid": "6692905f_6fb07881",
+      "range": {
+        "startLine": 277,
+        "startChar": 5,
+        "endLine": 277,
+        "endChar": 6
+      },
+      "revId": "8a86b143eec97054f569f72cf467005f175e4081",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
