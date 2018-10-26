@@ -25,11 +25,7 @@ namespace SkOpts {
     // May return nullptr if we haven't specialized the given Mode.
     extern SkXfermode* (*create_xfermode)(SkBlendMode);
 
-    typedef void (*Morph)(const SkPMColor*, SkPMColor*, int, int, int, int, int);
-    extern Morph dilate_x, dilate_y, erode_x, erode_y;
-
     extern void (*blit_mask_d32_a8)(SkPMColor*, size_t, const SkAlpha*, size_t, SkColor, int, int);
-    extern void (*blit_row_color32)(SkPMColor*, const SkPMColor*, int, SkPMColor);
     extern void (*blit_row_s32a_opaque)(SkPMColor*, const SkPMColor*, int, U8CPU);
 
     // Swizzle input into some sort of 8888 pixel, {premul,unpremul} x {rgba,bgra}.
