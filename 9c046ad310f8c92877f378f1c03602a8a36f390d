@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "53f79f04_0f6b0c03",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-26T15:19:55Z",
+      "side": 1,
+      "message": "I made GrQuadPerEdgeAA a class with a public static Tessellate\u003cV\u003e and a private static TessellateImpl() that is not templated.",
+      "parentUuid": "14d2ba32_0d5ef121",
+      "revId": "9c046ad310f8c92877f378f1c03602a8a36f390d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36a1a0a9_544f550f",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
         "patchSetId": 5
@@ -51,6 +69,24 @@
       "revId": "9c046ad310f8c92877f378f1c03602a8a36f390d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15c544d8_f759427c",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-26T15:19:55Z",
+      "side": 1,
+      "message": "N/A",
+      "parentUuid": "36a1a0a9_544f550f",
+      "revId": "9c046ad310f8c92877f378f1c03602a8a36f390d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
