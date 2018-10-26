@@ -16,7 +16,7 @@ GrDrawPathOpBase::GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix,
                                    GrPathRendering::FillType fill, GrAAType aaType)
         : INHERITED(classID)
         , fViewMatrix(viewMatrix)
-        , fInputColor(paint.getColor())
+        , fInputColor(paint.getColor4f())
         , fFillType(fill)
         , fAAType(aaType)
         , fProcessorSet(std::move(paint)) {}

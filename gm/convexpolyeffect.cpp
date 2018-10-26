@@ -68,7 +68,7 @@ private:
 
     PolyBoundsOp(GrPaint&& paint, const SkRect& rect)
             : INHERITED(ClassID())
-            , fColor(paint.getColor())
+            , fColor(paint.getColor4f())
             , fProcessors(std::move(paint))
             , fRect(outset(rect)) {
         this->setBounds(sorted_rect(fRect), HasAABloat::kNo, IsZeroArea::kNo);
@@ -98,7 +98,7 @@ private:
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    GrColor fColor;
+    SkPMColor4f fColor;
     GrProcessorSet fProcessors;
     SkRect fRect;
 
