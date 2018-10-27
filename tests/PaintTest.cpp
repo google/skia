@@ -214,11 +214,6 @@ DEF_TEST(Paint_flattening, reporter) {
         SkPaint::kNormal_Hinting,
         SkPaint::kFull_Hinting,
     };
-    const SkPaint::Align align[] = {
-        SkPaint::kLeft_Align,
-        SkPaint::kCenter_Align,
-        SkPaint::kRight_Align
-    };
     const SkPaint::Cap caps[] = {
         SkPaint::kButt_Cap,
         SkPaint::kRound_Cap,
@@ -250,7 +245,6 @@ DEF_TEST(Paint_flattening, reporter) {
 
     FOR_SETUP(i, levels, setFilterQuality)
     FOR_SETUP(j, hinting, setHinting)
-    FOR_SETUP(k, align, setTextAlign)
     FOR_SETUP(l, caps, setStrokeCap)
     FOR_SETUP(m, joins, setStrokeJoin)
     FOR_SETUP(n, encodings, setTextEncoding)
@@ -267,7 +261,7 @@ DEF_TEST(Paint_flattening, reporter) {
     SkPaintPriv::Unflatten(&paint2, reader);
     REPORTER_ASSERT(reporter, paint2 == paint);
 
-    }}}}}}}
+    }}}}}}
 #undef FOR_SETUP
 
 }
