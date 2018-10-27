@@ -1089,9 +1089,7 @@ void GrAAConvexTessellator::draw(SkCanvas* canvas) const {
 
         SkPaint paint;
         paint.setTextSize(kPointTextSize);
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         paint.setTextAlign(SkPaint::kCenter_Align);
-#endif
         if (this->depth(i) <= -kAntialiasingRadius) {
             paint.setColor(SK_ColorWHITE);
         }

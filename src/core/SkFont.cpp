@@ -164,9 +164,7 @@ void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
 
     paint->setHinting((SkPaint::Hinting)this->getHinting());
 
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     paint->setTextAlign((SkPaint::Align)fAlign);
-#endif
 }
 
 SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
@@ -195,11 +193,7 @@ SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
     }
 
     SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
-                paint.getTextSkewX(), flags
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-                , (int)paint.getTextAlign()
-#endif
-                );
+                paint.getTextSkewX(), flags, (int)paint.getTextAlign());
     font.setHinting((Hinting)paint.getHinting());
     return font;
 }

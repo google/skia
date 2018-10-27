@@ -54,10 +54,7 @@ public:
     SkTextInterceptsIter(const char text[], size_t length, const SkPaint& paint,
                          const SkScalar bounds[2], SkScalar x, SkScalar y, TextType textType)
                          : SkTextBaseIter(text, length, paint, false)
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-                         , fTextType(textType)
-#endif
-    {
+                         , fTextType(textType) {
         fBoundsBase[0] = bounds[0];
         fBoundsBase[1] = bounds[1];
         this->setPosition(x, y);
@@ -70,7 +67,6 @@ public:
 
     void setPosition(SkScalar x, SkScalar y) {
         SkScalar xOffset = 0;
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         if (TextType::kPosText == fTextType
                 && fPaint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
             const char* text = fText;
@@ -81,7 +77,6 @@ public:
             }
             xOffset = width;
         }
-#endif
 
         for (int i = 0; i < (int) SK_ARRAY_COUNT(fBounds); ++i) {
             SkScalar bound = fBoundsBase[i] - y;
@@ -95,9 +90,7 @@ public:
 private:
     SkScalar fBounds[2];
     SkScalar fBoundsBase[2];
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     TextType fTextType;
-#endif
 };
 
 #endif
