@@ -71,7 +71,6 @@ static const char* svg_join(SkPaint::Join join) {
     return join_map[join];
 }
 
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
 // Keep in sync with SkPaint::Align
 static const char* text_align_map[] = {
     nullptr,     // kLeft_Align (default)
@@ -80,12 +79,10 @@ static const char* text_align_map[] = {
 };
 static_assert(SK_ARRAY_COUNT(text_align_map) == SkPaint::kAlignCount,
               "missing_text_align_map_entry");
-
 static const char* svg_text_align(SkPaint::Align align) {
     SkASSERT(align < SK_ARRAY_COUNT(text_align_map));
     return text_align_map[align];
 }
-#endif
 
 static SkString svg_transform(const SkMatrix& t) {
     SkASSERT(!t.isIdentity());
@@ -607,11 +604,9 @@ void SkSVGDevice::AutoElement::addPathAttributes(const SkPath& path) {
 void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
     this->addAttribute("font-size", paint.getTextSize());
 
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
     if (const char* textAlign = svg_text_align(paint.getTextAlign())) {
         this->addAttribute("text-anchor", textAlign);
     }
-#endif
 
     SkString familyName;
     SkTHashSet<SkString> familySet;
