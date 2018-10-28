@@ -98,6 +98,12 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     SkASSERT(!fLastOpList);
 }
 
+bool GrSurfaceProxy::readOnly() const {
+    SkASSERT(this->asTextureProxy());
+    SkASSERT(!this->asRenderTargetProxy());
+    return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly;
+}
+
 bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvider,
                                                GrSurface* surface, bool needsStencil) {
     if (needsStencil) {

@@ -330,6 +330,12 @@ public:
     bool canSkipResourceAllocator() const;
 
     /**
+     * Read only surfaces must be textures and not render targets. They may skipped when visiting proxies to determine op list
+     * dependencies.
+     */
+    bool readOnly() const;
+
+    /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
      */
     virtual GrTextureProxy* asTextureProxy() { return nullptr; }

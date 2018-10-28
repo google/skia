@@ -828,6 +828,11 @@ enum class GrInternalSurfaceFlags {
 
     kSurfaceMask                    = kNoPendingIO,
 
+    // Texture-only
+    kReadOnly                       = 1 << 1,
+
+    kTextureMask                    = kReadOnly,
+
     // RT-only
 
     // For internal resources:
@@ -836,17 +841,17 @@ enum class GrInternalSurfaceFlags {
     //    this is disabled for FBO0
     //    but, otherwise, is enabled whenever MSAA is enabled and GrCaps reports mixed samples
     //        are supported
-    kMixedSampled                   = 1 << 2,
+    kMixedSampled                   = 1 << 3,
 
     // For internal resources:
     //    this is enabled whenever GrCaps reports window rect support
     // For wrapped resources1
     //    this is disabled for FBO0
     //    but, otherwise, is enabled whenever GrCaps reports window rect support
-    kWindowRectsSupport             = 1 << 3,
+    kWindowRectsSupport             = 1 << 4,
 
     // This flag is for use with GL only. It tells us that the internal render target wraps FBO 0.
-    kGLRTFBOIDIs0                   = 1 << 4,
+    kGLRTFBOIDIs0                   = 1 << 5,
 
     kRenderTargetMask               = kMixedSampled | kWindowRectsSupport | kGLRTFBOIDIs0,
 };

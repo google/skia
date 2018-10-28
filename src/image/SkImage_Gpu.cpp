@@ -464,7 +464,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
                 return promiseHelper.getTexture(resourceProvider, config);
             },
-            desc, origin, mipMapped, textureType, GrInternalSurfaceFlags::kNone,
+            desc, origin, mipMapped, textureType, GrInternalSurfaceFlags::kReadOnly,
             SkBackingFit::kExact, SkBudgeted::kNo,
             GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 
@@ -615,7 +615,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
 #endif
             },
             desc, imageOrigin, GrMipMapped::kNo, GrTextureType::k2D,
-            GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo,
+            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
             GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 
     if (!proxy) {

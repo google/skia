@@ -43,6 +43,7 @@ public:
     GrTextureType textureType() const { return fTextureType; }
     /** If true then the texture does not support MIP maps and only supports clamp wrap mode. */
     bool hasRestrictedSampling() const { return GrTextureTypeHasRestrictedSampling(fTextureType); }
+
     /**
      * Return the texture proxy's unique key. It will be invalid if the proxy doesn't have one.
      */
