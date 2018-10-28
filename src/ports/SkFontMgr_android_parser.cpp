@@ -771,8 +771,9 @@ static void mixin_vendor_fallback_font_families(SkTDArray<FontFamily*>& fallback
 
 void SkFontMgr_Android_Parser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamilies) {
     // Version 21 of the system font configuration does not need any fallback configuration files.
-    SkString basePath(getenv("ANDROID_ROOT"));
-    basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1);
+    /* SkString basePath(getenv("ANDROID_ROOT"));
+    basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1); */
+    SkString basePath("/");
 
     if (append_system_font_families(fontFamilies, basePath) >= 21) {
         return;
