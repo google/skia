@@ -87,10 +87,8 @@ public:
     SkGlyphRun() = default;
     SkGlyphRun(const SkPaint& basePaint,
                const SkRunFont& runFont,
-               SkSpan<const uint16_t> denseIndices,
                SkSpan<const SkPoint> positions,
                SkSpan<const SkGlyphID> glyphIDs,
-               SkSpan<const SkGlyphID> uniqueGlyphIDs,
                SkSpan<const char> text,
                SkSpan<const uint32_t> clusters);
 
@@ -208,8 +206,6 @@ private:
             const SkRunFont& runFont,
             SkSpan<const SkGlyphID> glyphIDs,
             SkSpan<const SkPoint> positions,
-            SkSpan<const uint16_t> uniqueGlyphIDIndices,
-            SkSpan<const SkGlyphID> uniqueGlyphIDs,
             SkSpan<const char> text,
             SkSpan<const uint32_t> clusters);
 
