@@ -11,8 +11,10 @@ class <a href='#SkTextBlob'>SkTextBlob</a> final : public SkNVRefCnt<<a href='#S
 public:
     const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkTextBlob_bounds'>bounds</a>() const;
     uint32_t <a href='#SkTextBlob_uniqueID'>uniqueID</a>() const;
-    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>( const void* text, size_t byteLength, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint);
-    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* string, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(const void* text, size_t byteLength, const SkFont& font,
+                                   <a href='SkPaint_Reference#SkPaint_TextEncoding'>SkPaint::TextEncoding</a> = <a href='SkPaint_Reference#SkPaint_kUTF8_TextEncoding'>SkPaint::kUTF8_TextEncoding</a>);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* string, const SkFont& font,
+                                    <a href='SkPaint_Reference#SkPaint_TextEncoding'>SkPaint::TextEncoding</a> encoding = <a href='SkPaint_Reference#SkPaint_kUTF8_TextEncoding'>SkPaint::kUTF8_TextEncoding</a>);
     size_t <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs, void* memory, size_t memory_size) const;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkData'>SkData</a>> <a href='#SkTextBlob_serialize_2'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs) const;
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_Deserialize'>Deserialize</a>(const void* data, size_t size,

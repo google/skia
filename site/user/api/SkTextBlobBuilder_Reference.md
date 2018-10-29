@@ -26,6 +26,12 @@ public:
                                   const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
     const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count,
                                  const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const SkFont& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
+                              const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const SkFont& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
+                                  const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const SkFont& font, int count,
+                                 const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
 };
 </pre>
 
