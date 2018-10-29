@@ -16,7 +16,7 @@
 #include "GrTexture.h"
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuYUVA.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
 SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
@@ -156,7 +156,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
             return nullptr;
         }
     }
-    for (int i = numTextures; i < SkYUVSizeInfo::kMaxCount; ++i) {
+    for (int i = numTextures; i < SkYUVASizeInfo::kMaxCount; ++i) {
         if (!yuvaSizes[i].isEmpty()) {
             return nullptr;
         }

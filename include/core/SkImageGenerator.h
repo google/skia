@@ -12,6 +12,7 @@
 #include "SkColor.h"
 #include "SkImage.h"
 #include "SkImageInfo.h"
+#include "SkYUVAIndex.h"
 #include "SkYUVASizeInfo.h"
 
 class GrContext;
@@ -91,7 +92,7 @@ public:
      *  @param yuvaIndices How the YUVA planes are organized/used
      *  @param colorSpace  Output parameter.
      */
-    bool queryYUVA8(SkYUVSizeInfo* sizeInfo,
+    bool queryYUVA8(SkYUVASizeInfo* sizeInfo,
                     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                     SkYUVColorSpace* colorSpace) const;
 
@@ -107,7 +108,7 @@ public:
      *  @param planes      Memory for the Y, U, V, and A planes. Note that, depending on the
      *                     settings in yuvaIndices, anywhere from 1..4 planes could be returned.
      */
-    bool getYUVA8Planes(const SkYUVSizeInfo& sizeInfo,
+    bool getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
                         const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                         void* planes[]);
 
@@ -170,13 +171,10 @@ protected:
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrContext*) const { return true; }
-    virtual bool onQueryYUVA8(SkYUVSizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
+    virtual bool onQueryYUVA8(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
                               SkYUVColorSpace*) const { return false; }
-    virtual bool onGetYUVA8Planes(const SkYUVSizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
+    virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
                                   void*[4] /*planes*/) { return false; }
-    // Deprecated methods
-    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const { return false; }
-    virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) { return false; }
 #if SK_SUPPORT_GPU
     enum class TexGenType {
         kNone,           //image generator does not implement onGenerateTexture

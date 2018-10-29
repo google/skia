@@ -30,78 +30,19 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     return this->onGetPixels(info, pixels, rowBytes, defaultOpts);
 }
 
-bool SkImageGenerator::queryYUVA8(SkYUVSizeInfo* sizeInfo,
+bool SkImageGenerator::queryYUVA8(SkYUVASizeInfo* sizeInfo,
                                   SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                                   SkYUVColorSpace* colorSpace) const {
     SkASSERT(sizeInfo);
 
-    if (!this->onQueryYUVA8(sizeInfo, yuvaIndices, colorSpace)) {
-        // try the deprecated method and make a guess at the other data
-        if (this->onQueryYUV8(sizeInfo, colorSpace)) {
-            // take a guess at the number of planes
-            int numPlanes = 3;  // onQueryYUV8 only supports up to 3 channels
-            for (int i = 0; i < 3; ++i) {
-                if (sizeInfo->fSizes[i].isEmpty()) {
-                    numPlanes = i;
-                    break;
-                }
-            }
-            if (!numPlanes) {
-                return false;
-            }
-            switch (numPlanes) {
-                case 1:
-                    // Assume 3 interleaved planes
-                    yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-                    yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
-                    yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 0;
-                    yuvaIndices[SkYUVAIndex::kU_Index].fChannel = SkColorChannel::kG;
-                    yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 0;
-                    yuvaIndices[SkYUVAIndex::kV_Index].fChannel = SkColorChannel::kB;
-                    yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-                    yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
-                    break;
-                case 2:
-                    // Assume Y plane and interleaved UV plane (NV12)
-                    yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-                    yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
-                    yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
-                    yuvaIndices[SkYUVAIndex::kU_Index].fChannel = SkColorChannel::kR;
-                    yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 1;
-                    yuvaIndices[SkYUVAIndex::kV_Index].fChannel = SkColorChannel::kG;
-                    yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-                    yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
-                    break;
-                case 3:
-                default:
-                    // Assume 3 separate non-interleaved planes
-                    yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-                    yuvaIndices[SkYUVAIndex::kY_Index].fChannel = SkColorChannel::kR;
-                    yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
-                    yuvaIndices[SkYUVAIndex::kU_Index].fChannel = SkColorChannel::kR;
-                    yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 2;
-                    yuvaIndices[SkYUVAIndex::kV_Index].fChannel = SkColorChannel::kR;
-                    yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-                    yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;
-                    break;
-            }
-            // clear fourth element in sizeInfo to ensure it's initialized
-            sizeInfo->fSizes[3].fWidth = sizeInfo->fSizes[3].fHeight = sizeInfo->fWidthBytes[3] = 0;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    return true;
+    return this->onQueryYUVA8(sizeInfo, yuvaIndices, colorSpace);
 }
 
-bool SkImageGenerator::getYUVA8Planes(const SkYUVSizeInfo& sizeInfo,
+bool SkImageGenerator::getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
                                       const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                                      void* planes[SkYUVSizeInfo::kMaxCount]) {
+                                      void* planes[SkYUVASizeInfo::kMaxCount]) {
 
-    for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
+    for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
         SkASSERT(sizeInfo.fSizes[i].fWidth >= 0);
         SkASSERT(sizeInfo.fSizes[i].fHeight >= 0);
         SkASSERT(sizeInfo.fWidthBytes[i] >= (size_t) sizeInfo.fSizes[i].fWidth);
@@ -114,10 +55,7 @@ bool SkImageGenerator::getYUVA8Planes(const SkYUVSizeInfo& sizeInfo,
         SkASSERT(planes[i]);
     }
 
-    if (!this->onGetYUVA8Planes(sizeInfo, yuvaIndices, planes)) {
-        return this->onGetYUV8Planes(sizeInfo, planes);
-    }
-    return true;
+    return this->onGetYUVA8Planes(sizeInfo, yuvaIndices, planes);
 }
 
 #if SK_SUPPORT_GPU

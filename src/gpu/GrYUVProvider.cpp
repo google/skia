@@ -21,20 +21,20 @@
 #include "SkYUVAIndex.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
-sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
+sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVASizeInfo* size,
                                              SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                                              SkYUVColorSpace* colorSpace,
-                                             const void* constPlanes[SkYUVSizeInfo::kMaxCount]) {
+                                             const void* constPlanes[SkYUVASizeInfo::kMaxCount]) {
     sk_sp<SkCachedData> data;
     SkYUVPlanesCache::Info yuvInfo;
     data.reset(SkYUVPlanesCache::FindAndRef(this->onGetID(), &yuvInfo));
 
-    void* planes[SkYUVSizeInfo::kMaxCount];
+    void* planes[SkYUVASizeInfo::kMaxCount];
 
     if (data.get()) {
         planes[0] = (void*)data->data(); // we should always have at least one plane
 
-        for (int i = 1; i < SkYUVSizeInfo::kMaxCount; ++i) {
+        for (int i = 1; i < SkYUVASizeInfo::kMaxCount; ++i) {
             if (!yuvInfo.fSizeInfo.fWidthBytes[i]) {
                 SkASSERT(!yuvInfo.fSizeInfo.fWidthBytes[i] &&
                          !yuvInfo.fSizeInfo.fSizes[i].fHeight);
@@ -53,7 +53,7 @@ sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
 
         // Allocate the memory for YUVA
         size_t totalSize(0);
-        for (int i = 0; i < SkYUVSizeInfo::kMaxCount; i++) {
+        for (int i = 0; i < SkYUVASizeInfo::kMaxCount; i++) {
             SkASSERT((yuvInfo.fSizeInfo.fWidthBytes[i] && yuvInfo.fSizeInfo.fSizes[i].fHeight) ||
                      (!yuvInfo.fSizeInfo.fWidthBytes[i] && !yuvInfo.fSizeInfo.fSizes[i].fHeight));
 
@@ -64,7 +64,7 @@ sk_sp<SkCachedData> GrYUVProvider::getPlanes(SkYUVSizeInfo* size,
 
         planes[0] = data->writable_data();
 
-        for (int i = 1; i < SkYUVSizeInfo::kMaxCount; ++i) {
+        for (int i = 1; i < SkYUVASizeInfo::kMaxCount; ++i) {
             if (!yuvInfo.fSizeInfo.fWidthBytes[i]) {
                 SkASSERT(!yuvInfo.fSizeInfo.fWidthBytes[i] &&
                          !yuvInfo.fSizeInfo.fSizes[i].fHeight);
@@ -104,10 +104,10 @@ void GrYUVProvider::YUVGen_DataReleaseProc(const void*, void* data) {
 sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrSurfaceDesc& desc,
                                                        SkColorSpace* srcColorSpace,
                                                        SkColorSpace* dstColorSpace) {
-    SkYUVSizeInfo yuvSizeInfo;
+    SkYUVASizeInfo yuvSizeInfo;
     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
     SkYUVColorSpace yuvColorSpace;
-    const void* planes[SkYUVSizeInfo::kMaxCount];
+    const void* planes[SkYUVASizeInfo::kMaxCount];
 
     sk_sp<SkCachedData> dataStorage = this->getPlanes(&yuvSizeInfo, yuvaIndices,
                                                       &yuvColorSpace, planes);
@@ -115,8 +115,8 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> yuvTextureProxies[SkYUVSizeInfo::kMaxCount];
-    for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
+    sk_sp<GrTextureProxy> yuvTextureProxies[SkYUVASizeInfo::kMaxCount];
+    for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
         if (yuvSizeInfo.fSizes[i].isEmpty()) {
             SkASSERT(!yuvSizeInfo.fWidthBytes[i]);
             continue;

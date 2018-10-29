@@ -10,14 +10,14 @@
 
 #include "GrTypes.h"
 #include "SkImageInfo.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVAIndex.h"
+#include "SkYUVASizeInfo.h"
 
 class GrContext;
 struct GrSurfaceDesc;
 class GrTexture;
 class GrTextureProxy;
 class SkCachedData;
-struct SkYUVAIndex;
 
 /**
  *  There are at least 2 different ways to extract/retrieve YUV planar data...
@@ -44,8 +44,8 @@ public:
                                             SkColorSpace* srcColorSpace,
                                             SkColorSpace* dstColorSpace);
 
-    sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
-                                  SkYUVColorSpace*, const void* planes[SkYUVSizeInfo::kMaxCount]);
+    sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
+                                  SkYUVColorSpace*, const void* planes[SkYUVASizeInfo::kMaxCount]);
 
 private:
     virtual uint32_t onGetID() const = 0;
@@ -61,7 +61,7 @@ private:
      *  @param yuvaIndices How the YUVA planes are used/organized
      *  @param colorSpace  Output parameter.
      */
-    virtual bool onQueryYUVA8(SkYUVSizeInfo* sizeInfo,
+    virtual bool onQueryYUVA8(SkYUVASizeInfo* sizeInfo,
                               SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                               SkYUVColorSpace* colorSpace) const = 0;
 
@@ -76,7 +76,7 @@ private:
      *  @param yuvaIndices How the YUVA planes are used/organized
      *  @param planes      Memory for each of the Y, U, V, and A planes.
      */
-    virtual bool onGetYUVA8Planes(const SkYUVSizeInfo& sizeInfo,
+    virtual bool onGetYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
                                   const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                                   void* planes[]) = 0;
 
