@@ -145,6 +145,7 @@ protected:
                 sk_sp<SkImage> image = make_raster_image(srcColorType);
                 if (GrContext* context = canvas->getGrContext()) {
                     image = image->makeTextureImage(context, canvas->imageInfo().colorSpace());
+                    SkASSERT(image);
                 }
                 if (image) {
                     for (SkColorType dstColorType : colorTypes) {
