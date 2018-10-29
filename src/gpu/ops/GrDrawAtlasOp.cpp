@@ -15,7 +15,7 @@
 
 static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
                                           bool hasColors,
-                                          GrColor color,
+                                          GrColor4h color,
                                           const SkMatrix& viewMatrix) {
     using namespace GrDefaultGeoProcFactory;
     Color gpColor(color);
@@ -27,7 +27,7 @@ static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
                                          LocalCoords::kHasExplicit_Type, viewMatrix);
 }
 
-GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color,
+GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor4h color,
                              const SkMatrix& viewMatrix, GrAAType aaType, int spriteCount,
                              const SkRSXform* xforms, const SkRect* rects, const SkColor* colors)
         : INHERITED(ClassID()), fHelper(helperArgs, aaType), fColor(color) {
@@ -55,7 +55,8 @@ GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color,
     uint8_t* currVertex = installedGeo.fVerts.begin();
 
     SkRect bounds = SkRectPriv::MakeLargestInverted();
-    int paintAlpha = GrColorUnpackA(installedGeo.fColor);
+    // TODO4F: Preserve float colors
+    int paintAlpha = GrColorUnpackA(installedGeo.fColor.toGrColor());
     for (int spriteIndex = 0; spriteIndex < spriteCount; ++spriteIndex) {
         // Transform rect
         SkPoint strip[4];
@@ -111,7 +112,7 @@ GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color,
 SkString GrDrawAtlasOp::dumpInfo() const {
     SkString string;
     for (const auto& geo : fGeoData) {
-        string.appendf("Color: 0x%08x, Quads: %d\n", geo.fColor, geo.fVerts.count() / 4);
+        string.appendf("Color: 0x%08x, Quads: %d\n", geo.fColor.toGrColor(), geo.fVerts.count()/4);
     }
     string += fHelper.dumpInfo();
     string += INHERITED::dumpInfo();

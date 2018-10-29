@@ -17,9 +17,9 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
     fIsOpaque = input.isOpaque();
     fUsesLocalCoords = false;
     fProcessorsToEliminate = 0;
-    GrColor color;
+    GrColor4h color;
     if ((fKnowOutputColor = input.isConstant(&color))) {
-        fLastKnownOutputColor = SkPMColor4f::FromBytes_RGBA(color);
+        color.toFloats(fLastKnownOutputColor.vec());
     }
     for (int i = 0; i < cnt; ++i) {
         if (fUsesLocalCoords && !fKnowOutputColor && !fCompatibleWithCoverageAsAlpha &&

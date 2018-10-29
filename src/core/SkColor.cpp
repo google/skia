@@ -120,6 +120,18 @@ SkColor SkColor4f::toSkColor() const {
 }
 
 template <>
+uint32_t SkColor4f::toBytes_RGBA() const {
+    return Sk4f_toL32(Sk4f::Load(this->vec()));
+}
+
+template <>
+SkColor4f SkColor4f::FromBytes_RGBA(uint32_t c) {
+    SkColor4f color;
+    Sk4f_fromL32(c).store(&color);
+    return color;
+}
+
+template <>
 SkPMColor4f SkPMColor4f::FromPMColor(SkPMColor c) {
     SkPMColor4f color;
     swizzle_rb_if_bgra(Sk4f_fromL32(c)).store(&color);

@@ -40,7 +40,7 @@ protected:
 
 protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
-    GrColor color() const { return fInputColor; }
+    GrColor4h color() const { return fInputColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
     const GrProcessorSet& processors() const { return fProcessorSet; }
     GrProcessorSet detachProcessors() { return std::move(fProcessorSet); }
@@ -61,7 +61,7 @@ private:
     void onPrepare(GrOpFlushState*) final {}
 
     SkMatrix fViewMatrix;
-    GrColor fInputColor;
+    GrColor4h fInputColor;
     GrProcessorSet::Analysis fAnalysis;
     GrPathRendering::FillType fFillType;
     GrAAType fAAType;

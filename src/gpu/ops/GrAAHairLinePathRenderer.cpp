@@ -803,7 +803,7 @@ public:
     }
 
     AAHairlineOp(const Helper::MakeArgs& helperArgs,
-                 GrColor color,
+                 GrColor4h color,
                  uint8_t coverage,
                  const SkMatrix& viewMatrix,
                  const SkPath& path,
@@ -828,8 +828,8 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n", fColor, fCoverage,
-                       fPaths.count());
+        string.appendf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n", fColor.toGrColor(),
+                       fCoverage, fPaths.count());
         string += INHERITED::dumpInfo();
         string += fHelper.dumpInfo();
         return string;
@@ -885,7 +885,7 @@ private:
         return CombineResult::kMerged;
     }
 
-    GrColor color() const { return fColor; }
+    GrColor4h color() const { return fColor; }
     uint8_t coverage() const { return fCoverage; }
     const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
 
@@ -898,7 +898,7 @@ private:
 
     SkSTArray<1, PathData, true> fPaths;
     Helper fHelper;
-    GrColor fColor;
+    GrColor4h fColor;
     uint8_t fCoverage;
 
     typedef GrMeshDrawOp INHERITED;

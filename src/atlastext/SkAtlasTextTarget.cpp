@@ -209,8 +209,10 @@ void SkInternalAtlasTextTarget::flush() {
 }
 
 void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
+    // TODO4F: Odd handling of client colors among AtlasTextTarget and AtlasTextRenderer
+    GrColor4h color4f = GrColor4h::FromGrColor(color);
     for (int i = 0; i < fGeoCount; ++i) {
-        fGeoData[i].fColor = color;
+        fGeoData[i].fColor = color4f;
     }
     this->finalize(caps, nullptr /* applied clip */);
 }
@@ -229,10 +231,12 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     }
 
     for (int i = 0; i < fGeoCount; ++i) {
+        // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, fGeoData[i].fBlob, fGeoData[i].fRun, fGeoData[i].fSubRun,
-                fGeoData[i].fViewMatrix, fGeoData[i].fX, fGeoData[i].fY, fGeoData[i].fColor,
-                &context, glyphCache, atlasManager, &autoGlyphCache);
+                fGeoData[i].fViewMatrix, fGeoData[i].fX, fGeoData[i].fY,
+                fGeoData[i].fColor.toGrColor(), &context, glyphCache, atlasManager,
+                &autoGlyphCache);
         bool done = false;
         while (!done) {
             GrTextBlob::VertexRegenerator::Result result;
