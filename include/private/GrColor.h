@@ -149,17 +149,26 @@ static inline GrColor GrUnpremulColor(GrColor color) {
 struct GrColor4h {
     static GrColor4h FromFloats(const float* rgba) {
         SkASSERT(rgba[3] >= 0 && rgba[3] <= 1);
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
         uint64_t packed;
         SkFloatToHalf_finite_ftz(Sk4f::Load(rgba)).store(&packed);
         return { packed };
+#else
+        return { SkColor4f{ rgba[0], rgba[1], rgba[2], rgba[3] }.toBytes_RGBA() };
+#endif
     }
 
     static GrColor4h FromGrColor(GrColor color) {
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
         SkColor4f c4f = SkColor4f::FromBytes_RGBA(color);
         return FromFloats(c4f.vec());
+#else
+        return { color };
+#endif
     }
 
     bool isNormalized() const {
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
         auto half_is_normalized = [](SkHalf h) {
             return h <= SK_Half1 ||  // All positive values in [0, 1]
                    h == 0x8000;      // Negative 0
@@ -169,10 +178,17 @@ struct GrColor4h {
         return half_is_normalized(this->vec()[0]) &&
                half_is_normalized(this->vec()[1]) &&
                half_is_normalized(this->vec()[2]);
+#else
+        return true;
+#endif
     }
 
     bool isOpaque() const {
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
         return this->vec()[3] == SK_Half1;
+#else
+        return GrColorIsOpaque(fRGBA);
+#endif
     }
 
     bool operator==(GrColor4h that) const {
@@ -184,20 +200,44 @@ struct GrColor4h {
     }
 
     void toFloats(float* rgba) const {
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
         SkHalfToFloat_finite_ftz(fRGBA).store(rgba);
+#else
+        GrColorToRGBAFloat(fRGBA, rgba);
+#endif
     }
 
     GrColor toGrColor() const {
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
         SkColor4f c4f;
         this->toFloats(c4f.vec());
         return c4f.toBytes_RGBA();
+#else
+        return fRGBA;
+#endif
     }
 
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
     const SkHalf* vec() const {
         return reinterpret_cast<const SkHalf*>(&fRGBA);
     }
+#endif
 
-    const uint64_t fRGBA;
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
+    uint64_t fRGBA;
+#else
+    uint32_t fRGBA;
+#endif
 };
+
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
+constexpr GrColor4h GrColor4h_WHITE       = { 0x3C003C003C003C00ull };  // 1, 1, 1, 1
+constexpr GrColor4h GrColor4h_TRANSPARENT = { 0 };                      // 0, 0, 0, 0
+constexpr GrColor4h GrColor4h_ILLEGAL     = { 0xFFFFFFFFFFFFFFFFull };  // -NaN. -NaN, -NaN, -NaN
+#else
+constexpr GrColor4h GrColor4h_WHITE       = { GrColor_WHITE };
+constexpr GrColor4h GrColor4h_TRANSPARENT = { GrColor_TRANSPARENT_BLACK };
+constexpr GrColor4h GrColor4h_ILLEGAL     = { GrColor_ILLEGAL };
+#endif
 
 #endif
