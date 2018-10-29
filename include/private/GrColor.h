@@ -208,7 +208,11 @@ struct GrColor4h {
         return reinterpret_cast<const SkHalf*>(&fRGBA);
     }
 
-    const uint64_t fRGBA;
+    uint64_t fRGBA;
 };
+
+constexpr GrColor4h GrColor4h_WHITE       = { 0x3C003C003C003C00ull };  // 1, 1, 1, 1
+constexpr GrColor4h GrColor4h_TRANSPARENT = { 0 };                      // 0, 0, 0, 0
+constexpr GrColor4h GrColor4h_ILLEGAL     = { 0xFFFFFFFFFFFFFFFFull };  // -NaN. -NaN, -NaN, -NaN
 
 #endif

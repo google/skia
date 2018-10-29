@@ -133,7 +133,7 @@ public:
                                                      devOutside, devInside);
     }
 
-    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
                    const SkRect& devOutside, const SkRect& devInside)
             : INHERITED(ClassID())
             , fHelper(helperArgs, GrAAType::kCoverage)
@@ -159,7 +159,7 @@ public:
                                                      stroke, isMiter);
     }
 
-    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
                    const SkRect& rect, const SkStrokeRec& stroke, bool isMiter)
             : INHERITED(ClassID())
             , fHelper(helperArgs, GrAAType::kCoverage)
@@ -193,7 +193,7 @@ public:
                     "Color: 0x%08x, ORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                     "AssistORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                     "IRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], Degen: %d",
-                    info.fColor, info.fDevOutside.fLeft, info.fDevOutside.fTop,
+                    info.fColor.toGrColor(), info.fDevOutside.fLeft, info.fDevOutside.fTop,
                     info.fDevOutside.fRight, info.fDevOutside.fBottom, info.fDevOutsideAssist.fLeft,
                     info.fDevOutsideAssist.fTop, info.fDevOutsideAssist.fRight,
                     info.fDevOutsideAssist.fBottom, info.fDevInside.fLeft, info.fDevInside.fTop,
@@ -244,7 +244,7 @@ private:
 
     // TODO support AA rotated stroke rects by copying around view matrices
     struct RectInfo {
-        GrColor fColor;
+        GrColor4h fColor;
         SkRect fDevOutside;
         SkRect fDevOutsideAssist;
         SkRect fDevInside;
@@ -299,7 +299,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
                                            vertexStride,
                                            outerVertexNum,
                                            innerVertexNum,
-                                           info.fColor,
+                                           info.fColor.toGrColor(), // TODO4F
                                            info.fDevOutside,
                                            info.fDevOutsideAssist,
                                            info.fDevInside,

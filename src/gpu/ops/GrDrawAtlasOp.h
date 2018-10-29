@@ -32,7 +32,7 @@ public:
                                                     spriteCount, xforms, rects, colors);
     }
 
-    GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+    GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
                   GrAAType, int spriteCount, const SkRSXform* xforms, const SkRect* rects,
                   const SkColor* colors);
 
@@ -51,7 +51,7 @@ public:
 private:
     void onPrepareDraws(Target*) override;
 
-    GrColor color() const { return fColor; }
+    GrColor4h color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool hasColors() const { return fHasColors; }
     int quadCount() const { return fQuadCount; }
@@ -59,14 +59,14 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     struct Geometry {
-        GrColor fColor;
+        GrColor4h fColor;
         SkTArray<uint8_t, true> fVerts;
     };
 
     SkSTArray<1, Geometry, true> fGeoData;
     Helper fHelper;
     SkMatrix fViewMatrix;
-    GrColor fColor;
+    GrColor4h fColor;
     int fQuadCount;
     bool fHasColors;
 
