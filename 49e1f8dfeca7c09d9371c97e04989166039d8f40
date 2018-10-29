@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c9329ba_d7fd18cf",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-29T14:24:28Z",
+      "side": 1,
+      "message": "Do we have to check that a is in zero to one? Should we assert that we never make a Color4h with an alpha out of range?",
+      "range": {
+        "startLine": 179,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 58
+      },
+      "revId": "49e1f8dfeca7c09d9371c97e04989166039d8f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
