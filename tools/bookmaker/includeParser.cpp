@@ -1765,11 +1765,18 @@ string IncludeParser::elidedCodeBlock(const Definition& iDef) {
     } else {
         SkASSERT(0); // only Constant supported for now
     }
+    vector<Definition*> consts;
     for (auto entry : *mapPtr) {
         if (string::npos == entry.first.find(filterContents)) {
             continue;
         }
-        result += this->writeCodeBlock(*entry.second, markType);
+        consts.push_back(entry.second);
+    }
+    std::sort(consts.begin(), consts.end(), [](Definition* def1, Definition* def2) {
+        return def1->fLineCount < def2->fLineCount;
+    } );
+    for (auto oneConst : consts) {
+        result += this->writeCodeBlock(*oneConst, markType);
     }
     return result;
 }
