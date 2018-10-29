@@ -445,7 +445,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Debian9":    DEFAULT_OS_DEBIAN,
 			"Mac":        DEFAULT_OS_MAC,
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
-			"Ubuntu17":   "Ubuntu-17.04",
+			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-17134.228",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
@@ -577,10 +577,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD2000":   "8086:0102",
 					"IntelHD405":    "8086:22b1",
 					"IntelIris640":  "8086:5926",
-					"QuadroP400":    "10de:1cb3-384.59",
+					"QuadroP400":    "10de:1cb3", // DO NOT SUBMIT
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
-					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", parts["cpu_or_gpu_value"])
+					glog.Fatalf("Entry %q not found in Linux GPU mapping.", parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
 			} else if strings.Contains(parts["os"], "Mac") {
