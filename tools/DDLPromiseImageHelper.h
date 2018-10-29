@@ -14,7 +14,7 @@
 #include "GrBackendSurface.h"
 #include "SkCachedData.h"
 #include "SkYUVAIndex.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 
 class GrContext;
 class SkDeferredDisplayListRecorder;
@@ -124,7 +124,7 @@ private:
         }
         const SkPixmap& yuvPixmap(int index) const {
             SkASSERT(this->isYUV());
-            SkASSERT(index >= 0 && index < SkYUVSizeInfo::kMaxCount);
+            SkASSERT(index >= 0 && index < SkYUVASizeInfo::kMaxCount);
             return fYUVPlanes[index];
         }
         const SkBitmap& normalBitmap() const {
@@ -133,22 +133,22 @@ private:
         }
 
         void setCallbackContext(int index, sk_sp<PromiseImageCallbackContext> callbackContext) {
-            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVSizeInfo::kMaxCount : 1));
+            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             fCallbackContexts[index] = callbackContext;
         }
         PromiseImageCallbackContext* callbackContext(int index) {
-            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVSizeInfo::kMaxCount : 1));
+            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index].get();
         }
         sk_sp<PromiseImageCallbackContext> refCallbackContext(int index) const {
-            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVSizeInfo::kMaxCount : 1));
+            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index];
         }
 
         const GrCaps* caps() const { return fCallbackContexts[0]->caps(); }
 
         const GrBackendTexture& backendTexture(int index) const {
-            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVSizeInfo::kMaxCount : 1));
+            SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index]->backendTexture();
         }
 
@@ -163,7 +163,7 @@ private:
         }
         void addYUVPlane(int index, const SkImageInfo& ii, const void* plane, size_t widthBytes) {
             SkASSERT(this->isYUV());
-            SkASSERT(index >= 0 && index < SkYUVSizeInfo::kMaxCount);
+            SkASSERT(index >= 0 && index < SkYUVASizeInfo::kMaxCount);
             fYUVPlanes[index].reset(ii, plane, widthBytes);
         }
 
@@ -180,10 +180,10 @@ private:
         sk_sp<SkCachedData>                fYUVData;       // when !null, this is a YUV image
         SkYUVColorSpace                    fYUVColorSpace = kJPEG_SkYUVColorSpace;
         SkYUVAIndex                        fYUVAIndices[SkYUVAIndex::kIndexCount];
-        SkPixmap                           fYUVPlanes[SkYUVSizeInfo::kMaxCount];
+        SkPixmap                           fYUVPlanes[SkYUVASizeInfo::kMaxCount];
 
-        // Up to SkYUVSizeInfo::kMaxCount for a YUVA image. Only one for a normal image.
-        sk_sp<PromiseImageCallbackContext> fCallbackContexts[SkYUVSizeInfo::kMaxCount];
+        // Up to SkYUVASizeInfo::kMaxCount for a YUVA image. Only one for a normal image.
+        sk_sp<PromiseImageCallbackContext> fCallbackContexts[SkYUVASizeInfo::kMaxCount];
     };
 
     // This stack-based context allows each thread to re-inflate the image indices into

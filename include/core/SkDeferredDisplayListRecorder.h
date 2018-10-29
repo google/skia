@@ -23,7 +23,7 @@ class SkCanvas;
 class SkImage;
 class SkSurface;
 struct SkYUVAIndex;
-struct SkYUVSizeInfo;
+struct SkYUVASizeInfo;
 
 /*
  * This class is intended to be used as:

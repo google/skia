@@ -14,7 +14,7 @@
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkImage_Base.h"
 #include "SkYUVAIndex.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
     GrGpu* gpu = fContext->contextPriv().getGpu();
@@ -142,9 +142,9 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
 
     sk_sp<SkImage> image;
     if (curImage.isYUV()) {
-        GrBackendFormat backendFormats[SkYUVSizeInfo::kMaxCount];
-        void* contexts[SkYUVSizeInfo::kMaxCount] = { nullptr, nullptr, nullptr, nullptr };
-        SkISize sizes[SkYUVSizeInfo::kMaxCount];
+        GrBackendFormat backendFormats[SkYUVASizeInfo::kMaxCount];
+        void* contexts[SkYUVASizeInfo::kMaxCount] = { nullptr, nullptr, nullptr, nullptr };
+        SkISize sizes[SkYUVASizeInfo::kMaxCount];
         // TODO: store this value somewhere?
         int textureCount;
         SkAssertResult(SkYUVAIndex::AreValidIndices(curImage.yuvaIndices(), &textureCount));
@@ -155,7 +155,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
             contexts[i] = curImage.refCallbackContext(i).release();
             sizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
         }
-        for (int i = textureCount; i < SkYUVSizeInfo::kMaxCount; ++i) {
+        for (int i = textureCount; i < SkYUVASizeInfo::kMaxCount; ++i) {
             sizes[i] = SkISize::MakeEmpty();
         }
 
@@ -219,17 +219,17 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
                                                              image->uniqueID(),
                                                              overallII);
 
-    SkYUVSizeInfo yuvaSizeInfo;
+    SkYUVASizeInfo yuvaSizeInfo;
     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
     SkYUVColorSpace yuvColorSpace;
-    const void* planes[SkYUVSizeInfo::kMaxCount];
+    const void* planes[SkYUVASizeInfo::kMaxCount];
     sk_sp<SkCachedData> yuvData = ib->getPlanes(&yuvaSizeInfo, yuvaIndices, &yuvColorSpace, planes);
     if (yuvData) {
         newImageInfo.setYUVData(std::move(yuvData), yuvaIndices, yuvColorSpace);
 
         // determine colortypes from index data
         // for testing we only ever use A8 or RGBA8888
-        SkColorType colorTypes[SkYUVSizeInfo::kMaxCount] = {
+        SkColorType colorTypes[SkYUVASizeInfo::kMaxCount] = {
             kUnknown_SkColorType, kUnknown_SkColorType,
             kUnknown_SkColorType, kUnknown_SkColorType
         };
@@ -246,7 +246,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
             }
         }
 
-        for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
+        for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
             if (yuvaSizeInfo.fSizes[i].isEmpty()) {
                 SkASSERT(!yuvaSizeInfo.fWidthBytes[i] && kUnknown_SkColorType == colorTypes[i]);
                 continue;

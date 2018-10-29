@@ -10,7 +10,7 @@
 #include "SkCodec.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-#include "SkYUVSizeInfo.h"
+#include "SkYUVASizeInfo.h"
 #include "Test.h"
 
 static void codec_yuv(skiatest::Reporter* reporter,
@@ -27,7 +27,7 @@ static void codec_yuv(skiatest::Reporter* reporter,
     }
 
     // Test queryYUV8()
-    SkYUVSizeInfo info;
+    SkYUVASizeInfo info;
 
     {
         bool success = codec->queryYUV8(nullptr, nullptr);
@@ -38,7 +38,7 @@ static void codec_yuv(skiatest::Reporter* reporter,
             return;
         }
 
-        for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
+        for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
             REPORTER_ASSERT(reporter, info.fSizes[i] == expectedSizes[i]);
             REPORTER_ASSERT(reporter,
                             info.fWidthBytes[i] == (uint32_t) SkAlign8(info.fSizes[i].width()));
@@ -53,7 +53,7 @@ static void codec_yuv(skiatest::Reporter* reporter,
             return;
         }
 
-        for (int i = 0; i < SkYUVSizeInfo::kMaxCount; ++i) {
+        for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
             REPORTER_ASSERT(reporter, info.fSizes[i] == expectedSizes[i]);
             REPORTER_ASSERT(reporter,
                             info.fWidthBytes[i] == (uint32_t) SkAlign8(info.fSizes[i].width()));
@@ -65,7 +65,7 @@ static void codec_yuv(skiatest::Reporter* reporter,
     size_t totalBytes = info.computeTotalBytes();
 
     SkAutoMalloc storage(totalBytes);
-    void* planes[SkYUVSizeInfo::kMaxCount];
+    void* planes[SkYUVASizeInfo::kMaxCount];
 
     info.computePlanes(storage.get(), planes);
 
