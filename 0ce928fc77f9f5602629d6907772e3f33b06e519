@@ -70,6 +70,30 @@
       "revId": "0ce928fc77f9f5602629d6907772e3f33b06e519",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cd36d4d_2da601b2",
+        "filename": "infra/skqp/build_apk.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-10-29T13:32:23Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d7ab0134_dc63dc07",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 1
+      },
+      "revId": "0ce928fc77f9f5602629d6907772e3f33b06e519",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
