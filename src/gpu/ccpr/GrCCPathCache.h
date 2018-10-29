@@ -27,6 +27,33 @@ public:
     GrCCPathCache();
     ~GrCCPathCache();
 
+    // Wrapper around raw key data that has a specialized operator==. Used by the hash table.
+    struct Key {
+        const uint32_t* fData;
+    };
+    friend bool operator==(const Key&, const Key&);
+
+    // Ref-counted object that owns the memory for a cache Key.
+    class KeyRef : public SkPathRef::GenIDChangeListener {
+    public:
+        static sk_sp<KeyRef> Make(uint32_t pathCacheUniqueID, Key);
+
+        uint32_t pathCacheUniqueID() const { return fPathCacheUniqueID; }
+        Key key() const;
+
+        // Called when our corresponding path is modified or deleted. Not threadsafe.
+        void onChange() override;
+
+    private:
+        KeyRef(uint32_t pathCacheUniqueID) : fPathCacheUniqueID(pathCacheUniqueID) {
+            SkASSERT(SK_InvalidUniqueID != fPathCacheUniqueID);
+        }
+
+        const uint32_t fPathCacheUniqueID;
+        // The GrShape's unstyled key is stored as a variable-length footer to this class. GetKey
+        // provides access to it.
+    };
+
     // Stores the components of a transformation that affect a path mask (i.e. everything but
     // integer translation). During construction, any integer portions of the matrix's translate are
     // shaved off and returned to the caller. The caller is responsible for those integer shifts.
@@ -50,29 +77,20 @@ public:
     sk_sp<GrCCPathCacheEntry> find(const GrShape&, const MaskTransform&,
                                    CreateIfAbsent = CreateIfAbsent::kNo);
 
-    void evict(GrCCPathCacheEntry*);
-
     void purgeAsNeeded();
 
 private:
-    // Wrapper around a raw GrShape key that has a specialized operator==. Used by the hash table.
-    struct HashKey {
-        const uint32_t* fData;
-    };
-    friend bool operator==(const HashKey&, const HashKey&);
-
     // This is a special ref ptr for GrCCPathCacheEntry, used by the hash table. It provides static
     // methods for SkTHash, and can only be moved. This guarantees the hash table holds exactly one
     // reference for each entry. Also, when a HashNode goes out of scope, that means it is exiting
     // the hash table. We take that opportunity to remove it from the LRU list and do some cleanup.
     class HashNode : SkNoncopyable {
     public:
-        static HashKey GetKey(const HashNode& node) { return GetKey(node.entry()); }
-        static HashKey GetKey(const GrCCPathCacheEntry*);
-        static uint32_t Hash(HashKey);
+        static Key GetKey(const HashNode&);
+        static uint32_t Hash(Key);
 
         HashNode() = default;
-        HashNode(GrCCPathCache*, const MaskTransform&, const GrShape&);
+        HashNode(GrCCPathCache*, sk_sp<KeyRef>, const MaskTransform&, const GrShape&);
         HashNode(HashNode&& node)
                 : fPathCache(node.fPathCache), fEntry(std::move(node.fEntry)) {
             SkASSERT(!node.fEntry);
@@ -89,28 +107,29 @@ private:
 
         GrCCPathCache* fPathCache = nullptr;
         sk_sp<GrCCPathCacheEntry> fEntry;
-        // The GrShape's unstyled key is stored as a variable-length footer to the 'fEntry'
-        // allocation. GetKey provides access to it.
     };
 
-    SkTHashTable<HashNode, HashKey> fHashTable;
-    SkTInternalLList<GrCCPathCacheEntry> fLRU;
-    SkMessageBus<sk_sp<GrCCPathCacheEntry>>::Inbox fInvalidatedEntriesInbox;
+    void evict(GrCCPathCache::Key key) {
+        fHashTable.remove(key);  // HashNode::willExitHashTable() takes care of the rest.
+    }
 
-    SkDEBUGCODE(SkThreadID fGraphicsThreadID = kIllegalThreadID);
+    SkTHashTable<HashNode, Key> fHashTable;
+    SkTInternalLList<GrCCPathCacheEntry> fLRU;
+    SkMessageBus<sk_sp<KeyRef>>::Inbox fInvalidatedKeysInbox;
 };
 
 /**
  * This class stores all the data necessary to draw a specific path + matrix combination from their
  * corresponding cached atlas.
  */
-class GrCCPathCacheEntry : public SkPathRef::GenIDChangeListener {
+class GrCCPathCacheEntry : public GrNonAtomicRef<GrCCPathCacheEntry> {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCPathCacheEntry);
 
-    ~GrCCPathCacheEntry() override;
-
-    uint32_t pathCacheUniqueID() const { return fPathCacheUniqueID; }
+    ~GrCCPathCacheEntry() {
+        SkASSERT(!fCurrFlushAtlas);  // Client is required to reset fCurrFlushAtlas back to null.
+        this->invalidateAtlas();
+    }
 
     // The number of times this specific entry (path + matrix combination) has been pulled from
     // the path cache. As long as the caller does exactly one lookup per draw, this translates to
@@ -162,16 +181,16 @@ public:
 private:
     using MaskTransform = GrCCPathCache::MaskTransform;
 
-    GrCCPathCacheEntry(uint32_t pathCacheUniqueID, const MaskTransform&);
+    GrCCPathCacheEntry(sk_sp<GrCCPathCache::KeyRef> keyRef, const MaskTransform& maskTransform)
+            : fKeyRef(std::move(keyRef)), fMaskTransform(maskTransform) {
+    }
 
     // Resets this entry back to not having an atlas, and purges its previous atlas texture from the
     // resource cache if needed.
     void invalidateAtlas();
 
-    // Called when our corresponding path is modified or deleted. Not threadsafe.
-    void onChange() override;
+    sk_sp<GrCCPathCache::KeyRef> fKeyRef;
 
-    const uint32_t fPathCacheUniqueID;
     MaskTransform fMaskTransform;
     int fHitCount = 1;
 
@@ -187,8 +206,6 @@ private:
 
     // This field is for when a path gets drawn more than once during the same flush.
     const GrCCAtlas* fCurrFlushAtlas = nullptr;
-
-    SkDEBUGCODE(SkThreadID fGraphicsThreadID);
 
     friend class GrCCPathCache;
     friend void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry&, const SkIVector&,
