@@ -75,12 +75,37 @@ bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatri
 }
 
 bool SkGlyphRunListPainter::ensureBitmapBuffers(size_t runSize) {
-    if (runSize > fMaxRunSize) {
+    if (runSize > fMaxPositionSize) {
         fPositions.reset(runSize);
-        fMaxRunSize = runSize;
+        fMaxPositionSize = runSize;
+    }
+    if (runSize > fMaxGlyphDataSize) {
+        fGlyphDrawData.reset(runSize);
+        fMaxGlyphDataSize = runSize;
     }
 
     return true;
+}
+
+bool SkGlyphRunListPainter::ensureGPUBuffers(size_t runSize) {
+    if (runSize > fMaxPositionSize) {
+        fPositions.reset(runSize);
+        fMaxPositionSize = runSize;
+    }
+
+    return true;
+}
+
+// The number 128 is just a guess at a good value.
+void SkGlyphRunListPainter::trimBuffers() {
+    if (fMaxPositionSize > 128) {
+        fPositions.reset(128);
+        fMaxPositionSize = 128;
+    }
+    if (fMaxGlyphDataSize > 128) {
+        fGlyphDrawData.reset(128);
+        fMaxGlyphDataSize = 128;
+    }
 }
 
 static bool check_glyph_position(SkPoint position) {
@@ -121,43 +146,53 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
     SkPoint origin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
-        SkSTArenaAlloc<3332> alloc;
         // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
         // convert the lcd text into A8 text. The props communicates this to the scaler.
         auto& props = (kN32_SkColorType == fColorType && glyphRun.paint().isSrcOver())
                       ? fDeviceProps
                       : fBitmapFallbackProps;
         auto paint = glyphRun.paint();
-        if (ShouldDrawAsPath(glyphRun.paint(), deviceMatrix)) {
+        auto runSize = glyphRun.runSize();
+        if (this->ensureBitmapBuffers(runSize)) {
+            if (ShouldDrawAsPath(glyphRun.paint(), deviceMatrix)) {
+                SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
+                        fPositions, glyphRun.positions().data(), runSize);
 
-            // setup our std pathPaint, in hopes of getting hits in the cache
-            SkPaint pathPaint(paint);
-            SkScalar textScale = pathPaint.setupForAsPaths();
+                // setup our std pathPaint, in hopes of getting hits in the cache
+                SkPaint pathPaint(paint);
+                SkScalar textScale = pathPaint.setupForAsPaths();
 
-            auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    pathPaint, &props, fScalerContextFlags, nullptr);
+                auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                        pathPaint, &props, fScalerContextFlags, nullptr);
 
-            auto perPath = perPathCreator(paint, textScale, &alloc);
+                auto perPath = perPathCreator();
 
-            const SkPoint* positionCursor = glyphRun.positions().data();
-            for (auto glyphID : glyphRun.glyphsIDs()) {
-                SkPoint position = *positionCursor++;
-                if (check_glyph_position(position)) {
-                    const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
-                    if (!glyph.isEmpty()) {
-                        const SkPath* path = pathCache->findPath(glyph);
-                        SkPoint loc = position + origin;
-                        perPath(path, glyph, loc);
+                const SkPoint* positionCursor = fPositions;
+                PathAndPos* pathPosCursor = (PathAndPos*) fGlyphDrawData.get();
+                for (auto glyphID : glyphRun.glyphsIDs()) {
+                    SkPoint position = *positionCursor++;
+                    if (check_glyph_position(position)) {
+                        const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
+                        if (!glyph.isEmpty()) {
+                            const SkPath* path = pathCache->findPath(glyph);
+                            if (path != nullptr) {
+                                *pathPosCursor++ = {path, position};
+                                continue;
+                            }
+                        }
                     }
                 }
-            }
-        } else {
-            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    paint, &props, fScalerContextFlags, &deviceMatrix);
-            auto perMask = perMaskCreator(paint, &alloc);
-            auto runSize = glyphRun.runSize();
+                perPath(paint,
+                        textScale,
+                        SkSpan<const PathAndPos>{
+                                (PathAndPos*) fGlyphDrawData.get(),
+                                SkTo<size_t>(
+                                        pathPosCursor - (PathAndPos*) fGlyphDrawData.get())});
+            } else {
+                auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                        paint, &props, fScalerContextFlags, &deviceMatrix);
+                auto perMask = perMaskCreator();
 
-            if (this->ensureBitmapBuffers(runSize)) {
                 // Add rounding and origin.
                 SkMatrix matrix = deviceMatrix;
                 matrix.preTranslate(origin.x(), origin.y());
@@ -166,21 +201,29 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                 matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
 
                 const SkPoint* positionCursor = fPositions;
+                SkMask* maskCursor = (SkMask*) fGlyphDrawData.get();
+
                 for (auto glyphID : glyphRun.glyphsIDs()) {
                     auto position = *positionCursor++;
                     if (check_glyph_position(position)) {
                         const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, position);
                         const void* image;
                         if (!glyph.isEmpty() && (image = cache->findImage(glyph))) {
-                            SkMask mask;
-                            perMask(prepare_mask(glyph, position, image), glyph, position);
+                            *maskCursor++ = prepare_mask(glyph, position, image);
+                            continue;
                         }
                     }
                 }
+                perMask(paint,
+                        SkSpan<const SkMask>{
+                                (SkMask*) fGlyphDrawData.get(),
+                                SkTo<size_t>(maskCursor - (SkMask*) fGlyphDrawData.get())});
             }
         }
+        this->trimBuffers();
     }
 }
+
 
 // Getting glyphs to the screen in a fallback situation can be complex. Here is the set of
 // transformations that have to happen. Normally, they would all be accommodated by the font

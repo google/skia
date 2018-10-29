@@ -117,14 +117,12 @@ public:
                                     SkPoint* strokeSize);
 
     static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&, SkScalar sizeLimit = 1024);
-    void        drawPosText_asPaths(const char text[], size_t byteLength, const SkScalar pos[],
-                                    int scalarsPerPosition, const SkPoint& offset,
-                                    const SkPaint&, const SkSurfaceProps*) const;
+
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
+
 private:
     void blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const;
-    SkGlyphRunListPainter::PerMask drawOneMaskCreator(
-            const SkPaint& paint, SkArenaAlloc* alloc) const;
+    SkGlyphRunListPainter::PerMask drawOneMaskCreator() const;
     void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
