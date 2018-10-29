@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9bac410_02e85415",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-29T17:39:28Z",
+      "side": 1,
+      "message": "Also dead?",
+      "revId": "162312fda7e0458c7e3deab4c674049da3d63620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "badaa93a_ff1c12c8",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-29T17:39:28Z",
+      "side": 1,
+      "message": "Are these comments not... obvious?  In a rational world (not like our past, maybe), why would we pass anything across this drawPaths() interface we didn\u0027t want drawn?",
+      "revId": "162312fda7e0458c7e3deab4c674049da3d63620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
