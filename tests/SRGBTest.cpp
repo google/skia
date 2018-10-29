@@ -13,31 +13,33 @@
 #include <math.h>
 
 DEF_TEST(srgb_roundtrip, r) {
-    uint32_t reds[256];
-    for (int i = 0; i < 256; i++) {
-        reds[i] = i;
-    }
+    for (int normalized = 0; normalized < 2; normalized++) {
+        uint32_t reds[256];
+        for (int i = 0; i < 256; i++) {
+            reds[i] = i;
+        }
 
-    SkRasterPipeline_MemoryCtx ptr = { reds, 0 };
+        SkRasterPipeline_MemoryCtx ptr = { reds, 0 };
 
-    sk_sp<SkColorSpace> sRGB = SkColorSpace::MakeSRGB(),
-                        linear = sRGB->makeLinearGamma();
-    const SkAlphaType upm = kUnpremul_SkAlphaType;
+        sk_sp<SkColorSpace> sRGB = SkColorSpace::MakeSRGB(),
+                            linear = sRGB->makeLinearGamma();
+        const SkAlphaType upm = kUnpremul_SkAlphaType;
 
-    SkColorSpaceXformSteps linearize{  sRGB.get(),upm,  linear.get(),upm},
-                           reencode {linear.get(),upm,    sRGB.get(),upm};
+        SkColorSpaceXformSteps linearize{  sRGB.get(),upm,  linear.get(),upm},
+                               reencode {linear.get(),upm,    sRGB.get(),upm};
 
-    SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_8888,  &ptr);
-    linearize.apply(&p);
-    reencode .apply(&p);
-    p.append(SkRasterPipeline::store_8888, &ptr);
+        SkRasterPipeline_<256> p;
+        p.append(SkRasterPipeline::load_8888,  &ptr);
+        linearize.apply(&p, !!normalized);
+        reencode .apply(&p, !!normalized);
+        p.append(SkRasterPipeline::store_8888, &ptr);
 
-    p.run(0,0,256,1);
+        p.run(0,0,256,1);
 
-    for (int i = 0; i < 256; i++) {
-        if (reds[i] != (uint32_t)i) {
-            ERRORF(r, "%d doesn't round trip, %d", i, reds[i]);
+        for (int i = 0; i < 256; i++) {
+            if (reds[i] != (uint32_t)i) {
+                ERRORF(r, "%d doesn't round trip, %d", i, reds[i]);
+            }
         }
     }
 }
@@ -58,7 +60,7 @@ DEF_TEST(srgb_edge_cases, r) {
     SkSTArenaAlloc<256> alloc;
     SkRasterPipeline p(&alloc);
     p.append_constant_color(&alloc, color);
-    steps.apply(&p);
+    steps.apply(&p, true/*inputs are normalized*/);
     p.append(SkRasterPipeline::store_f32, &dst);
     p.run(0,0,4,1);
 
@@ -77,7 +79,8 @@ DEF_TEST(srgb_edge_cases, r) {
 static void test_roundtripping(skiatest::Reporter* r,
                                sk_sp<SkColorSpace> cs,
                                float range,
-                               float tolerance) {
+                               float tolerance,
+                               bool normalized) {
     static const int kSteps = 128;
     SkColor4f rgba[kSteps];
 
@@ -105,8 +108,8 @@ static void test_roundtripping(skiatest::Reporter* r,
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f32,  &ptr);
-    linearize.apply(&p);
-    reencode .apply(&p);
+    linearize.apply(&p, normalized);
+    reencode .apply(&p, normalized);
     p.append(SkRasterPipeline::store_f32, &ptr);
     p.run(0,0,kSteps,1);
 
@@ -129,5 +132,9 @@ static void test_roundtripping(skiatest::Reporter* r,
 }
 
 DEF_TEST(srgb_roundtrip_extended, r) {
-    test_roundtripping(r,  SkColorSpace::MakeSRGB(), 2.0f, 1.025f);
+    // We're lying when we set normalized=true, but it allows us to test the to_srgb/from_srgb path.
+    test_roundtripping(r,  SkColorSpace::MakeSRGB(), 2.0f, 1.025f, true);
+
+    // This normalized=false path should have much better round-tripping properties.
+    test_roundtripping(r,  SkColorSpace::MakeSRGB(), 10000.0f, 1.001f, false);
 }

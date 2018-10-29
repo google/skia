@@ -21,9 +21,10 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
                                          SkColorSpace* /*dst color space*/,
                                          SkArenaAlloc* alloc,
                                          bool shaderIsOpaque) const {
+    bool shaderIsNormalized = false;
     alloc->make<SkColorSpaceXformSteps>(fSrcColorSpace.get(), kPremul_SkAlphaType,
                                         sk_srgb_singleton() , kPremul_SkAlphaType)
-        ->apply(p);
+        ->apply(p, shaderIsNormalized);
 }
 
 sk_sp<SkColorFilter> SkToSRGBColorFilter::Make(sk_sp<SkColorSpace> srcColorSpace) {
