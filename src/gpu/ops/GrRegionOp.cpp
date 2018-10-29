@@ -70,7 +70,7 @@ public:
                                                aaType, stencilSettings);
     }
 
-    RegionOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+    RegionOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
              const SkRegion& region, GrAAType aaType, const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
             , fHelper(helperArgs, aaType, stencilSettings)
@@ -94,7 +94,7 @@ public:
         str.appendf("# combined: %d\n", fRegions.count());
         for (int i = 0; i < fRegions.count(); ++i) {
             const RegionInfo& info = fRegions[i];
-            str.appendf("%d: Color: 0x%08x, Region with %d rects\n", i, info.fColor,
+            str.appendf("%d: Color: 0x%08x, Region with %d rects\n", i, info.fColor.toGrColor(),
                         info.fRegion.computeRegionComplexity());
         }
         str += fHelper.dumpInfo();
@@ -139,7 +139,9 @@ private:
 
         intptr_t verts = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < numRegions; i++) {
-            tesselate_region(verts, kVertexStride, fRegions[i].fColor, fRegions[i].fRegion);
+            // TODO4F: Preserve float colors
+            tesselate_region(verts, kVertexStride, fRegions[i].fColor.toGrColor(),
+                             fRegions[i].fRegion);
             int numRectsInRegion = fRegions[i].fRegion.computeRegionComplexity();
             verts += numRectsInRegion * kVertsPerInstance * kVertexStride;
         }
@@ -162,7 +164,7 @@ private:
     }
 
     struct RegionInfo {
-        GrColor fColor;
+        GrColor4h fColor;
         SkRegion fRegion;
     };
 

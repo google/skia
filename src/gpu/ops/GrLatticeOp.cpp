@@ -151,7 +151,7 @@ public:
                                                      std::move(iter), dst);
     }
 
-    NonAALatticeOp(Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+    NonAALatticeOp(Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
                    sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> colorSpaceXform,
                    GrSamplerState::Filter filter, std::unique_ptr<SkLatticeIter> iter,
                    const SkRect& dst)
@@ -182,8 +182,8 @@ public:
 
         for (int i = 0; i < fPatches.count(); ++i) {
             str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        fPatches[i].fColor, fPatches[i].fDst.fLeft, fPatches[i].fDst.fTop,
-                        fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
+                        fPatches[i].fColor.toGrColor(), fPatches[i].fDst.fLeft,
+                        fPatches[i].fDst.fTop, fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
         }
 
         str += fHelper.dumpInfo();
@@ -194,7 +194,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        auto opaque = GrColorIsOpaque(fPatches[0].fColor) && GrPixelConfigIsOpaque(fProxy->config())
+        auto opaque = fPatches[0].fColor.isOpaque() && GrPixelConfigIsOpaque(fProxy->config())
                               ? GrProcessorAnalysisColor::Opaque::kYes
                               : GrProcessorAnalysisColor::Opaque::kNo;
         auto analysisColor = GrProcessorAnalysisColor(opaque);
@@ -238,6 +238,8 @@ private:
         intptr_t verts = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < patchCnt; i++) {
             const Patch& patch = fPatches[i];
+            // TODO4F: Preserve float colors
+            GrColor patchColor = patch.fColor.toGrColor();
 
             // Apply the view matrix here if it is scale-translate.  Otherwise, we need to
             // wait until we've created the dst rects.
@@ -273,7 +275,7 @@ private:
                 }
 
                 for (int j = 0; j < kVertsPerRect; ++j) {
-                    vertices[j].fColor = patch.fColor;
+                    vertices[j].fColor = patchColor;
                 }
                 verts += kVertsPerRect * kVertexStide;
             }
@@ -313,7 +315,7 @@ private:
         SkMatrix fViewMatrix;
         std::unique_ptr<SkLatticeIter> fIter;
         SkRect fDst;
-        GrColor fColor;
+        GrColor4h fColor;
     };
 
     Helper fHelper;
