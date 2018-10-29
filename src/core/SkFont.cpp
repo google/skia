@@ -60,6 +60,14 @@ void SkFont::setEmbolden(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kEmbolden_Flag);
 }
 
+void SkFont::DEPRECATED_setAntiAlias(bool predicate) {
+    fFlags = set_clear_mask(fFlags, predicate, kDEPRECATED_Antialias_Flag);
+}
+
+void SkFont::DEPRECATED_setLCDRender(bool predicate) {
+    fFlags = set_clear_mask(fFlags, predicate, kDEPRECATED_LCDRender_Flag);
+}
+
 void SkFont::setHinting(Hinting h) {
     fHinting = SkToU8(h);
 }

@@ -60,13 +60,20 @@ public:
     bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_Flag); }
     bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_Flag); }
     bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_Flag); }
-    Hinting getHinting() const { return (Hinting)fHinting; }
+
+    bool DEPRECATED_isAntiAlias() const { return SkToBool(fFlags & kDEPRECATED_Antialias_Flag); }
+    bool DEPRECATED_isLCDRender() const { return SkToBool(fFlags & kDEPRECATED_LCDRender_Flag); }
 
     void setForceAutoHinting(bool);
     void setEmbeddedBitmaps(bool);
     void setSubpixel(bool);
     void setLinearMetrics(bool);
     void setEmbolden(bool);
+
+    void DEPRECATED_setAntiAlias(bool);
+    void DEPRECATED_setLCDRender(bool);
+
+    Hinting getHinting() const { return (Hinting)fHinting; }
     void setHinting(Hinting);
 
     /**
@@ -96,6 +103,10 @@ public:
 
     int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding,
                      SkGlyphID glyphs[], int maxGlyphCount) const;
+
+    uint16_t unicharToGlyph(SkUnichar uni) const {
+        return fTypeface->unicharToGlyph(uni);
+    }
 
     int countText(const void* text, size_t byteLength, SkTextEncoding encoding) {
         return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);

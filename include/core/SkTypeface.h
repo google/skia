@@ -202,6 +202,14 @@ public:
                       int glyphCount) const;
 
     /**
+     *  Return the glyphID that corresponds to the specified unicode code-point
+     *  (in UTF32 encoding). If the unichar is not supported, returns 0.
+     *
+     *  This is a short-cut for calling charsToGlyphs() with kUTF32_Encoding for one code-point.
+     */
+    SkGlyphID unicharToGlyph(SkUnichar unichar) const;
+
+    /**
      *  Return the number of glyphs in the typeface.
      */
     int countGlyphs() const;
