@@ -123,7 +123,7 @@ SkString GrAtlasTextOp::dumpInfo() const {
     for (int i = 0; i < fGeoCount; ++i) {
         str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f Runs: %d\n",
                     i,
-                    fGeoData[i].fColor,
+                    fGeoData[i].fColor.toGrColor(),
                     fGeoData[i].fX,
                     fGeoData[i].fY,
                     fGeoData[i].fBlob->runCount());
@@ -346,9 +346,10 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
         Blob* blob = args.fBlob;
+        // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
-                args.fColor, target->deferredUploadTarget(), glyphCache, atlasManager,
+                args.fColor.toGrColor(), target->deferredUploadTarget(), glyphCache, atlasManager,
                 &autoGlyphCache);
         bool done = false;
         while (!done) {
