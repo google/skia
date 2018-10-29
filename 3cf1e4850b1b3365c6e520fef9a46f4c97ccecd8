@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fb55311_f904e6e2",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-29T20:46:15Z",
+      "side": 1,
+      "message": "I don\u0027t know if I like this better or not but could be\n\nreturn 1 + this-\u003ehasLocalCoords() + this-\u003ehasVertexColors() + this-\u003ehasDomain() + 4 * this-\u003eusesCoverageAA();",
+      "revId": "3cf1e4850b1b3365c6e520fef9a46f4c97ccecd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
