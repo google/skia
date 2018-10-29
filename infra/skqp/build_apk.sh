@@ -3,13 +3,12 @@
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-#
+
 # Assumes this is in a docker container with a skia repo mounted at /SRC
+# and an output directory mounted at /OUT.
 
-SKIA_ROOT="$(cd "$(dirname "$0")/../.."; pwd)"
-
-"$SKIA_ROOT"/tools/skqp/make_universal_apk x86
-
-# Clean out previous builds
-rm -rf /OUT/*
-cp "$SKIA_ROOT"/out/skqp/skqp-universal-debug.apk /OUT/skqp-universal-x86-debug.apk
+if [ -d /OUT ]; then
+    rm -rf /OUT/*  # Clean out previous builds
+    export SKQP_OUTPUT_DIR=/OUT
+fi
+/SRC/tools/skqp/make_universal_apk.py x86
