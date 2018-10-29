@@ -140,16 +140,19 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                    int srcX, int srcY, CachingHint) const {
     if (!fContext->contextPriv().resourceProvider()) {
+        SkDebugf("  no resource provider\n");
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
     }
 
     if (!SkImageInfoValidConversion(dstInfo, this->onImageInfo())) {
+        SkDebugf("  invalid conversion\n");
         return false;
     }
 
     SkReadPixelsRec rec(dstInfo, dstPixels, dstRB, srcX, srcY);
     if (!rec.trim(this->width(), this->height())) {
+        SkDebugf("  failed to trim\n");
         return false;
     }
 
@@ -164,10 +167,12 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
         this->asTextureProxyRef(), fColorSpace);
     if (!sContext) {
+        SkDebugf("  failed to make surface context\n");
         return false;
     }
 
     if (!sContext->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY, flags)) {
+        SkDebugf("  failed to readPixels\n");
         return false;
     }
 
