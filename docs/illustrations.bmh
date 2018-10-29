@@ -650,10 +650,16 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 480
 #Height 110
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
+void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextAlign(SkPaint::kCenter_Align);
     labelPaint.setTextSize(16);
     SkPaint dstPaint = labelPaint;
     dstPaint.setTextSize(80);
@@ -667,12 +673,14 @@ void draw(SkCanvas* canvas) {
     canvas->drawColor(0, SkBlendMode::kClear);
     for (auto blend : { SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor,
                         SkBlendMode::kLuminosity } ) {
-        canvas->drawString("&", 50, 80, dstPaint);
+        canvas->drawString("&", 30, 80, dstPaint);
         srcPaint.setBlendMode(blend);
         canvas->drawPath(srcPath, srcPaint);
-        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 60, 100, labelPaint,
+                SkPaint::kCenter_Align);
         canvas->translate(90, 0);
     }
+}
 ##
 ##
 

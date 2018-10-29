@@ -179,6 +179,50 @@ is computed from (x, y) and RunBuffer.glyphs Paint_Font_Metrics.
 
 # ------------------------------------------------------------------------------
 
+#Method const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y,
+const SkRect* bounds = nullptr)
+#In Allocator
+#Line # returns writable glyph buffer at Point ##
+
+Returns run with storage for Glyphs. Caller must write count Glyphs to
+RunBuffer.glyphs before next call to FontBlobBuilder.
+
+RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+
+Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
+
+Glyphs are positioned on a baseline at (x, y), using font Paint_Font_Metrics to
+determine their relative placement.
+
+bounds defines an optional bounding box, used to suppress drawing when Text_Blob
+bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
+is computed from (x, y) and RunBuffer.glyphs Paint_Font_Metrics.
+
+#Param font  Font used for this run ##
+#Param count  number of glyphs ##
+#Param x  horizontal offset within the blob ##
+#Param y  vertical offset within the blob ##
+#Param bounds  optional run bounding box ##
+
+#Return writable glyph buffer ##
+
+#Example
+#Height 60
+    SkTextBlobBuilder builder;
+    SkFont font;
+    SkPaint paint;
+    const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(font, 5, 20, 20);
+    paint.textToGlyphs("hello", 5, run.glyphs);
+    canvas->drawRect({20, 20, 30, 30}, paint);
+    canvas->drawTextBlob(builder.make(), 20, 20, paint);
+##
+
+#SeeAlso allocRunPosH allocRunPos
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
                                   const SkRect* bounds = nullptr)
 #In Allocator
@@ -224,6 +268,51 @@ is computed from y, RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
 
 # ------------------------------------------------------------------------------
 
+#Method const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y,
+                                      const SkRect* bounds = nullptr)
+#In Allocator
+#Line # returns writable glyph and x-axis position buffers ##
+
+Returns run with storage for Glyphs and positions along baseline. Caller must
+write count Glyphs to RunBuffer.glyphs, and count Scalars to RunBuffer.pos;
+before next call to FontBlobBuilder.
+
+RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+
+Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
+
+Glyphs are positioned on a baseline at y, using x-axis positions written by
+caller to RunBuffer.pos.
+
+bounds defines an optional bounding box, used to suppress drawing when Text_Blob
+bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
+is computed from y, RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
+
+#Param font  Font used for this run ##
+#Param count  number of Glyphs ##
+#Param y  vertical offset within the blob ##
+#Param bounds  optional run bounding box ##
+
+#Return writable glyph buffer and x-axis position buffer ##
+
+#Example
+#Height 60
+    SkTextBlobBuilder builder;
+    SkPaint paint;
+    SkFont font;
+    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPosH(font, 5, 20);
+    paint.textToGlyphs("hello", 5, run.glyphs);
+    SkScalar positions[] = {0, 10, 20, 40, 80};
+    memcpy(run.pos, positions, sizeof(positions));
+    canvas->drawTextBlob(builder.make(), 20, 20, paint);
+##
+
+#SeeAlso allocRunPos allocRun
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method const RunBuffer& allocRunPos(const SkPaint& font, int count,
                                  const SkRect* bounds = nullptr)
 #In Allocator
@@ -253,13 +342,57 @@ is computed from RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
 #Example
 #Height 90
     SkTextBlobBuilder builder;
-    SkPaint paint, glyphPaint;
-    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPos(glyphPaint, 5);
+    SkPaint paint, font;
+    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPos(font, 5);
     paint.textToGlyphs("hello", 5, run.glyphs);
     SkPoint positions[] = {{0, 0}, {10, 10}, {20, 20}, {40, 40}, {80, 80}};
     memcpy(run.pos, positions, sizeof(positions));
     canvas->drawTextBlob(builder.make(), 20, 20, paint);    
+##
+
+#SeeAlso allocRunPosH allocRun
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const RunBuffer& allocRunPos(const SkFont& font, int count,
+                                     const SkRect* bounds = nullptr)
+#In Allocator
+#Line # returns writable glyph and Point buffers ##
+
+Returns run with storage for Glyphs and Point positions. Caller must
+write count Glyphs to RunBuffer.glyphs, and count Points to RunBuffer.pos;
+before next call to FontBlobBuilder.
+
+RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+
+Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
+
+Glyphs are positioned using Points written by caller to RunBuffer.pos, using
+two Scalar values for each Point.
+
+bounds defines an optional bounding box, used to suppress drawing when Text_Blob
+bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
+is computed from RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
+
+#Param font  Font used for this run ##
+#Param count  number of Glyphs ##
+#Param bounds  optional run bounding box ##
+
+#Return writable glyph buffer and Point buffer ##
+
+#Example
+#Height 90
+    SkTextBlobBuilder builder;
+    SkPaint paint;
+    SkFont font;
+    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPos(font, 5);
+    paint.textToGlyphs("hello", 5, run.glyphs);
+    SkPoint positions[] = {{0, 0}, {10, 10}, {20, 20}, {40, 40}, {80, 80}};
+    memcpy(run.pos, positions, sizeof(positions));
+    canvas->drawTextBlob(builder.make(), 20, 20, paint);
 ##
 
 #SeeAlso allocRunPosH allocRun
