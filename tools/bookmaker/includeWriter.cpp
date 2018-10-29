@@ -895,7 +895,7 @@ void IncludeWriter::methodOut(Definition* method, const Definition& child) {
         int commentIndex = child.fParentIndex;
         auto iter = child.fParent->fTokens.begin();
         std::advance(iter, commentIndex);
-        SkDEBUGCODE(bool sawMethod = false);
+        SkDEBUGCODE(bool sawMethod = MarkType::kMethod == iter->fMarkType);
         while (--commentIndex >= 0) {
             std::advance(iter, -1);
             if (Bracket::kSlashStar == iter->fBracket) {
@@ -2157,21 +2157,6 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
     return allPassed;
 }
 
-// change Xxx_Xxx to xxx xxx
-static string ConvertRef(const string str, bool first) {
-    string substitute;
-    for (char c : str) {
-        if ('_' == c) {
-            c = ' ';  // change Xxx_Xxx to xxx xxx
-        } else if (isupper(c) && !first) {
-            c = tolower(c);
-        }
-        substitute += c;
-        first = false;
-    }
-    return substitute;
-}
-
 string IncludeWriter::resolveMethod(const char* start, const char* end, bool first) {
     string methodname(start, end - start);
     if (string::npos != methodname.find("()")) {
@@ -2280,6 +2265,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                     size_t doubleColon = fBmhStructDef->fName.rfind("::");
                     if (string::npos != doubleColon && undername
                             == fBmhStructDef->fName.substr(doubleColon + 2)) {
+    if ("Reference_Count" == undername) {
+        SkDebugf("");
+    }
                         substitute = fBmhStructDef->fName;
                     }
                 }
@@ -2308,6 +2296,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
         if (MarkType::kSubtopic == rootType || MarkType::kTopic == rootType
                 || MarkType::kAlias == rootType) {
             substitute = this->resolveAlias(rootDef);
+    if ("Reference_Count" == undername && substitute.length()) {
+        SkDebugf("");
+    }
         }
         if (!substitute.length()) {
             string match = rootDef->fName;
@@ -2322,9 +2313,13 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                 // prefer the one mostly closely matching in text
                 if ((MarkType::kClass == child->fMarkType ||
                     MarkType::kStruct == child->fMarkType ||
+                    MarkType::kTypedef == child->fMarkType ||
                     (MarkType::kEnum == child->fMarkType && !child->fAnonymous) ||
                     MarkType::kEnumClass == child->fMarkType) && (match == child->fName ||
                     skmatch == child->fName)) {
+    if ("Reference_Count" == undername) {
+        SkDebugf("");
+    }
                     substitute = child->fName;
                     break;
                 }
@@ -2333,6 +2328,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
         if (!substitute.length()) {
             for (auto child : rootDef->fChildren) {
                 if (MarkType::kSubstitute == child->fMarkType) {
+    if ("Reference_Count" == undername) {
+        SkDebugf("");
+    }
                     substitute = string(child->fContentStart, child->length());
                     break;
                 }
@@ -2343,6 +2341,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                         (MarkType::kEnum == child->fMarkType && !child->fAnonymous) ||
                         MarkType::kEnumClass == child->fMarkType) {
                     SkASSERT("" == substitute);
+    if ("Reference_Count" == undername) {
+        SkDebugf("");
+    }
                     substitute = child->fName;
                     if (MarkType::kEnum == child->fMarkType) {
                         size_t parentClassEnd = substitute.find("::");
@@ -2370,9 +2371,12 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                         (MarkType::kEnum == parent->fMarkType && !parent->fAnonymous) ||
                         MarkType::kEnumClass == parent->fMarkType) {
                     if (parent->fParent != fRootTopic) {
+    if ("Device" == undername) {
+        SkDebugf("");
+    }
                         substitute = parent->fName;
                         substitute += ' ';
-                        substitute += ConvertRef(rootDef->fName, false);
+                        substitute += ParserCommon::ConvertRef(rootDef->fName, false);
                     } else {
                         size_t underpos = undername.find('_');
                         if (string::npos != underpos) {
@@ -2390,7 +2394,10 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                                 return this->reportError<string>("remove underline");
                             }
                         }
-                        substitute += ConvertRef(undername, first);
+    if ("Device" == undername) {
+        SkDebugf("");
+    }
+                        substitute += ParserCommon::ConvertRef(undername, first);
                     }
                 }
             }
@@ -2454,7 +2461,7 @@ int IncludeWriter::lookupReference(const PunctuationState punctuation, const Wor
     string temp = this->resolveRef(&data[start], &data[end], Word::kFirst == word, &refType);
     if (!temp.length()) {
         if (Word::kFirst != word && '_' != last) {
-            temp = ConvertRef(resolved, false);
+            temp = ParserCommon::ConvertRef(resolved, false);
         }
     }
     if (temp.length()) {
