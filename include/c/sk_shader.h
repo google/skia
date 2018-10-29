@@ -33,6 +33,9 @@ SK_C_API sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* center,
                                           const sk_color_t colors[],
                                           const float colorPos[],
                                           int colorCount,
+                                          sk_shader_tilemode_t tileMode,
+                                          float startAngle,
+                                          float endAngle,
                                           const sk_matrix_t* localMatrix);
 SK_C_API sk_shader_t* sk_shader_new_two_point_conical_gradient(
         const sk_point_t* start,

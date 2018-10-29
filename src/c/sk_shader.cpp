@@ -189,6 +189,9 @@ sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter,
                                           const sk_color_t colors[],
                                           const float colorPos[],
                                           int colorCount,
+                                          sk_shader_tilemode_t cmode,
+                                          float startAngle,
+                                          float endAngle,
                                           const sk_matrix_t* cmatrix) {
     SkMatrix matrix;
     if (cmatrix) {
@@ -200,7 +203,12 @@ sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter,
                                                      (SkScalar)(ccenter->y),
                                                      reinterpret_cast<const SkColor*>(colors),
                                                      reinterpret_cast<const SkScalar*>(colorPos),
-                                                     colorCount, 0, &matrix).release();
+                                                     colorCount,
+                                                     (SkShader::TileMode)cmode,
+                                                     startAngle,
+                                                     endAngle,
+                                                     0,
+                                                     &matrix).release();
 }
 
 sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
