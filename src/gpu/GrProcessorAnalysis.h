@@ -23,13 +23,14 @@ public:
     };
 
     constexpr GrProcessorAnalysisColor(Opaque opaque = Opaque::kNo)
-            : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0), fColor(0) {}
+            : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0)
+            , fColor(GrColor4h_TRANSPARENT) {}
 
-    GrProcessorAnalysisColor(GrColor color) { this->setToConstant(color); }
+    GrProcessorAnalysisColor(GrColor4h color) { this->setToConstant(color); }
 
-    void setToConstant(GrColor color) {
+    void setToConstant(GrColor4h color) {
         fColor = color;
-        if (GrColorIsOpaque(color)) {
+        if (color.isOpaque()) {
             fFlags = kColorIsKnown_Flag | kIsOpaque_Flag;
         } else {
             fFlags = kColorIsKnown_Flag;
@@ -42,7 +43,17 @@ public:
 
     bool isOpaque() const { return SkToBool(kIsOpaque_Flag & fFlags); }
 
-    bool isConstant(GrColor* color = nullptr) const {
+    bool isConstant(GrColor* color) const {
+        if (kColorIsKnown_Flag & fFlags) {
+            if (color) {
+                *color = fColor.toGrColor();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    bool isConstant(GrColor4h* color = nullptr) const {
         if (kColorIsKnown_Flag & fFlags) {
             if (color) {
                 *color = fColor;
@@ -79,7 +90,7 @@ private:
         kIsOpaque_Flag = 0x2,
     };
     uint32_t fFlags;
-    GrColor fColor;
+    GrColor4h fColor;
 };
 
 enum class GrProcessorAnalysisCoverage { kNone, kSingleChannel, kLCD };
@@ -122,16 +133,16 @@ public:
      * there are only N processors) sees its expected input. If this returns 0 then there are no
      * processors to eliminate.
      */
-    int initialProcessorsToEliminate(GrColor* newPipelineInputColor) const {
+    int initialProcessorsToEliminate(SkPMColor4f* newPipelineInputColor) const {
         if (fProcessorsToEliminate > 0) {
-            *newPipelineInputColor = fLastKnownOutputColor.toBytes_RGBA();
+            *newPipelineInputColor = fLastKnownOutputColor;
         }
         return fProcessorsToEliminate;
     }
 
-    int initialProcessorsToEliminate(SkPMColor4f* newPipelineInputColor) const {
+    int initialProcessorsToEliminate(GrColor4h* newPipelineInputColor) const {
         if (fProcessorsToEliminate > 0) {
-            *newPipelineInputColor = fLastKnownOutputColor;
+            *newPipelineInputColor = GrColor4h::FromFloats(fLastKnownOutputColor.vec());
         }
         return fProcessorsToEliminate;
     }
@@ -141,7 +152,7 @@ public:
      */
     GrProcessorAnalysisColor outputColor() const {
         if (fKnowOutputColor) {
-            return fLastKnownOutputColor.toBytes_RGBA();
+            return GrColor4h::FromFloats(fLastKnownOutputColor.vec());
         }
         return fIsOpaque ? GrProcessorAnalysisColor::Opaque::kYes
                          : GrProcessorAnalysisColor::Opaque::kNo;

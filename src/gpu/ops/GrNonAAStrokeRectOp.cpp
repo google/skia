@@ -72,7 +72,8 @@ public:
         string.appendf(
                 "Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                 "StrokeWidth: %.2f\n",
-                fColor, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom, fStrokeWidth);
+                fColor.toGrColor(), fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
+                fStrokeWidth);
         string += fHelper.dumpInfo();
         string += INHERITED::dumpInfo();
         return string;
@@ -99,7 +100,7 @@ public:
                                                         stroke, aaType);
     }
 
-    NonAAStrokeRectOp(const Helper::MakeArgs& helperArgs, GrColor color, Helper::Flags flags,
+    NonAAStrokeRectOp(const Helper::MakeArgs& helperArgs, GrColor4h color, Helper::Flags flags,
                       const SkMatrix& viewMatrix, const SkRect& rect, const SkStrokeRec& stroke,
                       GrAAType aaType)
             : INHERITED(ClassID()), fHelper(helperArgs, aaType, flags) {
@@ -198,7 +199,7 @@ private:
     // TODO: override onCombineIfPossible
 
     Helper fHelper;
-    GrColor fColor;
+    GrColor4h fColor;
     SkMatrix fViewMatrix;
     SkRect fRect;
     SkScalar fStrokeWidth;

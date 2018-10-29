@@ -79,9 +79,11 @@ SkExclusiveStrikePtr GrTextBlob::setupCache(int runIndex,
 
 void GrTextBlob::appendGlyph(int runIndex,
                              const SkRect& positions,
-                             GrColor color,
+                             GrColor4h color4f,
                              const sk_sp<GrTextStrike>& strike,
                              GrGlyph* glyph, bool preTransformed) {
+    // TODO4F: Preserve float colors
+    GrColor color = color4f.toGrColor();
 
     Run& run = fRuns[runIndex];
     GrMaskFormat format = glyph->fMaskFormat;
@@ -235,7 +237,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
 inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
         const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
-        const SkPaint& paint, GrColor filteredColor, const SkSurfaceProps& props,
+        const SkPaint& paint, GrColor4h filteredColor, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrTextTarget* target) {
     GrMaskFormat format = info.maskFormat();
 
@@ -258,8 +260,7 @@ inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
     geometry.fBlob = SkRef(this);
     geometry.fRun = run;
     geometry.fSubRun = subRun;
-    geometry.fColor =
-            info.maskFormat() == kARGB_GrMaskFormat ? GrColor_WHITE : filteredColor;
+    geometry.fColor = info.maskFormat() == kARGB_GrMaskFormat ? GrColor4h_WHITE : filteredColor;
     geometry.fX = x;
     geometry.fY = y;
     op->init();
@@ -288,7 +289,7 @@ static void calculate_translation(bool applyVM,
 
 void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                        const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                       const SkPaint& paint, GrColor filteredColor, const GrClip& clip,
+                       const SkPaint& paint, GrColor4h filteredColor, const GrClip& clip,
                        const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
 
     // GrTextBlob::makeOp only takes uint16_t values for run and subRun indices.
@@ -439,7 +440,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 
 std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(
         int glyphCount, uint16_t run, uint16_t subRun, const SkMatrix& viewMatrix,
-        SkScalar x, SkScalar y, const SkPaint& paint, GrColor filteredColor,
+        SkScalar x, SkScalar y, const SkPaint& paint, GrColor4h filteredColor,
         const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
         GrTextTarget* target) {
     const GrTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];

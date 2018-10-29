@@ -242,7 +242,7 @@ public:
                                                   stencilSettings);
     }
 
-    SmallPathOp(Helper::MakeArgs helperArgs, GrColor color, const GrShape& shape,
+    SmallPathOp(Helper::MakeArgs helperArgs, GrColor4h color, const GrShape& shape,
                 const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas, ShapeCache* shapeCache,
                 ShapeDataList* shapeList, bool gammaCorrect,
                 const GrUserStencilSettings* stencilSettings)
@@ -284,7 +284,7 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fShapes) {
-            string.appendf("Color: 0x%08x\n", geo.fColor);
+            string.appendf("Color: 0x%08x\n", geo.fColor.toGrColor());
         }
         string += fHelper.dumpInfo();
         string += INHERITED::dumpInfo();
@@ -491,8 +491,9 @@ private:
             auto uploadTarget = target->deferredUploadTarget();
             fAtlas->setLastUseToken(shapeData->fID, uploadTarget->tokenTracker()->nextDrawToken());
 
+            // TODO4F: Preserve float colors
             this->writePathVertices(
-                    fAtlas, offset, args.fColor, kVertexStride, args.fViewMatrix, shapeData);
+                    fAtlas, offset, args.fColor.toGrColor(), kVertexStride, args.fViewMatrix, shapeData);
             offset += kVerticesPerQuad * kVertexStride;
             flushInfo.fInstancesToFlush++;
         }
@@ -845,7 +846,7 @@ private:
         }
     }
 
-    GrColor color() const { return fShapes[0].fColor; }
+    GrColor4h color() const { return fShapes[0].fColor; }
     bool usesDistanceField() const { return fUsesDistanceField; }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -887,9 +888,9 @@ private:
     bool fUsesDistanceField;
 
     struct Entry {
-        GrColor  fColor;
-        GrShape  fShape;
-        SkMatrix fViewMatrix;
+        GrColor4h fColor;
+        GrShape   fShape;
+        SkMatrix  fViewMatrix;
     };
 
     SkSTArray<1, Entry> fShapes;

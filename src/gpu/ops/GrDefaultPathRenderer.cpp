@@ -363,7 +363,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("Color: 0x%08x Count: %d\n", fColor, fPaths.count());
+        string.appendf("Color: 0x%08x Count: %d\n", fColor.toGrColor(), fPaths.count());
         for (const auto& path : fPaths) {
             string.appendf("Tolerance: %.2f\n", path.fTolerance);
         }
@@ -372,7 +372,7 @@ public:
         return string;
     }
 
-    DefaultPathOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkPath& path,
+    DefaultPathOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkPath& path,
                   SkScalar tolerance, uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
                   GrAAType aaType, const SkRect& devBounds,
                   const GrUserStencilSettings* stencilSettings)
@@ -465,7 +465,7 @@ private:
         return CombineResult::kMerged;
     }
 
-    GrColor color() const { return fColor; }
+    GrColor4h color() const { return fColor; }
     uint8_t coverage() const { return fCoverage; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool isHairline() const { return fIsHairline; }
@@ -477,7 +477,7 @@ private:
 
     SkSTArray<1, PathData, true> fPaths;
     Helper fHelper;
-    GrColor fColor;
+    GrColor4h fColor;
     uint8_t fCoverage;
     SkMatrix fViewMatrix;
     bool fIsHairline;

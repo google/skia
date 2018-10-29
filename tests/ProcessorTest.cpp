@@ -46,7 +46,7 @@ public:
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         static constexpr GrProcessorAnalysisColor kUnknownColor;
-        GrColor overrideColor;
+        GrColor4h overrideColor;
         fProcessors.finalize(kUnknownColor, GrProcessorAnalysisCoverage::kNone, clip, false, caps,
                              &overrideColor);
         return RequiresDstTexture::kNo;

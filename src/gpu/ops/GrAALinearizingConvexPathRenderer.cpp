@@ -157,7 +157,7 @@ public:
     }
 
     AAFlatteningConvexPathOp(const Helper::MakeArgs& helperArgs,
-                             GrColor color,
+                             GrColor4h color,
                              const SkMatrix& viewMatrix,
                              const SkPath& path,
                              SkScalar strokeWidth,
@@ -195,7 +195,8 @@ public:
             string.appendf(
                     "Color: 0x%08x, StrokeWidth: %.2f, Style: %d, Join: %d, "
                     "MiterLimit: %.2f\n",
-                    path.fColor, path.fStrokeWidth, path.fStyle, path.fJoin, path.fMiterLimit);
+                    path.fColor.toGrColor(), path.fStrokeWidth, path.fStyle, path.fJoin,
+                    path.fMiterLimit);
         }
         string += fHelper.dumpInfo();
         string += INHERITED::dumpInfo();
@@ -304,8 +305,9 @@ private:
                 indices = (uint16_t*) sk_realloc_throw(indices, maxIndices * sizeof(uint16_t));
             }
 
-            extract_verts(tess, vertices + vertexStride * vertexCount, vertexStride, args.fColor,
-                          vertexCount, indices + indexCount,
+            // TODO4F: Preserve float colors
+            extract_verts(tess, vertices + vertexStride * vertexCount, vertexStride,
+                          args.fColor.toGrColor(), vertexCount, indices + indexCount,
                           fHelper.compatibleWithAlphaAsCoverage());
             vertexCount += currentVertices;
             indexCount += currentIndices;
@@ -331,7 +333,7 @@ private:
     const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
 
     struct PathData {
-        GrColor fColor;
+        GrColor4h fColor;
         SkMatrix fViewMatrix;
         SkPath fPath;
         SkScalar fStrokeWidth;
