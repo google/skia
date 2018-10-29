@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0ac6d1e5_540addcc",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-29T15:05:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "787287cd_f377d0dc",
+      "range": {
+        "startLine": 157,
+        "startChar": 40,
+        "endLine": 157,
+        "endChar": 47
+      },
+      "revId": "49e1f8dfeca7c09d9371c97e04989166039d8f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c9329ba_d7fd18cf",
         "filename": "include/private/GrColor.h",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "49e1f8dfeca7c09d9371c97e04989166039d8f40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8eaa1c1d_68ce0f9e",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-29T15:05:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c9329ba_d7fd18cf",
+      "range": {
+        "startLine": 179,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 58
+      },
+      "revId": "49e1f8dfeca7c09d9371c97e04989166039d8f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
