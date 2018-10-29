@@ -445,7 +445,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Debian9":    DEFAULT_OS_DEBIAN,
 			"Mac":        DEFAULT_OS_MAC,
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
-			"Ubuntu17":   "Ubuntu-17.04",
+			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-17134.228",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
@@ -577,10 +577,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD2000":   "8086:0102",
 					"IntelHD405":    "8086:22b1",
 					"IntelIris640":  "8086:5926",
-					"QuadroP400":    "10de:1cb3-384.59",
+					"QuadroP400":    "10de:1cb3-390.87",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
-					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", parts["cpu_or_gpu_value"])
+					glog.Fatalf("Entry %q not found in Linux GPU mapping.", parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
 			} else if strings.Contains(parts["os"], "Mac") {
@@ -1021,12 +1021,6 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
 	task.MaxAttempts = 2
-	if parts["cpu_or_gpu_value"] == "QuadroP400" {
-		// Specify "rack" dimension for consistent test results.
-		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
-		// for more context.
-		task.Dimensions = append(task.Dimensions, "rack:1")
-	}
 	b.MustAddTask(name, task)
 
 	// Upload results if necessary.
@@ -1181,12 +1175,6 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	iid := internalHardwareLabel(parts)
 	if iid != nil {
 		task.Command = append(task.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))
-	}
-	if parts["cpu_or_gpu_value"] == "QuadroP400" {
-		// Specify "rack" dimension for consistent test results.
-		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
-		// for more context.
-		task.Dimensions = append(task.Dimensions, "rack:1")
 	}
 	b.MustAddTask(name, task)
 

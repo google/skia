@@ -610,9 +610,9 @@
         "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
-    "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Calmbench-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "tasks": [
-        "Upload-Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Upload-Calmbench-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ]
     },
     "Housekeeper-Nightly-Bookmaker": {
@@ -1265,44 +1265,44 @@
       ],
       "trigger": "master"
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
       "tasks": [
-        "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
+        "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
       "tasks": [
-        "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN"
+        "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "tasks": [
-        "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
+        "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "tasks": [
-        "Upload-Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Upload-Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN": {
       "tasks": [
-        "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN"
+        "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "tasks": [
-        "Upload-Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
+        "Upload-Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
       ]
     },
-    "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+    "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
       "tasks": [
-        "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41"
+        "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41"
       ]
     },
-    "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+    "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
       "tasks": [
-        "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"
+        "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"
       ]
     },
     "Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All": {
@@ -2414,104 +2414,104 @@
         "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
+        "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
       "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1": {
       "tasks": [
-        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"
+        "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan": {
       "tasks": [
-        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan"
+        "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3": {
       "tasks": [
-        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3"
+        "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN": {
       "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN_Vulkan": {
       "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN_Vulkan"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN_Vulkan"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {
       "tasks": [
-        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan"
+        "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "tasks": [
-        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
+        "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN": {
       "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN": {
       "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN_Vulkan": {
       "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN_Vulkan"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN_Vulkan"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN": {
       "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan": {
       "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext": {
       "tasks": [
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "tasks": [
-        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
+        "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
       ]
     },
-    "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
       "tasks": [
-        "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41"
+        "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41"
       ]
     },
-    "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41": {
       "tasks": [
-        "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41"
+        "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41"
       ]
     },
-    "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
       "tasks": [
-        "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"
+        "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"
       ]
     },
     "Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All": {
@@ -18468,7 +18468,7 @@
         "perf"
       ]
     },
-    "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Calmbench-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -18562,7 +18562,7 @@
         "-recipe",
         "calmbench",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Calmbench-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -18574,10 +18574,9 @@
         "Housekeeper-PerCommit-IsolateSVG"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
-        "pool:Skia",
-        "rack:1"
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -31784,7 +31783,7 @@
         "perf"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -31861,7 +31860,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -31870,10 +31869,9 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
-        "pool:Skia",
-        "rack:1"
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -31896,7 +31894,7 @@
         "perf"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
       "caches": [
         {
           "name": "vpython",
@@ -31978,7 +31976,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -31987,10 +31985,9 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
-        "pool:Skia",
-        "rack:1"
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -32013,7 +32010,7 @@
         "perf"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -32095,7 +32092,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32104,10 +32101,9 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
-        "pool:Skia",
-        "rack:1"
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -32130,7 +32126,7 @@
         "perf"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -32207,7 +32203,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32216,10 +32212,9 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
-        "pool:Skia",
-        "rack:1"
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -32242,7 +32237,7 @@
         "perf"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN": {
       "caches": [
         {
           "name": "vpython",
@@ -32324,7 +32319,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32333,10 +32328,9 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
-        "pool:Skia",
-        "rack:1"
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -32359,7 +32353,7 @@
         "perf"
       ]
     },
-    "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -32441,7 +32435,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32450,10 +32444,9 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
-        "pool:Skia",
-        "rack:1"
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -32476,7 +32469,7 @@
         "perf"
       ]
     },
-    "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+    "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
       "caches": [
         {
           "name": "vpython",
@@ -32558,7 +32551,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32567,11 +32560,10 @@
         "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia",
-        "valgrind:1",
-        "rack:1"
+        "valgrind:1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -32594,7 +32586,7 @@
         "perf"
       ]
     },
-    "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+    "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
       "caches": [
         {
           "name": "vpython",
@@ -32676,7 +32668,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32685,11 +32677,10 @@
         "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia",
-        "valgrind:1",
-        "rack:1"
+        "valgrind:1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -33965,8 +33956,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -34082,8 +34072,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -34199,8 +34188,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -34316,8 +34304,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -34433,8 +34420,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -34550,8 +34536,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -34653,8 +34638,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -34756,8 +34740,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -34859,8 +34842,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -38688,8 +38670,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -38805,8 +38786,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -38922,8 +38902,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -39039,8 +39018,7 @@
       "dimensions": [
         "gpu:10de:1cb3-23.21.13.9103",
         "os:Windows-10-16299.309",
-        "pool:Skia",
-        "rack:1"
+        "pool:Skia"
       ],
       "env_prefixes": {
         "PATH": [
@@ -56671,7 +56649,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -56748,7 +56726,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -56757,8 +56735,8 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -56782,7 +56760,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
       "caches": [
         {
           "name": "vpython",
@@ -56864,7 +56842,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -56873,8 +56851,8 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -56898,7 +56876,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1": {
       "caches": [
         {
           "name": "vpython",
@@ -56975,7 +56953,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -56984,8 +56962,8 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -57009,7 +56987,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -57091,7 +57069,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -57100,8 +57078,8 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -57125,7 +57103,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3": {
       "caches": [
         {
           "name": "vpython",
@@ -57202,7 +57180,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -57211,8 +57189,8 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -57236,7 +57214,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN": {
       "caches": [
         {
           "name": "vpython",
@@ -57318,7 +57296,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -57327,8 +57305,8 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -57352,7 +57330,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -57439,7 +57417,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_ASAN_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -57448,8 +57426,8 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -57473,7 +57451,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -57555,7 +57533,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -57564,8 +57542,8 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -57589,7 +57567,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -57671,7 +57649,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -57680,8 +57658,8 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -57705,7 +57683,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -57782,7 +57760,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -57791,8 +57769,8 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -57816,7 +57794,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN": {
       "caches": [
         {
           "name": "vpython",
@@ -57898,7 +57876,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -57907,8 +57885,8 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -57932,7 +57910,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN": {
       "caches": [
         {
           "name": "vpython",
@@ -58014,7 +57992,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -58023,8 +58001,8 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -58048,7 +58026,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -58135,7 +58113,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_ASAN_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -58144,8 +58122,8 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -58169,7 +58147,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -58251,7 +58229,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -58260,8 +58238,8 @@
         "Build-Debian9-Clang-x86_64-Release-TSAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -58285,7 +58263,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -58372,7 +58350,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -58381,8 +58359,8 @@
         "Build-Debian9-Clang-x86_64-Release-TSAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -58406,7 +58384,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext": {
       "caches": [
         {
           "name": "vpython",
@@ -58483,7 +58461,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -58492,8 +58470,8 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -58517,7 +58495,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -58599,7 +58577,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -58608,8 +58586,8 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -58633,7 +58611,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
       "caches": [
         {
           "name": "vpython",
@@ -58715,7 +58693,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -58724,8 +58702,8 @@
         "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia",
         "valgrind:1"
       ],
@@ -58750,7 +58728,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41": {
       "caches": [
         {
           "name": "vpython",
@@ -58832,7 +58810,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -58841,8 +58819,8 @@
         "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia",
         "valgrind:1"
       ],
@@ -58867,7 +58845,7 @@
         "test"
       ]
     },
-    "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
       "caches": [
         {
           "name": "vpython",
@@ -58949,7 +58927,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -58958,8 +58936,8 @@
         "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-384.59",
-        "os:Ubuntu-17.04",
+        "gpu:10de:1cb3-390.87",
+        "os:Ubuntu-18.04",
         "pool:Skia",
         "valgrind:1"
       ],
@@ -70764,7 +70742,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-calmbench-upload@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Upload-Calmbench-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -70831,13 +70809,13 @@
         "-recipe",
         "upload_calmbench_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"gs_bucket\":\"skia-calmbench\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Calmbench-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"gs_bucket\":\"skia-calmbench\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Calmbench-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -77100,7 +77078,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Upload-Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -77167,13 +77145,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -77199,7 +77177,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
+    "Upload-Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -77266,13 +77244,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
+        "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -93882,7 +93860,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
+    "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -93949,13 +93927,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -93981,7 +93959,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1": {
+    "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1": {
       "caches": [
         {
           "name": "vpython",
@@ -94048,13 +94026,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -94080,7 +94058,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan": {
+    "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -94147,13 +94125,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -94179,7 +94157,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3": {
+    "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3": {
       "caches": [
         {
           "name": "vpython",
@@ -94246,13 +94224,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -94278,7 +94256,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {
+    "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -94345,13 +94323,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -94377,7 +94355,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
+    "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -94444,13 +94422,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -94476,7 +94454,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+    "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -94543,13 +94521,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -94575,7 +94553,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
+    "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -94642,13 +94620,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
