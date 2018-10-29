@@ -130,7 +130,7 @@ public:
                                             : kPremul_SkAlphaType;
             fAlloc->make<SkColorSpaceXformSteps>(srcCS, srcAT,
                                                  dstCS, kPremul_SkAlphaType)
-                ->apply(&p);
+                ->apply(&p, fSource.colorType());
         }
         if (fPaintColor.fA != 1.0f) {
             p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);

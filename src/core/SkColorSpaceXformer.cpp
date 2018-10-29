@@ -25,7 +25,7 @@ SkColorSpaceXformer::SkColorSpaceXformer(sk_sp<SkColorSpace> dst)
     SkRasterPipeline p(&fAlloc);
     p.append(SkRasterPipeline::load_8888, &fFromSRGBSrc);
     p.append(SkRasterPipeline::swap_rb);
-    fFromSRGBSteps.apply(&p);
+    fFromSRGBSteps.apply(&p, kBGRA_8888_SkColorType);
     p.append(SkRasterPipeline::swap_rb);
     p.append(SkRasterPipeline::store_8888, &fFromSRGBDst);
     fFromSRGB = p.compile();

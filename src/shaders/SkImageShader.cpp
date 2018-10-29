@@ -382,7 +382,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             }
             alloc->make<SkColorSpaceXformSteps>(srcCS     , kPremul_SkAlphaType,
                                                 rec.fDstCS, kPremul_SkAlphaType)
-                ->apply(p);
+                ->apply(p, info.colorType());
         }
 
         return true;
