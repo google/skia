@@ -560,7 +560,10 @@ def DM_ARGS(asan):
 
     # TODO(benjaminwagner): f16, pic-8888, serialize-8888, and tiles_rt-8888 fail.
     config = ["565", "8888", "pdf"]
-    match = ["~Codec_78329453"]
+    match = [
+        "~Codec_78329453",
+        "~surface_image_unity",  # Causing OOM. b/118433014
+    ]
     return (["--src"] + source + ["--config"] + config + ["--nonativeFonts"] +
             ["--match"] + match)
 
