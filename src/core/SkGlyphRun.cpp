@@ -30,16 +30,12 @@ static SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {
 // -- SkGlyphRun -----------------------------------------------------------------------------------
 SkGlyphRun::SkGlyphRun(const SkPaint& basePaint,
                        const SkRunFont& runFont,
-                       SkSpan<const uint16_t> denseIndices,
                        SkSpan<const SkPoint> positions,
                        SkSpan<const SkGlyphID> glyphIDs,
-                       SkSpan<const SkGlyphID> uniqueGlyphIDs,
                        SkSpan<const char> text,
                        SkSpan<const uint32_t> clusters)
-        : fUniqueGlyphIDIndices{denseIndices}
-        , fPositions{positions}
+        : fPositions{positions}
         , fGlyphIDs{glyphIDs}
-        , fUniqueGlyphIDs{uniqueGlyphIDs}
         , fText{text}
         , fClusters{clusters}
         , fRunPaint{basePaint, runFont} {}
@@ -50,10 +46,8 @@ void SkGlyphRun::eachGlyphToGlyphRun(SkGlyphRun::PerGlyph perGlyph) {
     SkGlyphRun run{
         fRunPaint,
         SkRunFont{fRunPaint},
-        SkSpan<const uint16_t>{},  // No dense indices for now.
         SkSpan<const SkPoint>{&point, 1},
         SkSpan<const SkGlyphID>{&glyphID, 1},
-        SkSpan<const SkGlyphID>{},
         SkSpan<const char>{},
         SkSpan<const uint32_t>{}
     };
@@ -198,8 +192,6 @@ void SkGlyphRunBuilder::drawTextAtOrigin(
             SkRunFont{paint},
             glyphIDs,
             positions,
-            SkSpan<const uint16_t>{},  // no dense indices for now.,
-            SkSpan<const SkGlyphID>{},
             SkSpan<const char>{},
             SkSpan<const uint32_t>{});
     this->makeGlyphRunList(paint, nullptr, SkPoint::Make(0, 0));
@@ -336,8 +328,6 @@ void SkGlyphRunBuilder::makeGlyphRun(
         const SkRunFont& runFont,
         SkSpan<const SkGlyphID> glyphIDs,
         SkSpan<const SkPoint> positions,
-        SkSpan<const uint16_t> uniqueGlyphIDIndices,
-        SkSpan<const SkGlyphID> uniqueGlyphIDs,
         SkSpan<const char> text,
         SkSpan<const uint32_t> clusters) {
 
@@ -346,10 +336,8 @@ void SkGlyphRunBuilder::makeGlyphRun(
         fGlyphRunListStorage.emplace_back(
                 basePaint,
                 runFont,
-                uniqueGlyphIDIndices,
                 positions,
                 glyphIDs,
-                uniqueGlyphIDs,
                 text,
                 clusters);
     }
@@ -404,8 +392,6 @@ void SkGlyphRunBuilder::simplifyDrawText(
                 runFont,
                 glyphIDs,
                 SkSpan<const SkPoint>{positions, runSize},
-                SkSpan<const uint16_t>{},
-                SkSpan<const SkGlyphID>{},
                 text,
                 clusters);
     }
@@ -435,8 +421,6 @@ void SkGlyphRunBuilder::simplifyDrawPosText(
             runFont,
             glyphIDs,
             SkSpan<const SkPoint>{pos, runSize},
-            SkSpan<const uint16_t>{},
-            SkSpan<const SkGlyphID>{},
             text,
             clusters);
 }
