@@ -63,7 +63,7 @@ static GrProcessorSet::Analysis do_analysis(const GrXPFactory* xpf,
     GrPaint paint;
     paint.setXPFactory(xpf);
     GrProcessorSet procs(std::move(paint));
-    GrColor overrideColor;
+    GrColor4h overrideColor;
     GrProcessorSet::Analysis analysis =
             procs.finalize(colorInput, coverageInput, nullptr, false, caps, &overrideColor);
     return analysis;
