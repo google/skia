@@ -54,18 +54,19 @@ private:
 
 void ValidateMemoryDumps(skiatest::Reporter* reporter, GrContext* context, size_t size,
                          bool isOwned) {
+    // Note than one entry in the dumped objects is expected for the text blob cache.
     TestSkTraceMemoryDump dump_with_wrapped(true /* shouldDumpWrappedObjects */);
     context->dumpMemoryStatistics(&dump_with_wrapped);
-    REPORTER_ASSERT(reporter, 1 == dump_with_wrapped.numDumpedObjects());
+    REPORTER_ASSERT(reporter, 2 == dump_with_wrapped.numDumpedObjects());
     REPORTER_ASSERT(reporter, size == dump_with_wrapped.dumpedObjectsSize());
 
     TestSkTraceMemoryDump dump_no_wrapped(false /* shouldDumpWrappedObjects */);
     context->dumpMemoryStatistics(&dump_no_wrapped);
     if (isOwned) {
-        REPORTER_ASSERT(reporter, 1 == dump_no_wrapped.numDumpedObjects());
+        REPORTER_ASSERT(reporter, 2 == dump_no_wrapped.numDumpedObjects());
         REPORTER_ASSERT(reporter, size == dump_no_wrapped.dumpedObjectsSize());
     } else {
-        REPORTER_ASSERT(reporter, 0 == dump_no_wrapped.numDumpedObjects());
+        REPORTER_ASSERT(reporter, 1 == dump_no_wrapped.numDumpedObjects());
         REPORTER_ASSERT(reporter, 0 == dump_no_wrapped.dumpedObjectsSize());
     }
 }
