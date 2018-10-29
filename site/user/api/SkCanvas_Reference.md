@@ -149,16 +149,14 @@ public:
     void <a href='#SkCanvas_drawImageRect_2'>drawImageRect</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& isrc, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
                        const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
                        <a href='#SkCanvas_SrcRectConstraint'>SrcRectConstraint</a> constraint = <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict_SrcRectConstraint</a>);
-    void <a href='#SkCanvas_drawImageRect_3'>drawImageRect</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
-                       <a href='#SkCanvas_SrcRectConstraint'>SrcRectConstraint</a> constraint = <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict_SrcRectConstraint</a>);
+    void <a href='#SkCanvas_drawImageRect_3'>drawImageRect</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint);
     void <a href='#SkCanvas_drawImageRect_4'>drawImageRect</a>(const sk_sp<<a href='SkImage_Reference#SkImage'>SkImage</a>>& image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& src, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
                        const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
                        <a href='#SkCanvas_SrcRectConstraint'>SrcRectConstraint</a> constraint = <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict_SrcRectConstraint</a>);
     void <a href='#SkCanvas_drawImageRect_5'>drawImageRect</a>(const sk_sp<<a href='SkImage_Reference#SkImage'>SkImage</a>>& image, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& isrc, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
                        const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
                        <a href='#SkCanvas_SrcRectConstraint'>SrcRectConstraint</a> constraint = <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict_SrcRectConstraint</a>);
-    void <a href='#SkCanvas_drawImageRect_6'>drawImageRect</a>(const sk_sp<<a href='SkImage_Reference#SkImage'>SkImage</a>>& image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
-                       <a href='#SkCanvas_SrcRectConstraint'>SrcRectConstraint</a> constraint = <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict_SrcRectConstraint</a>);
+    void <a href='#SkCanvas_drawImageRect_6'>drawImageRect</a>(const sk_sp<<a href='SkImage_Reference#SkImage'>SkImage</a>>& image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint);
     void <a href='#SkCanvas_drawImageNine'>drawImageNine</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& center, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
                        const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint = nullptr);
     void <a href='#SkCanvas_drawImageNine_2'>drawImageNine</a>(const sk_sp<<a href='SkImage_Reference#SkImage'>SkImage</a>>& image, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& center, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
@@ -4237,8 +4235,7 @@ and so on; or nullptr</td>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkCanvas_drawImageRect'>drawImageRect</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
-                   <a href='#SkCanvas_SrcRectConstraint'>SrcRectConstraint</a> constraint = <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict SrcRectConstraint</a>)
+void <a href='#SkCanvas_drawImageRect'>drawImageRect</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint)
 </pre>
 
 Draws <a href='SkImage_Reference#Image'>Image</a> <a href='#SkCanvas_drawImageRect_3_image'>image</a>, scaled and translated to fill <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkCanvas_drawImageRect_3_dst'>dst</a>, using <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>,
@@ -4252,10 +4249,6 @@ If generated mask extends beyond <a href='#SkCanvas_drawImageRect_3_image'>image
 as <a href='undocumented#Shader'>Shader</a> made from <a href='SkImage_Reference#SkImage_makeShader'>SkImage::makeShader</a> with <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a> set
 replicates the <a href='#SkCanvas_drawImageRect_3_image'>image</a> edge color when it samples outside of its bounds.
 
-<a href='#SkCanvas_drawImageRect_3_constraint'>constraint</a> set to <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict SrcRectConstraint</a> limits <a href='SkPaint_Reference#Paint'>Paint</a> <a href='undocumented#Filter_Quality'>Filter Quality</a> to
-sample within <a href='#SkCanvas_drawImageRect_3_image'>image</a>; set to <a href='#SkCanvas_kFast_SrcRectConstraint'>kFast SrcRectConstraint</a> allows sampling outside to
-improve performance.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_drawImageRect_3_image'><code><strong>image</strong></code></a></td>
@@ -4267,9 +4260,6 @@ improve performance.
   <tr>    <td><a name='SkCanvas_drawImageRect_3_paint'><code><strong>paint</strong></code></a></td>
     <td><a href='SkPaint_Reference#Paint'>Paint</a> containing <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>,
 and so on; or nullptr</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_drawImageRect_3_constraint'><code><strong>constraint</strong></code></a></td>
-    <td>filter strictly within <a href='#SkCanvas_drawImageRect_3_image'>image</a> or draw faster</td>
   </tr>
 </table>
 
@@ -4393,8 +4383,7 @@ and so on; or nullptr</td>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkCanvas_drawImageRect'>drawImageRect</a>(const <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkImage_Reference#SkImage'>SkImage</a>&gt;& image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
-                   <a href='#SkCanvas_SrcRectConstraint'>SrcRectConstraint</a> constraint = <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict SrcRectConstraint</a>)
+void <a href='#SkCanvas_drawImageRect'>drawImageRect</a>(const <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkImage_Reference#SkImage'>SkImage</a>&gt;& image, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint)
 </pre>
 
 Draws <a href='SkImage_Reference#Image'>Image</a> <a href='#SkCanvas_drawImageRect_6_image'>image</a>, scaled and translated to fill <a href='SkRect_Reference#Rect'>Rect</a> <a href='#SkCanvas_drawImageRect_6_dst'>dst</a>,
@@ -4408,10 +4397,6 @@ If generated mask extends beyond <a href='#SkCanvas_drawImageRect_6_image'>image
 as <a href='undocumented#Shader'>Shader</a> made from <a href='SkImage_Reference#SkImage_makeShader'>SkImage::makeShader</a> with <a href='undocumented#SkShader_kClamp_TileMode'>SkShader::kClamp TileMode</a> set
 replicates the <a href='#SkCanvas_drawImageRect_6_image'>image</a> edge color when it samples outside of its bounds.
 
-<a href='#SkCanvas_drawImageRect_6_constraint'>constraint</a> set to <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict SrcRectConstraint</a> limits <a href='SkPaint_Reference#Paint'>Paint</a> <a href='undocumented#Filter_Quality'>Filter Quality</a> to
-sample within <a href='#SkCanvas_drawImageRect_6_image'>image</a>; set to <a href='#SkCanvas_kFast_SrcRectConstraint'>kFast SrcRectConstraint</a> allows sampling outside to
-improve performance.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_drawImageRect_6_image'><code><strong>image</strong></code></a></td>
@@ -4423,9 +4408,6 @@ improve performance.
   <tr>    <td><a name='SkCanvas_drawImageRect_6_paint'><code><strong>paint</strong></code></a></td>
     <td><a href='SkPaint_Reference#Paint'>Paint</a> containing <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, <a href='undocumented#Color_Filter'>Color Filter</a>, <a href='undocumented#Image_Filter'>Image Filter</a>,
 and so on; or nullptr</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_drawImageRect_6_constraint'><code><strong>constraint</strong></code></a></td>
-    <td>filter strictly within <a href='#SkCanvas_drawImageRect_6_image'>image</a> or draw faster</td>
   </tr>
 </table>
 

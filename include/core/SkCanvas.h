@@ -1463,10 +1463,6 @@ public:
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
         replicates the image edge color when it samples outside of its bounds.
 
-        constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
-        sample within src; set to kFast_SrcRectConstraint allows sampling outside to
-        improve performance.
-
         @param image       SkImage containing pixels, dimensions, and format
         @param src         source SkRect of image to draw from
         @param dst         destination SkRect of image to draw to
