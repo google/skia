@@ -7,7 +7,7 @@
 
 #include "SkSGGeometryTransform.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 
 namespace sksg {
 
@@ -23,11 +23,11 @@ GeometryTransform::~GeometryTransform() {
     this->unobserveInval(fMatrix);
 }
 
-void GeometryTransform::onClip(SkCanvas* canvas, bool antiAlias) const {
+void GeometryTransform::onClip(SGCanvas* canvas, bool antiAlias) const {
     canvas->clipPath(fTransformed, SkClipOp::kIntersect, antiAlias);
 }
 
-void GeometryTransform::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+void GeometryTransform::onDraw(SGCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fTransformed, paint);
 }
 

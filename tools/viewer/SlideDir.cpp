@@ -7,6 +7,8 @@
 
 #include "SlideDir.h"
 
+#include "SGCanvas.h"
+
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkCubicMap.h"
@@ -72,12 +74,12 @@ protected:
         return SkRect::MakeIWH(isize.width(), isize.height());
     }
 
-    void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
-        SkAutoCanvasRestore acr(canvas, true);
+    void onRender(SGCanvas* canvas, const RenderContext* ctx) const override {
+        SGAutoCanvasRestore acr(canvas, true);
         canvas->clipRect(SkRect::Make(fSlide->getDimensions()), true);
 
         // TODO: commit the context?
-        fSlide->draw(canvas);
+        fSlide->draw((SkCanvas*)canvas);
     }
 
 private:
@@ -348,7 +350,7 @@ SkISize SlideDir::getDimensions() const {
 }
 
 void SlideDir::draw(SkCanvas* canvas) {
-    fScene->render(canvas);
+    fScene->render((SGCanvas*)canvas);
 }
 
 bool SlideDir::animate(const SkAnimTimer& timer) {

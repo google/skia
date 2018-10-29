@@ -189,7 +189,8 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        fScene->render(canvas);
+        // TODO
+        fScene->render((SGCanvas*)canvas);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

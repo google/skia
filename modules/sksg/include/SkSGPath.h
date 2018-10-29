@@ -12,7 +12,7 @@
 
 #include "SkPath.h"
 
-class SkCanvas;
+class SGCanvas;
 class SkPaint;
 
 namespace sksg {
@@ -29,8 +29,8 @@ public:
     SG_MAPPED_ATTRIBUTE(FillType, SkPath::FillType, fPath)
 
 protected:
-    void onClip(SkCanvas*, bool antiAlias) const override;
-    void onDraw(SkCanvas*, const SkPaint&) const override;
+    void onClip(SGCanvas*, bool antiAlias) const override;
+    void onDraw(SGCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
     SkPath onAsPath() const override;

@@ -7,14 +7,15 @@
 
 #include "SkSGImage.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkImage.h"
+#include "SkPaint.h"
 
 namespace sksg {
 
 Image::Image(sk_sp<SkImage> image) : fImage(std::move(image)) {}
 
-void Image::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+void Image::onRender(SGCanvas* canvas, const RenderContext* ctx) const {
     if (!fImage) {
         return;
     }

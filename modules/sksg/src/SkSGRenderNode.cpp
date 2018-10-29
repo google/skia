@@ -7,14 +7,14 @@
 
 #include "SkSGRenderNode.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkPaint.h"
 
 namespace sksg {
 
 RenderNode::RenderNode() : INHERITED(0) {}
 
-void RenderNode::render(SkCanvas* canvas, const RenderContext* ctx) const {
+void RenderNode::render(SGCanvas* canvas, const RenderContext* ctx) const {
     SkASSERT(!this->hasInval());
     this->onRender(canvas, ctx);
 }
@@ -33,7 +33,7 @@ bool RenderNode::RenderContext::modulatePaint(SkPaint* paint) const {
     return false;
 }
 
-RenderNode::ScopedRenderContext::ScopedRenderContext(SkCanvas* canvas, const RenderContext* ctx)
+RenderNode::ScopedRenderContext::ScopedRenderContext(SGCanvas* canvas, const RenderContext* ctx)
     : fCanvas(canvas)
     , fCtx(ctx ? *ctx : RenderContext())
     , fRestoreCount(canvas->getSaveCount()) {}

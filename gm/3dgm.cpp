@@ -79,7 +79,7 @@ protected:
             SkRect r = { 0, 0, 1, 1 };
             canvas->save();
             canvas->concat(vp * SkMatrix(m4));
-            anim->render(canvas, &r);
+            anim->render((SGCanvas*)canvas, &r);
 //            canvas->drawRect({0, 0, 1, 1}, p);
             canvas->restore();
         };

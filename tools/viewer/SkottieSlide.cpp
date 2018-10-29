@@ -125,7 +125,7 @@ void SkottieSlide::draw(SkCanvas* canvas) {
     if (fAnimation) {
         SkAutoCanvasRestore acr(canvas, true);
         const auto dstR = SkRect::MakeSize(fWinSize);
-        fAnimation->render(canvas, &dstR);
+        fAnimation->render((SGCanvas*)canvas, &dstR);
 
         if (fShowAnimationStats) {
             draw_stats_box(canvas, fAnimationStats);

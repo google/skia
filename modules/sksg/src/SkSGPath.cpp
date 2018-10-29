@@ -7,7 +7,7 @@
 
 #include "SkSGPath.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkPaint.h"
 #include "SkRectPriv.h"
 
@@ -15,11 +15,11 @@ namespace sksg {
 
 Path::Path(const SkPath& path) : fPath(path) {}
 
-void Path::onClip(SkCanvas* canvas, bool antiAlias) const {
+void Path::onClip(SGCanvas* canvas, bool antiAlias) const {
     canvas->clipPath(fPath, SkClipOp::kIntersect, antiAlias);
 }
 
-void Path::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+void Path::onDraw(SGCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fPath, paint);
 }
 

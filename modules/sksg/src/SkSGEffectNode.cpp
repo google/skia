@@ -18,7 +18,7 @@ EffectNode::~EffectNode() {
     this->unobserveInval(fChild);
 }
 
-void EffectNode::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+void EffectNode::onRender(SGCanvas* canvas, const RenderContext* ctx) const {
     fChild->render(canvas, ctx);
 }
 

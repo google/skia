@@ -7,7 +7,8 @@
 
 #include "Skottie.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
+
 #include "SkData.h"
 #include "SkFontMgr.h"
 #include "SkImage.h"
@@ -464,11 +465,11 @@ void Animation::setShowInval(bool show) {
     }
 }
 
-void Animation::render(SkCanvas* canvas, const SkRect* dstR) const {
+void Animation::render(SGCanvas* canvas, const SkRect* dstR) const {
     if (!fScene)
         return;
 
-    SkAutoCanvasRestore restore(canvas, true);
+    SGAutoCanvasRestore restore(canvas, true);
     const SkRect srcR = SkRect::MakeSize(this->size());
     if (dstR) {
         canvas->concat(SkMatrix::MakeRectToRect(srcR, *dstR, SkMatrix::kCenter_ScaleToFit));

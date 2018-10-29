@@ -10,7 +10,7 @@
 
 #include "SkSGGeometryNode.h"
 
-class SkCanvas;
+class SGCanvas;
 class SkPaint;
 
 namespace sksg {
@@ -23,8 +23,8 @@ public:
     static sk_sp<Plane> Make() { return sk_sp<Plane>(new Plane()); }
 
 protected:
-    void onClip(SkCanvas*, bool antiAlias) const override;
-    void onDraw(SkCanvas*, const SkPaint&) const override;
+    void onClip(SGCanvas*, bool antiAlias) const override;
+    void onDraw(SGCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
     SkPath onAsPath() const override;

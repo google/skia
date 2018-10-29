@@ -7,7 +7,7 @@
 
 #include "SkSGTrimEffect.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkStrokeRec.h"
 #include "SkTrimPathEffect.h"
 
@@ -22,11 +22,11 @@ TrimEffect::~TrimEffect() {
     this->unobserveInval(fChild);
 }
 
-void TrimEffect::onClip(SkCanvas* canvas, bool antiAlias) const {
+void TrimEffect::onClip(SGCanvas* canvas, bool antiAlias) const {
     canvas->clipPath(fTrimmedPath, SkClipOp::kIntersect, antiAlias);
 }
 
-void TrimEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+void TrimEffect::onDraw(SGCanvas* canvas, const SkPaint& paint) const {
     SkASSERT(!paint.getPathEffect());
 
     canvas->drawPath(fTrimmedPath, paint);

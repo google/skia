@@ -16,7 +16,7 @@
 
 #include <memory>
 
-class SkCanvas;
+class SGCanvas;
 class SkData;
 class SkImage;
 struct SkRect;
@@ -209,7 +209,7 @@ public:
      * @param canvas   destination canvas
      * @param dst      optional destination rect
      */
-    void render(SkCanvas* canvas, const SkRect* dst = nullptr) const;
+    void render(SGCanvas* canvas, const SkRect* dst = nullptr) const;
 
     /**
      * Updates the animation state for |t|.

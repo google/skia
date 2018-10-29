@@ -66,7 +66,7 @@ protected:
         }
 
         auto dest = SkRect::MakeWH(kSize, kSize);
-        fAnimation->render(canvas, &dest);
+        fAnimation->render((SGCanvas*)canvas, &dest);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
@@ -114,7 +114,7 @@ protected:
         }
 
         auto dest = SkRect::MakeWH(kSize, kSize);
-        fAnimation->render(canvas, &dest);
+        fAnimation->render((SGCanvas*)canvas, &dest);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
@@ -199,7 +199,7 @@ protected:
         }
 
         auto dest = SkRect::MakeWH(kSize, kSize);
-        fAnimation->render(canvas, &dest);
+        fAnimation->render((SGCanvas*)canvas, &dest);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

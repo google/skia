@@ -20,7 +20,7 @@ class PaintNode;
  *
  * Wraps and draws a [geometry, paint] tuple.
  *
- * Think Skia SkCanvas::drawFoo(foo, paint) calls.
+ * Think Skia SGCanvas::drawFoo(foo, paint) calls.
  */
 class Draw : public RenderNode {
 public:
@@ -32,7 +32,7 @@ protected:
     Draw(sk_sp<GeometryNode>, sk_sp<PaintNode> paint);
     ~Draw() override;
 
-    void onRender(SkCanvas*, const RenderContext*) const override;
+    void onRender(SGCanvas*, const RenderContext*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 

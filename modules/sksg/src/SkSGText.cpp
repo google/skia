@@ -7,7 +7,7 @@
 
 #include "SkSGText.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkTArray.h"
@@ -86,7 +86,7 @@ SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
     return bounds.makeOffset(aligned_pos.x(), aligned_pos.y());
 }
 
-void Text::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+void Text::onDraw(SGCanvas* canvas, const SkPaint& paint) const {
     const auto aligned_pos = this->alignedPosition(this->bounds().width());
     canvas->drawTextBlob(fBlob, aligned_pos.x(), aligned_pos.y(), paint);
 }
@@ -96,7 +96,7 @@ SkPath Text::onAsPath() const {
     return SkPath();
 }
 
-void Text::onClip(SkCanvas* canvas, bool antiAlias) const {
+void Text::onClip(SGCanvas* canvas, bool antiAlias) const {
     canvas->clipPath(this->asPath(), antiAlias);
 }
 

@@ -10,7 +10,7 @@
 
 #include "SkSGNode.h"
 
-class SkCanvas;
+class SGCanvas;
 class SkPaint;
 class SkPath;
 
@@ -24,17 +24,17 @@ namespace sksg {
  */
 class GeometryNode : public Node {
 public:
-    void clip(SkCanvas*, bool antiAlias) const;
-    void draw(SkCanvas*, const SkPaint&) const;
+    void clip(SGCanvas*, bool antiAlias) const;
+    void draw(SGCanvas*, const SkPaint&) const;
 
     SkPath asPath() const;
 
 protected:
     GeometryNode();
 
-    virtual void onClip(SkCanvas*, bool antiAlias) const = 0;
+    virtual void onClip(SGCanvas*, bool antiAlias) const = 0;
 
-    virtual void onDraw(SkCanvas*, const SkPaint&) const = 0;
+    virtual void onDraw(SGCanvas*, const SkPaint&) const = 0;
 
     virtual SkPath onAsPath() const = 0;
 
