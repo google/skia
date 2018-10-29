@@ -4056,8 +4056,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
-                       SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+#Method void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint)
 #In Draw_Image
 #In Draw
 
@@ -4072,16 +4071,11 @@ If generated mask extends beyond image bounds, replicate image edge colors, just
 as Shader made from SkImage::makeShader with SkShader::kClamp_TileMode set
 replicates the image edge color when it samples outside of its bounds.
 
-constraint set to kStrict_SrcRectConstraint limits Paint Filter_Quality to
-sample within image; set to kFast_SrcRectConstraint allows sampling outside to
-improve performance.
-
 #Param  image      Image containing pixels, dimensions, and format ##
 #Param  dst        destination Rect of image to draw to ##
 #Param  paint      Paint containing Blend_Mode, Color_Filter, Image_Filter,
                    and so on; or nullptr
 ##
-#Param  constraint filter strictly within image or draw faster ##
 
 #Example
 #Image 4
@@ -4209,8 +4203,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint,
-                       SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+#Method void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint)
 #In Draw_Image
 #In Draw
 Draws Image image, scaled and translated to fill Rect dst,
@@ -4224,16 +4217,11 @@ If generated mask extends beyond image bounds, replicate image edge colors, just
 as Shader made from SkImage::makeShader with SkShader::kClamp_TileMode set
 replicates the image edge color when it samples outside of its bounds.
 
-constraint set to kStrict_SrcRectConstraint limits Paint Filter_Quality to
-sample within image; set to kFast_SrcRectConstraint allows sampling outside to
-improve performance.
-
 #Param  image      Image containing pixels, dimensions, and format ##
 #Param  dst        destination Rect of image to draw to ##
 #Param  paint      Paint containing Blend_Mode, Color_Filter, Image_Filter,
                    and so on; or nullptr
 ##
-#Param  constraint filter strictly within image or draw faster ##
 
 #Example
 #Height 64
