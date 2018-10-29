@@ -32,7 +32,7 @@ DEF_TEST(YUVPlanesCache, reporter) {
     SkResourceCache cache(1024);
 
     SkYUVPlanesCache::Info yuvInfo;
-    for (int i = 0; i < SkYUVSizeInfo::kMaxCount; i++) {
+    for (int i = 0; i < SkYUVASizeInfo::kMaxCount; i++) {
         yuvInfo.fSizeInfo.fSizes[i].fWidth = 20 * (i + 1);
         yuvInfo.fSizeInfo.fSizes[i].fHeight = 10 * (i + 1);
         yuvInfo.fSizeInfo.fWidthBytes[i] = 80 * (i + 1);
