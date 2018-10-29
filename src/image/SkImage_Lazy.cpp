@@ -296,12 +296,12 @@ public:
 
 private:
     uint32_t onGetID() const override { return fGen->uniqueID(); }
-    bool onQueryYUVA8(SkYUVSizeInfo* sizeInfo,
+    bool onQueryYUVA8(SkYUVASizeInfo* sizeInfo,
                       SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                       SkYUVColorSpace* colorSpace) const override {
         return fGen->queryYUVA8(sizeInfo, yuvaIndices, colorSpace);
     }
-    bool onGetYUVA8Planes(const SkYUVSizeInfo& sizeInfo,
+    bool onGetYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
                           const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                           void* planes[]) override {
         return fGen->getYUVA8Planes(sizeInfo, yuvaIndices, planes);
@@ -329,10 +329,10 @@ static void set_key_on_proxy(GrProxyProvider* proxyProvider,
     }
 }
 
-sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVSizeInfo* yuvaSizeInfo,
+sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
                                             SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                                             SkYUVColorSpace* yuvColorSpace,
-                                            const void* planes[SkYUVSizeInfo::kMaxCount]) {
+                                            const void* planes[SkYUVASizeInfo::kMaxCount]) {
     ScopedGenerator generator(fSharedGenerator);
     Generator_GrYUVProvider provider(generator);
 
