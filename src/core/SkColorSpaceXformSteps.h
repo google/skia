@@ -31,15 +31,16 @@ struct SkColorSpaceXformSteps {
     };
 
     SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
-                           SkColorSpace* dst, SkAlphaType dstAT);
+                           SkColorSpace* dst, SkAlphaType dstAT,
+                           bool src_is_normalized = false);
 
     void apply(float rgba[4]) const;
     void apply(SkRasterPipeline*) const;
 
     Flags flags;
 
-    bool srcTF_is_sRGB,
-         dstTF_is_sRGB;
+    bool src_ok_for_sRGB_stages,
+         dst_ok_for_sRGB_stages;
     SkColorSpaceTransferFn srcTF,     // Apply for linearize.
                            dstTFInv;  // Apply for encode.
     float src_to_dst_matrix[9];       // Apply this 3x3 column-major matrix for gamut_transform.
