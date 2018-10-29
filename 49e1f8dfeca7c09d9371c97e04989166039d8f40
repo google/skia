@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "787287cd_f377d0dc",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-29T14:25:00Z",
+      "side": 1,
+      "message": "for 4 for four fore!",
+      "range": {
+        "startLine": 157,
+        "startChar": 40,
+        "endLine": 157,
+        "endChar": 47
+      },
+      "revId": "49e1f8dfeca7c09d9371c97e04989166039d8f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1c9329ba_d7fd18cf",
         "filename": "include/private/GrColor.h",
         "patchSetId": 6
