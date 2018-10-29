@@ -13,6 +13,7 @@
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
 #include "ProxyUtils.h"
+#include "SkGr.h"
 #include "SkBase64.h"
 #include "SkPngEncoder.h"
 
@@ -47,7 +48,7 @@ void test_write_pixels(skiatest::Reporter* reporter,
     for (int y = 0; y < dstContext->width(); ++y) {
         for (int x = 0; x < dstContext->height(); ++x) {
             pixels.get()[y * dstContext->width() + x] =
-                GrPremulColor(GrColorPackRGBA(x, y, x + y, 2*y));
+                SkColorToPremulGrColor(SkColorSetARGB(2*y, x, y, x + y));
         }
     }
 
@@ -101,7 +102,7 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
     for (int y = 0; y < dstContext->width(); ++y) {
         for (int x = 0; x < dstContext->height(); ++x) {
             pixels.get()[y * dstContext->width() + x] =
-                GrPremulColor(GrColorPackRGBA(y, x, x * y, 2*y));
+                SkColorToPremulGrColor(SkColorSetARGB(2*y, y, x, x * y));
         }
     }
 
