@@ -13,7 +13,8 @@
 // TODO: explain
 
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
-                                               SkColorSpace* dst, SkAlphaType dstAT) {
+                                               SkColorSpace* dst, SkAlphaType dstAT,
+                                               bool src_is_normalized) {
     // Opaque outputs are treated as the same alpha type as the source input.
     // TODO: we'd really like to have a good way of explaining why we think this is useful.
     if (dstAT == kOpaque_SkAlphaType) {
@@ -64,8 +65,10 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     src->   transferFn(&this->srcTF   .fG);
     dst->invTransferFn(&this->dstTFInv.fG);
 
-    this->srcTF_is_sRGB = src->gammaCloseToSRGB();
-    this->dstTF_is_sRGB = dst->gammaCloseToSRGB();
+    // Our sRGB specialized stages only work for a range of about [-2,2].
+    // If we don't know the source colors are normalized, we'll use the general parametric stages.
+    this->src_ok_for_sRGB_stages = src_is_normalized && src->gammaCloseToSRGB();
+    this->dst_ok_for_sRGB_stages = src_is_normalized && dst->gammaCloseToSRGB();
 
     // If we linearize then immediately reencode with the same transfer function, skip both.
     if ( this->flags.linearize       &&
@@ -139,7 +142,7 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
 void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
     if (flags.unpremul) { p->append(SkRasterPipeline::unpremul); }
     if (flags.linearize) {
-        if (srcTF_is_sRGB) {
+        if (src_ok_for_sRGB_stages) {
             p->append(SkRasterPipeline::from_srgb);
         } else if (srcTF.fA == 1 &&
                    srcTF.fB == 0 &&
@@ -156,7 +159,7 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
         p->append(SkRasterPipeline::matrix_3x3, &src_to_dst_matrix);
     }
     if (flags.encode) {
-        if (dstTF_is_sRGB) {
+        if (dst_ok_for_sRGB_stages) {
             p->append(SkRasterPipeline::to_srgb);
         } else if (dstTFInv.fA == 1 &&
                    dstTFInv.fB == 0 &&
