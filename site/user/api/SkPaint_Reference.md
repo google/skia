@@ -3703,7 +3703,7 @@ May be used to verify that <a href='#SkPaint_Align'>Align</a> is a legal value.
 
 ### Example
 
-<div><fiddle-embed name="702617fd9ebc3f12e30081b5db93e8a8"><div>Each position separately moves the glyph in drawPosText.
+<div><fiddle-embed name="6ee1866e4da0064d9d340b07e05f0aca"><div>Each position separately moves the glyph in drawPosText.
 </div></fiddle-embed></div>
 
 <a name='SkPaint_getTextAlign'></a>

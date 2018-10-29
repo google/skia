@@ -3361,15 +3361,20 @@ May be used to verify that Align is a legal value.
     #Description
     Each position separately moves the glyph in drawPosText.
     ##
+
+    #Function
+    ###$
+    #include "SkTextUtils.h"
+    $$$#
+    ##
+
     void draw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setTextSize(40);
-        SkPoint position[] = {{100, 50}, {150, 40}};
         for (SkPaint::Align a : { SkPaint::kLeft_Align,
                                   SkPaint::kCenter_Align,
                                   SkPaint::kRight_Align}) {
-            paint.setTextAlign(a);
-            canvas->drawPosText("Aa", 2, position, paint);
+            SkTextUtils::DrawString(canvas, "Aa", 100, 50, paint, a);
             canvas->translate(0, 50);
         }
     }
