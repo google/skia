@@ -124,17 +124,6 @@ static inline bool GrColorIsOpaque(GrColor color) {
     return (color & (0xFFU << GrColor_SHIFT_A)) == (0xFFU << GrColor_SHIFT_A);
 }
 
-static inline GrColor GrPremulColor(GrColor color) {
-    unsigned r = GrColorUnpackR(color);
-    unsigned g = GrColorUnpackG(color);
-    unsigned b = GrColorUnpackB(color);
-    unsigned a = GrColorUnpackA(color);
-    return GrColorPackRGBA(SkMulDiv255Round(r, a),
-                           SkMulDiv255Round(g, a),
-                           SkMulDiv255Round(b, a),
-                           a);
-}
-
 /** Returns an unpremuled version of the GrColor. */
 static inline GrColor GrUnpremulColor(GrColor color) {
     GrColorIsPMAssert(color);
