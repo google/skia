@@ -231,7 +231,11 @@ public:
         if (!shaderIsOpaque) {
             p->append(SkRasterPipeline::unpremul);
         }
-        fSteps.apply(p);
+
+        // TODO: is it valuable to thread this through appendStages()?
+        bool shaderIsNormalized = false;
+        fSteps.apply(p, shaderIsNormalized);
+
         if (!shaderIsOpaque) {
             p->append(SkRasterPipeline::premul);
         }

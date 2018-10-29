@@ -174,7 +174,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
 
     SkRasterPipeline_<256> pipeline;
     pipeline.append_load(srcInfo.colorType(), &src);
-    steps.apply(&pipeline);
+    steps.apply(&pipeline, srcInfo.colorType());
 
     pipeline.append_gamut_clamp_if_normalized(dstInfo);
 
