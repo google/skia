@@ -297,6 +297,11 @@ int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
     return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
 
+SkGlyphID SkTypeface::unicharToGlyph(SkUnichar uni) const {
+    SkGlyphID glyphs[1];
+    return this->onCharsToGlyphs(&uni, kUTF32_Encoding, glyphs, 1) == 1 ? glyphs[0] : 0;
+}
+
 int SkTypeface::countGlyphs() const {
     return this->onCountGlyphs();
 }
