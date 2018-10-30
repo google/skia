@@ -28,6 +28,7 @@
 #if SK_INCLUDE_SKOTTIE
 #include "Skottie.h"
 #endif
+#include "nima/NimaActor.h"
 
 #include <iostream>
 #include <string>
@@ -376,4 +377,25 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("MakeAnimation", &MakeAnimation);
     constant("skottie", true);
 #endif
+
+    class_<NimaActor>("NimaActor")
+        .function("duration", &NimaActor::duration)
+        .function("render",  optional_override([](NimaActor& self, SkCanvas* canvas)->void {
+            self.render(canvas, 0);
+        }), allow_raw_pointers())
+        .function("seek", &NimaActor::seek)
+        .function("setAnimationByIndex", select_overload<void(uint8_t    )>(&NimaActor::setAnimation))
+        .function("setAnimationByName" , select_overload<void(std::string)>(&NimaActor::setAnimation));
+
+    function("_MakeNimaActor", optional_override([](uintptr_t /* uint8_t* */ nptr, int nlen,
+                                                    uintptr_t /* uint8_t* */ tptr, int tlen)->NimaActor* {
+        // See comment above for uintptr_t explanation
+        const uint8_t* nimaBytes = reinterpret_cast<const uint8_t*>(nptr);
+        const uint8_t* textureBytes = reinterpret_cast<const uint8_t*>(tptr);
+
+        auto nima = SkData::MakeWithoutCopy(nimaBytes, nlen);
+        auto texture = SkData::MakeWithoutCopy(textureBytes, tlen);
+        return new NimaActor(nima, texture);
+    }), allow_raw_pointers());
+    constant("nima", true);
 }
