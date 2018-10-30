@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "3ec0940b_a6931456",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-30T16:22:18Z",
+      "side": 1,
+      "message": "#if SK_LEGACY_OP_COLOR_AS_BYTES...",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 29
+      },
+      "revId": "26a7f20bc241e63209a6ff03491de994218456b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4abab054_6113362b",
         "filename": "include/private/GrColor.h",
         "patchSetId": 1
