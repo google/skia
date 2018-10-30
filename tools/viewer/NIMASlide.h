@@ -12,19 +12,7 @@
 
 #include "SkCanvas.h"
 #include "SkVertices.h"
-#include <nima/Actor.hpp>
-#include <nima/ActorImage.hpp>
-#include <nima/Animation/ActorAnimationInstance.hpp>
-#include <nima/Vec2D.hpp>
-
-class NIMAActor;
-class NIMAActorImage;
-
-enum RenderFlags {
-    kImmediate_RenderFlag = 0x1,
-    kCache_RenderFlag     = 0x2,
-    kBounds_RenderFlag    = 0x4,
-};
+#include "nima/NimaActor.h"
 
 class NIMASlide : public Slide {
 public:
@@ -49,14 +37,12 @@ private:
 
 private:
     std::string                fBasePath;
-    std::unique_ptr<NIMAActor> fActor;
+    std::unique_ptr<NimaActor> fActor;
+    int                        fAnimationIndex;
 
     bool fPlaying;
     float fTime;
     uint32_t fRenderFlags;
-
-    nima::ActorAnimationInstance* fAnimation;
-    int                           fAnimationIndex;
 };
 
 #endif
