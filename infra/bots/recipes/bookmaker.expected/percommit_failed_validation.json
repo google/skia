@@ -154,9 +154,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Step('Validate docs match include/core/*.h') failed with return_code 1\n\nView the output of the \"Validate docs match include/core/*.h\" step to see how to get this bot green.\n\nhttps://skia.org/user/api/usingBookmaker details how to build and run the bookmaker utility locally if needed.",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "Validate docs match include/core/*.h"
+      },
+      "humanReason": "Step('Validate docs match include/core/*.h') failed with return_code 1\n\nView the output of the \"Validate docs match include/core/*.h\" step to see how to get this bot green.\n\nhttps://skia.org/user/api/usingBookmaker details how to build and run the bookmaker utility locally if needed."
+    },
+    "name": "$result"
   }
 ]

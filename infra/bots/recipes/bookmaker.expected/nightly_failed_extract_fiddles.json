@@ -155,9 +155,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Step('Extract all fiddles out of md files') failed with return_code 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "Extract all fiddles out of md files"
+      },
+      "humanReason": "Step('Extract all fiddles out of md files') failed with return_code 1"
+    },
+    "name": "$result"
   }
 ]

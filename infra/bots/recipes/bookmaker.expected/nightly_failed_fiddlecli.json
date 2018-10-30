@@ -190,9 +190,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Step('Force fiddle to compile all examples') failed with return_code 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "Force fiddle to compile all examples"
+      },
+      "humanReason": "Step('Force fiddle to compile all examples') failed with return_code 1"
+    },
+    "name": "$result"
   }
 ]
