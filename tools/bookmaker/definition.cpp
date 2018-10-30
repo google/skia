@@ -912,7 +912,7 @@ Definition* Definition::hasParam(string ref) {
         if (!parser.skipExact("@param ")) {
             continue;
         }
-        if (parser.skipExact(ref.c_str())) {
+        if (parser.skipExact(ref.c_str()) && ' ' == parser.peek()) {
             return &iter;
         }
     }
