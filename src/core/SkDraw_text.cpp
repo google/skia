@@ -38,8 +38,8 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm, Sk
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkGlyphRunListPainter::PerMask SkDraw::drawOneMaskCreator(const SkPaint& paint,
-                                                          SkArenaAlloc* alloc) const {
+SkGlyphRunListPainter::PaintMasks SkDraw::paintMasksCreator(const SkPaint& paint,
+                                                            SkArenaAlloc* alloc) const {
     SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, alloc, false);
     if (fCoverage) {
         blitter = alloc->make<SkPairBlitter>(
@@ -53,10 +53,44 @@ SkGlyphRunListPainter::PerMask SkDraw::drawOneMaskCreator(const SkPaint& paint,
     bool useRegion = fRC->isBW() && !fRC->isRect();
 
     if (useRegion) {
-        return [this, blitter](const SkMask& mask, const SkPaint& paint) {
-            SkRegion::Cliperator clipper(fRC->bwRgn(), mask.fBounds);
+        return [this, blitter](SkSpan<const SkMask> masks, const SkPaint& paint) {
+            for (const SkMask& mask : masks) {
+                SkRegion::Cliperator clipper(fRC->bwRgn(), mask.fBounds);
 
-            if (!clipper.done()) {
+                if (!clipper.done()) {
+                    if (SkMask::kARGB32_Format == mask.fFormat) {
+                        SkBitmap bm;
+                        bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
+                                         mask.fImage,
+                                         mask.fRowBytes);
+                        this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
+                    } else {
+                        const SkIRect& cr = clipper.rect();
+                        do {
+                            blitter->blitMask(mask, cr);
+                            clipper.next();
+                        } while (!clipper.done());
+                    }
+                }
+            }
+        };
+    } else {
+        SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
+                                         : fRC->aaRgn().getBounds();
+        return [this, blitter, clipBounds](SkSpan<const SkMask> masks, const SkPaint& paint) {
+            for (const SkMask& mask : masks) {
+                SkIRect storage;
+                const SkIRect* bounds = &mask.fBounds;
+
+                // this extra test is worth it, assuming that most of the time it succeeds
+                // since we can avoid writing to storage
+                if (!clipBounds.containsNoEmptyCheck(mask.fBounds)) {
+                    if (!storage.intersectNoEmptyCheck(mask.fBounds, clipBounds)) {
+                        continue;
+                    }
+                    bounds = &storage;
+                }
+
                 if (SkMask::kARGB32_Format == mask.fFormat) {
                     SkBitmap bm;
                     bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
@@ -64,38 +98,8 @@ SkGlyphRunListPainter::PerMask SkDraw::drawOneMaskCreator(const SkPaint& paint,
                                      mask.fRowBytes);
                     this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
                 } else {
-                    const SkIRect& cr = clipper.rect();
-                    do {
-                        blitter->blitMask(mask, cr);
-                        clipper.next();
-                    } while (!clipper.done());
+                    blitter->blitMask(mask, *bounds);
                 }
-            }
-        };
-    } else {
-        SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
-                                         : fRC->aaRgn().getBounds();
-        return [this, blitter, clipBounds](const SkMask& mask, const SkPaint& paint) {
-            SkIRect storage;
-            const SkIRect* bounds = &mask.fBounds;
-
-            // this extra test is worth it, assuming that most of the time it succeeds
-            // since we can avoid writing to storage
-            if (!clipBounds.containsNoEmptyCheck(mask.fBounds)) {
-                if (!storage.intersectNoEmptyCheck(mask.fBounds, clipBounds)) {
-                    return;
-                }
-                bounds = &storage;
-            }
-
-            if (SkMask::kARGB32_Format == mask.fFormat) {
-                SkBitmap bm;
-                bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
-                                 mask.fImage,
-                                 mask.fRowBytes);
-                this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
-            } else {
-                blitter->blitMask(mask, *bounds);
             }
         };
     }
@@ -111,14 +115,20 @@ void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList,
     }
 
     auto perMaskBuilder = [this](const SkPaint& paint, SkArenaAlloc* alloc) {
-        return this->drawOneMaskCreator(paint, alloc);
+        return this->paintMasksCreator(paint, alloc);
     };
 
     auto perPathBuilder = [this]() {
-        return [this] (const SkPath& path, SkScalar scale, SkPoint pos, const SkPaint& paint) {
-            SkMatrix m;
-            m.setScaleTranslate(scale,scale, pos.fX,pos.fY);
-            this->drawPath(path, paint, &m, false);
+        using PathAndPos = SkGlyphRunListPainter::PathAndPos;
+        return [this](SkSpan<const PathAndPos> pathsAndPositions,
+                      SkScalar scale,
+                      const SkPaint& paint) {
+            for (const PathAndPos& pathAndPos : pathsAndPositions) {
+                SkMatrix m;
+                SkPoint position = pathAndPos.position;
+                m.setScaleTranslate(scale, scale, position.x(), position.y());
+                this->drawPath(*pathAndPos.path, paint, &m, false);
+            }
         };
     };
 
