@@ -35,6 +35,15 @@ public:
 
     virtual bool onIsTextureBacked() const override { return SkToBool(fProxies[0].get()); }
 
+    static sk_sp<SkImage> MakeFromYUVATextures(GrContext* context,
+                                               SkYUVColorSpace yuvColorSpace,
+                                               const GrBackendTexture yuvaTextures[],
+                                               const SkYUVAIndex yuvaIndices[4],
+                                               int width,
+                                               int height,
+                                               GrSurfaceOrigin imageOrigin,
+                                               sk_sp<SkColorSpace> imageColorSpace);
+
     /**
         Create a new SkImage_GpuYUVA that's very similar to SkImage created by MakeFromYUVATextures.
         The main difference is that the client doesn't have the backend textures on the gpu yet but

@@ -436,6 +436,8 @@ public:
 
     bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
                                     GrPixelConfig*) const override;
+    bool getYUVAConfigFromBackendTexture(const GrBackendTexture&,
+                                         GrPixelConfig*) const override;
     bool getYUVAConfigFromBackendFormat(const GrBackendFormat&,
                                         GrPixelConfig*) const override;
 
