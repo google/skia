@@ -33,9 +33,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Step('Trigger and wait for task on android compile server') failed with return_code 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "Trigger and wait for task on android compile server"
+      },
+      "humanReason": "Step('Trigger and wait for task on android compile server') failed with return_code 1"
+    },
+    "name": "$result"
   }
 ]
