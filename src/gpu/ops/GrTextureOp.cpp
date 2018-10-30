@@ -31,10 +31,8 @@
 #include "SkRectPriv.h"
 #include "SkTo.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
 
 namespace {
 
@@ -52,11 +50,11 @@ public:
                                            const GrSamplerState::Filter filter,
                                            sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                            sk_sp<GrColorSpaceXform> paintColorSpaceXform,
-                                           bool coverageAA, bool perspective,
-                                           Domain domain, const GrShaderCaps& caps) {
+                                           int positionDim, GrAAType aa,  Domain domain,
+                                           const GrShaderCaps& caps) {
         return sk_sp<TextureGeometryProcessor>(new TextureGeometryProcessor(
                 textureType, textureConfig, filter, std::move(textureColorSpaceXform),
-                std::move(paintColorSpaceXform), coverageAA, perspective, domain, caps));
+                std::move(paintColorSpaceXform), positionDim, aa, domain, caps));
     }
 
     const char* name() const override { return "TextureGeometryProcessor"; }
@@ -64,10 +62,7 @@ public:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
         b->add32(GrColorSpaceXform::XformKey(fPaintColorSpaceXform.get()));
-        uint32_t x = this->usesCoverageEdgeAA() ? 0 : 1;
-        x |= kFloat3_GrVertexAttribType == fPositions.cpuType() ? 0 : 2;
-        x |= fDomain.isInitialized() ? 4 : 0;
-        b->add32(x);
+        b->add32(fAttrs.getKey());
     }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
@@ -84,94 +79,33 @@ public:
 
         private:
             void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-                using Interpolation = GrGLSLVaryingHandler::Interpolation;
                 const auto& textureGP = args.fGP.cast<TextureGeometryProcessor>();
                 fTextureColorSpaceXformHelper.emitCode(
                         args.fUniformHandler, textureGP.fTextureColorSpaceXform.get());
                 fPaintColorSpaceXformHelper.emitCode(
                         args.fUniformHandler, textureGP.fPaintColorSpaceXform.get(),
                         kVertex_GrShaderFlag);
-                if (kFloat2_GrVertexAttribType == textureGP.fPositions.cpuType()) {
+                if (!textureGP.fAttrs.needsPerspectiveInterpolation()) {
                     args.fVaryingHandler->setNoPerspective();
                 }
                 args.fVaryingHandler->emitAttributes(textureGP);
-                gpArgs->fPositionVar = textureGP.fPositions.asShaderVar();
+                gpArgs->fPositionVar = textureGP.fAttrs.positions().asShaderVar();
 
                 this->emitTransforms(args.fVertBuilder,
                                      args.fVaryingHandler,
                                      args.fUniformHandler,
-                                     textureGP.fTextureCoords.asShaderVar(),
+                                     textureGP.fAttrs.localCoords().asShaderVar(),
                                      args.fFPCoordTransformHandler);
-                if (fPaintColorSpaceXformHelper.isNoop()) {
-                    args.fVaryingHandler->addPassThroughAttribute(
-                            textureGP.fColors, args.fOutputColor, Interpolation::kCanBeFlat);
-                } else {
-                    GrGLSLVarying varying(kHalf4_GrSLType);
-                    args.fVaryingHandler->addVarying("color", &varying);
-                    args.fVertBuilder->codeAppend("half4 color = ");
-                    args.fVertBuilder->appendColorGamutXform(textureGP.fColors.name(),
-                                                             &fPaintColorSpaceXformHelper);
-                    args.fVertBuilder->codeAppend(";");
-                    args.fVertBuilder->codeAppendf("%s = half4(color.rgb * color.a, color.a);",
-                                                   varying.vsOut());
-                    args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());
-                }
-                args.fFragBuilder->codeAppend("float2 texCoord;");
-                args.fVaryingHandler->addPassThroughAttribute(textureGP.fTextureCoords, "texCoord");
-                if (textureGP.fDomain.isInitialized()) {
-                    args.fFragBuilder->codeAppend("float4 domain;");
-                    args.fVaryingHandler->addPassThroughAttribute(
-                            textureGP.fDomain, "domain",
-                            GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-                    args.fFragBuilder->codeAppend(
-                            "texCoord = clamp(texCoord, domain.xy, domain.zw);");
-                }
+                textureGP.fAttrs.emitColor(args, &fPaintColorSpaceXformHelper, "paintColor");
+                textureGP.fAttrs.emitExplicitLocalCoords(args, "texCoord", "domain");
+
                 args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
                 args.fFragBuilder->appendTextureLookupAndModulate(
                         args.fOutputColor, args.fTexSamplers[0], "texCoord", kFloat2_GrSLType,
                         &fTextureColorSpaceXformHelper);
                 args.fFragBuilder->codeAppend(";");
-                if (textureGP.usesCoverageEdgeAA()) {
-                    bool mulByFragCoordW = false;
-                    GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
-                                                GrGLSLVarying::Scope::kVertToFrag);
-                    if (kFloat3_GrVertexAttribType == textureGP.fPositions.cpuType()) {
-                        args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
-                        // The distance from edge equation e to homogeneous point p=sk_Position
-                        // is e.x*p.x/p.w + e.y*p.y/p.w + e.z. However, we want screen space
-                        // interpolation of this distance. We can do this by multiplying the
-                        // varying in the VS by p.w and then multiplying by sk_FragCoord.w in
-                        // the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
-                        args.fVertBuilder->codeAppendf(
-                                R"(%s = float4(dot(aaEdge0, %s), dot(aaEdge1, %s),
-                                               dot(aaEdge2, %s), dot(aaEdge3, %s));)",
-                                aaDistVarying.vsOut(), textureGP.fPositions.name(),
-                                textureGP.fPositions.name(), textureGP.fPositions.name(),
-                                textureGP.fPositions.name());
-                        mulByFragCoordW = true;
-                    } else {
-                        args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
-                        args.fVertBuilder->codeAppendf(
-                                R"(%s = float4(dot(aaEdge0.xy, %s.xy) + aaEdge0.z,
-                                               dot(aaEdge1.xy, %s.xy) + aaEdge1.z,
-                                               dot(aaEdge2.xy, %s.xy) + aaEdge2.z,
-                                               dot(aaEdge3.xy, %s.xy) + aaEdge3.z);)",
-                                aaDistVarying.vsOut(), textureGP.fPositions.name(),
-                                textureGP.fPositions.name(), textureGP.fPositions.name(),
-                                textureGP.fPositions.name());
-                    }
-                    args.fFragBuilder->codeAppendf(
-                            "float mindist = min(min(%s.x, %s.y), min(%s.z, %s.w));",
-                            aaDistVarying.fsIn(), aaDistVarying.fsIn(), aaDistVarying.fsIn(),
-                            aaDistVarying.fsIn());
-                    if (mulByFragCoordW) {
-                        args.fFragBuilder->codeAppend("mindist *= sk_FragCoord.w;");
-                    }
-                    args.fFragBuilder->codeAppendf("%s = float4(saturate(mindist));",
-                                                   args.fOutputCoverage);
-                } else {
-                    args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
-                }
+
+                textureGP.fAttrs.emitCoverage(args, "aaDist");
             }
             GrGLSLColorSpaceXformHelper fTextureColorSpaceXformHelper;
             GrGLSLColorSpaceXformHelper fPaintColorSpaceXformHelper;
@@ -179,55 +113,30 @@ public:
         return new GLSLProcessor;
     }
 
-    bool usesCoverageEdgeAA() const { return SkToBool(fAAEdges[0].isInitialized()); }
-
 private:
     TextureGeometryProcessor(GrTextureType textureType, GrPixelConfig textureConfig,
                              GrSamplerState::Filter filter,
                              sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                             sk_sp<GrColorSpaceXform> paintColorSpaceXform, bool coverageAA,
-                             bool perspective, Domain domain, const GrShaderCaps& caps)
+                             sk_sp<GrColorSpaceXform> paintColorSpaceXform, int positionDim,
+                             GrAAType aa, Domain domain, const GrShaderCaps& caps)
             : INHERITED(kTextureGeometryProcessor_ClassID)
+            , fAttrs(positionDim, /* src dim */ 2, /* vertex color */ true, aa, domain)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
             , fSampler(textureType, textureConfig, filter) {
         this->setTextureSamplerCnt(1);
-
-        if (perspective) {
-            fPositions = {"position", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-        } else {
-            fPositions = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        }
-        fColors = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-        fTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        int vertexAttributeCnt = 3;
-
-        if (domain == Domain::kYes) {
-            fDomain = {"domain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-            ++vertexAttributeCnt;
-        }
-        if (coverageAA) {
-            fAAEdges[0] = {"aaEdge0", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-            fAAEdges[1] = {"aaEdge1", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-            fAAEdges[2] = {"aaEdge2", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-            fAAEdges[3] = {"aaEdge3", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-            vertexAttributeCnt += 4;
-        }
-        this->setVertexAttributeCnt(vertexAttributeCnt);
+        this->setVertexAttributeCnt(fAttrs.vertexAttributeCount());
     }
 
     const Attribute& onVertexAttribute(int i) const override {
-        return IthInitializedAttribute(i, fPositions, fColors, fTextureCoords, fDomain, fAAEdges[0],
-                                       fAAEdges[1], fAAEdges[2], fAAEdges[3]);
+        return IthInitializedAttribute(i, fAttrs.positions(), fAttrs.colors(), fAttrs.localCoords(),
+                                       fAttrs.domain(), fAttrs.edges(0), fAttrs.edges(1),
+                                       fAttrs.edges(2), fAttrs.edges(3));
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }
 
-    Attribute fPositions;
-    Attribute fColors;
-    Attribute fTextureCoords;
-    Attribute fDomain;
-    Attribute fAAEdges[4];
+    GrQuadPerEdgeAA::GPAttributes fAttrs;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     sk_sp<GrColorSpaceXform> fPaintColorSpaceXform;
     TextureSampler fSampler;
@@ -548,10 +457,9 @@ private:
             }
         }
 
-        bool coverageAA = GrAAType::kCoverage == aaType;
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
                 textureType, config, this->filter(), std::move(fTextureColorSpaceXform),
-                std::move(fPaintColorSpaceXform), coverageAA, hasPerspective, domain,
+                std::move(fPaintColorSpaceXform), hasPerspective ? 3 : 2, aaType, domain,
                 *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
@@ -597,9 +505,9 @@ private:
         };
 #undef TESS_FN_AND_VERTEX_SIZE
         int tessFnIdx = 0;
-        tessFnIdx |= coverageAA               ? 0x1 : 0x0;
-        tessFnIdx |= (domain == Domain::kYes) ? 0x2 : 0x0;
-        tessFnIdx |= hasPerspective           ? 0x4 : 0x0;
+        tessFnIdx |= (GrAAType::kCoverage == aaType) ? 0x1 : 0x0;
+        tessFnIdx |= (domain == Domain::kYes)        ? 0x2 : 0x0;
+        tessFnIdx |= hasPerspective                  ? 0x4 : 0x0;
 
         size_t vertexSize = kTessFnsAndVertexSizes[tessFnIdx].fVertexSize;
         SkASSERT(vertexSize == gp->debugOnly_vertexStride());
