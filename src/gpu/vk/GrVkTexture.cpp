@@ -75,9 +75,9 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
         return nullptr;
     }
 
-    const GrVkImageView* imageView = GrVkImageView::Create(gpu, info.fImage, info.fFormat,
-                                                           GrVkImageView::kColor_Type,
-                                                           info.fLevelCount);
+    const GrVkImageView* imageView = GrVkImageView::Create(
+            gpu, info.fImage, info.fFormat, GrVkImageView::kColor_Type, info.fLevelCount,
+            info.fYcbcrConversionInfo.fYcbcrConversion);
     if (!imageView) {
         GrVkImage::DestroyImageInfo(gpu, &info);
         return nullptr;
@@ -96,9 +96,9 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
     // Wrapped textures require both image and allocation (because they can be mapped)
     SkASSERT(VK_NULL_HANDLE != info.fImage && VK_NULL_HANDLE != info.fAlloc.fMemory);
 
-    const GrVkImageView* imageView = GrVkImageView::Create(gpu, info.fImage, info.fFormat,
-                                                           GrVkImageView::kColor_Type,
-                                                           info.fLevelCount);
+    const GrVkImageView* imageView = GrVkImageView::Create(
+            gpu, info.fImage, info.fFormat, GrVkImageView::kColor_Type, info.fLevelCount,
+            info.fYcbcrConversionInfo.fYcbcrConversion);
     if (!imageView) {
         return nullptr;
     }
