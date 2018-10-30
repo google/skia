@@ -97,7 +97,7 @@ protected:
             SkTextUtils::DrawString(canvas, SkBlendMode_Name(mode),
                                xOffset + kBitmapSize/2.0f,
                                yOffset + kBitmapSize,
-                               textPaint, SkPaint::kCenter_Align);
+                               textPaint, SkTextUtils::kCenter_Align);
 
             xOffset += 256;
             if (xOffset >= 1024) {

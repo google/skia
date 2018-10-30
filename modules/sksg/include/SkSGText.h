@@ -13,6 +13,7 @@
 #include "SkPaintDefaults.h"
 #include "SkPoint.h"
 #include "SkString.h"
+#include "SkTextUtils.h"
 
 class SkCanvas;
 class SkPaint;
@@ -36,7 +37,7 @@ public:
     SG_ATTRIBUTE(Size    , SkScalar         , fSize    )
     SG_ATTRIBUTE(ScaleX  , SkScalar         , fScaleX  )
     SG_ATTRIBUTE(SkewX   , SkScalar         , fSkewX   )
-    SG_ATTRIBUTE(Align   , SkPaint::Align   , fAlign   )
+    SG_ATTRIBUTE(Align   , SkTextUtils::Align   , fAlign   )
     SG_ATTRIBUTE(Hinting , SkPaint::Hinting , fHinting )
 
     // TODO: add shaping functionality.
@@ -60,7 +61,7 @@ private:
     SkScalar                fSize     = SkPaintDefaults_TextSize;
     SkScalar                fScaleX   = 1;
     SkScalar                fSkewX    = 0;
-    SkPaint::Align          fAlign    = SkPaint::kLeft_Align;
+    SkTextUtils::Align      fAlign    = SkTextUtils::kLeft_Align;
     SkPaint::Hinting        fHinting  = SkPaintDefaults_Hinting;
 
     sk_sp<SkTextBlob> fBlob; // cached text blob

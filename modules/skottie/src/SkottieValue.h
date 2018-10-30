@@ -13,6 +13,7 @@
 #include "SkPath.h"
 #include "SkScalar.h"
 #include "SkString.h"
+#include "SkTextUtils.h"
 #include "SkTypeface.h"
 
 #include <vector>
@@ -74,7 +75,7 @@ struct TextValue {
     SkString          fText;
     float             fTextSize    = 0,
                       fStrokeWidth = 0;
-    SkPaint::Align    fAlign       = SkPaint::kLeft_Align;
+    SkTextUtils::Align fAlign       = SkTextUtils::kLeft_Align;
     SkColor           fFillColor   = SK_ColorTRANSPARENT,
                       fStrokeColor = SK_ColorTRANSPARENT;
     bool              fHasFill   : 1,

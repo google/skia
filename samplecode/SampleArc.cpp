@@ -124,7 +124,8 @@ protected:
         str.append(", ");
         str.appendScalar(sweep);
         SkTextUtils::DrawString(canvas, str, rect.centerX(),
-                         rect.fBottom + paint.getTextSize() * 5/4, paint, SkPaint::kCenter_Align);
+                         rect.fBottom + paint.getTextSize() * 5/4, paint,
+                                SkTextUtils::kCenter_Align);
     }
 
     static void DrawArcs(SkCanvas* canvas) {

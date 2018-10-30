@@ -140,7 +140,7 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     canvas->save();
     for (int i = 0; i < 5; ++i) {
         SkTextUtils::DrawString(canvas, gCoverageName[i], r.width()*0.5f, -10, labelP,
-                                       SkPaint::kCenter_Align);
+                                       SkTextUtils::kCenter_Align);
 
         SkCoverageMode cmode = static_cast<SkCoverageMode>(i);
         canvas->save();
