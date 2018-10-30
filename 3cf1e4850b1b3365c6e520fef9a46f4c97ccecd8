@@ -16,6 +16,24 @@
       "revId": "3cf1e4850b1b3365c6e520fef9a46f4c97ccecd8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa4ad065_99664a52",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-10-30T14:46:31Z",
+      "side": 1,
+      "message": "I think I like that better, so I switched to this.",
+      "parentUuid": "8fb55311_f904e6e2",
+      "revId": "3cf1e4850b1b3365c6e520fef9a46f4c97ccecd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
