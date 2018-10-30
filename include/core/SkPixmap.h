@@ -124,7 +124,7 @@ public:
 
     /** Returns width, height, SkAlphaType, SkColorType, and SkColorSpace.
 
-        @return  reference to ImageInfo
+        @return  reference to SkImageInfo
     */
     const SkImageInfo& info() const { return fInfo; }
 
@@ -655,8 +655,8 @@ public:
         filterQuality kNone_SkFilterQuality is fastest, typically implemented with
         nearest neighbor filter. kLow_SkFilterQuality is typically implemented with
         bilerp filter. kMedium_SkFilterQuality is typically implemented with
-        bilerp filter, and Filter_Quality_MipMap when size is reduced.
-        kHigh_SkFilterQuality is slowest, typically implemented with Filter_Quality_BiCubic.
+        bilerp filter, and mip-map filter when size is reduced.
+        kHigh_SkFilterQuality is slowest, typically implemented with bicubic filter.
 
         @param dst            SkImageInfo and pixel address to write to
         @param filterQuality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,

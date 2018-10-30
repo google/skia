@@ -99,11 +99,11 @@ If corner curves overlap, radii are proportionally reduced to fit within bounds.
 </pre>
 
 Initializes bounds at (0, 0), the origin, with zero width and height.
-Initializes corner radii to (0, 0), and sets type of <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+Initializes corner radii to (0, 0), and sets type of <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
 
 ### Return Value
 
-empty <a href='#RRect'>Round Rect</a>
+empty <a href='SkRRect_Reference#SkRRect'>SkRRect</a>
 
 ### Example
 
@@ -121,7 +121,7 @@ empty <a href='#RRect'>Round Rect</a>
 <a href='#SkRRect'>SkRRect</a>(const <a href='#SkRRect'>SkRRect</a>& rrect)
 </pre>
 
-Initializes to copy of <a href='#SkRRect_copy_const_SkRRect_rrect'>rrect</a> bounds and corner radii.
+Initializes to copy of <a href='#SkRRect_SkRRect(const SkRRect& rrect)_rrect'>rrect</a> bounds and corner radii.
 
 ### Parameters
 
@@ -132,7 +132,7 @@ Initializes to copy of <a href='#SkRRect_copy_const_SkRRect_rrect'>rrect</a> bou
 
 ### Return Value
 
-copy of <a href='#SkRRect_copy_const_SkRRect_rrect'>rrect</a>
+copy of <a href='#SkRRect_SkRRect(const SkRRect& rrect)_rrect'>rrect</a>
 
 ### Example
 
@@ -150,7 +150,7 @@ copy of <a href='#SkRRect_copy_const_SkRRect_rrect'>rrect</a>
 <a href='#SkRRect'>SkRRect</a>& <a href='#SkRRect_copy_operator'>operator=(const SkRRect& rrect)</a>
 </pre>
 
-Copies <a href='#SkRRect_copy_operator_rrect'>rrect</a> bounds and corner radii.
+Copies <a href='#SkRRect_operator=(const SkRRect& rrect)_rrect'>rrect</a> bounds and corner radii.
 
 ### Parameters
 
@@ -161,7 +161,7 @@ Copies <a href='#SkRRect_copy_operator_rrect'>rrect</a> bounds and corner radii.
 
 ### Return Value
 
-copy of <a href='#SkRRect_copy_operator_rrect'>rrect</a>
+copy of <a href='#SkRRect_operator=(const SkRRect& rrect)_rrect'>rrect</a>
 
 ### Example
 
@@ -326,13 +326,6 @@ Returns <a href='#SkRRect_Type'>Type</a>, one of: <a href='#SkRRect_kEmpty_Type'
 bool <a href='#SkRRect_isEmpty'>isEmpty</a>() const
 </pre>
 
-Returns true if <a href='#SkRRect_rect'>rect</a>().fLeft is equal to <a href='#SkRRect_rect'>rect</a>().fRight, or if <a href='#SkRRect_rect'>rect</a>().fTop is equal
-to <a href='#SkRRect_rect'>rect</a>().fBottom.
-
-### Return Value
-
-true if <a href='#SkRRect_width'>width</a>() or <a href='#SkRRect_height'>height</a>() are zero
-
 ### Example
 
 <div><fiddle-embed name="099d79ecfbdfb0a19c10deb7201859c3"></fiddle-embed></div>
@@ -349,13 +342,6 @@ true if <a href='#SkRRect_width'>width</a>() or <a href='#SkRRect_height'>height
 bool <a href='#SkRRect_isRect'>isRect</a>() const
 </pre>
 
-Returns true if not empty, and if either x-axis or y-axis radius at each corner
-is zero.
-
-### Return Value
-
-true if not empty, and one radius at each corner is zero
-
 ### Example
 
 <div><fiddle-embed name="bc931c9a6eb8ffe7ea8d3fb47e07a475"></fiddle-embed></div>
@@ -371,14 +357,6 @@ true if not empty, and one radius at each corner is zero
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_isOval'>isOval</a>() const
 </pre>
-
-Returns true if not empty, if all x-axis radii are equal, if all y-axis radii
-are equal, x-axis radii are at least half the width, and y-axis radii are at
-least half the height.
-
-### Return Value
-
-true if has identical geometry to <a href='undocumented#Oval'>Oval</a>
 
 ### Example
 
@@ -400,14 +378,6 @@ dimensions; right <a href='#RRect'>Round Rect</a> is an oval.
 bool <a href='#SkRRect_isSimple'>isSimple</a>() const
 </pre>
 
-Returns true if not empty, if all x-axis radii are equal but not zero,
-if all y-axis radii are equal but not zero; and x-axis radius is less than half
-<a href='#SkRRect_width'>width</a>(), or y-axis radius is less than half <a href='#SkRRect_height'>height</a>().
-
-### Return Value
-
-true if not empty, <a href='SkRect_Reference#Rect'>Rect</a> or <a href='undocumented#Oval'>Oval</a>; and axes radii are equal
-
 ### Example
 
 <div><fiddle-embed name="f6959ea422a7c6e98ddfad216a52c707"></fiddle-embed></div>
@@ -424,14 +394,6 @@ true if not empty, <a href='SkRect_Reference#Rect'>Rect</a> or <a href='undocume
 bool <a href='#SkRRect_isNinePatch'>isNinePatch</a>() const
 </pre>
 
-Returns true if <a href='#SkRRect_isEmpty'>isEmpty</a>, <a href='#SkRRect_isRect'>isRect</a>, <a href='#SkRRect_isOval'>isOval</a>, and <a href='#SkRRect_isSimple'>isSimple</a> return false; and if
-left x-axis radii are equal, right x-axis radii are equal, top y-axis radii are
-equal, and bottom y-axis radii are equal.
-
-### Return Value
-
-true if not empty, <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Oval'>Oval</a> or simple; and radii are axis-aligned
-
 ### Example
 
 <div><fiddle-embed name="429f6dfd4cf6287df3c3c77fa7681c99"></fiddle-embed></div>
@@ -447,16 +409,6 @@ true if not empty, <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocument
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 bool <a href='#SkRRect_isComplex'>isComplex</a>() const
 </pre>
-
-Returns true if <a href='#SkRRect_isEmpty'>isEmpty</a>, <a href='#SkRRect_isRect'>isRect</a>, <a href='#SkRRect_isOval'>isOval</a>, <a href='#SkRRect_isSimple'>isSimple</a>, and <a href='#SkRRect_isNinePatch'>isNinePatch</a> return false.
-If true: width and height are greater than zero, at least one corner radii are
-both greater than zero; left x-axis radii are not equal, or right x-axis radii
-are not equal, or top y-axis radii are not equal, or bottom y-axis radii are not
-equal.
-
-### Return Value
-
-true if not empty, <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Oval'>Oval</a>, simple, or nine-patch
 
 ### Example
 
@@ -479,7 +431,7 @@ result may be infinity.
 
 ### Return Value
 
-bounds().fRight minus bounds().fLeft
+<a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fRight'>fRight</a> minus <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fLeft'>fLeft</a>
 
 ### Example
 
@@ -512,7 +464,7 @@ result may be infinity.
 
 ### Return Value
 
-bounds().fBottom minus bounds().fTop
+<a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fBottom'>fBottom</a> minus <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fTop'>fTop</a>
 
 ### Example
 
@@ -540,9 +492,9 @@ large height: inf
 <a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkRRect_getSimpleRadii'>getSimpleRadii</a>() const
 </pre>
 
-Returns top-left corner radii. If <a href='#SkRRect_type'>type</a>() returns <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>, <a href='#SkRRect_kRect_Type'>kRect Type</a>,
-<a href='#SkRRect_kOval_Type'>kOval Type</a>, or <a href='#SkRRect_kSimple_Type'>kSimple Type</a>, returns a value representative of all corner radii.
-If <a href='#SkRRect_type'>type</a>() returns <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a> or <a href='#SkRRect_kComplex_Type'>kComplex Type</a>, at least one of the
+Returns top-left corner radii. If <a href='#SkRRect_type'>type()</a> returns <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>, <a href='#SkRRect_kRect_Type'>kRect_Type</a>,
+<a href='#SkRRect_kOval_Type'>kOval_Type</a>, or <a href='#SkRRect_kSimple_Type'>kSimple_Type</a>, returns a value representative of all corner radii.
+If <a href='#SkRRect_type'>type()</a> returns <a href='#SkRRect_kNinePatch_Type'>kNinePatch_Type</a> or <a href='#SkRRect_kComplex_Type'>kComplex_Type</a>, at least one of the
 remaining three corners has a different value.
 
 ### Return Value
@@ -566,7 +518,7 @@ void <a href='#SkRRect_setEmpty'>setEmpty</a>()
 </pre>
 
 Sets bounds to zero width and height at (0, 0), the origin. Sets
-corner radii to zero and sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+corner radii to zero and sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
 
 ### Example
 
@@ -585,9 +537,9 @@ corner radii to zero and sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type
 void <a href='#SkRRect_setRect'>setRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect)
 </pre>
 
-Sets bounds to sorted rect, and sets corner radii to zero.
-If set bounds has width and height, and sets type to <a href='#SkRRect_kRect_Type'>kRect Type</a>;
-otherwise, sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+Sets bounds to sorted <a href='#SkRRect_setRect_rect'>rect</a>, and sets corner radii to zero.
+If set bounds has width and height, and sets type to <a href='#SkRRect_kRect_Type'>kRect_Type</a>;
+otherwise, sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
 
 ### Parameters
 
@@ -613,11 +565,11 @@ static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeEmpty'>MakeEmpty</a>
 </pre>
 
 Initializes bounds at (0, 0), the origin, with zero width and height.
-Initializes corner radii to (0, 0), and sets type of <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
+Initializes corner radii to (0, 0), and sets type of <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
 
 ### Return Value
 
-empty <a href='#RRect'>Round Rect</a>
+empty <a href='SkRRect_Reference#SkRRect'>SkRRect</a>
 
 ### Example
 
@@ -664,20 +616,20 @@ copy of <a href='#SkRRect_MakeRect_r'>r</a>
 static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeOval'>MakeOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval)
 </pre>
 
-Sets bounds to <a href='#SkRRect_MakeOval_oval'>oval</a>, x-axis radii to half <a href='#SkRRect_MakeOval_oval'>oval</a>.<a href='#SkRRect_width'>width</a>(), and all y-axis radii
-to half <a href='#SkRRect_MakeOval_oval'>oval</a>.<a href='#SkRRect_height'>height</a>(). If <a href='#SkRRect_MakeOval_oval'>oval</a> bounds is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
-Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
+Sets bounds to <a href='#SkRRect_MakeOval_oval'>oval</a>, x-axis radii to half <a href='#SkRRect_MakeOval_oval'>oval</a>.<a href='#SkRect_width'>width()</a>, and all y-axis radii
+to half <a href='#SkRRect_MakeOval_oval'>oval</a>.<a href='#SkRect_height'>height()</a>. If <a href='#SkRRect_MakeOval_oval'>oval</a> bounds is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
+Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval_Type</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_MakeOval_oval'><code><strong>oval</strong></code></a></td>
-    <td>bounds of <a href='undocumented#Oval'>Oval</a></td>
+    <td>bounds of <a href='#SkRRect_MakeOval_oval'>oval</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='undocumented#Oval'>Oval</a>
+<a href='#SkRRect_MakeOval_oval'>oval</a>
 
 ### Example
 
@@ -696,11 +648,11 @@ static <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_MakeRectXY'>MakeRectXY</
 </pre>
 
 Sets to rounded rectangle with the same radii for all four corners.
-If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
-Otherwise, if <a href='#SkRRect_MakeRectXY_xRad'>xRad</a> and <a href='#SkRRect_MakeRectXY_yRad'>yRad</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
-Otherwise, if <a href='#SkRRect_MakeRectXY_xRad'>xRad</a> is at least half rect.<a href='#SkRRect_width'>width</a>() and <a href='#SkRRect_MakeRectXY_yRad'>yRad</a> is at least half
-rect.<a href='#SkRRect_height'>height</a>(), sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
-Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>.
+If <a href='#SkRRect_MakeRectXY_rect'>rect</a> is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
+Otherwise, if <a href='#SkRRect_MakeRectXY_xRad'>xRad</a> and <a href='#SkRRect_MakeRectXY_yRad'>yRad</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect_Type</a>.
+Otherwise, if <a href='#SkRRect_MakeRectXY_xRad'>xRad</a> is at least half <a href='#SkRRect_MakeRectXY_rect'>rect</a>.<a href='#SkRect_width'>width()</a> and <a href='#SkRRect_MakeRectXY_yRad'>yRad</a> is at least half
+<a href='#SkRRect_MakeRectXY_rect'>rect</a>.<a href='#SkRect_height'>height()</a>, sets to <a href='#SkRRect_kOval_Type'>kOval_Type</a>.
+Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple_Type</a>.
 
 ### Parameters
 
@@ -735,14 +687,14 @@ rounded rectangle
 void <a href='#SkRRect_setOval'>setOval</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval)
 </pre>
 
-Sets bounds to <a href='#SkRRect_setOval_oval'>oval</a>, x-axis radii to half <a href='#SkRRect_setOval_oval'>oval</a>.<a href='#SkRRect_width'>width</a>(), and all y-axis radii
-to half <a href='#SkRRect_setOval_oval'>oval</a>.<a href='#SkRRect_height'>height</a>(). If <a href='#SkRRect_setOval_oval'>oval</a> bounds is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
-Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
+Sets bounds to <a href='#SkRRect_setOval_oval'>oval</a>, x-axis radii to half <a href='#SkRRect_setOval_oval'>oval</a>.<a href='#SkRect_width'>width()</a>, and all y-axis radii
+to half <a href='#SkRRect_setOval_oval'>oval</a>.<a href='#SkRect_height'>height()</a>. If <a href='#SkRRect_setOval_oval'>oval</a> bounds is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
+Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval_Type</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_setOval_oval'><code><strong>oval</strong></code></a></td>
-    <td>bounds of <a href='undocumented#Oval'>Oval</a></td>
+    <td>bounds of <a href='#SkRRect_setOval_oval'>oval</a></td>
   </tr>
 </table>
 
@@ -763,11 +715,11 @@ void <a href='#SkRRect_setRectXY'>setRectXY</a>(const <a href='SkRect_Reference#
 </pre>
 
 Sets to rounded rectangle with the same radii for all four corners.
-If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
-Otherwise, if <a href='#SkRRect_setRectXY_xRad'>xRad</a> or <a href='#SkRRect_setRectXY_yRad'>yRad</a> is zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
-Otherwise, if <a href='#SkRRect_setRectXY_xRad'>xRad</a> is at least half rect.<a href='#SkRRect_width'>width</a>() and <a href='#SkRRect_setRectXY_yRad'>yRad</a> is at least half
-rect.<a href='#SkRRect_height'>height</a>(), sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
-Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>.
+If <a href='#SkRRect_setRectXY_rect'>rect</a> is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
+Otherwise, if <a href='#SkRRect_setRectXY_xRad'>xRad</a> or <a href='#SkRRect_setRectXY_yRad'>yRad</a> is zero, sets to <a href='#SkRRect_kRect_Type'>kRect_Type</a>.
+Otherwise, if <a href='#SkRRect_setRectXY_xRad'>xRad</a> is at least half <a href='#SkRRect_setRectXY_rect'>rect</a>.<a href='#SkRect_width'>width()</a> and <a href='#SkRRect_setRectXY_yRad'>yRad</a> is at least half
+<a href='#SkRRect_setRectXY_rect'>rect</a>.<a href='#SkRect_height'>height()</a>, sets to <a href='#SkRRect_kOval_Type'>kOval_Type</a>.
+Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple_Type</a>.
 
 ### Parameters
 
@@ -799,19 +751,19 @@ void <a href='#SkRRect_setNinePatch'>setNinePatch</a>(const <a href='SkRect_Refe
                   <a href='undocumented#SkScalar'>SkScalar</a> bottomRad)
 </pre>
 
-Sets bounds to rect. Sets radii to (<a href='#SkRRect_setNinePatch_leftRad'>leftRad</a>, <a href='#SkRRect_setNinePatch_topRad'>topRad</a>), (<a href='#SkRRect_setNinePatch_rightRad'>rightRad</a>, <a href='#SkRRect_setNinePatch_topRad'>topRad</a>),
+Sets bounds to <a href='#SkRRect_setNinePatch_rect'>rect</a>. Sets radii to (<a href='#SkRRect_setNinePatch_leftRad'>leftRad</a>, <a href='#SkRRect_setNinePatch_topRad'>topRad</a>), (<a href='#SkRRect_setNinePatch_rightRad'>rightRad</a>, <a href='#SkRRect_setNinePatch_topRad'>topRad</a>),
 (<a href='#SkRRect_setNinePatch_rightRad'>rightRad</a>, <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a>), (<a href='#SkRRect_setNinePatch_leftRad'>leftRad</a>, <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a>).
 
-If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
-Otherwise, if <a href='#SkRRect_setNinePatch_leftRad'>leftRad</a> and <a href='#SkRRect_setNinePatch_rightRad'>rightRad</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
-Otherwise, if <a href='#SkRRect_setNinePatch_topRad'>topRad</a> and <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
-Otherwise, if <a href='#SkRRect_setNinePatch_leftRad'>leftRad</a> and <a href='#SkRRect_setNinePatch_rightRad'>rightRad</a> are equal and at least half rect.<a href='#SkRRect_width'>width</a>(), and
-<a href='#SkRRect_setNinePatch_topRad'>topRad</a> and <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a> are equal at least half rect.<a href='#SkRRect_height'>height</a>(), sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
+If <a href='#SkRRect_setNinePatch_rect'>rect</a> is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
+Otherwise, if <a href='#SkRRect_setNinePatch_leftRad'>leftRad</a> and <a href='#SkRRect_setNinePatch_rightRad'>rightRad</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect_Type</a>.
+Otherwise, if <a href='#SkRRect_setNinePatch_topRad'>topRad</a> and <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect_Type</a>.
+Otherwise, if <a href='#SkRRect_setNinePatch_leftRad'>leftRad</a> and <a href='#SkRRect_setNinePatch_rightRad'>rightRad</a> are equal and at least half <a href='#SkRRect_setNinePatch_rect'>rect</a>.<a href='#SkRect_width'>width()</a>, and
+<a href='#SkRRect_setNinePatch_topRad'>topRad</a> and <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a> are equal at least half <a href='#SkRRect_setNinePatch_rect'>rect</a>.<a href='#SkRect_height'>height()</a>, sets to <a href='#SkRRect_kOval_Type'>kOval_Type</a>.
 Otherwise, if <a href='#SkRRect_setNinePatch_leftRad'>leftRad</a> and <a href='#SkRRect_setNinePatch_rightRad'>rightRad</a> are equal, and <a href='#SkRRect_setNinePatch_topRad'>topRad</a> and <a href='#SkRRect_setNinePatch_bottomRad'>bottomRad</a> are equal,
-sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>. Otherwise, sets to <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a>.
+sets to <a href='#SkRRect_kSimple_Type'>kSimple_Type</a>. Otherwise, sets to <a href='#SkRRect_kNinePatch_Type'>kNinePatch_Type</a>.
 
-Nine patch refers to the nine parts defined by the radii: one center rectangle,
-four edge patches, and four corner patches.
+Nine <a href='undocumented#Patch'>patch</a> refers to the nine parts defined by the radii: one center rectangle,
+four edge <a href='undocumented#Patch'>patches</a>, and four corner <a href='undocumented#Patch'>patches</a>.
 
 ### Parameters
 
@@ -848,14 +800,14 @@ four edge patches, and four corner patches.
 void <a href='#SkRRect_setRectRadii'>setRectRadii</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, const <a href='SkPoint_Reference#SkVector'>SkVector</a> radii[4])
 </pre>
 
-Sets bounds to rect. Sets radii array for individual control of all for corners.
+Sets bounds to <a href='#SkRRect_setRectRadii_rect'>rect</a>. Sets <a href='#SkRRect_setRectRadii_radii'>radii</a> array for individual control of all for corners.
 
-If rect is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>.
-Otherwise, if one of each corner radii are zero, sets to <a href='#SkRRect_kRect_Type'>kRect Type</a>.
-Otherwise, if all x-axis radii are equal and at least half rect.<a href='#SkRRect_width'>width</a>(), and
-all y-axis radii are equal at least half rect.<a href='#SkRRect_height'>height</a>(), sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
-Otherwise, if all x-axis radii are equal, and all y-axis radii are equal,
-sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>. Otherwise, sets to <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a>.
+If <a href='#SkRRect_setRectRadii_rect'>rect</a> is empty, sets to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
+Otherwise, if one of each corner <a href='#SkRRect_setRectRadii_radii'>radii</a> are zero, sets to <a href='#SkRRect_kRect_Type'>kRect_Type</a>.
+Otherwise, if all x-axis <a href='#SkRRect_setRectRadii_radii'>radii</a> are equal and at least half <a href='#SkRRect_setRectRadii_rect'>rect</a>.<a href='#SkRect_width'>width()</a>, and
+all y-axis <a href='#SkRRect_setRectRadii_radii'>radii</a> are equal at least half <a href='#SkRRect_setRectRadii_rect'>rect</a>.<a href='#SkRect_height'>height()</a>, sets to <a href='#SkRRect_kOval_Type'>kOval_Type</a>.
+Otherwise, if all x-axis <a href='#SkRRect_setRectRadii_radii'>radii</a> are equal, and all y-axis <a href='#SkRRect_setRectRadii_radii'>radii</a> are equal,
+sets to <a href='#SkRRect_kSimple_Type'>kSimple_Type</a>. Otherwise, sets to <a href='#SkRRect_kNinePatch_Type'>kNinePatch_Type</a>.
 
 ### Parameters
 
@@ -863,7 +815,7 @@ sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>. Otherwise, sets to <a 
     <td>bounds of rounded rectangle</td>
   </tr>
   <tr>    <td><a name='SkRRect_setRectRadii_radii'><code><strong>radii</strong></code></a></td>
-    <td>corner x-axis and y-axis radii</td>
+    <td>corner x-axis and y-axis <a href='#SkRRect_setRectRadii_radii'>radii</a></td>
   </tr>
 </table>
 
@@ -940,7 +892,7 @@ const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_rect'>rect
 
 Returns bounds. Bounds may have zero width or zero height. Bounds right is
 greater than or equal to left; bounds bottom is greater than or equal to top.
-Result is identical to <a href='#SkRRect_getBounds'>getBounds</a>.
+Result is identical to <a href='#SkRRect_getBounds'>getBounds</a>().
 
 ### Return Value
 
@@ -974,26 +926,27 @@ left bounds: (25) 25
 <a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkRRect_radii'>radii</a>(<a href='#SkRRect_Corner'>Corner</a> corner) const
 </pre>
 
-Returns <a href='undocumented#Scalar'>Scalar</a> pair for radius of curve on x-axis and y-axis for one <a href='#SkRRect_radii_corner'>corner</a>.
+Returns <a href='undocumented#Scalar'>scalar</a> pair for radius of <a href='undocumented#Curve'>curve</a> on x-axis and y-axis for one <a href='#SkRRect_radii()_corner'>corner</a>.
 Both radii may be zero. If not zero, both are positive and finite.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_radii_corner'><code><strong>corner</strong></code></a></td>
-    <td>one of: <a href='#SkRRect_kUpperLeft_Corner'>kUpperLeft Corner</a>, <a href='#SkRRect_kUpperRight_Corner'>kUpperRight Corner</a>,
-<a href='#SkRRect_kLowerRight_Corner'>kLowerRight Corner</a>, <a href='#SkRRect_kLowerLeft_Corner'>kLowerLeft Corner</a></td>
+    <td>one of: <a href='#SkRRect_kUpperLeft_Corner'>kUpperLeft_Corner</a>, <a href='#SkRRect_kUpperRight_Corner'>kUpperRight_Corner</a>,</td>
   </tr>
 </table>
 
+<a href='#SkRRect_kLowerRight_Corner'>kLowerRight_Corner</a>, <a href='#SkRRect_kLowerLeft_Corner'>kLowerLeft_Corner</a>
+
 ### Return Value
 
-x-axis and y-axis radii for one <a href='#SkRRect_radii_corner'>corner</a>
+x-axis and y-axis radii for one <a href='#SkRRect_radii()_corner'>corner</a>
 
 ### Example
 
 <div><fiddle-embed name="8d5c88478528584913867ada423e0d59"><div>Finite values are scaled proportionately to fit; other values are set to zero.
 Scaled values cannot be larger than 25, half the bounding <a href='#RRect'>Round Rect</a> width.
-Small scaled values are halved to scale in proportion to the y-axis <a href='#SkRRect_radii_corner'>corner</a>
+Small scaled values are halved to scale in proportion to the y-axis corner
 radius, which is twice the bounds height.
 </div>
 
@@ -1023,7 +976,7 @@ const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_getBounds'
 
 Returns bounds. Bounds may have zero width or zero height. Bounds right is
 greater than or equal to left; bounds bottom is greater than or equal to top.
-Result is identical to <a href='#SkRRect_rect'>rect</a>().
+Result is identical to <a href='#SkRRect_rect'>rect()</a>.
 
 ### Return Value
 
@@ -1045,18 +998,18 @@ bounding box
 bool <a href='#SkRRect_equal_operator'>operator==(const SkRRect& a, const SkRRect& b)</a>
 </pre>
 
-Returns true if bounds and radii in <a href='#SkRRect_equal_operator_a'>a</a> are equal to bounds and radii in <a href='#SkRRect_equal_operator_b'>b</a>.
+Returns true if bounds and radii in <a href='#SkRRect_operator==(const SkRRect& a, const SkRRect& b)_a'>a</a> are equal to bounds and radii in <a href='#SkRRect_operator==(const SkRRect& a, const SkRRect& b)_b'>b</a>.
 
-<a href='#SkRRect_equal_operator_a'>a</a> and <a href='#SkRRect_equal_operator_b'>b</a> are not equal if either contain NaN. <a href='#SkRRect_equal_operator_a'>a</a> and <a href='#SkRRect_equal_operator_b'>b</a> are equal if members
-contain zeroes width different signs.
+<a href='#SkRRect_operator==(const SkRRect& a, const SkRRect& b)_a'>a</a> and <a href='#SkRRect_operator==(const SkRRect& a, const SkRRect& b)_b'>b</a> are not equal if either contain NaN. <a href='#SkRRect_operator==(const SkRRect& a, const SkRRect& b)_a'>a</a> and <a href='#SkRRect_operator==(const SkRRect& a, const SkRRect& b)_b'>b</a> are equal if members
+contain zeroes with different signs.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_equal_operator_a'><code><strong>a</strong></code></a></td>
-    <td><a href='SkRect_Reference#Rect'>Rect</a> bounds and radii to compare</td>
+    <td><a href='SkRect_Reference#SkRect'>SkRect</a> bounds and radii to compare</td>
   </tr>
   <tr>    <td><a name='SkRRect_equal_operator_b'><code><strong>b</strong></code></a></td>
-    <td><a href='SkRect_Reference#Rect'>Rect</a> bounds and radii to compare</td>
+    <td><a href='SkRect_Reference#SkRect'>SkRect</a> bounds and radii to compare</td>
   </tr>
 </table>
 
@@ -1080,18 +1033,18 @@ true if members are equal
 bool <a href='#SkRRect_notequal_operator'>operator!=(const SkRRect& a, const SkRRect& b)</a>
 </pre>
 
-Returns true if bounds and radii in <a href='#SkRRect_notequal_operator_a'>a</a> are not equal to bounds and radii in <a href='#SkRRect_notequal_operator_b'>b</a>.
+Returns true if bounds and radii in <a href='#SkRRect_operator!=(const SkRRect& a, const SkRRect& b)_a'>a</a> are not equal to bounds and radii in <a href='#SkRRect_operator!=(const SkRRect& a, const SkRRect& b)_b'>b</a>.
 
-<a href='#SkRRect_notequal_operator_a'>a</a> and <a href='#SkRRect_notequal_operator_b'>b</a> are not equal if either contain NaN. <a href='#SkRRect_notequal_operator_a'>a</a> and <a href='#SkRRect_notequal_operator_b'>b</a> are equal if members
-contain zeroes width different signs.
+<a href='#SkRRect_operator!=(const SkRRect& a, const SkRRect& b)_a'>a</a> and <a href='#SkRRect_operator!=(const SkRRect& a, const SkRRect& b)_b'>b</a> are not equal if either contain NaN. <a href='#SkRRect_operator!=(const SkRRect& a, const SkRRect& b)_a'>a</a> and <a href='#SkRRect_operator!=(const SkRRect& a, const SkRRect& b)_b'>b</a> are equal if members
+contain zeroes with different signs.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_notequal_operator_a'><code><strong>a</strong></code></a></td>
-    <td><a href='SkRect_Reference#Rect'>Rect</a> bounds and radii to compare</td>
+    <td><a href='SkRect_Reference#SkRect'>SkRect</a> bounds and radii to compare</td>
   </tr>
   <tr>    <td><a name='SkRRect_notequal_operator_b'><code><strong>b</strong></code></a></td>
-    <td><a href='SkRect_Reference#Rect'>Rect</a> bounds and radii to compare</td>
+    <td><a href='SkRect_Reference#SkRect'>SkRect</a> bounds and radii to compare</td>
   </tr>
 </table>
 
@@ -1115,25 +1068,25 @@ true if members are not equal
 void <a href='#SkRRect_inset'>inset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='#SkRRect'>SkRRect</a>* dst) const
 </pre>
 
-Copies <a href='#RRect'>Round Rect</a> to <a href='#SkRRect_inset_dst'>dst</a>, then insets <a href='#SkRRect_inset_dst'>dst</a> bounds by <a href='#SkRRect_inset_dx'>dx</a> and <a href='#SkRRect_inset_dy'>dy</a>, and adjusts <a href='#SkRRect_inset_dst'>dst</a>
-radii by <a href='#SkRRect_inset_dx'>dx</a> and <a href='#SkRRect_inset_dy'>dy</a>. <a href='#SkRRect_inset_dx'>dx</a> and <a href='#SkRRect_inset_dy'>dy</a> may be positive, negative, or zero. <a href='#SkRRect_inset_dst'>dst</a> may be
-<a href='#RRect'>Round Rect</a>.
+Copies <a href='SkRRect_Reference#SkRRect'>SkRRect</a> to <a href='#SkRRect_inset()_dst'>dst</a>, then insets <a href='#SkRRect_inset()_dst'>dst</a> bounds by <a href='#SkRRect_inset()_dx'>dx</a> and <a href='#SkRRect_inset()_dy'>dy</a>, and adjusts <a href='#SkRRect_inset()_dst'>dst</a>
+radii by <a href='#SkRRect_inset()_dx'>dx</a> and <a href='#SkRRect_inset()_dy'>dy</a>. <a href='#SkRRect_inset()_dx'>dx</a> and <a href='#SkRRect_inset()_dy'>dy</a> may be positive, negative, or zero. <a href='#SkRRect_inset()_dst'>dst</a> may be
+<a href='SkRRect_Reference#SkRRect'>SkRRect</a>.
 
 If either corner radius is zero, the corner has no curvature and is unchanged.
 Otherwise, if adjusted radius becomes negative, pins radius to zero.
-If <a href='#SkRRect_inset_dx'>dx</a> exceeds half <a href='#SkRRect_inset_dst'>dst</a> bounds width, <a href='#SkRRect_inset_dst'>dst</a> bounds left and right are set to
-bounds x-axis center. If <a href='#SkRRect_inset_dy'>dy</a> exceeds half <a href='#SkRRect_inset_dst'>dst</a> bounds height, <a href='#SkRRect_inset_dst'>dst</a> bounds top and
+If <a href='#SkRRect_inset()_dx'>dx</a> exceeds half <a href='#SkRRect_inset()_dst'>dst</a> bounds width, <a href='#SkRRect_inset()_dst'>dst</a> bounds left and right are set to
+bounds x-axis center. If <a href='#SkRRect_inset()_dy'>dy</a> exceeds half <a href='#SkRRect_inset()_dst'>dst</a> bounds height, <a href='#SkRRect_inset()_dst'>dst</a> bounds top and
 bottom are set to bounds y-axis center.
 
-If <a href='#SkRRect_inset_dx'>dx</a> or <a href='#SkRRect_inset_dy'>dy</a> cause the bounds to become infinite, <a href='#SkRRect_inset_dst'>dst</a> bounds is zeroed.
+If <a href='#SkRRect_inset()_dx'>dx</a> or <a href='#SkRRect_inset()_dy'>dy</a> cause the bounds to become infinite, <a href='#SkRRect_inset()_dst'>dst</a> bounds is zeroed.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_inset_dx'><code><strong>dx</strong></code></a></td>
-    <td>added to <a href='#SkRRect_rect'>rect</a>().fLeft, and subtracted from <a href='#SkRRect_rect'>rect</a>().fRight</td>
+    <td>added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fLeft'>fLeft</a>, and subtracted from <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fRight'>fRight</a></td>
   </tr>
   <tr>    <td><a name='SkRRect_inset_dy'><code><strong>dy</strong></code></a></td>
-    <td>added to <a href='#SkRRect_rect'>rect</a>().fTop, and subtracted from <a href='#SkRRect_rect'>rect</a>().fBottom</td>
+    <td>added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fTop'>fTop</a>, and subtracted from <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fBottom'>fBottom</a></td>
   </tr>
   <tr>    <td><a name='SkRRect_inset_dst'><code><strong>dst</strong></code></a></td>
     <td>insets bounds and radii</td>
@@ -1170,10 +1123,10 @@ If <a href='#SkRRect_inset_2_dx'>dx</a> or <a href='#SkRRect_inset_2_dy'>dy</a> 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_inset_2_dx'><code><strong>dx</strong></code></a></td>
-    <td>added to <a href='#SkRRect_rect'>rect</a>().fLeft, and subtracted from <a href='#SkRRect_rect'>rect</a>().fRight</td>
+    <td>added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fLeft'>fLeft</a>, and subtracted from <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fRight'>fRight</a></td>
   </tr>
   <tr>    <td><a name='SkRRect_inset_2_dy'><code><strong>dy</strong></code></a></td>
-    <td>added to <a href='#SkRRect_rect'>rect</a>().fTop, and subtracted from <a href='#SkRRect_rect'>rect</a>().fBottom</td>
+    <td>added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fTop'>fTop</a>, and subtracted from <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fBottom'>fBottom</a></td>
   </tr>
 </table>
 
@@ -1193,24 +1146,24 @@ If <a href='#SkRRect_inset_2_dx'>dx</a> or <a href='#SkRRect_inset_2_dy'>dy</a> 
 void <a href='#SkRRect_outset'>outset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='#SkRRect'>SkRRect</a>* dst) const
 </pre>
 
-Outsets <a href='#SkRRect_outset_dst'>dst</a> bounds by <a href='#SkRRect_outset_dx'>dx</a> and <a href='#SkRRect_outset_dy'>dy</a>, and adjusts radii by <a href='#SkRRect_outset_dx'>dx</a> and <a href='#SkRRect_outset_dy'>dy</a>. <a href='#SkRRect_outset_dx'>dx</a> and <a href='#SkRRect_outset_dy'>dy</a> may be
+Outsets <a href='#SkRRect_outset()_dst'>dst</a> bounds by <a href='#SkRRect_outset()_dx'>dx</a> and <a href='#SkRRect_outset()_dy'>dy</a>, and adjusts radii by <a href='#SkRRect_outset()_dx'>dx</a> and <a href='#SkRRect_outset()_dy'>dy</a>. <a href='#SkRRect_outset()_dx'>dx</a> and <a href='#SkRRect_outset()_dy'>dy</a> may be
 positive, negative, or zero.
 
 If either corner radius is zero, the corner has no curvature and is unchanged.
 Otherwise, if adjusted radius becomes negative, pins radius to zero.
-If <a href='#SkRRect_outset_dx'>dx</a> exceeds half <a href='#SkRRect_outset_dst'>dst</a> bounds width, <a href='#SkRRect_outset_dst'>dst</a> bounds left and right are set to
-bounds x-axis center. If <a href='#SkRRect_outset_dy'>dy</a> exceeds half <a href='#SkRRect_outset_dst'>dst</a> bounds height, <a href='#SkRRect_outset_dst'>dst</a> bounds top and
+If <a href='#SkRRect_outset()_dx'>dx</a> exceeds half <a href='#SkRRect_outset()_dst'>dst</a> bounds width, <a href='#SkRRect_outset()_dst'>dst</a> bounds left and right are set to
+bounds x-axis center. If <a href='#SkRRect_outset()_dy'>dy</a> exceeds half <a href='#SkRRect_outset()_dst'>dst</a> bounds height, <a href='#SkRRect_outset()_dst'>dst</a> bounds top and
 bottom are set to bounds y-axis center.
 
-If <a href='#SkRRect_outset_dx'>dx</a> or <a href='#SkRRect_outset_dy'>dy</a> cause the bounds to become infinite, <a href='#SkRRect_outset_dst'>dst</a> bounds is zeroed.
+If <a href='#SkRRect_outset()_dx'>dx</a> or <a href='#SkRRect_outset()_dy'>dy</a> cause the bounds to become infinite, <a href='#SkRRect_outset()_dst'>dst</a> bounds is zeroed.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_outset_dx'><code><strong>dx</strong></code></a></td>
-    <td>subtracted from <a href='#SkRRect_rect'>rect</a>().fLeft, and added to <a href='#SkRRect_rect'>rect</a>().fRight</td>
+    <td>subtracted from <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fLeft'>fLeft</a>, and added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fRight'>fRight</a></td>
   </tr>
   <tr>    <td><a name='SkRRect_outset_dy'><code><strong>dy</strong></code></a></td>
-    <td>subtracted from <a href='#SkRRect_rect'>rect</a>().fTop, and added to <a href='#SkRRect_rect'>rect</a>().fBottom</td>
+    <td>subtracted from <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fTop'>fTop</a>, and added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fBottom'>fBottom</a></td>
   </tr>
   <tr>    <td><a name='SkRRect_outset_dst'><code><strong>dst</strong></code></a></td>
     <td>outset bounds and radii</td>
@@ -1247,10 +1200,10 @@ If <a href='#SkRRect_outset_2_dx'>dx</a> or <a href='#SkRRect_outset_2_dy'>dy</a
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_outset_2_dx'><code><strong>dx</strong></code></a></td>
-    <td>subtracted from <a href='#SkRRect_rect'>rect</a>().fLeft, and added to <a href='#SkRRect_rect'>rect</a>().fRight</td>
+    <td>subtracted from <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fLeft'>fLeft</a>, and added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fRight'>fRight</a></td>
   </tr>
   <tr>    <td><a name='SkRRect_outset_2_dy'><code><strong>dy</strong></code></a></td>
-    <td>subtracted from <a href='#SkRRect_rect'>rect</a>().fTop, and added to <a href='#SkRRect_rect'>rect</a>().fBottom</td>
+    <td>subtracted from <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fTop'>fTop</a>, and added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fBottom'>fBottom</a></td>
   </tr>
 </table>
 
@@ -1270,15 +1223,15 @@ If <a href='#SkRRect_outset_2_dx'>dx</a> or <a href='#SkRRect_outset_2_dy'>dy</a
 void <a href='#SkRRect_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy)
 </pre>
 
-Translates <a href='#RRect'>Round Rect</a> by (<a href='#SkRRect_offset_dx'>dx</a>, <a href='#SkRRect_offset_dy'>dy</a>).
+Translates <a href='SkRRect_Reference#SkRRect'>SkRRect</a> by (<a href='#SkRRect_offset()_dx'>dx</a>, <a href='#SkRRect_offset()_dy'>dy</a>).
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_offset_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset added to <a href='#SkRRect_rect'>rect</a>().fLeft and <a href='#SkRRect_rect'>rect</a>().fRight</td>
+    <td>offset added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fRight'>fRight</a></td>
   </tr>
   <tr>    <td><a name='SkRRect_offset_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset added to <a href='#SkRRect_rect'>rect</a>().fTop and <a href='#SkRRect_rect'>rect</a>().fBottom</td>
+    <td>offset added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fTop'>fTop</a> and <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fBottom'>fBottom</a></td>
   </tr>
 </table>
 
@@ -1298,21 +1251,21 @@ Translates <a href='#RRect'>Round Rect</a> by (<a href='#SkRRect_offset_dx'>dx</
 <a href='#SkRRect'>SkRRect</a> <a href='#SkRRect_makeOffset'>makeOffset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy) const
 </pre>
 
-Returns <a href='#RRect'>Round Rect</a> translated by (<a href='#SkRRect_makeOffset_dx'>dx</a>, <a href='#SkRRect_makeOffset_dy'>dy</a>).
+Returns <a href='SkRRect_Reference#SkRRect'>SkRRect</a> translated by (<a href='#SkRRect_makeOffset_dx'>dx</a>, <a href='#SkRRect_makeOffset_dy'>dy</a>).
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_makeOffset_dx'><code><strong>dx</strong></code></a></td>
-    <td>offset added to <a href='#SkRRect_rect'>rect</a>().fLeft and <a href='#SkRRect_rect'>rect</a>().fRight</td>
+    <td>offset added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fLeft'>fLeft</a> and <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fRight'>fRight</a></td>
   </tr>
   <tr>    <td><a name='SkRRect_makeOffset_dy'><code><strong>dy</strong></code></a></td>
-    <td>offset added to <a href='#SkRRect_rect'>rect</a>().fTop and <a href='#SkRRect_rect'>rect</a>().fBottom</td>
+    <td>offset added to <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fTop'>fTop</a> and <a href='#SkRRect_rect'>rect()</a>.<a href='#SkRect_fBottom'>fBottom</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='#RRect'>Round Rect</a> bounds offset by (<a href='#SkRRect_makeOffset_dx'>dx</a>, <a href='#SkRRect_makeOffset_dy'>dy</a>), with unchanged corner radii
+<a href='SkRRect_Reference#SkRRect'>SkRRect</a> bounds offset by (<a href='#SkRRect_makeOffset_dx'>dx</a>, <a href='#SkRRect_makeOffset_dy'>dy</a>), with unchanged corner radii
 
 ### Example
 
@@ -1330,8 +1283,8 @@ Returns <a href='#RRect'>Round Rect</a> translated by (<a href='#SkRRect_makeOff
 bool <a href='#SkRRect_contains'>contains</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect) const
 </pre>
 
-Returns true if rect is inside the bounds and corner radii, and if
-<a href='#RRect'>Round Rect</a> and rect are not empty.
+Returns true if <a href='#SkRRect_contains()_rect'>rect</a> is inside the bounds and corner radii, and if
+<a href='SkRRect_Reference#SkRRect'>SkRRect</a> and <a href='#SkRRect_contains()_rect'>rect</a> are not empty.
 
 ### Parameters
 
@@ -1342,7 +1295,7 @@ Returns true if rect is inside the bounds and corner radii, and if
 
 ### Return Value
 
-true if <a href='#RRect'>Round Rect</a> contains rect
+true if <a href='SkRRect_Reference#SkRRect'>SkRRect</a> contains <a href='#SkRRect_contains()_rect'>rect</a>
 
 ### Example
 
@@ -1360,14 +1313,14 @@ true if <a href='#RRect'>Round Rect</a> contains rect
 bool <a href='#SkRRect_isValid'>isValid</a>() const
 </pre>
 
-Returns true if bounds and radii values are finite and describe a <a href='#RRect'>Round Rect</a>
-<a href='#SkRRect_Type'>Type</a> that matches <a href='#SkRRect_getType'>getType</a>. All <a href='#RRect'>Round Rect</a> methods construct valid types,
-even if the input values are not valid. Invalid <a href='#RRect'>Round Rect</a> data can only
+Returns true if bounds and radii values are finite and describe a <a href='SkRRect_Reference#SkRRect'>SkRRect</a>
+<a href='SkRRect_Reference#SkRRect'>SkRRect</a>::<a href='#SkRRect_Type'>Type</a> that matches <a href='#SkRRect_getType'>getType</a>(). All <a href='SkRRect_Reference#SkRRect'>SkRRect</a> methods construct valid types,
+even if the input values are not valid. Invalid <a href='SkRRect_Reference#SkRRect'>SkRRect</a> <a href='undocumented#Data'>data</a> can only
 be generated by corrupting memory.
 
 ### Return Value
 
-true if bounds and radii match <a href='#SkRRect_type'>type</a>()
+true if bounds and radii match <a href='#SkRRect_type'>type()</a>
 
 ### Example
 
@@ -1400,13 +1353,13 @@ Space required to serialize <a href='#SkRRect'>SkRRect</a> into a buffer. Always
 size_t <a href='#SkRRect_writeToMemory'>writeToMemory</a>(void* buffer) const
 </pre>
 
-Writes <a href='#RRect'>Round Rect</a> to <a href='#SkRRect_writeToMemory_buffer'>buffer</a>. Writes <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes, and returns
+Writes <a href='SkRRect_Reference#SkRRect'>SkRRect</a> to <a href='#SkRRect_writeToMemory_buffer'>buffer</a>. Writes <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes, and returns
 <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>, the number of bytes written.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_writeToMemory_buffer'><code><strong>buffer</strong></code></a></td>
-    <td>storage for <a href='#RRect'>Round Rect</a></td>
+    <td>storage for <a href='SkRRect_Reference#SkRRect'>SkRRect</a></td>
   </tr>
 </table>
 
@@ -1430,7 +1383,7 @@ bytes written, <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>
 size_t <a href='#SkRRect_readFromMemory'>readFromMemory</a>(const void* buffer, size_t length)
 </pre>
 
-Reads <a href='#RRect'>Round Rect</a> from <a href='#SkRRect_readFromMemory_buffer'>buffer</a>, reading <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes.
+Reads <a href='SkRRect_Reference#SkRRect'>SkRRect</a> from <a href='#SkRRect_readFromMemory_buffer'>buffer</a>, reading <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes.
 Returns <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>, bytes read if <a href='#SkRRect_readFromMemory_length'>length</a> is at least <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>.
 Otherwise, returns zero.
 
@@ -1440,7 +1393,7 @@ Otherwise, returns zero.
     <td>memory to read from</td>
   </tr>
   <tr>    <td><a name='SkRRect_readFromMemory_length'><code><strong>length</strong></code></a></td>
-    <td>size of <a href='#SkRRect_readFromMemory_buffer'>buffer</a></td>
+    <td><a href='undocumented#Size'>size</a> of <a href='#SkRRect_readFromMemory_buffer'>buffer</a></td>
   </tr>
 </table>
 
@@ -1464,11 +1417,11 @@ bytes read, or 0 if <a href='#SkRRect_readFromMemory_length'>length</a> is less 
 bool <a href='#SkRRect_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& matrix, <a href='#SkRRect'>SkRRect</a>* dst) const
 </pre>
 
-Transforms by <a href='#RRect'>Round Rect</a> by <a href='#SkRRect_transform_matrix'>matrix</a>, storing result in <a href='#SkRRect_transform_dst'>dst</a>.
-Returns true if <a href='#RRect'>Round Rect</a> transformed can be represented by another <a href='#RRect'>Round Rect</a>.
-Returns false if <a href='#SkRRect_transform_matrix'>matrix</a> contains transformations other than scale and translate.
+Transforms by <a href='SkRRect_Reference#SkRRect'>SkRRect</a> by <a href='#SkRRect_transform()_matrix'>matrix</a>, storing result in <a href='#SkRRect_transform()_dst'>dst</a>.
+Returns true if <a href='SkRRect_Reference#SkRRect'>SkRRect</a> transformed can be represented by another <a href='SkRRect_Reference#SkRRect'>SkRRect</a>.
+Returns false if <a href='#SkRRect_transform()_matrix'>matrix</a> contains transformations other than scale and translate.
 
-Asserts in debug builds if <a href='#RRect'>Round Rect</a> equals <a href='#SkRRect_transform_dst'>dst</a>.
+Asserts in debug builds if <a href='SkRRect_Reference#SkRRect'>SkRRect</a> equals <a href='#SkRRect_transform()_dst'>dst</a>.
 
 ### Parameters
 
@@ -1476,7 +1429,7 @@ Asserts in debug builds if <a href='#RRect'>Round Rect</a> equals <a href='#SkRR
     <td><a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> specifying the transform</td>
   </tr>
   <tr>    <td><a name='SkRRect_transform_dst'><code><strong>dst</strong></code></a></td>
-    <td><a href='#SkRRect'>SkRRect</a> to store the result</td>
+    <td><a href='SkRRect_Reference#SkRRect'>SkRRect</a> to store the result</td>
   </tr>
 </table>
 
@@ -1500,9 +1453,9 @@ true if transformation succeeded.
 void <a href='#SkRRect_dump'>dump</a>(bool asHex) const
 </pre>
 
-Writes text representation of <a href='#RRect'>Round Rect</a> to standard output.
-Set <a href='#SkRRect_dump_asHex'>asHex</a> true to generate exact binary representations
-of floating point numbers.
+Writes <a href='undocumented#Text'>text</a> representation of <a href='SkRRect_Reference#SkRRect'>SkRRect</a> to standard output.
+Set <a href='#SkRRect_dump()_asHex'>asHex</a> true to generate exact binary representations
+of floating <a href='SkPoint_Reference#Point'>point</a> numbers.
 
 ### Parameters
 
@@ -1551,10 +1504,10 @@ const SkPoint corners[] = {
 void <a href='#SkRRect_dump'>dump</a>() const
 </pre>
 
-Writes text representation of <a href='#RRect'>Round Rect</a> to standard output. The representation
-may be directly compiled as C++ code. Floating point values are written
+Writes <a href='undocumented#Text'>text</a> representation of <a href='SkRRect_Reference#SkRRect'>SkRRect</a> to standard output. The representation
+may be directly compiled as C++ code. Floating <a href='SkPoint_Reference#Point'>point</a> values are written
 with limited precision; it may not be possible to reconstruct original
-<a href='#RRect'>Round Rect</a> from output.
+<a href='SkRRect_Reference#SkRRect'>SkRRect</a> from output.
 
 ### Example
 
@@ -1587,10 +1540,10 @@ rrect is not equal to copy
 void <a href='#SkRRect_dumpHex'>dumpHex</a>() const
 </pre>
 
-Writes text representation of <a href='#RRect'>Round Rect</a> to standard output. The representation
-may be directly compiled as C++ code. Floating point values are written
+Writes <a href='undocumented#Text'>text</a> representation of <a href='SkRRect_Reference#SkRRect'>SkRRect</a> to standard output. The representation
+may be directly compiled as C++ code. Floating <a href='SkPoint_Reference#Point'>point</a> values are written
 in hexadecimal to preserve their exact bit pattern. The output reconstructs the
-original <a href='#RRect'>Round Rect</a>.
+original <a href='SkRRect_Reference#SkRRect'>SkRRect</a>.
 
 ### Example
 
