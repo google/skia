@@ -50,6 +50,8 @@ class SkTextBlob;
 class SkTextBlobRunIterator;
 class SkTypeface;
 
+#define SK_SUPPORT_LEGACY_PAINTALIGNENUM
+
 /** \class SkPaint
     SkPaint controls options applied when drawing and measuring. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
@@ -846,6 +848,7 @@ public:
     */
     void setLooper(sk_sp<SkDrawLooper> drawLooper);
 
+#ifdef SK_SUPPORT_LEGACY_PAINTALIGNENUM
     /** \enum SkPaint::Align
         Align adjusts the text relative to the text position.
         Align affects glyphs drawn with: SkCanvas::drawText, SkCanvas::drawPosText,
@@ -867,6 +870,7 @@ public:
         kCenter_Align, //!< centers line of glyphs by its width or height
         kRight_Align,  //!< moves lines of glyphs by its width or height
     };
+#endif
 
     /** May be used to verify that align is a legal value.
     */

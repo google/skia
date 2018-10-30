@@ -46,7 +46,7 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
     paint.setColor(SK_ColorWHITE);
     paint.setTextSize(32);
     sk_tool_utils::set_portable_typeface(&paint);
-    SkTextUtils::DrawString(canvas, label, W / 2, H * 3 / 4, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, label, W / 2, H * 3 / 4, paint, SkTextUtils::kCenter_Align);
 }
 
 class SurfacePropsGM : public skiagm::GM {

@@ -259,7 +259,7 @@ protected:
 #if 1
                 const char* label = SkBlendMode_Name(gModes[i].fMode);
                 SkTextUtils::DrawString(canvas, label, x + w/2, y - labelP.getTextSize()/2,
-                                        labelP, SkPaint::kCenter_Align);
+                                        labelP, SkTextUtils::kCenter_Align);
 #endif
                 x += w + SkIntToScalar(10);
                 if ((i % W) == W - 1) {

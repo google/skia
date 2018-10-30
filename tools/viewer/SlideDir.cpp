@@ -262,7 +262,7 @@ static sk_sp<sksg::RenderNode> MakeLabel(const SkString& txt,
     auto text = sksg::Text::Make(nullptr, txt);
     text->setFlags(SkPaint::kAntiAlias_Flag);
     text->setSize(size);
-    text->setAlign(SkPaint::kCenter_Align);
+    text->setAlign(SkTextUtils::kCenter_Align);
     text->setPosition(pos + SkPoint::Make(0, size));
 
     return sksg::Draw::Make(std::move(text), sksg::Color::Make(SK_ColorBLACK));

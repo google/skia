@@ -104,7 +104,7 @@ protected:
         float y = D/2 - (fm.fAscent + fm.fDescent)/2;
         SkString str;
         str.appendS32(count);
-        SkTextUtils::DrawString(canvas, str, x, y, *paint, SkPaint::kCenter_Align);
+        SkTextUtils::DrawString(canvas, str, x, y, *paint, SkTextUtils::kCenter_Align);
 
         canvas->restore();
     }

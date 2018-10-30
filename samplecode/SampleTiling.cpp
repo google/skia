@@ -112,7 +112,7 @@ protected:
                     str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                     SkTextUtils::DrawString(textCanvas, str, x + r.width()/2, y, p,
-                                            SkPaint::kCenter_Align);
+                                            SkTextUtils::kCenter_Align);
 
                     x += r.width() * 4 / 3;
                 }

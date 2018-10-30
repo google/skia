@@ -89,7 +89,7 @@ protected:
                         s.append(" filter=");
                         s.appendS32(paint.getFilterQuality() != kNone_SkFilterQuality);
                         SkTextUtils::DrawString(canvas, s, x + W/2, y - p.getTextSize(), p,
-                                                SkPaint::kCenter_Align);
+                                                SkTextUtils::kCenter_Align);
                     }
                     if (k+j == 2) {
                         SkPaint p;
