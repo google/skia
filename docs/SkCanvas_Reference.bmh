@@ -5297,7 +5297,6 @@ void draw(SkCanvas* canvas) {
         alphabet[i] = 'A' + i;
     }
     SkPaint paint;
-    paint.setTextAlign(SkPaint::kCenter_Align);
     canvas->translate(110, 138);
     canvas->drawTextRSXform(alphabet, sizeof(alphabet), transforms, nullptr, paint);
 }
@@ -5825,7 +5824,6 @@ void draw(SkCanvas* canvas) {
             {7.5f,5.2f}, {5,7.5f}, {4,5.9f}, {3,7.5f}, {0.5f,5.2f}, {2.5f,4.2f},
             {0.5f,3.2f} };
     paint.setTextSize(18.f / 30);
-    paint.setTextAlign(SkPaint::kCenter_Align);
     for (int i = 0; i< 10; ++i) {
        char digit = '0' + i;
        canvas->drawText(&digit, 1, text[i].fX, text[i].fY, paint);

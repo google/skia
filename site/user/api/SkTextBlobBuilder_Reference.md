@@ -26,6 +26,12 @@ public:
                                   const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
     const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& font, int count,
                                  const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun_2'>allocRun</a>(const <a href='undocumented#SkFont'>SkFont</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
+                              const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH_2'>allocRunPosH</a>(const <a href='undocumented#SkFont'>SkFont</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
+                                  const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos_2'>allocRunPos</a>(const <a href='undocumented#SkFont'>SkFont</a>& font, int count,
+                                 const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
 };
 </pre>
 
@@ -91,7 +97,7 @@ Reserved for future use. clusters should not be read or written.
 
 ### See Also
 
-<a href='#SkTextBlobBuilder_allocRun'>allocRun</a> <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a> <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>
+<a href='#SkTextBlobBuilder_allocRun'>allocRun</a><sup><a href='#SkTextBlobBuilder_allocRun_2'>[2]</a></sup> <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a><sup><a href='#SkTextBlobBuilder_allocRunPos_2'>[2]</a></sup> <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a><sup><a href='#SkTextBlobBuilder_allocRunPosH_2'>[2]</a></sup>
 
 <a name='SkTextBlobBuilder_empty_constructor'></a>
 
@@ -229,7 +235,64 @@ writable glyph buffer
 
 ### See Also
 
-<a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a> <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>
+<a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a><sup><a href='#SkTextBlobBuilder_allocRunPosH_2'>[2]</a></sup> <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a><sup><a href='#SkTextBlobBuilder_allocRunPos_2'>[2]</a></sup>
+
+<a name='SkTextBlobBuilder_allocRun_2'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const <a href='undocumented#SkFont'>SkFont</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
+                          const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr)
+</pre>
+
+Returns run with storage for <a href='undocumented#Glyph'>Glyphs</a>. Caller must write <a href='#SkTextBlobBuilder_allocRun_2_count'>count</a> <a href='undocumented#Glyph'>Glyphs</a> to
+<a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.glyphs before next call to FontBlobBuilder.
+
+<a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.utf8text, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.clusters should be ignored.
+
+<a href='undocumented#Glyph'>Glyphs</a> share <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> in <a href='#SkTextBlobBuilder_allocRun_2_font'>font</a>, including: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
+and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
+
+<a href='undocumented#Glyph'>Glyphs</a> are positioned on a baseline at (<a href='#SkTextBlobBuilder_allocRun_2_x'>x</a>, <a href='#SkTextBlobBuilder_allocRun_2_y'>y</a>), using <a href='#SkTextBlobBuilder_allocRun_2_font'>font</a> <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> to
+determine their relative placement.
+
+<a href='#SkTextBlobBuilder_allocRun_2_bounds'>bounds</a> defines an optional bounding box, used to suppress drawing when <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a>
+<a href='#SkTextBlobBuilder_allocRun_2_bounds'>bounds</a> does not intersect <a href='SkSurface_Reference#Surface'>Surface</a> <a href='#SkTextBlobBuilder_allocRun_2_bounds'>bounds</a>. If <a href='#SkTextBlobBuilder_allocRun_2_bounds'>bounds</a> is nullptr, <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> <a href='#SkTextBlobBuilder_allocRun_2_bounds'>bounds</a>
+is computed from (<a href='#SkTextBlobBuilder_allocRun_2_x'>x</a>, <a href='#SkTextBlobBuilder_allocRun_2_y'>y</a>) and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.glyphs <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkTextBlobBuilder_allocRun_2_font'><code><strong>font</strong></code></a></td>
+    <td><a href='undocumented#Font'>Font</a> used for this run</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlobBuilder_allocRun_2_count'><code><strong>count</strong></code></a></td>
+    <td>number of glyphs</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlobBuilder_allocRun_2_x'><code><strong>x</strong></code></a></td>
+    <td>horizontal offset within the blob</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlobBuilder_allocRun_2_y'><code><strong>y</strong></code></a></td>
+    <td>vertical offset within the blob</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlobBuilder_allocRun_2_bounds'><code><strong>bounds</strong></code></a></td>
+    <td>optional run bounding box</td>
+  </tr>
+</table>
+
+### Return Value
+
+writable glyph buffer
+
+### Example
+
+<div><fiddle-embed name="f0e584aec20eaee7a5bfed62aa885eee"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a><sup><a href='#SkTextBlobBuilder_allocRunPosH_2'>[2]</a></sup> <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a><sup><a href='#SkTextBlobBuilder_allocRunPos_2'>[2]</a></sup>
 
 <a name='SkTextBlobBuilder_allocRunPosH'></a>
 
@@ -284,7 +347,62 @@ writable glyph buffer and x-axis position buffer
 
 ### See Also
 
-<a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a> <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>
+<a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a><sup><a href='#SkTextBlobBuilder_allocRunPos_2'>[2]</a></sup> <a href='#SkTextBlobBuilder_allocRun'>allocRun</a><sup><a href='#SkTextBlobBuilder_allocRun_2'>[2]</a></sup>
+
+<a name='SkTextBlobBuilder_allocRunPosH_2'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const <a href='undocumented#SkFont'>SkFont</a>& font, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
+                              const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr)
+</pre>
+
+Returns run with storage for <a href='undocumented#Glyph'>Glyphs</a> and positions along baseline. Caller must
+write <a href='#SkTextBlobBuilder_allocRunPosH_2_count'>count</a> <a href='undocumented#Glyph'>Glyphs</a> to <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.glyphs, and <a href='#SkTextBlobBuilder_allocRunPosH_2_count'>count</a> <a href='undocumented#Scalar'>Scalars</a> to <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.pos;
+before next call to FontBlobBuilder.
+
+<a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.utf8text, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.clusters should be ignored.
+
+<a href='undocumented#Glyph'>Glyphs</a> share <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> in <a href='#SkTextBlobBuilder_allocRunPosH_2_font'>font</a>, including: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
+and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
+
+<a href='undocumented#Glyph'>Glyphs</a> are positioned on a baseline at <a href='#SkTextBlobBuilder_allocRunPosH_2_y'>y</a>, using x-axis positions written by
+caller to <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.pos.
+
+<a href='#SkTextBlobBuilder_allocRunPosH_2_bounds'>bounds</a> defines an optional bounding box, used to suppress drawing when <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a>
+<a href='#SkTextBlobBuilder_allocRunPosH_2_bounds'>bounds</a> does not intersect <a href='SkSurface_Reference#Surface'>Surface</a> <a href='#SkTextBlobBuilder_allocRunPosH_2_bounds'>bounds</a>. If <a href='#SkTextBlobBuilder_allocRunPosH_2_bounds'>bounds</a> is nullptr, <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> <a href='#SkTextBlobBuilder_allocRunPosH_2_bounds'>bounds</a>
+is computed from <a href='#SkTextBlobBuilder_allocRunPosH_2_y'>y</a>, <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.pos, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.glyphs <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkTextBlobBuilder_allocRunPosH_2_font'><code><strong>font</strong></code></a></td>
+    <td><a href='undocumented#Font'>Font</a> used for this run</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlobBuilder_allocRunPosH_2_count'><code><strong>count</strong></code></a></td>
+    <td>number of <a href='undocumented#Glyph'>Glyphs</a></td>
+  </tr>
+  <tr>    <td><a name='SkTextBlobBuilder_allocRunPosH_2_y'><code><strong>y</strong></code></a></td>
+    <td>vertical offset within the blob</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlobBuilder_allocRunPosH_2_bounds'><code><strong>bounds</strong></code></a></td>
+    <td>optional run bounding box</td>
+  </tr>
+</table>
+
+### Return Value
+
+writable glyph buffer and x-axis position buffer
+
+### Example
+
+<div><fiddle-embed name="c77ac50f506106fdfef94d20bc1a6934"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a><sup><a href='#SkTextBlobBuilder_allocRunPos_2'>[2]</a></sup> <a href='#SkTextBlobBuilder_allocRun'>allocRun</a><sup><a href='#SkTextBlobBuilder_allocRun_2'>[2]</a></sup>
 
 <a name='SkTextBlobBuilder_allocRunPos'></a>
 
@@ -331,9 +449,60 @@ writable glyph buffer and <a href='SkPoint_Reference#Point'>Point</a> buffer
 
 ### Example
 
-<div><fiddle-embed name="f65c92ff5bfcc95ba58a2ba4d67f944f"></fiddle-embed></div>
+<div><fiddle-embed name="2a11d3c287f785f3808dcbce08ccb435"></fiddle-embed></div>
 
 ### See Also
 
-<a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a> <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>
+<a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a><sup><a href='#SkTextBlobBuilder_allocRunPosH_2'>[2]</a></sup> <a href='#SkTextBlobBuilder_allocRun'>allocRun</a><sup><a href='#SkTextBlobBuilder_allocRun_2'>[2]</a></sup>
+
+<a name='SkTextBlobBuilder_allocRunPos_2'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='undocumented#SkFont'>SkFont</a>& font, int count, const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr)
+</pre>
+
+Returns run with storage for <a href='undocumented#Glyph'>Glyphs</a> and <a href='SkPoint_Reference#Point'>Point</a> positions. Caller must
+write <a href='#SkTextBlobBuilder_allocRunPos_2_count'>count</a> <a href='undocumented#Glyph'>Glyphs</a> to <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.glyphs, and <a href='#SkTextBlobBuilder_allocRunPos_2_count'>count</a> <a href='SkPoint_Reference#Point'>Points</a> to <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.pos;
+before next call to FontBlobBuilder.
+
+<a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.utf8text, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.clusters should be ignored.
+
+<a href='undocumented#Glyph'>Glyphs</a> share <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> in <a href='#SkTextBlobBuilder_allocRunPos_2_font'>font</a>, including: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
+and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
+
+<a href='undocumented#Glyph'>Glyphs</a> are positioned using <a href='SkPoint_Reference#Point'>Points</a> written by caller to <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.pos, using
+two <a href='undocumented#Scalar'>Scalar</a> values for each <a href='SkPoint_Reference#Point'>Point</a>.
+
+<a href='#SkTextBlobBuilder_allocRunPos_2_bounds'>bounds</a> defines an optional bounding box, used to suppress drawing when <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a>
+<a href='#SkTextBlobBuilder_allocRunPos_2_bounds'>bounds</a> does not intersect <a href='SkSurface_Reference#Surface'>Surface</a> <a href='#SkTextBlobBuilder_allocRunPos_2_bounds'>bounds</a>. If <a href='#SkTextBlobBuilder_allocRunPos_2_bounds'>bounds</a> is nullptr, <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> <a href='#SkTextBlobBuilder_allocRunPos_2_bounds'>bounds</a>
+is computed from <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.pos, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.glyphs <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkTextBlobBuilder_allocRunPos_2_font'><code><strong>font</strong></code></a></td>
+    <td><a href='undocumented#Font'>Font</a> used for this run</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlobBuilder_allocRunPos_2_count'><code><strong>count</strong></code></a></td>
+    <td>number of <a href='undocumented#Glyph'>Glyphs</a></td>
+  </tr>
+  <tr>    <td><a name='SkTextBlobBuilder_allocRunPos_2_bounds'><code><strong>bounds</strong></code></a></td>
+    <td>optional run bounding box</td>
+  </tr>
+</table>
+
+### Return Value
+
+writable glyph buffer and <a href='SkPoint_Reference#Point'>Point</a> buffer
+
+### Example
+
+<div><fiddle-embed name="da4fcb4a972b500996be9aff6c6c40e1"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a><sup><a href='#SkTextBlobBuilder_allocRunPosH_2'>[2]</a></sup> <a href='#SkTextBlobBuilder_allocRun'>allocRun</a><sup><a href='#SkTextBlobBuilder_allocRun_2'>[2]</a></sup>
 
