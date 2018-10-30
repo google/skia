@@ -1447,9 +1447,8 @@ Returns pixel count in each row.
    SkImageInfo imageInfo = source.info();
    canvas->translate(0, imageInfo.height());
    SkPaint paint;
-   paint.setTextAlign(SkPaint::kCenter_Align);
    canvas->drawLine(0, 10, imageInfo.width(), 10, paint);
-   canvas->drawString("width", imageInfo.width() / 2, 25, paint);
+   canvas->drawString("width", imageInfo.width() / 2 - 15, 25, paint);
 ##
 
 #SeeAlso height SkBitmap::width SkPixelRef::width SkImage::width SkSurface::width
@@ -1472,9 +1471,8 @@ Returns pixel row count.
    canvas->drawBitmap(source, 0, 0);
    SkImageInfo imageInfo = source.info();
    SkPaint paint;
-   paint.setTextAlign(SkPaint::kCenter_Align);
    canvas->drawLine(imageInfo.width() + 10, 0, imageInfo.width() + 10, imageInfo.height(), paint);
-   canvas->drawString("height", imageInfo.width() + 34, imageInfo.height() / 2, paint);
+   canvas->drawString("height", imageInfo.width() + 15, imageInfo.height() / 2, paint);
 ##
 
 #SeeAlso width SkBitmap::height SkPixelRef::height SkImage::height SkSurface::height
@@ -1737,8 +1735,7 @@ as well as a gamma curve described by a 2.2 exponent.
         string.printf("%s gamma is %s" "close to sRGB", what, closeToSRGB ? "" : "not ");
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setTextAlign(SkPaint::kCenter_Align);
-        canvas->drawString(string, width / 2, 56, paint);
+        canvas->drawString(string, 20, 56, paint);
     };
     SkColor  gradColors[] = { 0xFFFF7F00, 0xFF00FF7F,  0xFF0000FF, 0xFF7F7FFF };
     SkPoint  gradPoints[] = { { 0, 0 }, { width, 0 }, { width * 2, 0 }, { width * 3, 0 } };
@@ -1900,8 +1897,7 @@ with Color_Space set to cs.
         string.printf("%s gamma is %s" "close to sRGB", what, closeToSRGB ? "" : "not ");
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setTextAlign(SkPaint::kCenter_Align);
-        canvas->drawString(string, width / 2, 56, paint);
+        canvas->drawString(string, 20, 56, paint);
     };
     SkColor  gradColors[] = { 0xFFFF7F00, 0xFF00FF7F,  0xFF0000FF, 0xFF7F7FFF };
     SkPoint  gradPoints[] = { { 0, 0 }, { width, 0 }, { width * 2, 0 }, { width * 3, 0 } };

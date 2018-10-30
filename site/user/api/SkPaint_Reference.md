@@ -3703,7 +3703,7 @@ May be used to verify that <a href='#SkPaint_Align'>Align</a> is a legal value.
 
 ### Example
 
-<div><fiddle-embed name="702617fd9ebc3f12e30081b5db93e8a8"><div>Each position separately moves the glyph in drawPosText.
+<div><fiddle-embed name="6ee1866e4da0064d9d340b07e05f0aca"><div>Each position separately moves the glyph in drawPosText.
 </div></fiddle-embed></div>
 
 <a name='SkPaint_getTextAlign'></a>
@@ -3714,24 +3714,7 @@ May be used to verify that <a href='#SkPaint_Align'>Align</a> is a legal value.
 <a href='#SkPaint_Align'>Align</a> <a href='#SkPaint_getTextAlign'>getTextAlign</a>() const
 </pre>
 
-Returns <a href='#Text_Align'>Text Align</a>.
-Returns <a href='#SkPaint_kLeft_Align'>kLeft Align</a> if <a href='#Text_Align'>Text Align</a> has not been set.
-
-### Return Value
-
-text placement relative to position
-
-### Example
-
-<div><fiddle-embed name="2df932f526e810f74c89d30ec3f4c947">
-
-#### Example Output
-
-~~~~
-kLeft_Align == default
-~~~~
-
-</fiddle-embed></div>
+Deprecated.
 
 <a name='SkPaint_setTextAlign'></a>
 
@@ -3741,21 +3724,7 @@ kLeft_Align == default
 void    <a href='#SkPaint_setTextAlign'>setTextAlign</a>(<a href='#SkPaint_Align'>Align</a> align)
 </pre>
 
-Sets <a href='#Text_Align'>Text Align</a> to <a href='#SkPaint_setTextAlign_align'>align</a>.
-Has no effect if <a href='#SkPaint_setTextAlign_align'>align</a> is an invalid value.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_setTextAlign_align'><code><strong>align</strong></code></a></td>
-    <td>text placement relative to position</td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="d37540afd918506ac2594665ca63979b"><div><a href='undocumented#Text'>Text</a> is left-aligned by default, and then set to center. Setting the
-alignment out of range has no effect.
-</div></fiddle-embed></div>
+Deprecated.
 
 <a name='Text_Size'></a>
 

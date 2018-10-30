@@ -1618,7 +1618,6 @@ Replaces target Region with operand Region.
     const char* labels[] = {"difference", "intersect", "union", "xor", "reverse diff", "replace"};
     int index = 0;
     SkPaint paint;
-    paint.setTextAlign(SkPaint::kCenter_Align);
     for (auto op : { SkRegion::kDifference_Op, SkRegion::kIntersect_Op, SkRegion::kUnion_Op,
                      SkRegion::kXOR_Op, SkRegion::kReverseDifference_Op, SkRegion::kReplace_Op } ) {
         SkRegion target({10, 10, 60, 60});

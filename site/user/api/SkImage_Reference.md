@@ -1239,7 +1239,7 @@ pixel width in <a href='#Image'>Image</a>
 
 ### Example
 
-<div><fiddle-embed name="39a6d0bbeac6d957c2338e0bff865cf8"></fiddle-embed></div>
+<div><fiddle-embed name="9aec65fc252ffc9982fa8867433eca18"></fiddle-embed></div>
 
 ### See Also
 
@@ -1261,7 +1261,7 @@ pixel height in <a href='#Image'>Image</a>
 
 ### Example
 
-<div><fiddle-embed name="60a063a2b210915f38401c83d4dba9e6"></fiddle-embed></div>
+<div><fiddle-embed name="a4f53a0b6ac85e7bc3887245b728530d"></fiddle-embed></div>
 
 ### See Also
 
@@ -1660,7 +1660,7 @@ true if <a href='#Image'>Image</a> is a <a href='undocumented#GPU_Texture'>GPU T
 
 ### Example
 
-<div><fiddle-embed name="27a0ab44659201f1aa2ac7fea73368c2" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="9cf5c62a3d2243e6577ae563f360ea9d" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1695,7 +1695,7 @@ true if <a href='#Image'>Image</a> can be drawn
 
 ### Example
 
-<div><fiddle-embed name="8f7281446008cf4a9910fe73f44fa8d6" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="afc62f38aebc56af8e425297ec67dd37" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2154,7 +2154,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="b14d9debfe87295373b44a179992a999" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="eeec9e07e604b44d0208899a2fe5bef5" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2180,7 +2180,7 @@ Returns nullptr if backed by <a href='undocumented#GPU_Texture'>GPU Texture</a> 
 
 ### Example
 
-<div><fiddle-embed name="c77bfb00fb82e378eea4b7f7c18a8b84" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="ecdbaff44a02c310ef672b7d393c6dea" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2206,7 +2206,7 @@ Returns nullptr if copy, decode, or pixel read fails.
 
 ### Example
 
-<div><fiddle-embed name="505a6d9458394b1deb5d2f6c44e1cd76" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="aed5f399915d40bb5d133ab586e5bac3" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2417,7 +2417,7 @@ true if <a href='#Image'>Image</a> is created as needed
 
 ### Example
 
-<div><fiddle-embed name="25305461b916baf40d7d379e04a5589c" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="f031c2a53f6a57833dc0127e674553da" gpu="true"></fiddle-embed></div>
 
 ### See Also
 

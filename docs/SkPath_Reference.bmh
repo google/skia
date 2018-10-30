@@ -178,7 +178,6 @@ void draw(SkCanvas* canvas) {
     SkPaint rectPaint;
     rectPaint.setAntiAlias(true);
     SkPaint textPaint(rectPaint);
-    textPaint.setTextAlign(SkPaint::kCenter_Align);
     rectPaint.setStyle(SkPaint::kStroke_Style);
     SkPaint arrowPaint(rectPaint);
     SkPath arrowPath;
@@ -600,7 +599,6 @@ void draw(SkCanvas* canvas) {
    canvas->drawLine({0, 50}, {120, 50}, strokePaint);
    SkPaint textPaint;
    textPaint.setAntiAlias(true);
-   textPaint.setTextAlign(SkPaint::kCenter_Align);
    SkScalar textHPos[] = { 10, 30, 60, 90, 110 };
    canvas->drawPosTextH("01210", 5, textHPos, 48, textPaint);
    textPaint.setTextSize(18);
@@ -3002,13 +3000,9 @@ void draw(SkCanvas* canvas) {
     SkPoint arcStart = { center.fX + radial.fY, center.fY - radial.fX };
     canvas->drawLine(center, arcStart, tangentPaint);
     canvas->drawPath(path, arcPaint);
-    textPaint.setTextAlign(SkPaint::kRight_Align);
     canvas->drawString("(x0, y0)", pts[0].fX - 5, pts[0].fY, textPaint);
-    textPaint.setTextAlign(SkPaint::kLeft_Align);
     canvas->drawString("(x1, y1)", pts[1].fX + 5, pts[1].fY, textPaint);
-    textPaint.setTextAlign(SkPaint::kCenter_Align);
     canvas->drawString("(x2, y2)", pts[2].fX, pts[2].fY + 15, textPaint);
-    textPaint.setTextAlign(SkPaint::kRight_Align);
     canvas->drawString("radius", center.fX + 15, center.fY + 25, textPaint);
     canvas->drawString("radius", center.fX - 3, center.fY - 16, textPaint);
 }
@@ -3046,13 +3040,9 @@ void draw(SkCanvas* canvas) {
     SkPoint arcStart = { center.fX + radial.fY, center.fY - radial.fX };
     canvas->drawLine(center, arcStart, tangentPaint);
     canvas->drawPath(path, arcPaint);
-    textPaint.setTextAlign(SkPaint::kCenter_Align);
     canvas->drawString("(x0, y0)", pts[0].fX, pts[0].fY - 7, textPaint);
-    textPaint.setTextAlign(SkPaint::kLeft_Align);
     canvas->drawString("(x1, y1)", pts[1].fX + 5, pts[1].fY, textPaint);
-    textPaint.setTextAlign(SkPaint::kCenter_Align);
     canvas->drawString("(x2, y2)", pts[2].fX, pts[2].fY + 15, textPaint);
-    textPaint.setTextAlign(SkPaint::kRight_Align);
     canvas->drawString("radius", center.fX + 15, center.fY + 25, textPaint);
     canvas->drawString("radius", center.fX - 5, center.fY - 20, textPaint);
 }
@@ -3929,7 +3919,6 @@ void draw(SkCanvas* canvas) {
     SkPaint ovalPaint;
     ovalPaint.setAntiAlias(true);
     SkPaint textPaint(ovalPaint);
-    textPaint.setTextAlign(SkPaint::kCenter_Align);
     ovalPaint.setStyle(SkPaint::kStroke_Style);
     SkPaint arrowPaint(ovalPaint);
     SkPath arrowPath;

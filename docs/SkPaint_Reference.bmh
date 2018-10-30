@@ -3361,65 +3361,31 @@ May be used to verify that Align is a legal value.
     #Description
     Each position separately moves the glyph in drawPosText.
     ##
+
+    #Function
+    ###$
+    #include "SkTextUtils.h"
+    $$$#
+    ##
+
     void draw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setTextSize(40);
-        SkPoint position[] = {{100, 50}, {150, 40}};
         for (SkPaint::Align a : { SkPaint::kLeft_Align,
                                   SkPaint::kCenter_Align,
                                   SkPaint::kRight_Align}) {
-            paint.setTextAlign(a);
-            canvas->drawPosText("Aa", 2, position, paint);
+            SkTextUtils::DrawString(canvas, "Aa", 100, 50, paint, a);
             canvas->translate(0, 50);
         }
     }
 ##
 
 #Method Align getTextAlign() const
-
-#In Text_Align
-#Line # returns Align: left, center, or right ##
-    Returns Text_Align.
-    Returns kLeft_Align if Text_Align has not been set.
-
-    #Return  text placement relative to position ##
-
-    #Example
-    SkPaint paint;
-    SkDebugf("kLeft_Align %c= default\n", SkPaint::kLeft_Align == paint.getTextAlign() ? '=' : '!');
-
-        #StdOut
-        kLeft_Align == default
-        ##
-    ##
+#Deprecated
 ##
 
 #Method void    setTextAlign(Align align)
-
-#In Text_Align
-#Line # sets Align: left, center, or right ##
-    Sets Text_Align to align.
-    Has no effect if align is an invalid value.
-
-    #Param align  text placement relative to position ##
-
-    #Example
-    #Height 160
-    #Description
-    Text is left-aligned by default, and then set to center. Setting the
-    alignment out of range has no effect.
-    ##
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            paint.setTextSize(40);
-            canvas->drawString("Aa", 100, 50, paint);
-            paint.setTextAlign(SkPaint::kCenter_Align);
-            canvas->drawString("Aa", 100, 100, paint);
-            paint.setTextAlign((SkPaint::Align) SkPaint::kAlignCount);
-            canvas->drawString("Aa", 100, 150, paint);
-        }
-    ##
-
+#Deprecated
 ##
 
 #Subtopic Text_Align ##

@@ -11,8 +11,10 @@ class <a href='#SkTextBlob'>SkTextBlob</a> final : public SkNVRefCnt<<a href='#S
 public:
     const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkTextBlob_bounds'>bounds</a>() const;
     uint32_t <a href='#SkTextBlob_uniqueID'>uniqueID</a>() const;
-    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>( const void* text, size_t byteLength, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint);
-    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* string, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(const void* text, size_t byteLength, const <a href='undocumented#SkFont'>SkFont</a>& font,
+                               <a href='SkPaint_Reference#SkPaint_TextEncoding'>SkPaint::TextEncoding</a> encoding = <a href='SkPaint_Reference#SkPaint_kUTF8_TextEncoding'>SkPaint::kUTF8_TextEncoding</a>);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* string, const <a href='undocumented#SkFont'>SkFont</a>& font,
+                                    <a href='SkPaint_Reference#SkPaint_TextEncoding'>SkPaint::TextEncoding</a> encoding = <a href='SkPaint_Reference#SkPaint_kUTF8_TextEncoding'>SkPaint::kUTF8_TextEncoding</a>);
     size_t <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs, void* memory, size_t memory_size) const;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkData'>SkData</a>> <a href='#SkTextBlob_serialize_2'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs) const;
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_Deserialize'>Deserialize</a>(const void* data, size_t size,
@@ -75,15 +77,14 @@ identifier for <a href='#Text_Blob'>Text Blob</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(
-            const void* text, size_t byteLength,
-                                      const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(const void* text, size_t byteLength, const <a href='undocumented#SkFont'>SkFont</a>& font,
+                                      <a href='SkPaint_Reference#SkPaint_TextEncoding'>SkPaint::TextEncoding</a> encoding = <a href='SkPaint_Reference#SkPaint_kUTF8_TextEncoding'>SkPaint::kUTF8 TextEncoding</a>)
 </pre>
 
 Creates <a href='#Text_Blob'>Text Blob</a> with a single run. <a href='#SkTextBlob_MakeFromText_text'>text</a> meaning depends on <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a>;
 by default, <a href='#SkTextBlob_MakeFromText_text'>text</a> is encoded as UTF-8.
 
-<a href='#SkTextBlob_MakeFromText_paint'>paint</a> contains attributes used to define the run <a href='#SkTextBlob_MakeFromText_text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
+<a href='#SkTextBlob_MakeFromText_font'>font</a> contains attributes used to define the run <a href='#SkTextBlob_MakeFromText_text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
 <a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
@@ -96,8 +97,12 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
   <tr>    <td><a name='SkTextBlob_MakeFromText_byteLength'><code><strong>byteLength</strong></code></a></td>
     <td>byte length of <a href='#SkTextBlob_MakeFromText_text'>text</a> array</td>
   </tr>
-  <tr>    <td><a name='SkTextBlob_MakeFromText_paint'><code><strong>paint</strong></code></a></td>
+  <tr>    <td><a name='SkTextBlob_MakeFromText_font'><code><strong>font</strong></code></a></td>
     <td><a href='#SkTextBlob_MakeFromText_text'>text</a> size, typeface, <a href='#SkTextBlob_MakeFromText_text'>text</a> scale, and so on, used to draw</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlob_MakeFromText_encoding'><code><strong>encoding</strong></code></a></td>
+    <td>one of: <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>, <a href='undocumented#kUTF16_SkTextEncoding'>kUTF16_SkTextEncoding</a>,
+<a href='undocumented#kUTF32_SkTextEncoding'>kUTF32_SkTextEncoding</a>, <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a></td>
   </tr>
 </table>
 
@@ -107,7 +112,7 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
 ### Example
 
-<div><fiddle-embed name="74686684967a310dc06fe2915b0a4798"></fiddle-embed></div>
+<div><fiddle-embed name="bec2252bc36dc8fd023015629d60c405"></fiddle-embed></div>
 
 ### See Also
 
@@ -118,13 +123,14 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* string, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* string, const <a href='undocumented#SkFont'>SkFont</a>& font,
+                                       <a href='SkPaint_Reference#SkPaint_TextEncoding'>SkPaint::TextEncoding</a> encoding = <a href='SkPaint_Reference#SkPaint_kUTF8_TextEncoding'>SkPaint::kUTF8 TextEncoding</a>)
 </pre>
 
 Creates <a href='#Text_Blob'>Text Blob</a> with a single run. <a href='#SkTextBlob_MakeFromString_string'>string</a> meaning depends on <a href='SkPaint_Reference#Text_Encoding'>Paint Text Encoding</a>;
 by default, <a href='#SkTextBlob_MakeFromString_string'>string</a> is encoded as UTF-8.
 
-<a href='#SkTextBlob_MakeFromString_paint'>paint</a> contains <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> used to define the run text: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
+<a href='#SkTextBlob_MakeFromString_font'>font</a> contains <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> used to define the run text: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
 <a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
@@ -134,8 +140,12 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 <table>  <tr>    <td><a name='SkTextBlob_MakeFromString_string'><code><strong>string</strong></code></a></td>
     <td>character code points or <a href='undocumented#Glyph'>Glyphs</a> drawn</td>
   </tr>
-  <tr>    <td><a name='SkTextBlob_MakeFromString_paint'><code><strong>paint</strong></code></a></td>
+  <tr>    <td><a name='SkTextBlob_MakeFromString_font'><code><strong>font</strong></code></a></td>
     <td>text size, typeface, text scale, and so on, used to draw</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlob_MakeFromString_encoding'><code><strong>encoding</strong></code></a></td>
+    <td>one of: <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>, <a href='undocumented#kUTF16_SkTextEncoding'>kUTF16_SkTextEncoding</a>,
+<a href='undocumented#kUTF32_SkTextEncoding'>kUTF32_SkTextEncoding</a>, <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a></td>
   </tr>
 </table>
 
@@ -145,7 +155,7 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
 ### Example
 
-<div><fiddle-embed name="705b26bb5e361369d897eeb511b6a184"></fiddle-embed></div>
+<div><fiddle-embed name="a5af182e793eed3f2bb3b0efc2cf4852"></fiddle-embed></div>
 
 ### See Also
 

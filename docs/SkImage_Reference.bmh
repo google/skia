@@ -975,9 +975,8 @@ Returns pixel count in each row.
    canvas->drawImage(image, 0, 0);
    canvas->translate(0, image->height());
    SkPaint paint;
-   paint.setTextAlign(SkPaint::kCenter_Align);
    canvas->drawLine(0, 10, image->width(), 10, paint);
-   canvas->drawString("width", image->width() / 2, 25, paint);
+   canvas->drawString("width", image->width() / 2 - 15, 25, paint);
 ##
 
 #SeeAlso dimensions() height()
@@ -1000,7 +999,6 @@ Returns pixel row count.
    canvas->drawImage(image, 0, 0);
    canvas->translate(image->width(), 0);
    SkPaint paint;
-   paint.setTextAlign(SkPaint::kCenter_Align);
    canvas->drawLine(10, 0, 10, image->height(), paint);
    canvas->drawString("height", 34, image->height() / 2, paint);
 ##
@@ -1411,11 +1409,10 @@ auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
     }
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextAlign(SkPaint::kCenter_Align);
     canvas->drawImage(image, 0, 0);
-    canvas->drawString(label, image->width() / 2, image->height() / 4, paint);
+    canvas->drawString(label, 30, image->height() / 4, paint);
     canvas->drawString(image->isTextureBacked() ? "is GPU texture" : "not GPU texture",
-                       image->width() / 2, image->height() * 3 / 4, paint);
+                       20, image->height() * 3 / 4, paint);
 };
 sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
 sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
@@ -1458,15 +1455,14 @@ auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
     }
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextAlign(SkPaint::kCenter_Align);
     canvas->drawImage(image, 0, 0);
     canvas->drawString(label, image->width() / 2, image->height() / 4, paint);
     if (canvas->getGrContext()) {
         canvas->drawString(image->isValid(canvas->getGrContext()) ? "is valid on GPU" :
-                "not valid on GPU", image->width() / 2, image->height() * 5 / 8, paint);
+                "not valid on GPU", 20, image->height() * 5 / 8, paint);
     }
     canvas->drawString(image->isValid(nullptr) ? "is valid on CPU" :
-            "not valid on CPU", image->width() / 2, image->height() * 7 / 8, paint);
+            "not valid on CPU", 20, image->height() * 7 / 8, paint);
 };
 sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
 sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
@@ -1931,10 +1927,9 @@ GrContext.
         }
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setTextAlign(SkPaint::kCenter_Align);
         sk_sp<SkImage> texture(image->makeTextureImage(context, nullptr));
         canvas->drawImage(texture, 0, 0);
-        canvas->drawString(label, texture->width() / 2, texture->height() / 4, paint);
+        canvas->drawString(label, 20, texture->height() / 4, paint);
     };
     sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
     GrContext* context = canvas->getGrContext();
@@ -1974,10 +1969,9 @@ Returns nullptr if backed by GPU_Texture and copy fails.
         }
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setTextAlign(SkPaint::kCenter_Align);
         sk_sp<SkImage> nonTexture(image->makeNonTextureImage());
         canvas->drawImage(nonTexture, 0, 0);
-        canvas->drawString(label, nonTexture->width() / 2, nonTexture->height() / 4, paint);
+        canvas->drawString(label, 20, nonTexture->height() / 4, paint);
     };
     sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
     sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
@@ -2017,10 +2011,9 @@ Returns nullptr if copy, decode, or pixel read fails.
         }
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setTextAlign(SkPaint::kCenter_Align);
         sk_sp<SkImage> raster(image->makeRasterImage());
         canvas->drawImage(raster, 0, 0);
-        canvas->drawString(label, raster->width() / 2, raster->height() / 4, paint);
+        canvas->drawString(label, 20, raster->height() / 4, paint);
     };
     sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
     sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
@@ -2290,12 +2283,11 @@ void draw(SkCanvas* canvas) {
         }
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setTextAlign(SkPaint::kCenter_Align);
         canvas->drawImage(image, 0, 0);
-        canvas->drawString(label, image->width() / 2, image->height() / 4, paint);
+        canvas->drawString(label, 30, image->height() / 4, paint);
         canvas->drawString(
                 image->isLazyGenerated() ? "is lazily generated" : "not lazily generated",
-                image->width() / 2, image->height() * 3 / 4, paint);
+                20, image->height() * 3 / 4, paint);
     };
     sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
     sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
