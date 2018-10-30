@@ -101,6 +101,7 @@ static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorTyp
     SkImageInfo dstInfo = SkImageInfo::Make(image->width(), image->height(), dstColorType,
                                             dstAlphaType, dstColorSpace);
     if (!image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, hint)) {
+        SkDebugf("readPixels failed (%d)\n", dstColorType);
         memset(data->writable_data(), 0, rowBytes * image->height());
     }
 
@@ -145,7 +146,9 @@ protected:
                 sk_sp<SkImage> image = make_raster_image(srcColorType);
                 if (GrContext* context = canvas->getGrContext()) {
                     image = image->makeTextureImage(context, canvas->imageInfo().colorSpace());
+                    SkASSERT(image);
                 }
+                SkDebugf("CT: %d -> %d\n", srcColorType, image->colorType());
                 if (image) {
                     for (SkColorType dstColorType : colorTypes) {
                         for (SkAlphaType dstAlphaType : alphaTypes) {

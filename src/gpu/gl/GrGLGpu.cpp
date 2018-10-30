@@ -2191,6 +2191,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (!renderTarget && !this->glCaps().canConfigBeFBOColorAttachment(surface->config())) {
+        SkDebugf("    can't be color attachment\n");
         return false;
     }
 
@@ -2198,6 +2199,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kNo);
 
     if (!this->readPixelsSupported(surface, dstAsConfig)) {
+        SkDebugf("    !readPixelsSupported\n");
         return false;
     }
 
@@ -2205,6 +2207,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     GrGLenum externalType;
     if (!this->glCaps().getReadPixelsFormat(surface->config(), dstAsConfig, &externalFormat,
                                             &externalType)) {
+        SkDebugf("    !getReadPixelsFormat\n");
         return false;
     }
 
