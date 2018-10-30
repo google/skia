@@ -67,8 +67,6 @@ samples_sources = [
   "$_samplecode/SampleMeasure.cpp",
   "$_samplecode/SampleMegaStroke.cpp",
   "$_samplecode/SampleNima.cpp",
-  "$_samplecode/SampleNimaActor.cpp",
-  "$_samplecode/SampleNimaActor.h",
   "$_samplecode/SamplePatch.cpp",
   "$_samplecode/SamplePath.cpp",
   "$_samplecode/SamplePathText.cpp",
@@ -109,9 +107,5 @@ samples_sources = [
 ]
 
 if (is_win && is_clang) {
-  samples_sources -= [
-    "$_samplecode/SampleNimaActor.cpp",
-    "$_samplecode/SampleNimaActor.h",
-    "$_samplecode/SampleNima.cpp",
-  ]
+  samples_sources -= [ "$_samplecode/SampleNima.cpp" ]
 }
