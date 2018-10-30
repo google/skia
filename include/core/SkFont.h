@@ -20,7 +20,7 @@ enum SkTextEncoding {
     kGlyphID_SkTextEncoding,
 };
 
-class SkFont {
+class SK_API SkFont {
 public:
     enum Flags {
         /**
