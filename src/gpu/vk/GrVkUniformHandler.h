@@ -9,8 +9,10 @@
 #define GrVkUniformHandler_DEFINED
 
 #include "GrAllocator.h"
+#include "GrSamplerState.h"
 #include "GrShaderVar.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "vk/GrVkTypes.h"
 
 class GrVkUniformHandler : public GrGLSLUniformHandler {
 public:
@@ -31,11 +33,16 @@ public:
         kFragBinding = 1,
     };
 
-    // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
     struct UniformInfo {
-        GrShaderVar fVariable;
-        uint32_t        fVisibility;
-        uint32_t        fUBOffset;
+        GrShaderVar             fVariable;
+        uint32_t                fVisibility;
+        // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
+        uint32_t                fUBOffset;
+        // The SamplerState, maxMipLevel, and ycbcrInfo are only valid if the GrSLType is a sampler
+        // and that sampler is used for sampling an external image with a ycbcr conversion.
+        GrSamplerState          fSamplerState;
+        uint32_t                fMaxMipLevel;
+        GrVkYcbcrConversionInfo fYcbcrInfo;
     };
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
 
@@ -64,10 +71,10 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle addSampler(GrSwizzle swizzle,
-                             GrTextureType type,
-                             GrSLPrecision precision,
-                             const char* name) override;
+    SamplerHandle addSampler(const GrTexture* texture,
+                             const GrSamplerState&,
+                             const char* name,
+                             const GrShaderCaps*) override;
 
     int numSamplers() const { return fSamplers.count(); }
     const GrShaderVar& samplerVariable(SamplerHandle handle) const override {

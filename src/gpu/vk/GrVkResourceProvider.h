@@ -102,10 +102,12 @@ public:
     GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel,
                                                const GrVkYcbcrConversionInfo& ycbcrInfo);
 
-    GrVkPipelineState* findOrCreateCompatiblePipelineState(const GrPipeline&,
-                                                           const GrPrimitiveProcessor&,
-                                                           GrPrimitiveType,
-                                                           VkRenderPass compatibleRenderPass);
+    GrVkPipelineState* findOrCreateCompatiblePipelineState(
+            const GrPipeline&,
+            const GrPrimitiveProcessor&,
+            const GrTextureProxy* const* primProcProxies,
+            GrPrimitiveType,
+            VkRenderPass compatibleRenderPass);
 
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
                                        const GrVkUniformHandler&,
@@ -173,6 +175,7 @@ private:
         void abandon();
         void release();
         GrVkPipelineState* refPipelineState(const GrPrimitiveProcessor&,
+                                            const GrTextureProxy* const* primProcProxies,
                                             const GrPipeline&,
                                             GrPrimitiveType,
                                             VkRenderPass compatibleRenderPass);
