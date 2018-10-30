@@ -190,11 +190,14 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     SkImageInfo info = as_IB(srcImage)->onImageInfo();
     GrPixelConfig config = SkImageInfo2GrPixelConfig(info);
 
+    SkDebugf("createTextureProxy: %d\n", config);
+
     if (kUnknown_GrPixelConfig == config) {
         return nullptr;
     }
 
     if (!this->caps()->isConfigTexturable(config)) {
+        SkDebugf("  !textureable\n");
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(info.makeColorType(kRGBA_8888_SkColorType)) ||
             !srcImage->readPixels(copy8888.pixmap(), 0, 0)) {
@@ -203,9 +206,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         copy8888.setImmutable();
         srcImage = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
         config = kRGBA_8888_GrPixelConfig;
+        SkDebugf("  made copy\n");
     }
 
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
+        SkDebugf("  renderable?\n");
         sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
         if (!sampleCnt) {
             return nullptr;
@@ -250,6 +255,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
             budgeted);
 
     if (!proxy) {
+        SkDebugf("  failed to createLazyProxy\n");
         return nullptr;
     }
 
@@ -257,12 +263,14 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
         // we're better off instantiating the proxy immediately here.
         if (!proxy->priv().doLazyInstantiation(fResourceProvider)) {
+            SkDebugf("  failed to instantiate\n");
             return nullptr;
         }
     }
 
     SkASSERT(proxy->width() == desc.fWidth);
     SkASSERT(proxy->height() == desc.fHeight);
+    SkDebugf("  success\n");
     return proxy;
 }
 

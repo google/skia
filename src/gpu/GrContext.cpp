@@ -626,13 +626,17 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
+    SkDebugf("  readSurfacePixels\n");
+
     SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
     if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
+        SkDebugf("    dont't flush\n");
         return false;
     }
 
     // MDB TODO: delay this instantiation until later in the method
     if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
+        SkDebugf("    failed surfaceProxy instantiate\n");
         return false;
     }
 
@@ -642,6 +646,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     if (!GrSurfacePriv::AdjustReadPixelParams(srcSurface->width(), srcSurface->height(),
                                               GrColorTypeBytesPerPixel(dstColorType), &left, &top,
                                               &width, &height, &buffer, &rowBytes)) {
+        SkDebugf("    adjustPixelParams\n");
         return false;
     }
 
@@ -649,6 +654,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
 
     if (!valid_pixel_conversion(dstColorType, srcProxy->config(), unpremul)) {
+        SkDebugf("    invalid pixel conversion\n");
         return false;
     }
 
@@ -678,6 +684,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         auto tempProxy = this->proxyProvider()->createProxy(
                 desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
         if (!tempProxy) {
+            SkDebugf("    !tempProxy\n");
             return false;
         }
         sk_sp<GrSurfaceContext> tempCtx;
@@ -691,6 +698,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                     std::move(tempProxy), src->colorSpaceInfo().refColorSpace());
         }
         if (!tempCtx) {
+            SkDebugf("    !tempCtx\n");
             return false;
         }
         if (canvas2DFastPath) {
@@ -704,6 +712,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                 dstColorType = GrColorType::kRGBA_8888;
             }
             if (!fp) {
+                SkDebugf("    !fp\n");
                 return false;
             }
             paint.addColorFragmentProcessor(std::move(fp));
@@ -711,6 +720,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                     GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
                     SkRect::MakeWH(width, height), SkRect::MakeXYWH(left, top, width, height));
         } else if (!tempCtx->copy(srcProxy, SkIRect::MakeXYWH(left, top, width, height), {0, 0})) {
+            SkDebugf("    !tempCtx->copy\n");
             return false;
         }
         uint32_t flags = canvas2DFastPath ? 0 : pixelOpsFlags;
@@ -743,6 +753,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         bool srcAlwaysOpaque = SkColorTypeIsAlwaysOpaque(srcSkColorType);
         bool dstAlwaysOpaque = SkColorTypeIsAlwaysOpaque(dstSkColorType);
         if (kUnknown_SkColorType == srcSkColorType || kUnknown_SkColorType == dstSkColorType) {
+            SkDebugf("    unknownColorType\n");
             return false;
         }
         auto tempAT = srcAlwaysOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
@@ -755,9 +766,11 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         auto finalII =
                 SkImageInfo::Make(width, height, dstSkColorType, finalAT, sk_ref_sp(dstColorSpace));
         if (!SkImageInfoValidConversion(finalII, tempII)) {
+            SkDebugf("    invalidConversion2\n");
             return false;
         }
         if (!tempPixmap.tryAlloc(tempII)) {
+            SkDebugf("    !pixmapAlloc\n");
             return false;
         }
         finalPixmap.reset(finalII, buffer, rowBytes);
@@ -773,6 +786,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
 
     if (!fContext->fGpu->readPixels(srcSurface, left, top, width, height, allowedColorType, buffer,
                                     rowBytes)) {
+        SkDebugf("    !gpu->readPixels\n");
         return false;
     }
 
@@ -789,6 +803,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     }
     if (convert) {
         if (!tempPixmap.readPixels(finalPixmap)) {
+            SkDebugf("    !pixmap.readPixels\n");
             return false;
         }
     }

@@ -81,6 +81,7 @@ DEFINE_string(blacklist, "",
         "'--blacklist gpu skp _ _ 8888 gm _ aarects' will also blacklist the aarects GM on 8888.\n"
         "'--blacklist ~8888 svg _ svgparse_' blocks non-8888 SVGs that contain \"svgparse_\" in "
                                             "the name.");
+DEFINE_string(motch, "readpixels", "");
 
 DEFINE_string2(readPath, r, "", "If set check for equality with golden results in this directory.");
 
@@ -394,7 +395,7 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
     if (in_shard() &&
         FLAGS_src.contains(tag) &&
-        !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
+        !SkCommandLineFlags::ShouldSkip(FLAGS_motch, src->name().c_str())) {
         TaggedSrc& s = gSrcs.push_back();
         s.reset(src.release());
         s.tag = tag;
@@ -1285,7 +1286,7 @@ static void gather_tests() {
         if (!in_shard()) {
             continue;
         }
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_motch, test.name)) {
             continue;
         }
         if (test.needsGpu && FLAGS_gpu) {
