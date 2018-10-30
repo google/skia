@@ -141,4 +141,13 @@
     return CanvasKit._MakeSkDashPathEffect(ptr, intervals.length, phase);
   }
 
+  CanvasKit.MakeNimaActor = function(nimaFile, nimaTexture) {
+    var nptr = CanvasKit._malloc(nimaFile.byteLength);
+    CanvasKit.HEAPU8.set(new Uint8Array(nimaFile), nptr);
+    var tptr = CanvasKit._malloc(nimaTexture.byteLength);
+    CanvasKit.HEAPU8.set(new Uint8Array(nimaTexture), tptr);
+
+    return CanvasKit._MakeNimaActor(nptr, nimaFile.byteLength, tptr, nimaTexture.byteLength);
+  }
+
 }(Module)); // When this file is loaded in, the high level object is "Module";
