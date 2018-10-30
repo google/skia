@@ -18,6 +18,7 @@
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "SkImage_GpuYUVA.h"
 #endif
 
 static const int kTileWidthHeight = 128;
@@ -758,13 +759,25 @@ protected:
                                 resultBMs[i].rowBytes());
                         }
 
-                        fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
-                            context,
-                            (SkYUVColorSpace) cs,
-                            yuvaTextures,
-                            yuvaIndices,
-                            { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
-                            kTopLeft_GrSurfaceOrigin);
+                        int index = format * (kLast_YUVFormat + 1) + cs;
+                        if (index & 0x1) {
+                            fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
+                                context,
+                                (SkYUVColorSpace)cs,
+                                yuvaTextures,
+                                yuvaIndices,
+                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                                kTopLeft_GrSurfaceOrigin);
+                        } else {
+                            fImages[opaque][cs][format] = SkImage_GpuYUVA::MakeFromYUVATextures(
+                                context,
+                                (SkYUVColorSpace)cs,
+                                yuvaTextures,
+                                yuvaIndices,
+                                fOriginalBMs[opaque].width(),
+                                fOriginalBMs[opaque].height(),
+                                kTopLeft_GrSurfaceOrigin);
+                        }
                     } else
 #endif
                     {
