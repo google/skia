@@ -115,7 +115,7 @@ private:
     typedef GrGLSLPrimitiveProcessor INHERITED;
 };
 
-GrPathProcessor::GrPathProcessor(GrColor4h color,
+GrPathProcessor::GrPathProcessor(const GrColor4h& color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
         : INHERITED(kGrPathProcessor_ClassID)

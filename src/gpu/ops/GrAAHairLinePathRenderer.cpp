@@ -803,7 +803,7 @@ public:
     }
 
     AAHairlineOp(const Helper::MakeArgs& helperArgs,
-                 GrColor4h color,
+                 const GrColor4h& color,
                  uint8_t coverage,
                  const SkMatrix& viewMatrix,
                  const SkPath& path,
@@ -885,7 +885,7 @@ private:
         return CombineResult::kMerged;
     }
 
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
     uint8_t coverage() const { return fCoverage; }
     const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
 

@@ -957,7 +957,7 @@ public:
                                                radius, style, arcParams);
     }
 
-    CircleOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
+    CircleOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkMatrix& viewMatrix,
              SkPoint center, SkScalar radius, const GrStyle& style, const ArcParams* arcParams)
             : GrMeshDrawOp(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
         const SkStrokeRec& stroke = style.strokeRec();
@@ -1577,7 +1577,7 @@ public:
                                                             onAngle, offAngle, phaseAngle);
     }
 
-    ButtCapDashedCircleOp(const Helper::MakeArgs& helperArgs, GrColor4h color,
+    ButtCapDashedCircleOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
                           const SkMatrix& viewMatrix, SkPoint center, SkScalar radius,
                           SkScalar strokeWidth, SkScalar startAngle, SkScalar onAngle,
                           SkScalar offAngle, SkScalar phaseAngle)
@@ -1943,8 +1943,9 @@ public:
                                                 params, stroke);
     }
 
-    EllipseOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
-              const DeviceSpaceParams& params, const SkStrokeRec& stroke)
+    EllipseOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+              const SkMatrix& viewMatrix, const DeviceSpaceParams& params,
+              const SkStrokeRec& stroke)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
         SkStrokeRec::Style style = stroke.getStyle();
         bool isStrokeOnly =
@@ -2181,8 +2182,8 @@ public:
         return Helper::FactoryHelper<DIEllipseOp>(context, std::move(paint), params, viewMatrix);
     }
 
-    DIEllipseOp(Helper::MakeArgs& helperArgs, GrColor4h color, const DeviceSpaceParams& params,
-                const SkMatrix& viewMatrix)
+    DIEllipseOp(Helper::MakeArgs& helperArgs, const GrColor4h& color,
+                const DeviceSpaceParams& params, const SkMatrix& viewMatrix)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
         // This expands the outer rect so that after CTM we end up with a half-pixel border
         SkScalar a = viewMatrix[SkMatrix::kMScaleX];
@@ -2485,8 +2486,9 @@ public:
                                                       devRect, devRadius,
                                                       devStrokeWidth, strokeOnly);
     }
-    CircularRRectOp(Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
-                    const SkRect& devRect, float devRadius, float devStrokeWidth, bool strokeOnly)
+    CircularRRectOp(Helper::MakeArgs& helperArgs, const GrColor4h& color,
+                    const SkMatrix& viewMatrix, const SkRect& devRect, float devRadius,
+                    float devStrokeWidth, bool strokeOnly)
             : INHERITED(ClassID())
             , fViewMatrixIfUsingLocalCoords(viewMatrix)
             , fHelper(helperArgs, GrAAType::kCoverage) {
@@ -2871,9 +2873,9 @@ public:
                                                         strokeOnly);
     }
 
-    EllipticalRRectOp(Helper::MakeArgs helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
-                      const SkRect& devRect, float devXRadius, float devYRadius,
-                      SkVector devStrokeHalfWidths, bool strokeOnly)
+    EllipticalRRectOp(Helper::MakeArgs helperArgs, const GrColor4h& color,
+                      const SkMatrix& viewMatrix, const SkRect& devRect, float devXRadius,
+                      float devYRadius, SkVector devStrokeHalfWidths, bool strokeOnly)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
         SkScalar innerXRadius = 0.0f;
         SkScalar innerYRadius = 0.0f;

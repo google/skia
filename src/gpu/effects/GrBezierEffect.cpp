@@ -232,7 +232,7 @@ GrGLSLPrimitiveProcessor* GrConicEffect::createGLSLInstance(const GrShaderCaps&)
     return new GrGLConicEffect(*this);
 }
 
-GrConicEffect::GrConicEffect(GrColor4h color, const SkMatrix& viewMatrix, uint8_t coverage,
+GrConicEffect::GrConicEffect(const GrColor4h& color, const SkMatrix& viewMatrix, uint8_t coverage,
                              GrClipEdgeType edgeType, const SkMatrix& localMatrix,
                              bool usesLocalCoords)
     : INHERITED(kGrConicEffect_ClassID)
@@ -434,7 +434,7 @@ GrGLSLPrimitiveProcessor* GrQuadEffect::createGLSLInstance(const GrShaderCaps&) 
     return new GrGLQuadEffect(*this);
 }
 
-GrQuadEffect::GrQuadEffect(GrColor4h color, const SkMatrix& viewMatrix, uint8_t coverage,
+GrQuadEffect::GrQuadEffect(const GrColor4h& color, const SkMatrix& viewMatrix, uint8_t coverage,
                            GrClipEdgeType edgeType, const SkMatrix& localMatrix,
                            bool usesLocalCoords)
     : INHERITED(kGrQuadEffect_ClassID)
@@ -661,7 +661,7 @@ GrGLSLPrimitiveProcessor* GrCubicEffect::createGLSLInstance(const GrShaderCaps&)
     return new GrGLCubicEffect(*this);
 }
 
-GrCubicEffect::GrCubicEffect(GrColor4h color, const SkMatrix& viewMatrix, const SkMatrix&
+GrCubicEffect::GrCubicEffect(const GrColor4h& color, const SkMatrix& viewMatrix, const SkMatrix&
                              devKLMMatrix, GrClipEdgeType edgeType)
     : INHERITED(kGrCubicEffect_ClassID)
     , fColor(color)

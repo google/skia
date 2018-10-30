@@ -133,8 +133,8 @@ public:
                                                      devOutside, devInside);
     }
 
-    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
-                   const SkRect& devOutside, const SkRect& devInside)
+    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+                   const SkMatrix& viewMatrix, const SkRect& devOutside, const SkRect& devInside)
             : INHERITED(ClassID())
             , fHelper(helperArgs, GrAAType::kCoverage)
             , fViewMatrix(viewMatrix) {
@@ -159,8 +159,9 @@ public:
                                                      stroke, isMiter);
     }
 
-    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
-                   const SkRect& rect, const SkStrokeRec& stroke, bool isMiter)
+    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+                   const SkMatrix& viewMatrix, const SkRect& rect, const SkStrokeRec& stroke,
+                   bool isMiter)
             : INHERITED(ClassID())
             , fHelper(helperArgs, GrAAType::kCoverage)
             , fViewMatrix(viewMatrix) {

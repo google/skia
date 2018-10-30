@@ -32,9 +32,9 @@ public:
                                                     spriteCount, xforms, rects, colors);
     }
 
-    GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
-                  GrAAType, int spriteCount, const SkRSXform* xforms, const SkRect* rects,
-                  const SkColor* colors);
+    GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+                  const SkMatrix& viewMatrix, GrAAType, int spriteCount, const SkRSXform* xforms,
+                  const SkRect* rects, const SkColor* colors);
 
     const char* name() const override { return "DrawAtlasOp"; }
 
@@ -51,7 +51,7 @@ public:
 private:
     void onPrepareDraws(Target*) override;
 
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool hasColors() const { return fHasColors; }
     int quadCount() const { return fQuadCount; }

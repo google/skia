@@ -45,7 +45,7 @@ public:
                                           sk_sp<GrColorSpaceXform>,
                                           GrPrimitiveType* overridePrimType = nullptr);
 
-    GrDrawVerticesOp(const Helper::MakeArgs&, GrColor4h, sk_sp<SkVertices>,
+    GrDrawVerticesOp(const Helper::MakeArgs&, const GrColor4h&, sk_sp<SkVertices>,
                      const SkVertices::Bone bones[], int boneCount, GrPrimitiveType, GrAAType,
                      sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix);
 

@@ -93,7 +93,7 @@ private:
     struct SingleDraw {
         SingleDraw(const SkMatrix&, const GrShape&, float strokeDevWidth,
                    const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
-                   Visibility maskVisibility, GrColor4h);
+                   Visibility maskVisibility, const GrColor4h&);
         ~SingleDraw();
 
         SkMatrix fMatrix;

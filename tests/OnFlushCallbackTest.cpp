@@ -48,9 +48,9 @@ public:
         return Helper::FactoryHelper<NonAARectOp>(context, std::move(paint), r, &local, ClassID());
     }
 
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
 
-    NonAARectOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkRect& r,
+    NonAARectOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkRect& r,
                 const SkRect* localRect, int32_t classID)
             : INHERITED(classID)
             , fColor(color)
@@ -204,14 +204,15 @@ public:
     // We set the initial color of the NonAARectOp based on the ID.
     // Note that we force creation of a NonAARectOp that has local coords in anticipation of
     // pulling from the atlas.
-    AtlasedRectOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkRect& r, int id)
+    AtlasedRectOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkRect& r,
+                  int id)
             : INHERITED(helperArgs, GrColor4h::FromGrColor(kColors[id]), r, &kEmptyRect, ClassID())
             , fID(id)
             , fNext(nullptr) {
         SkASSERT(fID < kMaxIDs);
     }
 
-    void setColor(GrColor4h color) { fColor = color; }
+    void setColor(const GrColor4h& color) { fColor = color; }
     void setLocalRect(const SkRect& localRect) {
         SkASSERT(fHasLocalRect);    // This should've been created to anticipate this
         fLocalQuad = GrQuad(localRect);

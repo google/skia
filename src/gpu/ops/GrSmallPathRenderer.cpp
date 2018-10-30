@@ -242,7 +242,7 @@ public:
                                                   stencilSettings);
     }
 
-    SmallPathOp(Helper::MakeArgs helperArgs, GrColor4h color, const GrShape& shape,
+    SmallPathOp(Helper::MakeArgs helperArgs, const GrColor4h& color, const GrShape& shape,
                 const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas, ShapeCache* shapeCache,
                 ShapeDataList* shapeList, bool gammaCorrect,
                 const GrUserStencilSettings* stencilSettings)
@@ -846,7 +846,7 @@ private:
         }
     }
 
-    GrColor4h color() const { return fShapes[0].fColor; }
+    const GrColor4h& color() const { return fShapes[0].fColor; }
     bool usesDistanceField() const { return fUsesDistanceField; }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

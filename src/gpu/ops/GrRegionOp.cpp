@@ -70,7 +70,7 @@ public:
                                                aaType, stencilSettings);
     }
 
-    RegionOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
+    RegionOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkMatrix& viewMatrix,
              const SkRegion& region, GrAAType aaType, const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
             , fHelper(helperArgs, aaType, stencilSettings)

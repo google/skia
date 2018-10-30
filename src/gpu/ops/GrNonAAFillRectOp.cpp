@@ -125,9 +125,10 @@ public:
 
     NonAAFillRectOp() = delete;
 
-    NonAAFillRectOp(const Helper::MakeArgs& args, GrColor4h color, const SkMatrix& viewMatrix,
-                    const SkRect& rect, const SkRect* localRect, const SkMatrix* localMatrix,
-                    GrAAType aaType, const GrUserStencilSettings* stencilSettings)
+    NonAAFillRectOp(const Helper::MakeArgs& args, const GrColor4h& color,
+                    const SkMatrix& viewMatrix, const SkRect& rect, const SkRect* localRect,
+                    const SkMatrix* localMatrix, GrAAType aaType,
+                    const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID()), fHelper(args, aaType, stencilSettings) {
 
         SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective()));
@@ -255,7 +256,7 @@ public:
 
     NonAAFillRectPerspectiveOp() = delete;
 
-    NonAAFillRectPerspectiveOp(const Helper::MakeArgs& args, GrColor4h color,
+    NonAAFillRectPerspectiveOp(const Helper::MakeArgs& args, const GrColor4h& color,
                                const SkMatrix& viewMatrix, const SkRect& rect,
                                const SkRect* localRect, const SkMatrix* localMatrix,
                                GrAAType aaType, const GrUserStencilSettings* stencilSettings)

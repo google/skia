@@ -39,7 +39,7 @@ class DefaultGeoProc : public GrGeometryProcessor {
 public:
     static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps* shaderCaps,
                                            uint32_t gpTypeFlags,
-                                           GrColor4h color,
+                                           const GrColor4h& color,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& viewMatrix,
                                            const SkMatrix& localMatrix,
@@ -54,7 +54,7 @@ public:
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
 
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
     bool hasVertexColor() const { return fInColor.isInitialized(); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
@@ -303,7 +303,7 @@ public:
 private:
     DefaultGeoProc(const GrShaderCaps* shaderCaps,
                    uint32_t gpTypeFlags,
-                   GrColor4h color,
+                   const GrColor4h& color,
                    sk_sp<GrColorSpaceXform> colorSpaceXform,
                    const SkMatrix& viewMatrix,
                    const SkMatrix& localMatrix,

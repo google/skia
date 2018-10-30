@@ -151,7 +151,7 @@ public:
                                                      std::move(iter), dst);
     }
 
-    NonAALatticeOp(Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
+    NonAALatticeOp(Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkMatrix& viewMatrix,
                    sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> colorSpaceXform,
                    GrSamplerState::Filter filter, std::unique_ptr<SkLatticeIter> iter,
                    const SkRect& dst)
