@@ -25,6 +25,7 @@
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
 #include "SkStrikeCache.h"
+#include "SkTDArray.h"
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 SkGlyphRunListPainter::SkGlyphRunListPainter(
@@ -115,7 +116,7 @@ static SkMask create_mask(const SkGlyph& glyph, SkPoint position, const void* im
 
 void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
-        PerMaskCreator perMaskCreator, PerPathCreator perPathCreator) {
+        PaintMasksCreator paintMasksCreator, PaintPathsCreator paintPathsCreator) {
 
     SkPoint origin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
@@ -128,9 +129,12 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                       : fBitmapFallbackProps;
 
         const SkPaint& paint = glyphRun.paint();
+        auto runSize = glyphRun.runSize();
+        this->ensureBitmapBuffers(runSize);
 
         if (ShouldDrawAsPath(paint, deviceMatrix)) {
-
+            SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
+                    fPositions, glyphRun.positions().data(), runSize);
             // setup our std pathPaint, in hopes of getting hits in the cache
             SkPaint pathPaint(paint);
             SkScalar textScale = pathPaint.setupForAsPaths();
@@ -138,9 +142,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     pathPaint, &props, fScalerContextFlags, nullptr);
 
-            auto perPath = perPathCreator();
-
-            const SkPoint* positionCursor = glyphRun.positions().data();
+            SkTDArray<PathAndPos> pathsAndPositions;
+            SkPoint* positionCursor = fPositions;
             for (auto glyphID : glyphRun.glyphsIDs()) {
                 SkPoint position = *positionCursor++;
                 if (check_glyph_position(position)) {
@@ -148,19 +151,20 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     if (!glyph.isEmpty()) {
                         const SkPath* path = pathCache->findPath(glyph);
                         if (path != nullptr) {
-                            SkPoint loc = position + origin;
-                            perPath(*path, textScale, loc, paint);
+                            pathsAndPositions.push_back(PathAndPos{path, position});
                         }
                     }
                 }
             }
+
+            auto paintAllPaths = paintPathsCreator();
+            paintAllPaths(
+                    SkSpan<const PathAndPos>{pathsAndPositions.begin(), pathsAndPositions.size()},
+                    textScale,
+                    paint);
         } else {
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     paint, &props, fScalerContextFlags, &deviceMatrix);
-            auto perMask = perMaskCreator(paint, &alloc);
-            auto runSize = glyphRun.runSize();
-
-            this->ensureBitmapBuffers(runSize);
 
             // Add rounding and origin.
             SkMatrix matrix = deviceMatrix;
@@ -169,6 +173,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             matrix.postTranslate(rounding.x(), rounding.y());
             matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
 
+            SkTDArray<SkMask> masks;
             const SkPoint* positionCursor = fPositions;
             for (auto glyphID : glyphRun.glyphsIDs()) {
                 auto position = *positionCursor++;
@@ -176,10 +181,13 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, position);
                     const void* image;
                     if (!glyph.isEmpty() && (image = cache->findImage(glyph))) {
-                        perMask(create_mask(glyph, position, image), paint);
+                        masks.push_back(create_mask(glyph, position, image));
                     }
                 }
             }
+            auto paintAllMasks = paintMasksCreator(paint, &alloc);
+            paintAllMasks(SkSpan<const SkMask>{masks.begin(), masks.size()},
+                          paint);
         }
     }
 }
