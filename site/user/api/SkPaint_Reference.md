@@ -299,7 +299,6 @@ Constructs <a href='#Paint'>Paint</a> with default values.
 | <a href='undocumented#Path_Effect'>Path Effect</a> | nullptr |
 | <a href='undocumented#Shader'>Shader</a> | nullptr |
 | <a href='#SkPaint_Style'>Style</a> | <a href='#SkPaint_kFill_Style'>kFill Style</a> |
-| <a href='#Text_Align'>Text Align</a> | <a href='#SkPaint_kLeft_Align'>kLeft Align</a> |
 | <a href='#Text_Encoding'>Text Encoding</a> | <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8 TextEncoding</a> |
 | <a href='#Text_Scale_X'>Text Scale X</a> | 1 |
 | <a href='#Text_Size'>Text Size</a> | 12 |
@@ -3631,8 +3630,6 @@ Deprecated.
 
 <a name='Text_Align'></a>
 
----
-
 <a name='SkPaint_Align'></a>
 
 ---
@@ -3645,26 +3642,6 @@ Deprecated.
     };
 </pre>
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    static constexpr int <a href='#SkPaint_kAlignCount'>kAlignCount</a> = 3;
-</pre>
-
-<a href='#SkPaint_Align'>Align</a> adjusts the text relative to the text position.
-<a href='#SkPaint_Align'>Align</a> affects <a href='undocumented#Glyph'>Glyphs</a> drawn with: <a href='SkCanvas_Reference#SkCanvas_drawText'>SkCanvas::drawText</a>, <a href='SkCanvas_Reference#SkCanvas_drawPosText'>SkCanvas::drawPosText</a>,
-<a href='SkCanvas_Reference#SkCanvas_drawPosTextH'>SkCanvas::drawPosTextH</a>, <a href='SkCanvas_Reference#SkCanvas_drawTextRSXform'>SkCanvas::drawTextRSXform</a>, <a href='SkCanvas_Reference#SkCanvas_drawTextBlob'>SkCanvas::drawTextBlob</a>,
-and <a href='SkCanvas_Reference#SkCanvas_drawString'>SkCanvas::drawString</a>;
-as well as calls that place text <a href='undocumented#Glyph'>Glyphs</a> like <a href='#SkPaint_getTextWidths'>getTextWidths</a> and <a href='#SkPaint_getTextPath'>getTextPath</a>.
-
-The text position is set by the font for both horizontal and vertical text.
-Typically, for horizontal text, the position is to the left side of the glyph on the
-base line; and for vertical text, the position is the horizontal center of the glyph
-at the caps height.
-
-<a href='#SkPaint_Align'>Align</a> adjusts the glyph position to center it or move it to abut the position
-using the metrics returned by the font.
-
-<a href='#SkPaint_Align'>Align</a> defaults to <a href='#SkPaint_kLeft_Align'>kLeft Align</a>.
-
 ### Constants
 
 <table style='border-collapse: collapse; width: 62.5em'>
@@ -3673,38 +3650,47 @@ using the metrics returned by the font.
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kLeft_Align'><code>SkPaint::kLeft_Align</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Leaves the glyph at the position computed by the font offset by the text position.
+Deprecated.
+
 </td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kCenter_Align'><code>SkPaint::kCenter_Align</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Moves the glyph half its width.
+Deprecated.
+
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kRight_Align'><code>SkPaint::kRight_Align</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Moves the glyph by its width.
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kAlignCount'><code>SkPaint::kAlignCount</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-May be used to verify that <a href='#SkPaint_Align'>Align</a> is a legal value.
+Deprecated.
+
 </td>
   </tr>
 </table>
 
-### Example
+Deprecated.
 
-<div><fiddle-embed name="6ee1866e4da0064d9d340b07e05f0aca"><div>Each position separately moves the glyph in drawPosText.
-</div></fiddle-embed></div>
+### Constants
+
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
+<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kAlignCount'><code>SkPaint::kAlignCount</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Deprecated.
+
+</td>
+  </tr>
+</table>
 
 <a name='SkPaint_getTextAlign'></a>
 
