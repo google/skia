@@ -632,14 +632,14 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
     textPaint.measureText(colLabel.c_str(), colLabel.size(), &textRect);
     int y = textRect.height();
 
-    SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkTextUtils::kCenter_Align);
 
     colLabel.printf("%s", opaque ? "Opaque" : "Transparent");
 
     textPaint.measureText(colLabel.c_str(), colLabel.size(), &textRect);
     y += textRect.height();
 
-    SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkTextUtils::kCenter_Align);
 }
 
 static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {

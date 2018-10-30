@@ -29,7 +29,7 @@ SkRunFont::SkRunFont(const SkPaint& paint)
         , fSkewX(paint.getTextSkewX())
 #ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
         , fAlign(paint.getTextAlign())
-#else
+#elif defined(SK_SUPPORT_LEGACY_PAINTALIGNENUM)
         , fAlign(SkPaint::kLeft_Align)
 #endif
         , fHinting(paint.getHinting())
@@ -54,7 +54,9 @@ bool SkRunFont::operator==(const SkRunFont& other) const {
            && fSize == other.fSize
            && fScaleX == other.fScaleX
            && fSkewX == other.fSkewX
+#ifdef SK_SUPPORT_LEGACY_PAINTALIGNENUM
            && fAlign == other.fAlign
+#endif
            && fHinting == other.fHinting
            && fFlags == other.fFlags;
 }

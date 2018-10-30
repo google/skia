@@ -92,8 +92,10 @@ private:
     sk_sp<SkTypeface>        fTypeface;
     SkScalar                 fSkewX;
 
+#ifdef SK_SUPPORT_LEGACY_PAINTALIGNENUM
     static_assert(SkPaint::kAlignCount < 4, "insufficient_align_bits");
     uint32_t                 fAlign : 2;
+#endif
     static_assert(SkPaint::kFull_Hinting < 4, "insufficient_hinting_bits");
     uint32_t                 fHinting : 2;
     static_assert((kFlagsMask & 0xffff) == kFlagsMask, "insufficient_flags_bits");
@@ -241,7 +243,9 @@ inline SkPaint::SkPaint(const SkPaint& basePaint, const SkRunFont& runFont)
         , fBitfieldsUInt{(basePaint.fBitfieldsUInt & ~SkRunFont::kFlagsMask) | runFont.fFlags} {
     fBitfields.fTextEncoding = kGlyphID_TextEncoding;
     fBitfields.fHinting = runFont.fHinting;
+#ifdef SK_SUPPORT_LEGACY_PAINTALIGNENUM
     fBitfields.fTextAlign = runFont.fAlign;
+#endif
 }
 
 /**

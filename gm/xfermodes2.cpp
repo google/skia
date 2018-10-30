@@ -74,7 +74,7 @@ protected:
 #if 1
             SkTextUtils::DrawString(canvas, SkBlendMode_Name(mode),
                                     x + w/2, y - labelP.getTextSize()/2, labelP,
-                                    SkPaint::kCenter_Align);
+                                    SkTextUtils::kCenter_Align);
 #endif
             x += w + SkIntToScalar(10);
             if ((m % W) == W - 1) {
