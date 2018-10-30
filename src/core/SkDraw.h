@@ -122,18 +122,25 @@ public:
                                     const SkPaint&, const SkSurfaceProps*) const;
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
-    void blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const;
-    SkGlyphRunListPainter::PerMask drawOneMaskCreator(
-            const SkPaint& paint, SkArenaAlloc* alloc) const;
-    void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
+    SkGlyphRunListPainter::PerMask drawOneMaskCreator(const SkPaint& paint,
+                                                      SkArenaAlloc* alloc) const;
 
-    void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
-                     bool pathIsMutable, bool drawCoverage,
-                     SkBlitter* customBlitter = nullptr) const;
+    void drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
+
+    void drawPath(const SkPath&,
+                  const SkPaint&,
+                  const SkMatrix* preMatrix,
+                  bool pathIsMutable,
+                  bool drawCoverage,
+                  SkBlitter* customBlitter = nullptr) const;
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
-    void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
-                     SkBlitter* customBlitter, bool doFill) const;
+
+    void drawDevPath(const SkPath& devPath,
+                     const SkPaint& paint,
+                     bool drawCoverage,
+                     SkBlitter* customBlitter,
+                     bool doFill) const;
     /**
      *  Return the current clip bounds, in local coordinates, with slop to account
      *  for antialiasing or hairlines (i.e. device-bounds outset by 1, and then
@@ -142,8 +149,7 @@ private:
      *  If the matrix cannot be inverted, or the current clip is empty, return
      *  false and ignore bounds parameter.
      */
-    bool SK_WARN_UNUSED_RESULT
-    computeConservativeLocalClipBounds(SkRect* bounds) const;
+    bool SK_WARN_UNUSED_RESULT computeConservativeLocalClipBounds(SkRect* bounds) const;
 
 public:
     SkPixmap        fDst;
