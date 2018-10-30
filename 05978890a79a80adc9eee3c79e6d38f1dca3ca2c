@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c54bfae3_a76f88b8",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-30T15:32:44Z",
+      "side": 1,
+      "message": "Weird alignment here. I find this easier to parse as:\nconst GrTextureProxy* const primProcProxies[]",
+      "range": {
+        "startLine": 39,
+        "startChar": 39,
+        "endLine": 39,
+        "endChar": 84
+      },
+      "revId": "05978890a79a80adc9eee3c79e6d38f1dca3ca2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "664bad3e_d33b8939",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-30T15:32:44Z",
+      "side": 1,
+      "message": "This seems like a bug that\u0027d be a pain to get to the bottom of. Could we assert here that the ycbcr stuff is the same and maybe in a backend-neutral place that the swizzle, type, and precision are the same?",
+      "range": {
+        "startLine": 607,
+        "startChar": 0,
+        "endLine": 609,
+        "endChar": 20
+      },
+      "revId": "05978890a79a80adc9eee3c79e6d38f1dca3ca2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
