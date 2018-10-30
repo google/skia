@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "407a1019_c854fd7d",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-30T14:03:50Z",
+      "side": 0,
+      "message": "What the hell were we doing with renderMatrix here?  This really is the same as what you\u0027ve turned it into, just SkMatrix::MakeScale(scale), right?",
+      "range": {
+        "startLine": 114,
+        "startChar": 4,
+        "endLine": 118,
+        "endChar": 0
+      },
+      "revId": "4b0765362fbae10ad32dce578ba7c9177ab07c8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

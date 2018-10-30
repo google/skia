@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5a506f5_49c893f2",
+        "filename": "src/core/SkDraw.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-30T14:03:50Z",
+      "side": 1,
+      "message": "It\u0027s now drawMasksCreator(), right?  Something like that?",
+      "range": {
+        "startLine": 125,
+        "startChar": 35,
+        "endLine": 125,
+        "endChar": 53
+      },
+      "revId": "6d79b6e9829427ebdd1dc55cf74755adb5edd286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b9df5e2_85ae8f96",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-30T14:03:50Z",
+      "side": 1,
+      "message": "I see what you mean about switching to virtuals being really obvious now.",
+      "range": {
+        "startLine": 53,
+        "startChar": 20,
+        "endLine": 53,
+        "endChar": 25
+      },
+      "revId": "6d79b6e9829427ebdd1dc55cf74755adb5edd286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de94e4f6_aeaadf50",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-30T14:03:50Z",
+      "side": 1,
+      "message": "Think it makes sense to keep passing in the alloc?\n\nIf we keep this here, we kind of ought to leave some advice on how to maintain this 3332 number, right?  It\u0027s not obviously a round number, and seems pretty high if we\u0027re just allocating blitters.",
+      "revId": "6d79b6e9829427ebdd1dc55cf74755adb5edd286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed69373e_c713ef59",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-30T14:03:50Z",
+      "side": 1,
+      "message": "Looks like we\u0027ve been spelling this wrong.\n\nAlso, think this can just be on the stack normally?  Why does it need to go in the alloc?",
+      "range": {
+        "startLine": 62,
+        "startChar": 8,
+        "endLine": 62,
+        "endChar": 58
+      },
+      "revId": "6d79b6e9829427ebdd1dc55cf74755adb5edd286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15c2107c_6730c637",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-30T14:03:50Z",
+      "side": 1,
+      "message": "Having the two ensureBitmapBuffers() and ensureGPUBuffers() and knowing which to call where seems fragile to me.  We\u0027re going to eventually go down this path for all calls, right?  Let\u0027s just always do ensureBitmapBuffers(), maybe renaming these resizeTemporaryBuffers() and trimTemporaryBuffers()?",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 0
+      },
+      "revId": "6d79b6e9829427ebdd1dc55cf74755adb5edd286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0958b91_cd37474b",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-30T14:03:50Z",
+      "side": 1,
+      "message": "Why do we make these return a bool?",
+      "revId": "6d79b6e9829427ebdd1dc55cf74755adb5edd286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fbbf941_3a92ffc5",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-30T14:03:50Z",
+      "side": 1,
+      "message": "Now that we\u0027re batching, all these things named PerMask really should be something more like DrawMasks, right?",
+      "range": {
+        "startLine": 34,
+        "startChar": 10,
+        "endLine": 34,
+        "endChar": 17
+      },
+      "revId": "6d79b6e9829427ebdd1dc55cf74755adb5edd286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59c77bd1_4ea4ccc6",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-30T14:03:50Z",
+      "side": 1,
+      "message": "This seems kinda wacko.  We\u0027re not actually putting the PathAndPos in the right place inside the CombinedGlyphData, are we?\n\nWe never seem to refer to the type CombinedGlyphData again.  So this might be better off typed just as bytes,\n\n   // A temporary array holding the SkMasks or PathAndPos of the glyphs we\u0027re drawing.\n  SkAutoMalloc fGlyphDataData; \n\nThen allocate them using n*sizeof(SkMask) or n*sizeof(PathAndPos)?",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 52
+      },
+      "revId": "6d79b6e9829427ebdd1dc55cf74755adb5edd286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
