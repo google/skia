@@ -1836,11 +1836,6 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
                            const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                            int dynamicStateArraysLength,
                            bool willDrawPoints) {
-    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, primProc, pipeline, willDrawPoints));
-    if (!program) {
-        GrCapsDebugf(this->caps(), "Failed to create program!\n");
-        return false;
-    }
     const GrTextureProxy* const* primProcProxiesForMipRegen = nullptr;
     const GrTextureProxy* const* primProcProxiesToBind = nullptr;
     int numPrimProcTextureSets = 1;  // number of texture per prim proc sampler.
@@ -1850,6 +1845,15 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
     } else if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
         primProcProxiesForMipRegen = fixedDynamicState->fPrimitiveProcessorTextures;
         primProcProxiesToBind = fixedDynamicState->fPrimitiveProcessorTextures;
+    }
+
+    SkASSERT(SkToBool(primProcProxiesForMipRegen) == SkToBool(primProc.numTextureSamplers()));
+
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, primProc, primProcProxiesForMipRegen,
+                                                         pipeline, willDrawPoints));
+    if (!program) {
+        GrCapsDebugf(this->caps(), "Failed to create program!\n");
+        return false;
     }
     this->resolveAndGenerateMipMapsForProcessorTextures(
             primProc, pipeline, primProcProxiesForMipRegen, numPrimProcTextureSets);
