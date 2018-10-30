@@ -50,8 +50,6 @@ class SkTextBlob;
 class SkTextBlobRunIterator;
 class SkTypeface;
 
-#define SK_SUPPORT_LEGACY_PAINTALIGNENUM
-
 /** \class SkPaint
     SkPaint controls options applied when drawing and measuring. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
