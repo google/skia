@@ -47,7 +47,7 @@ class SkTextBlobRunIterator;
  *
  * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
-class GrTextBlob : public SkNVRefCnt<GrTextBlob> {
+class GrTextBlob : public SkRefCnt {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
 

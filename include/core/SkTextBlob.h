@@ -36,7 +36,7 @@ struct SkDeserialProcs;
     run consists of glyphs, SkPaint, and position. Only parts of SkPaint related to
     fonts and text rendering are used by run.
 */
-class SK_API SkTextBlob final : public SkNVRefCnt<SkTextBlob> {
+class SK_API SkTextBlob final : public SkRefCnt {
 public:
 
     /** Returns conservative bounding box. Uses SkPaint associated with each glyph to
@@ -138,7 +138,7 @@ public:
                                          const SkDeserialProcs& procs);
 
 private:
-    friend class SkNVRefCnt<SkTextBlob>;
+    friend class SkRefCnt;
     class RunRecord;
 
     enum GlyphPositioning : uint8_t;

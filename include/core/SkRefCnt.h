@@ -163,44 +163,6 @@ template <typename T> static inline void SkSafeUnref(T* obj) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-// This is a variant of SkRefCnt that's Not Virtual, so weighs 4 bytes instead of 8 or 16.
-// There's only benefit to using this if the deriving class does not otherwise need a vtable.
-template <typename Derived>
-class SkNVRefCnt {
-public:
-    SkNVRefCnt() : fRefCnt(1) {}
-    ~SkNVRefCnt() { SkASSERTF(1 == getRefCnt(), "NVRefCnt was %d", getRefCnt()); }
-
-    // Implementation is pretty much the same as SkRefCntBase. All required barriers are the same:
-    //   - unique() needs acquire when it returns true, and no barrier if it returns false;
-    //   - ref() doesn't need any barrier;
-    //   - unref() needs a release barrier, and an acquire if it's going to call delete.
-
-    bool unique() const { return 1 == fRefCnt.load(std::memory_order_acquire); }
-    void ref() const { (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed); }
-    void  unref() const {
-        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
-            // restore the 1 for our destructor's assert
-            SkDEBUGCODE(fRefCnt.store(1, std::memory_order_relaxed));
-            delete (const Derived*)this;
-        }
-    }
-    void  deref() const { this->unref(); }
-
-private:
-    mutable std::atomic<int32_t> fRefCnt;
-    int32_t getRefCnt() const {
-        return fRefCnt.load(std::memory_order_relaxed);
-    }
-
-    SkNVRefCnt(SkNVRefCnt&&) = delete;
-    SkNVRefCnt(const SkNVRefCnt&) = delete;
-    SkNVRefCnt& operator=(SkNVRefCnt&&) = delete;
-    SkNVRefCnt& operator=(const SkNVRefCnt&) = delete;
-};
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**

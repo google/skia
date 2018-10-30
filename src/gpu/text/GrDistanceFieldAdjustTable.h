@@ -14,7 +14,7 @@
 // Distance field text needs this table to compute a value for use in the fragment shader.
 // Because the GrTextContext can go out of scope before the final flush, this needs to be
 // refcnted and malloced
-struct GrDistanceFieldAdjustTable : public SkNVRefCnt<GrDistanceFieldAdjustTable> {
+struct GrDistanceFieldAdjustTable : public SkRefCnt {
     GrDistanceFieldAdjustTable() { this->buildDistanceAdjustTables(); }
     ~GrDistanceFieldAdjustTable() {
         delete[] fTable;

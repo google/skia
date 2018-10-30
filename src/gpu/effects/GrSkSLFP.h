@@ -126,7 +126,7 @@ private:
  * upon the inputs to the SkSL (static if's, etc.) we first create a factory for a given SkSL
  * string, then use that to create the actual GrFragmentProcessor.
  */
-class GrSkSLFPFactory : public SkNVRefCnt<GrSkSLFPFactory> {
+class GrSkSLFPFactory : public SkRefCnt {
 public:
     /**
      * Constructs a GrSkSLFPFactory for a given SkSL source string. Creating a factory will
