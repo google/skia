@@ -30,6 +30,7 @@
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
 #include "SkPoint3.h"
+#include "SkPtrRecorder.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkSpecialImage.h"

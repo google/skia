@@ -11,7 +11,7 @@
 
 #include "SkRefCnt.h"
 #include "SkFlattenable.h"
-#include "SkTDArray.h"
+#include "../private/SkTDArray.h"
 
 /**
  *  Maintains a set of ptrs, assigning each a unique ID [1...N]. Duplicate ptrs

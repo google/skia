@@ -19,6 +19,7 @@
 #define SkTextBlob_DEFINED
 
 #include "../private/SkTemplates.h"
+#include "SkFlattenable.h"
 #include "SkFont.h"
 #include "SkPaint.h"
 #include "SkString.h"
@@ -30,6 +31,7 @@
 
 struct SkSerialProcs;
 struct SkDeserialProcs;
+class SkPtrRecorder;
 
 /** \class SkTextBlob
     SkTextBlob combines multiple text runs into an immutable container. Each text
@@ -105,7 +107,8 @@ public:
         @param size    size of storage
         @return        bytes written, or zero if required storage is larger than memory_size
     */
-    size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const;
+    size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size,
+                     sk_sp<SkFactorySet> factory_set = nullptr) const;
 
     /** Returns storage containing SkData describing SkTextBlob, using optional custom
         encoders.
@@ -118,7 +121,8 @@ public:
         @param procs  custom serial data encoders; may be nullptr
         @return       storage containing serialized SkTextBlob
     */
-    sk_sp<SkData> serialize(const SkSerialProcs& procs) const;
+    sk_sp<SkData> serialize(const SkSerialProcs& procs,
+                            sk_sp<SkFactorySet> factory_set = nullptr) const;
 
     /** Recreates SkTextBlob that was serialized into data. Returns constructed SkTextBlob
         if successful; otherwise, returns nullptr. Fails if size is smaller than
@@ -135,7 +139,10 @@ public:
         @return       SkTextBlob constructed from data in memory
     */
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
-                                         const SkDeserialProcs& procs);
+                                         const SkDeserialProcs& procs,
+                                            SkFlattenable::Factory* factory_array = nullptr,
+                                            int factory_count = 0);
+
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;

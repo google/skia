@@ -7,6 +7,7 @@
 
 #include "SkPaint.h"
 #include "SkPoint.h"
+#include "SkPtrRecorder.h"
 #include "SkSerialProcs.h"
 #include "SkTextBlobPriv.h"
 #include "SkTo.h"

@@ -9,6 +9,7 @@
 
 #include "SkGlyphRun.h"
 #include "SkPaintPriv.h"
+#include "SkPtrRecorder.h"
 #include "SkReadBuffer.h"
 #include "SkSafeMath.h"
 #include "SkTextBlobPriv.h"
@@ -788,9 +789,11 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromText(const void* text, size_t byteLength, 
     return blobBuilder.make();
 }
 
-sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
+sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs,
+                                    sk_sp<SkFactorySet> factory_set) const {
     SkBinaryWriteBuffer buffer;
     buffer.setSerialProcs(procs);
+    buffer.setFactoryRecorder(std::move(factory_set));
     SkTextBlobPriv::Flatten(*this, buffer);
 
     size_t total = buffer.bytesWritten();
@@ -800,17 +803,22 @@ sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
 }
 
 sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
-                                          const SkDeserialProcs& procs) {
+                                          const SkDeserialProcs& procs,
+                                          SkFlattenable::Factory* factory_array,
+                                          int factory_count) {
     SkReadBuffer buffer(data, length);
     buffer.setDeserialProcs(procs);
+    buffer.setFactoryPlayback(factory_array, factory_count);
     return SkTextBlobPriv::MakeFromBuffer(buffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const {
+size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size,
+                             sk_sp<SkFactorySet> factory_set) const {
     SkBinaryWriteBuffer buffer(memory, memory_size);
     buffer.setSerialProcs(procs);
+    buffer.setFactoryRecorder(std::move(factory_set));
     SkTextBlobPriv::Flatten(*this, buffer);
     return buffer.usingInitialStorage() ? buffer.bytesWritten() : 0u;
 }

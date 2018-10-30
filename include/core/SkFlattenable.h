@@ -13,6 +13,7 @@
 class SkData;
 class SkReadBuffer;
 class SkWriteBuffer;
+class SkFactorySet;
 
 struct SkSerialProcs;
 struct SkDeserialProcs;
@@ -60,6 +61,10 @@ public:
 
     static void Register(const char name[], Factory);
 
+    static sk_sp<SkFactorySet> GetRegisteredFactories();
+    static int NumFactories();
+    static Factory IndexToFactory(int index);
+
     /**
      *  Override this if your subclass needs to record data that it will need to recreate itself
      *  from its CreateProc (returned by getFactory()).
@@ -73,11 +78,15 @@ public:
     //
     // public ways to serialize / deserialize
     //
-    sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
-    size_t serialize(void* memory, size_t memory_size,
-                     const SkSerialProcs* = nullptr) const;
+    sk_sp<SkData> serialize(const SkSerialProcs* = nullptr,
+                            sk_sp<SkFactorySet> factory_set = nullptr) const;
+    size_t serialize(void* memory, size_t memory_size, const SkSerialProcs* = nullptr,
+                     sk_sp<SkFactorySet> factory_set = nullptr) const;
+
     static sk_sp<SkFlattenable> Deserialize(Type, const void* data, size_t length,
-                                            const SkDeserialProcs* procs = nullptr);
+                                            const SkDeserialProcs* procs = nullptr,
+                                            SkFlattenable::Factory* factory_array = nullptr,
+                                            int factory_count = 0);
 
 protected:
     class PrivateInitializer {

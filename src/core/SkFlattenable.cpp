@@ -88,6 +88,28 @@ void SkFlattenable::Register(const char name[], Factory factory) {
     gCount += 1;
 }
 
+sk_sp<SkFactorySet> SkFlattenable::GetRegisteredFactories() {
+  RegisterFlattenablesIfNeeded();
+
+  sk_sp<SkFactorySet> set;
+  for (int i = 0; i < gCount; ++i) {
+    set->add(gEntries[gCount].fFactory);
+  }
+  return set;
+}
+
+int SkFlattenable::NumFactories() {
+   RegisterFlattenablesIfNeeded();
+   return gCount;
+}
+
+SkFlattenable::Factory SkFlattenable::IndexToFactory(int index) {
+  RegisterFlattenablesIfNeeded();
+  SkASSERT(index >= 0);
+  SkASSERT(index < gCount);
+  return gEntries[index].fFactory;
+}
+
 SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
     RegisterFlattenablesIfNeeded();
 
@@ -113,11 +135,13 @@ const char* SkFlattenable::FactoryToName(Factory fact) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkData> SkFlattenable::serialize(const SkSerialProcs* procs) const {
+sk_sp<SkData> SkFlattenable::serialize(const SkSerialProcs* procs,
+                                       sk_sp<SkFactorySet> factory_set) const {
     SkBinaryWriteBuffer writer;
     if (procs) {
         writer.setSerialProcs(*procs);
     }
+    writer.setFactoryRecorder(std::move(factory_set));
     writer.writeFlattenable(this);
     size_t size = writer.bytesWritten();
     auto data = SkData::MakeUninitialized(size);
@@ -126,20 +150,25 @@ sk_sp<SkData> SkFlattenable::serialize(const SkSerialProcs* procs) const {
 }
 
 size_t SkFlattenable::serialize(void* memory, size_t memory_size,
-                                const SkSerialProcs* procs) const {
+                                const SkSerialProcs* procs,
+                                sk_sp<SkFactorySet> factory_set) const {
   SkBinaryWriteBuffer writer(memory, memory_size);
   if (procs) {
       writer.setSerialProcs(*procs);
   }
+  writer.setFactoryRecorder(std::move(factory_set));
   writer.writeFlattenable(this);
   return writer.usingInitialStorage() ? writer.bytesWritten() : 0u;
 }
 
 sk_sp<SkFlattenable> SkFlattenable::Deserialize(SkFlattenable::Type type, const void* data,
-                                                size_t size, const SkDeserialProcs* procs) {
+                                                size_t size, const SkDeserialProcs* procs,
+                                                SkFlattenable::Factory* factory_array,
+                                                int factory_count) {
     SkReadBuffer buffer(data, size);
     if (procs) {
         buffer.setDeserialProcs(*procs);
     }
+    buffer.setFactoryPlayback(factory_array, factory_count);
     return sk_sp<SkFlattenable>(buffer.readFlattenable(type));
 }

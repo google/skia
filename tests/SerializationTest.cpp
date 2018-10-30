@@ -22,6 +22,7 @@
 #include "SkReadBuffer.h"
 #include "SkPicturePriv.h"
 #include "SkPictureRecorder.h"
+#include "SkPtrRecorder.h"
 #include "SkShaderBase.h"
 #include "SkTableColorFilter.h"
 #include "SkTemplates.h"
