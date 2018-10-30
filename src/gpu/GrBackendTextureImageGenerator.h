@@ -50,7 +50,7 @@ private:
 
     static void ReleaseRefHelper_TextureReleaseProc(void* ctx);
 
-    class RefHelper : public SkRefCnt {
+    class RefHelper : public SkNVRefCnt<RefHelper> {
     public:
         RefHelper(GrTexture* texture, uint32_t owningContextID)
             : fOriginalTexture(texture)

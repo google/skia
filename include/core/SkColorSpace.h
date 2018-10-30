@@ -62,7 +62,7 @@ struct SK_API SkColorSpaceTransferFn {
     float fF;
 };
 
-class SK_API SkColorSpace : public SkRefCnt {
+class SK_API SkColorSpace : public SkNVRefCnt<SkColorSpace> {
 public:
     /**
      *  Create the sRGB color space.

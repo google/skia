@@ -19,7 +19,7 @@ class SkStream;
  *  but the actual ptr that is returned (by data() or bytes()) is guaranteed
  *  to always be the same for the life of this instance.
  */
-class SK_API SkData final : public SkRefCnt {
+class SK_API SkData final : public SkNVRefCnt<SkData> {
 public:
     /**
      *  Returns the number of bytes stored.
@@ -158,7 +158,7 @@ public:
     static sk_sp<SkData> MakeEmpty();
 
 private:
-    friend class SkRefCnt;
+    friend class SkNVRefCnt<SkData>;
     ReleaseProc fReleaseProc;
     void*       fReleaseProcContext;
     void*       fPtr;

@@ -19,7 +19,7 @@ class GrSkSLFPFactory;
 // For thread safety, it is important that GrSkSLFP only interact with the cache from methods that
 // are only called from within the rendering thread, like onCreateGLSLInstance and
 // onGetGLSLProcessorKey.
-class GrSkSLFPFactoryCache : public SkRefCnt {
+class GrSkSLFPFactoryCache : public SkNVRefCnt<GrSkSLFPFactoryCache> {
 public:
     // Returns a factory by its numeric index, or null if no such factory exists. Indices are
     // allocated by GrSkSLFP::NewIndex().
