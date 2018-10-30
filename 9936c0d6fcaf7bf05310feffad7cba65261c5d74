@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "49c95201_8f27abf6",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-30T19:41:31Z",
+      "side": 1,
+      "message": "FWIW we always build our tools with SK_SUPPORT_GPU now. The guard isn\u0027t needed.",
+      "revId": "9936c0d6fcaf7bf05310feffad7cba65261c5d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba1b0fe1_b50506c7",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-30T19:41:31Z",
+      "side": 1,
+      "message": "Might be simpler/future proof to have a counter declared at line 717 and increment at 791?",
+      "revId": "9936c0d6fcaf7bf05310feffad7cba65261c5d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "21fa4436_bd3e3956",
         "filename": "gm/wacky_yuv_formats.cpp",
         "patchSetId": 7
