@@ -68,7 +68,7 @@ private:
 
     PolyBoundsOp(GrPaint&& paint, const SkRect& rect)
             : INHERITED(ClassID())
-            , fColor(GrColor4h::FromFloats(paint.getColor4f().vec()))
+            , fColor(paint.getColor4f())
             , fProcessors(std::move(paint))
             , fRect(outset(rect)) {
         this->setBounds(sorted_rect(fRect), HasAABloat::kNo, IsZeroArea::kNo);

@@ -94,7 +94,7 @@ public:
         str.appendf("# combined: %d\n", fRegions.count());
         for (int i = 0; i < fRegions.count(); ++i) {
             const RegionInfo& info = fRegions[i];
-            str.appendf("%d: Color: 0x%08x, Region with %d rects\n", i, info.fColor.toGrColor(),
+            str.appendf("%d: Color: 0x%08x, Region with %d rects\n", i, info.fColor.toBytes_RGBA(),
                         info.fRegion.computeRegionComplexity());
         }
         str += fHelper.dumpInfo();
@@ -140,7 +140,7 @@ private:
         intptr_t verts = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < numRegions; i++) {
             // TODO4F: Preserve float colors
-            tesselate_region(verts, kVertexStride, fRegions[i].fColor.toGrColor(),
+            tesselate_region(verts, kVertexStride, fRegions[i].fColor.toBytes_RGBA(),
                              fRegions[i].fRegion);
             int numRectsInRegion = fRegions[i].fRegion.computeRegionComplexity();
             verts += numRectsInRegion * kVertsPerInstance * kVertexStride;

@@ -190,7 +190,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("Color 0x%08x, aa: %d\n", fColor.toGrColor(), fAntiAlias);
+        string.appendf("Color 0x%08x, aa: %d\n", fColor.toBytes_RGBA(), fAntiAlias);
         string += fHelper.dumpInfo();
         string += INHERITED::dumpInfo();
         return string;
@@ -303,7 +303,7 @@ private:
         // TODO4F: Preserve float colors
         int count =
                 GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true,
-                                               fColor.toGrColor(),
+                                               fColor.toBytes_RGBA(),
                                                fHelper.compatibleWithAlphaAsCoverage(), &isLinear);
         if (count == 0) {
             return;

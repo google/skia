@@ -363,7 +363,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("Color: 0x%08x Count: %d\n", fColor.toGrColor(), fPaths.count());
+        string.appendf("Color: 0x%08x Count: %d\n", fColor.toBytes_RGBA(), fPaths.count());
         for (const auto& path : fPaths) {
             string.appendf("Tolerance: %.2f\n", path.fTolerance);
         }

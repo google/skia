@@ -144,7 +144,7 @@ private:
         // Setup vertex colors
         GrColor* color = (GrColor*)((intptr_t)vertices + kColorOffset);
         for (int i = 0; i < 4; ++i) {
-            *color = fColor.toGrColor();
+            *color = fColor.toBytes_RGBA();
             color = (GrColor*)((intptr_t)color + vertexStride);
         }
 
@@ -206,7 +206,8 @@ public:
     // pulling from the atlas.
     AtlasedRectOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkRect& r,
                   int id)
-            : INHERITED(helperArgs, GrColor4h::FromGrColor(kColors[id]), r, &kEmptyRect, ClassID())
+            : INHERITED(helperArgs, GrColor4h::FromBytes_RGBA(kColors[id]), r, &kEmptyRect,
+                        ClassID())
             , fID(id)
             , fNext(nullptr) {
         SkASSERT(fID < kMaxIDs);
@@ -367,7 +368,7 @@ public:
 
                 // For now, we avoid the resource buffer issues and just use clears
 #if 1
-                rtc->clear(&r, op->color().toGrColor(),
+                rtc->clear(&r, op->color().toBytes_RGBA(),
                            GrRenderTargetContext::CanClearFullscreen::kNo);
 #else
                 GrPaint paint;

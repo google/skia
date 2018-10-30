@@ -332,7 +332,7 @@ private:
     DashOp(GrPaint&& paint, const LineData& geometry, SkPaint::Cap cap, AAMode aaMode,
            bool fullDash, const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fColor(GrColor4h::FromFloats(paint.getColor4f().vec()))
+            , fColor(paint.getColor4f())
             , fFullDash(fullDash)
             , fCap(cap)
             , fAAMode(aaMode)
@@ -970,9 +970,7 @@ void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
                                     FPCoordTransformIter&& transformIter)  {
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     if (dce.color() != fColor) {
-        float c[4];
-        dce.color().toFloats(c);
-        pdman.set4fv(fColorUniform, 1, c);
+        pdman.set4fv(fColorUniform, 1, dce.color().vec());
         fColor = dce.color();
     }
     this->setTransformDataHelper(dce.localMatrix(), pdman, &transformIter);
@@ -1024,7 +1022,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
     AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(GrDashOp::kAAModeCnt));
-    return DashingCircleEffect::Make(GrColor4h::FromGrColor(GrRandomColor(d->fRandom)),
+    return DashingCircleEffect::Make(GrColor4h::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                      aaMode, GrTest::TestMatrix(d->fRandom),
                                      d->fRandom->nextBool());
 }
@@ -1196,9 +1194,7 @@ void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
                                   FPCoordTransformIter&& transformIter) {
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     if (de.color() != fColor) {
-        float c[4];
-        de.color().toFloats(c);
-        pdman.set4fv(fColorUniform, 1, c);
+        pdman.set4fv(fColorUniform, 1, de.color().vec());
         fColor = de.color();
     }
     this->setTransformDataHelper(de.localMatrix(), pdman, &transformIter);
@@ -1250,7 +1246,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> DashingLineEffect::TestCreate(GrProcessorTestData* d) {
     AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(GrDashOp::kAAModeCnt));
-    return DashingLineEffect::Make(GrColor4h::FromGrColor(GrRandomColor(d->fRandom)),
+    return DashingLineEffect::Make(GrColor4h::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                    aaMode, GrTest::TestMatrix(d->fRandom),
                                    d->fRandom->nextBool());
 }

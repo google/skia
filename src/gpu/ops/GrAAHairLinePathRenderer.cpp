@@ -828,7 +828,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n", fColor.toGrColor(),
+        string.appendf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n", fColor.toBytes_RGBA(),
                        fCoverage, fPaths.count());
         string += INHERITED::dumpInfo();
         string += fHelper.dumpInfo();

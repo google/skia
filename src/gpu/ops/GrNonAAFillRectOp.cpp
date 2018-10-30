@@ -161,7 +161,7 @@ public:
         for (int i = 0; i < fRects.count(); ++i) {
             const RectInfo& info = fRects[i];
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        info.fColor.toGrColor(), info.fRect.fLeft, info.fRect.fTop,
+                        info.fColor.toBytes_RGBA(), info.fRect.fLeft, info.fRect.fTop,
                         info.fRect.fRight, info.fRect.fBottom);
         }
         str += fHelper.dumpInfo();
@@ -205,7 +205,7 @@ private:
             intptr_t verts =
                     reinterpret_cast<intptr_t>(vertices) + i * kVertsPerRect * kVertexStride;
             // TODO4F: Preserve float colors
-            tesselate(verts, kVertexStride, fRects[i].fColor.toGrColor(), &fRects[i].fViewMatrix,
+            tesselate(verts, kVertexStride, fRects[i].fColor.toBytes_RGBA(), &fRects[i].fViewMatrix,
                       fRects[i].fRect, &fRects[i].fLocalQuad);
         }
         auto pipe = fHelper.makePipeline(target);
@@ -290,7 +290,7 @@ public:
         for (int i = 0; i < fRects.count(); ++i) {
             const RectInfo& geo = fRects[i];
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        geo.fColor.toGrColor(), geo.fRect.fLeft, geo.fRect.fTop,
+                        geo.fColor.toBytes_RGBA(), geo.fRect.fLeft, geo.fRect.fTop,
                         geo.fRect.fRight, geo.fRect.fBottom);
         }
         str += fHelper.dumpInfo();
@@ -337,7 +337,7 @@ private:
         for (int i = 0; i < rectCount; i++) {
             const RectInfo& info = fRects[i];
             // TODO4F: Preserve float colors
-            GrColor color = info.fColor.toGrColor();
+            GrColor color = info.fColor.toBytes_RGBA();
             intptr_t verts =
                     reinterpret_cast<intptr_t>(vertices) + i * kVertsPerRect * vertexStride;
             if (fHasLocalRect) {

@@ -427,7 +427,7 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
             size_t boneWeightOffset = offset;
 
             // TODO4F: Preserve float colors
-            GrColor color = mesh.fColor.toGrColor();
+            GrColor color = mesh.fColor.toBytes_RGBA();
 
             for (int j = 0; j < vertexCount; ++j) {
                 if (this->hasMultipleViewMatrices()) {

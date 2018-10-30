@@ -1147,7 +1147,7 @@ public:
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f\n",
-                    fCircles[i].fColor.toGrColor(), fCircles[i].fDevBounds.fLeft,
+                    fCircles[i].fColor.toBytes_RGBA(), fCircles[i].fDevBounds.fLeft,
                     fCircles[i].fDevBounds.fTop, fCircles[i].fDevBounds.fRight,
                     fCircles[i].fDevBounds.fBottom, fCircles[i].fInnerRadius,
                     fCircles[i].fOuterRadius);
@@ -1218,7 +1218,7 @@ private:
             SkScalar innerRadius = circle.fInnerRadius;
             SkScalar outerRadius = circle.fOuterRadius;
             // TODO4F: Preserve float colors
-            GrColor color = circle.fColor.toGrColor();
+            GrColor color = circle.fColor.toBytes_RGBA();
             const SkRect& bounds = circle.fDevBounds;
 
             CircleVertex* v0 = reinterpret_cast<CircleVertex*>(vertices + 0 * vertexStride);
@@ -1662,7 +1662,7 @@ public:
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f, OnAngle: %.2f, TotalAngle: %.2f, "
                     "Phase: %.2f\n",
-                    fCircles[i].fColor.toGrColor(), fCircles[i].fDevBounds.fLeft,
+                    fCircles[i].fColor.toBytes_RGBA(), fCircles[i].fDevBounds.fLeft,
                     fCircles[i].fDevBounds.fTop, fCircles[i].fDevBounds.fRight,
                     fCircles[i].fDevBounds.fBottom, fCircles[i].fInnerRadius,
                     fCircles[i].fOuterRadius, fCircles[i].fOnAngle, fCircles[i].fTotalAngle,
@@ -1738,7 +1738,7 @@ private:
             }
 
             // TODO4F: Preserve float colors
-            GrColor color = circle.fColor.toGrColor();
+            GrColor color = circle.fColor.toBytes_RGBA();
 
             // The bounding geometry for the circle is composed of an outer bounding octagon and
             // an inner bounded octagon.
@@ -1980,7 +1980,7 @@ public:
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                     "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
-                    geo.fColor.toGrColor(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
+                    geo.fColor.toBytes_RGBA(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
                     geo.fDevBounds.fRight, geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius,
                     geo.fInnerXRadius, geo.fInnerYRadius);
         }
@@ -2016,7 +2016,7 @@ private:
 
         for (const auto& ellipse : fEllipses) {
             // TODO4F: Preserve float colors
-            GrColor color = ellipse.fColor.toGrColor();
+            GrColor color = ellipse.fColor.toBytes_RGBA();
             SkScalar xRadius = ellipse.fXRadius;
             SkScalar yRadius = ellipse.fYRadius;
 
@@ -2217,7 +2217,7 @@ public:
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], XRad: %.2f, "
                     "YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f, GeoDX: %.2f, "
                     "GeoDY: %.2f\n",
-                    geo.fColor.toGrColor(), geo.fBounds.fLeft, geo.fBounds.fTop,
+                    geo.fColor.toBytes_RGBA(), geo.fBounds.fLeft, geo.fBounds.fTop,
                     geo.fBounds.fRight, geo.fBounds.fBottom, geo.fXRadius, geo.fYRadius,
                     geo.fInnerXRadius, geo.fInnerYRadius, geo.fGeoDx, geo.fGeoDy);
         }
@@ -2249,7 +2249,7 @@ private:
 
         for (const auto& ellipse : fEllipses) {
             // TODO4F: Preserve float colors
-            GrColor color = ellipse.fColor.toGrColor();
+            GrColor color = ellipse.fColor.toBytes_RGBA();
             SkScalar xRadius = ellipse.fXRadius;
             SkScalar yRadius = ellipse.fYRadius;
 
@@ -2550,7 +2550,7 @@ public:
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f\n",
-                    fRRects[i].fColor.toGrColor(), fRRects[i].fDevBounds.fLeft,
+                    fRRects[i].fColor.toBytes_RGBA(), fRRects[i].fDevBounds.fLeft,
                     fRRects[i].fDevBounds.fTop, fRRects[i].fDevBounds.fRight,
                     fRRects[i].fDevBounds.fBottom, fRRects[i].fInnerRadius,
                     fRRects[i].fOuterRadius);
@@ -2678,7 +2678,7 @@ private:
         int currStartVertex = 0;
         for (const auto& rrect : fRRects) {
             // TODO4F: Preserve float colors
-            GrColor color = rrect.fColor.toGrColor();
+            GrColor color = rrect.fColor.toBytes_RGBA();
             SkScalar outerRadius = rrect.fOuterRadius;
             const SkRect& bounds = rrect.fDevBounds;
 
@@ -2916,7 +2916,7 @@ public:
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                     "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
-                    geo.fColor.toGrColor(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
+                    geo.fColor.toBytes_RGBA(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
                     geo.fDevBounds.fRight, geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius,
                     geo.fInnerXRadius, geo.fInnerYRadius);
         }
@@ -2961,7 +2961,7 @@ private:
 
         for (const auto& rrect : fRRects) {
             // TODO4F: Preserve float colors
-            GrColor color = rrect.fColor.toGrColor();
+            GrColor color = rrect.fColor.toBytes_RGBA();
             // Compute the reciprocals of the radii here to save time in the shader
             SkScalar xRadRecip = SkScalarInvert(rrect.fXRadius);
             SkScalar yRadRecip = SkScalarInvert(rrect.fYRadius);

@@ -76,9 +76,7 @@ public:
                  FPCoordTransformIter&& transformIter) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         if (pathProc.color() != fColor) {
-            float c[4];
-            pathProc.color().toFloats(c);
-            pd.set4fv(fColorUniform, 1, c);
+            pd.set4fv(fColorUniform, 1, pathProc.color().vec());
             fColor = pathProc.color();
         }
 

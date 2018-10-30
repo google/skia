@@ -219,7 +219,7 @@ public:
         for (int i = 0; i < fRectCnt; ++i) {
             const SkRect& rect = info->rect();
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        info->color().toGrColor(), rect.fLeft, rect.fTop, rect.fRight,
+                        info->color().toBytes_RGBA(), rect.fLeft, rect.fTop, rect.fRight,
                         rect.fBottom);
             info = this->next(info);
         }
@@ -287,7 +287,7 @@ private:
                 }
             }
             // TODO4F: Preserve float colors
-            generate_aa_fill_rect_geometry(verts, vertexStride, info->color().toGrColor(),
+            generate_aa_fill_rect_geometry(verts, vertexStride, info->color().toBytes_RGBA(),
                                            info->viewMatrix(), info->rect(), info->devRect(),
                                            fHelper.compatibleWithAlphaAsCoverage(), localMatrix);
             info = this->next(info);

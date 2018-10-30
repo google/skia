@@ -230,9 +230,7 @@ public:
             }
 
             if (!dgp.hasVertexColor() && dgp.color() != fColor) {
-                float c[4];
-                dgp.color().toFloats(c);
-                pdman.set4fv(fColorUniform, 1, c);
+                pdman.set4fv(fColorUniform, 1, dgp.color().vec());
                 fColor = dgp.color();
             }
 
@@ -417,7 +415,7 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
 
     return DefaultGeoProc::Make(d->caps()->shaderCaps(),
                                 flags,
-                                GrColor4h::FromGrColor(GrRandomColor(d->fRandom)),
+                                GrColor4h::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                 GrTest::TestColorXform(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),

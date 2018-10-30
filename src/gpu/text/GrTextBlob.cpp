@@ -83,7 +83,7 @@ void GrTextBlob::appendGlyph(int runIndex,
                              const sk_sp<GrTextStrike>& strike,
                              GrGlyph* glyph, bool preTransformed) {
     // TODO4F: Preserve float colors
-    GrColor color = color4f.toGrColor();
+    GrColor color = color4f.toBytes_RGBA();
 
     Run& run = fRuns[runIndex];
     GrMaskFormat format = glyph->fMaskFormat;

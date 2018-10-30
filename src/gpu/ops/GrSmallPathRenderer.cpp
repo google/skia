@@ -284,7 +284,7 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fShapes) {
-            string.appendf("Color: 0x%08x\n", geo.fColor.toGrColor());
+            string.appendf("Color: 0x%08x\n", geo.fColor.toBytes_RGBA());
         }
         string += fHelper.dumpInfo();
         string += INHERITED::dumpInfo();
@@ -492,8 +492,8 @@ private:
             fAtlas->setLastUseToken(shapeData->fID, uploadTarget->tokenTracker()->nextDrawToken());
 
             // TODO4F: Preserve float colors
-            this->writePathVertices(
-                    fAtlas, offset, args.fColor.toGrColor(), kVertexStride, args.fViewMatrix, shapeData);
+            this->writePathVertices(fAtlas, offset, args.fColor.toBytes_RGBA(), kVertexStride,
+                                    args.fViewMatrix, shapeData);
             offset += kVerticesPerQuad * kVertexStride;
             flushInfo.fInstancesToFlush++;
         }

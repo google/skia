@@ -845,7 +845,7 @@ private:
             }
 
             // TODO4F: Preserve float colors
-            extract_lines_only_verts(tess, verts, vertexStride, args.fColor.toGrColor(), idxs,
+            extract_lines_only_verts(tess, verts, vertexStride, args.fColor.toBytes_RGBA(), idxs,
                                      fHelper.compatibleWithAlphaAsCoverage());
 
             GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
@@ -932,7 +932,7 @@ private:
 
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             // TODO4F: Preserve float colors
-            create_vertices(segments, fanPt, args.fColor.toGrColor(), &draws, verts, idxs);
+            create_vertices(segments, fanPt, args.fColor.toBytes_RGBA(), &draws, verts, idxs);
 
             GrMesh* meshes = target->allocMeshes(draws.count());
             for (int j = 0; j < draws.count(); ++j) {

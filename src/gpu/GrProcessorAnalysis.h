@@ -46,7 +46,7 @@ public:
     bool isConstant(GrColor* color) const {
         if (kColorIsKnown_Flag & fFlags) {
             if (color) {
-                *color = fColor.toGrColor();
+                *color = fColor.toBytes_RGBA();
             }
             return true;
         }
@@ -140,19 +140,12 @@ public:
         return fProcessorsToEliminate;
     }
 
-    int initialProcessorsToEliminate(GrColor4h* newPipelineInputColor) const {
-        if (fProcessorsToEliminate > 0) {
-            *newPipelineInputColor = GrColor4h::FromFloats(fLastKnownOutputColor.vec());
-        }
-        return fProcessorsToEliminate;
-    }
-
     /**
      * Provides known information about the last processor's output color.
      */
     GrProcessorAnalysisColor outputColor() const {
         if (fKnowOutputColor) {
-            return GrColor4h::FromFloats(fLastKnownOutputColor.vec());
+            return fLastKnownOutputColor;
         }
         return fIsOpaque ? GrProcessorAnalysisColor::Opaque::kYes
                          : GrProcessorAnalysisColor::Opaque::kNo;

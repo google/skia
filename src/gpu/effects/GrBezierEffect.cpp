@@ -37,9 +37,7 @@ public:
         }
 
         if (ce.color() != fColor) {
-            float c[4];
-            ce.color().toFloats(c);
-            pdman.set4fv(fColorUniform, 1, c);
+            pdman.set4fv(fColorUniform, 1, ce.color().vec());
             fColor = ce.color();
         }
 
@@ -256,7 +254,7 @@ sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(
                         d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        gp = GrConicEffect::Make(GrColor4h::FromGrColor(GrRandomColor(d->fRandom)),
+        gp = GrConicEffect::Make(GrColor4h::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                  GrTest::TestMatrix(d->fRandom), edgeType, *d->caps(),
                                  GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
     } while (nullptr == gp);
@@ -290,9 +288,7 @@ public:
         }
 
         if (qe.color() != fColor) {
-            float c[4];
-            qe.color().toFloats(c);
-            pdman.set4fv(fColorUniform, 1, c);
+            pdman.set4fv(fColorUniform, 1, qe.color().vec());
             fColor = qe.color();
         }
 
@@ -457,7 +453,7 @@ sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
     do {
         GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
                 d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        gp = GrQuadEffect::Make(GrColor4h::FromGrColor(GrRandomColor(d->fRandom)),
+        gp = GrQuadEffect::Make(GrColor4h::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                 GrTest::TestMatrix(d->fRandom), edgeType, *d->caps(),
                                 GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
     } while (nullptr == gp);
@@ -498,9 +494,7 @@ public:
         }
 
         if (ce.color() != fColor) {
-            float c[4];
-            ce.color().toFloats(c);
-            pdman.set4fv(fColorUniform, 1, c);
+            pdman.set4fv(fColorUniform, 1, ce.color().vec());
             fColor = ce.color();
         }
 
@@ -682,7 +676,7 @@ sk_sp<GrGeometryProcessor> GrCubicEffect::TestCreate(GrProcessorTestData* d) {
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(
                         d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        gp = GrCubicEffect::Make(GrColor4h::FromGrColor(GrRandomColor(d->fRandom)),
+        gp = GrCubicEffect::Make(GrColor4h::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                  GrTest::TestMatrix(d->fRandom), GrTest::TestMatrix(d->fRandom),
                                  d->fRandom->nextBool(), edgeType, *d->caps());
     } while (nullptr == gp);

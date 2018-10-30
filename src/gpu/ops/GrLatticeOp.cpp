@@ -182,7 +182,7 @@ public:
 
         for (int i = 0; i < fPatches.count(); ++i) {
             str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        fPatches[i].fColor.toGrColor(), fPatches[i].fDst.fLeft,
+                        fPatches[i].fColor.toBytes_RGBA(), fPatches[i].fDst.fLeft,
                         fPatches[i].fDst.fTop, fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
         }
 
@@ -239,7 +239,7 @@ private:
         for (int i = 0; i < patchCnt; i++) {
             const Patch& patch = fPatches[i];
             // TODO4F: Preserve float colors
-            GrColor patchColor = patch.fColor.toGrColor();
+            GrColor patchColor = patch.fColor.toBytes_RGBA();
 
             // Apply the view matrix here if it is scale-translate.  Otherwise, we need to
             // wait until we've created the dst rects.

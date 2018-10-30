@@ -165,7 +165,7 @@ protected:
         SkScalar h = SkIntToScalar(renderTargetContext->height()) / numRows;
         int row = 0;
         int col = 0;
-        GrColor4h color = GrColor4h::FromGrColor(0xff000000);
+        GrColor4h color = GrColor4h::FromBytes_RGBA(0xff000000);
 
         for (int i = 0; i < kNumCubics; ++i) {
             SkPoint baseControlPts[] = {
@@ -355,7 +355,7 @@ protected:
         SkScalar h = SkIntToScalar(renderTargetContext->height()) / numRows;
         int row = 0;
         int col = 0;
-        GrColor4h color = GrColor4h::FromGrColor(0xff000000);
+        GrColor4h color = GrColor4h::FromBytes_RGBA(0xff000000);
 
         for (int i = 0; i < kNumConics; ++i) {
             SkPoint baseControlPts[] = {
@@ -571,7 +571,7 @@ protected:
         SkScalar h = SkIntToScalar(renderTargetContext->height()) / numRows;
         int row = 0;
         int col = 0;
-        GrColor4h color = GrColor4h::FromGrColor(0xff000000);
+        GrColor4h color = GrColor4h::FromBytes_RGBA(0xff000000);
 
         for (int i = 0; i < kNumQuads; ++i) {
             SkPoint baseControlPts[] = {

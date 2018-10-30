@@ -279,7 +279,7 @@ GrColor4h generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& 
         filteredColor = paint.getColorFilter()->filterColor4f(filteredColor,
                                                               colorSpaceInfo.colorSpace());
     }
-    return GrColor4h::FromFloats(filteredColor.premul().vec());
+    return filteredColor.premul();
 }
 
 void GrTextContext::drawGlyphRunList(

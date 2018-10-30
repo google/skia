@@ -82,9 +82,7 @@ public:
                  FPCoordTransformIter&& transformIter) override {
         const GrBitmapTextGeoProc& btgp = gp.cast<GrBitmapTextGeoProc>();
         if (btgp.color() != fColor && !btgp.hasVertexColor()) {
-            float c[4];
-            btgp.color().toFloats(c);
-            pdman.set4fv(fColorUniform, 1, c);
+            pdman.set4fv(fColorUniform, 1, btgp.color().vec());
             fColor = btgp.color();
         }
 
@@ -233,7 +231,7 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
     }
 
     return GrBitmapTextGeoProc::Make(*d->caps()->shaderCaps(),
-                                     GrColor4h::FromGrColor(GrRandomColor(d->fRandom)),
+                                     GrColor4h::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                      proxies, 1, samplerState, format,
                                      GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
 }
