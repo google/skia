@@ -26,11 +26,11 @@ public:
     explicit SkGlyphRunListPainter(const GrRenderTargetContext& renderTargetContext);
 #endif
 
-    using PerMask = std::function<void(const SkMask&, const SkGlyph&, SkPoint)>;
-    using PerMaskCreator = std::function<PerMask(const SkPaint&, SkArenaAlloc* alloc)>;
-    using PerPath = std::function<void(const SkPath*, const SkGlyph&, SkPoint)>;
-    using PerPathCreator = std::function<PerPath(
-            const SkPaint&, SkScalar matrixScale, SkArenaAlloc* alloc)>;
+    using PerMask = std::function<void(const SkMask& mask, const SkPaint& paint)>;
+    using PerMaskCreator = std::function<PerMask(const SkPaint& paint, SkArenaAlloc* alloc)>;
+    using PerPath = std::function<
+            void(const SkPath& path, SkScalar scale, SkPoint pos, const SkPaint& paint)>;
+    using PerPathCreator = std::function<PerPath()>;
     void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             PerMaskCreator perMaskCreator, PerPathCreator perPathCreator);
@@ -71,7 +71,7 @@ public:
 
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
-    bool ensureBitmapBuffers(size_t runSize);
+    void ensureBitmapBuffers(size_t runSize);
 
     void processARGBFallback(
             SkScalar maxGlyphDimension, const SkPaint& runPaint, SkPoint origin,
@@ -161,26 +161,25 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
     mapping.postTranslate(rounding.x(), rounding.y());
 
     auto runSize = glyphRun.runSize();
-    if (this->ensureBitmapBuffers(runSize)) {
-        mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
-        const SkPoint* mappedPtCursor = fPositions;
-        for (auto glyphID : glyphRun.glyphsIDs()) {
-            auto mappedPt = *mappedPtCursor++;
-            if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
-                const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
-                if (SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
-                    SkScalar sx = SkScalarFloorToScalar(mappedPt.fX),
-                             sy = SkScalarFloorToScalar(mappedPt.fY);
+    this->ensureBitmapBuffers(runSize);
+    mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
+    const SkPoint* mappedPtCursor = fPositions;
+    for (auto glyphID : glyphRun.glyphsIDs()) {
+        auto mappedPt = *mappedPtCursor++;
+        if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
+            const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
+            if (SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
+                SkScalar sx = SkScalarFloorToScalar(mappedPt.fX),
+                         sy = SkScalarFloorToScalar(mappedPt.fY);
 
-                    SkRect glyphRect =
-                            rect_to_draw(glyph, {sx, sy}, SK_Scalar1, false);
+                SkRect glyphRect =
+                        rect_to_draw(glyph, {sx, sy}, SK_Scalar1, false);
 
-                    if (!glyphRect.isEmpty()) {
-                        perPath(glyph, mappedPt);
-                    }
-                } else {
-                    perGlyph(glyph, mappedPt);
+                if (!glyphRect.isEmpty()) {
+                    perPath(glyph, mappedPt);
                 }
+            } else {
+                perGlyph(glyph, mappedPt);
             }
         }
     }

@@ -53,7 +53,7 @@ SkGlyphRunListPainter::PerMask SkDraw::drawOneMaskCreator(const SkPaint& paint,
     bool useRegion = fRC->isBW() && !fRC->isRect();
 
     if (useRegion) {
-        return [this, blitter, &paint](const SkMask& mask, const SkGlyph&, SkPoint) {
+        return [this, blitter](const SkMask& mask, const SkPaint& paint) {
             SkRegion::Cliperator clipper(fRC->bwRgn(), mask.fBounds);
 
             if (!clipper.done()) {
@@ -75,7 +75,7 @@ SkGlyphRunListPainter::PerMask SkDraw::drawOneMaskCreator(const SkPaint& paint,
     } else {
         SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
                                          : fRC->aaRgn().getBounds();
-        return [this, blitter, clipBounds, &paint](const SkMask& mask, const SkGlyph&, SkPoint) {
+        return [this, blitter, clipBounds](const SkMask& mask, const SkPaint& paint) {
             SkIRect storage;
             const SkIRect* bounds = &mask.fBounds;
 
@@ -114,13 +114,11 @@ void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList,
         return this->drawOneMaskCreator(paint, alloc);
     };
 
-    auto perPathBuilder = [this](const SkPaint& paint, SkScalar scale, SkArenaAlloc*) {
-        return [this, scale, &paint](const SkPath* path, const SkGlyph&, SkPoint pos) {
-            if (path) {
-                SkMatrix m;
-                m.setScaleTranslate(scale,scale, pos.fX,pos.fY);
-                this->drawPath(*path, paint, &m, false);
-            }
+    auto perPathBuilder = [this]() {
+        return [this] (const SkPath& path, SkScalar scale, SkPoint pos, const SkPaint& paint) {
+            SkMatrix m;
+            m.setScaleTranslate(scale,scale, pos.fX,pos.fY);
+            this->drawPath(path, paint, &m, false);
         };
     };
 
