@@ -29,20 +29,34 @@ var CanvasKit = {
 	LTRBRect: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
+	MakeNimaActor: function() {},
 	MakeSkDashPathEffect: function() {},
 	MakeSurface: function() {},
 	currentContext: function() {},
+	getSkDataBytes: function() {},
 	initFonts: function() {},
 	setCurrentContext: function() {},
-	getSkDataBytes: function() {},
 
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)
-	_getWebGLSurface: function() {},
-	_getRasterN32PremulSurface: function() {},
+	_MakeNimaActor: function() {},
 	_MakeSkDashPathEffect: function() {},
+	_getRasterN32PremulSurface: function() {},
+	_getWebGLSurface: function() {},
 
 	// Objects and properties on CanvasKit
+
+	NimaActor: {
+		// public API (from C++ bindings)
+		duration: function() {},
+		getAnimationNames: function() {},
+		render: function() {},
+		seek: function() {},
+		setAnimationByIndex: function() {},
+		setAnimationByName: function() {},
+
+		// private API
+	},
 
 	SkCanvas: {
 		// public API (from C++ bindings)

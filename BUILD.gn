@@ -47,6 +47,7 @@ declare_args() {
   skia_enable_effect_deserialization = !skia_enable_flutter_defines
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
+  skia_enable_nima = false
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_skpicture = true
@@ -890,6 +891,10 @@ component("skia") {
     ":wuffs",
     ":xml",
   ]
+
+  if (skia_enable_nima) {
+    deps += [ "//third_party/Nima-Cpp" ]
+  }
 
   # This file (and all GN files in Skia) are designed to work with an
   # empty sources assignment filter; we handle all that explicitly.

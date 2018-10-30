@@ -86,8 +86,6 @@ third_party("Nima-Cpp") {
     "../externals/Nima-Math-Cpp/Source/Vec2D.cpp",
   ]
 
-  testonly = true
-
   cflags_cc = []
   if (is_win) {
     defines = [ "_USE_MATH_DEFINES" ]
