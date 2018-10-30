@@ -142,6 +142,10 @@ static inline GrColor GrUnpremulColor(GrColor color) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
+#ifdef SK_LEGACY_OP_COLOR_AS_BYTES
+#undef SK_LEGACY_OP_COLOR_AS_BYTES
+#endif
+
 /**
  * GrColor4h is 8 bytes (4 half-floats) for R, G, B, A, in that order. This is intended for
  * storing wide-gamut (non-normalized) colors in ops, vertex attributes.
