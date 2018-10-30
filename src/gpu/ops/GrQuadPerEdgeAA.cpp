@@ -7,6 +7,11 @@
 
 #include "GrQuadPerEdgeAA.h"
 #include "GrQuad.h"
+#include "glsl/GrGLSLColorSpaceXformHelper.h"
+#include "glsl/GrGLSLPrimitiveProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLVarying.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "SkNx.h"
 
 namespace {
@@ -365,5 +370,167 @@ void GrQuadPerEdgeAA::TessellateImpl(void* vertices, size_t vertexSize, float* l
         }
 
         vb += vertexSize;
+    }
+}
+
+GrQuadPerEdgeAA::GPAttributes::GPAttributes(int posDim, int localDim, bool hasColor, GrAAType aa,
+                                            Domain domain) {
+    SkASSERT(posDim == 2 || posDim == 3);
+    SkASSERT(localDim == 0 || localDim == 2 || localDim == 3);
+
+    if (posDim == 3) {
+        fPositions = {"position", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+    } else {
+        fPositions = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+    }
+
+    if (localDim == 3) {
+        fLocalCoords = {"localCoord", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+    } else if (localDim == 2) {
+        fLocalCoords = {"localCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+    } // else localDim == 0 and attribute remains uninitialized
+
+    if (hasColor) {
+        fColors = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    }
+
+    if (domain == Domain::kYes) {
+        fDomain = {"domain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+    }
+
+    if (aa == GrAAType::kCoverage) {
+        fAAEdges[0] = {"aaEdge0", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        fAAEdges[1] = {"aaEdge1", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        fAAEdges[2] = {"aaEdge2", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        fAAEdges[3] = {"aaEdge3", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+    }
+}
+
+bool GrQuadPerEdgeAA::GPAttributes::needsPerspectiveInterpolation() const {
+    // This only needs to check the position; local position having perspective does not change
+    // how the varyings are interpolated
+    return fPositions.cpuType() == kFloat3_GrVertexAttribType;
+}
+
+int GrQuadPerEdgeAA::GPAttributes::vertexAttributeCount() const {
+    // Always has position, hence 1+
+    return (1 + this->hasLocalCoords() + this->hasVertexColors() + this->hasDomain() +
+            4 * this->usesCoverageAA());
+}
+
+uint32_t GrQuadPerEdgeAA::GPAttributes::getKey() const {
+    // aa, color, domain are single bit flags
+    uint32_t x = this->usesCoverageAA() ? 0 : 1;
+    x |= this->hasVertexColors() ? 0 : 2;
+    x |= this->hasDomain() ? 0 : 4;
+    // regular position has two options as well
+    x |= kFloat3_GrVertexAttribType == fPositions.cpuType() ? 0 : 8;
+    // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
+    if (this->hasLocalCoords()) {
+        x |= kFloat3_GrVertexAttribType == fLocalCoords.cpuType() ? 16 : 32;
+    }
+    return x;
+}
+
+void GrQuadPerEdgeAA::GPAttributes::emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args,
+                                              GrGLSLColorSpaceXformHelper* csXformHelper,
+                                              const char* colorVarName) const {
+    using Interpolation = GrGLSLVaryingHandler::Interpolation;
+
+    if (!fColors.isInitialized()) {
+        return;
+    }
+
+    if (csXformHelper == nullptr || csXformHelper->isNoop()) {
+        args.fVaryingHandler->addPassThroughAttribute(
+                fColors, args.fOutputColor, Interpolation::kCanBeFlat);
+    } else {
+        GrGLSLVarying varying(kHalf4_GrSLType);
+        args.fVaryingHandler->addVarying(colorVarName, &varying);
+        args.fVertBuilder->codeAppendf("half4 %s = ", colorVarName);
+        args.fVertBuilder->appendColorGamutXform(fColors.name(), csXformHelper);
+        args.fVertBuilder->codeAppend(";");
+        args.fVertBuilder->codeAppendf("%s = half4(%s.rgb * %s.a, %s.a);",
+                                       varying.vsOut(), colorVarName, colorVarName, colorVarName);
+        args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());
+    }
+}
+
+void GrQuadPerEdgeAA::GPAttributes::emitExplicitLocalCoords(
+        GrGLSLPrimitiveProcessor::EmitArgs& args, const char* localCoordName,
+        const char* domainName) const {
+    using Interpolation = GrGLSLVaryingHandler::Interpolation;
+    if (!this->hasLocalCoords()) {
+        return;
+    }
+
+    args.fFragBuilder->codeAppendf("float2 %s;", localCoordName);
+    bool localHasPerspective = fLocalCoords.cpuType() == kFloat3_GrVertexAttribType;
+    if (localHasPerspective) {
+        // Can't do a pass through since we need to perform perspective division
+        GrGLSLVarying v(fLocalCoords.gpuType());
+        args.fVaryingHandler->addVarying(fLocalCoords.name(), &v);
+        args.fVertBuilder->codeAppendf("%s = %s;", v.vsOut(), fLocalCoords.name());
+        args.fFragBuilder->codeAppendf("%s = %s.xy / %s.z;", localCoordName, v.fsIn(), v.fsIn());
+    } else {
+        args.fVaryingHandler->addPassThroughAttribute(fLocalCoords, localCoordName);
+    }
+
+    // Clamp the now 2D localCoordName variable by the domain if it is provided
+    if (this->hasDomain()) {
+        args.fFragBuilder->codeAppendf("float4 %s;", domainName);
+        args.fVaryingHandler->addPassThroughAttribute(fDomain, domainName,
+                                                      Interpolation::kCanBeFlat);
+        args.fFragBuilder->codeAppendf("%s = clamp(%s, %s.xy, %s.zw);",
+                                       localCoordName, localCoordName, domainName, domainName);
+    }
+}
+
+void GrQuadPerEdgeAA::GPAttributes::emitCoverage(GrGLSLPrimitiveProcessor::EmitArgs& args,
+                                                 const char* edgeDistName) const {
+    if (this->usesCoverageAA()) {
+        bool mulByFragCoordW = false;
+        GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
+                                    GrGLSLVarying::Scope::kVertToFrag);
+        args.fVaryingHandler->addVarying(edgeDistName, &aaDistVarying);
+
+        if (kFloat3_GrVertexAttribType == fPositions.cpuType()) {
+            // The distance from edge equation e to homogeneous point p=sk_Position
+            // is e.x*p.x/p.w + e.y*p.y/p.w + e.z. However, we want screen space
+            // interpolation of this distance. We can do this by multiplying the
+            // varying in the VS by p.w and then multiplying by sk_FragCoord.w in
+            // the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
+            args.fVertBuilder->codeAppendf(
+                    R"(%s = float4(dot(%s, %s), dot(%s, %s),
+                                   dot(%s, %s), dot(%s, %s));)",
+                    aaDistVarying.vsOut(), fAAEdges[0].name(), fPositions.name(),
+                    fAAEdges[1].name(), fPositions.name(), fAAEdges[2].name(), fPositions.name(),
+                    fAAEdges[3].name(), fPositions.name());
+            mulByFragCoordW = true;
+        } else {
+            args.fVertBuilder->codeAppendf(
+                    R"(%s = float4(dot(%s.xy, %s.xy) + %s.z,
+                                   dot(%s.xy, %s.xy) + %s.z,
+                                   dot(%s.xy, %s.xy) + %s.z,
+                                   dot(%s.xy, %s.xy) + %s.z);)",
+                    aaDistVarying.vsOut(),
+                    fAAEdges[0].name(), fPositions.name(), fAAEdges[0].name(),
+                    fAAEdges[1].name(), fPositions.name(), fAAEdges[1].name(),
+                    fAAEdges[2].name(), fPositions.name(), fAAEdges[2].name(),
+                    fAAEdges[3].name(), fPositions.name(), fAAEdges[3].name());
+        }
+
+        args.fFragBuilder->codeAppendf(
+                "float min%s = min(min(%s.x, %s.y), min(%s.z, %s.w));",
+                edgeDistName, aaDistVarying.fsIn(), aaDistVarying.fsIn(), aaDistVarying.fsIn(),
+                aaDistVarying.fsIn());
+        if (mulByFragCoordW) {
+            args.fFragBuilder->codeAppendf("min%s *= sk_FragCoord.w;", edgeDistName);
+        }
+        args.fFragBuilder->codeAppendf("%s = float4(saturate(min%s));",
+                                       args.fOutputCoverage, edgeDistName);
+    } else {
+        // Set coverage to 1
+        args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
     }
 }
