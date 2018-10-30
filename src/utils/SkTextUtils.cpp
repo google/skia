@@ -8,7 +8,7 @@
 #include "SkTextUtils.h"
 
 void SkTextUtils::DrawText(SkCanvas* canvas, const void* text, size_t size, SkScalar x, SkScalar y,
-                            const SkPaint& origPaint, SkPaint::Align align) {
+                            const SkPaint& origPaint, Align align) {
     int count = origPaint.countText(text, size);
     if (!count) {
         return;
@@ -31,12 +31,12 @@ void SkTextUtils::DrawText(SkCanvas* canvas, const void* text, size_t size, SkSc
     SkScalar* widths = widthStorage.get();
     paint.getTextWidths(glyphs, count * sizeof(uint16_t), widths);
 
-    if (align != SkPaint::kLeft_Align) {
+    if (align != kLeft_Align) {
         SkScalar offset = 0;
         for (int i = 0; i < count; ++i) {
             offset += widths[i];
         }
-        if (align == SkPaint::kCenter_Align) {
+        if (align == kCenter_Align) {
             offset *= 0.5f;
         }
         x -= offset;

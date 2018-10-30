@@ -20,7 +20,7 @@ DEF_SIMPLE_GM(text_scale_skew, canvas, 256, 128) {
         float x = 50.0f;
         for (float skew : { -0.5f, 0.0f, 0.5f }) {
             p.setTextSkewX(skew);
-            SkTextUtils::DrawString(canvas, "Skia", x, y, p, SkPaint::kCenter_Align);
+            SkTextUtils::DrawString(canvas, "Skia", x, y, p, SkTextUtils::kCenter_Align);
             x += 78.0f;
         }
     }

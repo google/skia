@@ -277,7 +277,7 @@ void WindowRectanglesMaskGM::fail(SkCanvas* canvas) {
 
     SkTextUtils::DrawString(canvas, errorMsg, SkIntToScalar((kCoverRect.left() + kCoverRect.right())/2),
                      SkIntToScalar((kCoverRect.top() + kCoverRect.bottom())/2 - 10), paint,
-                            SkPaint::kCenter_Align);
+                            SkTextUtils::kCenter_Align);
 }
 
 DEF_GM( return new WindowRectanglesMaskGM(); )

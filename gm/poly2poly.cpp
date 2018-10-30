@@ -221,7 +221,7 @@ protected:
         SkScalar y = D/2 - (fm.fAscent + fm.fDescent)/2;
         uint16_t glyphID = 3; // X
         SkTextUtils::DrawText(canvas, &glyphID, sizeof(glyphID), x, y, *paint,
-                              SkPaint::kCenter_Align);
+                              SkTextUtils::kCenter_Align);
         canvas->restore();
     }
 

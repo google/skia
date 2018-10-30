@@ -57,7 +57,7 @@ SkPaint::SkPaint() {
     fBitfields.fFlags        = SkPaintDefaults_Flags;
     fBitfields.fCapType      = kDefault_Cap;
     fBitfields.fJoinType     = kDefault_Join;
-    fBitfields.fTextAlign    = kLeft_Align;
+    fBitfields.fTextAlign    = 0;   // kLeft_Align
     fBitfields.fStyle        = kFill_Style;
     fBitfields.fTextEncoding = kUTF8_TextEncoding;
     fBitfields.fHinting      = SkPaintDefaults_Hinting;
@@ -399,7 +399,6 @@ enum FlatFlags {
 enum BitsPerField {
     kFlags_BPF  = 16,
     kHint_BPF   = 2,
-    kAlign_BPF  = 2,
     kFilter_BPF = 2,
     kFlatFlags_BPF  = 3,
 };
@@ -408,25 +407,22 @@ static inline int BPF_Mask(int bits) {
     return (1 << bits) - 1;
 }
 
-static uint32_t pack_paint_flags(unsigned flags, unsigned hint, unsigned align,
-                                 unsigned filter, unsigned flatFlags) {
+static uint32_t pack_paint_flags(unsigned flags, unsigned hint, unsigned filter, unsigned flatFlags) {
     ASSERT_FITS_IN(flags, kFlags_BPF);
     ASSERT_FITS_IN(hint, kHint_BPF);
-    ASSERT_FITS_IN(align, kAlign_BPF);
     ASSERT_FITS_IN(filter, kFilter_BPF);
     ASSERT_FITS_IN(flatFlags, kFlatFlags_BPF);
 
+    unsigned was_align = 0; // used to be textalign [0..2]
+
     // left-align the fields of "known" size, and right-align the last (flatFlags) so it can easly
     // add more bits in the future.
-    return (flags << 16) | (hint << 14) | (align << 12) | (filter << 10) | flatFlags;
+    return (flags << 16) | (hint << 14) | (was_align << 12) | (filter << 10) | flatFlags;
 }
 
 static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
     paint->setFlags(packed >> 16);
     paint->setHinting((SkPaint::Hinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-    paint->setTextAlign((SkPaint::Align)((packed >> 12) & BPF_Mask(kAlign_BPF)));
-#endif
     paint->setFilterQuality((SkFilterQuality)((packed >> 10) & BPF_Mask(kFilter_BPF)));
     return (FlatFlags)(packed & kFlatFlagMask);
 }
@@ -459,11 +455,6 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     buffer.writeColor4f(paint.getColor4f());
 
     buffer.writeUInt(pack_paint_flags(paint.getFlags(), paint.getHinting(),
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-                                      paint.getTextAlign(),
-#else
-                                      SkPaint::kLeft_Align,
-#endif
                                       paint.getFilterQuality(), flatFlags));
     buffer.writeUInt(pack_4(paint.getStrokeCap(), paint.getStrokeJoin(),
                             (paint.getStyle() << 4) | paint.getTextEncoding(),

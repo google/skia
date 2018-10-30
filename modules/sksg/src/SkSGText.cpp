@@ -30,12 +30,12 @@ SkPoint Text::alignedPosition(SkScalar advance) const {
     auto aligned = fPosition;
 
     switch (fAlign) {
-    case SkPaint::kLeft_Align:
+    case SkTextUtils::kLeft_Align:
         break;
-    case SkPaint::kCenter_Align:
+    case SkTextUtils::kCenter_Align:
         aligned.offset(-advance / 2, 0);
         break;
-    case SkPaint::kRight_Align:
+    case SkTextUtils::kRight_Align:
         aligned.offset(-advance, 0);
         break;
     }

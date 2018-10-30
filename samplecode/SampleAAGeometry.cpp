@@ -543,7 +543,7 @@ struct Button {
         }
         canvas->drawRect(fBounds, paints.fStates[fState]);
         SkTextUtils::DrawText(canvas, &fLabel, 1, fBounds.centerX(), fBounds.fBottom - 5,
-                              paints.fLabel, SkPaint::kCenter_Align);
+                              paints.fLabel, SkTextUtils::kCenter_Align);
     }
 
     void toggle() {
@@ -1816,7 +1816,7 @@ void AAGeometryView::draw_legend(SkCanvas* canvas) {
                 fLegendLeftPaint);
         SkTextUtils::DrawString(canvas, kKeyCommandList[index].fDescriptionR,
                 this->width() - 20, bottomOffset,
-                fLegendRightPaint, SkPaint::kRight_Align);
+                fLegendRightPaint, SkTextUtils::kRight_Align);
     }
 }
 

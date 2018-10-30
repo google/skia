@@ -108,7 +108,7 @@ protected:
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                 SkTextUtils::DrawString(canvas, str, scale*(x + r.width()/2), y, p,
-                                        SkPaint::kCenter_Align);
+                                        SkTextUtils::kCenter_Align);
 
                 x += r.width() * 4 / 3;
             }
@@ -228,7 +228,7 @@ protected:
 
         for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
             SkString str(gModeNames[kx]);
-            SkTextUtils::DrawString(canvas, str, x + r.width()/2, y, p, SkPaint::kCenter_Align);
+            SkTextUtils::DrawString(canvas, str, x + r.width()/2, y, p, SkTextUtils::kCenter_Align);
             x += r.width() * 4 / 3;
         }
 
@@ -238,7 +238,7 @@ protected:
             x = SkIntToScalar(16) + w;
 
             SkString str(gModeNames[ky]);
-            SkTextUtils::DrawString(canvas, str, x, y + h/2, p, SkPaint::kRight_Align);
+            SkTextUtils::DrawString(canvas, str, x, y + h/2, p, SkTextUtils::kRight_Align);
 
             x += SkIntToScalar(50);
             for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {

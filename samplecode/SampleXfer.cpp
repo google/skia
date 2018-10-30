@@ -55,7 +55,7 @@ public:
         paint.setTextSize(16);
         paint.setLCDRenderText(true);
         SkTextUtils::DrawString(canvas, fLabel, fRect.centerX(), fRect.fTop + 0.68f * fRect.height(),
-                                paint, SkPaint::kCenter_Align);
+                                paint, SkTextUtils::kCenter_Align);
     }
 
     bool hitTest(SkScalar x, SkScalar y) {

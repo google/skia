@@ -45,7 +45,7 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     canvas->save();
     canvas->clipRect(r);
     SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), paint,
-                            SkPaint::kCenter_Align);
+                            SkTextUtils::kCenter_Align);
     canvas->restore();
 }
 

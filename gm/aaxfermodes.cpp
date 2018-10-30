@@ -110,11 +110,11 @@ protected:
                 SkTextUtils::DrawString(canvas, "Src Unknown",
                         kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2,
                         kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint,
-                                        SkPaint::kCenter_Align);
+                                        SkTextUtils::kCenter_Align);
                 SkTextUtils::DrawString(canvas, "Src Opaque",
                         kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2 +
                         kPaintSpacing, kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3,
-                        fLabelPaint, SkPaint::kCenter_Align);
+                        fLabelPaint, SkTextUtils::kCenter_Align);
             }
 
             canvas->translate(0, kSubtitleSpacing + kShapeSpacing/2);
@@ -183,11 +183,11 @@ protected:
         SkTextUtils::DrawString(canvas, "Porter Duff",
                                 kLabelSpacing + 4 * kShapeTypeSpacing,
                                 kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint,
-                                SkPaint::kCenter_Align);
+                                SkTextUtils::kCenter_Align);
         SkTextUtils::DrawString(canvas, "Advanced",
                                 kXfermodeTypeSpacing + kLabelSpacing + 4 * kShapeTypeSpacing,
                                 kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint,
-                                SkPaint::kCenter_Align);
+                                SkTextUtils::kCenter_Align);
 
         draw_pass(canvas, kShape_Pass);
         canvas->restore();
@@ -197,7 +197,7 @@ protected:
         const char* modeName = SkBlendMode_Name(mode);
         SkTextUtils::DrawString(canvas, modeName, kLabelSpacing - kShapeSize / 4,
                                 fLabelPaint.getTextSize() / 4, fLabelPaint,
-                                SkPaint::kRight_Align);
+                                SkTextUtils::kRight_Align);
     }
 
     void setupShapePaint(SkCanvas* canvas, SkColor color, SkBlendMode mode, SkPaint* paint) {

@@ -263,10 +263,10 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
     v->fText.set(text->begin(), text->size());
     v->fTextSize = **text_size;
 
-    static constexpr SkPaint::Align gAlignMap[] = {
-        SkPaint::kLeft_Align,  // 'j': 0
-        SkPaint::kRight_Align, // 'j': 1
-        SkPaint::kCenter_Align // 'j': 2
+    static constexpr SkTextUtils::Align gAlignMap[] = {
+        SkTextUtils::kLeft_Align,  // 'j': 0
+        SkTextUtils::kRight_Align, // 'j': 1
+        SkTextUtils::kCenter_Align // 'j': 2
     };
     v->fAlign = gAlignMap[SkTMin<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
                                          SK_ARRAY_COUNT(gAlignMap))];
