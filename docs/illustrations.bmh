@@ -4,16 +4,21 @@
 #Example
 #Width 415
 #Height 250
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(10);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("16-bit word", 5 + 20 * 8, 20, paint);
-    canvas->drawString("little endian byte order", 5 + 20 * 4, 85, paint);
-    canvas->drawString("(low bits)", 5 + 20 * 1.5f, 137, paint);
-    canvas->drawString("(high bits)", 5 + 20 * 6.5f, 187, paint);
+    SkTextUtils::DrawString(canvas, "16-bit word", 5 + 20 * 8, 20, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 1.5f, 137, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 6.5f, 187, paint, SkPaint::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -25,7 +30,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    canvas->drawString(n >= 10 ? num : &num[1], xPos, yPos - 5, p);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkPaint::kCenter_Align);
                     break;
                 }
             }
@@ -33,7 +38,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkPaint::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -58,14 +63,19 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 415
 #Height 250
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(10);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("16-bit word", 5 + 20 * 8, 20, paint);
-    canvas->drawString("little endian byte order", 5 + 20 * 4, 85, paint);
+    SkTextUtils::DrawString(canvas, "16-bit word", 5 + 20 * 8, 20, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkPaint::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -77,7 +87,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    canvas->drawString(n >= 10 ? num : &num[1], xPos, yPos - 5, p);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkPaint::kCenter_Align);
                     break;
                 }
             }
@@ -85,7 +95,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkPaint::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -108,14 +118,19 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 812
 #Height 365
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(10);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("32-bit word", 5 + 20 * 16, 20, paint);
-    canvas->drawString("little endian byte order", 5 + 20 * 4, 85, paint);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkPaint::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -127,7 +142,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    canvas->drawString(n >= 10 ? num : &num[1], xPos, yPos - 5, p);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkPaint::kCenter_Align);
                     break;
                 }
             }
@@ -135,7 +150,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkPaint::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -160,14 +175,19 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 812
 #Height 365
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(10);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("32-bit word", 5 + 20 * 16, 20, paint);
-    canvas->drawString("little endian byte order", 5 + 20 * 4, 85, paint);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkPaint::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -179,7 +199,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    canvas->drawString(n >= 10 ? num : &num[1], xPos, yPos - 5, p);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkPaint::kCenter_Align);
                     break;
                 }
             }
@@ -187,7 +207,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkPaint::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -212,14 +232,19 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 812
 #Height 365
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(10);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("32-bit word", 5 + 20 * 16, 20, paint);
-    canvas->drawString("little endian byte order", 5 + 20 * 4, 85, paint);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkPaint::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -231,7 +256,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    canvas->drawString(n >= 10 ? num : &num[1], xPos, yPos - 5, p);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkPaint::kCenter_Align);
                     break;
                 }
             }
@@ -239,7 +264,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkPaint::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -264,20 +289,25 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 812
 #Height 380
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(10);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("32-bit word", 5 + 20 * 16, 20, paint);
-    canvas->drawString("little endian byte order", 5 + 20 * 4, 85, paint);
-    canvas->drawString("(low bits)", 5 + 20 * 4, 137, paint);
-    canvas->drawString("(low bits)", 5 + 20 * 3, 187, paint);
-    canvas->drawString("(high bits)", 5 + 20 * 7, 187, paint);
-    canvas->drawString("(low bits)", 5 + 20 * 2, 237, paint);
-    canvas->drawString("(high bits)", 5 + 20 * 6, 237, paint);
-    canvas->drawString("(high bits)", 5 + 20 * 5, 287, paint);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 4, 137, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 3, 187, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 7, 187, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 2, 237, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 6, 237, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 5, 287, paint, SkPaint::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -289,7 +319,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    canvas->drawString(n >= 10 ? num : &num[1], xPos, yPos - 5, p);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkPaint::kCenter_Align);
                     break;
                 }
             }
@@ -297,7 +327,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkPaint::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -327,20 +357,25 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 812
 #Height 380
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(10);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("32-bit word", 5 + 20 * 16, 20, paint);
-    canvas->drawString("little endian byte order", 5 + 20 * 4, 85, paint);
-    canvas->drawString("(low bits)", 5 + 20 * 4, 137, paint);
-    canvas->drawString("(low bits)", 5 + 20 * 3, 187, paint);
-    canvas->drawString("(high bits)", 5 + 20 * 7, 187, paint);
-    canvas->drawString("(low bits)", 5 + 20 * 2, 237, paint);
-    canvas->drawString("(high bits)", 5 + 20 * 6, 237, paint);
-    canvas->drawString("(high bits)", 5 + 20 * 5, 287, paint);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 4, 137, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 3, 187, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 7, 187, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 2, 237, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 6, 237, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 5, 287, paint, SkPaint::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -352,7 +387,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    canvas->drawString(n >= 10 ? num : &num[1], xPos, yPos - 5, p);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkPaint::kCenter_Align);
                     break;
                 }
             }
@@ -360,7 +395,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkPaint::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -390,17 +425,22 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 812
 #Height 685
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(10);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("64-bit word", 5 + 20 * 16, 20, paint);
-    canvas->drawString("little endian byte order", 5 + 20 * 4, 135, paint);
+    SkTextUtils::DrawString(canvas, "64-bit word", 5 + 20 * 16, 20, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 135, paint, SkPaint::kCenter_Align);
     for (int i = 0; i < 4; ++i) {
-        canvas->drawString("(low bits)", 5 + 20 * 4, 187 + i * 100, paint);
-        canvas->drawString("(high bits)", 5 + 20 * 4, 237 + i * 100, paint);
+        SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 4, 187 + i * 100, paint, SkPaint::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 4, 237 + i * 100, paint, SkPaint::kCenter_Align);
     }
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
@@ -413,7 +453,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    canvas->drawString(n >= 10 ? num : &num[1], xPos, yPos - 5, p);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkPaint::kCenter_Align);
                     break;
                 }
             }
@@ -421,7 +461,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkPaint::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -453,17 +493,22 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 812
 #Height 685
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
 void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(10);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-    canvas->drawString("128-bit word", 5 + 20 * 16, 20, paint);
-    canvas->drawString("little endian byte order", 5 + 20 * 4, 135, paint);
+    SkTextUtils::DrawString(canvas, "128-bit word", 5 + 20 * 16, 20, paint, SkPaint::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 135, paint, SkPaint::kCenter_Align);
     for (int i = 0; i < 4; ++i) {
-        canvas->drawString("(low bits)", 5 + 10 * 4, 187 + i * 100, paint);
-        canvas->drawString("(high bits)", 105 + 10 * 4, 237 + i * 100, paint);
+        SkTextUtils::DrawString(canvas, "(low bits)", 5 + 10 * 4, 187 + i * 100, paint, SkPaint::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "(high bits)", 105 + 10 * 4, 237 + i * 100, paint, SkPaint::kCenter_Align);
     }
     auto drawBoxText = [=](SkScalar e[], const char* s[], const char* nums[] , 
              int count, int n, SkScalar yPos) -> void {
@@ -477,9 +522,9 @@ void draw(SkCanvas* canvas) {
                 if (2 == count) {
                     x += stringIndex * 12 + (stringIndex ? 8 : 0);
                 }
-                canvas->drawString(nums[stringIndex], x, yPos - 5, p);
+                SkTextUtils::DrawString(canvas, nums[stringIndex], x, yPos - 5, p, SkPaint::kCenter_Align);
                 if (1 == count) {
-                    canvas->drawString(nums[stringIndex], xPos + 100, yPos - 5, p);
+                    SkTextUtils::DrawString(canvas, nums[stringIndex], xPos + 100, yPos - 5, p, SkPaint::kCenter_Align);
                 }
                 ++stringIndex;
             }
@@ -487,9 +532,9 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            canvas->drawString(s[i], 5 + (e[i] + e[i + 1]) * 5, yPos + 10, p);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 5, yPos + 10, p, SkPaint::kCenter_Align);
             if (1 == count) {
-                canvas->drawString(s[i], 105 + (e[i] + e[i + 1]) * 5, yPos + 10, p);
+                SkTextUtils::DrawString(canvas, s[i], 105 + (e[i] + e[i + 1]) * 5, yPos + 10, p, SkPaint::kCenter_Align);
             }
         }
         p.setStyle(SkPaint::kStroke_Style);
@@ -533,10 +578,16 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 480
 #Height 330
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
+void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextAlign(SkPaint::kCenter_Align);
     labelPaint.setTextSize(16);
     SkPaint dstPaint = labelPaint;
     dstPaint.setTextSize(80);
@@ -559,15 +610,16 @@ void draw(SkCanvas* canvas) {
                         SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,
                         SkBlendMode::kDstIn, SkBlendMode::kDstOut,
                         SkBlendMode::kClear, SkBlendMode::kXor } ) {
-        canvas->drawString("&", 50, 80, dstPaint);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkPaint::kCenter_Align);
         srcPaint.setBlendMode(blend);
         canvas->drawBitmap(srcBits, 0, 0, &srcPaint);
-        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint, SkPaint::kCenter_Align);
         canvas->translate(80, 0);
         if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {
             canvas->translate(-80 * 5, 100);
         }
     }
+}
 ##
 ##
 
@@ -575,10 +627,16 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 480
 #Height 330
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
+void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextAlign(SkPaint::kCenter_Align);
     labelPaint.setTextSize(16);
     SkPaint dstPaint = labelPaint;
     dstPaint.setTextSize(80);
@@ -599,15 +657,16 @@ void draw(SkCanvas* canvas) {
                         SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,
                         SkBlendMode::kDstIn, SkBlendMode::kDstOut,
                         SkBlendMode::kClear, SkBlendMode::kXor } ) {
-        canvas->drawString("&", 50, 80, dstPaint);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkPaint::kCenter_Align);
         srcPaint.setBlendMode(blend);
         canvas->drawPath(srcPath, srcPaint);
-        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint, SkPaint::kCenter_Align);
         canvas->translate(80, 0);
         if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {
             canvas->translate(-80 * 5, 100);
         }
     }
+}
 ##
 ##
 
@@ -615,10 +674,16 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 480
 #Height 330
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
+void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextAlign(SkPaint::kCenter_Align);
     labelPaint.setTextSize(16);
     SkPaint dstPaint = labelPaint;
     dstPaint.setTextSize(80);
@@ -634,15 +699,16 @@ void draw(SkCanvas* canvas) {
             SkBlendMode::kDarken, SkBlendMode::kLighten, SkBlendMode::kColorDodge,
             SkBlendMode::kColorBurn, SkBlendMode::kHardLight, SkBlendMode::kSoftLight,
             SkBlendMode::kDifference, SkBlendMode::kExclusion, SkBlendMode::kMultiply } ) {
-        canvas->drawString("&", 50, 80, dstPaint);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkPaint::kCenter_Align);
         srcPaint.setBlendMode(blend);
         canvas->drawPath(srcPath, srcPaint);
-        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint, SkPaint::kCenter_Align);
         canvas->translate(90, 0);
         if (SkBlendMode::kLighten == blend || SkBlendMode::kDifference == blend) {
             canvas->translate(-90 * 5, 100);
         }
     }
+}
 ##
 ##
 
@@ -650,10 +716,16 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 480
 #Height 110
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
+void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextAlign(SkPaint::kCenter_Align);
     labelPaint.setTextSize(16);
     SkPaint dstPaint = labelPaint;
     dstPaint.setTextSize(80);
@@ -667,12 +739,14 @@ void draw(SkCanvas* canvas) {
     canvas->drawColor(0, SkBlendMode::kClear);
     for (auto blend : { SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor,
                         SkBlendMode::kLuminosity } ) {
-        canvas->drawString("&", 50, 80, dstPaint);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkPaint::kCenter_Align);
         srcPaint.setBlendMode(blend);
         canvas->drawPath(srcPath, srcPaint);
-        canvas->drawString(SkBlendMode_Name(blend), 50, 100, labelPaint);
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint,
+                SkPaint::kCenter_Align);
         canvas->translate(90, 0);
     }
+}
 ##
 ##
 
@@ -680,10 +754,16 @@ void draw(SkCanvas* canvas) {
 #Example
 #Width 480
 #Height 110
+#Function
+###$
+#include "SkTextUtils.h"
+$$$#
+##
+
+void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextAlign(SkPaint::kCenter_Align);
     labelPaint.setTextSize(16);
     SkPaint dstPaint = labelPaint;
     dstPaint.setTextSize(80);
@@ -703,18 +783,19 @@ void draw(SkCanvas* canvas) {
     canvas->drawColor(0, SkBlendMode::kClear);
     srcPaint.setBlendMode(SkBlendMode::kModulate);
     for (auto step: { 1, 2 } ) {
-        canvas->drawString("&", 50, 80, dstPaint);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkPaint::kCenter_Align);
         if (1 == step) {
             canvas->drawBitmap(srcBits, 0, 0, &srcPaint);
-            canvas->drawString("Bitmap", 50, 18, labelPaint);
+            SkTextUtils::DrawString(canvas, "Bitmap", 50, 18, labelPaint, SkPaint::kCenter_Align);
         } else {
             canvas->drawPath(srcPath, srcPaint);
-            canvas->drawString("Geometry", 50, 18, labelPaint);
+            SkTextUtils::DrawString(canvas, "Geometry", 50, 18, labelPaint, SkPaint::kCenter_Align);
         }
-        canvas->drawString(SkBlendMode_Name(SkBlendMode::kModulate), 50, 100, labelPaint);
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(SkBlendMode::kModulate), 50, 100, labelPaint,
+                SkPaint::kCenter_Align);
         canvas->translate(120, 0);
     }
-
+}
 ##
 ##
 
