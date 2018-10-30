@@ -420,8 +420,7 @@
     "name": "Analyze [START_DIR]/build/libskia.so"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "jsonResult": null,
+    "name": "$result"
   }
 ]

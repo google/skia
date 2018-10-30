@@ -276,9 +276,12 @@
     "name": "kill adb server"
   },
   {
-    "name": "$result",
-    "reason": "Infra Failure: Step('mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 3)') returned 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 3)"
+      },
+      "humanReason": "Infra Failure: Step('mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 3)') returned 1"
+    },
+    "name": "$result"
   }
 ]

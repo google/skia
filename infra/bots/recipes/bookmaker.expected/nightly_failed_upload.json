@@ -208,9 +208,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Step('Generate and Upload Markdown files') failed with return_code 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "Generate and Upload Markdown files"
+      },
+      "humanReason": "Step('Generate and Upload Markdown files') failed with return_code 1"
+    },
+    "name": "$result"
   }
 ]
