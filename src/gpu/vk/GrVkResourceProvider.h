@@ -14,6 +14,7 @@
 #include "GrVkPipelineStateBuilder.h"
 #include "GrVkRenderPass.h"
 #include "GrVkResource.h"
+#include "GrVkSampler.h"
 #include "GrVkUtil.h"
 #include "SkLRUCache.h"
 #include "SkTArray.h"
@@ -31,7 +32,6 @@ class GrVkPipeline;
 class GrVkPipelineState;
 class GrVkPrimaryCommandBuffer;
 class GrVkRenderTarget;
-class GrVkSampler;
 class GrVkSecondaryCommandBuffer;
 class GrVkUniformHandler;
 
@@ -99,7 +99,8 @@ public:
 
     // Finds or creates a compatible GrVkSampler based on the GrSamplerState.
     // The refcount is incremented and a pointer returned.
-    GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
+    GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel,
+                                               const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     GrVkPipelineState* findOrCreateCompatiblePipelineState(const GrPipeline&,
                                                            const GrPrimitiveProcessor&,
@@ -252,7 +253,7 @@ private:
 
     // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
     // GrVkPipelineStates
-    SkTDynamicHash<GrVkSampler, uint16_t> fSamplers;
+    SkTDynamicHash<GrVkSampler, GrVkSampler::Key> fSamplers;
 
     // Cache of GrVkPipelineStates
     PipelineStateCache* fPipelineStateCache;

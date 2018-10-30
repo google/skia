@@ -10,13 +10,24 @@
 #include "GrVkUtil.h"
 
 const GrVkImageView* GrVkImageView::Create(const GrVkGpu* gpu, VkImage image, VkFormat format,
-                                           Type viewType, uint32_t miplevels) {
-    VkImageView imageView;
+                                           Type viewType, uint32_t miplevels,
+                                           VkSamplerYcbcrConversion ycbcrConversion) {
 
+    void* pNext = nullptr;
+    VkSamplerYcbcrConversionInfo conversionInfo;
+    if (ycbcrConversion != VK_NULL_HANDLE) {
+        SkASSERT(gpu->vkCaps().supportsYcbcrConversion() && format == VK_FORMAT_UNDEFINED);
+        conversionInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO;
+        conversionInfo.pNext = nullptr;
+        conversionInfo.conversion = ycbcrConversion;
+        pNext = &conversionInfo;
+    }
+
+    VkImageView imageView;
     // Create the VkImageView
     VkImageViewCreateInfo viewInfo = {
         VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,               // sType
-        NULL,                                                   // pNext
+        pNext,                                                  // pNext
         0,                                                      // flags
         image,                                                  // image
         VK_IMAGE_VIEW_TYPE_2D,                                  // viewType
