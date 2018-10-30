@@ -3371,9 +3371,9 @@ May be used to verify that Align is a legal value.
     void draw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setTextSize(40);
-        for (SkPaint::Align a : { SkPaint::kLeft_Align,
-                                  SkPaint::kCenter_Align,
-                                  SkPaint::kRight_Align}) {
+        for (SkPaint::Align a : { SkTextUtils::kLeft_Align,
+                                  SkTextUtils::kCenter_Align,
+                                  SkTextUtils::kRight_Align}) {
             SkTextUtils::DrawString(canvas, "Aa", 100, 50, paint, a);
             canvas->translate(0, 50);
         }
