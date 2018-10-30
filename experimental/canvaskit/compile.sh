@@ -25,7 +25,7 @@ EXTRA_CFLAGS="\"-DSK_RELEASE\""
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
+  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
@@ -65,6 +65,15 @@ WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=1 \
 if [[ $@ == *no_skottie* ]]; then
   echo "Omitting Skottie"
   WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=0"
+fi
+
+GN_NIMA="skia_enable_nima=true"
+WASM_NIMA="-DSK_INCLUDE_NIMA=1 \
+  experimental/nima/NimaActor.cpp"
+if [[ $@ == *no_nima* ]]; then
+  echo "Omitting Nima"
+  GN_NIMA="skia_enable_nima=false"
+  WASM_NIMA="-DSK_INCLUDE_NIMA=0"
 fi
 
 HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/canvas2d.js"
@@ -119,6 +128,7 @@ echo "Compiling bitcode"
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
   skia_enable_skpicture=false \
+  ${GN_NIMA} \
   skia_enable_effect_deserialization = false \
   ${GN_GPU} \
   skia_enable_fontmgr_empty=false \
@@ -137,6 +147,7 @@ echo "Generating final wasm"
 # Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
     $RELEASE_CONF \
+    -Iexperimental \
     -Iinclude/c \
     -Iinclude/codec \
     -Iinclude/config \
@@ -150,10 +161,12 @@ ${EMCXX} \
     -Imodules/skottie/include \
     -Imodules/sksg/include \
     -Isrc/core/ \
-    -Isrc/utils/ \
     -Isrc/sfnt/ \
-    -Itools/fonts \
+    -Isrc/utils/ \
     -Itools \
+    -Itools/fonts \
+    -I$BUILD_DIR/gen/third_party/Nima-Cpp/Nima-Cpp \
+    -I$BUILD_DIR/gen/third_party/Nima-Cpp/Nima-Math-Cpp \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     -DSK_DISABLE_DAA \
@@ -166,6 +179,7 @@ ${EMCXX} \
     $BASE_DIR/canvaskit_bindings.cpp \
     tools/fonts/SkTestFontMgr.cpp \
     tools/fonts/SkTestTypeface.cpp \
+    $WASM_NIMA \
     $WASM_SKOTTIE \
     $BUILD_DIR/libskia.a \
     -s ALLOW_MEMORY_GROWTH=1 \
