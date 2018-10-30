@@ -25,7 +25,7 @@ EXTRA_CFLAGS="\"-DSK_RELEASE\""
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
+  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
@@ -119,6 +119,7 @@ echo "Compiling bitcode"
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
   skia_enable_skpicture=false \
+  skia_enable_nima=true \
   skia_enable_effect_deserialization = false \
   ${GN_GPU} \
   skia_enable_fontmgr_empty=false \
@@ -149,11 +150,14 @@ ${EMCXX} \
     -Iinclude/utils/ \
     -Imodules/skottie/include \
     -Imodules/sksg/include \
+    -Isamplecode \
     -Isrc/core/ \
-    -Isrc/utils/ \
     -Isrc/sfnt/ \
-    -Itools/fonts \
+    -Isrc/utils/ \
     -Itools \
+    -Itools/fonts \
+    -I$BUILD_DIR/gen/third_party/Nima-Cpp/Nima-Cpp \
+    -I$BUILD_DIR/gen/third_party/Nima-Cpp/Nima-Math-Cpp \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     -DSK_DISABLE_DAA \
@@ -166,6 +170,7 @@ ${EMCXX} \
     $BASE_DIR/canvaskit_bindings.cpp \
     tools/fonts/SkTestFontMgr.cpp \
     tools/fonts/SkTestTypeface.cpp \
+    samplecode/SampleNimaActor.cpp \
     $WASM_SKOTTIE \
     $BUILD_DIR/libskia.a \
     -s ALLOW_MEMORY_GROWTH=1 \

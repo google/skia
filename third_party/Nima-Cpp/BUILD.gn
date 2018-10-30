@@ -21,6 +21,7 @@ copy("copy-nima-math-cpp") {
   outputs = [
     "$target_gen_dir/Nima-Math-Cpp/nima",
   ]
+  print(outputs)
 }
 
 third_party("Nima-Cpp") {
@@ -85,8 +86,6 @@ third_party("Nima-Cpp") {
     "../externals/Nima-Math-Cpp/Source/Mat2D.cpp",
     "../externals/Nima-Math-Cpp/Source/Vec2D.cpp",
   ]
-
-  testonly = true
 
   cflags_cc = []
   if (is_win) {

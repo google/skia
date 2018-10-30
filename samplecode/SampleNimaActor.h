@@ -13,6 +13,7 @@
 #include <nima/Vec2D.hpp>
 
 #include "SkCanvas.h"
+#include "SkData.h"
 #include "SkImage.h"
 
 class SampleActor;
@@ -21,14 +22,32 @@ class SampleActorImage;
 class SampleActor : public nima::Actor {
 public:
     SampleActor(std::string baseName);
+    SampleActor(sk_sp<SkData> nimaBytes, sk_sp<SkData> textureBytes);
     ~SampleActor();
 
     void render(SkCanvas* canvas) const;
+    /**
+     * Updates the animation state for |t|.
+     *
+     * @param t   normalized [0..1] frame selector (0 -> first frame, 1 -> final frame)
+     *
+     */
+    void seek(SkScalar t);
+
+    void setAnimation(uint8_t index) {
+        this->fAnimationIndex = index;
+    }
+
+    const std::vector<std::string>& getAnimations() const {
+        return fAnimations;
+    }
 
 private:
     sk_sp<SkImage>                fTexture;
     std::vector<SampleActorImage> fActorImages;
     std::unique_ptr<SkPaint>      fPaint;
+    std::vector<std::string>      fAnimations;
+    uint8_t                       fAnimationIndex;
 
     typedef nima::Actor INHERITED;
 };

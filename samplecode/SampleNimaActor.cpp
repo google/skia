@@ -13,13 +13,16 @@
 #include "SkFilterQuality.h"
 #include "Resources.h"
 #include <algorithm>
+#include <cmath>
 
 using namespace nima;
 
 SampleActor::SampleActor(std::string baseName)
     : fTexture(nullptr)
     , fActorImages()
-    , fPaint(nullptr) {
+    , fPaint(nullptr)
+    , fAnimationIndex(0)
+    , fAnimations() {
     // Load the NIMA data.
     SkString nimaSkPath = GetResourcePath(("nima/" + baseName + ".nima").c_str());
     std::string nimaPath(nimaSkPath.c_str());
@@ -45,6 +48,42 @@ SampleActor::SampleActor(std::string baseName)
     });
 }
 
+SampleActor::SampleActor(sk_sp<SkData> nimaBytes, sk_sp<SkData> textureBytes)
+    : fTexture(nullptr)
+    , fActorImages()
+    , fPaint(nullptr)
+    , fAnimationIndex(0)
+    , fAnimations() {
+    // Load the NIMA data.
+    INHERITED::load(const_cast<uint8_t*>(nimaBytes->bytes()), nimaBytes->size());
+
+    // Load the image asset.
+    fTexture = SkImage::MakeFromEncoded(textureBytes);
+
+    // Create the paint.
+    fPaint = std::make_unique<SkPaint>();
+    fPaint->setShader(fTexture->makeShader(nullptr));
+    fPaint->setFilterQuality(SkFilterQuality::kLow_SkFilterQuality);
+
+    // Load the image nodes.
+    fActorImages.reserve(m_ImageNodeCount);
+    for (uint32_t i = 0; i < m_ImageNodeCount; i ++) {
+        fActorImages.emplace_back(m_ImageNodes[i], fTexture, fPaint.get());
+    }
+
+    // Sort the image nodes.
+    std::sort(fActorImages.begin(), fActorImages.end(), [](auto a, auto b) {
+        return a.drawOrder() < b.drawOrder();
+    });
+
+    // Get the list of animations.
+    fAnimations.reserve(m_AnimationsCount);
+    for (uint32_t i = 0; i < m_AnimationsCount; i++) {
+        fAnimations.push_back(m_Animations[i].name());
+        SkDebugf("Loaded animation %s\n", m_Animations[i].name().c_str());
+    }
+}
+
 SampleActor::~SampleActor() {
 }
 
@@ -52,6 +91,16 @@ void SampleActor::render(SkCanvas* canvas) const {
     // Render the image nodes.
     for (auto image : fActorImages) {
         image.render(this, canvas);
+    }
+}
+
+void SampleActor::seek(SkScalar t) {
+    nima::ActorAnimationInstance* animation = this->animationInstance(this->getAnimations()[fAnimationIndex]);
+    // Apply the animation.
+    if (animation) {
+        t = std::fmod(t, animation->max());
+        animation->time(t);
+        animation->apply(1.0f);
     }
 }
 

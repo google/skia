@@ -28,6 +28,7 @@
 #if SK_INCLUDE_SKOTTIE
 #include "Skottie.h"
 #endif
+#include "SampleNimaActor.h"
 
 #include <iostream>
 #include <string>
@@ -376,4 +377,21 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("MakeAnimation", &MakeAnimation);
     constant("skottie", true);
 #endif
+
+    class_<SampleActor>("NimaActor")
+        .function("render", &SampleActor::render, allow_raw_pointers())
+        .function("seek", &SampleActor::seek)
+        .function("setAnimation", &SampleActor::setAnimation);
+
+    function("_MakeNimaActor", optional_override([](uintptr_t /* uint8_t* */ nptr, int nlen,
+                                                    uintptr_t /* uint8_t* */ tptr, int tlen)->SampleActor* {
+        // See comment above for uintptr_t explanation
+        const uint8_t* nimaBytes = reinterpret_cast<const uint8_t*>(nptr);
+        const uint8_t* textureBytes = reinterpret_cast<const uint8_t*>(tptr);
+
+        auto nima = SkData::MakeWithoutCopy(nimaBytes, nlen);
+        auto texture = SkData::MakeWithoutCopy(textureBytes, tlen);
+        return new SampleActor(nima, texture);
+    }), allow_raw_pointers());
+    constant("nima", true);
 }
