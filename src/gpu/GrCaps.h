@@ -290,6 +290,14 @@ public:
     /**
      * Special method only for YUVA images. Returns true if the format can be used for a
      * YUVA plane, and the passed in GrPixelConfig will be set to a config that matches
+     * the backend texture.
+     */
+    virtual bool getYUVAConfigFromBackendTexture(const GrBackendTexture& tex,
+                                                 GrPixelConfig*) const = 0;
+
+    /**
+     * Special method only for YUVA images. Returns true if the format can be used for a
+     * YUVA plane, and the passed in GrPixelConfig will be set to a config that matches
      * the backend format.
      */
     virtual bool getYUVAConfigFromBackendFormat(const GrBackendFormat& format,

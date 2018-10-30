@@ -782,14 +782,10 @@ bool GrVkCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColor
     return validate_image_info(*vkFormat, ct, config);
 }
 
-bool GrVkCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
-                                              GrPixelConfig* config) const {
-    const VkFormat* vkFormat = format.getVkFormat();
-    if (!vkFormat) {
-        return false;
-    }
+static bool get_yuva_config(VkFormat vkFormat, GrPixelConfig* config) {
+    *config = kUnknown_GrPixelConfig;
 
-    switch (*vkFormat) {
+    switch (vkFormat) {
     case VK_FORMAT_R8_UNORM:
         *config = kAlpha_8_as_Red_GrPixelConfig;
         break;
@@ -807,6 +803,24 @@ bool GrVkCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
     }
 
     return true;
+}
+
+bool GrVkCaps::getYUVAConfigFromBackendTexture(const GrBackendTexture& tex,
+                                               GrPixelConfig* config) const {
+    GrVkImageInfo imageInfo;
+    if (!tex.getVkImageInfo(&imageInfo)) {
+        return false;
+    }
+    return get_yuva_config(imageInfo.fFormat, config);
+}
+
+bool GrVkCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
+                                              GrPixelConfig* config) const {
+    const VkFormat* vkFormat = format.getVkFormat();
+    if (!vkFormat) {
+        return false;
+    }
+    return get_yuva_config(*vkFormat, config);
 }
 
 #ifdef GR_TEST_UTILS
