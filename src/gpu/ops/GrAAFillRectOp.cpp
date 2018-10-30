@@ -185,7 +185,7 @@ public:
     }
 
     AAFillRectOp(const Helper::MakeArgs& helperArgs,
-                 GrColor4h color,
+                 const GrColor4h& color,
                  const SkMatrix& viewMatrix,
                  const SkRect& rect,
                  const SkRect& devRect,
@@ -309,21 +309,21 @@ private:
 
     struct RectInfo {
     public:
-        RectInfo(GrColor4h color, const SkMatrix& viewMatrix, const SkRect& rect,
+        RectInfo(const GrColor4h& color, const SkMatrix& viewMatrix, const SkRect& rect,
                  const SkRect& devRect)
                 : RectInfo(color, viewMatrix, rect, devRect, HasLocalMatrix::kNo) {}
         bool hasLocalMatrix() const { return HasLocalMatrix::kYes == fHasLocalMatrix; }
-        GrColor4h color() const { return fColor; }
+        const GrColor4h& color() const { return fColor; }
         const SkMatrix& viewMatrix() const { return fViewMatrix; }
         const SkRect& rect() const { return fRect; }
         const SkRect& devRect() const { return fDevRect; }
 
-        void setColor(GrColor4h color) { fColor = color; }
+        void setColor(const GrColor4h& color) { fColor = color; }
 
     protected:
         enum class HasLocalMatrix : uint32_t { kNo, kYes };
 
-        RectInfo(GrColor4h color, const SkMatrix& viewMatrix, const SkRect& rect,
+        RectInfo(const GrColor4h& color, const SkMatrix& viewMatrix, const SkRect& rect,
                  const SkRect& devRect, HasLocalMatrix hasLM)
                 : fHasLocalMatrix(hasLM)
                 , fColor(color)
@@ -340,8 +340,9 @@ private:
 
     struct RectWithLocalMatrixInfo : public RectInfo {
     public:
-        RectWithLocalMatrixInfo(GrColor4h color, const SkMatrix& viewMatrix, const SkRect& rect,
-                                const SkRect& devRect, const SkMatrix& localMatrix)
+        RectWithLocalMatrixInfo(const GrColor4h& color, const SkMatrix& viewMatrix,
+                                const SkRect& rect, const SkRect& devRect,
+                                const SkMatrix& localMatrix)
                 : RectInfo(color, viewMatrix, rect, devRect, HasLocalMatrix::kYes)
                 , fLocalMatrix(localMatrix) {}
         const SkMatrix& localMatrix() const { return fLocalMatrix; }

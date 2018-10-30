@@ -244,7 +244,7 @@ static void setup_dashed_rect_pos(const SkRect& rect, int idx, const SkMatrix& m
  * Bounding geometry is rendered and the effect computes coverage based on the fragment's
  * position relative to the dashed line.
  */
-static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor4h,
+static sk_sp<GrGeometryProcessor> make_dash_gp(const GrColor4h&,
                                                AAMode aaMode,
                                                DashCap cap,
                                                const SkMatrix& localMatrix,
@@ -734,7 +734,7 @@ private:
         return CombineResult::kMerged;
     }
 
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fLines[0].fViewMatrix; }
     AAMode aaMode() const { return fAAMode; }
     bool fullDash() const { return fFullDash; }
@@ -834,7 +834,7 @@ class DashingCircleEffect : public GrGeometryProcessor {
 public:
     typedef SkPathEffect::DashInfo DashInfo;
 
-    static sk_sp<GrGeometryProcessor> Make(GrColor4h,
+    static sk_sp<GrGeometryProcessor> Make(const GrColor4h&,
                                            AAMode aaMode,
                                            const SkMatrix& localMatrix,
                                            bool usesLocalCoords);
@@ -843,7 +843,7 @@ public:
 
     AAMode aaMode() const { return fAAMode; }
 
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
 
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
@@ -854,7 +854,7 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    DashingCircleEffect(GrColor4h, AAMode aaMode, const SkMatrix& localMatrix,
+    DashingCircleEffect(const GrColor4h&, AAMode aaMode, const SkMatrix& localMatrix,
                         bool usesLocalCoords);
 
     const Attribute& onVertexAttribute(int i) const override {
@@ -990,7 +990,7 @@ void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
 
 //////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrGeometryProcessor> DashingCircleEffect::Make(GrColor4h color,
+sk_sp<GrGeometryProcessor> DashingCircleEffect::Make(const GrColor4h& color,
                                                      AAMode aaMode,
                                                      const SkMatrix& localMatrix,
                                                      bool usesLocalCoords) {
@@ -1007,7 +1007,7 @@ GrGLSLPrimitiveProcessor* DashingCircleEffect::createGLSLInstance(const GrShader
     return new GLDashingCircleEffect();
 }
 
-DashingCircleEffect::DashingCircleEffect(GrColor4h color,
+DashingCircleEffect::DashingCircleEffect(const GrColor4h& color,
                                          AAMode aaMode,
                                          const SkMatrix& localMatrix,
                                          bool usesLocalCoords)
@@ -1047,7 +1047,7 @@ class DashingLineEffect : public GrGeometryProcessor {
 public:
     typedef SkPathEffect::DashInfo DashInfo;
 
-    static sk_sp<GrGeometryProcessor> Make(GrColor4h,
+    static sk_sp<GrGeometryProcessor> Make(const GrColor4h&,
                                            AAMode aaMode,
                                            const SkMatrix& localMatrix,
                                            bool usesLocalCoords);
@@ -1056,7 +1056,7 @@ public:
 
     AAMode aaMode() const { return fAAMode; }
 
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
 
      const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
@@ -1067,7 +1067,7 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    DashingLineEffect(GrColor4h, AAMode aaMode, const SkMatrix& localMatrix,
+    DashingLineEffect(const GrColor4h&, AAMode aaMode, const SkMatrix& localMatrix,
                       bool usesLocalCoords);
 
     const Attribute& onVertexAttribute(int i) const override {
@@ -1216,7 +1216,7 @@ void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
 
 //////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrGeometryProcessor> DashingLineEffect::Make(GrColor4h color,
+sk_sp<GrGeometryProcessor> DashingLineEffect::Make(const GrColor4h& color,
                                                    AAMode aaMode,
                                                    const SkMatrix& localMatrix,
                                                    bool usesLocalCoords) {
@@ -1233,7 +1233,7 @@ GrGLSLPrimitiveProcessor* DashingLineEffect::createGLSLInstance(const GrShaderCa
     return new GLDashingLineEffect();
 }
 
-DashingLineEffect::DashingLineEffect(GrColor4h color,
+DashingLineEffect::DashingLineEffect(const GrColor4h& color,
                                      AAMode aaMode,
                                      const SkMatrix& localMatrix,
                                      bool usesLocalCoords)
@@ -1258,7 +1258,7 @@ sk_sp<GrGeometryProcessor> DashingLineEffect::TestCreate(GrProcessorTestData* d)
 #endif
 //////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor4h color,
+static sk_sp<GrGeometryProcessor> make_dash_gp(const GrColor4h& color,
                                                AAMode aaMode,
                                                DashCap cap,
                                                const SkMatrix& viewMatrix,

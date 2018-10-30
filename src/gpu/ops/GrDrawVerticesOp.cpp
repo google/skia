@@ -29,7 +29,7 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrContext* context,
                                                    std::move(colorSpaceXform), viewMatrix);
 }
 
-GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor4h color,
+GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
                                    sk_sp<SkVertices> vertices, const SkVertices::Bone bones[],
                                    int boneCount, GrPrimitiveType primitiveType, GrAAType aaType,
                                    sk_sp<GrColorSpaceXform> colorSpaceXform,

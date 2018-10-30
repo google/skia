@@ -70,7 +70,7 @@ namespace GrDefaultGeoProcFactory {
             kPremulGrColorAttribute_Type,
             kUnpremulSkColorAttribute_Type,
         };
-        explicit Color(GrColor4h color)
+        explicit Color(const GrColor4h& color)
                 : fType(kPremulGrColorUniform_Type)
                 , fColor(color)
                 , fColorSpaceXform(nullptr) {}

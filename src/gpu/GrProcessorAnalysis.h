@@ -26,9 +26,9 @@ public:
             : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0)
             , fColor(GrColor4h_TRANSPARENT) {}
 
-    GrProcessorAnalysisColor(GrColor4h color) { this->setToConstant(color); }
+    GrProcessorAnalysisColor(const GrColor4h& color) { this->setToConstant(color); }
 
-    void setToConstant(GrColor4h color) {
+    void setToConstant(const GrColor4h& color) {
         fColor = color;
         if (color.isOpaque()) {
             fFlags = kColorIsKnown_Flag | kIsOpaque_Flag;

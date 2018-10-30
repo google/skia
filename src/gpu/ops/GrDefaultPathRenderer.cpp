@@ -372,7 +372,7 @@ public:
         return string;
     }
 
-    DefaultPathOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkPath& path,
+    DefaultPathOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkPath& path,
                   SkScalar tolerance, uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
                   GrAAType aaType, const SkRect& devBounds,
                   const GrUserStencilSettings* stencilSettings)
@@ -465,7 +465,7 @@ private:
         return CombineResult::kMerged;
     }
 
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
     uint8_t coverage() const { return fCoverage; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool isHairline() const { return fIsHairline; }

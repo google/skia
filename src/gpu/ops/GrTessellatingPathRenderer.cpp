@@ -197,7 +197,7 @@ public:
     }
 
     TessellatingPathOp(Helper::MakeArgs helperArgs,
-                       GrColor4h color,
+                       const GrColor4h& color,
                        const GrShape& shape,
                        const SkMatrix& viewMatrix,
                        const SkIRect& devClipBounds,

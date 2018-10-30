@@ -23,7 +23,7 @@ class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
     static constexpr int kMaxTextures = 4;
 
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps, GrColor4h color,
+    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps, const GrColor4h& color,
                                            const sk_sp<GrTextureProxy>* proxies,
                                            int numActiveProxies,
                                            const GrSamplerState& p, GrMaskFormat format,
@@ -41,7 +41,7 @@ public:
     const Attribute& inColor() const { return fInColor; }
     const Attribute& inTextureCoords() const { return fInTextureCoords; }
     GrMaskFormat maskFormat() const { return fMaskFormat; }
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
     bool hasVertexColor() const { return fInColor.isInitialized(); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesW() const { return fUsesW; }
@@ -54,7 +54,7 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
-    GrBitmapTextGeoProc(const GrShaderCaps&, GrColor4h, const sk_sp<GrTextureProxy>* proxies,
+    GrBitmapTextGeoProc(const GrShaderCaps&, const GrColor4h&, const sk_sp<GrTextureProxy>* proxies,
                         int numProxies, const GrSamplerState& params, GrMaskFormat format,
                         const SkMatrix& localMatrix, bool usesW);
 

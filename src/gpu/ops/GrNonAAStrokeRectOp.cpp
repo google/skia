@@ -100,9 +100,9 @@ public:
                                                         stroke, aaType);
     }
 
-    NonAAStrokeRectOp(const Helper::MakeArgs& helperArgs, GrColor4h color, Helper::Flags flags,
-                      const SkMatrix& viewMatrix, const SkRect& rect, const SkStrokeRec& stroke,
-                      GrAAType aaType)
+    NonAAStrokeRectOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+                      Helper::Flags flags, const SkMatrix& viewMatrix, const SkRect& rect,
+                      const SkStrokeRec& stroke, GrAAType aaType)
             : INHERITED(ClassID()), fHelper(helperArgs, aaType, flags) {
         fColor = color;
         fViewMatrix = viewMatrix;

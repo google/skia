@@ -157,7 +157,7 @@ public:
     }
 
     AAFlatteningConvexPathOp(const Helper::MakeArgs& helperArgs,
-                             GrColor4h color,
+                             const GrColor4h& color,
                              const SkMatrix& viewMatrix,
                              const SkPath& path,
                              SkScalar strokeWidth,

@@ -39,7 +39,7 @@ public:
     }
 
 protected:
-    BezierTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect, GrColor4h color,
+    BezierTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect, const GrColor4h& color,
                  int32_t classID)
             : INHERITED(classID)
             , fRect(rect)
@@ -56,7 +56,7 @@ protected:
     sk_sp<const GrGeometryProcessor> gp() const { return fGeometryProcessor; }
 
     const SkRect& rect() const { return fRect; }
-    GrColor4h color() const { return fColor; }
+    const GrColor4h& color() const { return fColor; }
 
 private:
     SkRect fRect;
@@ -76,7 +76,7 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
-                                          GrColor4h color) {
+                                          const GrColor4h& color) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
         return pool->allocate<BezierCubicTestOp>(std::move(gp), rect, color);
@@ -85,7 +85,8 @@ public:
 private:
     friend class ::GrOpMemoryPool; // for ctor
 
-    BezierCubicTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect, GrColor4h color)
+    BezierCubicTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect,
+                      const GrColor4h& color)
             : INHERITED(std::move(gp), rect, color, ClassID()) {}
 
     void onPrepareDraws(Target* target) override {
@@ -261,7 +262,7 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
-                                          GrColor4h color,
+                                          const GrColor4h& color,
                                           const SkMatrix& klm) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
@@ -271,8 +272,8 @@ public:
 private:
     friend class ::GrOpMemoryPool; // for ctor
 
-    BezierConicTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect, GrColor4h color,
-                      const SkMatrix& klm)
+    BezierConicTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect,
+                      const GrColor4h& color, const SkMatrix& klm)
             : INHERITED(std::move(gp), rect, color, ClassID()), fKLM(klm) {}
 
     struct Vertex {
@@ -483,7 +484,7 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
-                                          GrColor4h color,
+                                          const GrColor4h& color,
                                           const GrPathUtils::QuadUVMatrix& devToUV) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
@@ -493,8 +494,8 @@ public:
 private:
     friend class ::GrOpMemoryPool; // for ctor
 
-    BezierQuadTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect, GrColor4h color,
-                     const GrPathUtils::QuadUVMatrix& devToUV)
+    BezierQuadTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect,
+                     const GrColor4h& color, const GrPathUtils::QuadUVMatrix& devToUV)
             : INHERITED(std::move(gp), rect, color, ClassID()), fDevToUV(devToUV) {}
 
     struct Vertex {

@@ -176,7 +176,7 @@ public:
     // as a path.
     void appendGlyph(int runIndex,
                      const SkRect& positions,
-                     GrColor4h color,
+                     const GrColor4h& color,
                      const sk_sp<GrTextStrike>& strike,
                      GrGlyph* glyph, bool preTransformed);
 
@@ -201,7 +201,7 @@ public:
 
     void flush(GrTextTarget*, const SkSurfaceProps& props,
                const GrDistanceFieldAdjustTable* distanceAdjustTable,
-               const SkPaint& paint, GrColor4h filteredColor, const GrClip& clip,
+               const SkPaint& paint, const GrColor4h& filteredColor, const GrClip& clip,
                const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex,
@@ -276,7 +276,7 @@ public:
     // Internal test methods
     std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, uint16_t run, uint16_t subRun,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                          const SkPaint& paint, GrColor4h filteredColor,
+                                          const SkPaint& paint, const GrColor4h& filteredColor,
                                           const SkSurfaceProps&, const GrDistanceFieldAdjustTable*,
                                           GrTextTarget*);
 
@@ -513,7 +513,7 @@ private:
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
             const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
-            const SkPaint& paint, GrColor4h filteredColor, const SkSurfaceProps&,
+            const SkPaint& paint, const GrColor4h& filteredColor, const SkSurfaceProps&,
             const GrDistanceFieldAdjustTable*, GrTextTarget*);
 
     struct StrokeInfo {

@@ -40,7 +40,7 @@ protected:
 
 protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
-    GrColor4h color() const { return fInputColor; }
+    const GrColor4h& color() const { return fInputColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
     const GrProcessorSet& processors() const { return fProcessorSet; }
     GrProcessorSet detachProcessors() { return std::move(fProcessorSet); }

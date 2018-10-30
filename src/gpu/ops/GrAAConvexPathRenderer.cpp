@@ -765,8 +765,9 @@ public:
                                                      stencilSettings);
     }
 
-    AAConvexPathOp(const Helper::MakeArgs& helperArgs, GrColor4h color, const SkMatrix& viewMatrix,
-                   const SkPath& path, const GrUserStencilSettings* stencilSettings)
+    AAConvexPathOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+                   const SkMatrix& viewMatrix, const SkPath& path,
+                   const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
         fPaths.emplace_back(PathData{viewMatrix, path, color});
         this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
