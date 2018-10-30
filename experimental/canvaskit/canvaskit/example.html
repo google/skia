@@ -30,6 +30,10 @@
 <!-- Doesn't work yet. -->
 <button id=lego_btn>Take a picture of the legos</button>
 
+<h2> Nima </h2>
+
+<canvas id=nima_example width=300 height=300></canvas>
+
 <h2>Drop in replacement for HTML Canvas (e.g. node.js)</h2>
 <img id=api1 width=300 height=300/>
 
@@ -43,6 +47,9 @@
   var confettiJSON = null;
   var onboardingJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
+
+  var nimaFile = null;
+  var nimaTexture = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).then((CK) => {
@@ -58,6 +65,7 @@
     SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+    NimaExample(CanvasKit, nimaFile, nimaTexture);
 
     CanvasAPI1(CanvasKit);
   });
@@ -88,6 +96,28 @@
     resp.text().then((str) => {
       onboardingJSON = str;
       SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima').then((resp) => {
+    resp.blob().then((blob) => {
+      let reader = new FileReader();
+      reader.addEventListener("loadend", function() {
+          nimaFile = reader.result;
+          NimaExample(CanvasKit, nimaFile, nimaTexture);
+      });
+      reader.readAsArrayBuffer(blob);
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima.png').then((resp) => {
+    resp.blob().then((blob) => {
+      let reader = new FileReader();
+      reader.addEventListener("loadend", function() {
+          nimaTexture = reader.result;
+          NimaExample(CanvasKit, nimaFile, nimaTexture);
+      });
+      reader.readAsArrayBuffer(blob);
     });
   });
 
@@ -345,11 +375,10 @@
     const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
 
-    let firstFrame = new Date().getTime();
+    let firstFrame = Date.now();
 
     function drawFrame() {
-      let now = new Date().getTime();
-      let seek = ((now - firstFrame) / duration) % 1.0;
+      let seek = ((Date.now() - firstFrame) / duration) % 1.0;
       CanvasKit.setCurrentContext(context);
       animation.seek(seek);
       canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
@@ -364,6 +393,9 @@
   }
 
   function CanvasAPI1(CanvasKit) {
+    if (CanvasKit.gpu) {
+      return;
+    }
     let canvas = CanvasKit.MakeCanvas(300, 300);
 
     let ctx = canvas.getContext('2d');
@@ -382,6 +414,42 @@
 
     // TODO load image
     document.getElementById('api1').src = canvas.toDataURL();
+  }
+
+  function NimaExample(CanvasKit, nimaFile, nimaTexture) {
+    if (!CanvasKit || !nimaFile || !nimaTexture) {
+      return;
+    }
+    const animation = CanvasKit.MakeNimaActor(nimaFile, nimaTexture);
+    if (!animation) {
+      console.error('could not make animation');
+      return;
+    }
+
+    const surface = CanvasKit.MakeCanvasSurface('nima_example');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+    canvas.translate(125, 275);
+    canvas.scale(0.4, -0.4);
+
+    let firstFrame = Date.now();
+    animation.setAnimationByName('attack');
+
+    function drawFrame() {
+      let seek = ((Date.now() - firstFrame) / 1000.0);
+      CanvasKit.setCurrentContext(context);
+      canvas.clear(CanvasKit.Color(255, 255, 255, 0.0));
+      animation.seek(seek);
+      animation.render(canvas);
+      surface.flush();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
   }
 
 </script>
