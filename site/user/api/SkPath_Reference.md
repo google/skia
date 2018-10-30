@@ -391,7 +391,7 @@ contour travels counterclockwise</td>
 
 ### Example
 
-<div><fiddle-embed name="0de03d9c939b6238318b7366866e8722"></fiddle-embed></div>
+<div><fiddle-embed name="4bbae00b40ed2cfcd0007921ad693a7b"></fiddle-embed></div>
 
 ### See Also
 
@@ -799,7 +799,7 @@ is enclosed by an even number of Contours</td>
 
 ### Example
 
-<div><fiddle-embed name="d84cd32b0bfd9ad2714f753120ed0ee1"></fiddle-embed></div>
+<div><fiddle-embed name="d2c33dc791cd165dcc2423226ba5b095"></fiddle-embed></div>
 
 ### See Also
 
@@ -2923,14 +2923,14 @@ is part of <a href='undocumented#Circle'>Circle</a> sized to <a href='#SkPath_ar
 
 ### Example
 
-<div><fiddle-embed name="d9c6435f26f37b3d63c664a99028f77f"></fiddle-embed></div>
+<div><fiddle-embed name="386000684073fccabc224d7d6dc81cd9"></fiddle-embed></div>
 
 If last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> does not start <a href='#Arc'>Arc</a>, <a href='#SkPath_arcTo'>arcTo</a> appends connecting <a href='undocumented#Line'>Line</a> to <a href='#Path'>Path</a>.
 The length of <a href='SkPoint_Reference#Vector'>Vector</a> from (<a href='#SkPath_arcTo_2_x1'>x1</a>, <a href='#SkPath_arcTo_2_y1'>y1</a>) to (<a href='#SkPath_arcTo_2_x2'>x2</a>, <a href='#SkPath_arcTo_2_y2'>y2</a>) does not affect <a href='#Arc'>Arc</a>.
 
 ### Example
 
-<div><fiddle-embed name="01d2ddfd539ab86a86989e210640dffc"></fiddle-embed></div>
+<div><fiddle-embed name="78f3c65fa900610bb52518989b547095"></fiddle-embed></div>
 
 <a href='#Arc'>Arc</a> sweep is always less than 180 degrees. If <a href='#SkPath_arcTo_2_radius'>radius</a> is zero, or if
 tangents are nearly parallel, <a href='#SkPath_arcTo'>arcTo</a> appends <a href='undocumented#Line'>Line</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> to (<a href='#SkPath_arcTo_2_x1'>x1</a>, <a href='#SkPath_arcTo_2_y1'>y1</a>).
@@ -3758,7 +3758,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="ab9753174060e4a551727ef3af12924d"></fiddle-embed></div>
+<div><fiddle-embed name="f1122d6fffddac0167e96fab4b9a862f"></fiddle-embed></div>
 
 ### See Also
 

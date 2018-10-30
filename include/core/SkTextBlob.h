@@ -67,7 +67,7 @@ public:
         @return            SkTextBlob constructed from one run
     */
     static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
-                                          SkPaint::TextEncoding = SkPaint::kUTF8_TextEncoding);
+                                      SkPaint::TextEncoding encoding = SkPaint::kUTF8_TextEncoding);
 
     /** Creates SkTextBlob with a single run. string meaning depends on SkPaint::TextEncoding;
         by default, string is encoded as UTF-8.

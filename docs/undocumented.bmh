@@ -354,6 +354,18 @@ FT_Load_Glyph
 #Subtopic ##
 #Subtopic Engine
 ##
+#Enum SkTextEncoding
+#Const kUTF8_SkTextEncoding 0
+##
+#Const kUTF16_SkTextEncoding 1
+##
+#Const kUTF32_SkTextEncoding 2
+##
+#Const kGlyphID_SkTextEncoding 3
+##
+##
+#Class SkFont
+##
 #Topic ##
 
 #Topic Font_Manager
