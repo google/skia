@@ -18,6 +18,7 @@
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "SkImage_GpuYUVA.h"
 #endif
 
 static const int kTileWidthHeight = 128;
@@ -712,6 +713,7 @@ protected:
     }
 
     void createImages(GrContext* context) {
+        int counter = 0;
         for (bool opaque : { false, true }) {
             for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
                 PlaneData planes;
@@ -722,7 +724,6 @@ protected:
                     SkYUVAIndex yuvaIndices[4];
                     create_YUV(planes, (YUVFormat) format, resultBMs, yuvaIndices, opaque);
 
-#if SK_SUPPORT_GPU
                     if (context) {
                         if (context->abandoned()) {
                             return;
@@ -758,16 +759,24 @@ protected:
                                 resultBMs[i].rowBytes());
                         }
 
-                        fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
-                            context,
-                            (SkYUVColorSpace) cs,
-                            yuvaTextures,
-                            yuvaIndices,
-                            { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
-                            kTopLeft_GrSurfaceOrigin);
-                    } else
-#endif
-                    {
+                        if (counter & 0x1) {
+                            fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
+                                context,
+                                (SkYUVColorSpace)cs,
+                                yuvaTextures,
+                                yuvaIndices,
+                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                                kTopLeft_GrSurfaceOrigin);
+                        } else {
+                            fImages[opaque][cs][format] = SkImage::MakeFromYUVATextures(
+                                context,
+                                (SkYUVColorSpace)cs,
+                                yuvaTextures,
+                                yuvaIndices,
+                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                                kTopLeft_GrSurfaceOrigin);
+                        }
+                    } else {
                         fImages[opaque][cs][format] = make_yuv_gen_image(
                                                                 fOriginalBMs[opaque].info(),
                                                                 (SkYUVColorSpace) cs,
@@ -776,6 +785,7 @@ protected:
                     }
                 }
             }
+            ++counter;
         }
     }
 

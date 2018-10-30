@@ -352,6 +352,31 @@ public:
                                                    GrSurfaceOrigin imageOrigin,
                                                    sk_sp<SkColorSpace> imageColorSpace = nullptr);
 
+    /** Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
+        via multitexturing.
+
+        @param context         GPU context
+        @param yuvColorSpace   How the YUV values are converted to RGB. One of:
+                                            kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                                            kRec709_SkYUVColorSpace
+        @param yuvTextures     array of (up to four) YUVA textures on GPU which contain the,
+                               possibly interleaved, YUVA planes
+        @param yuvaIndices     array indicating which texture (in 'yuvaTextures') and channel
+                               (in the specified texture) maps to each of Y, U, V, and A.
+        @param imageSize       size of the resulting image
+        @param imageOrigin     origin of the resulting image. One of: kBottomLeft_GrSurfaceOrigin,
+                               kTopLeft_GrSurfaceOrigin
+        @param imageColorSpace range of colors of the resulting image; may be nullptr
+        @return                created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromYUVATextures(GrContext* context,
+                                               SkYUVColorSpace yuvColorSpace,
+                                               const GrBackendTexture yuvaTextures[],
+                                               const SkYUVAIndex yuvaIndices[4],
+                                               SkISize imageSize,
+                                               GrSurfaceOrigin imageOrigin,
+                                               sk_sp<SkColorSpace> imageColorSpace = nullptr);
+
     /** Creates an SkImage by flattening the specified YUVA planes into a single, interleaved RGBA
         image. 'backendTexture' is used to store the result of the flattening.
 

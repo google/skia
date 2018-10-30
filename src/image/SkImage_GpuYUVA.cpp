@@ -96,6 +96,72 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     return fRGBProxy;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
+                                             SkYUVColorSpace colorSpace,
+                                             const GrBackendTexture yuvaTextures[],
+                                             const SkYUVAIndex yuvaIndices[4],
+                                             SkISize imageSize,
+                                             GrSurfaceOrigin imageOrigin,
+                                             sk_sp<SkColorSpace> imageColorSpace) {
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+
+    // We need to make a copy of the input backend textures because we need to preserve the result
+    // of validate_backend_texture.
+    GrBackendTexture yuvaTexturesCopy[4];
+    for (int i = 0; i < 4; ++i) {
+        // Validate that the yuvaIndices refer to valid backend textures.
+        const SkYUVAIndex& yuvaIndex = yuvaIndices[i];
+        if (SkYUVAIndex::kA_Index == i && yuvaIndex.fIndex == -1) {
+            // Meaning the A plane isn't passed in.
+            continue;
+        }
+        if (yuvaIndex.fIndex == -1 || yuvaIndex.fIndex > 3) {
+            // Y plane, U plane, and V plane must refer to image sources being passed in. There are
+            // at most 4 image sources being passed in, could not have a index more than 3.
+            return nullptr;
+        }
+
+        if (!yuvaTexturesCopy[yuvaIndex.fIndex].isValid()) {
+            yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
+
+            if (!ctx->contextPriv().caps()->getYUVAConfigFromBackendTexture(
+                                                yuvaTexturesCopy[yuvaIndex.fIndex],
+                                                &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig)) {
+                return nullptr;
+            }
+        }
+
+        // TODO: Check that for each plane, the channel actually exist in the image source we are
+        // reading from.
+    }
+
+    sk_sp<GrTextureProxy> tempTextureProxies[4]; // build from yuvaTextures
+    for (int i = 0; i < 4; ++i) {
+        // Fill in tempTextureProxies to avoid duplicate texture proxies.
+        int textureIndex = yuvaIndices[i].fIndex;
+
+        // Safely ignore since this means we are missing the A plane.
+        if (textureIndex == -1) {
+            SkASSERT(SkYUVAIndex::kA_Index == i);
+            continue;
+        }
+
+        if (!tempTextureProxies[textureIndex]) {
+            SkASSERT(yuvaTexturesCopy[textureIndex].isValid());
+            tempTextureProxies[textureIndex] =
+                proxyProvider->wrapBackendTexture(yuvaTexturesCopy[textureIndex], imageOrigin);
+            if (!tempTextureProxies[textureIndex]) {
+                return nullptr;
+            }
+        }
+    }
+
+    return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(ctx), imageSize.width(), imageSize.height(),
+                                       kNeedNewImageUniqueID, colorSpace, tempTextureProxies,
+                                       yuvaIndices, imageOrigin, imageColorSpace, SkBudgeted::kYes);
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
                                                        SkYUVColorSpace yuvColorSpace,

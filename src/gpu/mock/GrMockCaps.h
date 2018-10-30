@@ -104,6 +104,17 @@ public:
         return true;
     }
 
+    bool getYUVAConfigFromBackendTexture(const GrBackendTexture& tex,
+                                         GrPixelConfig* config) const override {
+        GrMockTextureInfo texInfo;
+        if (!tex.getMockTextureInfo(&texInfo)) {
+            return false;
+        }
+
+        *config = texInfo.fConfig;
+        return true;
+    }
+
     bool getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
                                         GrPixelConfig* config) const override {
         const GrPixelConfig* mockFormat = format.getMockFormat();
