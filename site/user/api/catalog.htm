@@ -8556,10 +8556,10 @@
     "name": "SkRRect::writeToMemory"
 },
     "SkRegion_Op": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkRegion operand({35, 35, 85, 85});\n    const char* labels[] = {\"difference\", \"intersect\", \"union\", \"xor\", \"reverse diff\", \"replace\"};\n    int index = 0;\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    for (auto op : { SkRegion::kDifference_Op, SkRegion::kIntersect_Op, SkRegion::kUnion_Op,\n                     SkRegion::kXOR_Op, SkRegion::kReverseDifference_Op, SkRegion::kReplace_Op } ) {\n        SkRegion target({10, 10, 60, 60});\n        target.op(operand, op);\n        canvas->drawRegion(target, paint);\n        canvas->drawString(labels[index++], 40, 100, paint);\n        canvas->translate(80, 0);\n        if (SkRegion::kUnion_Op == op) {\n            canvas->translate(-240, 120);\n        }\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion operand({35, 35, 85, 85});\n    const char* labels[] = {\"difference\", \"intersect\", \"union\", \"xor\", \"reverse diff\", \"replace\"};\n    int index = 0;\n    SkPaint paint;\n    for (auto op : { SkRegion::kDifference_Op, SkRegion::kIntersect_Op, SkRegion::kUnion_Op,\n                     SkRegion::kXOR_Op, SkRegion::kReverseDifference_Op, SkRegion::kReplace_Op } ) {\n        SkRegion target({10, 10, 60, 60});\n        target.op(operand, op);\n        canvas->drawRegion(target, paint);\n        canvas->drawString(labels[index++], 40, 100, paint);\n        canvas->translate(80, 0);\n        if (SkRegion::kUnion_Op == op) {\n            canvas->translate(-240, 120);\n        }\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "fb82d2d3ec51912215a0eb9b45dcbc3c",
+    "hash": "026dd8b180fe8e43f477fce43e9217b3",
     "file": "SkRegion_Reference",
     "name": "SkRegion::Op"
 },
@@ -9100,10 +9100,10 @@
     "name": "SkTextBlobBuilder::allocRun_2"
 },
     "SkTextBlob_Deserialize": {
-    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World!\", 12, blobPaint);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    uint16_t glyphs[6];\n    blobPaint.textToGlyphs(\"Hacker\", 6, glyphs);\n    memcpy((char*)data->writable_data() + 0x54, glyphs, sizeof(glyphs));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
+    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkFont blobFont;\n    blobFont.setSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World!\", 12, blobFont);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    uint16_t glyphs[6];\n    SkPaint blobPaint;\n    blobPaint.textToGlyphs(\"Hacker\", 6, glyphs);\n    memcpy((char*)data->writable_data() + 0x54, glyphs, sizeof(glyphs));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
     "width": 256,
     "height": 24,
-    "hash": "9feac5842eaac425a062754097eb7b7b",
+    "hash": "68b6d0208eb0b4de67fc152381af7a58",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::Deserialize"
 },
@@ -9132,18 +9132,18 @@
     "name": "SkTextBlob::bounds()"
 },
     "SkTextBlob_serialize": {
-    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World\", 11, blobPaint);\n    char storage[2048];\n    size_t used = blob->serialize(SkSerialProcs(), storage, sizeof(storage));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(storage, used, SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n    std::string usage = \"size=\" + std::to_string(sizeof(storage)) + \" used=\" + std::to_string(used);\n    canvas->drawString(usage.c_str(), 20, 40, SkPaint());\n}",
+    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkFont blobFont;\n    blobFont.setSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World\", 11, blobFont);\n    char storage[2048];\n    size_t used = blob->serialize(SkSerialProcs(), storage, sizeof(storage));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(storage, used, SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n    std::string usage = \"size=\" + std::to_string(sizeof(storage)) + \" used=\" + std::to_string(used);\n    canvas->drawString(usage.c_str(), 20, 40, SkPaint());\n}",
     "width": 256,
     "height": 64,
-    "hash": "b1d67f0b0f342eb3e70db01bdefdc21b",
+    "hash": "90ce8c327d407b1faac73baa2ebd0378",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::serialize()"
 },
     "SkTextBlob_serialize_2": {
-    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World\", 11, blobPaint);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
+    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkFont blobFont;\n    blobFont.setSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World\", 11, blobFont);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
     "width": 256,
     "height": 24,
-    "hash": "9447d4cf5d560b40b7535e403d854c20",
+    "hash": "464201a828f7e94fc01cd57facfcd2f4",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::serialize_2"
 },

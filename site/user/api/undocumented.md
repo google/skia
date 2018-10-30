@@ -103,7 +103,36 @@ SK_API void <a href='#SkDebugf'>SkDebugf</a>(const char format[], ...)
 
 <a name='SkDeserialProcs'></a>
 
----
+---<table style='border-collapse: collapse; width: 62.5em'>
+
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkDeserialPictureProc</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkDeserialProcs_fPictureProc'><code>fPictureProc</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>void*</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkDeserialProcs_fPictureCtx'><code>fPictureCtx</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkDeserialTypefaceProc</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkDeserialProcs_fTypefaceProc'><code>fTypefaceProc</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>void*</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkDeserialProcs_fTypefaceCtx'><code>fTypefaceCtx</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+</table>
 
 <a name='SkBaseDevice'></a>
 
@@ -395,10 +424,6 @@ static std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt;
 
 ---
 
-<a name='sk_sp'></a>
-
----
-
 <a name='GrBackendRenderTarget'></a>
 
 ---
@@ -419,13 +444,44 @@ bool <a href='#GrBackendRenderTarget_isValid'>isValid</a>() const
 
 <a name='Arc'></a>
 
+<a name='Sweep_Flag'></a>
+
 <a name='SkScalar'></a>
 
 ---
 
 <a name='SkSerialProcs'></a>
 
----
+---<table style='border-collapse: collapse; width: 62.5em'>
+
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkSerialPictureProc</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkSerialProcs_fPictureProc'><code>fPictureProc</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>void*</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkSerialProcs_fPictureCtx'><code>fPictureCtx</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkSerialTypefaceProc</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkSerialProcs_fTypefaceProc'><code>fTypefaceProc</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>void*</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkSerialProcs_fTypefaceCtx'><code>fTypefaceCtx</code></a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+</table>
 
 <a name='SkShader'></a>
 
@@ -480,6 +536,10 @@ static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a hre
 </pre>
 
 <a name='SkSize'></a>
+
+---
+
+<a name='sk_sp'></a>
 
 ---
 

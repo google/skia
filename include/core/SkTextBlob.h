@@ -100,10 +100,10 @@ public:
         may be used to provide user context to procs.fTypefaceProc; procs.fTypefaceProc
         is called with a pointer to SkTypeface and user context.
 
-        @param procs   custom serial data encoders; may be nullptr
-        @param memory  storage for data
-        @param size    size of storage
-        @return        bytes written, or zero if required storage is larger than memory_size
+        @param procs       custom serial data encoders; may be nullptr
+        @param memory      storage for data
+        @param memory_size size of storage
+        @return            bytes written, or zero if required storage is larger than memory_size
     */
     size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const;
 

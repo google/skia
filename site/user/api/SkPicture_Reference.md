@@ -104,15 +104,15 @@ Has no effect.
 virtual bool <a href='#SkPicture_AbortCallback_abort'>abort</a>() = 0
 </pre>
 
-Stops <a href='#Picture'>Picture</a> playback when some condition is met. A subclass of
-<a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a> provides an override for <a href='#SkPicture_AbortCallback_abort'>abort</a>() that can stop <a href='#SkPicture_playback'>SkPicture::playback</a>.
+Stops <a href='SkPicture_Reference#SkPicture'>SkPicture</a> playback when some condition is met. A subclass of
+<a href='#SkPicture_AbortCallback'>AbortCallback</a> provides an override for <a href='#SkPicture_AbortCallback_abort'>abort()</a> that can stop <a href='SkPicture_Reference#SkPicture'>SkPicture</a>::playback.
 
-The part of <a href='#Picture'>Picture</a> drawn when aborted is undefined. <a href='#Picture'>Picture</a> instantiations are
-free to stop drawing at different points during playback.
+The part of <a href='SkPicture_Reference#SkPicture'>SkPicture</a> drawn when aborted is undefined. <a href='SkPicture_Reference#SkPicture'>SkPicture</a> instantiations are
+free to stop drawing at different <a href='SkPoint_Reference#Point'>points</a> during playback.
 
-If the abort happens inside one or more calls to <a href='SkCanvas_Reference#SkCanvas_save'>SkCanvas::save</a>(), stack
-of <a href='SkCanvas_Reference#Matrix'>Canvas Matrix</a> and <a href='SkCanvas_Reference#Clip'>Canvas Clip</a> values is restored to its state before
-<a href='#SkPicture_playback'>SkPicture::playback</a> was called.
+If the abort happens inside one or more calls to <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_save'>save()</a>, stack
+of <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> <a href='SkMatrix_Reference#Matrix'>matrix</a> and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> clip values is restored to its state before
+<a href='SkPicture_Reference#SkPicture'>SkPicture</a>::playback was called.
 
 ### Return Value
 
@@ -136,28 +136,28 @@ white rectangle appears.
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromStream'>MakeFromStream</a>(<a href='SkStream_Reference#SkStream'>SkStream</a>* stream, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
 </pre>
 
-Recreates <a href='#Picture'>Picture</a> that was serialized into a <a href='#SkPicture_MakeFromStream_stream'>stream</a>. Returns constructed <a href='#Picture'>Picture</a>
-if successful; otherwise, returns nullptr. Fails if data does not permit
-constructing valid <a href='#Picture'>Picture</a>.
+Recreates <a href='SkPicture_Reference#SkPicture'>SkPicture</a> that was serialized into a <a href='#SkPicture_MakeFromStream_stream'>stream</a>. Returns constructed <a href='SkPicture_Reference#SkPicture'>SkPicture</a>
+if successful; otherwise, returns nullptr. Fails if <a href='undocumented#Data'>data</a> does not permit
+constructing valid <a href='SkPicture_Reference#SkPicture'>SkPicture</a>.
 
-<a href='#SkPicture_MakeFromStream_procs'>procs</a>.fPictureProc permits supplying a custom function to decode <a href='#Picture'>Picture</a>.
-If <a href='#SkPicture_MakeFromStream_procs'>procs</a>.fPictureProc is nullptr, default decoding is used. <a href='#SkPicture_MakeFromStream_procs'>procs</a>.fPictureCtx
-may be used to provide user context to <a href='#SkPicture_MakeFromStream_procs'>procs</a>.fPictureProc; <a href='#SkPicture_MakeFromStream_procs'>procs</a>.fPictureProc
-is called with a pointer to data, data byte length, and user context.
+<a href='#SkPicture_MakeFromStream_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureProc'>fPictureProc</a> permits supplying a custom function to decode <a href='SkPicture_Reference#SkPicture'>SkPicture</a>.
+If <a href='#SkPicture_MakeFromStream_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureProc'>fPictureProc</a> is nullptr, default decoding is used. <a href='#SkPicture_MakeFromStream_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureCtx'>fPictureCtx</a>
+may be used to provide user context to <a href='#SkPicture_MakeFromStream_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureProc'>fPictureProc</a>; <a href='#SkPicture_MakeFromStream_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureProc'>fPictureProc</a>
+is called with a pointer to <a href='undocumented#Data'>data</a>, <a href='undocumented#Data'>data</a> byte length, and user context.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPicture_MakeFromStream_stream'><code><strong>stream</strong></code></a></td>
-    <td>container for serial data</td>
+    <td>container for serial <a href='undocumented#Data'>data</a></td>
   </tr>
   <tr>    <td><a name='SkPicture_MakeFromStream_procs'><code><strong>procs</strong></code></a></td>
-    <td>custom serial data decoders; may be nullptr</td>
+    <td>custom serial <a href='undocumented#Data'>data</a> decoders; may be nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='#Picture'>Picture</a> constructed from <a href='#SkPicture_MakeFromStream_stream'>stream</a> data
+<a href='SkPicture_Reference#SkPicture'>SkPicture</a> constructed from <a href='#SkPicture_MakeFromStream_stream'>stream</a> <a href='undocumented#Data'>data</a>
 
 ### Example
 
@@ -175,13 +175,13 @@ is called with a pointer to data, data byte length, and user context.
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const <a href='undocumented#SkData'>SkData</a>* data, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
 </pre>
 
-Recreates <a href='#Picture'>Picture</a> that was serialized into <a href='#SkPicture_MakeFromData_data'>data</a>. Returns constructed <a href='#Picture'>Picture</a>
+Recreates <a href='SkPicture_Reference#SkPicture'>SkPicture</a> that was serialized into <a href='#SkPicture_MakeFromData_data'>data</a>. Returns constructed <a href='SkPicture_Reference#SkPicture'>SkPicture</a>
 if successful; otherwise, returns nullptr. Fails if <a href='#SkPicture_MakeFromData_data'>data</a> does not permit
-constructing valid <a href='#Picture'>Picture</a>.
+constructing valid <a href='SkPicture_Reference#SkPicture'>SkPicture</a>.
 
-<a href='#SkPicture_MakeFromData_procs'>procs</a>.fPictureProc permits supplying a custom function to decode <a href='#Picture'>Picture</a>.
-If <a href='#SkPicture_MakeFromData_procs'>procs</a>.fPictureProc is nullptr, default decoding is used. <a href='#SkPicture_MakeFromData_procs'>procs</a>.fPictureCtx
-may be used to provide user context to <a href='#SkPicture_MakeFromData_procs'>procs</a>.fPictureProc; <a href='#SkPicture_MakeFromData_procs'>procs</a>.fPictureProc
+<a href='#SkPicture_MakeFromData_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureProc'>fPictureProc</a> permits supplying a custom function to decode <a href='SkPicture_Reference#SkPicture'>SkPicture</a>.
+If <a href='#SkPicture_MakeFromData_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureProc'>fPictureProc</a> is nullptr, default decoding is used. <a href='#SkPicture_MakeFromData_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureCtx'>fPictureCtx</a>
+may be used to provide user context to <a href='#SkPicture_MakeFromData_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureProc'>fPictureProc</a>; <a href='#SkPicture_MakeFromData_procs'>procs</a>-><a href='#SkDeserialProcs_fPictureProc'>fPictureProc</a>
 is called with a pointer to <a href='#SkPicture_MakeFromData_data'>data</a>, <a href='#SkPicture_MakeFromData_data'>data</a> byte length, and user context.
 
 ### Parameters
@@ -196,7 +196,7 @@ is called with a pointer to <a href='#SkPicture_MakeFromData_data'>data</a>, <a 
 
 ### Return Value
 
-<a href='#Picture'>Picture</a> constructed from <a href='#SkPicture_MakeFromData_data'>data</a>
+<a href='SkPicture_Reference#SkPicture'>SkPicture</a> constructed from <a href='#SkPicture_MakeFromData_data'>data</a>
 
 ### Example
 
@@ -226,20 +226,11 @@ static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture<
   <tr>    <td><a name='SkPicture_MakeFromData_2_procs'><code><strong>procs</strong></code></a></td>
     <td>custom serial <a href='#SkPicture_MakeFromData_2_data'>data</a> decoders; may be nullptr</td>
   </tr>
-Recreates <a href='#Picture'>Picture</a> that was serialized into <a href='#SkPicture_MakeFromData_2_data'>data</a>. Returns constructed <a href='#Picture'>Picture</a>
-if successful; otherwise, returns nullptr. Fails if <a href='#SkPicture_MakeFromData_2_size'>size</a> is smaller than
-required <a href='#SkPicture_MakeFromData_2_data'>data</a> length, or if <a href='#SkPicture_MakeFromData_2_data'>data</a> does not permit constructing valid <a href='#Picture'>Picture</a>.
-
-<a href='#SkPicture_MakeFromData_2_procs'>procs</a>.fPictureProc permits supplying a custom function to decode <a href='#Picture'>Picture</a>.
-If <a href='#SkPicture_MakeFromData_2_procs'>procs</a>.fPictureProc is nullptr, default decoding is used. <a href='#SkPicture_MakeFromData_2_procs'>procs</a>.fPictureCtx
-may be used to provide user context to <a href='#SkPicture_MakeFromData_2_procs'>procs</a>.fPictureProc; <a href='#SkPicture_MakeFromData_2_procs'>procs</a>.fPictureProc
-is called with a pointer to <a href='#SkPicture_MakeFromData_2_data'>data</a>, <a href='#SkPicture_MakeFromData_2_data'>data</a> byte length, and user context.
-
 </table>
 
 ### Return Value
 
-<a href='#Picture'>Picture</a> constructed from <a href='#SkPicture_MakeFromData_2_data'>data</a>
+<a href='SkPicture_Reference#SkPicture'>SkPicture</a> constructed from <a href='#SkPicture_MakeFromData_2_data'>data</a>
 
 ### Example
 
@@ -257,11 +248,11 @@ is called with a pointer to <a href='#SkPicture_MakeFromData_2_data'>data</a>, <
 virtual void <a href='#SkPicture_playback'>playback</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* canvas, <a href='#SkPicture_AbortCallback'>AbortCallback</a>* callback = nullptr) const = 0
 </pre>
 
-Replays the drawing commands on the specified <a href='#SkPicture_playback_canvas'>canvas</a>. In the case that the
-commands are recorded, each command in the <a href='#Picture'>Picture</a> is sent separately to <a href='#SkPicture_playback_canvas'>canvas</a>.
+Replays the drawing commands on the specified <a href='#SkPicture_playback()_canvas'>canvas</a>. In the case that the
+commands are recorded, each command in the <a href='SkPicture_Reference#SkPicture'>SkPicture</a> is sent separately to <a href='#SkPicture_playback()_canvas'>canvas</a>.
 
-To add a single command to draw <a href='#Picture'>Picture</a> to recording <a href='#SkPicture_playback_canvas'>canvas</a>, call
-<a href='SkCanvas_Reference#SkCanvas_drawPicture'>SkCanvas::drawPicture</a> instead.
+To add a single command to draw <a href='SkPicture_Reference#SkPicture'>SkPicture</a> to recording <a href='#SkPicture_playback()_canvas'>canvas</a>, call
+<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_drawPicture'>drawPicture</a> instead.
 
 ### Parameters
 
@@ -289,16 +280,16 @@ To add a single command to draw <a href='#Picture'>Picture</a> to recording <a h
 virtual <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPicture_cullRect'>cullRect</a>() const = 0
 </pre>
 
-Returns cull <a href='SkRect_Reference#Rect'>Rect</a> for this picture, passed in when <a href='#Picture'>Picture</a> was created.
-Returned <a href='SkRect_Reference#Rect'>Rect</a> does not specify clipping <a href='SkRect_Reference#Rect'>Rect</a> for <a href='#Picture'>Picture</a>; cull is hint
-of <a href='#Picture'>Picture</a> bounds.
+Returns cull <a href='SkRect_Reference#SkRect'>SkRect</a> for this <a href='SkPicture_Reference#Picture'>picture</a>, passed in when <a href='SkPicture_Reference#SkPicture'>SkPicture</a> was created.
+Returned <a href='SkRect_Reference#SkRect'>SkRect</a> does not specify clipping <a href='SkRect_Reference#SkRect'>SkRect</a> for <a href='SkPicture_Reference#SkPicture'>SkPicture</a>; cull is hint
+of <a href='SkPicture_Reference#SkPicture'>SkPicture</a> bounds.
 
-<a href='#Picture'>Picture</a> is free to discard recorded drawing commands that fall outside
+<a href='SkPicture_Reference#SkPicture'>SkPicture</a> is free to discard recorded drawing commands that fall outside
 cull.
 
 ### Return Value
 
-bounds passed when <a href='#Picture'>Picture</a> was created
+bounds passed when <a href='SkPicture_Reference#SkPicture'>SkPicture</a> was created
 
 ### Example
 
@@ -318,11 +309,11 @@ bounds may be drawn, and are drawn in this example.
 uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>() const
 </pre>
 
-Returns a non-zero value unique among <a href='#Picture'>Pictures</a> in Skia process.
+Returns a non-zero value unique among <a href='SkPicture_Reference#SkPicture'>SkPicture</a> in Skia process.
 
 ### Return Value
 
-identifier for <a href='#Picture'>Picture</a>
+identifier for <a href='SkPicture_Reference#SkPicture'>SkPicture</a>
 
 ### Example
 
@@ -349,24 +340,24 @@ placeholder id = 2
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPicture_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const
 </pre>
 
-Returns storage containing <a href='undocumented#Data'>Data</a> describing <a href='#Picture'>Picture</a>, using optional custom
+Returns storage containing <a href='undocumented#SkData'>SkData</a> describing <a href='SkPicture_Reference#SkPicture'>SkPicture</a>, using optional custom
 encoders.
 
-<a href='#SkPicture_serialize_procs'>procs</a>.fPictureProc permits supplying a custom function to encode <a href='#Picture'>Picture</a>.
-If <a href='#SkPicture_serialize_procs'>procs</a>.fPictureProc is nullptr, default encoding is used. <a href='#SkPicture_serialize_procs'>procs</a>.fPictureCtx
-may be used to provide user context to <a href='#SkPicture_serialize_procs'>procs</a>.fPictureProc; <a href='#SkPicture_serialize_procs'>procs</a>.fPictureProc
-is called with a pointer to <a href='#Picture'>Picture</a> and user context.
+<a href='#SkPicture_serialize()_procs'>procs</a>-><a href='#SkSerialProcs_fPictureProc'>fPictureProc</a> permits supplying a custom function to encode <a href='SkPicture_Reference#SkPicture'>SkPicture</a>.
+If <a href='#SkPicture_serialize()_procs'>procs</a>-><a href='#SkSerialProcs_fPictureProc'>fPictureProc</a> is nullptr, default encoding is used. <a href='#SkPicture_serialize()_procs'>procs</a>-><a href='#SkSerialProcs_fPictureCtx'>fPictureCtx</a>
+may be used to provide user context to <a href='#SkPicture_serialize()_procs'>procs</a>-><a href='#SkSerialProcs_fPictureProc'>fPictureProc</a>; <a href='#SkPicture_serialize()_procs'>procs</a>-><a href='#SkSerialProcs_fPictureProc'>fPictureProc</a>
+is called with a pointer to <a href='SkPicture_Reference#SkPicture'>SkPicture</a> and user context.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPicture_serialize_procs'><code><strong>procs</strong></code></a></td>
-    <td>custom serial data encoders; may be nullptr</td>
+    <td>custom serial <a href='undocumented#Data'>data</a> encoders; may be nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-storage containing serialized <a href='#Picture'>Picture</a>
+storage containing serialized <a href='SkPicture_Reference#SkPicture'>SkPicture</a>
 
 ### Example
 
@@ -384,20 +375,20 @@ storage containing serialized <a href='#Picture'>Picture</a>
 void <a href='#SkPicture_serialize'>serialize</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* stream, const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const
 </pre>
 
-Writes picture to <a href='#SkPicture_serialize_2_stream'>stream</a>, using optional custom encoders.
+Writes <a href='SkPicture_Reference#Picture'>picture</a> to <a href='#SkPicture_serialize_2_stream'>stream</a>, using optional custom encoders.
 
-<a href='#SkPicture_serialize_2_procs'>procs</a>.fPictureProc permits supplying a custom function to encode <a href='#Picture'>Picture</a>.
-If <a href='#SkPicture_serialize_2_procs'>procs</a>.fPictureProc is nullptr, default encoding is used. <a href='#SkPicture_serialize_2_procs'>procs</a>.fPictureCtx
-may be used to provide user context to <a href='#SkPicture_serialize_2_procs'>procs</a>.fPictureProc; <a href='#SkPicture_serialize_2_procs'>procs</a>.fPictureProc
-is called with a pointer to <a href='#Picture'>Picture</a> and user context.
+<a href='#SkPicture_serialize_2_procs'>procs</a>-><a href='#SkSerialProcs_fPictureProc'>fPictureProc</a> permits supplying a custom function to encode <a href='SkPicture_Reference#SkPicture'>SkPicture</a>.
+If <a href='#SkPicture_serialize_2_procs'>procs</a>-><a href='#SkSerialProcs_fPictureProc'>fPictureProc</a> is nullptr, default encoding is used. <a href='#SkPicture_serialize_2_procs'>procs</a>-><a href='#SkSerialProcs_fPictureCtx'>fPictureCtx</a>
+may be used to provide user context to <a href='#SkPicture_serialize_2_procs'>procs</a>-><a href='#SkSerialProcs_fPictureProc'>fPictureProc</a>; <a href='#SkPicture_serialize_2_procs'>procs</a>-><a href='#SkSerialProcs_fPictureProc'>fPictureProc</a>
+is called with a pointer to <a href='SkPicture_Reference#SkPicture'>SkPicture</a> and user context.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPicture_serialize_2_stream'><code><strong>stream</strong></code></a></td>
-    <td>writable serial data <a href='#SkPicture_serialize_2_stream'>stream</a></td>
+    <td>writable serial <a href='undocumented#Data'>data</a> <a href='#SkPicture_serialize_2_stream'>stream</a></td>
   </tr>
   <tr>    <td><a name='SkPicture_serialize_2_procs'><code><strong>procs</strong></code></a></td>
-    <td>custom serial data encoders; may be nullptr</td>
+    <td>custom serial <a href='undocumented#Data'>data</a> encoders; may be nullptr</td>
   </tr>
 </table>
 
@@ -417,12 +408,12 @@ is called with a pointer to <a href='#Picture'>Picture</a> and user context.
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakePlaceholder'>MakePlaceholder</a>(<a href='SkRect_Reference#SkRect'>SkRect</a> cull)
 </pre>
 
-Returns a placeholder <a href='#SkPicture'>SkPicture</a>. Result does not draw, and contains only
-<a href='#SkPicture_MakePlaceholder_cull'>cull</a> <a href='SkRect_Reference#Rect'>Rect</a>, a hint of its bounds. Result is immutable; it cannot be changed
+Returns a placeholder <a href='SkPicture_Reference#SkPicture'>SkPicture</a>. Result does not draw, and contains only
+<a href='#SkPicture_MakePlaceholder_cull'>cull</a> <a href='SkRect_Reference#SkRect'>SkRect</a>, a hint of its bounds. Result is immutable; it cannot be changed
 later. Result identifier is unique.
 
 Returned placeholder can be intercepted during playback to insert other
-commands into <a href='SkCanvas_Reference#Canvas'>Canvas</a> draw stream.
+commands into <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> draw <a href='SkStream_Reference#Stream'>stream</a>.
 
 ### Parameters
 
@@ -451,7 +442,7 @@ placeholder with unique identifier
 virtual int <a href='#SkPicture_approximateOpCount'>approximateOpCount</a>() const = 0
 </pre>
 
-Returns the approximate number of operations in <a href='#Picture'>Picture</a>. Returned value
+Returns the approximate number of operations in <a href='SkPicture_Reference#SkPicture'>SkPicture</a>. Returned value
 may be greater or less than the number of <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> calls
 recorded: some calls may be recorded as more than one operation, other
 calls may be optimized away.
@@ -476,12 +467,12 @@ approximate operation count
 virtual size_t <a href='#SkPicture_approximateBytesUsed'>approximateBytesUsed</a>() const = 0
 </pre>
 
-Returns the approximate byte size of <a href='#Picture'>Picture</a>. Does not include large objects
-referenced by <a href='#Picture'>Picture</a>.
+Returns the approximate byte <a href='undocumented#Size'>size</a> of <a href='SkPicture_Reference#SkPicture'>SkPicture</a>. Does not include large objects
+referenced by <a href='SkPicture_Reference#SkPicture'>SkPicture</a>.
 
 ### Return Value
 
-approximate size
+approximate <a href='undocumented#Size'>size</a>
 
 ### Example
 
