@@ -39,7 +39,7 @@ class SkWBuffer;
  * logical verb or the last verb in memory).
  */
 
-class SK_API SkPathRef final : public SkNVRefCnt<SkPathRef> {
+class SK_API SkPathRef final : public SkRefCnt {
 public:
     class Editor {
     public:

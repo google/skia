@@ -17,7 +17,7 @@
 /**
  * An immutable set of vertex data that can be used with SkCanvas::drawVertices.
  */
-class SK_API SkVertices : public SkNVRefCnt<SkVertices> {
+class SK_API SkVertices : public SkRefCnt {
 public:
     // BoneIndices indicates which (of a maximum of 4 bones) a given vertex will interpolate
     // between. To indicate that a slot is not used, the convention is to assign the bone index
@@ -250,7 +250,7 @@ private:
     SkVertices() {}
 
     // these are needed since we've manually sized our allocation (see Builder::init)
-    friend class SkNVRefCnt<SkVertices>;
+    friend class SkRefCnt;
     void operator delete(void* p);
 
     static sk_sp<SkVertices> Alloc(int vCount, int iCount, uint32_t builderFlags,

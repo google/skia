@@ -28,7 +28,7 @@
 #endif
 
 // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing one generator among N images
-class SharedGenerator final : public SkNVRefCnt<SharedGenerator> {
+class SharedGenerator final : public SkRefCnt {
 public:
     static sk_sp<SharedGenerator> Make(std::unique_ptr<SkImageGenerator> gen) {
         return gen ? sk_sp<SharedGenerator>(new SharedGenerator(std::move(gen))) : nullptr;

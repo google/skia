@@ -26,7 +26,7 @@ class GrGpu;
  *  of it's SkDescriptor as a key to access (or regenerate) the SkGlyphCache. GrTextStrikes are
  *  created by and owned by a GrGlyphCache.
  */
-class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
+class GrTextStrike : public SkRefCnt {
 public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
     ~GrTextStrike();

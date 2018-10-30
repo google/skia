@@ -125,7 +125,7 @@ public:
     virtual void onAnnotation(const char key[], const char value[]) = 0;
 };
 
-class SK_API Animation : public SkNVRefCnt<Animation> {
+class SK_API Animation : public SkRefCnt {
 public:
 
     class Builder final {
@@ -240,7 +240,7 @@ private:
                                  fOutPoint,
                                  fDuration;
 
-    typedef SkNVRefCnt<Animation> INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 } // namespace skottie
