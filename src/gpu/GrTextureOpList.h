@@ -58,8 +58,6 @@ public:
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
 
-    SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
-
 private:
     void deleteOp(int index);
     void deleteOps();

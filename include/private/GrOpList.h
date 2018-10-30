@@ -86,7 +86,6 @@ public:
      */
     SkDEBUGCODE(virtual void dump(bool printDependencies) const;)
 
-    SkDEBUGCODE(virtual int numOps() const = 0;)
     SkDEBUGCODE(virtual int numClips() const { return 0; })
 
     // TODO: it would be nice for this to be hidden
