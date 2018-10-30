@@ -439,7 +439,7 @@ bits for <a href='SkColor_Reference#Alpha'>Alpha</a>.
 Pixels are fully opaque as if its <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to one, and should
 always be paired with <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>.
 
-![Color_Type_RGB_565](https://fiddle.skia.org/i/21e703b1aba5f2404f94f3db34d4f7cb_raster.png "")
+![Color_Type_RGB_565](https://fiddle.skia.org/i/6dec0226490a4ac1977dc87a31564147_raster.png "")
 
 ### Example
 
@@ -458,7 +458,7 @@ component: alpha, blue, green, and red; use four bits, describing 16 levels.
 Note that <a href='#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a> is misnamed; the acronym does not
 describe the actual component order.
 
-![Color_Type_ARGB_4444](https://fiddle.skia.org/i/bdc77b69231f1e1699e245944f1b239c_raster.png "")
+![Color_Type_ARGB_4444](https://fiddle.skia.org/i/e8008512f0d197051e3f26faa67bafc2_raster.png "")
 
 If paired with <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>: blue, green, and red components are
 <a href='undocumented#Premultiply'>Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
@@ -487,7 +487,7 @@ less than 15, the drawn result is undefined.
 <a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a> encodes ARGB into a 32-bit word. Each component:
 red, green, blue, alpha; use eight bits, describing 256 levels.
 
-![Color_Type_RGBA_8888](https://fiddle.skia.org/i/98d5232ae83a71fecf35713bcd635fdc_raster.png "")
+![Color_Type_RGBA_8888](https://fiddle.skia.org/i/9abc324f670e6468f09385551aae5a1c_raster.png "")
 
 If paired with <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>: red, green, and blue components are
 <a href='undocumented#Premultiply'>Premultiplied</a> by the alpha value. If red, green, or blue is greater than alpha,
@@ -523,7 +523,7 @@ unused. Pixels described by <a href='#kRGB_888x_SkColorType'>kRGB_888x_SkColorTy
 their <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to one, and should always be paired with
 <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>.
 
-![Color_Type_RGB_888](https://fiddle.skia.org/i/a11d984d5880664ca15dbac5beed44a3_raster.png "")
+![Color_Type_RGB_888](https://fiddle.skia.org/i/7527d7ade4764302818e250cd4e03962_raster.png "")
 
 ### Example
 
@@ -540,7 +540,7 @@ their <a href='SkColor_Reference#Alpha'>Color Alpha</a> was set to one, and shou
 <a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a> encodes ARGB into a 32-bit word. Each component:
 blue, green, red, and alpha; use eight bits, describing 256 levels.
 
-![Color_Type_BGRA_8888](https://fiddle.skia.org/i/743a950f1df07936e8a5fcb2a91208c4_raster.png "")
+![Color_Type_BGRA_8888](https://fiddle.skia.org/i/6c35ca14d88b0de200ba7f897f889ad7_raster.png "")
 
 If paired with <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>: blue, green, and red components are
 <a href='undocumented#Premultiply'>Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
@@ -579,7 +579,7 @@ three: fully opaque.
 At present, <a href='SkColor_Reference#Color'>Color</a> in <a href='SkPaint_Reference#Paint'>Paint</a> does not provide enough precision to
 draw all colors possible to a <a href='#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a> <a href='SkSurface_Reference#Surface'>Surface</a>.
 
-![Color_Type_RGBA_1010102](https://fiddle.skia.org/i/2ee75d2bd4e59dc7ab97a96d86fd9bfc_raster.png "")
+![Color_Type_RGBA_1010102](https://fiddle.skia.org/i/8d78daf69145f611054f289a7443a670_raster.png "")
 
 If paired with <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>: red, green, and blue components are
 <a href='undocumented#Premultiply'>Premultiplied</a> by the alpha value. If red, green, or blue is greater than the
@@ -614,7 +614,7 @@ with <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>.
 At present, <a href='SkColor_Reference#Color'>Color</a> in <a href='SkPaint_Reference#Paint'>Paint</a> does not provide enough precision to
 draw all colors possible to a <a href='#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a> <a href='SkSurface_Reference#Surface'>Surface</a>.
 
-![Color_Type_RGB_101010](https://fiddle.skia.org/i/719fea0149e040ac1178fe298d4f7c7a_raster.png "")
+![Color_Type_RGB_101010](https://fiddle.skia.org/i/4c9f4d939e2047269d73fa3507caf01f_raster.png "")
 
 ### Example
 
@@ -657,7 +657,7 @@ Each component encodes a floating point value using <a href='https://www.khronos
 Meaningful colors are represented by the range 0.0 to 1.0, although smaller
 and larger values may be useful when used in combination with <a href='undocumented#Transfer_Mode'>Transfer Mode</a>.
 
-![Color_Type_RGBA_F16](https://fiddle.skia.org/i/adc8262f27f1ac048984b4cbff9334ac_raster.png "")
+![Color_Type_RGBA_F16](https://fiddle.skia.org/i/1bb35ae52173e0fef874022ca8138adc_raster.png "")
 
 If paired with <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>: blue, green, and red components are
 <a href='undocumented#Premultiply'>Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
@@ -694,7 +694,7 @@ Each component encodes a floating point value using <a href='https://en.wikipedi
 Meaningful colors are represented by the range 0.0 to 1.0, although smaller
 and larger values may be useful when used in combination with <a href='undocumented#Transfer_Mode'>Transfer Mode</a>.
 
-![Color_Type_RGBA_F32](https://fiddle.skia.org/i/36efa3247a841d0a46aee987a05e9fc2_raster.png "")
+![Color_Type_RGBA_F32](https://fiddle.skia.org/i/4ba31a8f9bc94a996f34da81ef541a9c_raster.png "")
 
 If paired with <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>: blue, green, and red components are
 <a href='undocumented#Premultiply'>Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
