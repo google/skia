@@ -26,14 +26,18 @@ public:
     explicit SkGlyphRunListPainter(const GrRenderTargetContext& renderTargetContext);
 #endif
 
-    using PerMask = std::function<void(const SkMask& mask, const SkPaint& paint)>;
-    using PerMaskCreator = std::function<PerMask(const SkPaint& paint, SkArenaAlloc* alloc)>;
-    using PerPath = std::function<
-            void(const SkPath& path, SkScalar scale, SkPoint pos, const SkPaint& paint)>;
-    using PerPathCreator = std::function<PerPath()>;
+    using PaintMasks = std::function<void(SkSpan<const SkMask> mask, const SkPaint& paint)>;
+    using PaintMasksCreator = std::function<PaintMasks(const SkPaint& paint, SkArenaAlloc* alloc)>;
+    struct PathAndPos {
+        const SkPath* path;
+        SkPoint position;
+    };
+    using PaintPaths = std::function<
+            void(SkSpan<const PathAndPos> pathsAndPositions, SkScalar scale, const SkPaint& paint)>;
+    using PaintPathsCreator = std::function<PaintPaths()>;
     void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
-            PerMaskCreator perMaskCreator, PerPathCreator perPathCreator);
+            PaintMasksCreator perMaskCreator, PaintPathsCreator perPathCreator);
 
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
@@ -57,11 +61,11 @@ public:
     // For each glyph that is not ARGB call perPath. If the glyph is ARGB then store the glyphID
     // and the position in fallback vectors. After all the glyphs are processed, pass the
     // fallback glyphIDs and positions to fallbackARGB.
-    template <typename PerPath>
+    template <typename PerPathT>
     void drawGlyphRunAsPathWithARGBFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
-            PerPath&& perPath, ARGBFallback&& fallbackARGB);
+            PerPathT&& perPath, ARGBFallback&& fallbackARGB);
 
     template <typename PerSDFT, typename PerPathT>
     void drawGlyphRunAsSDFWithARGBFallback(

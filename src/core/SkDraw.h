@@ -122,7 +122,7 @@ public:
                                     const SkPaint&, const SkSurfaceProps*) const;
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
-    SkGlyphRunListPainter::PerMask drawOneMaskCreator(const SkPaint& paint,
+    SkGlyphRunListPainter::PaintMasks drawOneMaskCreator(const SkPaint& paint,
                                                       SkArenaAlloc* alloc) const;
 
     void drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
