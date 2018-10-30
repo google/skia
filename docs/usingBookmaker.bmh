@@ -1,7 +1,8 @@
 #External
 SkXXX
-SkIRect_Reference
-SkSurface_Reference
+docs/SkIRect_Reference
+docs/SkSurface_Reference
+include/core/SkSurface
 SkSurface.h
 CL
 Go

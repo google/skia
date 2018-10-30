@@ -395,10 +395,6 @@ static std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt;
 
 ---
 
-<a name='sk_sp'></a>
-
----
-
 <a name='GrBackendRenderTarget'></a>
 
 ---
@@ -480,6 +476,10 @@ static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a hre
 </pre>
 
 <a name='SkSize'></a>
+
+---
+
+<a name='sk_sp'></a>
 
 ---
 
