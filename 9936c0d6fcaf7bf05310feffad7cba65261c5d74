@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21fa4436_bd3e3956",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-30T19:11:46Z",
+      "side": 1,
+      "message": "seems slightly weird that this has basically the same signature as the MakeFromYUVATexturesCopy above but we pass in the width and height in slightly different ways",
+      "range": {
+        "startLine": 777,
+        "startChar": 22,
+        "endLine": 778,
+        "endChar": 61
+      },
+      "revId": "9936c0d6fcaf7bf05310feffad7cba65261c5d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2f7f795_ffb9274c",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-30T19:11:46Z",
+      "side": 1,
+      "message": "Should there be an SkImage call into this?",
+      "range": {
+        "startLine": 38,
+        "startChar": 26,
+        "endLine": 38,
+        "endChar": 46
+      },
+      "revId": "9936c0d6fcaf7bf05310feffad7cba65261c5d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
