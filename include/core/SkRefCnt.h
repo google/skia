@@ -157,6 +157,11 @@ template <typename T> static inline T* SkSafeRef(T* obj) {
 
 /** Check if the argument is non-null, and if so, call obj->unref()
  */
+static inline void SkSafeUnref(const SkRefCnt* obj) {
+    if (obj) {
+        obj->unref();
+    }
+}
 template <typename T> static inline void SkSafeUnref(T* obj) {
     if (obj) {
         obj->unref();
