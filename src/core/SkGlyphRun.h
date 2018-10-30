@@ -107,14 +107,10 @@ public:
     SkSpan<const char> text() const { return fText; }
 
 private:
-    //
-    const SkSpan<const uint16_t> fUniqueGlyphIDIndices;
-    //
+    // Positions of each glyph.
     const SkSpan<const SkPoint> fPositions;
     // This is temporary while converting from the old per glyph code to the bulk code.
     const SkSpan<const SkGlyphID> fGlyphIDs;
-    // The unique glyphs from fGlyphIDs.
-    const SkSpan<const SkGlyphID> fUniqueGlyphIDs;
     // Original text from SkTextBlob if present. Will be empty of not present.
     const SkSpan<const char> fText;
     // Original clusters from SkTextBlob if present. Will be empty if not present.
