@@ -22,6 +22,30 @@
       "revId": "df76e9367de50ed8375b3dc2b621b03cccc5c9e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e93bb53_0e7732c3",
+        "filename": "src/gpu/vk/GrVkSampler.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-10-30T17:29:21Z",
+      "side": 1,
+      "message": "Since itself has a 64 bit struct followed by an enum, it still may not pack nicely. The memset just allows us to be sure we have all the bits covered especially if we change this key or the conversion info struct later.",
+      "parentUuid": "eff4c722_c2eaf98a",
+      "range": {
+        "startLine": 37,
+        "startChar": 32,
+        "endLine": 37,
+        "endChar": 42
+      },
+      "revId": "df76e9367de50ed8375b3dc2b621b03cccc5c9e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
