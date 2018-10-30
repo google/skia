@@ -19600,7 +19600,7 @@
         {
           "name": "skia/bots/go_deps",
           "path": "go_deps",
-          "version": "version:45"
+          "version": "version:46"
         }
       ],
       "command": [
