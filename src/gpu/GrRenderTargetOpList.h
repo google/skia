@@ -118,8 +118,6 @@ public:
     GrRenderTargetOpList* asRenderTargetOpList() override { return this; }
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
-
-    SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
     SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const;)
 
