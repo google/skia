@@ -16,6 +16,24 @@
       "revId": "845f866d2110fd55df57c83ef9d4f09e12f8b2d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "152e543f_52497319",
+        "filename": "experimental/canvaskit/canvaskit/example.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-30T19:32:45Z",
+      "side": 1,
+      "message": "Yes - MakeCanvas is basically MakeRasterCanvas (in memory, not backed by an HTML canvas), which only the CPU implementation supports atm (possibly ever).",
+      "parentUuid": "2a5c7fcd_df55bbfb",
+      "revId": "845f866d2110fd55df57c83ef9d4f09e12f8b2d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
