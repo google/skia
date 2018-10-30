@@ -1689,6 +1689,7 @@ if (skia_enable_tools) {
 
       # NIMA does not build on Windows clang
       if (!is_win || !is_clang) {
+        sources += [ "experimental/nima/NimaActor.cpp" ]
         deps += [ "//third_party/Nima-Cpp" ]
       }
 
@@ -2157,7 +2158,7 @@ if (skia_enable_tools) {
     ]
     libs = []
 
-    include_dirs = []
+    include_dirs = [ "experimental" ]
     deps = [
       ":experimental_svg_model",
       ":flags",
