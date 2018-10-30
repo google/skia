@@ -56,21 +56,21 @@ y-axis value used by <a href='#IPoint'>IPoint</a>.
 static constexpr <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_Make'>Make</a>(int32_t x, int32_t y)
 </pre>
 
-Sets <a href='#SkIPoint_fX'>fX</a> to x, <a href='#SkIPoint_fY'>fY</a> to y.
+Sets <a href='#SkIPoint_fX'>fX</a> to <a href='#SkIPoint_Make_x'>x</a>, <a href='#SkIPoint_fY'>fY</a> to <a href='#SkIPoint_Make_y'>y</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIPoint_Make_x'><code><strong>x</strong></code></a></td>
-    <td>integer x-axis value of constructed <a href='#IPoint'>IPoint</a></td>
+    <td>integer x-axis value of constructed <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a></td>
   </tr>
   <tr>    <td><a name='SkIPoint_Make_y'><code><strong>y</strong></code></a></td>
-    <td>integer y-axis value of constructed <a href='#IPoint'>IPoint</a></td>
+    <td>integer y-axis value of constructed <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='#IPoint'>IPoint</a> (x, y)
+<a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> (<a href='#SkIPoint_Make_x'>x</a>, <a href='#SkIPoint_Make_y'>y</a>)
 
 ### Example
 
@@ -98,7 +98,7 @@ pt1 == pt2
 int32_t <a href='#SkIPoint_x'>x</a>() const
 </pre>
 
-Returns x-axis value of <a href='#IPoint'>IPoint</a>.
+Returns x-axis value of <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>.
 
 ### Return Value
 
@@ -128,7 +128,7 @@ pt1.fX == pt1.x()
 int32_t <a href='#SkIPoint_y'>y</a>() const
 </pre>
 
-Returns y-axis value of <a href='#IPoint'>IPoint</a>.
+Returns y-axis value of <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>.
 
 ### Return Value
 
@@ -190,7 +190,7 @@ pt.isZero() == true
 void <a href='#SkIPoint_set'>set</a>(int32_t x, int32_t y)
 </pre>
 
-Sets <a href='#SkIPoint_fX'>fX</a> to x and <a href='#SkIPoint_fY'>fY</a> to y.
+Sets <a href='#SkIPoint_fX'>fX</a> to <a href='#SkIPoint_set()_x'>x</a> and <a href='#SkIPoint_fY'>fY</a> to <a href='#SkIPoint_set()_y'>y</a>.
 
 ### Parameters
 
@@ -226,11 +226,11 @@ pt1 == pt2
 <a href='#SkIPoint'>SkIPoint</a> operator-() const
 </pre>
 
-Returns <a href='#IPoint'>IPoint</a> changing the signs of <a href='#SkIPoint_fX'>fX</a> and <a href='#SkIPoint_fY'>fY</a>.
+Returns <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> changing the signs of <a href='#SkIPoint_fX'>fX</a> and <a href='#SkIPoint_fY'>fY</a>.
 
 ### Return Value
 
-<a href='#IPoint'>IPoint</a> as (-<a href='#SkIPoint_fX'>fX</a>, -<a href='#SkIPoint_fY'>fY</a>)
+<a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> as (-<a href='#SkIPoint_fX'>fX</a>, -<a href='#SkIPoint_fY'>fY</a>)
 
 ### Example
 
@@ -309,7 +309,7 @@ Subtracts <a href='#IVector'>IVector</a> <a href='#SkIPoint_subtractfrom_operato
 bool <a href='#SkIPoint_equals'>equals</a>(int32_t x, int32_t y) const
 </pre>
 
-Returns true if <a href='#IPoint'>IPoint</a> is equivalent to <a href='#IPoint'>IPoint</a> constructed from (x, y).
+Returns true if <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> is equivalent to <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> constructed from (<a href='#SkIPoint_equals()_x'>x</a>, <a href='#SkIPoint_equals()_y'>y</a>).
 
 ### Parameters
 
@@ -323,7 +323,7 @@ Returns true if <a href='#IPoint'>IPoint</a> is equivalent to <a href='#IPoint'>
 
 ### Return Value
 
-true if <a href='#IPoint'>IPoint</a> equals (x, y)
+true if <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> equals (<a href='#SkIPoint_equals()_x'>x</a>, <a href='#SkIPoint_equals()_y'>y</a>)
 
 ### Example
 
@@ -352,21 +352,21 @@ pt: -2147483648, -1  == pt
 bool <a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a>
 </pre>
 
-Returns true if <a href='#SkIPoint_equal_operator_a'>a</a> is equivalent to <a href='#SkIPoint_equal_operator_b'>b</a>.
+Returns true if <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_a'>a</a> is equivalent to <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIPoint_equal_operator_a'><code><strong>a</strong></code></a></td>
-    <td><a href='#IPoint'>IPoint</a> to compare</td>
+    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> to compare</td>
   </tr>
   <tr>    <td><a name='SkIPoint_equal_operator_b'><code><strong>b</strong></code></a></td>
-    <td><a href='#IPoint'>IPoint</a> to compare</td>
+    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> to compare</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if <a href='#SkIPoint_equal_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> == <a href='#SkIPoint_equal_operator_b'>b</a>.<a href='#SkIPoint_fX'>fX</a> and <a href='#SkIPoint_equal_operator_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> == <a href='#SkIPoint_equal_operator_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>
+true if <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> == <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.<a href='#SkIPoint_fX'>fX</a> and <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> == <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>
 
 ### Example
 
@@ -395,21 +395,21 @@ pt: -2147483648, -1  == pt
 bool <a href='#SkIPoint_notequal_operator'>operator!=(const SkIPoint& a, const SkIPoint& b)</a>
 </pre>
 
-Returns true if <a href='#SkIPoint_notequal_operator_a'>a</a> is not equivalent to <a href='#SkIPoint_notequal_operator_b'>b</a>.
+Returns true if <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_a'>a</a> is not equivalent to <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIPoint_notequal_operator_a'><code><strong>a</strong></code></a></td>
-    <td><a href='#IPoint'>IPoint</a> to compare</td>
+    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> to compare</td>
   </tr>
   <tr>    <td><a name='SkIPoint_notequal_operator_b'><code><strong>b</strong></code></a></td>
-    <td><a href='#IPoint'>IPoint</a> to compare</td>
+    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> to compare</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if <a href='#SkIPoint_notequal_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> != <a href='#SkIPoint_notequal_operator_b'>b</a>.<a href='#SkIPoint_fX'>fX</a> or <a href='#SkIPoint_notequal_operator_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> != <a href='#SkIPoint_notequal_operator_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>
+true if <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> != <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.<a href='#SkIPoint_fX'>fX</a> or <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> != <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>
 
 ### Example
 
