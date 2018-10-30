@@ -100,32 +100,33 @@ for (int index = 0; index < 2; ++index) {
 
 # ------------------------------------------------------------------------------
 
-#Method static sk_sp<SkTextBlob> MakeFromText(
-            const void* text, size_t byteLength, const SkPaint& paint)
+#Method static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
+                                          SkPaint::TextEncoding encoding = SkPaint::kUTF8_TextEncoding)
 #In Constructors
 #Line # constructs Text_Blob with one run ##
 
 Creates Text_Blob with a single run. text meaning depends on Paint_Text_Encoding;
 by default, text is encoded as UTF-8.
 
-paint contains attributes used to define the run text: #paint_font_metrics#.
+font contains attributes used to define the run text: #paint_font_metrics#.
 
 #Param text character code points or Glyphs drawn ##
 #Param  byteLength   byte length of text array ##
-#Param  paint    text size, typeface, text scale, and so on, used to draw ##
+#Param  font    text size, typeface, text scale, and so on, used to draw ##
+#Param  encoding  one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
+                          kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+##
 
 #Return Text_Blob constructed from one run ##
 
 #Example
 #Height 24
-    SkPaint blobPaint;
-    blobPaint.setColor(SK_ColorRED); // ignored
-    blobPaint.setTextSize(24);  // respected
-    blobPaint.setAntiAlias(true); // ignored
-    SkPaint canvasPaint = blobPaint;
+    SkFont font;
+    font.setSize(24);
+    SkPaint canvasPaint;
     canvasPaint.setColor(SK_ColorBLUE); // respected
     canvasPaint.setTextSize(2); // ignored
-    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World", 11, blobPaint);
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World", 11, font);
     canvas->drawTextBlob(blob, 20, 20, canvasPaint);
 ##
 
@@ -135,30 +136,32 @@ paint contains attributes used to define the run text: #paint_font_metrics#.
 
 # ------------------------------------------------------------------------------
 
-#Method static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkPaint& paint)
+#Method static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font,
+             SkPaint::TextEncoding encoding = SkPaint::kUTF8_TextEncoding)
 #In Constructors
 #Line # constructs Text_Blob with one run ##
 
 Creates Text_Blob with a single run. string meaning depends on Paint_Text_Encoding;
 by default, string is encoded as UTF-8.
 
-paint contains Paint_Font_Metrics used to define the run text: #paint_font_metrics#.
+font contains Paint_Font_Metrics used to define the run text: #paint_font_metrics#.
 
 #Param string character code points or Glyphs drawn ##
-#Param  paint    text size, typeface, text scale, and so on, used to draw ##
+#Param  font    text size, typeface, text scale, and so on, used to draw ##
+#Param  encoding  one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
+                          kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+##
 
 #Return Text_Blob constructed from one run ##
 
 #Example
 #Height 24
-    SkPaint blobPaint;
-    blobPaint.setColor(SK_ColorRED); // ignored
-    blobPaint.setTextSize(24);  // respected
-    blobPaint.setAntiAlias(true); // ignored
-    SkPaint canvasPaint = blobPaint;
+    SkFont font;
+    font.setSize(24);
+    SkPaint canvasPaint;
     canvasPaint.setColor(SK_ColorBLUE); // respected
     canvasPaint.setTextSize(2); // ignored
-    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromString("Hello World", blobPaint);
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromString("Hello World", font);
     canvas->drawTextBlob(blob, 20, 20, canvasPaint);
 ##
 
@@ -195,9 +198,9 @@ $Function
 #include "SkSerialProcs.h"
 $$
 $$$#
-    SkPaint blobPaint;
-    blobPaint.setTextSize(24);
-    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World", 11, blobPaint);
+    SkFont blobFont;
+    blobFont.setSize(24);
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World", 11, blobFont);
     char storage[2048];
     size_t used = blob->serialize(SkSerialProcs(), storage, sizeof(storage));
     sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(storage, used, SkDeserialProcs());
@@ -234,9 +237,9 @@ $Function
 #include "SkSerialProcs.h"
 $$
 $$$#
-    SkPaint blobPaint;
-    blobPaint.setTextSize(24);
-    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World", 11, blobPaint);
+    SkFont blobFont;
+    blobFont.setSize(24);
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World", 11, blobFont);
     sk_sp<SkData> data = blob->serialize(SkSerialProcs());
     sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());
     canvas->drawTextBlob(copy, 20, 20, SkPaint());
@@ -278,11 +281,12 @@ $Function
 #include "SkSerialProcs.h"
 $$
 $$$#
-    SkPaint blobPaint;
-    blobPaint.setTextSize(24);
-    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World!", 12, blobPaint);
+    SkFont blobFont;
+    blobFont.setSize(24);
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World!", 12, blobFont);
     sk_sp<SkData> data = blob->serialize(SkSerialProcs());
     uint16_t glyphs[6];
+    SkPaint blobPaint;
     blobPaint.textToGlyphs("Hacker", 6, glyphs);
     memcpy((char*)data->writable_data() + 0x54, glyphs, sizeof(glyphs));
     sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());

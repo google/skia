@@ -5486,7 +5486,7 @@ filled 12 point black <a href='undocumented#Glyph'>Glyphs</a>.
 
 ### Example
 
-<div><fiddle-embed name="3ce367af833428b08e75d8a22fe67808"></fiddle-embed></div>
+<div><fiddle-embed name="935c8f8b9782d297a73d7186f6ef7945"></fiddle-embed></div>
 
 ### See Also
 
@@ -5964,7 +5964,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="4cf70f8d194867d053d7e177e5088445"></fiddle-embed></div>
+<div><fiddle-embed name="4e8b7409531c9211a2afcf632005a38c"></fiddle-embed></div>
 
 ### Example
 
