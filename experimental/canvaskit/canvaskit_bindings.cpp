@@ -28,6 +28,9 @@
 #if SK_INCLUDE_SKOTTIE
 #include "Skottie.h"
 #endif
+#if SK_INCLUDE_NIMA
+#include "nima/NimaActor.h"
+#endif
 
 #include <iostream>
 #include <string>
@@ -41,8 +44,9 @@
 
 using namespace emscripten;
 
+// Self-documenting types
+using JSArray = emscripten::val;
 using JSColor = int32_t;
-
 
 void EMSCRIPTEN_KEEPALIVE initFonts() {
     gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
@@ -375,5 +379,36 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     function("MakeAnimation", &MakeAnimation);
     constant("skottie", true);
+#endif
+
+#if SK_INCLUDE_NIMA
+    class_<NimaActor>("NimaActor")
+        .function("duration", &NimaActor::duration)
+        .function("getAnimationNames",  optional_override([](NimaActor& self)->JSArray {
+            JSArray names = emscripten::val::array();
+            auto vNames = self.getAnimationNames();
+            for (size_t i = 0; i < vNames.size(); i++) {
+                names.call<void>("push", vNames[i]);
+            }
+            return names;
+        }), allow_raw_pointers())
+        .function("render",  optional_override([](NimaActor& self, SkCanvas* canvas)->void {
+            self.render(canvas, 0);
+        }), allow_raw_pointers())
+        .function("seek", &NimaActor::seek)
+        .function("setAnimationByIndex", select_overload<void(uint8_t    )>(&NimaActor::setAnimation))
+        .function("setAnimationByName" , select_overload<void(std::string)>(&NimaActor::setAnimation));
+
+    function("_MakeNimaActor", optional_override([](uintptr_t /* uint8_t* */ nptr, int nlen,
+                                                    uintptr_t /* uint8_t* */ tptr, int tlen)->NimaActor* {
+        // See comment above for uintptr_t explanation
+        const uint8_t* nimaBytes = reinterpret_cast<const uint8_t*>(nptr);
+        const uint8_t* textureBytes = reinterpret_cast<const uint8_t*>(tptr);
+
+        auto nima = SkData::MakeWithoutCopy(nimaBytes, nlen);
+        auto texture = SkData::MakeWithoutCopy(textureBytes, tlen);
+        return new NimaActor(nima, texture);
+    }), allow_raw_pointers());
+    constant("nima", true);
 #endif
 }
