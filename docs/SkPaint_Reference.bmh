@@ -69,7 +69,6 @@ Constructs Paint with default values.
 # Path_Effect            # nullptr                  ##
 # Shader                 # nullptr                  ##
 # Style                  # kFill_Style              ##
-# Text_Align             # kLeft_Align              ##
 # Text_Encoding          # kUTF8_TextEncoding       ##
 # Text_Scale_X           # 1                        ##
 # Text_Size              # 12                       ##
@@ -3307,77 +3306,23 @@ Increments drawLooper Reference_Count by one.
 #Line # text placement relative to position ##
 
 #Enum Align
-#Line # glyph locations relative to text position ##
 #Code
 #Populate
 ##
-
-#Code
-#In Constant
-#Filter kAlign
-#Populate
+#Const kLeft_Align 1
+#Deprecated
 ##
-
-Align adjusts the text relative to the text position.
-Align affects Glyphs drawn with: SkCanvas::drawText, SkCanvas::drawPosText,
-SkCanvas::drawPosTextH, SkCanvas::drawTextRSXform, SkCanvas::drawTextBlob,
-and SkCanvas::drawString;
-as well as calls that place text Glyphs like getTextWidths and getTextPath.
-
-The text position is set by the font for both horizontal and vertical text.
-Typically, for horizontal text, the position is to the left side of the glyph on the
-base line; and for vertical text, the position is the horizontal center of the glyph
-at the caps height.
-
-Align adjusts the glyph position to center it or move it to abut the position
-using the metrics returned by the font.
-
-Align defaults to kLeft_Align.
-
-#Const kLeft_Align 0
-#Line # positions glyph by computed font offset ##
-    Leaves the glyph at the position computed by the font offset by the text position.
+#Const kCenter_Align 2
+#Deprecated
 ##
-
-#Const kCenter_Align 1
-#Line # centers line of glyphs by its width or height ##
-    Moves the glyph half its width.
+#Const kRight_Align 3
+#Deprecated
 ##
-
-#Const kRight_Align 2
-#Line # moves lines of glyphs by its width or height ##
-    Moves the glyph by its width.
-##
-
-#Const kAlignCount 3
-#Line # number of different Text_Align values defined ##
-May be used to verify that Align is a legal value.
-##
-
+#Deprecated
 #Enum ##
 
-#Example
-    #Height 160
-    #Description
-    Each position separately moves the glyph in drawPosText.
-    ##
-
-    #Function
-    ###$
-    #include "SkTextUtils.h"
-    $$$#
-    ##
-
-    void draw(SkCanvas* canvas) {
-        SkPaint paint;
-        paint.setTextSize(40);
-        for (SkPaint::Align a : { SkPaint::kLeft_Align,
-                                  SkPaint::kCenter_Align,
-                                  SkPaint::kRight_Align}) {
-            SkTextUtils::DrawString(canvas, "Aa", 100, 50, paint, a);
-            canvas->translate(0, 50);
-        }
-    }
+#Const kAlignCount 0
+#Deprecated
 ##
 
 #Method Align getTextAlign() const
