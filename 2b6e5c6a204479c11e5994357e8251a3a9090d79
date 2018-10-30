@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "590af6fd_52328990",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-30T15:06:04Z",
+      "side": 1,
+      "message": "So many key types... could this just be GrCCPathCache::Key and then RefKey is just:\n\nclass RefKey : public SkRefCnt {\n//...\nprivate:\n   Key fKey;\n}",
+      "range": {
+        "startLine": 143,
+        "startChar": 6,
+        "endLine": 143,
+        "endChar": 19
+      },
+      "revId": "2b6e5c6a204479c11e5994357e8251a3a9090d79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
