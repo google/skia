@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4abab054_6113362b",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-30T16:00:32Z",
+      "side": 1,
+      "message": "Note to self: Some code uses equality comparison to detect values that have been initialized to ILLEGAL. Thus, NaN would behave incorrectly. Revisit this if we stick with the float plan.",
+      "range": {
+        "startLine": 234,
+        "startChar": 46,
+        "endLine": 234,
+        "endChar": 72
+      },
+      "revId": "26a7f20bc241e63209a6ff03491de994218456b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
