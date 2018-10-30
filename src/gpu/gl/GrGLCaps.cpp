@@ -2941,14 +2941,10 @@ bool GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColor
     return validate_sized_format(*glFormat, ct, config, fStandard);
 }
 
-bool GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
-                                              GrPixelConfig* config) const {
-    const GrGLenum* glFormat = format.getGLFormat();
-    if (!glFormat) {
-        return false;
-    }
+static bool get_yuva_config(GrGLenum format, GrPixelConfig* config) {
+    *config = kUnknown_GrPixelConfig;
 
-    switch (*glFormat) {
+    switch (format) {
     case GR_GL_ALPHA8:
         *config = kAlpha_8_as_Alpha_GrPixelConfig;
         break;
@@ -2969,6 +2965,24 @@ bool GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
     }
 
     return true;
+}
+
+bool GrGLCaps::getYUVAConfigFromBackendTexture(const GrBackendTexture& tex,
+                                               GrPixelConfig* config) const {
+    GrGLTextureInfo texInfo;
+    if (!tex.getGLTextureInfo(&texInfo)) {
+        return false;
+    }
+    return get_yuva_config(texInfo.fFormat, config);
+}
+
+bool GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
+                                              GrPixelConfig* config) const {
+    const GrGLenum* glFormat = format.getGLFormat();
+    if (!glFormat) {
+        return false;
+    }
+    return get_yuva_config(*glFormat, config);
 }
 
 
