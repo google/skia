@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8654b598_a248c598",
+        "filename": "infra/skqp/build_apk.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-10-30T19:13:52Z",
+      "side": 0,
+      "message": "Keep this and add \"And an output directory mounted at /OUT\"",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 72
+      },
+      "revId": "4408b1cf87103aa9a7fcc7e74f0dea1b1f7c4242",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
