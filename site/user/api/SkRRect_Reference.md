@@ -264,7 +264,7 @@ largest Type value</td>
 
 ### Example
 
-<div><fiddle-embed name="38a559936ea7c8d482098c189ee5c9b8"></fiddle-embed></div>
+<div><fiddle-embed name="a4233634c75b72fc7a2815ddb69bd669"></fiddle-embed></div>
 
 ### See Also
 
@@ -335,7 +335,7 @@ true if <a href='#SkRRect_width'>width</a>() or <a href='#SkRRect_height'>height
 
 ### Example
 
-<div><fiddle-embed name="3afe4ea247923e06326aeb2b165c7485"></fiddle-embed></div>
+<div><fiddle-embed name="099d79ecfbdfb0a19c10deb7201859c3"></fiddle-embed></div>
 
 ### See Also
 
@@ -358,7 +358,7 @@ true if not empty, and one radius at each corner is zero
 
 ### Example
 
-<div><fiddle-embed name="e2dcdad0e9cb7ba3e78a9871e9229753"></fiddle-embed></div>
+<div><fiddle-embed name="bc931c9a6eb8ffe7ea8d3fb47e07a475"></fiddle-embed></div>
 
 ### See Also
 
@@ -382,7 +382,7 @@ true if has identical geometry to <a href='undocumented#Oval'>Oval</a>
 
 ### Example
 
-<div><fiddle-embed name="ab9b3aef7896aee80b780789848fbba4"><div>The first radii are scaled down proportionately until both x-axis and y-axis fit
+<div><fiddle-embed name="4dfdb28d8343958425f2c1323fe8170d"><div>The first radii are scaled down proportionately until both x-axis and y-axis fit
 within the bounds. After scaling, x-axis radius is smaller than half the width;
 left <a href='#RRect'>Round Rect</a> is not an oval. The second radii are equal to half the
 dimensions; right <a href='#RRect'>Round Rect</a> is an oval.
@@ -410,7 +410,7 @@ true if not empty, <a href='SkRect_Reference#Rect'>Rect</a> or <a href='undocume
 
 ### Example
 
-<div><fiddle-embed name="65bbb109483ed79edb32027cf71851eb"></fiddle-embed></div>
+<div><fiddle-embed name="f6959ea422a7c6e98ddfad216a52c707"></fiddle-embed></div>
 
 ### See Also
 
@@ -434,7 +434,7 @@ true if not empty, <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocument
 
 ### Example
 
-<div><fiddle-embed name="568cb730e66d0df09a7d9bd9d6142c9e"></fiddle-embed></div>
+<div><fiddle-embed name="429f6dfd4cf6287df3c3c77fa7681c99"></fiddle-embed></div>
 
 ### See Also
 
@@ -460,7 +460,7 @@ true if not empty, <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocument
 
 ### Example
 
-<div><fiddle-embed name="e4ba9346ee5c2d37d5e504f8cc678544"></fiddle-embed></div>
+<div><fiddle-embed name="b62c183dc435d1fc091111fb2f3c3f8e"></fiddle-embed></div>
 
 ### See Also
 
@@ -551,7 +551,7 @@ corner radii for simple types
 
 ### Example
 
-<div><fiddle-embed name="ebcc50ed30240e94de8439d21dd8171c"></fiddle-embed></div>
+<div><fiddle-embed name="81345f7619a072bb2b0cf59810fe86d0"></fiddle-embed></div>
 
 ### See Also
 
@@ -1346,7 +1346,7 @@ true if <a href='#RRect'>Round Rect</a> contains rect
 
 ### Example
 
-<div><fiddle-embed name="884447c809921cfaebc87aeb63dedd48"></fiddle-embed></div>
+<div><fiddle-embed name="0bb057140e4119234bdd2e8dd2f0fa19"></fiddle-embed></div>
 
 ### See Also
 
@@ -1371,7 +1371,7 @@ true if bounds and radii match <a href='#SkRRect_type'>type</a>()
 
 ### Example
 
-<div><fiddle-embed name="d28709aa457742391842a9ab1f21b5fa"></fiddle-embed></div>
+<div><fiddle-embed name="8cc1f21c98c0416f7724ad218f557a00"></fiddle-embed></div>
 
 ### See Also
 
@@ -1416,7 +1416,7 @@ bytes written, <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>
 
 ### Example
 
-<div><fiddle-embed name="1466c844a78fd05a7362537347e360ca"></fiddle-embed></div>
+<div><fiddle-embed name="d6f5a3d21727ddc15e10ef4d5103ff91"></fiddle-embed></div>
 
 ### See Also
 
@@ -1450,7 +1450,7 @@ bytes read, or 0 if <a href='#SkRRect_readFromMemory_length'>length</a> is less 
 
 ### Example
 
-<div><fiddle-embed name="b877c0adff35470865a57aa150bf5329"></fiddle-embed></div>
+<div><fiddle-embed name="50969745cf2b23544362f4cff5592b75"></fiddle-embed></div>
 
 ### See Also
 
@@ -1486,7 +1486,7 @@ true if transformation succeeded.
 
 ### Example
 
-<div><fiddle-embed name="99ccc6862bb9fe3ca35228eee9f9725d"></fiddle-embed></div>
+<div><fiddle-embed name="68a5d24f22e2d798608fce8a20e47fd0"></fiddle-embed></div>
 
 ### See Also
 
