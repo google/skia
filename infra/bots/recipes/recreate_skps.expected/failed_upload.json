@@ -224,9 +224,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Step('Upload SKPs') failed with return_code 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "Upload SKPs"
+      },
+      "humanReason": "Step('Upload SKPs') failed with return_code 1"
+    },
+    "name": "$result"
   }
 ]

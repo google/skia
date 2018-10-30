@@ -45,8 +45,7 @@
     "name": "upload [START_DIR]/perf/buildstats_def.json"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "jsonResult": null,
+    "name": "$result"
   }
 ]

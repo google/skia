@@ -234,8 +234,7 @@
     "name": "Performance tests of canvaskit with Docker"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "jsonResult": null,
+    "name": "$result"
   }
 ]

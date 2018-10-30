@@ -1052,9 +1052,12 @@
     "name": "kill adb server"
   },
   {
-    "name": "$result",
-    "reason": "Failed build steps: dump log",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Failed build steps: dump log"
+    },
+    "name": "$result"
   }
 ]
