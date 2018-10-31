@@ -13,6 +13,7 @@
 #include "SkTInternalLList.h"
 #include "ccpr/GrCCAtlas.h"
 #include "ccpr/GrCCPathProcessor.h"
+#include <deque>
 
 class GrCCPathCacheEntry;
 class GrShape;
@@ -86,7 +87,8 @@ public:
     sk_sp<GrCCPathCacheEntry> find(const GrShape&, const MaskTransform&,
                                    CreateIfAbsent = CreateIfAbsent::kNo);
 
-    void purgeAsNeeded();
+    void doPostFlushProcessing();
+    void purgeEntriesOlderThan(const GrStdSteadyClock::time_point& purgeTime);
 
 private:
     // This is a special ref ptr for GrCCPathCacheEntry, used by the hash table. It provides static
@@ -122,10 +124,22 @@ private:
         fHashTable.remove(key);  // HashNode::willExitHashTable() takes care of the rest.
     }
 
+    void purgeInvalidatedKeys();
+
     SkTHashTable<HashNode, const GrCCPathCache::Key&> fHashTable;
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
     SkMessageBus<sk_sp<Key>>::Inbox fInvalidatedKeysInbox;
     sk_sp<Key> fScratchKey;  // Reused for creating a temporary key in the find() method.
+
+    struct FlushTime {
+        uint64_t ageInMilliseconds(const GrStdSteadyClock::time_point& now) const;
+
+        uint64_t fFlushNumber;
+        GrStdSteadyClock::time_point fTimestamp;
+    };
+
+    std::deque<FlushTime> fFlushTimes;  // Maps flush numbers to timestamps.
+    uint64_t fCurrFlushNumber = 0;
 };
 
 /**
@@ -201,8 +215,9 @@ private:
 
     sk_sp<GrCCPathCache::Key> fCacheKey;
 
+    uint64_t fLastHitFlushNumber = 0;
+    int fHitCount = 0;
     MaskTransform fMaskTransform;
-    int fHitCount = 1;
 
     GrUniqueKey fAtlasKey;
     SkIVector fAtlasOffset;

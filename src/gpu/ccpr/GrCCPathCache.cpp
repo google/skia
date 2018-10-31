@@ -135,6 +135,10 @@ inline void GrCCPathCache::HashNode::willExitHashTable() {
     fPathCache->fLRU.remove(fEntry.get());
 }
 
+uint64_t GrCCPathCache::FlushTime::ageInMilliseconds(
+        const GrStdSteadyClock::time_point& now) const {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - fTimestamp).count();
+}
 
 GrCCPathCache::GrCCPathCache()
         : fInvalidatedKeysInbox(next_path_cache_id())
@@ -209,17 +213,18 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
     if (HashNode* node = fHashTable.find(*fScratchKey)) {
         entry = node->entry();
         SkASSERT(fLRU.isInList(entry));
-        if (fuzzy_equals(m, entry->fMaskTransform)) {
-            ++entry->fHitCount;  // The path was reused with a compatible matrix.
-        } else if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
-            // This entry is unique: we can recycle it instead of deleting and malloc-ing a new one.
-            entry->fMaskTransform = m;
-            entry->fHitCount = 1;
-            entry->invalidateAtlas();
-            SkASSERT(!entry->fCurrFlushAtlas);  // Should be null because 'entry' is unique.
-        } else {
-            this->evict(*fScratchKey);
-            entry = nullptr;
+        if (!fuzzy_equals(m, entry->fMaskTransform)) {
+            // The path was reused with an incompatible matrix.
+            if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
+                // This entry is unique: recycle it instead of deleting and malloc-ing a new one.
+                entry->fMaskTransform = m;
+                entry->fHitCount = 0;
+                entry->invalidateAtlas();
+                SkASSERT(!entry->fCurrFlushAtlas);  // Should be null because 'entry' is unique.
+            } else {
+                this->evict(*fScratchKey);
+                entry = nullptr;
+            }
         }
     }
 
@@ -248,10 +253,67 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
     SkDEBUGCODE(HashNode* node = fHashTable.find(*fScratchKey));
     SkASSERT(node && node->entry() == entry);
     fLRU.addToHead(entry);
+
+    entry->fLastHitFlushNumber = fCurrFlushNumber;
+    ++entry->fHitCount;
     return sk_ref_sp(entry);
 }
 
-void GrCCPathCache::purgeAsNeeded() {
+void GrCCPathCache::doPostFlushProcessing() {
+    this->purgeInvalidatedKeys();
+
+    // Maintain a mapping from flush numbers to timestamps.
+    GrStdSteadyClock::time_point now = GrStdSteadyClock::now();
+
+    // Throw out flush times older than 5 minutes. We can just purge everything older than 5 min.
+    while (!fFlushTimes.empty() && fFlushTimes.back().ageInMilliseconds(now) > 5*60*1000) {
+        fFlushTimes.pop_back();
+    }
+
+    // Map flush numbers to timestamps with a 1-second granularity.
+    if (fFlushTimes.empty() || fFlushTimes.front().ageInMilliseconds(now) > 1000) {
+        fFlushTimes.push_front({fCurrFlushNumber, now});
+    }
+
+    ++fCurrFlushNumber;
+    if (!fCurrFlushNumber) {
+        // We wrapped the 64-bit flush number. Wipe out everything.
+        fFlushTimes.clear();
+        fHashTable.reset();
+        SkASSERT(fLRU.isEmpty());
+    }
+}
+
+void GrCCPathCache::purgeEntriesOlderThan(const GrStdSteadyClock::time_point& purgeTime) {
+    this->purgeInvalidatedKeys();
+
+    // First, drop all flush time mappings older than purgeTime.
+    for (;;) {
+        if (fFlushTimes.empty()) {
+            fHashTable.reset();  // Every flush time was older than purgeTime. Purge everything.
+            SkASSERT(fLRU.isEmpty());
+            return;
+        }
+        if (fFlushTimes.back().fTimestamp < purgeTime) {
+            fFlushTimes.pop_back();  // fFlushTimes.back() was older than purgeTime.
+            continue;
+        }
+        break;
+    }
+
+    // Now, fFlushTimes.back() is the oldest valid timestamp. Drop every cache entry whose flush
+    // number is older than fFlushTimes.back().
+    uint64_t minFlushNumber = fFlushTimes.back().fFlushNumber;
+    SkDEBUGCODE(uint64_t lastFlushNumber = fLRU.isEmpty() ? 0 : fLRU.tail()->fLastHitFlushNumber);
+    while (!fLRU.isEmpty() && fLRU.tail()->fLastHitFlushNumber < minFlushNumber) {
+        // fLRU should be sorted by fLastHitFlushNumber.
+        SkASSERT(fLRU.tail()->fLastHitFlushNumber >= lastFlushNumber);
+        SkDEBUGCODE(lastFlushNumber = fLRU.tail()->fLastHitFlushNumber);
+        this->evict(*fLRU.tail()->fCacheKey);
+    }
+}
+
+void GrCCPathCache::purgeInvalidatedKeys() {
     SkTArray<sk_sp<Key>> invalidatedKeys;
     fInvalidatedKeysInbox.poll(&invalidatedKeys);
     for (const sk_sp<Key>& key : invalidatedKeys) {
