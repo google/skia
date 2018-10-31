@@ -59,7 +59,9 @@ static void compare_pixel(const char* label,
     SkColor4f expected = transform(color,cs, canvas_cs.get());
     if (canvas->imageInfo().colorType() < kRGBA_F16_SkColorType) {
         // We can't expect normalized formats to hold values outside [0,1].
-        expected = expected.pin();
+        for (int i = 0; i < 4; ++i) {
+            expected[i] = SkTPin(expected[i], 0.0f, 1.0f);
+        }
     }
     if (canvas->imageInfo().colorType() == kGray_8_SkColorType) {
         // Drawing into Gray8 is known to be maybe-totally broken.
