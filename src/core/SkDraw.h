@@ -120,8 +120,7 @@ public:
 
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
-    SkGlyphRunListPainter::PaintMasks paintMasksCreator(const SkPaint& paint,
-                                                        SkArenaAlloc* alloc) const;
+    SkGlyphRunListPainter::PaintMasks paintMasksCreator() const;
 
     void drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 

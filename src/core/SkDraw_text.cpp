@@ -38,22 +38,24 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm, Sk
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkGlyphRunListPainter::PaintMasks SkDraw::paintMasksCreator(const SkPaint& paint,
-                                                            SkArenaAlloc* alloc) const {
-    SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, alloc, false);
-    if (fCoverage) {
-        blitter = alloc->make<SkPairBlitter>(
-                blitter,
-                SkBlitter::Choose(*fCoverage, *fMatrix, SkPaint(), alloc, true));
-    }
+SkGlyphRunListPainter::PaintMasks SkDraw::paintMasksCreator() const {
 
-    auto wrapper = alloc->make<SkAAClipBlitterWrapper>(*fRC, blitter);
-    blitter = wrapper->getBlitter();
+    return [this](SkSpan<const SkMask> masks, const SkPaint& paint) {
+        // The size used for a typical blitter.
+        SkSTArenaAlloc<3308> alloc;
+        SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, &alloc, false);
+        if (fCoverage) {
+            blitter = alloc.make<SkPairBlitter>(
+                    blitter,
+                    SkBlitter::Choose(*fCoverage, *fMatrix, SkPaint(), &alloc, true));
+        }
 
-    bool useRegion = fRC->isBW() && !fRC->isRect();
+        SkAAClipBlitterWrapper wrapper{*fRC, blitter};
+        blitter = wrapper.getBlitter();
 
-    if (useRegion) {
-        return [this, blitter](SkSpan<const SkMask> masks, const SkPaint& paint) {
+        bool useRegion = fRC->isBW() && !fRC->isRect();
+
+        if (useRegion) {
             for (const SkMask& mask : masks) {
                 SkRegion::Cliperator clipper(fRC->bwRgn(), mask.fBounds);
 
@@ -73,11 +75,9 @@ SkGlyphRunListPainter::PaintMasks SkDraw::paintMasksCreator(const SkPaint& paint
                     }
                 }
             }
-        };
-    } else {
-        SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
-                                         : fRC->aaRgn().getBounds();
-        return [this, blitter, clipBounds](SkSpan<const SkMask> masks, const SkPaint& paint) {
+        } else {
+            SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
+                                             : fRC->aaRgn().getBounds();
             for (const SkMask& mask : masks) {
                 SkIRect storage;
                 const SkIRect* bounds = &mask.fBounds;
@@ -101,8 +101,8 @@ SkGlyphRunListPainter::PaintMasks SkDraw::paintMasksCreator(const SkPaint& paint
                     blitter->blitMask(mask, *bounds);
                 }
             }
-        };
-    }
+        }
+    };
 }
 
 void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList,
@@ -114,8 +114,8 @@ void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList,
         return;
     }
 
-    auto perMaskBuilder = [this](const SkPaint& paint, SkArenaAlloc* alloc) {
-        return this->paintMasksCreator(paint, alloc);
+    auto perMaskBuilder = [this]() {
+        return this->paintMasksCreator();
     };
 
     auto perPathBuilder = [this]() {
