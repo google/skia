@@ -295,9 +295,7 @@ void SkGlyphRunBuilder::initialize(size_t totalRunSize) {
 
     if (totalRunSize > fMaxTotalRunSize) {
         fMaxTotalRunSize = totalRunSize;
-        fUniqueGlyphIDIndices.reset(fMaxTotalRunSize);
         fPositions.reset(fMaxTotalRunSize);
-        fUniqueGlyphIDs.reset(fMaxTotalRunSize);
     }
 
     fGlyphRunListStorage.clear();
