@@ -26,8 +26,6 @@ struct <a href='#SkRGBA4f'>SkRGBA4f</a> {
     float <a href='#SkRGBA4f_array_operator'>operator[](int index)_const</a>;
     float& <a href='#SkRGBA4f_array1_operator'>operator[](int index)</a>;
     bool <a href='#SkRGBA4f_isOpaque'>isOpaque</a>() const;
-    static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_Pin'>Pin</a>(float r, float g, float b, float a);
-    <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_pin'>pin</a>() const;
     static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_FromColor'>FromColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a>);
     <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkRGBA4f_toSkColor'>toSkColor</a>() const;
     static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_FromPMColor'>FromPMColor</a>(<a href='SkColor_Reference#SkPMColor'>SkPMColor</a>);
@@ -348,66 +346,6 @@ true if <a href='SkColor_Reference#Alpha'>Alpha</a> is one
 ### See Also
 
 <a href='#SkRGBA4f_vec'>vec</a><sup><a href='#SkRGBA4f_vec_2'>[2]</a></sup> <a href='SkColor_Reference#SkColorGetA'>SkColorGetA</a>
-
-<a name='SkRGBA4f_Pin'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_Pin'>Pin</a>(float r, float g, float b, float a)
-</pre>
-
-Constructs and returns <a href='#SkRGBA4f'>SkRGBA4f</a> with each component pinned from zero to one.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkRGBA4f_Pin_r'><code><strong>r</strong></code></a></td>
-    <td>red component</td>
-  </tr>
-  <tr>    <td><a name='SkRGBA4f_Pin_g'><code><strong>g</strong></code></a></td>
-    <td>green component</td>
-  </tr>
-  <tr>    <td><a name='SkRGBA4f_Pin_b'><code><strong>b</strong></code></a></td>
-    <td>blue component</td>
-  </tr>
-  <tr>    <td><a name='SkRGBA4f_Pin_a'><code><strong>a</strong></code></a></td>
-    <td><a href='SkColor_Reference#Alpha'>Alpha</a> component</td>
-  </tr>
-</table>
-
-### Return Value
-
-<a href='#Color4f'>Color4f</a> with valid components
-
-### Example
-
-<div><fiddle-embed name="c989cf16c7f8849874eb008cd701af76"></fiddle-embed></div>
-
-### See Also
-
-<a href='#SkRGBA4f_pin'>pin</a>() <a href='#SkRGBA4f_FromColor'>FromColor</a>
-
-<a name='SkRGBA4f_pin'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_pin'>pin</a>() const
-</pre>
-
-Returns <a href='#SkRGBA4f'>SkRGBA4f</a> with all components in the range from zero to one.
-
-### Return Value
-
-<a href='#SkRGBA4f'>SkRGBA4f</a> with valid components
-
-### Example
-
-<div><fiddle-embed name="9e349862c5189a44d2acef5da24f2e79"></fiddle-embed></div>
-
-### See Also
-
-<a href='#SkRGBA4f_Pin'>Pin</a>
 
 <a name='SkRGBA4f_FromColor'></a>
 

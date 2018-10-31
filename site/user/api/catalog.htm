@@ -8219,22 +8219,6 @@
     "file": "SkColor_Reference",
     "name": "SkPreMultiplyColor"
 },
-    "SkRGBA4f_Pin": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint32_t storage[8];\n    SkImageInfo info = SkImageInfo::MakeN32Premul(8, 1);\n    SkPixmap pixmap(info, storage, info.minRowBytes());\n    pixmap.erase(SK_ColorWHITE);\n    SkIRect bounds = {0, 0, 1, 1};\n    SkColor4f colors[] = { SkColor4f::Pin(1.5, 0.45f,  0.0,  1), \n                           SkColor4f::Pin(1,   0.45f, -0.25, 1),\n                           {1.5, 0.45f,  0.0,  1},\n                           {1,   0.45f, -0.25, 1},\n                         };\n    for (auto color4f : colors) {\n        pixmap.erase(color4f, &bounds);\n        bounds.offset(2, 0);\n    }\n    SkBitmap bitmap;\n    canvas->scale(20, 20);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
-    "width": 256,
-    "height": 40,
-    "hash": "c989cf16c7f8849874eb008cd701af76",
-    "file": "SkColor4f_Reference",
-    "name": "SkRGBA4f::Pin"
-},
-    "SkRGBA4f_pin": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint32_t storage[8];\n    SkImageInfo info = SkImageInfo::MakeN32Premul(8, 1);\n    SkPixmap pixmap(info, storage, info.minRowBytes());\n    pixmap.erase(SK_ColorWHITE);\n    SkIRect bounds = {0, 0, 1, 1};\n    SkColor4f colors[] = { {1.5, 0.45f,  0.0,  1},\n                           {1,   0.45f, -0.25, 1},\n                         };\n    for (auto color4f : colors) {\n        pixmap.erase(color4f, &bounds);\n        bounds.offset(2, 0);\n        pixmap.erase(color4f.pin(), &bounds);\n        bounds.offset(2, 0);\n    }\n    SkBitmap bitmap;\n    canvas->scale(20, 20);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
-    "width": 256,
-    "height": 40,
-    "hash": "9e349862c5189a44d2acef5da24f2e79",
-    "file": "SkColor4f_Reference",
-    "name": "SkRGBA4f::pin()"
-},
     "SkRGBToHSV": {
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    SkPaint bgPaint;\n    bgPaint.setColor(0xafffffff);\n    canvas->drawRect({20, 30, 110, 90}, bgPaint);\n    SkScalar hsv[3];\n    SkColor c = source.getColor(226, 128);\n    SkRGBToHSV(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c), hsv);\n    canvas->drawString((\"h: \" + std::to_string(hsv[0]).substr(0, 6)).c_str(), 27, 45, SkPaint());\n    canvas->drawString((\"s: \" + std::to_string(hsv[1]).substr(0, 6)).c_str(), 27, 65, SkPaint());\n    canvas->drawString((\"v: \" + std::to_string(hsv[2]).substr(0, 6)).c_str(), 27, 85, SkPaint());\n    canvas->drawLine(110, 90, 226, 128, SkPaint());\n}",
     "width": 256,
