@@ -48,9 +48,9 @@ public:
         return Helper::FactoryHelper<NonAARectOp>(context, std::move(paint), r, &local, ClassID());
     }
 
-    const GrColor4h& color() const { return fColor; }
+    const SkPMColor4f& color() const { return fColor; }
 
-    NonAARectOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkRect& r,
+    NonAARectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color, const SkRect& r,
                 const SkRect* localRect, int32_t classID)
             : INHERITED(classID)
             , fColor(color)
@@ -83,10 +83,10 @@ public:
     }
 
 protected:
-    GrColor4h fColor;
-    bool      fHasLocalRect;
-    GrQuad    fLocalQuad;
-    SkRect    fRect;
+    SkPMColor4f fColor;
+    bool        fHasLocalRect;
+    GrQuad      fLocalQuad;
+    SkRect      fRect;
 
 private:
     void onPrepareDraws(Target* target) override {
@@ -144,7 +144,7 @@ private:
         // Setup vertex colors
         GrColor* color = (GrColor*)((intptr_t)vertices + kColorOffset);
         for (int i = 0; i < 4; ++i) {
-            *color = fColor.toGrColor();
+            *color = fColor.toBytes_RGBA();
             color = (GrColor*)((intptr_t)color + vertexStride);
         }
 
@@ -204,15 +204,16 @@ public:
     // We set the initial color of the NonAARectOp based on the ID.
     // Note that we force creation of a NonAARectOp that has local coords in anticipation of
     // pulling from the atlas.
-    AtlasedRectOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkRect& r,
+    AtlasedRectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color, const SkRect& r,
                   int id)
-            : INHERITED(helperArgs, GrColor4h::FromGrColor(kColors[id]), r, &kEmptyRect, ClassID())
+            : INHERITED(helperArgs, SkPMColor4f::FromBytes_RGBA(kColors[id]), r, &kEmptyRect,
+                        ClassID())
             , fID(id)
             , fNext(nullptr) {
         SkASSERT(fID < kMaxIDs);
     }
 
-    void setColor(const GrColor4h& color) { fColor = color; }
+    void setColor(const SkPMColor4f& color) { fColor = color; }
     void setLocalRect(const SkRect& localRect) {
         SkASSERT(fHasLocalRect);    // This should've been created to anticipate this
         fLocalQuad = GrQuad(localRect);
@@ -367,7 +368,7 @@ public:
 
                 // For now, we avoid the resource buffer issues and just use clears
 #if 1
-                rtc->clear(&r, op->color().toGrColor(),
+                rtc->clear(&r, op->color().toBytes_RGBA(),
                            GrRenderTargetContext::CanClearFullscreen::kNo);
 #else
                 GrPaint paint;
@@ -380,7 +381,7 @@ public:
 
                 // Set the atlased Op's color to white (so we know we're not using it for
                 // the final draw).
-                op->setColor(GrColor4h_WHITE);
+                op->setColor(SK_PMColor4fWHITE);
 
                 // Set the atlased Op's localRect to point to where it landed in the atlas
                 op->setLocalRect(SkRect::Make(r));

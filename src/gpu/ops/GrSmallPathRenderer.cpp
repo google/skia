@@ -242,7 +242,7 @@ public:
                                                   stencilSettings);
     }
 
-    SmallPathOp(Helper::MakeArgs helperArgs, const GrColor4h& color, const GrShape& shape,
+    SmallPathOp(Helper::MakeArgs helperArgs, const SkPMColor4f& color, const GrShape& shape,
                 const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas, ShapeCache* shapeCache,
                 ShapeDataList* shapeList, bool gammaCorrect,
                 const GrUserStencilSettings* stencilSettings)
@@ -284,7 +284,7 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fShapes) {
-            string.appendf("Color: 0x%08x\n", geo.fColor.toGrColor());
+            string.appendf("Color: 0x%08x\n", geo.fColor.toBytes_RGBA());
         }
         string += fHelper.dumpInfo();
         string += INHERITED::dumpInfo();
@@ -492,8 +492,8 @@ private:
             fAtlas->setLastUseToken(shapeData->fID, uploadTarget->tokenTracker()->nextDrawToken());
 
             // TODO4F: Preserve float colors
-            this->writePathVertices(
-                    fAtlas, offset, args.fColor.toGrColor(), kVertexStride, args.fViewMatrix, shapeData);
+            this->writePathVertices(fAtlas, offset, args.fColor.toBytes_RGBA(), kVertexStride,
+                                    args.fViewMatrix, shapeData);
             offset += kVerticesPerQuad * kVertexStride;
             flushInfo.fInstancesToFlush++;
         }
@@ -846,7 +846,7 @@ private:
         }
     }
 
-    const GrColor4h& color() const { return fShapes[0].fColor; }
+    const SkPMColor4f& color() const { return fShapes[0].fColor; }
     bool usesDistanceField() const { return fUsesDistanceField; }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -888,9 +888,9 @@ private:
     bool fUsesDistanceField;
 
     struct Entry {
-        GrColor4h fColor;
-        GrShape   fShape;
-        SkMatrix  fViewMatrix;
+        SkPMColor4f fColor;
+        GrShape     fShape;
+        SkMatrix    fViewMatrix;
     };
 
     SkSTArray<1, Entry> fShapes;
