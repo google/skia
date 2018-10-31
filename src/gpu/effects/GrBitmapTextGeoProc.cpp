@@ -20,7 +20,7 @@
 
 class GrGLBitmapTextGeoProc : public GrGLSLGeometryProcessor {
 public:
-    GrGLBitmapTextGeoProc() : fColor(GrColor4h_ILLEGAL), fAtlasSize({0,0}) {}
+    GrGLBitmapTextGeoProc() : fColor(SK_PMColor4fILLEGAL), fAtlasSize({0,0}) {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const GrBitmapTextGeoProc& btgp = args.fGP.cast<GrBitmapTextGeoProc>();
@@ -82,9 +82,7 @@ public:
                  FPCoordTransformIter&& transformIter) override {
         const GrBitmapTextGeoProc& btgp = gp.cast<GrBitmapTextGeoProc>();
         if (btgp.color() != fColor && !btgp.hasVertexColor()) {
-            float c[4];
-            btgp.color().toFloats(c);
-            pdman.set4fv(fColorUniform, 1, c);
+            pdman.set4fv(fColorUniform, 1, btgp.color().vec());
             fColor = btgp.color();
         }
 
@@ -110,7 +108,7 @@ public:
     }
 
 private:
-    GrColor4h     fColor;
+    SkPMColor4f   fColor;
     UniformHandle fColorUniform;
 
     SkISize       fAtlasSize;
@@ -122,7 +120,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
-                                         const GrColor4h& color,
+                                         const SkPMColor4f& color,
                                          const sk_sp<GrTextureProxy>* proxies,
                                          int numActiveProxies,
                                          const GrSamplerState& params, GrMaskFormat format,
@@ -233,7 +231,7 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
     }
 
     return GrBitmapTextGeoProc::Make(*d->caps()->shaderCaps(),
-                                     GrColor4h::FromGrColor(GrRandomColor(d->fRandom)),
+                                     SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                      proxies, 1, samplerState, format,
                                      GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
 }

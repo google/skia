@@ -24,11 +24,11 @@ public:
 
     constexpr GrProcessorAnalysisColor(Opaque opaque = Opaque::kNo)
             : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0)
-            , fColor(GrColor4h_TRANSPARENT) {}
+            , fColor(SK_PMColor4fTRANSPARENT) {}
 
-    GrProcessorAnalysisColor(const GrColor4h& color) { this->setToConstant(color); }
+    GrProcessorAnalysisColor(const SkPMColor4f& color) { this->setToConstant(color); }
 
-    void setToConstant(const GrColor4h& color) {
+    void setToConstant(const SkPMColor4f& color) {
         fColor = color;
         if (color.isOpaque()) {
             fFlags = kColorIsKnown_Flag | kIsOpaque_Flag;
@@ -46,14 +46,14 @@ public:
     bool isConstant(GrColor* color) const {
         if (kColorIsKnown_Flag & fFlags) {
             if (color) {
-                *color = fColor.toGrColor();
+                *color = fColor.toBytes_RGBA();
             }
             return true;
         }
         return false;
     }
 
-    bool isConstant(GrColor4h* color = nullptr) const {
+    bool isConstant(SkPMColor4f* color = nullptr) const {
         if (kColorIsKnown_Flag & fFlags) {
             if (color) {
                 *color = fColor;
@@ -90,7 +90,7 @@ private:
         kIsOpaque_Flag = 0x2,
     };
     uint32_t fFlags;
-    GrColor4h fColor;
+    SkPMColor4f fColor;
 };
 
 enum class GrProcessorAnalysisCoverage { kNone, kSingleChannel, kLCD };
@@ -140,19 +140,12 @@ public:
         return fProcessorsToEliminate;
     }
 
-    int initialProcessorsToEliminate(GrColor4h* newPipelineInputColor) const {
-        if (fProcessorsToEliminate > 0) {
-            *newPipelineInputColor = GrColor4h::FromFloats(fLastKnownOutputColor.vec());
-        }
-        return fProcessorsToEliminate;
-    }
-
     /**
      * Provides known information about the last processor's output color.
      */
     GrProcessorAnalysisColor outputColor() const {
         if (fKnowOutputColor) {
-            return GrColor4h::FromFloats(fLastKnownOutputColor.vec());
+            return fLastKnownOutputColor;
         }
         return fIsOpaque ? GrProcessorAnalysisColor::Opaque::kYes
                          : GrProcessorAnalysisColor::Opaque::kNo;
