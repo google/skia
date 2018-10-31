@@ -29,8 +29,10 @@ var CanvasKit = {
 	LTRBRect: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
+	MakeLinearGradientShader: function() {},
 	MakeNimaActor: function() {},
 	MakeSkDashPathEffect: function() {},
+	MakeSkVertices: function() {},
 	MakeSurface: function() {},
 	currentContext: function() {},
 	getSkDataBytes: function() {},
@@ -39,8 +41,10 @@ var CanvasKit = {
 
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)
+	_MakeLinearGradientShader: function() {},
 	_MakeNimaActor: function() {},
 	_MakeSkDashPathEffect: function() {},
+	_MakeSkVertices: function() {},
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
 
@@ -167,6 +171,10 @@ var CanvasKit = {
 	 * @type {Uint8Array}
 	 */
 	HEAPU8: {},
+	/**
+	 * @type {Int32Array}
+	 */
+	HEAP32: {},
 
 	_malloc: function() {},
 	_free: function() {},
