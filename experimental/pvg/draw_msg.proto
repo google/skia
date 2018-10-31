@@ -1,0 +1,76 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+syntax = "proto3";
+
+package pvg;
+
+enum ClipVerb {
+    INTERSECT = 0;
+    DIFFERENCE = 1;
+}
+
+message Rect {
+    float left = 1;
+    float top = 2;
+    float right = 3;
+    float bottom = 4;
+}
+
+message Color {
+    float r = 1;
+    float g = 2;
+    float b = 3;
+    float a = 4;
+}
+
+message Matrix33 {
+    float m0 = 1;
+    float m1 = 2;
+    float m2 = 3;
+    float m3 = 4;
+    float m4 = 5;
+    float m5 = 6;
+    float m6 = 7;
+    float m7 = 8;
+    float m8 = 9;
+}
+
+message Save {}
+message Restore {}
+
+message Concat {
+    Matrix33 matrix = 1;
+}
+
+message ClipRect {
+    Rect     rect      = 1;
+    bool     antialias = 2;
+    ClipVerb verb      = 3;
+}
+
+message DrawRect {
+    Rect    rect    = 1;
+    Color   color   = 2;
+}
+
+message DrawOval {
+    Rect    oval    = 1;
+    Color   color   = 2;
+}
+
+message DrawMsg {
+    oneof msg {
+        Save     save      = 1;
+        Restore  restore   = 2;
+        Concat   concat    = 3;
+        ClipRect clip_rect = 4;
+
+        DrawRect draw_rect = 5;
+        DrawOval draw_oval = 6;
+    }
+}
