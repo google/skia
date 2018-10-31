@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c512488_4235d4fc",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-31T17:46:35Z",
+      "side": 1,
+      "message": "Now that we don\u0027t need to extend its lifetime, I think this can now be\n\n  SkAAClipBlitterWrapper wrapper(*fRC, blitter);\n  blitter \u003d wrapper.getBlitter();\n\nAnd the 3332 can probably drop to balance.  Basically the same deal, just a little simpler now that the alloc is scoped to this same stack frame.",
+      "revId": "6c4a218f4dd2170ac27e486fdf6a8c9322262cc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
