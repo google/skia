@@ -481,7 +481,7 @@ public:
     */
     SkColor getColor() const { return fColor4f.toSkColor(); }
 
-    /** Retrieves alpha and RGB, unpmreultiplied, as four floating point values. RGB are
+    /** Retrieves alpha and RGB, unpremultiplied, as four floating point values. RGB are
         are extended sRGB values (sRGB gamut, and encoded with the sRGB transfer function).
 
         @return  unpremultiplied RGBA
@@ -631,7 +631,7 @@ public:
         @param src       SkPath read to create a filled version
         @param dst       resulting SkPath; may be the same as src, but may not be nullptr
         @param cullRect  optional limit passed to SkPathEffect
-        @param resScale  if > 1, increase precision, else if (0 < res < 1) reduce precision
+        @param resScale  if > 1, increase precision, else if (0 < resScale < 1) reduce precision
                          to favor speed and size
         @return          true if the path represents style fill, or false if it represents hairline
     */
@@ -903,31 +903,31 @@ public:
     */
     void setTextSize(SkScalar textSize);
 
-    /** Returns text scale x.
+    /** Returns text scale on x-axis.
         Default value is 1.
 
         @return  text horizontal scale
     */
     SkScalar getTextScaleX() const { return fTextScaleX; }
 
-    /** Sets text scale x.
+    /** Sets text scale on x-axis.
         Default value is 1.
 
         @param scaleX  text horizontal scale
     */
     void setTextScaleX(SkScalar scaleX);
 
-    /** Returns text skew x.
+    /** Returns text skew on x-axis.
         Default value is zero.
 
-        @return  additional shear in x-axis relative to y-axis
+        @return  additional shear on x-axis relative to y-axis
     */
     SkScalar getTextSkewX() const { return fTextSkewX; }
 
-    /** Sets text skew x.
+    /** Sets text skew on x-axis.
         Default value is zero.
 
-        @param skewX  additional shear in x-axis relative to y-axis
+        @param skewX  additional shear on x-axis relative to y-axis
     */
     void setTextSkewX(SkScalar skewX);
 
@@ -1200,7 +1200,7 @@ public:
     }
 
     /** Returns the bytes of text that fit within maxWidth.
-        Tthe text fragment fits if its advance width is less than or equal to maxWidth.
+        The text fragment fits if its advance width is less than or equal to maxWidth.
         Measures only while the advance is less than or equal to maxWidth.
         Returns the advance or the text fragment in measuredWidth if it not nullptr.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
@@ -1324,8 +1324,8 @@ public:
 
         @param text       character codes or glyph indices
         @param length     number of bytes of text
-        @param xpos       positions of each glyph in x
-        @param constY     position of each glyph in y
+        @param xpos       positions of each glyph on x-axis
+        @param constY     position of each glyph on y-axis
         @param bounds     lower and upper line parallel to the advance
         @param intervals  returned intersections; may be nullptr
         @return           number of intersections; may be zero
@@ -1361,8 +1361,8 @@ public:
         and text skew x, but not fake bold or SkPathEffect.
 
         If text size is large, text scale x is one, and text skew x is zero,
-        returns the same bounds as SkPaint::FontMetrics { FontMetrics::fXMin,
-        FontMetrics::fTop, FontMetrics::fXMax, FontMetrics::fBottom }.
+        returns the same bounds as:
+        { FontMetrics::fXMin, FontMetrics::fTop, FontMetrics::fXMax, FontMetrics::fBottom }.
 
         @return  union of bounds of all glyphs
     */
