@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ea9c6bfe_efe62329",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1802,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-31T17:30:13Z",
+      "side": 1,
+      "message": "The motivation for this change is to not have to track whether we merge. Of course it is possible to track it in the new code, but it would be a nice simplification to not have to.",
+      "parentUuid": "da087283_4b88765f",
+      "range": {
+        "startLine": 1802,
+        "startChar": 8,
+        "endLine": 1802,
+        "endChar": 17
+      },
+      "revId": "7e75b9841c5bb35d1478ed966bd25cab128d6a20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f0959c1b_d3bd5ecc",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 2
