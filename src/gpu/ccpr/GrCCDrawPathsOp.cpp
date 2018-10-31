@@ -120,7 +120,7 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
         : GrDrawOp(ClassID())
         , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
         , fDraws(m, shape, strokeDevWidth, shapeConservativeIBounds, maskDevIBounds, maskVisibility,
-                 GrColor4h::FromFloats(paint.getColor4f().vec()))
+                 paint.getColor4f())
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
@@ -139,7 +139,7 @@ GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
                                         float strokeDevWidth,
                                         const SkIRect& shapeConservativeIBounds,
                                         const SkIRect& maskDevIBounds, Visibility maskVisibility,
-                                        const GrColor4h& color)
+                                        const SkPMColor4f& color)
         : fMatrix(m)
         , fShape(shape)
         , fStrokeDevWidth(strokeDevWidth)
@@ -199,8 +199,8 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
 
         // TODO4F: Preserve float colors
         // fShapeConservativeIBounds already accounted for this possibility of inflating the stroke.
-        draw->fColor = GrColor4h::FromGrColor(
-                GrColorMul(draw->fColor.toGrColor(), coverageAsAlpha));
+        draw->fColor = SkPMColor4f::FromBytes_RGBA(
+                GrColorMul(draw->fColor.toBytes_RGBA(), coverageAsAlpha));
     }
 
     return RequiresDstTexture(analysis.requiresDstTexture());
@@ -327,7 +327,7 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
                 this->recordInstance(proxy, resources->nextPathInstanceIdx());
                 // TODO4F: Preserve float colors
                 resources->appendDrawPathInstance().set(*cacheEntry, draw.fCachedMaskShift,
-                                                        draw.fColor.toGrColor());
+                                                        draw.fColor.toBytes_RGBA());
                 continue;
             }
 
@@ -337,7 +337,7 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
                 this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
                 // TODO4F: Preserve float colors
                 resources->appendDrawPathInstance().set(
-                        *cacheEntry, draw.fCachedMaskShift, draw.fColor.toGrColor(),
+                        *cacheEntry, draw.fCachedMaskShift, draw.fColor.toBytes_RGBA(),
                         cacheEntry->hasCachedAtlas() ? DoEvenOddFill::kNo : doEvenOddFill);
                 continue;
             }
@@ -355,7 +355,7 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
                 this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
                 // TODO4F: Preserve float colors
                 resources->appendDrawPathInstance().set(*cacheEntry, draw.fCachedMaskShift,
-                                                        draw.fColor.toGrColor());
+                                                        draw.fColor.toBytes_RGBA());
                 // Remember this atlas in case we encounter the path again during the same flush.
                 cacheEntry->setCurrFlushAtlas(atlas);
                 continue;
@@ -376,7 +376,7 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
             this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
             // TODO4F: Preserve float colors
             resources->appendDrawPathInstance().set(devBounds, devBounds45, devToAtlasOffset,
-                                                    draw.fColor.toGrColor(), doEvenOddFill);
+                                                    draw.fColor.toBytes_RGBA(), doEvenOddFill);
 
             // If we have a spot in the path cache, try to make a note of where this mask is so we
             // can reuse it in the future.
