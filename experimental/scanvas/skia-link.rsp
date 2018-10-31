@@ -1,0 +1,12 @@
+-rdynamic
+-Wl,--start-group
+../../out/default/libskia.a
+../../out/default/libsksg.a
+-lpthread
+-lGLU
+-lX11
+-ldl
+-lfreetype
+-lfontconfig
+-lGL
+-Wl,--end-group
