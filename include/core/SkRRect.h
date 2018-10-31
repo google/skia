@@ -107,14 +107,14 @@ public:
     /** Returns span on the x-axis. This does not check if result fits in 32-bit float;
         result may be infinity.
 
-        @return  bounds().fRight minus bounds().fLeft
+        @return  rect().fRight minus rect().fLeft
     */
     SkScalar width() const { return fRect.width(); }
 
     /** Returns span on the y-axis. This does not check if result fits in 32-bit float;
         result may be infinity.
 
-        @return  bounds().fBottom minus bounds().fTop
+        @return  rect().fBottom minus rect().fTop
     */
     SkScalar height() const { return fRect.height(); }
 
@@ -310,7 +310,7 @@ public:
     /** Returns true if bounds and radii in a are equal to bounds and radii in b.
 
         a and b are not equal if either contain NaN. a and b are equal if members
-        contain zeroes width different signs.
+        contain zeroes with different signs.
 
         @param a  SkRect bounds and radii to compare
         @param b  SkRect bounds and radii to compare
@@ -323,7 +323,7 @@ public:
     /** Returns true if bounds and radii in a are not equal to bounds and radii in b.
 
         a and b are not equal if either contain NaN. a and b are equal if members
-        contain zeroes width different signs.
+        contain zeroes with different signs.
 
         @param a  SkRect bounds and radii to compare
         @param b  SkRect bounds and radii to compare

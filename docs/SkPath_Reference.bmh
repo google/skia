@@ -2762,8 +2762,8 @@ to Point_Array.
 
 # ------------------------------------------------------------------------------
 
-#Method SkPath& rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
-                  SkScalar x3, SkScalar y3)
+#Method SkPath& rCubicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2,
+                  SkScalar dx3, SkScalar dy3)
 #In Build
 #In Cubic
 #Line # appends Cubic relative to Last_Point ##
@@ -2780,12 +2780,12 @@ to Point_Array.
     Cubic end is Last_Point plus Vector (dx2, dy2).
     Function name stands for "relative cubic to".
 
-    #Param x1  offset from Last_Point to first Cubic control on x-axis ##
-    #Param y1  offset from Last_Point to first Cubic control on y-axis ##
-    #Param x2  offset from Last_Point to second Cubic control on x-axis ##
-    #Param y2  offset from Last_Point to second Cubic control on y-axis ##
-    #Param x3  offset from Last_Point to Cubic end on x-axis ##
-    #Param y3  offset from Last_Point to Cubic end on y-axis ##
+    #Param dx1  offset from Last_Point to first Cubic control on x-axis ##
+    #Param dy1  offset from Last_Point to first Cubic control on y-axis ##
+    #Param dx2  offset from Last_Point to second Cubic control on x-axis ##
+    #Param dy2  offset from Last_Point to second Cubic control on y-axis ##
+    #Param dx3  offset from Last_Point to Cubic end on x-axis ##
+    #Param dy3  offset from Last_Point to Cubic end on y-axis ##
 
     #Return reference to Path ##
 

@@ -90,8 +90,8 @@ public:
     <a href='#SkPath'>SkPath</a>& <a href='#SkPath_cubicTo'>cubicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2,
                     <a href='undocumented#SkScalar'>SkScalar</a> x3, <a href='undocumented#SkScalar'>SkScalar</a> y3);
     <a href='#SkPath'>SkPath</a>& <a href='#SkPath_cubicTo_2'>cubicTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p2, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p3);
-    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_rCubicTo'>rCubicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2,
-                     <a href='undocumented#SkScalar'>SkScalar</a> x3, <a href='undocumented#SkScalar'>SkScalar</a> y3);
+    <a href='#SkPath'>SkPath</a>& <a href='#SkPath_rCubicTo'>rCubicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx1, <a href='undocumented#SkScalar'>SkScalar</a> dy1, <a href='undocumented#SkScalar'>SkScalar</a> dx2, <a href='undocumented#SkScalar'>SkScalar</a> dy2,
+                     <a href='undocumented#SkScalar'>SkScalar</a> dx3, <a href='undocumented#SkScalar'>SkScalar</a> dy3);
     <a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo'>arcTo</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& oval, <a href='undocumented#SkScalar'>SkScalar</a> startAngle, <a href='undocumented#SkScalar'>SkScalar</a> sweepAngle, bool forceMoveTo);
     <a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo_2'>arcTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2, <a href='undocumented#SkScalar'>SkScalar</a> radius);
     <a href='#SkPath'>SkPath</a>& <a href='#SkPath_arcTo_3'>arcTo</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> p1, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> p2, <a href='undocumented#SkScalar'>SkScalar</a> radius);
@@ -2743,39 +2743,39 @@ reference to <a href='#Path'>Path</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath'>SkPath</a>& <a href='#SkPath_rCubicTo'>rCubicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> x1, <a href='undocumented#SkScalar'>SkScalar</a> y1, <a href='undocumented#SkScalar'>SkScalar</a> x2, <a href='undocumented#SkScalar'>SkScalar</a> y2, <a href='undocumented#SkScalar'>SkScalar</a> x3, <a href='undocumented#SkScalar'>SkScalar</a> y3)
+<a href='#SkPath'>SkPath</a>& <a href='#SkPath_rCubicTo'>rCubicTo</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx1, <a href='undocumented#SkScalar'>SkScalar</a> dy1, <a href='undocumented#SkScalar'>SkScalar</a> dx2, <a href='undocumented#SkScalar'>SkScalar</a> dy2, <a href='undocumented#SkScalar'>SkScalar</a> dx3, <a href='undocumented#SkScalar'>SkScalar</a> dy3)
 </pre>
 
-Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Vector'>Vector</a> (dx1, dy1), then towards
-<a href='SkPoint_Reference#Vector'>Vector</a> (dx2, dy2), to <a href='SkPoint_Reference#Vector'>Vector</a> (dx3, dy3).
+Adds <a href='#Cubic'>Cubic</a> from <a href='#Last_Point'>Last Point</a> towards <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rCubicTo_dx1'>dx1</a>, <a href='#SkPath_rCubicTo_dy1'>dy1</a>), then towards
+<a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rCubicTo_dx2'>dx2</a>, <a href='#SkPath_rCubicTo_dy2'>dy2</a>), to <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rCubicTo_dx3'>dx3</a>, <a href='#SkPath_rCubicTo_dy3'>dy3</a>).
 If <a href='#Path'>Path</a> is empty, or last <a href='#SkPath_Verb'>Verb</a>
 is <a href='#SkPath_kClose_Verb'>kClose Verb</a>, <a href='#Last_Point'>Last Point</a> is set to (0, 0) before adding <a href='#Cubic'>Cubic</a>.
 
 Appends <a href='#SkPath_kMove_Verb'>kMove Verb</a> to <a href='#Verb_Array'>Verb Array</a> and (0, 0) to <a href='#Point_Array'>Point Array</a>,
 if needed; then appends <a href='#SkPath_kCubic_Verb'>kCubic Verb</a> to <a href='#Verb_Array'>Verb Array</a>; and appends <a href='#Cubic'>Cubic</a>
 control and <a href='#Cubic'>Cubic</a> end to <a href='#Point_Array'>Point Array</a>.
-<a href='#Cubic'>Cubic</a> control is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (dx1, dy1).
-<a href='#Cubic'>Cubic</a> end is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (dx2, dy2).
+<a href='#Cubic'>Cubic</a> control is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rCubicTo_dx1'>dx1</a>, <a href='#SkPath_rCubicTo_dy1'>dy1</a>).
+<a href='#Cubic'>Cubic</a> end is <a href='#Last_Point'>Last Point</a> plus <a href='SkPoint_Reference#Vector'>Vector</a> (<a href='#SkPath_rCubicTo_dx2'>dx2</a>, <a href='#SkPath_rCubicTo_dy2'>dy2</a>).
 Function name stands for "relative cubic to".
 
 ### Parameters
 
-<table>  <tr>    <td><a name='SkPath_rCubicTo_x1'><code><strong>x1</strong></code></a></td>
+<table>  <tr>    <td><a name='SkPath_rCubicTo_dx1'><code><strong>dx1</strong></code></a></td>
     <td>offset from <a href='#Last_Point'>Last Point</a> to first <a href='#Cubic'>Cubic</a> control on x-axis</td>
   </tr>
-  <tr>    <td><a name='SkPath_rCubicTo_y1'><code><strong>y1</strong></code></a></td>
+  <tr>    <td><a name='SkPath_rCubicTo_dy1'><code><strong>dy1</strong></code></a></td>
     <td>offset from <a href='#Last_Point'>Last Point</a> to first <a href='#Cubic'>Cubic</a> control on y-axis</td>
   </tr>
-  <tr>    <td><a name='SkPath_rCubicTo_x2'><code><strong>x2</strong></code></a></td>
+  <tr>    <td><a name='SkPath_rCubicTo_dx2'><code><strong>dx2</strong></code></a></td>
     <td>offset from <a href='#Last_Point'>Last Point</a> to second <a href='#Cubic'>Cubic</a> control on x-axis</td>
   </tr>
-  <tr>    <td><a name='SkPath_rCubicTo_y2'><code><strong>y2</strong></code></a></td>
+  <tr>    <td><a name='SkPath_rCubicTo_dy2'><code><strong>dy2</strong></code></a></td>
     <td>offset from <a href='#Last_Point'>Last Point</a> to second <a href='#Cubic'>Cubic</a> control on y-axis</td>
   </tr>
-  <tr>    <td><a name='SkPath_rCubicTo_x3'><code><strong>x3</strong></code></a></td>
+  <tr>    <td><a name='SkPath_rCubicTo_dx3'><code><strong>dx3</strong></code></a></td>
     <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Cubic'>Cubic</a> end on x-axis</td>
   </tr>
-  <tr>    <td><a name='SkPath_rCubicTo_y3'><code><strong>y3</strong></code></a></td>
+  <tr>    <td><a name='SkPath_rCubicTo_dy3'><code><strong>dy3</strong></code></a></td>
     <td>offset from <a href='#Last_Point'>Last Point</a> to <a href='#Cubic'>Cubic</a> end on y-axis</td>
   </tr>
 </table>
