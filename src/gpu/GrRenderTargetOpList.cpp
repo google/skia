@@ -341,10 +341,10 @@ GrOp::CombineResult GrRenderTargetOpList::combineIfPossible(const RecordedOp& a,
     return a.fOp->combineIfPossible(b, caps);
 }
 
-uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
-                                        const GrCaps& caps,
-                                        GrAppliedClip* clip,
-                                        const DstProxy* dstProxy) {
+void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
+                                    const GrCaps& caps,
+                                    GrAppliedClip* clip,
+                                    const DstProxy* dstProxy) {
     SkDEBUGCODE(op->validate();)
     SkASSERT(fTarget.get());
 
@@ -382,7 +382,7 @@ uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                     GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
                     GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
                     fOpMemoryPool->release(std::move(op));
-                    return SK_InvalidUniqueID;
+                    return;
                 case GrOp::CombineResult::kCannotCombine:
                     break;
             }
@@ -407,7 +407,6 @@ uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         SkDEBUGCODE(fNumClips++;)
     }
     fRecordedOps.emplace_back(std::move(op), clip, dstProxy);
-    return this->uniqueID();
 }
 
 void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {

@@ -23,7 +23,6 @@
 #include "text/GrTextTarget.h"
 
 class GrBackendSemaphore;
-class GrCCPRAtlas;
 class GrClip;
 class GrColorSpaceXform;
 class GrCoverageCountingPathRenderer;
@@ -463,10 +462,14 @@ private:
     void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,
                                     const GrShape&);
 
-    // These perform processing specific to Gr[Mesh]DrawOp-derived ops before recording them into
-    // the op list. They return the id of the opList to which the op was added, or 0, if it was
-    // dropped (e.g., due to clipping or being combined).
-    uint32_t addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
+    // Allows caller of addDrawOp to know which op list an op will be added to.
+    using WillAddOpFn = void(GrOp*, uint32_t opListID);
+    // These perform processing specific to GrDrawOp-derived ops before recording them into an
+    // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
+    // will not be called in the event that the op is discarded. Moreover, the op may merge into
+    // another op after the function is called (either before addDrawOp returns or some time later).
+    void addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>,
+                   const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return

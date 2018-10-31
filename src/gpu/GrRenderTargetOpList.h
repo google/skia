@@ -61,26 +61,18 @@ public:
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
 
-    /**
-     * Returns this opList's id if the Op was recorded, or SK_InvalidUniqueID if it was combined
-     * into an existing Op or otherwise deleted.
-     */
-    uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
+    void addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
         auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
             this->addDependency(p, caps);
         };
 
         op->visitProxies(addDependency);
 
-        return this->recordOp(std::move(op), caps);
+        this->recordOp(std::move(op), caps);
     }
 
-    /**
-     * Returns this opList's id if the Op was recorded, or SK_InvalidUniqueID if it was combined
-     * into an existing Op or otherwise deleted.
-     */
-    uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps,
-                   GrAppliedClip&& clip, const DstProxy& dstProxy) {
+    void addOp(std::unique_ptr<GrOp> op, const GrCaps& caps, GrAppliedClip&& clip,
+               const DstProxy& dstProxy) {
         auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
             this->addDependency(p, caps);
         };
@@ -91,7 +83,7 @@ public:
             addDependency(dstProxy.proxy());
         }
 
-        return this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstProxy);
+        this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstProxy);
     }
 
     void discard();
@@ -162,10 +154,8 @@ private:
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    // Returns this opList's id if the Op was recorded, or SK_InvalidUniqueID if it was combined
-    // into an existing Op or otherwise deleted.
-    uint32_t recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
-                      GrAppliedClip* = nullptr, const DstProxy* = nullptr);
+    void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps, GrAppliedClip* = nullptr,
+                  const DstProxy* = nullptr);
 
     void forwardCombine(const GrCaps&);
 
