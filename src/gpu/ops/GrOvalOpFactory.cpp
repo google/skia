@@ -957,8 +957,9 @@ public:
                                                radius, style, arcParams);
     }
 
-    CircleOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkMatrix& viewMatrix,
-             SkPoint center, SkScalar radius, const GrStyle& style, const ArcParams* arcParams)
+    CircleOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+             const SkMatrix& viewMatrix, SkPoint center, SkScalar radius, const GrStyle& style,
+             const ArcParams* arcParams)
             : GrMeshDrawOp(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
         const SkStrokeRec& stroke = style.strokeRec();
         SkStrokeRec::Style recStyle = stroke.getStyle();
@@ -1147,7 +1148,7 @@ public:
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f\n",
-                    fCircles[i].fColor.toGrColor(), fCircles[i].fDevBounds.fLeft,
+                    fCircles[i].fColor.toBytes_RGBA(), fCircles[i].fDevBounds.fLeft,
                     fCircles[i].fDevBounds.fTop, fCircles[i].fDevBounds.fRight,
                     fCircles[i].fDevBounds.fBottom, fCircles[i].fInnerRadius,
                     fCircles[i].fOuterRadius);
@@ -1158,7 +1159,7 @@ public:
     }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrColor4h* color = &fCircles.front().fColor;
+        SkPMColor4f* color = &fCircles.front().fColor;
         return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
                                             color);
     }
@@ -1218,7 +1219,7 @@ private:
             SkScalar innerRadius = circle.fInnerRadius;
             SkScalar outerRadius = circle.fOuterRadius;
             // TODO4F: Preserve float colors
-            GrColor color = circle.fColor.toGrColor();
+            GrColor color = circle.fColor.toBytes_RGBA();
             const SkRect& bounds = circle.fDevBounds;
 
             CircleVertex* v0 = reinterpret_cast<CircleVertex*>(vertices + 0 * vertexStride);
@@ -1528,7 +1529,7 @@ private:
     }
 
     struct Circle {
-        GrColor4h fColor;
+        SkPMColor4f fColor;
         SkScalar fInnerRadius;
         SkScalar fOuterRadius;
         SkScalar fClipPlane[3];
@@ -1577,7 +1578,7 @@ public:
                                                             onAngle, offAngle, phaseAngle);
     }
 
-    ButtCapDashedCircleOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+    ButtCapDashedCircleOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                           const SkMatrix& viewMatrix, SkPoint center, SkScalar radius,
                           SkScalar strokeWidth, SkScalar startAngle, SkScalar onAngle,
                           SkScalar offAngle, SkScalar phaseAngle)
@@ -1662,7 +1663,7 @@ public:
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f, OnAngle: %.2f, TotalAngle: %.2f, "
                     "Phase: %.2f\n",
-                    fCircles[i].fColor.toGrColor(), fCircles[i].fDevBounds.fLeft,
+                    fCircles[i].fColor.toBytes_RGBA(), fCircles[i].fDevBounds.fLeft,
                     fCircles[i].fDevBounds.fTop, fCircles[i].fDevBounds.fRight,
                     fCircles[i].fDevBounds.fBottom, fCircles[i].fInnerRadius,
                     fCircles[i].fOuterRadius, fCircles[i].fOnAngle, fCircles[i].fTotalAngle,
@@ -1674,7 +1675,7 @@ public:
     }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrColor4h* color = &fCircles.front().fColor;
+        SkPMColor4f* color = &fCircles.front().fColor;
         return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
                                             color);
     }
@@ -1738,7 +1739,7 @@ private:
             }
 
             // TODO4F: Preserve float colors
-            GrColor color = circle.fColor.toGrColor();
+            GrColor color = circle.fColor.toBytes_RGBA();
 
             // The bounding geometry for the circle is composed of an outer bounding octagon and
             // an inner bounded octagon.
@@ -1841,7 +1842,7 @@ private:
     }
 
     struct Circle {
-        GrColor4h fColor;
+        SkPMColor4f fColor;
         SkScalar fOuterRadius;
         SkScalar fInnerRadius;
         SkScalar fOnAngle;
@@ -1943,7 +1944,7 @@ public:
                                                 params, stroke);
     }
 
-    EllipseOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+    EllipseOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
               const SkMatrix& viewMatrix, const DeviceSpaceParams& params,
               const SkStrokeRec& stroke)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
@@ -1980,7 +1981,7 @@ public:
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                     "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
-                    geo.fColor.toGrColor(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
+                    geo.fColor.toBytes_RGBA(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
                     geo.fDevBounds.fRight, geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius,
                     geo.fInnerXRadius, geo.fInnerYRadius);
         }
@@ -1990,7 +1991,7 @@ public:
     }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrColor4h* color = &fEllipses.front().fColor;
+        SkPMColor4f* color = &fEllipses.front().fColor;
         return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
                                             color);
     }
@@ -2016,7 +2017,7 @@ private:
 
         for (const auto& ellipse : fEllipses) {
             // TODO4F: Preserve float colors
-            GrColor color = ellipse.fColor.toGrColor();
+            GrColor color = ellipse.fColor.toBytes_RGBA();
             SkScalar xRadius = ellipse.fXRadius;
             SkScalar yRadius = ellipse.fYRadius;
 
@@ -2087,7 +2088,7 @@ private:
     }
 
     struct Ellipse {
-        GrColor4h fColor;
+        SkPMColor4f fColor;
         SkScalar fXRadius;
         SkScalar fYRadius;
         SkScalar fInnerXRadius;
@@ -2182,7 +2183,7 @@ public:
         return Helper::FactoryHelper<DIEllipseOp>(context, std::move(paint), params, viewMatrix);
     }
 
-    DIEllipseOp(Helper::MakeArgs& helperArgs, const GrColor4h& color,
+    DIEllipseOp(Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                 const DeviceSpaceParams& params, const SkMatrix& viewMatrix)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
         // This expands the outer rect so that after CTM we end up with a half-pixel border
@@ -2217,7 +2218,7 @@ public:
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], XRad: %.2f, "
                     "YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f, GeoDX: %.2f, "
                     "GeoDY: %.2f\n",
-                    geo.fColor.toGrColor(), geo.fBounds.fLeft, geo.fBounds.fTop,
+                    geo.fColor.toBytes_RGBA(), geo.fBounds.fLeft, geo.fBounds.fTop,
                     geo.fBounds.fRight, geo.fBounds.fBottom, geo.fXRadius, geo.fYRadius,
                     geo.fInnerXRadius, geo.fInnerYRadius, geo.fGeoDx, geo.fGeoDy);
         }
@@ -2227,7 +2228,7 @@ public:
     }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrColor4h* color = &fEllipses.front().fColor;
+        SkPMColor4f* color = &fEllipses.front().fColor;
         return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
                                             color);
     }
@@ -2249,7 +2250,7 @@ private:
 
         for (const auto& ellipse : fEllipses) {
             // TODO4F: Preserve float colors
-            GrColor color = ellipse.fColor.toGrColor();
+            GrColor color = ellipse.fColor.toBytes_RGBA();
             SkScalar xRadius = ellipse.fXRadius;
             SkScalar yRadius = ellipse.fYRadius;
 
@@ -2323,7 +2324,7 @@ private:
 
     struct Ellipse {
         SkMatrix fViewMatrix;
-        GrColor4h fColor;
+        SkPMColor4f fColor;
         SkScalar fXRadius;
         SkScalar fYRadius;
         SkScalar fInnerXRadius;
@@ -2486,7 +2487,7 @@ public:
                                                       devRect, devRadius,
                                                       devStrokeWidth, strokeOnly);
     }
-    CircularRRectOp(Helper::MakeArgs& helperArgs, const GrColor4h& color,
+    CircularRRectOp(Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                     const SkMatrix& viewMatrix, const SkRect& devRect, float devRadius,
                     float devStrokeWidth, bool strokeOnly)
             : INHERITED(ClassID())
@@ -2550,7 +2551,7 @@ public:
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f\n",
-                    fRRects[i].fColor.toGrColor(), fRRects[i].fDevBounds.fLeft,
+                    fRRects[i].fColor.toBytes_RGBA(), fRRects[i].fDevBounds.fLeft,
                     fRRects[i].fDevBounds.fTop, fRRects[i].fDevBounds.fRight,
                     fRRects[i].fDevBounds.fBottom, fRRects[i].fInnerRadius,
                     fRRects[i].fOuterRadius);
@@ -2561,7 +2562,7 @@ public:
     }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrColor4h* color = &fRRects.front().fColor;
+        SkPMColor4f* color = &fRRects.front().fColor;
         return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
                                             color);
     }
@@ -2678,7 +2679,7 @@ private:
         int currStartVertex = 0;
         for (const auto& rrect : fRRects) {
             // TODO4F: Preserve float colors
-            GrColor color = rrect.fColor.toGrColor();
+            GrColor color = rrect.fColor.toBytes_RGBA();
             SkScalar outerRadius = rrect.fOuterRadius;
             const SkRect& bounds = rrect.fDevBounds;
 
@@ -2782,7 +2783,7 @@ private:
     }
 
     struct RRect {
-        GrColor4h fColor;
+        SkPMColor4f fColor;
         SkScalar fInnerRadius;
         SkScalar fOuterRadius;
         SkRect fDevBounds;
@@ -2873,7 +2874,7 @@ public:
                                                         strokeOnly);
     }
 
-    EllipticalRRectOp(Helper::MakeArgs helperArgs, const GrColor4h& color,
+    EllipticalRRectOp(Helper::MakeArgs helperArgs, const SkPMColor4f& color,
                       const SkMatrix& viewMatrix, const SkRect& devRect, float devXRadius,
                       float devYRadius, SkVector devStrokeHalfWidths, bool strokeOnly)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
@@ -2916,7 +2917,7 @@ public:
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                     "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
-                    geo.fColor.toGrColor(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
+                    geo.fColor.toBytes_RGBA(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
                     geo.fDevBounds.fRight, geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius,
                     geo.fInnerXRadius, geo.fInnerYRadius);
         }
@@ -2926,7 +2927,7 @@ public:
     }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrColor4h* color = &fRRects.front().fColor;
+        SkPMColor4f* color = &fRRects.front().fColor;
         return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
                                             color);
     }
@@ -2961,7 +2962,7 @@ private:
 
         for (const auto& rrect : fRRects) {
             // TODO4F: Preserve float colors
-            GrColor color = rrect.fColor.toGrColor();
+            GrColor color = rrect.fColor.toBytes_RGBA();
             // Compute the reciprocals of the radii here to save time in the shader
             SkScalar xRadRecip = SkScalarInvert(rrect.fXRadius);
             SkScalar yRadRecip = SkScalarInvert(rrect.fYRadius);
@@ -3045,7 +3046,7 @@ private:
     }
 
     struct RRect {
-        GrColor4h fColor;
+        SkPMColor4f fColor;
         SkScalar fXRadius;
         SkScalar fYRadius;
         SkScalar fInnerXRadius;

@@ -282,7 +282,7 @@ void SkGlyphRunListPainter::processARGBFallback(
 
 #if SK_SUPPORT_GPU
 // -- GrTextContext --------------------------------------------------------------------------------
-GrColor4h generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
+SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
     SkColor4f filteredColor = paint.getColor4f();
     if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
         filteredColor = xform->apply(filteredColor);
@@ -291,7 +291,7 @@ GrColor4h generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& 
         filteredColor = paint.getColorFilter()->filterColor4f(filteredColor,
                                                               colorSpaceInfo.colorSpace());
     }
-    return GrColor4h::FromFloats(filteredColor.premul().vec());
+    return filteredColor.premul();
 }
 
 void GrTextContext::drawGlyphRunList(
@@ -302,7 +302,7 @@ void GrTextContext::drawGlyphRunList(
 
     // Get the first paint to use as the key paint.
     const SkPaint& listPaint = glyphRunList.paint();
-    GrColor4h filteredColor = generate_filtered_color(listPaint, target->colorSpaceInfo());
+    SkPMColor4f filteredColor = generate_filtered_color(listPaint, target->colorSpaceInfo());
 
     // If we have been abandoned, then don't draw
     if (context->abandoned()) {
@@ -391,7 +391,7 @@ void GrTextContext::AppendGlyph(GrTextBlob* blob, int runIndex,
                                 const sk_sp<GrTextStrike>& strike,
                                 const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
                                 SkScalar sx, SkScalar sy,
-                                const GrColor4h& color, SkGlyphCache* skGlyphCache,
+                                const SkPMColor4f& color, SkGlyphCache* skGlyphCache,
                                 SkScalar textRatio, bool needsTransform) {
     GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
                                          skGlyph.getSubXFixed(),
@@ -419,7 +419,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                            GrGlyphCache* glyphCache,
                                            const GrShaderCaps& shaderCaps,
                                            const SkPaint& paint,
-                                           const GrColor4h& filteredColor,
+                                           const SkPMColor4f& filteredColor,
                                            SkScalerContextFlags scalerContextFlags,
                                            const SkMatrix& viewMatrix,
                                            const SkSurfaceProps& props,
@@ -453,7 +453,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
         const SkSurfaceProps& fProps;
         const SkScalerContextFlags fScalerContextFlags;
         GrGlyphCache* const fGlyphCache;
-        GrColor4h fFilteredColor;
+        SkPMColor4f fFilteredColor;
     };
 
     SkPoint origin = glyphRunList.origin();
@@ -615,7 +615,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
 
     size_t textLen = (int)strlen(text);
 
-    GrColor4h filteredColor = generate_filtered_color(skPaint, rtc->colorSpaceInfo());
+    SkPMColor4f filteredColor = generate_filtered_color(skPaint, rtc->colorSpaceInfo());
 
     auto origin = SkPoint::Make(x, y);
     SkGlyphRunBuilder builder;
