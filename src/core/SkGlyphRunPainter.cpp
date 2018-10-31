@@ -143,6 +143,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     pathPaint, &props, fScalerContextFlags, nullptr);
 
             SkTDArray<PathAndPos> pathsAndPositions;
+            pathsAndPositions.setReserve(runSize);
             SkPoint* positionCursor = fPositions;
             for (auto glyphID : glyphRun.glyphsIDs()) {
                 SkPoint position = *positionCursor++;
@@ -174,6 +175,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
 
             SkTDArray<SkMask> masks;
+            masks.setReserve(runSize);
             const SkPoint* positionCursor = fPositions;
             for (auto glyphID : glyphRun.glyphsIDs()) {
                 auto position = *positionCursor++;
