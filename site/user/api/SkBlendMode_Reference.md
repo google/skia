@@ -759,30 +759,32 @@ source luminosity, leaving destination hue and saturation unchanged.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-SK_API const char* <a href='#SkBlendMode_Name'>SkBlendMode Name</a>(<a href='#SkBlendMode'>SkBlendMode</a> blendMode)
+const char* <a href='#SkBlendMode_Name'>SkBlendMode Name</a>(<a href='#SkBlendMode'>SkBlendMode</a> blendMode)
 </pre>
 
-Returns name of <a href='#SkBlendMode_Name_blendMode'>blendMode</a> as null-terminated C string.
+Returns name of <a href='#SkBlendMode_Name_blendMode'>blendMode</a> as null-terminated C <a href='undocumented#String'>string</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkBlendMode_Name_blendMode'><code><strong>blendMode</strong></code></a></td>
-    <td>one of: <a href='#SkBlendMode_kClear'>SkBlendMode::kClear</a>, <a href='#SkBlendMode_kSrc'>SkBlendMode::kSrc</a>, <a href='#SkBlendMode_kDst'>SkBlendMode::kDst</a>, <a href='#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a>,
-<a href='#SkBlendMode_kDstOver'>SkBlendMode::kDstOver</a>, <a href='#SkBlendMode_kSrcIn'>SkBlendMode::kSrcIn</a>, <a href='#SkBlendMode_kDstIn'>SkBlendMode::kDstIn</a>,
-<a href='#SkBlendMode_kSrcOut'>SkBlendMode::kSrcOut</a>, <a href='#SkBlendMode_kDstOut'>SkBlendMode::kDstOut</a>, <a href='#SkBlendMode_kSrcATop'>SkBlendMode::kSrcATop</a>,
-<a href='#SkBlendMode_kDstATop'>SkBlendMode::kDstATop</a>, <a href='#SkBlendMode_kXor'>SkBlendMode::kXor</a>, <a href='#SkBlendMode_kPlus'>SkBlendMode::kPlus</a>,
-<a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a>, <a href='#SkBlendMode_kScreen'>SkBlendMode::kScreen</a>, <a href='#SkBlendMode_kOverlay'>SkBlendMode::kOverlay</a>,
-<a href='#SkBlendMode_kDarken'>SkBlendMode::kDarken</a>, <a href='#SkBlendMode_kLighten'>SkBlendMode::kLighten</a>, <a href='#SkBlendMode_kColorDodge'>SkBlendMode::kColorDodge</a>,
-<a href='#SkBlendMode_kColorBurn'>SkBlendMode::kColorBurn</a>, <a href='#SkBlendMode_kHardLight'>SkBlendMode::kHardLight</a>, <a href='#SkBlendMode_kSoftLight'>SkBlendMode::kSoftLight</a>,
-<a href='#SkBlendMode_kDifference'>SkBlendMode::kDifference</a>, <a href='#SkBlendMode_kExclusion'>SkBlendMode::kExclusion</a>, <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a>,
-<a href='#SkBlendMode_kHue'>SkBlendMode::kHue</a>, <a href='#SkBlendMode_kSaturation'>SkBlendMode::kSaturation</a>, <a href='#SkBlendMode_kColor'>SkBlendMode::kColor</a>,
-<a href='#SkBlendMode_kLuminosity'>SkBlendMode::kLuminosity</a> </td>
+    <td>one of:</td>
   </tr>
 </table>
 
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kClear'>kClear</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSrc'>kSrc</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kDst'>kDst</a>,
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSrcOver'>kSrcOver</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kDstOver'>kDstOver</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSrcIn'>kSrcIn</a>,
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kDstIn'>kDstIn</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSrcOut'>kSrcOut</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kDstOut'>kDstOut</a>,
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSrcATop'>kSrcATop</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kDstATop'>kDstATop</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kXor'>kXor</a>,
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kPlus'>kPlus</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kModulate'>kModulate</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kScreen'>kScreen</a>,
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kOverlay'>kOverlay</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kDarken'>kDarken</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kLighten'>kLighten</a>,
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kColorDodge'>kColorDodge</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kColorBurn'>kColorBurn</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kHardLight'>kHardLight</a>,
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSoftLight'>kSoftLight</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kDifference'>kDifference</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kExclusion'>kExclusion</a>,
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kMultiply'>kMultiply</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kHue'>kHue</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSaturation'>kSaturation</a>,
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kColor'>kColor</a>, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kLuminosity'>kLuminosity</a>
+
 ### Return Value
 
-C string
+C <a href='undocumented#String'>string</a>
 
 ### Example
 

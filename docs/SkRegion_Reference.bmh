@@ -56,10 +56,7 @@ up Region.
 
 #Method Iterator()
 #Line # constructs Region iterator ##
-Initializes Iterator with an empty Region. done() on Iterator returns true.
-Call reset() to initialized Iterator at a later time.
-
-#Return empty Region ierator ##
+#Populate
 
 #Example
     SkRegion::Iterator iter;
@@ -81,10 +78,7 @@ rect={1,2,3,4}
 
 #Method Iterator(const SkRegion& region)
 #Line # constructs Region iterator ##
-Sets Iterator to return elements of IRect array in region.
-#Param region  Region to iterate ##
-
-#Return Region iterator ##
+#Populate
 
 #Example
     SkRegion region;
@@ -105,11 +99,7 @@ rect={1,2,3,4}
 
 #Method bool rewind()
 #Line # points Iterator to start ##
-
-Points Iterator to start of Region.
-Returns true if Region was set; otherwise, returns false.
-
-#Return true if Region was set ##
+#Populate
 
 #Example
 #Bug 8186
@@ -150,10 +140,7 @@ after set rect rect={1,2,3,4}
 
 #Method void reset(const SkRegion& region)
 #Line # sets Region to iterate ##
-
-Resets iterator, using the new Region.
-
-#Param region  Region to iterate ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion::Iterator& iter) -> void {
@@ -181,10 +168,7 @@ after set rect: done=true
 
 #Method bool done() const
 #Line # returns if data parsing is complete ##
-
-Returns true if Iterator is pointing to final IRect in Region.
-
-#Return true if data parsing is complete ##
+#Populate
 
 #Example
     SkRegion region;
@@ -207,8 +191,7 @@ done=false
 
 #Method void next()
 #Line # advances to next IRect ##
-
-Advances Iterator to next IRect in Region if it is not done.
+#Populate
 
 #Example
     SkRegion region;
@@ -234,11 +217,7 @@ rect={5,6,7,8}
 
 #Method const SkIRect& rect() const
 #Line # returns part of Region as IRect ##
-
-Returns IRect element in Region. Does not return predictable results if Region
-is empty.
-
-#Return part of Region as IRect ##
+#Populate
 
 #Example
 #Bug 8186
@@ -265,10 +244,7 @@ rect={1,2,3,4}
 
 #Method const SkRegion* rgn() const
 #Line # returns original Region ##
-
-Returns Region if set; otherwise, returns nullptr.
-
-#Return iterated Region ##
+#Populate
 
 #Example
     SkRegion region;
@@ -309,13 +285,7 @@ up Region intersected with the specified clip rectangle.
 
 #Method Cliperator(const SkRegion& region, const SkIRect& clip)
 #Line # constructs Region iterator with clip ##
-
-Sets Cliperator to return elements of IRect array in Region within clip.
-
-#Param region  Region to iterate ##
-#Param clip  bounds of iteration ##
-
-#Return Region iterator ##
+#Populate
 
 #Example
     SkRegion region;
@@ -336,10 +306,7 @@ rect={1,2,2,3}
 
 #Method bool done()
 #Line # returns if data parsing is complete ##
-
-Returns true if Cliperator is pointing to final IRect in Region.
-
-#Return true if data parsing is complete ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -364,8 +331,7 @@ after add rect done=false
 
 #Method void  next()
 #Line # advances to next IRect within clip ##
-
-Advances iterator to next IRect in Region contained by clip.
+#Populate
 
 #Example
     SkRegion region;
@@ -391,12 +357,7 @@ rect={5,6,7,7}
 
 #Method const SkIRect& rect() const
 #Line # returns part of Region as IRect intersected with clip ##
-
-Returns IRect element in Region, intersected with clip passed to Cliperator
-constructor. Does not return predictable results if Region
-is empty.
-
-#Return part of Region inside clip as IRect  ##
+#Populate
 
 #Example
 #Bug 8186
@@ -441,16 +402,7 @@ Returns the line segment ends within Region that intersect a horizontal line.
 
 #Method Spanerator(const SkRegion& region, int y, int left, int right)
 #Line # constructs Region iterator on scan line ##
-
-Sets Spanerator to return line segments in Region on scan line.
-
-
-#Param region  Region to iterate ##
-#Param y  horizontal line to intersect ##
-#Param left  bounds of iteration ##
-#Param right  bounds of iteration ##
-
-#Return Region iterator ##
+#Populate
 
 #Example
     SkRegion region;
@@ -469,14 +421,7 @@ Sets Spanerator to return line segments in Region on scan line.
 
 #Method bool next(int* left, int* right)
 #Line # advances to next span on horizontal line ##
-
-Advances iterator to next span intersecting Region within line segment provided
-in constructor. Returns true if interval was found.
-
-#Param left  pointer to span start; may be nullptr ##
-#Param right  pointer to span end; may be nullptr ##
-
-#Return true if interval was found ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -508,11 +453,7 @@ after set rect: result=true left=2 right=3
 #Method SkRegion()
 #In Constructors
 #Line # constructs with default values ##
-
-Constructs an empty Region. Region is set to empty bounds
-at (0, 0) with zero width and height.
-
-#Return empty Region ##
+#Populate
 
 #Example
 SkRegion region;
@@ -532,18 +473,7 @@ region bounds: {0, 0, 0, 0}
 #Method SkRegion(const SkRegion& region)
 #In Constructors
 #Line # makes a shallow copy ##
-Constructs a copy of an existing region.
-Copy constructor makes two regions identical by value. Internally, region and
-the returned result share pointer values. The underlying Rect array is
-copied when modified.
-
-Creating a Region copy is very efficient and never allocates memory.
-Regions are always copied by value from the interface; the underlying shared
-pointers are not exposed.
-
-#Param region  Region to copy by value ##
-
-#Return copy of Region ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -576,11 +506,7 @@ region2 bounds: {1,2,3,4}
 #Method explicit SkRegion(const SkIRect& rect)
 #In Constructors
 #Line # constructs Region matching IRect ##
-Constructs a rectangular Region matching the bounds of rect.
-
-#Param rect  bounds of constructed Region ##
-
-#Return rectangular Region ##
+#Populate
 
 #Example
     SkRegion region({1, 2, 3, 4});
@@ -598,11 +524,11 @@ Constructs a rectangular Region matching the bounds of rect.
 #Method ~SkRegion()
 #In Constructors
 #Line # decreases Reference_Count of owned objects ##
-Releases ownership of any shared data and deletes data if Region is sole owner.
+#Populate
 
 #Example
 #Description
-delete calls Region Destructor, but copy of original in region2 is unaffected.
+delete calls Region destructor, but copy of original in region2 is unaffected.
 ##
     SkRegion* region = new SkRegion({1, 2, 3, 4});
     SkRegion region2(*region);
@@ -623,18 +549,7 @@ region2 bounds: {1,2,3,4}
 #Method SkRegion& operator=(const SkRegion& region)
 #In Operators
 #Line # makes a shallow copy ##
-Constructs a copy of an existing region.
-Makes two regions identical by value. Internally, region and
-the returned result share pointer values. The underlying Rect array is
-copied when modified.
-
-Creating a Region copy is very efficient and never allocates memory.
-Regions are always copied by value from the interface; the underlying shared
-pointers are not exposed.
-
-#Param region  Region to copy by value ##
-
-#Return Region to copy by value ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -660,13 +575,7 @@ region2 bounds: {1,2,3,4}
 #Method bool operator==(const SkRegion& other)_const
 #In Operators
 #Line # compares Regions for equality ##
-
-Compares Region and other; returns true if they enclose exactly
-the same area.
-
-#Param other  Region to compare ##
-
-#Return true if Region pair are equivalent ##
+#Populate
 
 #Example
     auto debugster = [](const char* prefix, const SkRegion& a, const SkRegion& b) -> void {
@@ -695,12 +604,7 @@ set empty one == two
 #Method bool operator!=(const SkRegion& other)_const
 #In Operators
 #Line # compares Regions for inequality ##
-
-Compares Region and other; returns true if they do not enclose the same area.
-
-#Param other  Region to compare ##
-
-#Return true if Region pair are not equivalent ##
+#Populate
 
 #Example
     auto debugster = [](const char* prefix, const SkRegion& a, const SkRegion& b) -> void {
@@ -730,19 +634,7 @@ union rect one == two
 #Method bool set(const SkRegion& src)
 #In Constructors
 #Line # makes a shallow copy ##
-
-Sets Region to src, and returns true if src bounds is not empty.
-This makes Region and src identical by value. Internally, 
-Region and src share pointer values. The underlying Rect array is
-copied when modified.
-
-Creating a Region copy is very efficient and never allocates memory.
-Regions are always copied by value from the interface; the underlying shared
-pointers are not exposed.
-
-#Param src  Region to copy ##
-
-#Return copy of src ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -769,15 +661,7 @@ region2 bounds: {1,2,3,4}
 #Method void swap(SkRegion& other)
 #In Operators
 #Line # exchanges Region pair ##
-
-Exchanges IRect array of Region and other. swap() internally exchanges pointers,
-so it is lightweight and does not allocate memory.
-
-swap() usage has largely been replaced by operator=(const SkRegion& region).
-Paths do not copy their content on assignment until they are written to,
-making assignment as efficient as swap().
-
-#Param other  operator=(const SkRegion& region) set ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -804,13 +688,7 @@ region2 bounds: {1,2,3,4}
 #Method bool isEmpty() const
 #In Property
 #Line # returns if bounds has no width or height ##
-
-Returns true if Region is empty.
-Empty Region has bounds width or height less than or equal to zero.
-SkRegion() constructs empty Region; setEmpty
-and setRect with dimensionless data make Region empty.
-
-#Return true if bounds has no width or height ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -838,10 +716,7 @@ and setRect with dimensionless data make Region empty.
 #Method bool isRect() const
 #In Property
 #Line # returns if Region contains one IRect ##
-
-Returns true if Region is one IRect with positive dimensions.
-
-#Return true if Region contains one IRect ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, const SkRegion& region) -> void {
@@ -869,10 +744,7 @@ set empty: region is not rect
 #Method bool isComplex() const
 #In Property
 #Line # returns true if Region contains more than one IRect ##
-
-Returns true if Region is described by more than one rectangle.
-
-#Return true if Region contains more than one IRect ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, const SkRegion& region) -> void {
@@ -900,11 +772,7 @@ op rect: region is complex
 #Method const SkIRect& getBounds() const
 #In Property
 #Line # returns maximum and minimum of IRect array ##
-
-Returns minimum and maximum axes values of IRect array.
-Returns (0, 0, 0, 0) if Region is empty.
-
-#Return combined bounds of all IRect elements ##
+#Populate
 
 #Example
     SkRegion region({1, 2, 3, 4});
@@ -925,15 +793,7 @@ bounds: {1,2,4,5}
 #Method int computeRegionComplexity() const
 #In Property
 #Line # returns relative complexity ##
-
-Returns a value that increases with the number of
-elements in Region. Returns zero if Region is empty.
-Returns one if Region equals IRect; otherwise, returns
-value greater than one indicating that Region is complex.
-
-Call to compare Regions for relative complexity.
-
-#Return relative complexity ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, const SkRegion& region) -> void {
@@ -961,14 +821,7 @@ op rect: region complexity 3
 #Method bool getBoundaryPath(SkPath* path) const
 #In Property
 #Line # appends Region outline to Path ##
-
-Appends outline of Region to path.
-Returns true if Region is not empty; otherwise, returns false, and leaves path
-unmodified.
-
-#Param path  Path to append to ##
-
-#Return true if path changed ##
+#Populate
 
 #Example
 #Height 100
@@ -991,11 +844,7 @@ unmodified.
 #Method bool setEmpty()
 #In Constructors
 #Line # constructs with default values ##
-
-Constructs an empty Region. Region is set to empty bounds
-at (0, 0) with zero width and height. Always returns false.
-
-#Return false ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -1023,13 +872,7 @@ at (0, 0) with zero width and height. Always returns false.
 #Method bool setRect(const SkIRect& rect)
 #In Constructors
 #Line # constructs Region matching IRect ##
-
-Constructs a rectangular Region matching the bounds of rect.
-If rect is empty, constructs empty and returns false.
-
-#Param rect  bounds of constructed Region ##
-
-#Return true if rect is not empty ##
+#Populate
 
 #Example
     SkRegion region({1, 2, 3, 4});
@@ -1053,17 +896,7 @@ setEmpty: false
 #Method bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom)
 #In Constructors
 #Line # constructs Region matching bounds ##
-
-Constructs Region with bounds (left, top, right, bottom).
-Returns true if left is less than right and top is less than bottom; otherwise,
-constructs empty Region and returns false.
-
-#Param left edge of bounds on x-axis ##
-#Param top  edge of bounds on y-axis ##
-#Param right  edge of bounds on x-axis ##
-#Param bottom  edge of bounds on y-axis ##
-
-#Return rectangular Region ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, bool success, SkRegion& region) -> void {
@@ -1091,16 +924,7 @@ set to: 3,2,1,4: success:false {0,0,0,0}
 #Method bool setRects(const SkIRect rects[], int count)
 #In Constructors
 #Line # sets IRect array ##
-
-Constructs Region as the union of IRect in rects array. If count is
-zero, constructs empty Region. Returns false if constructed Region is empty.
-
-May be faster than repeated calls to op().
-
-#Param rects  array of IRects ##
-#Param count  array size ##
-
-#Return  true if constructed Region is not empty ##
+#Populate
 
 #Example
 #Height 70
@@ -1125,19 +949,7 @@ May be faster than repeated calls to op().
 #Method bool setRegion(const SkRegion& region)
 #In Constructors
 #Line # copies Region ##
-
-Constructs a copy of an existing region.
-Makes two regions identical by value. Internally, region and
-the returned result share pointer values. The underlying Rect array is
-copied when modified.
-
-Creating a Region copy is very efficient and never allocates memory.
-Regions are always copied by value from the interface; the underlying shared
-pointers are not exposed.
-
-#Param region  Region to copy by value ##
-
-#Return Region to copy by value ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -1171,17 +983,7 @@ region2 bounds: {0,0,0,0}
 #Method bool setPath(const SkPath& path, const SkRegion& clip)
 #In Constructors
 #Line # constructs Region from clipped Path ##
-
-Constructs Region to match outline of path within clip.
-Returns false if constructed Region is empty.
-
-Constructed Region draws the same pixels as path through clip when
-Anti_Aliasing is disabled.
-
-#Param path  Path providing outline ##
-#Param clip  Region containing path ##
-
-#Return true if constructed Region is not empty ##
+#Populate
 
 #Example
 #Height 120
@@ -1209,13 +1011,7 @@ Anti_Aliasing is disabled.
 #Method bool intersects(const SkIRect& rect) const
 #In Intersection
 #Line # returns true if areas overlap ##
-
-Returns true if Region intersects rect.
-Returns false if either rect or Region is empty, or do not intersect.
-
-#Param rect  IRect to intersect ##
-
-#Return true if rect and Region have area in common ##
+#Populate
 
 #Example
 #Duration 4
@@ -1239,13 +1035,7 @@ Returns false if either rect or Region is empty, or do not intersect.
 # ------------------------------------------------------------------------------
 
 #Method bool intersects(const SkRegion& other) const
-
-Returns true if Region intersects other.
-Returns false if either other or Region is empty, or do not intersect.
-
-#Param other  Region to intersect ##
-
-#Return true if other and Region have area in common ##
+#Populate
 
 #Example
 #Duration 4
@@ -1272,14 +1062,7 @@ Returns false if either other or Region is empty, or do not intersect.
 #Method bool contains(int32_t x, int32_t y) const
 #In Intersection
 #Line # returns true if points are equal or inside ##
-
-Returns true if IPoint (x, y) is inside Region.
-Returns false if Region is empty.
-
-#Param x  test IPoint x-coordinate ##
-#Param y  test IPoint y-coordinate ##
-
-#Return true if (x, y) is inside Region ##
+#Populate
 
 #Example
 #Height 128
@@ -1305,13 +1088,7 @@ Returns false if Region is empty.
 # ------------------------------------------------------------------------------
 
 #Method bool contains(const SkIRect& other) const
-
-Returns true if other is completely inside Region.
-Returns false if Region or other is empty.
-
-#Param other IRect to contain ##
-
-#Return true if other is inside Region ##
+#Populate
 
 #Example
 #Height 128
@@ -1339,13 +1116,7 @@ Returns false if Region or other is empty.
 # ------------------------------------------------------------------------------
 
 #Method bool contains(const SkRegion& other) const
-
-Returns true if other is completely inside Region.
-Returns false if Region or other is empty.
-
-#Param other  Region to contain ##
-
-#Return true if other is inside Region ##
+#Populate
 
 #Example
 #Height 128
@@ -1376,13 +1147,7 @@ Returns false if Region or other is empty.
 #Method bool quickContains(const SkIRect& r) const
 #In Intersection
 #Line # returns true quickly if points are equal or inside ##
-
-Returns true if Region is a single rectangle and contains r.
-May return false even though Region contains r.
-
-#Param r  IRect to contain ##
-
-#Return true quickly if r points are equal or inside ##
+#Populate
 
 #Example
     SkRegion region({1, 2, 3, 4});
@@ -1407,18 +1172,7 @@ quickContains 3: false
 
 #Method bool quickContains(int32_t left, int32_t top, int32_t right,
                        int32_t bottom) const
-
-Returns true if Region is a single rectangle and contains IRect
-(left, top, right, bottom).
-Returns false if Region is empty or IRect (left, top, right, bottom) is empty.
-May return false even though Region contains (left, top, right, bottom).
-
-#Param left edge of bounds on x-axis ##
-#Param top  edge of bounds on y-axis ##
-#Param right  edge of bounds on x-axis ##
-#Param bottom  edge of bounds on y-axis ##
-
-#Return true quickly if IRect are equal or inside ##
+#Populate
 
 #Example
     auto debugster = [](const char* label, SkRegion& region) -> void {
@@ -1446,14 +1200,7 @@ quickContains 3: false
 #Method bool quickReject(const SkIRect& rect) const
 #In Intersection
 #Line # returns true quickly if points are outside ##
-
-Returns true if Region does not intersect rect.
-Returns true if rect is empty or Region is empty.
-May return false even though Region does not intersect rect.
-
-#Param rect  IRect to intersect ##
-
-#Return true if rect does not intersect ##
+#Populate
 
 #Example
     SkRegion region({1, 2, 3, 4});
@@ -1477,14 +1224,7 @@ quickReject 3: false
 # ------------------------------------------------------------------------------
 
 #Method bool quickReject(const SkRegion& rgn) const
-
-Returns true if Region does not intersect rgn.
-Returns true if rgn is empty or Region is empty.
-May return false even though Region does not intersect rgn.
-
-#Param rgn  Region to intersect ##
-
-#Return true if rgn does not intersect ##
+#Populate
 
 #Example
     SkRegion region({1, 2, 3, 4});
@@ -1512,11 +1252,7 @@ quickReject 3: false
 #Method void translate(int dx, int dy)
 #In Transform
 #Line # translates IPoints in Region ##
-
-Offsets Region by IVector (dx, dy). Has no effect if Region is empty.
-
-#Param dx  x-axis offset ##
-#Param dy  y-axis offset ##
+#Populate
 
 #Example
 #Height 90
@@ -1538,14 +1274,7 @@ Offsets Region by IVector (dx, dy). Has no effect if Region is empty.
 # ------------------------------------------------------------------------------
 
 #Method void translate(int dx, int dy, SkRegion* dst) const
-
-Offsets Region by IVector (dx, dy), writing result to dst. Region may be passed
-as dst parameter, translating Region in place. Has no effect if dst is nullptr.
-If Region is empty, sets dst to empty.
-
-#Param dx  x-axis offset ##
-#Param dy  y-axis offset ##
-#Param dst  translated result ##
+#Populate
 
 #Example
     SkRegion test;
@@ -1647,15 +1376,7 @@ May be used to verify that Op is a legal value.
 #Method bool op(const SkIRect& rect, Op op)
 #In Transform
 #Line # applies binary operator ##
-
-Replaces Region with the result of Region op rect.
-Returns true if replaced Region is not empty.
-
-#Param rect IRect operand ##
-#Param op   operator, one of: #list_of_op_types#
-##
-
-#Return false if result is empty ##
+#Populate
 
 #Example
 #Height 128
@@ -1677,18 +1398,7 @@ Returns true if replaced Region is not empty.
 # ------------------------------------------------------------------------------
 
 #Method bool op(int left, int top, int right, int bottom, Op op)
-
-Replaces Region with the result of Region op IRect (left, top, right, bottom).
-Returns true if replaced Region is not empty.
-
-#Param left edge of bounds on x-axis ##
-#Param top  edge of bounds on y-axis ##
-#Param right  edge of bounds on x-axis ##
-#Param bottom  edge of bounds on y-axis ##
-#Param op   operator, one of: #list_of_op_types#
-##
-
-#Return false if result is empty ##
+#Populate
 
 #Example
 #Duration 4
@@ -1712,15 +1422,7 @@ Returns true if replaced Region is not empty.
 # ------------------------------------------------------------------------------
 
 #Method bool op(const SkRegion& rgn, Op op)
-
-Replaces Region with the result of Region op rgn.
-Returns true if replaced Region is not empty.
-
-#Param rgn  Region operand ##
-#Param op   operator, one of: #list_of_op_types#
-##
-
-#Return false if result is empty ##
+#Populate
 
 #Example
 #Duration 4
@@ -1745,16 +1447,7 @@ Returns true if replaced Region is not empty.
 # ------------------------------------------------------------------------------
 
 #Method bool op(const SkIRect& rect, const SkRegion& rgn, Op op)
-
-Replaces Region with the result of rect op rgn.
-Returns true if replaced Region is not empty.
-
-#Param rect  IRect operand ##
-#Param rgn  Region operand ##
-#Param op   operator, one of: #list_of_op_types#
-##
-
-#Return false if result is empty ##
+#Populate
 
 #Example
 #Duration 4
@@ -1781,16 +1474,7 @@ Returns true if replaced Region is not empty.
 # ------------------------------------------------------------------------------
 
 #Method bool op(const SkRegion& rgn, const SkIRect& rect, Op op)
-
-Replaces Region with the result of rgn op rect.
-Returns true if replaced Region is not empty.
-
-#Param rgn  Region operand ##
-#Param rect  IRect operand ##
-#Param op   operator, one of: #list_of_op_types#
-##
-
-#Return false if result is empty ##
+#Populate
 
 #Example
 #Duration 4
@@ -1817,16 +1501,7 @@ Returns true if replaced Region is not empty.
 # ------------------------------------------------------------------------------
 
 #Method bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op)
-
-Replaces Region with the result of rgna op rgnb.
-Returns true if replaced Region is not empty.
-
-#Param rgna  Region operand ##
-#Param rgnb  Region operand ##
-#Param op  operator, one of: #list_of_op_types#
-##
-
-#Return false if result is empty ##
+#Populate
 
 #Example
 #Duration 4
@@ -1870,13 +1545,7 @@ Android framework only.
 #Method size_t writeToMemory(void* buffer) const
 #In Utility
 #Line # writes to buffer ##
-
-Writes Region to buffer, and returns number of bytes written.
-If buffer is nullptr, returns number number of bytes that would be written.
-
-#Param buffer  storage for binary data ##
-
-#Return size of Region ##
+#Populate
 
 #Example
 #Height 128
@@ -1904,14 +1573,7 @@ If buffer is nullptr, returns number number of bytes that would be written.
 #Method size_t readFromMemory(const void* buffer, size_t length)
 #In Utility
 #Line # reads from buffer ##
-
-Constructs Region from buffer of size length. Returns bytes read.
-Returned value will be multiple of four or zero if length was too small.
-
-#Param buffer  storage for binary data ##
-#Param length  size of buffer ##
-
-#Return  bytes read ##
+#Populate
 
 #Example
 #Height 100

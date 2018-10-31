@@ -159,7 +159,7 @@ $ ./out/dir/bookmaker -i include/core/SkXXX.h -t docs
 If a method or function has an unnamed parameter, bookmaker generates an error:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-C:/puregit/include/core/<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>.h(208): error: #Method missing param name
+C:/puregit/include/core/SkPixmap.h(208): error: #Method missing param name
 bool erase(const SkColor4f&, const SkIRect* subset = nullptr) const
            ^
 </pre>

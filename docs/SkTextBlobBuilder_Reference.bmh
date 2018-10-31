@@ -64,10 +64,7 @@ array, one per Glyph.
 #Method SkTextBlobBuilder()
 #In Constructors
 #Line # constructs with default values ##
-
-Constructs empty Text_Blob_Builder. By default, Text_Blob_Builder has no runs.
-
-#Return empty Text_Blob_Builder ##
+#Populate
 
 #Example
     SkTextBlobBuilder builder;
@@ -87,7 +84,7 @@ blob equals nullptr
 #Method ~SkTextBlobBuilder()
 #In Constructors
 #Line # deletes storage ##
-Deletes data allocated internally by Text_Blob_Builder.
+#Populate
 
 #NoExample
 ##
@@ -101,15 +98,7 @@ Deletes data allocated internally by Text_Blob_Builder.
 #Method sk_sp<SkTextBlob> make()
 #In Constructors
 #Line # constructs Text_Blob from bulider ##
-
-Returns Text_Blob built from runs of Glyphs added by builder. Returned
-Text_Blob is immutable; it may be copied, but its contents may not be altered.
-Returns nullptr if no runs of Glyphs were added by builder.
-
-Resets Text_Blob_Builder to its initial empty state, allowing it to be
-reused to build a new set of runs.
-
-#Return Text_Blob or nullptr ##
+#Populate
 
 #Example
     SkTextBlobBuilder builder;

@@ -107,11 +107,11 @@ Reserved for future use. clusters should not be read or written.
 <a href='#SkTextBlobBuilder'>SkTextBlobBuilder</a>()
 </pre>
 
-Constructs empty <a href='#Text_Blob_Builder'>Text Blob Builder</a>. By default, <a href='#Text_Blob_Builder'>Text Blob Builder</a> has no runs.
+Constructs empty <a href='SkTextBlobBuilder_Reference#SkTextBlobBuilder'>SkTextBlobBuilder</a>. By default, <a href='SkTextBlobBuilder_Reference#SkTextBlobBuilder'>SkTextBlobBuilder</a> has no runs.
 
 ### Return Value
 
-empty <a href='#Text_Blob_Builder'>Text Blob Builder</a>
+empty <a href='SkTextBlobBuilder_Reference#SkTextBlobBuilder'>SkTextBlobBuilder</a>
 
 ### Example
 
@@ -137,7 +137,7 @@ blob equals nullptr
 <a href='#SkTextBlobBuilder_destructor'>~SkTextBlobBuilder</a>()
 </pre>
 
-Deletes data allocated internally by <a href='#Text_Blob_Builder'>Text Blob Builder</a>.
+Deletes <a href='undocumented#Data'>data</a> allocated internally by <a href='SkTextBlobBuilder_Reference#SkTextBlobBuilder'>SkTextBlobBuilder</a>.
 
 ### See Also
 
@@ -151,16 +151,16 @@ Deletes data allocated internally by <a href='#Text_Blob_Builder'>Text Blob Buil
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlobBuilder_make'>make</a>()
 </pre>
 
-Returns <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> built from runs of <a href='undocumented#Glyph'>Glyphs</a> added by builder. Returned
-<a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> is immutable; it may be copied, but its contents may not be altered.
-Returns nullptr if no runs of <a href='undocumented#Glyph'>Glyphs</a> were added by builder.
+Returns <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a> built from runs of <a href='undocumented#Glyph'>glyphs</a> added by builder. Returned
+<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a> is immutable; it may be copied, but its contents may not be altered.
+Returns nullptr if no runs of <a href='undocumented#Glyph'>glyphs</a> were added by builder.
 
-Resets <a href='#Text_Blob_Builder'>Text Blob Builder</a> to its initial empty state, allowing it to be
+Resets <a href='SkTextBlobBuilder_Reference#SkTextBlobBuilder'>SkTextBlobBuilder</a> to its initial empty state, allowing it to be
 reused to build a new set of runs.
 
 ### Return Value
 
-<a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> or nullptr
+<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a> or nullptr
 
 ### Example
 

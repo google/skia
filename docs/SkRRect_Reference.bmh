@@ -93,11 +93,7 @@ If corner curves overlap, radii are proportionally reduced to fit within bounds.
 #Method SkRRect()
 #In Constructors
 #Line # creates with zeroed bounds and corner radii ##
-
-Initializes bounds at (0, 0), the origin, with zero width and height.
-Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
-
-#Return empty Round_Rect ##
+#Populate
 
 #Example
 #Height 60
@@ -119,14 +115,8 @@ Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 #Method SkRRect(const SkRRect& rrect)
 #In Constructors
 #Line # copies bounds and corner radii ##
+#Populate
 
-Initializes to copy of rrect bounds and corner radii.
-
-#Param rrect  bounds and corner to copy ##
-
-#Return copy of rrect ##
-
-#Bug 8115
 #Example
 #Height 60
     SkRRect rrect = SkRRect::MakeRect({10, 10, 100, 50});
@@ -148,12 +138,7 @@ Initializes to copy of rrect bounds and corner radii.
 #Method SkRRect& operator=(const SkRRect& rrect)
 #In Operators
 #Line # copies bounds and corner radii ##
-
-Copies rrect bounds and corner radii.
-
-#Param rrect  bounds and corner to copy ##
-
-#Return copy of rrect ##
+#Populate
 
 #Example
 #Height 110
@@ -336,10 +321,7 @@ inset() has made rrect2 empty.
 #Method bool isEmpty() const
 #In Property
 #Line # returns true if width or height are zero ##
-Returns true if rect().fLeft is equal to rect().fRight, or if rect().fTop is equal
-to rect().fBottom.
-
-#Return true if width() or height() are zero ##
+#Populate
 
 #Example
 #Height 100
@@ -364,10 +346,7 @@ to rect().fBottom.
 #Method bool isRect() const
 #In Property
 #Line # returns true if not empty, and one radius at each corner is zero ##
-Returns true if not empty, and if either x-axis or y-axis radius at each corner
-is zero.
-
-#Return true if not empty, and one radius at each corner is zero ##
+#Populate
 
 #Example
 #Height 100
@@ -393,11 +372,7 @@ is zero.
 #Method bool isOval() const
 #In Property
 #Line # returns true if not empty, axes radii are equal, radii fill bounds ##
-Returns true if not empty, if all x-axis radii are equal, if all y-axis radii
-are equal, x-axis radii are at least half the width, and y-axis radii are at
-least half the height.
-
-#Return true if has identical geometry to Oval ##
+#Populate
 
 #Example
 #Height 100
@@ -428,13 +403,8 @@ dimensions; right Round_Rect is an oval.
 #Method bool isSimple() const
 #In Property
 #Line # returns true if not empty, Rect or Oval; and axes radii are equal ##
-Returns true if not empty, if all x-axis radii are equal but not zero,
-if all y-axis radii are equal but not zero; and x-axis radius is less than half
-width(), or y-axis radius is less than half height().
+#Populate
 
-#Return true if not empty, Rect or Oval; and axes radii are equal ##
-
-#Bug 8107
 #Example
 #Height 100
     SkPaint paint;
@@ -461,13 +431,8 @@ width(), or y-axis radius is less than half height().
 #Method bool isNinePatch() const
 #In Property
 #Line # returns true if not empty, Rect, Oval or simple; and radii are axis-aligned ##
-Returns true if isEmpty, isRect, isOval, and isSimple return false; and if
-left x-axis radii are equal, right x-axis radii are equal, top y-axis radii are
-equal, and bottom y-axis radii are equal.
+#Populate
 
-#Return true if not empty, Rect, Oval or simple; and radii are axis-aligned ##
-
-#Bug 8107
 #Example
 #Height 100
     SkPaint paint;
@@ -494,14 +459,7 @@ equal, and bottom y-axis radii are equal.
 #Method bool isComplex() const
 #In Property
 #Line # returns true if not empty, Rect, Oval, simple, or nine-patch ##
-
-Returns true if isEmpty, isRect, isOval, isSimple, and isNinePatch return false.
-If true: width and height are greater than zero, at least one corner radii are
-both greater than zero; left x-axis radii are not equal, or right x-axis radii
-are not equal, or top y-axis radii are not equal, or bottom y-axis radii are not
-equal.
-
-#Return true if not empty, Rect, Oval, simple, or nine-patch ##
+#Populate
 
 #Example
 #Height 100
@@ -529,10 +487,7 @@ equal.
 #Method SkScalar width() const
 #In Property
 #Line # returns span in x-axis ##
-Returns span on the x-axis. This does not check if result fits in 32-bit float;
-result may be infinity.
-
-#Return bounds().fRight minus bounds().fLeft ##
+#Populate
 
 #Example
 #Description
@@ -557,10 +512,7 @@ large width: inf
 #Method SkScalar height() const
 #In Property
 #Line # returns span in y-axis ##
-Returns span on the y-axis. This does not check if result fits in 32-bit float;
-result may be infinity.
-
-#Return bounds().fBottom minus bounds().fTop ##
+#Populate
 
 #Example
 #Description
@@ -585,13 +537,7 @@ large height: inf
 #Method SkVector getSimpleRadii() const
 #In Property
 #Line # returns corner radii for simple types ##
-
-Returns top-left corner radii. If type() returns kEmpty_Type, kRect_Type, 
-kOval_Type, or kSimple_Type, returns a value representative of all corner radii.
-If type() returns kNinePatch_Type or kComplex_Type, at least one of the
-remaining three corners has a different value.
-
-#Return corner radii for simple types ##
+#Populate
 
 #Example
 #Height 100
@@ -621,9 +567,7 @@ remaining three corners has a different value.
 #Method void setEmpty()
 #In Set
 #Line # zeroes width, height, and corner radii ##
-
-Sets bounds to zero width and height at (0, 0), the origin. Sets
-corner radii to zero and sets type to kEmpty_Type.
+#Populate
 
 #Example
 #Height 80
@@ -647,12 +591,7 @@ Nothing blue is drawn because Round_Rect is set to empty.
 #Method void setRect(const SkRect& rect)
 #In Set
 #Line # sets Round_Rect bounds with zeroed corners ##
-
-Sets bounds to sorted rect, and sets corner radii to zero.
-If set bounds has width and height, and sets type to kRect_Type;
-otherwise, sets type to kEmpty_Type.
-
-#Param rect  bounds to set ##
+#Populate
 
 #Example
 #Height 90
@@ -673,11 +612,7 @@ otherwise, sets type to kEmpty_Type.
 #Method static SkRRect MakeEmpty()
 #In Constructors
 #Line # creates with zeroed bounds and corner radii ##
-
-Initializes bounds at (0, 0), the origin, with zero width and height.
-Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
-
-#Return empty Round_Rect ##
+#Populate
 
 #Example
 #Height 90
@@ -703,12 +638,7 @@ Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 #Method static SkRRect MakeRect(const SkRect& r)
 #In Constructors
 #Line # copies bounds and zeroes corner radii ##
-
-Initializes to copy of r bounds and zeroes corner radii.
-
-#Param r  bounds to copy ##
-
-#Return copy of r ##
+#Populate
 
 #Example
 #Height 70
@@ -729,14 +659,7 @@ Initializes to copy of r bounds and zeroes corner radii.
 #Method static SkRRect MakeOval(const SkRect& oval)
 #In Constructors
 #Line # creates Oval to fit bounds ##
-
-Sets bounds to oval, x-axis radii to half oval.width(), and all y-axis radii
-to half oval.height(). If oval bounds is empty, sets to kEmpty_Type.
-Otherwise, sets to kOval_Type.
-
-#Param oval  bounds of Oval ##
-
-#Return Oval ##
+#Populate
 
 #Example
 #Height 70
@@ -758,19 +681,7 @@ Otherwise, sets to kOval_Type.
 #Method static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
 #In Constructors
 #Line # creates rounded rectangle ##
-
-Sets to rounded rectangle with the same radii for all four corners.
-If rect is empty, sets to kEmpty_Type.
-Otherwise, if xRad and yRad are zero, sets to kRect_Type.
-Otherwise, if xRad is at least half rect.width() and yRad is at least half
-rect.height(), sets to kOval_Type.
-Otherwise, sets to kSimple_Type.
-
-#Param rect  bounds of rounded rectangle ##
-#Param xRad  x-axis radius of corners ##
-#Param yRad  y-axis radius of corners ##
-
-#Return rounded rectangle ##
+#Populate
 
 #Example
 #Height 70
@@ -792,12 +703,7 @@ Otherwise, sets to kSimple_Type.
 #Method void setOval(const SkRect& oval)
 #In Set
 #Line # replaces with Oval to fit bounds ##
-
-Sets bounds to oval, x-axis radii to half oval.width(), and all y-axis radii
-to half oval.height(). If oval bounds is empty, sets to kEmpty_Type.
-Otherwise, sets to kOval_Type.
-
-#Param oval  bounds of Oval ##
+#Populate
 
 #Example
 #Height 70
@@ -819,17 +725,7 @@ Otherwise, sets to kOval_Type.
 #Method void setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
 #In Set
 #Line # replaces with rounded rectangle ##
-
-Sets to rounded rectangle with the same radii for all four corners.
-If rect is empty, sets to kEmpty_Type.
-Otherwise, if xRad or yRad is zero, sets to kRect_Type.
-Otherwise, if xRad is at least half rect.width() and yRad is at least half
-rect.height(), sets to kOval_Type.
-Otherwise, sets to kSimple_Type.
-
-#Param rect  bounds of rounded rectangle ##
-#Param xRad  x-axis radius of corners ##
-#Param yRad  y-axis radius of corners ##
+#Populate
 
 #Example
 #Height 70
@@ -852,26 +748,7 @@ Otherwise, sets to kSimple_Type.
                       SkScalar rightRad, SkScalar bottomRad)
 #In Set
 #Line # replaces with rounded rectangle ##
-
-Sets bounds to rect. Sets radii to (leftRad, topRad), (rightRad, topRad),
-(rightRad, bottomRad), (leftRad, bottomRad).
-
-If rect is empty, sets to kEmpty_Type.
-Otherwise, if leftRad and rightRad are zero, sets to kRect_Type.
-Otherwise, if topRad and bottomRad are zero, sets to kRect_Type.
-Otherwise, if leftRad and rightRad are equal and at least half rect.width(), and
-topRad and bottomRad are equal at least half rect.height(), sets to kOval_Type.
-Otherwise, if leftRad and rightRad are equal, and topRad and bottomRad are equal,
-sets to kSimple_Type. Otherwise, sets to kNinePatch_Type.
-
-Nine patch refers to the nine parts defined by the radii: one center rectangle,
-four edge patches, and four corner patches.
-
-#Param rect  bounds of rounded rectangle ##
-#Param leftRad  left-top and left-bottom x-axis radius ##
-#Param topRad  left-top and right-top y-axis radius ##
-#Param rightRad  right-top and right-bottom x-axis radius ##
-#Param bottomRad  left-bottom and right-bottom y-axis radius ##
+#Populate
 
 #Example
 #Height 70
@@ -901,18 +778,7 @@ four edge patches, and four corner patches.
 #Method void setRectRadii(const SkRect& rect, const SkVector radii[4])
 #In Set
 #Line # replaces with rounded rectangle ##
-
-Sets bounds to rect. Sets radii array for individual control of all for corners.
-
-If rect is empty, sets to kEmpty_Type.
-Otherwise, if one of each corner radii are zero, sets to kRect_Type.
-Otherwise, if all x-axis radii are equal and at least half rect.width(), and
-all y-axis radii are equal at least half rect.height(), sets to kOval_Type.
-Otherwise, if all x-axis radii are equal, and all y-axis radii are equal,
-sets to kSimple_Type. Otherwise, sets to kNinePatch_Type.
-
-#Param rect  bounds of rounded rectangle ##
-#Param radii  corner x-axis and y-axis radii ##
+#Populate
 
 #Example
 #Height 128
@@ -997,11 +863,7 @@ The radii are stored: top-left, top-right, bottom-right, bottom-left.
 #Method const SkRect& rect() const
 #In Property
 #Line # returns bounds ##
-Returns bounds. Bounds may have zero width or zero height. Bounds right is
-greater than or equal to left; bounds bottom is greater than or equal to top.
-Result is identical to getBounds.
-
-#Return bounding box ##
+#Populate
 
 #Example
     for (SkScalar left : { SK_ScalarNaN, SK_ScalarInfinity, 100.f, 50.f, 25.f} ) {
@@ -1026,15 +888,7 @@ left bounds: (25) 25
 #Method SkVector radii(Corner corner) const
 #In Property
 #Line # returns x-axis and y-axis radii for one corner ##
-Returns Scalar pair for radius of curve on x-axis and y-axis for one corner.
-Both radii may be zero. If not zero, both are positive and finite.
-
-
-#Param corner  one of: kUpperLeft_Corner, kUpperRight_Corner,
-                       kLowerRight_Corner, kLowerLeft_Corner 
-##
-
-#Return x-axis and y-axis radii for one corner ##
+#Populate
 
 #Example
 #Description
@@ -1065,11 +919,7 @@ left corner: (25) 12.5
 #Method const SkRect& getBounds() const
 #In Property
 #Line # returns bounds ##
-Returns bounds. Bounds may have zero width or zero height. Bounds right is
-greater than or equal to left; bounds bottom is greater than or equal to top.
-Result is identical to rect().
-
-#Return bounding box ##
+#Populate
 
 #Example
 #Height 120
@@ -1090,15 +940,7 @@ Result is identical to rect().
 #Method bool operator==(const SkRRect& a, const SkRRect& b)
 #In Operators
 #Line # returns true if members are equal ##
-Returns true if bounds and radii in a are equal to bounds and radii in b.
-
-a and b are not equal if either contain NaN. a and b are equal if members
-contain zeroes width different signs.
-
-#Param a  Rect bounds and radii to compare ##
-#Param b  Rect bounds and radii to compare ##
-
-#Return true if members are equal ##
+#Populate
 
 #Example
     SkRRect rrect1 = SkRRect::MakeRectXY({10, 20, 60, 220}, 50, 200);
@@ -1124,15 +966,7 @@ contain zeroes width different signs.
 #Method bool operator!=(const SkRRect& a, const SkRRect& b)
 #In Operators
 #Line # returns true if members are unequal ##
-Returns true if bounds and radii in a are not equal to bounds and radii in b.
-
-a and b are not equal if either contain NaN. a and b are equal if members
-contain zeroes width different signs.
-
-#Param a  Rect bounds and radii to compare ##
-#Param b  Rect bounds and radii to compare ##
-
-#Return true if members are not equal ##
+#Populate
 
 #Example
     SkRRect rrect1 = SkRRect::MakeRectXY({10, 20, 60, 220}, 50, 100);
@@ -1158,22 +992,7 @@ contain zeroes width different signs.
 #Method void inset(SkScalar dx, SkScalar dy, SkRRect* dst) const
 #In Inset_Outset_Offset
 #Line # insets bounds and radii ##
-
-Copies Round_Rect to dst, then insets dst bounds by dx and dy, and adjusts dst
-radii by dx and dy. dx and dy may be positive, negative, or zero. dst may be
-Round_Rect.
-
-If either corner radius is zero, the corner has no curvature and is unchanged.
-Otherwise, if adjusted radius becomes negative, pins radius to zero.
-If dx exceeds half dst bounds width, dst bounds left and right are set to 
-bounds x-axis center. If dy exceeds half dst bounds height, dst bounds top and
-bottom are set to bounds y-axis center.
-
-If dx or dy cause the bounds to become infinite, dst bounds is zeroed.
-
-#Param dx  added to rect().fLeft, and subtracted from rect().fRight ##
-#Param dy  added to rect().fTop, and subtracted from rect().fBottom ##
-#Param dst  insets bounds and radii ##
+#Populate
 
 #Example
     SkPaint paint;
@@ -1195,19 +1014,7 @@ If dx or dy cause the bounds to become infinite, dst bounds is zeroed.
 #Method void inset(SkScalar dx, SkScalar dy)
 #In Inset_Outset_Offset
 #Line # insets bounds and radii ##
-Insets bounds by dx and dy, and adjusts radii by dx and dy. dx and dy may be
-positive, negative, or zero.
-
-If either corner radius is zero, the corner has no curvature and is unchanged.
-Otherwise, if adjusted radius becomes negative, pins radius to zero.
-If dx exceeds half bounds width, bounds left and right are set to 
-bounds x-axis center. If dy exceeds half bounds height, bounds top and
-bottom are set to bounds y-axis center.
-
-If dx or dy cause the bounds to become infinite, bounds is zeroed.
-
-#Param dx  added to rect().fLeft, and subtracted from rect().fRight ##
-#Param dy  added to rect().fTop, and subtracted from rect().fBottom ##
+#Populate
 
 #Example
     SkPaint paint;
@@ -1230,21 +1037,7 @@ If dx or dy cause the bounds to become infinite, bounds is zeroed.
 #Method void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const
 #In Inset_Outset_Offset
 #Line # outsets bounds and radii ##
-
-Outsets dst bounds by dx and dy, and adjusts radii by dx and dy. dx and dy may be
-positive, negative, or zero.
-
-If either corner radius is zero, the corner has no curvature and is unchanged.
-Otherwise, if adjusted radius becomes negative, pins radius to zero.
-If dx exceeds half dst bounds width, dst bounds left and right are set to 
-bounds x-axis center. If dy exceeds half dst bounds height, dst bounds top and
-bottom are set to bounds y-axis center.
-
-If dx or dy cause the bounds to become infinite, dst bounds is zeroed.
-
-#Param dx  subtracted from rect().fLeft, and added to rect().fRight ##
-#Param dy  subtracted from rect().fTop, and added to rect().fBottom ##
-#Param dst  outset bounds and radii ##
+#Populate
 
 #Example
     SkPaint paint;
@@ -1267,20 +1060,7 @@ If dx or dy cause the bounds to become infinite, dst bounds is zeroed.
 #Method void outset(SkScalar dx, SkScalar dy)
 #In Inset_Outset_Offset
 #Line # outsets bounds and radii ##
-
-Outsets bounds by dx and dy, and adjusts radii by dx and dy. dx and dy may be
-positive, negative, or zero.
-
-If either corner radius is zero, the corner has no curvature and is unchanged.
-Otherwise, if adjusted radius becomes negative, pins radius to zero.
-If dx exceeds half bounds width, bounds left and right are set to 
-bounds x-axis center. If dy exceeds half bounds height, bounds top and
-bottom are set to bounds y-axis center.
-
-If dx or dy cause the bounds to become infinite, bounds is zeroed.
-
-#Param dx  subtracted from rect().fLeft, and added to rect().fRight ##
-#Param dy  subtracted from rect().fTop, and added to rect().fBottom ##
+#Populate
 
 #Example
     SkPaint paint;
@@ -1302,11 +1082,7 @@ If dx or dy cause the bounds to become infinite, bounds is zeroed.
 #Method void offset(SkScalar dx, SkScalar dy)
 #In Inset_Outset_Offset
 #Line # offsets bounds and radii ##
-
-Translates Round_Rect by (dx, dy).
-
-#Param dx  offset added to rect().fLeft and rect().fRight ##
-#Param dy  offset added to rect().fTop and rect().fBottom ##
+#Populate
 
 #Example
     SkPaint paint;
@@ -1328,13 +1104,7 @@ Translates Round_Rect by (dx, dy).
 #Method SkRRect makeOffset(SkScalar dx, SkScalar dy) const
 #In Inset_Outset_Offset
 #Line # offsets bounds and radii ##
-
-Returns Round_Rect translated by (dx, dy).
-
-#Param dx  offset added to rect().fLeft and rect().fRight ##
-#Param dy  offset added to rect().fTop and rect().fBottom ##
-
-#Return Round_Rect bounds offset by (dx, dy), with unchanged corner radii ##
+#Populate
 
 #Example
     SkPaint paint;
@@ -1356,13 +1126,7 @@ Returns Round_Rect translated by (dx, dy).
 #Method bool contains(const SkRect& rect) const
 #In Intersection
 #Line # returns true if Rect is inside ##
-
-Returns true if rect is inside the bounds and corner radii, and if
-Round_Rect and rect are not empty.
-
-#Param rect  area tested for containment ##
-
-#Return true if Round_Rect contains rect ##
+#Populate
 
 #Example
 #Height 110
@@ -1391,12 +1155,7 @@ Round_Rect and rect are not empty.
 #Method bool isValid() const
 #In Utility
 #Line # returns if type() matches bounds and radii  ##
-Returns true if bounds and radii values are finite and describe a Round_Rect
-Type that matches getType. All Round_Rect methods construct valid types,
-even if the input values are not valid. Invalid Round_Rect data can only
-be generated by corrupting memory.
-
-#Return true if bounds and radii match type() ##
+#Populate
 
 #Example
 #Height 110
@@ -1431,13 +1190,7 @@ Space required to serialize SkRRect into a buffer. Always a multiple of four.
 #Method size_t writeToMemory(void* buffer) const
 #In Utility
 #Line # writes Round_Rect to buffer ##
-
-Writes Round_Rect to buffer. Writes kSizeInMemory bytes, and returns
-kSizeInMemory, the number of bytes written.
-
-#Param buffer  storage for Round_Rect ##
-
-#Return bytes written, kSizeInMemory ##
+#Populate
 
 #Example
 #Height 110
@@ -1465,16 +1218,7 @@ kSizeInMemory, the number of bytes written.
 #Method size_t readFromMemory(const void* buffer, size_t length)
 #In Utility
 #Line # reads Round_Rect from buffer ##
-
-Reads Round_Rect from buffer, reading kSizeInMemory bytes.
-Returns kSizeInMemory, bytes read if length is at least kSizeInMemory.
-Otherwise, returns zero.
-
-#Param buffer  memory to read from ##
-#Param length  size of buffer ##
-
-#Return  bytes read, or 0 if length is less than kSizeInMemory
-##
+#Populate
 
 #Example
 #Height 110
@@ -1504,18 +1248,7 @@ Otherwise, returns zero.
 #Method bool transform(const SkMatrix& matrix, SkRRect* dst) const
 #In Inset_Outset_Offset
 #Line # scales and offsets into copy ##
-
-Transforms by Round_Rect by matrix, storing result in dst.
-Returns true if Round_Rect transformed can be represented by another Round_Rect.
-Returns false if matrix contains transformations other than scale and translate.
-
-Asserts in debug builds if Round_Rect equals dst.
-
-#Param matrix  SkMatrix specifying the transform ##
-#Param dst  SkRRect to store the result ##
-
-#Return  true if transformation succeeded.
-##
+#Populate
 
 #Example
 #Height 110
@@ -1544,11 +1277,7 @@ Asserts in debug builds if Round_Rect equals dst.
 #Method void dump(bool asHex) const
 #In Utility
 #Line # sends text representation to standard output ##
-Writes text representation of Round_Rect to standard output.
-Set asHex true to generate exact binary representations
-of floating point numbers.
-
-#Param asHex  true if SkScalar values are written as hexadecimal ##
+#Populate
 
 #Example
 SkRRect rrect = SkRRect::MakeRect({6.f / 7, 2.f / 3, 6.f / 7, 2.f / 3});
@@ -1585,10 +1314,7 @@ const SkPoint corners[] = {
 #Method void dump() const
 #In Utility
 #Line # sends text representation using floats to standard output ##
-Writes text representation of Round_Rect to standard output. The representation
-may be directly compiled as C++ code. Floating point values are written
-with limited precision; it may not be possible to reconstruct original
-Round_Rect from output.
+#Populate
 
 #Example
 SkRRect rrect = SkRRect::MakeRect({6.f / 7, 2.f / 3, 6.f / 7, 2.f / 3});
@@ -1624,10 +1350,7 @@ rrect is not equal to copy
 #Method void dumpHex() const
 #In Utility
 #Line # sends text representation using hexadecimal to standard output ##
-Writes text representation of Round_Rect to standard output. The representation
-may be directly compiled as C++ code. Floating point values are written
-in hexadecimal to preserve their exact bit pattern. The output reconstructs the
-original Round_Rect.
+#Populate
 
 #Example
 SkRRect rrect = SkRRect::MakeRect({6.f / 7, 2.f / 3, 6.f / 7, 2.f / 3});
