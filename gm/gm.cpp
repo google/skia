@@ -111,3 +111,54 @@ SkISize skiagm::SimpleGM::onISize() {
 SkString skiagm::SimpleGM::onShortName() {
     return fName;
 }
+
+template <typename Fn>
+static void mark(SkCanvas* canvas, SkScalar x, SkScalar y, Fn&& fn) {
+    SkPaint alpha;
+    alpha.setAlpha(0x50);
+    canvas->saveLayer(nullptr, &alpha);
+        canvas->translate(x,y);
+        canvas->scale(2,2);
+        fn();
+    canvas->restore();
+}
+
+void MarkGMGood(SkCanvas* canvas, SkScalar x, SkScalar y) {
+    mark(canvas, x,y, [&]{
+        SkPaint paint;
+
+        // A green circle.
+        paint.setColor(SkColorSetRGB(27, 158, 119));
+        canvas->drawCircle(0,0, 12, paint);
+
+        // Cut out a check mark.
+        paint.setBlendMode(SkBlendMode::kSrc);
+        paint.setColor(0x00000000);
+        paint.setStrokeWidth(2);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawLine(-6, 0,
+                         -1, 5, paint);
+        canvas->drawLine(-1, +5,
+                         +7, -5, paint);
+    });
+}
+
+void MarkGMBad(SkCanvas* canvas, SkScalar x, SkScalar y) {
+    mark(canvas, x,y, [&] {
+        SkPaint paint;
+
+        // A red circle.
+        paint.setColor(SkColorSetRGB(231, 41, 138));
+        canvas->drawCircle(0,0, 12, paint);
+
+        // Cut out an 'X'.
+        paint.setBlendMode(SkBlendMode::kSrc);
+        paint.setColor(0x00000000);
+        paint.setStrokeWidth(2);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawLine(-5,-5,
+                         +5,+5, paint);
+        canvas->drawLine(+5,-5,
+                         -5,+5, paint);
+    });
+}

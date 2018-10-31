@@ -11,57 +11,6 @@
 #include "SkGradientShader.h"
 #include "SkString.h"
 
-template <typename Fn>
-static void mark(SkCanvas* canvas, Fn&& fn) {
-    SkPaint alpha;
-    alpha.setAlpha(0x50);
-    canvas->saveLayer(nullptr, &alpha);
-        canvas->translate(140,40);
-        canvas->scale(2,2);
-        fn();
-    canvas->restore();
-}
-
-static void mark_good(SkCanvas* canvas) {
-    mark(canvas, [&]{
-        SkPaint paint;
-
-        // A green circle.
-        paint.setColor(SkColorSetRGB(27, 158, 119));
-        canvas->drawCircle(0,0, 12, paint);
-
-        // Cut out a check mark.
-        paint.setBlendMode(SkBlendMode::kSrc);
-        paint.setColor(0x00000000);
-        paint.setStrokeWidth(2);
-        paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawLine(-6, 0,
-                         -1, 5, paint);
-        canvas->drawLine(-1, +5,
-                         +7, -5, paint);
-    });
-}
-
-static void mark_bad(SkCanvas* canvas) {
-    mark(canvas, [&] {
-        SkPaint paint;
-
-        // A red circle.
-        paint.setColor(SkColorSetRGB(231, 41, 138));
-        canvas->drawCircle(0,0, 12, paint);
-
-        // Cut out an 'X'.
-        paint.setBlendMode(SkBlendMode::kSrc);
-        paint.setColor(0x00000000);
-        paint.setStrokeWidth(2);
-        paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawLine(-5,-5,
-                         +5,+5, paint);
-        canvas->drawLine(+5,-5,
-                         -5,+5, paint);
-    });
-}
-
 static bool nearly_equal(SkColor4f x, SkColor4f y) {
     const float K = 0.01f;
     return fabsf(x.fR - y.fR) < K
@@ -99,7 +48,7 @@ static void compare_pixel(const char* label,
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::Make(1,1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType, canvas_cs));
     if (!canvas->readPixels(bm, x,y)) {
-        mark_good(canvas);
+        MarkGMGood(canvas, 140,40);
         canvas->drawString("can't readPixels() on this canvas :(", 100,20, text);
         return;
     }
@@ -119,9 +68,9 @@ static void compare_pixel(const char* label,
     }
 
     if (nearly_equal(pixel, expected)) {
-        mark_good(canvas);
+        MarkGMGood(canvas, 140,40);
     } else {
-        mark_bad(canvas);
+        MarkGMBad(canvas, 140,40);
     }
 
     struct {

@@ -337,6 +337,7 @@ gm_sources = [
   "$_gm/transparency.cpp",
   "$_gm/trickycubicstrokes.cpp",
   "$_gm/typeface.cpp",
+  "$_gm/unpremul.cpp",
   "$_gm/variedtext.cpp",
   "$_gm/vertices.cpp",
   "$_gm/verylargebitmap.cpp",

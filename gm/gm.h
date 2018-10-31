@@ -144,4 +144,7 @@ namespace skiagm {
     };
 }
 
+void MarkGMGood(SkCanvas*, SkScalar x, SkScalar y);
+void MarkGMBad (SkCanvas*, SkScalar x, SkScalar y);
+
 #endif
