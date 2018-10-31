@@ -7,14 +7,16 @@
  API
  BMP GIF HEIF ICO JPEG PNG WBMP WebP
  CPU
- GPU GPU-backed OpenGL Vulkan I/O MSAA
+ GPU GPU-backed OpenGL Vulkan VkDevice I/O MSAA
  PDF XPS
  RFC
  NaN NaNs
- U16CPU
-
+ U16CPU int int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t size_t
+ nullptr
+ malloc() calloc() assert() std::move()
  C C++ SIZE_MAX C_FILE
  CSS HTML
+ affine destructor multitexturing representable subclasses descenders grayscale kerning unhinted
 
  Sa Da Sc Dc max min # temporary until figure out what to do
 
@@ -46,38 +48,6 @@ FT_LOAD_NO_HINTING
 FT_Load_Glyph
 
 #External ##
-
-# this jargon requires a substitute to lower-case the word. The word is uppercase because
-# it is not a dictionary word. An alternative would be to put this in an exception list
-# in the spell checker
-#Topic Destructor
-#Substitute destructor
-##
-
-# see comment for Destructor above
-#Topic Subclasses
-#Substitute subclasses
-##
-
-# see comment for Destructor above
-#Topic Descenders
-#Substitute descenders
-##
-
-# see comment for Destructor above
-#Topic Grayscale
-#Substitute grayscale
-##
-
-# see comment for Destructor above
-#Topic Kerning
-#Substitute kerning
-##
-
-# see comment for Destructor above
-#Topic Unhinted
-#Substitute unhinted
-##
 
 # this jargon requires a substitute to space the phrase.
 #Topic Little_Endian
@@ -260,6 +230,14 @@ FT_Load_Glyph
 
 #Topic Deserial_Procs
 #Struct SkDeserialProcs
+#Member SkDeserialPictureProc   fPictureProc
+##
+#Member void*   fPictureCtx
+##
+#Member SkDeserialTypefaceProc   fTypefaceProc
+##
+#Member void*   fTypefaceCtx
+##
 ##
 ##
 
@@ -413,6 +391,10 @@ FT_Load_Glyph
 
 #Topic ISize
 #Struct SkISize
+#Method int32_t width() const
+##
+#Method int32_t height() const
+##
 ##
 ##
 
@@ -444,6 +426,9 @@ FT_Load_Glyph
 #Topic ##
 
 # to be in Topic Math
+    #Method float sqrt(float x)
+    # this permits using sqrt(x) in documentation
+    ##
     #Method static inline bool sk_64_isS32(int64_t value)
     ##
     #Method SkIntToScalar(x)
@@ -478,11 +463,10 @@ FT_Load_Glyph
 #Topic Nine_Patch
 ##
 
-# to be in Topic Number_Types
+# to be in Topic Number_Types ?
     #Typedef uint16_t SkGlyphID
     #Typedef ##
     #Topic Scalar
-    #Alias Scalar ##
     #Alias Scalars ##
     #Typedef float SkScalar
     #Typedef ##
@@ -638,9 +622,11 @@ FT_Load_Glyph
 # end of Topic Rasterizer
 
 #Topic Reference_Count
-#Substitute SkRefCnt
 #Class SkRefCnt
 #Class ##
+##
+
+#Topic Smart_Pointer
 #Class sk_sp
 #Class ##
 #Topic ##
@@ -655,11 +641,27 @@ FT_Load_Glyph
 
 #Topic RSXform
 #Struct SkRSXform
+#Member SkScalar fSCos
+##
+#Member SkScalar fSSin
+##
+#Member SkScalar fTx
+##
+#Member SkScalar fTy
+##
 ##
 ##
 
 #Topic Serial_Procs
 #Struct SkSerialProcs
+#Member SkSerialPictureProc   fPictureProc
+##
+#Member void*   fPictureCtx
+##
+#Member SkSerialTypefaceProc   fTypefaceProc
+##
+#Member void*   fTypefaceCtx
+##
 ##
 ##
 
@@ -684,6 +686,10 @@ FT_Load_Glyph
 
 #Topic Size
 #Struct SkSize
+#Method int32_t width() const
+##
+#Method int32_t height() const
+##
 ##
 ##
 
@@ -724,6 +730,9 @@ FT_Load_Glyph
 #Subtopic Canvas
 ##
 #Subtopic Arc
+##
+#Subtopic Sweep_Flag
+#Substitute SVG sweep-flag
 ##
 ##
 
@@ -814,8 +823,4 @@ FT_Load_Glyph
 #Topic Xfermode_Image_Filter
 #Class SkXfermodeImageFilter
 ##
-##
-
-# temporary while ref is separated from overview
-#Topic Zero_Length_Contour
 ##

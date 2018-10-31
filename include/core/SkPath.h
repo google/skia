@@ -68,7 +68,7 @@ public:
         kCCW_Direction, //!< contour travels counterclockwise
     };
 
-    /** Constucts an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
+    /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
         SkPath::FillType is set to kWinding_FillType.
 
         @return  empty SkPath
@@ -289,7 +289,8 @@ public:
     */
     bool isOval(SkRect* bounds) const;
 
-    /** Returns true if this path is recognized as a SkRRect (but not an oval/circle or rect).
+    /** Returns true if path is representable as SkRRect.
+        Returns false if path is representable as oval, circle, or SkRect.
 
         rrect receives bounds of SkRRect.
 
@@ -590,8 +591,8 @@ public:
         lineTo() appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed.
         lineTo() then appends kLine_Verb to verb array and (x, y) to SkPoint array.
 
-        @param x  end of added line in x
-        @param y  end of added line in y
+        @param x  end of added line on x-axis
+        @param y  end of added line on y-axis
         @return   reference to SkPath
     */
     SkPath& lineTo(SkScalar x, SkScalar y);
@@ -631,10 +632,10 @@ public:
         then appends kQuad_Verb to verb array; and (x1, y1), (x2, y2)
         to SkPoint array.
 
-        @param x1  control SkPoint of quad in x
-        @param y1  control SkPoint of quad in y
-        @param x2  end SkPoint of quad in x
-        @param y2  end SkPoint of quad in y
+        @param x1  control SkPoint of quad on x-axis
+        @param y1  control SkPoint of quad on y-axis
+        @param x2  end SkPoint of quad on x-axis
+        @param y2  end SkPoint of quad on y-axis
         @return    reference to SkPath
     */
     SkPath& quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2);
@@ -689,10 +690,10 @@ public:
         If w is not finite, appends kLine_Verb twice to verb array, and
         (x1, y1), (x2, y2) to SkPoint array.
 
-        @param x1  control SkPoint of conic in x
-        @param y1  control SkPoint of conic in y
-        @param x2  end SkPoint of conic in x
-        @param y2  end SkPoint of conic in y
+        @param x1  control SkPoint of conic on x-axis
+        @param y1  control SkPoint of conic on y-axis
+        @param x2  end SkPoint of conic on x-axis
+        @param y2  end SkPoint of conic on y-axis
         @param w   weight of added conic
         @return    reference to SkPath
     */
@@ -759,12 +760,12 @@ public:
         then appends kCubic_Verb to verb array; and (x1, y1), (x2, y2), (x3, y3)
         to SkPoint array.
 
-        @param x1  first control SkPoint of cubic in x
-        @param y1  first control SkPoint of cubic in y
-        @param x2  second control SkPoint of cubic in x
-        @param y2  second control SkPoint of cubic in y
-        @param x3  end SkPoint of cubic in x
-        @param y3  end SkPoint of cubic in y
+        @param x1  first control SkPoint of cubic on x-axis
+        @param y1  first control SkPoint of cubic on y-axis
+        @param x2  second control SkPoint of cubic on x-axis
+        @param y2  second control SkPoint of cubic on y-axis
+        @param x3  end SkPoint of cubic on x-axis
+        @param y3  end SkPoint of cubic on y-axis
         @return    reference to SkPath
     */
     SkPath& cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
@@ -799,16 +800,16 @@ public:
         Cubic end is last point plus vector (dx2, dy2).
         Function name stands for "relative cubic to".
 
-        @param x1  offset from last point to first cubic control on x-axis
-        @param y1  offset from last point to first cubic control on y-axis
-        @param x2  offset from last point to second cubic control on x-axis
-        @param y2  offset from last point to second cubic control on y-axis
-        @param x3  offset from last point to cubic end on x-axis
-        @param y3  offset from last point to cubic end on y-axis
+        @param dx1  offset from last point to first cubic control on x-axis
+        @param dy1  offset from last point to first cubic control on y-axis
+        @param dx2  offset from last point to second cubic control on x-axis
+        @param dy2  offset from last point to second cubic control on y-axis
+        @param dx3  offset from last point to cubic end on x-axis
+        @param dy3  offset from last point to cubic end on y-axis
         @return    reference to SkPath
     */
-    SkPath& rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
-                     SkScalar x3, SkScalar y3);
+    SkPath& rCubicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2,
+                     SkScalar dx3, SkScalar dy3);
 
     /** Appends arc to SkPath. Arc added is part of ellipse
         bounded by oval, from startAngle through sweepAngle. Both startAngle and
@@ -829,8 +830,17 @@ public:
 
     /** Appends arc to SkPath, after appending line if needed. Arc is implemented by conic
         weighted to describe part of circle. Arc is contained by tangent from
-        last SkPath point (x0, y0) to (x1, y1), and tangent from (x1, y1) to (x2, y2). Arc
+        last SkPath point to (x1, y1), and tangent from (x1, y1) to (x2, y2). Arc
         is part of circle sized to radius, positioned so it touches both tangent lines.
+
+        If last Path Point does not start Arc, arcTo appends connecting Line to Path.
+        The length of Vector from (x1, y1) to (x2, y2) does not affect Arc.
+
+        Arc sweep is always less than 180 degrees. If radius is zero, or if
+        tangents are nearly parallel, arcTo appends Line from last Path Point to (x1, y1).
+
+        arcTo appends at most one Line and one conic.
+        arcTo implements the functionality of PostScript arct and HTML Canvas arcTo.
 
         @param x1      x-axis value common to pair of tangents
         @param y1      y-axis value common to pair of tangents
@@ -853,7 +863,7 @@ public:
         tangents are nearly parallel, arcTo() appends line from last SkPath SkPoint to p1.
 
         arcTo() appends at most one line and one conic.
-        arcTo() implements the functionality of PostScript_Arct and HTML_Canvas_ArcTo.
+        arcTo() implements the functionality of PostScript arct and HTML Canvas arcTo.
 
         @param p1      SkPoint common to pair of tangents
         @param p2      end of second tangent
@@ -884,12 +894,12 @@ public:
         too small.
 
         arcTo() appends up to four conic curves.
-        arcTo() implements the functionality of svg arc, although SVG "sweep-flag" value
-        is opposite the integer value of sweep; SVG "sweep-flag" uses 1 for clockwise,
-        while kCW_Direction  cast to int is zero.
+        arcTo() implements the functionality of SVG arc, although SVG sweep-flag value
+        is opposite the integer value of sweep; SVG sweep-flag uses 1 for clockwise,
+        while kCW_Direction cast to int is zero.
 
-        @param rx           radius in x before x-axis rotation
-        @param ry           radius in y before x-axis rotation
+        @param rx           radius on x-axis before x-axis rotation
+        @param ry           radius on y-axis before x-axis rotation
         @param xAxisRotate  x-axis rotation in degrees; positive values are clockwise
         @param largeArc     chooses smaller or larger arc
         @param sweep        chooses clockwise or counterclockwise arc
@@ -907,13 +917,13 @@ public:
         and smaller or larger.
 
         Arc sweep is always less than 360 degrees. arcTo() appends line to xy if either
-        radii are zero, or if last SkPath SkPoint equals (x, y). arcTo() scales radii r to fit
-        last SkPath SkPoint and xy if both are greater than zero but too small to describe
+        radii are zero, or if last SkPath SkPoint equals (xy.fX, xy.fY). arcTo() scales radii r to
+        fit last SkPath SkPoint and xy if both are greater than zero but too small to describe
         an arc.
 
         arcTo() appends up to four conic curves.
-        arcTo() implements the functionality of svg arc, although SVG "sweep-flag" value is
-        opposite the integer value of sweep; SVG "sweep-flag" uses 1 for clockwise, while
+        arcTo() implements the functionality of SVG arc, although SVG sweep-flag value is
+        opposite the integer value of sweep; SVG sweep-flag uses 1 for clockwise, while
         kCW_Direction cast to int is zero.
 
         @param r            radii on axes before x-axis rotation
@@ -930,8 +940,8 @@ public:
 
     /** Appends arc to SkPath, relative to last SkPath SkPoint. Arc is implemented by one or
         more conic, weighted to describe part of oval with radii (rx, ry) rotated by
-        xAxisRotate degrees. Arc curves from last SkPath SkPoint (x0, y0) to end SkPoint:
-        (x0 + dx, y0 + dy), choosing one of four possible routes: clockwise or
+        xAxisRotate degrees. Arc curves from last SkPath SkPoint to relative end SkPoint:
+        (dx, dy), choosing one of four possible routes: clockwise or
         counterclockwise, and smaller or larger. If SkPath is empty, the start arc SkPoint
         is (0, 0).
 
@@ -1046,8 +1056,8 @@ public:
         If false, rect and dirs are unchanged.
         If true, rect and dirs are written to if not nullptr:
         setting rect[0] to outer SkRect, and rect[1] to inner SkRect;
-        setting dirs[0] to SkPath::Direction of outer SkRect, and dirs[1] to SkPath::Direction of inner
-        SkRect.
+        setting dirs[0] to SkPath::Direction of outer SkRect, and dirs[1] to SkPath::Direction of
+        inner SkRect.
 
         @param rect  storage for SkRect pair; may be nullptr
         @param dirs  storage for SkPath::Direction pair; may be nullptr
@@ -1158,7 +1168,7 @@ public:
         corners fit. If rx or ry is less than or equal to zero, addRoundRect() appends
         SkRect rect to SkPath.
 
-        After appending, SkPath may be empty, or may contain: SkRect, oval, or RoundRect.
+        After appending, SkPath may be empty, or may contain: SkRect, oval, or SkRRect.
 
         @param rect  bounds of SkRRect
         @param rx    x-axis radius of rounded corners on the SkRRect
@@ -1403,15 +1413,16 @@ public:
     class SK_API Iter {
     public:
 
-        /** Initializes SkPath::Iter with an empty SkPath. next() on SkPath::Iter returns kDone_Verb.
+        /** Initializes SkPath::Iter with an empty SkPath. next() on SkPath::Iter returns
+            kDone_Verb.
             Call setPath to initialize SkPath::Iter at a later time.
 
             @return  SkPath::Iter of empty SkPath
         */
         Iter();
 
-        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in path.
-            If forceClose is true, SkPath::Iter will add kLine_Verb and kClose_Verb after each
+        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in
+            path. If forceClose is true, SkPath::Iter will add kLine_Verb and kClose_Verb after each
             open contour. path is not altered.
 
             @param path        SkPath to iterate
@@ -1420,8 +1431,8 @@ public:
         */
         Iter(const SkPath& path, bool forceClose);
 
-        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in path.
-            If forceClose is true, SkPath::Iter will add kLine_Verb and kClose_Verb after each
+        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in
+            path. If forceClose is true, SkPath::Iter will add kLine_Verb and kClose_Verb after each
             open contour. path is not altered.
 
             @param path        SkPath to iterate
@@ -1530,7 +1541,8 @@ public:
             setPath(path);
         }
 
-        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in path.
+        /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in
+            path.
 
             @param path  SkPath to iterate
         */
@@ -1651,14 +1663,14 @@ public:
     */
     size_t readFromMemory(const void* buffer, size_t length);
 
-    /** (see skbug.com/1762)
+    /** (See Skia bug 1762.)
         Returns a non-zero, globally unique value. A different value is returned
         if verb array, SkPoint array, or conic weight changes.
 
-        Setting SkPath::FillType does not change generation id.
+        Setting SkPath::FillType does not change generation identifier.
 
-        Each time the path is modified, a different generation id will be returned.
-        SkPath::FillType does affect generation id on Android framework.
+        Each time the path is modified, a different generation identifier will be returned.
+        SkPath::FillType does affect generation identifier on Android framework.
 
         @return  non-zero, globally unique value
     */

@@ -192,16 +192,8 @@ in the same order.
 #Method static inline bool SkAlphaTypeIsOpaque(SkAlphaType at)
 #In Property
 #Line # returns if Alpha_Type equals kOpaque_SkAlphaType ##
+#Populate
 
-Returns true if Alpha_Type equals kOpaque_SkAlphaType. kOpaque_SkAlphaType is a
-hint that the Color_Type is opaque, or that all Color_Alpha values are set to
-their 1.0 equivalent. If Alpha_Type is kOpaque_SkAlphaType, and Color_Type is not
-opaque, then the result of drawing any pixel with a Color_Alpha value less than
-1.0 is undefined.
-
-#Param at one of: #list_of_alpha_types#
-##
-#Return true if at equals kOpaque_SkAlphaType ##
 #NoExample
 ##
 ##
@@ -229,7 +221,7 @@ kGray_8_SkColorType, kRGBA_F16_SkColorType
 ##
 
 Describes how pixel bits encode color. A pixel may be an alpha mask, a
-Grayscale, RGB, or ARGB.
+grayscale, RGB, or ARGB.
 
 kN32_SkColorType selects the native 32-bit ARGB format. On Little_Endian
 processors, pixels containing 8-bit ARGB components pack into 32-bit
@@ -299,7 +291,7 @@ kRGBA_8888_SkColorType.
 ##
 
 #Const kGray_8_SkColorType 9
-#Line # pixel with Grayscale level in 8-bit byte ##
+#Line # pixel with grayscale level in 8-bit byte ##
 #Details Gray_8
     Stores 8-bit byte pixel encoding that equivalent to equal values for red,
     blue, and green, representing colors from black to white.
@@ -706,8 +698,8 @@ kRGBA_8888_SkColorType.
 ##
 
 #Subtopic Gray_8
-#Line # encodes level of Grayscale in 8 bits ##
-    kGray_8_SkColorType encodes Grayscale level in eight bits that is equivalent
+#Line # encodes level of grayscale in 8 bits ##
+    kGray_8_SkColorType encodes grayscale level in eight bits that is equivalent
     to equal values for red, blue, and green, representing colors from black to
     white.  Pixels described by kGray_8_SkColorType are fully
     opaque as if its Color_Alpha was set to one, and should always be paired with
@@ -883,14 +875,7 @@ kRGBA_8888_SkColorType.
 #Method int SkColorTypeBytesPerPixel(SkColorType ct)
 #In Property
 #Line # returns Color_Type byte size ##
-
-Returns the number of bytes required to store a pixel, including unused padding.
-Returns zero if ct is kUnknown_SkColorType or invalid.
-
-#Param ct  one of: #list_of_color_types#
-##
-
-#Return bytes per pixel ##
+#Populate
 
 #Example
 #Height 192
@@ -918,14 +903,7 @@ Returns zero if ct is kUnknown_SkColorType or invalid.
 #Method bool SkColorTypeIsAlwaysOpaque(SkColorType ct)
 #In Property
 #Line # returns if Color_Type includes Color_Alpha ##
-
-Returns true if Color_Type always decodes Color_Alpha to 1.0, making the pixel
-fully opaque. If true, Color_Type does not reserve bits to encode Color_Alpha.
-
-#Param ct  one of: #list_of_color_types#
-##
-
-#Return true if Color_Alpha is always set to 1.0 ##
+#Populate
 
 #Example
 #Height 192
@@ -954,31 +932,7 @@ fully opaque. If true, Color_Type does not reserve bits to encode Color_Alpha.
                                          SkAlphaType* canonical = nullptr)
 #In Property
 #Line # returns if Alpha_Type is valid ##
-
-Returns true if canonical can be set to a valid Alpha_Type for colorType. If
-there is more than one valid canonical Alpha_Type, set to alphaType, if valid.
-If true is returned and canonical is not nullptr, store valid Alpha_Type.
-
-Returns false only if alphaType is kUnknown_SkAlphaType, color type is not
-kUnknown_SkColorType, and Color_Type is not always opaque. If false is returned,
-canonical is ignored.
-
-For kUnknown_SkColorType: set canonical to kUnknown_SkAlphaType and return true.
-For kAlpha_8_SkColorType: set canonical to kPremul_SkAlphaType or
-kOpaque_SkAlphaType and return true if alphaType is not kUnknown_SkAlphaType.
-For kRGB_565_SkColorType, kRGB_888x_SkColorType, kRGB_101010x_SkColorType, and
-kGray_8_SkColorType: set canonical to kOpaque_SkAlphaType and return true.
-For kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
-kRGBA_1010102_SkColorType, and kRGBA_F16_SkColorType: set canonical to alphaType
-and return true if alphaType is not kUnknown_SkAlphaType.
-
-#Param colorType  one of: #list_of_color_types#
-##
-#Param alphaType  one of: #list_of_alpha_types#
-##
-#Param canonical storage for Alpha_Type ##
-
-#Return true if valid Alpha_Type can be associated with colorType ##
+#Populate
 
 #Example
 #Height 640
@@ -1085,10 +1039,7 @@ and green; and Color_Space, the range and linearity of colors.
 
 #In Constructors
 #Line # creates with zeroed dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
-Creates an empty Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType,
-a width and height of zero, and no Color_Space.
-
-#Return empty Image_Info ##
+#Populate
 
 #Example
 #Height 32
@@ -1117,24 +1068,7 @@ for the Canvas actual Image_Info.
                             sk_sp<SkColorSpace> cs = nullptr)
 #In Constructors
 #Line # creates Image_Info from dimensions, Color_Type, Alpha_Type, Color_Space ##
-Creates Image_Info from integral dimensions width and height, Color_Type ct,
-Alpha_Type at, and optionally Color_Space cs.
-
-If Color_Space cs is nullptr and Image_Info is part of drawing source: Color_Space
-defaults to sRGB, mapping into Surface Color_Space.
-
-Parameters are not validated to see if their values are legal, or that the
-combination is supported.
-
-#Param width  pixel column count; must be zero or greater ##
-#Param height  pixel row count; must be zero or greater ##
-#Param ct  one of: #list_of_color_types#
-##
-#Param at  one of: #list_of_alpha_types#
-##
-#Param cs  range of colors; may be nullptr ##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Height 48
@@ -1161,23 +1095,7 @@ combination is supported.
                                sk_sp<SkColorSpace> cs = nullptr)
 #In Constructors
 #Line # creates Image_Info with Native_Color_Type ##
-Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
-Alpha_Type at, and optionally Color_Space cs. kN32_SkColorType will equal either
-kBGRA_8888_SkColorType or kRGBA_8888_SkColorType, whichever is optimal.
-
-If Color_Space cs is nullptr and Image_Info is part of drawing source: Color_Space
-defaults to sRGB, mapping into Surface Color_Space.
-
-Parameters are not validated to see if their values are legal, or that the
-combination is supported.
-
-#Param width  pixel column count; must be zero or greater ##
-#Param height  pixel row count; must be zero or greater ##
-#Param at  one of: #list_of_alpha_types#
-##
-#Param cs  range of colors; may be nullptr ##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Height 128
@@ -1201,18 +1119,7 @@ combination is supported.
 
 #In Constructors
 #Line # creates Image_Info with Native_Color_Type, sRGB Color_Space ##
-Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
-Alpha_Type at, with sRGB Color_Space.
-
-Parameters are not validated to see if their values are legal, or that the
-combination is supported.
-
-#Param width  pixel column count; must be zero or greater ##
-#Param height  pixel row count; must be zero or greater ##
-#Param at  one of: #list_of_alpha_types#
-##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Set sRGB
@@ -1257,20 +1164,7 @@ middle gradient.
 
 #In Constructors
 #Line # creates Image_Info with Native_Color_Type, kPremul_SkAlphaType ##
-Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
-kPremul_SkAlphaType, with optional Color_Space.
-
-If Color_Space cs is nullptr and Image_Info is part of drawing source: Color_Space
-defaults to sRGB, mapping into Surface Color_Space.
-
-Parameters are not validated to see if their values are legal, or that the
-combination is supported.
-
-#Param width  pixel column count; must be zero or greater ##
-#Param height  pixel row count; must be zero or greater ##
-#Param cs  range of colors; may be nullptr ##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Height 128
@@ -1295,18 +1189,7 @@ combination is supported.
 #Method static SkImageInfo MakeN32Premul(const SkISize& size)
 
 #In Constructors
-Creates Image_Info from integral dimensions width and height, kN32_SkColorType,
-kPremul_SkAlphaType, with Color_Space set to nullptr.
-
-If Image_Info is part of drawing source: Color_Space defaults to sRGB, mapping
-into Surface Color_Space.
-
-Parameters are not validated to see if their values are legal, or that the
-combination is supported.
-
-#Param size  width and height, each must be zero or greater ##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Height 128
@@ -1332,13 +1215,7 @@ combination is supported.
 
 #In Constructors
 #Line # creates Image_Info with kAlpha_8_SkColorType, kPremul_SkAlphaType ##
-Creates Image_Info from integral dimensions width and height, kAlpha_8_SkColorType,
-kPremul_SkAlphaType, with Color_Space set to nullptr.
-
-#Param width  pixel column count; must be zero or greater ##
-#Param height  pixel row count; must be zero or greater ##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Height 64
@@ -1372,16 +1249,7 @@ kPremul_SkAlphaType, with Color_Space set to nullptr.
 
 #In Constructors
 #Line # creates Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType ##
-Creates Image_Info from integral dimensions width and height, kUnknown_SkColorType,
-kUnknown_SkAlphaType, with Color_Space set to nullptr.
-
-Returned Image_Info as part of source does not draw, and as part of destination
-can not be drawn to.
-
-#Param width  pixel column count; must be zero or greater ##
-#Param height  pixel row count; must be zero or greater ##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Height 32
@@ -1403,13 +1271,7 @@ canvas->drawString(string, 0, 12, paint);
 #Method static SkImageInfo MakeUnknown()
 
 #In Constructors
-Creates Image_Info from integral dimensions width and height set to zero,
-kUnknown_SkColorType, kUnknown_SkAlphaType, with Color_Space set to nullptr.
-
-Returned Image_Info as part of source does not draw, and as part of destination
-can not be drawn to.
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Height 32
@@ -1435,9 +1297,7 @@ canvas->drawString(string, 0, 12, paint);
 #Method int width() const
 #In Property
 #Line # returns pixel column count ##
-Returns pixel count in each row.
-
-#Return pixel width ##
+#Populate
 
 #Example
 #Image 4
@@ -1460,9 +1320,7 @@ Returns pixel count in each row.
 #Method int height() const
 #In Property
 #Line # returns pixel row count ##
-Returns pixel row count.
-
-#Return pixel height ##
+#Populate
 
 #Example
 #Image 4
@@ -1529,10 +1387,7 @@ alpha type: kPremul_SkAlphaType
 #Method SkColorSpace* colorSpace() const
 #In Property
 #Line # returns Color_Space ##
-Returns Color_Space, the range of colors. The reference count of
-Color_Space is unchanged. The returned Color_Space is immutable.
-
-#Return Color_Space, or nullptr ##
+#Populate
 
 #Example
 #Description
@@ -1560,13 +1415,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 #Method sk_sp<SkColorSpace> refColorSpace() const
 #In Property
 #Line # returns Color_Space ##
-Returns smart pointer to Color_Space, the range of colors. The smart pointer
-tracks the number of objects sharing this Color_Space reference so the memory
-is released when the owners destruct.
-
-The returned Color_Space is immutable.
-
-#Return Color_Space wrapped in a smart pointer ##
+#Populate
 
 #Example
     SkImageInfo info1 = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
@@ -1589,11 +1438,7 @@ The returned Color_Space is immutable.
 #Method bool isEmpty() const
 #In Property
 #Line # returns if dimensions contain pixels ##
-
-Returns if Image_Info describes an empty area of pixels by checking if either
-width or height is zero or smaller.
-
-#Return true if either dimension is zero or smaller ##
+#Populate
 
 #Example
     for (int width : { 0, 2 } ) {
@@ -1620,15 +1465,7 @@ width: 2 height: 2 empty: false
 #Method bool isOpaque() const
 #In Property
 #Line # returns if Alpha_Type is kOpaque_SkAlphaType ##
-
-Returns true if Alpha_Type is set to hint that all pixels are opaque; their
-Color_Alpha value is implicitly or explicitly 1.0. If true, and all pixels are
-not opaque, Skia may draw incorrectly.
-
-Does not check if Color_Type allows Alpha, or if any pixel value has
-transparency.
-
-#Return true if Alpha_Type is kOpaque_SkAlphaType ##
+#Populate
 
 #Example
     const int height = 2;
@@ -1662,10 +1499,7 @@ isOpaque: true
 #Method SkISize dimensions() const
 #In Property
 #Line # returns width() and height() ##
-
-Returns ISize { width(), height() }.
-
-#Return integral size of width() and height() ##
+#Populate
 
 #Example
     const int height = 2;
@@ -1689,9 +1523,7 @@ dimensionsAsBounds == bounds
 #Method SkIRect bounds() const
 #In Property
 #Line # returns width() and height() as Rectangle ##
-Returns IRect { 0, 0, width(), height() }.
-
-#Return integral rectangle from origin to width() and height() ##
+#Populate
 
 #Example
 #Height 64
@@ -1763,13 +1595,7 @@ as well as a gamma curve described by a 2.2 exponent.
 #Method SkImageInfo makeWH(int newWidth, int newHeight) const
 #In Constructors
 #Line # creates Image_Info with changed dimensions ##
-Creates Image_Info with the same Color_Type, Color_Space, and Alpha_Type,
-with dimensions set to width and height.
-
-#Param newWidth   pixel column count; must be zero or greater ##
-#Param newHeight  pixel row count; must be zero or greater ##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Height 144
@@ -1795,16 +1621,7 @@ with dimensions set to width and height.
 #Method SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const
 #In Constructors
 #Line # creates Image_Info with changed Alpha_Type ##
-Creates Image_Info with same Color_Type, Color_Space, width, and height,
-with Alpha_Type set to newAlphaType.
-
-Created Image_Info contains newAlphaType even if it is incompatible with
-Color_Type, in which case Alpha_Type in Image_Info is ignored.
-
-#Param newAlphaType  one of: #list_of_alpha_types#
-##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Image 3
@@ -1840,13 +1657,7 @@ Color_Type, in which case Alpha_Type in Image_Info is ignored.
 #Method SkImageInfo makeColorType(SkColorType newColorType) const
 #In Constructors
 #Line # creates Image_Info with changed Color_Type ##
-Creates Image_Info with same Alpha_Type, Color_Space, width, and height,
-with Color_Type set to newColorType.
-
-#Param newColorType  one of:  #list_of_color_types#
-##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
     const int width = 256;
@@ -1881,12 +1692,7 @@ with Color_Type set to newColorType.
 #Method SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
 #In Constructors
 #Line # creates Image_Info with changed Color_Space ##
-Creates Image_Info with same Alpha_Type, Color_Type, width, and height,
-with Color_Space set to cs.
-
-#Param cs  range of colors; may be nullptr ##
-
-#Return created Image_Info ##
+#Populate
 
 #Example
 #Height 224
@@ -1933,10 +1739,7 @@ with Color_Space set to cs.
 #Method int bytesPerPixel() const
 #In Property
 #Line # returns number of bytes in pixel based on Color_Type ##
-Returns number of bytes per pixel required by Color_Type.
-Returns zero if colorType( is kUnknown_SkColorType.
-
-#Return bytes in pixel ##
+#Populate
 
 #Example
     const char* colors[] = {"Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
@@ -1972,10 +1775,7 @@ color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 #Method int shiftPerPixel() const
 #In Property
 #Line # returns bit shift from pixels to bytes ##
-Returns bit shift converting row bytes to row pixels.
-Returns zero for kUnknown_SkColorType.
-
-#Return one of: 0, 1, 2, 3; left shift to convert pixels to bytes ##
+#Populate
 
 #Example
     const char* colors[] = {"Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
@@ -2011,12 +1811,7 @@ color: kRGBA_F16_SkColorType      shiftPerPixel: 3
 #Method uint64_t minRowBytes64() const
 #In Property
 #Line # returns width() times bytesPerPixel in 64 bits ##
-
-Returns minimum bytes per row, computed from pixel width() and Color_Type, which
-specifies bytesPerPixel(). Bitmap maximum value for row bytes must fit
-in 31 bits.
-
-#Return width() times bytesPerPixel as unsigned 64-bit integer ##
+#Populate
 
 #Example
     for (int shift = 24; shift < 32; ++shift) {
@@ -2049,12 +1844,7 @@ RGBA_F16 width -2147483648 (0x80000000) too large
 #Method size_t minRowBytes() const
 #In Property
 #Line # returns width() times bytesPerPixel in 32 bits ##
-
-Returns minimum bytes per row, computed from pixel width() and Color_Type, which
-specifies bytesPerPixel(). Bitmap maximum value for row bytes must fit
-in 31 bits.
-
-#Return width() times bytesPerPixel as signed 32-bit integer ##
+#Populate
 
 #Example
     for (int shift = 24; shift < 32; ++shift) {
@@ -2087,17 +1877,7 @@ RGBA_F16 width -2147483648 (0x80000000) too large
 #Method size_t computeOffset(int x, int y, size_t rowBytes) const
 #In Utility
 #Line # returns byte offset within pixel array ##
-
-Returns byte offset of pixel from pixel base address.
-
-Asserts in debug build if x or y is outside of bounds. Does not assert if
-rowBytes is smaller than minRowBytes, even though result may be incorrect.
-
-#Param x  column index, zero or greater, and less than width() ##
-#Param y  row index, zero or greater, and less than height() ##
-#Param rowBytes  size of pixel row or larger ##
-
-#Return offset within pixel array ##
+#Populate
 
 #Example
 #Height 128
@@ -2131,13 +1911,7 @@ rowBytes is smaller than minRowBytes, even though result may be incorrect.
 
 #Method bool operator==(const SkImageInfo& other)_const
 #Line # compares Image_Info for equality ##
-
-Compares Image_Info with other, and returns true if width, height, Color_Type,
-Alpha_Type, and Color_Space are equivalent.
-
-#Param other  Image_Info to compare ##
-
-#Return true if Image_Info equals other ##
+#Populate
 
 #Example
     SkImageInfo info1 = SkImageInfo::Make(10, 20, kGray_8_SkColorType, kPremul_SkAlphaType);
@@ -2165,13 +1939,7 @@ info1 == info2
 
 #Method bool operator!=(const SkImageInfo& other)_const
 #Line # compares Image_Info for inequality ##
-
-Compares Image_Info with other, and returns true if width, height, Color_Type,
-Alpha_Type, and Color_Space are not equivalent.
-
-#Param other  Image_Info to compare ##
-
-#Return true if Image_Info is not equal to other ##
+#Populate
 
 #Example
     SkImageInfo info1 = SkImageInfo::Make(10, 20, kGray_8_SkColorType, kPremul_SkAlphaType);
@@ -2200,15 +1968,7 @@ info1 == info2
 #Method size_t computeByteSize(size_t rowBytes) const
 #In Utility
 #Line # returns memory required by pixel buffer with given row bytes ##
-Returns storage required by pixel array, given Image_Info dimensions, Color_Type,
-and rowBytes. rowBytes is assumed to be at least as large as minRowBytes().
-
-Returns zero if height is zero.
-Returns SIZE_MAX if answer exceeds the range of size_t.
-
-#Param rowBytes  size of pixel row or larger ##
-
-#Return memory required by pixel buffer ##
+#Populate
 
 #Example
 #Height 130
@@ -2234,13 +1994,7 @@ Returns SIZE_MAX if answer exceeds the range of size_t.
 #Method size_t computeMinByteSize() const
 #In Utility
 #Line # returns least memory required by pixel buffer ##
-Returns storage required by pixel array, given Image_Info dimensions, and
-Color_Type. Uses minRowBytes() to compute bytes for pixel row.
-
-Returns zero if height is zero.
-Returns SIZE_MAX if answer exceeds the range of size_t.
-
-#Return least memory required by pixel buffer ##
+#Populate
 
 #Example
 #Height 130
@@ -2266,12 +2020,7 @@ Returns SIZE_MAX if answer exceeds the range of size_t.
 #Method static bool ByteSizeOverflowed(size_t byteSize)
 #In Utility
 #Line # checks result of computeByteSize and computeMinByteSize ##
-Returns true if byteSize equals SIZE_MAX. computeByteSize and
-computeMinByteSize return SIZE_MAX if size_t can not hold buffer size.
-
-#Param byteSize  result of computeByteSize or computeMinByteSize ##
-
-#Return true if computeByteSize or computeMinByteSize result exceeds size_t ##
+#Populate
 
 #Example
     SkImageInfo info = SkImageInfo::MakeN32Premul(2, 1000000000);
@@ -2298,11 +2047,7 @@ rowBytes:1000000000000 size:18446744073709551615 overflowed:true
 #Method bool validRowBytes(size_t rowBytes) const
 #In Utility
 #Line # checks if row bytes is large enough to contain pixel row ##
-Returns true if rowBytes is smaller than width times pixel size.
-
-#Param rowBytes  size of pixel row or larger ##
-
-#Return true if rowBytes is large enough to contain pixel row ##
+#Populate
 
 #Example
     SkImageInfo info = SkImageInfo::MakeN32Premul(16, 8);
@@ -2326,8 +2071,7 @@ validRowBytes(68): true
 #Method void reset()
 #In Constructors
 #Line # sets zero dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
-Creates an empty Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType,
-a width and height of zero, and no Color_Space.
+#Populate
 
 #Example
     SkImageInfo info = SkImageInfo::MakeN32Premul(16, 8);
@@ -2355,8 +2099,7 @@ SkImageInfo() == reset copy
 #Method void validate() const
 #In Utility
 #Line # asserts if Image_Info is invalid (debug only) ##
-Asserts if internal values are illegal or inconsistent. Only available if
-SK_DEBUG is defined at compile time.
+#Populate
 
 #NoExample
 ##
