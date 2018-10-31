@@ -481,7 +481,7 @@ bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
     unsigned char* currDestPtr = copyPtr + width + 2;
     for (int i = 0; i < height; ++i) {
         *currDestPtr++ = 0;
-        memcpy(currDestPtr, currSrcScanLine, rowBytes);
+        memcpy(currDestPtr, currSrcScanLine, width);
         currSrcScanLine += rowBytes;
         currDestPtr += width;
         *currDestPtr++ = 0;
