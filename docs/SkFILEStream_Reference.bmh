@@ -17,7 +17,7 @@ A stream that wraps a C FILE* file stream. */
 
 Initializes Stream by reading data contained by path.
 File descriptor is opened here and is closed when SkFILEStream
-Destructor is invoked.
+destructor is invoked.
 
 #Param path  incomplete ##
 
@@ -40,7 +40,7 @@ Destructor is invoked.
 Initialize the stream with an existing C_FILE stream.
 The current position of the C_FILE stream will be considered the
 beginning of the SkFILEStream.
-The C_FILE stream is closed when SkFILEStream Destructor is invoked.
+The C_FILE stream is closed when SkFILEStream destructor is invoked.
 
 #Param file  incomplete ##
 

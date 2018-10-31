@@ -21,6 +21,13 @@
 #include <unordered_map>
 #include <vector>
 
+#define FPRINTF(...)                \
+    if (fDebugOut) {                \
+        SkDebugf(__VA_ARGS__);      \
+    }                               \
+    fprintf(fOut, __VA_ARGS__)
+
+
 // std::to_string isn't implemented on android
 #include <sstream>
 
@@ -290,6 +297,19 @@ public:
         return nullptr;
     }
 
+    bool back(const char* pattern) {
+        size_t len = strlen(pattern);
+        const char* start = fChar - len;
+        if (start <= fStart) {
+            return false;
+        }
+        if (strncmp(start, pattern, len)) {
+            return false;
+        }
+        fChar = start;
+        return true;
+    }
+
     char backup(const char* pattern) const {
         size_t len = strlen(pattern);
         const char* start = fChar - len;
@@ -302,12 +322,37 @@ public:
         return start[-1];
     }
 
+    void backupWord() {
+        while (fChar > fStart && isalpha(fChar[-1])) {
+            --fChar;
+        }
+    }
+
     bool contains(const char* match, const char* lineEnd, const char** loc) const {
         const char* result = this->strnstr(match, lineEnd);
         if (loc) {
             *loc = result;
         }
         return result;
+    }
+
+    bool containsWord(const char* match, const char* lineEnd, const char** loc) {
+        size_t len = strlen(match);
+        do {
+            const char* result = this->strnstr(match, lineEnd);
+            if (!result) {
+                return false;
+            }
+            if ((result > fStart && isalnum(result[-1])) || (result + len < fEnd
+                    && isalnum(result[len]))) {
+                fChar = result + len;
+                continue;
+            }
+            if (loc) {
+                *loc = result;
+            }
+            return true;
+        } while (true);
     }
 
     // either /n/n or /n# will stop parsing a typedef
@@ -484,14 +529,22 @@ public:
     // differs from skipToNonAlphaNum in that a.b isn't considered a full name,
     // since a.b can't be found as a named definition
     void skipFullName() {
-        while (fChar < fEnd && (isalnum(fChar[0])
-                || '_' == fChar[0]  /* || '-' == fChar[0] */
-                || (':' == fChar[0] && fChar +1 < fEnd && ':' == fChar[1]))) {
-            if (':' == fChar[0] && fChar +1 < fEnd && ':' == fChar[1]) {
+        do {
+            char last = '\0';
+            while (fChar < fEnd && (isalnum(fChar[0])
+                    || '_' == fChar[0]  /* || '-' == fChar[0] */
+                    || (':' == fChar[0] && fChar + 1 < fEnd && ':' == fChar[1]))) {
+                if (':' == fChar[0] && fChar + 1 < fEnd && ':' == fChar[1]) {
+                    fChar++;
+                }
+                last = fChar[0];
                 fChar++;
             }
-            fChar++;
-        }
+            if (fChar + 1 >= fEnd || '/' != fChar[0] || !isalpha(last) || !isalpha(fChar[1])) {
+                break;  // stop unless pattern is xxx/xxx as in I/O
+            }
+            fChar++; // skip slash
+        } while (true);
     }
 
     int skipToLineBalance(char open, char close) {
@@ -1091,6 +1144,16 @@ public:
     static const char* kGeneratedSubtopics[];
 };
 
+struct NameMap {
+    void copyToParent(NameMap* parent) const;
+
+    string fName;
+    NameMap* fParent = nullptr;
+    unordered_map<string, string> fLinkMap;   // from SkRect to #Rect
+    // ref map includes "xxx", "xxx ", "xxx yyy", "xxx zzz", etc.
+    unordered_map<string, Definition*> fRefMap;    // e.g., from #Substitute entry to #Topic entry
+};
+
 class RootDefinition : public Definition {
 public:
     enum class AllowParens {
@@ -1112,10 +1175,16 @@ public:
 
     RootDefinition(MarkType markType, const char* start, int line, Definition* parent, char mc)
             : Definition(markType, start, line, parent, mc) {
+        if (MarkType::kSubtopic != markType && MarkType::kTopic != markType) {
+            if (parent) {
+                fNames.fName = parent->fName;
+                fNames.fParent = &parent->asRoot()->fNames;
+            }
+        }
     }
 
     RootDefinition(MarkType markType, const char* start, const char* end, int line,
-            Definition* parent, char mc) : Definition(markType, start, end,  line, parent, mc) {
+            Definition* parent, char mc) : Definition(markType, start, end, line, parent, mc) {
     }
 
     ~RootDefinition() override {
@@ -1141,6 +1210,7 @@ public:
     unordered_map<string, RootDefinition*> fBranches;
     unordered_map<string, Definition> fLeaves;
     unordered_map<string, SubtopicContents> fPopulators;
+    NameMap fNames;
 private:
     RootDefinition* fRootParent = nullptr;
 };
@@ -1219,9 +1289,10 @@ public:
     }
 
     void checkLineLength(size_t len, const char* str);
+    static string ConvertRef(const string str, bool first);
     static void CopyToFile(string oldFile, string newFile);
-
     static char* FindDateTime(char* buffer, int size);
+    static string HtmlFileName(string bmhFileName);
 
     void indentIn(IndentKind kind) {
         fIndent += 4;
@@ -1239,10 +1310,7 @@ public:
         SkASSERT(column >= fColumn);
         SkASSERT(!fReturnOnWrite);
         SkASSERT(column < 80);
-        if (fDebugOut) {
-            SkDebugf("%*s", column - fColumn, "");
-        }
-        fprintf(fOut, "%*s", column - fColumn, "");
+        FPRINTF("%*s", column - fColumn, "");
         fColumn = column;
         fSpaces += column - fColumn;
     }
@@ -1384,6 +1452,7 @@ public:
     vector<IndentState> fIndentStack;
     Definition* fParent;
     FILE* fOut;
+    string fRawFilePathDir;
     int fLinefeeds;    // number of linefeeds last written, zeroed on non-space
     int fMaxLF;        // number of linefeeds allowed
     int fPendingLF;    // number of linefeeds to write (can be suppressed)
@@ -1455,6 +1524,7 @@ public:
         kLiteral, // output untouched
 		kClone,   // resolved, output, with references to clones as well
         kSimple,  // resolve simple words (used to resolve method declarations)
+        kInclude, // like simple, plus reverse resolve SkXXX to XXX
     };
 
     enum class ExampleOptions {
@@ -1482,7 +1552,7 @@ public:
 
     enum class TrimExtract {
         kNo,
-        kYes
+        kYes,
     };
 
     BmhParser(bool skip) : ParserCommon()
@@ -1524,6 +1594,7 @@ public:
     MarkType getMarkType(MarkLookup lookup) const;
     bool hasEndToken() const;
     static bool IsExemplary(const Definition* );
+    string loweredTopic(string name, Definition* def);
     string memberName();
     string methodName();
     const Definition* parentSpace() const;
@@ -1558,6 +1629,10 @@ public:
         fCheckMethods = false;
     }
 
+    void setUpGlobalSubstitutes();
+    void setUpPartialSubstitute(string name);
+    void setUpSubstitute(string name, Definition* def);
+    void setUpSubstitutes(const Definition* parent, NameMap* );
     void setWrapper(Definition* def) const;
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
@@ -1602,6 +1677,7 @@ public:
     unordered_map<string, Definition*> fTopicMap;
     unordered_map<string, Definition*> fAliasMap;
     unordered_map<string, Definition*> fPhraseMap;
+    NameMap fGlobalNames;
     RootDefinition* fRoot;
     Definition* fWorkingColumn;
     Definition* fRow;
@@ -2363,9 +2439,6 @@ public:
         this->reset();
     }
 
-    void addOneLiner(const Definition* defTable, const Definition* child, bool hasLine,
-            bool lfAfter);
-
     bool parseFromFile(const char* path) override {
         if (!INHERITED::parseSetup(path)) {
             return false;
@@ -2377,20 +2450,10 @@ public:
         INHERITED::resetCommon();
     }
 
-    string searchTable(const Definition* tableHolder, const Definition* match);
-
-    void topicIter(const Definition* );
+    void replaceWithPop(const Definition* );
 
 private:
     const BmhParser& fBmhParser;
-    const Definition* fClasses;
-    const Definition* fConstants;
-    const Definition* fConstructors;
-    const Definition* fMemberFunctions;
-    const Definition* fMembers;
-    const Definition* fOperators;
-    const Definition* fRelatedFunctions;
-    const Definition* fStructs;
     bool hackFiles();
 
     typedef ParserCommon INHERITED;
@@ -2410,6 +2473,7 @@ public:
         , fIncludeParser(inc) {
         this->reset();
         this->addPopulators();
+        fBmhParser.setUpGlobalSubstitutes();
     }
 
     bool buildReferences(const char* docDir, const char* mdOutDirOrFile);
@@ -2430,19 +2494,21 @@ private:
 
     void addCodeBlock(const Definition* def, string& str) const;
     void addPopulators();
+    string addIncludeReferences(const char* refStart, const char* refEnd);
     string addReferences(const char* start, const char* end, BmhParser::Resolvable );
     string anchorDef(string def, string name);
     string anchorLocalRef(string ref, string name);
     string anchorRef(string def, string name);
-
     bool buildRefFromFile(const char* fileName, const char* outDir);
     bool checkParamReturnBody(const Definition* def);
     Definition* checkParentsForMatch(Definition* test, string ref) const;
     void childrenOut(Definition* def, const char* contentStart);
     Definition* csParent();
+    bool findLink(string ref, string* link);
     Definition* findParamType();
     string getMemberTypeName(const Definition* def, string* memberType);
     static bool HasDetails(const Definition* def);
+    bool hasWordSpace(string ) const;
     void htmlOut(string );
     Definition* isDefined(const TextParser& , string ref, BmhParser::Resolvable );
     Definition* isDefinedByParent(RootDefinition* root, string ref);
@@ -2454,6 +2520,7 @@ private:
     void parameterHeaderOut(TextParser& paramParser, const Definition** prior, Definition* def);
     void parameterTrailerOut();
     bool parseFromFile(const char* path) override { return true; }
+    bool phraseContinues(string phrase, string* priorWord, string* priorLink) const;
     void populateOne(Definition* def,
             unordered_map<string, RootDefinition::SubtopicContents>& populator);
     void populateTables(const Definition* def, RootDefinition* );
@@ -2522,7 +2589,7 @@ private:
     vector<const Definition*> fClassStack;
     unordered_map<string, vector<AnchorDef> > fAllAnchorDefs;
     unordered_map<string, vector<string> > fAllAnchorRefs;
-
+    NameMap* fNames;
     BmhParser& fBmhParser;
     IncludeParser& fIncludeParser;
     const Definition* fEnumClass;
@@ -2604,6 +2671,7 @@ public:
             }
         }
         if (BmhParser::Resolvable::kSimple != resolvable
+                && BmhParser::Resolvable::kInclude != resolvable
                 && (this->startsWith(name.c_str()) || this->startsWith("operator"))) {
             const char* ptr = this->anyOf("\n (");
             if (ptr && '(' ==  *ptr && strncmp(ptr, "(...", 4)) {
