@@ -322,22 +322,6 @@ struct SkRGBA4f {
         return fA == 1.0f;
     }
 
-    /** Returns SkRGBA4f clamped to normalized range. Clamps a to [0, 1].
-        If SkRGBA4f is premultiplied, clamps r, g, and b to [0, fA].
-        If SkRGBA4f is unpremultiplied, clamps r, g, b to [0, 1].
-
-        @return       clamped SkRGBA4f
-    */
-    static SkRGBA4f Pin(float r, float g, float b, float a);  // impl. depends on kAT
-
-    /** Returns SkRGBA4f clamped to normalized range. Clamps fA to [0, 1].
-        If SkRGBA4f is premultiplied, clamps fR, fG, and fB to [0, fA].
-        If SkRGBA4f is unpremultiplied, clamps fR, fG, fB to [0, 1].
-
-        @return       clamped SkRGBA4f
-    */
-    SkRGBA4f pin() const { return Pin(fR, fG, fB, fA); }
-
     /** Returns closest SkRGBA4f to SkColor. Only allowed if SkRGBA4f is unpremultiplied.
 
         @return       SkColor as SkRGBA4f
