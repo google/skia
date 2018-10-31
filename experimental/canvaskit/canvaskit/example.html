@@ -17,6 +17,7 @@
 </style>
 
 <h2> CanvasKit draws Paths to the browser</h2>
+<canvas id=vertex1 width=300 height=300></canvas>
 <canvas id=patheffect width=300 height=300></canvas>
 <canvas id=paths width=200 height=200></canvas>
 <canvas id=ink width=300 height=300></canvas>
@@ -53,21 +54,32 @@
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).then((CK) => {
-    CK.initFonts();
-    CanvasKit = CK;
-    DrawingExample(CanvasKit);
-    PathExample(CanvasKit);
-    InkExample(CanvasKit);
-    // Set bounds to fix the 4:3 resolution of the legos
-    addScreenshotListener(SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                            {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300}));
-    // Re-size to fit
-    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    NimaExample(CanvasKit, nimaFile, nimaTexture);
+     // when debugging, it can be handy to not run directly in the then, because if there
+     // is a failure (for example, miscalling an API), the WASM loader tries to re-load
+     // the web assembly in the (much slower) ArrayBuffer version. This will also fail
+     // and thus there is a lot of extra log spew.
+     // Thus, the setTimeout to run on the next microtask avoids this second loading
+     // and the log spew.
+    setTimeout(() => {
+      CK.initFonts();
+      CanvasKit = CK;
+      DrawingExample(CanvasKit);
+      PathExample(CanvasKit);
+      InkExample(CanvasKit);
+      // Set bounds to fix the 4:3 resolution of the legos
+      addScreenshotListener(SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+                              {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300}));
+      // Re-size to fit
+      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
+      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
 
-    CanvasAPI1(CanvasKit);
+      NimaExample(CanvasKit, nimaFile, nimaTexture);
+
+      CanvasAPI1(CanvasKit);
+
+      VertexAPI1(CanvasKit);
+    }, 0);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -156,7 +168,7 @@
     const paint = new CanvasKit.SkPaint();
 
     const textPaint = new CanvasKit.SkPaint();
-    textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
+    textPaint.setColor(CanvasKit.RED);
     textPaint.setTextSize(30);
     textPaint.setAntiAlias(true);
 
@@ -172,7 +184,7 @@
       i++;
 
       paint.setPathEffect(dpe);
-      paint.setStyle(CanvasKit.PaintStyle.STROKE);
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
       paint.setStrokeWidth(5.0 + -3 * Math.cos(i/30));
       paint.setAntiAlias(true);
       paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
@@ -221,7 +233,7 @@
       paint.setStrokeWidth(1.0);
       paint.setAntiAlias(true);
       paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
-      paint.setStyle(CanvasKit.PaintStyle.STROKE);
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
       const path = new CanvasKit.SkPath();
       path.moveTo(20, 5);
@@ -277,7 +289,7 @@
     let paint = new CanvasKit.SkPaint();
     paint.setAntiAlias(true);
     paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
-    paint.setStyle(CanvasKit.PaintStyle.STROKE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setStrokeWidth(4.0);
     paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(50));
 
@@ -381,7 +393,7 @@
       let seek = ((Date.now() - firstFrame) / duration) % 1.0;
       CanvasKit.setCurrentContext(context);
       animation.seek(seek);
-      canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
+      canvas.clear(CanvasKit.TRANSPARENT);
       animation.render(canvas, bounds);
       surface.flush();
       window.requestAnimationFrame(drawFrame);
@@ -443,7 +455,7 @@
     function drawFrame() {
       let seek = ((Date.now() - firstFrame) / 1000.0);
       CanvasKit.setCurrentContext(context);
-      canvas.clear(CanvasKit.Color(255, 255, 255, 0.0));
+      canvas.clear(CanvasKit.TRANSPARENT);
       animation.seek(seek);
       animation.render(canvas);
       surface.flush();
@@ -452,4 +464,30 @@
     window.requestAnimationFrame(drawFrame);
   }
 
+  function VertexAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('vertex1');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+    let paint = new CanvasKit.SkPaint();
+
+    // See https://fiddle.skia.org/c/f48b22eaad1bb7adcc3faaa321754af6
+    // for original c++ version.
+    let points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+    let colors = [CanvasKit.RED, CanvasKit.BLUE,
+                  CanvasKit.YELLOW, CanvasKit.CYAN];
+    let vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
+                                            points, null, colors);
+
+    canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
+    surface.flush();
+
+    paint.delete();
+    vertices.delete();
+    surface.delete();
+
+  }
 </script>

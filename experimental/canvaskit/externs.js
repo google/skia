@@ -31,6 +31,7 @@ var CanvasKit = {
 	MakeCanvasSurface: function() {},
 	MakeNimaActor: function() {},
 	MakeSkDashPathEffect: function() {},
+	MakeSkVertices: function() {},
 	MakeSurface: function() {},
 	currentContext: function() {},
 	getSkDataBytes: function() {},
@@ -41,6 +42,7 @@ var CanvasKit = {
 	// in the pre-js file)
 	_MakeNimaActor: function() {},
 	_MakeSkDashPathEffect: function() {},
+	_MakeSkVertices: function() {},
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
 
@@ -167,6 +169,10 @@ var CanvasKit = {
 	 * @type {Uint8Array}
 	 */
 	HEAPU8: {},
+	/**
+	 * @type {Int32Array}
+	 */
+	HEAP32: {},
 
 	_malloc: function() {},
 	_free: function() {},
