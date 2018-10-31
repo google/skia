@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f07e1607_0048a2f0",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-10-31T14:17:31Z",
+      "side": 1,
+      "message": "FWIW:\n\nhttps://godbolt.org/z/EnQc0X",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 64
+      },
+      "revId": "628bf0ef134d1f02f26231caa9809a9e8f1796f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
