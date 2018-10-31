@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55c9c501_64d86a1d",
+        "filename": "experimental/pvg/draw_msg.proto",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-31T21:31:14Z",
+      "side": 1,
+      "message": "Think we should lay this out visually some way?\n\n  float m11 \u003d 1; float m12 \u003d 2; float m13 \u003d 3;\n  float m21 \u003d 4; float m22 \u003d 5; float m23 \u003d 6;\n  float m31 \u003d 7; float m32 \u003d 8; float m33 \u003d 9;\n\nOr give them transformation matrix names?\n\n  float sx \u003d 1; float kx \u003d 2; float tx \u003d 3;\n  float ky \u003d 4; float sy \u003d 5; float ty \u003d 6;\n  float px \u003d 7; float py \u003d 8; float pz \u003d 9;",
+      "range": {
+        "startLine": 32,
+        "startChar": 1,
+        "endLine": 40,
+        "endChar": 17
+      },
+      "revId": "07c5022dfffab1c2d8477b3bf0823b0066057c24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5659c6d_b064c849",
+        "filename": "experimental/pvg/draw_msg.proto",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-31T21:31:14Z",
+      "side": 1,
+      "message": "There\u0027s another way to slice this,\n\nmessage Clip {\n   enum Verb {\n       INTERSECT \u003d 0,\n       DIFFERENCE \u003d 1,\n   }\n\n   bool aa   \u003d 1;\n   Verb verb \u003d 2;\n\n   oneof geometry {\n       Rect  rect  \u003d 3;\n       RRect rrect \u003d 4;\n       Path  path  \u003d 5;\n       ...\n   }\n}\n\nThat\u0027d let you scope ClipVerb right tightly in with everything that would reference it.\n\nSimilarly, we could probably use this same sort of arrangement to slice up the paint fields to just the kinds of draws that want them....\n\n\nmessage Geometry {\n   bool aa \u003d 1;\n\n   oneof geometry {\n     Rect  rect  \u003d 2;\n     Rect  oval  \u003d 3;\n     RRect rrect \u003d 4;\n     Path  path  \u003d 5;\n     ...\n   }\n}\n\nmessage Clip {\n  enum Verb {\n     INTERSECT \u003d 0,\n     DIFFERENCE \u003d 1,\n  }\n  \n  Geometry geometry \u003d 1;\n  Verb     verb     \u003d 2;\n}\n\nmessage Shader {\n   oneof shader {\n       Color    color    \u003d 1;\n       Image    image    \u003d 2;\n       Gradient gradient \u003d 3;\n       ...\n   }\n}\n\nmessage Fill {\n   Geometry geometry \u003d 1; \n   Shader   shader   \u003d 2;\n\n   bool dither \u003d 3;\n}\n\nmessage Stroke {\n   Geometry geometry \u003d 1; \n   Shader   shader   \u003d 2;\n\n   float width \u003d 3;\n   float miter \u003d 4;\n   ...\n}\n\nmessage Text {\n   ... some fields that describe the typeface and glyphs ...\n   Shader shader \u003d 2;\n\n   float size   \u003d 3;\n   float scaleX \u003d 4;\n   float skewX  \u003d 5;\n   ...\n}\n\n\nmessage DrawMsg {\n   oneof msg {\n       Save    save    \u003d 1;\n       Restore restore \u003d 2;\n\n       Concat concat \u003d 3;\n       Clip   clip   \u003d 4;\n\n       Fill   fill   \u003d 5;\n       Stroke stroke \u003d 6;\n       Text   text   \u003d 7;\n   }\n}",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 16
+      },
+      "revId": "07c5022dfffab1c2d8477b3bf0823b0066057c24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8a36b71_1026ecb8",
+        "filename": "experimental/pvg/draw_msg.proto",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-31T21:31:14Z",
+      "side": 1,
+      "message": "bool hard, to bias towards aa?",
+      "range": {
+        "startLine": 52,
+        "startChar": 3,
+        "endLine": 52,
+        "endChar": 27
+      },
+      "revId": "07c5022dfffab1c2d8477b3bf0823b0066057c24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dca04cd_91f96e6c",
+        "filename": "experimental/pvg/draw_msg.proto",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-31T21:31:14Z",
+      "side": 1,
+      "message": "just to second guess everything, maybe we cross AA into ClipVerb?",
+      "range": {
+        "startLine": 53,
+        "startChar": 4,
+        "endLine": 54,
+        "endChar": 1
+      },
+      "revId": "07c5022dfffab1c2d8477b3bf0823b0066057c24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
