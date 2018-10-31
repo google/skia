@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da087283_4b88765f",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1802,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-10-31T17:15:59Z",
+      "side": 1,
+      "message": "What if we just forward \"willAddFn\" along to:\n\n  opList-\u003eaddOp(..., willAddFn)?\n\nThen we can avoid the function call in the cases where we merge. (No idea of this is relevant anymore in the future chaining world.)",
+      "range": {
+        "startLine": 1802,
+        "startChar": 8,
+        "endLine": 1802,
+        "endChar": 17
+      },
+      "revId": "7e75b9841c5bb35d1478ed966bd25cab128d6a20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0959c1b_d3bd5ecc",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-10-31T17:15:59Z",
+      "side": 1,
+      "message": "\"an\"\n\n?",
+      "range": {
+        "startLine": 465,
+        "startChar": 56,
+        "endLine": 465,
+        "endChar": 60
+      },
+      "revId": "7e75b9841c5bb35d1478ed966bd25cab128d6a20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce82c814_1195ad47",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-10-31T17:15:59Z",
+      "side": 1,
+      "message": "e.g.,\n\n  willAddOpFn(op.get(), this-\u003euniqueID);\n  fRecordedOps.emplace_back(std::move(op), clip, dstProxy);",
+      "revId": "7e75b9841c5bb35d1478ed966bd25cab128d6a20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
