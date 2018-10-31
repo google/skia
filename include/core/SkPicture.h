@@ -49,9 +49,9 @@ public:
         if successful; otherwise, returns nullptr. Fails if data does not permit
         constructing valid SkPicture.
 
-        procs.fPictureProc permits supplying a custom function to decode SkPicture.
-        If procs.fPictureProc is nullptr, default decoding is used. procs.fPictureCtx
-        may be used to provide user context to procs.fPictureProc; procs.fPictureProc
+        procs->fPictureProc permits supplying a custom function to decode SkPicture.
+        If procs->fPictureProc is nullptr, default decoding is used. procs->fPictureCtx
+        may be used to provide user context to procs->fPictureProc; procs->fPictureProc
         is called with a pointer to data, data byte length, and user context.
 
         @param stream  container for serial data
@@ -65,9 +65,9 @@ public:
         if successful; otherwise, returns nullptr. Fails if data does not permit
         constructing valid SkPicture.
 
-        procs.fPictureProc permits supplying a custom function to decode SkPicture.
-        If procs.fPictureProc is nullptr, default decoding is used. procs.fPictureCtx
-        may be used to provide user context to procs.fPictureProc; procs.fPictureProc
+        procs->fPictureProc permits supplying a custom function to decode SkPicture.
+        If procs->fPictureProc is nullptr, default decoding is used. procs->fPictureCtx
+        may be used to provide user context to procs->fPictureProc; procs->fPictureProc
         is called with a pointer to data, data byte length, and user context.
 
         @param data   container for serial data
@@ -153,9 +153,9 @@ public:
     /** Returns storage containing SkData describing SkPicture, using optional custom
         encoders.
 
-        procs.fPictureProc permits supplying a custom function to encode SkPicture.
-        If procs.fPictureProc is nullptr, default encoding is used. procs.fPictureCtx
-        may be used to provide user context to procs.fPictureProc; procs.fPictureProc
+        procs->fPictureProc permits supplying a custom function to encode SkPicture.
+        If procs->fPictureProc is nullptr, default encoding is used. procs->fPictureCtx
+        may be used to provide user context to procs->fPictureProc; procs->fPictureProc
         is called with a pointer to SkPicture and user context.
 
         @param procs  custom serial data encoders; may be nullptr
@@ -165,9 +165,9 @@ public:
 
     /** Writes picture to stream, using optional custom encoders.
 
-        procs.fPictureProc permits supplying a custom function to encode SkPicture.
-        If procs.fPictureProc is nullptr, default encoding is used. procs.fPictureCtx
-        may be used to provide user context to procs.fPictureProc; procs.fPictureProc
+        procs->fPictureProc permits supplying a custom function to encode SkPicture.
+        If procs->fPictureProc is nullptr, default encoding is used. procs->fPictureCtx
+        may be used to provide user context to procs->fPictureProc; procs->fPictureProc
         is called with a pointer to SkPicture and user context.
 
         @param stream  writable serial data stream

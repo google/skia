@@ -186,8 +186,9 @@ public:
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
         @param colorType       one of:
                                kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
+                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
+                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace      range of colors; may be nullptr
         @param surfaceProps    LCD striping orientation and setting for device independent
@@ -217,9 +218,11 @@ public:
         @param backendRenderTarget  GPU intermediate memory buffer
         @param origin               one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param colorType            one of:
-                                    kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                                    kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                                    kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+                                    kUnknown_SkColorType, kAlpha_8_SkColorType,
+                                    kRGB_565_SkColorType,
+                                    kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
+                                    kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
+                                    kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                     kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace           range of colors
         @param surfaceProps         LCD striping orientation and setting for device independent
@@ -254,8 +257,9 @@ public:
         @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
         @param colorType       one of:
                                kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
+                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
+                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param colorSpace      range of colors; may be nullptr
         @param surfaceProps    LCD striping orientation and setting for device independent
@@ -271,7 +275,7 @@ public:
                                                             const SkSurfaceProps* surfaceProps);
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
-        pixels, based on the width, height, and SkColorType in ImageInfo.  budgeted
+        pixels, based on the width, height, and SkColorType in SkImageInfo.  budgeted
         selects whether allocation for pixels is tracked by context. imageInfo
         describes the pixel format in SkColorType, and transparency in
         SkAlphaType, and color matching in SkColorSpace.
@@ -305,7 +309,7 @@ public:
                                              bool shouldCreateWithMips = false);
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
-        pixels, based on the width, height, and SkColorType in ImageInfo.  budgeted
+        pixels, based on the width, height, and SkColorType in SkImageInfo.  budgeted
         selects whether allocation for pixels is tracked by context. imageInfo
         describes the pixel format in SkColorType, and transparency in
         SkAlphaType, and color matching in SkColorSpace.
@@ -334,7 +338,7 @@ public:
     }
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
-        pixels, based on the width, height, and SkColorType in ImageInfo.  budgeted
+        pixels, based on the width, height, and SkColorType in SkImageInfo.  budgeted
         selects whether allocation for pixels is tracked by context. imageInfo
         describes the pixel format in SkColorType, and transparency in
         SkAlphaType, and color matching in SkColorSpace.
@@ -443,7 +447,8 @@ public:
         The returned GrBackendTexture should be discarded if the SkSurface is drawn to or deleted.
 
         @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-                                    kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
+                                    kFlushWrite_BackendHandleAccess,
+                                    kDiscardWrite_BackendHandleAccess
         @return                     GPU texture reference; invalid on failure
     */
     GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
@@ -456,7 +461,8 @@ public:
         or deleted.
 
         @param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-                                    kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
+                                    kFlushWrite_BackendHandleAccess,
+                                    kDiscardWrite_BackendHandleAccess
         @return                     GPU render target reference; invalid on failure
     */
     GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
@@ -697,7 +703,7 @@ public:
 
     /** Initializes SkSurfaceCharacterization that can be used to perform GPU back-end
         processing in a separate thread. Typically this is used to divide drawing
-        into multiple tiles. DeferredDisplayListRecorder records the drawing commands
+        into multiple tiles. SkDeferredDisplayListRecorder records the drawing commands
         for each tile.
 
         Return true if SkSurface supports characterization. raster surface returns false.
