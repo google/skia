@@ -134,11 +134,8 @@ void SKPBench::drawMPDPicture() {
         mpd.add(fSurfaces[j]->getCanvas(), fPic.get(), &trans);
     }
 
-    mpd.draw();
-
-    for (int j = 0; j < fTileRects.count(); ++j) {
-        fSurfaces[j]->getCanvas()->flush();
-    }
+    // We flush after each picture to more closely model how Chrome rasterizes tiles.
+    mpd.draw(/*flush = */ true);
 }
 
 void SKPBench::drawPicture() {
