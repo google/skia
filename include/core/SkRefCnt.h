@@ -37,23 +37,12 @@ public:
     /** Destruct, asserting that the reference count is 1.
     */
     virtual ~SkRefCntBase() {
-#ifdef SK_DEBUG
-        SkASSERTF(getRefCnt() == 1, "fRefCnt was %d", getRefCnt());
+    #ifdef SK_DEBUG
+        SkASSERTF(this->getRefCnt() == 1, "fRefCnt was %d", this->getRefCnt());
         // illegal value, to catch us if we reuse after delete
         fRefCnt.store(0, std::memory_order_relaxed);
-#endif
+    #endif
     }
-
-#ifdef SK_DEBUG
-    /** Return the reference count. Use only for debugging. */
-    int32_t getRefCnt() const {
-        return fRefCnt.load(std::memory_order_relaxed);
-    }
-
-    void validate() const {
-        SkASSERT(getRefCnt() > 0);
-    }
-#endif
 
     /** May return true if the caller is the only owner.
      *  Ensures that all previous owner's actions are complete.
@@ -71,7 +60,7 @@ public:
     /** Increment the reference count. Must be balanced by a call to unref().
     */
     void ref() const {
-        SkASSERT(getRefCnt() > 0);
+        SkASSERT(this->getRefCnt() > 0);
         // No barrier required.
         (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
@@ -81,7 +70,7 @@ public:
         the object needs to have been allocated via new, and not on the stack.
     */
     void unref() const {
-        SkASSERT(getRefCnt() > 0);
+        SkASSERT(this->getRefCnt() > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
         if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
             // Like unique(), the acquire is only needed on success, to make sure
@@ -90,23 +79,23 @@ public:
         }
     }
 
-protected:
-    /**
-     *  Allow subclasses to call this if they've overridden internal_dispose
-     *  so they can reset fRefCnt before the destructor is called or if they
-     *  choose not to call the destructor (e.g. using a free list).
-     */
-    void internal_dispose_restore_refcnt_to_1() const {
-        SkASSERT(0 == getRefCnt());
-        fRefCnt.store(1, std::memory_order_relaxed);
-    }
-
 private:
+
+#ifdef SK_DEBUG
+    /** Return the reference count. Use only for debugging. */
+    int32_t getRefCnt() const {
+        return fRefCnt.load(std::memory_order_relaxed);
+    }
+#endif
+
     /**
      *  Called when the ref count goes to 0.
      */
     virtual void internal_dispose() const {
-        this->internal_dispose_restore_refcnt_to_1();
+    #ifdef SK_DEBUG
+        SkASSERT(0 == this->getRefCnt());
+        fRefCnt.store(1, std::memory_order_relaxed);
+    #endif
         delete this;
     }
 
@@ -171,7 +160,12 @@ template <typename Derived>
 class SkNVRefCnt {
 public:
     SkNVRefCnt() : fRefCnt(1) {}
-    ~SkNVRefCnt() { SkASSERTF(1 == getRefCnt(), "NVRefCnt was %d", getRefCnt()); }
+    ~SkNVRefCnt() {
+    #ifdef SK_DEBUG
+        int rc = fRefCnt.load(std::memory_order_relaxed);
+        SkASSERTF(rc == 1, "NVRefCnt was %d", rc);
+    #endif
+    }
 
     // Implementation is pretty much the same as SkRefCntBase. All required barriers are the same:
     //   - unique() needs acquire when it returns true, and no barrier if it returns false;
@@ -191,9 +185,6 @@ public:
 
 private:
     mutable std::atomic<int32_t> fRefCnt;
-    int32_t getRefCnt() const {
-        return fRefCnt.load(std::memory_order_relaxed);
-    }
 
     SkNVRefCnt(SkNVRefCnt&&) = delete;
     SkNVRefCnt(const SkNVRefCnt&) = delete;
