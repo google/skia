@@ -120,8 +120,6 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
     SkPoint origin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
-        SkSTArenaAlloc<3332> alloc;
-
         // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
         // convert the lcd text into A8 text. The props communicates this to the scaler.
         auto& props = (kN32_SkColorType == fColorType && glyphRun.paint().isSrcOver())
@@ -187,7 +185,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     }
                 }
             }
-            auto paintAllMasks = paintMasksCreator(paint, &alloc);
+            auto paintAllMasks = paintMasksCreator();
             paintAllMasks(SkSpan<const SkMask>{masks.begin(), masks.size()},
                           paint);
         }
