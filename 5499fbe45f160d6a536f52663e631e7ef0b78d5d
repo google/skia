@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4eb3fdaf_66f6f28a",
+        "filename": "tools/flags/SkCommandLineFlags.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-10-31T20:12:07Z",
+      "side": 1,
+      "message": "Should this be \u003e ? If not, I don\u0027t understand what\u0027s going on here.",
+      "range": {
+        "startLine": 165,
+        "startChar": 18,
+        "endLine": 165,
+        "endChar": 20
+      },
+      "revId": "5499fbe45f160d6a536f52663e631e7ef0b78d5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
