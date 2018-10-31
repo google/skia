@@ -60,6 +60,13 @@ public:
                                                    <a href='undocumented#SkISize'>SkISize</a> imageSize,
                                                    <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> imageOrigin,
                                                    sk_sp<<a href='undocumented#SkColorSpace'>SkColorSpace</a>> imageColorSpace = nullptr);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkImage'>SkImage</a>> <a href='#SkImage_MakeFromYUVATextures'>MakeFromYUVATextures</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
+                                               <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace,
+                                               const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> yuvaTextures[],
+                                               const <a href='undocumented#SkYUVAIndex'>SkYUVAIndex</a> yuvaIndices[4],
+                                               <a href='undocumented#SkISize'>SkISize</a> imageSize,
+                                               <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> imageOrigin,
+                                               sk_sp<<a href='undocumented#SkColorSpace'>SkColorSpace</a>> imageColorSpace = nullptr);
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='#SkImage'>SkImage</a>> <a href='#SkImage_MakeFromYUVATexturesCopyWithExternalBackend'>MakeFromYUVATexturesCopyWithExternalBackend</a>(
             <a href='undocumented#GrContext'>GrContext</a>* context,
             <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace,
@@ -847,7 +854,57 @@ created <a href='#SkImage'>SkImage</a>, or nullptr
 
 ### See Also
 
-<a href='#SkImage_MakeFromYUVATexturesCopyWithExternalBackend'>MakeFromYUVATexturesCopyWithExternalBackend</a>
+<a href='#SkImage_MakeFromYUVATexturesCopyWithExternalBackend'>MakeFromYUVATexturesCopyWithExternalBackend</a> <a href='#SkImage_MakeFromYUVATextures'>MakeFromYUVATextures</a>
+
+<a name='SkImage_MakeFromYUVATextures'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromYUVATextures'>MakeFromYUVATextures</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace,
+                                           const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> yuvaTextures[],
+                                           const <a href='undocumented#SkYUVAIndex'>SkYUVAIndex</a> yuvaIndices[4], <a href='undocumented#SkISize'>SkISize</a> imageSize,
+                                           <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> imageOrigin,
+                                           <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; imageColorSpace = nullptr) ;
+</pre>
+
+Creates an <a href='#SkImage'>SkImage</a> by storing the specified YUVA planes into an image, to be rendered
+via multitexturing.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkImage_MakeFromYUVATextures_context'><code><strong>context</strong></code></a></td>
+    <td>GPU <a href='#SkImage_MakeFromYUVATextures_context'>context</a></td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVATextures_yuvColorSpace'><code><strong>yuvColorSpace</strong></code></a></td>
+    <td>one of: <a href='SkImageInfo_Reference#kJPEG_SkYUVColorSpace'>kJPEG_SkYUVColorSpace</a>, <a href='SkImageInfo_Reference#kRec601_SkYUVColorSpace'>kRec601_SkYUVColorSpace</a>,
+<a href='SkImageInfo_Reference#kRec709_SkYUVColorSpace'>kRec709_SkYUVColorSpace</a></td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVATextures_yuvaTextures'><code><strong>yuvaTextures</strong></code></a></td>
+    <td>array of YUVA textures</td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVATextures_yuvaIndices'><code><strong>yuvaIndices</strong></code></a></td>
+    <td>array indicating <a href='#SkImage_MakeFromYUVATextures_yuvaTextures'>yuvaTextures</a> element and channel
+that map to Y, U, V, and A</td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVATextures_imageSize'><code><strong>imageSize</strong></code></a></td>
+    <td>size of the resulting image</td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVATextures_imageOrigin'><code><strong>imageOrigin</strong></code></a></td>
+    <td>one of: <a href='undocumented#kBottomLeft_GrSurfaceOrigin'>kBottomLeft GrSurfaceOrigin</a>, <a href='undocumented#kTopLeft_GrSurfaceOrigin'>kTopLeft GrSurfaceOrigin</a></td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVATextures_imageColorSpace'><code><strong>imageColorSpace</strong></code></a></td>
+    <td>range of colors of the resulting image; may be nullptr</td>
+  </tr>
+</table>
+
+### Return Value
+
+created <a href='#SkImage'>SkImage</a>, or nullptr
+
+### See Also
+
+<a href='#SkImage_MakeFromYUVATexturesCopy'>MakeFromYUVATexturesCopy</a> <a href='#SkImage_MakeFromYUVATexturesCopyWithExternalBackend'>MakeFromYUVATexturesCopyWithExternalBackend</a>
 
 <a name='SkImage_MakeFromYUVATexturesCopyWithExternalBackend'></a>
 
@@ -903,7 +960,7 @@ created <a href='#SkImage'>SkImage</a>, or nullptr
 
 ### See Also
 
-<a href='#SkImage_MakeFromYUVATexturesCopy'>MakeFromYUVATexturesCopy</a>
+<a href='#SkImage_MakeFromYUVATexturesCopy'>MakeFromYUVATexturesCopy</a> <a href='#SkImage_MakeFromYUVATextures'>MakeFromYUVATextures</a>
 
 <a name='SkImage_MakeFromYUVTexturesCopy'></a>
 

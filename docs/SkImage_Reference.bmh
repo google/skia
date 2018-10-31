@@ -648,9 +648,45 @@ should this be moved to chrome only?
 #NoExample
 ##
 
-#SeeAlso MakeFromYUVATexturesCopyWithExternalBackend
+#SeeAlso MakeFromYUVATexturesCopyWithExternalBackend MakeFromYUVATextures
 
 #Method ##
+
+#Method static sk_sp<SkImage> MakeFromYUVATextures(GrContext* context,
+                                               SkYUVColorSpace yuvColorSpace,
+                                               const GrBackendTexture yuvaTextures[],
+                                               const SkYUVAIndex yuvaIndices[4],
+                                               SkISize imageSize,
+                                               GrSurfaceOrigin imageOrigin,
+                                               sk_sp<SkColorSpace> imageColorSpace = nullptr);
+
+#In Constructor
+#Line # creates Image from YUV_ColorSpace data ##
+
+Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
+via multitexturing.
+
+#Param context         GPU context ##
+#Param yuvColorSpace   one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                               kRec709_SkYUVColorSpace
+##
+#Param yuvaTextures    array of YUVA textures ##
+#Param yuvaIndices     array indicating yuvaTextures element and channel
+                       that map to Y, U, V, and A
+##
+#Param imageSize       size of the resulting image ##
+#Param imageOrigin     one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param imageColorSpace range of colors of the resulting image; may be nullptr ##
+
+#Return                created SkImage, or nullptr ##
+
+#NoExample
+##
+
+#SeeAlso MakeFromYUVATexturesCopy MakeFromYUVATexturesCopyWithExternalBackend
+
+#Method ##
+
 
 # ------------------------------------------------------------------------------
 
@@ -694,7 +730,7 @@ should this be moved to chrome only?
 #NoExample
 ##
 
-#SeeAlso MakeFromYUVATexturesCopy
+#SeeAlso MakeFromYUVATexturesCopy MakeFromYUVATextures
 
 #Method ##
 
