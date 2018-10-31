@@ -13,12 +13,7 @@ state.
 #Method SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
 
 #Line # preserves Canvas save count ##
-Preserves Canvas save count. Optionally saves Canvas_Clip and Canvas_Matrix.
-
-#Param canvas  Canvas to guard ##
-#Param doSave  call SkCanvas::save() ##
-
-#Return utility to restore Canvas state on destructor ##
+#Populate
 
 #Example
 #Height 128
@@ -42,8 +37,7 @@ Preserves Canvas save count. Optionally saves Canvas_Clip and Canvas_Matrix.
 #Method ~SkAutoCanvasRestore()
 
 #Line # restores Canvas to saved state ##
-Restores Canvas to saved state. Destructor is called when container goes out of
-scope.
+#Populate
 
 #NoExample
 ##
@@ -55,8 +49,7 @@ scope.
 #Method void restore()
 #In Member_Function
 #Line # restores Canvas to saved state ##
-Restores Canvas to saved state immediately. Subsequent calls and
-~SkAutoCanvasRestore have no effect.
+#Populate
 
 #Example
 for (bool callRestore : { false, true } ) {

@@ -1852,8 +1852,12 @@ Definition* IncludeParser::findIncludeObject(const Definition& includeDef, MarkT
 }
 
 Definition* IncludeParser::findMethod(const Definition& bmhDef) {
-    auto doubleColon = bmhDef.fName.find("::");
-    SkASSERT(string::npos != doubleColon);  // more work to do to support global refs
+    auto doubleColon = bmhDef.fName.rfind("::");
+    if (string::npos == doubleColon) {
+        const auto& iGlobalMethod = fIFunctionMap.find(bmhDef.fName);
+        SkASSERT(fIFunctionMap.end() != iGlobalMethod);
+        return iGlobalMethod->second;
+    }
     string className = bmhDef.fName.substr(0, doubleColon);
     const auto& iClass = fIClassMap.find(className);
     SkASSERT(fIClassMap.end() != iClass);
@@ -1861,9 +1865,66 @@ Definition* IncludeParser::findMethod(const Definition& bmhDef) {
     auto& iTokens = iClass->second.fTokens;
     const auto& iMethod = std::find_if(iTokens.begin(), iTokens.end(),
             [methodName](Definition& token) {
-            return MarkType::kMethod == token.fMarkType && methodName == token.fName; } );
-    SkASSERT(iTokens.end() != iMethod);
-    return &*iMethod;
+            return MarkType::kMethod == token.fMarkType
+                    && (methodName == token.fName
+                    || methodName == token.fName + "()"); } );
+    if (iTokens.end() != iMethod) {
+        return &*iMethod;
+    }
+    size_t subClassPos = className.rfind("::");
+    if (string::npos != subClassPos) {
+        className = className.substr(subClassPos + 2);
+    }
+    // match may be constructor; compare strings to see if this is so
+    SkASSERT(string::npos != methodName.find('('));
+    auto stripper = [](string s) -> string {
+        bool last = false;
+        string result;
+        for (char c : s) {
+            if (' ' >= c) {
+                if (!last) {
+                    last = true;
+                    result += ' ';
+                }
+                continue;
+            }
+            result += c;
+            last = false;
+        }
+        return result;
+    };
+    string strippedMethodName = stripper(methodName);
+    if (strippedMethodName == methodName) {
+        strippedMethodName = "";
+    }
+    const auto& cMethod = std::find_if(iTokens.begin(), iTokens.end(),
+            [className, methodName, stripper, strippedMethodName](Definition& token) {
+        if (MarkType::kMethod != token.fMarkType) {
+            return false;
+        }
+        TextParser parser(&token);
+        const char* match = parser.strnstr(className.c_str(), parser.fEnd);
+        if (!match) {
+            return false;
+        }
+        parser.skipTo(match);
+        parser.skipExact(className.c_str());
+        if ('(' != parser.peek()) {
+            return false;
+        }
+        parser.skipToBalancedEndBracket('(', ')');
+        string iMethodName(match, parser.fChar - match);
+        if (methodName == iMethodName) {
+            return true;
+        }
+        if ("" == strippedMethodName) {
+            return false;
+        }
+        string strippedIName = stripper(iMethodName);
+        return strippedIName == strippedMethodName;
+    } );
+    SkAssertResult(iTokens.end() != cMethod);
+    return &*cMethod;
 }
 
 Definition* IncludeParser::parentBracket(Definition* parent) const {
@@ -2570,7 +2631,6 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     markupDef->fTokens.emplace_back(MarkType::kMethod, start, end, tokenIter->fLineCount,
             markupDef, '\0');
     Definition* markupChild = &markupDef->fTokens.back();
-    // TODO: I wonder if there is a way to prevent looking up by operator[] (creating empty) ?
     {
         auto mapIter = fIClassMap.find(markupDef->fName);
         SkASSERT(fIClassMap.end() != mapIter);
