@@ -185,7 +185,7 @@ public:
     }
 
     AAFillRectOp(const Helper::MakeArgs& helperArgs,
-                 const GrColor4h& color,
+                 const SkPMColor4f& color,
                  const SkMatrix& viewMatrix,
                  const SkRect& rect,
                  const SkRect& devRect,
@@ -219,7 +219,7 @@ public:
         for (int i = 0; i < fRectCnt; ++i) {
             const SkRect& rect = info->rect();
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        info->color().toGrColor(), rect.fLeft, rect.fTop, rect.fRight,
+                        info->color().toBytes_RGBA(), rect.fLeft, rect.fTop, rect.fRight,
                         rect.fBottom);
             info = this->next(info);
         }
@@ -231,7 +231,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrColor4h color = this->first()->color();
+        SkPMColor4f color = this->first()->color();
         auto result = fHelper.xpRequiresDstTexture(
                 caps, clip, GrProcessorAnalysisCoverage::kSingleChannel, &color);
         this->first()->setColor(color);
@@ -287,7 +287,7 @@ private:
                 }
             }
             // TODO4F: Preserve float colors
-            generate_aa_fill_rect_geometry(verts, vertexStride, info->color().toGrColor(),
+            generate_aa_fill_rect_geometry(verts, vertexStride, info->color().toBytes_RGBA(),
                                            info->viewMatrix(), info->rect(), info->devRect(),
                                            fHelper.compatibleWithAlphaAsCoverage(), localMatrix);
             info = this->next(info);
@@ -309,21 +309,21 @@ private:
 
     struct RectInfo {
     public:
-        RectInfo(const GrColor4h& color, const SkMatrix& viewMatrix, const SkRect& rect,
+        RectInfo(const SkPMColor4f& color, const SkMatrix& viewMatrix, const SkRect& rect,
                  const SkRect& devRect)
                 : RectInfo(color, viewMatrix, rect, devRect, HasLocalMatrix::kNo) {}
         bool hasLocalMatrix() const { return HasLocalMatrix::kYes == fHasLocalMatrix; }
-        const GrColor4h& color() const { return fColor; }
+        const SkPMColor4f& color() const { return fColor; }
         const SkMatrix& viewMatrix() const { return fViewMatrix; }
         const SkRect& rect() const { return fRect; }
         const SkRect& devRect() const { return fDevRect; }
 
-        void setColor(const GrColor4h& color) { fColor = color; }
+        void setColor(const SkPMColor4f& color) { fColor = color; }
 
     protected:
         enum class HasLocalMatrix : uint32_t { kNo, kYes };
 
-        RectInfo(const GrColor4h& color, const SkMatrix& viewMatrix, const SkRect& rect,
+        RectInfo(const SkPMColor4f& color, const SkMatrix& viewMatrix, const SkRect& rect,
                  const SkRect& devRect, HasLocalMatrix hasLM)
                 : fHasLocalMatrix(hasLM)
                 , fColor(color)
@@ -332,7 +332,7 @@ private:
                 , fDevRect(devRect) {}
 
         HasLocalMatrix fHasLocalMatrix;
-        GrColor4h fColor;
+        SkPMColor4f fColor;
         SkMatrix fViewMatrix;
         SkRect fRect;
         SkRect fDevRect;
@@ -340,7 +340,7 @@ private:
 
     struct RectWithLocalMatrixInfo : public RectInfo {
     public:
-        RectWithLocalMatrixInfo(const GrColor4h& color, const SkMatrix& viewMatrix,
+        RectWithLocalMatrixInfo(const SkPMColor4f& color, const SkMatrix& viewMatrix,
                                 const SkRect& rect, const SkRect& devRect,
                                 const SkMatrix& localMatrix)
                 : RectInfo(color, viewMatrix, rect, devRect, HasLocalMatrix::kYes)

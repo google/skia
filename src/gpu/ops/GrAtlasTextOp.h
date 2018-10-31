@@ -31,14 +31,14 @@ public:
 
     typedef GrTextBlob Blob;
     struct Geometry {
-        SkMatrix  fViewMatrix;
-        SkIRect   fClipRect;
-        Blob*     fBlob;
-        SkScalar  fX;
-        SkScalar  fY;
-        uint16_t  fRun;
-        uint16_t  fSubRun;
-        GrColor4h fColor;
+        SkMatrix    fViewMatrix;
+        SkIRect     fClipRect;
+        Blob*       fBlob;
+        SkScalar    fX;
+        SkScalar    fY;
+        uint16_t    fRun;
+        uint16_t    fSubRun;
+        SkPMColor4f fColor;
     };
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrContext* context,
@@ -145,7 +145,7 @@ private:
 
     inline void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
 
-    const GrColor4h& color() const { SkASSERT(fGeoCount > 0); return fGeoData[0].fColor; }
+    const SkPMColor4f& color() const { SkASSERT(fGeoCount > 0); return fGeoData[0].fColor; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     int numGlyphs() const { return fNumGlyphs; }
 
