@@ -67,6 +67,7 @@ Configure and Compile Skia with ASAN
         cc = "${CLANGDIR}/bin/clang"
         cxx = "${CLANGDIR}/bin/clang++"
         sanitize = "ASAN"
+        extra_ldflags = [ "-fuse-ld=lld" ]
     EOF
     python tools/git-sync-deps
     bin/gn gen out/asan
