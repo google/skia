@@ -225,7 +225,7 @@ GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&
     return CombineResult::kMerged;
 }
 
-void GrCCDrawPathsOp::wasRecorded(sk_sp<GrCCPerOpListPaths> owningPerOpListPaths) {
+void GrCCDrawPathsOp::addToOwningPerOpListPaths(sk_sp<GrCCPerOpListPaths> owningPerOpListPaths) {
     SkASSERT(1 == fNumDraws);
     SkASSERT(!fOwningPerOpListPaths);
     fOwningPerOpListPaths = std::move(owningPerOpListPaths);
