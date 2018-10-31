@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package pvg;
+
+message Rect {
+    float left = 1;
+    float top = 2;
+    float right = 3;
+    float bottom = 4;
+}
+
+message Color {
+    float r = 1;
+    float g = 2;
+    float b = 3;
+    float a = 4;
+}
+
+message DrawEmpty {}
+
+message DrawRect {
+    Rect    rect    = 1;
+    Color   color   = 2;
+}
+
+message DrawOval {
+    Rect    oval    = 1;
+    Color   color   = 2;
+}
+
+message DrawMsg {
+    enum Type {
+        SAVE = 0;
+        RESTORE = 1;
+        DRAW_RECT = 2;
+        DRAW_OVAL = 3;
+    }
+    oneof Msg {
+        DrawEmpty empty = 1;
+        DrawRect drawrect = 2;
+        DrawOval drawoval = 3;
+    }
+}
