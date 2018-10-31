@@ -488,9 +488,9 @@ struct SK_API SkPoint {
     */
     static SkScalar Length(SkScalar x, SkScalar y);
 
-    /** Scales (vec->fX, vec->fY) so that length() returns one, while preserving ratio of vec->fX to vec->fY,
-        if possible. If original length is nearly zero, sets vec to (0, 0) and returns zero;
-        otherwise, returns length of vec before vec is scaled.
+    /** Scales (vec->fX, vec->fY) so that length() returns one, while preserving ratio of vec->fX
+        to vec->fY, if possible. If original length is nearly zero, sets vec to (0, 0) and returns
+        zero; otherwise, returns length of vec before vec is scaled.
 
         Returned prior length may be SK_ScalarInfinity if it can not be represented by SkScalar.
 

@@ -145,11 +145,11 @@ public:
     */
     static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap);
 
-    /** Creates SkImage from data returned by imageGenerator. Generated data is owned by SkImage and may not
-        be shared or accessed.
+    /** Creates SkImage from data returned by imageGenerator. Generated data is owned by SkImage and
+        may not be shared or accessed.
 
-        subset allows selecting a portion of the full image. Pass nullptr to select the entire image;
-        otherwise, subset must be contained by image bounds.
+        subset allows selecting a portion of the full image. Pass nullptr to select the entire
+        image; otherwise, subset must be contained by image bounds.
 
         SkImage is returned if generator data is valid. Valid data parameters vary by type of data
         and platform.
@@ -164,8 +164,8 @@ public:
                                             const SkIRect* subset = nullptr);
 
     /** Creates SkImage from encoded data.
-        subset allows selecting a portion of the full image. Pass nullptr to select the entire image;
-        otherwise, subset must be contained by image bounds.
+        subset allows selecting a portion of the full image. Pass nullptr to select the entire
+        image; otherwise, subset must be contained by image bounds.
 
         SkImage is returned if format of the encoded data is recognized and supported.
         Recognized formats vary by platform.
@@ -191,8 +191,9 @@ public:
         @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param colorType       one of:
                                kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
+                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
+                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
                                kGray_8_SkColorType, kRGBA_F16_SkColorType
         @param alphaType       one of:
                                kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
@@ -221,10 +222,12 @@ public:
         @param backendTexture      texture residing on GPU
         @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param colorType           one of:
-                                   kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                                   kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                                   kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                                   kGray_8_SkColorType, kRGBA_F16_SkColorType
+                                   kUnknown_SkColorType, kAlpha_8_SkColorType,
+                                   kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                                   kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+                                   kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType,
+                                   kRGB_101010x_SkColorType, kGray_8_SkColorType,
+                                   kRGBA_F16_SkColorType
         @param alphaType           one of:
                                    kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
                                    kUnpremul_SkAlphaType
@@ -310,10 +313,12 @@ public:
         @param backendTexture  texture residing on GPU
         @param surfaceOrigin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param colorType       one of:
-                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                               kGray_8_SkColorType, kRGBA_F16_SkColorType
+                               kUnknown_SkColorType, kAlpha_8_SkColorType,
+                               kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                               kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+                               kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType,
+                               kRGB_101010x_SkColorType, kGray_8_SkColorType,
+                               kRGBA_F16_SkColorType
         @param alphaType       one of:
                                kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
                                kUnpremul_SkAlphaType
@@ -334,10 +339,10 @@ public:
         @param yuvColorSpace   How the YUV values are converted to RGB. One of:
                                            kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                                            kRec709_SkYUVColorSpace
-        @param yuvTextures     array of (up to four) YUVA textures on GPU which contain the,
+        @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
                                possibly interleaved, YUVA planes
-        @param yuvaIndices     array indicating which texture (in 'yuvaTextures') and channel
-                               (in the specified texture) maps to each of Y, U, V, and A.
+        @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
+                               in that texture, maps to each component of YUVA.
         @param imageSize       size of the resulting image
         @param imageOrigin     origin of the resulting image. One of: kBottomLeft_GrSurfaceOrigin,
                                kTopLeft_GrSurfaceOrigin
@@ -359,10 +364,10 @@ public:
         @param yuvColorSpace   How the YUV values are converted to RGB. One of:
                                             kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                                             kRec709_SkYUVColorSpace
-        @param yuvTextures     array of (up to four) YUVA textures on GPU which contain the,
+        @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
                                possibly interleaved, YUVA planes
-        @param yuvaIndices     array indicating which texture (in 'yuvaTextures') and channel
-                               (in the specified texture) maps to each of Y, U, V, and A.
+        @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
+                               in that texture, maps to each component of YUVA.
         @param imageSize       size of the resulting image
         @param imageOrigin     origin of the resulting image. One of: kBottomLeft_GrSurfaceOrigin,
                                kTopLeft_GrSurfaceOrigin
@@ -384,10 +389,10 @@ public:
         @param yuvColorSpace   How the YUV values are converted to RGB. One of:
                                            kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
                                            kRec709_SkYUVColorSpace
-        @param yuvTextures     array of (up to four) YUVA textures on GPU which contain the,
+        @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
                                possibly interleaved, YUVA planes
-        @param yuvaIndices     array indicating which texture (in 'yuvaTextures') and channel
-                               (in the specified texture) maps to each of Y, U, V, and A.
+        @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
+                               in that texture, maps to each component of YUVA.
         @param imageSize       size of the resulting image
         @param imageOrigin     origin of the resulting image. One of: kBottomLeft_GrSurfaceOrigin,
                                kTopLeft_GrSurfaceOrigin
@@ -511,7 +516,7 @@ public:
                                           sk_sp<SkColorSpace> colorSpace);
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-    /** (see skbug.com/7447)
+    /** (See Skia bug 7447)
         Creates SkImage from Android hardware buffer.
         Returned SkImage takes a reference on the buffer.
 
@@ -795,8 +800,8 @@ public:
         filterQuality kNone_SkFilterQuality is fastest, typically implemented with
         nearest neighbor filter. kLow_SkFilterQuality is typically implemented with
         bilerp filter. kMedium_SkFilterQuality is typically implemented with
-        bilerp filter, and Filter_Quality_MipMap when size is reduced.
-        kHigh_SkFilterQuality is slowest, typically implemented with Filter_Quality_BiCubic.
+        bilerp filter, and mip-map filter when size is reduced.
+        kHigh_SkFilterQuality is slowest, typically implemented with bicubic filter.
 
         If cachingHint is kAllow_CachingHint, pixels may be retained locally.
         If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
