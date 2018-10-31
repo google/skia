@@ -27,7 +27,7 @@ public:
 #endif
 
     using PaintMasks = std::function<void(SkSpan<const SkMask> mask, const SkPaint& paint)>;
-    using PaintMasksCreator = std::function<PaintMasks(const SkPaint& paint, SkArenaAlloc* alloc)>;
+    using PaintMasksCreator = std::function<PaintMasks()>;
     struct PathAndPos {
         const SkPath* path;
         SkPoint position;
