@@ -80,7 +80,7 @@ private:
                             GrGlyphCache*,
                             const GrShaderCaps&,
                             const SkPaint&,
-                                const GrColor4h& filteredColor,
+                            const SkPMColor4f& filteredColor,
                             SkScalerContextFlags scalerContextFlags,
                             const SkMatrix& viewMatrix,
                             const SkSurfaceProps&,
@@ -90,7 +90,7 @@ private:
     static void AppendGlyph(GrTextBlob*, int runIndex,
                             const sk_sp<GrTextStrike>&, const SkGlyph&,
                             GrGlyph::MaskStyle maskStyle, SkScalar sx, SkScalar sy,
-                            const GrColor4h& color, SkGlyphCache*, SkScalar textRatio,
+                            const SkPMColor4f& color, SkGlyphCache*, SkScalar textRatio,
                             bool needsTransform);
 
 

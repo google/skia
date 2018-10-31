@@ -151,10 +151,10 @@ public:
                                                      std::move(iter), dst);
     }
 
-    NonAALatticeOp(Helper::MakeArgs& helperArgs, const GrColor4h& color, const SkMatrix& viewMatrix,
-                   sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> colorSpaceXform,
-                   GrSamplerState::Filter filter, std::unique_ptr<SkLatticeIter> iter,
-                   const SkRect& dst)
+    NonAALatticeOp(Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+                   const SkMatrix& viewMatrix, sk_sp<GrTextureProxy> proxy,
+                   sk_sp<GrColorSpaceXform> colorSpaceXform, GrSamplerState::Filter filter,
+                   std::unique_ptr<SkLatticeIter> iter, const SkRect& dst)
             : INHERITED(ClassID())
             , fHelper(helperArgs, GrAAType::kNone)
             , fProxy(std::move(proxy))
@@ -182,7 +182,7 @@ public:
 
         for (int i = 0; i < fPatches.count(); ++i) {
             str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        fPatches[i].fColor.toGrColor(), fPatches[i].fDst.fLeft,
+                        fPatches[i].fColor.toBytes_RGBA(), fPatches[i].fDst.fLeft,
                         fPatches[i].fDst.fTop, fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
         }
 
@@ -239,7 +239,7 @@ private:
         for (int i = 0; i < patchCnt; i++) {
             const Patch& patch = fPatches[i];
             // TODO4F: Preserve float colors
-            GrColor patchColor = patch.fColor.toGrColor();
+            GrColor patchColor = patch.fColor.toBytes_RGBA();
 
             // Apply the view matrix here if it is scale-translate.  Otherwise, we need to
             // wait until we've created the dst rects.
@@ -315,7 +315,7 @@ private:
         SkMatrix fViewMatrix;
         std::unique_ptr<SkLatticeIter> fIter;
         SkRect fDst;
-        GrColor4h fColor;
+        SkPMColor4f fColor;
     };
 
     Helper fHelper;

@@ -29,7 +29,7 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrContext* context,
                                                    std::move(colorSpaceXform), viewMatrix);
 }
 
-GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                                    sk_sp<SkVertices> vertices, const SkVertices::Bone bones[],
                                    int boneCount, GrPrimitiveType primitiveType, GrAAType aaType,
                                    sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -427,7 +427,7 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
             size_t boneWeightOffset = offset;
 
             // TODO4F: Preserve float colors
-            GrColor color = mesh.fColor.toGrColor();
+            GrColor color = mesh.fColor.toBytes_RGBA();
 
             for (int j = 0; j < vertexCount; ++j) {
                 if (this->hasMultipleViewMatrices()) {

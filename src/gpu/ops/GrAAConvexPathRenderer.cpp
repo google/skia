@@ -765,7 +765,7 @@ public:
                                                      stencilSettings);
     }
 
-    AAConvexPathOp(const Helper::MakeArgs& helperArgs, const GrColor4h& color,
+    AAConvexPathOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                    const SkMatrix& viewMatrix, const SkPath& path,
                    const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
@@ -845,7 +845,7 @@ private:
             }
 
             // TODO4F: Preserve float colors
-            extract_lines_only_verts(tess, verts, vertexStride, args.fColor.toGrColor(), idxs,
+            extract_lines_only_verts(tess, verts, vertexStride, args.fColor.toBytes_RGBA(), idxs,
                                      fHelper.compatibleWithAlphaAsCoverage());
 
             GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
@@ -932,7 +932,7 @@ private:
 
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             // TODO4F: Preserve float colors
-            create_vertices(segments, fanPt, args.fColor.toGrColor(), &draws, verts, idxs);
+            create_vertices(segments, fanPt, args.fColor.toBytes_RGBA(), &draws, verts, idxs);
 
             GrMesh* meshes = target->allocMeshes(draws.count());
             for (int j = 0; j < draws.count(); ++j) {
@@ -970,7 +970,7 @@ private:
     struct PathData {
         SkMatrix fViewMatrix;
         SkPath fPath;
-        GrColor4h fColor;
+        SkPMColor4f fColor;
     };
 
     Helper fHelper;

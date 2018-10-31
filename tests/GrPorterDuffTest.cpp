@@ -63,7 +63,7 @@ static GrProcessorSet::Analysis do_analysis(const GrXPFactory* xpf,
     GrPaint paint;
     paint.setXPFactory(xpf);
     GrProcessorSet procs(std::move(paint));
-    GrColor4h overrideColor;
+    SkPMColor4f overrideColor;
     GrProcessorSet::Analysis analysis =
             procs.finalize(colorInput, coverageInput, nullptr, false, caps, &overrideColor);
     return analysis;
@@ -470,7 +470,8 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
 }
 
 static void test_color_not_opaque_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcessorAnalysisColor inputColor(GrColor4h::FromGrColor(GrColorPackRGBA(229, 0, 154, 240)));
+    GrProcessorAnalysisColor inputColor(
+            SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(229, 0, 154, 240)));
     GrProcessorAnalysisCoverage inputCoverage = GrProcessorAnalysisCoverage::kNone;
 
     for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
@@ -1012,7 +1013,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps) {
     const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
-    GrProcessorAnalysisColor color = GrColor4h::FromGrColor(GrColorPackRGBA(123, 45, 67, 255));
+    GrProcessorAnalysisColor color = SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(123, 45, 67, 255));
     GrProcessorAnalysisCoverage coverage = GrProcessorAnalysisCoverage::kLCD;
     TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps) &
                   GrXPFactory::AnalysisProperties::kRequiresDstTexture));
@@ -1028,7 +1029,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     TEST_ASSERT(blendInfo.fWriteColor);
 
     // Test with non-opaque alpha
-    color = GrColor4h::FromGrColor(GrColorPackRGBA(123, 45, 67, 221));
+    color = SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(123, 45, 67, 221));
     coverage = GrProcessorAnalysisCoverage::kLCD;
     TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps) &
                 GrXPFactory::AnalysisProperties::kRequiresDstTexture));
@@ -1074,8 +1075,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
 
     static const GrProcessorAnalysisColor colorInputs[] = {
             GrProcessorAnalysisColor::Opaque::kNo, GrProcessorAnalysisColor::Opaque::kYes,
-            GrProcessorAnalysisColor(GrColor4h::FromGrColor(GrColorPackRGBA(0, 82, 17, 100))),
-            GrProcessorAnalysisColor(GrColor4h::FromGrColor(GrColorPackRGBA(0, 82, 17, 255)))};
+            GrProcessorAnalysisColor(SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(0, 82, 17, 100))),
+            GrProcessorAnalysisColor(SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(0, 82, 17, 255)))};
 
     for (const auto& colorInput : colorInputs) {
         for (GrProcessorAnalysisCoverage coverageType :

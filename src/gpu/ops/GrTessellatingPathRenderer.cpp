@@ -190,14 +190,14 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("Color 0x%08x, aa: %d\n", fColor.toGrColor(), fAntiAlias);
+        string.appendf("Color 0x%08x, aa: %d\n", fColor.toBytes_RGBA(), fAntiAlias);
         string += fHelper.dumpInfo();
         string += INHERITED::dumpInfo();
         return string;
     }
 
     TessellatingPathOp(Helper::MakeArgs helperArgs,
-                       const GrColor4h& color,
+                       const SkPMColor4f& color,
                        const GrShape& shape,
                        const SkMatrix& viewMatrix,
                        const SkIRect& devClipBounds,
@@ -303,7 +303,7 @@ private:
         // TODO4F: Preserve float colors
         int count =
                 GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true,
-                                               fColor.toGrColor(),
+                                               fColor.toBytes_RGBA(),
                                                fHelper.compatibleWithAlphaAsCoverage(), &isLinear);
         if (count == 0) {
             return;
@@ -369,7 +369,7 @@ private:
     }
 
     Helper fHelper;
-    GrColor4h               fColor;
+    SkPMColor4f             fColor;
     GrShape                 fShape;
     SkMatrix                fViewMatrix;
     SkIRect                 fDevClipBounds;

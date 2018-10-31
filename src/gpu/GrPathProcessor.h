@@ -16,7 +16,7 @@
  */
 class GrPathProcessor : public GrPrimitiveProcessor {
 public:
-    static GrPathProcessor* Create(const GrColor4h& color,
+    static GrPathProcessor* Create(const SkPMColor4f& color,
                                    const SkMatrix& viewMatrix = SkMatrix::I(),
                                    const SkMatrix& localMatrix = SkMatrix::I()) {
         return new GrPathProcessor(color, viewMatrix, localMatrix);
@@ -24,7 +24,7 @@ public:
 
     const char* name() const override { return "PathProcessor"; }
 
-    const GrColor4h& color() const { return fColor; }
+    const SkPMColor4f& color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
@@ -50,9 +50,9 @@ private:
         return kBogus;
     }
 
-    GrPathProcessor(const GrColor4h&, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
+    GrPathProcessor(const SkPMColor4f&, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
 
-    GrColor4h fColor;
+    SkPMColor4f fColor;
     const SkMatrix fViewMatrix;
     const SkMatrix fLocalMatrix;
 

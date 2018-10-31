@@ -57,7 +57,7 @@ class GrGLConicEffect;
 
 class GrConicEffect : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const GrColor4h& color,
+    static sk_sp<GrGeometryProcessor> Make(const SkPMColor4f& color,
                                            const SkMatrix& viewMatrix,
                                            const GrClipEdgeType edgeType,
                                            const GrCaps& caps,
@@ -98,7 +98,7 @@ public:
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrClipEdgeType getEdgeType() const { return fEdgeType; }
-    const GrColor4h& color() const { return fColor; }
+    const SkPMColor4f& color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
@@ -109,12 +109,12 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrConicEffect(const GrColor4h&, const SkMatrix& viewMatrix, uint8_t coverage, GrClipEdgeType,
+    GrConicEffect(const SkPMColor4f&, const SkMatrix& viewMatrix, uint8_t coverage, GrClipEdgeType,
                   const SkMatrix& localMatrix, bool usesLocalCoords);
 
     const Attribute& onVertexAttribute(int i) const override { return kAttributes[i]; }
 
-    GrColor4h           fColor;
+    SkPMColor4f         fColor;
     SkMatrix            fViewMatrix;
     SkMatrix            fLocalMatrix;
     bool                fUsesLocalCoords;
@@ -143,7 +143,7 @@ class GrGLQuadEffect;
 
 class GrQuadEffect : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const GrColor4h& color,
+    static sk_sp<GrGeometryProcessor> Make(const SkPMColor4f& color,
                                            const SkMatrix& viewMatrix,
                                            const GrClipEdgeType edgeType,
                                            const GrCaps& caps,
@@ -184,7 +184,7 @@ public:
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrClipEdgeType getEdgeType() const { return fEdgeType; }
-    const GrColor4h& color() const { return fColor; }
+    const SkPMColor4f& color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
@@ -195,12 +195,12 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrQuadEffect(const GrColor4h&, const SkMatrix& viewMatrix, uint8_t coverage, GrClipEdgeType,
+    GrQuadEffect(const SkPMColor4f&, const SkMatrix& viewMatrix, uint8_t coverage, GrClipEdgeType,
                  const SkMatrix& localMatrix, bool usesLocalCoords);
 
     const Attribute& onVertexAttribute(int i) const override { return kAttributes[i]; }
 
-    GrColor4h fColor;
+    SkPMColor4f fColor;
     SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;
     bool fUsesLocalCoords;
@@ -232,7 +232,7 @@ class GrGLCubicEffect;
 
 class GrCubicEffect : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const GrColor4h& color,
+    static sk_sp<GrGeometryProcessor> Make(const SkPMColor4f& color,
                                            const SkMatrix& viewMatrix,
                                            const SkMatrix& klm,
                                            bool flipKL,
@@ -276,8 +276,8 @@ public:
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrClipEdgeType getEdgeType() const { return fEdgeType; }
-    const GrColor4h& color() const { return fColor; }
-    bool colorIgnored() const { return GrColor4h_ILLEGAL == fColor; }
+    const SkPMColor4f& color() const { return fColor; }
+    bool colorIgnored() const { return SK_PMColor4fILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& devKLMMatrix() const { return fDevKLMMatrix; }
 
@@ -286,12 +286,12 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrCubicEffect(const GrColor4h&, const SkMatrix& viewMatrix, const SkMatrix& devKLMMatrix,
+    GrCubicEffect(const SkPMColor4f&, const SkMatrix& viewMatrix, const SkMatrix& devKLMMatrix,
                   GrClipEdgeType);
 
     const Attribute& onVertexAttribute(int) const override { return kInPosition; }
 
-    GrColor4h fColor;
+    SkPMColor4f fColor;
     SkMatrix fViewMatrix;
     SkMatrix fDevKLMMatrix;
     GrClipEdgeType fEdgeType;

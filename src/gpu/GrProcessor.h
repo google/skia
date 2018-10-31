@@ -17,6 +17,7 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
 #include "SkMath.h"
+#include "SkPM4f.h"
 #include "SkString.h"
 
 class GrContext;

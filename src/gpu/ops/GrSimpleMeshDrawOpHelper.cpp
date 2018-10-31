@@ -76,7 +76,7 @@ GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
                                : GrProcessorAnalysisCoverage::kNone;
         }
         bool isMixedSamples = this->aaType() == GrAAType::kMixedSamples;
-        GrColor4h overrideColor;
+        SkPMColor4f overrideColor;
         analysis = fProcessors->finalize(*geometryColor, coverage, clip, isMixedSamples, caps,
                                          &overrideColor);
         if (analysis.inputColorIsOverridden()) {
@@ -94,7 +94,7 @@ GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
 
 GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
         const GrCaps& caps, const GrAppliedClip* clip, GrProcessorAnalysisCoverage geometryCoverage,
-        GrColor4h* geometryColor) {
+        SkPMColor4f* geometryColor) {
     GrProcessorAnalysisColor color = *geometryColor;
     auto result = this->xpRequiresDstTexture(caps, clip, geometryCoverage, &color);
     color.isConstant(geometryColor);

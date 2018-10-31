@@ -39,7 +39,7 @@ public:
     }
 
 protected:
-    BezierTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect, const GrColor4h& color,
+    BezierTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect, const SkPMColor4f& color,
                  int32_t classID)
             : INHERITED(classID)
             , fRect(rect)
@@ -56,11 +56,11 @@ protected:
     sk_sp<const GrGeometryProcessor> gp() const { return fGeometryProcessor; }
 
     const SkRect& rect() const { return fRect; }
-    const GrColor4h& color() const { return fColor; }
+    const SkPMColor4f& color() const { return fColor; }
 
 private:
     SkRect fRect;
-    GrColor4h fColor;
+    SkPMColor4f fColor;
     sk_sp<const GrGeometryProcessor> fGeometryProcessor;
     GrProcessorSet fProcessorSet;
 
@@ -76,7 +76,7 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
-                                          const GrColor4h& color) {
+                                          const SkPMColor4f& color) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
         return pool->allocate<BezierCubicTestOp>(std::move(gp), rect, color);
@@ -86,7 +86,7 @@ private:
     friend class ::GrOpMemoryPool; // for ctor
 
     BezierCubicTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect,
-                      const GrColor4h& color)
+                      const SkPMColor4f& color)
             : INHERITED(std::move(gp), rect, color, ClassID()) {}
 
     void onPrepareDraws(Target* target) override {
@@ -165,7 +165,7 @@ protected:
         SkScalar h = SkIntToScalar(renderTargetContext->height()) / numRows;
         int row = 0;
         int col = 0;
-        GrColor4h color = GrColor4h::FromGrColor(0xff000000);
+        SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(0xff000000);
 
         for (int i = 0; i < kNumCubics; ++i) {
             SkPoint baseControlPts[] = {
@@ -262,7 +262,7 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
-                                          const GrColor4h& color,
+                                          const SkPMColor4f& color,
                                           const SkMatrix& klm) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
@@ -273,7 +273,7 @@ private:
     friend class ::GrOpMemoryPool; // for ctor
 
     BezierConicTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect,
-                      const GrColor4h& color, const SkMatrix& klm)
+                      const SkPMColor4f& color, const SkMatrix& klm)
             : INHERITED(std::move(gp), rect, color, ClassID()), fKLM(klm) {}
 
     struct Vertex {
@@ -355,7 +355,7 @@ protected:
         SkScalar h = SkIntToScalar(renderTargetContext->height()) / numRows;
         int row = 0;
         int col = 0;
-        GrColor4h color = GrColor4h::FromGrColor(0xff000000);
+        SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(0xff000000);
 
         for (int i = 0; i < kNumConics; ++i) {
             SkPoint baseControlPts[] = {
@@ -484,7 +484,7 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
-                                          const GrColor4h& color,
+                                          const SkPMColor4f& color,
                                           const GrPathUtils::QuadUVMatrix& devToUV) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
@@ -495,7 +495,7 @@ private:
     friend class ::GrOpMemoryPool; // for ctor
 
     BezierQuadTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect,
-                     const GrColor4h& color, const GrPathUtils::QuadUVMatrix& devToUV)
+                     const SkPMColor4f& color, const GrPathUtils::QuadUVMatrix& devToUV)
             : INHERITED(std::move(gp), rect, color, ClassID()), fDevToUV(devToUV) {}
 
     struct Vertex {
@@ -571,7 +571,7 @@ protected:
         SkScalar h = SkIntToScalar(renderTargetContext->height()) / numRows;
         int row = 0;
         int col = 0;
-        GrColor4h color = GrColor4h::FromGrColor(0xff000000);
+        SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(0xff000000);
 
         for (int i = 0; i < kNumQuads; ++i) {
             SkPoint baseControlPts[] = {
