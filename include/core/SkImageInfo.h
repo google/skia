@@ -461,8 +461,8 @@ public:
         @param newColorType  one of:
                              kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
                              kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
-                             kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                             kGray_8_SkColorType, kRGBA_F16_SkColorType
+                             kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType,
+                             kRGB_101010x_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType
         @return              created SkImageInfo
     */
     SkImageInfo makeColorType(SkColorType newColorType) const {
