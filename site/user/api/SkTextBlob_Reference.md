@@ -34,9 +34,9 @@ fonts and text rendering are used by run.
 const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkTextBlob_bounds'>bounds</a>() const
 </pre>
 
-Returns conservative bounding box. Uses <a href='SkPaint_Reference#Paint'>Paint</a> associated with each glyph to
-determine glyph bounds, and unions all bounds. Returned bounds may be
-larger than the bounds of all <a href='undocumented#Glyph'>Glyphs</a> in runs.
+Returns conservative bounding box. Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a> associated with each <a href='undocumented#Glyph'>glyph</a> to
+determine <a href='undocumented#Glyph'>glyph</a> bounds, and unions all bounds. Returned bounds may be
+larger than the bounds of all <a href='undocumented#Glyph'>glyphs</a> in runs.
 
 ### Return Value
 
@@ -58,11 +58,11 @@ conservative bounding box
 uint32_t <a href='#SkTextBlob_uniqueID'>uniqueID</a>() const
 </pre>
 
-Returns a non-zero value unique among all text blobs.
+Returns a non-zero value unique among all <a href='undocumented#Text'>text</a> blobs.
 
 ### Return Value
 
-identifier for <a href='#Text_Blob'>Text Blob</a>
+identifier for <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>
 
 ### Example
 
@@ -169,32 +169,32 @@ and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 size_t <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs, void* memory, size_t memory_size) const
 </pre>
 
-Writes data to allow later reconstruction of <a href='#Text_Blob'>Text Blob</a>. <a href='#SkTextBlob_serialize_memory'>memory</a> points to storage
-to receive the encoded data, and memory_size describes the <a href='#SkTextBlob_serialize_size'>size</a> of storage.
-Returns bytes used if provided storage is large enough to hold all data;
+Writes <a href='undocumented#Data'>data</a> to allow later reconstruction of <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>. <a href='#SkTextBlob_serialize()_memory'>memory</a> <a href='SkPoint_Reference#Point'>points</a> to storage
+to receive the encoded <a href='undocumented#Data'>data</a>, and <a href='#SkTextBlob_serialize()_memory_size'>memory_size</a> describes the <a href='undocumented#Size'>size</a> of storage.
+Returns bytes used if provided storage is large enough to hold all <a href='undocumented#Data'>data</a>;
 otherwise, returns zero.
 
-<a href='#SkTextBlob_serialize_procs'>procs</a>.fTypefaceProc permits supplying a custom function to encode <a href='undocumented#Typeface'>Typeface</a>.
-If <a href='#SkTextBlob_serialize_procs'>procs</a>.fTypefaceProc is nullptr, default encoding is used. <a href='#SkTextBlob_serialize_procs'>procs</a>.fTypefaceCtx
-may be used to provide user context to <a href='#SkTextBlob_serialize_procs'>procs</a>.fTypefaceProc; <a href='#SkTextBlob_serialize_procs'>procs</a>.fTypefaceProc
-is called with a pointer to <a href='undocumented#Typeface'>Typeface</a> and user context.
+<a href='#SkTextBlob_serialize()_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceProc'>fTypefaceProc</a> permits supplying a custom function to encode <a href='undocumented#SkTypeface'>SkTypeface</a>.
+If <a href='#SkTextBlob_serialize()_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceProc'>fTypefaceProc</a> is nullptr, default encoding is used. <a href='#SkTextBlob_serialize()_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceCtx'>fTypefaceCtx</a>
+may be used to provide user context to <a href='#SkTextBlob_serialize()_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceProc'>fTypefaceProc</a>; <a href='#SkTextBlob_serialize()_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceProc'>fTypefaceProc</a>
+is called with a pointer to <a href='undocumented#SkTypeface'>SkTypeface</a> and user context.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkTextBlob_serialize_procs'><code><strong>procs</strong></code></a></td>
-    <td>custom serial data encoders; may be nullptr</td>
+    <td>custom serial <a href='undocumented#Data'>data</a> encoders; may be nullptr</td>
   </tr>
   <tr>    <td><a name='SkTextBlob_serialize_memory'><code><strong>memory</strong></code></a></td>
-    <td>storage for data</td>
+    <td>storage for <a href='undocumented#Data'>data</a></td>
   </tr>
-  <tr>    <td><a name='SkTextBlob_serialize_size'><code><strong>size</strong></code></a></td>
-    <td><a href='#SkTextBlob_serialize_size'>size</a> of storage</td>
+  <tr>    <td><a name='SkTextBlob_serialize_memory_size'><code><strong>memory_size</strong></code></a></td>
+    <td><a href='undocumented#Size'>size</a> of storage</td>
   </tr>
 </table>
 
 ### Return Value
 
-bytes written, or zero if required storage is larger than memory_size
+bytes written, or zero if required storage is larger than <a href='#SkTextBlob_serialize()_memory_size'>memory_size</a>
 
 ### Example
 
@@ -212,24 +212,24 @@ bytes written, or zero if required storage is larger than memory_size
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkTextBlob_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>& procs) const
 </pre>
 
-Returns storage containing <a href='undocumented#Data'>Data</a> describing <a href='#Text_Blob'>Text Blob</a>, using optional custom
+Returns storage containing <a href='undocumented#SkData'>SkData</a> describing <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>, using optional custom
 encoders.
 
-<a href='#SkTextBlob_serialize_2_procs'>procs</a>.fTypefaceProc permits supplying a custom function to encode <a href='undocumented#Typeface'>Typeface</a>.
-If <a href='#SkTextBlob_serialize_2_procs'>procs</a>.fTypefaceProc is nullptr, default encoding is used. <a href='#SkTextBlob_serialize_2_procs'>procs</a>.fTypefaceCtx
-may be used to provide user context to <a href='#SkTextBlob_serialize_2_procs'>procs</a>.fTypefaceProc; <a href='#SkTextBlob_serialize_2_procs'>procs</a>.fTypefaceProc
-is called with a pointer to <a href='undocumented#Typeface'>Typeface</a> and user context.
+<a href='#SkTextBlob_serialize_2_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceProc'>fTypefaceProc</a> permits supplying a custom function to encode <a href='undocumented#SkTypeface'>SkTypeface</a>.
+If <a href='#SkTextBlob_serialize_2_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceProc'>fTypefaceProc</a> is nullptr, default encoding is used. <a href='#SkTextBlob_serialize_2_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceCtx'>fTypefaceCtx</a>
+may be used to provide user context to <a href='#SkTextBlob_serialize_2_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceProc'>fTypefaceProc</a>; <a href='#SkTextBlob_serialize_2_procs'>procs</a>.<a href='#SkSerialProcs_fTypefaceProc'>fTypefaceProc</a>
+is called with a pointer to <a href='undocumented#SkTypeface'>SkTypeface</a> and user context.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkTextBlob_serialize_2_procs'><code><strong>procs</strong></code></a></td>
-    <td>custom serial data encoders; may be nullptr</td>
+    <td>custom serial <a href='undocumented#Data'>data</a> encoders; may be nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-storage containing serialized <a href='#Text_Blob'>Text Blob</a>
+storage containing serialized <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>
 
 ### Example
 
@@ -247,14 +247,14 @@ storage containing serialized <a href='#Text_Blob'>Text Blob</a>
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkTextBlob'>SkTextBlob</a>&gt; <a href='#SkTextBlob_Deserialize'>Deserialize</a>(const void* data, size_t size, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>& procs)
 </pre>
 
-Recreates <a href='#Text_Blob'>Text Blob</a> that was serialized into <a href='#SkTextBlob_Deserialize_data'>data</a>. Returns constructed <a href='#Text_Blob'>Text Blob</a>
+Recreates <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a> that was serialized into <a href='#SkTextBlob_Deserialize_data'>data</a>. Returns constructed <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>
 if successful; otherwise, returns nullptr. Fails if <a href='#SkTextBlob_Deserialize_size'>size</a> is smaller than
-required <a href='#SkTextBlob_Deserialize_data'>data</a> length, or if <a href='#SkTextBlob_Deserialize_data'>data</a> does not permit constructing valid <a href='#Text_Blob'>Text Blob</a>.
+required <a href='#SkTextBlob_Deserialize_data'>data</a> length, or if <a href='#SkTextBlob_Deserialize_data'>data</a> does not permit constructing valid <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>.
 
-<a href='#SkTextBlob_Deserialize_procs'>procs</a>.fTypefaceProc permits supplying a custom function to decode <a href='undocumented#Typeface'>Typeface</a>.
-If <a href='#SkTextBlob_Deserialize_procs'>procs</a>.fTypefaceProc is nullptr, default decoding is used. <a href='#SkTextBlob_Deserialize_procs'>procs</a>.fTypefaceCtx
-may be used to provide user context to <a href='#SkTextBlob_Deserialize_procs'>procs</a>.fTypefaceProc; <a href='#SkTextBlob_Deserialize_procs'>procs</a>.fTypefaceProc
-is called with a pointer to <a href='undocumented#Typeface'>Typeface</a> <a href='#SkTextBlob_Deserialize_data'>data</a>, <a href='#SkTextBlob_Deserialize_data'>data</a> byte length, and user context.
+<a href='#SkTextBlob_Deserialize_procs'>procs</a>.<a href='#SkDeserialProcs_fTypefaceProc'>fTypefaceProc</a> permits supplying a custom function to decode <a href='undocumented#SkTypeface'>SkTypeface</a>.
+If <a href='#SkTextBlob_Deserialize_procs'>procs</a>.<a href='#SkDeserialProcs_fTypefaceProc'>fTypefaceProc</a> is nullptr, default decoding is used. <a href='#SkTextBlob_Deserialize_procs'>procs</a>.<a href='#SkDeserialProcs_fTypefaceCtx'>fTypefaceCtx</a>
+may be used to provide user context to <a href='#SkTextBlob_Deserialize_procs'>procs</a>.<a href='#SkDeserialProcs_fTypefaceProc'>fTypefaceProc</a>; <a href='#SkTextBlob_Deserialize_procs'>procs</a>.<a href='#SkDeserialProcs_fTypefaceProc'>fTypefaceProc</a>
+is called with a pointer to <a href='undocumented#SkTypeface'>SkTypeface</a> <a href='#SkTextBlob_Deserialize_data'>data</a>, <a href='#SkTextBlob_Deserialize_data'>data</a> byte length, and user context.
 
 ### Parameters
 
@@ -271,7 +271,7 @@ is called with a pointer to <a href='undocumented#Typeface'>Typeface</a> <a href
 
 ### Return Value
 
-<a href='#Text_Blob'>Text Blob</a> constructed from <a href='#SkTextBlob_Deserialize_data'>data</a> in memory
+<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a> constructed from <a href='#SkTextBlob_Deserialize_data'>data</a> in memory
 
 ### Example
 

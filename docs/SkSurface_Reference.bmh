@@ -21,30 +21,7 @@ of the requested dimensions are zero, then nullptr will be returned.
                                              const SkSurfaceProps* surfaceProps = nullptr)
 #In Constructors
 #Line # creates Surface from SkImageInfo and Pixel_Storage ##
-
-Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
-
-Surface is returned if all parameters are valid.
-Valid parameters include:
-info dimensions are greater than zero;
-info contains Color_Type and Alpha_Type supported by Raster_Surface;
-pixels is not nullptr;
-rowBytes is large enough to contain info width pixels of Color_Type.
-
-Pixel buffer size should be info height times computed rowBytes.
-Pixels are not initialized.
-To access pixels after drawing, call flush() or peekPixels.
-
-#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
-                  of Raster_Surface; width and height must be greater than zero
-##
-#Param pixels  pointer to destination pixels buffer ##
-#Param rowBytes  interval from one Surface row to the next ##
-#Param surfaceProps  LCD striping orientation and setting for device independent fonts;
-              may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 void draw(SkCanvas* ) {
@@ -85,33 +62,7 @@ void draw(SkCanvas* ) {
                                     void* context, const SkSurfaceProps* surfaceProps = nullptr)
 #In Constructors
 #Line # creates Surface from SkImageInfo and Pixel_Storage ##
-
-Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
-releaseProc is called with pixels and context when Surface is deleted.
-
-Surface is returned if all parameters are valid.
-Valid parameters include:
-info dimensions are greater than zero;
-info contains Color_Type and Alpha_Type supported by Raster_Surface;
-pixels is not nullptr;
-rowBytes is large enough to contain info width pixels of Color_Type.
-
-Pixel buffer size should be info height times computed rowBytes.
-Pixels are not initialized.
-To access pixels after drawing, call flush() or peekPixels.
-
-#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
-                  of Raster_Surface; width and height must be greater than zero
-##
-#Param pixels  pointer to destination pixels buffer ##
-#Param rowBytes  interval from one Surface row to the next ##
-#Param releaseProc  called when Surface is deleted; may be nullptr ##
-#Param context  passed to releaseProc; may be nullptr ##
-#Param surfaceProps  LCD striping orientation and setting for device independent fonts;
-              may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 #Function
@@ -161,30 +112,7 @@ expected release context
                                        const SkSurfaceProps* surfaceProps)
 #In Constructors
 #Line # creates Surface from SkImageInfo ##
-
-Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
-Allocates and zeroes pixel memory. Pixel memory size is imageInfo.height() times
-rowBytes, or times imageInfo.minRowBytes() if rowBytes is zero.
-Pixel memory is deleted when Surface is deleted.
-
-Surface is returned if all parameters are valid.
-Valid parameters include:
-info dimensions are greater than zero;
-info contains Color_Type and Alpha_Type supported by Raster_Surface;
-rowBytes is large enough to contain info width pixels of Color_Type, or is zero.
-
-If rowBytes is not zero, subsequent images returned by makeImageSnapshot
-have the same rowBytes.
-
-#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
-                  of Raster_Surface; width and height must be greater than zero
-##
-#Param rowBytes  interval from one Surface row to the next; may be zero ##
-#Param surfaceProps  LCD striping orientation and setting for device independent fonts;
-              may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 void draw(SkCanvas* ) {
@@ -224,25 +152,7 @@ void draw(SkCanvas* ) {
 
 #Method static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo,
                                        const SkSurfaceProps* props = nullptr)
-
-Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
-Allocates and zeroes pixel memory. Pixel memory size is imageInfo.height() times
-imageInfo.minRowBytes().
-Pixel memory is deleted when Surface is deleted.
-
-Surface is returned if all parameters are valid.
-Valid parameters include:
-info dimensions are greater than zero;
-info contains Color_Type and Alpha_Type supported by Raster_Surface.
-
-#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
-                  of Raster_Surface; width and height must be greater than zero
-##
-#Param props  LCD striping orientation and setting for device independent fonts;
-              may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 void draw(SkCanvas* ) {
@@ -278,26 +188,7 @@ void draw(SkCanvas* ) {
                                                 const SkSurfaceProps* surfaceProps = nullptr)
 #In Constructors
 #Line # creates Surface from width, height matching output ##
-
-Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
-Allocates and zeroes pixel memory. Pixel memory size is height times width times
-four. Pixel memory is deleted when Surface is deleted.
-
-Internally, sets Image_Info to width, height, Native_Color_Type, and
-kPremul_SkAlphaType.
-
-Surface is returned if width and height are greater than zero.
-
-Use to create Surface that matches SkPMColor, the native pixel arrangement on
-the platform. Surface drawn to output device skips converting its pixel format.
-
-#Param width  pixel column count; must be greater than zero ##
-#Param height  pixel row count; must be greater than zero ##
-#Param surfaceProps  LCD striping orientation and setting for device independent
-                     fonts; may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 void draw(SkCanvas* ) {
@@ -341,32 +232,7 @@ void draw(SkCanvas* ) {
                                                    const SkSurfaceProps* surfaceProps)
 #In Constructors
 #Line # creates Surface from GPU texture ##
-
-Wraps a GPU-backed texture into Surface. Caller must ensure the texture is
-valid for the lifetime of returned Surface. If sampleCnt greater than zero,
-creates an intermediate MSAA Surface which is used for drawing backendTexture.
-
-Surface is returned if all parameters are valid. backendTexture is valid if
-its pixel configuration agrees with colorSpace and context; for instance, if
-backendTexture has an sRGB configuration, then context must support sRGB,
-and colorSpace must be present. Further, backendTexture width and height must
-not exceed context capabilities, and the context must be able to support
-back-end textures.
-
-If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-#Param context  GPU_Context ##
-#Param backendTexture  texture residing on GPU ##
-#Param origin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param sampleCnt  samples per pixel, or 0 to disable full scene anti-aliasing ##
-#Param colorType  one of: #list_of_color_types#
-##
-#Param colorSpace  range of colors; may be nullptr ##
-#Param surfaceProps  LCD striping orientation and setting for device independent
-                     fonts; may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 #Platform gpu cpu
@@ -401,30 +267,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                 const SkSurfaceProps* surfaceProps)
 #In Constructors
 #Line # creates Surface from GPU render target ##
-
-Wraps a GPU-backed buffer into Surface. Caller must ensure backendRenderTarget
-is valid for the lifetime of returned Surface.
-
-Surface is returned if all parameters are valid. backendRenderTarget is valid if
-its pixel configuration agrees with colorSpace and context; for instance, if
-backendRenderTarget has an sRGB configuration, then context must support sRGB,
-and colorSpace must be present. Further, backendRenderTarget width and height must
-not exceed context capabilities, and the context must be able to support
-back-end render targets.
-
-If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-#Param context  GPU_Context ##
-#Param backendRenderTarget  GPU intermediate memory buffer ##
-#Param origin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param colorType  one of: #list_of_color_types#
-##
-#Param colorSpace  range of colors ##
-#Param surfaceProps  LCD striping orientation and setting for device independent
-                     fonts; may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 #ToDo  remove !fiddle below once backEndTextureRenderTarget is available ##
@@ -460,34 +303,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                             const SkSurfaceProps* surfaceProps)
 #In Constructors
 #Line # creates Surface from GPU back-end render target ##
-
-Wraps a GPU-backed texture into Surface. Caller must ensure backendTexture is
-valid for the lifetime of returned Surface. If sampleCnt greater than zero,
-creates an intermediate MSAA Surface which is used for drawing backendTexture.
-
-Surface is returned if all parameters are valid. backendTexture is valid if
-its pixel configuration agrees with colorSpace and context; for instance, if
-backendTexture has an sRGB configuration, then context must support sRGB,
-and colorSpace must be present. Further, backendTexture width and height must
-not exceed context capabilities.
-
-Returned Surface is available only for drawing into, and cannot generate an
-Image.
-
-If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-#Param context  GPU_Context ##
-#Param backendTexture  texture residing on GPU ##
-#Param origin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param sampleCnt  samples per pixel, or 0 to disable full scene anti-aliasing ##
-#Param colorType  one of: #list_of_color_types#
-##
-#Param colorSpace  range of colors; may be nullptr ##
-#Param surfaceProps  LCD striping orientation and setting for device independent
-                     fonts; may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 #ToDo example is bogus; gpuSurface should not make image ##
@@ -522,39 +338,8 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                              bool shouldCreateWithMips = false)
 #In Constructors
 #Line # creates Surface pointing to new GPU memory buffer ##
+#Populate
 
-Returns Surface on GPU indicated by context. Allocates memory for
-pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
-selects whether allocation for pixels is tracked by context. imageInfo
-describes the pixel format in Color_Type, and transparency in
-Alpha_Type, and color matching in Color_Space.
-
-sampleCount requests the number of samples per pixel.
-Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
-up to the next supported count, or rounded down if it is larger than the
-maximum supported count.
-
-surfaceOrigin pins either the top-left or the bottom-left corner to the origin.
-
-shouldCreateWithMips hints that Image returned by makeImageSnapshot is Mip_Map.
-
-If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
-
-#Param context  GPU_Context ##
-#Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes ##
-#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space;
-                  width, or height, or both, may be zero
-##
-#Param sampleCount  samples per pixel, or 0 to disable full scene anti-aliasing ##
-#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
-#Param surfaceProps  LCD striping orientation and setting for device independent
-                     fonts; may be nullptr
-##
-#Param shouldCreateWithMips  hint that Surface will host Mip_Map images ##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
-
-#ToDo not sure that this example is relevant; surfaceOrigin doesn't appear to do anything ##
 #Example
 #Platform gpu
 #Height 64
@@ -587,31 +372,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 #Method static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo, int sampleCount,
                                              const SkSurfaceProps* props)
-
-Returns Surface on GPU indicated by context. Allocates memory for
-pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
-selects whether allocation for pixels is tracked by context. imageInfo
-describes the pixel format in Color_Type, and transparency in
-Alpha_Type, and color matching in Color_Space.
-
-sampleCount requests the number of samples per pixel.
-Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
-up to the next supported count, or rounded down if it is larger than the
-maximum supported count.
-
-Surface bottom-left corner is pinned to the origin.
-
-#Param context  GPU_Context ##
-#Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes ##
-#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
-                  of Raster_Surface; width, or height, or both, may be zero
-##
-#Param sampleCount  samples per pixel, or 0 to disable Multi_Sample_Anti_Aliasing ##
-#Param props  LCD striping orientation and setting for device independent
-              fonts; may be nullptr
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 #Platform cpu gpu
@@ -659,22 +420,7 @@ void draw(SkCanvas* canvas) {
 
 #Method static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo)
-
-Returns Surface on GPU indicated by context. Allocates memory for
-pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
-selects whether allocation for pixels is tracked by context. imageInfo
-describes the pixel format in Color_Type, and transparency in
-Alpha_Type, and color matching in Color_Space.
-
-Surface bottom-left corner is pinned to the origin.
-
-#Param context  GPU_Context ##
-#Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes ##
-#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
-                  of Raster_Surface; width, or height, or both, may be zero
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #Example
 #Platform gpu
@@ -703,16 +449,7 @@ Surface bottom-left corner is pinned to the origin.
 #Method static sk_sp<SkSurface> MakeRenderTarget(GrContext* context,
                                              const SkSurfaceCharacterization& characterization,
                                              SkBudgeted budgeted)
-
-Returns SkSurface on GPU indicated by context that is compatible with the provided
-characterization. budgeted selects whether allocation for pixels is tracked by context.
-
-#Param context  GPU_Context ##
-#Param characterization  description of the desired SkSurface ##
-#Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes
-##
-
-#Return Surface if all parameters are valid; otherwise, nullptr ##
+#Populate
 
 #NoExample
 ##
@@ -727,13 +464,7 @@ characterization. budgeted selects whether allocation for pixels is tracked by c
 
 #In Constructors
 #Line # creates Surface without backing pixels ##
-Returns Surface without backing pixels. Drawing to Canvas returned from Surface
-has no effect. Calling makeImageSnapshot() on returned Surface returns nullptr.
-
-#Param width  one or greater ##
-#Param height  one or greater ##
-
-#Return Surface if width and height are positive; otherwise, nullptr ##
+#Populate
 
 #Example
     SkDebugf("SkSurface::MakeNull(0, 0) %c= nullptr\n", SkSurface::MakeNull(0, 0) == nullptr ?
@@ -764,9 +495,7 @@ surf->makeImageSnapshot() == nullptr
 
 #In Property
 #Line # returns pixel column count ##
-Returns pixel count in each row; may be zero or greater.
-
-#Return number of pixel columns ##
+#Populate
 
 #Example
     const int width = 37;
@@ -789,9 +518,7 @@ surface width=37  canvas width=37
 #Method int height() const
 #In Property
 #Line # returns pixel row count ##
-Returns pixel row count; may be zero or greater.
-
-#Return number of pixel rows ##
+#Populate
 
 #Example
     const int width = 37;
@@ -814,11 +541,7 @@ surface height=1000  canvas height=1000
 #Method uint32_t generationID()
 #In Property
 #Line # returns unique ID ##
-Returns unique value identifying the content of Surface. Returned value changes
-each time the content changes. Content is changed by drawing, or by calling
-notifyContentWillChange.
-
-#Return unique content identifier ##
+#Populate
 
 #Example
     auto surface = SkSurface::MakeRasterN32Premul(1, 1);
@@ -989,17 +712,7 @@ Caller must overwrite the entire back-end object.
 #Method GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess)
 #In Property
 #Line # returns the GPU reference to texture ##
-Retrieves the back-end texture. If Surface has no back-end texture, an invalid
-object is returned. Call GrBackendTexture::isValid to determine if the result
-is valid.
-
-The returned GrBackendTexture should be discarded if the Surface is drawn to or deleted.
-
-#Param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-        kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
-##
-
-#Return GPU texture reference; invalid on failure ##
+#Populate
 
 #NoExample
 ##
@@ -1013,19 +726,7 @@ The returned GrBackendTexture should be discarded if the Surface is drawn to or 
 #Method GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess)
 #In Property
 #Line # returns the GPU reference to render target ##
-
-Retrieves the back-end render target. If Surface has no back-end render target, an invalid
-object is returned. Call GrBackendRenderTarget::isValid to determine if the result
-is valid.
-
-The returned GrBackendRenderTarget should be discarded if the Surface is drawn to
-or deleted.
-
-#Param backendHandleAccess  one of:  kFlushRead_BackendHandleAccess,
-        kFlushWrite_BackendHandleAccess, kDiscardWrite_BackendHandleAccess
-##
-
-#Return GPU render target reference; invalid on failure ##
+#Populate
 
 #NoExample
 ##
@@ -1039,11 +740,7 @@ or deleted.
 #Method SkCanvas* getCanvas()
 #In Property
 #Line # returns Canvas that draws into Surface ##
-Returns Canvas that draws into Surface. Subsequent calls return the same Canvas.
-Canvas returned is managed and owned by Surface, and is deleted when Surface
-is deleted.
-
-#Return drawing Canvas for Surface ##
+#Populate
 
 #Example
 #Height 64
@@ -1065,18 +762,7 @@ is deleted.
 #Method sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo)
 #In Constructors
 #Line # creates a compatible Surface ##
-Returns a compatible Surface, or nullptr. Returned Surface contains
-the same raster, GPU, or null properties as the original. Returned Surface
-does not share the same pixels.
-
-Returns nullptr if imageInfo width or height are zero, or if imageInfo
-is incompatible with Surface.
-
-#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
-                  of Surface; width and height must be greater than zero
-##
-
-#Return compatible Surface or nullptr ##
+#Populate
 
 #Example
 #Height 96
@@ -1106,11 +792,7 @@ is incompatible with Surface.
 #Method sk_sp<SkImage> makeImageSnapshot()
 #In Constructors
 #Line # creates Image capturing Surface contents ##
-Returns Image capturing Surface contents. Subsequent drawing to Surface contents
-are not captured. Image allocation is accounted for if Surface was created with
-SkBudgeted::kYes.
-
-#Return Image initialized with Surface contents ##
+#Populate
 
 #Example
 #Height 64
@@ -1137,17 +819,7 @@ SkBudgeted::kYes.
 #Method void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint)
 #In Pixels
 #Line # draws Surface contents to canvas ##
-Draws Surface contents to canvas, with its top-left corner at (x, y).
-
-If Paint paint is not nullptr, apply Color_Filter, Color_Alpha, Image_Filter,
-Blend_Mode, and Draw_Looper.
-
-#Param canvas  Canvas drawn into ##
-#Param x  horizontal offset in Canvas ##
-#Param y  vertical offset in Canvas ##
-#Param paint  Paint containing Blend_Mode, Color_Filter, Image_Filter,
-              and so on; or nullptr
-##
+#Populate
 
 #Example
 #Height 64
@@ -1173,15 +845,7 @@ Blend_Mode, and Draw_Looper.
 #Method bool peekPixels(SkPixmap* pixmap)
 #In Pixels
 #Line # copies Surface parameters to Pixmap ##
-Copies Surface pixel address, row bytes, and Image_Info to Pixmap, if address
-is available, and returns true. If pixel address is not available, return
-false and leave Pixmap unchanged.
-
-pixmap contents become invalid on any future change to Surface.
-
-#Param pixmap  storage for pixel state if pixels are readable; otherwise, ignored ##
-
-#Return true if Surface has direct access to pixels ##
+#Populate
 
 #Example
 #Height 64
@@ -1462,9 +1126,7 @@ converting to Surface colorType() and Surface alphaType() if required.
 #Method const SkSurfaceProps& props() const
 #In Property
 #Line # returns Surface_Properties ##
-Returns Surface_Properties for surface.
-
-#Return LCD striping orientation and setting for device independent fonts ##
+#Populate
 
 #Example
     const char* names[] = { "Unknown", "RGB_H", "BGR_H", "RGB_V", "BGR_V" };
@@ -1493,11 +1155,7 @@ surf.props(): kRGB_H_SkPixelGeometry
 #Method void flush()
 #In Utility
 #Line # resolves pending I/O ##
-Issues pending Surface commands to the GPU-backed API and resolves any Surface MSAA.
-
-Skia flushes as needed, so it is not necessary to call this if Skia manages
-drawing and object lifetime. Call when interleaving Skia calls with native
-GPU calls.
+#Populate
 
 #NoExample
 ##
@@ -1512,34 +1170,7 @@ GPU calls.
                                                    GrBackendSemaphore signalSemaphores[])
 #In Utility
 #Line # resolves pending I/O, and signal ##
-
-Issues pending Surface commands to the GPU-backed API and resolves any Surface MSAA.
-After issuing all commands, signalSemaphores of count numSemaphores semaphores
-are signaled by the GPU.
-
-For each GrBackendSemaphore in signalSemaphores:
-if GrBackendSemaphore is initialized, the GPU back-end uses the semaphore as is;
-otherwise, a new semaphore is created and initializes GrBackendSemaphore.
-
-The caller must delete the semaphores created and returned in signalSemaphores.
-GrBackendSemaphore can be deleted as soon as this function returns.
-
-If the back-end API is OpenGL only uninitialized Backend_Semaphores are supported.
-
-If the back-end API is Vulkan semaphores may be initialized or uninitialized.
-If uninitialized, created semaphores are valid only with the VkDevice
-with which they were created.
-
-If GrSemaphoresSubmitted::kNo is returned, the GPU back-end did not create or
-add any semaphores to signal on the GPU; the caller should not instruct the GPU
-to wait on any of the semaphores.
-
-Pending surface commands are flushed regardless of the return result.
-
-#Param numSemaphores  size of signalSemaphores array ##
-#Param signalSemaphores  array of semaphore containers ##
-
-#Return one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo ##
+#Populate
 
 #NoExample
 ##
@@ -1553,16 +1184,7 @@ Pending surface commands are flushed regardless of the return result.
 #Method bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores)
 #In Utility
 #Line # pauses commands until signaled ##
-Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
-executing any more commands on the GPU for this surface. Skia will take ownership of the
-underlying semaphores and delete them once they have been signaled and waited on.
-If this call returns false, then the GPU back-end will not wait on any passed in semaphores,
-and the client will still own the semaphores.
-
-#Param numSemaphores  size of waitSemaphores array ##
-#Param waitSemaphores  array of semaphore containers ##
-
-#Return true if GPU is waiting on semaphores ##
+#Populate
 
 #NoExample
 #ToDo this is copy and paste silliness masquerading as an example. Probably need gpu
@@ -1609,16 +1231,7 @@ and the client will still own the semaphores.
 #Method bool characterize(SkSurfaceCharacterization* characterization) const
 #In Utility
 #Line # sets Surface_Characterization for threaded GPU processing ##
-Initializes Surface_Characterization that can be used to perform GPU back-end
-processing in a separate thread. Typically this is used to divide drawing
-into multiple tiles. DeferredDisplayListRecorder records the drawing commands
-for each tile.
-
-Return true if Surface supports characterization. Raster_Surface returns false.
-
-#Param characterization  properties for parallel drawing ##
-
-#Return true if supported ##
+#Populate
 
 #Example
 #Platform gpu
@@ -1655,16 +1268,7 @@ Return true if Surface supports characterization. Raster_Surface returns false.
 # ------------------------------------------------------------------------------
 
 #Method bool draw(SkDeferredDisplayList* deferredDisplayList)
-
-Draws deferred display list created using SkDeferredDisplayListRecorder.
-Has no effect and returns false if Surface_Characterization stored in
-deferredDisplayList is not compatible with Surface.
-
-Raster_Surface returns false.
-
-#Param deferredDisplayList  drawing commands ##
-
-#Return false if deferredDisplayList is not compatible ##
+#Populate
 
 #Example
 #Height 64

@@ -882,16 +882,10 @@ canvas->drawColor(0xFF00FF00, SkBlendMode::kLuminosity);
 
 # ------------------------------------------------------------------------------
 
-#Method SK_API const char* SkBlendMode_Name(SkBlendMode blendMode)
+#Method const char* SkBlendMode_Name(SkBlendMode blendMode)
 #In Utility
 #Line # returns mode as C string ##
-
-Returns name of blendMode as null-terminated C string.
-
-#Param blendMode  one of: #list_of_blend_modes#
-##
-
-#Return C string ##
+#Populate
 
 #Example
 SkDebugf("default blend: SkBlendMode::k%s\n", SkBlendMode_Name(SkPaint().getBlendMode()));
