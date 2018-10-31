@@ -110,8 +110,11 @@ engines can easily be supported in a like manner.
 <span id="kerning">Does Skia shape text (kerning)?</span>
 ---------------------------------------------------------
 
-No.  Skia provides interfaces to draw glyphs, but does not implement a
-text shaper. Skia's client's often use
+Shaping is the process that translates a span of Unicode text into a span of
+positioned glyphs with the apropriate typefaces.
+
+Skia does not shape text.  Skia provides interfaces to draw glyphs, but does
+not implement a text shaper. Skia's client's often use
 [HarfBuzz](http://www.freedesktop.org/wiki/Software/HarfBuzz/) to
 generate the glyphs and their positions, including kerning.
 
