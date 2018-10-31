@@ -33,7 +33,7 @@ extern "C" {
 //
 //
 
-class SkContext_Compute : public SkRefCntBase
+class SkContext_Compute : public SkNVRefCnt<SkContext_Compute>
 {
  public:
 

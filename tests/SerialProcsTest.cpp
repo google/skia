@@ -196,16 +196,7 @@ DEF_TEST(serial_typeface, reporter) {
         return; // need two different typefaces for this test to make sense.
     }
 
-#ifdef SK_DEBUG
-    REPORTER_ASSERT(reporter, tf0->getRefCnt() == 1);
-    REPORTER_ASSERT(reporter, tf1->getRefCnt() == 1);
-#endif
     auto pic = make_picture(tf0, tf1);
-#ifdef SK_DEBUG
-    // picture should add 2 more references to each typeface
-    REPORTER_ASSERT(reporter, tf0->getRefCnt() == 3);
-    REPORTER_ASSERT(reporter, tf1->getRefCnt() == 3);
-#endif
 
     int counter = 0;
     SkSerialProcs procs;

@@ -72,11 +72,6 @@ public:
     int32_t getWeakCnt() const {
         return fWeakCnt.load(std::memory_order_relaxed);
     }
-
-    void validate() const {
-        this->INHERITED::validate();
-        SkASSERT(getWeakCnt() > 0);
-    }
 #endif
 
 private:
