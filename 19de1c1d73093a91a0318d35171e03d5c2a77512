@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54f27a78_bebbd6e4",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-31T18:57:04Z",
+      "side": 1,
+      "message": "this may not be quite rebased right?",
+      "range": {
+        "startLine": 43,
+        "startChar": 43,
+        "endLine": 43,
+        "endChar": 64
+      },
+      "revId": "19de1c1d73093a91a0318d35171e03d5c2a77512",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b39f1fce_65dca796",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-31T18:57:04Z",
+      "side": 1,
+      "message": "kinda funky alignment?",
+      "range": {
+        "startLine": 107,
+        "startChar": 15,
+        "endLine": 107,
+        "endChar": 31
+      },
+      "revId": "19de1c1d73093a91a0318d35171e03d5c2a77512",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa679eae_c19a78f1",
+        "filename": "src/core/SkDraw_text.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-31T18:57:04Z",
+      "side": 1,
+      "message": "I\u0027ll even go as far as to say this is a fine place for const auto\u0026, given that the element type is right up there clearly in the argument list.",
+      "range": {
+        "startLine": 109,
+        "startChar": 4,
+        "endLine": 109,
+        "endChar": 56
+      },
+      "revId": "19de1c1d73093a91a0318d35171e03d5c2a77512",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8d1b5e9_bfdd8438",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-31T18:57:04Z",
+      "side": 1,
+      "message": "This is unimportant, but I think all the arguments are just as clear without names, except for scale.  (Here, and in the declarations of the overrides just the same.)",
+      "range": {
+        "startLine": 37,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 91
+      },
+      "revId": "19de1c1d73093a91a0318d35171e03d5c2a77512",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
