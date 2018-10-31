@@ -107,8 +107,11 @@ public:
     }
 
     uint32_t testingOnly_getOpListID();
-    uint32_t testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
-    uint32_t testingOnly_addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
+
+    using WillAddOpFn = GrRenderTargetContext::WillAddOpFn;
+    void testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
+    void testingOnly_addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>,
+                               const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
 
     bool refsWrappedObjects() const {
         return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();
