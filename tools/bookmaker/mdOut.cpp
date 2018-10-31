@@ -2176,6 +2176,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 paramMap.fName = parentName + iMethod->fName;
                 paramMap.fParent = parentMap;
                 fNames = &paramMap;
+                TextParser methParams(iMethod);
                 for (auto& param : iMethod->fTokens) {
                     if (MarkType::kComment != param.fMarkType) {
                         continue;
@@ -2193,6 +2194,9 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                         SkASSERT(isalnum(c) || '_' == c);
                     }
                 #endif
+                    if (!methParams.containsWord(paramName.c_str(), methParams.fEnd, nullptr)) {
+                        param.reportError<void>("mismatched param name");
+                    }
                     paramMap.fRefMap[paramName] = &param;
                     paramMap.fLinkMap[paramName] = '#' + def->fFiddle + '_' + paramName;
                 }
