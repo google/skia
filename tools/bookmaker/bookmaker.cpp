@@ -18,6 +18,7 @@ DEFINE_string2(status, a, "", "File containing status of documentation. (Use in 
 DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
 DEFINE_bool2(catalog, c, false, "Write example catalog.htm. (Requires -b -f -r)");
 DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
+DEFINE_bool2(extract, E, false, "Extract examples into fiddle.json");
 DEFINE_string2(fiddle, f, "", "File of fiddlecli output, usually fiddleout.json.");
 DEFINE_bool2(hack, H, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
 // h is reserved for help
@@ -2717,10 +2718,16 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::Parse(SK_ARRAY_COUNT(commands), commands);
         return 0;
     }
+    bool runAll = false;
     if (FLAGS_bmh.isEmpty() && FLAGS_include.isEmpty() && FLAGS_status.isEmpty()) {
-        SkDebugf("requires at least one of: -b -i -a\n");
-        SkCommandLineFlags::PrintUsage();
-        return 1;
+        FLAGS_status.set(0, "docs/status.json");
+        if (FLAGS_extract) {
+            FLAGS_examples.set(0, "fiddle.json");
+        } else {
+            FLAGS_fiddle.set(0, "fiddleout.json");
+            FLAGS_ref.set(0, "site/user/api");
+            runAll = true;
+        }
     }
     if (!FLAGS_bmh.isEmpty() && !FLAGS_status.isEmpty()) {
         SkDebugf("requires -b or -a but not both\n");
@@ -2810,80 +2817,13 @@ int main(int argc, char** const argv) {
     if (FLAGS_selfcheck && !SelfCheck(bmhParser)) {
         return -1;
     }
-    bool done = false;
-    if (!FLAGS_include.isEmpty() && FLAGS_tokens) {
-        IncludeParser includeParser;
-        includeParser.validate();
-        if (!includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
-            return -1;
-        }
-        if (FLAGS_tokens) {
-            includeParser.fDebugOut = FLAGS_stdout;
-            if (includeParser.dumpTokens()) {
-                bmhParser.fWroteOut = true;
-            }
-            done = true;
-        }
-    } else if (!FLAGS_include.isEmpty() || !FLAGS_status.isEmpty()) {
-        if (FLAGS_crosscheck) {
-            IncludeParser includeParser;
-            includeParser.validate();
-            if (!FLAGS_include.isEmpty() &&
-                    !includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
-                return -1;
-            }
-            if (!FLAGS_status.isEmpty() && !includeParser.parseStatus(FLAGS_status[0], ".h",
-                    StatusFilter::kCompleted)) {
-                return -1;
-            }
-            if (!includeParser.crossCheck(bmhParser)) {
-                return -1;
-            }
-            done = true;
-        } else if (FLAGS_populate) {
-            IncludeWriter includeWriter;
-            includeWriter.validate();
-            if (!FLAGS_include.isEmpty() &&
-                    !includeWriter.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
-                return -1;
-            }
-            if (!FLAGS_status.isEmpty() && !includeWriter.parseStatus(FLAGS_status[0], ".h",
-                    StatusFilter::kCompleted)) {
-                return -1;
-            }
-            includeWriter.fDebugOut = FLAGS_stdout;
-            if (!includeWriter.populate(bmhParser)) {
-                return -1;
-            }
-            bmhParser.fWroteOut = true;
-            done = true;
-        }
-    }
-    if (!done && !FLAGS_fiddle.isEmpty() && FLAGS_examples.isEmpty()) {
+    if (!FLAGS_fiddle.isEmpty() && FLAGS_examples.isEmpty()) {
         FiddleParser fparser(&bmhParser);
         if (!fparser.parseFromFile(FLAGS_fiddle[0])) {
             return -1;
         }
     }
-    if (!done && FLAGS_catalog && FLAGS_examples.isEmpty()) {
-        Catalog cparser(&bmhParser);
-        cparser.fDebugOut = FLAGS_stdout;
-        if (!FLAGS_bmh.isEmpty() && !cparser.openCatalog(FLAGS_bmh[0])) {
-            return -1;
-        }
-        if (!FLAGS_status.isEmpty() && !cparser.openStatus(FLAGS_status[0])) {
-            return -1;
-        }
-        if (!cparser.parseFile(FLAGS_fiddle[0], ".txt", ParserCommon::OneFile::kNo)) {
-            return -1;
-        }
-        if (!cparser.closeCatalog(FLAGS_ref[0])) {
-            return -1;
-        }
-        bmhParser.fWroteOut = true;
-        done = true;
-    }
-    if (!done && !FLAGS_ref.isEmpty() && FLAGS_examples.isEmpty()) {
+    if (runAll || (!FLAGS_catalog && !FLAGS_ref.isEmpty())) {
         IncludeParser includeParser;
         includeParser.validate();
         if (!FLAGS_status.isEmpty() && !includeParser.parseStatus(FLAGS_status[0], ".h",
@@ -2908,7 +2848,67 @@ int main(int argc, char** const argv) {
             mdOut.checkAnchors();
         }
     }
-    if (!done && !FLAGS_spellcheck.isEmpty() && FLAGS_examples.isEmpty()) {
+    if (runAll || (FLAGS_catalog && FLAGS_ref.isEmpty())) {
+        Catalog cparser(&bmhParser);
+        cparser.fDebugOut = FLAGS_stdout;
+        if (!FLAGS_bmh.isEmpty() && !cparser.openCatalog(FLAGS_bmh[0])) {
+            return -1;
+        }
+        if (!FLAGS_status.isEmpty() && !cparser.openStatus(FLAGS_status[0])) {
+            return -1;
+        }
+        if (!cparser.parseFile(FLAGS_fiddle[0], ".txt", ParserCommon::OneFile::kNo)) {
+            return -1;
+        }
+        if (!cparser.closeCatalog(FLAGS_ref[0])) {
+            return -1;
+        }
+        bmhParser.fWroteOut = true;
+    }
+    if (FLAGS_tokens) {
+        IncludeParser includeParser;
+        includeParser.validate();
+        if (!includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
+            return -1;
+        }
+        includeParser.fDebugOut = FLAGS_stdout;
+        if (includeParser.dumpTokens()) {
+            bmhParser.fWroteOut = true;
+        }
+    }
+    if (runAll || FLAGS_crosscheck) {
+        IncludeParser includeParser;
+        includeParser.validate();
+        if (!FLAGS_include.isEmpty() &&
+                !includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
+            return -1;
+        }
+        if (!FLAGS_status.isEmpty() && !includeParser.parseStatus(FLAGS_status[0], ".h",
+                StatusFilter::kCompleted)) {
+            return -1;
+        }
+        if (!includeParser.crossCheck(bmhParser)) {
+            return -1;
+        }
+    }
+    if (runAll || FLAGS_populate) {
+        IncludeWriter includeWriter;
+        includeWriter.validate();
+        if (!FLAGS_include.isEmpty() &&
+                !includeWriter.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {
+            return -1;
+        }
+        if (!FLAGS_status.isEmpty() && !includeWriter.parseStatus(FLAGS_status[0], ".h",
+                StatusFilter::kCompleted)) {
+            return -1;
+        }
+        includeWriter.fDebugOut = FLAGS_stdout;
+        if (!includeWriter.populate(bmhParser)) {
+            return -1;
+        }
+        bmhParser.fWroteOut = true;
+    }
+    if (!FLAGS_spellcheck.isEmpty()) {
         if (!FLAGS_bmh.isEmpty()) {
             bmhParser.spellCheck(FLAGS_bmh[0], FLAGS_spellcheck);
         }
@@ -2916,12 +2916,8 @@ int main(int argc, char** const argv) {
             bmhParser.spellStatus(FLAGS_status[0], FLAGS_spellcheck);
         }
         bmhParser.fWroteOut = true;
-        done = true;
     }
-    int examples = 0;
-    int methods = 0;
-    int topics = 0;
-    if (!done && !FLAGS_examples.isEmpty()) {
+    if (!FLAGS_examples.isEmpty()) {
         // check to see if examples have duplicate names
         if (!bmhParser.checkExamples()) {
             return -1;
@@ -2933,6 +2929,9 @@ int main(int argc, char** const argv) {
         return 0;
     }
     if (!bmhParser.fWroteOut) {
+        int examples = 0;
+        int methods = 0;
+        int topics = 0;
         for (const auto& topic : bmhParser.fTopicMap) {
             if (topic.second->fParent) {
                 continue;

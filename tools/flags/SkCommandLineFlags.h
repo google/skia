@@ -162,6 +162,10 @@ public:
         }
 
         void set(int i, const char* str) {
+            if (i >= fStrings.count()) {
+                this->append(str);
+                return;
+            }
             fStrings[i].set(str);
         }
 
