@@ -65,6 +65,8 @@ public:
                   SkTArray<sk_sp<GrRenderTargetContext>>* out) override;
     void postFlush(GrDeferredUploadToken, const uint32_t* opListIDs, int numOpListIDs) override;
 
+    void purgeCacheEntriesOlderThan(const GrStdSteadyClock::time_point& purgeTime);
+
     void testingOnly_drawPathDirectly(const DrawPathArgs&);
     const GrUniqueKey& testingOnly_getStashedAtlasKey() const;
 

@@ -86,7 +86,8 @@ public:
     sk_sp<GrCCPathCacheEntry> find(const GrShape&, const MaskTransform&,
                                    CreateIfAbsent = CreateIfAbsent::kNo);
 
-    void purgeAsNeeded();
+    void doPostFlushProcessing();
+    void purgeEntriesOlderThan(const GrStdSteadyClock::time_point& purgeTime);
 
 private:
     // This is a special ref ptr for GrCCPathCacheEntry, used by the hash table. It provides static
@@ -118,14 +119,28 @@ private:
         sk_sp<GrCCPathCacheEntry> fEntry;
     };
 
+    GrStdSteadyClock::time_point quickPerFlushTimestamp() {
+        // time_point::min() means it's time to update fPerFlushTimestamp with a newer clock read.
+        if (GrStdSteadyClock::time_point::min() == fPerFlushTimestamp) {
+            fPerFlushTimestamp = GrStdSteadyClock::now();
+        }
+        return fPerFlushTimestamp;
+    }
+
     void evict(const GrCCPathCache::Key& key) {
         fHashTable.remove(key);  // HashNode::willExitHashTable() takes care of the rest.
     }
+
+    void purgeInvalidatedKeys();
 
     SkTHashTable<HashNode, const GrCCPathCache::Key&> fHashTable;
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
     SkMessageBus<sk_sp<Key>>::Inbox fInvalidatedKeysInbox;
     sk_sp<Key> fScratchKey;  // Reused for creating a temporary key in the find() method.
+
+    // We only read the clock once per flush, and cache it in this variable. This prevents us from
+    // excessive clock reads for cache timestamps that might degrade performance.
+    GrStdSteadyClock::time_point fPerFlushTimestamp = GrStdSteadyClock::time_point::min();
 };
 
 /**
@@ -201,8 +216,9 @@ private:
 
     sk_sp<GrCCPathCache::Key> fCacheKey;
 
+    GrStdSteadyClock::time_point fTimestamp;
+    int fHitCount = 0;
     MaskTransform fMaskTransform;
-    int fHitCount = 1;
 
     GrUniqueKey fAtlasKey;
     SkIVector fAtlasOffset;
