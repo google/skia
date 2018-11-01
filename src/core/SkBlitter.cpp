@@ -1052,22 +1052,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
             legacyPaint.writable()->setShader(SkShader::MakeColorShader(legacyPaint->getColor()));
             legacyPaint.writable()->setAlpha(0xFF);
             shader = as_SB(legacyPaint->getShader());
-        } else if (cf) {
-            // if no shader && no xfermode, we just apply the colorfilter to
-            // our color and move on.
-            SkPaint* writablePaint = legacyPaint.writable();
-            writablePaint->setColor(cf->filterColor(legacyPaint->getColor()));
-            writablePaint->setColorFilter(nullptr);
-            cf = nullptr;
         }
-    }
-
-    if (cf) {
-        SkASSERT(shader);
-        legacyPaint.writable()->setShader(shader->makeWithColorFilter(sk_ref_sp(cf)));
-        shader = as_SB(legacyPaint->getShader());
-        // blitters should ignore the presence/absence of a filter, since
-        // if there is one, the shader will take care of it.
     }
 
     SkShaderBase::Context* shaderContext = nullptr;
