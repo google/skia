@@ -720,7 +720,10 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
     return true;
 }
 
-static int fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float* d, float* f) {
+// If you pass f, we'll fit a possibly-non-zero value for *f.
+// If you pass nullptr, we'll assume you want *f to be treated as zero.
+static int fit_linear(const skcms_Curve* curve, int N, float tol,
+                      float* c, float* d, float* f = nullptr) {
     assert(N > 1);
     // We iteratively fit the first points to the TF's linear piece.
     // We want the cx + f line to pass through the first and last points we fit exactly.
@@ -735,7 +738,14 @@ static int fit_linear(const skcms_Curve* curve, int N, float tol, float* c, floa
     const float dx = 1.0f / (N - 1);
 
     int lin_points = 1;
-    *f = eval_curve(curve, 0);
+
+    float f_zero = 0.0f;
+    if (f) {
+        *f = eval_curve(curve, 0);
+    } else {
+        f = &f_zero;
+    }
+
 
     float slope_min = -INFINITY_;
     float slope_max = +INFINITY_;
@@ -797,7 +807,7 @@ static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
         if (curve && curve->table_entries && curve->table_entries <= (uint32_t)INT_MAX) {
             int N = (int)curve->table_entries;
 
-            float c,d,f;
+            float c = 0.0f, d = 0.0f, f = 0.0f;
             if (N == fit_linear(curve, N, 1.0f/(2*N), &c,&d,&f)
                 && c == 1.0f
                 && f == 0.0f) {
@@ -1686,7 +1696,10 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     for (int t = 0; t < ARRAY_COUNT(kTolerances); t++) {
         skcms_TransferFunction tf,
                                tf_inv;
-        int L = fit_linear(curve, N, kTolerances[t], &tf.c, &tf.d, &tf.f);
+
+        // It's problematic to fit curves with non-zero f, so always force it to zero explicitly.
+        tf.f = 0.0f;
+        int L = fit_linear(curve, N, kTolerances[t], &tf.c, &tf.d);
 
         if (L == N) {
             // If the entire data set was linear, move the coefficients to the nonlinear portion
