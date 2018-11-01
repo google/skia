@@ -16,6 +16,24 @@
       "revId": "85fe33b9481202c9686c26264a5a30b1309dad0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ecfad75_a24755b4",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-01T16:53:57Z",
+      "side": 1,
+      "message": "Done. Although, it looks like fWindow-\u003egetGrContext() also returns a valid GrContext in the software backend.",
+      "parentUuid": "abbbca25_17557432",
+      "revId": "85fe33b9481202c9686c26264a5a30b1309dad0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
