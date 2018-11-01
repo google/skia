@@ -45,7 +45,7 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
 #define SK_B32_MASK     ((1 << SK_B32_BITS) - 1)
 
 /*
- *  Skia's 32bit backend only supports 1 sizzle order at a time (compile-time).
+ *  Skia's 32bit backend only supports 1 swizzle order at a time (compile-time).
  *  This is specified by 4 defines SK_A32_SHIFT, SK_R32_SHIFT, ... for G and B.
  *
  *  For easier compatibility with Skia's GPU backend, we further restrict these
@@ -61,11 +61,41 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
     #define SK_RGBA_G32_SHIFT   16
     #define SK_RGBA_B32_SHIFT   8
     #define SK_RGBA_A32_SHIFT   0
+
+    #define SK_BGRA_B32_SHIFT   24
+    #define SK_BGRA_G32_SHIFT   16
+    #define SK_BGRA_R32_SHIFT   8
+    #define SK_BGRA_A32_SHIFT   0
 #else
     #define SK_RGBA_R32_SHIFT   0
     #define SK_RGBA_G32_SHIFT   8
     #define SK_RGBA_B32_SHIFT   16
     #define SK_RGBA_A32_SHIFT   24
+
+    #define SK_BGRA_B32_SHIFT   0
+    #define SK_BGRA_G32_SHIFT   8
+    #define SK_BGRA_R32_SHIFT   16
+    #define SK_BGRA_A32_SHIFT   24
+#endif
+
+#if defined(SK_PMCOLOR_IS_RGBA) || defined(SK_PMCOLOR_IS_BGRA)
+    #error "Configure PMCOLOR by setting SK_R32_SHIFT, etc"
+#endif
+
+// Deduce which SK_PMCOLOR_IS_ to define from the _SHIFT defines
+
+#if (SK_A32_SHIFT == SK_RGBA_A32_SHIFT && \
+     SK_R32_SHIFT == SK_RGBA_R32_SHIFT && \
+     SK_G32_SHIFT == SK_RGBA_G32_SHIFT && \
+     SK_B32_SHIFT == SK_RGBA_B32_SHIFT)
+    #define SK_PMCOLOR_IS_RGBA
+#elif (SK_A32_SHIFT == SK_BGRA_A32_SHIFT && \
+       SK_R32_SHIFT == SK_BGRA_R32_SHIFT && \
+       SK_G32_SHIFT == SK_BGRA_G32_SHIFT && \
+       SK_B32_SHIFT == SK_BGRA_B32_SHIFT)
+    #define SK_PMCOLOR_IS_BGRA
+#else
+    #error "need 32bit packing to be either RGBA or BGRA"
 #endif
 
 #define SkGetPackedA32(packed)      ((uint32_t)((packed) << (24 - SK_A32_SHIFT)) >> 24)

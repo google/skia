@@ -8,11 +8,6 @@
 #ifndef SkColorData_DEFINED
 #define SkColorData_DEFINED
 
-// turn this own for extra debug checking when blending onto 565
-#ifdef SK_DEBUG
-    #define CHECK_FOR_565_OVERFLOW
-#endif
-
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkTo.h"
@@ -20,78 +15,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #define SkASSERT_IS_BYTE(x)     SkASSERT(0 == ((x) & ~0xFF))
-
-/*
- *  Skia's 32bit backend only supports 1 sizzle order at a time (compile-time).
- *  This is specified by 4 defines SK_A32_SHIFT, SK_R32_SHIFT, ... for G and B.
- *
- *  For easier compatibility with Skia's GPU backend, we further restrict these
- *  to either (in memory-byte-order) RGBA or BGRA. Note that this "order" does
- *  not directly correspond to the same shift-order, since we have to take endianess
- *  into account.
- *
- *  Here we enforce this constraint.
- */
-
-#ifdef SK_CPU_BENDIAN
-    #define SK_BGRA_B32_SHIFT   24
-    #define SK_BGRA_G32_SHIFT   16
-    #define SK_BGRA_R32_SHIFT   8
-    #define SK_BGRA_A32_SHIFT   0
-#else
-    #define SK_BGRA_B32_SHIFT   0
-    #define SK_BGRA_G32_SHIFT   8
-    #define SK_BGRA_R32_SHIFT   16
-    #define SK_BGRA_A32_SHIFT   24
-#endif
-
-#if defined(SK_PMCOLOR_IS_RGBA) && defined(SK_PMCOLOR_IS_BGRA)
-    #error "can't define PMCOLOR to be RGBA and BGRA"
-#endif
-
-#define LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA  \
-    (SK_A32_SHIFT == SK_RGBA_A32_SHIFT &&    \
-     SK_R32_SHIFT == SK_RGBA_R32_SHIFT &&    \
-     SK_G32_SHIFT == SK_RGBA_G32_SHIFT &&    \
-     SK_B32_SHIFT == SK_RGBA_B32_SHIFT)
-
-#define LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_BGRA  \
-    (SK_A32_SHIFT == SK_BGRA_A32_SHIFT &&    \
-     SK_R32_SHIFT == SK_BGRA_R32_SHIFT &&    \
-     SK_G32_SHIFT == SK_BGRA_G32_SHIFT &&    \
-     SK_B32_SHIFT == SK_BGRA_B32_SHIFT)
-
-
-#define SK_A_INDEX  (SK_A32_SHIFT/8)
-#define SK_R_INDEX  (SK_R32_SHIFT/8)
-#define SK_G_INDEX  (SK_G32_SHIFT/8)
-#define SK_B_INDEX  (SK_B32_SHIFT/8)
-
-#if defined(SK_PMCOLOR_IS_RGBA) && !LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA
-    #error "SK_PMCOLOR_IS_RGBA does not match SK_*32_SHIFT values"
-#endif
-
-#if defined(SK_PMCOLOR_IS_BGRA) && !LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_BGRA
-    #error "SK_PMCOLOR_IS_BGRA does not match SK_*32_SHIFT values"
-#endif
-
-#if !defined(SK_PMCOLOR_IS_RGBA) && !defined(SK_PMCOLOR_IS_BGRA)
-    // deduce which to define from the _SHIFT defines
-
-    #if LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA
-        #define SK_PMCOLOR_IS_RGBA
-    #elif LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_BGRA
-        #define SK_PMCOLOR_IS_BGRA
-    #else
-        #error "need 32bit packing to be either RGBA or BGRA"
-    #endif
-#endif
-
-// hide these now that we're done
-#undef LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA
-#undef LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_BGRA
-
-//////////////////////////////////////////////////////////////////////////////
 
 // Reverse the bytes coorsponding to RED and BLUE in a packed pixels. Note the
 // pair of them are in the same 2 slots in both RGBA and BGRA, thus there is
