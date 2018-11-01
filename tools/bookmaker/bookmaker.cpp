@@ -5,8 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
 #include "SkOSPath.h"
+
+#include "bmhParser.h"
+#include "fiddleParser.h"
+#include "mdOut.h"
+#include "includeWriter.h"
+#include "selfCheck.h"
 
 #ifdef SK_BUILD_FOR_WIN
 #include <Windows.h>

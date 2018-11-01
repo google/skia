@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
 #include "SkOSPath.h"
+
+#include "definition.h"
+#include "textParser.h"
 
 #ifdef CONST
 #undef CONST

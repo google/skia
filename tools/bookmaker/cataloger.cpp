@@ -5,7 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
+#include "bmhParser.h"
+#include "fiddleParser.h"
 
 #include "SkOSFile.h"
 #include "SkOSPath.h"
