@@ -224,10 +224,7 @@ private:
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
 
     size_t fMaxTotalRunSize{0};
-    SkAutoTMalloc<uint16_t> fUniqueGlyphIDIndices;
     SkAutoTMalloc<SkPoint> fPositions;
-    SkAutoTMalloc<SkGlyphID> fUniqueGlyphIDs;
-
     std::vector<SkGlyphRun> fGlyphRunListStorage;
     SkGlyphRunList fGlyphRunList;
 
