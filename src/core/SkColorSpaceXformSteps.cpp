@@ -56,7 +56,7 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
         SkMatrix44 srcM, dstM;
         src->toXYZD50(&srcM);
         dst->toXYZD50(&dstM);
-        SkASSERT(srcM == dstM && "Hash collision");
+        SkASSERT(0 == memcmp(&srcM, &dstM, 16*sizeof(SkMScalar)) && "Hash collision");
     #endif
     }
 
