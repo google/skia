@@ -1659,6 +1659,7 @@ if (skia_enable_tools) {
       "tools/bookmaker/parserCommon.cpp",
       "tools/bookmaker/selfCheck.cpp",
       "tools/bookmaker/spellCheck.cpp",
+      "tools/bookmaker/textParser.cpp",
     ]
     deps = [
       ":flags",

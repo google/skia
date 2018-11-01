@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+
+#include "parserCommon.h"
 
 void ParserCommon::checkLineLength(size_t len, const char* str) {
     if (!fWritingIncludes) {
