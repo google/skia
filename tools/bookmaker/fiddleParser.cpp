@@ -5,13 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
+#include "bmhParser.h"
+#include "fiddleParser.h"
 
 // could make this more elaborate and look up the example definition in the bmh file;
 // see if a simpler hint provided is sufficient
 static bool report_error(const char* blockName, const char* errorMessage) {
     SkDebugf("%s: %s\n", blockName, errorMessage);
     return false;
+}
+
+Definition* FiddleBase::findExample(string name) const {
+    return fBmhParser->findExample(name);
 }
 
 bool FiddleBase::parseFiddles() {
@@ -84,6 +89,17 @@ bool FiddleBase::parseFiddles() {
         status->fIter++;
     }
     return true;
+}
+
+bool FiddleParser::parseFromFile(const char* path)  {
+    if (!INHERITED::parseFromFile(path)) {
+        return false;
+    }
+    fBmhParser->resetExampleHashes();
+    if (!INHERITED::parseFiddles()) {
+        return false;
+    }
+    return fBmhParser->checkExampleHashes();
 }
 
 bool FiddleParser::textOut(Definition* example, const char* stdOutStart,
