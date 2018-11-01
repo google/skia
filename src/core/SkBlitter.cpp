@@ -945,7 +945,7 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
 
-#if 0
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
     // All the real legacy fast paths are for shaders and SrcOver.
     // Choosing SkRasterPipelineBlitter will also let us to hit its single-color memset path.
     if (!paint.getShader() && paint.getBlendMode() != SkBlendMode::kSrcOver) {
@@ -1026,7 +1026,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     SkASSERT(device.colorType() == kN32_SkColorType ||
              device.colorType() == kRGB_565_SkColorType);
 
-#if 0
+#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
     // And we should either have a shader, be blending with SrcOver, or both.
     SkASSERT(paint->getShader() || paint->getBlendMode() == SkBlendMode::kSrcOver);
 #else
