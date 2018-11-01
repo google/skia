@@ -18,6 +18,61 @@ files describe how public interfaces work, and generate Skia fiddle examples to 
 
 The docs files must be manually edited to stay current with Skia as it evolves.
 
+#Subtopic Installing
+
+Install
+#A Go # https://golang.org/doc/install ##
+ if needed.
+Check the version. The results should be 1.10 or greater.
+
+#Code
+$ go version
+##
+
+Get the fiddle command line interface tool.
+By default this will appear in your home directory.
+
+#Code
+$ go get go.skia.org/infra/fiddlek/go/fiddlecli
+##
+
+Check the version. The command should work and the result should be 1.0 or greater.
+
+#Code
+$ ~/go/bin/fiddlecli --version
+##
+
+If fiddlecli is already installed but out of date, update with:
+
+#Code
+$ go get -u go.skia.org/infra/fiddlek/go/fiddlecli
+##
+
+Build Bookmaker.
+
+#Code
+$ ninja -C out/skia bookmaker
+##
+
+#Subtopic Installing ##
+
+#Subtopic Running
+
+Bookmaker extracts examples, generates example hashes with fiddle, and generates web markdown
+and c++ includes.
+
+#Code
+$ ./out/skia/bookmaker -E && ~/go/bin/fiddlecli --quiet && ./out/skia/bookmaker
+##
+
+A successful run generates:
+
+#Code
+cross-check...................
+##
+
+#Subtopic Running ##
+
 #Subtopic Broken_Build
 
 The bots 
@@ -132,32 +187,6 @@ $$$#
 . The disabled example can contain additional markup, which will be ignored.
 
 #Subtopic Broken_Example ##
-
-#Subtopic Installing
-
-Install
-#A Go # https://golang.org/doc/install ##
- if needed.
-Check the version. The results should be 1.10 or greater.
-
-#Code
-$ go version
-##
-
-Get the fiddle command line interface tool.
-By default this will appear in your home directory.
-
-#Code
-$ go get go.skia.org/infra/fiddlek/go/fiddlecli
-##
-
-Build Bookmaker.
-
-#Code
-$ ninja -C out/dir bookmaker
-##
-
-#Subtopic Installing ##
 
 #Subtopic Regenerate
 

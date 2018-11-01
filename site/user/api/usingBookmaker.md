@@ -6,6 +6,55 @@ files describe how public interfaces work, and generate Skia fiddle examples to 
 
 The docs files must be manually edited to stay current with Skia as it evolves.
 
+<a name='Installing'></a>
+
+Install <a href='https://golang.org/doc/install'>Go</a></a> if needed.
+Check the version. The results should be 1.10 or greater.
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+$ go version
+</pre>
+
+Get the fiddle command line interface tool.
+By default this will appear in your home directory.
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+$ go get go.skia.org/infra/fiddlek/go/fiddlecli
+</pre>
+
+Check the version. The command should work and the result should be 1.0 or greater.
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+$ ~/go/bin/fiddlecli --version
+</pre>
+
+If fiddlecli is already installed but out of date, update with:
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+$ go get -u go.skia.org/infra/fiddlek/go/fiddlecli
+</pre>
+
+Build <a href='#Bookmaker'>Bookmaker</a>.
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+$ ninja -C out/skia bookmaker
+</pre>
+
+<a name='Running'></a>
+
+<a href='#Bookmaker'>Bookmaker</a> extracts examples, generates example hashes with fiddle, and generates web markdown
+and c++ includes.
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+$ ./out/skia/bookmaker -E && ~/go/bin/fiddlecli --quiet && ./out/skia/bookmaker
+</pre>
+
+A successful run generates:
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+cross-check...................
+</pre>
+
 <a name='Broken_Build'></a>
 
 The bots <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> and <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> verify that <a href='#Bookmaker'>Bookmaker</a> data in docs builds without error and is consistent with include files it documents.
@@ -72,7 +121,7 @@ To regenerate the documentation, follow the <a href='#Installing'>Installing</a>
 Edit docs instead of include/core files to update comments if possible.
 
 The <a href='#Bookmaker'>Bookmaker</a> bots do not complain if the docs file does not match the
-corresponding include comments. Running <a href='#Bookmaker'>Bookmaker</a> include generation will
+corresponding include comments. <a href='#Running'>Running</a> <a href='#Bookmaker'>Bookmaker</a> include generation will
 report when docs and includes comments do not match.
 
 For instance, if include/core/SkSurface.h comments do not match
@@ -112,28 +161,6 @@ to
 
 .
 The disabled example can contain additional markup, which will be ignored.
-
-<a name='Installing'></a>
-
-Install <a href='https://golang.org/doc/install'>Go</a></a> if needed.
-Check the version. The results should be 1.10 or greater.
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ go version
-</pre>
-
-Get the fiddle command line interface tool.
-By default this will appear in your home directory.
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ go get go.skia.org/infra/fiddlek/go/fiddlecli
-</pre>
-
-Build <a href='#Bookmaker'>Bookmaker</a>.
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ ninja -C out/dir bookmaker
-</pre>
 
 <a name='Regenerate'></a>
 
