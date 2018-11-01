@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f32880e_76f46d62",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-01T13:55:26Z",
+      "side": 1,
+      "message": "Why are we binning things like this (1-second granularity)? I guess it cuts down on deque traffic, but it limits the control that client code has. In a real-time environment, 1 second can be 60 (or even 90 or 120) frames...",
+      "revId": "82dd6b235b0aa86a9e71ed447209845e176ba493",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b148995_ca102b79",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-01T13:55:26Z",
+      "side": 1,
+      "message": "At the risk of being short-sighted -- I feel safe saying that this will never happen, so without an artificial test to exercise the logic here, it\u0027s probably better to just not have it.",
+      "range": {
+        "startLine": 279,
+        "startChar": 0,
+        "endLine": 284,
+        "endChar": 5
+      },
+      "revId": "82dd6b235b0aa86a9e71ed447209845e176ba493",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
