@@ -77,7 +77,8 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                                                                               strUniName.c_str(),
                                                                               &uniName).toIndex();
         GrSLType varyingType = kFloat2_GrSLType;
-        if (localMatrix.hasPerspective() || coordTransform->getMatrix().hasPerspective()) {
+        if (localMatrix.hasPerspective() || coordTransform->getMatrix().hasPerspective()
+            || threeComponentLocalCoords) {
             varyingType = kFloat3_GrSLType;
         }
         SkString strVaryingName;
@@ -89,9 +90,6 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
 
         if (kFloat2_GrSLType == varyingType) {
             vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), uniName, localCoords.c_str());
-            if (threeComponentLocalCoords) {
-                vb->codeAppendf("%s /= %s.z;", v.vsOut(), localCoords.c_str());
-            }
         } else {
             vb->codeAppendf("%s = %s * %s;", v.vsOut(), uniName, localCoords.c_str());
         }
