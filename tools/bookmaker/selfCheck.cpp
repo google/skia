@@ -5,7 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
+#include "bmhParser.h"
+#include "selfCheck.h"
 
 #ifdef SK_BUILD_FOR_WIN
 #include <windows.h>

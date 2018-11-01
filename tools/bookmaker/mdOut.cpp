@@ -5,10 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
+#include "bmhParser.h"
+#include "includeParser.h"
+#include "mdOut.h"
 
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+
+class SubtopicKeys {
+public:
+    static constexpr const char* kClasses = "Classes";
+    static constexpr const char* kConstants = "Constants";
+    static constexpr const char* kConstructors = "Constructors";
+    static constexpr const char* kDefines = "Defines";
+    static constexpr const char* kMemberFunctions = "Member_Functions";
+    static constexpr const char* kMembers = "Members";
+    static constexpr const char* kOperators = "Operators";
+    static constexpr const char* kOverview = "Overview";
+    static constexpr const char* kRelatedFunctions = "Related_Functions";
+    static constexpr const char* kStructs = "Structs";
+    static constexpr const char* kTypedefs = "Typedefs";
+
+    static const char* kGeneratedSubtopics[];
+};
 
 const char* SubtopicKeys::kGeneratedSubtopics[] = {
     kConstants, kDefines, kTypedefs, kMembers, kClasses, kStructs, kConstructors,
@@ -257,9 +276,9 @@ Definition* MdOut::checkParentsForMatch(Definition* test, string ref) const {
     return nullptr;
 }
 
-static bool formula_or_code(BmhParser::Resolvable resolvable) {
-    return  BmhParser::Resolvable::kFormula == resolvable
-            || BmhParser::Resolvable::kCode == resolvable;
+static bool formula_or_code(Resolvable resolvable) {
+    return  Resolvable::kFormula == resolvable
+            || Resolvable::kCode == resolvable;
 }
 
 static void fixup_const_function_name(string* ref) {
@@ -507,8 +526,8 @@ string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
 
 // FIXME: preserve inter-line spaces and don't add new ones
 string MdOut::addReferences(const char* refStart, const char* refEnd,
-        BmhParser::Resolvable resolvable) {
-    if (BmhParser::Resolvable::kInclude == resolvable) {  // test include resolving
+        Resolvable resolvable) {
+    if (Resolvable::kInclude == resolvable) {  // test include resolving
         return this->addIncludeReferences(refStart, refEnd);
     }
     string result;
@@ -522,7 +541,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
     vector<BraceState> braceStack;
     KeyWord lastKeyWord = KeyWord::kNone;
     KeyWord keyWord = KeyWord::kNone;
-    if (BmhParser::Resolvable::kCode == resolvable) {
+    if (Resolvable::kCode == resolvable) {
         braceStack.push_back({fRoot, fRoot->fName, t.fChar, lastKeyWord, keyWord, 0});
     }
     do {
@@ -536,7 +555,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             t.next();
             continue;
         }
-        if (BmhParser::Resolvable::kCode == resolvable) {
+        if (Resolvable::kCode == resolvable) {
             int priorBrace = braceStack.back().fBraceCount;
             int braceCount = priorBrace + t.skipToMethodStart();
             if (braceCount > priorBrace) {
@@ -590,7 +609,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 wordStart = base;
             }
             string nonWord = string(wordStart, start - wordStart);
-            if (BmhParser::Resolvable::kFormula == resolvable) {
+            if (Resolvable::kFormula == resolvable) {
                 string unbreakable;
                 bool comma = false;
                 for (char c : nonWord) {
@@ -642,7 +661,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             result += ref;
             continue;
         }
-        if (BmhParser::Resolvable::kCode == resolvable) {
+        if (Resolvable::kCode == resolvable) {
             fixup_const_function_name(&ref);
         }
         if (Definition* def = this->isDefined(t, ref, resolvable)) {
@@ -652,8 +671,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 continue;
             }
             SkASSERT(def->fFiddle.length());
-            if (BmhParser::Resolvable::kSimple != resolvable
-                    && BmhParser::Resolvable::kInclude != resolvable
+            if (Resolvable::kSimple != resolvable
+                    && Resolvable::kInclude != resolvable
                     && !t.eof() && '(' == t.peek() && t.strnchr(')', t.fEnd)) {
                 TextParserSave tSave(&t);
                 if (!t.skipToBalancedEndBracket('(', ')')) {
@@ -680,7 +699,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     }
                     string altTest = ref + '_';
                     altTest += suffix++;
-                    altDef = this->isDefined(t, altTest, BmhParser::Resolvable::kOut);
+                    altDef = this->isDefined(t, altTest, Resolvable::kOut);
                 }
                 if (suffix > '9') {
                     t.reportError("too many alts");
@@ -705,7 +724,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 }
                 ref = ref.substr(0, ref.find('('));
                 tSave.restore();
-			} else if (BmhParser::Resolvable::kClone != resolvable &&
+			} else if (Resolvable::kClone != resolvable &&
 					all_lower(ref) && (t.eof() || '(' != t.peek())) {
 				add_ref(leadingSpaces, ref, &result);
 				continue;
@@ -717,7 +736,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             }
 			result += linkRef(leadingSpaces, def, ref, resolvable);
             if (!t.eof() && '(' == t.peek()) {
-                if (BmhParser::Resolvable::kInclude == resolvable
+                if (Resolvable::kInclude == resolvable
                        && std::any_of(ref.begin(), ref.end(), [](char c){ return !islower(c); } )) {
                     t.next();  // skip open paren
                     SkAssertResult(')' == t.next());  // skip close paren
@@ -735,7 +754,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             }
             t.next();
             ref = string(start, t.fChar - start);
-            if (Definition* def = this->isDefined(t, ref, BmhParser::Resolvable::kYes)) {
+            if (Definition* def = this->isDefined(t, ref, Resolvable::kYes)) {
                 SkASSERT(def->fFiddle.length());
 				result += linkRef(leadingSpaces, def, ref, resolvable);
                 continue;
@@ -749,14 +768,14 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             // look for Sk / sk / SK ..
         if (!ref.compare(0, 2, "Sk") && ref != "Skew" && ref != "Skews" && ref != "Skewing"
               && ref != "Skip" && ref != "Skips") {
-            if (BmhParser::Resolvable::kOut != resolvable && !formula_or_code(resolvable)) {
+            if (Resolvable::kOut != resolvable && !formula_or_code(resolvable)) {
                 t.reportError("missed Sk prefixed");
                 fAddRefFailed = true;
                 return result;
             }
         }
         if (!ref.compare(0, 2, "SK")) {
-            if (BmhParser::Resolvable::kOut != resolvable && !formula_or_code(resolvable)) {
+            if (Resolvable::kOut != resolvable && !formula_or_code(resolvable)) {
                 t.reportError("missed SK prefixed");
                 fAddRefFailed = true;
                 return result;
@@ -788,9 +807,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                             }
                         }
                     }
-                    if (BmhParser::Resolvable::kSimple != resolvable
-                            && BmhParser::Resolvable::kInclude != resolvable
-                            && BmhParser::Resolvable::kOut != resolvable
+                    if (Resolvable::kSimple != resolvable
+                            && Resolvable::kInclude != resolvable
+                            && Resolvable::kOut != resolvable
                             && !formula_or_code(resolvable)) {
                         t.reportError("missed camelCase");
                         fAddRefFailed = true;
@@ -804,7 +823,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     && KeyWord::kPublic != newKeyWord) {
                 lastKeyWord = keyWord;
                 keyWord = newKeyWord;
-            } else if (BmhParser::Resolvable::kCode == resolvable && ':' != t.peek()) {
+            } else if (Resolvable::kCode == resolvable && ':' != t.peek()) {
                 lastLine = t.fLine;
                 lastKeyWord = keyWord;
                 keyWord = newKeyWord;
@@ -829,7 +848,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         if (isupper(t.fChar[1]) && startsSentence) {
             TextParser next(t.fFileName, &t.fChar[1], t.fEnd, t.fLineCount);
             string nextWord(next.fChar, next.wordEnd() - next.fChar);
-            if (this->isDefined(t, nextWord, BmhParser::Resolvable::kYes)) {
+            if (this->isDefined(t, nextWord, Resolvable::kYes)) {
 				add_ref(leadingSpaces, ref, &result);
                 continue;
             }
@@ -842,7 +861,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
  			result += this->linkRef(leadingSpaces, def, ref, resolvable);
             continue;
         }
-        if (BmhParser::Resolvable::kOut != resolvable &&
+        if (Resolvable::kOut != resolvable &&
                 !formula_or_code(resolvable)) {
             t.reportError("undefined reference");
             fAddRefFailed = true;
@@ -1063,7 +1082,7 @@ bool MdOut::checkParamReturnBody(const Definition* def) {
     if (!islower(descriptionStart[0]) && !isdigit(descriptionStart[0])) {
         paramBody.skipToNonName();
         string ref = string(descriptionStart, paramBody.fChar - descriptionStart);
-        if (!this->isDefined(paramBody, ref, BmhParser::Resolvable::kYes)) {
+        if (!this->isDefined(paramBody, ref, Resolvable::kYes)) {
             string errorStr = MarkType::kReturn == def->fMarkType ? "return" : "param";
             errorStr += " description must start with lower case";
             paramBody.reportError(errorStr.c_str());
@@ -1088,20 +1107,20 @@ void MdOut::childrenOut(Definition* def, const char* start) {
     if (MarkType::kEnumClass == def->fMarkType) {
         fEnumClass = def;
     }
-    BmhParser::Resolvable resolvable = this->resolvable(def);
+    Resolvable resolvable = this->resolvable(def);
     const Definition* prior = nullptr;
     for (auto& child : def->fChildren) {
         if (MarkType::kPhraseParam == child->fMarkType) {
             continue;
         }
         end = child->fStart;
-        if (BmhParser::Resolvable::kNo != resolvable) {
+        if (Resolvable::kNo != resolvable) {
             this->resolveOut(start, end, resolvable);
         }
         this->markTypeOut(child, &prior);
         start = child->fTerminator;
     }
-    if (BmhParser::Resolvable::kNo != resolvable) {
+    if (Resolvable::kNo != resolvable) {
         end = def->fContentEnd;
         if (MarkType::kFormula == def->fMarkType && ' ' == start[0]) {
             this->writeSpace();
@@ -1226,7 +1245,7 @@ Definition* MdOut::findParamType() {
         string name = string(word, parser.fChar - word);
         if (fLastParam->fName == name) {
             Definition* paramType = this->isDefined(parser, lastFull,
-                    BmhParser::Resolvable::kOut);
+                    Resolvable::kOut);
             return paramType;
         }
         if (isupper(name[0])) {
@@ -1337,7 +1356,7 @@ Definition* MdOut::isDefinedByParent(RootDefinition* root, string ref) {
 }
 
 Definition* MdOut::isDefined(const TextParser& parser, string ref,
-        BmhParser::Resolvable resolvable) {
+        Resolvable resolvable) {
     auto rootIter = fBmhParser.fClassMap.find(ref);
     if (rootIter != fBmhParser.fClassMap.end()) {
         return &rootIter->second;
@@ -1423,7 +1442,7 @@ Definition* MdOut::isDefined(const TextParser& parser, string ref,
                 return nullptr;
             }
         } else {
-            if (BmhParser::Resolvable::kOut != resolvable &&
+            if (Resolvable::kOut != resolvable &&
                     !formula_or_code(resolvable)) {
                 parser.reportError("SK undefined");
                 fAddRefFailed = true;
@@ -1454,7 +1473,7 @@ Definition* MdOut::isDefined(const TextParser& parser, string ref,
                     return definition;
                 }
             }
-            if (BmhParser::Resolvable::kOut != resolvable &&
+            if (Resolvable::kOut != resolvable &&
                     !formula_or_code(resolvable)) {
                 parser.reportError("_ undefined");
                 fAddRefFailed = true;
@@ -1483,8 +1502,8 @@ string MdOut::linkName(const Definition* ref) const {
 // for now, hard-code to html links
 // def should not include SkXXX_
 string MdOut::linkRef(string leadingSpaces, Definition* def,
-        string ref, BmhParser::Resolvable resolvable) {
-    bool trimRef = BmhParser::Resolvable::kInclude == resolvable && "Sk" == ref.substr(0, 2);
+        string ref, Resolvable resolvable) {
+    bool trimRef = Resolvable::kInclude == resolvable && "Sk" == ref.substr(0, 2);
     if (trimRef) {
 #ifdef SK_DEBUG
     for (auto c : ref) {
@@ -1576,15 +1595,15 @@ string MdOut::linkRef(string leadingSpaces, Definition* def,
         buildup = '#' + parent->fFiddle + '_' + ref;
     }
     string refOut(ref);
-    if (!globalEnumMember && BmhParser::Resolvable::kCode != resolvable) {
+    if (!globalEnumMember && Resolvable::kCode != resolvable) {
         std::replace(refOut.begin(), refOut.end(), '_', ' ');
     }
     if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)
-            && BmhParser::Resolvable::kCode != resolvable) {
+            && Resolvable::kCode != resolvable) {
         refOut = refOut.substr(0, refOut.length() - 2);
     }
     string result = leadingSpaces + this->anchorRef(buildup, refOut);
-	if (BmhParser::Resolvable::kClone == resolvable && MarkType::kMethod == def->fMarkType &&
+	if (Resolvable::kClone == resolvable && MarkType::kMethod == def->fMarkType &&
 			def->fCloned && !def->fClone) {
 		bool found = false;
 		string match = def->fName;
@@ -2015,7 +2034,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             string formattedStr = def->formatFunction(Definition::Format::kIncludeReturn);
             string preformattedStr = preformat(formattedStr);
             string references = this->addReferences(&preformattedStr.front(),
-                    &preformattedStr.back() + 1, BmhParser::Resolvable::kSimple);
+                    &preformattedStr.back() + 1, Resolvable::kSimple);
             preformattedStr = references;
             this->htmlOut("<pre style=\"padding: 1em 1em 1em 1em; width: 62.5em;"
                     "background-color: #f0f0f0\">\n" + preformattedStr + "\n" + "</pre>");
@@ -2208,7 +2227,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                     if (parser.skipExact("@param ")) { // write parameters, if any
                         this->parameterHeaderOut(parser, prior, def);
                         this->resolveOut(parser.fChar, parser.fEnd,
-                                BmhParser::Resolvable::kInclude);
+                                Resolvable::kInclude);
                         this->parameterTrailerOut();
                         wroteParam = true;
                         continue;
@@ -2223,7 +2242,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                     if (parser.skipExact("@return ")) { // write return, if any
                         this->returnHeaderOut(prior, def);
                         this->resolveOut(parser.fChar, parser.fEnd,
-                                BmhParser::Resolvable::kInclude);
+                                Resolvable::kInclude);
                         this->lf(2);
                         continue;
                     }
@@ -2240,7 +2259,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                         this->lf(2);
                     }
                     this->resolveOut(entry.fContentStart, entry.fContentEnd,
-                            BmhParser::Resolvable::kInclude);  // write description
+                            Resolvable::kInclude);  // write description
                     this->lf(1);
                 }
                 fMethod = nullptr;
@@ -2332,7 +2351,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 this->writePending();
                 this->htmlOut("<code>");
                 this->resolveOut(def->fContentStart, def->fContentEnd,
-                        BmhParser::Resolvable::kFormula);
+                        Resolvable::kFormula);
                 this->htmlOut("</code>");
             }
             break;
@@ -2665,8 +2684,8 @@ void MdOut::populateTables(const Definition* def, RootDefinition* root) {
     }
 }
 
-void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable resolvable) {
-    if ((BmhParser::Resolvable::kLiteral == resolvable || fLiteralAndIndent ||
+void MdOut::resolveOut(const char* start, const char* end, Resolvable resolvable) {
+    if ((Resolvable::kLiteral == resolvable || fLiteralAndIndent ||
             fResolveAndIndent) && end > start) {
         int linefeeds = 0;
         while ('\n' == *start) {
@@ -2684,7 +2703,7 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
             fIndent = start - spaceStart;
         }
     }
-    if (BmhParser::Resolvable::kLiteral == resolvable || fLiteralAndIndent) {
+    if (Resolvable::kLiteral == resolvable || fLiteralAndIndent) {
         this->writeBlockTrim(end - start, start);
         if ('\n' == end[-1]) {
             this->lf(1);
@@ -2784,12 +2803,12 @@ void MdOut::rowOut(const char* name, string description, bool literalName) {
             this->writeString(name);
         }
     } else {
-        this->resolveOut(name, name + strlen(name), BmhParser::Resolvable::kYes);
+        this->resolveOut(name, name + strlen(name), Resolvable::kYes);
     }
     FPRINTF("</td>");
     this->lfAlways(1);
     FPRINTF("%s", kTD_Left.c_str());
-    this->resolveOut(&description.front(), &description.back() + 1, BmhParser::Resolvable::kYes);
+    this->resolveOut(&description.front(), &description.back() + 1, Resolvable::kYes);
     FPRINTF("</td>");
     this->lfAlways(1);
     FPRINTF("  </tr>");
@@ -2943,7 +2962,7 @@ bool MdOut::subtopicRowOut(string keyName, const Definition* entry) {
         return parser.reportError<bool>("missing #Line");
     }
     TextParser dummy(entry); // for reporting errors, which we won't do
-    if (!this->isDefined(dummy, keyName, BmhParser::Resolvable::kOut)) {
+    if (!this->isDefined(dummy, keyName, Resolvable::kOut)) {
         keyName = entry->fName;
         size_t doubleColon = keyName.find("::");
         SkASSERT(string::npos != doubleColon);

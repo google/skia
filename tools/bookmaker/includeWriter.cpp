@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
 #include <chrono>
 #include <ctime>
-#include <string>
+
+#include "bmhParser.h"
+#include "includeWriter.h"
 
 bool IncludeWriter::checkChildCommentLength(const Definition* parent, MarkType childType) const {
     bool oneMember = false;

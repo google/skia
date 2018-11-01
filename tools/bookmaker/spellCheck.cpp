@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
+#include "bmhParser.h"
 
+#include "SkCommandLineFlags.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
@@ -369,7 +370,7 @@ bool SpellCheck::check(Definition* def) {
 }
 
 bool SpellCheck::checkable(MarkType markType) {
-    return BmhParser::Resolvable::kYes == fBmhParser.kMarkProps[(int) markType].fResolve;
+    return Resolvable::kYes == fBmhParser.kMarkProps[(int) markType].fResolve;
 }
 
 void SpellCheck::childCheck(Definition* def, const char* start) {
