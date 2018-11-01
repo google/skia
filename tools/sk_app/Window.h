@@ -183,7 +183,7 @@ public:
     int stencilBits() const;
 
     // Returns null if there is not a GPU backend or if the backend is not yet created.
-    const GrContext* getGrContext() const;
+    GrContext* getGrContext() const;
 
 protected:
     Window();
