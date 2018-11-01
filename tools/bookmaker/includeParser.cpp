@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "bookmaker.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+
+#include "bmhParser.h"
+#include "includeParser.h"
 
 const IncludeKey kKeyWords[] = {
     { "",           KeyWord::kNone,         KeyProperty::kNone           },
