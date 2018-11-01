@@ -294,6 +294,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     definition->fFiddle = parent->fFiddle + '_';
                 }
                 rootDefinition->fNames.fName = rootDefinition->fName;
+                rootDefinition->fNames.fParent = &fGlobalNames;
                 definition->fFiddle += Definition::NormalizedName(typeNameBuilder[0]);
                 this->setAsParent(definition);
             }

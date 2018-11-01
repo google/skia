@@ -2913,7 +2913,6 @@ IsInverseFillType(kInverseEvenOdd_FillType) == true
 #In Utility
 #Line # returns Fill_Type representing inside geometry ##
 Returns equivalent Fill_Type representing Path fill inside its bounds.
-.
 
 #Table
 #Legend

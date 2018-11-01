@@ -2,7 +2,7 @@ a able abort aborted aborts about above abruptly absolute abstract abut access a
 accompanying account accounted achieved acronym across active actual actually add added adding
 additional additionally address addressable adds adjacent adjusted adjusting adjustment
 adjustments adjusts advance advances advantage advantages affect affected affecting affects
-after again agree agrees algorithms align aligned alignment aligns alike all allocate
+after again agree agrees algorithm algorithms align aligned alignment aligns alike all allocate
 allocated allocates allocating allocation allocations allow allowed allowing allows 
 along also alter altered altering alternating alternative alters although altogether
 always among amount an anchor and angle angles animating animation annotate annotation annotations
@@ -16,7 +16,7 @@ away axes axis
 
 back back-end backed background backing balance balancing banding bare base based baseline
 be bearing because become becomes been before begin beginning begins behaves behavior being below
-beneath best better between bevel beveled beyond binary bit bits black bleed bleeding
+beneath best better between bevel beveled beyond binary bit bit-field bits black bleed bleeding
 bleeds blend blended blending blends blobs blue blur blurred blurs bold bone bordered both
 bottom bottom-left bottom-right boundaries bounded bounding bounds box brace-delimited
 breaking brightened brighter brightness brush buffer bug bugs build builder building builds
@@ -49,7 +49,8 @@ cosine could count counterclockwise counts coverage covered covering covers cras
 create created creates creating creator criteria critical cross cull culled culling
 cumulatively current curvature curving custom 
 
-darken darker dashed dashes dashing debug decimal decode decoded decoders decodes decoding 
+darken darkening darker dashed dashes dashing debug decimal decimated
+decode decoded decoders decodes decoding 
 decomposed decomposing decrease decreased decreases decreasing decrements default defaults
 defer deferred
 defers define defined defines defining definition deform deformations degenerate degree
@@ -59,7 +60,7 @@ designate desired destination destinations destruct destructed details detected 
 determined determines devices diagonally diameter did differ difference different
 differently differing differs digits dilates dimension dimensional dimensionless
 dimensions direct direction directly directory disable disabled disabling discard
-discarded discarding discards discrete display displayed distance distinct distribute
+discarded discarding discards discrete display displayed displays distance distinct distribute
 distributed dither dithering divide divided divides dividing division divisions divisor do 
 document-based documentation documenting does done dot dotted double down downgrading
 downscale downward draw drawing drawn draws due duplicate duplicating during dynamically 
@@ -77,15 +78,17 @@ exposed expression extend extended extends extensive extent extra extract eye
 
 face faces factor factored factors fail failing fails failure fake fall false far fast faster fastest
 favor feature features fewer fidelity field fields figure file fill filled filling fills
-filter filtered filtering filters final finalized find fine finite first fit fits five fix
+filter filtered filtering filters final finalized finally find fine finite first fit fits 
+fitted five fix
 fixed flag flags flattening flexibility float floating floats flow flush flushed flushes
 followed following follows fonts for force forced form format formats formed former forming
 forms formula found four fourth fractional fragment frame frames framework free freed
-freedom frees fringing from front full fully function functionality functions further future 
+freedom frees fringing from front full fully function functionality functions further future
+fuzzy
 
 gamma gamut gap gaps general generate generated generates generator generic geometric geometrically
 geometries geometry get gets gigabyte gigabytes given gives global globally go goes
-good gradient gradients graphics gray greater green grid grows guarantee guaranteed guard
+good gradient gradients graphics gray gray-level greater green grid grows guarantee guaranteed guard
 
 had hairline hairlines half halved hand handle handling hands happens hard hardware has hash
 hashes have heap height help helper helpers helpful here hexadecimal hidden hierarchical
@@ -97,7 +100,8 @@ ignore ignored ignores ignoring illegal image-generator images immediate immedia
 immutable imperceptible implement implementation implementations implemented implementing
 implements implicitly improve improves improving in inaccessible include included includes
 including incompatible inconsistent incorrect incorrectly increase increased increases
-increasing increment incremented increments indefinitely independent independently index indicated 
+increasing increment incremented increments indefinitely independent independently index indicated
+indicates
 indicating indices indistinguishable individual individually inefficient infinite infinities
 infinity
 influence info inform information initial initialize initialized initializes initializing
@@ -118,7 +122,7 @@ keep keeping key-value known
 large largely larger largest last late later layout lazily leading least leave leaves
 leaving left left-aligned left-bottom left-top leftmost legacy legal length lengthens
 lengths less lessens lesser lets letters level levels lifetime lighten lighter lightness
-lightweight like likes limit limitation limited limits linear linearity list local locally
+lightweight like likes limit limitation limited limits linear linearity list loaded local locally
 located locates location locations logical longer look looks lookup loop loops lose loss
 lost low lower lower-case lower-left lowest luminosity 
 
@@ -136,12 +140,13 @@ multiplying must muted
 
 name named names narrower narrowing narrows native near nearby nearly necessarily necessary
 need needed needs negative nested never new newly next nibble nine no non-homogeneous
+non-monochrome
 non-square non-volatile non-zero none nor normal normalize normalized normally not
 note nothing noticeable now null null-terminated number numbers numeric numerically 
 
 object objects oblique obtain occupies odd of off offers offset offsets often on
 on-demand once one only onto opacity opaque opaqueness open opened operand operate operates
-operation operations operator operators opposite optimal optimally optimizations
+operating operation operations operator operators opposite optimal optimally optimizations
 optimize optimized option optional optionally options or order ordered organization
 organizes orient orientation origin original origins other others otherwise out outcome outer
 outline outlines output outset outsets outside outstanding over overall overdraw
@@ -150,7 +155,7 @@ override overrides overriding overwriting overwritten own owned owner owners own
 owning 
 
 pack packed packing padding paints pair paired pairs parabola parabolic parallel
-parameter parameters parsed parsing part partial partially parts pass passed passing past
+parameter parameters parsed parsing part partial partially parts pass passed passes passing past
 pattern patterns peek peeked peeking pen penalty pending per perception perform performance
 performed performing performs permit permits permitted perpendicular perspective perspective-scale
 perspective-x perspective-y physical piece pieces pin pinned pins pipeline pivot
@@ -176,7 +181,8 @@ relies rely remain remainder remaining remains remove removed removes removing r
 rendered rendering repeated repeatedly replace replaced replacement replaces replacing replays
 replicate replicated replicates report reports represent representation representations
 representative represented representing represents request requested requests require 
-required requirements requires requiring reserve reset resets reside residing resolution
+required requirements requires requiring resemble reserve reserved
+reset resets reside residing resolution
 resolves resource resources respect respects responsible restore restored restores restoring
 restrict restricted restriction restrictive restricts result resulting results retain
 retained retains retrieve retrieved retrieves retroactive return returned returning returns
@@ -186,22 +192,23 @@ rounding rounds route routes routines row rows rule rules run runs
 
 safe safely safer same sample sampled samples sampling satisfies satisfy satisfying
 saturation savable save saved saves scale scale-x scale-y scaled scales scaling scan
-scene scope second second-order section sections see seek segment segments select
+scene scope screen second second-order section sections see seek segment segments select
 selecting selectively selector selects semaphore semaphores sensitive sent separate separately 
 sequence serial serialized series service set sets setting settings shadow shadows
 shallow shape shapes shaping share shareable shared shares sharing sharp shear shift
 shifts short shorter shorthand should show shows shrink shrinks side sides sign signal
-signaled signed signs similar similarity simple simplify since single single-pass singly
+signaled signed signs similar similarity simple 
+simplify simply since single single-pass singly
 six sized sizes skew skewing skews skip skipped skips slant slightly slow slower slowest
 small smaller smallest smart smooth smoother so soft sole solely solid solution some
 sometimes soon sort sorted sorts source space spaced spacing span spanned spans special 
-specialization specializations specializes specific specification specifics specified
-specifies specify specifying speed speeds square squared squares stack stage stages
+specialization specializations specialized specializes specific specification specifics specified
+specifies specify specifying speed speeds spirit square squared squares stack stage stages
 standard standards stands start started starting starts state states stationary stay
 stays std step steps still stock stop stops storage store stored stores storing straight
 straight-line streams strength stretched strictly strikeout strings stripe stripes 
 striping stroke stroked strokes stroking struct style stylistic sub-pixel subclass
-submitting subsequent subsequently subset substitution subtle subtract subtracted
+submitting subsequent subsequently subset substitution subtle subtract subtracted subtracts
 succeed succeeded succeeds success successful successfully successive such sufficient
 suggests sum summing supplied supplies supply supplying support supported supports
 suppress surrogate swapped swaps sweep sweeping sweeps switches symbol symmetrically
@@ -225,7 +232,7 @@ unit unknown unless unlike unlikely unmodified unrelated unsigned unsorted until
 untouched unused up update updates upload uploaded upper upper-case upper-left upright upward
 usage use used useful user uses using utility 
 
-valid validate validated validity value values variable variant variants varies vary
+valid validate validated validity value values variable variant variants varies various vary
 varying verb version vertical vertically very via video views virtual visible visibly visual
 visually volatile 
 
