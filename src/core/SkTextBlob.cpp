@@ -174,6 +174,13 @@ static int32_t next_id() {
     return id;
 }
 
+static SkTextBlob::BlobDestroyedFunc gBlobDestroyedFunc = nullptr;
+
+void SkTextBlob::SetBlobDestroyedFunc(BlobDestroyedFunc proc) {
+    SkASSERT(!gBlobDestroyedFunc);
+    gBlobDestroyedFunc = proc;
+}
+
 SkTextBlob::SkTextBlob(const SkRect& bounds)
     : fBounds(bounds)
     , fUniqueID(next_id())
@@ -185,6 +192,8 @@ SkTextBlob::~SkTextBlob() {
         GrTextBlobCache::PostPurgeBlobMessage(fUniqueID, fCacheID);
     }
 #endif
+
+    if (gBlobDestroyedFunc) (*gBlobDestroyedFunc)(fUniqueID);
 
     const auto* run = RunRecord::First(this);
     do {
