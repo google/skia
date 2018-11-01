@@ -101,15 +101,14 @@ public:
     void setSkewX(SkScalar);
     void setFlags(uint32_t);
 
-    int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding,
-                     SkGlyphID glyphs[], int maxGlyphCount) const;
+    int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding, SkGlyphID glyphs[]) const;
 
     uint16_t unicharToGlyph(SkUnichar uni) const {
         return fTypeface->unicharToGlyph(uni);
     }
 
     int countText(const void* text, size_t byteLength, SkTextEncoding encoding) {
-        return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);
+        return this->textToGlyphs(text, byteLength, encoding, nullptr);
     }
 
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding) const;

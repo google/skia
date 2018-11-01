@@ -97,7 +97,7 @@ SkFont SkFont::makeWithFlags(uint32_t newFlags) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
-                         uint16_t glyphs[], int maxGlyphCount) const {
+                         uint16_t glyphs[]) const {
     if (0 == byteLength) {
         return 0;
     }
