@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkFont.h"
-
+#include "SkFontPriv.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
@@ -150,6 +149,35 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
 SkScalar SkFont::measureText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
     // TODO: need access to the cache
     return -1;
+}
+
+SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
+    SkCanonicalizePaint canon(*this);
+    const SkPaint& paint = canon.getPaint();
+    SkScalar scale = canon.getScale();
+
+    SkFontMetrics storage;
+    if (nullptr == metrics) {
+        metrics = &storage;
+    }
+
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+                                                                      paint, nullptr, SkScalerContextFlags::kNone,
+                                                                      nullptr, &ad, &effects);
+
+    {
+        auto typeface = SkFontPriv::GetTypefaceOrDefault(paint);
+        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+        *metrics = cache->getFontMetrics();
+    }
+
+    if (scale) {
+        SkPaintPriv::ScaleFontMetrics(metrics, scale);
+    }
+    return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

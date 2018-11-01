@@ -20,6 +20,8 @@ enum SkTextEncoding {
     kGlyphID_SkTextEncoding,
 };
 
+struct SkFontMetrics;
+
 class SK_API SkFont {
 public:
     enum Flags {
@@ -113,6 +115,9 @@ public:
     }
 
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding) const;
+
+    SkScalar getMetrics(SkFontMetrics* metrics, SkScalar scale = 0) const;
+    SkScalar getSpacing() const { return this->getMetrics(nullptr, 0); }
 
     void LEGACY_applyToPaint(SkPaint*) const;
     static SkFont LEGACY_ExtractFromPaint(const SkPaint&);
