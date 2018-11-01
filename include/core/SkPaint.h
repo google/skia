@@ -1091,14 +1091,11 @@ public:
         Results are scaled by text size but does not take into account
         dimensions required by text scale x, text skew x, fake bold,
         style stroke, and SkPathEffect.
-        Results can be additionally scaled by scale; a scale of zero
-        is ignored.
 
         @param metrics  storage for SkPaint::FontMetrics from SkTypeface; may be nullptr
-        @param scale    additional multiplier for returned values
         @return         recommended spacing between lines
     */
-    SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const;
+    SkScalar getFontMetrics(FontMetrics* metrics) const;
 
     /** Returns the recommended spacing between lines: the sum of metrics
         descent, ascent, and leading.
@@ -1108,7 +1105,7 @@ public:
 
         @return  recommended spacing between lines
     */
-    SkScalar getFontSpacing() const { return this->getFontMetrics(nullptr, 0); }
+    SkScalar getFontSpacing() const { return this->getFontMetrics(nullptr); }
 
     /** Converts text into glyph indices.
         Returns the number of glyph indices represented by text.
