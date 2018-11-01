@@ -1862,12 +1862,10 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
 
     this->flushProgram(std::move(program));
 
-    if (blendInfo.fWriteColor) {
-        // Swizzle the blend to match what the shader will output.
-        const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(
-            pipeline.proxy()->config());
-        this->flushBlend(blendInfo, swizzle);
-    }
+    // Swizzle the blend to match what the shader will output.
+    const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(
+        pipeline.proxy()->config());
+    this->flushBlend(blendInfo, swizzle);
 
     fHWProgram->updateUniformsAndTextureBindings(primProc, pipeline, primProcProxiesToBind);
 
@@ -2754,8 +2752,10 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
     GrBlendEquation equation = blendInfo.fEquation;
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
-    bool blendOff = (kAdd_GrBlendEquation == equation || kSubtract_GrBlendEquation == equation) &&
-                    kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
+    bool blendOff =
+        ((kAdd_GrBlendEquation == equation || kSubtract_GrBlendEquation == equation) &&
+        kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff) ||
+        !blendInfo.fWriteColor;
     if (blendOff) {
         if (kNo_TriState != fHWBlendState.fEnabled) {
             GL_CALL(Disable(GR_GL_BLEND));
