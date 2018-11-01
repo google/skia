@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0550f3dc_a08f9ee1",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-01T20:33:21Z",
+      "side": 1,
+      "message": "Where is this implemented?",
+      "range": {
+        "startLine": 119,
+        "startChar": 13,
+        "endLine": 119,
+        "endChar": 27
+      },
+      "revId": "f4b54a2464efee2d6d11eb862af8d2e3e4670f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09720198_fd82fac9",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-01T20:33:21Z",
+      "side": 1,
+      "message": "I have no idea what this parameter is for, do we need it?",
+      "range": {
+        "startLine": 119,
+        "startChar": 50,
+        "endLine": 119,
+        "endChar": 70
+      },
+      "revId": "f4b54a2464efee2d6d11eb862af8d2e3e4670f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
