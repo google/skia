@@ -29,7 +29,7 @@ class SkRasterClip;
 struct SkRect;
 class SkRRect;
 
-class SkDraw : public SkGlyphRunListPainter::BitmapDevicePainter {
+class SkDraw {
 public:
     SkDraw();
 
@@ -82,12 +82,6 @@ public:
         this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
     }
 
-    void paintPaths(SkSpan<const SkGlyphRunListPainter::PathAndPos> pathsAndPositions,
-                    SkScalar scale,
-                    const SkPaint& paint) const override;
-
-    void paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const override;
-
     static bool ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect* clipBounds,
                                   const SkMaskFilter* filter, const SkMatrix* filterMatrix,
                                   SkIRect* bounds);
@@ -126,6 +120,8 @@ public:
 
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
+    SkGlyphRunListPainter::PaintMasks paintMasksCreator() const;
+
     void drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
     void drawPath(const SkPath&,

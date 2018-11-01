@@ -116,7 +116,7 @@ static SkMask create_mask(const SkGlyph& glyph, SkPoint position, const void* im
 
 void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
-        const BitmapDevicePainter* bitmapDevice) {
+        PaintMasksCreator paintMasksCreator, PaintPathsCreator paintPathsCreator) {
 
     SkPoint origin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
@@ -156,7 +156,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                 }
             }
 
-            bitmapDevice->paintPaths(
+            auto paintAllPaths = paintPathsCreator();
+            paintAllPaths(
                     SkSpan<const PathAndPos>{pathsAndPositions.begin(), pathsAndPositions.size()},
                     textScale,
                     paint);
@@ -184,7 +185,9 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     }
                 }
             }
-            bitmapDevice->paintMasks(SkSpan<const SkMask>{masks.begin(), masks.size()}, paint);
+            auto paintAllMasks = paintMasksCreator();
+            paintAllMasks(SkSpan<const SkMask>{masks.begin(), masks.size()},
+                          paint);
         }
     }
 }
