@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4ff02fc_3fa71f06",
+        "filename": "include/core/SkColorPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-01T17:59:19Z",
+      "side": 0,
+      "message": "aww, I always liked this comment.",
+      "range": {
+        "startLine": 48,
+        "startChar": 39,
+        "endLine": 48,
+        "endChar": 48
+      },
+      "revId": "89305751baacd6e3b98da4e8b7393e2393af7283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
