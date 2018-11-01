@@ -72,7 +72,6 @@ static U8CPU SkGetB32Component(uint32_t value, SkColorType ct) {
 
 // unpremultiply and extract R, G, B components.
 static void pmcolor_to_rgb24(uint32_t color, uint8_t* rgb, SkColorType ct) {
-    SkPMColorAssert(color);
     uint32_t s = SkUnPreMultiply::GetScale(SkGetA32Component(color, ct));
     rgb[0] = SkUnPreMultiply::ApplyScale(s, SkGetR32Component(color, ct));
     rgb[1] = SkUnPreMultiply::ApplyScale(s, SkGetG32Component(color, ct));
@@ -103,7 +102,6 @@ static void get_neighbor_avg_color(const SkBitmap& bm,
         uint32_t* scanline = bm.getAddr32(0, y);
         for (int x = xmin; x <= xmax; ++x) {
             uint32_t color = scanline[x];
-            SkPMColorAssert(color);
             a += SkGetA32Component(color, ct);
             r += SkGetR32Component(color, ct);
             g += SkGetG32Component(color, ct);
@@ -241,39 +239,10 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
         fill_stream(out, '\xFF', pixel_count(bitmap));
         return;
     }
-    SkBitmap copy;
-    const SkBitmap& bm = supported_colortype(bitmap, &copy);
-    SkColorType colorType = bm.colorType();
-    switch (colorType) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType: {
-            SkAutoTMalloc<uint8_t> scanline(bm.width());
-            for (int y = 0; y < bm.height(); ++y) {
-                uint8_t* dst = scanline.get();
-                const SkPMColor* src = bm.getAddr32(0, y);
-                for (int x = 0; x < bm.width(); ++x) {
-                    *dst++ = SkGetA32Component(*src++, colorType);
-                }
-                out->write(scanline.get(), bm.width());
-            }
-            return;
-        }
-        case kAlpha_8_SkColorType:
-            for (int y = 0; y < bm.height(); ++y) {
-                out->write(bm.getAddr8(0, y), bm.width());
-            }
-            return;
-        case kRGB_565_SkColorType:
-        case kGray_8_SkColorType:
-            SkDEBUGFAIL("color type has no alpha");
-            return;
-        case kARGB_4444_SkColorType:
-            SkDEBUGFAIL("4444 color type should have been converted to N32");
-            return;
-        case kUnknown_SkColorType:
-        default:
-            SkDEBUGFAIL("unexpected color type");
-    }
+    SkBitmap alpha;
+    alpha.allocPixels(SkImageInfo::MakeA8(bitmap.width(), bitmap.height()));
+    SkAssertResult(bitmap.readPixels(alpha.info(), alpha.getPixels(), alpha.rowBytes(), 0, 0));
+    out->write(alpha.getPixels(), alpha.computeByteSize());
 }
 
 static void emit_image_xobject(SkWStream* stream,
