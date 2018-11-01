@@ -16,6 +16,24 @@
       "revId": "78f481808fa7779458ee8ab40156f36de057cb50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25869b14_dd6af551",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-01T03:55:31Z",
+      "side": 1,
+      "message": "I am still a bit confused, though. The offset here is in terms of the *dst* buffer. The swizzleRect above is the last argument to SkSwizzer::Make, but the \"@param frame\" comment in SkSwizzer.h suggests that the last argument to SkSwizzler::Make is about the *src* buffer, not the dst buffer.",
+      "parentUuid": "83e46e85_2fdb3747",
+      "revId": "78f481808fa7779458ee8ab40156f36de057cb50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
