@@ -1215,6 +1215,11 @@ void Viewer::onPaint(SkCanvas* canvas) {
     fCommands.drawHelp(canvas);
 
     this->drawImGui();
+
+    if (GrContext* ctx = fWindow->getGrContext()) {
+        // Clean out cache items that haven't been used in more than 10 seconds.
+        ctx->performDeferredCleanup(std::chrono::seconds(10));
+    }
 }
 
 void Viewer::onResize(int width, int height) {
