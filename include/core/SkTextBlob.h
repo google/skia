@@ -137,6 +137,14 @@ public:
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
                                          const SkDeserialProcs& procs);
 
+    /** Registers a function that can be used to be notified when an SkTextBlob is destroyed.
+     *  The proc can only be registered once. The function passed may be invoked on any thread.
+     *
+     *  @param proc   the function pointer to invoke on blob destruction.
+     */
+    typedef void (*BlobDestroyedFunc)(uint32_t);
+    static void SetBlobDestroyedFunc(BlobDestroyedFunc proc);
+
 private:
     friend class SkNVRefCnt<SkTextBlob>;
     class RunRecord;
