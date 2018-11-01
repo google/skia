@@ -26,18 +26,24 @@ public:
     explicit SkGlyphRunListPainter(const GrRenderTargetContext& renderTargetContext);
 #endif
 
-    using PaintMasks = std::function<void(SkSpan<const SkMask> mask, const SkPaint& paint)>;
-    using PaintMasksCreator = std::function<PaintMasks()>;
     struct PathAndPos {
         const SkPath* path;
         SkPoint position;
     };
-    using PaintPaths = std::function<
-            void(SkSpan<const PathAndPos> pathsAndPositions, SkScalar scale, const SkPaint& paint)>;
-    using PaintPathsCreator = std::function<PaintPaths()>;
+    class BitmapDevicePainter {
+    public:
+        virtual ~BitmapDevicePainter() = default;
+
+        virtual void paintPaths(SkSpan<const PathAndPos> pathsAndPositions,
+                                SkScalar scale,
+                                const SkPaint& paint) const = 0;
+
+        virtual void paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const = 0;
+    };
+
     void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
-            PaintMasksCreator paintMasksCreator, PaintPathsCreator paintPathsCreator);
+            const BitmapDevicePainter* bitmapDevice);
 
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
