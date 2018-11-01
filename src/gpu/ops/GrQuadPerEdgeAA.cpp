@@ -327,7 +327,7 @@ void GrQuadPerEdgeAA::TessellateImpl(void* vertices, size_t vertexSize, float* l
         offset = store(u, localStorage, offset);
         offset = store(v, localStorage, offset);
         if (srcDim == 3) {
-            offset = store(w, localStorage, offset);
+            offset = store(r, localStorage, offset);
         }
     }
     int edgeOffset = offset; // The 4 edges are separate from the 4 vertices
