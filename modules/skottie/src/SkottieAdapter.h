@@ -24,7 +24,7 @@ class Matrix;
 class Path;
 class RadialGradient;
 class RRect;
-class Text;
+class TextBlob;
 class TrimEffect;
 
 };
@@ -175,16 +175,17 @@ public:
 
 private:
     void apply();
+    sk_sp<SkTextBlob> makeBlob() const;
 
-    sk_sp<sksg::Group> fRoot;
-    sk_sp<sksg::Text>  fTextNode;
-    sk_sp<sksg::Color> fFillColor,
-                       fStrokeColor;
-    sk_sp<sksg::Draw>  fFillNode,
-                       fStrokeNode;
+    sk_sp<sksg::Group>     fRoot;
+    sk_sp<sksg::TextBlob>  fTextNode;
+    sk_sp<sksg::Color>     fFillColor,
+                           fStrokeColor;
+    sk_sp<sksg::Draw>      fFillNode,
+                           fStrokeNode;
 
-    bool               fHadFill   : 1, //  - state cached from the prev apply()
-                       fHadStroke : 1; //  /
+    bool                   fHadFill   : 1, //  - state cached from the prev apply()
+                           fHadStroke : 1; //  /
 
     using INHERITED = SkRefCnt;
 };

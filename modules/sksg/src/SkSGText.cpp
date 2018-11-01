@@ -11,7 +11,6 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkTArray.h"
-#include "SkTextBlob.h"
 #include "SkTypeface.h"
 
 namespace sksg {
@@ -97,6 +96,32 @@ SkPath Text::onAsPath() const {
 }
 
 void Text::onClip(SkCanvas* canvas, bool antiAlias) const {
+    canvas->clipPath(this->asPath(), antiAlias);
+}
+
+sk_sp<TextBlob> TextBlob::Make(sk_sp<SkTextBlob> blob) {
+    return sk_sp<TextBlob>(new TextBlob(std::move(blob)));
+}
+
+TextBlob::TextBlob(sk_sp<SkTextBlob> blob)
+    : fBlob(std::move(blob)) {}
+
+TextBlob::~TextBlob() = default;
+
+SkRect TextBlob::onRevalidate(InvalidationController*, const SkMatrix&) {
+    return fBlob ? fBlob->bounds() : SkRect::MakeEmpty();
+}
+
+void TextBlob::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+    canvas->drawTextBlob(fBlob, fPosition.x(), fPosition.y(), paint);
+}
+
+SkPath TextBlob::onAsPath() const {
+    // TODO
+    return SkPath();
+}
+
+void TextBlob::onClip(SkCanvas* canvas, bool antiAlias) const {
     canvas->clipPath(this->asPath(), antiAlias);
 }
 

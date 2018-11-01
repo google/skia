@@ -13,11 +13,11 @@
 #include "SkPaintDefaults.h"
 #include "SkPoint.h"
 #include "SkString.h"
+#include "SkTextBlob.h"
 #include "SkTextUtils.h"
 
 class SkCanvas;
 class SkPaint;
-class SkTextBlob;
 class SkTypeface;
 
 namespace sksg {
@@ -50,7 +50,7 @@ protected:
     SkPath onAsPath() const override;
 
 private:
-    explicit Text(sk_sp<SkTypeface>, const SkString&);
+    Text(sk_sp<SkTypeface>, const SkString&);
 
     SkPoint alignedPosition(SkScalar advance) const;
 
@@ -69,6 +69,32 @@ private:
     using INHERITED = GeometryNode;
 };
 
+/**
+ * Concrete Geometry node, wrapping an external SkTextBlob.
+ */
+class TextBlob final : public GeometryNode {
+public:
+    static sk_sp<TextBlob> Make(sk_sp<SkTextBlob> = nullptr);
+    ~TextBlob() override;
+
+    SG_ATTRIBUTE(Blob    , sk_sp<SkTextBlob>, fBlob    )
+    SG_ATTRIBUTE(Position, SkPoint          , fPosition)
+
+protected:
+    void onClip(SkCanvas*, bool antiAlias) const override;
+    void onDraw(SkCanvas*, const SkPaint&) const override;
+
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkPath onAsPath() const override;
+
+private:
+    explicit TextBlob(sk_sp<SkTextBlob>);
+
+    sk_sp<SkTextBlob> fBlob;
+    SkPoint           fPosition = SkPoint::Make(0, 0);
+
+    using INHERITED = GeometryNode;
+};
 } // namespace sksg
 
 #endif // SkSGText_DEFINED

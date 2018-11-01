@@ -7,6 +7,7 @@
 
 #include "SkottieAdapter.h"
 
+#include "SkFont.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkRRect.h"
@@ -19,7 +20,10 @@
 #include "SkSGText.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
+#include "SkTextBlob.h"
+#include "SkTextUtils.h"
 #include "SkTo.h"
+#include "SkUTF.h"
 #include "SkottieValue.h"
 
 #include <cmath>
@@ -179,7 +183,7 @@ void TrimEffectAdapter::apply() {
 
 TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
     : fRoot(std::move(root))
-    , fTextNode(sksg::Text::Make(nullptr, SkString()))
+    , fTextNode(sksg::TextBlob::Make())
     , fFillColor(sksg::Color::Make(SK_ColorTRANSPARENT))
     , fStrokeColor(sksg::Color::Make(SK_ColorTRANSPARENT))
     , fFillNode(sksg::Draw::Make(fTextNode, fFillColor))
@@ -198,21 +202,80 @@ TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
     //
     // * where the text node is shared
 
-    fTextNode->setFlags(fTextNode->getFlags() |
-                        SkPaint::kAntiAlias_Flag |
-                        SkPaint::kSubpixelText_Flag);
-    fTextNode->setHinting(SkPaint::kNo_Hinting);
-
+    fFillColor->setAntiAlias(true);
+    fStrokeColor->setAntiAlias(true);
     fStrokeColor->setStyle(SkPaint::kStroke_Style);
 }
 
-void TextAdapter::apply() {
-    // Push text props to the scene graph.
-    fTextNode->setTypeface(fText.fTypeface);
-    fTextNode->setText(fText.fText);
-    fTextNode->setSize(fText.fTextSize);
-    fTextNode->setAlign(fText.fAlign);
+sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
+    // TODO: convert to SkFont (missing getFontSpacing, measureText).
+    SkPaint font;
+    font.setTypeface(fText.fTypeface);
+    font.setTextSize(fText.fTextSize);
+    font.setHinting(SkPaint::kNo_Hinting);
+    font.setSubpixelText(true);
+    font.setAntiAlias(true);
+    font.setTextEncoding(SkPaint::kUTF8_TextEncoding);
 
+    const auto align_fract = [](SkTextUtils::Align align) {
+        switch (align) {
+        case SkTextUtils::kLeft_Align:   return  0.0f;
+        case SkTextUtils::kCenter_Align: return -0.5f;
+        case SkTextUtils::kRight_Align:  return -1.0f;
+        }
+        return 0.0f; // go home, msvc...
+    }(fText.fAlign);
+
+    const auto line_spacing = font.getFontSpacing();
+    const auto blob_font    = SkFont::LEGACY_ExtractFromPaint(font);
+    float y_off             = 0;
+    SkSTArray<256, SkGlyphID, true> line_glyph_buffer;
+    SkTextBlobBuilder builder;
+
+    const auto& push_line = [&](const char* start, const char* end) {
+        if (end > start) {
+            const auto len   = SkToSizeT(end - start);
+            line_glyph_buffer.reset(font.textToGlyphs(start, len, nullptr));
+            SkAssertResult(font.textToGlyphs(start, len, line_glyph_buffer.data())
+                           == line_glyph_buffer.count());
+
+            const auto x_off = align_fract != 0
+                    ? align_fract * font.measureText(start, len)
+                    : 0;
+            const auto& buf  = builder.allocRun(blob_font, line_glyph_buffer.count(), x_off, y_off);
+            if (!buf.glyphs) {
+                return;
+            }
+
+            memcpy(buf.glyphs, line_glyph_buffer.data(),
+                   SkToSizeT(line_glyph_buffer.count()) * sizeof(SkGlyphID));
+
+            y_off += line_spacing;
+        }
+    };
+
+    const auto& is_line_break = [](SkUnichar uch) {
+        // TODO: other explicit breaks?
+        return uch == '\r';
+    };
+
+    const char* ptr        = fText.fText.c_str();
+    const char* line_start = ptr;
+    const char* end        = ptr + fText.fText.size();
+
+    while (ptr < end) {
+        if (is_line_break(SkUTF::NextUTF8(&ptr, end))) {
+            push_line(line_start, ptr - 1);
+            line_start = ptr;
+        }
+    }
+    push_line(line_start, ptr);
+
+    return builder.make();
+}
+
+void TextAdapter::apply() {
+    fTextNode->setBlob(this->makeBlob());
     fFillColor->setColor(fText.fFillColor);
     fStrokeColor->setColor(fText.fStrokeColor);
     fStrokeColor->setStrokeWidth(fText.fStrokeWidth);
