@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b582bda1_48038675",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-01T19:53:04Z",
+      "side": 0,
+      "message": "Very little (none?) of our other PMColor code has asserts like this - seems odd to only do it in this one area.",
+      "revId": "6d546b5cd1b64c85d2ecda468829d8f0028d3f55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
