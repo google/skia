@@ -103,10 +103,6 @@ static inline int SkAlphaBlend(int src, int dst, int scale256) {
     return dst + SkAlphaMul(src - dst, scale256);
 }
 
-#define SkR16Assert(r)  SkASSERT((unsigned)(r) <= SK_R16_MASK)
-#define SkG16Assert(g)  SkASSERT((unsigned)(g) <= SK_G16_MASK)
-#define SkB16Assert(b)  SkASSERT((unsigned)(b) <= SK_B16_MASK)
-
 static inline uint16_t SkPackRGB16(unsigned r, unsigned g, unsigned b) {
     SkASSERT(r <= SK_R16_MASK);
     SkASSERT(g <= SK_G16_MASK);
@@ -120,20 +116,6 @@ static inline uint16_t SkPackRGB16(unsigned r, unsigned g, unsigned b) {
 #define SK_B16_MASK_IN_PLACE        (SK_B16_MASK << SK_B16_SHIFT)
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_DEBUG
-    #define SkPMColorAssert(color_value)                                    \
-        do {                                                                \
-            SkPMColor pm_color_value = (color_value);                       \
-            uint32_t alpha_color_value = SkGetPackedA32(pm_color_value);    \
-            SkA32Assert(alpha_color_value);                                 \
-            SkASSERT(SkGetPackedR32(pm_color_value) <= alpha_color_value);  \
-            SkASSERT(SkGetPackedG32(pm_color_value) <= alpha_color_value);  \
-            SkASSERT(SkGetPackedB32(pm_color_value) <= alpha_color_value);  \
-        } while (false)
-#else
-    #define SkPMColorAssert(c)
-#endif
 
 /**
  * Abstract 4-byte interpolation, implemented on top of SkPMColor
