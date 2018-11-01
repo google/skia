@@ -129,8 +129,6 @@ def dm_flags(api, bot):
       # We want to test the OpenGL config not the GLES config on the Shield
       if 'NVIDIA_Shield' not in bot:
         gl_prefix = 'gles'
-    elif 'Intel' in bot:
-      sample_count = ''
     elif 'ChromeOS' in bot:
       gl_prefix = 'gles'
 
@@ -151,10 +149,7 @@ def dm_flags(api, bot):
         'iPad4' in bot or
         'iPadPro' in bot or
         'iPhone6' in bot or
-        'iPhone7' in bot or
-        # skia:5792
-        'IntelHD530'   in bot or
-        'IntelIris540' in bot):
+        'iPhone7' in bot):
       configs = [x for x in configs if 'msaa' not in x]
 
     # The NP produces different images for dft on every run.
@@ -660,50 +655,6 @@ def dm_flags(api, bot):
     match.append('~^WritePixelsNonTextureMSAA_Gpu$')
     match.append('~^WritePixels_Gpu$')
     match.append('~^WritePixelsMSAA_Gpu$')
-
-  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
-    # skia:6398
-    blacklist(['vk', 'gm', '_', 'aarectmodes'])
-    blacklist(['vk', 'gm', '_', 'aaxfermodes'])
-    blacklist(['vk', 'gm', '_', 'dont_clip_to_layer'])
-    blacklist(['vk', 'gm', '_', 'dftext'])
-    blacklist(['vk', 'gm', '_', 'dftext_blob_persp'])
-    blacklist(['vk', 'gm', '_', 'drawregionmodes'])
-    blacklist(['vk', 'gm', '_', 'filterfastbounds'])
-    blacklist(['vk', 'gm', '_', 'fontmgr_iter'])
-    blacklist(['vk', 'gm', '_', 'fontmgr_match'])
-    blacklist(['vk', 'gm', '_', 'fontscaler'])
-    blacklist(['vk', 'gm', '_', 'fontscalerdistortable'])
-    blacklist(['vk', 'gm', '_', 'gammagradienttext'])
-    blacklist(['vk', 'gm', '_', 'gammatext'])
-    blacklist(['vk', 'gm', '_', 'gradtext'])
-    blacklist(['vk', 'gm', '_', 'hairmodes'])
-    blacklist(['vk', 'gm', '_', 'imagefilters_xfermodes'])
-    blacklist(['vk', 'gm', '_', 'imagefiltersclipped'])
-    blacklist(['vk', 'gm', '_', 'imagefiltersscaled'])
-    blacklist(['vk', 'gm', '_', 'imagefiltersstroked'])
-    blacklist(['vk', 'gm', '_', 'imagefilterstransformed'])
-    blacklist(['vk', 'gm', '_', 'imageresizetiled'])
-    blacklist(['vk', 'gm', '_', 'lcdblendmodes'])
-    blacklist(['vk', 'gm', '_', 'lcdoverlap'])
-    blacklist(['vk', 'gm', '_', 'lcdtext'])
-    blacklist(['vk', 'gm', '_', 'lcdtextsize'])
-    blacklist(['vk', 'gm', '_', 'matriximagefilter'])
-    blacklist(['vk', 'gm', '_', 'mixedtextblobs'])
-    blacklist(['vk', 'gm', '_', 'resizeimagefilter'])
-    blacklist(['vk', 'gm', '_', 'rotate_imagefilter'])
-    blacklist(['vk', 'gm', '_', 'savelayer_lcdtext'])
-    blacklist(['vk', 'gm', '_', 'shadermaskfilter_image'])
-    blacklist(['vk', 'gm', '_', 'srcmode'])
-    blacklist(['vk', 'gm', '_', 'surfaceprops'])
-    blacklist(['vk', 'gm', '_', 'textblobgeometrychange'])
-    blacklist(['vk', 'gm', '_', 'textbloblooper'])
-    blacklist(['vk', 'gm', '_', 'textblobmixedsizes'])
-    blacklist(['vk', 'gm', '_', 'textblobrandomfont'])
-    blacklist(['vk', 'gm', '_', 'textfilter_color'])
-    blacklist(['vk', 'gm', '_', 'textfilter_image'])
-    blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
-    blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
 
   if 'Vulkan' in bot and 'GTX660' in bot and 'Win' in bot:
     # skbug.com/8047
