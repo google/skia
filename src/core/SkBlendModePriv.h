@@ -10,7 +10,7 @@
 
 #include "SkBlendMode.h"
 #include "SkColor.h"
-#include "SkPM4f.h"
+#include "SkColorPriv.h"
 
 class SkRasterPipeline;
 

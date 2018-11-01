@@ -12,7 +12,6 @@
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkNoncopyable.h"
-#include "SkPM4f.h"
 #include "SkShader.h"
 #include "SkTLazy.h"
 

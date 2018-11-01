@@ -9,7 +9,6 @@
 #define GrProcessorAnalysis_DEFINED
 
 #include "GrColor.h"
-#include "SkPM4f.h"
 
 class GrDrawOp;
 class GrFragmentProcessor;

@@ -9,7 +9,6 @@
 #define GrSwizzle_DEFINED
 
 #include "GrColor.h"
-#include "SkPM4f.h"
 #include "SkRandom.h"
 
 /** Represents a rgba swizzle. It can be converted either into a string or a eight bit int.
