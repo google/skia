@@ -38,6 +38,7 @@
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrSkSLFP.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextBlobCache.h"
 
 #define ASSERT_OWNED_PROXY(P) \
@@ -305,8 +306,15 @@ void GrContext::purgeUnlockedResources(bool scratchResourcesOnly) {
 
 void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     ASSERT_SINGLE_OWNER
+
+    auto purgeTime = GrStdSteadyClock::now() - msNotUsed;
+
     fResourceCache->purgeAsNeeded();
-    fResourceCache->purgeResourcesNotUsedSince(GrStdSteadyClock::now() - msNotUsed);
+    fResourceCache->purgeResourcesNotUsedSince(purgeTime);
+
+    if (auto ccpr = fDrawingManager->getCoverageCountingPathRenderer()) {
+        ccpr->purgeCacheEntriesOlderThan(purgeTime);
+    }
 
     fTextBlobCache->purgeStaleBlobs();
 }
