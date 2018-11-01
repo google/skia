@@ -215,6 +215,7 @@ extern const IncludeKey kKeyWords[];
 
 struct NameMap {
     void copyToParent(NameMap* parent) const;
+    void setParams(Definition* bmhDef, Definition* iMethod);
 
     string fName;
     NameMap* fParent = nullptr;
