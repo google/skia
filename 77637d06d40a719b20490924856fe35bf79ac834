@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c06b8d3_8eccfad3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-01T02:10:48Z",
+      "side": 1,
+      "message": "Let me know if there\u0027s a more official way to measure this.",
+      "revId": "77637d06d40a719b20490924856fe35bf79ac834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

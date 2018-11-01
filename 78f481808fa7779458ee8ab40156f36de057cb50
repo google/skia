@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83e46e85_2fdb3747",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-01T02:10:48Z",
+      "side": 1,
+      "message": "Ah... the \"+(r.min_incl_x * dst_bpp)\" here means that we\u0027re double counting the frame-rect x-offset. Once here, and once above in the \"SkSwizzler::Make(etc, \u0026swizzleRect)\" line.\n\nAt least, that\u0027s what I think is happening. When I delete the offset here, the tests now pass.\n\nIn the latest patch set, the asymmetry between the two lines (with a src_bpp term but not a dst_bpp term) is a little unnerving, but as I said, it seems to work. Let me know if it looks wrong to you.",
+      "revId": "78f481808fa7779458ee8ab40156f36de057cb50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
