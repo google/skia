@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abbbca25_17557432",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-01T13:21:50Z",
+      "side": 1,
+      "message": "It\u0027s not a huge deal, but I\u0027d use fWindow-\u003egetGrContext() instead. Even in raster mode, we still use Ganesh to do the final draw to the window (and draw the GUI, etc...). In that case, the window will have a GrContext, but the canvas won\u0027t.",
+      "revId": "85fe33b9481202c9686c26264a5a30b1309dad0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
