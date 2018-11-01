@@ -34,6 +34,24 @@
       "revId": "78f481808fa7779458ee8ab40156f36de057cb50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c43d51e_e729df3c",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-01T12:31:07Z",
+      "side": 1,
+      "message": "\u003e Ah... the \"+(r.min_incl_x * dst_bpp)\" here means that we\u0027re double counting the frame-rect\n\u003e x-offset. Once here, and once above in the \"SkSwizzler::Make(etc, \u0026swizzleRect)\" line.\n\u003e\n\u003e At least, that\u0027s what I think is happening.\n\nI agree that that is the problem. I was just taking another look at it this morning, and that\u0027s what I was thinking.\n\n\u003e In the latest patch set, the asymmetry between the two lines (with a src_bpp term but not a\n\u003e dst_bpp term) is a little unnerving, but as I said, it seems to work. Let me know if it\n\u003e looks wrong to you.\n\nI commented there, but for continuity, the surprise for me was that you needed the src_bpp, because I didn\u0027t realize that wuffs handled compositing on its own. But yes, the dst_bpp and offset are handled by the swizzler, since it may change due to sampling.",
+      "parentUuid": "25869b14_dd6af551",
+      "revId": "78f481808fa7779458ee8ab40156f36de057cb50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
