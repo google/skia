@@ -110,9 +110,9 @@ public:
     }
 
     SkString dumpInfo() const;
+    GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
 
 protected:
-    GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
     uint32_t pipelineFlags() const { return fPipelineFlags; }
 
     GrPipeline::InitArgs pipelineInitArgs(GrMeshDrawOp::Target* target) const;
@@ -169,6 +169,7 @@ public:
                                               int numPrimitiveProcessorTextures = 0);
 
     SkString dumpInfo() const;
+    GrAAType aaType() const { return INHERITED::aaType(); }
 
 private:
     const GrUserStencilSettings* fStencilSettings;
