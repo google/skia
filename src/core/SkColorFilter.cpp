@@ -11,7 +11,6 @@
 #include "SkColorSpaceXformSteps.h"
 #include "SkColorSpaceXformer.h"
 #include "SkNx.h"
-#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkRefCnt.h"

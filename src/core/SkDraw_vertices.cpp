@@ -11,7 +11,6 @@
 #include "SkConvertPixels.h"
 #include "SkDraw.h"
 #include "SkNx.h"
-#include "SkPM4f.h"
 #include "SkRasterClip.h"
 #include "SkScan.h"
 #include "SkShaderBase.h"

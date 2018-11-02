@@ -14,7 +14,6 @@
 #include "SkColorSpaceXformer.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkOpts.h"
-#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkShaderBase.h"

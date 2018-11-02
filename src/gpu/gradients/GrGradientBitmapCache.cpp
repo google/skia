@@ -11,7 +11,6 @@
 #include "SkMalloc.h"
 #include "SkFloatBits.h"
 #include "SkHalf.h"
-#include "SkPM4f.h"
 #include "SkTemplates.h"
 
 #include <functional>

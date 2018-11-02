@@ -105,8 +105,6 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkPM4f.h"
-
 template <>
 SkColor4f SkColor4f::FromColor(SkColor bgra) {
     SkColor4f rgba;

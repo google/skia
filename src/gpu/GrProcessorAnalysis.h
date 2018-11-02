@@ -9,11 +9,10 @@
 #define GrProcessorAnalysis_DEFINED
 
 #include "GrColor.h"
-#include "SkPM4f.h"
+#include "SkColorData.h"
 
 class GrDrawOp;
 class GrFragmentProcessor;
-class GrPrimitiveProcessor;
 
 class GrProcessorAnalysisColor {
 public:
