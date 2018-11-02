@@ -22,6 +22,30 @@
       "revId": "01cccdee37106603016d72443175eaf58872082b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2de835b8_76102cee",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-02T13:12:13Z",
+      "side": 1,
+      "message": "Yes, although I forgot that we have SkBitmap::readPixels(SkPixmap), so this can be:\n\nbitmap.readPixels(alpha.pixmap())\n\nI\u0027ve got that as part of a second change that\u0027s coming.",
+      "parentUuid": "72d08027_6b72bea2",
+      "range": {
+        "startLine": 244,
+        "startChar": 19,
+        "endLine": 244,
+        "endChar": 36
+      },
+      "revId": "01cccdee37106603016d72443175eaf58872082b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
