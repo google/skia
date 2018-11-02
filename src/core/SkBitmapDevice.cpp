@@ -188,34 +188,15 @@ public:
 
 static bool valid_for_bitmap_device(const SkImageInfo& info,
                                     SkAlphaType* newAlphaType) {
-    if (info.width() < 0 || info.height() < 0) {
+    if (info.width() < 0 || info.height() < 0 || kUnknown_SkColorType == info.colorType()) {
         return false;
     }
 
-    SkAlphaType canonicalAlphaType = info.alphaType();
-
-    switch (info.colorType()) {
-        case kAlpha_8_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-        case kRGBA_1010102_SkColorType:
-        case kRGBA_F16_SkColorType:
-        case kRGBA_F32_SkColorType:
-            break;
-        case kGray_8_SkColorType:
-        case kRGB_565_SkColorType:
-        case kRGB_888x_SkColorType:
-        case kRGB_101010x_SkColorType:
-            canonicalAlphaType = kOpaque_SkAlphaType;
-            break;
-        default:
-            return false;
-    }
-
     if (newAlphaType) {
-        *newAlphaType = canonicalAlphaType;
+        *newAlphaType = SkColorTypeIsAlwaysOpaque(info.colorType()) ? kOpaque_SkAlphaType
+                                                                    : info.alphaType();
     }
+
     return true;
 }
 
