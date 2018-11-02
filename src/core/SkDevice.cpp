@@ -339,12 +339,11 @@ void SkBaseDevice::drawGlyphRunRSXform(
         SkMatrix ctm;
         ctm.setRSXform(*xform++);
 
-        SkPaint transformingPaint = glyphRun.paint();
-
-        auto shader = transformingPaint.getShader();
         // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
         // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
         // with a localmatrixshader so that the shader draws as if there was no change to the ctm.
+        SkPaint transformingPaint = glyphRun.paint();
+        auto shader = transformingPaint.getShader();
         if (shader) {
             SkMatrix inverse;
             if (ctm.invert(&inverse)) {
@@ -354,11 +353,11 @@ void SkBaseDevice::drawGlyphRunRSXform(
             }
         }
 
-        SkGlyphRun transformedGlyphRun{glyphRun, transformingPaint};
         ctm.setConcat(originalCTM, ctm);
         this->setCTM(ctm);
-        SkGlyphRunList glyphRunList{&transformedGlyphRun};
-        this->drawGlyphRunList(glyphRunList);
+
+        SkGlyphRun transformedGlyphRun{glyphRun, transformingPaint};
+        this->drawGlyphRunList(SkGlyphRunList{transformedGlyphRun});
     };
     run->eachGlyphToGlyphRun(perGlyph);
     this->setCTM(originalCTM);
