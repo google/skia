@@ -105,7 +105,6 @@ ignore = [
     'src/core/SkBitmapProcState_*.h',
     'src/core/SkLinearBitmapPipeline.h',
     'src/core/SkLinearBitmapPipeline_*.h',
-    'src/core/SkUnPreMultiplyPriv.h',
     'src/gpu/vk/*',
     'src/opts/*_SSE2.h',
     'src/opts/*_SSSE3.h',
