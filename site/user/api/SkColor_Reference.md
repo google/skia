@@ -49,19 +49,19 @@ template <> <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a> SkColor4f::Fro
 template <> <a href='#SkColor'>SkColor</a> SkColor4f::toSkColor() const;
 </pre>
 
-<a href='#Color'>Color</a> constants can be helpful to write code, documenting the meaning of values
-the represent transparency and color values. The use of <a href='#Color'>Color</a> constants is not
+<a href='SkColor_Reference#Color'>Color</a> constants can be helpful to write code, documenting the meaning of values
+the represent transparency and color values. The use of Color constants is not
 required.
 
 <a name='Functions'></a>
 
 <a name='Alpha'></a>
 
-<a href='#Alpha'>Alpha</a> represents the transparency of <a href='#Color'>Color</a>. <a href='#Color'>Color</a> with <a href='#Alpha'>Alpha</a> of zero is fully
-transparent. <a href='#Color'>Color</a> with <a href='#Alpha'>Alpha</a> of 255 is fully opaque. Some, but not all pixel
-formats contain <a href='#Alpha'>Alpha</a>. Pixels with <a href='#Alpha'>Alpha</a> may store it as unsigned integers or
-floating point values. Unsigned integer <a href='#Alpha'>Alpha</a> ranges from zero, fully
-transparent, to all bits set, fully opaque. Floating point <a href='#Alpha'>Alpha</a> ranges from
+Alpha represents the transparency of Color. Color with Alpha of zero is fully
+transparent. Color with Alpha of 255 is fully opaque. Some, but not all pixel
+formats contain Alpha. Pixels with Alpha may store it as unsigned integers or
+floating point values. Unsigned integer Alpha ranges from zero, fully
+transparent, to all bits set, fully opaque. Floating point Alpha ranges from
 zero, fully transparent, to one, fully opaque.
 
 <a name='SkAlpha'></a>
@@ -82,13 +82,13 @@ typedef uint8_t <a href='#SkAlpha'>SkAlpha</a>;
 typedef uint32_t <a href='#SkColor'>SkColor</a>;
 </pre>
 
-32-bit ARGB <a href='#Color'>Color</a> value, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>. <a href='#Color'>Color</a> components are always in
-a known order. This is different from <a href='#SkPMColor'>SkPMColor</a>, which has its bytes in a configuration
-dependent order, to match the format of <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a> bitmaps. <a href='#SkColor'>SkColor</a>
-is the type used to specify colors in <a href='SkPaint_Reference#SkPaint'>SkPaint</a> and in gradients.
+32-bit ARGB Color value, Unpremultiplied. Color components are always in
+a known order. This is different from SkPMColor, which has its bytes in a configuration
+dependent order, to match the format of kBGRA_8888_SkColorType bitmaps. SkColor
+is the type used to specify colors in SkPaint and in gradients.
 
-<a href='#Color'>Color</a> that is <a href='undocumented#Premultiply'>Premultiplied</a> has the same component values as <a href='#Color'>Color</a>
-that is <a href='undocumented#Unpremultiply'>Unpremultiplied</a> if <a href='#Alpha'>Alpha</a> is 255, fully opaque, although may have the
+Color that is Premultiplied has the same component values as Color
+that is Unpremultiplied if Alpha is 255, fully opaque, although may have the
 component values in a different order.
 
 ### See Also
@@ -103,14 +103,14 @@ component values in a different order.
 static constexpr inline <a href='#SkColor'>SkColor</a> <a href='#SkColorSetARGB'>SkColorSetARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> a, <a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b)
 </pre>
 
-Returns <a href='#Color'>Color</a> value from 8-bit component values. Asserts if SK_DEBUG is defined
-if <a href='#SkColorSetARGB_a'>a</a>, <a href='#SkColorSetARGB_r'>r</a>, <a href='#SkColorSetARGB_g'>g</a>, or <a href='#SkColorSetARGB_b'>b</a> exceed 255. Since <a href='#Color'>Color</a> is <a href='undocumented#Unpremultiply'>Unpremultiplied</a>, <a href='#SkColorSetARGB_a'>a</a> may be smaller
-than the largest of <a href='#SkColorSetARGB_r'>r</a>, <a href='#SkColorSetARGB_g'>g</a>, and <a href='#SkColorSetARGB_b'>b</a>.
+Returns Color value from 8-bit component values. Asserts if SK_DEBUG is defined
+if a, r, g, or b exceed 255. Since Color is Unpremultiplied, a may be smaller
+than the largest of r, g, and b.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkColorSetARGB_a'><code><strong>a</strong></code></a></td>
-    <td>amount of <a href='#Alpha'>Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
+    <td>amount of Alpha, from fully transparent (0) to fully opaque (255)</td>
   </tr>
   <tr>    <td><a name='SkColorSetARGB_r'><code><strong>r</strong></code></a></td>
     <td>amount of red, from no red (0) to full red (255)</td>
@@ -125,7 +125,7 @@ than the largest of <a href='#SkColorSetARGB_r'>r</a>, <a href='#SkColorSetARGB_
 
 ### Return Value
 
-color and alpha, <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
+color and alpha, Unpremultiplied
 
 ### Example
 
@@ -184,7 +184,7 @@ Returns <a href='#Alpha'>Alpha</a> byte from <a href='#Color'>Color</a> value.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkColorGetA_color'><code><strong>color</strong></code></a></td>
-    <td><a href='#SkColor'>SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
+    <td><a href='SkColor_Reference#SkColor'>SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
   </tr>
 </table>
 
@@ -209,7 +209,7 @@ Returns red component of <a href='#Color'>Color</a>, from zero to 255.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkColorGetR_color'><code><strong>color</strong></code></a></td>
-    <td><a href='#SkColor'>SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
+    <td><a href='SkColor_Reference#SkColor'>SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
   </tr>
 </table>
 
@@ -238,7 +238,7 @@ Returns green component of <a href='#Color'>Color</a>, from zero to 255.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkColorGetG_color'><code><strong>color</strong></code></a></td>
-    <td><a href='#SkColor'>SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
+    <td><a href='SkColor_Reference#SkColor'>SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
   </tr>
 </table>
 
@@ -267,7 +267,7 @@ Returns blue component of <a href='#Color'>Color</a>, from zero to 255.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkColorGetB_color'><code><strong>color</strong></code></a></td>
-    <td><a href='#SkColor'>SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
+    <td><a href='SkColor_Reference#SkColor'>SkColor</a>, a 32-bit unsigned int, in 0xAARRGGBB format</td>
   </tr>
 </table>
 
@@ -291,8 +291,8 @@ blue byte
 static constexpr inline <a href='#SkColor'>SkColor</a> <a href='#SkColorSetA'>SkColorSetA</a>(<a href='#SkColor'>SkColor</a> c, <a href='undocumented#U8CPU'>U8CPU</a> a)
 </pre>
 
-Returns <a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a href='#Color'>Color</a> with red, blue, and green set from <a href='#SkColorSetA_c'>c</a>; and alpha set
-from <a href='#SkColorSetA_a'>a</a>. <a href='#Alpha'>Alpha</a> component of <a href='#SkColorSetA_c'>c</a> is ignored and is replaced by <a href='#SkColorSetA_a'>a</a> in result.
+Returns Unpremultiplied Color with red, blue, and green set from c; and alpha set
+from a. Alpha component of c is ignored and is replaced by a in result.
 
 ### Parameters
 
@@ -300,13 +300,13 @@ from <a href='#SkColorSetA_a'>a</a>. <a href='#Alpha'>Alpha</a> component of <a 
     <td>packed RGB, eight bits per component</td>
   </tr>
   <tr>    <td><a name='SkColorSetA_a'><code><strong>a</strong></code></a></td>
-    <td><a href='#Alpha'>Alpha</a>: transparent at zero, fully opaque at 255</td>
+    <td>Alpha: transparent at zero, fully opaque at 255</td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='#Color'>Color</a> with transparency
+Color with transparency
 
 ### Example
 
@@ -325,7 +325,7 @@ constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaTRANSPARENT'>SK_Alpha
 constexpr <a href='#SkAlpha'>SkAlpha</a> <a href='#SK_AlphaOPAQUE'>SK_AlphaOPAQUE</a> = 0xFF;
 </pre>
 
-<a href='#Alpha'>Alpha</a> constants are conveniences to represent fully transparent and fully
+<a href='SkColor_Reference#Alpha'>Alpha</a> constants are conveniences to represent fully transparent and fully
 opaque colors and masks. Their use is not required.
 
 ### Constants
@@ -338,7 +338,7 @@ opaque colors and masks. Their use is not required.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_AlphaTRANSPARENT'><code>SK_AlphaTRANSPARENT</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully transparent <a href='#SkAlpha'>SkAlpha</a> value. <a href='#SkAlpha'>SkAlpha</a> ranges from zero,
+Represents fully transparent SkAlpha value. SkAlpha ranges from zero,
 fully transparent; to 255, fully opaque.
 </td>
   </tr>
@@ -346,7 +346,7 @@ fully transparent; to 255, fully opaque.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_AlphaOPAQUE'><code>SK_AlphaOPAQUE</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully opaque <a href='#SkAlpha'>SkAlpha</a> value. <a href='#SkAlpha'>SkAlpha</a> ranges from zero,
+Represents fully opaque SkAlpha value. SkAlpha ranges from zero,
 fully transparent; to 255, fully opaque.
 </td>
   </tr>
@@ -354,12 +354,12 @@ fully transparent; to 255, fully opaque.
 
 ### Example
 
-<div><fiddle-embed name="bc9c7ea424d10bbcd1e5a88770d4794e"><div><a href='#Color'>Color</a> the parts of the bitmap red if they mostly contain transparent pixels.
+<div><fiddle-embed name="bc9c7ea424d10bbcd1e5a88770d4794e"><div><a href='SkColor_Reference#Color'>Color</a> the parts of the bitmap red if they mostly contain transparent pixels.
 </div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="0424f67ebc2858e8fd04ae3367b115ff"><div><a href='#Color'>Color</a> the parts of the bitmap green if they contain fully opaque pixels.
+<div><fiddle-embed name="0424f67ebc2858e8fd04ae3367b115ff"><div>Color the parts of the bitmap green if they contain fully opaque pixels.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -385,9 +385,9 @@ constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorCYAN'>SK_ColorCYAN</a
 constexpr <a href='#SkColor'>SkColor</a> <a href='#SK_ColorMAGENTA'>SK_ColorMAGENTA</a>;
 </pre>
 
-<a href='#Color'>Color</a> names are provided as conveniences, but are not otherwise special.
+<a href='SkColor_Reference#Color'>Color</a> names are provided as conveniences, but are not otherwise special.
 The values chosen for names may not be the same as values used by
-<a href='undocumented#SVG'>SVG</a>, HTML, CSS, or colors named by a platform.
+SVG, HTML, CSS, or colors named by a platform.
 
 ### Constants
 
@@ -399,7 +399,7 @@ The values chosen for names may not be the same as values used by
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorTRANSPARENT'><code>SK_ColorTRANSPARENT</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00000000</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully transparent <a href='#SkColor'>SkColor</a>. May be used to initialize a destination
+Represents fully transparent SkColor. May be used to initialize a destination
 containing a mask or a non-rectangular image.
 </td>
   </tr>
@@ -415,7 +415,7 @@ Represents fully opaque black.
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF444444</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque dark gray.
-Note that <a href='undocumented#SVG_darkgray'>SVG darkgray</a> is equivalent to 0xFFA9A9A9.
+Note that SVG_darkgray is equivalent to 0xFFA9A9A9.
 </td>
   </tr>
   <tr>
@@ -423,15 +423,15 @@ Note that <a href='undocumented#SVG_darkgray'>SVG darkgray</a> is equivalent to 
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF888888</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque gray.
-Note that <a href='undocumented#HTML_Gray'>HTML Gray</a> is equivalent to 0xFF808080.
+Note that HTML_Gray is equivalent to 0xFF808080.
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorLTGRAY'><code>SK_ColorLTGRAY</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFCCCCCC</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully opaque light gray. <a href='undocumented#HTML_Silver'>HTML Silver</a> is equivalent to 0xFFC0C0C0.
-Note that <a href='undocumented#SVG_lightgray'>SVG lightgray</a> is equivalent to 0xFFD3D3D3.
+Represents fully opaque light gray. HTML_Silver is equivalent to 0xFFC0C0C0.
+Note that SVG_lightgray is equivalent to 0xFFD3D3D3.
 </td>
   </tr>
   <tr>
@@ -452,8 +452,8 @@ Represents fully opaque red.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorGREEN'><code>SK_ColorGREEN</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FF00</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully opaque green. <a href='undocumented#HTML_Lime'>HTML Lime</a> is equivalent.
-Note that <a href='undocumented#HTML_Green'>HTML Green</a> is equivalent to 0xFF008000.
+Represents fully opaque green. HTML_Lime is equivalent.
+Note that HTML_Green is equivalent to 0xFF008000.
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -474,14 +474,14 @@ Represents fully opaque yellow.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorCYAN'><code>SK_ColorCYAN</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF00FFFF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully opaque cyan. <a href='undocumented#HTML_Aqua'>HTML Aqua</a> is equivalent.
+Represents fully opaque cyan. HTML_Aqua is equivalent.
 </td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorMAGENTA'><code>SK_ColorMAGENTA</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFFFF00FF</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Represents fully opaque magenta. <a href='undocumented#HTML_Fuchsia'>HTML Fuchsia</a> is equivalent.
+Represents fully opaque magenta. HTML_Fuchsia is equivalent.
 </td>
   </tr>
 </table>
@@ -492,17 +492,17 @@ Represents fully opaque magenta. <a href='undocumented#HTML_Fuchsia'>HTML Fuchsi
 
 ### Example
 
-<div><fiddle-embed name="9ca1e2a5b9b4c92ecf4409d0813867d6"><div><a href='#SK_ColorTRANSPARENT'>SK ColorTRANSPARENT</a> sets <a href='#Color'>Color</a> <a href='#Alpha'>Alpha</a> and components to zero.
+<div><fiddle-embed name="9ca1e2a5b9b4c92ecf4409d0813867d6"><div>SK_ColorTRANSPARENT sets Color Alpha and components to zero.
 </div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="6971489f28291f08e429cc6ccc73b09b"><div><a href='#SK_ColorBLACK'>SK ColorBLACK</a> sets <a href='#Color'>Color</a> <a href='#Alpha'>Alpha</a> to one and components to zero.
+<div><fiddle-embed name="6971489f28291f08e429cc6ccc73b09b"><div>SK_ColorBLACK sets Color Alpha to one and components to zero.
 </div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="fce650f997e802d4e55edf62b8437a2d"><div><a href='#SK_ColorWHITE'>SK ColorWHITE</a> sets <a href='#Color'>Color</a> <a href='#Alpha'>Alpha</a> and components to one.
+<div><fiddle-embed name="fce650f997e802d4e55edf62b8437a2d"><div>SK_ColorWHITE sets Color Alpha and components to one.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -513,17 +513,17 @@ Represents fully opaque magenta. <a href='undocumented#HTML_Fuchsia'>HTML Fuchsi
 
 <a name='HSV_Hue'></a>
 
-<a href='#HSV_Hue'>Hue</a> represents an angle, in degrees, on a color wheel. <a href='#HSV_Hue'>Hue</a> has a positive value
+Hue represents an angle, in degrees, on a color wheel. Hue has a positive value
 modulo 360, where zero degrees is red.
 
 <a name='HSV_Saturation'></a>
 
-<a href='#HSV_Saturation'>Saturation</a> represents the intensity of the color. <a href='#HSV_Saturation'>Saturation</a> varies from zero,
-with no <a href='#HSV_Hue'>Hue</a> contribution; to one, with full <a href='#HSV_Hue'>Hue</a> contribution.
+Saturation represents the intensity of the color. Saturation varies from zero,
+with no Hue contribution; to one, with full Hue contribution.
 
 <a name='HSV_Value'></a>
 
-<a href='#HSV_Value'>Value</a> represents the lightness of the color. <a href='#HSV_Value'>Value</a> varies from zero, black; to
+Value represents the lightness of the color. Value varies from zero, black; to
 one, full brightness.
 
 <a name='SkRGBToHSV'></a>
@@ -534,24 +534,25 @@ one, full brightness.
 void <a href='#SkRGBToHSV'>SkRGBToHSV</a>(<a href='undocumented#U8CPU'>U8CPU</a> red, <a href='undocumented#U8CPU'>U8CPU</a> green, <a href='undocumented#U8CPU'>U8CPU</a> blue, <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
 </pre>
 
-Converts RGB to its <a href='#HSV'>HSV</a> components.
-<a href='#SkRGBToHSV_hsv'>hsv</a>[0] contains <a href='#HSV_Hue'>HSV Hue</a>, a value from zero to less than 360.
-<a href='#SkRGBToHSV_hsv'>hsv</a>[1] contains <a href='#HSV_Saturation'>HSV Saturation</a>, a value from zero to one.
-<a href='#SkRGBToHSV_hsv'>hsv</a>[2] contains <a href='#HSV_Value'>HSV Value</a>, a value from zero to one.
+Converts RGB to its HSV components.
+hsv[0] contains HSV_Hue, a value from zero to less than 360.
+hsv[1] contains HSV_Saturation, a value from zero to one.
+hsv[2] contains HSV_Value, a value from zero to one.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRGBToHSV_red'><code><strong>red</strong></code></a></td>
-    <td><a href='#SkRGBToHSV_red'>red</a> component value from zero to 255</td>
+    <td>red component value from zero to 255</td>
   </tr>
   <tr>    <td><a name='SkRGBToHSV_green'><code><strong>green</strong></code></a></td>
-    <td><a href='#SkRGBToHSV_green'>green</a> component value from zero to 255</td>
+    <td>green component value from zero to 255</td>
   </tr>
   <tr>    <td><a name='SkRGBToHSV_blue'><code><strong>blue</strong></code></a></td>
-    <td><a href='#SkRGBToHSV_blue'>blue</a> component value from zero to 255</td>
+    <td>blue component value from zero to 255</td>
   </tr>
   <tr>    <td><a name='SkRGBToHSV_hsv'><code><strong>hsv</strong></code></a></td>
-    <td>three element array which holds the resulting <a href='#HSV'>HSV</a> components</td>
+    <td>three element array which holds the resulting HSV components
+</td>
   </tr>
 </table>
 
@@ -571,18 +572,20 @@ Converts RGB to its <a href='#HSV'>HSV</a> components.
 void <a href='#SkColorToHSV'>SkColorToHSV</a>(<a href='#SkColor'>SkColor</a> color, <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
 </pre>
 
-Converts ARGB to its <a href='#HSV'>HSV</a> components. <a href='#Alpha'>Alpha</a> in ARGB is ignored.
-<a href='#SkColorToHSV_hsv'>hsv</a>[0] contains <a href='#HSV_Hue'>HSV Hue</a>, and is assigned a value from zero to less than 360.
-<a href='#SkColorToHSV_hsv'>hsv</a>[1] contains <a href='#HSV_Saturation'>HSV Saturation</a>, a value from zero to one.
-<a href='#SkColorToHSV_hsv'>hsv</a>[2] contains <a href='#HSV_Value'>HSV Value</a>, a value from zero to one.
+Converts ARGB to its HSV components. Alpha in ARGB is ignored.
+hsv[0] contains HSV_Hue, and is assigned a value from zero to less than 360.
+hsv[1] contains HSV_Saturation, a value from zero to one.
+hsv[2] contains HSV_Value, a value from zero to one.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkColorToHSV_color'><code><strong>color</strong></code></a></td>
-    <td>ARGB <a href='#SkColorToHSV_color'>color</a> to convert</td>
+    <td>ARGB color to convert
+</td>
   </tr>
   <tr>    <td><a name='SkColorToHSV_hsv'><code><strong>hsv</strong></code></a></td>
-    <td>three element array which holds the resulting <a href='#HSV'>HSV</a> components</td>
+    <td>three element array which holds the resulting HSV components
+</td>
   </tr>
 </table>
 
@@ -602,26 +605,28 @@ Converts ARGB to its <a href='#HSV'>HSV</a> components. <a href='#Alpha'>Alpha</
 <a href='#SkColor'>SkColor</a> <a href='#SkHSVToColor'>SkHSVToColor</a>(<a href='undocumented#U8CPU'>U8CPU</a> alpha, const <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
 </pre>
 
-Converts <a href='#HSV'>HSV</a> components to an ARGB color. <a href='#Alpha'>Alpha</a> is passed through unchanged.
-<a href='#SkHSVToColor_hsv'>hsv</a>[0] represents <a href='#HSV_Hue'>HSV Hue</a>, an angle from zero to less than 360.
-<a href='#SkHSVToColor_hsv'>hsv</a>[1] represents <a href='#HSV_Saturation'>HSV Saturation</a>, and varies from zero to one.
-<a href='#SkHSVToColor_hsv'>hsv</a>[2] represents <a href='#HSV_Value'>HSV Value</a>, and varies from zero to one.
+Converts HSV components to an ARGB color. Alpha is passed through unchanged.
+hsv[0] represents HSV_Hue, an angle from zero to less than 360.
+hsv[1] represents HSV_Saturation, and varies from zero to one.
+hsv[2] represents HSV_Value, and varies from zero to one.
 
-Out of range <a href='#SkHSVToColor_hsv'>hsv</a> values are pinned.
+Out of range hsv values are pinned.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkHSVToColor_alpha'><code><strong>alpha</strong></code></a></td>
-    <td><a href='#Alpha'>Alpha</a> component of the returned ARGB color</td>
+    <td><a href='SkColor_Reference#Alpha'>Alpha</a> component of the returned ARGB color
+</td>
   </tr>
   <tr>    <td><a name='SkHSVToColor_hsv'><code><strong>hsv</strong></code></a></td>
-    <td>three element array which holds the input <a href='#HSV'>HSV</a> components</td>
+    <td>three element array which holds the input HSV components
+</td>
   </tr>
 </table>
 
 ### Return Value
 
-ARGB equivalent to <a href='#HSV'>HSV</a>
+ARGB equivalent to HSV
 
 ### Example
 
@@ -639,23 +644,24 @@ ARGB equivalent to <a href='#HSV'>HSV</a>
 <a href='#SkColor'>SkColor</a> <a href='#SkHSVToColor'>SkHSVToColor</a>(const <a href='undocumented#SkScalar'>SkScalar</a> hsv[3])
 </pre>
 
-Converts <a href='#HSV'>HSV</a> components to an ARGB color. <a href='#Alpha'>Alpha</a> is set to 255.
-<a href='#SkHSVToColor_2_hsv'>hsv</a>[0] represents <a href='#HSV_Hue'>HSV Hue</a>, an angle from zero to less than 360.
-<a href='#SkHSVToColor_2_hsv'>hsv</a>[1] represents <a href='#HSV_Saturation'>HSV Saturation</a>, and varies from zero to one.
-<a href='#SkHSVToColor_2_hsv'>hsv</a>[2] represents <a href='#HSV_Value'>HSV Value</a>, and varies from zero to one.
+Converts HSV components to an ARGB color. Alpha is set to 255.
+hsv[0] represents HSV_Hue, an angle from zero to less than 360.
+hsv[1] represents HSV_Saturation, and varies from zero to one.
+hsv[2] represents HSV_Value, and varies from zero to one.
 
-Out of range <a href='#SkHSVToColor_2_hsv'>hsv</a> values are pinned.
+Out of range hsv values are pinned.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkHSVToColor_2_hsv'><code><strong>hsv</strong></code></a></td>
-    <td>three element array which holds the input <a href='#HSV'>HSV</a> components</td>
+    <td>three element array which holds the input HSV components
+</td>
   </tr>
 </table>
 
 ### Return Value
 
-RGB equivalent to <a href='#HSV'>HSV</a>
+RGB equivalent to HSV
 
 ### Example
 
@@ -675,9 +681,9 @@ RGB equivalent to <a href='#HSV'>HSV</a>
 typedef uint32_t <a href='#SkPMColor'>SkPMColor</a>;
 </pre>
 
-32-bit ARGB color value, <a href='undocumented#Premultiply'>Premultiplied</a>. The byte order for this value is
-configuration dependent, matching the format of <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a> bitmaps.
-This is different from <a href='#SkColor'>SkColor</a>, which is <a href='undocumented#Unpremultiply'>Unpremultiplied</a>, and is always in the
+32-bit ARGB color value, Premultiplied. The byte order for this value is
+configuration dependent, matching the format of kBGRA_8888_SkColorType bitmaps.
+This is different from SkColor, which is Unpremultiplied, and is always in the
 same byte order.
 
 <a name='SkPreMultiplyARGB'></a>
@@ -688,12 +694,12 @@ same byte order.
 <a href='#SkPMColor'>SkPMColor</a> <a href='#SkPreMultiplyARGB'>SkPreMultiplyARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> a, <a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b)
 </pre>
 
-Returns <a href='#SkPreMultiplyARGB_a'>a</a> <a href='#SkPMColor'>SkPMColor</a> value from <a href='undocumented#Unpremultiply'>Unpremultiplied</a> 8-bit component values.
+Returns a SkPMColor value from Unpremultiplied 8-bit component values.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPreMultiplyARGB_a'><code><strong>a</strong></code></a></td>
-    <td>amount of <a href='#Alpha'>Alpha</a>, from fully transparent (0) to fully opaque (255)</td>
+    <td>amount of Alpha, from fully transparent (0) to fully opaque (255)</td>
   </tr>
   <tr>    <td><a name='SkPreMultiplyARGB_r'><code><strong>r</strong></code></a></td>
     <td>amount of red, from no red (0) to full red (255)</td>
@@ -708,7 +714,7 @@ Returns <a href='#SkPreMultiplyARGB_a'>a</a> <a href='#SkPMColor'>SkPMColor</a> 
 
 ### Return Value
 
-<a href='undocumented#Premultiply'>Premultiplied</a> <a href='#Color'>Color</a>
+Premultiplied Color
 
 ### Example
 
@@ -726,19 +732,19 @@ Returns <a href='#SkPreMultiplyARGB_a'>a</a> <a href='#SkPMColor'>SkPMColor</a> 
 <a href='#SkPMColor'>SkPMColor</a> <a href='#SkPreMultiplyColor'>SkPreMultiplyColor</a>(<a href='#SkColor'>SkColor</a> c)
 </pre>
 
-Returns <a href='#PMColor'>PMColor</a> closest to <a href='#Color'>Color</a> <a href='#SkPreMultiplyColor_c'>c</a>. Multiplies <a href='#SkPreMultiplyColor_c'>c</a> RGB components by the <a href='#SkPreMultiplyColor_c'>c</a> <a href='#Alpha'>Alpha</a>,
-and arranges the bytes to match the format of <a href='SkImageInfo_Reference#kN32_SkColorType'>kN32_SkColorType</a>.
+Returns PMColor closest to Color c. Multiplies c RGB components by the c Alpha,
+and arranges the bytes to match the format of kN32_SkColorType.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPreMultiplyColor_c'><code><strong>c</strong></code></a></td>
-    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> ARGB <a href='#Color'>Color</a></td>
+    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> ARGB Color</td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='undocumented#Premultiply'>Premultiplied</a> <a href='#Color'>Color</a>
+Premultiplied Color
 
 ### Example
 

@@ -640,8 +640,7 @@ int32_t <a href='#SkSize_height'>height</a>() const
   </tr>
 </table>
 
-#
-Topic
+#Topic
 
 <a name='GrBackendTexture'></a>
 

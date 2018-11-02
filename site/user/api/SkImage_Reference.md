@@ -173,38 +173,38 @@ public:
 };
 </pre>
 
-<a href='#Image'>Image</a> describes a two dimensional array of pixels to draw. The pixels may be
-decoded in a <a href='undocumented#Raster_Bitmap'>Raster Bitmap</a>, encoded in a <a href='SkPicture_Reference#Picture'>Picture</a> or compressed data stream,
-or located in GPU memory as a <a href='undocumented#GPU_Texture'>GPU Texture</a>.
+<a href='SkImage_Reference#Image'>Image</a> describes a two dimensional array of pixels to draw. The pixels may be
+decoded in a <a href='#Raster_Bitmap'>Raster_Bitmap</a>, encoded in a <a href='SkPicture_Reference#Picture'>Picture</a> or compressed <a href='undocumented#Data'>data</a> <a href='SkStream_Reference#Stream'>stream</a>,
+or located in GPU memory as a <a href='#GPU_Texture'>GPU_Texture</a>.
 
-<a href='#Image'>Image</a> cannot be modified after it is created. <a href='#Image'>Image</a> may allocate additional
-storage as needed; for instance, an encoded <a href='#Image'>Image</a> may decode when drawn.
+<a href='SkImage_Reference#Image'>Image</a> cannot be modified after it is created. <a href='SkImage_Reference#Image'>Image</a> may allocate additional
+storage as needed; for instance, an encoded <a href='SkImage_Reference#Image'>Image</a> may decode when drawn.
 
-<a href='#Image'>Image</a> width and height are greater than zero. Creating an <a href='#Image'>Image</a> with zero width
-or height returns <a href='#Image'>Image</a> equal to nullptr.
+<a href='SkImage_Reference#Image'>Image</a> width and height are greater than zero. Creating an <a href='SkImage_Reference#Image'>Image</a> with zero width
+or height returns <a href='SkImage_Reference#Image'>Image</a> equal to nullptr.
 
-<a href='#Image'>Image</a> may be created from <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>, <a href='SkSurface_Reference#Surface'>Surface</a>, <a href='SkPicture_Reference#Picture'>Picture</a>, encoded streams,
-<a href='undocumented#GPU_Texture'>GPU Texture</a>, <a href='SkImageInfo_Reference#YUV_ColorSpace'>YUV ColorSpace</a> data, or hardware buffer. Encoded streams supported
+<a href='SkImage_Reference#Image'>Image</a> may be created from <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>, <a href='SkSurface_Reference#Surface'>Surface</a>, <a href='SkPicture_Reference#Picture'>Picture</a>, encoded streams,
+<a href='#GPU_Texture'>GPU_Texture</a>, <a href='#Image_Info_YUV_ColorSpace'>YUV_ColorSpace</a> <a href='undocumented#Data'>data</a>, or hardware buffer. Encoded streams supported
 include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encoding details
 vary with platform.
 
 <a name='Raster_Image'></a>
 
-<a href='#Raster_Image'>Raster Image</a> pixels are decoded in a <a href='undocumented#Raster_Bitmap'>Raster Bitmap</a>. These pixels may be read
+<a href='#Image_Raster_Image'>Raster_Image</a> pixels are decoded in a Raster_Bitmap. These pixels may be read
 directly and in most cases written to, although edited pixels may not be drawn
-if <a href='#Image'>Image</a> has been copied internally.
+if Image has been copied internally.
 
 <a name='Texture_Image'></a>
 
-<a href='#Texture_Image'>Texture Image</a> are located on GPU and pixels are not accessible. <a href='#Texture_Image'>Texture Image</a>
-are allocated optimally for best performance. <a href='#Raster_Image'>Raster Image</a> may
-be drawn to <a href='undocumented#GPU_Surface'>GPU Surface</a>, but pixels are uploaded from CPU to GPU downgrading
+Texture_Image are located on GPU and pixels are not accessible. Texture_Image
+are allocated optimally for best performance. Raster_Image may
+be drawn to GPU_Surface, but pixels are uploaded from CPU to GPU downgrading
 performance.
 
 <a name='Lazy_Image'></a>
 
-<a href='#Lazy_Image'>Lazy Image</a> defer allocating buffer for <a href='#Image'>Image</a> pixels and decoding stream until
-<a href='#Image'>Image</a> is drawn. <a href='#Lazy_Image'>Lazy Image</a> caches result if possible to speed up repeated
+Lazy_Image defer allocating buffer for Image pixels and decoding stream until
+Image is drawn. Lazy_Image caches result if possible to speed up repeated
 drawing.
 
 <a name='SkImage_MakeRasterCopy'></a>
@@ -238,8 +238,8 @@ copy of <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> pixels, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="513afec5795a9504ebf6af5373d16b6b"><div>Draw a five by five bitmap, and draw a copy in an <a href='#Image'>Image</a>. Editing the pixmap
-alters the bitmap draw, but does not alter the <a href='#Image'>Image</a> draw since the <a href='#Image'>Image</a>
+<div><fiddle-embed name="513afec5795a9504ebf6af5373d16b6b"><div>Draw a five by five bitmap, and draw a copy in an Image. Editing the pixmap
+alters the bitmap draw, but does not alter the Image draw since the Image
 contains a copy of the pixels.
 </div></fiddle-embed></div>
 
@@ -297,7 +297,7 @@ each dimension fits in 29 bits;
     typedef void* <a href='#SkImage_ReleaseContext'>ReleaseContext</a>;
 </pre>
 
-Caller data passed to <a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>; may be nullptr.
+Caller <a href='undocumented#Data'>data</a> passed to <a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>; may be nullptr.
 
 ### See Also
 
@@ -311,8 +311,8 @@ Caller data passed to <a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>
     typedef void (*<a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a>)(const void* pixels, <a href='#SkImage_ReleaseContext'>ReleaseContext</a>);
 </pre>
 
-Function called when <a href='#Image'>Image</a> no longer shares pixels. <a href='#SkImage_ReleaseContext'>ReleaseContext</a> is
-provided by caller when <a href='#Image'>Image</a> is created, and may be nullptr.
+Function called when <a href='SkImage_Reference#Image'>Image</a> no longer shares pixels. <a href='#SkImage_ReleaseContext'>ReleaseContext</a> is
+provided by caller when <a href='SkImage_Reference#Image'>Image</a> is created, and may be nullptr.
 
 ### See Also
 
@@ -408,10 +408,10 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="cf2cf53321e4e6a77c2841bfbc0ef707"><div>The first <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is shared; writing to the pixel memory changes the first
-<a href='#Image'>Image</a>.
-The second <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is marked immutable, and is copied; writing to the pixel
-memory does not alter the second <a href='#Image'>Image</a>.
+<div><fiddle-embed name="cf2cf53321e4e6a77c2841bfbc0ef707"><div>The first Bitmap is shared; writing to the pixel memory changes the first
+Image.
+The second Bitmap is marked immutable, and is copied; writing to the pixel
+memory does not alter the second Image.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -454,7 +454,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="c2fec0746f88ca34d7dce59dd9bdef9e"><div>The generator returning <a href='SkPicture_Reference#Picture'>Picture</a> cannot be shared; std::move transfers ownership to generated <a href='#Image'>Image</a>.
+<div><fiddle-embed name="c2fec0746f88ca34d7dce59dd9bdef9e"><div>The generator returning Picture cannot be shared; std::move transfers ownership to generated Image.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -506,7 +506,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
     typedef void (*<a href='#SkImage_TextureReleaseProc'>TextureReleaseProc</a>)(<a href='#SkImage_ReleaseContext'>ReleaseContext</a> releaseContext);
 </pre>
 
-User function called when supplied texture may be deleted.
+User function called when supplied <a href='undocumented#Texture'>texture</a> may be deleted.
 
 ### See Also
 
@@ -1303,7 +1303,7 @@ Use 8 bits per ARGB component using unsigned integer format.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkImage_BitDepth_kF16'><code>SkImage::BitDepth::kF16</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Use 16 bits per ARGB component using half-precision floating point format.
+Use 16 bits per ARGB component using half-precision floating <a href='SkPoint_Reference#Point'>point</a> format.
 </td>
   </tr>
 </table>
@@ -1421,11 +1421,11 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 int <a href='#SkImage_width'>width</a>() const
 </pre>
 
-Returns <a href='undocumented#Pixel'>pixel</a> count in each row.
+Returns pixel count in each row.
 
 ### Return Value
 
-<a href='undocumented#Pixel'>pixel</a> width in <a href='SkImage_Reference#SkImage'>SkImage</a>
+pixel width in SkImage
 
 ### Example
 
@@ -1443,11 +1443,11 @@ Returns <a href='undocumented#Pixel'>pixel</a> count in each row.
 int <a href='#SkImage_height'>height</a>() const
 </pre>
 
-Returns <a href='undocumented#Pixel'>pixel</a> row count.
+Returns pixel row count.
 
 ### Return Value
 
-<a href='undocumented#Pixel'>pixel</a> height in <a href='SkImage_Reference#SkImage'>SkImage</a>
+pixel height in SkImage
 
 ### Example
 
@@ -1465,11 +1465,11 @@ Returns <a href='undocumented#Pixel'>pixel</a> row count.
 <a href='undocumented#SkISize'>SkISize</a> <a href='#SkImage_dimensions'>dimensions</a>() const
 </pre>
 
-Returns <a href='undocumented#SkISize'>SkISize</a> { <a href='#SkImage_width'>width()</a>, <a href='#SkImage_height'>height()</a> }.
+Returns SkISize { width(), height() }.
 
 ### Return Value
 
-integral <a href='undocumented#Size'>size</a> of <a href='#SkImage_width'>width()</a> and <a href='#SkImage_height'>height()</a>
+integral size of width() and <a href='#SkImage_height'>height()</a>
 
 ### Example
 
@@ -1495,11 +1495,11 @@ dimensionsAsBounds == bounds
 <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkImage_bounds'>bounds</a>() const
 </pre>
 
-Returns <a href='SkIRect_Reference#SkIRect'>SkIRect</a> { 0, 0, <a href='#SkImage_width'>width()</a>, <a href='#SkImage_height'>height()</a> }.
+Returns SkIRect { 0, 0, width(), height() }.
 
 ### Return Value
 
-integral rectangle from origin to <a href='#SkImage_width'>width()</a> and <a href='#SkImage_height'>height()</a>
+integral rectangle from origin to width() and <a href='#SkImage_height'>height()</a>
 
 ### Example
 
@@ -1517,8 +1517,8 @@ integral rectangle from origin to <a href='#SkImage_width'>width()</a> and <a hr
 uint32_t <a href='#SkImage_uniqueID'>uniqueID</a>() const
 </pre>
 
-Returns value unique to <a href='SkImage_Reference#Image'>image</a>. <a href='SkImage_Reference#SkImage'>SkImage</a> contents cannot change after <a href='SkImage_Reference#SkImage'>SkImage</a> is
-created. Any operation to create a new <a href='SkImage_Reference#SkImage'>SkImage</a> will receive generate a new
+Returns value unique to image. SkImage contents cannot change after SkImage is
+created. Any operation to create a new SkImage will receive generate a new
 unique number.
 
 ### Return Value
@@ -1541,15 +1541,16 @@ unique identifier
 <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkImage_alphaType'>alphaType</a>() const
 </pre>
 
-Returns <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, one of: <a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
-<a href='SkImageInfo_Reference#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a>.
+Returns Alpha_Type, one of: <a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+kUnpremul_SkAlphaType
+.
 
-<a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> returned was a parameter to an <a href='#Image'>Image</a> constructor,
+Alpha_Type returned was a parameter to an Image constructor,
 or was parsed from encoded data.
 
 ### Return Value
 
-<a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> in <a href='#Image'>Image</a>
+Alpha_Type in Image
 
 ### Example
 
@@ -1567,11 +1568,11 @@ or was parsed from encoded data.
 <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='#SkImage_colorType'>colorType</a>() const
 </pre>
 
-Returns <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> if known; otherwise, returns <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>.
+Returns SkColorType if known; otherwise, returns kUnknown_SkColorType.
 
 ### Return Value
 
-<a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> of <a href='SkImage_Reference#SkImage'>SkImage</a>
+SkColorType of SkImage
 
 ### Example
 
@@ -1589,17 +1590,17 @@ Returns <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> if known; ot
 <a href='undocumented#SkColorSpace'>SkColorSpace</a>* <a href='#SkImage_colorSpace'>colorSpace</a>() const
 </pre>
 
-Returns <a href='undocumented#SkColorSpace'>SkColorSpace</a>, the range of colors, associated with <a href='SkImage_Reference#SkImage'>SkImage</a>.  The
-<a href='undocumented#Reference_Count'>reference count</a> of <a href='undocumented#SkColorSpace'>SkColorSpace</a> is unchanged. The returned <a href='undocumented#SkColorSpace'>SkColorSpace</a> is
+Returns SkColorSpace, the range of colors, associated with SkImage.  The
+reference count of SkColorSpace is unchanged. The returned SkColorSpace is
 immutable.
 
-<a href='undocumented#SkColorSpace'>SkColorSpace</a> returned was passed to an <a href='SkImage_Reference#SkImage'>SkImage</a> constructor,
-or was parsed from encoded <a href='undocumented#Data'>data</a>. <a href='undocumented#SkColorSpace'>SkColorSpace</a> returned may be ignored when <a href='SkImage_Reference#SkImage'>SkImage</a>
-is drawn, depending on the capabilities of the <a href='SkSurface_Reference#SkSurface'>SkSurface</a> receiving the drawing.
+SkColorSpace returned was passed to an SkImage constructor,
+or was parsed from encoded data. SkColorSpace returned may be ignored when SkImage
+is drawn, depending on the capabilities of the SkSurface receiving the drawing.
 
 ### Return Value
 
-<a href='undocumented#SkColorSpace'>SkColorSpace</a> in <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
+SkColorSpace in SkImage, or nullptr
 
 ### Example
 
@@ -1617,19 +1618,19 @@ is drawn, depending on the capabilities of the <a href='SkSurface_Reference#SkSu
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_refColorSpace'>refColorSpace</a>() const
 </pre>
 
-Returns a  <a href='undocumented#Smart_Pointer'>smart pointer</a> to <a href='undocumented#SkColorSpace'>SkColorSpace</a>, the range of colors, associated with
-<a href='SkImage_Reference#SkImage'>SkImage</a>.  The  <a href='undocumented#Smart_Pointer'>smart pointer</a> tracks the number of objects sharing this
-<a href='undocumented#SkColorSpace'>SkColorSpace</a> reference so the memory is released when the owners destruct.
+Returns a smart pointer to SkColorSpace, the range of colors, associated with
+SkImage.  The smart pointer tracks the number of objects sharing this
+SkColorSpace reference so the memory is released when the owners destruct.
 
-The returned <a href='undocumented#SkColorSpace'>SkColorSpace</a> is immutable.
+The returned SkColorSpace is immutable.
 
-<a href='undocumented#SkColorSpace'>SkColorSpace</a> returned was passed to an <a href='SkImage_Reference#SkImage'>SkImage</a> constructor,
-or was parsed from encoded <a href='undocumented#Data'>data</a>. <a href='undocumented#SkColorSpace'>SkColorSpace</a> returned may be ignored when <a href='SkImage_Reference#SkImage'>SkImage</a>
-is drawn, depending on the capabilities of the <a href='SkSurface_Reference#SkSurface'>SkSurface</a> receiving the drawing.
+SkColorSpace returned was passed to an SkImage constructor,
+or was parsed from encoded data. SkColorSpace returned may be ignored when SkImage
+is drawn, depending on the capabilities of the SkSurface receiving the drawing.
 
 ### Return Value
 
-<a href='undocumented#SkColorSpace'>SkColorSpace</a> in <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr, wrapped in a  <a href='undocumented#Smart_Pointer'>smart pointer</a>
+SkColorSpace in SkImage, or nullptr, wrapped in a smart pointer
 
 ### Example
 
@@ -1647,8 +1648,8 @@ is drawn, depending on the capabilities of the <a href='SkSurface_Reference#SkSu
 bool <a href='#SkImage_isAlphaOnly'>isAlphaOnly</a>() const
 </pre>
 
-Returns true if <a href='SkImage_Reference#SkImage'>SkImage</a> pixels represent transparency only. If true, each <a href='undocumented#Pixel'>pixel</a>
-is packed in 8 bits as defined by <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>.
+Returns true if SkImage pixels represent transparency only. If true, each pixel
+is packed in 8 bits as defined by kAlpha_8_SkColorType.
 
 ### Return Value
 
@@ -1678,11 +1679,11 @@ alphaOnly = true
 bool <a href='#SkImage_isOpaque'>isOpaque</a>() const
 </pre>
 
-Returns true if pixels ignore their <a href='SkColor_Reference#Alpha'>alpha</a> value and are treated as fully opaque.
+Returns true if pixels ignore their alpha value and are treated as fully opaque.
 
 ### Return Value
 
-true if <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>
+true if SkAlphaType is kOpaque_SkAlphaType
 
 ### Example
 
@@ -1851,12 +1852,12 @@ Deprecated.
 bool <a href='#SkImage_isTextureBacked'>isTextureBacked</a>() const
 </pre>
 
-Returns true the contents of <a href='SkImage_Reference#SkImage'>SkImage</a> was created on or uploaded to GPU memory,
-and is available as a  <a href='undocumented#GPU_Texture'>GPU texture</a>.
+Returns true the contents of SkImage was created on or uploaded to GPU memory,
+and is available as a GPU texture.
 
 ### Return Value
 
-true if <a href='SkImage_Reference#SkImage'>SkImage</a> is a  <a href='undocumented#GPU_Texture'>GPU texture</a>
+true if SkImage is a GPU texture
 
 ### Example
 
@@ -1953,14 +1954,14 @@ back-end API <a href='undocumented#Texture'>texture</a> handle; invalid on failu
 </pre>
 
 <a href='#SkImage_CachingHint'>CachingHint</a> selects whether Skia may internally cache <a href='SkBitmap_Reference#Bitmap'>Bitmaps</a> generated by
-decoding <a href='#Image'>Image</a>, or by copying <a href='#Image'>Image</a> from GPU to CPU. The default behavior
+decoding <a href='SkImage_Reference#Image'>Image</a>, or by copying <a href='SkImage_Reference#Image'>Image</a> from GPU to CPU. The default behavior
 allows caching <a href='SkBitmap_Reference#Bitmap'>Bitmaps</a>.
 
-Choose <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a> if <a href='#Image'>Image</a> pixels are to be used only once, or
-if <a href='#Image'>Image</a> pixels reside in a cache outside of Skia, or to reduce memory pressure.
+Choose <a href='#SkImage_kDisallow_CachingHint'>kDisallow_CachingHint</a> if <a href='SkImage_Reference#Image'>Image</a> pixels are to be used only once, or
+if <a href='SkImage_Reference#Image'>Image</a> pixels reside in a cache outside of Skia, or to reduce memory pressure.
 
-Choosing <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a> does not ensure that pixels will be cached.
-<a href='#Image'>Image</a> pixels may not be cached if memory requirements are too large or
+Choosing <a href='#SkImage_kAllow_CachingHint'>kAllow_CachingHint</a> does not ensure that pixels will be cached.
+<a href='SkImage_Reference#Image'>Image</a> pixels may not be cached if memory requirements are too large or
 pixels are not accessible.
 
 ### Constants
@@ -1996,40 +1997,40 @@ bool <a href='#SkImage_readPixels'>readPixels</a>(const <a href='SkImageInfo_Ref
                 <a href='#SkImage_CachingHint'>CachingHint</a> cachingHint = <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>) const
 </pre>
 
-Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from <a href='#Image'>Image</a> to <a href='#SkImage_readPixels_dstPixels'>dstPixels</a>. Copy starts at offset (<a href='#SkImage_readPixels_srcX'>srcX</a>, <a href='#SkImage_readPixels_srcY'>srcY</a>),
-and does not exceed <a href='#Image'>Image</a> (<a href='#SkImage_width'>width</a>(), <a href='#SkImage_height'>height</a>()).
+Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from <a href='SkImage_Reference#Image'>Image</a> to <a href='#SkImage_readPixels_dstPixels'>dstPixels</a>. Copy starts at offset (<a href='#SkImage_readPixels_srcX'>srcX</a>, <a href='#SkImage_readPixels_srcY'>srcY</a>),
+and does not exceed <a href='SkImage_Reference#Image'>Image</a> (<a href='#SkImage_width'>width()</a>, <a href='#SkImage_height'>height()</a>).
 
-<a href='#SkImage_readPixels_dstInfo'>dstInfo</a> specifies width, height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, and <a href='undocumented#Color_Space'>Color Space</a> of
+<a href='#SkImage_readPixels_dstInfo'>dstInfo</a> specifies width, height, <a href='#Image_Info_Color_Type'>Color_Type</a>, <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>, and <a href='#Color_Space'>Color_Space</a> of
 destination. <a href='#SkImage_readPixels_dstRowBytes'>dstRowBytes</a> specifics the gap from one destination row to the next.
 Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.addr() equals nullptr</td>
+    <td>dstInfo has no address</td>
   </tr>  <tr>
-    <td><a href='#SkImage_readPixels_dstRowBytes'>dstRowBytes</a> is less than <a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.<a href='SkImageInfo_Reference#SkImageInfo'>minRowBytes</a></td>
+    <td>dstRowBytes is less than dstInfo.minRowBytes()</td>
   </tr>  <tr>
-    <td><a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr</td>
+    <td>Pixel_Ref is nullptr</td>
   </tr>
 </table>
 
-<a href='#Pixels'>Pixels</a> are copied only if pixel conversion is possible. If <a href='#Image'>Image</a> <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> is
-<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.<a href='#SkImage_colorType'>colorType</a> must match.
-If <a href='#Image'>Image</a> <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.<a href='#SkImage_colorSpace'>colorSpace</a> must match.
-If <a href='#Image'>Image</a> <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.<a href='#SkImage_alphaType'>alphaType</a> must
-match. If <a href='#Image'>Image</a> <a href='undocumented#Color_Space'>Color Space</a> is nullptr, <a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.<a href='#SkImage_colorSpace'>colorSpace</a> must match. Returns
-false if pixel conversion is not possible.
+Pixels are copied only if <a href='undocumented#Pixel'>pixel</a> conversion is possible. If <a href='SkImage_Reference#Image'>Image</a> <a href='#Image_Info_Color_Type'>Color_Type</a> is
+<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_colorType'>colorType</a>() must match.
+If <a href='SkImage_Reference#Image'>Image</a> <a href='#Image_Info_Color_Type'>Color_Type</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_colorSpace'>colorSpace</a>() must match.
+If <a href='SkImage_Reference#Image'>Image</a> <a href='#Image_Info_Alpha_Type'>Alpha_Type</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_alphaType'>alphaType</a>() must
+match. If <a href='SkImage_Reference#Image'>Image</a> <a href='#Color_Space'>Color_Space</a> is nullptr, <a href='#SkImage_readPixels_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_colorSpace'>colorSpace</a>() must match. Returns
+false if <a href='undocumented#Pixel'>pixel</a> conversion is not possible.
 
 <a href='#SkImage_readPixels_srcX'>srcX</a> and <a href='#SkImage_readPixels_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
-false if <a href='#SkImage_width'>width</a>() or <a href='#SkImage_height'>height</a>() is zero or negative.
+false if <a href='#SkImage_width'>width()</a> or <a href='#SkImage_height'>height()</a> is zero or negative.
 Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_width'>width</a>(\)</code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_height'>height</a>(\)</code>.
 
-If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, pixels may be retained locally.
-If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a>, pixels are not added to the local cache.
+If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImage_kAllow_CachingHint'>kAllow_CachingHint</a>, pixels may be retained locally.
+If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImage_kDisallow_CachingHint'>kDisallow_CachingHint</a>, pixels are not added to the local cache.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkImage_readPixels_dstInfo'><code><strong>dstInfo</strong></code></a></td>
-    <td>destination width, height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, <a href='undocumented#Color_Space'>Color Space</a></td>
+    <td>destination width, height, Color_Type, Alpha_Type, Color_Space</td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_dstPixels'><code><strong>dstPixels</strong></code></a></td>
     <td>destination pixel storage</td>
@@ -2038,19 +2039,19 @@ If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImag
     <td>destination row length</td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_srcX'><code><strong>srcX</strong></code></a></td>
-    <td>column index whose absolute value is less than <a href='#SkImage_width'>width</a>()</td>
+    <td>column index whose absolute value is less than <a href='#SkImage_width'>width()</a></td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_srcY'><code><strong>srcY</strong></code></a></td>
-    <td>row index whose absolute value is less than <a href='#SkImage_height'>height</a>()</td>
+    <td>row index whose absolute value is less than <a href='#SkImage_height'>height()</a></td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_cachingHint'><code><strong>cachingHint</strong></code></a></td>
-    <td>one of: <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a></td>
+    <td>one of: kAllow_CachingHint, kDisallow_CachingHint</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if pixels are copied to <a href='#SkImage_readPixels_dstPixels'>dstPixels</a>
+true if pixels are copied to dstPixels
 
 ### Example
 
@@ -2068,55 +2069,55 @@ true if pixels are copied to <a href='#SkImage_readPixels_dstPixels'>dstPixels</
 bool <a href='#SkImage_readPixels'>readPixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst, int srcX, int srcY, <a href='#SkImage_CachingHint'>CachingHint</a> cachingHint = <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>) const
 </pre>
 
-Copies a <a href='SkRect_Reference#Rect'>Rect</a> of pixels from <a href='#Image'>Image</a> to <a href='#SkImage_readPixels_2_dst'>dst</a>. Copy starts at (<a href='#SkImage_readPixels_2_srcX'>srcX</a>, <a href='#SkImage_readPixels_2_srcY'>srcY</a>), and
-does not exceed <a href='#Image'>Image</a> (<a href='#SkImage_width'>width</a>(), <a href='#SkImage_height'>height</a>()).
+Copies a <a href='SkRect_Reference#Rect'>Rect</a> of pixels from <a href='SkImage_Reference#Image'>Image</a> to <a href='#SkImage_readPixels_2_dst'>dst</a>. Copy starts at (<a href='#SkImage_readPixels_2_srcX'>srcX</a>, <a href='#SkImage_readPixels_2_srcY'>srcY</a>), and
+does not exceed <a href='SkImage_Reference#Image'>Image</a> (<a href='#SkImage_width'>width()</a>, <a href='#SkImage_height'>height()</a>).
 
-<a href='#SkImage_readPixels_2_dst'>dst</a> specifies width, height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, <a href='undocumented#Color_Space'>Color Space</a>, pixel storage,
-and row bytes of destination. <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='SkPixmap_Reference#SkPixmap'>rowBytes</a> specifics the gap from one destination
+<a href='#SkImage_readPixels_2_dst'>dst</a> specifies width, height, <a href='#Image_Info_Color_Type'>Color_Type</a>, <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>, <a href='#Color_Space'>Color_Space</a>,  <a href='undocumented#Pixel_Storage'>pixel storage</a>,
+and row bytes of destination. <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='#SkPixmap_rowBytes'>rowBytes</a>() specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
-    <td><a href='#SkImage_readPixels_2_dst'>dst</a> pixel storage equals nullptr</td>
+    <td>dst pixel storage equals nullptr</td>
   </tr>  <tr>
-    <td><a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='SkPixmap_Reference#SkPixmap'>rowBytes</a> is less than <a href='SkImageInfo_Reference#SkImageInfo_minRowBytes'>SkImageInfo::minRowBytes</a></td>
+    <td>dst.rowBytes() is less than SkImageInfo::minRowBytes</td>
   </tr>  <tr>
-    <td><a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr</td>
+    <td>Pixel_Ref is nullptr</td>
   </tr>
 </table>
 
-<a href='#Pixels'>Pixels</a> are copied only if pixel conversion is possible. If <a href='#Image'>Image</a> <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> is
-<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='#SkImage_colorType'>colorType</a> must match.
-If <a href='#Image'>Image</a> <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='#SkImage_colorSpace'>colorSpace</a> must match.
-If <a href='#Image'>Image</a> <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='#SkImage_alphaType'>alphaType</a> must
-match. If <a href='#Image'>Image</a> <a href='undocumented#Color_Space'>Color Space</a> is nullptr, <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='#SkImage_colorSpace'>colorSpace</a> must match. Returns
-false if pixel conversion is not possible.
+Pixels are copied only if <a href='undocumented#Pixel'>pixel</a> conversion is possible. If <a href='SkImage_Reference#Image'>Image</a> <a href='#Image_Info_Color_Type'>Color_Type</a> is
+<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='#SkPixmap_colorType'>colorType</a>() must match.
+If <a href='SkImage_Reference#Image'>Image</a> <a href='#Image_Info_Color_Type'>Color_Type</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='#SkPixmap_colorSpace'>colorSpace</a>() must match.
+If <a href='SkImage_Reference#Image'>Image</a> <a href='#Image_Info_Alpha_Type'>Alpha_Type</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='#SkPixmap_alphaType'>alphaType</a>() must
+match. If <a href='SkImage_Reference#Image'>Image</a> <a href='#Color_Space'>Color_Space</a> is nullptr, <a href='#SkImage_readPixels_2_dst'>dst</a>.<a href='#SkPixmap_colorSpace'>colorSpace</a>() must match. Returns
+false if <a href='undocumented#Pixel'>pixel</a> conversion is not possible.
 
 <a href='#SkImage_readPixels_2_srcX'>srcX</a> and <a href='#SkImage_readPixels_2_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
-false if <a href='#SkImage_width'>width</a>() or <a href='#SkImage_height'>height</a>() is zero or negative.
+false if <a href='#SkImage_width'>width()</a> or <a href='#SkImage_height'>height()</a> is zero or negative.
 Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_width'>width</a>(\)</code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_height'>height</a>(\)</code>.
 
-If <a href='#SkImage_readPixels_2_cachingHint'>cachingHint</a> is <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, pixels may be retained locally.
-If <a href='#SkImage_readPixels_2_cachingHint'>cachingHint</a> is <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a>, pixels are not added to the local cache.
+If <a href='#SkImage_readPixels_2_cachingHint'>cachingHint</a> is <a href='#SkImage_kAllow_CachingHint'>kAllow_CachingHint</a>, pixels may be retained locally.
+If <a href='#SkImage_readPixels_2_cachingHint'>cachingHint</a> is <a href='#SkImage_kDisallow_CachingHint'>kDisallow_CachingHint</a>, pixels are not added to the local cache.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkImage_readPixels_2_dst'><code><strong>dst</strong></code></a></td>
-    <td>destination <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>: <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>, pixels, row bytes</td>
+    <td>destination Pixmap: Image_Info, pixels, row bytes</td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_2_srcX'><code><strong>srcX</strong></code></a></td>
-    <td>column index whose absolute value is less than <a href='#SkImage_width'>width</a>()</td>
+    <td>column index whose absolute value is less than <a href='#SkImage_width'>width()</a></td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_2_srcY'><code><strong>srcY</strong></code></a></td>
-    <td>row index whose absolute value is less than <a href='#SkImage_height'>height</a>()</td>
+    <td>row index whose absolute value is less than <a href='#SkImage_height'>height()</a></td>
   </tr>
   <tr>    <td><a name='SkImage_readPixels_2_cachingHint'><code><strong>cachingHint</strong></code></a></td>
-    <td>one of: <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a></td>
+    <td>one of: kAllow_CachingHint, kDisallow_CachingHint</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if pixels are copied to <a href='#SkImage_readPixels_2_dst'>dst</a>
+true if pixels are copied to dst
 
 ### Example
 
@@ -2248,16 +2249,16 @@ encoded <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkImage_encodeToData'>encodeToData</a>() const
 </pre>
 
-Encodes <a href='SkImage_Reference#SkImage'>SkImage</a> pixels, returning result as <a href='undocumented#SkData'>SkData</a>. Returns existing encoded <a href='undocumented#Data'>data</a>
-if present; otherwise, <a href='SkImage_Reference#SkImage'>SkImage</a> is encoded with <a href='undocumented#SkEncodedImageFormat'>SkEncodedImageFormat</a>::<a href='#SkEncodedImageFormat_kPNG'>kPNG</a>. Skia
-must be built with SK_HAS_PNG_LIBRARY to encode <a href='SkImage_Reference#SkImage'>SkImage</a>.
+Encodes SkImage pixels, returning result as SkData. Returns existing encoded data
+if present; otherwise, SkImage is encoded with SkEncodedImageFormat::kPNG. Skia
+must be built with SK_HAS_PNG_LIBRARY to encode SkImage.
 
-Returns nullptr if existing encoded <a href='undocumented#Data'>data</a> is missing or invalid, and
+Returns nullptr if existing encoded data is missing or invalid, and
 encoding fails.
 
 ### Return Value
 
-encoded <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
+encoded SkImage, or nullptr
 
 ### Example
 
@@ -2275,15 +2276,15 @@ encoded <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkImage_refEncodedData'>refEncodedData</a>() const
 </pre>
 
-Returns encoded <a href='SkImage_Reference#SkImage'>SkImage</a> pixels as <a href='undocumented#SkData'>SkData</a>, if <a href='SkImage_Reference#SkImage'>SkImage</a> was created from supported
-encoded <a href='SkStream_Reference#Stream'>stream</a> format. Platform support for formats vary and may require building
+Returns encoded SkImage pixels as SkData, if SkImage was created from supported
+encoded stream format. Platform support for formats vary and may require building
 with one or more of: SK_HAS_JPEG_LIBRARY, SK_HAS_PNG_LIBRARY, SK_HAS_WEBP_LIBRARY.
 
-Returns nullptr if <a href='SkImage_Reference#SkImage'>SkImage</a> contents are not encoded.
+Returns nullptr if SkImage contents are not encoded.
 
 ### Return Value
 
-encoded <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
+encoded SkImage, or nullptr
 
 ### Example
 
@@ -2379,15 +2380,15 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeNonTextureImage'>makeNonTextureImage</a>() const
 </pre>
 
-Returns  <a href='#Raster_Image'>raster image</a> or  <a href='#Lazy_Image'>lazy image</a>. Copies <a href='SkImage_Reference#SkImage'>SkImage</a> backed by  <a href='undocumented#GPU_Texture'>GPU texture</a> into
-CPU memory if needed. Returns original <a href='SkImage_Reference#SkImage'>SkImage</a> if decoded in  <a href='undocumented#Raster_Bitmap'>raster bitmap</a>,
-or if encoded in a <a href='SkStream_Reference#Stream'>stream</a>.
+Returns raster image or lazy image. Copies SkImage backed by GPU texture into
+CPU memory if needed. Returns original SkImage if decoded in raster bitmap,
+or if encoded in a stream.
 
-Returns nullptr if backed by  <a href='undocumented#GPU_Texture'>GPU texture</a> and copy fails.
+Returns nullptr if backed by GPU texture and copy fails.
 
 ### Return Value
 
-<a href='#Raster_Image'>raster image</a>,  <a href='#Lazy_Image'>lazy image</a>, or nullptr
+raster image, lazy image, or nullptr
 
 ### Example
 
@@ -2405,15 +2406,15 @@ Returns nullptr if backed by  <a href='undocumented#GPU_Texture'>GPU texture</a>
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeRasterImage'>makeRasterImage</a>() const
 </pre>
 
-Returns  <a href='#Raster_Image'>raster image</a>. Copies <a href='SkImage_Reference#SkImage'>SkImage</a> backed by  <a href='undocumented#GPU_Texture'>GPU texture</a> into CPU memory,
-or decodes <a href='SkImage_Reference#SkImage'>SkImage</a> from  <a href='#Lazy_Image'>lazy image</a>. Returns original <a href='SkImage_Reference#SkImage'>SkImage</a> if decoded in
-<a href='undocumented#Raster_Bitmap'>raster bitmap</a>.
+Returns raster image. Copies SkImage backed by GPU texture into CPU memory,
+or decodes SkImage from lazy image. Returns original SkImage if decoded in
+raster bitmap.
 
-Returns nullptr if copy, decode, or <a href='undocumented#Pixel'>pixel</a> read fails.
+Returns nullptr if copy, decode, or pixel read fails.
 
 ### Return Value
 
-<a href='#Raster_Image'>raster image</a>, or nullptr
+raster image, or nullptr
 
 ### Example
 
@@ -2472,8 +2473,8 @@ filtered <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="85a76163138a2720ac003691d6363938" gpu="true"><div>In each frame of the animation, filtered <a href='#Image'>Image</a> is drawn in a different location.
-By translating canvas by returned offset, <a href='#Image'>Image</a> appears stationary.
+<div><fiddle-embed name="85a76163138a2720ac003691d6363938" gpu="true"><div>In each frame of the animation, filtered Image is drawn in a different location.
+By translating canvas by returned offset, Image appears stationary.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -2491,7 +2492,7 @@ By translating canvas by returned offset, <a href='#Image'>Image</a> appears sta
 </pre>
 
 Defines a callback function, taking one parameter of type <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> with
-no return value. Function is called when back-end texture is to be released.
+no return value. Function is called when back-end <a href='undocumented#Texture'>texture</a> is to be released.
 
 <a name='SkImage_MakeBackendTextureFromSkImage'></a>
 
@@ -2615,12 +2616,12 @@ true if <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a> was created
 bool <a href='#SkImage_isLazyGenerated'>isLazyGenerated</a>() const
 </pre>
 
-Returns true if <a href='SkImage_Reference#SkImage'>SkImage</a> is backed by an image-generator or other service that creates
-and caches its pixels or <a href='undocumented#Texture'>texture</a> on-demand.
+Returns true if SkImage is backed by an image-generator or other service that creates
+and caches its pixels or texture on-demand.
 
 ### Return Value
 
-true if <a href='SkImage_Reference#SkImage'>SkImage</a> is created as needed
+true if SkImage is created as needed
 
 ### Example
 

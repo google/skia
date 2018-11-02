@@ -8,7 +8,7 @@
 #Populate
 ##
 
-Matrix holds a 3x3 matrix for transforming coordinates. This allows mapping
+Matrix holds a 3 by 3 matrix for transforming coordinates. This allows mapping
 Points and Vectors with translation, scaling, skewing, rotation, and
 perspective.
 
@@ -108,7 +108,7 @@ for (int i = 0; i < 4; ++i) {
 #Populate
 ##
 
-Enum of bit fields for mask returned by getType.
+Enumeration of bit fields for mask returned by getType.
 Used to identify the complexity of Matrix, to optimize performance.
 
 #Const kIdentity_Mask 0
@@ -121,7 +121,7 @@ set if Matrix has translation
 ##
 #Const kScale_Mask 2
 #Line # scale Matrix ##
-set if Matrix has x or y scale
+set if Matrix scales x-axis or y-axis
 ##
 #Const kAffine_Mask 4
 #Line # skew or rotate Matrix ##
@@ -1723,7 +1723,7 @@ canvas->drawBitmap(source, 0, 0);
 #In Operators
 #Line # post-multiplies Matrix by inverse scale ##
 Sets Matrix to Matrix constructed from scaling by #Formula # (1/divx, 1/divy) ##,
-about pivot point (px, py), multiplied by Matrix.
+multiplied by Matrix.
 
 Returns false if either divx or divy is zero.
 
@@ -1902,10 +1902,10 @@ or may restrict Matrix to square scaling. If restricted, ScaleToFit specifies
 how Matrix maps to the side or center of the destination Rect.
 
 #Const kFill_ScaleToFit 0
-#Line # scales in x and y to fill destination Rect ##
-    Computes Matrix that scales in x and y independently, so that source Rect is
-    mapped to completely fill destination Rect. The aspect ratio of source Rect
-    may change.
+#Line # scales about x-axis and y-axis to fill destination Rect ##
+    Computes Matrix that scales about x-axis and y-axis independently, so that
+    source Rect is mapped to completely fill destination Rect. The aspect ratio
+    of source Rect may change.
 ##
 #Const kStart_ScaleToFit 1
 #Line # scales and aligns to left and top ##

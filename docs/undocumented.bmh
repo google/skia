@@ -14,7 +14,7 @@
  U16CPU int int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t size_t
  nullptr
  malloc() calloc() assert() std::move()
- C C++ SIZE_MAX C_FILE
+ C C++ SIZE_MAX C_FILE FILE
  CSS HTML
  affine destructor multitexturing representable subclasses descenders grayscale kerning unhinted
 

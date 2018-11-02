@@ -15,8 +15,8 @@ public:
 };
 </pre>
 
-Stack helper class calls <a href='SkCanvas_Reference#SkCanvas_restoreToCount'>SkCanvas::restoreToCount</a> when <a href='#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>
-goes out of scope. Use this to guarantee that the canvas is restored to a known
+Stack helper class calls <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_restoreToCount'>restoreToCount</a> when <a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>
+goes out of scope. Use this to guarantee that the <a href='SkCanvas_Reference#Canvas'>canvas</a> is restored to a known
 state.
 
 <a name='SkAutoCanvasRestore_SkCanvas_star'></a>
@@ -59,7 +59,7 @@ utility to restore <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> state on d
 <a href='#SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore</a>()
 </pre>
 
-Restores <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> to saved state. Destructor is called when container goes out of
+Restores SkCanvas to saved state. Destructor is called when container goes out of
 scope.
 
 ### See Also
@@ -74,8 +74,8 @@ scope.
 void <a href='#SkAutoCanvasRestore_restore'>restore</a>()
 </pre>
 
-Restores <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> to saved state immediately. Subsequent calls and
-~<a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a> have no effect.
+Restores SkCanvas to saved state immediately. Subsequent calls and
+~SkAutoCanvasRestore have no effect.
 
 ### Example
 

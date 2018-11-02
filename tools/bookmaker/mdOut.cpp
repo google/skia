@@ -309,6 +309,9 @@ struct BraceState {
 };
 
 bool MdOut::hasWordSpace(string wordSpace) const {
+    if (!fNames->fRefMap.size()) {
+        return false;
+    }
     for (NameMap* names = fNames; names; names = names->fParent) {
         if (names->fRefMap.end() != names->fRefMap.find(wordSpace)) {
             return true;
@@ -335,8 +338,9 @@ bool MdOut::phraseContinues(string phrase, string* priorWord, string* priorLink)
 
 // adds spaces to see if found word is part of registered phrase
 // adds parens to see if found word is all-lowercase function (parens must be in source as well)
-string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
-    TextParser matrixParser(fMethod->fFileName, refStart, refEnd, fMethod->fLineCount);
+string MdOut::addIncludeReferences(const char* refStart, const char* refEnd,
+        Resolvable resolvable) {
+    TextParser matrixParser(fLastDef->fFileName, refStart, refEnd, fLastDef->fLineCount);
     const char* bracket = matrixParser.anyOf("|=\n");
     bool inMatrix = bracket && ('|' == bracket[0] || '=' == bracket[0]);
     auto& globals = fBmhParser.fGlobalNames;
@@ -405,7 +409,7 @@ string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
         string link;
         bool found;
         // TODO: operators have complicated parsing possibilities; handle the easiest for now
-        if ("operator" == priorWord && '(' == separator.back()) {
+        if (fMethod && "operator" == priorWord && '(' == separator.back()) {
             TextParser parser(fMethod->fFileName, separatorStart, refEnd, fMethod->fLineCount);
             parser.skipToEndBracket('(');
             const char* parenStart = parser.fChar;
@@ -416,7 +420,7 @@ string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
             priorLink = "";
             priorSeparator = "";
         }
-        {
+        if (fNames->fLinkMap.size()) {
             auto paramIter = fNames->fRefMap.find(word);
             if ((found = fNames->fRefMap.end() != paramIter) && paramIter->second) {
                 SkAssertResult(fNames->fLinkMap.end() != fNames->fLinkMap.find(word));
@@ -425,9 +429,10 @@ string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
         }
         if (!found && ("." == separator || "->" == separator || "()." == separator
                     || "()->" == separator)) {
-            if (('f' == word[0] && isupper(word[1])) || "()" == word.substr(word.length() - 2)
-                    || (end + 2 <= refEnd && "()" == string(end, 2))) {
-                if (fNames->fRefMap.end() != fNames->fRefMap.find(priorWord)) {
+            if (word.length() >= 2 && (('f' == word[0] && isupper(word[1]))
+                    || "()" == word.substr(word.length() - 2)
+                    || (end + 2 <= refEnd && "()" == string(end, 2)))) {
+                if (fMethod && fNames->fRefMap.end() != fNames->fRefMap.find(priorWord)) {
             // find prior word's type in fMethod
                     TextParser parser(fMethod);
                     SkAssertResult(parser.containsWord(priorWord.c_str(), parser.fEnd,
@@ -469,21 +474,24 @@ string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
                     }
                     if (parentRefMap.end() != priorIter) {
                         Definition* priorDef = priorIter->second;
-                        TextParser parser(priorDef->fFileName, priorDef->fStart,
-                                priorDef->fContentStart, priorDef->fLineCount);
-                        parser.skipExact("#Method ");
-                        parser.skipSpace();
-                        parser.skipExact("const ");  // optional
-                        parser.skipSpace();
-                        const char* start = parser.fChar;
-                        parser.skipToNonAlphaNum();
-                        string structName(start, parser.fChar - start);
-                        structName += "::" + word;
-                        auto defIter = globals.fRefMap.find(structName);
-                        if (globals.fRefMap.end() != defIter) {
-                            found = true;
-                            SkASSERT(globals.fLinkMap.end() != globals.fLinkMap.find(structName));
-                            link = globals.fLinkMap[structName];
+                        if (priorDef) {
+                            TextParser parser(priorDef->fFileName, priorDef->fStart,
+                                    priorDef->fContentStart, priorDef->fLineCount);
+                            parser.skipExact("#Method ");
+                            parser.skipSpace();
+                            parser.skipExact("const ");  // optional
+                            parser.skipSpace();
+                            const char* start = parser.fChar;
+                            parser.skipToNonAlphaNum();
+                            string structName(start, parser.fChar - start);
+                            structName += "::" + word;
+                            auto defIter = globals.fRefMap.find(structName);
+                            if (globals.fRefMap.end() != defIter) {
+                                found = true;
+                                SkASSERT(globals.fLinkMap.end()
+                                        != globals.fLinkMap.find(structName));
+                                link = globals.fLinkMap[structName];
+                            }
                         }
                     }
                 }
@@ -505,11 +513,55 @@ string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
         if (!found) {
             found = globals.fRefMap.end() != globals.fRefMap.find(word + ' ');
         }
-        if (!found) {
-            found = globals.fRefMap.end() != globals.fRefMap.find(word + "()");
+        if (!found && (word.size() < 2 || "()" != word.substr(word.size() - 2))) {
+            found = this->findLink(word + "()", &link);
         }
-        if (!found) {
-            if (!inMatrix) {
+        if (!found && Resolvable::kInclude != resolvable) {
+            found = this->findLink(word, &link, fBmhParser.fTopicMap);
+            if (!found) {
+                found = this->findLink(word, &link, fBmhParser.fAliasMap);
+            }
+            if (!found && fSubtopic) {
+                if ((found = fSubtopic->fName == word)) {
+                    link = '#' + fSubtopic->fFiddle;
+                }
+                if (!found) {
+                    const Definition* rootTopic = fSubtopic->subtopicParent();
+                    if (rootTopic && (found = rootTopic->fName == word)) {
+                        link = '#' + rootTopic->fFiddle;
+                    }
+                }
+            }
+            if (!found && fRoot) {
+                string test = fRoot->fName + "::" + word;
+                auto rootIter = fRoot->fLeaves.find(test);
+                if ((found = fRoot->fLeaves.end() != rootIter)) {
+                    link = '#' + rootIter->second.fFiddle;
+                }
+            }
+        }
+        // stop short of parsing example; just look to see if it contains word in description
+        if (!found && fLastDef && MarkType::kDescription == fLastDef->fMarkType) {
+            Definition* example = fLastDef->fParent;
+            if (MarkType::kExample == example->fMarkType) {
+                // maybe need a general function that searches block text excluding children
+                TextParser exParse(example->fFileName, example->fChildren.back()->fContentEnd,
+                        example->fContentEnd, example->fLineCount);
+                found = exParse.containsWord(word.c_str(), exParse.fEnd, nullptr);
+            }
+        }
+        if (!found && isupper(word[0]) && string::npos != word.find('_')) {
+            const Definition* topical = fSubtopic;
+            do {
+                string subtopic = topical->fName + '_' + word;
+                if ((found = this->findLink(subtopic, &link, fBmhParser.fTopicMap))) {
+                    break;
+                }
+            } while ((topical = topical->topicParent()));
+        }
+        if (!found && !fInProgress) {
+            if (Resolvable::kInclude == resolvable ? !inMatrix :
+                    '"' != priorSeparator.back() || '"' != separator.back()) {
                 SkDebugf("word %s not found\n", word.c_str());
                 fBmhParser.fGlobalNames.fRefMap[word] = nullptr;
             }
@@ -528,7 +580,10 @@ string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
 string MdOut::addReferences(const char* refStart, const char* refEnd,
         Resolvable resolvable) {
     if (Resolvable::kInclude == resolvable) {  // test include resolving
-        return this->addIncludeReferences(refStart, refEnd);
+        return this->addIncludeReferences(refStart, refEnd, resolvable);
+    }
+    if (Resolvable::kYes == resolvable) {
+        return this->addIncludeReferences(refStart, refEnd, resolvable);
     }
     string result;
     MethodParser t(fRoot ? fRoot->fName : string(), fFileName, refStart, refEnd, fLineCount);
@@ -1115,6 +1170,18 @@ void MdOut::childrenOut(Definition* def, const char* start) {
         }
         end = child->fStart;
         if (Resolvable::kNo != resolvable) {
+            NameMap paramMap;
+            if (def->isRoot()) {
+                fNames = &def->asRoot()->fNames;
+            } else if (MarkType::kMethod == def->fMarkType) {
+                Definition* iMethod = fIncludeParser.findMethod(*def);
+                if (iMethod) {
+                    fMethod = iMethod;
+                    paramMap.fParent = &fBmhParser.fGlobalNames;
+                    paramMap.setParams(def, iMethod);
+                    fNames = &paramMap;
+                }
+            }
             this->resolveOut(start, end, resolvable);
         }
         this->markTypeOut(child, &prior);
@@ -1225,6 +1292,17 @@ bool MdOut::findLink(string word, string* linkPtr) {
                 return true;
             }
         }
+    }
+    return false;
+}
+
+bool MdOut::findLink(string word, string* linkPtr, unordered_map<string, Definition*>& map) {
+    auto mapIter = map.find(word);
+    if (map.end() != mapIter) {
+        if (mapIter->second) {
+            *linkPtr = '#' + mapIter->second->fFiddle;
+        }
+        return true;
     }
     return false;
 }
@@ -2180,45 +2258,13 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 SkASSERT(MarkType::kMethod == parent->fMarkType);
                 // retrieve parameters, return, description from include
                 Definition* iMethod = fIncludeParser.findMethod(*parent);
+                SkASSERT(iMethod);  // deprecated or 'in progress' functions should not include populate
                 bool wroteParam = false;
                 fMethod = iMethod;
                 NameMap paramMap;
-                Definition* pParent = def->csParent();
-                string parentName;
-                NameMap* parentMap;
-                if (pParent) {
-                    parentName = pParent->fName + "::";
-                    parentMap = &pParent->asRoot()->fNames;
-                } else {
-                    parentMap = &fBmhParser.fGlobalNames;
-                }
-                paramMap.fName = parentName + iMethod->fName;
-                paramMap.fParent = parentMap;
+                paramMap.fParent = &fBmhParser.fGlobalNames;
+                paramMap.setParams(def, iMethod);
                 fNames = &paramMap;
-                TextParser methParams(iMethod);
-                for (auto& param : iMethod->fTokens) {
-                    if (MarkType::kComment != param.fMarkType) {
-                        continue;
-                    }
-                    TextParser paramParser(&param);
-                    if (!paramParser.skipExact("@param ")) { // write parameters, if any
-                        continue;
-                    }
-                    paramParser.skipSpace();
-                    const char* start = paramParser.fChar;
-                    paramParser.skipToSpace();
-                    string paramName(start, paramParser.fChar - start);
-                #ifdef SK_DEBUG
-                    for (char c : paramName) {
-                        SkASSERT(isalnum(c) || '_' == c);
-                    }
-                #endif
-                    if (!methParams.containsWord(paramName.c_str(), methParams.fEnd, nullptr)) {
-                        param.reportError<void>("mismatched param name");
-                    }
-                    paramMap.fRefMap[paramName] = &param;
-                    paramMap.fLinkMap[paramName] = '#' + def->fFiddle + '_' + paramName;
-                }
                 for (auto& entry : iMethod->fTokens) {
                     if (MarkType::kComment != entry.fMarkType) {
                         continue;

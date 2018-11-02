@@ -1,14 +1,15 @@
 usingBookmaker
 ===
-<a href='#Bookmaker'>Bookmaker</a> generates markdown files to view documentation on skia.org, and generates includes for use in C++.
-<a href='#Bookmaker'>Bookmaker</a> reads canonical documentation from files suffixed with bmh in the docs directory. These bmh
+<a href='usingBookmaker#Bookmaker'>Bookmaker</a> generates markdown files to view documentation on skia.org, and generates includes for use in C++.
+Bookmaker reads canonical documentation from files suffixed with bmh in the docs directory. These bmh
 files describe how public interfaces work, and generate Skia fiddle examples to illustrate them.
 
 The docs files must be manually edited to stay current with Skia as it evolves.
 
 <a name='Installing'></a>
 
-Install <a href='https://golang.org/doc/install'>Go</a></a> if needed.
+Install
+<a href='https://golang.org/doc/install'>Go</a></a> if needed.
 Check the version. The results should be 1.10 or greater.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -34,7 +35,7 @@ If fiddlecli is already installed but out of date, update with:
 $ go get -u go.skia.org/infra/fiddlek/go/fiddlecli
 </pre>
 
-Build <a href='#Bookmaker'>Bookmaker</a>.
+Build Bookmaker.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ninja -C out/skia bookmaker
@@ -42,7 +43,7 @@ $ ninja -C out/skia bookmaker
 
 <a name='Running'></a>
 
-<a href='#Bookmaker'>Bookmaker</a> extracts examples, generates example hashes with fiddle, and generates web markdown
+<a href='usingBookmaker#Bookmaker'>Bookmaker</a> extracts examples, generates example hashes with fiddle, and generates web markdown
 and c++ includes.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -57,7 +58,9 @@ cross-check...................
 
 <a name='Broken_Build'></a>
 
-The bots <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> and <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> verify that <a href='#Bookmaker'>Bookmaker</a> data in docs builds without error and is consistent with include files it documents.
+The bots
+<a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> and
+<a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> verify that Bookmaker data in docs builds without error and is consistent with include files it documents.
 
 Possible failures include:
 
@@ -71,14 +74,15 @@ Possible failures include:
 </table>
 
 Editing comments in includes or editing private interfaces will not break the bots.
-<a href='#Bookmaker'>Bookmaker</a> detects that comments edited in includes do not match comments in docs; it will generate an updated include in the
+Bookmaker detects that comments edited in includes do not match comments in docs; it will generate an updated include in the
 directory where it is run.
 
-If <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> bot is red, the error is usually related to an edit to an include which has not been reflected in docs.
+If
+<a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> bot is red, the error is usually related to an edit to an include which has not been reflected in docs.
 
 To fix this, edit the docs file corresponding to the changed include file.
 
-For instance, if the change was made to <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, edit docs/SkIRect_Reference.bmh.
+For instance, if the change was made to SkIRect, edit docs/SkIRect_Reference.bmh.
 Checking in the edited docs/SkIRect_Reference.bmh will fix the bot.
 
 If the interface is deprecated, but still present in the interface, mark-up the
@@ -98,7 +102,8 @@ Use
 
 if the change is soon to be deprecated.
 
-If <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> bot is red, one of several things may have gone wrong:
+If
+<a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> bot is red, one of several things may have gone wrong:
 
 <table>  <tr>
     <td>A change to include broke documentation examples.</td>
@@ -114,14 +119,14 @@ If <a href='https://status.skia.org/repo/skia?filter=search&search_value=Houseke
 The bot output describes what changed, and includes the file and line
 where the error occurred.
 
-To regenerate the documentation, follow the <a href='#Installing'>Installing</a> and <a href='#Regenerate'>Regenerate</a> steps below.
+To regenerate the documentation, follow the Installing and Regenerate steps below.
 
 <a name='Editing_Comments'></a>
 
 Edit docs instead of include/core files to update comments if possible.
 
-The <a href='#Bookmaker'>Bookmaker</a> bots do not complain if the docs file does not match the
-corresponding include comments. <a href='#Running'>Running</a> <a href='#Bookmaker'>Bookmaker</a> include generation will
+The Bookmaker bots do not complain if the docs file does not match the
+corresponding include comments. Running Bookmaker include generation will
 report when docs and includes comments do not match.
 
 For instance, if include/core/SkSurface.h comments do not match
@@ -138,12 +143,12 @@ wrote updated <a href='SkSurface_Reference#SkSurface'>SkSurface</a>.h
 </pre>
 
 The updated SkSurface.h is written to the root to avoid subsequent runs of
-<a href='#Bookmaker'>Bookmaker</a> from recompiling. if SkSurface.h was not changed, it is not written,
-and <a href='#Bookmaker'>Bookmaker</a> will not generate any output.
+Bookmaker from recompiling. if SkSurface.h was not changed, it is not written,
+and Bookmaker will not generate any output.
 
 <a name='Broken_Example'></a>
 
-An example may cause <a href='#Bookmaker'>Bookmaker</a> or a bot running <a href='#Bookmaker'>Bookmaker</a> to fail if it fails to compile.
+An example may cause Bookmaker or a bot running Bookmaker to fail if it fails to compile.
 
 Fix the example by pasting it into <a href='https://fiddle.skia.org'>Skia Fiddle</a></a> and editing it until it runs successfully.
 
@@ -159,8 +164,7 @@ to
 #NoExample
 </pre>
 
-.
-The disabled example can contain additional markup, which will be ignored.
+. The disabled example can contain additional markup, which will be ignored.
 
 <a name='Regenerate'></a>
 
@@ -177,7 +181,7 @@ $ ./out/dir/bookmaker -a docs/status.json -p
 
 <a name='New_Documentation'></a>
 
-Generate an starter <a href='#Bookmaker'>Bookmaker</a> file from an existing include.
+Generate an starter Bookmaker file from an existing include.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -i include/core/SkXXX.h -t docs
@@ -253,8 +257,8 @@ an example, and any cross references.
 Each method must contain either one or more examples or markup indicating
 that there is no example.
 
-After editing is complete, searching for "" should fail,
-assuming "" is not the perfect word to use in a description or
+After editing is complete, searching for "incomplete" should fail,
+assuming "incomplete" is not the perfect word to use in a description or
 example!
 
 <a name='Adding_Documentation'></a>
@@ -262,7 +266,7 @@ example!
 Generate fiddle.json from all examples, including the ones you just wrote.
 Error checking is syntatic: starting keywords are closed, keywords have the
 correct parents.
-If you run <a href='#Bookmaker'>Bookmaker</a> inside Visual_Studio, you can click on errors and it
+If you run Bookmaker inside Visual_Studio, you can click on errors and it
 will take you to the source line in question.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -311,5 +315,6 @@ any of the above commands with -a docs/status.json in place of
 
 <a name='Bugs'></a>
 
-<a href='#Bookmaker'>Bookmaker</a> bugs are tracked <a href='https://bug.skia.org/6898'>here</a></a> .
+Bookmaker bugs are tracked
+<a href='https://bug.skia.org/6898'>here</a></a> .
 
