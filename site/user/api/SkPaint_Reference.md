@@ -204,7 +204,7 @@ public:
         bool <a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const;
     };
 
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics, <a href='undocumented#SkScalar'>SkScalar</a> scale = 0) const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics) const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>() const;
     int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* text, size_t byteLength,
                      <a href='undocumented#SkGlyphID'>SkGlyphID</a> glyphs[]) const;
@@ -4365,7 +4365,7 @@ true if <a href='undocumented#Font'>font</a> specifies strikeout <a href='#SkPai
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics, <a href='undocumented#SkScalar'>SkScalar</a> scale = 0) const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics) const
 </pre>
 
 Returns <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> associated with <a href='undocumented#SkTypeface'>SkTypeface</a>.
@@ -4375,16 +4375,11 @@ If <a href='#SkPaint_getFontMetrics_metrics'>metrics</a> is not nullptr, <a href
 Results are scaled by  <a href='#Text_Size'>text size</a> but does not take into account
 dimensions required by   <a href='#Text_Scale_X'>text scale x</a>,   <a href='#Text_Skew_X'>text skew x</a>,  <a href='#Fake_Bold'>fake bold</a>,
 <a href='#Style_Stroke'>style stroke</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
-Results can be additionally scaled by <a href='#SkPaint_getFontMetrics_scale'>scale</a>; a <a href='#SkPaint_getFontMetrics_scale'>scale</a> of zero
-is ignored.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_getFontMetrics_metrics'><code><strong>metrics</strong></code></a></td>
     <td>storage for <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> from <a href='undocumented#SkTypeface'>SkTypeface</a>; may be nullptr</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getFontMetrics_scale'><code><strong>scale</strong></code></a></td>
-    <td>additional multiplier for returned values</td>
   </tr>
 </table>
 
