@@ -409,8 +409,10 @@ bool SkPngEncoder::onEncodeRows(int numRows) {
 
     const void* srcRow = fSrc.addr(0, fCurrRow);
     for (int y = 0; y < numRows; y++) {
-        fEncoderMgr->proc()((char*) fStorage.get(), (const char*) srcRow, fSrc.width(),
-                            SkColorTypeBytesPerPixel(fSrc.colorType()), nullptr);
+        fEncoderMgr->proc()((char*)fStorage.get(),
+                            (const char*)srcRow,
+                            fSrc.width(),
+                            SkColorTypeBytesPerPixel(fSrc.colorType()));
 
         png_bytep rowPtr = (png_bytep) fStorage.get();
         png_write_rows(fEncoderMgr->pngPtr(), &rowPtr, 1);

@@ -124,8 +124,6 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
         return false;
     }
 
-    const SkPMColor* colors = nullptr;
-
     WebPConfig webp_config;
     if (!WebPConfigPreset(&webp_config, WEBP_PRESET_DEFAULT, opts.fQuality)) {
         return false;
@@ -169,7 +167,10 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
     // to RGB color space.
     std::unique_ptr<uint8_t[]> rgb(new uint8_t[rgbStride * pic.height]);
     for (int y = 0; y < pic.height; ++y) {
-        proc((char*) &rgb[y * rgbStride], (const char*) &src[y * rowBytes], pic.width, bpp, colors);
+        proc((char*) &rgb[y * rgbStride],
+             (const char*) &src[y * rowBytes],
+             pic.width,
+             bpp);
     }
 
     auto importProc = WebPPictureImportRGB;
