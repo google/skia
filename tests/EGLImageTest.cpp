@@ -143,8 +143,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Make a new texture ID in GL Context 0 from the EGL Image
     glCtx0->makeCurrent();
-    externalTexture.fTarget = GR_GL_TEXTURE_EXTERNAL;
-    externalTexture.fID = glCtx0->eglImageToExternalTexture(image);
+    externalTexture.fTarget = GR_GL_TEXTURE_2D;
+    externalTexture.fID = glCtx0->eglImageToExternalTexture(image, externalTexture.fTarget);
     if (0 == externalTexture.fID) {
         ERRORF(reporter, "Error converting EGL Image back to texture");
         cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
@@ -170,31 +170,31 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, proxy->mipMapped() == GrMipMapped::kNo);
     REPORTER_ASSERT(reporter, proxy->peekTexture()->texturePriv().mipMapped() == GrMipMapped::kNo);
 
-    REPORTER_ASSERT(reporter, proxy->textureType() == GrTextureType::kExternal);
+    REPORTER_ASSERT(reporter, proxy->textureType() == GrTextureType::k2D);
     REPORTER_ASSERT(reporter,
-                    proxy->peekTexture()->texturePriv().textureType() == GrTextureType::kExternal);
-    REPORTER_ASSERT(reporter, proxy->hasRestrictedSampling());
-    REPORTER_ASSERT(reporter, proxy->peekTexture()->texturePriv().hasRestrictedSampling());
+                    proxy->peekTexture()->texturePriv().textureType() == GrTextureType::k2D);
+    REPORTER_ASSERT(reporter, !proxy->hasRestrictedSampling());
+    REPORTER_ASSERT(reporter, !proxy->peekTexture()->texturePriv().hasRestrictedSampling());
 
-    // Should not be able to wrap as a RT
+    // Should be able to wrap as a RT because it's the source is regular texture.
     {
         sk_sp<GrRenderTargetContext> temp =
                 context0->contextPriv().makeBackendTextureRenderTargetContext(
                         backendTex, kBottomLeft_GrSurfaceOrigin, 1, nullptr);
-        if (temp) {
-            ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");
+        if (!temp) {
+            ERRORF(reporter, "Should be able to wrap an gl_texture_2D_image texture as a RT.");
         }
     }
 
     test_read_pixels(reporter, surfaceContext.get(), pixels.get(), "EGLImageTest-read");
 
-    // We should not be able to write to a EXTERNAL texture
-    test_write_pixels(reporter, surfaceContext.get(), false, "EGLImageTest-write");
-
     // Only test RT-config
     // TODO: why do we always need to draw to copy from an external texture?
     test_copy_from_surface(reporter, context0, surfaceContext->asSurfaceProxy(),
                            pixels.get(), true, "EGLImageTest-copy");
+
+    // We should be able to write to a gl_texture_2D_image texture
+    test_write_pixels(reporter, surfaceContext.get(), true, "EGLImageTest-write");
 
     cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
 }
