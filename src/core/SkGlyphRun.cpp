@@ -40,6 +40,13 @@ SkGlyphRun::SkGlyphRun(const SkPaint& basePaint,
         , fClusters{clusters}
         , fRunPaint{basePaint, runFont} {}
 
+SkGlyphRun::SkGlyphRun(const SkGlyphRun& that, const SkPaint& paint)
+    : fPositions{that.fPositions}
+    , fGlyphIDs{that.fGlyphIDs}
+    , fText{that.fText}
+    , fClusters{that.fClusters}
+    , fRunPaint{paint} {}
+
 void SkGlyphRun::eachGlyphToGlyphRun(SkGlyphRun::PerGlyph perGlyph) {
     SkPoint point;
     SkGlyphID glyphID;
@@ -53,11 +60,10 @@ void SkGlyphRun::eachGlyphToGlyphRun(SkGlyphRun::PerGlyph perGlyph) {
     };
 
     auto runSize = fGlyphIDs.size();
-    auto runPaint = run.mutablePaint();
     for (size_t i = 0; i < runSize; i++) {
         glyphID = fGlyphIDs[i];
         point = fPositions[i];
-        perGlyph(&run, runPaint);
+        perGlyph(run);
     }
 }
 

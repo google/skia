@@ -91,9 +91,10 @@ public:
                SkSpan<const SkGlyphID> glyphIDs,
                SkSpan<const char> text,
                SkSpan<const uint32_t> clusters);
+    SkGlyphRun(const SkGlyphRun& glyphRun, const SkPaint& paint);
 
     // A function that turns an SkGlyphRun into an SkGlyphRun for each glyph.
-    using PerGlyph = std::function<void (SkGlyphRun*, SkPaint*)>;
+    using PerGlyph = std::function<void (const SkGlyphRun&)>;
     void eachGlyphToGlyphRun(PerGlyph perGlyph);
 
     void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
@@ -102,7 +103,6 @@ public:
     SkSpan<const SkPoint> positions() const { return fPositions.toConst(); }
     SkSpan<const SkGlyphID> glyphsIDs() const { return fGlyphIDs; }
     const SkPaint& paint() const { return fRunPaint; }
-    SkPaint* mutablePaint() { return &fRunPaint; }
     SkSpan<const uint32_t> clusters() const { return fClusters; }
     SkSpan<const char> text() const { return fText; }
 
