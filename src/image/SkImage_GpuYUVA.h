@@ -23,6 +23,8 @@ struct SkYUVASizeInfo;
 // proxy will be stored and used for any future rendering.
 class SkImage_GpuYUVA : public SkImage_GpuBase {
 public:
+    friend class GrYUVAImageTextureMaker;
+
     SkImage_GpuYUVA(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkYUVColorSpace,
                     sk_sp<GrTextureProxy> proxies[], const SkYUVAIndex yuvaIndices[4],
                     GrSurfaceOrigin, sk_sp<SkColorSpace>, SkBudgeted);
@@ -34,6 +36,20 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef() const override;
 
     virtual bool onIsTextureBacked() const override { return SkToBool(fProxies[0].get()); }
+
+    virtual bool isYUVA() const override { return true; }
+    virtual bool asYUVATextureProxiesRef(sk_sp<GrTextureProxy> proxies[4],
+                                         SkYUVAIndex yuvaIndices[4],
+                                         SkYUVColorSpace* yuvColorSpace) const override {
+        for (int i = 0; i < 4; ++i) {
+            proxies[i] = fProxies[i];
+            yuvaIndices[i] = fYUVAIndices[i];
+        }
+        *yuvColorSpace = fYUVColorSpace;
+        return true;
+    }
+
+    bool canBeMipmapped(GrContext* context) const;
 
     /**
         Create a new SkImage_GpuYUVA that's very similar to SkImage created by MakeFromYUVATextures.
