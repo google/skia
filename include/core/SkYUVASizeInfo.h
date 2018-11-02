@@ -11,7 +11,7 @@
 #include "SkImageInfo.h"
 #include "SkSize.h"
 
-struct SkYUVASizeInfo {
+struct SK_API SkYUVASizeInfo {
     static constexpr auto kMaxCount = 4;
 
     SkISize     fSizes[kMaxCount];
