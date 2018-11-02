@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "820c6086_5013dc28",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-02T14:59:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad816f0c_cfc3e42b",
+      "revId": "89e48017917ade11d8eb6f5653b96903fd2729b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0f97050_d61f2c8c",
         "filename": "src/pdf/SkPDFBitmap.cpp",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "6ae4dd0b_7c87dec6",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-02T14:59:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0f97050_d61f2c8c",
+      "range": {
+        "startLine": 71,
+        "startChar": 16,
+        "endLine": 71,
+        "endChar": 21
+      },
+      "revId": "89e48017917ade11d8eb6f5653b96903fd2729b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "032d9bc6_d43f48a7",
         "filename": "src/pdf/SkPDFBitmap.cpp",
         "patchSetId": 1
@@ -56,6 +98,24 @@
       "revId": "89e48017917ade11d8eb6f5653b96903fd2729b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b57448e1_102ed699",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-02T14:59:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "032d9bc6_d43f48a7",
+      "revId": "89e48017917ade11d8eb6f5653b96903fd2729b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
