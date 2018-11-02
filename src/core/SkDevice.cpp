@@ -357,7 +357,7 @@ void SkBaseDevice::drawGlyphRunRSXform(
         SkGlyphRun transformedGlyphRun{glyphRun, transformingPaint};
         ctm.setConcat(originalCTM, ctm);
         this->setCTM(ctm);
-        SkGlyphRunList glyphRunList{&transformedGlyphRun};
+        SkGlyphRunList glyphRunList{transformedGlyphRun};
         this->drawGlyphRunList(glyphRunList);
     };
     run->eachGlyphToGlyphRun(perGlyph);
