@@ -397,9 +397,6 @@ static inline U8CPU SkReplicateNibble(unsigned nib) {
 #define SkGetPackedB4444(c)     (((unsigned)(c) >> SK_B4444_SHIFT) & 0xF)
 
 #define SkPacked4444ToA32(c)    SkReplicateNibble(SkGetPackedA4444(c))
-#define SkPacked4444ToR32(c)    SkReplicateNibble(SkGetPackedR4444(c))
-#define SkPacked4444ToG32(c)    SkReplicateNibble(SkGetPackedG4444(c))
-#define SkPacked4444ToB32(c)    SkReplicateNibble(SkGetPackedB4444(c))
 
 static inline SkPMColor16 SkPackARGB4444(unsigned a, unsigned r,
                                          unsigned g, unsigned b) {
