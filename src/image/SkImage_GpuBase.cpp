@@ -99,8 +99,11 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
     desc.fHeight = subset.height();
     desc.fConfig = proxy->config();
 
+    GrBackendFormat format;
+    proxy->backendFormat().copyToTexture2D(&format);
+
     sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
-        desc, proxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact, fBudgeted));
+        format, desc, proxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact, fBudgeted));
     if (!sContext) {
         return nullptr;
     }
@@ -252,9 +255,13 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) con
 
     sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
 
+    GrBackendFormat format;
+    proxy->backendFormat().copyToTexture2D(&format);
+
     sk_sp<GrRenderTargetContext> renderTargetContext(
         fContext->contextPriv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kExact, this->width(), this->height(), proxy->config(), nullptr));
+            format, SkBackingFit::kExact, this->width(), this->height(),
+            proxy->config(), nullptr));
     if (!renderTargetContext) {
         return nullptr;
     }

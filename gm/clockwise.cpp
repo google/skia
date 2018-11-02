@@ -158,9 +158,9 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
 
     // Draw the test to an off-screen, top-down render target.
     if (auto topLeftRTC = ctx->contextPriv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kExact, 100, 200, rtc->asSurfaceProxy()->config(),
-                    nullptr, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr,
-                    SkBudgeted::kYes)) {
+                    rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 100, 200,
+                    rtc->asSurfaceProxy()->config(), nullptr, 1, GrMipMapped::kNo,
+                    kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
@@ -173,9 +173,9 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
 
     // Draw the test to an off-screen, bottom-up render target.
     if (auto topLeftRTC = ctx->contextPriv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kExact, 100, 200, rtc->asSurfaceProxy()->config(),
-                    nullptr, 1, GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, nullptr,
-                    SkBudgeted::kYes)) {
+                    rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 100, 200,
+                    rtc->asSurfaceProxy()->config(), nullptr, 1, GrMipMapped::kNo,
+                    kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
