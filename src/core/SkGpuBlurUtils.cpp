@@ -117,8 +117,12 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrContext* context,
 
     GrPixelConfig config = get_blur_config(proxy.get());
 
+    GrBackendFormat format;
+    proxy->backendFormat().copyToTexture2D(&format);
+
     sk_sp<GrRenderTargetContext> renderTargetContext;
     renderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
+                                                         format,
                                                          dstFit, dstII.width(), dstII.height(),
                                                          config, dstII.refColorSpace(),
                                                          1, GrMipMapped::kNo,
@@ -159,8 +163,12 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
 
     GrPixelConfig config = get_blur_config(proxy.get());
 
+    GrBackendFormat format;
+    proxy->backendFormat().copyToTexture2D(&format);
+
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
     dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
+                                                                format,
                                                                 fit, srcRect.width(),
                                                                 srcRect.height(),
                                                                 config,
@@ -275,11 +283,15 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
 
+    GrBackendFormat format;
+    src->backendFormat().copyToTexture2D(&format);
+
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
 
         // We know this will not be the final draw so we are free to make it an approx match.
         dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
+                                                    format,
                                                     SkBackingFit::kApprox,
                                                     dstRect.fRight,
                                                     dstRect.fBottom,
@@ -381,8 +393,12 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
 
     GrPixelConfig config = get_blur_config(srcProxy.get());
 
+    GrBackendFormat format;
+    srcProxy->backendFormat().copyToTexture2D(&format);
+
     sk_sp<GrRenderTargetContext> dstRenderTargetContext =
-        context->contextPriv().makeDeferredRenderTargetContext(fit, dstII.width(), dstII.height(),
+        context->contextPriv().makeDeferredRenderTargetContext(format,
+                                                               fit, dstII.width(), dstII.height(),
                                                                config, dstII.refColorSpace(),
                                                                1, GrMipMapped::kNo,
                                                                srcProxy->origin());

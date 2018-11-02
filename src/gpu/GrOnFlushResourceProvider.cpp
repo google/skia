@@ -13,7 +13,9 @@
 #include "GrRenderTargetContext.h"
 #include "GrSurfaceProxy.h"
 
+#if 0
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
+        const GrBackendFormat& format,
         const GrSurfaceDesc& desc,
         GrSurfaceOrigin origin,
         sk_sp<SkColorSpace> colorSpace,
@@ -28,8 +30,8 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     // will, when instantiated, have no pending IO.
     // TODO: fold the kNoPendingIO_Flag into GrSurfaceFlags?
     sk_sp<GrSurfaceProxy> proxy =
-            proxyProvider->createProxy(tmpDesc, origin, SkBackingFit::kExact, SkBudgeted::kYes,
-                                       GrInternalSurfaceFlags::kNoPendingIO);
+            proxyProvider->createProxy(format, tmpDesc, origin, SkBackingFit::kExact,
+                                       SkBudgeted::kYes, GrInternalSurfaceFlags::kNoPendingIO);
     if (!proxy || !proxy->asRenderTargetProxy()) {
         return nullptr;
     }
@@ -54,6 +56,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
 
     return renderTargetContext;
 }
+#endif
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
                                                         sk_sp<GrSurfaceProxy> proxy,

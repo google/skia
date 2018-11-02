@@ -16,6 +16,9 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
                         int rtHeight, const GrCaps& caps) {
     SkASSERT(!this->isInitialized());
 
+    const GrBackendFormat format = caps.getBackendFormatFromGrColorType(GrColorType::kAlpha_F16,
+                                                                        GrSRGBEncoded::kNo);
+
     fAtlasLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
             [this](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
@@ -40,8 +43,8 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
 
                 return sk_ref_sp(textureProxy->peekTexture());
             },
-            GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin, kAlpha_half_GrPixelConfig,
-            caps);
+            format, GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin,
+            kAlpha_half_GrPixelConfig, caps);
 
     fDeviceSpacePath = deviceSpacePath;
     fDeviceSpacePath.getBounds().roundOut(&fPathDevIBounds);
