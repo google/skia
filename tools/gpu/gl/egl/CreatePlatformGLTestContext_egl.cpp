@@ -56,7 +56,7 @@ public:
 
     GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
     void destroyEGLImage(GrEGLImage) const override;
-    GrGLuint eglImageToExternalTexture(GrEGLImage) const override;
+    GrGLuint eglImageToExternalTexture(GrEGLImage, GrGLenum target) const override;
     std::unique_ptr<sk_gpu_test::GLTestContext> makeNew() const override;
 
 private:
@@ -255,7 +255,7 @@ void EGLGLTestContext::destroyEGLImage(GrEGLImage image) const {
     GR_GL_CALL(this->gl(), EGLDestroyImage(fDisplay, image));
 }
 
-GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
+GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image, GrGLenum target) const {
     GrGLClearErr(this->gl());
     if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
         return 0;
@@ -272,12 +272,12 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
     if (!texID) {
         return 0;
     }
-    GR_GL_CALL_NOERRCHECK(this->gl(), BindTexture(GR_GL_TEXTURE_EXTERNAL, texID));
+    GR_GL_CALL_NOERRCHECK(this->gl(), BindTexture(target, texID));
     if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
         GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
     }
-    glEGLImageTargetTexture2D(GR_GL_TEXTURE_EXTERNAL, image);
+    glEGLImageTargetTexture2D(target, image);
     if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
         GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
