@@ -125,7 +125,7 @@ class SkGlyphRunList {
     // should be used for nothing else
     const SkTextBlob*  fOriginalTextBlob{nullptr};
     SkPoint fOrigin = {0, 0};
-    SkSpan<SkGlyphRun> fGlyphRuns;
+    SkSpan<const SkGlyphRun> fGlyphRuns;
 
 public:
     SkGlyphRunList();
@@ -134,9 +134,9 @@ public:
             const SkPaint& paint,
             const SkTextBlob* blob,
             SkPoint origin,
-            SkSpan<SkGlyphRun> glyphRunList);
+            SkSpan<const SkGlyphRun> glyphRunList);
 
-    SkGlyphRunList(SkGlyphRun* glyphRun);
+    SkGlyphRunList(const SkGlyphRun& glyphRun);
 
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
