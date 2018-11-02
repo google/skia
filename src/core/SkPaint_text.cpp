@@ -414,62 +414,6 @@ SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bound
     return width;
 }
 
-size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
-                          SkScalar* measuredWidth) const {
-    if (0 == length || 0 >= maxWidth) {
-        if (measuredWidth) {
-            *measuredWidth = 0;
-        }
-        return 0;
-    }
-
-    if (0 == fTextSize) {
-        if (measuredWidth) {
-            *measuredWidth = 0;
-        }
-        return length;
-    }
-
-    SkASSERT(textD != nullptr);
-    const char* text = (const char*)textD;
-    const char* stop = text + length;
-
-    SkCanonicalizePaint canon(*this);
-    const SkPaint& paint = canon.getPaint();
-    SkScalar scale = canon.getScale();
-
-    // adjust max in case we changed the textSize in paint
-    if (scale) {
-        maxWidth /= scale;
-    }
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
-
-    GlyphCacheProc   glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
-                                                                 false);
-    SkScalar         width = 0;
-
-    while (text < stop) {
-        const char* curr = text;
-        SkScalar x = advance(glyphCacheProc(cache.get(), &text, stop));
-        if ((width += x) > maxWidth) {
-            width -= x;
-            text = curr;
-            break;
-        }
-    }
-
-    if (measuredWidth) {
-        if (scale) {
-            width *= scale;
-        }
-        *measuredWidth = width;
-    }
-
-    // return the number of bytes measured
-    return text - stop + length;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkScalar SkPaint::getFontMetrics(FontMetrics* metrics) const {
