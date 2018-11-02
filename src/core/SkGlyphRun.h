@@ -224,13 +224,10 @@ private:
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
 
     size_t fMaxTotalRunSize{0};
-    SkAutoTMalloc<uint16_t> fUniqueGlyphIDIndices;
     SkAutoTMalloc<SkPoint> fPositions;
-    SkAutoTMalloc<SkGlyphID> fUniqueGlyphIDs;
 
     std::vector<SkGlyphRun> fGlyphRunListStorage;
     SkGlyphRunList fGlyphRunList;
-
 
     // Used as a temporary for preparing using utfN text. This implies that only one run of
     // glyph ids will ever be needed because blobs are already glyph based.
@@ -241,6 +238,8 @@ private:
 
     // Used for collecting the set of unique glyphs.
     SkGlyphIDSet fGlyphIDSet;
+    SkAutoTMalloc<SkGlyphID> fUniqueGlyphIDs;
+    SkAutoTMalloc<uint16_t> fUniqueGlyphIDIndices;
 };
 
 #endif  // SkGlyphRun_DEFINED
