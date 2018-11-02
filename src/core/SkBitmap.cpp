@@ -382,34 +382,7 @@ void* SkBitmap::getAddr(int x, int y) const {
 
     char* base = (char*)this->getPixels();
     if (base) {
-        base += y * this->rowBytes();
-        switch (this->colorType()) {
-            case kRGBA_F32_SkColorType:
-                base += x << 4;
-                break;
-            case kRGBA_F16_SkColorType:
-                base += x << 3;
-                break;
-            case kRGB_888x_SkColorType:
-            case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType:
-            case kRGB_101010x_SkColorType:
-            case kRGBA_1010102_SkColorType:
-                base += x << 2;
-                break;
-            case kARGB_4444_SkColorType:
-            case kRGB_565_SkColorType:
-                base += x << 1;
-                break;
-            case kAlpha_8_SkColorType:
-            case kGray_8_SkColorType:
-                base += x;
-                break;
-            default:
-                SkDEBUGFAIL("Can't return addr for config");
-                base = nullptr;
-                break;
-        }
+        base += (y * this->rowBytes()) + (x << this->shiftPerPixel());
     }
     return base;
 }
@@ -420,12 +393,9 @@ void* SkBitmap::getAddr(int x, int y) const {
 void SkBitmap::erase(SkColor c, const SkIRect& area) const {
     SkDEBUGCODE(this->validate();)
 
-    switch (this->colorType()) {
-        case kUnknown_SkColorType:
-            // TODO: can we ASSERT that we never get here?
-            return; // can't erase. Should we bzero so the memory is not uninitialized?
-        default:
-            break;
+    if (kUnknown_SkColorType == this->colorType()) {
+        // TODO: can we ASSERT that we never get here?
+        return; // can't erase. Should we bzero so the memory is not uninitialized?
     }
 
     SkPixmap result;
