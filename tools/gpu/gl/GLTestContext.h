@@ -38,9 +38,9 @@ public:
 
     /**
      * Used for testing EGLImage integration. Takes a EGLImage and wraps it in a
-     * GL_TEXTURE_EXTERNAL_OES.
+     * |target|.
      */
-    virtual GrGLuint eglImageToExternalTexture(GrEGLImage) const { return 0; }
+    virtual GrGLuint eglImageToExternalTexture(GrEGLImage, GrGLenum target) const { return 0; }
 
     void testAbandon() override;
 
