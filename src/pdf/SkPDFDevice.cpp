@@ -1050,9 +1050,6 @@ void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset)
     transparent.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
     transparent.setColor(SK_ColorTRANSPARENT);
     transparent.setTextSize(paint.getTextSize());
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-    transparent.setTextAlign(paint.getTextAlign());
-#endif
     transparent.setTextScaleX(paint.getTextScaleX());
     transparent.setTextSkewX(paint.getTextSkewX());
     SkGlyphRun tmp(glyphRun, transparent);

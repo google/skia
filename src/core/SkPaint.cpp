@@ -57,7 +57,6 @@ SkPaint::SkPaint() {
     fBitfields.fFlags        = SkPaintDefaults_Flags;
     fBitfields.fCapType      = kDefault_Cap;
     fBitfields.fJoinType     = kDefault_Join;
-    fBitfields.fTextAlign    = 0;   // kLeft_Align
     fBitfields.fStyle        = kFill_Style;
     fBitfields.fTextEncoding = kUTF8_TextEncoding;
     fBitfields.fHinting      = SkPaintDefaults_Hinting;
@@ -308,18 +307,6 @@ void SkPaint::setStrokeJoin(Join jt) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-void SkPaint::setTextAlign(Align align) {
-    if ((unsigned)align < kAlignCount) {
-        fBitfields.fTextAlign = SkToU8(align);
-    } else {
-#ifdef SK_REPORT_API_RANGE_CHECK
-        SkDebugf("SkPaint::setTextAlign(%d) out of range\n", align);
-#endif
-    }
-}
-#endif
 
 void SkPaint::setTextSize(SkScalar ts) {
     if (ts >= 0) {
