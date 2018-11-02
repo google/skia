@@ -7,7 +7,6 @@
 
 #include "SkArenaAlloc.h"
 #include "SkOverdrawColorFilter.h"
-#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 
