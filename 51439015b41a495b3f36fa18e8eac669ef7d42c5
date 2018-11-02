@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "95a05d97_bd9152c0",
+        "filename": "bench/DecodeBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-02T17:32:49Z",
+      "side": 1,
+      "message": "\u003e It looks like the list of test files is set by FLAGS_images? What\u0027s the idiomatic command\n\u003e line to run (is it \"nanobench something something\")? \n\nSorry, I missed this before. Yes, you run\n\n  nanobench --images \u003cpath to images folder\u003e --match Codec\n\n\u003e Where\u0027s the list of images that you benchmark on the bots?\n\nYou can download the images from the bots by running\n\n  infra/bots/assets/skimage/download.py\n\nYou need to set up some cloud storage stuff first. And I\u0027m not sure whether you need some special access for it besides being a Googler, but I\u0027ll look into that.\n\nOnce that succeeds, you\u0027ll have a folder with three folders inside. One of them is called nanobench, and it contains the images we run on the bots.",
+      "parentUuid": "ade77ea3_de51a9f6",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 17
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "052809ac_28015086",
         "filename": "bench/DecodeBench.cpp",
         "patchSetId": 1
