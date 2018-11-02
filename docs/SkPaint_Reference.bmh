@@ -3508,7 +3508,7 @@ void draw(SkCanvas* canvas) {
 
 #Struct ##
 
-#Method SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const
+#Method SkScalar getFontMetrics(FontMetrics* metrics) const
 
 #In Font_Metrics
 #Line # returns Typeface metrics scaled by text size ##
