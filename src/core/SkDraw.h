@@ -60,7 +60,7 @@ public:
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkPaint&) const;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
-    void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
+    void    drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint,
                              SkGlyphRunListPainter* glyphPainter) const;
     void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],

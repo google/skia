@@ -338,7 +338,7 @@ private:
     void reserve(size_t size);
     void allocInternal(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
                        int count, int textBytes, SkPoint offset, const SkRect* bounds);
-    bool mergeRun(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
+    bool mergeRun(const SkPaint& fontPaint, SkTextBlob::GlyphPositioning positioning,
                   uint32_t count, SkPoint offset);
     void updateDeferredBounds();
 

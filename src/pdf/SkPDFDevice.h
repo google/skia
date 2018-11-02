@@ -89,7 +89,7 @@ public:
                        const SkRect& dst,
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
@@ -130,7 +130,8 @@ public:
         int fGraphicStateIndex = -1;
     };
 
-    void DrawGlyphRunAsPath(SkPDFDevice* dev, const SkGlyphRun& glyphRun, SkPoint offset);
+    void DrawGlyphRunAsPath(
+            SkPDFDevice* dev, const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& paint);
 
 protected:
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
@@ -222,8 +223,8 @@ private:
                                             bool hasText,
                                             GraphicStateEntry* entry);
 
-    void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset);
-    void drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset);
+    void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& paint);
+    void drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& paint);
 
     void internalDrawImageRect(SkKeyedImage,
                                const SkRect* src,

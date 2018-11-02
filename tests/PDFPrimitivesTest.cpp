@@ -492,7 +492,7 @@ DEF_TEST(SkPDF_Primitives_Color, reporter) {
 static SkGlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* pos,
                            SkPaint paint, const uint32_t* clusters,
                            size_t utf8TextByteLength, const char* utf8Text) {
-    return SkGlyphRun(paint, SkRunFont{paint},
+    return SkGlyphRun(SkRunFont{paint},
                       SkSpan<const SkPoint>{pos, len},
                       SkSpan<const SkGlyphID>{glyphs, len},
                       SkSpan<const char>{utf8Text, utf8TextByteLength},

@@ -233,7 +233,7 @@ GrOpList* GrRenderTargetContext::getOpList() {
 
 void GrRenderTargetContext::drawGlyphRunList(
         const GrClip& clip, const SkMatrix& viewMatrix,
-        const SkGlyphRunList& blob) {
+        const SkGlyphRunList& blob, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -241,7 +241,7 @@ void GrRenderTargetContext::drawGlyphRunList(
 
     GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
     atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, viewMatrix,
-                                       fSurfaceProps, blob);
+                                       fSurfaceProps, blob, paint);
 }
 
 void GrRenderTargetContext::discard() {

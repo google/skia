@@ -871,10 +871,9 @@ void SkSVGDevice::drawBitmapRect(const SkBitmap& bm, const SkRect* srcOrNull,
 
 class SVGTextBuilder : SkNoncopyable {
 public:
-    SVGTextBuilder(SkPoint origin, const SkGlyphRun& glyphRun)
+    SVGTextBuilder(SkPoint origin, const SkGlyphRun& glyphRun, const SkPaint& paint)
             : fOrigin(origin)
             , fLastCharWasWhitespace(true) { // start off in whitespace mode to strip all leadingspace
-        const SkPaint& paint = glyphRun.paint();
         auto runSize = glyphRun.runSize();
         SkAutoSTArray<64, SkUnichar> unichars(runSize);
         paint.glyphsToUnichars(glyphRun.glyphsIDs().data(), runSize, unichars.get());
@@ -949,14 +948,13 @@ private:
     bool     fLastCharWasWhitespace;
 };
 
-void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
+void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
 
-    auto processGlyphRun = [this](SkPoint origin, const SkGlyphRun& glyphRun) {
-        const SkPaint& paint = glyphRun.paint();
+    auto processGlyphRun = [this, paint](SkPoint origin, const SkGlyphRun& glyphRun) {
         AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), paint);
         elem.addTextAttributes(paint);
 
-        SVGTextBuilder builder(origin, glyphRun);
+        SVGTextBuilder builder(origin, glyphRun, paint);
         elem.addAttribute("x", builder.posX());
         elem.addAttribute("y", builder.posY());
         elem.addText(builder.text());

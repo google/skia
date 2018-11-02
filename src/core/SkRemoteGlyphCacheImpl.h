@@ -93,20 +93,23 @@ public:
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override;
 
 protected:
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
 
 private:
-    void processGlyphRun(const SkPoint& origin, const SkGlyphRun& glyphRun);
+    void processGlyphRun(const SkPoint& origin, const SkGlyphRun& glyphRun, const SkPaint& paint);
 
     void processGlyphRunForMask(
-            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin);
+            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
+            SkPoint origin, const SkPaint& paint);
 
     void processGlyphRunForPaths(
-            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin);
+            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
+            SkPoint origin, const SkPaint& paint);
 
 #if SK_SUPPORT_GPU
     bool maybeProcessGlyphRunForDFT(
-            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin);
+            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
+            SkPoint origin, const SkPaint& paint);
 #endif
 
     SkStrikeServer* const fStrikeServer;

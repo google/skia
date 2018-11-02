@@ -114,7 +114,7 @@ void SkDraw::paintPaths(SkSpan<const SkGlyphRunListPainter::PathAndPos> pathsAnd
     }
 }
 
-void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList,
+void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint,
                               SkGlyphRunListPainter* glyphPainter) const {
 
     SkDEBUGCODE(this->validate();)
@@ -123,7 +123,7 @@ void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList,
         return;
     }
 
-    glyphPainter->drawForBitmapDevice(glyphRunList, *fMatrix, this);
+    glyphPainter->drawForBitmapDevice(glyphRunList, *fMatrix, this, paint);
 }
 
 #if defined _WIN32

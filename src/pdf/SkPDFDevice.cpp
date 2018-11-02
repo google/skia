@@ -1031,8 +1031,9 @@ static bool contains(const SkRect& r, SkPoint p) {
           r.top()  <= p.y() && p.y() <= r.bottom();
 }
 
-void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset) {
-    SkPaint paint{glyphRun.paint()};
+void SkPDFDevice::drawGlyphRunAsPath(
+        const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint) {
+    SkPaint paint{runPaint};
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
     SkPath path;
     SkASSERT(paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
@@ -1044,28 +1045,24 @@ void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset)
     path.offset(offset.x(), offset.y());
     this->drawPath(path, paint, true);
 
-    SkGlyphRun tmp(glyphRun);
-    {
-        SkPaint transparent;
-        transparent.setTypeface(paint.getTypeface() ? paint.refTypeface()
-                                                    : SkTypeface::MakeDefault());
-        transparent.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        transparent.setColor(SK_ColorTRANSPARENT);
-        transparent.setTextSize(paint.getTextSize());
+    SkPaint transparent;
+    transparent.setTypeface(paint.getTypeface() ? paint.refTypeface()
+                                                : SkTypeface::MakeDefault());
+    transparent.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    transparent.setColor(SK_ColorTRANSPARENT);
+    transparent.setTextSize(paint.getTextSize());
 #ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-        transparent.setTextAlign(paint.getTextAlign());
+    transparent.setTextAlign(paint.getTextAlign());
 #endif
-        transparent.setTextScaleX(paint.getTextScaleX());
-        transparent.setTextSkewX(paint.getTextSkewX());
-        *tmp.mutablePaint() = std::move(transparent);
-    }
+    transparent.setTextScaleX(paint.getTextScaleX());
+    transparent.setTextSkewX(paint.getTextSkewX());
     if (this->ctm().hasPerspective()) {
         SkMatrix prevCTM = this->ctm();
         this->setCTM(SkMatrix::I());
-        this->internalDrawGlyphRun(tmp, offset);
+        this->internalDrawGlyphRun(glyphRun, offset, transparent);
         this->setCTM(prevCTM);
     } else {
-        this->internalDrawGlyphRun(tmp, offset);
+        this->internalDrawGlyphRun(glyphRun, offset, transparent);
     }
 }
 
@@ -1087,11 +1084,12 @@ static bool needs_new_font(SkPDFFont* font, SkGlyphID gid, SkGlyphCache* cache,
     return convertedToType3 != bitmapOnly;
 }
 
-void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset) {
+void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset,
+        const SkPaint& runPaint) {
 
     const SkGlyphID* glyphs = glyphRun.glyphsIDs().data();
     uint32_t glyphCount = SkToU32(glyphRun.glyphsIDs().size());
-    SkPaint srcPaint{glyphRun.paint()};
+    SkPaint srcPaint{runPaint};
     srcPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
     if (!glyphCount || !glyphs || srcPaint.getTextSize() <= 0 || this->hasEmptyClip()) {
@@ -1103,7 +1101,7 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
         || this->ctm().hasPerspective()
         || SkPaint::kFill_Style != srcPaint.getStyle()) {
         // Stroked Text doesn't work well with Type3 fonts.
-        this->drawGlyphRunAsPath(glyphRun, offset);
+        this->drawGlyphRunAsPath(glyphRun, offset, runPaint);
     }
     SkPaint paint(srcPaint);
     remove_color_filter(&paint);
@@ -1259,9 +1257,9 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     }
 }
 
-void SkPDFDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
+void SkPDFDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     for (const SkGlyphRun& glyphRun : glyphRunList) {
-        this->internalDrawGlyphRun(glyphRun, glyphRunList.origin());
+        this->internalDrawGlyphRun(glyphRun, glyphRunList.origin(), paint);
     }
 }
 

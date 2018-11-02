@@ -210,36 +210,36 @@ SkBaseDevice* SkTextBlobCacheDiffCanvas::TrackLayerDevice::onCreateDevice(
 }
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::drawGlyphRunList(
-        const SkGlyphRunList& glyphRunList) {
+        const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     for (auto& glyphRun : glyphRunList) {
-        this->processGlyphRun(glyphRunList.origin(), glyphRun);
+        this->processGlyphRun(glyphRunList.origin(), glyphRun, paint);
     }
 }
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRun(
-        const SkPoint& origin, const SkGlyphRun& glyphRun) {
+        const SkPoint& origin, const SkGlyphRun& glyphRun, const SkPaint& paint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRun");
 
-    const SkPaint& runPaint = glyphRun.paint();
     const SkMatrix& runMatrix = this->ctm();
 
     // If the matrix has perspective, we fall back to using distance field text or paths.
     #if SK_SUPPORT_GPU
-    if (this->maybeProcessGlyphRunForDFT(glyphRun, runMatrix, origin)) {
+    if (this->maybeProcessGlyphRunForDFT(glyphRun, runMatrix, origin, paint)) {
         return;
     } else
     #endif
-    if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
-        this->processGlyphRunForPaths(glyphRun, runMatrix, origin);
+    if (SkDraw::ShouldDrawTextAsPaths(SkPaint{paint, glyphRun.font()}, runMatrix)) {
+        this->processGlyphRunForPaths(glyphRun, runMatrix, origin, paint);
     } else {
-        this->processGlyphRunForMask(glyphRun, runMatrix, origin);
+        this->processGlyphRunForMask(glyphRun, runMatrix, origin, paint);
     }
 }
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
-        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin) {
+        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
+        SkPoint origin, const SkPaint& paint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForMask");
-    const SkPaint& runPaint = glyphRun.paint();
+    SkPaint runPaint{paint, glyphRun.font()};
 
     SkScalerContextEffects effects;
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(
@@ -260,7 +260,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
     };
 
     fPainter.drawGlyphRunAsBMPWithPathFallback(
-            glyphCacheState, glyphRun, origin, runMatrix, perGlyph, perPath);
+            glyphCacheState, glyphRun, origin, runMatrix, paint, perGlyph, perPath);
 }
 
 struct ARGBHelper {
@@ -287,10 +287,10 @@ struct ARGBHelper {
 };
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
-        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin) {
+        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin,
+        const SkPaint& paint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
-    const SkPaint& runPaint = glyphRun.paint();
-    SkPaint pathPaint{runPaint};
+    SkPaint pathPaint{paint, glyphRun.font()};
 
     SkScalar textScale = pathPaint.setupForAsPaths();
 
@@ -307,15 +307,16 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
     ARGBHelper argbFallback{runMatrix, surfaceProps(), fStrikeServer};
 
     fPainter.drawGlyphRunAsPathWithARGBFallback(
-            glyphCacheState, glyphRun, origin, runMatrix, textScale, perPath, argbFallback);
+            glyphCacheState, glyphRun, origin, runMatrix, textScale, paint, perPath, argbFallback);
 }
 
 #if SK_SUPPORT_GPU
 bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
-        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin) {
+        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
+        SkPoint origin, const SkPaint& paint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::maybeProcessGlyphRunForDFT");
 
-    const SkPaint& runPaint = glyphRun.paint();
+    const SkPaint& runPaint{paint, glyphRun.font()};
 
     GrTextContext::Options options;
     options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
@@ -349,7 +350,7 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
     };
 
     fPainter.drawGlyphRunAsSDFWithARGBFallback(
-            sdfCache, glyphRun, origin, runMatrix, textRatio,
+            sdfCache, glyphRun, origin, runMatrix, textRatio, paint,
             perSDF, perPath, argbFallback);
 
     return true;

@@ -116,25 +116,25 @@ static SkMask create_mask(const SkGlyph& glyph, SkPoint position, const void* im
 
 void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
-        const BitmapDevicePainter* bitmapDevice) {
+        const BitmapDevicePainter* bitmapDevice, const SkPaint& paint) {
 
     SkPoint origin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
+        SkPaint runPaint{paint, glyphRun.font()};
         // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
         // convert the lcd text into A8 text. The props communicates this to the scaler.
-        auto& props = (kN32_SkColorType == fColorType && glyphRun.paint().isSrcOver())
+        auto& props = (kN32_SkColorType == fColorType && runPaint.isSrcOver())
                       ? fDeviceProps
                       : fBitmapFallbackProps;
 
-        const SkPaint& paint = glyphRun.paint();
         auto runSize = glyphRun.runSize();
         this->ensureBitmapBuffers(runSize);
 
-        if (ShouldDrawAsPath(paint, deviceMatrix)) {
+        if (ShouldDrawAsPath(runPaint, deviceMatrix)) {
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
                     fPositions, glyphRun.positions().data(), runSize);
             // setup our std pathPaint, in hopes of getting hits in the cache
-            SkPaint pathPaint(paint);
+            SkPaint pathPaint(runPaint);
             SkScalar textScale = pathPaint.setupForAsPaths();
 
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
@@ -292,12 +292,10 @@ SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo
 void GrTextContext::drawGlyphRunList(
         GrContext* context, GrTextTarget* target, const GrClip& clip,
         const SkMatrix& viewMatrix, const SkSurfaceProps& props,
-        const SkGlyphRunList& glyphRunList) {
+        const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     SkPoint origin = glyphRunList.origin();
 
-    // Get the first paint to use as the key paint.
-    const SkPaint& listPaint = glyphRunList.paint();
-    SkPMColor4f filteredColor = generate_filtered_color(listPaint, target->colorSpaceInfo());
+    SkPMColor4f filteredColor = generate_filtered_color(paint, target->colorSpaceInfo());
 
     // If we have been abandoned, then don't draw
     if (context->abandoned()) {
@@ -307,8 +305,8 @@ void GrTextContext::drawGlyphRunList(
     SkMaskFilterBase::BlurRec blurRec;
     // It might be worth caching these things, but its not clear at this time
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
-    const SkMaskFilter* mf = listPaint.getMaskFilter();
-    bool canCache = glyphRunList.canCache() && !(listPaint.getPathEffect() ||
+    const SkMaskFilter* mf = paint.getMaskFilter();
+    bool canCache = glyphRunList.canCache() && !(paint.getPathEffect() ||
                                                  (mf && !as_MFB(mf)->asABlur(&blurRec)));
     SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorSpaceInfo());
 
@@ -321,18 +319,17 @@ void GrTextContext::drawGlyphRunList(
         bool hasLCD = glyphRunList.anyRunsLCD();
 
         // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
-        SkPixelGeometry pixelGeometry = hasLCD ? props.pixelGeometry() :
-                                        kUnknown_SkPixelGeometry;
+        SkPixelGeometry pixelGeometry = hasLCD ? props.pixelGeometry() : kUnknown_SkPixelGeometry;
 
         // TODO we want to figure out a way to be able to use the canonical color on LCD text,
         // see the note on ComputeCanonicalColor above.  We pick a dummy value for LCD text to
         // ensure we always match the same key
         GrColor canonicalColor = hasLCD ? SK_ColorTRANSPARENT :
-                                 ComputeCanonicalColor(listPaint, hasLCD);
+                                 ComputeCanonicalColor(paint, hasLCD);
 
         key.fPixelGeometry = pixelGeometry;
         key.fUniqueID = glyphRunList.uniqueID();
-        key.fStyle = listPaint.getStyle();
+        key.fStyle = paint.getStyle();
         key.fHasBlur = SkToBool(mf);
         key.fCanonicalColor = canonicalColor;
         key.fScalerContextFlags = scalerContextFlags;
@@ -340,15 +337,15 @@ void GrTextContext::drawGlyphRunList(
     }
 
     if (cacheBlob) {
-        if (cacheBlob->mustRegenerate(listPaint, glyphRunList.anyRunsSubpixelPositioned(),
+        if (cacheBlob->mustRegenerate(paint, glyphRunList.anyRunsSubpixelPositioned(),
                                       blurRec, viewMatrix, origin.x(),origin.y())) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
             textBlobCache->remove(cacheBlob.get());
-            cacheBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, listPaint);
+            cacheBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, paint);
             this->regenerateGlyphRunList(cacheBlob.get(), glyphCache,
-                                         *context->contextPriv().caps()->shaderCaps(), listPaint,
+                                         *context->contextPriv().caps()->shaderCaps(), paint,
                                          filteredColor, scalerContextFlags, viewMatrix, props,
                                          glyphRunList, target->glyphPainter());
         } else {
@@ -358,27 +355,27 @@ void GrTextContext::drawGlyphRunList(
                 int glyphCount = glyphRunList.totalGlyphCount();
                 int runCount = glyphRunList.runCount();
                 sk_sp<GrTextBlob> sanityBlob(textBlobCache->makeBlob(glyphCount, runCount));
-                sanityBlob->setupKey(key, blurRec, listPaint);
+                sanityBlob->setupKey(key, blurRec, paint);
                 this->regenerateGlyphRunList(
                         sanityBlob.get(), glyphCache, *context->contextPriv().caps()->shaderCaps(),
-                        listPaint, filteredColor, scalerContextFlags, viewMatrix, props, glyphRunList,
+                        paint, filteredColor, scalerContextFlags, viewMatrix, props, glyphRunList,
                         target->glyphPainter());
                 GrTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
             }
         }
     } else {
         if (canCache) {
-            cacheBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, listPaint);
+            cacheBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, paint);
         } else {
             cacheBlob = textBlobCache->makeBlob(glyphRunList);
         }
         this->regenerateGlyphRunList(cacheBlob.get(), glyphCache,
-                                     *context->contextPriv().caps()->shaderCaps(), listPaint,
+                                     *context->contextPriv().caps()->shaderCaps(), paint,
                                      filteredColor, scalerContextFlags, viewMatrix, props,
                                      glyphRunList, target->glyphPainter());
     }
 
-    cacheBlob->flush(target, props, fDistanceAdjustTable.get(), listPaint, filteredColor,
+    cacheBlob->flush(target, props, fDistanceAdjustTable.get(), paint, filteredColor,
                      clip, viewMatrix, origin.x(), origin.y());
 }
 
@@ -453,11 +450,11 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
 
     SkPoint origin = glyphRunList.origin();
     cacheBlob->initReusableBlob(
-            glyphRunList.paint().computeLuminanceColor(), viewMatrix, origin.x(), origin.y());
+            paint.computeLuminanceColor(), viewMatrix, origin.x(), origin.y());
 
     int runIndex = 0;
     for (const auto& glyphRun : glyphRunList) {
-        const SkPaint& runPaint = glyphRun.paint();
+        const SkPaint& runPaint = SkPaint{paint, glyphRun.font()};
         cacheBlob->push_back_run(runIndex);
 
         cacheBlob->setRunPaintFlags(runIndex, runPaint.getFlags());
@@ -513,7 +510,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                                 glyphCache, filteredColor};
 
                 glyphPainter->drawGlyphRunAsSDFWithARGBFallback(
-                        cache.get(), glyphRun, origin, viewMatrix, textRatio,
+                        cache.get(), glyphRun, origin, viewMatrix, textRatio, paint,
                         std::move(perSDF), std::move(perPath), std::move(argbFallback));
             }
 
@@ -546,7 +543,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                             glyphCache, filteredColor};
 
             glyphPainter->drawGlyphRunAsPathWithARGBFallback(
-                pathCache.get(), glyphRun, origin, viewMatrix, textScale,
+                pathCache.get(), glyphRun, origin, viewMatrix, textScale, paint,
                 std::move(perPath), std::move(argbFallback));
         } else {
             // Ensure the blob is set for bitmaptext
@@ -585,7 +582,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                 };
 
             glyphPainter->drawGlyphRunAsBMPWithPathFallback(
-                    cache.get(), glyphRun, origin, viewMatrix,
+                    cache.get(), glyphRun, origin, viewMatrix, paint,
                     std::move(perGlyph), std::move(perPath));
         }
         runIndex += 1;

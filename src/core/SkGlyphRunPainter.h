@@ -43,12 +43,12 @@ public:
 
     void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
-            const BitmapDevicePainter* bitmapDevice);
+            const BitmapDevicePainter* bitmapDevice, const SkPaint& paint);
 
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-            SkPoint origin, const SkMatrix& deviceMatrix,
+            SkPoint origin, const SkMatrix& deviceMatrix, const SkPaint& paint,
             PerGlyphT&& perGlyph, PerPathT&& perPath);
 
     enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };
@@ -70,13 +70,13 @@ public:
     template <typename PerPath>
     void drawGlyphRunAsPathWithARGBFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-            SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
+            SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale, const SkPaint& paint,
             PerPath&& perPath, ARGBFallback&& fallbackARGB);
 
     template <typename PerSDFT, typename PerPathT>
     void drawGlyphRunAsSDFWithARGBFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-            SkPoint origin, const SkMatrix& viewMatrix, SkScalar textRatio,
+            SkPoint origin, const SkMatrix& viewMatrix, SkScalar textRatio, const SkPaint& paint,
             PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
 
 private:
@@ -129,7 +129,7 @@ inline static SkRect rect_to_draw(
 template <typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
         SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun,
-        SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
+        SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale, const SkPaint& paint,
         PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
     fARGBPositions.clear();
@@ -153,7 +153,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
 
     if (!fARGBGlyphsIDs.empty()) {
         this->processARGBFallback(
-            maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale,
+            maxFallbackDimension, paint, origin, viewMatrix, textScale,
             std::move(argbFallback));
 
     }
@@ -162,7 +162,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
 template <typename PerGlyphT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
         SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-        SkPoint origin, const SkMatrix& deviceMatrix,
+        SkPoint origin, const SkMatrix& deviceMatrix, const SkPaint& paint,
         PerGlyphT&& perGlyph, PerPathT&& perPath) {
 
     SkMatrix mapping = deviceMatrix;
@@ -198,7 +198,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
 template <typename PerSDFT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
         SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-        SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
+        SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale, const SkPaint& paint,
         PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
     fARGBPositions.clear();
@@ -224,8 +224,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
 
     if (!fARGBGlyphsIDs.empty()) {
         this->processARGBFallback(
-            maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale,
-            std::move(argbFallback));
+            maxFallbackDimension, paint, origin, viewMatrix, textScale, std::move(argbFallback));
     }
 }
 

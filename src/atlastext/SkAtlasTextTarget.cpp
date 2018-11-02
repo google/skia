@@ -165,7 +165,7 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     auto glyphRunList = builder.useGlyphRunList();
     if (!glyphRunList.empty()) {
         atlasTextContext->drawGlyphRunList(grContext, this, GrNoClip(), this->ctm(), props,
-                                           glyphRunList);
+                                           glyphRunList, paint);
     }
 }
 

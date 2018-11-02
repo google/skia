@@ -59,9 +59,9 @@ public:
 };
 
 // TODO(fmalita): replace with SkFont.
-class SkRunFont : SkNoncopyable {
+class SkRunFont {
 public:
-    SkRunFont(const SkPaint& paint);
+    explicit SkRunFont(const SkPaint& paint);
 
     void applyToPaint(SkPaint* paint) const;
 
@@ -72,6 +72,26 @@ public:
     }
 
     uint32_t flags() const { return fFlags; }
+
+    bool isLCDRenderText() const {
+        return SkToBool(fFlags & SkPaint::kLCDRenderText_Flag);
+    }
+
+    bool isSubpixelText() const {
+        return SkToBool(fFlags & SkPaint::kSubpixelText_Flag);
+    }
+
+    SkScalar getTextSize() const {
+        return fSize;
+    }
+
+    SkScalar getTextScaleX() const {
+        return fScaleX;
+    }
+
+    SkScalar getTextSkewX() const {
+        return fSkewX;
+    }
 
 private:
     friend SkPaint;

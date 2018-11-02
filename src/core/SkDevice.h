@@ -219,7 +219,7 @@ protected:
                               SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
-    virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList) = 0;
+    virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) = 0;
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
@@ -235,7 +235,7 @@ protected:
      */
     virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
 
-    void drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform);
+    void drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform, const SkPaint&);
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
@@ -416,7 +416,7 @@ protected:
     void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
                         SkCanvas::SrcRectConstraint) override {}
     void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {}
     void drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                       const SkPaint&) override {}
 

@@ -326,38 +326,40 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 #include "SkUtils.h"
 
-void SkBaseDevice::drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform) {
+void SkBaseDevice::drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform,
+        const SkPaint& paint) {
     const SkMatrix originalCTM = this->ctm();
-    if (!originalCTM.isFinite() || !SkScalarIsFinite(run->paint().getTextSize()) ||
-        !SkScalarIsFinite(run->paint().getTextScaleX()) ||
-        !SkScalarIsFinite(run->paint().getTextSkewX())) {
+    if (!originalCTM.isFinite() || !SkScalarIsFinite(run->font().getTextSize()) ||
+        !SkScalarIsFinite(run->font().getTextScaleX()) ||
+        !SkScalarIsFinite(run->font().getTextSkewX())) {
         return;
     }
-    sk_sp<SkShader> shader = sk_ref_sp(run->mutablePaint()->getShader());
-    auto perGlyph = [this, &xform, &originalCTM, shader] (
-            SkGlyphRun* glyphRun, SkPaint* runPaint) {
+
+    auto perGlyph = [this, &xform, &originalCTM] (
+            const SkGlyphRun& glyphRun, const SkPaint& runPaint) {
         SkMatrix ctm;
         ctm.setRSXform(*xform++);
 
+        SkPaint transformingPaint{runPaint};
+        auto shader = transformingPaint.getShader();
         // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
         // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
         // with a localmatrixshader so that the shader draws as if there was no change to the ctm.
         if (shader) {
             SkMatrix inverse;
             if (ctm.invert(&inverse)) {
-                runPaint->setShader(shader->makeWithLocalMatrix(inverse));
+                transformingPaint.setShader(shader->makeWithLocalMatrix(inverse));
             } else {
-                runPaint->setShader(nullptr);  // can't handle this xform
+                transformingPaint.setShader(nullptr);  // can't handle this xform
             }
         }
 
         ctm.setConcat(originalCTM, ctm);
         this->setCTM(ctm);
         SkGlyphRunList glyphRunList{glyphRun};
-        this->drawGlyphRunList(glyphRunList);
+        this->drawGlyphRunList(glyphRunList, runPaint);
     };
-    run->eachGlyphToGlyphRun(perGlyph);
-    run->mutablePaint()->setShader(shader);
+    run->eachGlyphToGlyphRun(perGlyph, paint);
     this->setCTM(originalCTM);
 }
 

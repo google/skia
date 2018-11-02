@@ -35,7 +35,7 @@ protected:
     void drawBitmapRect(const SkBitmap&,
                         const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint, SkCanvas::SrcRectConstraint) override;
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint& paint) override;
 

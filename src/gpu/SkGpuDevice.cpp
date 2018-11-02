@@ -1674,19 +1674,18 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
+void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
 
     // Check for valid input
     const SkMatrix& ctm = this->ctm();
-    const SkPaint& paint = glyphRunList.paint();
     if (!ctm.isFinite() || !SkScalarIsFinite(paint.getTextSize()) ||
         !SkScalarIsFinite(paint.getTextScaleX()) || !SkScalarIsFinite(paint.getTextSkewX())) {
         return;
     }
 
-    fRenderTargetContext->drawGlyphRunList(this->clip(), ctm, glyphRunList);
+    fRenderTargetContext->drawGlyphRunList(this->clip(), ctm, glyphRunList, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

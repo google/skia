@@ -425,7 +425,7 @@ void SkTextBlobBuilder::reserve(size_t size) {
     fStorage.realloc(safe ? fStorageSize : std::numeric_limits<size_t>::max());
 }
 
-bool SkTextBlobBuilder::mergeRun(const SkPaint &font, SkTextBlob::GlyphPositioning positioning,
+bool SkTextBlobBuilder::mergeRun(const SkPaint &fontPaint, SkTextBlob::GlyphPositioning positioning,
                                  uint32_t count, SkPoint offset) {
     if (0 == fLastRun) {
         SkASSERT(0 == fRunCount);
@@ -442,7 +442,7 @@ bool SkTextBlobBuilder::mergeRun(const SkPaint &font, SkTextBlob::GlyphPositioni
     }
 
     if (run->positioning() != positioning
-        || run->font() != font
+        || run->font() != SkRunFont{fontPaint}
         || (run->glyphCount() + count < run->glyphCount())) {
         return false;
     }

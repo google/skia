@@ -2445,7 +2445,7 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
         fScratchGlyphRunBuilder->drawText(
                 looper.paint(), text, byteLength, SkPoint::Make(x, y));
         auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
-        iter.fDevice->drawGlyphRunList(glyphRunList);
+        iter.fDevice->drawGlyphRunList(glyphRunList, paint);
     }
 
     LOOPER_END
@@ -2459,7 +2459,7 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     while (iter.next()) {
         fScratchGlyphRunBuilder->drawPosText(looper.paint(), text, byteLength, pos);
         auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
-        iter.fDevice->drawGlyphRunList(glyphRunList);
+        iter.fDevice->drawGlyphRunList(glyphRunList, paint);
     }
 
     LOOPER_END
@@ -2474,7 +2474,7 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
         fScratchGlyphRunBuilder->drawPosTextH(
                 looper.paint(), text, byteLength, xpos, constY);
         auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
-        iter.fDevice->drawGlyphRunList(glyphRunList);
+        iter.fDevice->drawGlyphRunList(glyphRunList, paint);
     }
 
     LOOPER_END
@@ -2493,7 +2493,7 @@ void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform x
         auto list = fScratchGlyphRunBuilder->useGlyphRunList();
         if (!list.empty()) {
             auto glyphRun = list[0];
-            iter.fDevice->drawGlyphRunRSXform(&glyphRun, xform);
+            iter.fDevice->drawGlyphRunRSXform(&glyphRun, xform, paint);
         }
     }
 
@@ -2519,7 +2519,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
     while (iter.next()) {
         fScratchGlyphRunBuilder->drawTextBlob(looper.paint(), *blob, SkPoint::Make(x, y));
-        iter.fDevice->drawGlyphRunList(fScratchGlyphRunBuilder->useGlyphRunList());
+        iter.fDevice->drawGlyphRunList(fScratchGlyphRunBuilder->useGlyphRunList(), paint);
     }
 
     LOOPER_END

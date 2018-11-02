@@ -560,8 +560,8 @@ void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPa
     BDDraw(this).drawSprite(bitmap, x, y, paint);
 }
 
-void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
-    LOOP_TILER( drawGlyphRunList(glyphRunList, &fGlyphPainter), nullptr )
+void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+    LOOP_TILER(drawGlyphRunList(glyphRunList, paint, &fGlyphPainter), nullptr )
 }
 
 void SkBitmapDevice::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
