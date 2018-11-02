@@ -67,6 +67,24 @@
       "revId": "fa2d490d4ff2f9b2050212748b3c9c6f7e33d135",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2ef1e2d_55c70940",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-02T17:00:56Z",
+      "side": 1,
+      "message": "How strongly do you feel about this? I\u0027m really partial to \"have as little code to maintain as possible\". This is a chunk of copy-pasted logic to avoid one branch in a loop, that\u0027s going to end up predicted perfectly in the case of an opaque source, anyway.",
+      "parentUuid": "41b7d1e3_f9f0d2ef",
+      "revId": "fa2d490d4ff2f9b2050212748b3c9c6f7e33d135",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
