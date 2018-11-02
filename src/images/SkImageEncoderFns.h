@@ -128,16 +128,6 @@ static inline void transform_scanline_4444(char* dst, const char* src, int width
     }
 }
 
-static inline void transform_scanline_888x(char* dst, const char* src, int width, int) {
-    while (width --> 0) {
-        dst[0] = src[0];
-        dst[1] = src[1];
-        dst[2] = src[2];
-        dst += 3;
-        src += 4;
-    }
-}
-
 static inline void transform_scanline_101010x(char* dst, const char* src, int width, int) {
     auto d = (      uint16_t*)dst;
     auto s = (const uint32_t*)src;

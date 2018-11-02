@@ -258,13 +258,12 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
         case kRGB_565_SkColorType:
             return transform_scanline_565;
         case kRGB_888x_SkColorType:
-            return transform_scanline_888x;
+            return transform_scanline_RGBX;
         case kARGB_4444_SkColorType:
             switch (info.alphaType()) {
                 case kOpaque_SkAlphaType:
                     return transform_scanline_444;
                 case kPremul_SkAlphaType:
-                    // 4444 is assumed to be legacy premul.
                     return transform_scanline_4444;
                 default:
                     SkASSERT(false);
