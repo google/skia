@@ -20,19 +20,16 @@ static inline SkScalar valid_size(SkScalar size) {
 }
 
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar skewX,
-               uint32_t flags, int align)
+               uint32_t flags)
     : fTypeface(face ? std::move(face) : SkTypeface::MakeDefault())
     , fSize(valid_size(size))
     , fScaleX(scaleX)
     , fSkewX(skewX)
     , fFlags(flags & kAllFlags)
-    , fAlign(SkToU8(align))
     , fHinting(kDefault_Hinting)
-{
-    SkASSERT(align >= 0 && align <= 2);
-}
+{}
 
-SkFont::SkFont() : SkFont(nullptr, kDefault_Size, 1, 0, kDefault_Flags, 0)
+SkFont::SkFont() : SkFont(nullptr, kDefault_Size, 1, 0, kDefault_Flags)
 {}
 
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, uint32_t flags)
@@ -171,10 +168,6 @@ void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
     paint->setLCDRenderText(SkToBool(fFlags & kDEPRECATED_LCDRender_Flag));
 
     paint->setHinting((SkPaint::Hinting)this->getHinting());
-
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-    paint->setTextAlign((SkPaint::Align)fAlign);
-#endif
 }
 
 SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
@@ -203,11 +196,7 @@ SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
     }
 
     SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
-                paint.getTextSkewX(), flags
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-                , (int)paint.getTextAlign()
-#endif
-                );
+                paint.getTextSkewX(), flags);
     font.setHinting((Hinting)paint.getHinting());
     return font;
 }

@@ -185,9 +185,6 @@ public:
         font.setTextScaleX(4.2f);
         font.setTypeface(SkTypeface::MakeDefault());
         font.setTextSkewX(0.42f);
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-        font.setTextAlign(SkPaint::kCenter_Align);
-#endif
         font.setHinting(SkPaint::kFull_Hinting);
         font.setAntiAlias(true);
         font.setFakeBoldText(true);
@@ -204,9 +201,6 @@ public:
         REPORTER_ASSERT(reporter, defaultPaint.getTextScaleX() != font.getTextScaleX());
         REPORTER_ASSERT(reporter, defaultPaint.getTypeface() != font.getTypeface());
         REPORTER_ASSERT(reporter, defaultPaint.getTextSkewX() != font.getTextSkewX());
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-        REPORTER_ASSERT(reporter, defaultPaint.getTextAlign() != font.getTextAlign());
-#endif
         REPORTER_ASSERT(reporter, defaultPaint.getHinting() != font.getHinting());
         REPORTER_ASSERT(reporter, defaultPaint.isAntiAlias() != font.isAntiAlias());
         REPORTER_ASSERT(reporter, defaultPaint.isFakeBoldText() != font.isFakeBoldText());
@@ -233,9 +227,6 @@ public:
             REPORTER_ASSERT(reporter, paint.getTextScaleX() == font.getTextScaleX());
             REPORTER_ASSERT(reporter, paint.getTypeface() == font.getTypeface());
             REPORTER_ASSERT(reporter, paint.getTextSkewX() == font.getTextSkewX());
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-            REPORTER_ASSERT(reporter, paint.getTextAlign() == font.getTextAlign());
-#endif
             REPORTER_ASSERT(reporter, paint.getHinting() == font.getHinting());
             REPORTER_ASSERT(reporter, paint.isAntiAlias() == font.isAntiAlias());
             REPORTER_ASSERT(reporter, paint.isFakeBoldText() == font.isFakeBoldText());

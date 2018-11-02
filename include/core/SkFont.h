@@ -52,8 +52,7 @@ public:
 
     SkFont();
     SkFont(sk_sp<SkTypeface>, SkScalar size, uint32_t flags);
-    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, uint32_t flags,
-           int align = 0);
+    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, uint32_t flags);
 
     bool isForceAutoHinting() const { return SkToBool(fFlags & kForceAutoHinting_Flag); }
     bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_Flag); }
@@ -147,7 +146,6 @@ private:
     SkScalar    fScaleX;
     SkScalar    fSkewX;
     uint8_t     fFlags;
-    uint8_t     fAlign;
     uint8_t     fHinting;
 };
 
