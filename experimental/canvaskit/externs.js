@@ -29,8 +29,12 @@ var CanvasKit = {
 	LTRBRect: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
+	MakeImageShader: function() {},
+	MakeLinearGradientShader: function() {},
+	MakeRadialGradientShader: function() {},
 	MakeNimaActor: function() {},
 	MakeSkDashPathEffect: function() {},
+	MakeSkVertices: function() {},
 	MakeSurface: function() {},
 	currentContext: function() {},
 	getSkDataBytes: function() {},
@@ -39,8 +43,12 @@ var CanvasKit = {
 
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)
+	_MakeImageShader: function() {},
+	_MakeLinearGradientShader: function() {},
 	_MakeNimaActor: function() {},
+	_MakeRadialGradientShader: function() {},
 	_MakeSkDashPathEffect: function() {},
+	_MakeSkVertices: function() {},
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
 
@@ -137,6 +145,16 @@ var CanvasKit = {
 		delete: function() {},
 	},
 
+	SkVertices: {
+		// public API (from C++ bindings)
+		/** @return {CanvasKit.SkVertices} */
+		applyBones: function() {},
+
+		// private API
+		/** @return {CanvasKit.SkVertices} */
+		_applyBones: function() {},
+	},
+
 	// Constants and Enums
 	gpu: {},
 	skottie: {},
@@ -162,11 +180,19 @@ var CanvasKit = {
 	/**
 	 * @type {Float32Array}
 	 */
-	HEAPF32: {}, // only needed for TypedArray mallocs
+	HEAPF32: {},
 	/**
 	 * @type {Uint8Array}
 	 */
 	HEAPU8: {},
+	/**
+	 * @type {Uint16Array}
+	 */
+	HEAPU16: {},
+	/**
+	 * @type {Int32Array}
+	 */
+	HEAP32: {},
 
 	_malloc: function() {},
 	_free: function() {},
@@ -191,6 +217,8 @@ CanvasKit.SkPath.prototype.transform = function() {};
 
 CanvasKit.SkSurface.prototype.flush = function() {};
 CanvasKit.SkSurface.prototype.dispose = function() {};
+
+CanvasKit.SkVertices.prototype.applyBones = function() {};
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
 function loadWebAssemblyModule() {}
