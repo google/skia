@@ -10,40 +10,10 @@
 #include "../private/SkMalloc.h"
 #include "SkFrameHolder.h"
 #include "SkSampler.h"
+#include "SkSwizzler.h"
 #include "wuffs-v0.2.h"
 
 #define SK_WUFFS_CODEC_BUFFER_SIZE 4096
-
-// TODO(nigeltao): use a swizzler instead of load_u32le and store_etc.
-
-static inline uint32_t load_u32le(uint8_t* p) {
-    return ((uint32_t)(p[0]) << 0) | ((uint32_t)(p[1]) << 8) | ((uint32_t)(p[2]) << 16) |
-           ((uint32_t)(p[3]) << 24);
-}
-
-static inline void store_u32le(uint8_t* p, uint32_t x) {
-    p[0] = x >> 0;
-    p[1] = x >> 8;
-    p[2] = x >> 16;
-    p[3] = x >> 24;
-}
-
-static inline void store_u32le_switched(uint8_t* p, uint32_t x) {
-    // This could probably be optimized, but in any case, we should use a
-    // swizzler.
-    p[0] = x >> 16;
-    p[1] = x >> 8;
-    p[2] = x >> 0;
-    p[3] = x >> 24;
-}
-
-static inline void store_565(uint8_t* p, uint32_t argb) {
-    uint32_t r5 = 0x1F & (argb >> ((8 - 5) + 16));
-    uint32_t g6 = 0x3F & (argb >> ((8 - 6) + 8));
-    uint32_t b5 = 0x1F & (argb >> ((8 - 5) + 0));
-    p[0] = (b5 << 0) | (g6 << 5);
-    p[1] = (g6 >> 3) | (r5 << 3);
-}
 
 static bool fill_buffer(wuffs_base__io_buffer* b, SkStream* s) {
     b->compact();
@@ -160,6 +130,7 @@ private:
     int                  onGetFrameCount() override;
     bool                 onGetFrameInfo(int, FrameInfo*) const override;
     int                  onGetRepetitionCount() override;
+    SkSampler*           getSampler(bool createIfNecessary) override;
 
     void   readFrames();
     Result seekFrame(int frameIndex);
@@ -182,10 +153,12 @@ private:
     wuffs_base__io_buffer    fIOBuffer;
 
     // Incremental decoding state.
-    SkColorType fIncrDecColorType;
-    uint8_t*    fIncrDecDst;
-    bool        fIncrDecHaveFrameConfig;
-    size_t      fIncrDecRowBytes;
+    uint8_t* fIncrDecDst;
+    size_t   fIncrDecRowBytes;
+    bool     fIncrDecHaveFilled;
+
+    std::unique_ptr<SkSwizzler> fSwizzler;
+    SkPMColor                   fColorTable[256];
 
     uint64_t                  fNumFullyReceivedFrames;
     std::vector<SkWuffsFrame> fFrames;
@@ -278,14 +251,18 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fFrameConfig((wuffs_base__frame_config){}),
       fPixelBuffer(pixbuf),
       fIOBuffer((wuffs_base__io_buffer){}),
-      fIncrDecColorType(kUnknown_SkColorType),
       fIncrDecDst(nullptr),
-      fIncrDecHaveFrameConfig(false),
       fIncrDecRowBytes(0),
+      fIncrDecHaveFilled(false),
+      fSwizzler(nullptr),
       fNumFullyReceivedFrames(0),
       fFramesComplete(false),
       fDecoderIsSuspended(false) {
     fFrameHolder.init(this, imgcfg.pixcfg.width(), imgcfg.pixcfg.height());
+
+    for (int i = 0; i < 256; i++) {
+        fColorTable[i] = 0;
+    }
 
     // Initialize fIOBuffer's fields, copying any outstanding data from iobuf to
     // fIOBuffer, as iobuf's backing array may not be valid for the lifetime of
@@ -340,14 +317,20 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
         return result;
     }
 
-    SkSampler::Fill(dstInfo, dst, rowBytes, options.fZeroInitialized);
-
-    fIncrDecColorType = dstInfo.colorType();
     fIncrDecDst = static_cast<uint8_t*>(dst);
-    fIncrDecHaveFrameConfig = false;
     fIncrDecRowBytes = rowBytes;
+    fIncrDecHaveFilled = false;
+    fSwizzler = nullptr;
 
-    return SkCodec::kSuccess;
+    const char* status = this->decodeFrameConfig();
+    if (status == nullptr) {
+        return SkCodec::kSuccess;
+    } else if (status == wuffs_base__suspension__short_read) {
+        return SkCodec::kIncompleteInput;
+    } else {
+        SkCodecPrintf("decodeFrameConfig: %s", status);
+        return SkCodec::kErrorInInput;
+    }
 }
 
 SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
@@ -355,76 +338,9 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         return SkCodec::kInternalError;
     }
 
-    if (!fIncrDecHaveFrameConfig) {
-        const char* status = this->decodeFrameConfig();
-        if (status == nullptr) {
-            // No-op.
-        } else if (status == wuffs_base__suspension__short_read) {
-            return SkCodec::kIncompleteInput;
-        } else {
-            SkCodecPrintf("decodeFrameConfig: %s", status);
-            return SkCodec::kErrorInInput;
-        }
-        fIncrDecHaveFrameConfig = true;
-    }
-
-    SkCodec::Result result = SkCodec::kSuccess;
-    const char*     status = this->decodeFrame();
-    if (status == nullptr) {
-        // No-op.
-    } else if (status == wuffs_base__suspension__short_read) {
-        result = SkCodec::kIncompleteInput;
-    } else {
-        SkCodecPrintf("decodeFrame: %s", status);
-        return SkCodec::kErrorInInput;
-    }
-
-    // TODO(nigeltao): use a swizzler, once I figure out how it works. For
-    // now, a C style load/store loop gets the job done.
-    wuffs_base__rect_ie_u32 r = fFrameConfig.bounds();
-    wuffs_base__table_u8    pixels = fPixelBuffer.plane(0);
-    wuffs_base__slice_u8    palette = fPixelBuffer.palette();
-    SkASSERT(palette.len == 4 * 256);
-    switch (fIncrDecColorType) {
-        case kRGB_565_SkColorType:
-            for (uint32_t y = r.min_incl_y; y < r.max_excl_y; y++) {
-                uint8_t* d = fIncrDecDst + (y * fIncrDecRowBytes) + (r.min_incl_x * 2);
-                uint8_t* s = pixels.ptr + (y * pixels.stride) + (r.min_incl_x * 1);
-                for (uint32_t x = r.min_incl_x; x < r.max_excl_x; x++) {
-                    uint8_t  index = *s++;
-                    uint32_t argb = load_u32le(palette.ptr + 4 * static_cast<size_t>(index));
-                    store_565(d, argb);
-                    d += 2;
-                }
-            }
-            break;
-        case kBGRA_8888_SkColorType:
-            for (uint32_t y = r.min_incl_y; y < r.max_excl_y; y++) {
-                uint8_t* d = fIncrDecDst + (y * fIncrDecRowBytes) + (r.min_incl_x * 4);
-                uint8_t* s = pixels.ptr + (y * pixels.stride) + (r.min_incl_x * 1);
-                for (uint32_t x = r.min_incl_x; x < r.max_excl_x; x++) {
-                    uint8_t  index = *s++;
-                    uint32_t argb = load_u32le(palette.ptr + 4 * static_cast<size_t>(index));
-                    store_u32le(d, argb);
-                    d += 4;
-                }
-            }
-            break;
-        case kRGBA_8888_SkColorType:
-            for (uint32_t y = r.min_incl_y; y < r.max_excl_y; y++) {
-                uint8_t* d = fIncrDecDst + (y * fIncrDecRowBytes) + (r.min_incl_x * 4);
-                uint8_t* s = pixels.ptr + (y * pixels.stride) + (r.min_incl_x * 1);
-                for (uint32_t x = r.min_incl_x; x < r.max_excl_x; x++) {
-                    uint8_t  index = *s++;
-                    uint32_t argb = load_u32le(palette.ptr + 4 * static_cast<size_t>(index));
-                    store_u32le_switched(d, argb);
-                    d += 4;
-                }
-            }
-            break;
-        default:
-            return SkCodec::kUnimplemented;
-    }
+    this->getSampler(true);
+    SkASSERT(fSwizzler);
+    const int scaledHeight = get_scaled_dimension(dstInfo().height(), fSwizzler->sampleY());
 
     // The semantics of *rowsDecoded is: say you have a 10 pixel high image
     // (both the frame and the image). If you only decoded the first 3 rows,
@@ -440,14 +356,68 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     // return the height of the image, so the caller knows it doesn't need to
     // do anything.
     if (rowsDecoded) {
-        *rowsDecoded = static_cast<int>(fPixelBuffer.pixcfg.height());
+        *rowsDecoded = scaledHeight;
+    }
+
+    SkCodec::Result result = SkCodec::kSuccess;
+    const char*     status = this->decodeFrame();
+    if (status == nullptr) {
+        // No-op.
+    } else if (status == wuffs_base__suspension__short_read) {
+        result = SkCodec::kIncompleteInput;
+    } else {
+        SkCodecPrintf("decodeFrame: %s", status);
+        return SkCodec::kErrorInInput;
+    }
+
+    wuffs_base__slice_u8 palette = fPixelBuffer.palette();
+    SkASSERT(palette.len == 4 * 256);
+    auto proc = choose_pack_color_proc(false, dstInfo().colorType());
+    for (int i = 0; i < 256; i++) {
+        uint8_t* p = palette.ptr + 4 * i;
+        fColorTable[i] = proc(p[3], p[2], p[1], p[0]);
+    }
+
+    if (!fIncrDecHaveFilled) {
+        auto fillInfo = dstInfo().makeWH(fSwizzler->fillWidth(), scaledHeight);
+        SkSampler::Fill(fillInfo, fIncrDecDst, fIncrDecRowBytes, options().fZeroInitialized);
+
+        fIncrDecHaveFilled = true;
+    }
+
+    wuffs_base__rect_ie_u32 r = fFrameConfig.bounds();
+    wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
+    const int sampleY = fSwizzler->sampleY();
+    for (uint32_t y = r.min_incl_y; y < r.max_excl_y; y++) {
+        // In Wuffs, a paletted image is always 1 byte per pixel.
+        static constexpr size_t src_bpp = 1;
+        int dstY = y / sampleY;
+        if (sampleY != 1) {
+            if (!fSwizzler->rowNeeded(y)) {
+                continue;
+            }
+            if (dstY >= scaledHeight) {
+                break;
+            }
+        }
+        // We don't adjust d by (r.min_incl_x * dst_bpp) as we have already
+        // accounted for that in swizzleRect.
+        uint8_t* d = fIncrDecDst + (dstY * fIncrDecRowBytes);
+
+        // The Wuffs model is that the dst buffer is the image, not the frame.
+        // The expectation is that you allocate the buffer once, but re-use it
+        // for the N frames, regardless of each frame's top-left co-ordinate.
+        //
+        // To get from the start (in the X-direction) of the image to the start
+        // of the frame, we adjust s by (r.min_incl_x * src_bpp).
+        uint8_t* s = pixels.ptr + (y * pixels.stride) + (r.min_incl_x * src_bpp);
+        fSwizzler->swizzle(d, s);
     }
 
     if (result == SkCodec::kSuccess) {
-        fIncrDecColorType = kUnknown_SkColorType;
         fIncrDecDst = nullptr;
-        fIncrDecHaveFrameConfig = false;
         fIncrDecRowBytes = 0;
+        fSwizzler = nullptr;
     }
     return result;
 }
@@ -482,6 +452,17 @@ int SkWuffsCodec::onGetRepetitionCount() {
     }
     n--;
     return n < INT_MAX ? n : INT_MAX;
+}
+
+SkSampler* SkWuffsCodec::getSampler(bool createIfNecessary) {
+    if (createIfNecessary && !fSwizzler) {
+        wuffs_base__rect_ie_u32 r = fFrameConfig.bounds();
+        SkIRect swizzleRect = SkIRect::MakeLTRB(r.min_incl_x, 0, r.max_excl_x, 1);
+        fSwizzler = SkSwizzler::Make(this->getEncodedInfo(), fColorTable, dstInfo(), this->options(),
+                                     &swizzleRect);
+    }
+
+    return fSwizzler.get();
 }
 
 void SkWuffsCodec::readFrames() {
