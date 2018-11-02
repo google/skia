@@ -54,6 +54,10 @@ GrBackendRenderTarget GrMtlRenderTarget::getBackendRenderTarget() const {
     return GrBackendRenderTarget(this->width(), this->height(), fRenderTexture.sampleCount, info);
 }
 
+GrBackendFormat GrMtlRenderTarget::backendFormat() const {
+    return GrBackendFormat::MakeMtl(fRenderTarget.pixelFormat);
+}
+
 GrMtlGpu* GrMtlRenderTarget::getMtlGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrMtlGpu*>(this->getGpu());

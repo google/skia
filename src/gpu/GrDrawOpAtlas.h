@@ -90,7 +90,9 @@ public:
      *                          eviction occurs
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*, GrPixelConfig,
+    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
+                                               const GrBackendFormat& format,
+                                               GrPixelConfig,
                                                int width, int height,
                                                int numPlotsX, int numPlotsY,
                                                AllowMultitexturing allowMultitexturing,
@@ -240,8 +242,9 @@ public:
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
-    GrDrawOpAtlas(GrProxyProvider*, GrPixelConfig, int width, int height, int numPlotsX,
-                  int numPlotsY, AllowMultitexturing allowMultitexturing);
+    GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrPixelConfig, int width,
+                  int height, int numPlotsX, int numPlotsY,
+                  AllowMultitexturing allowMultitexturing);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
@@ -377,6 +380,7 @@ private:
         plot->resetRects();
     }
 
+    GrBackendFormat       fFormat;
     GrPixelConfig         fPixelConfig;
     int                   fTextureWidth;
     int                   fTextureHeight;
