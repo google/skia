@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c9d51267_7dad53df",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-02T17:32:31Z",
+      "side": 1,
+      "message": "Yes. In https://skia-review.googlesource.com/c/skia/+/167661, I use choose_pack_color_proc from SkCodecPriv.h.",
+      "parentUuid": "6e7f2d9c_1e13e3e8",
+      "revId": "78f481808fa7779458ee8ab40156f36de057cb50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83e46e85_2fdb3747",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
