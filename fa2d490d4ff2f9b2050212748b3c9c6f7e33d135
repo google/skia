@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a15477f_fb8839d4",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-02T15:45:40Z",
+      "side": 1,
+      "message": "int w \u003d image-\u003ewidth(); h \u003d image-\u003eheight();\n        SkBitmap gray;\n        gray.allocPixels(SkImageInfo::Make(w, 1, kGray_8_SkColorType, kPremul_SkAlphaType));\n        SkASSERT(w \u003d\u003d gray.computeByteSize());\n        for (int y \u003d 0; y \u003c h, ++y) {\n            if (!image-\u003ereadPixels(gray.pixmap(), 0, y) \u0026\u0026 y \u003d\u003d 0) {\n                memset(gray.getPixels(), \u0027\\x00\u0027, w);\n            }\n            out-\u003ewrite(gray.getPixels(), w);\n        }",
+      "revId": "fa2d490d4ff2f9b2050212748b3c9c6f7e33d135",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "506c295a_356a7ab0",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-02T15:45:40Z",
+      "side": 1,
+      "message": "int w \u003d image-\u003ewidth(); h \u003d image-\u003eheight();\n    SkBitmap alpha;\n    alpha.allocPixels(SkImageInfo::MakeA8(w, 1));\n    SkASSERT(w \u003d\u003d alpha.computeByteSize());\n    for (int y \u003d 0; y \u003c h, ++y) {\n        if (!image-\u003ereadPixels(alpha.pixmap(), 0, y) \u0026\u0026 y \u003d\u003d 0) {\n            memset(alpha.getPixels(), \u0027\\xFF\u0027, w);\n        }\n        out-\u003ewrite(alpha.getPixels(), w);\n    }",
+      "revId": "fa2d490d4ff2f9b2050212748b3c9c6f7e33d135",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41b7d1e3_f9f0d2ef",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-02T15:45:40Z",
+      "side": 1,
+      "message": "class PDFDefaultBitmap final : public SkPDFObject {\npublic:\n    void emitObject(SkWStream* stream,\n                    const SkPDFObjNumMap\u0026 objNumMap) const override {\n        SkASSERT(fImage);\n        if (!fSMask) {  // opaque\n            emit_opaque_image_xobject(stream, fImage.get());\n            return\n        }\n        emit_image_xobject(stream, fImage.get(), false, fSMask, objNumMap);\n    }\n    // ....\n};\nstatic void emit_opaque_image_xobject(SkWStream* stream, const SkImage* image) {\n    int w \u003d image-\u003ewidth(); h \u003d image-\u003eheight();\n    SkBitmap bgra;\n    bgra.allocPixels(SkImageInfo::Make(w, 1,\n                                       kBGRA_8888_SkColorType,\n                                       kUnpremul_SkAlphaType));\n    SkASSERT(w \u003d\u003d bgra.computeByteSize());\n    SkAutoTMalloc\u003cuint8_t\u003e scanline(3 * w);\n    for (int y \u003d 0; y \u003c h, ++y) {\n        if (!image-\u003ereadPixels(bgra.pixmap(), 0, y))\n            fill_stream(out, \u0027\\x00\u0027, 3 * w);\n            continue;\n        }\n        const SkColor* src \u003d bgra.getAddr32(0, y);\n        uint8_t* dst \u003d scanline.get();\n        for (int x \u003d 0; x \u003c w; ++x) {\n            SkColor color \u003d *src++;\n            *dst++ \u003d SkColorGetR(color);\n            *dst++ \u003d SkColorGetG(color);\n            *dst++ \u003d SkColorGetB(color);\n        }\n        out-\u003ewrite(scanline.get(), 3 * w);\n    }\n}",
+      "revId": "fa2d490d4ff2f9b2050212748b3c9c6f7e33d135",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
