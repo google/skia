@@ -65,6 +65,10 @@ SK_C_API bool sk_path_get_last_point (const sk_path_t* cpath, sk_point_t* point)
 SK_C_API int sk_path_convert_conic_to_quads(const sk_point_t* p0, const sk_point_t* p1, const sk_point_t* p2, float w, sk_point_t* pts, int pow2);
 SK_C_API void sk_path_add_poly(sk_path_t* cpath, const sk_point_t* points, int count, bool close);
 SK_C_API uint32_t sk_path_get_segment_masks(sk_path_t* cpath);
+SK_C_API bool sk_path_is_oval(sk_path_t* cpath, sk_rect_t* bounds);
+SK_C_API bool sk_path_is_rrect(sk_path_t* cpath, sk_rrect_t* bounds);
+SK_C_API bool sk_path_is_line(sk_path_t* cpath, sk_point_t line [2]);
+SK_C_API bool sk_path_is_rect(sk_path_t* cpath, sk_rect_t* rect, bool* isClosed, sk_path_direction_t* direction);
 
 /* Iterators */
 SK_C_API sk_path_iterator_t* sk_path_create_iter (sk_path_t *cpath, int forceClose);

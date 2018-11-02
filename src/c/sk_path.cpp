@@ -385,3 +385,19 @@ void sk_path_add_poly(sk_path_t* cpath, const sk_point_t* points, int count, boo
 uint32_t sk_path_get_segment_masks(sk_path_t* cpath) {
     return AsPath(cpath)->getSegmentMasks();
 }
+
+bool sk_path_is_oval(sk_path_t* cpath, sk_rect_t* bounds) {
+    return AsPath(cpath)->isOval(AsRect(bounds));
+}
+
+bool sk_path_is_rrect(sk_path_t* cpath, sk_rrect_t* bounds) {
+    return AsPath(cpath)->isRRect(AsRRect(bounds));
+}
+
+bool sk_path_is_line(sk_path_t* cpath, sk_point_t line [2]) {
+    return AsPath(cpath)->isLine(AsPoint(line));
+}
+
+bool sk_path_is_rect(sk_path_t* cpath, sk_rect_t* rect, bool* isClosed, sk_path_direction_t* direction) {
+    return AsPath(cpath)->isRect(AsRect(rect), isClosed, (SkPath::Direction*)direction);
+}
