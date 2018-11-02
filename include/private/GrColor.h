@@ -14,7 +14,6 @@
 #include "GrTypes.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
-#include "SkHalf.h"
 #include "SkUnPreMultiply.h"
 
 /**
