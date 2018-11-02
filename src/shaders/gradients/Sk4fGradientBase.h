@@ -13,7 +13,6 @@
 #include "SkGradientShaderPriv.h"
 #include "SkMatrixPriv.h"
 #include "SkNx.h"
-#include "SkPM4f.h"
 #include "SkShaderBase.h"
 #include "SkTArray.h"
 

@@ -10,7 +10,6 @@
 
 #include "SkColorSpaceXformer.h"
 #include "SkShaderBase.h"
-#include "SkPM4f.h"
 
 /** \class SkColorShader
     A Shader that represents a single color. In general, this effect can be
