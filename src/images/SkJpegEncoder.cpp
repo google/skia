@@ -221,8 +221,10 @@ bool SkJpegEncoder::onEncodeRows(int numRows) {
     for (int i = 0; i < numRows; i++) {
         JSAMPLE* jpegSrcRow = (JSAMPLE*) srcRow;
         if (fEncoderMgr->proc()) {
-            fEncoderMgr->proc()((char*)fStorage.get(), (const char*)srcRow, fSrc.width(),
-                                fEncoderMgr->cinfo()->input_components, nullptr);
+            fEncoderMgr->proc()((char*)fStorage.get(),
+                                (const char*)srcRow,
+                                fSrc.width(),
+                                fEncoderMgr->cinfo()->input_components);
             jpegSrcRow = fStorage.get();
         }
 
