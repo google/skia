@@ -332,8 +332,6 @@ static inline U16CPU SkPack888ToRGB16(U8CPU r, U8CPU g, U8CPU b) {
             (SkB32ToB16(b) << SK_B16_SHIFT);
 }
 
-#define SkPixel32ToPixel16_ToU16(src)   SkToU16(SkPixel32ToPixel16(src))
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /*  SrcOver the 32bit src color with the 16bit dst, returning a 16bit value
