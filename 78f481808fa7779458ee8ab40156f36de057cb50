@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "6e7f2d9c_1e13e3e8",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-02T02:04:57Z",
+      "side": 1,
+      "message": "I\u0027m curious if there\u0027s something better that I can do here.",
+      "revId": "78f481808fa7779458ee8ab40156f36de057cb50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83e46e85_2fdb3747",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -52,6 +69,24 @@
       "revId": "78f481808fa7779458ee8ab40156f36de057cb50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6a3d849_f139bee9",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-02T02:04:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6c43d51e_e729df3c",
+      "revId": "78f481808fa7779458ee8ab40156f36de057cb50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "085a72f0_9fa48496",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-02T02:04:57Z",
+      "side": 1,
+      "message": "Should we land https://skia-review.googlesource.com/c/skia/+/162980 then?",
+      "parentUuid": "c53cb3f1_31f66423",
+      "revId": "77637d06d40a719b20490924856fe35bf79ac834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "da13e248_ee4ba423",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 4
@@ -60,6 +78,30 @@
     },
     {
       "key": {
+        "uuid": "0457b79e_c344e531",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-02T02:04:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "da13e248_ee4ba423",
+      "range": {
+        "startLine": 385,
+        "startChar": 0,
+        "endLine": 386,
+        "endChar": 52
+      },
+      "revId": "77637d06d40a719b20490924856fe35bf79ac834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb38f02f_c2b72329",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 4
@@ -71,6 +113,30 @@
       "writtenOn": "2018-11-01T12:31:07Z",
       "side": 1,
       "message": "Did wuffs already composite the frame onto the image, and pixels represents the entire canvas?",
+      "range": {
+        "startLine": 388,
+        "startChar": 8,
+        "endLine": 389,
+        "endChar": 0
+      },
+      "revId": "77637d06d40a719b20490924856fe35bf79ac834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "636adcf5_ac50cdc9",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-02T02:04:57Z",
+      "side": 1,
+      "message": "I don\u0027t know if it\u0027s primarily about compositing, but the Wuffs model is that the dst buffer is the image, not the frame. The expectation is that you allocate the buffer once, but re-use it for the N frames, regardless of each frame\u0027s top-left co-ordinate.\n\nIt\u0027s not implemented yet, but the plan is for the decode_frame method\u0027s options type to have fields to translate the origin, so you could decode into a buffer that\u0027s perfectly sized for the frame (instead of the image), if you wanted.\n\nTangentially, that options type is also where I\u0027d put fields for subsetting and subsampling.\n\nBut by default, the buffer (and its origin) is for the image, so we need to add \"+ (r.min_incl_x * src_bpp)\" to get to the start (in the X-direction) of the frame.\n\nI\u0027ll add this as a comment.",
+      "parentUuid": "fb38f02f_c2b72329",
       "range": {
         "startLine": 388,
         "startChar": 8,
