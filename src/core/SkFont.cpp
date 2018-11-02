@@ -120,7 +120,7 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
             count = SkToInt(byteLength >> 1);
             break;
     }
-    if (!glyphs) {
+    if (!glyphs || count > maxGlyphCount) {
         return count;
     }
 
