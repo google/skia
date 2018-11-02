@@ -19,7 +19,8 @@ class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(const sk_sp<GrTextureProxy> proxies[],
                                                      const SkYUVAIndex indices[4],
-                                                     SkYUVColorSpace yuvColorSpace);
+                                                     SkYUVColorSpace yuvColorSpace,
+                                                     GrSamplerState::Filter filterMode);
     SkString dumpInfo() const override;
 
     const SkMatrix44& colorSpaceMatrix() const { return fColorSpaceMatrix; }

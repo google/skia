@@ -183,7 +183,8 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
     // TODO: Modify the fragment processor to sample from different channel instead of taking nv12
     // bool.
     paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(tempTextureProxies, yuvaIndices,
-                                                           yuvColorSpace));
+                                                           yuvColorSpace,
+                                                           GrSamplerState::Filter::kNearest));
 
     const SkRect rect = SkRect::MakeIWH(width, height);
 

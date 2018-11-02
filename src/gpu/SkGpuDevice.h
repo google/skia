@@ -215,21 +215,13 @@ private:
                                 const SkMatrix& viewMatrix,
                                 const SkPaint&);
 
-    void drawTextureMaker(GrTextureMaker* maker,
-                          int imageW,
-                          int imageH,
-                          const SkRect* srcRect,
-                          const SkRect* dstRect,
-                          SkCanvas::SrcRectConstraint,
-                          const SkMatrix& viewMatrix,
-                          const SkPaint&);
-
     void drawTextureProducer(GrTextureProducer*,
                              const SkRect* srcRect,
                              const SkRect* dstRect,
                              SkCanvas::SrcRectConstraint,
                              const SkMatrix& viewMatrix,
-                             const SkPaint&);
+                             const SkPaint&,
+                             bool attemptDrawTexture);
 
     void drawTextureProducerImpl(GrTextureProducer*,
                                  const SkRect& clippedSrcRect,
