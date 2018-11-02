@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3f2e7f05_8f75b31a",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-02T17:02:45Z",
+      "side": 1,
+      "message": "That\u0027s true. As it stands, Skia has been making more and more of these assumptions (little endian). I\u0027m leaning towards Mike\u0027s idea of just adding a static_assert somewhere and removing the remaining bits that pretend to support big endian.",
+      "parentUuid": "05017952_802bfa2a",
+      "revId": "fa2d490d4ff2f9b2050212748b3c9c6f7e33d135",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a15477f_fb8839d4",
         "filename": "src/pdf/SkPDFBitmap.cpp",
         "patchSetId": 2
