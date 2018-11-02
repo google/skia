@@ -130,9 +130,9 @@ blob equals nullptr
 #Line # returns writable glyph buffer at Point ##
 
 Returns run with storage for Glyphs. Caller must write count Glyphs to
-RunBuffer.glyphs before next call to FontBlobBuilder.
+RunBuffer::glyphs before next call to Text_Blob_Builder.
 
-RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
 
 Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
 
@@ -141,7 +141,7 @@ determine their relative placement.
 
 bounds defines an optional bounding box, used to suppress drawing when Text_Blob
 bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
-is computed from (x, y) and RunBuffer.glyphs Paint_Font_Metrics.
+is computed from (x, y) and RunBuffer::glyphs Paint_Font_Metrics.
 
 #Param font  Paint used for this run ##
 #Param count  number of glyphs ##
@@ -174,9 +174,9 @@ const SkRect* bounds = nullptr)
 #Line # returns writable glyph buffer at Point ##
 
 Returns run with storage for Glyphs. Caller must write count Glyphs to
-RunBuffer.glyphs before next call to FontBlobBuilder.
+RunBuffer::glyphs before next call to Text_Blob_Builder.
 
-RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
 
 Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
 
@@ -185,7 +185,7 @@ determine their relative placement.
 
 bounds defines an optional bounding box, used to suppress drawing when Text_Blob
 bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
-is computed from (x, y) and RunBuffer.glyphs Paint_Font_Metrics.
+is computed from (x, y) and RunBuffer::glyphs Paint_Font_Metrics.
 
 #Param font  Font used for this run ##
 #Param count  number of glyphs ##
@@ -218,19 +218,19 @@ is computed from (x, y) and RunBuffer.glyphs Paint_Font_Metrics.
 #Line # returns writable glyph and x-axis position buffers ##
 
 Returns run with storage for Glyphs and positions along baseline. Caller must
-write count Glyphs to RunBuffer.glyphs, and count Scalars to RunBuffer.pos;
-before next call to FontBlobBuilder.
+write count Glyphs to RunBuffer::glyphs, and count Scalars to RunBuffer::pos;
+before next call to Text_Blob_Builder.
 
-RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
 
 Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
 
 Glyphs are positioned on a baseline at y, using x-axis positions written by
-caller to RunBuffer.pos.
+caller to RunBuffer::pos.
 
 bounds defines an optional bounding box, used to suppress drawing when Text_Blob
 bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
-is computed from y, RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
+is computed from y, RunBuffer::pos, and RunBuffer::glyphs Paint_Font_Metrics.
 
 #Param font  Paint used for this run ##
 #Param count  number of Glyphs ##
@@ -263,19 +263,19 @@ is computed from y, RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
 #Line # returns writable glyph and x-axis position buffers ##
 
 Returns run with storage for Glyphs and positions along baseline. Caller must
-write count Glyphs to RunBuffer.glyphs, and count Scalars to RunBuffer.pos;
-before next call to FontBlobBuilder.
+write count Glyphs to RunBuffer::glyphs, and count Scalars to RunBuffer::pos;
+before next call to Text_Blob_Builder.
 
-RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
 
 Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
 
 Glyphs are positioned on a baseline at y, using x-axis positions written by
-caller to RunBuffer.pos.
+caller to RunBuffer::pos.
 
 bounds defines an optional bounding box, used to suppress drawing when Text_Blob
 bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
-is computed from y, RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
+is computed from y, RunBuffer::pos, and RunBuffer::glyphs Paint_Font_Metrics.
 
 #Param font  Font used for this run ##
 #Param count  number of Glyphs ##
@@ -308,19 +308,19 @@ is computed from y, RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
 #Line # returns writable glyph and Point buffers ##
 
 Returns run with storage for Glyphs and Point positions. Caller must
-write count Glyphs to RunBuffer.glyphs, and count Points to RunBuffer.pos;
-before next call to FontBlobBuilder.
+write count Glyphs to RunBuffer::glyphs, and count Points to RunBuffer::pos;
+before next call to Text_Blob_Builder.
 
-RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
 
 Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
 
-Glyphs are positioned using Points written by caller to RunBuffer.pos, using
+Glyphs are positioned using Points written by caller to RunBuffer::pos, using
 two Scalar values for each Point.
 
 bounds defines an optional bounding box, used to suppress drawing when Text_Blob
 bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
-is computed from RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
+is computed from RunBuffer::pos, and RunBuffer::glyphs Paint_Font_Metrics.
 
 #Param font  Paint used for this run ##
 #Param count  number of Glyphs ##
@@ -352,19 +352,19 @@ is computed from RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
 #Line # returns writable glyph and Point buffers ##
 
 Returns run with storage for Glyphs and Point positions. Caller must
-write count Glyphs to RunBuffer.glyphs, and count Points to RunBuffer.pos;
-before next call to FontBlobBuilder.
+write count Glyphs to RunBuffer::glyphs, and count Points to RunBuffer::pos;
+before next call to Text_Blob_Builder.
 
-RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
 
 Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
 
-Glyphs are positioned using Points written by caller to RunBuffer.pos, using
+Glyphs are positioned using Points written by caller to RunBuffer::pos, using
 two Scalar values for each Point.
 
 bounds defines an optional bounding box, used to suppress drawing when Text_Blob
 bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
-is computed from RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
+is computed from RunBuffer::pos, and RunBuffer::glyphs Paint_Font_Metrics.
 
 #Param font  Font used for this run ##
 #Param count  number of Glyphs ##

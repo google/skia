@@ -62,16 +62,16 @@ public:
 };
 </pre>
 
-<a href='#Pixmap'>Pixmap</a> provides a utility to pair <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> with pixels and row bytes.
-<a href='#Pixmap'>Pixmap</a> is a low level class which provides convenience functions to access
-raster destinations. <a href='SkCanvas_Reference#Canvas'>Canvas</a> can not draw <a href='#Pixmap'>Pixmap</a>, nor does <a href='#Pixmap'>Pixmap</a> provide
+<a href='SkPixmap_Reference#Pixmap'>Pixmap</a> provides a utility to pair <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> with pixels and row bytes.
+<a href='SkPixmap_Reference#Pixmap'>Pixmap</a> is a low level class which provides convenience functions to access
+raster destinations. <a href='SkCanvas_Reference#Canvas'>Canvas</a> can not draw <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>, nor does <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> provide
 a direct drawing destination.
 
-Use <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> to draw pixels referenced by <a href='#Pixmap'>Pixmap</a>; use <a href='SkSurface_Reference#Surface'>Surface</a> to draw into
-pixels referenced by <a href='#Pixmap'>Pixmap</a>.
+Use <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> to draw pixels referenced by <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>; use <a href='SkSurface_Reference#Surface'>Surface</a> to draw into
+pixels referenced by <a href='SkPixmap_Reference#Pixmap'>Pixmap</a>.
 
-<a href='#Pixmap'>Pixmap</a> does not try to manage the lifetime of the pixel memory. Use <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
-to manage pixel memory; <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is safe across threads.
+<a href='SkPixmap_Reference#Pixmap'>Pixmap</a> does not try to manage the lifetime of the <a href='undocumented#Pixel'>pixel</a> memory. Use <a href='#Pixel_Ref'>Pixel_Ref</a>
+to manage <a href='undocumented#Pixel'>pixel</a> memory; <a href='#Pixel_Ref'>Pixel_Ref</a> is safe across threads.
 
 <a name='Initialization'></a>
 
@@ -80,17 +80,17 @@ to manage pixel memory; <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is safe a
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPixmap'>SkPixmap</a>()
+<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>()
 </pre>
 
-Creates an empty <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> without pixels, with <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, with
-<a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, and with a width and height of zero. Use
-<a href='#SkPixmap_reset'>reset()</a> to associate pixels, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a>, <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a>, width, and height
-after <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> has been created.
+Creates an empty SkPixmap without pixels, with kUnknown_SkColorType, with
+kUnknown_SkAlphaType, and with a width and height of zero. Use
+reset() to associate pixels, SkColorType, SkAlphaType, width, and height
+after SkPixmap has been created.
 
 ### Return Value
 
-empty <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>
+empty SkPixmap
 
 ### Example
 
@@ -114,7 +114,7 @@ width: 25  height: 35  color: kRGBA_8888_SkColorType  alpha: kOpaque_SkAlphaType
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPixmap'>SkPixmap</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, const void* addr, size_t <a href='#SkPixmap_rowBytes'>rowBytes</a>)
+<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>(const SkImageInfo& info, const void* addr, size_t rowBytes)
 </pre>
 
 Creates <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> from <a href='#SkPixmap_SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes)_info'>info</a> width, height, <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a>, and <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a>.
@@ -149,8 +149,8 @@ initialized <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>
 
 ### Example
 
-<div><fiddle-embed name="9a00774be57d7308313b3a9073e6e696"><div><a href='SkImage_Reference#SkImage_MakeRasterCopy'>SkImage::MakeRasterCopy</a> takes const <a href='#SkPixmap'>SkPixmap</a>& as an argument. The example
-constructs a <a href='#SkPixmap'>SkPixmap</a> from the brace-delimited parameters.
+<div><fiddle-embed name="9a00774be57d7308313b3a9073e6e696"><div>SkImage::MakeRasterCopy takes const SkPixmap& as an argument. The example
+constructs a SkPixmap from the brace-delimited parameters.
 </div>
 
 #### Example Output
@@ -171,11 +171,11 @@ copy alpha only = true
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPixmap_reset'>reset</a>()
+void reset()
 </pre>
 
-Sets width, height, row bytes to zero; <a href='undocumented#Pixel'>pixel</a> address to nullptr; <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> to
-<a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>; and <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> to <a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>.
+Sets width, height, row bytes to zero; pixel address to nullptr; SkColorType to
+kUnknown_SkColorType; and SkAlphaType to kUnknown_SkAlphaType.
 
 The prior pixels are unaffected; it is up to the caller to release pixels
 memory if desired.
@@ -202,7 +202,7 @@ width:  0  height:  0  color: kUnknown_SkColorType  alpha: kUnknown_SkAlphaType
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPixmap_reset'>reset</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, const void* addr, size_t <a href='#SkPixmap_rowBytes'>rowBytes</a>)
+void reset(const SkImageInfo& info, const void* addr, size_t rowBytes)
 </pre>
 
 Sets width, height, <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a>, and <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> from <a href='#SkPixmap_reset_2_info'>info</a>.
@@ -242,7 +242,7 @@ out of scope, <a href='#SkPixmap_reset_2_addr'>addr</a> is unaffected.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPixmap_setColorSpace'>setColorSpace</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkPixmap_colorSpace'>colorSpace</a>)
+void <a href='#SkPixmap_setColorSpace'>setColorSpace</a>(sk_sp&lt;SkColorSpace&gt; colorSpace)
 </pre>
 
 Changes <a href='undocumented#SkColorSpace'>SkColorSpace</a> in <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>; preserves width, height, <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a>, and
@@ -278,7 +278,7 @@ is not unique
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPixmap_reset'>reset</a>(const <a href='undocumented#SkMask'>SkMask</a>& mask)
+bool reset(const SkMask& mask)
 </pre>
 
 To be deprecated soon.
@@ -288,7 +288,7 @@ To be deprecated soon.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPixmap_extractSubset'>extractSubset</a>(<a href='#SkPixmap'>SkPixmap</a>* subset, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& area) const
+bool extractSubset(SkPixmap* subset, const SkIRect& area) const
 </pre>
 
 Sets <a href='#SkPixmap_extractSubset_subset'>subset</a> width, height, <a href='undocumented#Pixel'>pixel</a> address to intersection of <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> with <a href='#SkPixmap_extractSubset_area'>area</a>,
@@ -326,14 +326,14 @@ true if intersection of <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> and <
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& <a href='#SkPixmap_info'>info</a>() const
+const SkImageInfo& info() const
 </pre>
 
-Returns width, height, <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a>, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a>, and <a href='undocumented#SkColorSpace'>SkColorSpace</a>.
+Returns width, height, SkAlphaType, SkColorType, and SkColorSpace.
 
 ### Return Value
 
-reference to <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>
+reference to SkImageInfo
 
 ### Example
 
@@ -356,14 +356,14 @@ width: 384 height: 384 color: BGRA_8888 alpha: Opaque
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-size_t <a href='#SkPixmap_rowBytes'>rowBytes</a>() const
+size_t rowBytes() const
 </pre>
 
 Returns row bytes, the interval from one pixel row to the next. Row bytes
 is at least as large as: <code><a href='#SkPixmap_width'>width</a>(\)&nbsp;\*&nbsp;<a href='#SkPixmap_info'>info</a>(\)\.bytesPerPixel()</code>.
 
-Returns zero if <a href='#SkPixmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>.
-It is up to the <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> creator to ensure that row bytes is a useful value.
+Returns zero if colorType is kUnknown_SkColorType.
+It is up to the Bitmap creator to ensure that row bytes is a useful value.
 
 ### Return Value
 
@@ -391,16 +391,16 @@ rowBytes: 8 minRowBytes: 4
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const void* <a href='#SkPixmap_addr'>addr</a>() const
+const void* addr() const
 </pre>
 
-Returns <a href='undocumented#Pixel'>pixel</a> address, the base address corresponding to the <a href='undocumented#Pixel'>pixel</a> origin.
+Returns pixel address, the base address corresponding to the pixel origin.
 
-It is up to the <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> creator to ensure that <a href='undocumented#Pixel'>pixel</a> address is a useful value.
+It is up to the SkPixmap creator to ensure that pixel address is a useful value.
 
 ### Return Value
 
-<a href='undocumented#Pixel'>pixel</a> address
+pixel address
 
 ### Example
 
@@ -425,7 +425,7 @@ inset address:  0x7f2a440fb210
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPixmap_width'>width</a>() const
+int width() const
 </pre>
 
 Returns pixel count in each pixel row. Should be equal or less than:
@@ -434,7 +434,7 @@ Returns pixel count in each pixel row. Should be equal or less than:
 
 ### Return Value
 
-pixel width in <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>
+<a href='undocumented#Pixel'>pixel</a> width in Image_Info
 
 ### Example
 
@@ -457,14 +457,14 @@ pixmap width: 16  info width: 16
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPixmap_height'>height</a>() const
+int height() const
 </pre>
 
-Returns <a href='undocumented#Pixel'>pixel</a> row count.
+Returns pixel row count.
 
 ### Return Value
 
-<a href='undocumented#Pixel'>pixel</a> height in <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>
+pixel height in SkImageInfo
 
 ### Example
 
@@ -487,17 +487,18 @@ pixmap height: 32  info height: 32
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='#SkPixmap_colorType'>colorType</a>() const
+<a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType() const
 </pre>
 
-Returns <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, one of: <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
-<a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a>,
-<a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a>,
-<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>.
+Returns Color_Type, one of: kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+kGray_8_SkColorType, kRGBA_F16_SkColorType
+.
 
 ### Return Value
 
-<a href='SkImageInfo_Reference#Color_Type'>Color Type</a> in <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>
+Color_Type in Image_Info
 
 ### Example
 
@@ -520,15 +521,16 @@ color type: kAlpha_8_SkColorType
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkPixmap_alphaType'>alphaType</a>() const
+<a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> alphaType() const
 </pre>
 
-Returns <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, one of: <a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
-<a href='SkImageInfo_Reference#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a>.
+Returns Alpha_Type, one of: <a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+kUnpremul_SkAlphaType
+.
 
 ### Return Value
 
-<a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> in <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>
+Alpha_Type in Image_Info
 
 ### Example
 
@@ -551,21 +553,21 @@ alpha type: kPremul_SkAlphaType
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkColorSpace'>SkColorSpace</a>* <a href='#SkPixmap_colorSpace'>colorSpace</a>() const
+<a href='undocumented#SkColorSpace'>SkColorSpace</a>* colorSpace() const
 </pre>
 
-Returns <a href='undocumented#SkColorSpace'>SkColorSpace</a>, the range of colors, associated with <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>. The
-<a href='undocumented#Reference_Count'>reference count</a> of <a href='undocumented#SkColorSpace'>SkColorSpace</a> is unchanged. The returned <a href='undocumented#SkColorSpace'>SkColorSpace</a> is
+Returns SkColorSpace, the range of colors, associated with SkImageInfo. The
+reference count of SkColorSpace is unchanged. The returned SkColorSpace is
 immutable.
 
 ### Return Value
 
-<a href='undocumented#SkColorSpace'>SkColorSpace</a> in <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>, or nullptr
+SkColorSpace in SkImageInfo, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="3421bb20a302d563832ba7bb45e0cc58"><div><a href='undocumented#SkColorSpace_MakeSRGBLinear'>SkColorSpace::MakeSRGBLinear</a> creates <a href='undocumented#Color_Space'>Color Space</a> with linear gamma
-and an sRGB gamut. This <a href='undocumented#Color_Space'>Color Space</a> gamma is not close to sRGB gamma.
+<div><fiddle-embed name="3421bb20a302d563832ba7bb45e0cc58"><div>SkColorSpace::MakeSRGBLinear creates Color_Space with linear gamma
+and an sRGB gamut. This Color_Space gamma is not close to sRGB gamma.
 </div>
 
 #### Example Output
@@ -588,17 +590,17 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 bool <a href='#SkPixmap_isOpaque'>isOpaque</a>() const
 </pre>
 
-Returns true if <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>.
-Does not check if <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> allows <a href='SkColor_Reference#Alpha'>alpha</a>, or if any <a href='undocumented#Pixel'>pixel</a> value has
+Returns true if SkAlphaType is kOpaque_SkAlphaType.
+Does not check if SkColorType allows alpha, or if any pixel value has
 transparency.
 
 ### Return Value
 
-true if <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> has opaque <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a>
+true if SkImageInfo has opaque SkAlphaType
 
 ### Example
 
-<div><fiddle-embed name="efd083f121e888a523455ea8a49e50d1"><div><a href='#SkPixmap_isOpaque'>isOpaque</a> ignores whether all pixels are opaque or not.
+<div><fiddle-embed name="efd083f121e888a523455ea8a49e50d1"><div>isOpaque ignores whether all pixels are opaque or not.
 </div>
 
 #### Example Output
@@ -621,14 +623,14 @@ isOpaque: true
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkPixmap_bounds'>bounds</a>() const
+<a href='SkIRect_Reference#SkIRect'>SkIRect</a> bounds() const
 </pre>
 
-Returns <a href='SkIRect_Reference#SkIRect'>SkIRect</a> { 0, 0, <a href='#SkPixmap_width'>width()</a>, <a href='#SkPixmap_height'>height()</a> }.
+Returns SkIRect { 0, 0, width(), height() }.
 
 ### Return Value
 
-integral rectangle from origin to <a href='#SkPixmap_width'>width()</a> and <a href='#SkPixmap_height'>height()</a>
+integral rectangle from origin to width() and <a href='#SkPixmap_height'>height()</a>
 
 ### Example
 
@@ -654,11 +656,11 @@ width: 2 height: 2 empty: false
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPixmap_rowBytesAsPixels'>rowBytesAsPixels</a>() const
+int rowBytesAsPixels() const
 </pre>
 
 Returns number of pixels that fit on row. Should be greater than or equal to
-<a href='#SkPixmap_width'>width()</a>.
+width().
 
 ### Return Value
 
@@ -689,11 +691,11 @@ rowBytes: 8 rowBytesAsPixels: 2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPixmap_shiftPerPixel'>shiftPerPixel</a>() const
+int shiftPerPixel() const
 </pre>
 
 Returns bit shift converting row bytes to row pixels.
-Returns zero for <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>.
+Returns zero for kUnknown_SkColorType.
 
 ### Return Value
 
@@ -727,18 +729,18 @@ color: kRGBA_F16_SkColorType  bytesPerPixel: 8 shiftPerPixel: 3
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-size_t <a href='#SkPixmap_computeByteSize'>computeByteSize</a>() const
+size_t computeByteSize() const
 </pre>
 
-Returns minimum memory required for  <a href='undocumented#Pixel_Storage'>pixel storage</a>.
-Does not include unused memory on last row when <a href='#SkPixmap_rowBytesAsPixels'>rowBytesAsPixels</a>() exceeds <a href='#SkPixmap_width'>width()</a>.
+Returns minimum memory required for pixel storage.
+Does not include unused memory on last row when rowBytesAsPixels() exceeds width().
 Returns zero if result does not fit in size_t.
-Returns zero if <a href='#SkPixmap_height'>height()</a> or <a href='#SkPixmap_width'>width()</a> is 0.
-Returns <a href='#SkPixmap_height'>height()</a> times <a href='#SkPixmap_rowBytes'>rowBytes</a>() if <a href='#SkPixmap_colorType'>colorType</a>() is <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>.
+Returns zero if height() or width() is 0.
+Returns height() times rowBytes() if colorType() is kUnknown_SkColorType.
 
 ### Return Value
 
-<a href='undocumented#Size'>size</a> in bytes of <a href='SkImage_Reference#Image'>image</a> buffer
+size in bytes of image buffer
 
 ### Example
 
@@ -774,23 +776,23 @@ width: 1000000 height: 1000000 computeByteSize: 4999999000000
 bool <a href='#SkPixmap_computeIsOpaque'>computeIsOpaque</a>() const
 </pre>
 
-Returns true if all pixels are opaque. <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> determines how pixels
-are encoded, and whether <a href='undocumented#Pixel'>pixel</a> describes <a href='SkColor_Reference#Alpha'>alpha</a>. Returns true for <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a>
-without <a href='SkColor_Reference#Alpha'>alpha</a> in each <a href='undocumented#Pixel'>pixel</a>; for other <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a>, returns true if all
-pixels have <a href='SkColor_Reference#Alpha'>alpha</a> values equivalent to 1.0 or greater.
+Returns true if all pixels are opaque. SkColorType determines how pixels
+are encoded, and whether pixel describes alpha. Returns true for SkColorType
+without alpha in each pixel; for other SkColorType, returns true if all
+pixels have alpha values equivalent to 1.0 or greater.
 
-For <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a> or <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>: always
-returns true. For <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>,
-<a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>: returns true if all <a href='undocumented#Pixel'>pixel</a> <a href='SkColor_Reference#Alpha'>alpha</a> values are 255.
-For <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>: returns true if all <a href='undocumented#Pixel'>pixel</a> <a href='SkColor_Reference#Alpha'>alpha</a> values are 15.
-For <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>: returns true if all <a href='undocumented#Pixel'>pixel</a> <a href='SkColor_Reference#Alpha'>alpha</a> values are 1.0 or
+For SkColorType kRGB_565_SkColorType or kGray_8_SkColorType: always
+returns true. For SkColorType kAlpha_8_SkColorType, kBGRA_8888_SkColorType,
+kRGBA_8888_SkColorType: returns true if all pixel alpha values are 255.
+For SkColorType kARGB_4444_SkColorType: returns true if all pixel alpha values are 15.
+For kRGBA_F16_SkColorType: returns true if all pixel alpha values are 1.0 or
 greater.
 
-Returns false for <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>.
+Returns false for kUnknown_SkColorType.
 
 ### Return Value
 
-true if all pixels have opaque values or <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> is opaque
+true if all pixels have opaque values or SkColorType is opaque
 
 ### Example
 
@@ -816,7 +818,7 @@ computeIsOpaque: true
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkPixmap_getColor'>getColor</a>(int x, int y) const
+<a href='SkColor_Reference#SkColor'>SkColor</a> getColor(int x, int y) const
 </pre>
 
 Returns <a href='undocumented#Pixel'>pixel</a> at (<a href='#SkPixmap_getColor_x'>x</a>, <a href='#SkPixmap_getColor_y'>y</a>) as <a href='undocumented#Unpremultiply'>unpremultiplied</a> <a href='SkColor_Reference#Color'>color</a>.
@@ -875,20 +877,20 @@ Unpremultiplied:
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-float <a href='#SkPixmap_getAlphaf'>getAlphaf</a>(int x, int y) const
+float getAlphaf(int x, int y) const
 </pre>
 
-Looks up the pixel at (<a href='#SkPixmap_getAlphaf_x'>x</a>,<a href='#SkPixmap_getAlphaf_y'>y</a>) and return its alpha component, normalized to [0..1].
-This is roughly equivalent to <code>SkGetColorA(getColor()\)</code>, but can be more efficent
+Looks up the <a href='undocumented#Pixel'>pixel</a> at (<a href='#SkPixmap_getAlphaf_x'>x</a>,<a href='#SkPixmap_getAlphaf_y'>y</a>) and return its <a href='SkColor_Reference#Alpha'>alpha</a> component, normalized to [0..1].
+This is roughly equivalent to <code>SkGetColorA(getColor()\)</code>, but can be more efficient
 (and more precise if the pixels store more than 8 bits per component).
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPixmap_getAlphaf_x'><code><strong>x</strong></code></a></td>
-    <td>column index, zero or greater, and less than <a href='#SkPixmap_width'>width</a>()</td>
+    <td>column index, zero or greater, and less than <a href='#SkPixmap_width'>width()</a></td>
   </tr>
   <tr>    <td><a name='SkPixmap_getAlphaf_y'><code><strong>y</strong></code></a></td>
-    <td>row index, zero or greater, and less than <a href='#SkPixmap_height'>height</a>()</td>
+    <td>row index, zero or greater, and less than <a href='#SkPixmap_height'>height()</a></td>
   </tr>
 </table>
 
@@ -907,7 +909,7 @@ alpha converted to normalized float
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const void* <a href='#SkPixmap_addr'>addr</a>(int x, int y) const
+const void* addr(int x, int y) const
 </pre>
 
 Returns readable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_addr_2_x'>x</a>, <a href='#SkPixmap_addr_2_y'>y</a>). Returns nullptr if <a href='undocumented#SkPixelRef'>SkPixelRef</a> is nullptr.
@@ -953,14 +955,14 @@ pixmap.addr(1, 2) == &storage[1 + 2 * w]
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint8_t* <a href='#SkPixmap_addr8'>addr8</a>() const
+const uint8_t* addr8() const
 </pre>
 
-Returns readable base <a href='undocumented#Pixel'>pixel</a> address. Result is addressable as unsigned 8-bit bytes.
-Will trigger an assert() if <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> is not <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a> or
-<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, and is built with SK_DEBUG defined.
+Returns readable base pixel address. Result is addressable as unsigned 8-bit bytes.
+Will trigger an assert() if SkColorType is not kAlpha_8_SkColorType or
+kGray_8_SkColorType, and is built with SK_DEBUG defined.
 
-One byte corresponds to one <a href='undocumented#Pixel'>pixel</a>.
+One byte corresponds to one pixel.
 
 ### Return Value
 
@@ -987,14 +989,14 @@ pixmap.addr8() == storage
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint16_t* <a href='#SkPixmap_addr16'>addr16</a>() const
+const uint16_t* addr16() const
 </pre>
 
-Returns readable base <a href='undocumented#Pixel'>pixel</a> address. Result is addressable as unsigned 16-bit words.
-Will trigger an assert() if <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> is not <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a> or
-<a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, and is built with SK_DEBUG defined.
+Returns readable base pixel address. Result is addressable as unsigned 16-bit words.
+Will trigger an assert() if SkColorType is not kRGB_565_SkColorType or
+kARGB_4444_SkColorType, and is built with SK_DEBUG defined.
 
-One word corresponds to one <a href='undocumented#Pixel'>pixel</a>.
+One word corresponds to one pixel.
 
 ### Return Value
 
@@ -1021,14 +1023,14 @@ pixmap.addr16() == storage
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint32_t* <a href='#SkPixmap_addr32'>addr32</a>() const
+const uint32_t* addr32() const
 </pre>
 
-Returns readable base <a href='undocumented#Pixel'>pixel</a> address. Result is addressable as unsigned 32-bit words.
-Will trigger an assert() if <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> is not <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a> or
-<a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, and is built with SK_DEBUG defined.
+Returns readable base pixel address. Result is addressable as unsigned 32-bit words.
+Will trigger an assert() if SkColorType is not kRGBA_8888_SkColorType or
+kBGRA_8888_SkColorType, and is built with SK_DEBUG defined.
 
-One word corresponds to one <a href='undocumented#Pixel'>pixel</a>.
+One word corresponds to one pixel.
 
 ### Return Value
 
@@ -1055,14 +1057,14 @@ pixmap.addr32() == storage
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint64_t* <a href='#SkPixmap_addr64'>addr64</a>() const
+const uint64_t* addr64() const
 </pre>
 
-Returns readable base <a href='undocumented#Pixel'>pixel</a> address. Result is addressable as unsigned 64-bit words.
-Will trigger an assert() if <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> is not <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a> and is built
+Returns readable base pixel address. Result is addressable as unsigned 64-bit words.
+Will trigger an assert() if SkColorType is not kRGBA_F16_SkColorType and is built
 with SK_DEBUG defined.
 
-One word corresponds to one <a href='undocumented#Pixel'>pixel</a>.
+One word corresponds to one pixel.
 
 ### Return Value
 
@@ -1089,15 +1091,15 @@ pixmap.addr64() == storage
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint16_t* <a href='#SkPixmap_addrF16'>addrF16</a>() const
+const uint16_t* addrF16() const
 </pre>
 
-Returns readable base <a href='undocumented#Pixel'>pixel</a> address. Result is addressable as unsigned 16-bit words.
-Will trigger an assert() if <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> is not <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a> and is built
+Returns readable base pixel address. Result is addressable as unsigned 16-bit words.
+Will trigger an assert() if SkColorType is not kRGBA_F16_SkColorType and is built
 with SK_DEBUG defined.
 
-Each word represents one <a href='SkColor_Reference#Color'>color</a> component encoded as a half float.
-Four words correspond to one <a href='undocumented#Pixel'>pixel</a>.
+Each word represents one color component encoded as a half float.
+Four words correspond to one pixel.
 
 ### Return Value
 
@@ -1124,7 +1126,7 @@ pixmap.addrF16() == storage
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint8_t* <a href='#SkPixmap_addr8'>addr8</a>(int x, int y) const
+const uint8_t* addr8(int x, int y) const
 </pre>
 
 Returns readable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_addr8_2_x'>x</a>, <a href='#SkPixmap_addr8_2_y'>y</a>).
@@ -1170,7 +1172,7 @@ pixmap.addr8(1, 2) == &storage[1 + 2 * w]
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint16_t* <a href='#SkPixmap_addr16'>addr16</a>(int x, int y) const
+const uint16_t* addr16(int x, int y) const
 </pre>
 
 Returns readable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_addr16_2_x'>x</a>, <a href='#SkPixmap_addr16_2_y'>y</a>).
@@ -1216,7 +1218,7 @@ pixmap.addr16(1, 2) == &storage[1 + 2 * w]
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint32_t* <a href='#SkPixmap_addr32'>addr32</a>(int x, int y) const
+const uint32_t* addr32(int x, int y) const
 </pre>
 
 Returns readable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_addr32_2_x'>x</a>, <a href='#SkPixmap_addr32_2_y'>y</a>).
@@ -1262,7 +1264,7 @@ pixmap.addr32(1, 2) == &storage[1 + 2 * w]
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint64_t* <a href='#SkPixmap_addr64'>addr64</a>(int x, int y) const
+const uint64_t* addr64(int x, int y) const
 </pre>
 
 Returns readable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_addr64_2_x'>x</a>, <a href='#SkPixmap_addr64_2_y'>y</a>).
@@ -1308,7 +1310,7 @@ pixmap.addr64(1, 2) == &storage[1 + 2 * w]
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const uint16_t* <a href='#SkPixmap_addrF16'>addrF16</a>(int x, int y) const
+const uint16_t* addrF16(int x, int y) const
 </pre>
 
 Returns readable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_addrF16_2_x'>x</a>, <a href='#SkPixmap_addrF16_2_y'>y</a>).
@@ -1359,10 +1361,10 @@ pixmap.addrF16(1, 2) == &storage[1 * wordsPerPixel + 2 * rowWords]
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void* <a href='#SkPixmap_writable_addr'>writable addr</a>() const
+void* <a href='#SkPixmap_writable_addr'>writable_addr</a>() const
 </pre>
 
-Returns writable base <a href='undocumented#Pixel'>pixel</a> address.
+Returns writable base pixel address.
 
 ### Return Value
 
@@ -1391,7 +1393,7 @@ pixmap.getColor(0, 0) == 0xFFFFFFFF
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void* <a href='#SkPixmap_writable_addr'>writable addr</a>(int x, int y) const
+void* <a href='#SkPixmap_writable_addr'>writable_addr</a>(int x, int y) const
 </pre>
 
 Returns writable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_writable_addr_2_x'>x</a>, <a href='#SkPixmap_writable_addr_2_y'>y</a>).
@@ -1436,7 +1438,7 @@ pixmap.getColor(1, 2) == 0xFFFFFFFF
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint8_t* <a href='#SkPixmap_writable_addr8'>writable addr8</a>(int x, int y) const
+uint8_t* writable_addr8(int x, int y) const
 </pre>
 
 Returns writable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_writable_addr8_x'>x</a>, <a href='#SkPixmap_writable_addr8_y'>y</a>). Result is addressable as unsigned
@@ -1461,8 +1463,8 @@ writable unsigned 8-bit pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="809284db136748208b3efc31cd89de29"><div>Altering pixels after drawing <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is not guaranteed to affect subsequent
-drawing on all platforms. Adding a second <a href='SkBitmap_Reference#SkBitmap_installPixels'>SkBitmap::installPixels</a> after editing
+<div><fiddle-embed name="809284db136748208b3efc31cd89de29"><div>Altering pixels after drawing Bitmap is not guaranteed to affect subsequent
+drawing on all platforms. Adding a second SkBitmap::installPixels after editing
 pixel memory is safer.
 </div></fiddle-embed></div>
 
@@ -1475,7 +1477,7 @@ pixel memory is safer.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint16_t* <a href='#SkPixmap_writable_addr16'>writable addr16</a>(int x, int y) const
+uint16_t* writable_addr16(int x, int y) const
 </pre>
 
 Returns <a href='#SkPixmap_writable_addr'>writable_addr</a> <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_writable_addr16_x'>x</a>, <a href='#SkPixmap_writable_addr16_y'>y</a>). Result is addressable as unsigned
@@ -1501,7 +1503,7 @@ writable unsigned 16-bit pointer to <a href='undocumented#Pixel'>pixel</a>
 ### Example
 
 <div><fiddle-embed name="6da54774f6432b46b47ea9013c15f280"><div>Draw a five by five bitmap, and draw it again with a center black pixel.
-The low nibble of the 16-bit word is <a href='SkColor_Reference#Alpha'>Alpha</a>.
+The low nibble of the 16-bit word is Alpha.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -1513,7 +1515,7 @@ The low nibble of the 16-bit word is <a href='SkColor_Reference#Alpha'>Alpha</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint32_t* <a href='#SkPixmap_writable_addr32'>writable addr32</a>(int x, int y) const
+uint32_t* writable_addr32(int x, int y) const
 </pre>
 
 Returns writable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_writable_addr32_x'>x</a>, <a href='#SkPixmap_writable_addr32_y'>y</a>). Result is addressable as unsigned
@@ -1550,7 +1552,7 @@ writable unsigned 32-bit pointer to <a href='undocumented#Pixel'>pixel</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint64_t* <a href='#SkPixmap_writable_addr64'>writable addr64</a>(int x, int y) const
+uint64_t* writable_addr64(int x, int y) const
 </pre>
 
 Returns writable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_writable_addr64_x'>x</a>, <a href='#SkPixmap_writable_addr64_y'>y</a>). Result is addressable as unsigned
@@ -1586,7 +1588,7 @@ writable unsigned 64-bit pointer to <a href='undocumented#Pixel'>pixel</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint16_t* <a href='#SkPixmap_writable_addrF16'>writable addrF16</a>(int x, int y) const
+uint16_t* writable_addrF16(int x, int y) const
 </pre>
 
 Returns writable <a href='undocumented#Pixel'>pixel</a> address at (<a href='#SkPixmap_writable_addrF16_x'>x</a>, <a href='#SkPixmap_writable_addrF16_y'>y</a>). Result is addressable as unsigned
@@ -1683,29 +1685,29 @@ bool <a href='#SkPixmap_readPixels'>readPixels</a>(const <a href='SkImageInfo_Re
 </pre>
 
 Copies a <a href='SkRect_Reference#Rect'>Rect</a> of pixels to <a href='#SkPixmap_readPixels_2_dstPixels'>dstPixels</a>. Copy starts at (<a href='#SkPixmap_readPixels_2_srcX'>srcX</a>, <a href='#SkPixmap_readPixels_2_srcY'>srcY</a>), and does not
-exceed <a href='#Pixmap'>Pixmap</a> (<a href='#SkPixmap_width'>width</a>(), <a href='#SkPixmap_height'>height</a>()).
+exceed <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> (<a href='#SkPixmap_width'>width()</a>, <a href='#SkPixmap_height'>height()</a>).
 
-<a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a> specifies width, height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, and
-<a href='undocumented#Color_Space'>Color Space</a> of destination. <a href='#SkPixmap_readPixels_2_dstRowBytes'>dstRowBytes</a> specifics the gap from one destination
+<a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a> specifies width, height, <a href='#Image_Info_Color_Type'>Color_Type</a>, <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>, and
+<a href='#Color_Space'>Color_Space</a> of destination. <a href='#SkPixmap_readPixels_2_dstRowBytes'>dstRowBytes</a> specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
-<a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkPixmap_addr'>addr</a>() equals nullptr, or <a href='#SkPixmap_readPixels_2_dstRowBytes'>dstRowBytes</a> is less than <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='SkImageInfo_Reference#SkImageInfo'>minRowBytes</a>.
+<a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a> has no address, or <a href='#SkPixmap_readPixels_2_dstRowBytes'>dstRowBytes</a> is less than <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_minRowBytes'>minRowBytes</a>().
 
-<a href='#Pixels'>Pixels</a> are copied only if pixel conversion is possible. If <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorType'>colorType</a> is
-<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkPixmap_colorType'>colorType</a> must match.
-If <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkPixmap_colorSpace'>colorSpace</a> must match.
-If <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_alphaType'>alphaType</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkPixmap_alphaType'>alphaType</a> must
-match. If <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorSpace'>colorSpace</a> is nullptr, <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkPixmap_colorSpace'>colorSpace</a> must match. Returns
-false if pixel conversion is not possible.
+Pixels are copied only if <a href='undocumented#Pixel'>pixel</a> conversion is possible. If <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorType'>colorType</a> is
+<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_colorType'>colorType</a>() must match.
+If <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_colorSpace'>colorSpace</a>() must match.
+If <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_alphaType'>alphaType</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_alphaType'>alphaType</a>() must
+match. If <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorSpace'>colorSpace</a> is nullptr, <a href='#SkPixmap_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_colorSpace'>colorSpace</a>() must match. Returns
+false if <a href='undocumented#Pixel'>pixel</a> conversion is not possible.
 
 <a href='#SkPixmap_readPixels_2_srcX'>srcX</a> and <a href='#SkPixmap_readPixels_2_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
-false if <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a>() or <a href='#SkPixmap_height'>height</a>() is zero or negative. Returns false if:
+false if <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width()</a> or <a href='#SkPixmap_height'>height()</a> is zero or negative. Returns false if:
 
 <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a>(\)</code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_height'>height</a>(\)</code>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPixmap_readPixels_2_dstInfo'><code><strong>dstInfo</strong></code></a></td>
-    <td>destination width, height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, <a href='undocumented#Color_Space'>Color Space</a></td>
+    <td>destination width, height, Color_Type, Alpha_Type, Color_Space</td>
   </tr>
   <tr>    <td><a name='SkPixmap_readPixels_2_dstPixels'><code><strong>dstPixels</strong></code></a></td>
     <td>destination pixel storage</td>
@@ -1714,16 +1716,16 @@ false if <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a>() or <
     <td>destination row length</td>
   </tr>
   <tr>    <td><a name='SkPixmap_readPixels_2_srcX'><code><strong>srcX</strong></code></a></td>
-    <td>column index whose absolute value is less than <a href='#SkPixmap_width'>width</a>()</td>
+    <td>column index whose absolute value is less than <a href='#SkPixmap_width'>width()</a></td>
   </tr>
   <tr>    <td><a name='SkPixmap_readPixels_2_srcY'><code><strong>srcY</strong></code></a></td>
-    <td>row index whose absolute value is less than <a href='#SkPixmap_height'>height</a>()</td>
+    <td>row index whose absolute value is less than <a href='#SkPixmap_height'>height()</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-true if pixels are copied to <a href='#SkPixmap_readPixels_2_dstPixels'>dstPixels</a>
+true if pixels are copied to dstPixels
 
 ### Example
 
@@ -1738,43 +1740,43 @@ true if pixels are copied to <a href='#SkPixmap_readPixels_2_dstPixels'>dstPixel
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPixmap_readPixels'>readPixels</a>(const <a href='#SkPixmap'>SkPixmap</a>& dst, int srcX, int srcY) const
+bool <a href='#SkPixmap_readPixels'>readPixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst, int srcX, int srcY) const
 </pre>
 
 Copies a <a href='SkRect_Reference#Rect'>Rect</a> of pixels to <a href='#SkPixmap_readPixels_3_dst'>dst</a>. Copy starts at (<a href='#SkPixmap_readPixels_3_srcX'>srcX</a>, <a href='#SkPixmap_readPixels_3_srcY'>srcY</a>), and does not
-exceed <a href='#Pixmap'>Pixmap</a> (<a href='#SkPixmap_width'>width</a>(), <a href='#SkPixmap_height'>height</a>()). <a href='#SkPixmap_readPixels_3_dst'>dst</a> specifies width, height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>,
-<a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, and <a href='undocumented#Color_Space'>Color Space</a> of destination.  Returns true if pixels are copied.
-Returns false if <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_addr'>addr</a>() equals nullptr, or <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_rowBytes'>rowBytes</a> is less than
-<a href='#SkPixmap_readPixels_3_dst'>dst</a> <a href='SkImageInfo_Reference#SkImageInfo_minRowBytes'>SkImageInfo::minRowBytes</a>.
+exceed <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> (<a href='#SkPixmap_width'>width()</a>, <a href='#SkPixmap_height'>height()</a>). <a href='#SkPixmap_readPixels_3_dst'>dst</a> specifies width, height, <a href='#Image_Info_Color_Type'>Color_Type</a>,
+<a href='#Image_Info_Alpha_Type'>Alpha_Type</a>, and <a href='#Color_Space'>Color_Space</a> of destination.  Returns true if pixels are copied.
+Returns false if <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_addr'>addr()</a> equals nullptr, or <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_rowBytes'>rowBytes</a>() is less than
+<a href='#SkPixmap_readPixels_3_dst'>dst</a> <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>::<a href='#SkImageInfo_minRowBytes'>minRowBytes</a>.
 
-<a href='#Pixels'>Pixels</a> are copied only if pixel conversion is possible. If <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorType'>colorType</a> is
-<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_info'>info</a>().<a href='#SkPixmap_colorType'>colorType</a> must match.
-If <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_info'>info</a>().<a href='#SkPixmap_colorSpace'>colorSpace</a> must match.
-If <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_alphaType'>alphaType</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_info'>info</a>().<a href='#SkPixmap_alphaType'>alphaType</a> must
-match. If <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorSpace'>colorSpace</a> is nullptr, <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_info'>info</a>().<a href='#SkPixmap_colorSpace'>colorSpace</a> must match. Returns
-false if pixel conversion is not possible.
+Pixels are copied only if <a href='undocumented#Pixel'>pixel</a> conversion is possible. If <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorType'>colorType</a> is
+<a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_info'>info()</a>.<a href='#SkImageInfo_colorType'>colorType</a>() must match.
+If <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_info'>info()</a>.<a href='#SkImageInfo_colorSpace'>colorSpace</a>() must match.
+If <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_alphaType'>alphaType</a> is <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_info'>info()</a>.<a href='#SkImageInfo_alphaType'>alphaType</a>() must
+match. If <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_colorSpace'>colorSpace</a> is nullptr, <a href='#SkPixmap_readPixels_3_dst'>dst</a>.<a href='#SkPixmap_info'>info()</a>.<a href='#SkImageInfo_colorSpace'>colorSpace</a>() must match. Returns
+false if <a href='undocumented#Pixel'>pixel</a> conversion is not possible.
 
 <a href='#SkPixmap_readPixels_3_srcX'>srcX</a> and <a href='#SkPixmap_readPixels_3_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
-false <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a>() or <a href='#SkPixmap_height'>height</a>() is zero or negative. Returns false if:
+false <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width()</a> or <a href='#SkPixmap_height'>height()</a> is zero or negative. Returns false if:
 
 <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a>(\)</code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_height'>height</a>(\)</code>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPixmap_readPixels_3_dst'><code><strong>dst</strong></code></a></td>
-    <td><a href='SkImageInfo_Reference#Image_Info'>Image Info</a> and pixel address to write to</td>
+    <td><a href='#Image_Info'>Image_Info</a> and pixel address to write to</td>
   </tr>
   <tr>    <td><a name='SkPixmap_readPixels_3_srcX'><code><strong>srcX</strong></code></a></td>
-    <td>column index whose absolute value is less than <a href='#SkPixmap_width'>width</a>()</td>
+    <td>column index whose absolute value is less than <a href='#SkPixmap_width'>width()</a></td>
   </tr>
   <tr>    <td><a name='SkPixmap_readPixels_3_srcY'><code><strong>srcY</strong></code></a></td>
-    <td>row index whose absolute value is less than <a href='#SkPixmap_height'>height</a>()</td>
+    <td>row index whose absolute value is less than <a href='#SkPixmap_height'>height()</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-true if pixels are copied to <a href='#SkPixmap_readPixels_3_dst'>dst</a>
+true if pixels are copied to dst
 
 ### Example
 
@@ -1789,7 +1791,7 @@ true if pixels are copied to <a href='#SkPixmap_readPixels_3_dst'>dst</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPixmap_readPixels'>readPixels</a>(const <a href='#SkPixmap'>SkPixmap</a>& dst) const
+bool <a href='#SkPixmap_readPixels'>readPixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst) const
 </pre>
 
 Copies pixels inside <a href='#SkPixmap_bounds'>bounds()</a> to <a href='#SkPixmap_readPixels_4_dst'>dst</a>. <a href='#SkPixmap_readPixels_4_dst'>dst</a> specifies width, height, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a>,
@@ -1830,7 +1832,7 @@ true if pixels are copied to <a href='#SkPixmap_readPixels_4_dst'>dst</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPixmap_scalePixels'>scalePixels</a>(const <a href='#SkPixmap'>SkPixmap</a>& dst, <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> filterQuality) const
+bool <a href='#SkPixmap_scalePixels'>scalePixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst, <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> filterQuality) const
 </pre>
 
 Copies <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a> to <a href='#SkPixmap_scalePixels_dst'>dst</a>, scaling pixels to fit <a href='#SkPixmap_scalePixels_dst'>dst</a>.<a href='#SkPixmap_width'>width()</a> and <a href='#SkPixmap_scalePixels_dst'>dst</a>.<a href='#SkPixmap_height'>height()</a>, and
@@ -1883,7 +1885,7 @@ true if pixels are scaled to fit <a href='#SkPixmap_scalePixels_dst'>dst</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPixmap_erase'>erase</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> color, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& subset) const
+bool erase(<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor_Reference#Color'>color</a>, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& subset) const
 </pre>
 
 Writes <a href='#SkPixmap_erase()_color'>color</a> to pixels bounded by <a href='#SkPixmap_erase()_subset'>subset</a>; returns true on success.
@@ -1917,7 +1919,7 @@ true if pixels are changed
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPixmap_erase'>erase</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> color) const
+bool erase(<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor_Reference#Color'>color</a>) const
 </pre>
 
 Writes <a href='#SkPixmap_erase_2_color'>color</a> to pixels inside <a href='#SkPixmap_bounds'>bounds()</a>; returns true on success.
@@ -1948,7 +1950,7 @@ true if pixels are changed
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPixmap_erase'>erase</a>(const <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>& color, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>* subset = nullptr) const
+bool erase(const <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>& <a href='SkColor_Reference#Color'>color</a>, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>* subset = nullptr) const
 </pre>
 
 Writes <a href='#SkPixmap_erase_3_color'>color</a> to pixels bounded by <a href='#SkPixmap_erase_3_subset'>subset</a>; returns true on success.

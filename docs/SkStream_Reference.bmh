@@ -349,7 +349,7 @@ to be at the beginning after this call returns.
 #In incomplete
 #Line # incomplete ##
 
-Duplicates this stream. If this cannot be done, returns NULL.
+Duplicates this stream. If this cannot be done, returns nullptr.
 The returned stream will be positioned at the beginning of its data.
 
 #Return incomplete ##
@@ -368,7 +368,7 @@ The returned stream will be positioned at the beginning of its data.
 #In incomplete
 #Line # incomplete ##
 
-Duplicates this stream. If this cannot be done, returns NULL.
+Duplicates this stream. If this cannot be done, returns nullptr.
 The returned stream will be positioned the same as this stream.
 
 #Return incomplete ##
@@ -503,8 +503,11 @@ Returns the total length of the stream. If this cannot be done, returns 0.
 #In incomplete
 #Line # incomplete ##
 
-Returns the starting address for the data. If this cannot be done, returns NULL.
+Returns the starting address for the data. If this cannot be done, returns nullptr.
+
+#Private
 TODO: replace with virtual const SkData* getData()
+##
 
 #Return incomplete ##
 

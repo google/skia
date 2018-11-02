@@ -69,9 +69,9 @@ struct <a href='#SkIRect'>SkIRect</a> {
 };
 </pre>
 
-<a href='#SkIRect'>SkIRect</a> holds four 32-bit integer coordinates describing the upper and
-lower bounds of a rectangle. <a href='#SkIRect'>SkIRect</a> may be created from outer bounds or
-from position, width, and height. <a href='#SkIRect'>SkIRect</a> describes an area; if its right
+<a href='SkIRect_Reference#SkIRect'>SkIRect</a> holds four 32-bit integer coordinates describing the upper and
+lower bounds of a rectangle. <a href='SkIRect_Reference#SkIRect'>SkIRect</a> may be created from outer bounds or
+from position, width, and height. <a href='SkIRect_Reference#SkIRect'>SkIRect</a> describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
 its top, it is considered empty.<table style='border-collapse: collapse; width: 62.5em'>
 
@@ -83,7 +83,7 @@ its top, it is considered empty.<table style='border-collapse: collapse; width: 
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkIRect_fLeft'><code>fLeft</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 May contain any value. The smaller of the horizontal values when sorted.
-When equal to or greater than <a href='#SkIRect_fRight'>fRight</a>, <a href='#IRect'>IRect</a> is empty.
+When equal to or greater than <a href='#SkIRect_fRight'>fRight</a>, <a href='SkIRect_Reference#IRect'>IRect</a> is empty.
 </td>
   </tr>
   <tr>
@@ -91,7 +91,7 @@ When equal to or greater than <a href='#SkIRect_fRight'>fRight</a>, <a href='#IR
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkIRect_fTop'><code>fTop</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 May contain any value. The smaller of the horizontal values when sorted.
-When equal to or greater than <a href='#SkIRect_fBottom'>fBottom</a>, <a href='#IRect'>IRect</a> is empty.
+When equal to or greater than <a href='#SkIRect_fBottom'>fBottom</a>, <a href='SkIRect_Reference#IRect'>IRect</a> is empty.
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
@@ -99,7 +99,7 @@ When equal to or greater than <a href='#SkIRect_fBottom'>fBottom</a>, <a href='#
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkIRect_fRight'><code>fRight</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 May contain any value. The larger of the vertical values when sorted.
-When equal to or less than <a href='#SkIRect_fLeft'>fLeft</a>, <a href='#IRect'>IRect</a> is empty.
+When equal to or less than <a href='#SkIRect_fLeft'>fLeft</a>, <a href='SkIRect_Reference#IRect'>IRect</a> is empty.
 </td>
   </tr>
   <tr>
@@ -107,7 +107,7 @@ When equal to or less than <a href='#SkIRect_fLeft'>fLeft</a>, <a href='#IRect'>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkIRect_fBottom'><code>fBottom</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 May contain any value. The larger of the vertical values when sorted.
-When equal to or less than <a href='#SkIRect_fTop'>fTop</a>, <a href='#IRect'>IRect</a> is empty.
+When equal to or less than <a href='#SkIRect_fTop'>fTop</a>, <a href='SkIRect_Reference#IRect'>IRect</a> is empty.
 </td>
   </tr>
 </table>
@@ -117,10 +117,10 @@ When equal to or less than <a href='#SkIRect_fTop'>fTop</a>, <a href='#IRect'>IR
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeEmpty'>MakeEmpty</a>()
+static constexpr <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeEmpty'>MakeEmpty</a>()
 </pre>
 
-Returns constructed <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to (0, 0, 0, 0).
+Returns constructed SkIRect set to (0, 0, 0, 0).
 Many other rectangles are empty; if left is equal to or greater than right,
 or if top is equal to or greater than bottom. Setting all members to zero
 is a convenience, but does not designate a special empty rectangle.
@@ -153,7 +153,7 @@ outset rect isEmpty: false
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeWH'>MakeWH</a>(int32_t w, int32_t h)
+static constexpr <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeWH'>MakeWH</a>(int32_t w, int32_t h)
 </pre>
 
 Returns constructed <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to (0, 0, <a href='#SkIRect_MakeWH_w'>w</a>, <a href='#SkIRect_MakeWH_h'>h</a>). Does not validate input; <a href='#SkIRect_MakeWH_w'>w</a> or <a href='#SkIRect_MakeWH_h'>h</a>
@@ -194,7 +194,7 @@ all equal
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeSize'>MakeSize</a>(const <a href='undocumented#SkISize'>SkISize</a>& size)
+static constexpr <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeSize'>MakeSize</a>(const <a href='undocumented#SkISize'>SkISize</a>& <a href='undocumented#Size'>size</a>)
 </pre>
 
 Returns constructed <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to (0, 0, <a href='#SkIRect_MakeSize_size'>size</a>.<a href='#SkISize_width'>width()</a>, <a href='#SkIRect_MakeSize_size'>size</a>.<a href='#SkISize_height'>height()</a>).
@@ -233,7 +233,7 @@ floor width: 25  height: 35
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeLTRB'>MakeLTRB</a>(int32_t l, int32_t t, int32_t r, int32_t b)
+static constexpr <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeLTRB'>MakeLTRB</a>(int32_t l, int32_t t, int32_t r, int32_t b)
 </pre>
 
 Returns constructed <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to (<a href='#SkIRect_MakeLTRB_l'>l</a>, <a href='#SkIRect_MakeLTRB_t'>t</a>, <a href='#SkIRect_MakeLTRB_r'>r</a>, <a href='#SkIRect_MakeLTRB_b'>b</a>). Does not sort input; <a href='SkIRect_Reference#SkIRect'>SkIRect</a> may
@@ -281,7 +281,7 @@ rect: 5, 25, 15, 35  isEmpty: false
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeXYWH'>MakeXYWH</a>(int32_t x, int32_t y, int32_t w, int32_t h)
+static constexpr <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkIRect_MakeXYWH'>MakeXYWH</a>(int32_t x, int32_t y, int32_t w, int32_t h)
 </pre>
 
 Returns constructed <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to: (<a href='#SkIRect_MakeXYWH_x'>x</a>, <a href='#SkIRect_MakeXYWH_y'>y</a>, <a href='#SkIRect_MakeXYWH_x'>x</a> + <a href='#SkIRect_MakeXYWH_w'>w</a>, <a href='#SkIRect_MakeXYWH_y'>y</a> + <a href='#SkIRect_MakeXYWH_h'>h</a>).
@@ -331,15 +331,15 @@ rect: -10, 35, 5, 60  isEmpty: false
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIRect_left'>left</a>() const
+int32_t <a href='#SkIRect_left'>left()</a> const
 </pre>
 
-Returns left edge of <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, if sorted.
-Call <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if needed.
+Returns left edge of SkIRect, if sorted.
+Call sort() to reverse fLeft and fRight if needed.
 
 ### Return Value
 
-<a href='#SkIRect_fLeft'>fLeft</a>
+fLeft
 
 ### Example
 
@@ -363,15 +363,15 @@ sorted.fLeft: 10 sorted.left(): 10
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIRect_top'>top</a>() const
+int32_t <a href='#SkIRect_top'>top()</a> const
 </pre>
 
-Returns top edge of <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, if sorted. Call <a href='#SkIRect_isEmpty'>isEmpty</a>() to see if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> may be invalid,
-and <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if needed.
+Returns top edge of SkIRect, if sorted. Call isEmpty() to see if SkIRect may be invalid,
+and sort() to reverse fTop and fBottom if needed.
 
 ### Return Value
 
-<a href='#SkIRect_fTop'>fTop</a>
+fTop
 
 ### Example
 
@@ -395,15 +395,15 @@ sorted.fTop: 5 sorted.top(): 5
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIRect_right'>right</a>() const
+int32_t <a href='#SkIRect_right'>right()</a> const
 </pre>
 
-Returns right edge of <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, if sorted.
-Call <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if needed.
+Returns right edge of SkIRect, if sorted.
+Call sort() to reverse fLeft and fRight if needed.
 
 ### Return Value
 
-<a href='#SkIRect_fRight'>fRight</a>
+fRight
 
 ### Example
 
@@ -427,15 +427,15 @@ sorted.fRight: 15 sorted.right(): 15
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIRect_bottom'>bottom</a>() const
+int32_t <a href='#SkIRect_bottom'>bottom()</a> const
 </pre>
 
-Returns bottom edge of <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, if sorted. Call <a href='#SkIRect_isEmpty'>isEmpty</a>() to see if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> may be invalid,
-and <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if needed.
+Returns bottom edge of SkIRect, if sorted. Call isEmpty() to see if SkIRect may be invalid,
+and sort() to reverse fTop and fBottom if needed.
 
 ### Return Value
 
-<a href='#SkIRect_fBottom'>fBottom</a>
+fBottom
 
 ### Example
 
@@ -459,15 +459,15 @@ sorted.fBottom: 25 sorted.bottom(): 25
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIRect_x'>x</a>() const
+int32_t <a href='#SkIRect_x'>x()</a> const
 </pre>
 
-Returns left edge of <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, if sorted. Call <a href='#SkIRect_isEmpty'>isEmpty</a>() to see if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> may be invalid,
-and <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if needed.
+Returns left edge of SkIRect, if sorted. Call isEmpty() to see if SkIRect may be invalid,
+and sort() to reverse fLeft and fRight if needed.
 
 ### Return Value
 
-<a href='#SkIRect_fLeft'>fLeft</a>
+fLeft
 
 ### Example
 
@@ -491,15 +491,15 @@ sorted.fLeft: 10 sorted.x(): 10
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIRect_y'>y</a>() const
+int32_t <a href='#SkIRect_y'>y()</a> const
 </pre>
 
-Returns top edge of <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, if sorted. Call <a href='#SkIRect_isEmpty'>isEmpty</a>() to see if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> may be invalid,
-and <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if needed.
+Returns top edge of SkIRect, if sorted. Call isEmpty() to see if SkIRect may be invalid,
+and sort() to reverse fTop and fBottom if needed.
 
 ### Return Value
 
-<a href='#SkIRect_fTop'>fTop</a>
+fTop
 
 ### Example
 
@@ -523,15 +523,15 @@ sorted.fTop: 5 sorted.y(): 5
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIRect_width'>width</a>() const
+int32_t <a href='#SkIRect_width'>width()</a> const
 </pre>
 
-Returns span on the x-axis. This does not check if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> is sorted, or if
+Returns span on the x-axis. This does not check if SkIRect is sorted, or if
 result fits in 32-bit signed integer; result may be negative.
 
 ### Return Value
 
-<a href='#SkIRect_fRight'>fRight</a> minus <a href='#SkIRect_fLeft'>fLeft</a>
+fRight minus fLeft
 
 ### Example
 
@@ -558,13 +558,13 @@ large width: -5
 int64_t <a href='#SkIRect_width64'>width64</a>() const
 </pre>
 
-Returns span on the x-axis. This does not check if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> is sorted, so the
-result may be negative. This is safer than calling <a href='#SkIRect_width'>width()</a> since <a href='#SkIRect_width'>width()</a> might
+Returns span on the x-axis. This does not check if SkIRect is sorted, so the
+result may be negative. This is safer than calling width() since width() might
 overflow in its calculation.
 
 ### Return Value
 
-<a href='#SkIRect_fRight'>fRight</a> minus <a href='#SkIRect_fLeft'>fLeft</a> cast to int64_t
+fRight minus fLeft cast to int64_t
 
 ### Example
 
@@ -587,15 +587,15 @@ width: -5 width64: 4294967291
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIRect_height'>height</a>() const
+int32_t <a href='#SkIRect_height'>height()</a> const
 </pre>
 
-Returns span on the y-axis. This does not check if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> is sorted, or if
+Returns span on the y-axis. This does not check if SkIRect is sorted, or if
 result fits in 32-bit signed integer; result may be negative.
 
 ### Return Value
 
-<a href='#SkIRect_fBottom'>fBottom</a> minus <a href='#SkIRect_fTop'>fTop</a>
+fBottom minus fTop
 
 ### Example
 
@@ -622,13 +622,13 @@ large height: -5
 int64_t <a href='#SkIRect_height64'>height64</a>() const
 </pre>
 
-Returns span on the y-axis. This does not check if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> is sorted, so the
-result may be negative. This is safer than calling <a href='#SkIRect_height'>height()</a> since <a href='#SkIRect_height'>height()</a> might
+Returns span on the y-axis. This does not check if SkIRect is sorted, so the
+result may be negative. This is safer than calling height() since height() might
 overflow in its calculation.
 
 ### Return Value
 
-<a href='#SkIRect_fBottom'>fBottom</a> minus <a href='#SkIRect_fTop'>fTop</a> cast to int64_t
+fBottom minus fTop cast to int64_t
 
 ### Example
 
@@ -651,15 +651,15 @@ height: -5 height64: 4294967291
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkISize'>SkISize</a> <a href='#SkIRect_size'>size</a>() const
+<a href='undocumented#SkISize'>SkISize</a> <a href='#SkIRect_size'>size()</a> const
 </pre>
 
-Returns spans on the x-axis and y-axis. This does not check if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> is sorted,
+Returns spans on the x-axis and y-axis. This does not check if SkIRect is sorted,
 or if result fits in 32-bit signed integer; result may be negative.
 
 ### Return Value
 
-<a href='undocumented#SkISize'>SkISize</a> (width, height)
+SkISize (width, height)
 
 ### Example
 
@@ -687,11 +687,11 @@ outset rect: 20, 30, 80, 90  size: 60, 60
 bool <a href='#SkIRect_isEmpty'>isEmpty</a>() const
 </pre>
 
-Returns true if <a href='#SkIRect_width'>width()</a> or <a href='#SkIRect_height'>height()</a> are zero or negative.
+Returns true if width() or height() are zero or negative.
 
 ### Return Value
 
-true if <a href='#SkIRect_width'>width()</a> or <a href='#SkIRect_height'>height()</a> are zero or negative
+true if width() or height() are zero or negative
 
 ### Example
 
@@ -720,13 +720,13 @@ sorted: {20, 40, 20, 50} is empty
 bool <a href='#SkIRect_isEmpty64'>isEmpty64</a>() const
 </pre>
 
-Returns true if <a href='#SkIRect_fLeft'>fLeft</a> is equal to or greater than <a href='#SkIRect_fRight'>fRight</a>, or if <a href='#SkIRect_fTop'>fTop</a> is equal
-to or greater than <a href='#SkIRect_fBottom'>fBottom</a>. Call <a href='#SkIRect_sort'>sort()</a> to reverse rectangles with negative
-<a href='#SkIRect_width64'>width64</a>() or <a href='#SkIRect_height64'>height64</a>().
+Returns true if fLeft is equal to or greater than fRight, or if fTop is equal
+to or greater than fBottom. Call sort() to reverse rectangles with negative
+width64() or height64().
 
 ### Return Value
 
-true if <a href='#SkIRect_width64'>width64</a>() or <a href='#SkIRect_height64'>height64</a>() are zero or negative
+true if width64() or height64() are zero or negative
 
 ### Example
 
@@ -754,7 +754,7 @@ sorted: {20, 40, 20, 50} is empty
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_equal_operator'>operator==(const SkIRect& a, const SkIRect& b)</a>
+bool operator==(const SkIRect& a, const SkIRect& b)
 </pre>
 
 Returns true if all members in <a href='#SkIRect_operator==(const SkIRect& a, const SkIRect& b)_a'>a</a>: <a href='#SkIRect_fLeft'>fLeft</a>, <a href='#SkIRect_fTop'>fTop</a>, <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_fBottom'>fBottom</a>; are
@@ -795,7 +795,7 @@ test == sorted
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_notequal_operator'>operator!=(const SkIRect& a, const SkIRect& b)</a>
+bool operator!=(const SkIRect& a, const SkIRect& b)
 </pre>
 
 Returns true if any member in <a href='#SkIRect_operator!=(const SkIRect& a, const SkIRect& b)_a'>a</a>: <a href='#SkIRect_fLeft'>fLeft</a>, <a href='#SkIRect_fTop'>fTop</a>, <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_fBottom'>fBottom</a>; is not
@@ -841,7 +841,7 @@ test != sorted
 void <a href='#SkIRect_setEmpty'>setEmpty</a>()
 </pre>
 
-Sets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to (0, 0, 0, 0).
+Sets SkIRect to (0, 0, 0, 0).
 
 Many other rectangles are empty; if left is equal to or greater than right,
 or if top is equal to or greater than bottom. Setting all members to zero
@@ -869,7 +869,7 @@ rect: {0, 0, 0, 0} is empty
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIRect_set'>set</a>(int32_t left, int32_t top, int32_t right, int32_t bottom)
+void set(int32_t left, int32_t top, int32_t right, int32_t bottom)
 </pre>
 
 Sets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to (<a href='#SkIRect_set()_left'>left</a>, <a href='#SkIRect_set()_top'>top</a>, <a href='#SkIRect_set()_right'>right</a>, <a href='#SkIRect_set()_bottom'>bottom</a>).
@@ -962,22 +962,22 @@ rect2: {3, 4, 1, 2}
 void <a href='#SkIRect_setXYWH'>setXYWH</a>(int32_t x, int32_t y, int32_t width, int32_t height)
 </pre>
 
-Sets <a href='#IRect'>IRect</a> to: <code>\(x, y, x&nbsp;\+&nbsp;width, y&nbsp;\+&nbsp;height\)</code>.
-Does not validate input; width or height may be negative.
+Sets <a href='SkIRect_Reference#IRect'>IRect</a> to: <code>\(x, y, x&nbsp;\+&nbsp;width, y&nbsp;\+&nbsp;height\)</code>.
+Does not validate input; <a href='#SkIRect_setXYWH_width'>width</a> or <a href='#SkIRect_setXYWH_height'>height</a> may be negative.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIRect_setXYWH_x'><code><strong>x</strong></code></a></td>
-    <td>stored in <a href='#SkIRect_fLeft'>fLeft</a></td>
+    <td>stored in fLeft</td>
   </tr>
   <tr>    <td><a name='SkIRect_setXYWH_y'><code><strong>y</strong></code></a></td>
-    <td>stored in <a href='#SkIRect_fTop'>fTop</a></td>
+    <td>stored in fTop</td>
   </tr>
   <tr>    <td><a name='SkIRect_setXYWH_width'><code><strong>width</strong></code></a></td>
-    <td>added to x and stored in <a href='#SkIRect_fRight'>fRight</a></td>
+    <td>added to x and stored in fRight</td>
   </tr>
   <tr>    <td><a name='SkIRect_setXYWH_height'><code><strong>height</strong></code></a></td>
-    <td>added to y and stored in <a href='#SkIRect_fBottom'>fBottom</a></td>
+    <td>added to y and stored in fBottom</td>
   </tr>
 </table>
 
@@ -1005,7 +1005,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_makeOffset'>makeOffset</a>(int32_t dx, int32_t dy) const
+SkIRect makeOffset(int32_t dx, int32_t dy) const
 </pre>
 
 Returns <a href='SkIRect_Reference#SkIRect'>SkIRect</a> offset by (<a href='#SkIRect_makeOffset_dx'>dx</a>, <a href='#SkIRect_makeOffset_dy'>dy</a>).
@@ -1051,7 +1051,7 @@ rect: 25, 82, 35, 92  isEmpty: false
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_makeInset'>makeInset</a>(int32_t dx, int32_t dy) const
+<a href='SkIRect_Reference#SkIRect'>SkIRect</a> makeInset(int32_t dx, int32_t dy) const
 </pre>
 
 Returns <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, inset by (<a href='#SkIRect_makeInset_dx'>dx</a>, <a href='#SkIRect_makeInset_dy'>dy</a>).
@@ -1097,7 +1097,7 @@ rect: 25, 82, 5, 28  isEmpty: true
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_makeOutset'>makeOutset</a>(int32_t dx, int32_t dy) const
+<a href='SkIRect_Reference#SkIRect'>SkIRect</a> makeOutset(int32_t dx, int32_t dy) const
 </pre>
 
 Returns <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, outset by (<a href='#SkIRect_makeOutset_dx'>dx</a>, <a href='#SkIRect_makeOutset_dy'>dy</a>).
@@ -1143,7 +1143,7 @@ rect: -5, 18, 35, 92  isEmpty: false
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIRect_offset'>offset</a>(int32_t dx, int32_t dy)
+void offset(int32_t dx, int32_t dy)
 </pre>
 
 Offsets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> by adding <a href='#SkIRect_offset()_dx'>dx</a> to <a href='#SkIRect_fLeft'>fLeft</a>, <a href='#SkIRect_fRight'>fRight</a>; and by adding <a href='#SkIRect_offset()_dy'>dy</a> to <a href='#SkIRect_fTop'>fTop</a>, <a href='#SkIRect_fBottom'>fBottom</a>.
@@ -1184,7 +1184,7 @@ rect: 15, 27, 55, 86
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIRect_offset'>offset</a>(const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& delta)
+void offset(const SkIPoint& delta)
 </pre>
 
 Offsets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> by adding <a href='#SkIRect_offset_2_delta'>delta</a>.<a href='#SkIPoint_fX'>fX</a> to <a href='#SkIRect_fLeft'>fLeft</a>, <a href='#SkIRect_fRight'>fRight</a>; and by adding <a href='#SkIRect_offset_2_delta'>delta</a>.<a href='#SkIPoint_fY'>fY</a> to
@@ -1260,7 +1260,7 @@ rect: 15, 27, 55, 86
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIRect_inset'>inset</a>(int32_t dx, int32_t dy)
+void inset(int32_t dx, int32_t dy)
 </pre>
 
 Insets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> by (<a href='#SkIRect_inset()_dx'>dx</a>,<a href='#SkIRect_inset()_dy'>dy</a>).
@@ -1301,7 +1301,7 @@ rect: 15, 27, 45, 60
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIRect_outset'>outset</a>(int32_t dx, int32_t dy)
+void outset(int32_t dx, int32_t dy)
 </pre>
 
 Outsets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> by (<a href='#SkIRect_outset()_dx'>dx</a>, <a href='#SkIRect_outset()_dy'>dy</a>).
@@ -1339,21 +1339,21 @@ rect: 5, 1, 55, 86
 
 <a name='Intersection'></a>
 
-<a href='#IRect'>IRects</a> intersect when they enclose a common area. To intersect, each of the pair
-must describe area; <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_fTop'>fTop</a> is less than <a href='#SkIRect_fBottom'>fBottom</a>;
-empty() returns false. The intersection of <a href='#IRect'>IRect</a> pair can be described by:
+IRects intersect when they enclose a common area. To intersect, each of the pair
+must describe area; fLeft is less than fRight, and fTop is less than fBottom;
+empty() returns false. The intersection of IRect pair can be described by:
 <code>\(max\(a\.<a href='#SkIRect_fLeft'>fLeft</a>, b\.<a href='#SkIRect_fLeft'>fLeft</a>\), max\(a\.<a href='#SkIRect_fTop'>fTop</a>, b\.<a href='#SkIRect_fTop'>fTop</a>\),
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min\(a\.<a href='#SkIRect_fRight'>fRight</a>, b\.<a href='#SkIRect_fRight'>fRight</a>\), min\(a\.<a href='#SkIRect_fBottom'>fBottom</a>, b\.<a href='#SkIRect_fBottom'>fBottom</a>\)\)</code>.
 
-The intersection is only meaningful if the resulting <a href='#IRect'>IRect</a> is not empty and
-describes an area: <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_fTop'>fTop</a> is less than <a href='#SkIRect_fBottom'>fBottom</a>.
+The intersection is only meaningful if the resulting IRect is not empty and
+describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 
 <a name='SkIRect_adjust'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIRect_adjust'>adjust</a>(int32_t dL, int32_t dT, int32_t dR, int32_t dB)
+void adjust(int32_t dL, int32_t dT, int32_t dR, int32_t dB)
 </pre>
 
 Adjusts <a href='SkIRect_Reference#SkIRect'>SkIRect</a> by adding <a href='#SkIRect_adjust()_dL'>dL</a> to <a href='#SkIRect_fLeft'>fLeft</a>, <a href='#SkIRect_adjust()_dT'>dT</a> to <a href='#SkIRect_fTop'>fTop</a>, <a href='#SkIRect_adjust()_dR'>dR</a> to <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_adjust()_dB'>dB</a> to <a href='#SkIRect_fBottom'>fBottom</a>.
@@ -1404,28 +1404,28 @@ rect: 10, 10, 20, 20
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_contains'>contains</a>(int32_t x, int32_t y) const
+bool contains(int32_t x, int32_t y) const
 </pre>
 
 Returns true if: <code><a href='#SkIRect_fLeft'>fLeft</a>&nbsp;<=&nbsp;x&nbsp;<&nbsp;<a href='#SkIRect_fRight'>fRight</a>&nbsp;&&&nbsp;<a href='#SkIRect_fTop'>fTop</a>&nbsp;<=&nbsp;y&nbsp;<&nbsp;<a href='#SkIRect_fBottom'>fBottom</a></code>.
-Returns false if <a href='#IRect'>IRect</a> is empty.
+Returns false if <a href='SkIRect_Reference#IRect'>IRect</a> is empty.
 
-Considers input to describe constructed <a href='#IRect'>IRect</a>: <code>\(x, y, x&nbsp;\+&nbsp;1, y&nbsp;\+&nbsp;1\)</code> and
-returns true if constructed area is completely enclosed by <a href='#IRect'>IRect</a> area.
+Considers input to describe constructed <a href='SkIRect_Reference#IRect'>IRect</a>: <code>\(x, y, x&nbsp;\+&nbsp;1, y&nbsp;\+&nbsp;1\)</code> and
+returns true if constructed area is completely enclosed by <a href='SkIRect_Reference#IRect'>IRect</a> area.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIRect_contains_x'><code><strong>x</strong></code></a></td>
-    <td>test <a href='SkIPoint_Reference#IPoint'>IPoint</a> x-coordinate</td>
+    <td>test IPoint x-coordinate</td>
   </tr>
   <tr>    <td><a name='SkIRect_contains_y'><code><strong>y</strong></code></a></td>
-    <td>test <a href='SkIPoint_Reference#IPoint'>IPoint</a> y-coordinate</td>
+    <td>test IPoint y-coordinate</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if (x, y) is inside <a href='#IRect'>IRect</a>
+true if (x, y) is inside IRect
 
 ### Example
 
@@ -1450,7 +1450,7 @@ rect: (30, 50, 40, 60) does not contain (30, 60)
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_contains'>contains</a>(int32_t left, int32_t top, int32_t right, int32_t bottom) const
+bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const
 </pre>
 
 Constructs <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to intersect from (<a href='#SkIRect_contains_2_left'>left</a>, <a href='#SkIRect_contains_2_top'>top</a>, <a href='#SkIRect_contains_2_right'>right</a>, <a href='#SkIRect_contains_2_bottom'>bottom</a>). Does not sort
@@ -1502,7 +1502,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_contains'>contains</a>(const <a href='#SkIRect'>SkIRect</a>& r) const
+bool contains(const SkIRect& r) const
 </pre>
 
 Returns true if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> contains <a href='#SkIRect_contains_3_r'>r</a>.
@@ -1544,7 +1544,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_contains'>contains</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& r) const
+bool contains(const SkRect& r) const
 </pre>
 
 Returns true if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> contains <a href='#SkIRect_contains_4_r'>r</a>.
@@ -1640,7 +1640,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck</a>(const <a href='#SkIRect'>SkIRect</a>& r) const
+bool <a href='#SkIRect_containsNoEmptyCheck'>containsNoEmptyCheck</a>(const SkIRect& r) const
 </pre>
 
 Returns true if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> contains construction.
@@ -1682,7 +1682,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_intersect'>intersect</a>(const <a href='#SkIRect'>SkIRect</a>& r)
+bool intersect(const SkIRect& r)
 </pre>
 
 Returns true if <a href='SkIRect_Reference#SkIRect'>SkIRect</a> intersects <a href='#SkIRect_intersect()_r'>r</a>, and sets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to intersection.
@@ -1703,7 +1703,7 @@ true if <a href='#SkIRect_intersect()_r'>r</a> and <a href='SkIRect_Reference#Sk
 
 ### Example
 
-<div><fiddle-embed name="ea233f5d5d1ae0e76fc6f2eb371c927a"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="ea233f5d5d1ae0e76fc6f2eb371c927a"><div>Two SkDebugf calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -1725,7 +1725,7 @@ intersection: 30, 60, 50, 80
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_intersect'>intersect</a>(const <a href='#SkIRect'>SkIRect</a>& a, const <a href='#SkIRect'>SkIRect</a>& b)
+bool intersect(const SkIRect& a, const SkIRect& b)
 </pre>
 
 Returns true if <a href='#SkIRect_intersect_2_a'>a</a> intersects <a href='#SkIRect_intersect_2_b'>b</a>, and sets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to intersection.
@@ -1768,7 +1768,7 @@ intersection: 30, 60, 50, 80
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_intersectNoEmptyCheck'>intersectNoEmptyCheck</a>(const <a href='#SkIRect'>SkIRect</a>& a, const <a href='#SkIRect'>SkIRect</a>& b)
+bool <a href='#SkIRect_intersectNoEmptyCheck'>intersectNoEmptyCheck</a>(const SkIRect& a, const SkIRect& b)
 </pre>
 
 Returns true if <a href='#SkIRect_intersectNoEmptyCheck_a'>a</a> intersects <a href='#SkIRect_intersectNoEmptyCheck_b'>b</a>, and sets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to intersection.
@@ -1811,7 +1811,7 @@ intersection: 30, 60, 50, 80
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIRect_intersect'>intersect</a>(int32_t left, int32_t top, int32_t right, int32_t bottom)
+bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom)
 </pre>
 
 Constructs <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to intersect from (<a href='#SkIRect_intersect_3_left'>left</a>, <a href='#SkIRect_intersect_3_top'>top</a>, <a href='#SkIRect_intersect_3_right'>right</a>, <a href='#SkIRect_intersect_3_bottom'>bottom</a>). Does not sort
@@ -1844,7 +1844,7 @@ true if construction and <a href='SkIRect_Reference#SkIRect'>SkIRect</a> have ar
 
 ### Example
 
-<div><fiddle-embed name="200422990eded2f754ab9893118f2645"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="200422990eded2f754ab9893118f2645"><div>Two SkDebugf calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -1866,7 +1866,7 @@ intersection: 30, 60, 50, 80
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static bool <a href='#SkIRect_Intersects'>Intersects</a>(const <a href='#SkIRect'>SkIRect</a>& a, const <a href='#SkIRect'>SkIRect</a>& b)
+static bool Intersects(const SkIRect& a, const SkIRect& b)
 </pre>
 
 Returns true if <a href='#SkIRect_Intersects_a'>a</a> intersects <a href='#SkIRect_Intersects_b'>b</a>.
@@ -1907,7 +1907,7 @@ intersection
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static bool <a href='#SkIRect_IntersectsNoEmptyCheck'>IntersectsNoEmptyCheck</a>(const <a href='#SkIRect'>SkIRect</a>& a, const <a href='#SkIRect'>SkIRect</a>& b)
+static bool <a href='#SkIRect_IntersectsNoEmptyCheck'>IntersectsNoEmptyCheck</a>(const SkIRect& a, const SkIRect& b)
 </pre>
 
 Returns true if <a href='#SkIRect_IntersectsNoEmptyCheck_a'>a</a> intersects <a href='#SkIRect_IntersectsNoEmptyCheck_b'>b</a>.
@@ -1950,7 +1950,7 @@ intersection
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIRect_join'>join</a>(int32_t left, int32_t top, int32_t right, int32_t bottom)
+void join(int32_t left, int32_t top, int32_t right, int32_t bottom)
 </pre>
 
 Constructs <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to intersect from (<a href='#SkIRect_join()_left'>left</a>, <a href='#SkIRect_join()_top'>top</a>, <a href='#SkIRect_join()_right'>right</a>, <a href='#SkIRect_join()_bottom'>bottom</a>). Does not sort
@@ -1998,7 +1998,7 @@ join: 10, 20, 55, 65
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIRect_join'>join</a>(const <a href='#SkIRect'>SkIRect</a>& r)
+void join(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& r)
 </pre>
 
 Sets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to the union of itself and <a href='#SkIRect_join_2_r'>r</a>.
@@ -2035,12 +2035,12 @@ join: 10, 20, 55, 65
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIRect_sort'>sort</a>()
+void sort()
 </pre>
 
-Swaps <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> if <a href='#SkIRect_fLeft'>fLeft</a> is greater than <a href='#SkIRect_fRight'>fRight</a>; and swaps
-<a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> if <a href='#SkIRect_fTop'>fTop</a> is greater than <a href='#SkIRect_fBottom'>fBottom</a>. Result may be empty,
-and <a href='#SkIRect_width'>width()</a> and <a href='#SkIRect_height'>height()</a> will be zero or positive.
+Swaps fLeft and fRight if fLeft is greater than fRight; and swaps
+fTop and fBottom if fTop is greater than fBottom. Result may be empty,
+and width() and height() will be zero or positive.
 
 ### Example
 
@@ -2064,16 +2064,16 @@ sorted: 20, 10, 30, 50
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkIRect'>SkIRect</a> <a href='#SkIRect_makeSorted'>makeSorted</a>() const
+<a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkIRect_makeSorted'>makeSorted</a>() const
 </pre>
 
-Returns <a href='SkIRect_Reference#SkIRect'>SkIRect</a> with <a href='#SkIRect_fLeft'>fLeft</a> and <a href='#SkIRect_fRight'>fRight</a> swapped if <a href='#SkIRect_fLeft'>fLeft</a> is greater than <a href='#SkIRect_fRight'>fRight</a>; and
-with <a href='#SkIRect_fTop'>fTop</a> and <a href='#SkIRect_fBottom'>fBottom</a> swapped if <a href='#SkIRect_fTop'>fTop</a> is greater than <a href='#SkIRect_fBottom'>fBottom</a>. Result may be empty;
-and <a href='#SkIRect_width'>width()</a> and <a href='#SkIRect_height'>height()</a> will be zero or positive.
+Returns SkIRect with fLeft and fRight swapped if fLeft is greater than fRight; and
+with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
+and width() and height() will be zero or positive.
 
 ### Return Value
 
-sorted <a href='SkIRect_Reference#SkIRect'>SkIRect</a>
+sorted SkIRect
 
 ### Example
 
@@ -2097,14 +2097,14 @@ sorted: 20, 10, 30, 50
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static const <a href='#SkIRect'>SkIRect</a>& <a href='#SkIRect_EmptyIRect'>EmptyIRect</a>()
+static const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkIRect_EmptyIRect'>EmptyIRect</a>()
 </pre>
 
-Returns a reference to immutable empty <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, set to (0, 0, 0, 0).
+Returns a reference to immutable empty SkIRect, set to (0, 0, 0, 0).
 
 ### Return Value
 
-global <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to all zeroes
+global SkIRect set to all zeroes
 
 ### Example
 

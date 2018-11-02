@@ -294,6 +294,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     definition->fFiddle = parent->fFiddle + '_';
                 }
                 rootDefinition->fNames.fName = rootDefinition->fName;
+                rootDefinition->fNames.fParent = &fGlobalNames;
                 definition->fFiddle += Definition::NormalizedName(typeNameBuilder[0]);
                 this->setAsParent(definition);
             }
@@ -1281,13 +1282,21 @@ void BmhParser::setUpGlobalSubstitutes() {
     fclose(file);
     int i = 0;
     int start = i;
+    string last = " ";
     string word;
     do {
         if (' ' < buffer[i]) {
             ++i;
             continue;
         }
+        last = word;
         word = string(&buffer[start], i - start);
+#ifdef SK_DEBUG
+        SkASSERT(last.compare(word) < 0);
+        for (char c : word) {
+            SkASSERT(islower(c) || '-' == c);
+        }
+#endif
         if (fGlobalNames.fRefMap.end() == fGlobalNames.fRefMap.find(word)) {
             fGlobalNames.fRefMap[word] = nullptr;
         } else {
