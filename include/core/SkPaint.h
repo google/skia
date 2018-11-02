@@ -1450,10 +1450,11 @@ public:
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style style) const;
 
+    SkPaint(const SkPaint&, const SkRunFont&);
+
 private:
     friend class SkGlyphRun;
     friend class SkGlyphRunBuilder;
-    SkPaint(const SkPaint&, const SkRunFont&);
     typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**, const char*);
 
     sk_sp<SkTypeface>     fTypeface;
