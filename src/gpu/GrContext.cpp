@@ -35,7 +35,6 @@
 #include "SkSurface_Gpu.h"
 #include "SkTaskGroup.h"
 #include "SkTraceMemoryDump.h"
-#include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrSkSLFP.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
