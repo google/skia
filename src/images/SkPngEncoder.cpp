@@ -16,6 +16,7 @@
 #include "SkString.h"
 #include "SkPngEncoder.h"
 #include "SkPngPriv.h"
+#include <vector>
 
 #include "png.h"
 
