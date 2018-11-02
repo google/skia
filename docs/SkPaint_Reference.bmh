@@ -3,7 +3,7 @@
 
 #PhraseDef paint_font_metrics
 Typeface, Paint_Text_Size, Paint_Text_Scale_X,
-Paint_Text_Skew_X, Paint_Text_Align, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
+Paint_Text_Skew_X, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
 Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
 and Subpixel_Text
 ##
@@ -2965,40 +2965,6 @@ Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw.
 
 #Subtopic Draw_Looper_Methods ##
 
-# ------------------------------------------------------------------------------
-#Subtopic Text_Align
-#Line # text placement relative to position ##
-
-#Enum Align
-#Code
-#Populate
-##
-#Const kLeft_Align 1
-#Deprecated
-##
-#Const kCenter_Align 2
-#Deprecated
-##
-#Const kRight_Align 3
-#Deprecated
-##
-#Deprecated
-#Enum ##
-
-#Const kAlignCount 0
-#Deprecated
-##
-
-#Method Align getTextAlign() const
-#Deprecated
-##
-
-#Method void    setTextAlign(Align align)
-#Deprecated
-##
-
-#Subtopic Text_Align ##
-# ------------------------------------------------------------------------------
 #Subtopic Text_Size
 #Line # overall height in points ##
 
