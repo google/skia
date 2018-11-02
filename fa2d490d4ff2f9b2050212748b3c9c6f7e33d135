@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "05017952_802bfa2a",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-02T16:59:25Z",
+      "side": 1,
+      "message": "Note that \"kBGRA_8888_SkColorType+Unpremul\" \u003d\u003d SkColor onlt for little-endian machines.",
+      "revId": "fa2d490d4ff2f9b2050212748b3c9c6f7e33d135",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a15477f_fb8839d4",
         "filename": "src/pdf/SkPDFBitmap.cpp",
         "patchSetId": 2
