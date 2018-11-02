@@ -14,7 +14,6 @@
 #include "SkImageEncoderPriv.h"
 #include "SkJpegEncoder.h"
 #include "SkPngEncoder.h"
-#include "SkUnPreMultiply.h"
 #include "SkWebpEncoder.h"
 
 namespace skiagm {
@@ -30,14 +29,10 @@ static void make_premul_256(SkBitmap* bitmap) {
 }
 
 static void make_unpremul_256(SkBitmap* bitmap) {
-    make_premul_256(bitmap);
-    for (int y = 0; y < bitmap->height(); y++) {
-        for (int x = 0; x < bitmap->width(); x++) {
-            SkPMColor* pixel = bitmap->getAddr32(x, y);
-            *pixel = SkUnPreMultiply::UnPreMultiplyPreservingByteOrder(*pixel);
-        }
-    }
-    bitmap->setAlphaType(kUnpremul_SkAlphaType);
+    SkBitmap pm;
+    make_premul_256(&pm);
+    bitmap->allocPixels(pm.info().makeAlphaType(kUnpremul_SkAlphaType));
+    SkAssertResult(pm.readPixels(bitmap->pixmap()));
 }
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
