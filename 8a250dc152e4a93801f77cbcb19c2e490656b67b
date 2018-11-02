@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5de285b_e2488bb2",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-02T17:42:42Z",
+      "side": 1,
+      "message": "SkSampledCodec is how we create scaled down versions of images. It does a more complex version of the following:\n\n  codec-\u003estartIncrementalDecode(...);\n  auto* sampler \u003d codec-\u003egetSampler(true);\n  sampler-\u003esetSampleX(sampleX);\n  sampler-\u003esetSampleY(sampleY);\n  codec-\u003eincrementalDecode(\u0026rowsDecoded);\n\nIt actually has two ways of doing it - scanline decoding came first, and I think it\u0027s more straightforward. But it was incompatible with libpng\u0027s incremental decoding, so I came up with incrementalDecode to support both true incremental decoding and this sampled decode.\n\nPart of the goal of the sampled decode is to avoid allocating the buffer for the full sized image. But Wuffs allocates the full sized image anyway. So maybe we shouldn\u0027t even use SkSampledCodec. Instead, we could have another adapter like SkWebpAdapterCodec. It would decode each frame, and if the client wants a scale we can just use the drawing engine to draw the image with a scale.",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 69
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c395aa9_34567f54",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-02T17:42:42Z",
+      "side": 1,
+      "message": "I moved this here so that fFrameConfig\u0027s bounds will be set when SkSampledCodec calls getSampler in between this and onIncrementalDecode (which is where we create the swizzler with knowledge of the frame rect).",
+      "range": {
+        "startLine": 325,
+        "startChar": 0,
+        "endLine": 333,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61615f4a_44cc74d0",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-02T17:42:42Z",
+      "side": 1,
+      "message": "I moved this up (and changed based on the scaled height) to ensure it would be set before we return kIncomplete or kError. (Oops - and I have a bug here - we haven\u0027t actually filled yet. If we keep going in this direction, I\u0027ll need to make sure to fill before setting this.)",
+      "range": {
+        "startLine": 358,
+        "startChar": 0,
+        "endLine": 360,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e62cad0_e58218b5",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-02T17:42:42Z",
+      "side": 1,
+      "message": "It might make sense to set the error to result and continue. (Then I can move back the setting of rowsDecoded.) My idea of kErrorInInput is that we maybe decoded part of the image, but then it had an error that forced us to stop. So there might be something to draw here.",
+      "range": {
+        "startLine": 369,
+        "startChar": 0,
+        "endLine": 370,
+        "endChar": 38
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ec758eb_5a6ef690",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-02T17:42:42Z",
+      "side": 1,
+      "message": "TODO: This only needs to be done the first time. I was tempted to do it inside onStartIncrementalDecode, but I\u0027m guessing that it has to wait for the call to decodeFrame? It should perhaps be in the same block that fills.",
+      "range": {
+        "startLine": 373,
+        "startChar": 0,
+        "endLine": 379,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e696a9fc_3926870e",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-02T17:42:42Z",
+      "side": 1,
+      "message": "We have to fill here, so that we know the actual size after sampling.",
+      "range": {
+        "startLine": 383,
+        "startChar": 8,
+        "endLine": 383,
+        "endChar": 85
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
