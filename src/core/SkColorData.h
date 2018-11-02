@@ -381,11 +381,6 @@ typedef uint16_t SkPMColor16;
 #define SK_G4444_SHIFT    8
 #define SK_B4444_SHIFT    4
 
-#define SkA32To4444(a)  ((unsigned)(a) >> 4)
-#define SkR32To4444(r)  ((unsigned)(r) >> 4)
-#define SkG32To4444(g)  ((unsigned)(g) >> 4)
-#define SkB32To4444(b)  ((unsigned)(b) >> 4)
-
 static inline U8CPU SkReplicateNibble(unsigned nib) {
     SkASSERT(nib <= 0xF);
     return (nib << 4) | nib;
@@ -397,27 +392,6 @@ static inline U8CPU SkReplicateNibble(unsigned nib) {
 #define SkGetPackedB4444(c)     (((unsigned)(c) >> SK_B4444_SHIFT) & 0xF)
 
 #define SkPacked4444ToA32(c)    SkReplicateNibble(SkGetPackedA4444(c))
-
-static inline SkPMColor16 SkPackARGB4444(unsigned a, unsigned r,
-                                         unsigned g, unsigned b) {
-    SkASSERT(a <= 0xF);
-    SkASSERT(r <= a);
-    SkASSERT(g <= a);
-    SkASSERT(b <= a);
-
-    return (SkPMColor16)((a << SK_A4444_SHIFT) | (r << SK_R4444_SHIFT) |
-                         (g << SK_G4444_SHIFT) | (b << SK_B4444_SHIFT));
-}
-
-/** Expand the SkPMColor16 color into a 32bit value that can be scaled all at
-    once by a value up to 16.
-*/
-static inline uint32_t SkExpand_4444(U16CPU c) {
-    SkASSERT(c == (uint16_t)c);
-
-    const unsigned mask = 0xF0F;    //gMask_0F0F;
-    return (c & mask) | ((c & ~mask) << 12);
-}
 
 static inline SkPMColor SkPixel4444ToPixel32(U16CPU c) {
     uint32_t d = (SkGetPackedA4444(c) << SK_A32_SHIFT) |
