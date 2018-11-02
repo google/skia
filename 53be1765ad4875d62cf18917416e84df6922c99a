@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e50d0a98_5be02fe0",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-02T18:49:41Z",
+      "side": 1,
+      "message": "nit: So this is (essentially)\n\nSkGlyphRunList{SkGlyphRun{glyphRun, transformingPaint}}\n\nnot that it\u0027s added here, but is there a reason to put the ctm calculation between creating the SkGLyphRun and the SkGlyphRunList? Seems like they logically go together here.",
+      "range": {
+        "startLine": 361,
+        "startChar": 31,
+        "endLine": 361,
+        "endChar": 43
+      },
+      "revId": "53be1765ad4875d62cf18917416e84df6922c99a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
