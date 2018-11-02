@@ -5,6 +5,7 @@ addarc
 addarc_meas
 animated-image-blurs
 anisotropic_hq
+arcofzorro
 arcs_as_paths
 bezier_quad_effects
 bigblurs
@@ -24,6 +25,7 @@ bug530095
 circles
 circular_arcs_hairline
 circular_arcs_stroke_and_fill_butt
+circular_arcs_stroke_and_fill_round
 circular_arcs_stroke_butt
 circular_arcs_stroke_round
 circular_arcs_stroke_square
@@ -39,6 +41,7 @@ convex-lineonly-paths-stroke-and-fill
 convex-polygon-inset
 convex_poly_clip
 convexpaths
+copyTo4444
 dash_line_zero_off_interval
 dashcircle
 dashing
@@ -149,6 +152,7 @@ polygons
 radial_gradient_precision
 rects
 repeated_bitmap_jpg
+resizeimagefilter
 rrect
 rrect_draw_aa
 savelayer_with_backdrop
@@ -182,6 +186,8 @@ tilemodes_npot
 varied_text_clipped_lcd
 varied_text_clipped_no_lcd
 varied_text_ignorable_clip_no_lcd
+vertices
+vertices_scaled_shader
 verttext
 verylarge_picture_image
 verylargebitmap
