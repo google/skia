@@ -117,7 +117,8 @@ echo "Compiling bitcode"
   skia_use_freetype=true \
   skia_use_icu=false \
   skia_use_libheif=false \
-  skia_use_libjpeg_turbo=false \
+  skia_use_system_libjpeg_turbo = false \
+  skia_use_libjpeg_turbo=true \
   skia_use_libpng=true \
   skia_use_libwebp=false \
   skia_use_lua=false \
@@ -161,7 +162,9 @@ ${EMCXX} \
     -Imodules/skottie/include \
     -Imodules/sksg/include \
     -Isrc/core/ \
+    -Isrc/gpu/ \
     -Isrc/sfnt/ \
+    -Isrc/shaders/ \
     -Isrc/utils/ \
     -Itools \
     -Itools/fonts \

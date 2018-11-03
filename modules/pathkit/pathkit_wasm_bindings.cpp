@@ -38,6 +38,7 @@ static const int CLOSE = 5;
 using SkPathOrNull = emscripten::val;
 // Self-documenting for when we return a string
 using JSString = emscripten::val;
+using JSArray = emscripten::val;
 
 // =================================================================================
 // Creating/Exporting Paths with cmd arrays
@@ -53,11 +54,11 @@ void VisitPath(const SkPath& p, VisitFunc&& f) {
     }
 }
 
-emscripten::val EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
-    emscripten::val cmds = emscripten::val::array();
+JSArray EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
+    JSArray cmds = emscripten::val::array();
 
     VisitPath(path, [&cmds](SkPath::Verb verb, const SkPoint pts[4], SkPath::RawIter iter) {
-        emscripten::val cmd = emscripten::val::array();
+        JSArray cmd = emscripten::val::array();
         switch (verb) {
         case SkPath::kMove_Verb:
             cmd.call<void>("push", MOVE, pts[0].x(), pts[0].y());
