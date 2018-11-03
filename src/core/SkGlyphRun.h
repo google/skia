@@ -239,6 +239,7 @@ private:
     // Used for collecting the set of unique glyphs.
     SkGlyphIDSet fGlyphIDSet;
     SkAutoTMalloc<SkGlyphID> fUniqueGlyphIDs;
+    SkAutoTMalloc<uint16_t> fUniqueGlyphIDIndices;
 };
 
 #endif  // SkGlyphRun_DEFINED
