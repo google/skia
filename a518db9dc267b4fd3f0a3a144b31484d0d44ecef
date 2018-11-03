@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea628e55_a5a1680e",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-03T12:49:57Z",
+      "side": 1,
+      "message": "Why do we write this as \u0027\\\"\u0027 ?  Can\u0027t it just be \u0027\"\u0027 ?  They appear to both be 34 to me.\n\n(You\u0027re going to want to read that in a monospace font...)",
+      "range": {
+        "startLine": 650,
+        "startChar": 17,
+        "endLine": 650,
+        "endChar": 21
+      },
+      "revId": "a518db9dc267b4fd3f0a3a144b31484d0d44ecef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
