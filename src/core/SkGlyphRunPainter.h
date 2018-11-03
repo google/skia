@@ -8,7 +8,9 @@
 #ifndef SkGlyphRunPainter_DEFINED
 #define SkGlyphRunPainter_DEFINED
 
+#include "SkDistanceFieldGen.h"
 #include "SkGlyphRun.h"
+#include "SkScalerContext.h"
 
 #if SK_SUPPORT_GPU
 class GrColorSpaceInfo;
