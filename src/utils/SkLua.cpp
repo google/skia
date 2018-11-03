@@ -747,11 +747,6 @@ static int lpaint_setSubpixelText(lua_State* L) {
     return 1;
 }
 
-static int lpaint_isDevKernText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isDevKernText());
-    return 1;
-}
-
 static int lpaint_isLCDRenderText(lua_State* L) {
     lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isLCDRenderText());
     return 1;
@@ -1029,7 +1024,6 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "isLinearText", lpaint_isLinearText },
     { "isSubpixelText", lpaint_isSubpixelText },
     { "setSubpixelText", lpaint_setSubpixelText },
-    { "isDevKernText", lpaint_isDevKernText },
     { "isLCDRenderText", lpaint_isLCDRenderText },
     { "setLCDRenderText", lpaint_setLCDRenderText },
     { "isEmbeddedBitmapText", lpaint_isEmbeddedBitmapText },

@@ -190,7 +190,6 @@ public:
         font.setFakeBoldText(true);
         font.setLinearText(true);
         font.setSubpixelText(true);
-        font.setDevKernText(true);
         font.setLCDRenderText(true);
         font.setEmbeddedBitmapText(true);
         font.setAutohinted(true);
