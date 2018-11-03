@@ -18,6 +18,7 @@
 #ifndef SkCanvas_DEFINED
 #define SkCanvas_DEFINED
 
+#include "../private/SkGlyphRun.h"
 #include "../private/SkMacros.h"
 #include "SkBlendMode.h"
 #include "SkClipOp.h"
@@ -36,7 +37,6 @@ class SkData;
 class SkDraw;
 class SkDrawable;
 struct SkDrawShadowRec;
-class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
 class SkMetaData;
@@ -2710,7 +2710,7 @@ private:
     void validateClip() const {}
 #endif
 
-    std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
+    SkGlyphRunBuilder fScratchGlyphRunBuilder;
 
     typedef SkRefCnt INHERITED;
 };

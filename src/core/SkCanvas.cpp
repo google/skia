@@ -566,8 +566,6 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
 
         device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
     }
-
-    fScratchGlyphRunBuilder = skstd::make_unique<SkGlyphRunBuilder>();
 }
 
 SkCanvas::SkCanvas()
@@ -2442,9 +2440,9 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
     LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
-        fScratchGlyphRunBuilder->drawText(
+        fScratchGlyphRunBuilder.drawText(
                 looper.paint(), text, byteLength, SkPoint::Make(x, y));
-        auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
+        auto glyphRunList = fScratchGlyphRunBuilder.useGlyphRunList();
         iter.fDevice->drawGlyphRunList(glyphRunList);
     }
 
@@ -2457,8 +2455,8 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
-        fScratchGlyphRunBuilder->drawPosText(looper.paint(), text, byteLength, pos);
-        auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
+        fScratchGlyphRunBuilder.drawPosText(looper.paint(), text, byteLength, pos);
+        auto glyphRunList = fScratchGlyphRunBuilder.useGlyphRunList();
         iter.fDevice->drawGlyphRunList(glyphRunList);
     }
 
@@ -2471,9 +2469,9 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
     LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
-        fScratchGlyphRunBuilder->drawPosTextH(
+        fScratchGlyphRunBuilder.drawPosTextH(
                 looper.paint(), text, byteLength, xpos, constY);
-        auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
+        auto glyphRunList = fScratchGlyphRunBuilder.useGlyphRunList();
         iter.fDevice->drawGlyphRunList(glyphRunList);
     }
 
@@ -2489,8 +2487,8 @@ void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform x
     LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
-        fScratchGlyphRunBuilder->drawTextAtOrigin(paint, text, len);
-        auto list = fScratchGlyphRunBuilder->useGlyphRunList();
+        fScratchGlyphRunBuilder.drawTextAtOrigin(paint, text, len);
+        auto list = fScratchGlyphRunBuilder.useGlyphRunList();
         if (!list.empty()) {
             auto glyphRun = list[0];
             iter.fDevice->drawGlyphRunRSXform(&glyphRun, xform);
@@ -2518,8 +2516,8 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     LOOPER_BEGIN(paint, bounds)
 
     while (iter.next()) {
-        fScratchGlyphRunBuilder->drawTextBlob(looper.paint(), *blob, SkPoint::Make(x, y));
-        iter.fDevice->drawGlyphRunList(fScratchGlyphRunBuilder->useGlyphRunList());
+        fScratchGlyphRunBuilder.drawTextBlob(looper.paint(), *blob, SkPoint::Make(x, y));
+        iter.fDevice->drawGlyphRunList(fScratchGlyphRunBuilder.useGlyphRunList());
     }
 
     LOOPER_END
