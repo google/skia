@@ -141,14 +141,14 @@
 
     this.stroke = function() {
       if (this._currentPath) {
-        this._paint.setStyle(CanvasKit.PaintStyle.STROKE);
+        this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
         this._canvas.drawPath(this._currentPath, this._paint);
       }
     }
 
     this.strokeText = function(text, x, y, maxWidth) {
       // TODO do something with maxWidth, probably involving measure
-      this._paint.setStyle(CanvasKit.PaintStyle.STROKE);
+      this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
       this._canvas.drawText(text, x, y, this._paint);
     }
 
