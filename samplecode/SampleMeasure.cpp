@@ -18,17 +18,14 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 
-// exercise scale/linear/devkern
+// exercise scale/linear
 struct Setting {
     bool        fLinearText;
-    bool        fDevKernText;
 };
 
 static const Setting gSettings[] = {
-    { false,  false   },
-    { false,  true    },
-    { true,   false   },
-    { true,   true    },
+    { false },
+    { true  },
 };
 
 static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
@@ -44,7 +41,6 @@ static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[])
     SkPaint p(paint);
     for (size_t i = 0; i < SK_ARRAY_COUNT(gSettings); i++) {
         p.setLinearText(gSettings[i].fLinearText);
-        p.setDevKernText(gSettings[i].fDevKernText);
 
         int n = p.getTextWidths(text, len, widths, rects);
         SkScalar w = p.measureText(text, len, &bounds);
