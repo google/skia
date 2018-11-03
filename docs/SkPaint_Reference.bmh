@@ -1195,14 +1195,6 @@ Full_Hinting_Spacing is not related to text kerning, where the space between
 a specific pair of characters is adjusted using data in the font kerning tables.
 #Subtopic Full_Hinting_Spacing ##
 
-#Method bool isDevKernText() const
-#Deprecated
-##
-
-#Method void setDevKernText(bool)
-#Deprecated
-##
-
 # ------------------------------------------------------------------------------
 #Subtopic Filter_Quality_Methods
 #Line # get and set Filter_Quality ##

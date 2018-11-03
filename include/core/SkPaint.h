@@ -415,14 +415,6 @@ public:
     */
     void setFakeBoldText(bool fakeBoldText);
 
-    /** Deprecated.
-    */
-    bool isDevKernText() const { return false; }
-
-    /** Deprecated.
-    */
-    void setDevKernText(bool) { }
-
     /** Returns SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
 
