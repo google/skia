@@ -20,6 +20,9 @@
 #ifdef SK_VULKAN
 #include "vk/GrVkGpu.h"
 #endif
+#ifdef SK_DAWN
+#include "dawn/GrDawnGpu.h"
+#endif
 
 class SK_API GrDirectContext : public GrContext {
 public:
@@ -199,3 +202,23 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
 }
 #endif
 
+#ifdef SK_DAWN
+sk_sp<GrContext> GrContext::MakeDawn(sk_sp<const GrDawnBackendContext> backendContext) {
+    GrContextOptions defaultOptions;
+    return MakeDawn(backendContext, defaultOptions);
+}
+
+sk_sp<GrContext> GrContext::MakeDawn(sk_sp<const GrDawnBackendContext> backendContext, const GrContextOptions& options) {
+    sk_sp<GrContext> context(new GrDirectContext(kDawn_GrBackend));
+
+    context->fGpu = GrDawnGpu::Make(backendContext, options, context.get());
+    if (!context->fGpu) {
+        return nullptr;
+    }
+    context->fCaps = context->fGpu->refCaps();
+    if (!context->init(options)) {
+        return nullptr;
+    }
+    return context;
+}
+#endif

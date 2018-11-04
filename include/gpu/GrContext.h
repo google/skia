@@ -33,6 +33,7 @@ class GrGlyphCache;
 class GrGpu;
 struct GrMockOptions;
 class GrOpMemoryPool;
+struct GrDawnBackendContext;
 class GrPath;
 class GrProxyProvider;
 class GrRenderTargetContext;
@@ -75,6 +76,11 @@ public:
      */
     static sk_sp<GrContext> MakeMetal(void* device, void* queue, const GrContextOptions& options);
     static sk_sp<GrContext> MakeMetal(void* device, void* queue);
+#endif
+
+#ifdef SK_DAWN
+    static sk_sp<GrContext> MakeDawn(sk_sp<const GrDawnBackendContext>, const GrContextOptions& options);
+    static sk_sp<GrContext> MakeDawn(sk_sp<const GrDawnBackendContext>);
 #endif
 
     static sk_sp<GrContext> MakeMock(const GrMockOptions*, const GrContextOptions&);

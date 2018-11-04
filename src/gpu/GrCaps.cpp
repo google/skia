@@ -14,6 +14,7 @@
 
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;
+    fUseDrawForClear = false;
     fNPOTTextureTileSupport = false;
     fSRGBSupport = false;
     fSRGBWriteControl = false;
