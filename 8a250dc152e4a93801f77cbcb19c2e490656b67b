@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d00e5a07_7d0bb344",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-04T01:23:42Z",
+      "side": 1,
+      "message": "There\u0027s some tension (see comments below) between needing the sampler to exist *before* incrementalDecode is called, but the frame rect is really only knowable *after* incrementalDecode is called.\n\nPerhaps getSampler could return a dummy sampler, something that you can call setSample{X,Y} on and save that argument somewhere, but the real sampler (made by SkSwizzler::Make) only gets made in onIncrementalDecode, after the frame rect is known. Immediately after the real sampler is made, the previous setSample{X,Y} args are forwarded on from the dummy sampler to the real one.\n\nOr... if you want to skip SkSampledCodec and use something similar to SkWebpAdapterCodec, that sounds workable too, although I haven\u0027t really studied SkWebpAdapterCodec. That might be a better long term approach anyway, if Wuffs will eventually (I can re-prioritize so that s/eventually/soon/, if necessary??) be able to do its own sampling.",
+      "parentUuid": "e5de285b_e2488bb2",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 69
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c395aa9_34567f54",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-11-02T17:42:42Z",
       "side": 1,
       "message": "I moved this here so that fFrameConfig\u0027s bounds will be set when SkSampledCodec calls getSampler in between this and onIncrementalDecode (which is where we create the swizzler with knowledge of the frame rect).",
+      "range": {
+        "startLine": 325,
+        "startChar": 0,
+        "endLine": 333,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7473564c_79396121",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-04T01:23:42Z",
+      "side": 1,
+      "message": "Hmm... but what if the input stream is paused (e.g. reading over the network) somewhere where we can\u0027t completely decode the fFrameConfig? This is the \"if (status \u003d\u003d wuffs_base__suspension__short_read) { return SkCodec::kIncompleteInput; }\" case you\u0027ve added a few lines above.\n\nEven if, later on, the input stream has more data, nobody calls oSID aka onStartIncrementalDecode (and therefore this-\u003edecodeFrameConfig) again. oSID is only called once, oID aka onIncrementalDecode is the one that can be called multiple times, right?\n\nA different approach is to get the frame rectangle from fFrames instead of (re-)parsing via this-\u003edecodeFrameConfig. But that assumes that onGetFrameCount has been called (which updates fFrames as a side effect). Can we make that assumption?",
+      "parentUuid": "6c395aa9_34567f54",
       "range": {
         "startLine": 325,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "c21c4a85_86d24fe1",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-04T01:23:42Z",
+      "side": 1,
+      "message": "I\u0027m confused what the *rowsDecoded semantics should be in case of kIncomplete. I thought *rowsDecoded was set to what we completely decoded, and with kIncomplete, we haven\u0027t completely decoded those rows. But if you think it matches the semantics better here, I\u0027ll go with it.",
+      "parentUuid": "61615f4a_44cc74d0",
+      "range": {
+        "startLine": 358,
+        "startChar": 0,
+        "endLine": 360,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5e62cad0_e58218b5",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-11-02T17:42:42Z",
       "side": 1,
       "message": "It might make sense to set the error to result and continue. (Then I can move back the setting of rowsDecoded.) My idea of kErrorInInput is that we maybe decoded part of the image, but then it had an error that forced us to stop. So there might be something to draw here.",
+      "range": {
+        "startLine": 369,
+        "startChar": 0,
+        "endLine": 370,
+        "endChar": 38
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04f93421_efaa5442",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-04T01:23:42Z",
+      "side": 1,
+      "message": "Yeah, a format error (e.g. invalid LZW compressed data) would bubble up here, yet we might still have something to draw.",
+      "parentUuid": "5e62cad0_e58218b5",
       "range": {
         "startLine": 369,
         "startChar": 0,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "56e622c9_80191203",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-04T01:23:42Z",
+      "side": 1,
+      "message": "I\u0027m not sure if it only needs to be done the first time (that onIncrementalDecode is called and we get here). It only needs to be done once Wuffs has completely parsed the palette, but if we hit wuffs_base__suspension__short_read, it\u0027s not guaranteed that the input stream is far along enough that we have completely parsed the palette.\n\nPerhaps Wuffs needs some API to query \"has the palette been completely parsed\", for a decode_frame in progress. Or, I was already considering some way to ask \"what\u0027s the dirty rectangle, in terms of pixels touched so far by decode_frame\", and it could say that the dirty rectangle is empty until the palette is completely decoded. Some thinking required...",
+      "parentUuid": "5ec758eb_5a6ef690",
+      "range": {
+        "startLine": 373,
+        "startChar": 0,
+        "endLine": 379,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e696a9fc_3926870e",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 2
@@ -134,6 +254,64 @@
         "endLine": 383,
         "endChar": 85
       },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "623c45e8_2ed239f1",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-04T01:23:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e696a9fc_3926870e",
+      "range": {
+        "startLine": 383,
+        "startChar": 8,
+        "endLine": 383,
+        "endChar": 85
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17be3869_38baff45",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-04T01:23:42Z",
+      "side": 1,
+      "message": "Similarly, we may be able to use fFrames[options.fFrameIndex] instead of fFrameConfig here, to get the frame bounds. If we no longer use fFrameConfig inside onIncrementalDecode, we wouldn\u0027t need to call this-\u003edecodeFrameConfig, and worry about whether that call belongs in oSID or oID, and how it interacts with short I/O...",
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6df0841_a914c22f",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-04T01:23:42Z",
+      "side": 1,
+      "message": "Out of curiosity, where does \"sampleY \u003e 0\" get enforced? I don\u0027t see any checks in SkSampler.h\u0027s SkSampler::setSampleY.",
       "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
