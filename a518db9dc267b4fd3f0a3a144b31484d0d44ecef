@@ -22,6 +22,30 @@
       "revId": "a518db9dc267b4fd3f0a3a144b31484d0d44ecef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e114d92_11206466",
+        "filename": "src/utils/SkJSON.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-04T14:50:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea628e55_a5a1680e",
+      "range": {
+        "startLine": 650,
+        "startChar": 17,
+        "endLine": 650,
+        "endChar": 21
+      },
+      "revId": "a518db9dc267b4fd3f0a3a144b31484d0d44ecef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
