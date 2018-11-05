@@ -71,6 +71,11 @@ public:
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             const BitmapDevicePainter* bitmapDevice);
 
+    class GPUDevicePainter;
+    void drawForGPUDevice(
+            const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
+            const GPUDevicePainter* gpuPainter);
+
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,

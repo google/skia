@@ -445,6 +445,22 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
     }
 }
 
+class SkGlyphRunListPainter::GPUDevicePainter {
+public:
+    virtual ~GPUDevicePainter() = default;
+};
+
+void SkGlyphRunListPainter::drawForGPUDevice(
+        const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
+        const GPUDevicePainter* gpuPainter) {
+    for (const auto& glyphRun : glyphRunList) {
+        const SkPaint& runPaint = glyphRun.paint();
+        if (CanDrawAsDistanceFields(runPaint, deviceMatrix, fDeviceProps,
+                                    shaderCaps.supportsDistanceFieldText(), fOptions))
+    }
+
+}
+
 #if SK_SUPPORT_GPU
 // -- GrTextContext --------------------------------------------------------------------------------
 SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
