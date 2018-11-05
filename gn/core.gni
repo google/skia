@@ -486,7 +486,6 @@ skia_pathops_sources = [
   "$_src/pathops/SkPathOpsDebug.cpp",
   "$_src/pathops/SkPathOpsLine.cpp",
   "$_src/pathops/SkPathOpsOp.cpp",
-  "$_src/pathops/SkPathOpsPoint.cpp",
   "$_src/pathops/SkPathOpsQuad.cpp",
   "$_src/pathops/SkPathOpsRect.cpp",
   "$_src/pathops/SkPathOpsSimplify.cpp",
