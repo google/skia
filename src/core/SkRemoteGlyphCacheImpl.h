@@ -44,6 +44,10 @@ public:
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
+    const void* findImage(const SkGlyph& glyph) override;
+
+    void outOfScope() override {}
+
 private:
     bool hasPendingGlyphs() const {
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();

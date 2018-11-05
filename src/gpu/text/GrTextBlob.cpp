@@ -121,7 +121,7 @@ void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
     SkRect glyphRect = rect_to_draw(skGlyph, origin, textRatio, isDFT);
     if (!glyphRect.isEmpty()) {
         // TODO4F: Preserve float colors
-        GrColor color = color4f.toBytes_RGBA();
+        GrColor color = blob->fColor;
 
         GrMaskFormat format = glyph->fMaskFormat;
 
