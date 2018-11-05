@@ -185,16 +185,14 @@ void GrMtlPipelineState::setBlendConstants(id<MTLRenderCommandEncoder> renderCmd
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
-        float floatColors[4];
         // Swizzle the blend to match what the shader will output.
         const GrSwizzle& swizzle = fGpu->caps()->shaderCaps()->configOutputSwizzle(config);
-        GrColor blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
-        GrColorToRGBAFloat(blendConst, floatColors);
+        SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
 
-        [renderCmdEncoder setBlendColorRed: floatColors[0]
-                                     green: floatColors[1]
-                                      blue: floatColors[2]
-                                     alpha: floatColors[3]];
+        [renderCmdEncoder setBlendColorRed: blendConst.fR
+                                     green: blendConst.fG
+                                      blue: blendConst.fB
+                                     alpha: blendConst.fA];
     }
 }
 

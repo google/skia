@@ -117,7 +117,7 @@ void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) cons
             blendInfo->fDstBlend = kZero_GrBlendCoeff;
             break;
     }
-    blendInfo->fBlendConstant = 0;
+    blendInfo->fBlendConstant = SK_PMColor4fTRANSPARENT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -2795,12 +2795,9 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
     }
 
     if ((BlendCoeffReferencesConstant(srcCoeff) || BlendCoeffReferencesConstant(dstCoeff))) {
-        GrColor blendConst = blendInfo.fBlendConstant;
-        blendConst = swizzle.applyTo(blendConst);
+        SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
         if (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst) {
-            GrGLfloat c[4];
-            GrColorToRGBAFloat(blendConst, c);
-            GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
+            GL_CALL(BlendColor(blendConst.fR, blendConst.fG, blendConst.fB, blendConst.fA));
             fHWBlendState.fConstColor = blendConst;
             fHWBlendState.fConstColorValid = true;
         }
