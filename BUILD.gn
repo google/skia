@@ -2036,6 +2036,15 @@ if (skia_enable_tools) {
     }
   }
 
+  test_app("jitter_gms") {
+    sources = [
+      "tools/jitter_gms.cpp",
+    ]
+    deps = [
+      ":gm",
+      ":skia",
+    ]
+  }
   test_app("list_gms") {
     sources = [
       "tools/list_gms.cpp",
