@@ -56,6 +56,7 @@ public:
         const SkPath* path;
         SkPoint position;
     };
+
     class BitmapDevicePainter {
     public:
         virtual ~BitmapDevicePainter() = default;
@@ -70,6 +71,14 @@ public:
     void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             const BitmapDevicePainter* bitmapDevice);
+
+    #if SK_SUPPORT_GPU
+    class GPUDevicePainter;
+    class DFTControl;
+    void drawForGPUDevice(
+            const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix, SkPoint origin,
+            const DFTControl&, const GPUDevicePainter* gpuPainter);
+    #endif
 
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
