@@ -65,8 +65,6 @@ public:
     void <a href='#SkPaint_setAutohinted'>setAutohinted</a>(bool useAutohinter);
     bool <a href='#SkPaint_isFakeBoldText'>isFakeBoldText</a>() const;
     void <a href='#SkPaint_setFakeBoldText'>setFakeBoldText</a>(bool fakeBoldText);
-    bool <a href='#SkPaint_isDevKernText'>isDevKernText</a>() const;
-    void <a href='#SkPaint_setDevKernText'>setDevKernText</a>(bool);
     <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> <a href='#SkPaint_getFilterQuality'>getFilterQuality</a>() const;
     void <a href='#SkPaint_setFilterQuality'>setFilterQuality</a>(<a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality);
 
@@ -1647,26 +1645,6 @@ FreeType as their <a href='undocumented#Engine'>Font Engine</a>.
 
 <a href='#Full_Hinting_Spacing'>Full Hinting Spacing</a> is not related to text kerning, where the space between
 a specific pair of characters is adjusted using data in the font kerning tables.
-
-<a name='SkPaint_isDevKernText'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isDevKernText'>isDevKernText</a>() const
-</pre>
-
-Deprecated.
-
-<a name='SkPaint_setDevKernText'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setDevKernText'>setDevKernText</a>(bool)
-</pre>
-
-Deprecated.
 
 <a name='Filter_Quality_Methods'></a>
 
