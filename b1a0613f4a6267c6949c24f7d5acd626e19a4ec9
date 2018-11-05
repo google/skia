@@ -16,6 +16,24 @@
       "revId": "b1a0613f4a6267c6949c24f7d5acd626e19a4ec9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7b2e2e4_4b77b3a3",
+        "filename": "src/pathops/SkPathOpsPoint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-05T12:46:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e46a1ad_c1413d21",
+      "revId": "b1a0613f4a6267c6949c24f7d5acd626e19a4ec9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
