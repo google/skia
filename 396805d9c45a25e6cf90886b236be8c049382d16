@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48ec2fc8_be6932c9",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-05T16:38:56Z",
+      "side": 1,
+      "message": "Seems like this can be deleted now? (If anyone is still using it, things are going to break, right?)",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 14
+      },
+      "revId": "396805d9c45a25e6cf90886b236be8c049382d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e43bf118_01a4ed30",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-05T16:38:56Z",
+      "side": 1,
+      "message": "I found this confusing where it\u0027s used. The comment says \"Copies the GrBackendSurface\", but it\u0027s really copying the format. Also, seems like it would read easier at most call-sites (and be consistent with naming in other parts of Skia) as:\n\nGrBackendFormat GrBackendFormat::makeTexture2D() { ... }",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 70
+      },
+      "revId": "396805d9c45a25e6cf90886b236be8c049382d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1ed1f87_c3db36e9",
+        "filename": "src/gpu/GrOnFlushResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-05T16:38:56Z",
+      "side": 1,
+      "message": "?",
+      "revId": "396805d9c45a25e6cf90886b236be8c049382d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bc84418_eea64f67",
+        "filename": "tests/DrawOpAtlasTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-05T16:38:56Z",
+      "side": 1,
+      "message": "kRGBA_8888_SkColorType?",
+      "range": {
+        "startLine": 192,
+        "startChar": 73,
+        "endLine": 192,
+        "endChar": 93
+      },
+      "revId": "396805d9c45a25e6cf90886b236be8c049382d16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
