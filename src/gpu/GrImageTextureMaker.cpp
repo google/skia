@@ -58,12 +58,11 @@ sk_sp<GrTextureProxy> GrYUVAImageTextureMaker::refOriginalTextureProxy(bool will
         return nullptr;
     }
 
-    auto proxy = fImage->asTextureProxyRef();
-    if (willBeMipped && proxy && GrMipMapped::kNo == proxy->mipMapped()) {
-        return nullptr;
+    if (willBeMipped) {
+        return fImage->asMippedTextureProxyRef();
+    } else {
+        return fImage->asTextureProxyRef();
     }
-
-    return proxy;
 }
 
 void GrYUVAImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {
