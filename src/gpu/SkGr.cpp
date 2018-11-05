@@ -400,12 +400,12 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             }
 
             // We can ignore origColor here - alpha is unchanged by gamma
-            GrColor paintAlpha = GrColorPackA4(skPaint.getAlpha());
-            if (GrColor_WHITE != paintAlpha) {
+            float paintAlpha = skPaint.getColor4f().fA;
+            if (1.0f != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
                 grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
-                    SkPMColor4f::FromBytes_RGBA(paintAlpha),
+                    { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
                     GrConstColorProcessor::InputMode::kModulateRGBA));
             }
         } else {
@@ -430,12 +430,12 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             grPaint->setColor4f(opaqueColor);
 
             // We can ignore origColor here - alpha is unchanged by gamma
-            GrColor paintAlpha = GrColorPackA4(skPaint.getAlpha());
-            if (GrColor_WHITE != paintAlpha) {
+            float paintAlpha = skPaint.getColor4f().fA;
+            if (1.0f != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
                 grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
-                    SkPMColor4f::FromBytes_RGBA(paintAlpha),
+                    { paintAlpha, paintAlpha, paintAlpha, paintAlpha },
                     GrConstColorProcessor::InputMode::kModulateRGBA));
             }
         } else {
