@@ -65,7 +65,7 @@ void SkFont::DEPRECATED_setLCDRender(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kDEPRECATED_LCDRender_Flag);
 }
 
-void SkFont::setHinting(Hinting h) {
+void SkFont::setHinting(SkFontHinting h) {
     fHinting = SkToU8(h);
 }
 
@@ -197,6 +197,6 @@ SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
 
     SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
                 paint.getTextSkewX(), flags);
-    font.setHinting((Hinting)paint.getHinting());
+    font.setHinting((SkFontHinting)paint.getHinting());
     return font;
 }
