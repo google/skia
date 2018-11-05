@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "391679bd_eae7f0c9",
+        "filename": "include/private/GrOpList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-05T19:47:00Z",
+      "side": 1,
+      "message": "Let\u0027s move something into include/private?  The whole idea of include/private is to avoid the need to do weird stuff because of include/ and src/ and public and private.  :)",
+      "revId": "ab0a6140f98029b91dc9f769eda80ce537a029df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
