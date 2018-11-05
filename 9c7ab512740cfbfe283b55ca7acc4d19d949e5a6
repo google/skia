@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c17391a9_8ac63c5c",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-05T20:16:24Z",
+      "side": 1,
+      "message": "nit: indent",
+      "range": {
+        "startLine": 892,
+        "startChar": 69,
+        "endLine": 892,
+        "endChar": 88
+      },
+      "revId": "9c7ab512740cfbfe283b55ca7acc4d19d949e5a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
