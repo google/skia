@@ -17,7 +17,7 @@ describe('PathKit\'s CubicMap Behavior', function() {
     });
 
     it('computes YFromX correctly', function(done) {
-        LoadPathKit.then(() => {
+        LoadPathKit.then(catchException(done, () => {
             // Spot check a few points
             const testcases = [
                 // input x, expected y
@@ -30,10 +30,10 @@ describe('PathKit\'s CubicMap Behavior', function() {
                 expect(PathKit.cubicYFromX(0, 0.5, 1.0, 0, tc[0])).toBeCloseTo(tc[1], 5);
             }
             done();
-        });
+        }));
     });
     it('computes a point from T correctly', function(done) {
-        LoadPathKit.then(() => {
+        LoadPathKit.then(catchException(done, () => {
             // Spot check a few points
             const testcases = [
                 // input t, expected x, expected y
@@ -50,18 +50,18 @@ describe('PathKit\'s CubicMap Behavior', function() {
                 expect(ans[1]).toBeCloseTo(tc[1][1]);
             }
             done();
-        });
+        }));
     });
 
     it('does not leak, with or without cache', function(done) {
-        LoadPathKit.then(() => {
+        LoadPathKit.then(catchException(done, () => {
             // Run it a lot to make sure we don't leak.
             for (let i = 0; i < 300000; i++) {
                 PathKit.cubicYFromX(0.1, 0.5, 0.5, 0.1, 0.1);
                 PathKit.cubicPtFromT(0.1, 0.5, 0.5, 0.1, 0.1);
             }
             done();
-        });
+        }));
     });
 
 });

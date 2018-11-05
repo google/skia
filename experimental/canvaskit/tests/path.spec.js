@@ -59,7 +59,7 @@ describe('CanvasKit\'s Path Behavior', function() {
     }
 
     it('can draw a path', function(done) {
-        LoadCanvasKit.then(() => {
+        LoadCanvasKit.then(catchException(done, () => {
             // This is taken from example.html
             const surface = CanvasKit.MakeCanvasSurface('test');
             expect(surface).toBeTruthy('Could not make surface')
@@ -72,7 +72,7 @@ describe('CanvasKit\'s Path Behavior', function() {
             paint.setStrokeWidth(1.0);
             paint.setAntiAlias(true);
             paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
-            paint.setStyle(CanvasKit.PaintStyle.STROKE);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
             const path = new CanvasKit.SkPath();
             path.moveTo(20, 5);
@@ -107,7 +107,7 @@ describe('CanvasKit\'s Path Behavior', function() {
             paint.delete();
 
             reportSurface(surface, 'path_api_example', done);
-        });
+        }));
         // See CanvasKit for more tests, since they share implementation
     });
 
@@ -122,7 +122,7 @@ describe('CanvasKit\'s Path Behavior', function() {
       }
 
     it('can apply an effect and draw text', function(done) {
-        LoadCanvasKit.then(() => {
+        LoadCanvasKit.then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
             expect(surface).toBeTruthy('Could not make surface')
             if (!surface) {
@@ -142,7 +142,7 @@ describe('CanvasKit\'s Path Behavior', function() {
             const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], 1);
 
             paint.setPathEffect(dpe);
-            paint.setStyle(CanvasKit.PaintStyle.STROKE);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
             paint.setStrokeWidth(5.0);
             paint.setAntiAlias(true);
             paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
@@ -156,6 +156,6 @@ describe('CanvasKit\'s Path Behavior', function() {
             path.delete();
 
             reportSurface(surface, 'effect_and_text_example', done);
-        });
+        }));
     });
 });
