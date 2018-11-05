@@ -9,11 +9,14 @@
 #define GrQuadPerEdgeAA_DEFINED
 
 #include "GrColor.h"
+#include "GrPrimitiveProcessor.h"
 #include "GrSamplerState.h"
 #include "GrTypesPriv.h"
+#include "glsl/GrGLSLPrimitiveProcessor.h"
 #include "SkPoint.h"
 #include "SkPoint3.h"
 
+class GrGLSLColorSpaceXformHelper;
 class GrPerspQuad;
 
 class GrQuadPerEdgeAA {
@@ -55,6 +58,76 @@ public:
 
         // Make sure sizeof(Vertex<...>) == kVertexSize
         char fData[kVertexSize];
+    };
+
+    // Utility class that manages the attribute state necessary to render a particular batch of
+    // quads. It is similar to a geometry processor but is meant to be included in a has-a
+    // relationship by specialized GP's that provide further functionality on top of the per-edge AA
+    // coverage.
+    //
+    // For performance reasons, this uses fixed names for the attribute variables; since it defines
+    // the majority of attributes a GP will likely need, this shouldn't be too limiting.
+    //
+    // In terms of responsibilities, the actual geometry processor must still call emitTransforms(),
+    // using the localCoords() attribute as the 4th argument; it must set the transform data helper
+    // to use the identity matrix; it must manage the color space transform for the quad's paint
+    // color; it should include getKey() in the geometry processor's key builder; and it should
+    // return these managed attributes from its onVertexAttribute() function.
+    class GPAttributes {
+    public:
+        using Attribute = GrPrimitiveProcessor::Attribute;
+
+        GPAttributes(int posDim, int localDim, bool hasColor, GrAAType aa, Domain domain);
+
+        const Attribute& positions() const { return fPositions; }
+        const Attribute& colors() const { return fColors; }
+        const Attribute& localCoords() const { return fLocalCoords; }
+        const Attribute& domain() const { return fDomain; }
+        const Attribute& edges(int i) const { return fAAEdges[i]; }
+
+        bool hasVertexColors() const { return fColors.isInitialized(); }
+
+        bool usesCoverageAA() const { return fAAEdges[0].isInitialized(); }
+
+        bool hasLocalCoords() const { return fLocalCoords.isInitialized(); }
+
+        bool hasDomain() const { return fDomain.isInitialized(); }
+
+        bool needsPerspectiveInterpolation() const;
+
+        int vertexAttributeCount() const;
+
+        uint32_t getKey() const;
+
+        // Functions to be called at appropriate times in a processor's onEmitCode() block. These
+        // are separated into discrete pieces so that they can be interleaved with the rest of the
+        // processor's shader code as needed. The functions take char* arguments for the names of
+        // variables the emitted code must declare, so that the calling GP can ensure there's no
+        // naming conflicts with their own code.
+
+        void emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args,
+                       GrGLSLColorSpaceXformHelper* colorSpaceXformHelper,
+                       const char* colorVarName) const;
+
+        // localCoordName will be declared as a float2, with any domain applied after any
+        // perspective division is performed.
+        //
+        // Note: this should only be used if the local coordinates need to be passed separately
+        // from the standard coord transform process that is used by FPs.
+        // FIXME: This can go in two directions from here, if GrTextureOp stops needing per-quad
+        // domains it can be removed and GrTextureOp rewritten to use coord transforms. Or
+        // emitTransform() in the primitive builder can be updated to have a notion of domain for
+        // local coords, and all domain-needing code (blurs, filters, etc.) can switch to that magic
+        void emitExplicitLocalCoords(GrGLSLPrimitiveProcessor::EmitArgs& args,
+                                     const char* localCoordName, const char* domainVarName) const;
+
+        void emitCoverage(GrGLSLPrimitiveProcessor::EmitArgs& args, const char* edgeDistName) const;
+    private:
+        Attribute fPositions;   // named "position" in SkSL
+        Attribute fColors;      // named "color" in SkSL
+        Attribute fLocalCoords; // named "localCoord" in SkSL
+        Attribute fDomain;      // named "domain" in SkSL
+        Attribute fAAEdges[4];  // named "aaEdgeX" for X = 0,1,2,3
     };
 
     // Tessellate the given quad specification into the vertices buffer. If the specific vertex

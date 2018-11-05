@@ -101,6 +101,11 @@ public:
         GrProcessorSet* fProcessorSet;
 
         friend class GrSimpleMeshDrawOpHelper;
+        // Without this, Windows builds fail to resolve access to the MakeArgs
+        // private ctor (even though it succeeds on other platforms).
+        template <typename Op, typename... OpArgs>
+        friend std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(
+                GrContext*, GrPaint&&, OpArgs...);
     };
 
     void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
@@ -110,9 +115,9 @@ public:
     }
 
     SkString dumpInfo() const;
+    GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
 
 protected:
-    GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
     uint32_t pipelineFlags() const { return fPipelineFlags; }
 
     GrPipeline::InitArgs pipelineInitArgs(GrMeshDrawOp::Target* target) const;
@@ -169,6 +174,7 @@ public:
                                               int numPrimitiveProcessorTextures = 0);
 
     SkString dumpInfo() const;
+    GrAAType aaType() const { return INHERITED::aaType(); }
 
 private:
     const GrUserStencilSettings* fStencilSettings;

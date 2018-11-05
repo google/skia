@@ -472,7 +472,7 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeForDeviceSpace(
         }
 
         if (localCoords.hasLocalMatrix()) {
-            invert.preConcat(*localCoords.fMatrix);
+            invert.postConcat(*localCoords.fMatrix);
         }
     }
 
