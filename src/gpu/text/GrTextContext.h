@@ -11,7 +11,7 @@
 #include "GrDistanceFieldAdjustTable.h"
 #include "GrGeometryProcessor.h"
 #include "GrTextTarget.h"
-#include "SkGlyphRun.h"
+#include "SkGlyphRunPainter.h"
 
 #if GR_TEST_UTILS
 #include "GrDrawOpTest.h"
