@@ -8,17 +8,11 @@
 #ifndef SkFont_DEFINED
 #define SkFont_DEFINED
 
+#include "SkFontTypes.h"
 #include "SkScalar.h"
 #include "SkTypeface.h"
 
 class SkPaint;
-
-enum SkTextEncoding {
-    kUTF8_SkTextEncoding,
-    kUTF16_SkTextEncoding,
-    kUTF32_SkTextEncoding,
-    kGlyphID_SkTextEncoding,
-};
 
 class SK_API SkFont {
 public:
