@@ -8,12 +8,38 @@
 #ifndef SkGlyphRunPainter_DEFINED
 #define SkGlyphRunPainter_DEFINED
 
+#include "SkDistanceFieldGen.h"
 #include "SkGlyphRun.h"
+#include "SkScalerContext.h"
+#include "SkSurfaceProps.h"
+#include "SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
 class GrColorSpaceInfo;
 class GrRenderTargetContext;
 #endif
+
+class SkGlyphCacheInterface {
+public:
+    virtual ~SkGlyphCacheInterface() = default;
+    virtual SkVector rounding() const = 0;
+    virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
+};
+
+class SkGlyphCacheCommon {
+public:
+    static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);
+
+    // This assumes that position has the appropriate rounding term applied.
+    static SkIPoint SubpixelLookup(SkAxisAlignment axisAlignment, SkPoint position);
+
+    // An atlas consists of plots, and plots hold glyphs. The minimum a plot can be is 256x256.
+    // This means that the maximum size a glyph can be is 256x256.
+    static constexpr uint16_t kSkSideTooBigForAtlas = 256;
+
+    static bool GlyphTooBigForAtlas(const SkGlyph& glyph);
+};
+
 
 class SkGlyphRunListPainter {
 public:
