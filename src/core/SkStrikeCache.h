@@ -12,6 +12,7 @@
 #include <unordered_set>
 
 #include "SkDescriptor.h"
+#include "SkGlyphCache.h"
 #include "SkSpinlock.h"
 #include "SkTemplates.h"
 
@@ -39,7 +40,7 @@ public:
 };
 
 class SkStrikeCache {
-    struct Node;
+    class Node;
 
 public:
     SkStrikeCache() = default;
@@ -47,7 +48,7 @@ public:
 
     class ExclusiveStrikePtr {
     public:
-        explicit ExclusiveStrikePtr(Node*, SkStrikeCache*);
+        explicit ExclusiveStrikePtr(Node*);
         ExclusiveStrikePtr();
         ExclusiveStrikePtr(const ExclusiveStrikePtr&) = delete;
         ExclusiveStrikePtr& operator = (const ExclusiveStrikePtr&) = delete;
@@ -65,13 +66,13 @@ public:
 
     private:
         Node* fNode;
-        SkStrikeCache* fStrikeCache;
     };
 
     static SkStrikeCache* GlobalStrikeCache();
 
     static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
     ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
+    Node* findAndDetachStrike(const SkDescriptor&);
 
     static ExclusiveStrikePtr CreateStrikeExclusive(
             const SkDescriptor& desc,
@@ -80,6 +81,12 @@ public:
             std::unique_ptr<SkStrikePinner> = nullptr);
 
     ExclusiveStrikePtr createStrikeExclusive(
+            const SkDescriptor& desc,
+            std::unique_ptr<SkScalerContext> scaler,
+            SkPaint::FontMetrics* maybeMetrics = nullptr,
+            std::unique_ptr<SkStrikePinner> = nullptr);
+
+    Node* createStrike(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
             SkPaint::FontMetrics* maybeMetrics = nullptr,
@@ -95,6 +102,11 @@ public:
             const SkScalerContextEffects& effects,
             const SkTypeface& typeface);
 
+    Node* findOrCreateStrike(
+            const SkDescriptor& desc,
+            const SkScalerContextEffects& effects,
+            const SkTypeface& typeface);
+
     // Routines to find suitable data when working in a remote cache situation. These are
     // suitable as substitutes for similar calls in SkScalerContext.
     bool desperationSearchForImage(const SkDescriptor& desc,
@@ -103,6 +115,18 @@ public:
     bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
+            const SkPaint& paint,
+            const SkSurfaceProps* surfaceProps,
+            SkScalerContextFlags scalerContextFlags,
+            const SkMatrix* deviceMatrix);
+
+    SkGlyphCacheInterface* findOrCreateGlyphCache(
+            const SkPaint& paint,
+            const SkSurfaceProps* surfaceProps,
+            SkScalerContextFlags scalerContextFlags,
+            const SkMatrix* deviceMatrix);
+
+    Node* findOrCreateStrike(
             const SkPaint& paint,
             const SkSurfaceProps* surfaceProps,
             SkScalerContextFlags scalerContextFlags,

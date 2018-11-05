@@ -139,6 +139,8 @@ public:
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
+    void outOfScope() override {}
+
     /** Return the approx RAM usage for this cache. */
     size_t getMemoryUsed() const { return fMemoryUsed; }
 
