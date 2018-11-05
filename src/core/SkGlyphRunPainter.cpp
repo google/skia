@@ -445,6 +445,94 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
     }
 }
 
+class SkGlyphRunListPainter::GPUDevicePainter {
+public:
+    virtual ~GPUDevicePainter() = default;
+};
+
+class SkGlyphRunListPainter::DFTControl {
+public:
+    DFTControl() = default;
+    #if SK_SUPPORT_GPU
+    DFTControl(const GrShaderCaps& shaderCaps, GrTextContext::Options options)
+        : fIsCapableOfDFT{shaderCaps.supportsDistanceFieldText()}
+        , fMinDistanceFieldFontSize{options.fMinDistanceFieldFontSize}
+        , fMaxDistanceFieldFontSize{options.fMaxDistanceFieldFontSize} {}
+    #endif
+
+    bool canDrawDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
+                               const SkSurfaceProps& props) {
+        if (!viewMatrix.hasPerspective()) {
+            SkScalar maxScale = viewMatrix.getMaxScale();
+            SkScalar scaledTextSize = maxScale * skPaint.getTextSize();
+            // Hinted text looks far better at small resolutions
+            // Scaling up beyond 2x yields undesireable artifacts
+            if (scaledTextSize < fMinDistanceFieldFontSize ||
+                scaledTextSize > fMaxDistanceFieldFontSize) {
+                return false;
+            }
+
+            bool useDFT = props.isUseDeviceIndependentFonts();
+#if SK_FORCE_DISTANCE_FIELD_TEXT
+            useDFT = true;
+#endif
+
+            if (!useDFT && scaledTextSize < kLargeDFFontSize) {
+                return false;
+            }
+        }
+
+        // mask filters modify alpha, which doesn't translate well to distance
+        if (skPaint.getMaskFilter() || !fIsCapableOfDFT) {
+            return false;
+        }
+
+        // TODO: add some stroking support
+        if (skPaint.getStyle() != SkPaint::kFill_Style) {
+            return false;
+        }
+
+        return true;
+    }
+
+    SkPaint paint() {
+
+    }
+
+    SkScalerContextFlags scalerContextFlags() {
+        // We apply the fake-gamma by altering the distance in the shader, so we ignore the
+        // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
+        return SkScalerContextFlags::kNone;
+    }
+
+private:
+    bool fIsCapableOfDFT{true};
+    /**
+     * Below this size (in device space) distance field text will not be used. Negative means
+     * use a default value.
+     */
+    SkScalar fMinDistanceFieldFontSize{kDefaultMinDistanceFieldFontSize};
+
+    /**
+     * Above this size (in device space) distance field text will not be used and glyphs will
+     * be rendered from outline as individual paths. Negative means use a default value.
+     */
+    SkScalar fMaxDistanceFieldFontSize{kDefaultMaxDistanceFieldFontSize};
+
+    bool fDistanceFieldVerticesAlwaysHaveW = false;
+};
+
+void SkGlyphRunListPainter::drawForGPUDevice(
+        const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
+        const DFTControl& dftControl, const GPUDevicePainter* gpuPainter) {
+    for (const auto& glyphRun : glyphRunList) {
+        const SkPaint& runPaint = glyphRun.paint();
+        if (CanDrawAsDistanceFields(runPaint, deviceMatrix, fDeviceProps,
+                                    shaderCaps.supportsDistanceFieldText(), fOptions))
+    }
+
+}
+
 #if SK_SUPPORT_GPU
 // -- GrTextContext --------------------------------------------------------------------------------
 SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
