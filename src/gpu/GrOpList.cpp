@@ -213,7 +213,7 @@ void GrOpList::dump(bool printDependencies) const {
                      : -1);
     SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
              op_to_name(fColorLoadOp),
-             GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor : 0x0,
+             GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor.toBytes_RGBA() : 0x0,
              op_to_name(fStencilLoadOp));
 
     if (printDependencies) {

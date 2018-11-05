@@ -202,7 +202,8 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
     }
 
     SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
-    rtc->clear(&clearRect, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtc->clear(&clearRect, SK_PMColor4fTRANSPARENT,
+               GrRenderTargetContext::CanClearFullscreen::kYes);
     return rtc;
 }
 

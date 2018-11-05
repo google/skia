@@ -220,11 +220,12 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
         contentRect->fBottom = dstRect.fBottom;
     }
     if (!topRect.isEmpty()) {
-        dstRenderTargetContext->clear(&topRect, 0, GrRenderTargetContext::CanClearFullscreen::kNo);
+        dstRenderTargetContext->clear(&topRect, SK_PMColor4fTRANSPARENT,
+                                      GrRenderTargetContext::CanClearFullscreen::kNo);
     }
 
     if (!bottomRect.isEmpty()) {
-        dstRenderTargetContext->clear(&bottomRect, 0,
+        dstRenderTargetContext->clear(&bottomRect, SK_PMColor4fTRANSPARENT,
                                       GrRenderTargetContext::CanClearFullscreen::kNo);
     }
 
@@ -338,7 +339,7 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
             // X convolution from reading garbage.
             SkIRect clearRect = SkIRect::MakeXYWH(contentRect->fRight, contentRect->fTop,
                                                   radiusX, contentRect->height());
-            dstRenderTargetContext->priv().absClear(&clearRect, 0x0);
+            dstRenderTargetContext->priv().absClear(&clearRect, SK_PMColor4fTRANSPARENT);
         }
     } else {
         if (scaleFactorY > 1) {
@@ -346,7 +347,7 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
             // convolution from reading garbage.
             SkIRect clearRect = SkIRect::MakeXYWH(contentRect->fLeft, contentRect->fBottom,
                                                   contentRect->width(), radiusY);
-            dstRenderTargetContext->priv().absClear(&clearRect, 0x0);
+            dstRenderTargetContext->priv().absClear(&clearRect, SK_PMColor4fTRANSPARENT);
         }
     }
 
@@ -368,9 +369,9 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
     // TODO: it seems like we should actually be clamping here rather than darkening
     // the bottom right edges.
     SkIRect clearRect = SkIRect::MakeXYWH(srcRect.fLeft, srcRect.fBottom, srcRect.width() + 1, 1);
-    srcRenderTargetContext->priv().absClear(&clearRect, 0x0);
+    srcRenderTargetContext->priv().absClear(&clearRect, SK_PMColor4fTRANSPARENT);
     clearRect = SkIRect::MakeXYWH(srcRect.fRight, srcRect.fTop, 1, srcRect.height());
-    srcRenderTargetContext->priv().absClear(&clearRect, 0x0);
+    srcRenderTargetContext->priv().absClear(&clearRect, SK_PMColor4fTRANSPARENT);
 
     sk_sp<GrTextureProxy> srcProxy = srcRenderTargetContext->asTextureProxyRef();
     if (!srcProxy) {
@@ -502,7 +503,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             // convolution from reading garbage.
             SkIRect clearRect = SkIRect::MakeXYWH(srcRect.fLeft, srcRect.fBottom,
                                                   srcRect.width(), radiusY);
-            dstRenderTargetContext->priv().absClear(&clearRect, 0x0);
+            dstRenderTargetContext->priv().absClear(&clearRect, SK_PMColor4fTRANSPARENT);
         }
 
         srcProxy = dstRenderTargetContext->asTextureProxyRef();

@@ -149,8 +149,7 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
         return;
     }
 
-    rtc->clear(nullptr, GrColorPackRGBA(0,0,0,255),
-               GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     // Draw the test directly to the frame buffer.
     rtc->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
@@ -161,7 +160,8 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
                     SkBackingFit::kExact, 100, 200, rtc->asSurfaceProxy()->config(),
                     nullptr, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr,
                     SkBudgeted::kYes)) {
-        topLeftRTC->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
+        topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                          GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
         rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()),
@@ -176,7 +176,8 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
                     SkBackingFit::kExact, 100, 200, rtc->asSurfaceProxy()->config(),
                     nullptr, 1, GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, nullptr,
                     SkBudgeted::kYes)) {
-        topLeftRTC->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
+        topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                          GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
         rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()),

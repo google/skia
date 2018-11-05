@@ -188,7 +188,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
                                                                    kAlpha_half_GrPixelConfig,
                                                                    nullptr);
         SkASSERT(ccbuff);
-        ccbuff->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
+        ccbuff->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                      GrRenderTargetContext::CanClearFullscreen::kYes);
         ccbuff->priv().testingOnly_addDrawOp(pool->allocate<DrawCoverageCountOp>(this));
 
         // Visualize coverage count in main canvas.

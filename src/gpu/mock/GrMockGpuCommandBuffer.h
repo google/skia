@@ -51,7 +51,7 @@ private:
                 const GrMesh[], int meshCount, const SkRect& bounds) override {
         ++fNumDraws;
     }
-    void onClear(const GrFixedClip&, GrColor) override {}
+    void onClear(const GrFixedClip&, const SkPMColor4f&) override {}
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
 
     GrMockGpu* fGpu;

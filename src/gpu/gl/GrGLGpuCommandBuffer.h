@@ -89,7 +89,7 @@ private:
         fGpu->draw(primProc, pipeline, fixedDynamicState, dynamicStateArrays, mesh, meshCount);
     }
 
-    void onClear(const GrFixedClip& clip, GrColor color) override {
+    void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override {
         fGpu->clear(clip, color, fRenderTarget, fOrigin);
     }
 

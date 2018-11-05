@@ -256,7 +256,7 @@ void GrRenderTargetContext::discard() {
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
-                                  const GrColor color,
+                                  const SkPMColor4f& color,
                                   CanClearFullscreen canClearFullscreen) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -268,7 +268,7 @@ void GrRenderTargetContext::clear(const SkIRect* rect,
                         canClearFullscreen);
 }
 
-void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor color) {
+void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMColor4f& color) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
@@ -298,7 +298,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
     // It could be done but will take more finagling.
     if (clearRect && fRenderTargetContext->caps()->performPartialClearsAsDraws()) {
         GrPaint paint;
-        paint.setColor4f(SkPMColor4f::FromBytes_RGBA(color));
+        paint.setColor4f(color);
         SkRect scissor = SkRect::Make(rtRect);
         std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(fRenderTargetContext->fContext,
                                                                     std::move(paint), SkMatrix::I(),
@@ -319,7 +319,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
 }
 
 void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
-                                      const GrColor color,
+                                      const SkPMColor4f& color,
                                       CanClearFullscreen canClearFullscreen) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
@@ -332,7 +332,7 @@ void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
 }
 
 void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
-                                          const GrColor color,
+                                          const SkPMColor4f& color,
                                           CanClearFullscreen canClearFullscreen) {
     bool isFull = false;
     if (!clip.hasWindowRectangles()) {
@@ -347,7 +347,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     } else {
         if (this->caps()->performPartialClearsAsDraws()) {
             GrPaint paint;
-            paint.setColor4f(SkPMColor4f::FromBytes_RGBA(color));
+            paint.setColor4f(color);
             SkRect scissor = SkRect::Make(clip.scissorRect());
             std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(fContext, std::move(paint),
                                                                         SkMatrix::I(), scissor,
@@ -392,7 +392,7 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
 
     // Check if the paint is a constant color, which is the first criterion to being able to turn
     // the drawPaint() into a clear(). More expensive geometry checks can happen after that.
-    GrColor clearColor;
+    SkPMColor4f clearColor;
     if (paint.isConstantBlendedColor(&clearColor)) {
         // Regardless of the actual clip geometry, if it completely covers the device bounds it can
         // be turned into a fullscreen clear.
@@ -568,7 +568,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                 rect_contains_inclusive(rect, quad.point(2)) &&
                 rect_contains_inclusive(rect, quad.point(3))) {
                 // Will it blend?
-                GrColor clearColor;
+                SkPMColor4f clearColor;
                 if (paint.isConstantBlendedColor(&clearColor)) {
                     this->clear(nullptr, clearColor,
                                 GrRenderTargetContext::CanClearFullscreen::kYes);

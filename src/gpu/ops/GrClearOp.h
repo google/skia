@@ -19,12 +19,12 @@ public:
 
     static std::unique_ptr<GrClearOp> Make(GrContext* context,
                                            const GrFixedClip& clip,
-                                           GrColor color,
+                                           const SkPMColor4f& color,
                                            GrSurfaceProxy* dstProxy);
 
     static std::unique_ptr<GrClearOp> Make(GrContext* context,
                                            const SkIRect& rect,
-                                           GrColor color,
+                                           const SkPMColor4f& color,
                                            bool fullScreen);
 
     const char* name() const override { return "Clear"; }
@@ -39,19 +39,19 @@ public:
         } else {
             string.append("disabled");
         }
-        string.appendf("], Color: 0x%08x\n", fColor);
+        string.appendf("], Color: 0x%08x\n", fColor.toBytes_RGBA());
         return string;
     }
 
-    GrColor color() const { return fColor; }
-    void setColor(GrColor color) { fColor = color; }
+    const SkPMColor4f& color() const { return fColor; }
+    void setColor(const SkPMColor4f& color) { fColor = color; }
 
 private:
     friend class GrOpMemoryPool; // for ctors
 
-    GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy);
+    GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfaceProxy* proxy);
 
-    GrClearOp(const SkIRect& rect, GrColor color, bool fullScreen)
+    GrClearOp(const SkIRect& rect, const SkPMColor4f& color, bool fullScreen)
         : INHERITED(ClassID())
         , fClip(GrFixedClip(rect))
         , fColor(color) {
@@ -92,7 +92,7 @@ private:
     void onExecute(GrOpFlushState* state) override;
 
     GrFixedClip fClip;
-    GrColor     fColor;
+    SkPMColor4f fColor;
 
     typedef GrOp INHERITED;
 };

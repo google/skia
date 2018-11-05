@@ -117,7 +117,8 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* c
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkRegion::Iterator iter(fRegion);
-    rtContext->clear(nullptr, 0x0, GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtContext->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                     GrRenderTargetContext::CanClearFullscreen::kYes);
 
     GrFixedClip clip(SkIRect::MakeWH(bounds.width(), bounds.height()));
     while (!iter.done()) {

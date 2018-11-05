@@ -120,7 +120,7 @@ static GrGpuRTCommandBuffer* create_command_buffer(GrGpu* gpu,
                                                    GrSurfaceOrigin origin,
                                                    const SkRect& bounds,
                                                    GrLoadOp colorLoadOp,
-                                                   GrColor loadClearColor,
+                                                   const SkPMColor4f& loadClearColor,
                                                    GrLoadOp stencilLoadOp) {
     const GrGpuRTCommandBuffer::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
@@ -216,7 +216,7 @@ void GrRenderTargetOpList::discard() {
     }
 }
 
-void GrRenderTargetOpList::fullClear(GrContext* context, GrColor color) {
+void GrRenderTargetOpList::fullClear(GrContext* context, const SkPMColor4f& color) {
 
     // This is conservative. If the opList is marked as needing a stencil buffer then there
     // may be a prior op that writes to the stencil buffer. Although the clear will ignore the

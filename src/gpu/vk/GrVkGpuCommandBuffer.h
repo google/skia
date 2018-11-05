@@ -134,7 +134,7 @@ private:
                                        const GrBuffer* instanceBuffer, int instanceCount,
                                        int baseInstance, GrPrimitiveRestart) final;
 
-    void onClear(const GrFixedClip&, GrColor color) override;
+    void onClear(const GrFixedClip&, const SkPMColor4f& color) override;
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 
@@ -201,7 +201,7 @@ private:
     VkAttachmentStoreOp         fVkColorStoreOp;
     VkAttachmentLoadOp          fVkStencilLoadOp;
     VkAttachmentStoreOp         fVkStencilStoreOp;
-    float                       fClearColor[4];
+    SkPMColor4f                 fClearColor;
     GrVkPipelineState*          fLastPipelineState;
 
     typedef GrGpuRTCommandBuffer INHERITED;
