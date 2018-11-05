@@ -54,7 +54,16 @@ GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkIma
 
 sk_sp<GrTextureProxy> GrYUVAImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
                                                                    AllowedTexGenType onlyIfFast) {
-    return (AllowedTexGenType::kCheap == onlyIfFast) ? nullptr : fImage->asTextureProxyRef();
+    if (AllowedTexGenType::kCheap == onlyIfFast) {
+        return nullptr;
+    }
+
+    auto proxy = fImage->asTextureProxyRef();
+    if (willBeMipped && proxy && GrMipMapped::kNo == proxy->mipMapped()) {
+        return nullptr;
+    }
+
+    return proxy;
 }
 
 void GrYUVAImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {
