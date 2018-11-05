@@ -84,7 +84,7 @@ private:
                 int meshCount,
                 const SkRect& bounds) override;
 
-    void onClear(const GrFixedClip& clip, GrColor color) override;
+    void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override;
 
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override;
 

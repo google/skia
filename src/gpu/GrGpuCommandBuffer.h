@@ -8,7 +8,6 @@
 #ifndef GrGpuCommandBuffer_DEFINED
 #define GrGpuCommandBuffer_DEFINED
 
-#include "GrColor.h"
 #include "GrPipeline.h"
 #include "SkDrawable.h"
 #include "ops/GrDrawOp.h"
@@ -73,9 +72,9 @@ private:
 class GrGpuRTCommandBuffer : public GrGpuCommandBuffer {
 public:
     struct LoadAndStoreInfo {
-        GrLoadOp  fLoadOp;
-        GrStoreOp fStoreOp;
-        GrColor   fClearColor;
+        GrLoadOp    fLoadOp;
+        GrStoreOp   fStoreOp;
+        SkPMColor4f fClearColor;
     };
 
     // Load-time clears of the stencil buffer are always to 0 so we don't store
@@ -109,7 +108,7 @@ public:
     /**
      * Clear the owned render target. Ignores the draw state and clip.
      */
-    void clear(const GrFixedClip&, GrColor);
+    void clear(const GrFixedClip&, const SkPMColor4f&);
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
@@ -155,7 +154,7 @@ private:
                         const SkRect& bounds) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
-    virtual void onClear(const GrFixedClip&, GrColor) = 0;
+    virtual void onClear(const GrFixedClip&, const SkPMColor4f&) = 0;
 
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
 

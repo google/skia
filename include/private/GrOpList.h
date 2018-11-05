@@ -8,7 +8,6 @@
 #ifndef GrOpList_DEFINED
 #define GrOpList_DEFINED
 
-#include "GrColor.h"
 #include "GrProxyRef.h"
 #include "GrTextureProxy.h"
 #include "SkRefCnt.h"
@@ -105,9 +104,10 @@ protected:
     GrSurfaceProxyRef     fTarget;
     GrAuditTrail*         fAuditTrail;
 
-    GrLoadOp              fColorLoadOp    = GrLoadOp::kLoad;
-    GrColor               fLoadClearColor = 0x0;
-    GrLoadOp              fStencilLoadOp  = GrLoadOp::kLoad;
+    // fLoadClearColor is SkPMColor4f, but we can't include SkColorData.h here.
+    GrLoadOp                      fColorLoadOp    = GrLoadOp::kLoad;
+    SkRGBA4f<kPremul_SkAlphaType> fLoadClearColor = { 0, 0, 0, 0 };
+    GrLoadOp                      fStencilLoadOp  = GrLoadOp::kLoad;
 
     // List of texture proxies whose contents are being prepared on a worker thread
     SkTArray<GrTextureProxy*, true> fDeferredProxies;

@@ -243,7 +243,7 @@ void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
 
     this->INHERITED::set(rt, origin);
 
-    GrColorToRGBAFloat(colorInfo.fClearColor, fClearColor);
+    fClearColor = colorInfo.fClearColor;
 
     get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
                           &fVkColorLoadOp, &fVkColorStoreOp);
@@ -371,7 +371,7 @@ void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool in
     }
 }
 
-void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
+void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
     // parent class should never let us get here with no RT
@@ -379,8 +379,7 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
 
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
 
-    VkClearColorValue vkColor;
-    GrColorToRGBAFloat(color, vkColor.float32);
+    VkClearColorValue vkColor = {{color.fR, color.fG, color.fB, color.fA}};
 
     if (cbInfo.fIsEmpty && !clip.scissorEnabled()) {
         // Change the render pass to do a clear load
@@ -406,7 +405,7 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
         SkASSERT(cbInfo.fRenderPass->isCompatible(*oldRP));
         oldRP->unref(fGpu);
 
-        GrColorToRGBAFloat(color, cbInfo.fColorClearValue.color.float32);
+        cbInfo.fColorClearValue.color = {{color.fR, color.fG, color.fB, color.fA}};
         cbInfo.fLoadStoreState = LoadStoreState::kStartsWithClear;
         // If we are going to clear the whole render target then the results of any copies we did
         // immediately before to the target won't matter, so just drop them.

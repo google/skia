@@ -347,7 +347,8 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
                                                      kRGBA_8888_GrPixelConfig, nullptr);
         REPORTER_ASSERT(reporter, rtc);
 
-        rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
+        rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xbaaaaaad),
+                   GrRenderTargetContext::CanClearFullscreen::kYes);
 
         int executeTestValue = 0;
         rtc->priv().testingOnly_addDrawOp(LazyFailedInstantiationTestOp::Make(
@@ -423,7 +424,8 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
                 kRGBA_8888_GrPixelConfig, nullptr);
         REPORTER_ASSERT(reporter, rtc);
 
-        rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
+        rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xbaaaaaad),
+                   GrRenderTargetContext::CanClearFullscreen::kYes);
 
         int instantiateTestValue = 0;
         int releaseTestValue = 0;
