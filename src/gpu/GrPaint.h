@@ -50,11 +50,6 @@ public:
     void setColor4f(const SkPMColor4f& color) { fColor = color; }
     const SkPMColor4f& getColor4f() const { return fColor; }
 
-    /**
-     * Legacy getter, until all code handles 4f directly.
-     */
-    GrColor getColor() const { return fColor.toBytes_RGBA(); }
-
     void setXPFactory(const GrXPFactory* xpFactory) {
         fXPFactory = xpFactory;
         fTrivial &= !SkToBool(xpFactory);

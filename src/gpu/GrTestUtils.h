@@ -126,7 +126,6 @@ static inline GrColor GrRandomColor(SkRandom* random) {
             break;
         }
     }
-    GrColorIsPMAssert(color);
     return color;
 }
 

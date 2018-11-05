@@ -11,10 +11,8 @@
 #ifndef GrColor_DEFINED
 #define GrColor_DEFINED
 
-#include "GrTypes.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
-#include "SkUnPreMultiply.h"
 
 /**
  * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. Whether the color is
@@ -77,23 +75,6 @@ static inline GrColor GrColorPackA4(unsigned a) {
 #define GrColor_ILLEGAL     (~(0xFF << GrColor_SHIFT_A))
 
 #define GrColor_WHITE 0xFFFFFFFF
-#define GrColor_TRANSPARENT_BLACK 0x0
-
-/**
- * Assert in debug builds that a GrColor is premultiplied.
- */
-static inline void GrColorIsPMAssert(GrColor SkDEBUGCODE(c)) {
-#ifdef SK_DEBUG
-    unsigned a = GrColorUnpackA(c);
-    unsigned r = GrColorUnpackR(c);
-    unsigned g = GrColorUnpackG(c);
-    unsigned b = GrColorUnpackB(c);
-
-    SkASSERT(r <= a);
-    SkASSERT(g <= a);
-    SkASSERT(b <= a);
-#endif
-}
 
 static inline GrColor GrColorMul(GrColor c0, GrColor c1) {
     U8CPU r = SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1));
@@ -107,11 +88,6 @@ static inline GrColor GrColorMul(GrColor c0, GrColor c1) {
 static inline float GrNormalizeByteToFloat(uint8_t value) {
     static const float ONE_OVER_255 = 1.f / 255.f;
     return value * ONE_OVER_255;
-}
-
-/** Determines whether the color is opaque or not. */
-static inline bool GrColorIsOpaque(GrColor color) {
-    return (color & (0xFFU << GrColor_SHIFT_A)) == (0xFFU << GrColor_SHIFT_A);
 }
 
 #endif
