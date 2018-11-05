@@ -314,7 +314,7 @@ path2 bounds = 10, 20, 30, 40
 
 #Example
 #Description
-Rewind removes Verb_Array but leaves storage; since storage is not compared,
+rewind() removes Verb_Array but leaves storage; since storage is not compared,
 Path pair are equivalent.
 ##
 void draw(SkCanvas* canvas) {
@@ -1996,8 +1996,9 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Subtopic Conic
-#Line # conic section defined by three points and a weight ##
+#Alias Conic ##
 #Alias Conics ##
+#Line # conic section defined by three points and a weight ##
 
 Conic describes a conical section: a piece of an ellipse, or a piece of a
 parabola, or a piece of a hyperbola. Conic begins at a start Point,
@@ -2369,8 +2370,8 @@ HTML_Canvas arcs. Variation addArc always starts new Contour. Canvas::drawArc dr
 requiring Path.
 
 arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius)
-describes Arc as tangent to the line (x0, y0), (x1, y1) and tangent to the line (x1, y1), (x2, y2)
-where (x0, y0) is the last Point added to Path. This construction is similar to PostScript and
+describes Arc as tangent to the line segment from last Point added to Path to (x1, y1); and tangent
+to the line segment from (x1, y1) to (x2, y2). This construction is similar to PostScript and
 HTML_Canvas arcs.
 
 arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
@@ -2772,8 +2773,8 @@ void draw(SkCanvas* canvas) {
 
 Appends Arc to Path, relative to last Path Point. Arc is implemented by one or
 more Conic, weighted to describe part of Oval with radii (rx, ry) rotated by
-xAxisRotate degrees. Arc curves from last Path Point (x0, y0) to end Point:
-#Formula # (x0 + dx, y0 + dy) ##, choosing one of four possible routes: clockwise or
+xAxisRotate degrees. Arc curves from last Path Point to relative end Point
+(dx, dy), choosing one of four possible routes: clockwise or
 counterclockwise, and smaller or larger. If Path is empty, the start Arc Point
 is (0, 0).
 
@@ -2913,7 +2914,6 @@ IsInverseFillType(kInverseEvenOdd_FillType) == true
 #In Utility
 #Line # returns Fill_Type representing inside geometry ##
 Returns equivalent Fill_Type representing Path fill inside its bounds.
-.
 
 #Table
 #Legend
@@ -3463,7 +3463,7 @@ If both radii on any side of rect exceed its length, all radii are scaled
 uniformly until the corners fit. If either radius of a corner is less than or
 equal to zero, both are treated as zero.
 
-After appending, Path may be empty, or may contain: Rect, Oval, or RoundRect.
+After appending, Path may be empty, or may contain: Rect, Oval, or Round_Rect.
 
 #Param rect   bounds of Round_Rect ##
 #Param radii  array of 8 SkScalar values, a radius pair for each corner ##
@@ -3661,7 +3661,7 @@ the last Contour or start a new Contour.
 #Line # add line if prior Contour is not closed ##
     If destination is closed or empty, start a new Contour. If destination
     is not empty, add Line from Last_Point to added Path first Point. Skip added
-    Path initial kMove_Verb, then append remining Verbs, Points, and Conic_Weights.
+    Path initial kMove_Verb, then append remaining Verbs, Points, and Conic_Weights.
 ##
 
 #Example

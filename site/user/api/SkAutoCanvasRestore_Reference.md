@@ -7,16 +7,16 @@ SkAutoCanvasRestore Reference
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href='#SkAutoCanvasRestore'>SkAutoCanvasRestore</a> {
+class <a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a> {
 public:
-    <a href='#SkAutoCanvasRestore_SkCanvas_star'>SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a>;
-    <a href='#SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore()</a>;
-    void <a href='#SkAutoCanvasRestore_restore'>restore</a>();
+    <a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, bool doSave);
+    ~<a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>();
+    void <a href='#SkAutoCanvasRestore_restore'>restore()</a>;
 };
 </pre>
 
-Stack helper class calls <a href='SkCanvas_Reference#SkCanvas_restoreToCount'>SkCanvas::restoreToCount</a> when <a href='#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>
-goes out of scope. Use this to guarantee that the canvas is restored to a known
+Stack helper class calls <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_restoreToCount'>restoreToCount</a> when <a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>
+goes out of scope. Use this to guarantee that the <a href='SkCanvas_Reference#Canvas'>canvas</a> is restored to a known
 state.
 
 <a name='SkAutoCanvasRestore_SkCanvas_star'></a>
@@ -24,10 +24,10 @@ state.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* canvas, bool doSave)
+<a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, bool doSave)
 </pre>
 
-Preserves <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> save count. Optionally saves <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> clip and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> <a href='SkMatrix_Reference#Matrix'>matrix</a>.
+Preserves <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_save'>save()</a> count. Optionally saves <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> clip and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> <a href='SkMatrix_Reference#Matrix'>matrix</a>.
 
 ### Parameters
 
@@ -35,7 +35,7 @@ Preserves <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> save count. Optiona
     <td><a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> to guard</td>
   </tr>
   <tr>    <td><a name='SkAutoCanvasRestore_SkCanvas_star_doSave'><code><strong>doSave</strong></code></a></td>
-    <td>call <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::save()</td>
+    <td>call <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_save'>save()</a></td>
   </tr>
 </table>
 
@@ -49,14 +49,14 @@ utility to restore <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> state on d
 
 ### See Also
 
-<a href='SkCanvas_Reference#SkCanvas_save'>SkCanvas::save</a> <a href='SkCanvas_Reference#SkCanvas_restore'>SkCanvas::restore</a>
+<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_save'>save</a> <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_restore'>restore</a>
 
 <a name='SkAutoCanvasRestore_destructor'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore</a>()
+~<a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>()
 </pre>
 
 Restores <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> to saved state. Destructor is called when container goes out of
@@ -64,14 +64,14 @@ scope.
 
 ### See Also
 
-<a href='SkCanvas_Reference#SkCanvas_save'>SkCanvas::save</a> <a href='SkCanvas_Reference#SkCanvas_restore'>SkCanvas::restore</a>
+<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_save'>save</a> <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_restore'>restore</a>
 
 <a name='SkAutoCanvasRestore_restore'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkAutoCanvasRestore_restore'>restore</a>()
+void <a href='#SkAutoCanvasRestore_restore'>restore()</a>
 </pre>
 
 Restores <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> to saved state immediately. Subsequent calls and
@@ -99,5 +99,5 @@ final count: 1
 
 ### See Also
 
-<a href='SkCanvas_Reference#SkCanvas_save'>SkCanvas::save</a> <a href='SkCanvas_Reference#SkCanvas_restore'>SkCanvas::restore</a>
+<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_save'>save</a> <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_restore'>restore</a>
 

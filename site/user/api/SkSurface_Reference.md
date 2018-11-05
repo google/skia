@@ -102,11 +102,13 @@ public:
 };
 </pre>
 
-<a href='#SkSurface'>SkSurface</a> is responsible for managing the pixels that a canvas draws into. The pixels can be
-allocated either in CPU memory (a raster surface) or on the GPU (a <a href='undocumented#GrRenderTarget'>GrRenderTarget</a> surface).
-<a href='#SkSurface'>SkSurface</a> takes care of allocating a <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> that will draw into the surface. Call
-surface-><a href='#SkSurface_getCanvas'>getCanvas</a>() to use that canvas (but don't delete it, it is owned by the surface).
-<a href='#SkSurface'>SkSurface</a> always has non-zero dimensions. If there is a request for a new surface, and either
+<a href='SkSurface_Reference#SkSurface'>SkSurface</a> is responsible for managing the pixels that a <a href='SkCanvas_Reference#Canvas'>canvas</a> draws into. The pixels can be
+allocated either in CPU memory, if a  <a href='undocumented#Raster_Surface'>raster surface</a>; or on the GPU, for a <a href='undocumented#GrRenderTarget'>GrRenderTarget</a> <a href='SkSurface_Reference#Surface'>surface</a>.
+<a href='SkSurface_Reference#SkSurface'>SkSurface</a> takes care of allocating a <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> that will draw into the <a href='SkSurface_Reference#Surface'>surface</a>. Call
+<a href='SkSurface_Reference#Surface'>surface</a>-><a href='#SkSurface_getCanvas'>getCanvas</a>() to use that <a href='SkCanvas_Reference#Canvas'>canvas</a>. The caller should not delete the returned <a href='SkCanvas_Reference#Canvas'>canvas</a>;
+it is owned by <a href='SkSurface_Reference#Surface'>surface</a>.
+
+<a href='SkSurface_Reference#SkSurface'>SkSurface</a> always has non-zero dimensions. If there is a request for a new <a href='SkSurface_Reference#Surface'>surface</a>, and either
 of the requested dimensions are zero, then nullptr will be returned.
 
 <a name='SkSurface_MakeRasterDirect'></a>
@@ -114,7 +116,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterDirect'>MakeRasterDirect</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, void* pixels, size_t rowBytes,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterDirect'>MakeRasterDirect</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, void* pixels, size_t rowBytes,
                                          const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps = nullptr)
 </pre>
 
@@ -182,7 +184,7 @@ may be nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterDirectReleaseProc'>MakeRasterDirectReleaseProc</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, void* pixels,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterDirectReleaseProc'>MakeRasterDirectReleaseProc</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, void* pixels,
                                            size_t rowBytes, void (*releaseProc) (void* pixels,
                                            void* context) , void* context,
                                            const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps = nullptr)
@@ -260,7 +262,7 @@ expected release context
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRaster'>MakeRaster</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, size_t rowBytes,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRaster'>MakeRaster</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, size_t rowBytes,
                                    const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
 </pre>
 
@@ -326,7 +328,7 @@ may be nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRaster'>MakeRaster</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRaster'>MakeRaster</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo,
                                    const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* props = nullptr)
 </pre>
 
@@ -375,7 +377,7 @@ may be nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterN32Premul'>MakeRasterN32Premul</a>(int width, int height,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterN32Premul'>MakeRasterN32Premul</a>(int width, int height,
                                             const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps = nullptr)
 </pre>
 
@@ -433,11 +435,11 @@ fonts; may be nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendTexture'>MakeFromBackendTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendTexture'>MakeFromBackendTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
                                                const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
                                                <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, int sampleCnt,
                                                <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType,
-                                               <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
+                                               <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
                                                const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
 </pre>
 
@@ -508,10 +510,10 @@ fonts; may be nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendRenderTarget'>MakeFromBackendRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendRenderTarget'>MakeFromBackendRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
                                                    const <a href='undocumented#GrBackendRenderTarget'>GrBackendRenderTarget</a>& backendRenderTarget,
                                                    <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType,
-                                                   <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
+                                                   <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
                                                    const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
 </pre>
 
@@ -596,10 +598,10 @@ fonts; may be nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendTextureAsRenderTarget'>MakeFromBackendTextureAsRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendTextureAsRenderTarget'>MakeFromBackendTextureAsRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
                                             const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
                                             <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, int sampleCnt,
-                                            <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
+                                            <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType, <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
                                             const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
 </pre>
 
@@ -672,7 +674,7 @@ fonts; may be nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted,
                                          const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, int sampleCount,
                                          <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> surfaceOrigin,
                                          const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps,
@@ -750,7 +752,7 @@ fonts; may be nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted,
                                          const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, int sampleCount,
                                          const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* props)
 </pre>
@@ -816,7 +818,7 @@ or red green blue.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted,
                                          const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo)
 </pre>
 
@@ -860,7 +862,7 @@ of  <a href='undocumented#Raster_Surface'>raster surface</a>; width, or height, 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
                                          const <a href='undocumented#SkSurfaceCharacterization'>SkSurfaceCharacterization</a>& characterization,
                                          <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted)
 </pre>
@@ -894,7 +896,7 @@ Returns <a href='SkSurface_Reference#SkSurface'>SkSurface</a> on GPU indicated b
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeNull'>MakeNull</a>(int width, int height)
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeNull'>MakeNull</a>(int width, int height)
 </pre>
 
 Returns <a href='SkSurface_Reference#SkSurface'>SkSurface</a> without backing pixels. Drawing to <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> returned from <a href='SkSurface_Reference#SkSurface'>SkSurface</a>
@@ -938,14 +940,14 @@ surf->makeImageSnapshot() == nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkSurface_width'>width</a>() const
+int <a href='#SkSurface_width'>width()</a> const
 </pre>
 
-Returns <a href='undocumented#Pixel'>pixel</a> count in each row; may be zero or greater.
+Returns pixel count in each row; may be zero or greater.
 
 ### Return Value
 
-number of <a href='undocumented#Pixel'>pixel</a> columns
+number of pixel columns
 
 ### Example
 
@@ -968,14 +970,14 @@ surface width=37  canvas width=37
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkSurface_height'>height</a>() const
+int <a href='#SkSurface_height'>height()</a> const
 </pre>
 
-Returns <a href='undocumented#Pixel'>pixel</a> row count; may be zero or greater.
+Returns pixel row count; may be zero or greater.
 
 ### Return Value
 
-number of <a href='undocumented#Pixel'>pixel</a> rows
+number of pixel rows
 
 ### Example
 
@@ -1001,9 +1003,9 @@ surface height=1000  canvas height=1000
 uint32_t <a href='#SkSurface_generationID'>generationID</a>()
 </pre>
 
-Returns unique value identifying the content of <a href='SkSurface_Reference#SkSurface'>SkSurface</a>. Returned value changes
+Returns unique value identifying the content of SkSurface. Returned value changes
 each time the content changes. Content is changed by drawing, or by calling
-<a href='#SkSurface_notifyContentWillChange'>notifyContentWillChange</a>().
+notifyContentWillChange().
 
 ### Return Value
 
@@ -1050,16 +1052,16 @@ surface generationID: 3
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkSurface_kDiscard_ContentChangeMode'><code>SkSurface::kDiscard_ContentChangeMode</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # discards surface on change ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Pass to <a href='#SkSurface_notifyContentWillChange'>notifyContentWillChange</a> to discard surface contents when
-the surface is cleared or overwritten.
+Pass to <a href='#SkSurface_notifyContentWillChange'>notifyContentWillChange</a> to discard <a href='SkSurface_Reference#Surface'>surface</a> contents when
+the <a href='SkSurface_Reference#Surface'>surface</a> is cleared or overwritten.
 </td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkSurface_kRetain_ContentChangeMode'><code>SkSurface::kRetain_ContentChangeMode</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # preserves surface on change ##</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Pass to <a href='#SkSurface_notifyContentWillChange'>notifyContentWillChange</a> when to preserve surface contents.
-If a snapshot has been generated, this copies the <a href='#Surface'>Surface</a> contents.
+Pass to <a href='#SkSurface_notifyContentWillChange'>notifyContentWillChange</a> when to preserve <a href='SkSurface_Reference#Surface'>surface</a> contents.
+If a snapshot has been generated, this copies the <a href='SkSurface_Reference#Surface'>Surface</a> contents.
 </td>
   </tr>
 </table>
@@ -1078,17 +1080,17 @@ If a snapshot has been generated, this copies the <a href='#Surface'>Surface</a>
 void <a href='#SkSurface_notifyContentWillChange'>notifyContentWillChange</a>(<a href='#SkSurface_ContentChangeMode'>ContentChangeMode</a> mode)
 </pre>
 
-Notifies that <a href='#Surface'>Surface</a> contents will be changed by code outside of Skia.
+Notifies that <a href='SkSurface_Reference#Surface'>Surface</a> contents will be changed by code outside of Skia.
 Subsequent calls to <a href='#SkSurface_generationID'>generationID</a> return a different value.
 
-<a href='#SkSurface_notifyContentWillChange_mode'>mode</a> is normally passed as <a href='#SkSurface_kRetain_ContentChangeMode'>kRetain ContentChangeMode</a>.
+<a href='#SkSurface_notifyContentWillChange_mode'>mode</a> is normally passed as <a href='#SkSurface_kRetain_ContentChangeMode'>kRetain_ContentChangeMode</a>.
 
 Private: Can we deprecate this?
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkSurface_notifyContentWillChange_mode'><code><strong>mode</strong></code></a></td>
-    <td>one of: <a href='#SkSurface_kDiscard_ContentChangeMode'>kDiscard ContentChangeMode</a>, <a href='#SkSurface_kRetain_ContentChangeMode'>kRetain ContentChangeMode</a></td>
+    <td>one of: kDiscard_ContentChangeMode, kRetain_ContentChangeMode</td>
   </tr>
 </table>
 
@@ -1249,13 +1251,13 @@ GPU  <a href='undocumented#Render_Target'>render target</a> reference; invalid o
 <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='#SkSurface_getCanvas'>getCanvas</a>()
 </pre>
 
-Returns <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> that draws into <a href='SkSurface_Reference#SkSurface'>SkSurface</a>. Subsequent calls return the same <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>.
-<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> returned is managed and owned by <a href='SkSurface_Reference#SkSurface'>SkSurface</a>, and is deleted when <a href='SkSurface_Reference#SkSurface'>SkSurface</a>
+Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
+SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface
 is deleted.
 
 ### Return Value
 
-drawing <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> for <a href='SkSurface_Reference#SkSurface'>SkSurface</a>
+drawing SkCanvas for SkSurface
 
 ### Example
 
@@ -1270,7 +1272,7 @@ drawing <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> for <a href='SkSurfac
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_makeSurface'>makeSurface</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo)
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkSurface_Reference#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_makeSurface'>makeSurface</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo)
 </pre>
 
 Returns a compatible <a href='SkSurface_Reference#SkSurface'>SkSurface</a>, or nullptr. Returned <a href='SkSurface_Reference#SkSurface'>SkSurface</a> contains
@@ -1306,16 +1308,16 @@ compatible <a href='SkSurface_Reference#SkSurface'>SkSurface</a> or nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkImage_Reference#SkImage'>SkImage</a>&gt; <a href='#SkSurface_makeImageSnapshot'>makeImageSnapshot</a>()
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkImage_Reference#SkImage'>SkImage</a>&gt; <a href='#SkSurface_makeImageSnapshot'>makeImageSnapshot</a>()
 </pre>
 
-Returns <a href='SkImage_Reference#SkImage'>SkImage</a> capturing <a href='SkSurface_Reference#SkSurface'>SkSurface</a> contents. Subsequent drawing to <a href='SkSurface_Reference#SkSurface'>SkSurface</a> contents
-are not captured. <a href='SkImage_Reference#SkImage'>SkImage</a> allocation is accounted for if <a href='SkSurface_Reference#SkSurface'>SkSurface</a> was created with
-<a href='undocumented#SkBudgeted'>SkBudgeted</a>::<a href='#SkBudgeted_kYes'>kYes</a>.
+Returns SkImage capturing SkSurface contents. Subsequent drawing to SkSurface contents
+are not captured. SkImage allocation is accounted for if SkSurface was created with
+SkBudgeted::kYes.
 
 ### Return Value
 
-<a href='SkImage_Reference#SkImage'>SkImage</a> initialized with <a href='SkSurface_Reference#SkSurface'>SkSurface</a> contents
+SkImage initialized with SkSurface contents
 
 ### Example
 
@@ -1332,7 +1334,7 @@ are not captured. <a href='SkImage_Reference#SkImage'>SkImage</a> allocation is 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkSurface_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* canvas, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint)
+void draw(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a>)
 </pre>
 
 Draws <a href='SkSurface_Reference#SkSurface'>SkSurface</a> contents to <a href='#SkSurface_draw()_canvas'>canvas</a>, with its top-left corner at (<a href='#SkSurface_draw()_x'>x</a>, <a href='#SkSurface_draw()_y'>y</a>).
@@ -1371,7 +1373,7 @@ and so on; or nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkSurface_peekPixels'>peekPixels</a>(<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>* pixmap)
+bool <a href='#SkSurface_peekPixels'>peekPixels</a>(<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>* <a href='SkPixmap_Reference#Pixmap'>pixmap</a>)
 </pre>
 
 Copies <a href='SkSurface_Reference#SkSurface'>SkSurface</a> <a href='undocumented#Pixel'>pixel</a> address, row bytes, and <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> to <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>, if address
@@ -1409,16 +1411,16 @@ bool <a href='#SkSurface_readPixels'>readPixels</a>(const <a href='SkPixmap_Refe
 
 Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels to <a href='#SkSurface_readPixels_dst'>dst</a>.
 
-Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_readPixels_srcX'>srcX</a>, <a href='#SkSurface_readPixels_srcY'>srcY</a>) and <a href='#Surface'>Surface</a> (<a href='#SkSurface_width'>width</a>(), <a href='#SkSurface_height'>height</a>()).
-Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_readPixels_dst'>dst</a>.<a href='#SkSurface_width'>width</a>(), <a href='#SkSurface_readPixels_dst'>dst</a>.<a href='#SkSurface_height'>height</a>()).
-Copies each readable pixel intersecting both rectangles, without scaling,
-converting to <a href='#SkSurface_readPixels_dst'>dst</a>.colorType() and <a href='#SkSurface_readPixels_dst'>dst</a>.alphaType() if required.
+Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_readPixels_srcX'>srcX</a>, <a href='#SkSurface_readPixels_srcY'>srcY</a>) and <a href='SkSurface_Reference#Surface'>Surface</a> (<a href='#SkSurface_width'>width()</a>, <a href='#SkSurface_height'>height()</a>).
+Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_readPixels_dst'>dst</a>.<a href='#SkPixmap_width'>width()</a>, <a href='#SkSurface_readPixels_dst'>dst</a>.<a href='#SkPixmap_height'>height()</a>).
+Copies each readable <a href='undocumented#Pixel'>pixel</a> intersecting both rectangles, without scaling,
+converting to <a href='#SkSurface_readPixels_dst'>dst</a>.<a href='#SkPixmap_colorType'>colorType</a>() and <a href='#SkSurface_readPixels_dst'>dst</a>.<a href='#SkPixmap_alphaType'>alphaType</a>() if required.
 
-<a href='#Pixels'>Pixels</a> are readable when <a href='#Surface'>Surface</a> is raster, or backed by a GPU.
+Pixels are readable when <a href='SkSurface_Reference#Surface'>Surface</a> is raster, or backed by a GPU.
 
-The destination pixel storage must be allocated by the caller.
+The destination  <a href='undocumented#Pixel_Storage'>pixel storage</a> must be allocated by the caller.
 
-<a href='undocumented#Pixel'>Pixel</a> values are converted only if <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> and <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>
+<a href='undocumented#Pixel'>Pixel</a> values are converted only if <a href='#Image_Info_Color_Type'>Color_Type</a> and <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href='#SkSurface_readPixels_dst'>dst</a> contents outside <a href='SkRect_Reference#Rect'>Rect</a> intersection are unchanged.
 
@@ -1429,16 +1431,16 @@ Does not copy, and returns false if:
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>
   </tr>  <tr>
-    <td><a href='SkPixmap_Reference#Pixmap'>Pixmap</a> pixels could not be allocated.</td>
+    <td>Pixmap pixels could not be allocated.</td>
   </tr>  <tr>
-    <td><a href='#SkSurface_readPixels_dst'>dst</a>.rowBytes() is too small to contain one row of pixels.</td>
+    <td>dst.rowBytes() is too small to contain one row of pixels.</td>
   </tr>
 </table>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkSurface_readPixels_dst'><code><strong>dst</strong></code></a></td>
-    <td>storage for pixels copied from <a href='#Surface'>Surface</a></td>
+    <td>storage for pixels copied from Surface</td>
   </tr>
   <tr>    <td><a name='SkSurface_readPixels_srcX'><code><strong>srcX</strong></code></a></td>
     <td>offset into readable pixels on x-axis; may be negative</td>
@@ -1470,16 +1472,16 @@ bool <a href='#SkSurface_readPixels'>readPixels</a>(const <a href='SkImageInfo_R
 
 Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from <a href='SkCanvas_Reference#Canvas'>Canvas</a> into <a href='#SkSurface_readPixels_2_dstPixels'>dstPixels</a>.
 
-Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_readPixels_2_srcX'>srcX</a>, <a href='#SkSurface_readPixels_2_srcY'>srcY</a>) and <a href='#Surface'>Surface</a> (<a href='#SkSurface_width'>width</a>(), <a href='#SkSurface_height'>height</a>()).
-Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkSurface_width'>width</a>(), <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkSurface_height'>height</a>()).
-Copies each readable pixel intersecting both rectangles, without scaling,
-converting to <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.colorType() and <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.alphaType() if required.
+Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_readPixels_2_srcX'>srcX</a>, <a href='#SkSurface_readPixels_2_srcY'>srcY</a>) and <a href='SkSurface_Reference#Surface'>Surface</a> (<a href='#SkSurface_width'>width()</a>, <a href='#SkSurface_height'>height()</a>).
+Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_width'>width()</a>, <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_height'>height()</a>).
+Copies each readable <a href='undocumented#Pixel'>pixel</a> intersecting both rectangles, without scaling,
+converting to <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_colorType'>colorType</a>() and <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkImageInfo_alphaType'>alphaType</a>() if required.
 
-<a href='#Pixels'>Pixels</a> are readable when <a href='#Surface'>Surface</a> is raster, or backed by a GPU.
+Pixels are readable when <a href='SkSurface_Reference#Surface'>Surface</a> is raster, or backed by a GPU.
 
-The destination pixel storage must be allocated by the caller.
+The destination  <a href='undocumented#Pixel_Storage'>pixel storage</a> must be allocated by the caller.
 
-<a href='undocumented#Pixel'>Pixel</a> values are converted only if <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> and <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>
+<a href='undocumented#Pixel'>Pixel</a> values are converted only if <a href='#Image_Info_Color_Type'>Color_Type</a> and <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href='#SkSurface_readPixels_2_dstPixels'>dstPixels</a> contents outside <a href='SkRect_Reference#Rect'>Rect</a> intersection are unchanged.
 
@@ -1490,22 +1492,22 @@ Does not copy, and returns false if:
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>
   </tr>  <tr>
-    <td><a href='#Surface'>Surface</a> pixels could not be converted to <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.colorType() or <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.alphaType().</td>
+    <td>Surface pixels could not be converted to dstInfo.colorType() or dstInfo.alphaType().</td>
   </tr>  <tr>
-    <td><a href='#SkSurface_readPixels_2_dstRowBytes'>dstRowBytes</a> is too small to contain one row of pixels.</td>
+    <td>dstRowBytes is too small to contain one row of pixels.</td>
   </tr>
 </table>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkSurface_readPixels_2_dstInfo'><code><strong>dstInfo</strong></code></a></td>
-    <td>width, height, <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, and <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> of <a href='#SkSurface_readPixels_2_dstPixels'>dstPixels</a></td>
+    <td>width, height, Color_Type, and Alpha_Type of dstPixels</td>
   </tr>
   <tr>    <td><a name='SkSurface_readPixels_2_dstPixels'><code><strong>dstPixels</strong></code></a></td>
-    <td>storage for pixels; <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkSurface_height'>height</a>() times <a href='#SkSurface_readPixels_2_dstRowBytes'>dstRowBytes</a>, or larger</td>
+    <td>storage for pixels; dstInfo.height() times dstRowBytes, or larger</td>
   </tr>
   <tr>    <td><a name='SkSurface_readPixels_2_dstRowBytes'><code><strong>dstRowBytes</strong></code></a></td>
-    <td>size of one destination row; <a href='#SkSurface_readPixels_2_dstInfo'>dstInfo</a>.<a href='#SkSurface_width'>width</a>() times pixel size, or larger</td>
+    <td>size of one destination row; dstInfo.width() times pixel size, or larger</td>
   </tr>
   <tr>    <td><a name='SkSurface_readPixels_2_srcX'><code><strong>srcX</strong></code></a></td>
     <td>offset into readable pixels on x-axis; may be negative</td>
@@ -1522,7 +1524,7 @@ true if pixels were copied
 ### Example
 
 <div><fiddle-embed name="484d60dab5d846bf28c7a4d48892324a"><div>A black oval drawn on a red background provides an image to copy.
-<a href='#SkSurface_readPixels'>readPixels</a> copies one quarter of the <a href='#Surface'>Surface</a> into each of the four corners.
+readPixels copies one quarter of the Surface into each of the four corners.
 The copied quarter ovals overdraw the original oval.
 </div></fiddle-embed></div>
 
@@ -1538,18 +1540,18 @@ The copied quarter ovals overdraw the original oval.
 bool <a href='#SkSurface_readPixels'>readPixels</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& dst, int srcX, int srcY)
 </pre>
 
-Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from <a href='#Surface'>Surface</a> into bitmap.
+Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from <a href='SkSurface_Reference#Surface'>Surface</a> into <a href='SkBitmap_Reference#Bitmap'>bitmap</a>.
 
-Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_readPixels_3_srcX'>srcX</a>, <a href='#SkSurface_readPixels_3_srcY'>srcY</a>) and <a href='#Surface'>Surface</a> (<a href='#SkSurface_width'>width</a>(), <a href='#SkSurface_height'>height</a>()).
-Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (bitmap.<a href='#SkSurface_width'>width</a>(), bitmap.<a href='#SkSurface_height'>height</a>()).
-Copies each readable pixel intersecting both rectangles, without scaling,
-converting to bitmap.colorType() and bitmap.alphaType() if required.
+Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_readPixels_3_srcX'>srcX</a>, <a href='#SkSurface_readPixels_3_srcY'>srcY</a>) and <a href='SkSurface_Reference#Surface'>Surface</a> (<a href='#SkSurface_width'>width()</a>, <a href='#SkSurface_height'>height()</a>).
+Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='SkBitmap_Reference#Bitmap'>bitmap</a>.<a href='#SkSurface_width'>width()</a>, <a href='SkBitmap_Reference#Bitmap'>bitmap</a>.<a href='#SkSurface_height'>height()</a>).
+Copies each readable <a href='undocumented#Pixel'>pixel</a> intersecting both rectangles, without scaling,
+converting to <a href='#SkSurface_readPixels_3_dst'>dst</a>.<a href='#SkBitmap_colorType'>colorType</a>() and <a href='#SkSurface_readPixels_3_dst'>dst</a>.<a href='#SkBitmap_alphaType'>alphaType</a>() if required.
 
-<a href='#Pixels'>Pixels</a> are readable when <a href='#Surface'>Surface</a> is raster, or backed by a GPU.
+Pixels are readable when <a href='SkSurface_Reference#Surface'>Surface</a> is raster, or backed by a GPU.
 
-The destination pixel storage must be allocated by the caller.
+The destination  <a href='undocumented#Pixel_Storage'>pixel storage</a> must be allocated by the caller.
 
-<a href='undocumented#Pixel'>Pixel</a> values are converted only if <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> and <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>
+<a href='undocumented#Pixel'>Pixel</a> values are converted only if <a href='#Image_Info_Color_Type'>Color_Type</a> and <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href='#SkSurface_readPixels_3_dst'>dst</a> contents outside <a href='SkRect_Reference#Rect'>Rect</a> intersection are unchanged.
 
@@ -1560,18 +1562,18 @@ Does not copy, and returns false if:
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>
   </tr>  <tr>
-    <td><a href='#Surface'>Surface</a> pixels could not be converted to <a href='#SkSurface_readPixels_3_dst'>dst</a>.colorType() or <a href='#SkSurface_readPixels_3_dst'>dst</a>.alphaType().</td>
+    <td>Surface pixels could not be converted to dst.colorType() or dst.alphaType().</td>
   </tr>  <tr>
-    <td><a href='#SkSurface_readPixels_3_dst'>dst</a> pixels could not be allocated.</td>
+    <td>dst pixels could not be allocated.</td>
   </tr>  <tr>
-    <td><a href='#SkSurface_readPixels_3_dst'>dst</a>.rowBytes() is too small to contain one row of pixels.</td>
+    <td>dst.rowBytes() is too small to contain one row of pixels.</td>
   </tr>
 </table>
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkSurface_readPixels_3_dst'><code><strong>dst</strong></code></a></td>
-    <td>storage for pixels copied from <a href='#Surface'>Surface</a></td>
+    <td>storage for pixels copied from Surface</td>
   </tr>
   <tr>    <td><a name='SkSurface_readPixels_3_srcX'><code><strong>srcX</strong></code></a></td>
     <td>offset into readable pixels on x-axis; may be negative</td>
@@ -1601,24 +1603,25 @@ true if pixels were copied
 void <a href='#SkSurface_writePixels'>writePixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& src, int dstX, int dstY)
 </pre>
 
-Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from the <a href='#SkSurface_writePixels_src'>src</a> <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> to the <a href='#Surface'>Surface</a>.
+Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from the <a href='#SkSurface_writePixels_src'>src</a> <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> to the <a href='SkSurface_Reference#Surface'>Surface</a>.
 
-Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_writePixels_src'>src</a>.<a href='#SkSurface_width'>width</a>(), <a href='#SkSurface_writePixels_src'>src</a>.<a href='#SkSurface_height'>height</a>()).
-Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_writePixels_dstX'>dstX</a>, <a href='#SkSurface_writePixels_dstY'>dstY</a>) and <code>\(<a href='#SkSurface_writePixels_dstX'>dstX</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_width'>width</a>(\), <a href='#SkSurface_writePixels_dstY'>dstY</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_height'>height</a>(\)\)</code>.
+Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_writePixels_src'>src</a>.<a href='#SkPixmap_width'>width()</a>, <a href='#SkSurface_writePixels_src'>src</a>.<a href='#SkPixmap_height'>height()</a>).
+Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_writePixels_dstX'>dstX</a>, <a href='#SkSurface_writePixels_dstY'>dstY</a>) and
+<code>\(<a href='#SkSurface_writePixels_dstX'>dstX</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_width'>width</a>(\), <a href='#SkSurface_writePixels_dstY'>dstY</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_height'>height</a>(\)\)</code>.
 
-Copies each readable pixel intersecting both rectangles, without scaling,
-converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>Surface</a> alphaType() if required.
+Copies each readable <a href='undocumented#Pixel'>pixel</a> intersecting both rectangles, without scaling,
+converting to <a href='SkSurface_Reference#Surface'>Surface</a> <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> and <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> if required.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkSurface_writePixels_src'><code><strong>src</strong></code></a></td>
-    <td>storage for pixels to copy to <a href='#Surface'>Surface</a></td>
+    <td>storage for pixels to copy to Surface</td>
   </tr>
   <tr>    <td><a name='SkSurface_writePixels_dstX'><code><strong>dstX</strong></code></a></td>
-    <td>x-axis position relative to <a href='#Surface'>Surface</a> to begin copy; may be negative</td>
+    <td>x-axis position relative to Surface to begin copy; may be negative</td>
   </tr>
   <tr>    <td><a name='SkSurface_writePixels_dstY'><code><strong>dstY</strong></code></a></td>
-    <td>y-axis position relative to <a href='#Surface'>Surface</a> to begin copy; may be negative</td>
+    <td>y-axis position relative to Surface to begin copy; may be negative</td>
   </tr>
 </table>
 
@@ -1638,24 +1641,25 @@ converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>
 void <a href='#SkSurface_writePixels'>writePixels</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& src, int dstX, int dstY)
 </pre>
 
-Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from the <a href='#SkSurface_writePixels_2_src'>src</a> <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> to the <a href='#Surface'>Surface</a>.
+Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from the <a href='#SkSurface_writePixels_2_src'>src</a> <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> to the <a href='SkSurface_Reference#Surface'>Surface</a>.
 
-Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_writePixels_2_src'>src</a>.<a href='#SkSurface_width'>width</a>(), <a href='#SkSurface_writePixels_2_src'>src</a>.<a href='#SkSurface_height'>height</a>()).
-Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_writePixels_2_dstX'>dstX</a>, <a href='#SkSurface_writePixels_2_dstY'>dstY</a>) and <code>\(<a href='#SkSurface_writePixels_2_dstX'>dstX</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_width'>width</a>(\), <a href='#SkSurface_writePixels_2_dstY'>dstY</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_height'>height</a>(\)\)</code>.
+Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_writePixels_2_src'>src</a>.<a href='#SkBitmap_width'>width()</a>, <a href='#SkSurface_writePixels_2_src'>src</a>.<a href='#SkBitmap_height'>height()</a>).
+Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_writePixels_2_dstX'>dstX</a>, <a href='#SkSurface_writePixels_2_dstY'>dstY</a>) and
+<code>\(<a href='#SkSurface_writePixels_2_dstX'>dstX</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_width'>width</a>(\), <a href='#SkSurface_writePixels_2_dstY'>dstY</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_height'>height</a>(\)\)</code>.
 
-Copies each readable pixel intersecting both rectangles, without scaling,
-converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>Surface</a> alphaType() if required.
+Copies each readable <a href='undocumented#Pixel'>pixel</a> intersecting both rectangles, without scaling,
+converting to <a href='SkSurface_Reference#Surface'>Surface</a> <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> and <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> if required.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkSurface_writePixels_2_src'><code><strong>src</strong></code></a></td>
-    <td>storage for pixels to copy to <a href='#Surface'>Surface</a></td>
+    <td>storage for pixels to copy to Surface</td>
   </tr>
   <tr>    <td><a name='SkSurface_writePixels_2_dstX'><code><strong>dstX</strong></code></a></td>
-    <td>x-axis position relative to <a href='#Surface'>Surface</a> to begin copy; may be negative</td>
+    <td>x-axis position relative to Surface to begin copy; may be negative</td>
   </tr>
   <tr>    <td><a name='SkSurface_writePixels_2_dstY'><code><strong>dstY</strong></code></a></td>
-    <td>y-axis position relative to <a href='#Surface'>Surface</a> to begin copy; may be negative</td>
+    <td>y-axis position relative to Surface to begin copy; may be negative</td>
   </tr>
 </table>
 
@@ -1672,14 +1676,14 @@ converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>& <a href='#SkSurface_props'>props</a>() const
+const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>& <a href='#SkSurface_props'>props()</a> const
 </pre>
 
-Returns <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a> for <a href='SkSurface_Reference#Surface'>surface</a>.
+Returns SkSurfaceProps for surface.
 
 ### Return Value
 
-LCD striping orientation and setting for <a href='undocumented#Device'>device</a> independent fonts
+LCD striping orientation and setting for device independent fonts
 
 ### Example
 
@@ -1714,10 +1718,10 @@ To be deprecated soon.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkSurface_flush'>flush</a>()
+void flush()
 </pre>
 
-Issues pending <a href='SkSurface_Reference#SkSurface'>SkSurface</a> commands to the GPU-backed API and resolves any <a href='SkSurface_Reference#SkSurface'>SkSurface</a> MSAA.
+Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
 
 Skia flushes as needed, so it is not necessary to call this if Skia manages
 drawing and object lifetime. Call when interleaving Skia calls with native
@@ -1782,7 +1786,7 @@ one of: <a href='undocumented#GrSemaphoresSubmitted'>GrSemaphoresSubmitted</a>::
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkSurface_wait'>wait</a>(int numSemaphores, const <a href='undocumented#GrBackendSemaphore'>GrBackendSemaphore</a>* waitSemaphores)
+bool wait(int numSemaphores, const <a href='undocumented#GrBackendSemaphore'>GrBackendSemaphore</a>* waitSemaphores)
 </pre>
 
 Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
@@ -1814,7 +1818,7 @@ true if GPU is waiting on semaphores
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkSurface_characterize'>characterize</a>(<a href='undocumented#SkSurfaceCharacterization'>SkSurfaceCharacterization</a>* characterization) const
+bool characterize(<a href='undocumented#SkSurfaceCharacterization'>SkSurfaceCharacterization</a>* characterization) const
 </pre>
 
 Initializes <a href='undocumented#SkSurfaceCharacterization'>SkSurfaceCharacterization</a> that can be used to perform GPU back-end
@@ -1848,7 +1852,7 @@ true if supported
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkSurface_draw'>draw</a>(<a href='undocumented#SkDeferredDisplayList'>SkDeferredDisplayList</a>* deferredDisplayList)
+bool draw(<a href='undocumented#SkDeferredDisplayList'>SkDeferredDisplayList</a>* deferredDisplayList)
 </pre>
 
 Draws   deferred display list created using <a href='undocumented#SkDeferredDisplayListRecorder'>SkDeferredDisplayListRecorder</a>.

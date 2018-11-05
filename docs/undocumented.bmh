@@ -11,13 +11,14 @@
  PDF XPS
  RFC
  NaN NaNs
- U16CPU int int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t size_t
+ bool U16CPU int int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t size_t
  nullptr
  malloc() calloc() assert() std::move()
- C C++ SIZE_MAX C_FILE
+ C C++ SIZE_MAX C_FILE FILE
  CSS HTML
- affine destructor multitexturing representable subclasses descenders grayscale kerning unhinted
-
+ affine destructor multitexturing representable subclasses descender descenders grayscale kerning
+ unhinted
+ 
  Sa Da Sc Dc max min # temporary until figure out what to do
 
  SkUserConfig  # not external, but still thinking about how markup refers to this
@@ -426,10 +427,17 @@ FT_Load_Glyph
 #Topic ##
 
 # to be in Topic Math
-    #Method float sqrt(float x)
-    # this permits using sqrt(x) in documentation
+    #Method Luminosity(dstColor)
+    # this permits using Luminosity() in documentation
     ##
-    #Method static inline bool sk_64_isS32(int64_t value)
+    #Method Saturation(dstColor)
+    # this permits using Saturation() in documentation
+    ##
+    #Method SetLuminosity(srcSaturation, dstLuminosity)
+    # this permits using SetLuminosity() in documentation
+    ##
+    #Method SetSaturation(srcSaturation, dstSaturation)
+    # this permits using SetSaturation() in documentation
     ##
     #Method SkIntToScalar(x)
     ##
@@ -448,6 +456,23 @@ FT_Load_Glyph
     #Method SkScalarIsNaN(x)
     ##
     #Method template <typename D, typename S> inline bool SkTFitsIn(S s)
+    ##
+    #Method float abs(float x)
+    # this permits using abs(x) in documentation
+    ##
+    #Method float max(float x)
+    # this permits using max(x) in documentation
+    ##
+    #Method float min(float x)
+    # this permits using max(x) in documentation
+    ##
+    #Method float sizeof(float x)
+    # this permits using sizeof(x) in documentation
+    ##
+    #Method float sqrt(float x)
+    # this permits using sqrt(x) in documentation
+    ##
+    #Method static inline bool sk_64_isS32(int64_t value)
     ##
 # end of Topic Math
 
