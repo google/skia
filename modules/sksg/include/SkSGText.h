@@ -38,7 +38,7 @@ public:
     SG_ATTRIBUTE(ScaleX  , SkScalar         , fScaleX  )
     SG_ATTRIBUTE(SkewX   , SkScalar         , fSkewX   )
     SG_ATTRIBUTE(Align   , SkTextUtils::Align   , fAlign   )
-    SG_ATTRIBUTE(Hinting , SkPaint::Hinting , fHinting )
+    SG_ATTRIBUTE(Hinting , SkFontHinting    , fHinting )
 
     // TODO: add shaping functionality.
 
@@ -62,7 +62,7 @@ private:
     SkScalar                fScaleX   = 1;
     SkScalar                fSkewX    = 0;
     SkTextUtils::Align      fAlign    = SkTextUtils::kLeft_Align;
-    SkPaint::Hinting        fHinting  = SkPaintDefaults_Hinting;
+    SkFontHinting           fHinting  = SkPaintDefaults_Hinting;
 
     sk_sp<SkTextBlob> fBlob; // cached text blob
 
