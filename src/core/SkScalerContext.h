@@ -10,6 +10,7 @@
 
 #include <memory>
 
+#include "SkFontTypes.h"
 #include "SkGlyph.h"
 #include "SkMacros.h"
 #include "SkMask.h"
@@ -196,8 +197,8 @@ public:
 
     SkAxisAlignment computeAxisAlignmentForHText() const;
 
-    inline SkPaint::Hinting getHinting() const;
-    inline void setHinting(SkPaint::Hinting);
+    inline SkFontHinting getHinting() const;
+    inline void setHinting(SkFontHinting);
 
     SkMask::Format getFormat() const {
         return static_cast<SkMask::Format>(fMaskFormat);
@@ -438,13 +439,13 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPaint::Hinting SkScalerContextRec::getHinting() const {
+SkFontHinting SkScalerContextRec::getHinting() const {
     unsigned hint = (fFlags & SkScalerContext::kHinting_Mask) >>
                                             SkScalerContext::kHinting_Shift;
-    return static_cast<SkPaint::Hinting>(hint);
+    return static_cast<SkFontHinting>(hint);
 }
 
-void SkScalerContextRec::setHinting(SkPaint::Hinting hinting) {
+void SkScalerContextRec::setHinting(SkFontHinting hinting) {
     fFlags = (fFlags & ~SkScalerContext::kHinting_Mask) |
                                 (hinting << SkScalerContext::kHinting_Shift);
 }

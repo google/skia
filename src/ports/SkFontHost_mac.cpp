@@ -1321,7 +1321,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     CGGlyph cgGlyph = SkTo<CGGlyph>(glyph.getGlyphID());
 
     // FIXME: lcd smoothed un-hinted rasterization unsupported.
-    bool requestSmooth = fRec.getHinting() != SkPaint::kNo_Hinting;
+    bool requestSmooth = fRec.getHinting() != kNo_SkFontHinting;
 
     // Draw the glyph
     size_t cgRowBytes;
@@ -2217,7 +2217,7 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
         // The above turns off subpixel rendering, but the user requested it.
         // Normal hinting will cause the A8 masks to be generated from CoreGraphics subpixel masks.
         // See comments below for more details.
-        rec->setHinting(SkPaint::kNormal_Hinting);
+        rec->setHinting(kNormal_SkFontHinting);
     }
 
     unsigned flagsWeDontSupport = SkScalerContext::kForceAutohinting_Flag  |
@@ -2232,11 +2232,11 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
     // kNo_Hinting means avoid CoreGraphics outline dilation.
     // kNormal_Hinting means CoreGraphics outline dilation is allowed.
     // If there is no lcd support, hinting (dilation) cannot be supported.
-    SkPaint::Hinting hinting = rec->getHinting();
-    if (SkPaint::kSlight_Hinting == hinting || smoothBehavior == SmoothBehavior::none) {
-        hinting = SkPaint::kNo_Hinting;
-    } else if (SkPaint::kFull_Hinting == hinting) {
-        hinting = SkPaint::kNormal_Hinting;
+    SkFontHinting hinting = rec->getHinting();
+    if (kSlight_SkFontHinting == hinting || smoothBehavior == SmoothBehavior::none) {
+        hinting = kNo_SkFontHinting;
+    } else if (kFull_SkFontHinting == hinting) {
+        hinting = kNormal_SkFontHinting;
     }
     rec->setHinting(hinting);
 
@@ -2263,11 +2263,11 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
         if (smoothBehavior == SmoothBehavior::subpixel) {
             //CoreGraphics creates 555 masks for smoothed text anyway.
             rec->fMaskFormat = SkMask::kLCD16_Format;
-            rec->setHinting(SkPaint::kNormal_Hinting);
+            rec->setHinting(kNormal_SkFontHinting);
         } else {
             rec->fMaskFormat = SkMask::kA8_Format;
             if (smoothBehavior == SmoothBehavior::some) {
-                rec->setHinting(SkPaint::kNormal_Hinting);
+                rec->setHinting(kNormal_SkFontHinting);
             }
         }
     }
@@ -2281,7 +2281,7 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
 
     // Unhinted A8 masks (those not derived from LCD masks) must respect SK_GAMMA_APPLY_TO_A8.
     // All other masks can use regular gamma.
-    if (SkMask::kA8_Format == rec->fMaskFormat && SkPaint::kNo_Hinting == hinting) {
+    if (SkMask::kA8_Format == rec->fMaskFormat && kNo_SkFontHinting == hinting) {
 #ifndef SK_GAMMA_APPLY_TO_A8
         // SRGBTODO: Is this correct? Do we want contrast boost?
         rec->ignorePreBlend();

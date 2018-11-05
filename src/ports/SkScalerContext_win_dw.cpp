@@ -350,7 +350,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
 
     // DirectWrite2 allows hinting to be disabled.
     fGridFitMode = DWRITE_GRID_FIT_MODE_ENABLED;
-    if (fRec.getHinting() == SkPaint::kNo_Hinting) {
+    if (fRec.getHinting() == kNo_SkFontHinting) {
         fGridFitMode = DWRITE_GRID_FIT_MODE_DISABLED;
         if (fRenderingMode != DWRITE_RENDERING_MODE_ALIASED) {
             fRenderingMode = DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;

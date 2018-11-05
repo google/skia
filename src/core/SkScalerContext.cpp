@@ -889,10 +889,10 @@ static bool too_big_for_lcd(const SkScalerContextRec& rec, bool checkPost2x2) {
 
 // if linear-text is on, then we force hinting to be off (since that's sort of
 // the point of linear-text.
-static SkPaint::Hinting computeHinting(const SkPaint& paint) {
-    SkPaint::Hinting h = paint.getHinting();
+static SkFontHinting computeHinting(const SkPaint& paint) {
+    SkFontHinting h = (SkFontHinting)paint.getHinting();
     if (paint.isLinearText()) {
-        h = SkPaint::kNo_Hinting;
+        h = kNo_SkFontHinting;
     }
     return h;
 }
