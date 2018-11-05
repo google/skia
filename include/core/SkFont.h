@@ -67,7 +67,10 @@ public:
     void DEPRECATED_setLCDRender(bool);
 
     Hinting getHinting() const { return (Hinting)fHinting; }
-    void setHinting(Hinting);
+    void setHinting(SkFontHinting hinting);
+    void setHinting(Hinting hinting) {
+        this->setHinting((SkFontHinting)hinting);
+    }
 
     /**
      *  Return a font with the same attributes of this font, but with the specified size.

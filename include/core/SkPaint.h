@@ -22,6 +22,7 @@
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFilterQuality.h"
+#include "SkFontTypes.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
@@ -209,7 +210,10 @@ public:
 
         @param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
     */
-    void setHinting(Hinting hintingLevel);
+    void setHinting(SkFontHinting hintingLevel);
+    void setHinting(Hinting hintingLevel) {
+        this->setHinting((SkFontHinting)hintingLevel);
+    }
 
     /** \enum SkPaint::Flags
         The bit values stored in Flags.

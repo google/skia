@@ -196,7 +196,7 @@ void SkPaint::setFilterQuality(SkFilterQuality quality) {
     fBitfields.fFilterQuality = quality;
 }
 
-void SkPaint::setHinting(Hinting hintingLevel) {
+void SkPaint::setHinting(SkFontHinting hintingLevel) {
     fBitfields.fHinting = hintingLevel;
 }
 
