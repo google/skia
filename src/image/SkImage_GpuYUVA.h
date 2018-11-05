@@ -51,6 +51,10 @@ public:
 
     bool canBeMipmapped(GrContext* context) const;
 
+    // Returns a ref-ed texture proxy with miplevels
+    sk_sp<GrTextureProxy> asMippedTextureProxyRef() const;
+
+
     /**
         Create a new SkImage_GpuYUVA that's very similar to SkImage created by MakeFromYUVATextures.
         The main difference is that the client doesn't have the backend textures on the gpu yet but
