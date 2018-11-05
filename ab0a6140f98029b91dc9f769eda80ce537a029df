@@ -16,6 +16,24 @@
       "revId": "ab0a6140f98029b91dc9f769eda80ce537a029df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf3f5d88_040c5443",
+        "filename": "include/private/GrOpList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-05T19:49:51Z",
+      "side": 1,
+      "message": "Yeah. Time to move SkColorData.h to private, I guess. And if Cary continues to whittle down SkColorPriv.h, then SkColorData.h can eventually be SkColorPriv, hopefully.",
+      "parentUuid": "391679bd_eae7f0c9",
+      "revId": "ab0a6140f98029b91dc9f769eda80ce537a029df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
