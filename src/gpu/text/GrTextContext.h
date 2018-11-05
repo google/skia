@@ -12,7 +12,7 @@
 #include "GrGeometryProcessor.h"
 #include "GrTextBlob.h"
 #include "GrTextTarget.h"
-#include "SkGlyphRun.h"
+#include "SkGlyphRunPainter.h"
 
 #if GR_TEST_UTILS
 #include "GrDrawOpTest.h"
