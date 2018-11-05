@@ -117,7 +117,6 @@ public:
         return (*this)[index];
     }
 
-
     void reset() {
         if (fArray) {
             sk_free(fArray);
@@ -129,6 +128,11 @@ public:
     }
 
     void rewind() {
+        // same as setCount(0)
+        fCount = 0;
+    }
+
+    void clear() {
         // same as setCount(0)
         fCount = 0;
     }
