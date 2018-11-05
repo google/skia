@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4621a782_f92aefe6",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-05T19:52:49Z",
+      "side": 0,
+      "message": "How fun.",
+      "range": {
+        "startLine": 750,
+        "startChar": 77,
+        "endLine": 750,
+        "endChar": 79
+      },
+      "revId": "3725cf4fb83ec00778cae21b95c982d1b5a66978",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
