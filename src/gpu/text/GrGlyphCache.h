@@ -52,7 +52,9 @@ public:
             // We could return this to the caller, but in practice it adds code complexity for
             // potentially little benefit(ie, if the glyph is not in our font cache, then its not
             // in the atlas and we're going to be doing a texture upload anyways).
-            const SkGlyph& skGlyph = GrToSkGlyph(cache, packed);
+            const SkGlyph& skGlyph = cache->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
+                                                              GrGlyph::UnpackFixedX(packed),
+                                                              GrGlyph::UnpackFixedY(packed));
             glyph = this->generateGlyph(skGlyph, packed, cache);
             glyph->fMaskFormat = expectedMaskFormat;
         }
@@ -118,10 +120,11 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    inline sk_sp<GrTextStrike> getStrike(const SkGlyphCache* cache) {
-        sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.find(cache->getDescriptor()));
+    inline sk_sp<GrTextStrike> getStrike(const SkDescriptor& descriptor) {
+        sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.find(descriptor));
         if (!strike) {
-            strike = this->generateStrike(cache);
+            strike = sk_ref_sp(new GrTextStrike(descriptor));
+            fCache.add(strike.get());
         }
         return strike;
     }
@@ -133,13 +136,6 @@ public:
     static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
 
 private:
-    sk_sp<GrTextStrike> generateStrike(const SkGlyphCache* cache) {
-        // 'fCache' get the construction ref
-        sk_sp<GrTextStrike> strike = sk_ref_sp(new GrTextStrike(cache->getDescriptor()));
-        fCache.add(strike.get());
-        return strike;
-    }
-
     using StrikeHash = SkTDynamicHash<GrTextStrike, SkDescriptor>;
 
     StrikeHash fCache;

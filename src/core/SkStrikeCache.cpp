@@ -38,6 +38,18 @@ public:
         return fCache.getGlyphMetrics(glyphID, position);
     }
 
+    const void* findImage(const SkGlyph& glyph) override {
+        return fCache.findImage(glyph);
+    }
+
+    const SkDescriptor& descriptor() const override {
+        return fCache.descriptor();
+    }
+
+    void outOfScope() override {
+        fStrikeCache->attachNode(this);
+    }
+
     SkStrikeCache* const            fStrikeCache;
     Node*                           fNext{nullptr};
     Node*                           fPrev{nullptr};
@@ -64,7 +76,7 @@ SkStrikeCache::ExclusiveStrikePtr::ExclusiveStrikePtr(ExclusiveStrikePtr&& o)
 SkStrikeCache::ExclusiveStrikePtr&
 SkStrikeCache::ExclusiveStrikePtr::operator = (ExclusiveStrikePtr&& o) {
     if (fNode != nullptr) {
-        fNode->fStrikeCache->attachNode(fNode);
+        fNode->outOfScope();
     }
     fNode = o.fNode;
     o.fNode = nullptr;
@@ -73,7 +85,7 @@ SkStrikeCache::ExclusiveStrikePtr::operator = (ExclusiveStrikePtr&& o) {
 
 SkStrikeCache::ExclusiveStrikePtr::~ExclusiveStrikePtr() {
     if (fNode != nullptr) {
-        fNode->fStrikeCache->attachNode(fNode);
+        fNode->outOfScope();
     }
 }
 
