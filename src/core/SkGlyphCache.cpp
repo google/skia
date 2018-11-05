@@ -44,7 +44,7 @@ SkGlyphCache::~SkGlyphCache() {
 }
 
 const SkDescriptor& SkGlyphCache::getDescriptor() const {
-    return *fDesc.getDesc();
+    return this->descriptor();
 }
 
 SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(SkPackedUnicharID packedUnicharID) {
@@ -501,6 +501,10 @@ void SkGlyphCache::validate() const {
 #ifdef SK_DEBUG_GLYPH_CACHE
     forceValidate();
 #endif
+}
+
+const SkDescriptor& SkGlyphCache::descriptor() const {
+    return *fDesc.getDesc();
 }
 
 #endif

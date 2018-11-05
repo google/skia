@@ -14,6 +14,7 @@
 #include "GrTextTarget.h"
 #include "text/GrTextContext.h"
 #include "SkDescriptor.h"
+#include "SkGlyphRunPainter.h"
 #include "SkMaskFilterBase.h"
 #include "SkOpts.h"
 #include "SkPathEffect.h"
@@ -48,7 +49,7 @@ class SkTextBlobRunIterator;
  *
  * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
-class GrTextBlob : public SkNVRefCnt<GrTextBlob> {
+class GrTextBlob : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunListPainter::GPUDevicePainter {
     struct Run;
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
@@ -59,14 +60,13 @@ public:
                                   const GrShaderCaps& shaderCaps,
                                   const GrTextContext::Options& options,
                                   const SkPaint& paint,
-                                  const SkPMColor4f& filteredColor,
                                   SkScalerContextFlags scalerContextFlags,
                                   const SkMatrix& viewMatrix,
                                   const SkSurfaceProps& props,
                                   const SkGlyphRunList& glyphRunList,
                                   SkGlyphRunListPainter* glyphPainter);
 
-    static sk_sp<GrTextBlob> Make(int glyphCount, int runCount);
+    static sk_sp<GrTextBlob> Make(int glyphCount, int runCount, GrColor color);
 
     /**
      * We currently force regeneration of a blob if old or new matrix differ in having perspective.
@@ -134,18 +134,22 @@ public:
 
     int runCountLimit() const { return fRunCountLimit; }
 
+    sk_sp<GrTextStrike> grStrikeFromCacheHandle(CacheHandle cacheHandle);
+
     Run* pushBackRun() {
         SkASSERT(fRunCount < fRunCountLimit);
 
         // If there is more run, then connect up the subruns.
         if (fRunCount > 0) {
-            SubRun& newRun = fRuns[fRunCount].fSubRunInfo.back();
-            SubRun& lastRun = fRuns[fRunCount - 1].fSubRunInfo.back();
-            newRun.setAsSuccessor(lastRun);
+            SubRun& newSubRun = fRuns[fRunCount].fSubRunInfo.back();
+            newSubRun.SubRun::~SubRun();
+            SubRun& lastSubRun = fRuns[fRunCount - 1].fSubRunInfo.back();
+            new (&newSubRun) SubRun{lastSubRun, SubRun::kLinkToLast};
         }
 
         fRunCount++;
-        return &fRuns[fRunCount - 1];
+
+        return &fRuns[fRunCount - 1];;
     }
 
     void setMinAndMaxScale(SkScalar scaledMax, SkScalar scaledMin) {
@@ -228,19 +232,24 @@ public:
         this->setupViewMatrix(viewMatrix, x, y);
     }
 
-    void initThrowawayBlob(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        this->setupViewMatrix(viewMatrix, x, y);
-    }
-
     const Key& key() const { return fKey; }
 
     size_t size() const { return fSize; }
 
-    ~GrTextBlob() {
+    ~GrTextBlob() override {
         for (int i = 0; i < fRunCountLimit; i++) {
             fRuns[i].~Run();
         }
     }
+
+    CacheHandle
+    findStrike(const SkPaint& paint, const SkSurfaceProps& props, SkScalerContextFlags flags,
+               const SkMatrix& matrix) const override;
+
+    void paintMasks(CacheHandle cacheHandle,
+                    SkSpan<const SkGlyphRunListPainter::GlyphAndPos>
+                    glyphAndPos,
+                    const SkPaint& paint) override;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
@@ -277,6 +286,22 @@ private:
     class SubRun {
     public:
         SubRun() = default;
+        SubRun(GrColor color)
+            : fColor{color} {}
+
+        // Make sure this is different than the copy ctor so it will not be called by the TArray op
+        // SubRuns.
+        struct LinkToLast {};
+        static LinkToLast kLinkToLast;
+        SubRun(const SubRun& subRun, LinkToLast)
+        : fCurrentViewMatrix{subRun.fCurrentViewMatrix}
+        , fVertexStartIndex{subRun.fVertexEndIndex}
+        , fVertexEndIndex{fVertexStartIndex}
+        , fGlyphStartIndex{subRun.fGlyphEndIndex}
+        , fGlyphEndIndex{fGlyphStartIndex}
+        , fX{subRun.fX}
+        , fY{subRun.fY}
+        , fColor{subRun.fColor} {}
 
         void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
 
@@ -301,17 +326,6 @@ private:
         GrColor color() const { return fColor; }
         void setMaskFormat(GrMaskFormat format) { fMaskFormat = format; }
         GrMaskFormat maskFormat() const { return fMaskFormat; }
-
-        void setAsSuccessor(const SubRun& prev) {
-            fGlyphStartIndex = prev.glyphEndIndex();
-            fGlyphEndIndex = fGlyphStartIndex;
-
-            fVertexStartIndex = prev.vertexEndIndex();
-            fVertexEndIndex = fVertexStartIndex;
-
-            // copy over viewmatrix settings
-            this->init(prev.fCurrentViewMatrix, prev.fX, prev.fY);
-        }
 
         const SkRect& vertexBounds() const { return fVertexBounds; }
         void joinGlyphBounds(const SkRect& glyphBounds) {
@@ -399,10 +413,11 @@ private:
      * would greatly increase the memory of these cached items.
      */
     struct Run {
-        Run() : fPaintFlags(0)
-              , fInitialized(false) {
+        Run(GrColor color)
+            : fPaintFlags(0)
+            , fInitialized(false) {
             // To ensure we always have one subrun, we push back a fresh run here
-            fSubRunInfo.push_back();
+            fSubRunInfo.emplace_back(color);
         }
 
         // sets the last subrun of runIndex to use w values
@@ -428,9 +443,12 @@ private:
         void appendGlyph(GrTextBlob* blob,
                          const sk_sp<GrTextStrike>& strike,
                          const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
-                         SkPoint origin,
-                         const SkPMColor4f& color, SkGlyphCache* skGlyphCache,
+                         SkPoint origin, SkGlyphCache* skGlyphCache,
                          SkScalar textRatio, bool needsTransform);
+
+        GrGlyph* lookupGrGlyph(const SkGlyph& glyph);
+
+        SubRun* containingSubRun(GrGlyph* glyph);
 
         SkExclusiveStrikePtr setupCache(const SkPaint& skPaint,
                                         const SkSurfaceProps& props,
@@ -451,13 +469,14 @@ private:
         }
 
         SubRun& pushBackSubRun() {
-            // Forward glyph / vertex information to seed the new sub run
             SubRun& newSubRun = fSubRunInfo.push_back();
+            newSubRun.SubRun::~SubRun();
             const SubRun& prevSubRun = fSubRunInfo.fromBack(1);
+            new (&newSubRun) SubRun{prevSubRun, SubRun::kLinkToLast};
 
-            newSubRun.setAsSuccessor(prevSubRun);
             return newSubRun;
         }
+
         sk_sp<SkTypeface> fTypeface;
         SkSTArray<1, SubRun> fSubRunInfo;
         SkAutoDescriptor fDescriptor;
@@ -489,6 +508,9 @@ private:
         };
 
         SkTArray<PathGlyph> fPathGlyphs;
+
+        sk_sp<GrTextStrike> fStrike;
+        bool fNeedsTransform;
 
         struct {
             unsigned fPaintFlags : 16;   // needed mainly for rendering paths
@@ -537,6 +559,9 @@ private:
     int fRunCount{0};
     int fRunCountLimit;
     uint8_t fTextType;
+    GrColor fColor;
+    GrGlyphCache* fGlyphCache;
+
 };
 
 /**
