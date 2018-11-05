@@ -16,6 +16,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureProducer.h"
+#include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuYUVA.h"
 #include "SkMipMap.h"
@@ -117,6 +118,23 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     }
 
     return fRGBProxy;
+}
+
+sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef() const {
+    // if invalid or already has miplevels
+    auto proxy = this->asTextureProxyRef();
+    if (!proxy || GrMipMapped::kYes == fRGBProxy->mipMapped()) {
+        return proxy;
+    }
+
+    // need to generate mips for the proxy
+    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(fContext.get(), proxy.get())) {
+        fRGBProxy = mippedProxy;
+        return mippedProxy;
+    }
+
+    // failed to generate mips
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
