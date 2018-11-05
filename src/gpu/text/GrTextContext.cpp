@@ -198,6 +198,7 @@ void GrTextContext::InitDistanceFieldPaint(GrTextBlob* blob,
     *flags = SkScalerContextFlags::kNone;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS

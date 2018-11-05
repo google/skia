@@ -251,7 +251,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         }
 
         if (regenGlyphs) {
-            strike = fGlyphCache->getStrike(fLazyCache->get());
+            strike = fGlyphCache->getStrike((*fLazyCache)->descriptor());
         } else {
             strike = fSubRun->refStrike();
         }

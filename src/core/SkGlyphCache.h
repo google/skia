@@ -30,7 +30,7 @@
     The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
     when they go out of scope.
 */
-class SkGlyphCache : public SkGlyphCacheInterface {
+class SkGlyphCache final : public SkGlyphCacheInterface {
 public:
     SkGlyphCache(const SkDescriptor& desc,
                  std::unique_ptr<SkScalerContext> scaler,
@@ -89,7 +89,7 @@ public:
     /** Return the image associated with the glyph. If it has not been generated this will
         trigger that.
     */
-    const void* findImage(const SkGlyph&);
+    const void* findImage(const SkGlyph&) override;
 
     /** Initializes the image associated with the glyph with |data|.
      */
@@ -138,6 +138,10 @@ public:
     SkVector rounding() const override;
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
+
+    const SkDescriptor& descriptor() const override;
+
+    void outOfScope() override {}
 
     /** Return the approx RAM usage for this cache. */
     size_t getMemoryUsed() const { return fMemoryUsed; }
