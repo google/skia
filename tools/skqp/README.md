@@ -82,13 +82,13 @@ How to run the SkQP tests
 Running a single test
 ---------------------
 
-To run a single test, for example `gles/aarectmodes`:
+To run a single test, for example `gles_aarectmodes`:
 
-    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#gles/aarectmodes' -w org.skia.skqp
+    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#gles_aarectmodes' -w org.skia.skqp
 
-Unit tests can be run with the `unitTest/` prefix:
+Unit tests can be run with the `unitTest_` prefix:
 
-    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#unitTest/GrSurface -w org.skia.skqp
+    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#unitTest_GrSurface -w org.skia.skqp
 
 Run as a non-APK executable
 ---------------------------
