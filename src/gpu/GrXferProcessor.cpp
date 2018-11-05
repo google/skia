@@ -149,7 +149,7 @@ SkString GrXferProcessor::BlendInfo::dump() const {
     SkString out;
     out.printf("write_color(%d) equation(%s) src_coeff(%s) dst_coeff:(%s) const(0x%08x)",
                fWriteColor, equation_string(fEquation), coeff_string(fSrcBlend),
-               coeff_string(fDstBlend), fBlendConstant.toBytes_RGBA());
+               coeff_string(fDstBlend), fBlendConstant);
     return out;
 }
 #endif

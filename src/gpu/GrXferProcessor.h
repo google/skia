@@ -9,6 +9,7 @@
 #define GrXferProcessor_DEFINED
 
 #include "GrBlend.h"
+#include "GrColor.h"
 #include "GrNonAtomicRef.h"
 #include "GrProcessor.h"
 #include "GrProcessorAnalysis.h"
@@ -131,7 +132,7 @@ public:
             fEquation = kAdd_GrBlendEquation;
             fSrcBlend = kOne_GrBlendCoeff;
             fDstBlend = kZero_GrBlendCoeff;
-            fBlendConstant = SK_PMColor4fTRANSPARENT;
+            fBlendConstant = 0;
             fWriteColor = true;
         }
 
@@ -140,7 +141,7 @@ public:
         GrBlendEquation fEquation;
         GrBlendCoeff    fSrcBlend;
         GrBlendCoeff    fDstBlend;
-        SkPMColor4f     fBlendConstant;
+        GrColor         fBlendConstant;
         bool            fWriteColor;
     };
 
