@@ -190,7 +190,7 @@ public:
         The four levels roughly control corresponding features on platforms that use FreeType
         as the font engine.
     */
-    enum Hinting {
+    enum Hinting : uint8_t {
         kNo_Hinting     = 0, //!< glyph outlines unchanged
         kSlight_Hinting = 1, //!< minimal modification to improve constrast
         kNormal_Hinting = 2, //!< glyph outlines modified to improve constrast
@@ -453,7 +453,7 @@ public:
         Use kStrokeAndFill_Style to avoid hitting the same pixels twice with a stroke draw and
         a fill draw.
     */
-    enum Style {
+    enum Style : uint8_t {
         kFill_Style,          //!< set to fill geometry
         kStroke_Style,        //!< set to stroke geometry
         kStrokeAndFill_Style, //!< sets to stroke and fill geometry
@@ -591,7 +591,7 @@ public:
         not contain the actual join. For instance, a fill path constructed with round joins does
         not necessarily include circles at each connected segment.
     */
-    enum Join {
+    enum Join : uint8_t {
         kMiter_Join,                 //!< extends to miter limit
         kRound_Join,                 //!< adds circle
         kBevel_Join,                 //!< connects outside edges
@@ -909,7 +909,7 @@ public:
 
         TextEncoding is set to kUTF8_TextEncoding by default.
     */
-    enum TextEncoding {
+    enum TextEncoding : uint8_t {
         kUTF8_TextEncoding,    //!< uses bytes to represent UTF-8 or ASCII
         kUTF16_TextEncoding,   //!< uses two byte words to represent most of Unicode
         kUTF32_TextEncoding,   //!< uses four byte words to represent all of Unicode

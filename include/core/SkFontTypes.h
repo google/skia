@@ -11,14 +11,14 @@
 #include "SkScalar.h"
 #include "SkTypeface.h"
 
-enum SkTextEncoding {
+enum SkTextEncoding : uint8_t {
     kUTF8_SkTextEncoding,
     kUTF16_SkTextEncoding,
     kUTF32_SkTextEncoding,
     kGlyphID_SkTextEncoding,
 };
 
-enum SkFontHinting {
+enum SkFontHinting : uint8_t {
     kNo_SkFontHinting     = 0, //!< glyph outlines unchanged
     kSlight_SkFontHinting = 1, //!< minimal modification to improve constrast
     kNormal_SkFontHinting = 2, //!< glyph outlines modified to improve constrast
