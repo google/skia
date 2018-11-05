@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <set>
+
 #include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkSerialProcs.h"
@@ -483,4 +485,16 @@ DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
     }
     REPORTER_ASSERT(reporter, runs == 1);
 
+}
+
+static std::set<uint32_t> destroyedBlobIds;
+static void OnBlobDestroyed(uint32_t uniqueID) { destroyedBlobIds.insert(uniqueID); }
+
+DEF_TEST(TextBlob_DtorNotifier, reporter) {
+    const char text[] = "Hello";
+    auto blob = SkTextBlob::MakeFromString(text, SkFont(), SkPaint::kUTF8_TextEncoding);
+    uint32_t expectedId = blob->uniqueID();
+    SkTextBlob::SetBlobDestroyedFunc(&OnBlobDestroyed);
+    blob.reset();
+    REPORTER_ASSERT(reporter, destroyedBlobIds.count(expectedId) == 1);
 }
