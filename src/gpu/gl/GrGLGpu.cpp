@@ -2000,23 +2000,15 @@ void GrGLGpu::disableScissor() {
     }
 }
 
-void GrGLGpu::clear(const GrFixedClip& clip, GrColor color,
+void GrGLGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color,
                     GrRenderTarget* target, GrSurfaceOrigin origin) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
 
     this->handleDirtyContext();
 
-    GrGLfloat r, g, b, a;
-    static const GrGLfloat scale255 = 1.f / 255.f;
-    a = GrColorUnpackA(color) * scale255;
-    GrGLfloat scaleRGB = scale255;
-    r = GrColorUnpackR(color) * scaleRGB;
-    g = GrColorUnpackG(color) * scaleRGB;
-    b = GrColorUnpackB(color) * scaleRGB;
-
     if (this->glCaps().useDrawToClearColor()) {
-        this->clearColorAsDraw(clip, r, g, b, a, target, origin);
+        this->clearColorAsDraw(clip, color, target, origin);
         return;
     }
 
@@ -2032,6 +2024,8 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color,
 
     GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
     fHWWriteToColor = kYes_TriState;
+
+    GrGLfloat r = color.fR, g = color.fG, b = color.fB, a = color.fA;
 
     if (this->glCaps().clearToBoundaryValuesIsBroken() &&
         (1 == r || 0 == r) && (1 == g || 0 == g) && (1 == b || 0 == b) && (1 == a || 0 == a)) {
@@ -3647,8 +3641,8 @@ bool GrGLGpu::createClearColorProgram() {
     return true;
 }
 
-void GrGLGpu::clearColorAsDraw(const GrFixedClip& clip, GrGLfloat r, GrGLfloat g, GrGLfloat b,
-                               GrGLfloat a, GrRenderTarget* dst, GrSurfaceOrigin origin) {
+void GrGLGpu::clearColorAsDraw(const GrFixedClip& clip, const SkPMColor4f& color,
+                               GrRenderTarget* dst, GrSurfaceOrigin origin) {
     if (!fClearColorProgram.fProgram) {
         if (!this->createClearColorProgram()) {
             SkDebugf("Failed to create clear color program.\n");
@@ -3674,7 +3668,7 @@ void GrGLGpu::clearColorAsDraw(const GrFixedClip& clip, GrGLfloat r, GrGLfloat g
     this->flushScissor(clip.scissorState(), glrt->getViewport(), origin);
     this->flushWindowRectangles(clip.windowRectsState(), glrt, origin);
 
-    GL_CALL(Uniform4f(fClearColorProgram.fColorUniform, r, g, b, a));
+    GL_CALL(Uniform4f(fClearColorProgram.fColorUniform, color.fR, color.fG, color.fB, color.fA));
 
     GrXferProcessor::BlendInfo blendInfo;
     blendInfo.reset();
