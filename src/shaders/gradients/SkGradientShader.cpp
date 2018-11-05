@@ -694,19 +694,23 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
     if (startRadius < 0 || endRadius < 0) {
         return nullptr;
     }
-    if (SkScalarNearlyZero((start - end).length()) && SkScalarNearlyZero(startRadius)) {
-        // We can treat this gradient as radial, which is faster.
-        return MakeRadial(start, endRadius, colors, std::move(colorSpace), pos, colorCount,
-                          mode, flags, localMatrix);
+    if (SkScalarNearlyZero((start - end).length())) {
+        // If the center positions are the same, then the gradient is the radial variant of a
+        // 2 pt conical gradient, or an actual radial gradient (startRadius == 0), or it is
+        // fully degenerate (startRadius == endRadius).
+        if (SkScalarNearlyEqual(startRadius, endRadius)) {
+            // Degenerate case
+            return SkShader::MakeEmptyShader();
+        } else if (SkScalarNearlyZero(startRadius)) {
+            // We can treat this gradient as radial, which is faster.
+            return MakeRadial(start, endRadius, colors, std::move(colorSpace), pos, colorCount,
+                              mode, flags, localMatrix);
+        }
     }
     if (!valid_grad(colors, pos, colorCount, mode)) {
         return nullptr;
     }
-    if (startRadius == endRadius) {
-        if (start == end || startRadius == 0) {
-            return SkShader::MakeEmptyShader();
-        }
-    }
+
     if (localMatrix && !localMatrix->invert(nullptr)) {
         return nullptr;
     }
