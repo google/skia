@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "bd619ff7_34707b33",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-05T20:12:59Z",
+      "side": 1,
+      "message": "\u003e There\u0027s some tension (see comments below) between needing the sampler to exist *before* incrementalDecode is called, but the frame rect is really only knowable *after* incrementalDecode is called.\n\nRight. That\u0027s part of why I moved decodeFrameConfig into onStartIncrementalDecode.\n\n\u003e \n\u003e Perhaps getSampler could return a dummy sampler, something that you can call setSample{X,Y} on and save that argument somewhere, but the real sampler (made by SkSwizzler::Make) only gets made in onIncrementalDecode, after the frame rect is known. Immediately after the real sampler is made, the previous setSample{X,Y} args are forwarded on from the dummy sampler to the real one.\n\nThat seems a little extra tricky to me.\n\n\u003e \n\u003e Or... if you want to skip SkSampledCodec and use something similar to SkWebpAdapterCodec, that sounds workable too, although I haven\u0027t really studied SkWebpAdapterCodec. That might be a better long term approach anyway, if Wuffs will eventually (I can re-prioritize so that s/eventually/soon/, if necessary??) be able to do its own sampling.\n\nSkWebpAdapterCodec doesn\u0027t do anything particularly interesting. It just forwards its arguments to SkWebpCodec. Wuffs will be a little more complex (at least to start with), since it needs to handle the scaling/subsetting.\n\nAs for priorities, if we\u0027re going in this direction (SkWuffsAdapterCodec), then I\u0027m fine with landing your CL to use the swizzler with just the change to use the right colors per device. There\u0027s still a bug related to animations with partial frame updates, but that is not new to using the swizzler (I think). We will need to write SkWuffsAdapterCodec in order to switch Android, but AFAIK flutter doesn\u0027t currently use subsetting/sampling.",
+      "parentUuid": "d00e5a07_7d0bb344",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 69
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c395aa9_34567f54",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 2
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "0dcdc587_b9b2d66d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-05T20:12:59Z",
+      "side": 1,
+      "message": "\u003e Hmm... but what if the input stream is paused (e.g. reading over the network) somewhere where we can\u0027t completely decode the fFrameConfig? This is the \"if (status \u003d\u003d wuffs_base__suspension__short_read) { return SkCodec::kIncompleteInput; }\" case you\u0027ve added a few lines above.\n\u003e \n\u003e Even if, later on, the input stream has more data, nobody calls oSID aka onStartIncrementalDecode (and therefore this-\u003edecodeFrameConfig) again. oSID is only called once, oID aka onIncrementalDecode is the one that can be called multiple times, right?\n\nDid I say that? If so, then my mistake. oSID can be called multiple times if it returns kIncompleteInput.\n\n\u003e \n\u003e A different approach is to get the frame rectangle from fFrames instead of (re-)parsing via this-\u003edecodeFrameConfig. But that assumes that onGetFrameCount has been called (which updates fFrames as a side effect). Can we make that assumption?\n\nI considered that, too. Currently, Chromium will always call onGetFrameCount first, and so does Android. But I like the idea that it\u0027s not required.",
+      "parentUuid": "7473564c_79396121",
+      "range": {
+        "startLine": 325,
+        "startChar": 0,
+        "endLine": 333,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "61615f4a_44cc74d0",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 2
@@ -131,6 +179,30 @@
       "side": 1,
       "message": "I\u0027m confused what the *rowsDecoded semantics should be in case of kIncomplete. I thought *rowsDecoded was set to what we completely decoded, and with kIncomplete, we haven\u0027t completely decoded those rows. But if you think it matches the semantics better here, I\u0027ll go with it.",
       "parentUuid": "61615f4a_44cc74d0",
+      "range": {
+        "startLine": 358,
+        "startChar": 0,
+        "endLine": 360,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a0a6738_e214d916",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-05T20:12:59Z",
+      "side": 1,
+      "message": "\u003e I thought *rowsDecoded was set to what we completely decoded, and with kIncomplete, we\n\u003e haven\u0027t completely decoded those rows.\n\nNo, it\u0027s intended to be the rows that have been initialized. (The comment actually says this, but the name is misleading.) The point is that client (or SkSampledCodec) can then initialize the remaining rows.\n\nA potentially interesting thing to return is something like \"how much of the image was decoded?\". We could have initialized everything to transparent but not really decoded anything, in which case the client may not want to display the result. But we don\u0027t currently have a good way to return that.",
+      "parentUuid": "c21c4a85_86d24fe1",
       "range": {
         "startLine": 358,
         "startChar": 0,
@@ -237,6 +309,30 @@
     },
     {
       "key": {
+        "uuid": "ac447afa_f749d4da",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-05T20:12:59Z",
+      "side": 1,
+      "message": "FWIW, SkGifCodec considers the palette to be part of the frame\u0027s config, so its oSID returns kIncompleteInput until the palette has been parsed.",
+      "parentUuid": "56e622c9_80191203",
+      "range": {
+        "startLine": 373,
+        "startChar": 0,
+        "endLine": 379,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e696a9fc_3926870e",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 2
@@ -301,6 +397,24 @@
     },
     {
       "key": {
+        "uuid": "dd81a73a_280e3876",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-05T20:12:59Z",
+      "side": 1,
+      "message": "Right, assuming we\u0027ve called onGetFrameCount.",
+      "parentUuid": "17be3869_38baff45",
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e6df0841_a914c22f",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 2
@@ -312,6 +426,24 @@
       "writtenOn": "2018-11-04T01:23:42Z",
       "side": 1,
       "message": "Out of curiosity, where does \"sampleY \u003e 0\" get enforced? I don\u0027t see any checks in SkSampler.h\u0027s SkSampler::setSampleY.",
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a87e2868_52253aac",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-05T20:12:59Z",
+      "side": 1,
+      "message": "It\u0027s not currently enforced, though getSampler is private, and can only be called by friends. The way we compute sampleY in SkSampledCodec, it should never be 0. Here\u0027s where we compute it [1]:\n\n    const int sampleY \u003d subsetHeight / info.height();\n\nIt\u0027s not obvious from that line, but info.height() is the height of the output, meaning we have already sampled and/or subsetted as necessary. subsetHeight takes into account subsetting, but not sampling, so it will always be bigger than info.height(), so sampleY will be at least one.\n\n(Not to say that I don\u0027t think we should enforce it; just that I don\u0027t think we currently have an issue.)\n\n[1] https://skia.googlesource.com/skia.git/+/32526b5cb0e3ad65610f3be68f9e54ae1f0cd88a/src/codec/SkSampledCodec.cpp#208",
+      "parentUuid": "e6df0841_a914c22f",
       "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
