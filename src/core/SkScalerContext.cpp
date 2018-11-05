@@ -14,6 +14,7 @@
 #include "SkColorData.h"
 #include "SkDescriptor.h"
 #include "SkDraw.h"
+#include "SkFontPriv.h"
 #include "SkGlyph.h"
 #include "SkMakeUnique.h"
 #include "SkMaskFilter.h"
@@ -889,9 +890,9 @@ static bool too_big_for_lcd(const SkScalerContextRec& rec, bool checkPost2x2) {
 
 // if linear-text is on, then we force hinting to be off (since that's sort of
 // the point of linear-text.
-static SkFontHinting computeHinting(const SkPaint& paint) {
-    SkFontHinting h = (SkFontHinting)paint.getHinting();
-    if (paint.isLinearText()) {
+static SkFontHinting computeHinting(const SkFont& font) {
+    SkFontHinting h = (SkFontHinting)font.getHinting();
+    if (font.isLinearMetrics()) {
         h = kNo_SkFontHinting;
     }
     return h;
@@ -899,7 +900,8 @@ static SkFontHinting computeHinting(const SkPaint& paint) {
 
 // The only reason this is not file static is because it needs the context of SkScalerContext to
 // access SkPaint::computeLuminanceColor.
-void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
+void SkScalerContext::MakeRecAndEffects(const SkFont& font,
+                                        const SkPaint& pant,
                                         const SkSurfaceProps* surfaceProps,
                                         const SkMatrix* deviceMatrix,
                                         SkScalerContextFlags scalerContextFlags,
@@ -910,12 +912,12 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
 
     sk_bzero(rec, sizeof(SkScalerContextRec));
 
-    SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
+    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
 
     rec->fFontID = typeface->uniqueID();
-    rec->fTextSize = paint.getTextSize();
-    rec->fPreScaleX = paint.getTextScaleX();
-    rec->fPreSkewX  = paint.getTextSkewX();
+    rec->fTextSize = font.getSize();
+    rec->fPreScaleX = font.getScaleX();
+    rec->fPreSkewX  = font.getSkewX();
 
     bool checkPost2x2 = false;
 
@@ -940,20 +942,20 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         rec->fPost2x2[0][1] = rec->fPost2x2[1][0] = 0;
     }
 
-    SkPaint::Style  style = paint.getStyle();
-    SkScalar        strokeWidth = paint.getStrokeWidth();
+    SkPaint::Style  style = pant.getStyle();
+    SkScalar        strokeWidth = pant.getStrokeWidth();
 
     unsigned flags = 0;
 
-    if (paint.isFakeBoldText()) {
+    if (font.isEmbolden()) {
 #ifdef SK_USE_FREETYPE_EMBOLDEN
         flags |= SkScalerContext::kEmbolden_Flag;
 #else
-        SkScalar fakeBoldScale = SkScalarInterpFunc(paint.getTextSize(),
+        SkScalar fakeBoldScale = SkScalarInterpFunc(font.getSize(),
                                                     kStdFakeBoldInterpKeys,
                                                     kStdFakeBoldInterpValues,
                                                     kStdFakeBoldInterpLength);
-        SkScalar extra = paint.getTextSize() * fakeBoldScale;
+        SkScalar extra = font.getSize() * fakeBoldScale;
 
         if (style == SkPaint::kFill_Style) {
             style = SkPaint::kStrokeAndFill_Style;
@@ -966,9 +968,9 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
 
     if (style != SkPaint::kFill_Style && strokeWidth > 0) {
         rec->fFrameWidth = strokeWidth;
-        rec->fMiterLimit = paint.getStrokeMiter();
-        rec->fStrokeJoin = SkToU8(paint.getStrokeJoin());
-        rec->fStrokeCap = SkToU8(paint.getStrokeCap());
+        rec->fMiterLimit = pant.getStrokeMiter();
+        rec->fStrokeJoin = SkToU8(pant.getStrokeJoin());
+        rec->fStrokeCap = SkToU8(pant.getStrokeCap());
 
         if (style == SkPaint::kStrokeAndFill_Style) {
             flags |= SkScalerContext::kFrameAndFill_Flag;
@@ -980,7 +982,7 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         rec->fStrokeCap = 0;
     }
 
-    rec->fMaskFormat = SkToU8(compute_mask_format(paint));
+    rec->fMaskFormat = SkToU8(compute_mask_format(pant));
 
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
         if (too_big_for_lcd(*rec, checkPost2x2)) {
@@ -1013,21 +1015,21 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         }
     }
 
-    if (paint.isEmbeddedBitmapText()) {
+    if (font.isEmbeddedBitmaps()) {
         flags |= SkScalerContext::kEmbeddedBitmapText_Flag;
     }
-    if (paint.isSubpixelText()) {
+    if (font.isSubpixel()) {
         flags |= SkScalerContext::kSubpixelPositioning_Flag;
     }
-    if (paint.isAutohinted()) {
+    if (font.isForceAutoHinting()) {
         flags |= SkScalerContext::kForceAutohinting_Flag;
     }
     rec->fFlags = SkToU16(flags);
 
     // these modify fFlags, so do them after assigning fFlags
-    rec->setHinting(computeHinting(paint));
+    rec->setHinting(computeHinting(font));
 
-    rec->setLuminanceColor(paint.computeLuminanceColor());
+    rec->setLuminanceColor(pant.computeLuminanceColor());
 
     // For now always set the paint gamma equal to the device gamma.
     // The math in SkMaskGamma can handle them being different,
@@ -1061,7 +1063,7 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         rec->setContrast(0);
     }
 
-    new (effects) SkScalerContextEffects{paint};
+    new (effects) SkScalerContextEffects{pant};
     if (effects->fMaskFilter) {
         // Pre-blend is not currently applied to filtered text.
         // The primary filter is blur, for which contrast makes no sense,
@@ -1116,8 +1118,9 @@ SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
     const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
     SkScalerContextEffects* effects) {
 
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     SkScalerContextRec rec;
-    MakeRecAndEffects(paint, surfaceProps, deviceMatrix, scalerContextFlags, &rec, effects);
+    MakeRecAndEffects(font, paint, surfaceProps, deviceMatrix, scalerContextFlags, &rec, effects);
     return AutoDescriptorGivenRecAndEffects(rec, *effects, ad);
 }
 

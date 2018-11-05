@@ -60,10 +60,11 @@ static const SkDescriptor* create_descriptor(
         DescriptorType type, const SkPaint& paint, const SkMatrix& m,
         const SkSurfaceProps& props, SkScalerContextFlags flags,
         SkAutoDescriptor* ad, SkScalerContextEffects* effects) {
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     SkScalerContextRec deviceRec;
     bool enableTypefaceFiltering = (type == kDevice);
     SkScalerContext::MakeRecAndEffects(
-            paint, &props, &m, flags, &deviceRec, effects, enableTypefaceFiltering);
+            font, paint, &props, &m, flags, &deviceRec, effects, enableTypefaceFiltering);
     return SkScalerContext::AutoDescriptorGivenRecAndEffects(deviceRec, *effects, ad);
 }
 

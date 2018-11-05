@@ -393,16 +393,16 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     const SkScalar textSize = 2048;
     const SkScalar invTextSize = 1 / textSize;
 
-    SkPaint paint;
-    paint.setTypeface(sk_ref_sp(const_cast<SkTypeface*>(this)));
-    paint.setTextSize(textSize);
-    paint.setLinearText(true);
+    SkFont font;
+    font.setTypeface(sk_ref_sp(const_cast<SkTypeface*>(this)));
+    font.setSize(textSize);
+    font.setLinearMetrics(true);
 
     SkScalerContextRec rec;
     SkScalerContextEffects effects;
 
     SkScalerContext::MakeRecAndEffects(
-        paint, nullptr, nullptr, SkScalerContextFlags::kNone, &rec, &effects);
+        font, nullptr, nullptr, SkScalerContextFlags::kNone, &rec, &effects);
 
     SkAutoDescriptor ad;
     SkScalerContextEffects noeffects;
