@@ -22,6 +22,7 @@
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFilterQuality.h"
+#include "SkFontTypes.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
@@ -196,20 +197,25 @@ public:
         kFull_Hinting   = 3, //!< modifies glyph outlines for maximum constrast
     };
 
-    /** Returns level of glyph outline adjustment.
-
-        @return  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
-    */
-    Hinting getHinting() const {
-        return static_cast<Hinting>(fBitfields.fHinting);
-    }
-
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
 
-        @param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
+        @param hintingLevel  new hinting level
     */
-    void setHinting(Hinting hintingLevel);
+    void setHinting(SkFontHinting hintingLevel);
+
+#ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
+    Hinting getHinting() const { return (Hinting)fBitfields.fHinting; }
+    void setHinting(Hinting h) {
+        this->setHinting((SkFontHinting)h);
+    }
+#else
+    /** Returns level of glyph outline adjustment.
+
+     @return  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
+     */
+    SkFontHinting getHinting() const { return (SkFontHinting)fBitfields.fHinting; }
+#endif
 
     /** \enum SkPaint::Flags
         The bit values stored in Flags.

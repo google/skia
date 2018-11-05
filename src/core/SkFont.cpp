@@ -13,7 +13,7 @@
 
 #define kDefault_Size       12
 #define kDefault_Flags      0
-#define kDefault_Hinting    SkFont::kNormal_Hinting
+#define kDefault_Hinting    kNormal_SkFontHinting
 
 static inline SkScalar valid_size(SkScalar size) {
     return SkTMax<SkScalar>(0, size);
@@ -65,7 +65,7 @@ void SkFont::DEPRECATED_setLCDRender(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kDEPRECATED_LCDRender_Flag);
 }
 
-void SkFont::setHinting(Hinting h) {
+void SkFont::setHinting(SkFontHinting h) {
     fHinting = SkToU8(h);
 }
 
@@ -167,7 +167,7 @@ void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
     paint->setAntiAlias(SkToBool(fFlags & kDEPRECATED_Antialias_Flag));
     paint->setLCDRenderText(SkToBool(fFlags & kDEPRECATED_LCDRender_Flag));
 
-    paint->setHinting((SkPaint::Hinting)this->getHinting());
+    paint->setHinting((SkFontHinting)this->getHinting());
 }
 
 SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
@@ -197,6 +197,6 @@ SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
 
     SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
                 paint.getTextSkewX(), flags);
-    font.setHinting((Hinting)paint.getHinting());
+    font.setHinting((SkFontHinting)paint.getHinting());
     return font;
 }

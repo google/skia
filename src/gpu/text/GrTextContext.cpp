@@ -188,7 +188,7 @@ void GrTextContext::InitDistanceFieldPaint(GrTextBlob* blob,
     skPaint->setAntiAlias(true);
     skPaint->setLCDRenderText(false);
     skPaint->setAutohinted(false);
-    skPaint->setHinting(SkPaint::kNormal_Hinting);
+    skPaint->setHinting(kNormal_SkFontHinting);
     skPaint->setSubpixelText(true);
 
     skPaint->setMaskFilter(GrSDFMaskFilter::Make());
