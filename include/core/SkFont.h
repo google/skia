@@ -37,7 +37,7 @@ public:
         kDEPRECATED_LCDRender_Flag  = 1 << 6,
     };
 
-    enum Hinting {
+    enum Hinting : uint8_t {
         kNo_Hinting     = 0, //!< glyph outlines unchanged
         kSlight_Hinting = 1, //!< minimal modification to improve constrast
         kNormal_Hinting = 2, //!< glyph outlines modified to improve constrast
