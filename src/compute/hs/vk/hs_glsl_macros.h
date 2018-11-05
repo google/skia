@@ -111,11 +111,11 @@
 // SLAB GLOBAL
 //
 
-#define HS_SLAB_GLOBAL_PREAMBLE()                               \
-  const int gmem_idx =                                          \
-    int((gl_GlobalInvocationID.x & ~(HS_SLAB_THREADS-1)) *      \
-        HS_SLAB_HEIGHT +                                        \
-        (gl_LocalInvocationID.x  &  (HS_SLAB_THREADS-1)))
+#define HS_SLAB_GLOBAL_PREAMBLE()                       \
+  const uint gmem_idx =                                 \
+    (gl_GlobalInvocationID.x & ~(HS_SLAB_THREADS-1)) *  \
+    HS_SLAB_HEIGHT +                                    \
+    (gl_LocalInvocationID.x  &  (HS_SLAB_THREADS-1))
 
 #define HS_SLAB_GLOBAL_LOAD(extent,row_idx)  \
   extent[gmem_idx + HS_SLAB_THREADS * row_idx]
@@ -144,25 +144,25 @@
 // BLOCK SORT MERGE HORIZONTAL
 //
 
-#define HS_BS_MERGE_H_PREAMBLE(slab_count)                              \
-  const int smem_l_idx =                                                \
-    int(HS_SUBGROUP_ID() * (HS_SLAB_THREADS * slab_count) +             \
-        HS_SUBGROUP_LANE_ID());                                         \
-  const int smem_r_idx =                                                \
-    int((HS_SUBGROUP_ID() ^ 1) * (HS_SLAB_THREADS * slab_count) +       \
-        (HS_SUBGROUP_LANE_ID() ^ (HS_SLAB_THREADS - 1)))
+#define HS_BS_MERGE_H_PREAMBLE(slab_count)                      \
+  const uint smem_l_idx =                                       \
+    HS_SUBGROUP_ID() * (HS_SLAB_THREADS * slab_count) +         \
+    HS_SUBGROUP_LANE_ID();                                      \
+  const uint smem_r_idx =                                       \
+    (HS_SUBGROUP_ID() ^ 1) * (HS_SLAB_THREADS * slab_count) +   \
+    (HS_SUBGROUP_LANE_ID() ^ (HS_SLAB_THREADS - 1))
 
 //
 // BLOCK CLEAN MERGE HORIZONTAL
 //
 
 #define HS_BC_MERGE_H_PREAMBLE(slab_count)                              \
-  const int gmem_l_idx =                                                \
-    int((gl_GlobalInvocationID.x & ~(HS_SLAB_THREADS * slab_count -1))  \
-        * HS_SLAB_HEIGHT + gl_LocalInvocationID.x);                     \
-  const int smem_l_idx =                                                \
-    int(HS_SUBGROUP_ID() * (HS_SLAB_THREADS * slab_count) +             \
-        HS_SUBGROUP_LANE_ID())
+  const uint gmem_l_idx =                                               \
+    (gl_GlobalInvocationID.x & ~(HS_SLAB_THREADS * slab_count -1))      \
+    * HS_SLAB_HEIGHT + gl_LocalInvocationID.x;                          \
+  const uint smem_l_idx =                                               \
+    HS_SUBGROUP_ID() * (HS_SLAB_THREADS * slab_count) +                 \
+    HS_SUBGROUP_LANE_ID()
 
 #define HS_BC_GLOBAL_LOAD_L(slab_idx)        \
   vout[gmem_l_idx + (HS_SLAB_THREADS * slab_idx)]
@@ -318,16 +318,16 @@
 //
 
 #define HS_HM_PREAMBLE(half_span)                                       \
-  const int span_idx    = int(gl_WorkGroupID.y);                        \
-  const int span_stride = int(gl_NumWorkGroups.x * gl_WorkGroupSize.x); \
-  const int span_size   = span_stride * half_span * 2;                  \
-  const int span_base   = span_idx * span_size;                         \
-  const int span_off    = int(gl_GlobalInvocationID.x);                 \
-  const int span_l      = span_base + span_off
+  const uint span_idx    = gl_WorkGroupID.y;                            \
+  const uint span_stride = gl_NumWorkGroups.x * gl_WorkGroupSize.x;     \
+  const uint span_size   = span_stride * half_span * 2;                 \
+  const uint span_base   = span_idx * span_size;                        \
+  const uint span_off    = gl_GlobalInvocationID.x;                     \
+  const uint span_l      = span_base + span_off
 
 #define HS_FM_PREAMBLE(half_span)                                       \
   HS_HM_PREAMBLE(half_span);                                            \
-  const int span_r      = span_base + span_stride * (half_span + 1) - span_off - 1
+  const uint span_r      = span_base + span_stride * (half_span + 1) - span_off - 1
 
 //
 //
