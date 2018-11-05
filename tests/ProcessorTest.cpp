@@ -576,8 +576,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                             }
                         }
                     }
-                    if (GrColorIsOpaque(input) && fp->preservesOpaqueInput() &&
-                        !GrColorIsOpaque(output)) {
+                    if (input4f.isOpaque() && fp->preservesOpaqueInput() && !output4f.isOpaque()) {
                         passing = false;
 
                         if (opaqueMessage.isEmpty()) {

@@ -669,7 +669,7 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     SkScalar blurWidth = random->nextSScalar1() * 72.f;
     bool isCircle = random->nextBool();
     // This op doesn't use a full GrPaint, just a color.
-    GrColor color = paint.getColor();
+    GrColor color = paint.getColor4f().toBytes_RGBA();
     if (isCircle) {
         SkRect circle = GrTest::TestSquare(random);
         SkRRect rrect = SkRRect::MakeOval(circle);
