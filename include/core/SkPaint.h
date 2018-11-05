@@ -219,6 +219,10 @@ public:
         @param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
     */
    void setHinting(Hinting hintingLevel) {
+        static_assert(kNo_SkFontHinting     == (SkFontHinting)SkPaint::kNo_Hinting,     "");
+        static_assert(kSlight_SkFontHinting == (SkFontHinting)SkPaint::kSlight_Hinting, "");
+        static_assert(kNormal_SkFontHinting == (SkFontHinting)SkPaint::kNormal_Hinting, "");
+        static_assert(kFull_SkFontHinting   == (SkFontHinting)SkPaint::kFull_Hinting ,  "");
         this->setHinting((SkFontHinting)hintingLevel);
     }
 
