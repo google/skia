@@ -9,6 +9,8 @@ publish_emsdk_base:
 	docker build -t emsdk-base ./emsdk-base/
 	docker tag emsdk-base gcr.io/skia-public/emsdk-release:${EMSDK_VERSION}
 	docker push gcr.io/skia-public/emsdk-release:${EMSDK_VERSION}
+	docker tag emsdk-base gcr.io/skia-public/emsdk-release:prod
+	docker push gcr.io/skia-public/emsdk-release:prod
 
 publish_karma_chrome_tests:
 	docker build -t karma-chrome-tests ./karma-chrome-tests/
