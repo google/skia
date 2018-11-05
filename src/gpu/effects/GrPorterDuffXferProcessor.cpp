@@ -588,10 +588,10 @@ public:
 
     GrGLSLXferProcessor* createGLSLInstance() const override;
 
-    float alpha() const { return fAlpha; }
+    uint8_t alpha() const { return fAlpha; }
 
 private:
-    PDLCDXferProcessor(const SkPMColor4f& blendConstant, float alpha);
+    PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha);
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -609,8 +609,8 @@ private:
         return true;
     }
 
-    SkPMColor4f fBlendConstant;
-    float fAlpha;
+    GrColor fBlendConstant;
+    uint8_t fAlpha;
 
     typedef GrXferProcessor INHERITED;
 };
@@ -619,7 +619,7 @@ private:
 
 class GLPDLCDXferProcessor : public GrGLSLXferProcessor {
 public:
-    GLPDLCDXferProcessor(const GrProcessor&) : fLastAlpha(SK_FloatNaN) {}
+    GLPDLCDXferProcessor(const GrProcessor&) : fLastAlpha(UINT32_MAX) {}
 
     ~GLPDLCDXferProcessor() override {}
 
@@ -641,21 +641,21 @@ private:
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) override {
-        float alpha = xp.cast<PDLCDXferProcessor>().alpha();
+        uint32_t alpha = SkToU32(xp.cast<PDLCDXferProcessor>().alpha());
         if (fLastAlpha != alpha) {
-            pdm.set1f(fAlphaUniform, alpha);
+            pdm.set1f(fAlphaUniform, alpha / 255.f);
             fLastAlpha = alpha;
         }
     }
 
     GrGLSLUniformHandler::UniformHandle fAlphaUniform;
-    float fLastAlpha;
+    uint32_t fLastAlpha;
     typedef GrGLSLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PDLCDXferProcessor::PDLCDXferProcessor(const SkPMColor4f& blendConstant, float alpha)
+PDLCDXferProcessor::PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha)
     : INHERITED(kPDLCDXferProcessor_ClassID, false, false, GrProcessorAnalysisCoverage::kLCD)
     , fBlendConstant(blendConstant)
     , fAlpha(alpha) {
@@ -666,14 +666,14 @@ sk_sp<const GrXferProcessor> PDLCDXferProcessor::Make(SkBlendMode mode,
     if (SkBlendMode::kSrcOver != mode) {
         return nullptr;
     }
-    SkPMColor4f blendConstantPM;
-    if (!color.isConstant(&blendConstantPM)) {
+    GrColor blendConstant;
+    if (!color.isConstant(&blendConstant)) {
         return nullptr;
     }
-    SkColor4f blendConstantUPM = blendConstantPM.unpremul();
-    float alpha = blendConstantUPM.fA;
-    blendConstantPM = { blendConstantUPM.fR, blendConstantUPM.fG, blendConstantUPM.fG, 1 };
-    return sk_sp<GrXferProcessor>(new PDLCDXferProcessor(blendConstantPM, alpha));
+    blendConstant = GrUnpremulColor(blendConstant);
+    uint8_t alpha = GrColorUnpackA(blendConstant);
+    blendConstant |= (0xff << GrColor_SHIFT_A);
+    return sk_sp<GrXferProcessor>(new PDLCDXferProcessor(blendConstant, alpha));
 }
 
 PDLCDXferProcessor::~PDLCDXferProcessor() {

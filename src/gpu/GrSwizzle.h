@@ -57,6 +57,25 @@ public:
     }
 
     /** Applies this swizzle to the input color and returns the swizzled color. */
+    GrColor applyTo(GrColor color) const {
+        int idx;
+        uint32_t key = fKey;
+        // Index of the input color that should be mapped to output r.
+        idx = (key & 3);
+        uint32_t outR = (color >> idx * 8)  & 0xFF;
+        key >>= 2;
+        idx = (key & 3);
+        uint32_t outG = (color >> idx * 8)  & 0xFF;
+        key >>= 2;
+        idx = (key & 3);
+        uint32_t outB = (color >> idx * 8)  & 0xFF;
+        key >>= 2;
+        idx = (key & 3);
+        uint32_t outA = (color >> idx * 8)  & 0xFF;
+        return GrColorPackRGBA(outR, outG, outB, outA);
+    }
+
+    /** Applies this swizzle to the input color and returns the swizzled color. */
     SkPMColor4f applyTo(const SkPMColor4f& color) const {
         int idx;
         uint32_t key = fKey;

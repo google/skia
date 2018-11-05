@@ -561,7 +561,7 @@ private:
         GrBlendEquation fEquation;
         GrBlendCoeff    fSrcCoeff;
         GrBlendCoeff    fDstCoeff;
-        SkPMColor4f     fConstColor;
+        GrColor         fConstColor;
         bool            fConstColorValid;
         TriState        fEnabled;
 
