@@ -13,6 +13,11 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-release:prod', './docker/skia-release']
     timeout: 7200s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-wasm-release:prod', './docker/skia-wasm-release']
+    timeout: 7200s
+
   - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/fiddlek'
     env:
@@ -20,6 +25,7 @@ steps:
       - 'SKIP_BUILD=1'
     args: ['./build_fiddler_release']
     timeout: 600s
+
   - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/skottie'
     env:
@@ -27,6 +33,7 @@ steps:
       - 'SKIP_BUILD=1'
     args: ['make', 'release_ci']
     timeout: 600s
+
   - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/debugger'
     env:
@@ -34,12 +41,15 @@ steps:
       - 'SKIP_BUILD=1'
     args: ['make', 'release_ci']
     timeout: 600s
+
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA', '/workspace/__fiddler_staging']
     timeout: 600s
+
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA', '/workspace/__skottie_staging']
     timeout: 600s
+
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA', '/workspace/__debugger_staging']
     timeout: 600s
@@ -48,6 +58,7 @@ images:
   - 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skia-release:prod'
+  - 'gcr.io/$PROJECT_ID/skia-wasm-release:prod'
 timeout: 7200s
 options:
   machineType: 'N1_HIGHCPU_32'

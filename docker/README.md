@@ -15,6 +15,20 @@ need to manually push a verison, then run the following commands:
     docker tag skia-release gcr.io/skia-public/skia-release:prod
     docker push gcr.io/skia-public/skia-release:prod
 
+skia-wasm-release
+------
+
+This image is used to build the Web Assembly (WASM) libraries of Skia
+at TOT.
+
+There is a continuous process that builds this docker image, but if you
+need to manually push a verison, then run the following commands:
+
+    docker build -t skia-wasm-release ./docker/skia-wasm-release/
+    docker tag skia-wasm-release gcr.io/skia-public/skia-wasm-release:prod
+    docker push gcr.io/skia-public/skia-wasm-release:prod
+
+
 
 skia-with-swift-shader-base
 ------
