@@ -65,7 +65,7 @@ void SkFont::DEPRECATED_setLCDRender(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kDEPRECATED_LCDRender_Flag);
 }
 
-void SkFont::setHinting(Hinting h) {
+void SkFont::setHinting(SkFontHinting h) {
     fHinting = SkToU8(h);
 }
 
