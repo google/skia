@@ -25,8 +25,10 @@ OBJ_CPP		= 	$(addsuffix .o,$(basename $(notdir $(SRC_CPP))))
 #
 #
 
-GCC_OPT		=	-O2 -D NDEBUG -D HS_VK_VERBOSE_AMD
-GPP_OPT		=	-O2 -D NDEBUG -D HS_VK_VERBOSE_AMD -std=c++11
+AMD_OPT		=	-D HS_VK_VERBOSE_STATISTICS_AMD # -D HS_VK_VERBOSE_DISASSEMBLY_AMD
+
+GCC_OPT		=	-O2 -D NDEBUG $(AMD_OPT)
+GPP_OPT		=	-O2 -D NDEBUG $(AMD_OPT) -std=c++11
 
 #
 #

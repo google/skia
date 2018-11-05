@@ -573,14 +573,14 @@ main(int argc, char const * argv[])
   // clumsily enable AMD GCN shader info extension
   //
   char const * const device_enabled_extensions[] = {
-#ifdef HS_VK_VERBOSE_AMD
+#if defined( HS_VK_VERBOSE_STATISTICS_AMD ) || defined( HS_VK_VERBOSE_DISASSEMBLY_AMD )
     VK_AMD_SHADER_INFO_EXTENSION_NAME
 #endif
   };
 
   uint32_t device_enabled_extension_count = 0;
 
-#ifdef HS_VK_VERBOSE_AMD
+#if defined( HS_VK_VERBOSE_STATISTICS_AMD ) || defined( HS_VK_VERBOSE_DISASSEMBLY_AMD )
   if (phy_device_props.vendorID == 0x1002)
     device_enabled_extension_count = 1;
 #endif

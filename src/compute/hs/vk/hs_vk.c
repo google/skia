@@ -701,13 +701,13 @@ hs_vk_sort(struct hs_vk const * const hs,
 //
 //
 
-#ifdef HS_VK_VERBOSE_AMD
+#ifdef HS_VK_VERBOSE_STATISTICS_AMD
 
 #include <stdio.h>
 
 static
 void
-hs_vk_verbose_amd(VkDevice device, struct hs_vk const * const hs)
+hs_vk_verbose_statistics_amd(VkDevice device, struct hs_vk const * const hs)
 {
   PFN_vkGetShaderInfoAMD vkGetShaderInfoAMD =
     (PFN_vkGetShaderInfoAMD)
@@ -716,9 +716,9 @@ hs_vk_verbose_amd(VkDevice device, struct hs_vk const * const hs)
   if (vkGetShaderInfoAMD == NULL)
     return;
 
-  fprintf(stderr,
+  fprintf(stdout,
           "                                   PHY   PHY  AVAIL AVAIL\n"
-          "VGPRs SGPRs LDS_MAX LDS/WG  SPILL VGPRs SGPRs VGPRs SGPRs       WORKGROUP_SIZE\n");
+          "VGPRs SGPRs LDS_MAX LDS/WG  SPILL VGPRs SGPRs VGPRs SGPRs  WORKGROUP_SIZE\n");
 
   for (uint32_t ii=0; ii<hs->pipelines.count; ii++)
     {
@@ -730,35 +730,84 @@ hs_vk_verbose_amd(VkDevice device, struct hs_vk const * const hs)
                              VK_SHADER_STAGE_COMPUTE_BIT,
                              VK_SHADER_INFO_TYPE_STATISTICS_AMD,
                              &ssi_amd_size,
-                             &ssi_amd) != VK_SUCCESS)
-        return;
+                             &ssi_amd) == VK_SUCCESS)
+        {
+          fprintf(stdout,
+                  "%5" PRIu32 " "
+                  "%5" PRIu32 "   "
+                  "%5" PRIu32 " "
 
-      fprintf(stderr,
-              "%5" PRIu32 " "
-              "%5" PRIu32 "   "
-              "%5" PRIu32 " "
+                  "%6zu "
+                  "%6zu "
 
-              "%6zu "
-              "%6zu "
+                  "%5" PRIu32 " "
+                  "%5" PRIu32 " "
+                  "%5" PRIu32 " "
+                  "%5" PRIu32 "  "
 
-              "%5" PRIu32 " "
-              "%5" PRIu32 " "
-              "%5" PRIu32 " "
-              "%5" PRIu32 " "
+                  "( %6" PRIu32 ", " "%6" PRIu32 ", " "%6" PRIu32 " )\n",
+                  ssi_amd.resourceUsage.numUsedVgprs,
+                  ssi_amd.resourceUsage.numUsedSgprs,
+                  ssi_amd.resourceUsage.ldsSizePerLocalWorkGroup,
+                  ssi_amd.resourceUsage.ldsUsageSizeInBytes,    // size_t
+                  ssi_amd.resourceUsage.scratchMemUsageInBytes, // size_t
+                  ssi_amd.numPhysicalVgprs,
+                  ssi_amd.numPhysicalSgprs,
+                  ssi_amd.numAvailableVgprs,
+                  ssi_amd.numAvailableSgprs,
+                  ssi_amd.computeWorkGroupSize[0],
+                  ssi_amd.computeWorkGroupSize[1],
+                  ssi_amd.computeWorkGroupSize[2]);
+        }
+    }
+}
 
-              "( %6" PRIu32 ", " "%6" PRIu32 ", " "%6" PRIu32 ")\n",
-              ssi_amd.resourceUsage.numUsedVgprs,
-              ssi_amd.resourceUsage.numUsedSgprs,
-              ssi_amd.resourceUsage.ldsSizePerLocalWorkGroup,
-              ssi_amd.resourceUsage.ldsUsageSizeInBytes,    // size_t
-              ssi_amd.resourceUsage.scratchMemUsageInBytes, // size_t
-              ssi_amd.numPhysicalVgprs,
-              ssi_amd.numPhysicalSgprs,
-              ssi_amd.numAvailableVgprs,
-              ssi_amd.numAvailableSgprs,
-              ssi_amd.computeWorkGroupSize[0],
-              ssi_amd.computeWorkGroupSize[1],
-              ssi_amd.computeWorkGroupSize[2]);
+#endif
+
+//
+//
+//
+
+#ifdef HS_VK_VERBOSE_DISASSEMBLY_AMD
+
+#include <stdio.h>
+
+static
+void
+hs_vk_verbose_disassembly_amd(VkDevice device, struct hs_vk const * const hs)
+{
+  PFN_vkGetShaderInfoAMD vkGetShaderInfoAMD =
+    (PFN_vkGetShaderInfoAMD)
+    vkGetDeviceProcAddr(device,"vkGetShaderInfoAMD");
+
+  if (vkGetShaderInfoAMD == NULL)
+    return;
+
+  for (uint32_t ii=0; ii<hs->pipelines.count; ii++)
+    {
+      size_t disassembly_amd_size;
+
+      if (vkGetShaderInfoAMD(hs->device,
+                             hs->pipelines.all[ii],
+                             VK_SHADER_STAGE_COMPUTE_BIT,
+                             VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD,
+                             &disassembly_amd_size,
+                             NULL) == VK_SUCCESS)
+        {
+          void * disassembly_amd = malloc(disassembly_amd_size);
+
+          if (vkGetShaderInfoAMD(hs->device,
+                                 hs->pipelines.all[ii],
+                                 VK_SHADER_STAGE_COMPUTE_BIT,
+                                 VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD,
+                                 &disassembly_amd_size,
+                                 disassembly_amd) == VK_SUCCESS)
+            {
+              fprintf(stdout,"%s",(char*)disassembly_amd);
+            }
+
+          free(disassembly_amd);
+        }
     }
 }
 
@@ -1009,8 +1058,11 @@ hs_vk_create(struct hs_vk_target   const * const target,
   //
   // optionally dump pipeline stats
   //
-#ifdef HS_VK_VERBOSE_AMD
-  hs_vk_verbose_amd(device,hs);
+#ifdef HS_VK_VERBOSE_STATISTICS_AMD
+  hs_vk_verbose_statistics_amd(device,hs);
+#endif
+#ifdef HS_VK_VERBOSE_DISASSEMBLY_AMD
+  hs_vk_verbose_disassembly_amd(device,hs);
 #endif
 
   //
