@@ -379,6 +379,10 @@ uint32_t SkPath::getGenerationID() const {
     return genID;
 }
 
+void SkPath::SetPathGenIDInvalidatedFunc(PathGenIDInvalidatedFunc proc) {
+    SkPathRef::SetPathGenIDInvalidatedFunc(proc);
+}
+
 SkPath& SkPath::reset() {
     SkDEBUGCODE(this->validate();)
 

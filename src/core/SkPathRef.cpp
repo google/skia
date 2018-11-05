@@ -107,6 +107,9 @@ SkPathRef::~SkPathRef() {
 
 static SkPathRef* gEmpty = nullptr;
 
+static SkMutex gPathGenIDInvalidatedFuncMutex;
+static SkPathRef::PathGenIDInvalidatedFunc gPathGenIDInvalidatedFunc = nullptr;
+
 SkPathRef* SkPathRef::CreateEmpty() {
     static SkOnce once;
     once([]{
@@ -114,6 +117,14 @@ SkPathRef* SkPathRef::CreateEmpty() {
         gEmpty->computeBounds();   // Avoids races later to be the first to do this.
     });
     return SkRef(gEmpty);
+}
+
+void SkPathRef::SetPathGenIDInvalidatedFunc(PathGenIDInvalidatedFunc proc) {
+    SkAutoMutexAcquire hold(&gPathGenIDInvalidatedFuncMutex);
+
+    SkASSERT(!gPathGenIDInvalidatedFunc);
+    SkASSERT(proc);
+    gPathGenIDInvalidatedFunc = proc;
 }
 
 static void transform_dir_and_start(const SkMatrix& matrix, bool isRRect, bool* isCCW,
@@ -725,16 +736,23 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
-    SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
-    for (GenIDChangeListener* listener : fGenIDChangeListeners) {
-        if (!listener->shouldUnregisterFromPath()) {
-            listener->onChange();
+    {
+        SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
+        for (GenIDChangeListener* listener : fGenIDChangeListeners) {
+            if (!listener->shouldUnregisterFromPath()) {
+                listener->onChange();
+            }
+            // Listeners get at most one shot, so whether these triggered or not, blow them away.
+            listener->unref();
         }
-        // Listeners get at most one shot, so whether these triggered or not, blow them away.
-        listener->unref();
+
+        fGenIDChangeListeners.reset();
     }
 
-    fGenIDChangeListeners.reset();
+    {
+        SkAutoMutexAcquire hold(&gPathGenIDInvalidatedFuncMutex);
+        if (gPathGenIDInvalidatedFunc) (*gPathGenIDInvalidatedFunc)(fGenerationID);
+    }
 }
 
 SkRRect SkPathRef::getRRect() const {

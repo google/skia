@@ -1676,6 +1676,14 @@ public:
     */
     uint32_t getGenerationID() const;
 
+    /** Registers a function that can be used to be notified when an SkPath is invalidated.
+     *  The proc can only be registered once. The function passed may be invoked on any thread.
+     *
+     *  @param proc   the function pointer to invoke on path invalidation.
+     */
+    typedef void (*PathGenIDInvalidatedFunc)(uint32_t);
+    static void SetPathGenIDInvalidatedFunc(PathGenIDInvalidatedFunc proc);
+
 #ifdef SK_SUPPORT_DIRECT_PATHREF_VALIDATION
     /** Returns if SkPath data is consistent. Corrupt SkPath data is detected if
         internal values are out of range or internal storage does not match
@@ -1692,8 +1700,9 @@ public:
 private:
     sk_sp<SkPathRef>                                     fPathRef;
     int                                                  fLastMoveToIndex;
-    mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;       // SkPath::Convexity
-   mutable SkAtomic<uint8_t, sk_memory_order_relaxed> fFirstDirection; // SkPathPriv::FirstDirection
+    mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;  // SkPath::Convexity
+    mutable SkAtomic<uint8_t, sk_memory_order_relaxed>
+            fFirstDirection;  // SkPathPriv::FirstDirection
     uint8_t                                              fFillType    : 2;
     uint8_t                                              fIsVolatile  : 1;
     uint8_t                                              fIsBadForDAA : 1;

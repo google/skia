@@ -151,6 +151,9 @@ public:
      */
     static SkPathRef* CreateEmpty();
 
+    typedef void (*PathGenIDInvalidatedFunc)(uint32_t);
+    static void SetPathGenIDInvalidatedFunc(PathGenIDInvalidatedFunc proc);
+
     /**
      *  Returns true if all of the points in this path are finite, meaning there
      *  are no infinities and no NaNs.
