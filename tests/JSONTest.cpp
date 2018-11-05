@@ -59,6 +59,14 @@ DEF_TEST(JSON_Parse, reporter) {
         { "{ \"k\" : null , }"        , nullptr },
         { "{ \"k\" : null \"k\" : 1 }", nullptr },
 
+        {R"zzz(["\)zzz"      , nullptr},
+        {R"zzz(["\])zzz"     , nullptr},
+        {R"zzz(["\"])zzz"    , nullptr},
+        {R"zzz(["\z"])zzz"   , nullptr},
+        {R"zzz(["\u"])zzz"   , nullptr},
+        {R"zzz(["\u0"])zzz"  , nullptr},
+        {R"zzz(["\u00"])zzz" , nullptr},
+        {R"zzz(["\u000"])zzz", nullptr},
 
         { "[]"                           , "[]" },
         { " \n\r\t [ \n\r\t ] \n\r\t "   , "[]" },
@@ -100,6 +108,26 @@ DEF_TEST(JSON_Parse, reporter) {
            }",
           "{\"k1\":null,\"k2\":0,\"k3\":[true,"
               "{\"kk1\":\"foo\",\"kk2\":\"bar\",\"kk3\":1.28,\"kk4\":[42]},\"boo\",null]}" },
+
+        {R"zzz(["\""])zzz"    , "[\"\"\"]"},
+        {R"zzz(["\\"])zzz"    , "[\"\\\"]"},
+        {R"zzz(["\/"])zzz"    , "[\"/\"]" },
+        {R"zzz(["\b"])zzz"    , "[\"\b\"]"},
+        {R"zzz(["\f"])zzz"    , "[\"\f\"]"},
+        {R"zzz(["\n"])zzz"    , "[\"\n\"]"},
+        {R"zzz(["\r"])zzz"    , "[\"\r\"]"},
+        {R"zzz(["\t"])zzz"    , "[\"\t\"]"},
+        {R"zzz(["\u1234"])zzz", "[\"\u1234\"]"},
+
+        {R"zzz(["foo\"bar"])zzz"    , "[\"foo\"bar\"]"},
+        {R"zzz(["foo\\bar"])zzz"    , "[\"foo\\bar\"]"},
+        {R"zzz(["foo\/bar"])zzz"    , "[\"foo/bar\"]" },
+        {R"zzz(["foo\bbar"])zzz"    , "[\"foo\bbar\"]"},
+        {R"zzz(["foo\fbar"])zzz"    , "[\"foo\fbar\"]"},
+        {R"zzz(["foo\nbar"])zzz"    , "[\"foo\nbar\"]"},
+        {R"zzz(["foo\rbar"])zzz"    , "[\"foo\rbar\"]"},
+        {R"zzz(["foo\tbar"])zzz"    , "[\"foo\tbar\"]"},
+        {R"zzz(["foo\u1234bar"])zzz", "[\"foo\u1234bar\"]"},
     };
 
     for (const auto& tst : g_tests) {
