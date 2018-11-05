@@ -27,6 +27,46 @@
 #include "SkStrikeCache.h"
 #include "SkTDArray.h"
 
+// -- SkGlyphCacheCommon ---------------------------------------------------------------------------
+
+SkVector SkGlyphCacheCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {
+    if (!isSubpixel) {
+        return {SK_ScalarHalf, SK_ScalarHalf};
+    } else {
+        static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
+        switch (axisAlignment) {
+            case kX_SkAxisAlignment:
+                return {kSubpixelRounding, SK_ScalarHalf};
+            case kY_SkAxisAlignment:
+                return {SK_ScalarHalf, kSubpixelRounding};
+            case kNone_SkAxisAlignment:
+                return {kSubpixelRounding, kSubpixelRounding};
+        }
+    }
+
+    // Some compilers need this.
+    return {0, 0};
+}
+
+SkIPoint SkGlyphCacheCommon::SubpixelLookup(SkAxisAlignment axisAlignment, SkPoint position) {
+    // TODO: SkScalarFraction uses truncf to calculate the fraction. This should be floorf.
+    SkFixed lookupX = SkScalarToFixed(SkScalarFraction(position.x())),
+            lookupY = SkScalarToFixed(SkScalarFraction(position.y()));
+
+    // Snap to a given axis if alignment is requested.
+    if (axisAlignment == kX_SkAxisAlignment) {
+        lookupY = 0;
+    } else if (axisAlignment == kY_SkAxisAlignment) {
+        lookupX = 0;
+    }
+
+    return {lookupX, lookupY};
+}
+
+bool SkGlyphCacheCommon::GlyphTooBigForAtlas(const SkGlyph& glyph) {
+    return glyph.fWidth > kSkSideTooBigForAtlas || glyph.fHeight > kSkSideTooBigForAtlas;
+}
+
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 SkGlyphRunListPainter::SkGlyphRunListPainter(
         const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags)
