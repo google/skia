@@ -108,9 +108,9 @@ public:
     // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
     // on GrGLGpuRTCommandBuffer.
-    void clear(const GrFixedClip&, GrColor, GrRenderTarget*, GrSurfaceOrigin);
-    void clearColorAsDraw(const GrFixedClip&, GrGLfloat r, GrGLfloat g, GrGLfloat b, GrGLfloat a,
-                          GrRenderTarget*, GrSurfaceOrigin);
+    void clear(const GrFixedClip&, const SkPMColor4f&, GrRenderTarget*, GrSurfaceOrigin);
+    void clearColorAsDraw(const GrFixedClip&, const SkPMColor4f& color, GrRenderTarget*,
+                          GrSurfaceOrigin);
 
     // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough

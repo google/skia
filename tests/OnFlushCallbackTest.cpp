@@ -358,7 +358,8 @@ public:
                                                                            nullptr, nullptr);
 
         // clear the atlas
-        rtc->clear(nullptr, 0x0, GrRenderTargetContext::CanClearFullscreen::kYes);
+        rtc->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                   GrRenderTargetContext::CanClearFullscreen::kYes);
 
         int blocksInAtlas = 0;
         for (int i = 0; i < lists.count(); ++i) {
@@ -368,11 +369,10 @@ public:
 
                 // For now, we avoid the resource buffer issues and just use clears
 #if 1
-                rtc->clear(&r, op->color().toBytes_RGBA(),
-                           GrRenderTargetContext::CanClearFullscreen::kNo);
+                rtc->clear(&r, op->color(), GrRenderTargetContext::CanClearFullscreen::kNo);
 #else
                 GrPaint paint;
-                paint.setColor4f(SkPMColor4f::FromBytes_RGBA(op->color()));
+                paint.setColor4f(op->color());
                 std::unique_ptr<GrDrawOp> drawOp(NonAARectOp::Make(std::move(paint),
                                                                    SkRect::Make(r)));
                 rtc->priv().testingOnly_addDrawOp(std::move(drawOp));
@@ -436,8 +436,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
                                                                       kRGBA_8888_GrPixelConfig,
                                                                       nullptr));
 
-    rtc->clear(nullptr, GrColorPackRGBA(255, 0, 0, 255),
-               GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtc->clear(nullptr, { 1, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
@@ -554,7 +553,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
                                                                       kRGBA_8888_GrPixelConfig,
                                                                       nullptr));
 
-    rtc->clear(nullptr, 0xFFFFFFFF, GrRenderTargetContext::CanClearFullscreen::kYes);
+    rtc->clear(nullptr, SK_PMColor4fWHITE, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     // Note that this doesn't include the third texture proxy
     for (int i = 0; i < kNumProxies-1; ++i) {

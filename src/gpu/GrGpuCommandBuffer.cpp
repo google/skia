@@ -16,7 +16,7 @@
 #include "GrRenderTarget.h"
 #include "SkRect.h"
 
-void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
+void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
     SkASSERT(fRenderTarget);
 
     this->onClear(clip, color);
