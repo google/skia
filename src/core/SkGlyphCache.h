@@ -89,7 +89,7 @@ public:
     /** Return the image associated with the glyph. If it has not been generated this will
         trigger that.
     */
-    const void* findImage(const SkGlyph&);
+    const void* findImage(const SkGlyph&) override;
 
     /** Initializes the image associated with the glyph with |data|.
      */
@@ -138,6 +138,8 @@ public:
     SkVector rounding() const override;
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
+
+    void outOfScope() override {}
 
     /** Return the approx RAM usage for this cache. */
     size_t getMemoryUsed() const { return fMemoryUsed; }

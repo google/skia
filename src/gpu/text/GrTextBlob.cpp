@@ -100,8 +100,7 @@ static SkRect rect_to_draw(
 void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
                                   const sk_sp<GrTextStrike>& strike,
                                   const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
-                                  SkPoint origin,
-                                  const SkPMColor4f& color4f, SkGlyphCache* skGlyphCache,
+                                  SkPoint origin, SkGlyphCache* skGlyphCache,
                                   SkScalar textRatio, bool needsTransform) {
 
     GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
@@ -121,7 +120,7 @@ void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
     SkRect glyphRect = rect_to_draw(skGlyph, origin, textRatio, isDFT);
     if (!glyphRect.isEmpty()) {
         // TODO4F: Preserve float colors
-        GrColor color = color4f.toBytes_RGBA();
+        GrColor color = blob->fColor;
 
         GrMaskFormat format = glyph->fMaskFormat;
 
@@ -172,8 +171,7 @@ void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
         *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
 
         subRun->appendVertices(vertexStride);
-        blob->fGlyphs[subRun->glyphEndIndex()] = glyph;
-        subRun->glyphAppended();
+        blob->fGlyphs[subRun->fGlyphEndIndex++] = glyph;
         subRun->setNeedsTransform(needsTransform);
     }
 }

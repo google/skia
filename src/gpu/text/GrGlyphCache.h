@@ -52,7 +52,9 @@ public:
             // We could return this to the caller, but in practice it adds code complexity for
             // potentially little benefit(ie, if the glyph is not in our font cache, then its not
             // in the atlas and we're going to be doing a texture upload anyways).
-            const SkGlyph& skGlyph = GrToSkGlyph(cache, packed);
+            const SkGlyph& skGlyph = cache->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
+                                                              GrGlyph::UnpackFixedX(packed),
+                                                              GrGlyph::UnpackFixedY(packed));
             glyph = this->generateGlyph(skGlyph, packed, cache);
             glyph->fMaskFormat = expectedMaskFormat;
         }

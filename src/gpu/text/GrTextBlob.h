@@ -14,6 +14,7 @@
 #include "GrTextTarget.h"
 #include "text/GrTextContext.h"
 #include "SkDescriptor.h"
+#include "SkGlyphRunPainter.h"
 #include "SkMaskFilterBase.h"
 #include "SkOpts.h"
 #include "SkPathEffect.h"
@@ -48,7 +49,7 @@ class SkTextBlobRunIterator;
  *
  * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
-class GrTextBlob : public SkNVRefCnt<GrTextBlob> {
+class GrTextBlob : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunListPainter::GPUDevicePainter {
     struct Run;
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
@@ -234,11 +235,18 @@ public:
 
     size_t size() const { return fSize; }
 
-    ~GrTextBlob() {
+    ~GrTextBlob() override {
         for (int i = 0; i < fRunCountLimit; i++) {
             fRuns[i].~Run();
         }
     }
+
+    CacheHandle
+    findStrike(const SkPaint& paint, const SkSurfaceProps& props, SkScalerContextFlags flags,
+               const SkMatrix& matrix) const override;
+
+    void paintMasks(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> glyphAndPos,
+                    const SkPaint& paint) override;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
@@ -404,7 +412,6 @@ private:
             }
             bool needsTransform() const { return SkToBool(fFlags & kNeedsTransform_Flag); }
 
-        private:
             enum Flag {
                 kDrawAsSDF_Flag = 0x01,
                 kUseLCDText_Flag = 0x02,
@@ -452,8 +459,7 @@ private:
         void appendGlyph(GrTextBlob* blob,
                          const sk_sp<GrTextStrike>& strike,
                          const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
-                         SkPoint origin,
-                         const SkPMColor4f& color, SkGlyphCache* skGlyphCache,
+                         SkPoint origin, SkGlyphCache* skGlyphCache,
                          SkScalar textRatio, bool needsTransform);
 
         SkExclusiveStrikePtr setupCache(const SkPaint& skPaint,
@@ -562,6 +568,8 @@ private:
     int fRunCount{0};
     int fRunCountLimit;
     uint8_t fTextType;
+    GrColor fColor;
+    GrGlyphCache* fGlyphCache;
 };
 
 /**

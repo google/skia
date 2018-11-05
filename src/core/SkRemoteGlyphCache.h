@@ -77,8 +77,6 @@ protected:
 
 private:
     class TrackLayerDevice;
-
-
 };
 
 using SkDiscardableHandleId = uint32_t;

@@ -38,24 +38,6 @@ public:
         return GrTextBlob::Make(glyphCount, runCount);
     }
 
-    sk_sp<GrTextBlob> makeBlob(const SkTextBlob* blob) {
-        int glyphCount = 0;
-        int runCount = 0;
-        BlobGlyphCount(&glyphCount, &runCount, blob);
-        return GrTextBlob::Make(glyphCount, runCount);
-    }
-
-    sk_sp<GrTextBlob> makeCachedBlob(const SkTextBlob* blob,
-                                          const GrTextBlob::Key& key,
-                                          const SkMaskFilterBase::BlurRec& blurRec,
-                                          const SkPaint& paint) {
-        sk_sp<GrTextBlob> cacheBlob(this->makeBlob(blob));
-        cacheBlob->setupKey(key, blurRec, paint);
-        this->add(cacheBlob);
-        blob->notifyAddedToCache(fUniqueID);
-        return cacheBlob;
-    }
-
     sk_sp<GrTextBlob> makeBlob(const SkGlyphRunList& glyphRunList) {
         return GrTextBlob::Make(glyphRunList.totalGlyphCount(), glyphRunList.size());
     }
