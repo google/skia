@@ -12,7 +12,7 @@
 #include "GrGeometryProcessor.h"
 #include "GrTextBlob.h"
 #include "GrTextTarget.h"
-#include "SkGlyphRun.h"
+#include "SkGlyphRunPainter.h"
 
 #if GR_TEST_UTILS
 #include "GrDrawOpTest.h"
@@ -25,7 +25,7 @@ class SkGlyph;
 /*
  * Renders text using some kind of an atlas, ie BitmapText or DistanceField text
  */
-class GrTextContext {
+class GrTextContext : public SkGlyphRunListPainter::GPUDevicePainter {
 public:
     struct Options {
         /**
@@ -67,6 +67,10 @@ public:
                                        const Options& options,
                                        SkScalar* textRatio,
                                        SkScalerContextFlags* flags);
+
+    CacheHandle
+    findStrike(const SkPaint& paint, const SkSurfaceProps& props, SkScalerContextFlags flags,
+               const SkMatrix& matrix) const override;
 
 private:
     GrTextContext(const Options& options);

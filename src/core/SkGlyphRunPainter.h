@@ -24,6 +24,7 @@ public:
     virtual ~SkGlyphCacheInterface() = default;
     virtual SkVector rounding() const = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
+    virtual void outOfScope() = 0;
 };
 
 class SkGlyphCacheCommon {
@@ -56,6 +57,12 @@ public:
         const SkPath* path;
         SkPoint position;
     };
+
+    struct GlyphAndPos {
+        const SkGlyph* glyph;
+        SkPoint position;
+    };
+
     class BitmapDevicePainter {
     public:
         virtual ~BitmapDevicePainter() = default;
@@ -70,6 +77,14 @@ public:
     void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             const BitmapDevicePainter* bitmapDevice);
+
+    #if SK_SUPPORT_GPU
+    class GPUDevicePainter;
+    class DFTControl;
+    void drawForGPUDevice(
+            const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix, SkPoint origin,
+            const DFTControl&, const GPUDevicePainter* gpuPainter);
+    #endif
 
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
@@ -108,6 +123,20 @@ public:
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
     void ensureBitmapBuffers(size_t runSize);
+    void ensureBuffers(size_t runSize);
+
+    #if SK_SUPPORT_GPU
+    void addEmpty(SkGlyphID glyphID);
+    void paintEmpty(const GPUDevicePainter* gpuPainter);
+    void paintMask (const GPUDevicePainter* gpuPainter, const SkPaint& runPaint);
+    void paintPaths(const GPUDevicePainter* gpuPainter, const SkPaint& runPaint);
+
+    void paintARGB (const GPUDevicePainter* gpuPainter, const SkPaint& runPaint);
+    void paintDFT  (
+            const GPUDevicePainter* gpuPainter, const SkPaint& runPaint, const SkPaint& dftPaint);
+    void paintPaths(
+            const GPUDevicePainter* gpuPainter, const SkPaint& runPaint, SkScalar textScale);
+    #endif
 
     void processARGBFallback(
             SkScalar maxGlyphDimension, const SkPaint& runPaint, SkPoint origin,
@@ -121,10 +150,38 @@ private:
     const SkScalerContextFlags fScalerContextFlags;
     size_t fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    SkTDArray<SkGlyphID>   fEmptyGlyphs;
+    SkTDArray<GlyphAndPos> fMaskGlyphs;
+    SkTDArray<GlyphAndPos> fPathGlyphs;
+    SkTDArray<GlyphAndPos> fARGBGlyphs;
 
     // Vectors for tracking ARGB fallback information.
     std::vector<SkGlyphID> fARGBGlyphsIDs;
     std::vector<SkPoint>   fARGBPositions;
+};
+
+class SkGlyphRunListPainter::GPUDevicePainter {
+public:
+    virtual ~GPUDevicePainter() = default;
+
+    class CacheHandle {
+    public:
+        CacheHandle(SkGlyphCacheInterface* cache) : fCache{cache} {}
+        ~CacheHandle() { fCache->outOfScope(); }
+
+        SkGlyphCacheInterface* get()          const { return fCache;            }
+        SkGlyphCacheInterface* operator -> () const { return this->get();       }
+        SkGlyphCacheInterface& operator *  () const { return *fCache;           }
+        explicit operator bool ()             const { return fCache != nullptr; }
+
+    private:
+        SkGlyphCacheInterface* const fCache;
+    };
+
+    virtual CacheHandle findStrike(const SkPaint& paint,
+                                   const SkSurfaceProps& props,
+                                   SkScalerContextFlags flags,
+                                   const SkMatrix& matrix) const = 0;
 };
 
 #endif  // SkGlyphRunPainter_DEFINED
