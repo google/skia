@@ -46,6 +46,30 @@
       "revId": "3674336c33691cc8c49f939249ebf78a1cd9ae7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6dd2eb9b_92c5d4c3",
+        "filename": "src/gpu/GrPrimitiveProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-11-06T18:18:10Z",
+      "side": 0,
+      "message": "Ah its fine to leave it out then. I was just looking at this file so didn\u0027t really know what fVertexAttributes type was",
+      "parentUuid": "862e60ab_fee10236",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 56
+      },
+      "revId": "3674336c33691cc8c49f939249ebf78a1cd9ae7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
