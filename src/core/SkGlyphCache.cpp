@@ -24,7 +24,7 @@ size_t compute_path_size(const SkPath& path) {
 SkGlyphCache::SkGlyphCache(
     const SkDescriptor& desc,
     std::unique_ptr<SkScalerContext> scaler,
-    const SkPaint::FontMetrics& fontMetrics)
+    const SkFontMetrics& fontMetrics)
     : fDesc{desc}
     , fScalerContext{std::move(scaler)}
     , fFontMetrics{fontMetrics}

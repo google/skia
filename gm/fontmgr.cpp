@@ -229,7 +229,7 @@ public:
         boundsPaint.setStyle(SkPaint::kStroke_Style);
         canvas->drawRect(fontBounds, boundsPaint);
 
-        SkPaint::FontMetrics fm;
+        SkFontMetrics fm;
         glyphPaint.getFontMetrics(&fm);
         SkPaint metricsPaint(boundsPaint);
         metricsPaint.setStyle(SkPaint::kFill_Style);
