@@ -857,10 +857,6 @@ private:
     DashingCircleEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                         bool usesLocalCoords);
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInDashParams, kInCircleParams);
-    }
-
     SkPMColor4f         fColor;
     SkMatrix            fLocalMatrix;
     bool                fUsesLocalCoords;
@@ -1014,7 +1010,9 @@ DashingCircleEffect::DashingCircleEffect(const SkPMColor4f& color,
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
-    this->setVertexAttributeCnt(3);
+    this->addVertexAttribute(kInPosition);
+    this->addVertexAttribute(kInDashParams);
+    this->addVertexAttribute(kInCircleParams);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
@@ -1067,10 +1065,6 @@ public:
 private:
     DashingLineEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                       bool usesLocalCoords);
-
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInDashParams, kInRectParams);
-    }
 
     SkPMColor4f         fColor;
     SkMatrix            fLocalMatrix;
@@ -1238,7 +1232,9 @@ DashingLineEffect::DashingLineEffect(const SkPMColor4f& color,
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
-    this->setVertexAttributeCnt(3);
+    this->addVertexAttribute(kInPosition);
+    this->addVertexAttribute(kInDashParams);
+    this->addVertexAttribute(kInRectParams);
 }
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);

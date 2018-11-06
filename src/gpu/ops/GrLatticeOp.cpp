@@ -97,11 +97,10 @@ private:
             : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
         fSampler.reset(proxy->textureType(), proxy->config(), filter);
         this->setTextureSamplerCnt(1);
-        this->setVertexAttributeCnt(4);
-    }
-
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kPositions, kTextureCoords, kTextureDomain, kColors);
+        this->addVertexAttribute(kPositions);
+        this->addVertexAttribute(kTextureCoords);
+        this->addVertexAttribute(kTextureDomain);
+        this->addVertexAttribute(kColors);
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }

@@ -299,12 +299,13 @@ public:
             this->setInstanceAttributeCnt(2);
             if (hasVertexBuffer) {
                 fVertex = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-                this->setVertexAttributeCnt(1);
+                this->addVertexAttribute(fVertex);
             }
         } else {
             fVertex = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
             fColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-            this->setVertexAttributeCnt(2);
+            this->addVertexAttribute(fVertex);
+            this->addVertexAttribute(fColor);
         }
     }
 
@@ -318,15 +319,8 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
-    const Attribute& onVertexAttribute(int i) const override {
-        if (fInstanceLocation.isInitialized()) {
-            return fVertex;
-        }
-        return IthAttribute(i, fVertex, fColor);
-    }
-
     const Attribute& onInstanceAttribute(int i) const override {
-        return IthAttribute(i, fInstanceLocation, fColor);
+        return i == 0 ? fInstanceLocation : fColor;
     }
 
     Attribute fInstanceLocation;

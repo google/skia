@@ -248,8 +248,6 @@ private:
     void initGS();
     void initVS(GrResourceProvider*);
 
-    const Attribute& onVertexAttribute(int i) const override { return fVertexAttribute; }
-
     const Attribute& onInstanceAttribute(int i) const override {
         SkASSERT(fImpl == Impl::kVertexShader);
         return fInstanceAttributes[i];
