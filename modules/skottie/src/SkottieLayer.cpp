@@ -373,8 +373,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
     }
 
     return sksg::Transform::Make(std::move(image_node),
-        SkMatrix::MakeScale(static_cast<float>(asset_size.width())  / image->width(),
-                            static_cast<float>(asset_size.height()) / image->height()));
+        SkMatrix::MakeRectToRect(SkRect::Make(image->bounds()),
+                                 SkRect::Make(asset_size),
+                                 SkMatrix::kCenter_ScaleToFit));
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageLayer(const skjson::ObjectValue& jlayer,
