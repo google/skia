@@ -27,22 +27,6 @@ public:
     bool isOpaque() const override;
     bool isConstant() const override { return true; }
 
-    class ColorShaderContext : public Context {
-    public:
-        ColorShaderContext(const SkColorShader& shader, const ContextRec&);
-
-        uint32_t getFlags() const override;
-        void shadeSpan(int x, int y, SkPMColor span[], int count) override;
-        void shadeSpan4f(int x, int y, SkPMColor4f[], int count) override;
-
-    private:
-        SkPMColor4f fPMColor4f;
-        SkPMColor   fPMColor;
-        uint32_t    fFlags;
-
-        typedef Context INHERITED;
-    };
-
     GradientType asAGradient(GradientInfo* info) const override;
 
 #if SK_SUPPORT_GPU
@@ -53,9 +37,6 @@ private:
     SK_FLATTENABLE_HOOKS(SkColorShader)
 
     void flatten(SkWriteBuffer&) const override;
-#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
-#endif
 
     bool onAsLuminanceColor(SkColor* lum) const override {
         *lum = fColor;

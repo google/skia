@@ -28,55 +28,6 @@ void SkColorShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColor(fColor);
 }
 
-uint32_t SkColorShader::ColorShaderContext::getFlags() const {
-    return fFlags;
-}
-
-#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-SkShaderBase::Context* SkColorShader::onMakeContext(const ContextRec& rec,
-                                                    SkArenaAlloc* alloc) const {
-    return alloc->make<ColorShaderContext>(*this, rec);
-}
-#endif
-
-SkColorShader::ColorShaderContext::ColorShaderContext(const SkColorShader& shader,
-                                                      const ContextRec& rec)
-    : INHERITED(shader, rec)
-{
-    SkColor color = shader.fColor;
-    unsigned a = SkAlphaMul(SkColorGetA(color), SkAlpha255To256(rec.fPaint->getAlpha()));
-
-    unsigned r = SkColorGetR(color);
-    unsigned g = SkColorGetG(color);
-    unsigned b = SkColorGetB(color);
-
-    if (a != 255) {
-        r = SkMulDiv255Round(r, a);
-        g = SkMulDiv255Round(g, a);
-        b = SkMulDiv255Round(b, a);
-    }
-    fPMColor = SkPackARGB32(a, r, g, b);
-
-    SkColor4f c4 = SkColor4f::FromColor(shader.fColor);
-    c4.fA *= rec.fPaint->getAlpha() / 255.0f;
-    fPMColor4f = c4.premul();
-
-    fFlags = kConstInY32_Flag;
-    if (255 == a) {
-        fFlags |= kOpaqueAlpha_Flag;
-    }
-}
-
-void SkColorShader::ColorShaderContext::shadeSpan(int x, int y, SkPMColor span[], int count) {
-    sk_memset32(span, fPMColor, count);
-}
-
-void SkColorShader::ColorShaderContext::shadeSpan4f(int x, int y, SkPMColor4f span[], int count) {
-    for (int i = 0; i < count; ++i) {
-        span[i] = fPMColor4f;
-    }
-}
-
 SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
     if (info) {
         if (info->fColors && info->fColorCount >= 1) {
