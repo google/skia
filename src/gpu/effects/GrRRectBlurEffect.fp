@@ -62,7 +62,8 @@ uniform half blurRadius;
 
             GrPaint paint;
 
-            rtc->clear(nullptr, 0x0, GrRenderTargetContext::CanClearFullscreen::kYes);
+            rtc->clear(nullptr, SK_PMColor4fTRANSPARENT,
+                       GrRenderTargetContext::CanClearFullscreen::kYes);
             rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                            GrStyle::SimpleFill());
 
