@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ee02b1c_d5742d33",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-06T14:23:57Z",
+      "side": 1,
+      "message": "I don\u0027t think we need the existing ifdefs here. The ones down below make sense - if SK_HAS_WEBP_LIBRARY is false, we shouldn\u0027t have a definition for SkWebpCodec, SkWebpAdapterCodec etc. But SkSampledCodec is always defined, and if we got a codec that claims to be one of these, we should pass it to SkSampledCodec.\n\nSince SkWuffsCodec doesn\u0027t currently support sampling, either via SkSampledCodec or its own thing, maybe the best thing to do is something like:\n\n    case SkEncodedImageFormat::kGIF:\n#ifdef SK_HAS_WUFFS_LIBRARY\n        // TODO: Support sampling SkWuffsCodec\n        return nullptr;\n#else\n        // fallthrough\n#endif\n    // other cases...",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 6
+      },
+      "revId": "78b9fe15a694f6c108808043774cbe3bf54cd905",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a47c6096_20f2b4f2",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-06T14:23:57Z",
+      "side": 1,
+      "message": "I don\u0027t think this comment is necessary.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 79
+      },
+      "revId": "78b9fe15a694f6c108808043774cbe3bf54cd905",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
