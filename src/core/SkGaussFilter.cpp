@@ -11,8 +11,6 @@
 #include "SkTypes.h"
 #include <cmath>
 
-static constexpr double kPi = 3.14159265358979323846264338327950288;
-
 // The value when we can stop expanding the filter. The spec implies that 3% is acceptable, but
 // we just use 1%.
 static constexpr double kGoodEnough = 1.0 / 100.0;
@@ -104,45 +102,8 @@ static int calculate_bessel_factors(double sigma, double *gauss) {
     return n;
 }
 
-static int calculate_gauss_factors(double sigma, double* gauss) {
+SkGaussFilter::SkGaussFilter(double sigma) {
     SkASSERT(0 <= sigma && sigma < 2);
 
-    // From the SVG blur spec: 8.13 Filter primitive <feGaussianBlur>.
-    // H(x) = exp(-x^2/ (2s^2)) / sqrt(2π * s^2)
-    auto var = sigma * sigma;
-    auto expGaussDenom = -2 * var;
-    auto normalizeDenom = std::sqrt(2 * kPi) * sigma;
-
-    // Use the recursion relation from "Incremental Computation of the Gaussian"  by Ken
-    // Turkowski in GPUGems 3. Page 877.
-    double g0 = sk_ieee_double_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(1.0, normalizeDenom);
-    double g1 = std::exp(sk_ieee_double_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(1.0, expGaussDenom));
-    double g2 = g1 * g1;
-
-    gauss[0] = g0;
-    g0 *= g1;
-    g1 *= g2;
-    gauss[1] = g0;
-
-    int n = 1;
-    while (gauss[n] > kGoodEnough) {
-        g0 *= g1;
-        g1 *= g2;
-        gauss[n+1] = g0;
-        n += 1;
-    }
-
-    normalize(n, gauss);
-
-    return n;
-}
-
-SkGaussFilter::SkGaussFilter(double sigma, Type type) {
-    SkASSERT(0 <= sigma && sigma < 2);
-
-    if (type == Type::Bessel) {
-        fN = calculate_bessel_factors(sigma, fBasis);
-    } else {
-        fN = calculate_gauss_factors(sigma, fBasis);
-    }
+    fN = calculate_bessel_factors(sigma, fBasis);
 }
