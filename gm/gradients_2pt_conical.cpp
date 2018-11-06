@@ -266,6 +266,16 @@ static sk_sp<SkShader> Make2ConicalInsideSmallRad(const SkPoint pts[2], const Gr
                                                    0, &localMatrix);
 }
 
+static sk_sp<SkShader> Make2ConicalSameCenterSameRad(const SkPoint pts[2], const GradData& data,
+                                                     SkShader::TileMode tm, const SkMatrix& local) {
+    SkPoint center;
+    center.set(SkScalarAve(pts[0].fX, pts[1].fX), SkScalarAve(pts[0].fY, pts[1].fY));
+    SkScalar radius = (pts[1].fX - pts[0].fX) / 2;
+    return SkGradientShader::MakeTwoPointConical(center, radius, center, radius,
+                                                 data.fColors, data.fPos, data.fCount, tm,
+                                                 0, &local);
+}
+
 typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data,
                                      SkShader::TileMode tm, const SkMatrix& localMatrix);
 
@@ -285,7 +295,7 @@ constexpr GradMaker gGradMakersEdgeCases[] = {
     Make2ConicalEdgeX, Make2ConicalEdgeY,
     Make2ConicalZeroRadEdgeX, Make2ConicalZeroRadEdgeY,
     Make2ConicalTouchX, Make2ConicalTouchY,
-    Make2ConicalInsideSmallRad
+    Make2ConicalInsideSmallRad, Make2ConicalSameCenterSameRad
 };
 
 
