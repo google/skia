@@ -96,6 +96,10 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
 #ifdef SK_HAS_JPEG_LIBRARY
         case SkEncodedImageFormat::kJPEG:
 #endif
+        // TODO: if the SkGifCodec code gets deleted, we'll have to guard this
+        // "case SkEncodedImageFormat::kGIF" with "#ifdef
+        // SK_HAS_WUFFS_LIBRARY", as there will no longer be a GIF codec
+        // compiled by default. See the TODO in SkCodec.cpp's gDecoderProcs.
         case SkEncodedImageFormat::kGIF:
         case SkEncodedImageFormat::kBMP:
         case SkEncodedImageFormat::kWBMP:

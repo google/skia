@@ -45,6 +45,8 @@ static constexpr DecoderProc gDecoderProcs[] = {
 #ifdef SK_HAS_WUFFS_LIBRARY
     { SkWuffsCodec_IsFormat, SkWuffsCodec_MakeFromStream },
 #else
+    // TODO: if the SkGifCodec code (i.e. the next line) gets deleted, we'll
+    // also have to update SkAndroidCodec::MakeFromCodec in SkAndroidCodec.cpp.
     { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
 #endif
 #ifdef SK_HAS_PNG_LIBRARY
