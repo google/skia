@@ -1500,6 +1500,18 @@ STAGE(lerp_565, const SkRasterPipeline_MemoryCtx* ctx) {
     a = lerp(da, a, ca);
 }
 
+STAGE(emboss, const SkRasterPipeline_EmbossCtx* ctx) {
+    auto mptr = ptr_at_xy<const uint8_t>(&ctx->mul, dx,dy),
+         aptr = ptr_at_xy<const uint8_t>(&ctx->add, dx,dy);
+
+    F mul = from_byte(load<U8>(mptr, tail)),
+      add = from_byte(load<U8>(aptr, tail));
+
+    r = mad(r, mul, add);
+    g = mad(g, mul, add);
+    b = mad(b, mul, add);
+}
+
 STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkRasterPipeline_ByteTablesCtx
     struct Tables { const uint8_t *r, *g, *b, *a; };
     auto tables = (const Tables*)ctx;
@@ -3278,7 +3290,8 @@ static NotImplemented
         alter_2pt_conical_unswap,
         mask_2pt_conical_nan,
         mask_2pt_conical_degenerates,
-        apply_vector_mask;
+        apply_vector_mask,
+        emboss;
 
 #endif//defined(JUMPER_IS_SCALAR) controlling whether we build lowp stages
 }  // namespace lowp
