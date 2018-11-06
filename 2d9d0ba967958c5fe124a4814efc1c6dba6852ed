@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b22ea2b_0c32a73d",
+        "filename": "tools/LsanSuppressions.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-11-06T18:35:50Z",
+      "side": 1,
+      "message": "Super-nit: alignment",
+      "range": {
+        "startLine": 19,
+        "startChar": 41,
+        "endLine": 23,
+        "endChar": 47
+      },
+      "revId": "2d9d0ba967958c5fe124a4814efc1c6dba6852ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
