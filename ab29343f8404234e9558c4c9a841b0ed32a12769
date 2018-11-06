@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fccea6fd_c20946ef",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-06T19:48:58Z",
+      "side": 1,
+      "message": "This will have to be repeated in the new GrFillRectOp as well. Since addVertexAttribute is protected, the GPAttributes utility can\u0027t implement this logic. But it might be nice to push addInitialized() into GrGeometryProcessor as is, or that takes a varargs of attributes and adds all initialized?",
+      "revId": "ab29343f8404234e9558c4c9a841b0ed32a12769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cd7b07b_38e3caff",
+        "filename": "tests/GrMeshTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-06T19:48:58Z",
+      "side": 1,
+      "message": "It\u0027d be good to have vertex and instance attributes handled with the same pattern. I don\u0027t think it has to be this CL, but can we plan on doing the same style refactoring for those attributes as well?",
+      "revId": "ab29343f8404234e9558c4c9a841b0ed32a12769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

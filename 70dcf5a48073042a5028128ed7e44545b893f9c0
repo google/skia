@@ -16,6 +16,24 @@
       "revId": "70dcf5a48073042a5028128ed7e44545b893f9c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f726bdde_8b66e4bd",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-06T19:48:58Z",
+      "side": 1,
+      "message": "I think 128 bytes is reasonable. Eventually the attribute members can go away too, so 128 bytes will be the limit. It does mean the GPs will have to access the attributes by index instead of by member, but I think that\u0027s better than having the parent class store pointers back.",
+      "parentUuid": "757366d3_c6fddf32",
+      "revId": "70dcf5a48073042a5028128ed7e44545b893f9c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
