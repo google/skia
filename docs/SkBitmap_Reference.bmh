@@ -2512,34 +2512,6 @@ false if pixel conversion is not possible.
 
 # ------------------------------------------------------------------------------
 
-#Method bool hasHardwareMipMap() const
-#In Property
-#Line # returns Mip_Map support present; Android only ##
-#Populate
-
-#NoExample
-##
-
-#SeeAlso setHasHardwareMipMap
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void setHasHardwareMipMap(bool hasHardwareMipMap)
-#In Set
-#Line # sets Mip_Map support present; Android only ##
-#Populate
-
-#NoExample
-##
-
-#SeeAlso hasHardwareMipMap
-
-##
-
-# ------------------------------------------------------------------------------
-
 #Method bool extractAlpha(SkBitmap* dst) const
 #In Constructors
 #Line # creates Bitmap containing Alpha of pixels ##

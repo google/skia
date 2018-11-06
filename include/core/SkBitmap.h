@@ -1063,28 +1063,6 @@ public:
         return this->writePixels(src, 0, 0);
     }
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    /** For use by Android framework only.
-
-        @return  true if setHasHardwareMipMap() has been called with true
-    */
-    bool hasHardwareMipMap() const {
-        return (fFlags & kHasHardwareMipMap_Flag) != 0;
-    }
-
-    /** For use by Android framework only.
-
-        @param hasHardwareMipMap  sets state
-    */
-    void setHasHardwareMipMap(bool hasHardwareMipMap) {
-        if (hasHardwareMipMap) {
-            fFlags |= kHasHardwareMipMap_Flag;
-        } else {
-            fFlags &= ~kHasHardwareMipMap_Flag;
-        }
-    }
-#endif
-
     /** Sets dst to alpha described by pixels. Returns false if dst cannot be written to
         or dst pixels cannot be allocated.
 
@@ -1188,13 +1166,6 @@ public:
 private:
     enum Flags {
         kImageIsVolatile_Flag   = 0x02,
-#ifdef SK_BUILD_FOR_ANDROID
-        /* A hint for the renderer responsible for drawing this bitmap
-         * indicating that it should attempt to use mipmaps when this bitmap
-         * is drawn scaled down.
-         */
-        kHasHardwareMipMap_Flag = 0x08,
-#endif
     };
 
     sk_sp<SkPixelRef>   fPixelRef;
