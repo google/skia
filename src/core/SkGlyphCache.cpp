@@ -346,9 +346,9 @@ void SkGlyphCache::AddPoints(const SkPoint* pts, int ptCount, const SkScalar bou
 }
 
 void SkGlyphCache::AddLine(const SkPoint pts[2], SkScalar axis, bool yAxis,
-                     SkGlyph::Intercept* intercept) {
-    SkScalar t = yAxis ? (axis - pts[0].fX) / (pts[1].fX - pts[0].fX)
-            : (axis - pts[0].fY) / (pts[1].fY - pts[0].fY);
+                           SkGlyph::Intercept* intercept) {
+    SkScalar t = yAxis ? sk_ieee_float_divide(axis - pts[0].fX, pts[1].fX - pts[0].fX)
+                       : sk_ieee_float_divide(axis - pts[0].fY, pts[1].fY - pts[0].fY);
     if (0 <= t && t < 1) {   // this handles divide by zero above
         AddInterval(yAxis ? pts[0].fY + t * (pts[1].fY - pts[0].fY)
             : pts[0].fX + t * (pts[1].fX - pts[0].fX), intercept);
