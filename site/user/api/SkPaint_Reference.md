@@ -28,7 +28,8 @@ public:
     };
 
     <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
-    void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel);
+    void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> hintingLevel);
+   void <a href='#SkPaint_setHinting_2'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel);
 
     enum <a href='#SkPaint_Flags'>Flags</a> {
         <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a> = 0x01,
@@ -734,23 +735,48 @@ SkPaint::kNormal_Hinting == paint.getHinting()
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel)
+void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> hintingLevel)
 </pre>
 
-Sets level of glyph outline adjustment.
+Sets level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
 Does not check for valid values of <a href='#SkPaint_setHinting_hintingLevel'>hintingLevel</a>.
-
-| <a href='#SkPaint_Hinting'>Hinting</a> | value | effect on generated glyph outlines |
-| --- | --- | ---  |
-| <a href='#SkPaint_kNo_Hinting'>kNo Hinting</a> | 0 | leaves glyph outlines unchanged from their native representation |
-| <a href='#SkPaint_kSlight_Hinting'>kSlight Hinting</a> | 1 | modifies glyph outlines minimally to improve contrast |
-| <a href='#SkPaint_kNormal_Hinting'>kNormal Hinting</a> | 2 | modifies glyph outlines to improve contrast |
-| <a href='#SkPaint_kFull_Hinting'>kFull Hinting</a> | 3 | modifies glyph outlines for maximum contrast |
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_setHinting_hintingLevel'><code><strong>hintingLevel</strong></code></a></td>
-    <td>one of: <a href='#SkPaint_kNo_Hinting'>kNo Hinting</a>, <a href='#SkPaint_kSlight_Hinting'>kSlight Hinting</a>, <a href='#SkPaint_kNormal_Hinting'>kNormal Hinting</a>, <a href='#SkPaint_kFull_Hinting'>kFull Hinting</a></td>
+    <td>one of: <a href='undocumented#kNo_SkFontHinting'>kNo_SkFontHinting</a>, <a href='undocumented#kSlight_SkFontHinting'>kSlight_SkFontHinting</a>,</td>
+  </tr>
+</table>
+
+<a href='undocumented#kNormal_SkFontHinting'>kNormal_SkFontHinting</a>, <a href='undocumented#kFull_SkFontHinting'>kFull_SkFontHinting</a>
+
+### Example
+
+<div><fiddle-embed name="197268a89c3343f600b9bade61c513ae">
+
+#### Example Output
+
+~~~~
+paint1 == paint2
+~~~~
+
+</fiddle-embed></div>
+
+<a name='SkPaint_setHinting_2'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel)
+</pre>
+
+Sets level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
+Does not check for valid values of <a href='#SkPaint_setHinting_2_hintingLevel'>hintingLevel</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkPaint_setHinting_2_hintingLevel'><code><strong>hintingLevel</strong></code></a></td>
+    <td>one of: <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>, <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a>, <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a>, <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a></td>
   </tr>
 </table>
 
