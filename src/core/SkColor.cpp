@@ -8,6 +8,7 @@
 #include "SkColor.h"
 #include "SkColorData.h"
 #include "SkFixed.h"
+#include "SkHalf.h"
 
 SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPremultiplyARGBInline(a, r, g, b);
@@ -146,4 +147,11 @@ SkPMColor4f SkPMColor4f::FromBytes_RGBA(uint32_t c) {
     SkPMColor4f color;
     Sk4f_fromL32(c).store(&color);
     return color;
+}
+
+template <>
+uint64_t SkPMColor4f::toHalf_RGBA() const {
+    uint64_t rgba;
+    SkFloatToHalf_finite_ftz(Sk4f::Load(this->vec())).store(&rgba);
+    return rgba;
 }

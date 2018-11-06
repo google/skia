@@ -29,7 +29,7 @@ static const int kIndicesPerRect = 6;
 
     The vertex attrib order is always pos, color, [local coords].
  */
-static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps) {
+static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps, bool colorIsNormalized) {
     using namespace GrDefaultGeoProcFactory;
     return GrDefaultGeoProcFactory::Make(shaderCaps,
                                          Color::kPremulGrColorAttribute_Type,
@@ -41,7 +41,8 @@ static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps) {
 static sk_sp<GrGeometryProcessor> make_perspective_gp(const GrShaderCaps* shaderCaps,
                                                       const SkMatrix& viewMatrix,
                                                       bool hasExplicitLocalCoords,
-                                                      const SkMatrix* localMatrix) {
+                                                      const SkMatrix* localMatrix,
+                                                      bool colorIsNormalized) {
     SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
 
     using namespace GrDefaultGeoProcFactory;
@@ -71,7 +72,8 @@ static sk_sp<GrGeometryProcessor> make_perspective_gp(const GrShaderCaps* shader
 
 static void tesselate(intptr_t vertices,
                       size_t vertexStride,
-                      GrColor color,
+                      const SkPMColor4f& color,
+                      bool colorIsNormalized,
                       const SkMatrix* viewMatrix,
                       const SkRect& rect,
                       const GrQuad* localQuad) {
@@ -83,22 +85,33 @@ static void tesselate(intptr_t vertices,
         SkMatrixPriv::MapPointsWithStride(*viewMatrix, positions, vertexStride, kVertsPerRect);
     }
 
+    static const int kColorOffset = sizeof(SkPoint);
+    if (colorIsNormalized) {
+        GrColor byteColor = color.toBytes_RGBA();
+        GrColor* vertColor = reinterpret_cast<GrColor*>(vertices + kColorOffset);
+        for (int j = 0; j < 4; ++j) {
+            *vertColor = byteColor;
+            vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
+        }
+    } else {
+        GrColor4h halfColor = color.toHalf_RGBA();
+        GrColor4h* vertColor = reinterpret_cast<GrColor4h*>(vertices + kColorOffset);
+        for (int j = 0; j < 4; ++j) {
+            *vertColor = halfColor;
+            vertColor = (GrColor4h*)((intptr_t)vertColor + vertexStride);
+        }
+    }
+
     // Setup local coords
     // TODO we should only do this if local coords are being read
     if (localQuad) {
-        static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
+        static const int kLocalOffset = sizeof(SkPoint) + colorIsNormalized ? sizeof(GrColor)
+                                                                            : sizeof(GrColor4h);
         for (int i = 0; i < kVertsPerRect; i++) {
             SkPoint* coords =
                     reinterpret_cast<SkPoint*>(vertices + kLocalOffset + i * vertexStride);
             *coords = localQuad->point(i);
         }
-    }
-
-    static const int kColorOffset = sizeof(SkPoint);
-    GrColor* vertColor = reinterpret_cast<GrColor*>(vertices + kColorOffset);
-    for (int j = 0; j < 4; ++j) {
-        *vertColor = color;
-        vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
     }
 }
 
@@ -146,6 +159,7 @@ public:
             info.fLocalQuad = GrQuad(rect);
         }
         this->setTransformedBounds(fRects[0].fRect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+        fColorIsNormalized = color.isNormalized();
     }
 
     const char* name() const override { return "NonAAFillRectOp"; }
@@ -180,14 +194,15 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(target->caps().shaderCaps());
+        sk_sp<GrGeometryProcessor> gp = make_gp(target->caps().shaderCaps(), fColorIsNormalized);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
 
-        static constexpr size_t kVertexStride =
-                sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr);
+        size_t kVertexStride = fColorIsNormalized
+                ? sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
+                : sizeof(GrDefaultGeoProcFactory::PositionWideColorLocalCoordAttr);
         SkASSERT(kVertexStride == gp->debugOnly_vertexStride());
 
         int rectCount = fRects.count();
@@ -205,8 +220,8 @@ private:
             intptr_t verts =
                     reinterpret_cast<intptr_t>(vertices) + i * kVertsPerRect * kVertexStride;
             // TODO4F: Preserve float colors
-            tesselate(verts, kVertexStride, fRects[i].fColor.toBytes_RGBA(), &fRects[i].fViewMatrix,
-                      fRects[i].fRect, &fRects[i].fLocalQuad);
+            tesselate(verts, kVertexStride, fRects[i].fColor, fColorIsNormalized,
+                      &fRects[i].fViewMatrix, fRects[i].fRect, &fRects[i].fLocalQuad);
         }
         auto pipe = fHelper.makePipeline(target);
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
@@ -218,6 +233,7 @@ private:
             return CombineResult::kCannotCombine;
         }
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
+        fColorIsNormalized = fColorIsNormalized && that->fColorIsNormalized;
         return CombineResult::kMerged;
     }
 
@@ -230,6 +246,7 @@ private:
 
     Helper fHelper;
     SkSTArray<1, RectInfo, true> fRects;
+    bool fColorIsNormalized;
     typedef GrMeshDrawOp INHERITED;
 };
 
@@ -276,6 +293,7 @@ public:
             info.fLocalRect = *localRect;
         }
         this->setTransformedBounds(rect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+        fColorIsNormalized = color.isNormalized();
     }
 
     const char* name() const override { return "NonAAFillRectPerspectiveOp"; }
@@ -313,7 +331,8 @@ private:
                 target->caps().shaderCaps(),
                 fViewMatrix,
                 fHasLocalRect,
-                fHasLocalMatrix ? &fLocalMatrix : nullptr);
+                fHasLocalMatrix ? &fLocalMatrix : nullptr,
+                fColorIsNormalized);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -336,15 +355,15 @@ private:
 
         for (int i = 0; i < rectCount; i++) {
             const RectInfo& info = fRects[i];
-            // TODO4F: Preserve float colors
-            GrColor color = info.fColor.toBytes_RGBA();
             intptr_t verts =
                     reinterpret_cast<intptr_t>(vertices) + i * kVertsPerRect * vertexStride;
             if (fHasLocalRect) {
                 GrQuad quad(info.fLocalRect);
-                tesselate(verts, vertexStride, color, nullptr, info.fRect, &quad);
+                tesselate(verts, vertexStride, info.fColor, fColorIsNormalized, nullptr,
+                          info.fRect, &quad);
             } else {
-                tesselate(verts, vertexStride, color, nullptr, info.fRect, nullptr);
+                tesselate(verts, vertexStride, info.fColor, fColorIsNormalized, nullptr,
+                          info.fRect, nullptr);
             }
         }
         auto pipe = fHelper.makePipeline(target);
@@ -369,6 +388,7 @@ private:
         }
 
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
+        fColorIsNormalized = fColorIsNormalized && that->fColorIsNormalized;
         return CombineResult::kMerged;
     }
 
@@ -382,6 +402,7 @@ private:
     Helper fHelper;
     bool fHasLocalMatrix;
     bool fHasLocalRect;
+    bool fColorIsNormalized;
     SkMatrix fLocalMatrix;
     SkMatrix fViewMatrix;
 

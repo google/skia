@@ -20,6 +20,12 @@
  */
 typedef uint32_t GrColor;
 
+/**
+ * GrColor4h is just four half-floats, in RGBA order. This alias is just to make vertex generation
+ * code easier to read.
+ */
+typedef uint64_t GrColor4h;
+
 // shift amount to assign a component to a GrColor int
 // These shift values are chosen for compatibility with GL attrib arrays
 // ES doesn't allow BGRA vertex attrib order so if they were not in this order
