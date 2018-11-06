@@ -398,8 +398,10 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     desc.fHeight = random->nextRangeU(1, 1000);
     GrSurfaceOrigin origin =
             random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
+    const GrBackendFormat format =
+            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     auto proxy = context->contextPriv().proxyProvider()->createProxy(
-            desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
+            format, desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
 
     do {
         if (random->nextBool()) {

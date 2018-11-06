@@ -36,6 +36,10 @@ public:
                                 fInfo);
     }
 
+    GrBackendFormat backendFormat() const override {
+        return GrBackendFormat::MakeMock(fInfo.fConfig);
+    }
+
     void textureParamsModified() override {}
     void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
         fReleaseHelper = std::move(releaseHelper);
@@ -114,6 +118,10 @@ public:
         return {this->width(), this->height(), this->numColorSamples(), numStencilBits, fInfo};
     }
 
+    GrBackendFormat backendFormat() const override {
+        return GrBackendFormat::MakeMock(fInfo.fConfig);
+    }
+
 protected:
     // constructor for subclasses
     GrMockRenderTarget(GrMockGpu* gpu, const GrSurfaceDesc& desc,
@@ -152,6 +160,10 @@ public:
     GrRenderTarget* asRenderTarget() override { return this; }
     const GrTexture* asTexture() const override { return this; }
     const GrRenderTarget* asRenderTarget() const override { return this; }
+
+    GrBackendFormat backendFormat() const override {
+        return GrMockTexture::backendFormat();
+    }
 
 private:
     void onAbandon() override {
