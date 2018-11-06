@@ -9,6 +9,7 @@
 #define GrMockCaps_DEFINED
 
 #include "GrCaps.h"
+#include "SkGr.h"
 #include "mock/GrMockTypes.h"
 
 class GrMockCaps : public GrCaps {
@@ -125,15 +126,22 @@ public:
         return true;
     }
 
+    GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
+                                                    GrSRGBEncoded srgbEncoded) const override {
+        GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
+        if (config == kUnknown_GrPixelConfig) {
+            return GrBackendFormat();
+        }
+        return GrBackendFormat::MakeMock(config);
+    }
+
 private:
-#ifdef GR_TEST_UTILS
     GrBackendFormat onCreateFormatFromBackendTexture(
             const GrBackendTexture& backendTex) const override {
         GrMockTextureInfo mockInfo;
         SkAssertResult(backendTex.getMockTextureInfo(&mockInfo));
         return GrBackendFormat::MakeMock(mockInfo.fConfig);
     }
-#endif
 
     static const int kMaxSampleCnt = 16;
 
