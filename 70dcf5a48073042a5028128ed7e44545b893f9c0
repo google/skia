@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "757366d3_c6fddf32",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-06T18:14:24Z",
+      "side": 1,
+      "message": "128 bytes, but enough to store all attributes from every op we use outside of one unit test. We could cut this in half by storing pointers to the attributes (which currently still exist in the derived classes).\n\nAlternately, we could just store pointer + count here, and force each GP to put the attributes in its own array (where we know the maximum size needed).",
+      "revId": "70dcf5a48073042a5028128ed7e44545b893f9c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
