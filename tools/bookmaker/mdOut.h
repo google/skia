@@ -47,7 +47,7 @@ private:
 
     void addCodeBlock(const Definition* def, string& str) const;
     void addPopulators();
-    string addIncludeReferences(const char* refStart, const char* refEnd);
+    string addIncludeReferences(const char* refStart, const char* refEnd, Resolvable );
     string addReferences(const char* start, const char* end, Resolvable );
     string anchorDef(string def, string name);
     string anchorLocalRef(string ref, string name);
@@ -57,7 +57,8 @@ private:
     Definition* checkParentsForMatch(Definition* test, string ref) const;
     void childrenOut(Definition* def, const char* contentStart);
     Definition* csParent();
-    bool findLink(string ref, string* link);
+    bool findLink(string ref, string* linkPtr, bool addParens);
+    bool findLink(string ref, string* linkPtr, unordered_map<string, Definition*>& map);
     Definition* findParamType();
     string getMemberTypeName(const Definition* def, string* memberType);
     static bool HasDetails(const Definition* def);

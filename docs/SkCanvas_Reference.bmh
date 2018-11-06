@@ -94,7 +94,7 @@ void draw(SkCanvas* ) {
 void draw(SkCanvas* ) {
     const int width = 3;
     const int height = 3;
-    SkPMColor pixels[height][width];  // allocate a 3x3 Premultiplied bitmap on the stack
+    SkPMColor pixels[height][width];  // allocate a 3 by 3 Premultiplied bitmap on the stack
     // create a SkCanvas backed by a raster device, and delete it when the
     // function goes out of scope.
     std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirectN32(
@@ -446,7 +446,7 @@ void draw(SkCanvas* canvas) {
 #NoExample
 ##
 
-#SeeAlso peekPixels SkSurface::flush() GrContext::flush() SkSurface::prepareForExternalIO GrContext::abandonContext()
+#SeeAlso peekPixels SkSurface::flush GrContext::flush SkSurface::prepareForExternalIO GrContext::abandonContext
 
 ##
 
@@ -3042,7 +3042,7 @@ void draw(SkCanvas* canvas) {
     }
 ##
 
-#SeeAlso DrawRRect drawRect drawDRRect drawPath drawCircle drawOval drawPoint
+#SeeAlso drawRRect drawRect drawDRRect drawPath drawCircle drawOval drawPoint
 
 ##
 
@@ -4015,7 +4015,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Enum QuadAAFlags
-#Line # don't use this ##
+#Line # do not use this ##
 #Code
 #Populate
 ##
@@ -4055,7 +4055,7 @@ Do not use.
 # ------------------------------------------------------------------------------
 
 #Struct ImageSetEntry
-#Line # don't use this ##
+#Line # do not use this ##
 
 #Code
 #Populate
@@ -4095,7 +4095,7 @@ Do not use.
 ##
 #In Draw_Image
 #In Draw
-#Line # draws a set a of images (don't call this) ##
+#Line # draws a set a of images; do not call this ##
 
 Draws a set of images. Do not use this method.
 
@@ -4637,7 +4637,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #ToDo can patch use image filter? ##
-#SeeAlso SeeAlso drawVertices drawPicture
+#SeeAlso drawVertices drawPicture
 
 ##
 
@@ -4694,7 +4694,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #ToDo can patch use image filter? ##
-#SeeAlso SeeAlso drawVertices drawPicture
+#SeeAlso drawVertices drawPicture
 
 ##
 

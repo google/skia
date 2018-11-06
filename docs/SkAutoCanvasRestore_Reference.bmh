@@ -12,7 +12,7 @@ state.
 
 #Method SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
 
-#Line # preserves Canvas save count ##
+#Line # restores Canvas when out of scope ##
 #Populate
 
 #Example
