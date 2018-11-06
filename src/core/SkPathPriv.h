@@ -18,7 +18,7 @@ public:
     static const int kPathRefGenIDBitCnt = 32;
 #endif
 
-    enum FirstDirection {
+    enum FirstDirection : int {
         kCW_FirstDirection,         // == SkPath::kCW_Direction
         kCCW_FirstDirection,        // == SkPath::kCCW_Direction
         kUnknown_FirstDirection,

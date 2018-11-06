@@ -566,9 +566,9 @@ private:
         TriState        fEnabled;
 
         void invalidate() {
-            fEquation = static_cast<GrBlendEquation>(-1);
-            fSrcCoeff = static_cast<GrBlendCoeff>(-1);
-            fDstCoeff = static_cast<GrBlendCoeff>(-1);
+            fEquation = kIllegal_GrBlendEquation;
+            fSrcCoeff = kIllegal_GrBlendCoeff;
+            fDstCoeff = kIllegal_GrBlendCoeff;
             fConstColorValid = false;
             fEnabled = kUnknown_TriState;
         }
