@@ -208,10 +208,17 @@ public:
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
 
-        @param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
+        @param hintingLevel  one of: kNo_SkFontHinting, kSlight_SkFontHinting,
+                                     kNormal_SkFontHinting, kFull_SkFontHinting
     */
     void setHinting(SkFontHinting hintingLevel);
-    void setHinting(Hinting hintingLevel) {
+
+     /** Sets level of glyph outline adjustment.
+        Does not check for valid values of hintingLevel.
+
+        @param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
+    */
+   void setHinting(Hinting hintingLevel) {
         this->setHinting((SkFontHinting)hintingLevel);
     }
 
