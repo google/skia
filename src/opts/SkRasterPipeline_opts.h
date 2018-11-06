@@ -1500,6 +1500,18 @@ STAGE(lerp_565, const SkRasterPipeline_MemoryCtx* ctx) {
     a = lerp(da, a, ca);
 }
 
+STAGE(emboss, const SkRasterPipeline_EmbossCtx* ctx) {
+    auto mptr = ptr_at_xy<const uint8_t>(&ctx->mul, dx,dy),
+         aptr = ptr_at_xy<const uint8_t>(&ctx->add, dx,dy);
+
+    F mul = from_byte(load<U8>(mptr, tail)),
+      add = from_byte(load<U8>(aptr, tail));
+
+    r = mad(r, mul, add);
+    g = mad(g, mul, add);
+    b = mad(b, mul, add);
+}
+
 STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkRasterPipeline_ByteTablesCtx
     struct Tables { const uint8_t *r, *g, *b, *a; };
     auto tables = (const Tables*)ctx;
@@ -3079,6 +3091,16 @@ STAGE_PP(lerp_565, const SkRasterPipeline_MemoryCtx* ctx) {
     b = lerp(db, b, cb);
     a = lerp(da, a, ca);
 }
+
+STAGE_PP(emboss, const SkRasterPipeline_EmbossCtx* ctx) {
+    U16 mul = load_8(ptr_at_xy<const uint8_t>(&ctx->mul, dx,dy), tail),
+        add = load_8(ptr_at_xy<const uint8_t>(&ctx->add, dx,dy), tail);
+
+    r = min(div255(r*mul) + add, a);
+    g = min(div255(g*mul) + add, a);
+    b = min(div255(b*mul) + add, a);
+}
+
 
 // ~~~~~~ Gradient stages ~~~~~~ //
 

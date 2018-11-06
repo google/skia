@@ -101,9 +101,6 @@ public:
 
         virtual void shadeSpan4f(int x, int y, SkPMColor4f[], int count);
 
-        // Notification from blitter::blitMask in case we need to see the non-alpha channels
-        virtual void set3DMask(const SkMask*) {}
-
     protected:
         // Reference to shader, so we don't have to dupe information.
         const SkShaderBase& fShader;
