@@ -37,10 +37,8 @@ enum GrBlendEquation {
     kHSLColor_GrBlendEquation,
     kHSLLuminosity_GrBlendEquation,
 
-    kIllegal_GrBlendEquation,
-
     kFirstAdvancedGrBlendEquation = kScreen_GrBlendEquation,
-    kLast_GrBlendEquation = kIllegal_GrBlendEquation,
+    kLast_GrBlendEquation = kHSLLuminosity_GrBlendEquation
 };
 
 static const int kGrBlendEquationCnt = kLast_GrBlendEquation + 1;
@@ -69,9 +67,7 @@ enum GrBlendCoeff {
     kS2A_GrBlendCoeff,
     kIS2A_GrBlendCoeff,
 
-    kIllegal_GrBlendCoeff,
-
-    kLast_GrBlendCoeff = kIllegal_GrBlendCoeff,
+    kLast_GrBlendCoeff = kIS2A_GrBlendCoeff
 };
 
 static const int kGrBlendCoeffCnt = kLast_GrBlendCoeff + 1;

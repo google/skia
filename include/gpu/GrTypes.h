@@ -227,7 +227,7 @@ enum class GrMipMapped : bool {
  * GPU SkImage and SkSurfaces can be stored such that (0, 0) in texture space may correspond to
  * either the top-left or bottom-left content pixel.
  */
-enum GrSurfaceOrigin : int {
+enum GrSurfaceOrigin {
     kTopLeft_GrSurfaceOrigin,
     kBottomLeft_GrSurfaceOrigin,
 };
