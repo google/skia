@@ -472,16 +472,10 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
+SkScalar SkPaint::getFontMetrics(FontMetrics* metrics) const {
     SkCanonicalizePaint canon(*this);
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
-
-    SkMatrix zoomMatrix, *zoomPtr = nullptr;
-    if (zoom) {
-        zoomMatrix.setScale(zoom, zoom);
-        zoomPtr = &zoomMatrix;
-    }
 
     FontMetrics storage;
     if (nullptr == metrics) {
@@ -492,7 +486,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
     SkScalerContextEffects effects;
 
     auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        paint, nullptr, SkScalerContextFlags::kNone, zoomPtr, &ad, &effects);
+        paint, nullptr, SkScalerContextFlags::kNone, nullptr, &ad, &effects);
 
     {
         auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
@@ -811,16 +805,6 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     // now compute fXOffset if needed
 
     SkScalar xOffset = 0;
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-    if (paint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
-        int      count;
-        SkScalar width = fPaint.measure_text(fCache.get(), text, length, &count, nullptr) * fScale;
-        if (paint.getTextAlign() == SkPaint::kCenter_Align) {
-            width = SkScalarHalf(width);
-        }
-        xOffset = -width;
-    }
-#endif
     fXPos = xOffset;
     fPrevAdvance = 0;
 

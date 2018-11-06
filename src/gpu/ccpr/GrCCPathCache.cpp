@@ -209,17 +209,18 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
     if (HashNode* node = fHashTable.find(*fScratchKey)) {
         entry = node->entry();
         SkASSERT(fLRU.isInList(entry));
-        if (fuzzy_equals(m, entry->fMaskTransform)) {
-            ++entry->fHitCount;  // The path was reused with a compatible matrix.
-        } else if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
-            // This entry is unique: we can recycle it instead of deleting and malloc-ing a new one.
-            entry->fMaskTransform = m;
-            entry->fHitCount = 1;
-            entry->invalidateAtlas();
-            SkASSERT(!entry->fCurrFlushAtlas);  // Should be null because 'entry' is unique.
-        } else {
-            this->evict(*fScratchKey);
-            entry = nullptr;
+        if (!fuzzy_equals(m, entry->fMaskTransform)) {
+            // The path was reused with an incompatible matrix.
+            if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
+                // This entry is unique: recycle it instead of deleting and malloc-ing a new one.
+                entry->fMaskTransform = m;
+                entry->fHitCount = 0;
+                entry->invalidateAtlas();
+                SkASSERT(!entry->fCurrFlushAtlas);  // Should be null because 'entry' is unique.
+            } else {
+                this->evict(*fScratchKey);
+                entry = nullptr;
+            }
         }
     }
 
@@ -248,10 +249,41 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
     SkDEBUGCODE(HashNode* node = fHashTable.find(*fScratchKey));
     SkASSERT(node && node->entry() == entry);
     fLRU.addToHead(entry);
+
+    entry->fTimestamp = this->quickPerFlushTimestamp();
+    ++entry->fHitCount;
     return sk_ref_sp(entry);
 }
 
-void GrCCPathCache::purgeAsNeeded() {
+void GrCCPathCache::doPostFlushProcessing() {
+    this->purgeInvalidatedKeys();
+
+    // Mark the per-flush timestamp as needing to be updated with a newer clock reading.
+    fPerFlushTimestamp = GrStdSteadyClock::time_point::min();
+}
+
+void GrCCPathCache::purgeEntriesOlderThan(const GrStdSteadyClock::time_point& purgeTime) {
+    this->purgeInvalidatedKeys();
+
+#ifdef SK_DEBUG
+    auto lastTimestamp = (fLRU.isEmpty())
+            ? GrStdSteadyClock::time_point::max()
+            : fLRU.tail()->fTimestamp;
+#endif
+
+    // Drop every cache entry whose timestamp is older than purgeTime.
+    while (!fLRU.isEmpty() && fLRU.tail()->fTimestamp < purgeTime) {
+#ifdef SK_DEBUG
+        // Verify that fLRU is sorted by timestamp.
+        auto timestamp = fLRU.tail()->fTimestamp;
+        SkASSERT(timestamp >= lastTimestamp);
+        lastTimestamp = timestamp;
+#endif
+        this->evict(*fLRU.tail()->fCacheKey);
+    }
+}
+
+void GrCCPathCache::purgeInvalidatedKeys() {
     SkTArray<sk_sp<Key>> invalidatedKeys;
     fInvalidatedKeysInbox.poll(&invalidatedKeys);
     for (const sk_sp<Key>& key : invalidatedKeys) {

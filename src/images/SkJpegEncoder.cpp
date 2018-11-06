@@ -68,13 +68,11 @@ private:
 bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder::Options& options)
 {
     auto chooseProc8888 = [&]() {
-        if (kUnpremul_SkAlphaType != srcInfo.alphaType() ||
-            SkJpegEncoder::AlphaOption::kIgnore == options.fAlphaOption)
-        {
-            return (transform_scanline_proc) nullptr;
+        if (kUnpremul_SkAlphaType == srcInfo.alphaType() &&
+                options.fAlphaOption == SkJpegEncoder::AlphaOption::kBlendOnBlack) {
+            return transform_scanline_to_premul_legacy;
         }
-
-        return transform_scanline_to_premul_legacy;
+        return (transform_scanline_proc) nullptr;
     };
 
     J_COLOR_SPACE jpegColorType = JCS_EXT_RGBA;
@@ -110,12 +108,11 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
             numComponents = 1;
             break;
         case kRGBA_F16_SkColorType:
-            if (kUnpremul_SkAlphaType != srcInfo.alphaType() ||
-                SkJpegEncoder::AlphaOption::kIgnore == options.fAlphaOption)
-            {
-                fProc = transform_scanline_F16_to_8888;
-            } else {
+            if (kUnpremul_SkAlphaType == srcInfo.alphaType() &&
+                    options.fAlphaOption == SkJpegEncoder::AlphaOption::kBlendOnBlack) {
                 fProc = transform_scanline_F16_to_premul_8888;
+            } else {
+                fProc = transform_scanline_F16_to_8888;
             }
             jpegColorType = JCS_EXT_RGBA;
             numComponents = 4;
@@ -221,8 +218,10 @@ bool SkJpegEncoder::onEncodeRows(int numRows) {
     for (int i = 0; i < numRows; i++) {
         JSAMPLE* jpegSrcRow = (JSAMPLE*) srcRow;
         if (fEncoderMgr->proc()) {
-            fEncoderMgr->proc()((char*)fStorage.get(), (const char*)srcRow, fSrc.width(),
-                                fEncoderMgr->cinfo()->input_components, nullptr);
+            fEncoderMgr->proc()((char*)fStorage.get(),
+                                (const char*)srcRow,
+                                fSrc.width(),
+                                fEncoderMgr->cinfo()->input_components);
             jpegSrcRow = fStorage.get();
         }
 

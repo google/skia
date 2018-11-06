@@ -309,10 +309,17 @@ void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint
     }
 
     if (fPathCache) {
-        fPathCache->purgeAsNeeded();
+        fPathCache->doPostFlushProcessing();
     }
 
     SkDEBUGCODE(fFlushing = false);
+}
+
+void GrCoverageCountingPathRenderer::purgeCacheEntriesOlderThan(
+        const GrStdSteadyClock::time_point& purgeTime) {
+    if (fPathCache) {
+        fPathCache->purgeEntriesOlderThan(purgeTime);
+    }
 }
 
 void GrCoverageCountingPathRenderer::CropPath(const SkPath& path, const SkIRect& cropbox,

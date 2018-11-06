@@ -79,7 +79,7 @@ public:
      * @param CanClearFullscreen allows partial clears to be converted to fullscreen clears on
      *                           tiling platforms where that is an optimization.
      */
-    void clear(const SkIRect* rect, GrColor color, CanClearFullscreen);
+    void clear(const SkIRect* rect, const SkPMColor4f& color, CanClearFullscreen);
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.
@@ -441,7 +441,7 @@ private:
                              std::unique_ptr<GrFragmentProcessor>,
                              sk_sp<GrTextureProxy>);
 
-    void internalClear(const GrFixedClip&, const GrColor, CanClearFullscreen);
+    void internalClear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
 
     // Only consumes the GrPaint if successful.
     bool drawFilledDRRect(const GrClip& clip,

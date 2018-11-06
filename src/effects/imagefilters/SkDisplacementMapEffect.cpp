@@ -35,12 +35,13 @@ namespace {
 
 #define kChannelSelectorKeyBits 3; // Max value is 4, so 3 bits are required at most
 
+// Shift values to extract channels from an SkColor (SkColorGetR, SkColorGetG, etc)
 const uint8_t gChannelTypeToShift[] = {
      0,  // unknown
-    SK_R32_SHIFT,
-    SK_G32_SHIFT,
-    SK_B32_SHIFT,
-    SK_A32_SHIFT,
+    16,  // R
+     8,  // G
+     0,  // B
+    24,  // A
 };
 struct Extractor {
     Extractor(SkDisplacementMapEffect::ChannelSelectorType typeX,
@@ -51,23 +52,9 @@ struct Extractor {
 
     unsigned fShiftX, fShiftY;
 
-    unsigned getX(SkPMColor c) const { return (c >> fShiftX) & 0xFF; }
-    unsigned getY(SkPMColor c) const { return (c >> fShiftY) & 0xFF; }
+    unsigned getX(SkColor c) const { return (c >> fShiftX) & 0xFF; }
+    unsigned getY(SkColor c) const { return (c >> fShiftY) & 0xFF; }
 };
-
-static SkPMColor unpremul_pm(SkPMColor c) {
-    const U8CPU a = SkGetPackedA32(c);
-    if (0 == a) {
-        return 0;
-    } else if (0xFF == a) {
-        return c;
-    }
-    const unsigned scale = SkUnPreMultiply::GetScale(a);
-    return SkPackARGB32NoCheck(a,
-                               SkUnPreMultiply::ApplyScale(scale, SkGetPackedR32(c)),
-                               SkUnPreMultiply::ApplyScale(scale, SkGetPackedG32(c)),
-                               SkUnPreMultiply::ApplyScale(scale, SkGetPackedB32(c)));
-}
 
 void computeDisplacement(Extractor ex, const SkVector& scale, SkBitmap* dst,
                          const SkBitmap& displ, const SkIPoint& offset,
@@ -83,7 +70,7 @@ void computeDisplacement(Extractor ex, const SkVector& scale, SkBitmap* dst,
     for (int y = bounds.top(); y < bounds.bottom(); ++y) {
         const SkPMColor* displPtr = displ.getAddr32(bounds.left() + offset.fX, y + offset.fY);
         for (int x = bounds.left(); x < bounds.right(); ++x, ++displPtr) {
-            SkPMColor c = unpremul_pm(*displPtr);
+            SkColor c = SkUnPreMultiply::PMColorToColor(*displPtr);
 
             SkScalar displX = scaleForColor.fX * ex.getX(c) + scaleAdj.fX;
             SkScalar displY = scaleForColor.fY * ex.getY(c) + scaleAdj.fY;

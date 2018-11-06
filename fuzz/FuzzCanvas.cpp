@@ -888,12 +888,8 @@ static void fuzz_paint_text(Fuzz* fuzz, SkPaint* paint) {
     paint->setEmbeddedBitmapText(make_fuzz_t<bool>(fuzz));
     paint->setAutohinted(        make_fuzz_t<bool>(fuzz));
     paint->setFakeBoldText(      make_fuzz_t<bool>(fuzz));
-    paint->setDevKernText(       make_fuzz_t<bool>(fuzz));
     paint->setHinting(           make_fuzz_t_range<SkPaint::Hinting>(fuzz, 0,
                                                                      SkPaint::kFull_Hinting));
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-    paint->setTextAlign(         make_fuzz_t_range<SkPaint::Align>(fuzz, 0, 2));
-#endif
 }
 
 static void fuzz_paint_text_encoding(Fuzz* fuzz, SkPaint* paint) {

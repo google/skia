@@ -21,14 +21,17 @@ main.c
 set SRC_CPP=sort.cpp
 
 ::
+:: /DHS_VK_VERBOSE_DISASSEMBLY_AMD ^
 ::
-::
+
+:: SET AMD_OPTS= /DHS_VK_VERBOSE_STATISTICS_AMD /DHS_VK_VERBOSE_DISASSEMBLY_AMD
+SET AMD_OPTS= /DHS_VK_VERBOSE_STATISTICS_AMD 
 
 cl ^
 /Fe:hs_bench_vk ^
 /O2 ^
 /DNDEBUG ^
-/DHS_VK_VERBOSE_AMD ^
+%AMD_OPTS% ^
 /std:c++latest /Zc:__cplusplus /EHs ^
 /I../../.. /I.. /I%VULKAN_SDK%/include ^
 %VULKAN_SDK%/lib/vulkan-1.lib ^

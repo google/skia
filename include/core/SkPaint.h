@@ -22,6 +22,7 @@
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFilterQuality.h"
+#include "SkFontTypes.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
@@ -207,9 +208,19 @@ public:
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
 
+        @param hintingLevel  one of: kNo_SkFontHinting, kSlight_SkFontHinting,
+                                     kNormal_SkFontHinting, kFull_SkFontHinting
+    */
+    void setHinting(SkFontHinting hintingLevel);
+
+     /** Sets level of glyph outline adjustment.
+        Does not check for valid values of hintingLevel.
+
         @param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
     */
-    void setHinting(Hinting hintingLevel);
+   void setHinting(Hinting hintingLevel) {
+        this->setHinting((SkFontHinting)hintingLevel);
+    }
 
     /** \enum SkPaint::Flags
         The bit values stored in Flags.
@@ -414,14 +425,6 @@ public:
         @param fakeBoldText  setting for kFakeBoldText_Flag
     */
     void setFakeBoldText(bool fakeBoldText);
-
-    /** Deprecated.
-    */
-    bool isDevKernText() const { return false; }
-
-    /** Deprecated.
-    */
-    void setDevKernText(bool) { }
 
     /** Returns SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
@@ -846,50 +849,6 @@ public:
     */
     void setLooper(sk_sp<SkDrawLooper> drawLooper);
 
-#ifdef SK_SUPPORT_LEGACY_PAINTALIGNENUM
-    /** \enum SkPaint::Align
-        Align adjusts the text relative to the text position.
-        Align affects glyphs drawn with: SkCanvas::drawText, SkCanvas::drawPosText,
-        SkCanvas::drawPosTextH, SkCanvas::drawTextRSXform, SkCanvas::drawTextBlob,
-        and SkCanvas::drawString;
-        as well as calls that place text glyphs like getTextWidths() and getTextPath().
-
-        The text position is set by the font.
-        Typically, for horizontal text, the position is to the left side of the glyph on the
-        base line.
-
-        Align adjusts the glyph position to center it or move it to abut the position
-        using the metrics returned by the font.
-
-        Align defaults to kLeft_Align.
-    */
-    enum Align {
-        kLeft_Align,   //!< positions glyph by computed font offset
-        kCenter_Align, //!< centers line of glyphs by its width or height
-        kRight_Align,  //!< moves lines of glyphs by its width or height
-    };
-#endif
-
-    /** May be used to verify that align is a legal value.
-    */
-    static constexpr int kAlignCount = 3;
-
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-    /** Returns SkPaint::Align.
-        Returns kLeft_Align if SkPaint::Align has not been set.
-
-        @return  text placement relative to position
-    */
-    Align   getTextAlign() const { return (Align)fBitfields.fTextAlign; }
-
-    /** Sets SkPaint::Align to align.
-        Has no effect if align is an invalid value.
-
-        @param align  text placement relative to position
-    */
-    void    setTextAlign(Align align);
-#endif
-
     /** Returns text size in points.
 
         @return  typographic height of text
@@ -1091,14 +1050,11 @@ public:
         Results are scaled by text size but does not take into account
         dimensions required by text scale x, text skew x, fake bold,
         style stroke, and SkPathEffect.
-        Results can be additionally scaled by scale; a scale of zero
-        is ignored.
 
         @param metrics  storage for SkPaint::FontMetrics from SkTypeface; may be nullptr
-        @param scale    additional multiplier for returned values
         @return         recommended spacing between lines
     */
-    SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const;
+    SkScalar getFontMetrics(FontMetrics* metrics) const;
 
     /** Returns the recommended spacing between lines: the sum of metrics
         descent, ascent, and leading.
@@ -1108,7 +1064,7 @@ public:
 
         @return  recommended spacing between lines
     */
-    SkScalar getFontSpacing() const { return this->getFontMetrics(nullptr, 0); }
+    SkScalar getFontSpacing() const { return this->getFontMetrics(nullptr); }
 
     /** Converts text into glyph indices.
         Returns the number of glyph indices represented by text.
@@ -1239,7 +1195,7 @@ public:
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         All of the glyph paths are stored in path.
-        Uses x, y, and SkPaint::Align to position path.
+        Uses x, y, to position path.
 
         @param text    character codes or glyph indices
         @param length  number of bytes of text
@@ -1254,7 +1210,7 @@ public:
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         All of the glyph paths are stored in path.
-        Uses pos array and SkPaint::Align to position path.
+        Uses pos array to position path.
         pos contains a position for each glyph.
 
         @param text    character codes or glyph indices
@@ -1271,7 +1227,7 @@ public:
         the string.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        Uses x, y, and SkPaint::Align to position intervals.
+        Uses x, y to position intervals.
 
         Pass nullptr for intervals to determine the size of the interval array.
 
@@ -1294,7 +1250,7 @@ public:
         the string.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        Uses pos array and SkPaint::Align to position intervals.
+        Uses pos array to position intervals.
 
         Pass nullptr for intervals to determine the size of the interval array.
 
@@ -1316,7 +1272,7 @@ public:
         the string.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        Uses xpos array, constY, and SkPaint::Align to position intervals.
+        Uses xpos array, constY to position intervals.
 
         Pass nullptr for intervals to determine the size of the interval array.
 
@@ -1339,7 +1295,7 @@ public:
         the string.
         Uses SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        Uses run array and SkPaint::Align to position intervals.
+        Uses run array to position intervals.
 
         SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
 
@@ -1478,14 +1434,13 @@ private:
         struct {
             // all of these bitfields should add up to 32
             unsigned        fFlags : 16;
-            unsigned        fTextAlign : 2;
             unsigned        fCapType : 2;
             unsigned        fJoinType : 2;
             unsigned        fStyle : 2;
             unsigned        fTextEncoding : 2;  // 3 values
             unsigned        fHinting : 2;
             unsigned        fFilterQuality : 2;
-            //unsigned      fFreeBits : 2;
+            //unsigned      fFreeBits : 4;
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };

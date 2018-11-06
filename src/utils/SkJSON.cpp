@@ -8,8 +8,10 @@
 #include "SkJSON.h"
 
 #include "SkMalloc.h"
+#include "SkParse.h"
 #include "SkStream.h"
 #include "SkString.h"
+#include "SkUTF.h"
 
 #include <cmath>
 #include <tuple>
@@ -226,7 +228,7 @@ namespace {
 
 // bit 0 (0x01) - plain ASCII string character
 // bit 1 (0x02) - whitespace
-// bit 2 (0x04) - string terminator (" \0 [control chars] **AND } ]** <- see matchString notes)
+// bit 2 (0x04) - string terminator (" \\ \0 [control chars] **AND } ]** <- see matchString notes)
 // bit 3 (0x08) - 0-9
 // bit 4 (0x10) - 0-9 e E .
 // bit 5 (0x20) - scope terminator (} ])
@@ -237,7 +239,7 @@ static constexpr uint8_t g_token_flags[256] = {
     3,   1,   4,   1,   1,   1,   1,   1,     1,   1,   1,   1,   1,   1,   0x11,1, // 2
  0x19,0x19,0x19,0x19,0x19,0x19,0x19,0x19,  0x19,0x19,   1,   1,   1,   1,   1,   1, // 3
     1,   1,   1,   1,   1,   0x11,1,   1,     1,   1,   1,   1,   1,   1,   1,   1, // 4
-    1,   1,   1,   1,   1,   1,   1,   1,     1,   1,   1,   1,   0,0x25,   1,   1, // 5
+    1,   1,   1,   1,   1,   1,   1,   1,     1,   1,   1,   1,   4,0x25,   1,   1, // 5
     1,   1,   1,   1,   1,   0x11,1,   1,     1,   1,   1,   1,   1,   1,   1,   1, // 6
     1,   1,   1,   1,   1,   1,   1,   1,     1,   1,   1,   1,   1,0x25,   1,   1, // 7
 
@@ -286,6 +288,7 @@ public:
     explicit DOMParser(SkArenaAlloc& alloc)
         : fAlloc(alloc) {
         fValueStack.reserve(kValueStackReserve);
+        fUnescapeBuffer.reserve(kUnescapeBufferReserve);
     }
 
     const Value parse(const char* p, size_t size) {
@@ -460,6 +463,10 @@ private:
     static constexpr size_t kValueStackReserve = 256;
     std::vector<Value>    fValueStack;
 
+    // String unescape buffer.
+    static constexpr size_t kUnescapeBufferReserve = 512;
+    std::vector<char>     fUnescapeBuffer;
+
     // Tracks the current object/array scope, as an index into fStack:
     //
     //   - for objects: fScopeIndex =  (index of first value in scope)
@@ -626,28 +633,98 @@ private:
         return this->error(nullptr, p, "invalid token");
     }
 
+    const std::vector<char>* unescapeString(const char* begin, const char* end) {
+        fUnescapeBuffer.clear();
+
+        for (const auto* p = begin; p != end; ++p) {
+            if (*p != '\\') {
+                fUnescapeBuffer.push_back(*p);
+                continue;
+            }
+
+            if (++p == end) {
+                return nullptr;
+            }
+
+            switch (*p) {
+            case  '"': fUnescapeBuffer.push_back( '"'); break;
+            case '\\': fUnescapeBuffer.push_back('\\'); break;
+            case  '/': fUnescapeBuffer.push_back( '/'); break;
+            case  'b': fUnescapeBuffer.push_back('\b'); break;
+            case  'f': fUnescapeBuffer.push_back('\f'); break;
+            case  'n': fUnescapeBuffer.push_back('\n'); break;
+            case  'r': fUnescapeBuffer.push_back('\r'); break;
+            case  't': fUnescapeBuffer.push_back('\t'); break;
+            case  'u': {
+                if (p + 4 >= end) {
+                    return nullptr;
+                }
+
+                uint32_t hexed;
+                const char hex_str[] = {p[1], p[2], p[3], p[4], '\0'};
+                const auto* eos = SkParse::FindHex(hex_str, &hexed);
+                if (!eos || *eos) {
+                    return nullptr;
+                }
+
+                char utf8[SkUTF::kMaxBytesInUTF8Sequence];
+                const auto utf8_len = SkUTF::ToUTF8(SkTo<SkUnichar>(hexed), utf8);
+                fUnescapeBuffer.insert(fUnescapeBuffer.end(), utf8, utf8 + utf8_len);
+                p += 4;
+            } break;
+            default: return nullptr;
+            }
+        }
+
+        return &fUnescapeBuffer;
+    }
+
     template <typename MatchFunc>
     const char* matchString(const char* p, const char* p_stop, MatchFunc&& func) {
         SkASSERT(*p == '"');
         const auto* s_begin = p + 1;
-
-        // TODO: unescape
+        bool requires_unescape = false;
 
         do {
             // Consume string chars.
+            // This is the fast path, and hopefully we only hit it once then quick-exit below.
             for (p = p + 1; !is_eostring(*p); ++p);
 
             if (*p == '"') {
                 // Valid string found.
-                func(s_begin, p - s_begin, p_stop);
+                if (!requires_unescape) {
+                    func(s_begin, p - s_begin, p_stop);
+                } else {
+                    // Slow unescape.  We could avoid this extra copy with some effort,
+                    // but in practice escaped strings should be rare.
+                    const auto* buf = this->unescapeString(s_begin, p);
+                    if (!buf) {
+                        break;
+                    }
+
+                    SkASSERT(!buf->empty());
+                    func(buf->data(), buf->size(), buf->data() + buf->size() - 1);
+                }
                 return p + 1;
+            }
+
+            if (*p == '\\') {
+                requires_unescape = true;
+                ++p;
+                continue;
             }
 
             // End-of-scope chars are special: we use them to tag the end of the input.
             // Thus they cannot be consumed indiscriminately -- we need to check if we hit the
             // end of the input.  To that effect, we treat them as string terminators above,
             // then we catch them here.
-        } while (is_eoscope(*p) && (p != p_stop)); // Safe scope terminator char, keep going.
+            if (is_eoscope(*p)) {
+                continue;
+            }
+
+            // Invalid/unexpected char.
+            break;
+        } while (p != p_stop);
 
         // Premature end-of-input, or illegal string char.
         return this->error(nullptr, s_begin - 1, "invalid string");

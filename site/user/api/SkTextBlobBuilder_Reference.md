@@ -195,7 +195,7 @@ Returns run with storage for <a href='undocumented#Glyph'>Glyphs</a>. Caller mus
 <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.utf8text, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.clusters should be ignored.
 
 <a href='undocumented#Glyph'>Glyphs</a> share <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> in <a href='#SkTextBlobBuilder_allocRun_font'>font</a>, including: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
-<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
@@ -252,7 +252,7 @@ Returns run with storage for <a href='undocumented#Glyph'>Glyphs</a>. Caller mus
 <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.utf8text, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.clusters should be ignored.
 
 <a href='undocumented#Glyph'>Glyphs</a> share <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> in <a href='#SkTextBlobBuilder_allocRun_2_font'>font</a>, including: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
-<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
@@ -310,7 +310,7 @@ before next call to FontBlobBuilder.
 <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.utf8text, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.clusters should be ignored.
 
 <a href='undocumented#Glyph'>Glyphs</a> share <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> in <a href='#SkTextBlobBuilder_allocRunPosH_font'>font</a>, including: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
-<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
@@ -365,7 +365,7 @@ before next call to FontBlobBuilder.
 <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.utf8text, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.clusters should be ignored.
 
 <a href='undocumented#Glyph'>Glyphs</a> share <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> in <a href='#SkTextBlobBuilder_allocRunPosH_2_font'>font</a>, including: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
-<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
@@ -419,7 +419,7 @@ before next call to FontBlobBuilder.
 <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.utf8text, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.clusters should be ignored.
 
 <a href='undocumented#Glyph'>Glyphs</a> share <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> in <a href='#SkTextBlobBuilder_allocRunPos_font'>font</a>, including: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
-<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
@@ -470,7 +470,7 @@ before next call to FontBlobBuilder.
 <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.utf8text, and <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>.clusters should be ignored.
 
 <a href='undocumented#Glyph'>Glyphs</a> share <a href='SkPaint_Reference#Font_Metrics'>Paint Font Metrics</a> in <a href='#SkTextBlobBuilder_allocRunPos_2_font'>font</a>, including: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
-<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 

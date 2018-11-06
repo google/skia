@@ -17,7 +17,6 @@
 #include "SkPixelRef.h"
 #include "SkSurface.h"
 #include "SkTLazy.h"
-#include "SkUnPreMultiplyPriv.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"

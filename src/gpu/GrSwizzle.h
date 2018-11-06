@@ -9,8 +9,7 @@
 #define GrSwizzle_DEFINED
 
 #include "GrColor.h"
-#include "SkPM4f.h"
-#include "SkRandom.h"
+#include "SkColorData.h"
 
 /** Represents a rgba swizzle. It can be converted either into a string or a eight bit int.
     Currently there is no way to specify an arbitrary swizzle, just some static swizzles and an
@@ -55,25 +54,6 @@ public:
     char operator[](int i) const {
         SkASSERT(i >= 0 && i < 4);
         return fSwiz[i];
-    }
-
-    /** Applies this swizzle to the input color and returns the swizzled color. */
-    GrColor applyTo(GrColor color) const {
-        int idx;
-        uint32_t key = fKey;
-        // Index of the input color that should be mapped to output r.
-        idx = (key & 3);
-        uint32_t outR = (color >> idx * 8)  & 0xFF;
-        key >>= 2;
-        idx = (key & 3);
-        uint32_t outG = (color >> idx * 8)  & 0xFF;
-        key >>= 2;
-        idx = (key & 3);
-        uint32_t outB = (color >> idx * 8)  & 0xFF;
-        key >>= 2;
-        idx = (key & 3);
-        uint32_t outA = (color >> idx * 8)  & 0xFF;
-        return GrColorPackRGBA(outR, outG, outB, outA);
     }
 
     /** Applies this swizzle to the input color and returns the swizzled color. */
