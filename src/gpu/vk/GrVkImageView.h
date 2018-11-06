@@ -38,7 +38,7 @@ private:
     GrVkImageView(const GrVkImageView&);
     GrVkImageView& operator=(const GrVkImageView&);
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
 
     VkImageView  fImageView;
 

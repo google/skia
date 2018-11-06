@@ -37,7 +37,7 @@ public:
 private:
     GrVkSampler(VkSampler sampler, uint16_t key) : INHERITED(), fSampler(sampler), fKey(key) {}
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
 
     VkSampler  fSampler;
     uint16_t   fKey;
