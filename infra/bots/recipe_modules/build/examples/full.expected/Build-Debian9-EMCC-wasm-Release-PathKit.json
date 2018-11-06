@@ -23,7 +23,7 @@
       "[START_DIR]/cache/work:/SRC",
       "-v",
       "[START_DIR]/cache/docker/pathkit:/OUT",
-      "gcr.io/skia-public/emsdk-release:1.38.6_jre",
+      "gcr.io/skia-public/emsdk-release:1.38.16_v1",
       "/SRC/skia/infra/pathkit/build_pathkit.sh"
     ],
     "env": {

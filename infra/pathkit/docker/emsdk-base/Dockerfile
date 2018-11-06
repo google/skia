@@ -13,13 +13,16 @@ RUN cd /opt \
 
 WORKDIR /opt/emsdk
 
-# These versions were available and worked on my local desktop as of Aug 2 2018.
-RUN ./emsdk install emscripten-1.38.6 node-8.9.1-64bit clang-e1.38.6-64bit
+RUN ./emsdk update-tags
 
-RUN ./emsdk activate emscripten-1.38.6 node-8.9.1-64bit clang-e1.38.6-64bit
+# These versions were available and worked on my local desktop as of Nov 6 2018.
+RUN ./emsdk install emscripten-1.38.16 node-8.9.1-64bit clang-e1.38.16-64bit
+
+RUN ./emsdk activate emscripten-1.38.16 node-8.9.1-64bit clang-e1.38.16-64bit
 
 RUN /bin/bash -c "source ./emsdk_env.sh"
 
 ENV EMSDK=/opt/emsdk
 
 RUN mkdir -p /OUT /SRC
+
