@@ -10,7 +10,7 @@
 
 #include <cmath>
 
-#include "SkGlyphRun.h"
+#include "SkGlyphRunPainter.h"
 #include "SkIPoint16.h"
 #include "SkSize.h"
 #include "SkTDArray.h"

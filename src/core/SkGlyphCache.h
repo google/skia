@@ -10,7 +10,7 @@
 #include "SkArenaAlloc.h"
 #include "SkDescriptor.h"
 #include "SkGlyph.h"
-#include "SkGlyphRun.h"
+#include "SkGlyphRunPainter.h"
 #include "SkPaint.h"
 #include "SkTHash.h"
 #include "SkScalerContext.h"

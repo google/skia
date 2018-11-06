@@ -10,7 +10,6 @@
 
 #include "GrProcessor.h"
 #include "GrProxyRef.h"
-#include "SkPM4f.h"
 
 class GrCoordTransform;
 class GrGLSLFragmentProcessor;

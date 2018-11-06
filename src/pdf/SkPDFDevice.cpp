@@ -1044,21 +1044,16 @@ void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset)
     path.offset(offset.x(), offset.y());
     this->drawPath(path, paint, true);
 
-    SkGlyphRun tmp(glyphRun);
-    {
-        SkPaint transparent;
-        transparent.setTypeface(paint.getTypeface() ? paint.refTypeface()
-                                                    : SkTypeface::MakeDefault());
-        transparent.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        transparent.setColor(SK_ColorTRANSPARENT);
-        transparent.setTextSize(paint.getTextSize());
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-        transparent.setTextAlign(paint.getTextAlign());
-#endif
-        transparent.setTextScaleX(paint.getTextScaleX());
-        transparent.setTextSkewX(paint.getTextSkewX());
-        *tmp.mutablePaint() = std::move(transparent);
-    }
+    SkPaint transparent;
+    transparent.setTypeface(paint.getTypeface() ? paint.refTypeface()
+                                                : SkTypeface::MakeDefault());
+    transparent.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    transparent.setColor(SK_ColorTRANSPARENT);
+    transparent.setTextSize(paint.getTextSize());
+    transparent.setTextScaleX(paint.getTextScaleX());
+    transparent.setTextSkewX(paint.getTextSkewX());
+    SkGlyphRun tmp(glyphRun, transparent);
+
     if (this->ctm().hasPerspective()) {
         SkMatrix prevCTM = this->ctm();
         this->setCTM(SkMatrix::I());

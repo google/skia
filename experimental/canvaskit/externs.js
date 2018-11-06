@@ -29,8 +29,12 @@ var CanvasKit = {
 	LTRBRect: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
+	MakeImageShader: function() {},
+	MakeLinearGradientShader: function() {},
+	MakeRadialGradientShader: function() {},
 	MakeNimaActor: function() {},
 	MakeSkDashPathEffect: function() {},
+	MakeSkVertices: function() {},
 	MakeSurface: function() {},
 	currentContext: function() {},
 	getSkDataBytes: function() {},
@@ -39,8 +43,12 @@ var CanvasKit = {
 
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)
+	_MakeImageShader: function() {},
+	_MakeLinearGradientShader: function() {},
 	_MakeNimaActor: function() {},
+	_MakeRadialGradientShader: function() {},
 	_MakeSkDashPathEffect: function() {},
+	_MakeSkVertices: function() {},
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
 
@@ -89,13 +97,16 @@ var CanvasKit = {
 		_close: function() {},
 		_conicTo: function() {},
 		_cubicTo: function() {},
+		_dash: function() {},
 		_lineTo: function() {},
 		_moveTo: function() {},
 		_op: function() {},
 		_quadTo: function() {},
 		_rect: function() {},
 		_simplify: function() {},
+		_stroke: function() {},
 		_transform: function() {},
+		_trim: function() {},
 		delete: function() {},
 	},
 
@@ -137,6 +148,16 @@ var CanvasKit = {
 		delete: function() {},
 	},
 
+	SkVertices: {
+		// public API (from C++ bindings)
+		/** @return {CanvasKit.SkVertices} */
+		applyBones: function() {},
+
+		// private API
+		/** @return {CanvasKit.SkVertices} */
+		_applyBones: function() {},
+	},
+
 	// Constants and Enums
 	gpu: {},
 	skottie: {},
@@ -162,11 +183,19 @@ var CanvasKit = {
 	/**
 	 * @type {Float32Array}
 	 */
-	HEAPF32: {}, // only needed for TypedArray mallocs
+	HEAPF32: {},
 	/**
 	 * @type {Uint8Array}
 	 */
 	HEAPU8: {},
+	/**
+	 * @type {Uint16Array}
+	 */
+	HEAPU16: {},
+	/**
+	 * @type {Int32Array}
+	 */
+	HEAP32: {},
 
 	_malloc: function() {},
 	_free: function() {},
@@ -181,16 +210,28 @@ CanvasKit.SkPath.prototype.arcTo = function() {};
 CanvasKit.SkPath.prototype.close = function() {};
 CanvasKit.SkPath.prototype.conicTo = function() {};
 CanvasKit.SkPath.prototype.cubicTo = function() {};
+CanvasKit.SkPath.prototype.dash = function() {};
 CanvasKit.SkPath.prototype.lineTo = function() {};
 CanvasKit.SkPath.prototype.moveTo = function() {};
 CanvasKit.SkPath.prototype.op = function() {};
 CanvasKit.SkPath.prototype.quadTo = function() {};
 CanvasKit.SkPath.prototype.rect = function() {};
 CanvasKit.SkPath.prototype.simplify = function() {};
+CanvasKit.SkPath.prototype.stroke = function() {};
 CanvasKit.SkPath.prototype.transform = function() {};
+CanvasKit.SkPath.prototype.trim = function() {};
 
 CanvasKit.SkSurface.prototype.flush = function() {};
 CanvasKit.SkSurface.prototype.dispose = function() {};
+
+CanvasKit.SkVertices.prototype.applyBones = function() {};
+
+// Define StrokeOpts object
+var StrokeOpts = {};
+StrokeOpts.prototype.width;
+StrokeOpts.prototype.miter_limit;
+StrokeOpts.prototype.cap;
+StrokeOpts.prototype.join;
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
 function loadWebAssemblyModule() {}

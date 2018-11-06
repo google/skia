@@ -8,12 +8,10 @@
 #ifndef GrProcessorAnalysis_DEFINED
 #define GrProcessorAnalysis_DEFINED
 
-#include "GrColor.h"
-#include "SkPM4f.h"
+#include "SkColorData.h"
 
 class GrDrawOp;
 class GrFragmentProcessor;
-class GrPrimitiveProcessor;
 
 class GrProcessorAnalysisColor {
 public:
@@ -42,16 +40,6 @@ public:
     void setToUnknownOpaque() { fFlags = kIsOpaque_Flag; }
 
     bool isOpaque() const { return SkToBool(kIsOpaque_Flag & fFlags); }
-
-    bool isConstant(GrColor* color) const {
-        if (kColorIsKnown_Flag & fFlags) {
-            if (color) {
-                *color = fColor.toBytes_RGBA();
-            }
-            return true;
-        }
-        return false;
-    }
 
     bool isConstant(SkPMColor4f* color = nullptr) const {
         if (kColorIsKnown_Flag & fFlags) {

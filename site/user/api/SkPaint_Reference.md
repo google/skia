@@ -28,7 +28,8 @@ public:
     };
 
     <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
-    void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel);
+    void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> hintingLevel);
+   void <a href='#SkPaint_setHinting_2'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel);
 
     enum <a href='#SkPaint_Flags'>Flags</a> {
         <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a> = 0x01,
@@ -65,8 +66,6 @@ public:
     void <a href='#SkPaint_setAutohinted'>setAutohinted</a>(bool useAutohinter);
     bool <a href='#SkPaint_isFakeBoldText'>isFakeBoldText</a>() const;
     void <a href='#SkPaint_setFakeBoldText'>setFakeBoldText</a>(bool fakeBoldText);
-    bool <a href='#SkPaint_isDevKernText'>isDevKernText</a>() const;
-    void <a href='#SkPaint_setDevKernText'>setDevKernText</a>(bool);
     <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> <a href='#SkPaint_getFilterQuality'>getFilterQuality</a>() const;
     void <a href='#SkPaint_setFilterQuality'>setFilterQuality</a>(<a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality);
 
@@ -145,17 +144,6 @@ public:
     <a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='#SkPaint_getLooper'>getLooper</a>() const;
     void <a href='#SkPaint_setDrawLooper'>setDrawLooper</a>(sk_sp<<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> drawLooper);
     void <a href='#SkPaint_setLooper'>setLooper</a>(sk_sp<<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> drawLooper);
-
-    enum <a href='#SkPaint_Align'>Align</a> {
-        <a href='#SkPaint_kLeft_Align'>kLeft_Align</a>,
-        <a href='#SkPaint_kCenter_Align'>kCenter_Align</a>,
-        <a href='#SkPaint_kRight_Align'>kRight_Align</a>,
-    };
-
-    static constexpr int <a href='#SkPaint_kAlignCount'>kAlignCount</a> = 3;
-
-    <a href='#SkPaint_Align'>Align</a> <a href='#SkPaint_getTextAlign'>getTextAlign</a>() const;
-    void <a href='#SkPaint_setTextAlign'>setTextAlign</a>(<a href='#SkPaint_Align'>Align</a> align);
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSize'>getTextSize</a>() const;
     void <a href='#SkPaint_setTextSize'>setTextSize</a>(<a href='undocumented#SkScalar'>SkScalar</a> textSize);
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextScaleX'>getTextScaleX</a>() const;
@@ -204,7 +192,7 @@ public:
         bool <a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const;
     };
 
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics, <a href='undocumented#SkScalar'>SkScalar</a> scale = 0) const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics) const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>() const;
     int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* text, size_t byteLength,
                      <a href='undocumented#SkGlyphID'>SkGlyphID</a> glyphs[]) const;
@@ -747,23 +735,48 @@ SkPaint::kNormal_Hinting == paint.getHinting()
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel)
+void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> hintingLevel)
 </pre>
 
-Sets level of glyph outline adjustment.
+Sets level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
 Does not check for valid values of <a href='#SkPaint_setHinting_hintingLevel'>hintingLevel</a>.
-
-| <a href='#SkPaint_Hinting'>Hinting</a> | value | effect on generated glyph outlines |
-| --- | --- | ---  |
-| <a href='#SkPaint_kNo_Hinting'>kNo Hinting</a> | 0 | leaves glyph outlines unchanged from their native representation |
-| <a href='#SkPaint_kSlight_Hinting'>kSlight Hinting</a> | 1 | modifies glyph outlines minimally to improve contrast |
-| <a href='#SkPaint_kNormal_Hinting'>kNormal Hinting</a> | 2 | modifies glyph outlines to improve contrast |
-| <a href='#SkPaint_kFull_Hinting'>kFull Hinting</a> | 3 | modifies glyph outlines for maximum contrast |
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_setHinting_hintingLevel'><code><strong>hintingLevel</strong></code></a></td>
-    <td>one of: <a href='#SkPaint_kNo_Hinting'>kNo Hinting</a>, <a href='#SkPaint_kSlight_Hinting'>kSlight Hinting</a>, <a href='#SkPaint_kNormal_Hinting'>kNormal Hinting</a>, <a href='#SkPaint_kFull_Hinting'>kFull Hinting</a></td>
+    <td>one of: <a href='undocumented#kNo_SkFontHinting'>kNo_SkFontHinting</a>, <a href='undocumented#kSlight_SkFontHinting'>kSlight_SkFontHinting</a>,</td>
+  </tr>
+</table>
+
+<a href='undocumented#kNormal_SkFontHinting'>kNormal_SkFontHinting</a>, <a href='undocumented#kFull_SkFontHinting'>kFull_SkFontHinting</a>
+
+### Example
+
+<div><fiddle-embed name="197268a89c3343f600b9bade61c513ae">
+
+#### Example Output
+
+~~~~
+paint1 == paint2
+~~~~
+
+</fiddle-embed></div>
+
+<a name='SkPaint_setHinting_2'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel)
+</pre>
+
+Sets level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
+Does not check for valid values of <a href='#SkPaint_setHinting_2_hintingLevel'>hintingLevel</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkPaint_setHinting_2_hintingLevel'><code><strong>hintingLevel</strong></code></a></td>
+    <td>one of: <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>, <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a>, <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a>, <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a></td>
   </tr>
 </table>
 
@@ -1658,26 +1671,6 @@ FreeType as their <a href='undocumented#Engine'>Font Engine</a>.
 
 <a href='#Full_Hinting_Spacing'>Full Hinting Spacing</a> is not related to text kerning, where the space between
 a specific pair of characters is adjusted using data in the font kerning tables.
-
-<a name='SkPaint_isDevKernText'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isDevKernText'>isDevKernText</a>() const
-</pre>
-
-Deprecated.
-
-<a name='SkPaint_setDevKernText'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setDevKernText'>setDevKernText</a>(bool)
-</pre>
-
-Deprecated.
 
 <a name='Filter_Quality_Methods'></a>
 
@@ -3633,90 +3626,6 @@ void <a href='#SkPaint_setLooper'>setLooper</a>(<a href='undocumented#sk_sp'>sk 
 
 Deprecated.
 
-<a name='Text_Align'></a>
-
-<a name='SkPaint_Align'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkPaint_Align'>Align</a> {
-        <a href='#SkPaint_kLeft_Align'>kLeft_Align</a>,
-        <a href='#SkPaint_kCenter_Align'>kCenter_Align</a>,
-        <a href='#SkPaint_kRight_Align'>kRight_Align</a>,
-    };
-</pre>
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kLeft_Align'><code>SkPaint::kLeft_Align</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
-
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kCenter_Align'><code>SkPaint::kCenter_Align</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
-
-</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kRight_Align'><code>SkPaint::kRight_Align</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
-
-</td>
-  </tr>
-</table>
-
-Deprecated.
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kAlignCount'><code>SkPaint::kAlignCount</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
-
-</td>
-  </tr>
-</table>
-
-<a name='SkPaint_getTextAlign'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPaint_Align'>Align</a> <a href='#SkPaint_getTextAlign'>getTextAlign</a>() const
-</pre>
-
-Deprecated.
-
-<a name='SkPaint_setTextAlign'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void    <a href='#SkPaint_setTextAlign'>setTextAlign</a>(<a href='#SkPaint_Align'>Align</a> align)
-</pre>
-
-Deprecated.
-
 <a name='Text_Size'></a>
 
 ---
@@ -4365,7 +4274,7 @@ true if <a href='undocumented#Font'>font</a> specifies strikeout <a href='#SkPai
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics, <a href='undocumented#SkScalar'>SkScalar</a> scale = 0) const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics) const
 </pre>
 
 Returns <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> associated with <a href='undocumented#SkTypeface'>SkTypeface</a>.
@@ -4375,16 +4284,11 @@ If <a href='#SkPaint_getFontMetrics_metrics'>metrics</a> is not nullptr, <a href
 Results are scaled by  <a href='#Text_Size'>text size</a> but does not take into account
 dimensions required by   <a href='#Text_Scale_X'>text scale x</a>,   <a href='#Text_Skew_X'>text skew x</a>,  <a href='#Fake_Bold'>fake bold</a>,
 <a href='#Style_Stroke'>style stroke</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
-Results can be additionally scaled by <a href='#SkPaint_getFontMetrics_scale'>scale</a>; a <a href='#SkPaint_getFontMetrics_scale'>scale</a> of zero
-is ignored.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_getFontMetrics_metrics'><code><strong>metrics</strong></code></a></td>
     <td>storage for <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> from <a href='undocumented#SkTypeface'>SkTypeface</a>; may be nullptr</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getFontMetrics_scale'><code><strong>scale</strong></code></a></td>
-    <td>additional multiplier for returned values</td>
   </tr>
 </table>
 
@@ -4394,7 +4298,7 @@ recommended spacing between <a href='undocumented#Line'>lines</a>
 
 ### Example
 
-<div><fiddle-embed name="b899d84caba6607340322d317992d070"></fiddle-embed></div>
+<div><fiddle-embed name="59d9b8249afa1c2af6186711250ce240"></fiddle-embed></div>
 
 ### See Also
 
@@ -4826,7 +4730,7 @@ Returns the geometry as <a href='SkPath_Reference#SkPath'>SkPath</a> equivalent 
 Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getTextPath_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
 All of the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a> are stored in <a href='#SkPaint_getTextPath_path'>path</a>.
-Uses <a href='#SkPaint_getTextPath_x'>x</a>, <a href='#SkPaint_getTextPath_y'>y</a>, and <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Align'>Align</a> to position <a href='#SkPaint_getTextPath_path'>path</a>.
+Uses <a href='#SkPaint_getTextPath_x'>x</a>, <a href='#SkPaint_getTextPath_y'>y</a>, to position <a href='#SkPaint_getTextPath_path'>path</a>.
 
 ### Parameters
 
@@ -4865,7 +4769,7 @@ Returns the geometry as <a href='SkPath_Reference#SkPath'>SkPath</a> equivalent 
 Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getPosTextPath_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
 All of the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a> are stored in <a href='#SkPaint_getPosTextPath_path'>path</a>.
-Uses <a href='#SkPaint_getPosTextPath_pos'>pos</a> array and <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Align'>Align</a> to position <a href='#SkPaint_getPosTextPath_path'>path</a>.
+Uses <a href='#SkPaint_getPosTextPath_pos'>pos</a> array to position <a href='#SkPaint_getPosTextPath_path'>path</a>.
 <a href='#SkPaint_getPosTextPath_pos'>pos</a> contains a position for each <a href='undocumented#Glyph'>glyph</a>.
 
 ### Parameters
@@ -4910,7 +4814,7 @@ The return count is zero or a multiple of two, and is at most twice the number o
 the <a href='undocumented#String'>string</a>.
 Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getTextIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-Uses <a href='#SkPaint_getTextIntercepts_x'>x</a>, <a href='#SkPaint_getTextIntercepts_y'>y</a>, and <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Align'>Align</a> to position <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a>.
+Uses <a href='#SkPaint_getTextIntercepts_x'>x</a>, <a href='#SkPaint_getTextIntercepts_y'>y</a> to position <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a>.
 
 Pass nullptr for <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
 
@@ -4962,7 +4866,7 @@ The return count is zero or a multiple of two, and is at most twice the number o
 the <a href='undocumented#String'>string</a>.
 Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getPosTextIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-Uses <a href='#SkPaint_getPosTextIntercepts_pos'>pos</a> array and <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Align'>Align</a> to position <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a>.
+Uses <a href='#SkPaint_getPosTextIntercepts_pos'>pos</a> array to position <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a>.
 
 Pass nullptr for <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
 
@@ -5011,7 +4915,7 @@ The return count is zero or a multiple of two, and is at most twice the number o
 the <a href='undocumented#String'>string</a>.
 Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getPosTextHIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-Uses <a href='#SkPaint_getPosTextHIntercepts_xpos'>xpos</a> array, <a href='#SkPaint_getPosTextHIntercepts_constY'>constY</a>, and <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Align'>Align</a> to position <a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a>.
+Uses <a href='#SkPaint_getPosTextHIntercepts_xpos'>xpos</a> array, <a href='#SkPaint_getPosTextHIntercepts_constY'>constY</a> to position <a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a>.
 
 Pass nullptr for <a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
 
@@ -5062,7 +4966,7 @@ The return count is zero or a multiple of two, and is at most twice the number o
 the <a href='undocumented#String'>string</a>.
 Uses <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-Uses run array and <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Align'>Align</a> to position <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a>.
+Uses run array to position <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a>.
 
 <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> must be set to <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>.
 

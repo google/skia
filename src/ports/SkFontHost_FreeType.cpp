@@ -724,15 +724,15 @@ void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
         unref_ft_library();
     }
 
-    SkPaint::Hinting h = rec->getHinting();
-    if (SkPaint::kFull_Hinting == h && !isLCD(*rec)) {
+    SkFontHinting h = rec->getHinting();
+    if (kFull_SkFontHinting == h && !isLCD(*rec)) {
         // collapse full->normal hinting if we're not doing LCD
-        h = SkPaint::kNormal_Hinting;
+        h = kNormal_SkFontHinting;
     }
 
     // rotated text looks bad with hinting, so we disable it as needed
     if (!isAxisAligned(*rec)) {
-        h = SkPaint::kNo_Hinting;
+        h = kNo_SkFontHinting;
     }
     rec->setHinting(h);
 
@@ -847,23 +847,23 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         if (SkMask::kBW_Format == fRec.fMaskFormat) {
             // See http://code.google.com/p/chromium/issues/detail?id=43252#c24
             loadFlags = FT_LOAD_TARGET_MONO;
-            if (fRec.getHinting() == SkPaint::kNo_Hinting) {
+            if (fRec.getHinting() == kNo_SkFontHinting) {
                 loadFlags = FT_LOAD_NO_HINTING;
                 linearMetrics = true;
             }
         } else {
             switch (fRec.getHinting()) {
-            case SkPaint::kNo_Hinting:
+            case kNo_SkFontHinting:
                 loadFlags = FT_LOAD_NO_HINTING;
                 linearMetrics = true;
                 break;
-            case SkPaint::kSlight_Hinting:
+            case kSlight_SkFontHinting:
                 loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
                 break;
-            case SkPaint::kNormal_Hinting:
+            case kNormal_SkFontHinting:
                 loadFlags = FT_LOAD_TARGET_NORMAL;
                 break;
-            case SkPaint::kFull_Hinting:
+            case kFull_SkFontHinting:
                 loadFlags = FT_LOAD_TARGET_NORMAL;
                 if (isLCD(fRec)) {
                     if (fLCDIsVert) {

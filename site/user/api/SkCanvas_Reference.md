@@ -5275,7 +5275,7 @@ Draws <a href='#SkCanvas_drawText_text'>text</a>, with origin at (<a href='#SkCa
 <a href='#SkCanvas_drawText_text'>text</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>; by default, <a href='#SkCanvas_drawText_text'>text</a> is encoded as
 UTF-8.
 
-<a href='#SkCanvas_drawText_x'>x</a> and <a href='#SkCanvas_drawText_y'>y</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Align'>Align</a> and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='#SkCanvas_drawText_text'>text</a>; by default
+<a href='#SkCanvas_drawText_x'>x</a> and <a href='#SkCanvas_drawText_y'>y</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Align and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='#SkCanvas_drawText_text'>text</a>; by default
 <a href='#SkCanvas_drawText_text'>text</a> draws left to right, positioning the first <a href='undocumented#Glyph'>glyph</a>   <a href='undocumented#Left_Side_Bearing'>left side bearing</a> at <a href='#SkCanvas_drawText_x'>x</a>
 and its baseline at <a href='#SkCanvas_drawText_y'>y</a>. <a href='undocumented#Text'>Text</a> <a href='undocumented#Size'>size</a> is affected by <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='#SkCanvas_drawText_text'>text</a> <a href='undocumented#Size'>size</a>.
 
@@ -5327,7 +5327,7 @@ Draws null terminated <a href='#SkCanvas_drawString_string'>string</a>, with ori
 as UTF-8. Other values of <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> are unlikely to produce the desired
 results, since zero bytes may be embedded in the <a href='#SkCanvas_drawString_string'>string</a>.
 
-<a href='#SkCanvas_drawString_x'>x</a> and <a href='#SkCanvas_drawString_y'>y</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Align'>Align</a> and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='undocumented#Text'>text</a>; by default
+<a href='#SkCanvas_drawString_x'>x</a> and <a href='#SkCanvas_drawString_y'>y</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Align and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='undocumented#Text'>text</a>; by default
 <a href='#SkCanvas_drawString_string'>string</a> draws left to right, positioning the first <a href='undocumented#Glyph'>glyph</a>   <a href='undocumented#Left_Side_Bearing'>left side bearing</a> at <a href='#SkCanvas_drawString_x'>x</a>
 and its baseline at <a href='#SkCanvas_drawString_y'>y</a>. <a href='undocumented#Text'>Text</a> <a href='undocumented#Size'>size</a> is affected by <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a>.
 
@@ -5380,7 +5380,7 @@ Draws null terminated <a href='#SkCanvas_drawString_2_string'>string</a>, with o
 as UTF-8. Other values of <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> are unlikely to produce the desired
 results, since zero bytes may be embedded in the <a href='#SkCanvas_drawString_2_string'>string</a>.
 
-<a href='#SkCanvas_drawString_2_x'>x</a> and <a href='#SkCanvas_drawString_2_y'>y</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Align'>Align</a> and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='undocumented#Text'>text</a>; by default
+<a href='#SkCanvas_drawString_2_x'>x</a> and <a href='#SkCanvas_drawString_2_y'>y</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Align and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='undocumented#Text'>text</a>; by default
 <a href='#SkCanvas_drawString_2_string'>string</a> draws left to right, positioning the first <a href='undocumented#Glyph'>glyph</a>   <a href='undocumented#Left_Side_Bearing'>left side bearing</a> at <a href='#SkCanvas_drawString_2_x'>x</a>
 and its baseline at <a href='#SkCanvas_drawString_2_y'>y</a>. <a href='undocumented#Text'>Text</a> <a href='undocumented#Size'>size</a> is affected by <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a>.
 
@@ -5580,7 +5580,7 @@ void <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>(const <a href='SkTextBlob
 Draws <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> <a href='#SkCanvas_drawTextBlob_blob'>blob</a> at (<a href='#SkCanvas_drawTextBlob_x'>x</a>, <a href='#SkCanvas_drawTextBlob_y'>y</a>), using <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>, and <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawTextBlob_paint'>paint</a>.
 
 <a href='#SkCanvas_drawTextBlob_blob'>blob</a> contains <a href='undocumented#Glyph'>Glyphs</a>, their positions, and <a href='#SkCanvas_drawTextBlob_paint'>paint</a> attributes specific to text: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
-<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 
@@ -5627,7 +5627,7 @@ void <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>(const <a href='undocument
 Draws <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a> <a href='#SkCanvas_drawTextBlob_2_blob'>blob</a> at (<a href='#SkCanvas_drawTextBlob_2_x'>x</a>, <a href='#SkCanvas_drawTextBlob_2_y'>y</a>), using <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>, and <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a>.
 
 <a href='#SkCanvas_drawTextBlob_2_blob'>blob</a> contains <a href='undocumented#Glyph'>Glyphs</a>, their positions, and <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> attributes specific to text: <a href='undocumented#Typeface'>Typeface</a>, <a href='SkPaint_Reference#Text_Size'>Paint Text Size</a>, <a href='SkPaint_Reference#Text_Scale_X'>Paint Text Scale X</a>,
-<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Text_Align'>Paint Text Align</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
+<a href='SkPaint_Reference#Text_Skew_X'>Paint Text Skew X</a>, <a href='SkPaint_Reference#Hinting'>Paint Hinting</a>, <a href='SkPaint_Reference#Anti_Alias'>Anti Alias</a>, <a href='SkPaint_Reference#Fake_Bold'>Paint Fake Bold</a>,
 <a href='SkPaint_Reference#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a>, <a href='SkPaint_Reference#Full_Hinting_Spacing'>Full Hinting Spacing</a>, <a href='SkPaint_Reference#LCD_Text'>LCD Text</a>, <a href='SkPaint_Reference#Linear_Text'>Linear Text</a>,
 and <a href='SkPaint_Reference#Subpixel_Text'>Subpixel Text</a>.
 

@@ -16,15 +16,6 @@ SkColor SkUnPreMultiply::PMColorToColor(SkPMColor c) {
                           ApplyScale(scale, SkGetPackedB32(c)));
 }
 
-uint32_t SkUnPreMultiply::UnPreMultiplyPreservingByteOrder(SkPMColor c) {
-    const U8CPU a = SkGetPackedA32(c);
-    const Scale scale = GetScale(a);
-    return SkPackARGB32NoCheck(a,
-                               ApplyScale(scale, SkGetPackedR32(c)),
-                               ApplyScale(scale, SkGetPackedG32(c)),
-                               ApplyScale(scale, SkGetPackedB32(c)));
-}
-
 const uint32_t SkUnPreMultiply::gTable[] = {
     0x00000000, 0xFF000000, 0x7F800000, 0x55000000, 0x3FC00000, 0x33000000, 0x2A800000, 0x246DB6DB,
     0x1FE00000, 0x1C555555, 0x19800000, 0x172E8BA3, 0x15400000, 0x139D89D9, 0x1236DB6E, 0x11000000,

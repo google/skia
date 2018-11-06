@@ -100,7 +100,7 @@ void SkTestSVGTypeface::getFontMetrics(SkPaint::FontMetrics* metrics) const {
 }
 
 void SkTestSVGTypeface::onFilterRec(SkScalerContextRec* rec) const {
-    rec->setHinting(SkPaint::kNo_Hinting);
+    rec->setHinting(kNo_SkFontHinting);
 }
 
 void SkTestSVGTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {

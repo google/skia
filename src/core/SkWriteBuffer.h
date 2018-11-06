@@ -9,12 +9,12 @@
 #define SkWriteBuffer_DEFINED
 
 #include "SkData.h"
+#include "SkFlattenable.h"
 #include "SkSerialProcs.h"
 #include "SkWriter32.h"
 #include "../private/SkTHash.h"
 
 class SkFactorySet;
-class SkFlattenable;
 class SkImage;
 class SkPath;
 class SkRefCntSet;
@@ -131,7 +131,7 @@ private:
     SkWriter32 fWriter;
 
     // Only used if we do not have an fFactorySet
-    SkTHashMap<SkString, uint32_t> fFlattenableDict;
+    SkTHashMap<SkFlattenable::Factory, uint32_t> fFlattenableDict;
 };
 
 #endif // SkWriteBuffer_DEFINED

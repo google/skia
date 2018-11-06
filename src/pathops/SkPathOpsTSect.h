@@ -353,7 +353,7 @@ private:
     void validateBounded() const;
 
     const SkTCurve& fCurve;
-    SkArenaAlloc fHeap;
+    SkSTArenaAlloc<1024> fHeap;
     SkTSpan* fHead;
     SkTSpan* fCoincident;
     SkTSpan* fDeleted;

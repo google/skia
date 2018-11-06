@@ -18,7 +18,6 @@
 #include "SkMask.h"
 #include "SkNx.h"
 #include "SkPixmapPriv.h"
-#include "SkPM4f.h"
 #include "SkRasterClip.h"
 #include "SkReadPixelsRec.h"
 #include "SkSurface.h"
