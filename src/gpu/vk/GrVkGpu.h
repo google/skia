@@ -11,6 +11,7 @@
 #include "GrGpu.h"
 #include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
+#include "GrVkCommandPool.h"
 #include "GrVkCopyManager.h"
 #include "GrVkIndexBuffer.h"
 #include "GrVkMemory.h"
@@ -23,6 +24,7 @@
 class GrPipeline;
 
 class GrVkBufferImpl;
+class GrVkCommandPool;
 class GrVkGpuRTCommandBuffer;
 class GrVkGpuTextureCommandBuffer;
 class GrVkMemoryAllocator;
@@ -55,7 +57,7 @@ public:
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
     uint32_t  queueIndex() const { return fQueueIndex; }
-    VkCommandPool cmdPool() const { return fCmdPool; }
+    GrVkCommandPool* cmdPool() { return fCmdPool; }
     VkPhysicalDeviceProperties physicalDeviceProperties() const {
         return fPhysDevProps;
     }
@@ -247,7 +249,7 @@ private:
 
     // Created by GrVkGpu
     GrVkResourceProvider                                  fResourceProvider;
-    VkCommandPool                                         fCmdPool;
+    GrVkCommandPool*                                      fCmdPool;
 
     GrVkPrimaryCommandBuffer*                             fCurrentCmdBuffer;
 
