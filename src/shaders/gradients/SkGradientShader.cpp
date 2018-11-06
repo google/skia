@@ -517,6 +517,46 @@ static void desc_init(SkGradientShaderBase::Descriptor* desc,
     desc->fLocalMatrix  = localMatrix;
 }
 
+static SkColor4f average_gradient_color(const SkColor4f colors[], const SkScalar pos[],
+                                        int colorCount) {
+    // The gradient is a piecewise linear interpolation between colors. For a given interval,
+    // the integral between the two endpoints is 0.5 * (ci + cj) * (pj - pi), which provides that
+    // intervals average color. The overall average color is thus the sum of each piece. The thing
+    // to keep in mind is that the provided gradient definition may implicitly use p=0 and p=1.
+    Sk4f blend(0.0);
+    // Bake 1/(colorCount - 1) uniform stop difference into this scale factor
+    SkScalar wScale = pos ? 0.5 : 0.5 / (colorCount - 1);
+    for (int i = 0; i < colorCount - 1; ++i) {
+        // Calculate the average color for the interval between pos(i) and pos(i+1)
+        Sk4f c0 = Sk4f::Load(&colors[i]);
+        Sk4f c1 = Sk4f::Load(&colors[i + 1]);
+        // when pos == null, there are colorCount uniformly distributed stops, going from 0 to 1,
+        // so pos[i + 1] - pos[i] = 1/(colorCount-1)
+        SkScalar w = pos ? (pos[i + 1] - pos[i]) : SK_Scalar1;
+        blend += wScale * w * (c1 + c0);
+    }
+
+    // Now account for any implicit intervals at the start or end of the stop definitions
+    if (pos) {
+        if (pos[0] > 0.0) {
+            // The first color is fixed between p = 0 to pos[0], so 0.5 * (ci + cj) * (pj - pi)
+            // becomes 0.5 * (c + c) * (pj - 0) = c * pj
+            Sk4f c = Sk4f::Load(&colors[0]);
+            blend += pos[0] * c;
+        }
+        if (pos[colorCount - 1] < SK_Scalar1) {
+            // The last color is fixed between pos[n-1] to p = 1, so 0.5 * (ci + cj) * (pj - pi)
+            // becomes 0.5 * (c + c) * (1 - pi) = c * (1 - pi)
+            Sk4f c = Sk4f::Load(&colors[colorCount - 1]);
+            blend += (1 - pos[colorCount - 1]) * c;
+        }
+    }
+
+    SkColor4f avg;
+    blend.store(&avg);
+    return avg;
+}
+
 // assumes colors is SkColor4f* and pos is SkScalar*
 #define EXPAND_1_COLOR(count)                \
      SkColor4f tmp[2];                       \
@@ -694,19 +734,60 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
     if (startRadius < 0 || endRadius < 0) {
         return nullptr;
     }
-    if (SkScalarNearlyZero((start - end).length()) && SkScalarNearlyZero(startRadius)) {
-        // We can treat this gradient as radial, which is faster.
-        return MakeRadial(start, endRadius, colors, std::move(colorSpace), pos, colorCount,
-                          mode, flags, localMatrix);
-    }
     if (!valid_grad(colors, pos, colorCount, mode)) {
         return nullptr;
     }
-    if (startRadius == endRadius) {
-        if (start == end || startRadius == 0) {
-            return SkShader::MakeEmptyShader();
+    if (SkScalarNearlyZero((start - end).length())) {
+        // If the center positions are the same, then the gradient is the radial variant of a
+        // 2 pt conical gradient, or an actual radial gradient (startRadius == 0), or it is
+        // fully degenerate (startRadius == endRadius).
+        if (SkScalarNearlyEqual(startRadius, endRadius)) {
+            // Degenerate case, where the interpolation region area approaches zero. The proper
+            // behavior depends on the tile mode:
+            switch(mode) {
+                case SkShader::kDecal_TileMode:
+                    // normally this would reject the area outside of the two radii, so since inside
+                    // region is empty when the radii are equal, the entire draw region is empty
+                    return SkShader::MakeEmptyShader();
+                case SkShader::kRepeat_TileMode:
+                case SkShader::kMirror_TileMode:
+                    // repeat and mirror are treated the same: the border colors are never visible,
+                    // but approximate the final color as infinite repetitions of the colors, so
+                    // it can be represented as the average color of the gradient.
+                    return SkShader::MakeColorShader(
+                            average_gradient_color(colors, pos, colorCount), std::move(colorSpace));
+                case SkShader::kClamp_TileMode:
+                    // The interpolation region becomes an infinitely thin ring at the radius, so
+                    // the final gradient will be the first border color up to the ring, and then
+                    // the end border color after that.
+                    if (SkScalarNearlyZero(endRadius)) {
+                        // If the radius is at 0, just simplify further to the solid border color.
+                        return SkShader::MakeColorShader(colors[colorCount - 1],
+                                                         std::move(colorSpace));
+                    } else {
+                        // To form the pattern described above, use a standard radial gradient
+                        // that uses the first border color from p = 0 to p = 1, then add a
+                        // hard stop after, at p = 1, to switch to the last border color. The color
+                        // lookups are safe since valid_grad ensures its length is at least 1.
+                        SkScalar circlePos[3] = {0, 1, 1};
+                        SkColor4f reColors[3] = {colors[0], colors[0], colors[colorCount - 1]};
+                        return MakeRadial(start, endRadius, reColors, std::move(colorSpace),
+                                          circlePos, 3, mode, flags, localMatrix);
+                    }
+                default:
+                    SkDEBUGFAIL("Should not be reached");
+                    return nullptr;
+            }
+        } else if (SkScalarNearlyZero(startRadius)) {
+            // We can treat this gradient as radial, which is faster. If we got here, we know
+            // that endRadius is not equal to 0, so this produces a meaningful gradient
+            return MakeRadial(start, endRadius, colors, std::move(colorSpace), pos, colorCount,
+                              mode, flags, localMatrix);
         }
+        // Else it's the 2pt conical radial variant with no degenerate radii, so fall through to the
+        // regular 2pt constructor.
     }
+
     if (localMatrix && !localMatrix->invert(nullptr)) {
         return nullptr;
     }
