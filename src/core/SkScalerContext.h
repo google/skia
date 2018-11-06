@@ -10,6 +10,7 @@
 
 #include <memory>
 
+#include "SkFont.h"
 #include "SkFontTypes.h"
 #include "SkGlyph.h"
 #include "SkMacros.h"
@@ -310,13 +311,26 @@ public:
     static bool   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
                                   uint8_t* data);
 
-    static void MakeRecAndEffects(const SkPaint& paint,
+    static void MakeRecAndEffects(const SkFont& font,
+                                  const SkPaint& paint,
                                   const SkSurfaceProps* surfaceProps,
                                   const SkMatrix* deviceMatrix,
                                   SkScalerContextFlags scalerContextFlags,
                                   SkScalerContextRec* rec,
                                   SkScalerContextEffects* effects,
                                   bool enableTypefaceFiltering = true);
+
+    static void MakeRecAndEffectsUsingDefaultPaint(const SkFont& font,
+                                  const SkSurfaceProps* surfaceProps,
+                                  const SkMatrix* deviceMatrix,
+                                  SkScalerContextFlags scalerContextFlags,
+                                  SkScalerContextRec* rec,
+                                  SkScalerContextEffects* effects,
+                                  bool enableTypefaceFiltering = true) {
+        SkPaint paint;
+        return MakeRecAndEffects(font, paint, surfaceProps, deviceMatrix, scalerContextFlags,
+                                 rec, effects, enableTypefaceFiltering);
+    }
 
     static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
                                                  SkAutoDescriptor* ad);

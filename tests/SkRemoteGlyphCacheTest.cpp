@@ -630,9 +630,10 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     auto clientTf = client.deserializeTypeface(tfData->data(), tfData->size());
     REPORTER_ASSERT(reporter, clientTf);
 
+    SkFont font;
+    font.setTypeface(clientTf);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTypeface(clientTf);
     paint.setColor(SK_ColorRED);
 
     auto lostGlyphID = SkPackedGlyphID(1, SK_FixedHalf, SK_FixedHalf);
@@ -646,7 +647,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
         SkScalerContextRec rec;
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
-        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto fallbackCache = strikeCache.findOrCreateStrikeExclusive(*desc, effects, *clientTf);
@@ -664,7 +665,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
         SkScalerContextRec rec;
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
-        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
         auto testCache = strikeCache.findStrikeExclusive(*desc);
         REPORTER_ASSERT(reporter, !(testCache == nullptr));
@@ -676,7 +677,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     SkScalerContextRec rec;
     SkScalerContextEffects effects;
     SkScalerContextFlags flags = SkScalerContextFlags::kNone;
-    SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+    SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
     auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
     testCache = strikeCache.findStrikeExclusive(*desc);
     REPORTER_ASSERT(reporter, testCache == nullptr);
@@ -734,6 +735,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
     auto clientTf = client.deserializeTypeface(tfData->data(), tfData->size());
     REPORTER_ASSERT(reporter, clientTf);
 
+    SkFont font;
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
@@ -751,7 +753,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         paint.setTypeface(serverTf);
-        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto context = serverTf->createScalerContext(effects, desc, false);
@@ -769,7 +771,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         paint.setTypeface(clientTf);
-        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto fallbackCache = strikeCache.findOrCreateStrikeExclusive(*desc, effects, *clientTf);
@@ -806,7 +808,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         paint.setTypeface(clientTf);
-        SkScalerContext::MakeRecAndEffects(paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto fallbackCache = strikeCache.findStrikeExclusive(*desc);
