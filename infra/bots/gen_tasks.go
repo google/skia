@@ -446,6 +446,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Mac":        DEFAULT_OS_MAC,
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
 			"Ubuntu17":   "Ubuntu-17.04",
+			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-17134.285",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
@@ -581,6 +582,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", parts["cpu_or_gpu_value"])
+				}
+				if parts["os"] == "Ubuntu18" && parts["cpu_or_gpu_value"] == "QuadroP400" {
+					// Ubuntu18 has a slightly newer GPU driver.
+					gpu = "10de:1cb3-390.87"
 				}
 				d["gpu"] = gpu
 			} else if strings.Contains(parts["os"], "Mac") {
@@ -1025,7 +1030,11 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 		// Specify "rack" dimension for consistent test results.
 		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
 		// for more context.
-		task.Dimensions = append(task.Dimensions, "rack:1")
+		if parts["os"] == "Ubuntu18" {
+			task.Dimensions = append(task.Dimensions, "rack:2")
+		} else {
+			task.Dimensions = append(task.Dimensions, "rack:1")
+		}
 	}
 	b.MustAddTask(name, task)
 
@@ -1186,7 +1195,11 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		// Specify "rack" dimension for consistent test results.
 		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
 		// for more context.
-		task.Dimensions = append(task.Dimensions, "rack:1")
+		if parts["os"] == "Ubuntu18" {
+			task.Dimensions = append(task.Dimensions, "rack:2")
+		} else {
+			task.Dimensions = append(task.Dimensions, "rack:1")
+		}
 	}
 	b.MustAddTask(name, task)
 
