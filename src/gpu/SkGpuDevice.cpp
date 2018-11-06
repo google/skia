@@ -164,10 +164,12 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     if (kUnknown_GrPixelConfig == config) {
         return nullptr;
     }
+    GrBackendFormat format =
+            context->contextPriv().caps()->getBackendFormatFromColorType(origInfo.colorType());
     // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
     // they need to be exact.
     return context->contextPriv().makeDeferredRenderTargetContext(
-                                    SkBackingFit::kExact,
+                                    format, SkBackingFit::kExact,
                                     origInfo.width(), origInfo.height(),
                                     config, origInfo.refColorSpace(), sampleCount,
                                     mipMapped, origin, surfaceProps, budgeted);
@@ -1749,14 +1751,21 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
                                                             : SkBackingFit::kExact;
 
     GrPixelConfig config = fRenderTargetContext->colorSpaceInfo().config();
+    const GrBackendFormat& origFormat = fRenderTargetContext->asSurfaceProxy()->backendFormat();
+    GrBackendFormat format = origFormat.makeTexture2D();
+    if (!format.isValid()) {
+        return nullptr;
+    }
     if (kRGBA_1010102_GrPixelConfig == config) {
         // If the original device is 1010102, fall back to 8888 so that we have a usable alpha
         // channel in the layer.
         config = kRGBA_8888_GrPixelConfig;
+        format =
+            fContext->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     }
 
     sk_sp<GrRenderTargetContext> rtc(fContext->contextPriv().makeDeferredRenderTargetContext(
-            fit, cinfo.fInfo.width(), cinfo.fInfo.height(), config,
+            format, fit, cinfo.fInfo.width(), cinfo.fInfo.height(), config,
             fRenderTargetContext->colorSpaceInfo().refColorSpace(),
             fRenderTargetContext->numStencilSamples(), GrMipMapped::kNo,
             kBottomLeft_GrSurfaceOrigin, &props));

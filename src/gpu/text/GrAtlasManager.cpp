@@ -35,6 +35,21 @@ static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format) {
     }
 }
 
+static SkColorType mask_format_to_color_type(GrMaskFormat format) {
+    switch (format) {
+        case kA8_GrMaskFormat:
+            return kAlpha_8_SkColorType;
+        case kA565_GrMaskFormat:
+            return kRGB_565_SkColorType;
+        case kARGB_GrMaskFormat:
+            return kRGBA_8888_SkColorType;
+        default:
+            SkDEBUGFAIL("unsupported GrMaskFormat");
+            return kAlpha_8_SkColorType;
+    }
+
+}
+
 void GrAtlasManager::freeAll() {
     for (int i = 0; i < kMaskFormatCount; ++i) {
         fAtlases[i] = nullptr;
@@ -161,11 +176,14 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
         GrPixelConfig config = mask_format_to_pixel_config(format);
+        SkColorType colorType = mask_format_to_color_type(format);
         SkISize atlasDimensions = fAtlasConfigs.atlasDimensions(format);
         SkISize numPlots = fAtlasConfigs.numPlots(format);
 
+        const GrBackendFormat format = fCaps->getBackendFormatFromColorType(colorType);
+
         fAtlases[index] = GrDrawOpAtlas::Make(
-                fProxyProvider, config, atlasDimensions.width(), atlasDimensions.height(),
+                fProxyProvider, format, config, atlasDimensions.width(), atlasDimensions.height(),
                 numPlots.width(), numPlots.height(), fAllowMultitexturing,
                 &GrGlyphCache::HandleEviction, fGlyphCache);
         if (!fAtlases[index]) {
