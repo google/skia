@@ -647,12 +647,11 @@ private:
             : INHERITED(kQuadEdgeEffect_ClassID)
             , fLocalMatrix(localMatrix)
             , fUsesLocalCoords(usesLocalCoords) {
-        this->setVertexAttributeCnt(3);
+        this->addVertexAttribute(kInPosition);
+        this->addVertexAttribute(kInColor);
+        this->addVertexAttribute(kInQuadEdge);
     }
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInQuadEdge);
-    }
     static constexpr Attribute kInPosition =
             {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     static constexpr Attribute kInColor =

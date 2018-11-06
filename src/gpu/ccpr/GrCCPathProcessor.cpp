@@ -95,7 +95,7 @@ GrCCPathProcessor::GrCCPathProcessor(const GrTextureProxy* atlas,
     SkASSERT(this->debugOnly_instanceAttributeOffset(3) == offsetof(Instance, fColor));
     SkASSERT(this->debugOnly_instanceStride() == sizeof(Instance));
 
-    this->setVertexAttributeCnt(1);
+    this->addVertexAttribute(kEdgeNormsAttrib);
     this->setTextureSamplerCnt(1);
 
     if (!viewMatrixIfUsingLocalCoords.invert(&fLocalMatrix)) {

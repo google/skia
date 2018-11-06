@@ -84,12 +84,12 @@ public:
 
     int numTextureSamplers() const { return fTextureSamplerCnt; }
     const TextureSampler& textureSampler(int index) const;
-    int numVertexAttributes() const { return fVertexAttributeCnt; }
+    int numVertexAttributes() const { return fVertexAttributes.count(); }
     const Attribute& vertexAttribute(int i) const;
     int numInstanceAttributes() const { return fInstanceAttributeCnt; }
     const Attribute& instanceAttribute(int i) const;
 
-    bool hasVertexAttributes() const { return SkToBool(fVertexAttributeCnt); }
+    bool hasVertexAttributes() const { return !fVertexAttributes.empty(); }
     bool hasInstanceAttributes() const { return SkToBool(fInstanceAttributeCnt); }
 
 #ifdef SK_DEBUG
@@ -146,9 +146,8 @@ public:
     virtual float getSampleShading() const { return 0.0; }
 
 protected:
-    void setVertexAttributeCnt(int cnt) {
-        SkASSERT(cnt >= 0);
-        fVertexAttributeCnt = cnt;
+    void addVertexAttribute(const Attribute& attr) {
+        fVertexAttributes.push_back(attr);
     }
     void setInstanceAttributeCnt(int cnt) {
         SkASSERT(cnt >= 0);
@@ -171,12 +170,6 @@ protected:
     inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
-    virtual const Attribute& onVertexAttribute(int) const {
-        SK_ABORT("No vertex attributes");
-        static constexpr Attribute kBogus;
-        return kBogus;
-    }
-
     virtual const Attribute& onInstanceAttribute(int i) const {
         SK_ABORT("No instanced attributes");
         static constexpr Attribute kBogus;
@@ -185,7 +178,7 @@ private:
 
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
 
-    int fVertexAttributeCnt = 0;
+    SkSTArray<8, Attribute, true> fVertexAttributes;
     int fInstanceAttributeCnt = 0;
     int fTextureSamplerCnt = 0;
     typedef GrProcessor INHERITED;
