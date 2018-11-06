@@ -64,6 +64,7 @@ private:
         fShaderOutput = {nullptr,0},  // Possibly updated each call to burst_shade().
         fDstPtr       = {nullptr,0},  // Always points to the top-left of fDst.
         fMaskPtr      = {nullptr,0};  // Updated each call to blitMask().
+    SkRasterPipeline_EmbossCtx fEmbossCtx;  // Used only for k3D_Format masks.
 
     // We may be able to specialize blitH() or blitRect() into a memset.
     bool     fCanMemsetInBlitRect = false;
@@ -73,7 +74,8 @@ private:
     std::function<void(size_t, size_t, size_t, size_t)> fBlitRect,
                                                         fBlitAntiH,
                                                         fBlitMaskA8,
-                                                        fBlitMaskLCD16;
+                                                        fBlitMaskLCD16,
+                                                        fBlitMask3D;
 
     // These values are pointed to by the blit pipelines above,
     // which allows us to adjust them from call to call.
@@ -405,13 +407,36 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         return INHERITED::blitMask(mask, clip);
     }
 
-    // We'll use the first (A8) plane of any mask and ignore the other two, just like Ganesh.
-    SkMask::Format effectiveMaskFormat = mask.fFormat == SkMask::k3D_Format ? SkMask::kA8_Format
-                                                                            : mask.fFormat;
+    // ARGB and SDF masks shouldn't make it here.
+    SkASSERT(mask.fFormat == SkMask::kA8_Format
+          || mask.fFormat == SkMask::kLCD16_Format
+          || mask.fFormat == SkMask::k3D_Format);
 
+    auto extract_mask_plane = [&mask](int plane, SkRasterPipeline_MemoryCtx* ctx) {
+        // LCD is 16-bit per pixel; A8 and 3D are 8-bit per pixel.
+        size_t bpp = mask.fFormat == SkMask::kLCD16_Format ? 2 : 1;
+
+        // Select the right mask plane.  Usually plane == 0 and this is just mask.fImage.
+        auto ptr = (uintptr_t)mask.fImage
+                 + plane * mask.computeImageSize();
+
+        // Update ctx to point "into" this current mask, but lined up with fDstPtr at (0,0).
+        // This sort of trickery upsets UBSAN (pointer-overflow) so our ptr must be a uintptr_t.
+        // mask.fRowBytes is a uint32_t, which would break our addressing math on 64-bit builds.
+        size_t rowBytes = mask.fRowBytes;
+        ctx->stride = rowBytes / bpp;
+        ctx->pixels = (void*)(ptr - mask.fBounds.left() * bpp
+                                  - mask.fBounds.top()  * rowBytes);
+    };
+
+    extract_mask_plane(0, &fMaskPtr);
+    if (mask.fFormat == SkMask::k3D_Format) {
+        extract_mask_plane(1, &fEmbossCtx.mul);
+        extract_mask_plane(2, &fEmbossCtx.add);
+    }
 
     // Lazily build whichever pipeline we need, specialized for each mask format.
-    if (effectiveMaskFormat == SkMask::kA8_Format && !fBlitMaskA8) {
+    if (mask.fFormat == SkMask::kA8_Format && !fBlitMaskA8) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
         p.append_gamut_clamp_if_normalized(fDst.info());
@@ -427,7 +452,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         this->append_store(&p);
         fBlitMaskA8 = p.compile();
     }
-    if (effectiveMaskFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
+    if (mask.fFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
         p.append_gamut_clamp_if_normalized(fDst.info());
@@ -444,27 +469,33 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         this->append_store(&p);
         fBlitMaskLCD16 = p.compile();
     }
+    if (mask.fFormat == SkMask::k3D_Format && !fBlitMask3D) {
+        SkRasterPipeline p(fAlloc);
+        p.extend(fColorPipeline);
+        // This bit is where we differ from kA8_Format:
+        p.append(SkRasterPipeline::emboss, &fEmbossCtx);
+        // Now onward just as kA8.
+        p.append_gamut_clamp_if_normalized(fDst.info());
+        if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/false)) {
+            p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
+            this->append_load_dst(&p);
+            SkBlendMode_AppendStages(fBlend, &p);
+        } else {
+            this->append_load_dst(&p);
+            SkBlendMode_AppendStages(fBlend, &p);
+            p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
+        }
+        this->append_store(&p);
+        fBlitMask3D = p.compile();
+    }
 
     std::function<void(size_t,size_t,size_t,size_t)>* blitter = nullptr;
-    // Update fMaskPtr to point "into" this current mask, but lined up with fDstPtr at (0,0).
-    // This sort of trickery upsets UBSAN (pointer-overflow) so we do our math in uintptr_t.
-
-    // mask.fRowBytes is a uint32_t, which would break our addressing math on 64-bit builds.
-    size_t rowBytes = mask.fRowBytes;
-    switch (effectiveMaskFormat) {
-        case SkMask::kA8_Format:
-            fMaskPtr.stride = rowBytes;
-            fMaskPtr.pixels = (void*)((uintptr_t)mask.fImage - mask.fBounds.left() * (size_t)1
-                                                             - mask.fBounds.top()  * rowBytes);
-            blitter = &fBlitMaskA8;
-            break;
-        case SkMask::kLCD16_Format:
-            fMaskPtr.stride = rowBytes / 2;
-            fMaskPtr.pixels = (void*)((uintptr_t)mask.fImage - mask.fBounds.left() * (size_t)2
-                                                             - mask.fBounds.top()  * rowBytes);
-            blitter = &fBlitMaskLCD16;
-            break;
+    switch (mask.fFormat) {
+        case SkMask::kA8_Format:    blitter = &fBlitMaskA8;    break;
+        case SkMask::kLCD16_Format: blitter = &fBlitMaskLCD16; break;
+        case SkMask::k3D_Format:    blitter = &fBlitMask3D;    break;
         default:
+            SkASSERT(false);
             return;
     }
 

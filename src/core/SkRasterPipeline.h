@@ -92,7 +92,8 @@
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
     M(byte_tables)                                                 \
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \
-    M(gauss_a_to_rgba)
+    M(gauss_a_to_rgba)                                             \
+    M(emboss)
 
 // The largest number of pixels we handle at a time.
 static const int SkRasterPipeline_kMaxStride = 16;
@@ -169,6 +170,11 @@ struct SkRasterPipeline_2PtConicalCtx {
 struct SkRasterPipeline_UniformColorCtx {
     float r,g,b,a;
     uint16_t rgba[4];  // [0,255] in a 16-bit lane.
+};
+
+struct SkRasterPipeline_EmbossCtx {
+    SkRasterPipeline_MemoryCtx mul,
+                               add;
 };
 
 
