@@ -548,8 +548,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
 
                 return tex;
             },
-            desc, fSurfaceOrigin, GrMipMapped::kNo, textureType, SkBackingFit::kExact,
-            SkBudgeted::kNo);
+            backendFormat, desc, fSurfaceOrigin, GrMipMapped::kNo, textureType,
+            SkBackingFit::kExact, SkBudgeted::kNo);
 
     if (!texProxy) {
         AHardwareBuffer_release(hardwareBuffer);
