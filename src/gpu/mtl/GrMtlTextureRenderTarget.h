@@ -22,6 +22,9 @@ public:
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
                                                                           const GrSurfaceDesc&,
                                                                           id<MTLTexture>);
+    GrBackendFormat backendFormat() const override {
+        return GrMtlTexture::backendFormat();
+    }
 
 protected:
     void onAbandon() override {
