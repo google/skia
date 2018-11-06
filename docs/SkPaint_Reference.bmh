@@ -375,24 +375,25 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
     ##
 ##
 
-#Method void setHinting(Hinting hintingLevel)
-
+#Method void setHinting(SkFontHinting hintingLevel)
 #In Hinting
 #Line # sets Hinting, glyph outline adjustment level ##
-    Sets level of glyph outline adjustment.
-    Does not check for valid values of hintingLevel.
+#Populate
 
-    #Table
-    #Legend
-    # Hinting # value # effect on generated glyph outlines ##
-    ##
-    # kNo_Hinting     # 0 # leaves glyph outlines unchanged from their native representation ##
-    # kSlight_Hinting # 1 # modifies glyph outlines minimally to improve contrast ##
-    # kNormal_Hinting # 2 # modifies glyph outlines to improve contrast ##
-    # kFull_Hinting   # 3 # modifies glyph outlines for maximum contrast ##
-    ##
+    #Example
+        SkPaint paint1, paint2;
+        paint2.setHinting(kNormal_SkFontHinting);
+        SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : ':');
 
-    #Param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting ##
+        #StdOut
+        paint1 == paint2
+        ##
+    ##
+##
+
+#Method void setHinting(Hinting hintingLevel)
+#In Hinting
+#Populate
 
     #Example
         SkPaint paint1, paint2;
