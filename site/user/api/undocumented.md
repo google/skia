@@ -256,6 +256,42 @@ void <a href='#SkDrawable_draw'>draw</a>(<a href='SkCanvas_Reference#SkCanvas'>S
 
 ---
 
+<a name='SkFontHinting'></a>
+
+---
+
+### Constants
+
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
+<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kNo_SkFontHinting'><code>kNo_SkFontHinting</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kSlight_SkFontHinting'><code>kSlight_SkFontHinting</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kNormal_SkFontHinting'><code>kNormal_SkFontHinting</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kFull_SkFontHinting'><code>kFull_SkFontHinting</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+</td>
+  </tr>
+</table>
+
 <a name='GrContext'></a>
 
 ---
