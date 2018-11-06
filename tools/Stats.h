@@ -8,6 +8,7 @@
 #ifndef Stats_DEFINED
 #define Stats_DEFINED
 
+#include "SkFloatingPoint.h"
 #include "SkString.h"
 #include "SkTSort.h"
 
@@ -42,7 +43,7 @@ struct Stats {
         for (int i = 0 ; i < n; i++) {
             err += (samples[i] - mean) * (samples[i] - mean);
         }
-        var = err / (n-1);
+        var = sk_ieee_double_divide(err, n-1);
 
         SkAutoTMalloc<double> sorted(n);
         memcpy(sorted.get(), samples.begin(), n * sizeof(double));

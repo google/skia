@@ -310,7 +310,7 @@ public:
 
     SkScalar currentAdvance() const {
         SkASSERT(fAdvX >= 0);
-        SkASSERT(fAdvX <= (fInterval->fT1 - fInterval->fT0) / fDx || !std::isfinite(fAdvX));
+        SkASSERT(!std::isfinite(fAdvX) || fAdvX <= (fInterval->fT1 - fInterval->fT0) / fDx);
         return fAdvX;
     }
 

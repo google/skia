@@ -50,7 +50,7 @@ DEF_TEST(ScaleToSides, reporter) {
                     float radius1 = (float)interestingValues[i];
                     float radius2 = (float)interestingValues[j];
                     double width = interestingValues[k];
-                    double scale = width / ((double)radius1 + (double)radius2);
+                    double scale = sk_ieee_double_divide(width, (double)radius1 + (double)radius2);
                     if (width > 0.0) {
                         if (s != 0) {
                             scale = std::min(scale, interestingValues[s-1]);

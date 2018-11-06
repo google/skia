@@ -6,10 +6,10 @@
  */
 
 
+#include "SkFloatingPoint.h"
 #include "SkGaussFilter.h"
-
-#include <cmath>
 #include "SkTypes.h"
+#include <cmath>
 
 static constexpr double kPi = 3.14159265358979323846264338327950288;
 
@@ -115,8 +115,8 @@ static int calculate_gauss_factors(double sigma, double* gauss) {
 
     // Use the recursion relation from "Incremental Computation of the Gaussian"  by Ken
     // Turkowski in GPUGems 3. Page 877.
-    double g0 = 1.0 / normalizeDenom;
-    double g1 = std::exp(1.0 / expGaussDenom);
+    double g0 = sk_ieee_double_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(1.0, normalizeDenom);
+    double g1 = std::exp(sk_ieee_double_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(1.0, expGaussDenom));
     double g2 = g1 * g1;
 
     gauss[0] = g0;

@@ -210,4 +210,12 @@ static inline double sk_ieee_double_divide(double numer, double denom) {
     return numer / denom;
 }
 
+// While we clean up divide by zero, we'll replace places that do divide by zero with this TODO.
+static inline float sk_ieee_float_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(float n, float d) {
+    return sk_ieee_float_divide(n,d);
+}
+static inline float sk_ieee_double_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(double n, double d) {
+    return sk_ieee_double_divide(n,d);
+}
+
 #endif
