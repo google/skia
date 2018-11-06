@@ -46,7 +46,10 @@ static constexpr GrBlendEquation hw_blend_equation(SkBlendMode mode) {
     GR_STATIC_ASSERT(kHSLSaturation_GrBlendEquation == (int)SkBlendMode::kSaturation + EQ_OFFSET);
     GR_STATIC_ASSERT(kHSLColor_GrBlendEquation == (int)SkBlendMode::kColor + EQ_OFFSET);
     GR_STATIC_ASSERT(kHSLLuminosity_GrBlendEquation == (int)SkBlendMode::kLuminosity + EQ_OFFSET);
-    GR_STATIC_ASSERT(kGrBlendEquationCnt == (int)SkBlendMode::kLastMode + 1 + EQ_OFFSET);
+
+    // There's an illegal GrBlendEquation that corresponds to no SkBlendMode, hence the extra +1.
+    GR_STATIC_ASSERT(kGrBlendEquationCnt == (int)SkBlendMode::kLastMode + 1 + 1 + EQ_OFFSET);
+
     return static_cast<GrBlendEquation>((int)mode + EQ_OFFSET);
 #undef EQ_OFFSET
 }
@@ -79,7 +82,7 @@ public:
     CustomXP(bool hasMixedSamples, SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
             : INHERITED(kCustomXP_ClassID, true, hasMixedSamples, coverage)
             , fMode(mode)
-            , fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
+            , fHWBlendEquation(kIllegal_GrBlendEquation) {
     }
 
     const char* name() const override { return "Custom Xfermode"; }
@@ -87,7 +90,7 @@ public:
     GrGLSLXferProcessor* createGLSLInstance() const override;
 
     SkBlendMode mode() const { return fMode; }
-    bool hasHWBlendEquation() const { return -1 != static_cast<int>(fHWBlendEquation); }
+    bool hasHWBlendEquation() const { return kIllegal_GrBlendEquation != fHWBlendEquation; }
 
     GrBlendEquation hwBlendEquation() const {
         SkASSERT(this->hasHWBlendEquation());

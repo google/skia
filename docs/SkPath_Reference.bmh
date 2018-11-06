@@ -144,7 +144,7 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 #Line # sets Contour clockwise or counterclockwise ##
 
 #Code
-    enum Direction {
+    enum Direction : int {
         kCW_Direction,
         kCCW_Direction,
     };
