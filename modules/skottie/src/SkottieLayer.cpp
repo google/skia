@@ -372,9 +372,26 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
         return std::move(image_node);
     }
 
-    return sksg::Transform::Make(std::move(image_node),
-        SkMatrix::MakeScale(static_cast<float>(asset_size.width())  / image->width(),
-                            static_cast<float>(asset_size.height()) / image->height()));
+    // When there is an image size vs. asset size mismatch, we scale such that
+    //
+    //   * the image fully covers (and is clipped to) the asset viewport
+    //   * center alignment and aspect ratio are preserved
+    //
+    // This is the equivalent of SVG preserveAspectRatio="xMidYMid slice".
+    // (https://www.w3.org/TR/SVG/coords.html#PreserveAspectRatioAttribute)
+    const auto scale = SkTMax(static_cast<float>(asset_size.width())  / image->width(),
+                              static_cast<float>(asset_size.height()) / image->height());
+
+    const auto dest = SkRect::MakeXYWH((asset_size.width()  - image->width()  * scale) / 2,
+                                       (asset_size.height() - image->height() * scale) / 2,
+                                       image->width()  * scale,
+                                       image->height() * scale);
+    return sksg::ClipEffect::Make(
+                sksg::Transform::Make(std::move(image_node),
+                                      SkMatrix::MakeRectToRect(SkRect::Make(image->bounds()),
+                                      dest,
+                                      SkMatrix::kFill_ScaleToFit)),
+                sksg::Rect::Make(SkRect::Make(asset_size)));
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageLayer(const skjson::ObjectValue& jlayer,
