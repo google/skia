@@ -560,6 +560,11 @@ typedef enum {
     MORPH_SK_PATH_EFFECT_1D_STYLE,
 } sk_path_effect_1d_style_t;
 
+typedef enum {
+    NORMAL_SK_PATH_EFFECT_TRIM_MODE,
+    INVERTED_SK_PATH_EFFECT_TRIM_MODE,
+} sk_path_effect_trim_mode_t;
+
 typedef struct sk_path_effect_t sk_path_effect_t;  
 
 typedef enum {
