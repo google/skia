@@ -871,8 +871,8 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
     SkASSERT(0.01 <= sigmaX && sigmaX < 2);
     SkASSERT(0.01 <= sigmaY && sigmaY < 2);
 
-    SkGaussFilter filterX{sigmaX, SkGaussFilter::Type::Bessel},
-                  filterY{sigmaY, SkGaussFilter::Type::Bessel};
+    SkGaussFilter filterX{sigmaX},
+                  filterY{sigmaY};
 
     int radiusX = filterX.radius(),
         radiusY = filterY.radius();
