@@ -472,7 +472,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkScalar SkPaint::getFontMetrics(FontMetrics* metrics) const {
+SkScalar SkPaint::getFontMetrics(SkFontMetrics* metrics) const {
     SkCanonicalizePaint canon(*this);
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();

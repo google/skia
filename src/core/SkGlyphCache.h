@@ -34,7 +34,7 @@ class SkGlyphCache : public SkGlyphCacheInterface {
 public:
     SkGlyphCache(const SkDescriptor& desc,
                  std::unique_ptr<SkScalerContext> scaler,
-                 const SkPaint::FontMetrics&);
+                 const SkFontMetrics&);
     ~SkGlyphCache() override;
 
     const SkDescriptor& getDescriptor() const;
@@ -123,7 +123,7 @@ public:
 
     /** Return the vertical metrics for this strike.
     */
-    const SkPaint::FontMetrics& getFontMetrics() const {
+    const SkFontMetrics& getFontMetrics() const {
         return fFontMetrics;
     }
 
@@ -221,7 +221,7 @@ private:
 
     const SkAutoDescriptor fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;
-    SkPaint::FontMetrics   fFontMetrics;
+    SkFontMetrics          fFontMetrics;
 
     // Map from a combined GlyphID and sub-pixel position to a SkGlyph.
     SkTHashTable<SkGlyph, SkPackedGlyphID, SkGlyph::HashTraits> fGlyphMap;
