@@ -227,7 +227,6 @@ static MTLBlendFactor blend_coeff_to_mtl_blend(GrBlendCoeff coeff) {
         MTLBlendFactorOneMinusSource1Color,      // kIS2C_GrBlendCoeff
         MTLBlendFactorSource1Alpha,              // kS2A_GrBlendCoeff
         MTLBlendFactorOneMinusSource1Alpha,      // kIS2A_GrBlendCoeff
-        MTLBlendFactorZero,                      // kIllegal_GrBlendCoeff
     };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kGrBlendCoeffCnt);
     GR_STATIC_ASSERT(0 == kZero_GrBlendCoeff);
@@ -264,7 +263,7 @@ static MTLBlendOperation blend_equation_to_mtl_blend_op(GrBlendEquation equation
     GR_STATIC_ASSERT(1 == kSubtract_GrBlendEquation);
     GR_STATIC_ASSERT(2 == kReverseSubtract_GrBlendEquation);
 
-    SkASSERT((unsigned)equation < kGrBlendEquationCnt);
+    SkASSERT((unsigned)equation < kGrBlendCoeffCnt);
     return gTable[equation];
 }
 

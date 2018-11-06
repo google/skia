@@ -99,9 +99,6 @@ static const char* equation_string(GrBlendEquation eq) {
             return "hsl_color";
         case kHSLLuminosity_GrBlendEquation:
             return "hsl_luminosity";
-        case kIllegal_GrBlendEquation:
-            SkASSERT(false);
-            return "<illegal>";
     };
     return "";
 }
@@ -144,9 +141,6 @@ static const char* coeff_string(GrBlendCoeff coeff) {
             return "src2_alpha";
         case kIS2A_GrBlendCoeff:
             return "inv_src2_alpha";
-        case kIllegal_GrBlendCoeff:
-            SkASSERT(false);
-            return "<illegal>";
     }
     return "";
 }

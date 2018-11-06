@@ -78,10 +78,7 @@ static const GrGLenum gXfermodeEquation2Blend[] = {
     GR_GL_HSL_HUE,
     GR_GL_HSL_SATURATION,
     GR_GL_HSL_COLOR,
-    GR_GL_HSL_LUMINOSITY,
-
-    // Illegal... needs to map to something.
-    GR_GL_FUNC_ADD,
+    GR_GL_HSL_LUMINOSITY
 };
 GR_STATIC_ASSERT(0 == kAdd_GrBlendEquation);
 GR_STATIC_ASSERT(1 == kSubtract_GrBlendEquation);
@@ -124,9 +121,6 @@ static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ONE_MINUS_SRC1_COLOR,
     GR_GL_SRC1_ALPHA,
     GR_GL_ONE_MINUS_SRC1_ALPHA,
-
-    // Illegal... needs to map to something.
-    GR_GL_ZERO,
 };
 
 bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
@@ -150,9 +144,6 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
         false,
         false,
         false,
-        false,
-
-        // Illegal.
         false,
     };
     return gCoeffReferencesBlendConst[coeff];
