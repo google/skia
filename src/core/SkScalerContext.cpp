@@ -14,6 +14,7 @@
 #include "SkColorData.h"
 #include "SkDescriptor.h"
 #include "SkDraw.h"
+#include "SkFontPriv.h"
 #include "SkGlyph.h"
 #include "SkMakeUnique.h"
 #include "SkMaskFilter.h"
@@ -889,9 +890,9 @@ static bool too_big_for_lcd(const SkScalerContextRec& rec, bool checkPost2x2) {
 
 // if linear-text is on, then we force hinting to be off (since that's sort of
 // the point of linear-text.
-static SkFontHinting computeHinting(const SkPaint& paint) {
-    SkFontHinting h = (SkFontHinting)paint.getHinting();
-    if (paint.isLinearText()) {
+static SkFontHinting computeHinting(const SkFont& font) {
+    SkFontHinting h = (SkFontHinting)font.getHinting();
+    if (font.isLinearMetrics()) {
         h = kNo_SkFontHinting;
     }
     return h;
@@ -899,7 +900,8 @@ static SkFontHinting computeHinting(const SkPaint& paint) {
 
 // The only reason this is not file static is because it needs the context of SkScalerContext to
 // access SkPaint::computeLuminanceColor.
-void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
+void SkScalerContext::MakeRecAndEffects(const SkFont& font,
+                                        const SkPaint& paint,
                                         const SkSurfaceProps* surfaceProps,
                                         const SkMatrix* deviceMatrix,
                                         SkScalerContextFlags scalerContextFlags,
@@ -910,12 +912,12 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
 
     sk_bzero(rec, sizeof(SkScalerContextRec));
 
-    SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
+    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
 
     rec->fFontID = typeface->uniqueID();
-    rec->fTextSize = paint.getTextSize();
-    rec->fPreScaleX = paint.getTextScaleX();
-    rec->fPreSkewX  = paint.getTextSkewX();
+    rec->fTextSize = font.getSize();
+    rec->fPreScaleX = font.getScaleX();
+    rec->fPreSkewX  = font.getSkewX();
 
     bool checkPost2x2 = false;
 
@@ -945,15 +947,15 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
 
     unsigned flags = 0;
 
-    if (paint.isFakeBoldText()) {
+    if (font.isEmbolden()) {
 #ifdef SK_USE_FREETYPE_EMBOLDEN
         flags |= SkScalerContext::kEmbolden_Flag;
 #else
-        SkScalar fakeBoldScale = SkScalarInterpFunc(paint.getTextSize(),
+        SkScalar fakeBoldScale = SkScalarInterpFunc(font.getSize(),
                                                     kStdFakeBoldInterpKeys,
                                                     kStdFakeBoldInterpValues,
                                                     kStdFakeBoldInterpLength);
-        SkScalar extra = paint.getTextSize() * fakeBoldScale;
+        SkScalar extra = font.getSize() * fakeBoldScale;
 
         if (style == SkPaint::kFill_Style) {
             style = SkPaint::kStrokeAndFill_Style;
@@ -1013,19 +1015,19 @@ void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
         }
     }
 
-    if (paint.isEmbeddedBitmapText()) {
+    if (font.isEmbeddedBitmaps()) {
         flags |= SkScalerContext::kEmbeddedBitmapText_Flag;
     }
-    if (paint.isSubpixelText()) {
+    if (font.isSubpixel()) {
         flags |= SkScalerContext::kSubpixelPositioning_Flag;
     }
-    if (paint.isAutohinted()) {
+    if (font.isForceAutoHinting()) {
         flags |= SkScalerContext::kForceAutohinting_Flag;
     }
     rec->fFlags = SkToU16(flags);
 
     // these modify fFlags, so do them after assigning fFlags
-    rec->setHinting(computeHinting(paint));
+    rec->setHinting(computeHinting(font));
 
     rec->setLuminanceColor(paint.computeLuminanceColor());
 
@@ -1116,8 +1118,9 @@ SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
     const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
     SkScalerContextEffects* effects) {
 
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     SkScalerContextRec rec;
-    MakeRecAndEffects(paint, surfaceProps, deviceMatrix, scalerContextFlags, &rec, effects);
+    MakeRecAndEffects(font, paint, surfaceProps, deviceMatrix, scalerContextFlags, &rec, effects);
     return AutoDescriptorGivenRecAndEffects(rec, *effects, ad);
 }
 
