@@ -774,13 +774,11 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
 
-#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
     // All the real legacy fast paths are for shaders and SrcOver.
     // Choosing SkRasterPipelineBlitter will also let us to hit its single-color memset path.
     if (!paint.getShader() && paint.getBlendMode() != SkBlendMode::kSrcOver) {
         return true;
     }
-#endif
 
     // Only kN32 and 565 are handled by legacy blitters now, 565 mostly just for Android.
     return device.colorType() != kN32_SkColorType
@@ -848,16 +846,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     SkASSERT(device.colorType() == kN32_SkColorType ||
              device.colorType() == kRGB_565_SkColorType);
 
-#ifndef SK_LEGACY_OP_COLOR_AS_BYTES
     // And we should either have a shader, be blending with SrcOver, or both.
     SkASSERT(paint->getShader() || paint->getBlendMode() == SkBlendMode::kSrcOver);
-#else
-    if (!paint->getShader() && paint->getBlendMode() != SkBlendMode::kSrcOver) {
-        // Only the SrcOver blitters can handle colors directly.  Others need a shader.
-        paint.writable()->setShader(SkShader::MakeColorShader(paint->getColor()));
-        paint.writable()->setAlpha(0xFF);
-    }
-#endif
 
     // TODO: remove SkColorSpace from makeContext() arguments.  It's always nullptr.
     SkASSERT(!device.colorSpace());
