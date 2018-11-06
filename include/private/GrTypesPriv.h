@@ -384,7 +384,7 @@ GR_MAKE_BITFIELD_OPS(GrShaderFlags);
  * vary the internal precision based on the qualifiers. These currently only apply to float types (
  * including float vectors and matrices).
  */
-enum GrSLPrecision {
+enum GrSLPrecision : int {
     kLow_GrSLPrecision,
     kMedium_GrSLPrecision,
     kHigh_GrSLPrecision,
