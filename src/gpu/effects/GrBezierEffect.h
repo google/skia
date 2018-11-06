@@ -112,8 +112,6 @@ private:
     GrConicEffect(const SkPMColor4f&, const SkMatrix& viewMatrix, uint8_t coverage, GrClipEdgeType,
                   const SkMatrix& localMatrix, bool usesLocalCoords);
 
-    const Attribute& onVertexAttribute(int i) const override { return kAttributes[i]; }
-
     SkPMColor4f         fColor;
     SkMatrix            fViewMatrix;
     SkMatrix            fLocalMatrix;
@@ -197,8 +195,6 @@ public:
 private:
     GrQuadEffect(const SkPMColor4f&, const SkMatrix& viewMatrix, uint8_t coverage, GrClipEdgeType,
                  const SkMatrix& localMatrix, bool usesLocalCoords);
-
-    const Attribute& onVertexAttribute(int i) const override { return kAttributes[i]; }
 
     SkPMColor4f fColor;
     SkMatrix fViewMatrix;
