@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfbef74b_ebd7f821",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-06T14:19:10Z",
+      "side": 1,
+      "message": "Cary, I ran this after making the updates to both files, and it changed some things that seem to be unrelated to my change. More importantly, it resulted in a busted macro. Any idea what\u0027s going on here?",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 54
+      },
+      "revId": "d0eaed01f59478f4ff27823a9ced084c31576586",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
