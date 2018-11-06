@@ -9,7 +9,7 @@
 # is mounted at /OUT
 
 # For example:
-# docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/canvaskit:/OUT gcr.io/skia-public/emsdk-release:1.38.6_jre /SRC/infra/canvaskit/build_canvaskit.sh
+# docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/canvaskit:/OUT gcr.io/skia-public/emsdk-release:1.38.16_v1 /SRC/infra/canvaskit/build_canvaskit.sh
 
 set +e
 set -x
@@ -23,3 +23,4 @@ BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 CANVASKIT_DIR=$BASE_DIR/../../experimental/canvaskit
 
 BUILD_DIR=/OUT $CANVASKIT_DIR/compile.sh $@
+
