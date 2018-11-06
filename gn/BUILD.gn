@@ -237,7 +237,7 @@ config("default") {
 
       # A whitelist of checks we can't yet pass.
       if (fyi_sanitize == "" && !is_android) {
-        fyi_sanitizers = "enum,float-divide-by-zero"
+        fyi_sanitizers = "float-divide-by-zero"
       }
 
       if (is_android) {
