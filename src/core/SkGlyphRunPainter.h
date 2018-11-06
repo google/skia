@@ -72,8 +72,9 @@ public:
             const BitmapDevicePainter* bitmapDevice);
 
     class GPUDevicePainter;
+    class DFTControl;
     void drawForGPUDevice(
-            const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
+            const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix, const DFTControl&,
             const GPUDevicePainter* gpuPainter);
 
     template <typename PerGlyphT, typename PerPathT>
