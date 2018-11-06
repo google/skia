@@ -226,18 +226,11 @@ config("default") {
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
 
-    # fyi_sanitizers only print out stacktraces of their issues
-    fyi_sanitizers = fyi_sanitize
     if (sanitize == "ASAN" || sanitize == "UBSAN") {
       # ASAN implicitly runs all UBSAN checks also.
       sanitizers = "undefined"
       if (sanitize == "ASAN") {
         sanitizers += ",address"
-      }
-
-      # A whitelist of checks we can't yet pass.
-      if (fyi_sanitize == "" && !is_android) {
-        fyi_sanitizers = "float-divide-by-zero"
       }
 
       if (is_android) {
@@ -255,7 +248,6 @@ config("default") {
     cflags += [
       "-fsanitize=$sanitizers",
       "-fno-sanitize-recover=$sanitizers",
-      "-fsanitize-recover=$fyi_sanitizers",
       "-fsanitize-blacklist=$_blacklist",
     ]
     ldflags += [ "-fsanitize=$sanitizers" ]
