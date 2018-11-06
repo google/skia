@@ -20,6 +20,7 @@ extern "C" {
         return "leak:libfontconfig\n"    // FontConfig looks like it leaks, but it doesn't.
                "leak:libGL.so\n"         // For NVidia driver.
                "leak:libGLX_nvidia.so\n" // For NVidia driver.
+               "leak:libnvidia-glcore.so\n" // For NVidia driver.
                "leak:__strdup\n"         // An eternal mystery, skia:2916.
                ;
     }
