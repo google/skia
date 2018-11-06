@@ -29,9 +29,14 @@ static void test_font(skiatest::Reporter* reporter) {
     uint16_t glyphs[5];
     sk_bzero(glyphs, sizeof(glyphs));
 
-    int count = font.textToGlyphs("Hello", 5, kUTF8_SkTextEncoding, glyphs, SK_ARRAY_COUNT(glyphs));
-
+    // Check that no glyphs are copied with insufficient storage.
+    int count = font.textToGlyphs("Hello", 5, kUTF8_SkTextEncoding, glyphs, 2);
     REPORTER_ASSERT(reporter, 5 == count);
+    for (const auto glyph : glyphs) { REPORTER_ASSERT(reporter, glyph == 0); }
+
+    SkAssertResult(font.textToGlyphs("Hello", 5, kUTF8_SkTextEncoding, glyphs,
+                                     SK_ARRAY_COUNT(glyphs)) == count);
+
     for (int i = 0; i < count; ++i) {
         REPORTER_ASSERT(reporter, 0 != glyphs[i]);
     }

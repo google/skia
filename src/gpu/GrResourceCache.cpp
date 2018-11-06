@@ -16,6 +16,7 @@
 #include "SkGr.h"
 #include "SkMessageBus.h"
 #include "SkOpts.h"
+#include "SkRandom.h"
 #include "SkTSort.h"
 #include "SkTo.h"
 

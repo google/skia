@@ -12,7 +12,6 @@
 #include "SkColorSpacePriv.h"
 #include "SkConvertPixels.h"
 #include "SkGeometry.h"
-#include "SkPM4f.h"
 #include "SkTo.h"
 
 namespace {

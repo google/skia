@@ -40,6 +40,13 @@ SkGlyphRun::SkGlyphRun(const SkPaint& basePaint,
         , fClusters{clusters}
         , fRunPaint{basePaint, runFont} {}
 
+SkGlyphRun::SkGlyphRun(const SkGlyphRun& that, const SkPaint& paint)
+    : fPositions{that.fPositions}
+    , fGlyphIDs{that.fGlyphIDs}
+    , fText{that.fText}
+    , fClusters{that.fClusters}
+    , fRunPaint{paint} {}
+
 void SkGlyphRun::eachGlyphToGlyphRun(SkGlyphRun::PerGlyph perGlyph) {
     SkPoint point;
     SkGlyphID glyphID;
@@ -53,11 +60,10 @@ void SkGlyphRun::eachGlyphToGlyphRun(SkGlyphRun::PerGlyph perGlyph) {
     };
 
     auto runSize = fGlyphIDs.size();
-    auto runPaint = run.mutablePaint();
     for (size_t i = 0; i < runSize; i++) {
         glyphID = fGlyphIDs[i];
         point = fPositions[i];
-        perGlyph(&run, runPaint);
+        perGlyph(run);
     }
 }
 
@@ -72,17 +78,17 @@ SkGlyphRunList::SkGlyphRunList(
         const SkPaint& paint,
         const SkTextBlob* blob,
         SkPoint origin,
-        SkSpan<SkGlyphRun> glyphRunList)
+        SkSpan<const SkGlyphRun> glyphRunList)
         : fOriginalPaint{&paint}
         , fOriginalTextBlob{blob}
         , fOrigin{origin}
         , fGlyphRuns{glyphRunList} { }
 
-SkGlyphRunList::SkGlyphRunList(SkGlyphRun* glyphRun)
-        : fOriginalPaint{&glyphRun->paint()}
+SkGlyphRunList::SkGlyphRunList(const SkGlyphRun& glyphRun)
+        : fOriginalPaint{&glyphRun.paint()}
         , fOriginalTextBlob{nullptr}
         , fOrigin{SkPoint::Make(0, 0)}
-        , fGlyphRuns{SkSpan<SkGlyphRun>{glyphRun, 1}} {}
+        , fGlyphRuns{SkSpan<const SkGlyphRun>{&glyphRun, 1}} {}
 
 uint64_t SkGlyphRunList::uniqueID() const {
     return fOriginalTextBlob != nullptr ? fOriginalTextBlob->uniqueID()
@@ -346,7 +352,7 @@ void SkGlyphRunBuilder::makeGlyphRunList(
 
     fGlyphRunList.~SkGlyphRunList();
     new (&fGlyphRunList) SkGlyphRunList{
-        paint, blob, origin, SkSpan<SkGlyphRun>{fGlyphRunListStorage}};
+        paint, blob, origin, SkSpan<const SkGlyphRun>{fGlyphRunListStorage}};
 }
 
 void SkGlyphRunBuilder::simplifyDrawText(
@@ -372,18 +378,6 @@ void SkGlyphRunBuilder::simplifyDrawText(
             positions[i] = endOfLastGlyph;
             endOfLastGlyph += fScratchAdvances[i];
         }
-
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-        if (paint.getTextAlign() != SkPaint::kLeft_Align) {
-            SkVector len = endOfLastGlyph - origin;
-            if (paint.getTextAlign() == SkPaint::kCenter_Align) {
-                len.scale(SK_ScalarHalf);
-            }
-            for (auto& pt : SkSpan<SkPoint>{positions, runSize}) {
-                pt -= len;
-            }
-        }
-#endif
 
         this->makeGlyphRun(
                 paint,

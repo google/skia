@@ -181,14 +181,12 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     fCommandBufferInfo.fBounds.join(bounds);
 }
 
-void GrMtlGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
+void GrMtlGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
     // if we end up here from absClear, the clear bounds may be bigger than the RT proxy bounds -
     // but in that case, scissor should be enabled, so this check should still succeed
     SkASSERT(!clip.scissorEnabled() || clip.scissorRect().contains(fBounds));
-    float clear[4];
-    GrColorToRGBAFloat(color, clear);
-    fRenderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clear[0], clear[1], clear[2],
-                                                                       clear[3]);
+    fRenderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(color.fR, color.fG, color.fB,
+                                                                       color.fA);
     fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
     this->internalBegin();
     this->internalEnd();
@@ -242,8 +240,7 @@ MTLRenderPassDescriptor* GrMtlGpuRTCommandBuffer::createRenderPassDesc() const {
             static_cast<GrMtlRenderTarget*>(fRenderTarget)->mtlRenderTexture();
     renderPassDesc.colorAttachments[0].slice = 0;
     renderPassDesc.colorAttachments[0].level = 0;
-    float clearColor[4];
-    GrColorToRGBAFloat(fColorLoadAndStoreInfo.fClearColor, clearColor);
+    const SkPMColor4f& clearColor = fColorLoadAndStoreInfo.fClearColor;
     renderPassDesc.colorAttachments[0].clearColor =
             MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
     renderPassDesc.colorAttachments[0].loadAction =

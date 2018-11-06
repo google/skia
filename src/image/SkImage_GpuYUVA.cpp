@@ -12,10 +12,14 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrGpu.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
+#include "GrTextureProducer.h"
+#include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuYUVA.h"
+#include "SkMipMap.h"
 #include "SkYUVASizeInfo.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
@@ -52,6 +56,25 @@ SkImageInfo SkImage_GpuYUVA::onImageInfo() const {
                              fAlphaType, fColorSpace);
 }
 
+bool SkImage_GpuYUVA::canBeMipmapped(GrContext* context) const {
+    int numTextures;
+    if (!SkYUVAIndex::AreValidIndices(fYUVAIndices, &numTextures)) {
+        return false;
+    }
+
+    for (int i = 0; i < numTextures; ++i) {
+        GrTextureProducer::CopyParams copyParams;
+        int mipCount = SkMipMap::ComputeLevelCount(fProxies[i]->width(), fProxies[i]->height());
+        if (mipCount && GrGpu::IsACopyNeededForMips(fContext->contextPriv().caps(),
+                                                    fProxies[i].get(),
+                                                    GrSamplerState::Filter::kMipMap,
+                                                    &copyParams)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
@@ -69,7 +92,8 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
 
         // TODO: modify the YUVtoRGBEffect to do premul if fImageAlphaType is kPremul_AlphaType
         paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(fProxies, fYUVAIndices,
-                                                               fYUVColorSpace));
+                                                               fYUVColorSpace,
+                                                               GrSamplerState::Filter::kNearest));
 
         const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
 
@@ -94,6 +118,23 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     }
 
     return fRGBProxy;
+}
+
+sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef() const {
+    // if invalid or already has miplevels
+    auto proxy = this->asTextureProxyRef();
+    if (!proxy || GrMipMapped::kYes == fRGBProxy->mipMapped()) {
+        return proxy;
+    }
+
+    // need to generate mips for the proxy
+    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(fContext.get(), proxy.get())) {
+        fRGBProxy = mippedProxy;
+        return mippedProxy;
+    }
+
+    // failed to generate mips
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

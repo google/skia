@@ -8,7 +8,7 @@
 #ifndef SkMask_DEFINED
 #define SkMask_DEFINED
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkMacros.h"
 #include "SkRect.h"
 #include "SkTemplates.h"

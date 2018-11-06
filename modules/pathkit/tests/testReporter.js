@@ -104,3 +104,22 @@ function setCanvasSize(ctx, width, height) {
 function standardizedCanvasSize(ctx) {
     setCanvasSize(ctx, 600, 600);
 }
+
+// A wrapper to catch and print a stacktrace to the logs.
+// Exceptions normally shows up in the browser console,
+// but not in the logs that appear on the bots AND a thrown
+// exception will normally cause a test to time out.
+// This wrapper mitigates both those pain points.
+function catchException(done, fn) {
+    return () => {
+        try {
+            fn()
+        } catch (e) {
+            console.log('Failed with the following error', e);
+            done();
+        }
+        // We don't call done with finally because
+        // that would make the break the asynchronous nature
+        // of fn().
+    }
+}

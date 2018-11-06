@@ -14,7 +14,7 @@
 
 std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
                                            const GrFixedClip& clip,
-                                           GrColor color,
+                                           const SkPMColor4f& color,
                                            GrSurfaceProxy* dstProxy) {
     const SkIRect rect = SkIRect::MakeWH(dstProxy->width(), dstProxy->height());
     if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
@@ -28,7 +28,7 @@ std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
 
 std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
                                            const SkIRect& rect,
-                                           GrColor color,
+                                           const SkPMColor4f& color,
                                            bool fullScreen) {
     SkASSERT(fullScreen || !rect.isEmpty());
 
@@ -37,7 +37,7 @@ std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
     return pool->allocate<GrClearOp>(rect, color, fullScreen);
 }
 
-GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy)
+GrClearOp::GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfaceProxy* proxy)
         : INHERITED(ClassID())
         , fClip(clip)
         , fColor(color) {

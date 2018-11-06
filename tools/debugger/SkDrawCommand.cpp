@@ -67,7 +67,6 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_BLUR              "blur"
 #define SKDEBUGCANVAS_ATTRIBUTE_SIGMA             "sigma"
 #define SKDEBUGCANVAS_ATTRIBUTE_QUALITY           "quality"
-#define SKDEBUGCANVAS_ATTRIBUTE_TEXTALIGN         "textAlign"
 #define SKDEBUGCANVAS_ATTRIBUTE_TEXTSIZE          "textSize"
 #define SKDEBUGCANVAS_ATTRIBUTE_TEXTSCALEX        "textScaleX"
 #define SKDEBUGCANVAS_ATTRIBUTE_TEXTSKEWX         "textSkewX"
@@ -154,10 +153,6 @@
 
 #define SKDEBUGCANVAS_BLURQUALITY_LOW             "low"
 #define SKDEBUGCANVAS_BLURQUALITY_HIGH            "high"
-
-#define SKDEBUGCANVAS_ALIGN_LEFT                  "left"
-#define SKDEBUGCANVAS_ALIGN_CENTER                "center"
-#define SKDEBUGCANVAS_ALIGN_RIGHT                 "right"
 
 #define SKDEBUGCANVAS_FILLTYPE_WINDING            "winding"
 #define SKDEBUGCANVAS_FILLTYPE_EVENODD            "evenOdd"
@@ -968,25 +963,6 @@ static void apply_paint_patheffect(const SkPaint& paint, Json::Value* target,
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-static void apply_paint_textalign(const SkPaint& paint, Json::Value* target) {
-    SkPaint::Align textAlign = paint.getTextAlign();
-    if (textAlign != SkPaint::kLeft_Align) {
-        switch (textAlign) {
-            case SkPaint::kCenter_Align: {
-                (*target)[SKDEBUGCANVAS_ATTRIBUTE_TEXTALIGN] = SKDEBUGCANVAS_ALIGN_CENTER;
-                break;
-            }
-            case SkPaint::kRight_Align: {
-                (*target)[SKDEBUGCANVAS_ATTRIBUTE_TEXTALIGN] = SKDEBUGCANVAS_ALIGN_RIGHT;
-                break;
-            }
-            default: SkASSERT(false);
-        }
-    }
-}
-#endif
-
 static void apply_paint_typeface(const SkPaint& paint, Json::Value* target,
                                  UrlDataManager& urlDataManager) {
     SkTypeface* typeface = paint.getTypeface();
@@ -1071,9 +1047,6 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
     apply_paint_cap(paint, &result);
     apply_paint_join(paint, &result);
     apply_paint_filterquality(paint, &result);
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-    apply_paint_textalign(paint, &result);
-#endif
     apply_paint_patheffect(paint, &result, urlDataManager);
     apply_paint_maskfilter(paint, &result, urlDataManager);
     apply_paint_shader(paint, &result, urlDataManager);

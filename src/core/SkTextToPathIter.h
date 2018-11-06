@@ -11,7 +11,6 @@
 #include "SkPaint.h"
 #include "SkStrikeCache.h"
 
-
 class SkTextBaseIter {
 protected:
     SkTextBaseIter(const char text[], size_t length, const SkPaint& paint,
@@ -53,10 +52,7 @@ public:
 
     SkTextInterceptsIter(const char text[], size_t length, const SkPaint& paint,
                          const SkScalar bounds[2], SkScalar x, SkScalar y, TextType textType)
-                         : SkTextBaseIter(text, length, paint, false)
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-                         , fTextType(textType)
-#endif
+         : SkTextBaseIter(text, length, paint, false)
     {
         fBoundsBase[0] = bounds[0];
         fBoundsBase[1] = bounds[1];
@@ -70,19 +66,6 @@ public:
 
     void setPosition(SkScalar x, SkScalar y) {
         SkScalar xOffset = 0;
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-        if (TextType::kPosText == fTextType
-                && fPaint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
-            const char* text = fText;
-            const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &text, fStop);
-            SkScalar width = (&glyph.fAdvanceX)[0] * fScale;
-            if (fPaint.getTextAlign() == SkPaint::kCenter_Align) {
-                width = SkScalarHalf(width);
-            }
-            xOffset = width;
-        }
-#endif
-
         for (int i = 0; i < (int) SK_ARRAY_COUNT(fBounds); ++i) {
             SkScalar bound = fBoundsBase[i] - y;
             fBounds[i] = bound / fScale;
@@ -95,9 +78,6 @@ public:
 private:
     SkScalar fBounds[2];
     SkScalar fBoundsBase[2];
-#ifdef SK_SUPPORT_LEGACY_SETTEXTALIGN
-    TextType fTextType;
-#endif
 };
 
 #endif

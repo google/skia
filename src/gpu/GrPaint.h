@@ -112,7 +112,7 @@ public:
      * coverage and color, so the actual values written to pixels with partial coverage may still
      * not seem constant, even if this function returns true.
      */
-    bool isConstantBlendedColor(GrColor* constantColor) const;
+    bool isConstantBlendedColor(SkPMColor4f* constantColor) const;
 
     /**
      * A trivial paint is one that uses src-over and has no fragment processors.
