@@ -281,10 +281,12 @@ public:
         SkRandom r;
         const int kDrawsPerLoop = 32;
 
+        const GrBackendFormat format =
+            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
         for (int i = 0; i < loops; ++i) {
             sk_sp<GrRenderTargetContext> rtc(
-                    context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
-                    100, 100, kRGBA_8888_GrPixelConfig, p3));
+                    context->contextPriv().makeDeferredRenderTargetContext(
+                            format, SkBackingFit::kApprox, 100, 100, kRGBA_8888_GrPixelConfig, p3));
             SkASSERT(rtc);
 
             for (int j = 0; j < kDrawsPerLoop; ++j) {
