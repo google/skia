@@ -320,7 +320,7 @@ static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
         VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR,      // kIS2C_GrBlendCoeff
         VK_BLEND_FACTOR_SRC1_ALPHA,                // kS2A_GrBlendCoeff
         VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA,      // kIS2A_GrBlendCoeff
-
+        VK_BLEND_FACTOR_ZERO,                      // kIllegal_GrBlendCoeff
     };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kGrBlendCoeffCnt);
     GR_STATIC_ASSERT(0 == kZero_GrBlendCoeff);
@@ -369,7 +369,10 @@ static VkBlendOp blend_equation_to_vk_blend_op(GrBlendEquation equation) {
         VK_BLEND_OP_HSL_HUE_EXT,
         VK_BLEND_OP_HSL_SATURATION_EXT,
         VK_BLEND_OP_HSL_COLOR_EXT,
-        VK_BLEND_OP_HSL_LUMINOSITY_EXT
+        VK_BLEND_OP_HSL_LUMINOSITY_EXT,
+
+        // Illegal.
+        VK_BLEND_OP_ADD,
     };
     GR_STATIC_ASSERT(0 == kAdd_GrBlendEquation);
     GR_STATIC_ASSERT(1 == kSubtract_GrBlendEquation);
@@ -416,6 +419,9 @@ static bool blend_coeff_refs_constant(GrBlendCoeff coeff) {
         false,
         false,
         false,
+        false,
+
+        // Illegal
         false,
     };
     return gCoeffReferencesBlendConst[coeff];
