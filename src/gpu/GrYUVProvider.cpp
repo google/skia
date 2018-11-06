@@ -101,7 +101,9 @@ void GrYUVProvider::YUVGen_DataReleaseProc(const void*, void* data) {
     cachedData->unref();
 }
 
-sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrSurfaceDesc& desc,
+sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
+                                                       const GrBackendFormat& format,
+                                                       const GrSurfaceDesc& desc,
                                                        SkColorSpace* srcColorSpace,
                                                        SkColorSpace* dstColorSpace) {
     SkYUVASizeInfo yuvSizeInfo;
@@ -156,7 +158,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
     // TODO: investigate preallocating mip maps here
     sk_sp<GrRenderTargetContext> renderTargetContext(
         ctx->contextPriv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, desc.fWidth, desc.fHeight, desc.fConfig, nullptr,
+            format, SkBackingFit::kExact, desc.fWidth, desc.fHeight, desc.fConfig, nullptr,
             desc.fSampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
     if (!renderTargetContext) {
         return nullptr;

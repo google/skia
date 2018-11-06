@@ -72,6 +72,12 @@ GrCCAtlas::GrCCAtlas(GrPixelConfig pixelConfig, const Specs& specs, const GrCaps
 
     fTopNode = skstd::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
 
+    // TODO: don't have this rely on the GrPixelConfig
+    GrSRGBEncoded srgbEncoded;
+    GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(pixelConfig, &srgbEncoded);
+    const GrBackendFormat format =
+            caps.getBackendFormatFromGrColorType(colorType, srgbEncoded);
+
     fTextureProxy = GrProxyProvider::MakeFullyLazyProxy(
             [this, pixelConfig](GrResourceProvider* resourceProvider) {
                     if (!resourceProvider) {
@@ -87,7 +93,7 @@ GrCCAtlas::GrCCAtlas(GrPixelConfig pixelConfig, const Specs& specs, const GrCaps
                     }
                     return fBackingTexture;
             },
-            GrProxyProvider::Renderable::kYes, kTextureOrigin, pixelConfig, caps);
+            format, GrProxyProvider::Renderable::kYes, kTextureOrigin, pixelConfig, caps);
 }
 
 GrCCAtlas::~GrCCAtlas() {
