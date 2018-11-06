@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4b48a6df_d06b7edd",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-06T13:04:42Z",
+      "side": 1,
+      "message": "Done.\n\nI had renamed it to force me to evaluate each site that used it, when switching some of them to font.",
+      "parentUuid": "944bffb4_a99aea04",
+      "range": {
+        "startLine": 904,
+        "startChar": 55,
+        "endLine": 904,
+        "endChar": 59
+      },
+      "revId": "a44971167a49c86be3b03aed8d2b4cf446b81a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c186fa3a_de5892a7",
         "filename": "src/core/SkScalerContext.h",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d04753e5_6d93f353",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-06T13:04:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c186fa3a_de5892a7",
+      "range": {
+        "startLine": 323,
+        "startChar": 16,
+        "endLine": 323,
+        "endChar": 33
+      },
+      "revId": "a44971167a49c86be3b03aed8d2b4cf446b81a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ccad1fa_9bedccf6",
         "filename": "src/core/SkTypeface.cpp",
         "patchSetId": 1
@@ -59,6 +107,24 @@
       "writtenOn": "2018-11-05T22:07:41Z",
       "side": 1,
       "message": "font, SkSurfacePropsDefaultPixelGeometry(), SkMatrix::I(), SkScalerContextFlags::kNone, \u0026rec, \u0026effects",
+      "revId": "a44971167a49c86be3b03aed8d2b4cf446b81a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4829a0dd_b1c5986a",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-06T13:04:42Z",
+      "side": 1,
+      "message": "The two fields after font are pointers, so null was appropriate. However, I have uploaded a newer version that names those nulls for better documentation.",
+      "parentUuid": "6ccad1fa_9bedccf6",
       "revId": "a44971167a49c86be3b03aed8d2b4cf446b81a30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
