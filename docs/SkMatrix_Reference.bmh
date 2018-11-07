@@ -8,7 +8,7 @@
 #Populate
 ##
 
-Matrix holds a 3x3 matrix for transforming coordinates. This allows mapping
+Matrix holds a 3 by 3 matrix for transforming coordinates. This allows mapping
 Points and Vectors with translation, scaling, skewing, rotation, and
 perspective.
 
@@ -24,7 +24,7 @@ improve performance. Matrix is not thread safe unless getType is called first.
 
 #Method static SkMatrix MakeScale(SkScalar sx, SkScalar sy)
 #In Constructors
-#Line # constructs from scale in x and y ##
+#Line # constructs from scale on x-axis and y-axis ##
 #Populate
 
 #Example
@@ -56,7 +56,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method static SkMatrix MakeTrans(SkScalar dx, SkScalar dy)
 #In Constructors
-#Line # constructs from translate in x and y ##
+#Line # constructs from translate on x-axis and y-axis ##
 #Populate
 
 #Example
@@ -108,7 +108,7 @@ for (int i = 0; i < 4; ++i) {
 #Populate
 ##
 
-Enum of bit fields for mask returned by getType.
+Enumeration of bit fields for mask returned by getType.
 Used to identify the complexity of Matrix, to optimize performance.
 
 #Const kIdentity_Mask 0
@@ -121,7 +121,7 @@ set if Matrix has translation
 ##
 #Const kScale_Mask 2
 #Line # scale Matrix ##
-set if Matrix has x or y scale
+set if Matrix scales x-axis or y-axis
 ##
 #Const kAffine_Mask 4
 #Line # skew or rotate Matrix ##
@@ -1129,7 +1129,7 @@ m.isIdentity(): true
 #Method void setTranslate(SkScalar dx, SkScalar dy)
 #In Constructors
 #In Set
-#Line # sets to translate in x and y ##
+#Line # sets to translate on x-axis and y-axis ##
 #Populate
 
 #Example
@@ -1722,8 +1722,8 @@ canvas->drawBitmap(source, 0, 0);
 #In Set
 #In Operators
 #Line # post-multiplies Matrix by inverse scale ##
-Sets Matrix to Matrix constructed from scaling by #Formula # (1/divx, 1/divy) ##,
-about pivot point (px, py), multiplied by Matrix.
+Sets Matrix to Matrix constructed from scaling by (1/divx, 1/divy),
+multiplied by Matrix.
 
 Returns false if either divx or divy is zero.
 
@@ -1753,8 +1753,8 @@ I(divx, divy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
                          |  0  0  1 | | P Q R |   |    P    Q    R |
 ##
 
-#Param divx  integer divisor for inverse scale in x ##
-#Param divy  integer divisor for inverse scale in y ##
+#Param divx  integer divisor for inverse scale on x-axis ##
+#Param divy  integer divisor for inverse scale on y-axis ##
 
 #Return  true on successful scale ##
 
@@ -1902,10 +1902,10 @@ or may restrict Matrix to square scaling. If restricted, ScaleToFit specifies
 how Matrix maps to the side or center of the destination Rect.
 
 #Const kFill_ScaleToFit 0
-#Line # scales in x and y to fill destination Rect ##
-    Computes Matrix that scales in x and y independently, so that source Rect is
-    mapped to completely fill destination Rect. The aspect ratio of source Rect
-    may change.
+#Line # scales about x-axis and y-axis to fill destination Rect ##
+    Computes Matrix that scales about x-axis and y-axis independently, so that
+    source Rect is mapped to completely fill destination Rect. The aspect ratio
+    of source Rect may change.
 ##
 #Const kStart_ScaleToFit 1
 #Line # scales and aligns to left and top ##
@@ -2603,7 +2603,7 @@ the area enclosed by the ellipse major and minor axes.
 # ------------------------------------------------------------------------------
 #Method bool isFixedStepInX() const
 #In Property
-#Line # returns if transformation supports fixed step in x ##
+#Line # returns if transformation supports fixed step on x-axis ##
 #Populate
 
 #Example
@@ -2645,7 +2645,7 @@ isFixedStepInX: false
 
 #Method SkVector fixedStepInX(SkScalar y) const
 #In Property
-#Line # returns step in x for a position in y ##
+#Line # returns step on x-axis for a position on y-axis ##
 #Populate
 
 #Example
@@ -2941,7 +2941,7 @@ scaleX 3.40282e+38
 ##
 ##
 
-#SeeAlso SeeAlso getType
+#SeeAlso getType
 
 ##
 

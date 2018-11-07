@@ -365,8 +365,8 @@
         "stdout": "---\\n-x-\\n---\\n"
     },
         "SkCanvas_MakeRasterDirectN32": {
-    "code": "void draw(SkCanvas* ) {\n    const int width = 3;\n    const int height = 3;\n    SkPMColor pixels[height][width];  // allocate a 3x3 Premultiplied bitmap on the stack\n    // create a SkCanvas backed by a raster device, and delete it when the\n    // function goes out of scope.\n    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirectN32(\n            width,\n            height,\n            pixels[0],  // top-left of the bitmap\n            sizeof(pixels[0]));  // byte width of the each row\n    // write a Premultiplied value for white into all pixels in the bitmap\n    canvas->clear(SK_ColorWHITE);\n    SkPMColor pmWhite = pixels[0][0];  // the Premultiplied format may vary\n    SkPaint paint;  // by default, draws black\n    canvas->drawPoint(1, 1, paint);  // draw in the center\n    canvas->flush();  // ensure that pixels is ready to be read\n    for (int y = 0; y < height; ++y) {\n        for (int x = 0; x < width; ++x) {\n            SkDebugf(\"%c\", pixels[y][x] == pmWhite ? '-' : 'x');\n        }\n        SkDebugf(\"\\n\");\n    }\n}\n",
-    "hash": "4cacf302830e644234d522f6e2f8f580",
+    "code": "void draw(SkCanvas* ) {\n    const int width = 3;\n    const int height = 3;\n    SkPMColor pixels[height][width];  // allocate a 3 by 3 Premultiplied bitmap on the stack\n    // create a SkCanvas backed by a raster device, and delete it when the\n    // function goes out of scope.\n    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirectN32(\n            width,\n            height,\n            pixels[0],  // top-left of the bitmap\n            sizeof(pixels[0]));  // byte width of the each row\n    // write a Premultiplied value for white into all pixels in the bitmap\n    canvas->clear(SK_ColorWHITE);\n    SkPMColor pmWhite = pixels[0][0];  // the Premultiplied format may vary\n    SkPaint paint;  // by default, draws black\n    canvas->drawPoint(1, 1, paint);  // draw in the center\n    canvas->flush();  // ensure that pixels is ready to be read\n    for (int y = 0; y < height; ++y) {\n        for (int x = 0; x < width; ++x) {\n            SkDebugf(\"%c\", pixels[y][x] == pmWhite ? '-' : 'x');\n        }\n        SkDebugf(\"\\n\");\n    }\n}\n",
+    "hash": "87f55e62ec4c3535e1a5d0f1415b20c6",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::MakeRasterDirectN32",
         "stdout": "---\\n-x-\\n---\\n"
@@ -1492,8 +1492,8 @@
         "stdout": "(SkPaint::kAntiAlias_Flag & paint.getFlags()) != 0\\n"
     },
         "SkPaint_getFontBounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkFontMetrics fm;\n    paint.getFontMetrics(&fm);\n    SkRect fb = paint.getFontBounds();\n    SkDebugf(\"metrics bounds = { %g, %g, %g, %g }\\n\", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );\n    SkDebugf(\"font bounds    = { %g, %g, %g, %g }\\n\", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );\n}",
-    "hash": "f29d005a75efd4746c6744004a0cb421",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPaint::FontMetrics fm;\n    paint.getFontMetrics(&fm);\n    SkRect fb = paint.getFontBounds();\n    SkDebugf(\"metrics bounds = { %g, %g, %g, %g }\\n\", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );\n    SkDebugf(\"font bounds    = { %g, %g, %g, %g }\\n\", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );\n}",
+    "hash": "facaddeec7943bc491988e345e27e65f",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getFontBounds",
         "stdout": "metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }\\nfont bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }\\n"
@@ -9027,52 +9027,28 @@
     "name": "SkSurface::writePixels_2"
 },
     "SkTextBlobBuilder_allocRun": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint, glyphPaint;\n    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(glyphPaint, 5, 20, 20);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    canvas->drawRect({20, 20, 30, 30}, paint);\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
-    "width": 256,
-    "height": 60,
-    "hash": "aedc51083fadd99451fe5180b8ff4c7d",
-    "file": "SkTextBlobBuilder_Reference",
-    "name": "SkTextBlobBuilder::allocRun"
-},
-    "SkTextBlobBuilder_allocRunPos": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint, font;\n    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPos(font, 5);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    SkPoint positions[] = {{0, 0}, {10, 10}, {20, 20}, {40, 40}, {80, 80}};\n    memcpy(run.pos, positions, sizeof(positions));\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
-    "width": 256,
-    "height": 90,
-    "hash": "2a11d3c287f785f3808dcbce08ccb435",
-    "file": "SkTextBlobBuilder_Reference",
-    "name": "SkTextBlobBuilder::allocRunPos"
-},
-    "SkTextBlobBuilder_allocRunPosH": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint, glyphPaint;\n    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPosH(glyphPaint, 5, 20);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    SkScalar positions[] = {0, 10, 20, 40, 80};\n    memcpy(run.pos, positions, sizeof(positions));\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
-    "width": 256,
-    "height": 60,
-    "hash": "735c352787b24e490740dedd035987d2",
-    "file": "SkTextBlobBuilder_Reference",
-    "name": "SkTextBlobBuilder::allocRunPosH"
-},
-    "SkTextBlobBuilder_allocRunPosH_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint;\n    SkFont font;\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPosH(font, 5, 20);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    SkScalar positions[] = {0, 10, 20, 40, 80};\n    memcpy(run.pos, positions, sizeof(positions));\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
-    "width": 256,
-    "height": 60,
-    "hash": "c77ac50f506106fdfef94d20bc1a6934",
-    "file": "SkTextBlobBuilder_Reference",
-    "name": "SkTextBlobBuilder::allocRunPosH_2"
-},
-    "SkTextBlobBuilder_allocRunPos_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint;\n    SkFont font;\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPos(font, 5);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    SkPoint positions[] = {{0, 0}, {10, 10}, {20, 20}, {40, 40}, {80, 80}};\n    memcpy(run.pos, positions, sizeof(positions));\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
-    "width": 256,
-    "height": 90,
-    "hash": "da4fcb4a972b500996be9aff6c6c40e1",
-    "file": "SkTextBlobBuilder_Reference",
-    "name": "SkTextBlobBuilder::allocRunPos_2"
-},
-    "SkTextBlobBuilder_allocRun_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkFont font;\n    SkPaint paint;\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(font, 5, 20, 20);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    canvas->drawRect({20, 20, 30, 30}, paint);\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
     "width": 256,
     "height": 60,
     "hash": "f0e584aec20eaee7a5bfed62aa885eee",
     "file": "SkTextBlobBuilder_Reference",
-    "name": "SkTextBlobBuilder::allocRun_2"
+    "name": "SkTextBlobBuilder::allocRun"
+},
+    "SkTextBlobBuilder_allocRunPos": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint;\n    SkFont font;\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPos(font, 5);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    SkPoint positions[] = {{0, 0}, {10, 10}, {20, 20}, {40, 40}, {80, 80}};\n    memcpy(run.pos, positions, sizeof(positions));\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
+    "width": 256,
+    "height": 90,
+    "hash": "da4fcb4a972b500996be9aff6c6c40e1",
+    "file": "SkTextBlobBuilder_Reference",
+    "name": "SkTextBlobBuilder::allocRunPos"
+},
+    "SkTextBlobBuilder_allocRunPosH": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint;\n    SkFont font;\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPosH(font, 5, 20);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    SkScalar positions[] = {0, 10, 20, 40, 80};\n    memcpy(run.pos, positions, sizeof(positions));\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
+    "width": 256,
+    "height": 60,
+    "hash": "c77ac50f506106fdfef94d20bc1a6934",
+    "file": "SkTextBlobBuilder_Reference",
+    "name": "SkTextBlobBuilder::allocRunPosH"
 },
     "SkTextBlob_Deserialize": {
     "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkFont blobFont;\n    blobFont.setSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World!\", 12, blobFont);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    uint16_t glyphs[6];\n    SkPaint blobPaint;\n    blobPaint.textToGlyphs(\"Hacker\", 6, glyphs);\n    memcpy((char*)data->writable_data() + 0x54, glyphs, sizeof(glyphs));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
