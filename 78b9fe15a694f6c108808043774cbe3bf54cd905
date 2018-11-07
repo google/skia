@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "76fa690b_1cacd9a5",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T01:56:05Z",
+      "side": 1,
+      "message": "I expect SkWuffsCodec to support sampling pretty soon. I\u0027ll just change this CL to remove the existing #ifdef\u0027s.",
+      "parentUuid": "4ee02b1c_d5742d33",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 6
+      },
+      "revId": "78b9fe15a694f6c108808043774cbe3bf54cd905",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a47c6096_20f2b4f2",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "78b9fe15a694f6c108808043774cbe3bf54cd905",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98e45912_24f159cc",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T01:56:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a47c6096_20f2b4f2",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 79
+      },
+      "revId": "78b9fe15a694f6c108808043774cbe3bf54cd905",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
