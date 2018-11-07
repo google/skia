@@ -181,7 +181,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
         positions = shader.fOrigPos;
     } else {
         implicitPos.reserve(shader.fColorCount);
-        SkScalar posScale = SkScalarFastInvert(shader.fColorCount - 1);
+        SkScalar posScale = SK_Scalar1 / (shader.fColorCount - 1);
         for (int i = 0 ; i < shader.fColorCount; i++) {
             implicitPos.push_back(SkIntToScalar(i) * posScale);
         }

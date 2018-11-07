@@ -986,7 +986,7 @@ void SkMatrix::Persp_pts(const SkMatrix& m, SkPoint dst[],
             SkScalar z = sdot(sx, m.fMat[kMPersp0], sy, m.fMat[kMPersp1]) + m.fMat[kMPersp2];
 #endif
             if (z) {
-                z = SkScalarFastInvert(z);
+                z = 1 / z;
             }
 
             dst->fY = y * z;
@@ -1177,7 +1177,7 @@ void SkMatrix::Persp_xy(const SkMatrix& m, SkScalar sx, SkScalar sy,
     SkScalar y = sdot(sx, m.fMat[kMSkewY],  sy, m.fMat[kMScaleY]) + m.fMat[kMTransY];
     SkScalar z = sdot(sx, m.fMat[kMPersp0], sy, m.fMat[kMPersp1]) + m.fMat[kMPersp2];
     if (z) {
-        z = SkScalarFastInvert(z);
+        z = 1 / z;
     }
     pt->fX = x * z;
     pt->fY = y * z;
