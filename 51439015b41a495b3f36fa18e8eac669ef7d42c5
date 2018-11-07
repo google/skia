@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "dc1b6a24_132d9d04",
+        "filename": "bench/DecodeBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T22:41:59Z",
+      "side": 1,
+      "message": "OK, I got that to work.\n\nIn case anyone else gets here in the future, \"--benchType\" needs a capital \"T\".",
+      "parentUuid": "fec84426_f4d82e09",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 17
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "052809ac_28015086",
         "filename": "bench/DecodeBench.cpp",
         "patchSetId": 1
