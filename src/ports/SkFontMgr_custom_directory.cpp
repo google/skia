@@ -21,7 +21,10 @@ public:
         load_directory_fonts(scanner, fBaseDirectory, ".ttf", families);
         load_directory_fonts(scanner, fBaseDirectory, ".ttc", families);
         load_directory_fonts(scanner, fBaseDirectory, ".otf", families);
-        load_directory_fonts(scanner, fBaseDirectory, ".pfb", families);
+
+        #if !defined(SK_DISABLE_PFB_FONTS)
+            load_directory_fonts(scanner, fBaseDirectory, ".pfb", families);
+        #endif
 
         if (families->empty()) {
             SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
