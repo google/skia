@@ -122,12 +122,12 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* writer) {
             start = nextStart;
             end = nextEnd;
         } while (!writer->isClosed() && (!unsortable || !start->starter(end)->done()));
-#ifdef SK_DEBUG
         if (!writer->isClosed()) {
             SkOpSpan* spanStart = start->starter(end);
-            SkASSERT(spanStart->done());
+            if (!spanStart->done()) {
+                return false;
+            }
         }
-#endif
         writer->finishContour();
         SkPathOpsDebug::ShowActiveSpans(contourList);
     } while (true);
