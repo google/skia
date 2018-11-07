@@ -58,14 +58,16 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
         };
 
         for (int resId : rawAssets) {
-            SkottieView view = new SkottieView(this, getResources().openRawResource(resId));
+            SkottieView view = new SkottieView(this);
+            view.setSource(getResources().openRawResource(resId));
             mAnimations.add(view);
         }
 
         for (Uri uri : mAnimationFiles) {
             try {
                 InputStream inputStream = getContentResolver().openInputStream(uri);
-                SkottieView view = new SkottieView(this, inputStream);
+                SkottieView view = new SkottieView(this);
+                view.setSource(inputStream);
                 mAnimations.add(view);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -118,7 +120,7 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
             //start and show animations that were in the background
             for (SkottieView anyView : mAnimations) {
                 if (anyView != oldView) {
-                    anyView.start();
+                    anyView.getSkottieAnimation().start();
                     anyView.setVisibility(View.VISIBLE);
                 }
             }
@@ -128,7 +130,7 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
         //stop and hide animations in the background
         for (SkottieView anyView : mAnimations) {
             if (anyView != view) {
-                anyView.stop();
+                anyView.getSkottieAnimation().stop();
                 anyView.setVisibility(View.INVISIBLE);
             }
         }
@@ -173,13 +175,13 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
 
     private void startAnimation() {
         for (SkottieView view : mAnimations) {
-            view.start();
+            view.getSkottieAnimation().start();
         }
     }
 
     private void stopAnimation() {
         for (SkottieView view : mAnimations) {
-            view.stop();
+            view.getSkottieAnimation().stop();
         }
     }
 
@@ -187,7 +189,8 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
         InputStream inputStream = getContentResolver().openInputStream(uri);
         int animations = mAnimations.size();
         if (animations < mRowCount * mColumnCount) {
-            SkottieView view = new SkottieView(this, inputStream);
+            SkottieView view = new SkottieView(this);
+            view.setSource(inputStream);
             int row = animations / mColumnCount, column = animations % mColumnCount;
             mAnimations.add(view);
             mAnimationFiles.add(uri);
@@ -197,7 +200,7 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
                 }
             });
             addView(view, row, column, true);
-            view.start();
+            view.getSkottieAnimation().start();
         } else {
             stopAnimation();
             mAnimationFiles.add(uri);

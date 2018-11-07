@@ -59,8 +59,8 @@ public class SkottieRunner {
      * Create a new animation by feeding data from "is" and replaying in a TextureView.
      * TextureView is tracked internally for SurfaceTexture state.
      */
-    public Animatable createAnimation(TextureView view, InputStream is) {
-        return new SkottieAnimation(view, is);
+    public SkottieAnimation createAnimation(TextureView view, InputStream is) {
+        return new SkottieAnimationImpl(view, is);
     }
 
     /**
@@ -68,8 +68,8 @@ public class SkottieRunner {
      * SurfaceTexture is possibly taken from a TextureView and can be updated with
      * updateAnimationSurface.
      */
-    public Animatable createAnimation(SurfaceTexture surfaceTexture, InputStream is) {
-        return new SkottieAnimation(surfaceTexture, is);
+    public SkottieAnimation createAnimation(SurfaceTexture surfaceTexture, InputStream is) {
+        return new SkottieAnimationImpl(surfaceTexture, is);
     }
 
     /**
@@ -78,7 +78,7 @@ public class SkottieRunner {
      */
     public void updateAnimationSurface(Animatable animation, SurfaceTexture surfaceTexture,
                                        int width, int height) {
-        ((SkottieAnimation) animation).updateSurface(surfaceTexture, width, height);
+        ((SkottieAnimationImpl) animation).updateSurface(surfaceTexture, width, height);
     }
 
     private SkottieRunner()
@@ -252,7 +252,7 @@ public class SkottieRunner {
         }
     }
 
-    private class SkottieAnimation implements Animatable, Choreographer.FrameCallback,
+    private class SkottieAnimationImpl implements SkottieAnimation, Choreographer.FrameCallback,
             TextureView.SurfaceTextureListener {
         boolean mIsRunning = false;
         SurfaceTexture mSurfaceTexture;
@@ -264,12 +264,15 @@ public class SkottieRunner {
         private long mNativeProxy;
         private InputStream mInputStream;
         private byte[]  mTempStorage;
+        private long mDuration;  // duration in ms of the animation
+        private float mProgress; // animation progress in the range of 0.0f to 1.0f
+        private long mAnimationStartTime; // time in System.nanoTime units, when started
 
-        SkottieAnimation(SurfaceTexture surfaceTexture, InputStream is) {
+        SkottieAnimationImpl(SurfaceTexture surfaceTexture, InputStream is) {
             init(surfaceTexture, is);
         }
 
-        SkottieAnimation(TextureView view, InputStream is) {
+        SkottieAnimationImpl(TextureView view, InputStream is) {
             init(view.getSurfaceTexture(), is);
             view.setSurfaceTextureListener(this);
         }
@@ -280,6 +283,8 @@ public class SkottieRunner {
             long proxy = SkottieRunner.getInstance().getNativeProxy();
             mNativeProxy = nCreateProxy(proxy, mInputStream, mTempStorage);
             mSurfaceTexture = surfaceTexture;
+            mDuration = nGetDuration(mNativeProxy);
+            mProgress = 0f;
         }
 
         @Override
@@ -300,6 +305,8 @@ public class SkottieRunner {
                     mSurfaceWidth = width;
                     mSurfaceHeight = height;
                     mNewSurface = true;
+
+                    drawFrame();
                 });
             }
             catch (Throwable t) {
@@ -313,9 +320,11 @@ public class SkottieRunner {
             try {
                 runOnGLThread(() -> {
                     if (!mIsRunning) {
+                        long currentTime = System.nanoTime();
+                        mAnimationStartTime = currentTime - (long)(1000000 * mDuration * mProgress);
                         mIsRunning = true;
                         mNewSurface = true;
-                        Choreographer.getInstance().postFrameCallback(this);
+                        doFrame(currentTime);
                     }
                 });
             }
@@ -351,22 +360,35 @@ public class SkottieRunner {
         }
 
         @Override
-        public void doFrame(long frameTimeNanos) {
+        public long getDuration() {
+            return mDuration;
+        }
+
+        @Override
+        public void setProgress(float progress) {
             try {
-                if (mIsRunning) {
-                    // Schedule next frame.
-                    Choreographer.getInstance().postFrameCallback(this);
-                } else {
-                    // If animation stopped, release EGL surface.
-                    if (mEglSurface != null) {
-                        // Ensure we always have a valid surface & context.
-                        mEgl.eglMakeCurrent(mEglDisplay, mPBufferSurface, mPBufferSurface,
-                                mEglContext);
-                        mEgl.eglDestroySurface(mEglDisplay, mEglSurface);
-                        mEglSurface = null;
+                runOnGLThread(() -> {
+                    mProgress = progress;
+                    if (mIsRunning) {
+                        mAnimationStartTime = System.nanoTime()
+                                - (long)(1000000 * mDuration * mProgress);
                     }
-                    return;
-                }
+                    drawFrame();
+                });
+            }
+            catch (Throwable t) {
+                Log.e(LOG_TAG, "setProgress failed", t);
+                throw new RuntimeException(t);
+            }
+        }
+
+        @Override
+        public float getProgress() {
+            return mProgress;
+        }
+
+        private void drawFrame() {
+            try {
                 if (mNewSurface) {
                     // if there is a new SurfaceTexture, we need to recreate the EGL surface.
                     if (mEglSurface != null) {
@@ -399,7 +421,7 @@ public class SkottieRunner {
                     }
 
                     nDrawFrame(mNativeProxy, mSurfaceWidth, mSurfaceHeight, false,
-                            frameTimeNanos);
+                            mProgress);
                     if (!mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) {
                         int error = mEgl.eglGetError();
                         if (error == EGL10.EGL_BAD_SURFACE
@@ -418,11 +440,39 @@ public class SkottieRunner {
                         throw new RuntimeException("Cannot swap buffers "
                                 + GLUtils.getEGLErrorString(error));
                     }
+
+                    // If animation stopped, release EGL surface.
+                    if (!mIsRunning) {
+                        // Ensure we always have a valid surface & context.
+                        mEgl.eglMakeCurrent(mEglDisplay, mPBufferSurface, mPBufferSurface,
+                                mEglContext);
+                        mEgl.eglDestroySurface(mEglDisplay, mEglSurface);
+                        mEglSurface = null;
+                    }
                 }
             } catch (Throwable t) {
-                Log.e(LOG_TAG, "doFrame failed", t);
+                Log.e(LOG_TAG, "drawFrame failed", t);
                 mIsRunning = false;
             }
+        }
+
+        @Override
+        public void doFrame(long frameTimeNanos) {
+            if (mIsRunning) {
+                // Schedule next frame.
+                Choreographer.getInstance().postFrameCallback(this);
+
+                // Advance animation.
+                long durationNS = mDuration * 1000000;
+                long timeSinceAnimationStartNS = frameTimeNanos - mAnimationStartTime;
+                long animationProgressNS = timeSinceAnimationStartNS % durationNS;
+                mProgress = animationProgressNS / (float)durationNS;
+                if (timeSinceAnimationStartNS > durationNS) {
+                    mAnimationStartTime += durationNS;  // prevents overflow
+                }
+            }
+
+            drawFrame();
         }
 
         @Override
@@ -452,7 +502,8 @@ public class SkottieRunner {
         private native long nCreateProxy(long runner, InputStream is, byte[] storage);
         private native void nDeleteProxy(long nativeProxy);
         private native void nDrawFrame(long nativeProxy, int width, int height,
-                                       boolean wideColorGamut, long frameTimeNanos);
+                                       boolean wideColorGamut, float progress);
+        private native long nGetDuration(long nativeProxy);
     }
 
     private static native long nCreateProxy();

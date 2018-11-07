@@ -8,63 +8,44 @@
 package org.skia.skottie;
 
 import android.content.Context;
-import android.graphics.drawable.Animatable;
+import android.util.AttributeSet;
 import android.view.TextureView;
-import android.view.ViewGroup;
 
 import java.io.InputStream;
 
-public class SkottieView extends ViewGroup implements Animatable {
+public class SkottieView extends TextureView {
 
-    private TextureView mTextureView;
-    private Animatable mAnimation;
+    private SkottieAnimation mAnimation;
 
-    public SkottieView(Context context, InputStream is) {
+    public SkottieView(Context context) {
         super(context);
-
-        mTextureView = new TextureView(context);
-        mTextureView.setOpaque(false);
-        mAnimation = SkottieRunner.getInstance().createAnimation(mTextureView, is);
-        addView(mTextureView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        init();
     }
 
-    /**
-     * Starts the animation.
-     */
-    @Override
-    public void start()  {
-        mAnimation.start();
+    public SkottieView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
     }
 
-    /**
-     * Stops the animation.
-     */
-    @Override
-    public void stop() {
-        mAnimation.stop();
+    public SkottieView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
     }
 
-    @Override
-    public boolean isRunning() {
-        return mAnimation.isRunning();
+    public SkottieView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        init();
     }
 
-    /**
-     * Ask all children to measure themselves and compute the measurement of this
-     * layout based on the children.
-     */
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        mTextureView.measure(widthMeasureSpec, heightMeasureSpec);
-        int width = mTextureView.getMeasuredWidth();
-        int height = mTextureView.getMeasuredHeight();
-        setMeasuredDimension(width, height);
+    private void init() {
+        setOpaque(false);
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (changed) { // This is a new size or position for this view
-            mTextureView.layout(0, 0, right - left, bottom - top);
-        }
+    public void setSource(InputStream inputStream) {
+        mAnimation = SkottieRunner.getInstance().createAnimation(this, inputStream);
+    }
+
+    public SkottieAnimation getSkottieAnimation() {
+        return mAnimation;
     }
 }
