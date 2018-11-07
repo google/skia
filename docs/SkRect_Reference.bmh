@@ -1221,7 +1221,7 @@ rect: 5, 1, 55, 86
 
 Rects intersect when they enclose a common area. To intersect, each of the pair
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
-empty() returns false. The intersection of Rect pair can be described by:
+isEmpty() returns false. The intersection of Rect pair can be described by:
 #Formula # (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
             min(a.fRight, b.fRight), min(a.fBottom, b.fBottom)) ##.
 

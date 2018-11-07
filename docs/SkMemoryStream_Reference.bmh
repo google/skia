@@ -29,7 +29,8 @@
 #In Constructors
 #Line # incomplete ##
 
-We allocate (and free) the memory. Write to it via getMemoryBase()
+Allocates memory for stream data. Call getMemoryBase() to access allocated
+memory.
 
 #Param length  incomplete ##
 

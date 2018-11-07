@@ -8,9 +8,11 @@
 ##
 
 SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
-allocated either in CPU memory (a raster surface) or on the GPU (a GrRenderTarget surface).
+allocated either in CPU memory, if a raster surface; or on the GPU, for a GrRenderTarget surface.
 SkSurface takes care of allocating a SkCanvas that will draw into the surface. Call
-surface->getCanvas() to use that canvas (but don't delete it, it is owned by the surface).
+surface->getCanvas() to use that canvas. The caller should not delete the returned canvas;
+it is owned by surface.
+
 SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
 of the requested dimensions are zero, then nullptr will be returned.
 
@@ -1001,7 +1003,7 @@ Copies Rect of pixels from Surface into bitmap.
 Source Rect corners are (srcX, srcY) and Surface (width(), height()).
 Destination Rect corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
-converting to bitmap.colorType() and bitmap.alphaType() if required.
+converting to dst.colorType() and dst.alphaType() if required.
 
 Pixels are readable when Surface is raster, or backed by a GPU.
 
@@ -1062,7 +1064,7 @@ Destination Rect corners are (dstX, dstY) and
 #Formula # (dstX + Surface width(), dstY + Surface height()) ##.
 
 Copies each readable pixel intersecting both rectangles, without scaling,
-converting to Surface colorType() and Surface alphaType() if required.
+converting to Surface SkColorType and SkAlphaType if required.
 
 #Param src  storage for pixels to copy to Surface ##
 #Param dstX x-axis position relative to Surface to begin copy; may be negative ##
@@ -1100,7 +1102,7 @@ Destination Rect corners are (dstX, dstY) and
 #Formula # (dstX + Surface width(), dstY + Surface height()) ##.
 
 Copies each readable pixel intersecting both rectangles, without scaling,
-converting to Surface colorType() and Surface alphaType() if required.
+converting to Surface SkColorType and SkAlphaType if required.
 
 #Param src  storage for pixels to copy to Surface ##
 #Param dstX x-axis position relative to Surface to begin copy; may be negative ##

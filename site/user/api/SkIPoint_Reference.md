@@ -7,27 +7,27 @@ SkIPoint Reference
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-struct <a href='#SkIPoint'>SkIPoint</a> {
-    int32_t <a href='#SkIPoint_fX'>fX</a>;
-    int32_t <a href='#SkIPoint_fY'>fY</a>;
+struct <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> {
+    <a href='SkIPoint_Reference#SkIPoint'>int32_t</a> <a href='#SkIPoint_fX'>fX</a>;
+    <a href='#SkIPoint_fX'>int32_t</a> <a href='#SkIPoint_fY'>fY</a>;
 
-    static constexpr <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_Make'>Make</a>(int32_t x, int32_t y);
-    int32_t <a href='#SkIPoint_x'>x</a>() const;
-    int32_t <a href='#SkIPoint_y'>y</a>() const;
-    bool <a href='#SkIPoint_isZero'>isZero</a>() const;
-    void <a href='#SkIPoint_set'>set</a>(int32_t x, int32_t y);
-    <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_minus_operator'>operator-()_const</a>;
-    void <a href='#SkIPoint_addto_operator'>operator+=(const SkIVector& v)</a>;
-    void <a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a>;
-    bool <a href='#SkIPoint_equals'>equals</a>(int32_t x, int32_t y) const;
-    friend bool <a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a>;
-    friend bool <a href='#SkIPoint_notequal_operator'>operator!=(const SkIPoint& a, const SkIPoint& b)</a>;
-    friend <a href='#SkIVector'>SkIVector</a> <a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a>;
-    friend <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_add_operator'>operator+(const SkIPoint& a, const SkIVector& b)</a>;
+    <a href='#SkIPoint_fY'>static</a> <a href='#SkIPoint_fY'>constexpr</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_Make'>Make</a>(<a href='#SkIPoint_Make'>int32_t</a> <a href='#SkIPoint_Make'>x</a>, <a href='#SkIPoint_Make'>int32_t</a> <a href='#SkIPoint_Make'>y</a>);
+    <a href='#SkIPoint_Make'>int32_t</a> <a href='#SkIPoint_x'>x()</a> <a href='#SkIPoint_x'>const</a>;
+    <a href='#SkIPoint_x'>int32_t</a> <a href='#SkIPoint_y'>y()</a> <a href='#SkIPoint_y'>const</a>;
+    <a href='#SkIPoint_y'>bool</a> <a href='#SkIPoint_isZero'>isZero</a>() <a href='#SkIPoint_isZero'>const</a>;
+    <a href='#SkIPoint_isZero'>void</a> <a href='#SkIPoint_isZero'>set</a>(<a href='#SkIPoint_isZero'>int32_t</a> <a href='#SkIPoint_isZero'>x</a>, <a href='#SkIPoint_isZero'>int32_t</a> <a href='#SkIPoint_isZero'>y</a>);
+    <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>operator</a>-() <a href='SkIPoint_Reference#SkIPoint'>const</a>;
+    <a href='SkIPoint_Reference#SkIPoint'>void</a> <a href='SkIPoint_Reference#SkIPoint'>operator</a>+=(<a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIVector'>SkIVector</a>& <a href='SkIPoint_Reference#SkIVector'>v</a>);
+    <a href='SkIPoint_Reference#SkIVector'>void</a> <a href='SkIPoint_Reference#SkIVector'>operator</a>-=(<a href='SkIPoint_Reference#SkIVector'>const</a> <a href='SkIPoint_Reference#SkIVector'>SkIVector</a>& <a href='SkIPoint_Reference#SkIVector'>v</a>);
+    <a href='SkIPoint_Reference#SkIVector'>bool</a> <a href='SkIPoint_Reference#SkIVector'>equals</a>(<a href='SkIPoint_Reference#SkIVector'>int32_t</a> <a href='SkIPoint_Reference#SkIVector'>x</a>, <a href='SkIPoint_Reference#SkIVector'>int32_t</a> <a href='SkIPoint_Reference#SkIVector'>y</a>) <a href='SkIPoint_Reference#SkIVector'>const</a>;
+    <a href='SkIPoint_Reference#SkIVector'>friend</a> <a href='SkIPoint_Reference#SkIVector'>bool</a> <a href='SkIPoint_Reference#SkIVector'>operator</a>==(<a href='SkIPoint_Reference#SkIVector'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>a</a>, <a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>b</a>);
+    <a href='SkIPoint_Reference#SkIPoint'>friend</a> <a href='SkIPoint_Reference#SkIPoint'>bool</a> <a href='SkIPoint_Reference#SkIPoint'>operator</a>!=(<a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>a</a>, <a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>b</a>);
+    <a href='SkIPoint_Reference#SkIPoint'>friend</a> <a href='SkIPoint_Reference#SkIVector'>SkIVector</a> <a href='SkIPoint_Reference#SkIVector'>operator</a>-(<a href='SkIPoint_Reference#SkIVector'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>a</a>, <a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>b</a>);
+    <a href='SkIPoint_Reference#SkIPoint'>friend</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>operator</a>+(<a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>a</a>, <a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIVector'>SkIVector</a>& <a href='SkIPoint_Reference#SkIVector'>b</a>);
 };
 </pre>
 
-<a href='#SkIPoint'>SkIPoint</a> holds two 32-bit integer coordinates.<table style='border-collapse: collapse; width: 62.5em'>
+<a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>holds</a> <a href='SkIPoint_Reference#SkIPoint'>two</a> 32-<a href='SkIPoint_Reference#SkIPoint'>bit</a> <a href='SkIPoint_Reference#SkIPoint'>integer</a> <a href='SkIPoint_Reference#SkIPoint'>coordinates</a>.<table style='border-collapse: collapse; width: 62.5em'>
 
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
@@ -36,14 +36,14 @@ struct <a href='#SkIPoint'>SkIPoint</a> {
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>int32_t</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkIPoint_fX'><code>fX</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-x-axis value used by <a href='#IPoint'>IPoint</a>.
+x-axis value used by <a href='SkIPoint_Reference#IPoint'>IPoint</a>.
 </td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>int32_t</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkIPoint_fY'><code>fY</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-y-axis value used by <a href='#IPoint'>IPoint</a>.
+y-axis value used by <a href='SkIPoint_Reference#IPoint'>IPoint</a>.
 </td>
   </tr>
 </table>
@@ -53,10 +53,10 @@ y-axis value used by <a href='#IPoint'>IPoint</a>.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static constexpr <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_Make'>Make</a>(int32_t x, int32_t y)
+static constexpr <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_Make'>Make</a>(<a href='#SkIPoint_Make'>int32_t</a> <a href='#SkIPoint_Make'>x</a>, <a href='#SkIPoint_Make'>int32_t</a> <a href='#SkIPoint_Make'>y</a>)
 </pre>
 
-Sets <a href='#SkIPoint_fX'>fX</a> to <a href='#SkIPoint_Make_x'>x</a>, <a href='#SkIPoint_fY'>fY</a> to <a href='#SkIPoint_Make_y'>y</a>.
+Sets <a href='#SkIPoint_fX'>fX</a> <a href='#SkIPoint_fX'>to</a> <a href='#SkIPoint_Make_x'>x</a>, <a href='#SkIPoint_fY'>fY</a> <a href='#SkIPoint_fY'>to</a> <a href='#SkIPoint_Make_y'>y</a>.
 
 ### Parameters
 
@@ -86,7 +86,7 @@ pt1 == pt2
 
 ### See Also
 
-<a href='#SkIPoint_set'>set</a>() <a href='SkPoint_Reference#SkPoint_iset'>SkPoint::iset</a><sup><a href='SkPoint_Reference#SkPoint_iset_2'>[2]</a></sup>() <a href='SkPoint_Reference#SkPoint_Make'>SkPoint::Make</a>
+<a href='#SkIPoint_set'>set()</a> <a href='SkPoint_Reference#SkPoint'>SkPoint</a>::<a href='#SkPoint_iset'>iset()</a> <a href='SkPoint_Reference#SkPoint'>SkPoint</a>::<a href='#SkPoint_Make'>Make</a>
 
 <a name='Property'></a>
 
@@ -95,7 +95,7 @@ pt1 == pt2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIPoint_x'>x</a>() const
+int32_t <a href='#SkIPoint_x'>x()</a> <a href='#SkIPoint_x'>const</a>
 </pre>
 
 Returns x-axis value of <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>.
@@ -118,14 +118,14 @@ pt1.fX == pt1.x()
 
 ### See Also
 
-<a href='#SkIPoint_y'>y</a>() <a href='SkPoint_Reference#SkPoint_x'>SkPoint::x</a>()
+<a href='#SkIPoint_y'>y()</a> <a href='SkPoint_Reference#SkPoint'>SkPoint</a>::<a href='#SkPoint_x'>x()</a>
 
 <a name='SkIPoint_y'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIPoint_y'>y</a>() const
+int32_t <a href='#SkIPoint_y'>y()</a> <a href='#SkIPoint_y'>const</a>
 </pre>
 
 Returns y-axis value of <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>.
@@ -148,21 +148,21 @@ pt1.fY == pt1.y()
 
 ### See Also
 
-<a href='#SkIPoint_x'>x</a>() <a href='SkPoint_Reference#SkPoint_y'>SkPoint::y</a>()
+<a href='#SkIPoint_x'>x()</a> <a href='SkPoint_Reference#SkPoint'>SkPoint</a>::<a href='#SkPoint_y'>y()</a>
 
 <a name='SkIPoint_isZero'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIPoint_isZero'>isZero</a>() const
+bool <a href='#SkIPoint_isZero'>isZero</a>() <a href='#SkIPoint_isZero'>const</a>
 </pre>
 
-Returns true if <a href='#SkIPoint_fX'>fX</a> and <a href='#SkIPoint_fY'>fY</a> are both zero.
+Returns true if <a href='#SkIPoint_fX'>fX</a> <a href='#SkIPoint_fX'>and</a> <a href='#SkIPoint_fY'>fY</a> <a href='#SkIPoint_fY'>are</a> <a href='#SkIPoint_fY'>both</a> <a href='#SkIPoint_fY'>zero</a>.
 
 ### Return Value
 
-true if <a href='#SkIPoint_fX'>fX</a> is zero and <a href='#SkIPoint_fY'>fY</a> is zero
+true if <a href='#SkIPoint_fX'>fX</a> <a href='#SkIPoint_fX'>is</a> <a href='#SkIPoint_fX'>zero</a> <a href='#SkIPoint_fX'>and</a> <a href='#SkIPoint_fY'>fY</a> <a href='#SkIPoint_fY'>is</a> <a href='#SkIPoint_fY'>zero</a>
 
 ### Example
 
@@ -178,7 +178,7 @@ pt.isZero() == true
 
 ### See Also
 
-<a href='SkPoint_Reference#SkPoint_isZero'>SkPoint::isZero</a>
+<a href='SkPoint_Reference#SkPoint'>SkPoint</a>::<a href='#SkPoint_isZero'>isZero</a>
 
 <a name='Set'></a>
 
@@ -187,10 +187,10 @@ pt.isZero() == true
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIPoint_set'>set</a>(int32_t x, int32_t y)
+void set(int32_t x, int32_t y)
 </pre>
 
-Sets <a href='#SkIPoint_fX'>fX</a> to <a href='#SkIPoint_set()_x'>x</a> and <a href='#SkIPoint_fY'>fY</a> to <a href='#SkIPoint_set()_y'>y</a>.
+Sets <a href='#SkIPoint_fX'>fX</a> <a href='#SkIPoint_fX'>to</a> <a href='#SkIPoint_set_x'>x</a> <a href='#SkIPoint_set_x'>and</a> <a href='#SkIPoint_fY'>fY</a> <a href='#SkIPoint_fY'>to</a> <a href='#SkIPoint_set_y'>y</a>.
 
 ### Parameters
 
@@ -223,14 +223,14 @@ pt1 == pt2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkIPoint'>SkIPoint</a> operator-() const
+<a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>operator</a>-() <a href='SkIPoint_Reference#SkIPoint'>const</a>
 </pre>
 
-Returns <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> changing the signs of <a href='#SkIPoint_fX'>fX</a> and <a href='#SkIPoint_fY'>fY</a>.
+Returns <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>changing</a> <a href='SkIPoint_Reference#SkIPoint'>the</a> <a href='SkIPoint_Reference#SkIPoint'>signs</a> <a href='SkIPoint_Reference#SkIPoint'>of</a> <a href='#SkIPoint_fX'>fX</a> <a href='#SkIPoint_fX'>and</a> <a href='#SkIPoint_fY'>fY</a>.
 
 ### Return Value
 
-<a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> as (-<a href='#SkIPoint_fX'>fX</a>, -<a href='#SkIPoint_fY'>fY</a>)
+<a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>as</a> (-<a href='#SkIPoint_fX'>fX</a>, -<a href='#SkIPoint_fY'>fY</a>)
 
 ### Example
 
@@ -249,22 +249,22 @@ pt: -2147483648, -2147483648  negate: -2147483648, -2147483648
 
 ### See Also
 
-<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> <a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a> <a href='SkPoint_Reference#SkPoint_minus_operator'>SkPoint::operator-() const</a>
+<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> operator-(const SkIPoint& a, const SkIPoint& b)<a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a> <a href='SkPoint_Reference#SkPoint'>SkPoint</a>::<a href='SkPoint_Reference#SkPoint'>operator</a>-()_<a href='SkPoint_Reference#SkPoint'>const</a>
 
 <a name='SkIPoint_addto_operator'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIPoint_addto_operator'>operator+=(const SkIVector& v)</a>
+void operator+=(const <a href='SkIPoint_Reference#SkIVector'>SkIVector</a>& <a href='SkIPoint_Reference#SkIVector'>v</a>)
 </pre>
 
-Offsets <a href='#IPoint'>IPoint</a> by <a href='#IVector'>IVector</a> <a href='#SkIPoint_addto_operator_v'>v</a>. Sets <a href='#IPoint'>IPoint</a> to <code>\(<a href='#SkIPoint_fX'>fX</a>&nbsp;\+&nbsp;<a href='#SkIPoint_addto_operator_v'>v</a>\.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_fY'>fY</a>&nbsp;\+&nbsp;<a href='#SkIPoint_addto_operator_v'>v</a>\.<a href='#SkIPoint_fY'>fY</a>\)</code>.
+Offsets <a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='SkIPoint_Reference#IPoint'>by</a> <a href='#IPoint_IVector'>IVector</a> <a href='#SkIPoint_addto_operator_v'>v</a>. <a href='#SkIPoint_addto_operator_v'>Sets</a> <a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='SkIPoint_Reference#IPoint'>to</a> <code>(<a href='#SkIPoint_fX'>fX</a> + <a href='#SkIPoint_addto_operator_v'>v</a>.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_fY'>fY</a> + <a href='#SkIPoint_addto_operator_v'>v</a>.<a href='#SkIPoint_fY'>fY</a>)</code>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIPoint_addto_operator_v'><code><strong>v</strong></code></a></td>
-    <td><a href='#IVector'>IVector</a> to add</td>
+    <td><a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>to</a> <a href='#IPoint_IVector'>add</a></td>
   </tr>
 </table>
 
@@ -274,22 +274,22 @@ Offsets <a href='#IPoint'>IPoint</a> by <a href='#IVector'>IVector</a> <a href='
 
 ### See Also
 
-<a href='#SkIPoint_add_operator'>operator+(const SkIPoint& a, const SkIVector& b)</a> <a href='SkPoint_Reference#SkPoint_addto_operator'>SkPoint::operator+=(const SkVector& v)</a>
+<a href='#SkIPoint_add_operator'>operator+(const SkIPoint& a, const SkIVector& b)</a> <a href='SkPoint_Reference#SkPoint'>SkPoint</a>::SkPoint<a href='#SkPoint_addto_operator'>operator+=(const SkVector& v)</a>
 
 <a name='SkIPoint_subtractfrom_operator'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a>
+void operator-=(const <a href='SkIPoint_Reference#SkIVector'>SkIVector</a>& <a href='SkIPoint_Reference#SkIVector'>v</a>)
 </pre>
 
-Subtracts <a href='#IVector'>IVector</a> <a href='#SkIPoint_subtractfrom_operator_v'>v</a> from <a href='#IPoint'>IPoint</a>. Sets <a href='#IPoint'>IPoint</a> to: <code>\(<a href='#SkIPoint_fX'>fX</a>&nbsp;\-&nbsp;<a href='#SkIPoint_subtractfrom_operator_v'>v</a>\.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_fY'>fY</a>&nbsp;\-&nbsp;<a href='#SkIPoint_subtractfrom_operator_v'>v</a>\.<a href='#SkIPoint_fY'>fY</a>\)</code>.
+Subtracts <a href='#IPoint_IVector'>IVector</a> <a href='#SkIPoint_subtractfrom_operator_v'>v</a> <a href='#SkIPoint_subtractfrom_operator_v'>from</a> <a href='SkIPoint_Reference#IPoint'>IPoint</a>. <a href='SkIPoint_Reference#IPoint'>Sets</a> <a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='SkIPoint_Reference#IPoint'>to</a>: <code>(<a href='#SkIPoint_fX'>fX</a> - <a href='#SkIPoint_subtractfrom_operator_v'>v</a>.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_fY'>fY</a> - <a href='#SkIPoint_subtractfrom_operator_v'>v</a>.<a href='#SkIPoint_fY'>fY</a>)</code>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIPoint_subtractfrom_operator_v'><code><strong>v</strong></code></a></td>
-    <td><a href='#IVector'>IVector</a> to subtract</td>
+    <td><a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>to</a> <a href='#IPoint_IVector'>subtract</a></td>
   </tr>
 </table>
 
@@ -299,17 +299,17 @@ Subtracts <a href='#IVector'>IVector</a> <a href='#SkIPoint_subtractfrom_operato
 
 ### See Also
 
-<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> <a href='SkPoint_Reference#SkPoint_subtractfrom_operator'>SkPoint::operator-=(const SkVector& v)</a>
+<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> <a href='SkPoint_Reference#SkPoint'>SkPoint</a>::SkPoint<a href='#SkPoint_subtractfrom_operator'>operator-=(const SkVector& v)</a>
 
 <a name='SkIPoint_equals'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIPoint_equals'>equals</a>(int32_t x, int32_t y) const
+bool equals(int32_t x, int32_t y) const
 </pre>
 
-Returns true if <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> is equivalent to <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> constructed from (<a href='#SkIPoint_equals()_x'>x</a>, <a href='#SkIPoint_equals()_y'>y</a>).
+Returns true if <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>is</a> <a href='SkIPoint_Reference#SkIPoint'>equivalent</a> <a href='SkIPoint_Reference#SkIPoint'>to</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>constructed</a> <a href='SkIPoint_Reference#SkIPoint'>from</a> (<a href='#SkIPoint_equals_x'>x</a>, <a href='#SkIPoint_equals_y'>y</a>).
 
 ### Parameters
 
@@ -323,7 +323,7 @@ Returns true if <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> is equivalent
 
 ### Return Value
 
-true if <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> equals (<a href='#SkIPoint_equals()_x'>x</a>, <a href='#SkIPoint_equals()_y'>y</a>)
+true if <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>equals</a> (<a href='#SkIPoint_equals_x'>x</a>, <a href='#SkIPoint_equals_y'>y</a>)
 
 ### Example
 
@@ -349,24 +349,24 @@ pt: -2147483648, -1  == pt
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a>
+bool operator==(const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>a</a>, <a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>b</a>)
 </pre>
 
-Returns true if <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_a'>a</a> is equivalent to <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.
+Returns true if <a href='#SkIPoint_equal_operator_a'>a</a> <a href='#SkIPoint_equal_operator_a'>is</a> <a href='#SkIPoint_equal_operator_a'>equivalent</a> <a href='#SkIPoint_equal_operator_a'>to</a> <a href='#SkIPoint_equal_operator_b'>b</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIPoint_equal_operator_a'><code><strong>a</strong></code></a></td>
-    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> to compare</td>
+    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>to</a> <a href='SkIPoint_Reference#SkIPoint'>compare</a></td>
   </tr>
   <tr>    <td><a name='SkIPoint_equal_operator_b'><code><strong>b</strong></code></a></td>
-    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> to compare</td>
+    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>to</a> <a href='SkIPoint_Reference#SkIPoint'>compare</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-true if <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> == <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.<a href='#SkIPoint_fX'>fX</a> and <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> == <a href='#SkIPoint_operator==(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>
+true if <a href='#SkIPoint_equal_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> == <a href='#SkIPoint_equal_operator_b'>b</a>.<a href='#SkIPoint_fX'>fX</a> <a href='#SkIPoint_fX'>and</a> <a href='#SkIPoint_equal_operator_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> == <a href='#SkIPoint_equal_operator_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>
 
 ### Example
 
@@ -385,31 +385,31 @@ pt: -2147483648, -1  == pt
 
 ### See Also
 
-<a href='#SkIPoint_equals'>equals</a>() <a href='#SkIPoint_notequal_operator'>operator!=(const SkIPoint& a, const SkIPoint& b)</a>
+<a href='#SkIPoint_equals'>equals()</a> equals()<a href='#SkIPoint_notequal_operator'>operator!=(const SkIPoint& a, const SkIPoint& b)</a>
 
 <a name='SkIPoint_notequal_operator'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIPoint_notequal_operator'>operator!=(const SkIPoint& a, const SkIPoint& b)</a>
+bool operator!=(const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>a</a>, <a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>b</a>)
 </pre>
 
-Returns true if <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_a'>a</a> is not equivalent to <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.
+Returns true if <a href='#SkIPoint_notequal_operator_a'>a</a> <a href='#SkIPoint_notequal_operator_a'>is</a> <a href='#SkIPoint_notequal_operator_a'>not</a> <a href='#SkIPoint_notequal_operator_a'>equivalent</a> <a href='#SkIPoint_notequal_operator_a'>to</a> <a href='#SkIPoint_notequal_operator_b'>b</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIPoint_notequal_operator_a'><code><strong>a</strong></code></a></td>
-    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> to compare</td>
+    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>to</a> <a href='SkIPoint_Reference#SkIPoint'>compare</a></td>
   </tr>
   <tr>    <td><a name='SkIPoint_notequal_operator_b'><code><strong>b</strong></code></a></td>
-    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> to compare</td>
+    <td><a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>to</a> <a href='SkIPoint_Reference#SkIPoint'>compare</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-true if <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> != <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.<a href='#SkIPoint_fX'>fX</a> or <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> != <a href='#SkIPoint_operator!=(const SkIPoint& a, const SkIPoint& b)_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>
+true if <a href='#SkIPoint_notequal_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> != <a href='#SkIPoint_notequal_operator_b'>b</a>.<a href='#SkIPoint_fX'>fX</a> <a href='#SkIPoint_fX'>or</a> <a href='#SkIPoint_notequal_operator_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> != <a href='#SkIPoint_notequal_operator_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>
 
 ### Example
 
@@ -428,33 +428,33 @@ pt: -2147483648, -1  == pt
 
 ### See Also
 
-<a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a> <a href='#SkIPoint_equals'>equals</a>()
+<a href='#SkIPoint_equal_operator'>operator==(const SkIPoint& a, const SkIPoint& b)</a> <a href='#SkIPoint_equals'>equals()</a>
 
 <a name='SkIPoint_subtract_operator'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkIVector'>SkIVector</a> <a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a>
+<a href='SkIPoint_Reference#SkIVector'>SkIVector</a> <a href='SkIPoint_Reference#SkIVector'>operator</a>-(<a href='SkIPoint_Reference#SkIVector'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>a</a>, <a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>b</a>)
 </pre>
 
-Returns <a href='#IVector'>IVector</a> from <a href='#SkIPoint_subtract_operator_b'>b</a> to <a href='#SkIPoint_subtract_operator_a'>a</a>; computed as <code>\(<a href='#SkIPoint_subtract_operator_a'>a</a>\.<a href='#SkIPoint_fX'>fX</a>&nbsp;\-&nbsp;<a href='#SkIPoint_subtract_operator_b'>b</a>\.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_subtract_operator_a'>a</a>\.<a href='#SkIPoint_fY'>fY</a>&nbsp;\-&nbsp;<a href='#SkIPoint_subtract_operator_b'>b</a>\.<a href='#SkIPoint_fY'>fY</a>\)</code>.
+Returns <a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>from</a> <a href='#SkIPoint_subtract_operator_b'>b</a> <a href='#SkIPoint_subtract_operator_b'>to</a> <a href='#SkIPoint_subtract_operator_a'>a</a>; <a href='#SkIPoint_subtract_operator_a'>computed</a> <a href='#SkIPoint_subtract_operator_a'>as </a> <code>(<a href='#SkIPoint_subtract_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> - <a href='#SkIPoint_subtract_operator_b'>b</a>.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_subtract_operator_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> - <a href='#SkIPoint_subtract_operator_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>)</code>.
 
-Can also be used to subtract <a href='#IVector'>IVector</a> from <a href='#IVector'>IVector</a>, returning <a href='#IVector'>IVector</a>.
+Can also be used to subtract <a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>from</a> <a href='#IPoint_IVector'>IVector</a>, <a href='#IPoint_IVector'>returning</a> <a href='#IPoint_IVector'>IVector</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIPoint_subtract_operator_a'><code><strong>a</strong></code></a></td>
-    <td><a href='#IPoint'>IPoint</a> or <a href='#IVector'>IVector</a> to subtract from</td>
+    <td><a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='SkIPoint_Reference#IPoint'>or</a> <a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>to</a> <a href='#IPoint_IVector'>subtract</a> <a href='#IPoint_IVector'>from</a></td>
   </tr>
   <tr>    <td><a name='SkIPoint_subtract_operator_b'><code><strong>b</strong></code></a></td>
-    <td><a href='#IVector'>IVector</a> to subtract</td>
+    <td><a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>to</a> <a href='#IPoint_IVector'>subtract</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='#IVector'>IVector</a> from <a href='#SkIPoint_subtract_operator_b'>b</a> to <a href='#SkIPoint_subtract_operator_a'>a</a>
+<a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>from</a> <a href='#SkIPoint_subtract_operator_b'>b</a> <a href='#SkIPoint_subtract_operator_b'>to</a> <a href='#SkIPoint_subtract_operator_a'>a</a>
 
 ### Example
 
@@ -469,28 +469,28 @@ Can also be used to subtract <a href='#IVector'>IVector</a> from <a href='#IVect
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkIPoint'>SkIPoint</a> <a href='#SkIPoint_add_operator'>operator+(const SkIPoint& a, const SkIVector& b)</a>
+<a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIPoint'>operator</a>+(<a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& <a href='SkIPoint_Reference#SkIPoint'>a</a>, <a href='SkIPoint_Reference#SkIPoint'>const</a> <a href='SkIPoint_Reference#SkIVector'>SkIVector</a>& <a href='SkIPoint_Reference#SkIVector'>b</a>)
 </pre>
 
-Returns <a href='#IPoint'>IPoint</a> resulting from <a href='#IPoint'>IPoint</a> <a href='#SkIPoint_add_operator_a'>a</a> offset by <a href='#IVector'>IVector</a> <a href='#SkIPoint_add_operator_b'>b</a>, computed as:
-<code>\(<a href='#SkIPoint_add_operator_a'>a</a>\.<a href='#SkIPoint_fX'>fX</a>&nbsp;\+&nbsp;<a href='#SkIPoint_add_operator_b'>b</a>\.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_add_operator_a'>a</a>\.<a href='#SkIPoint_fY'>fY</a>&nbsp;\+&nbsp;<a href='#SkIPoint_add_operator_b'>b</a>\.<a href='#SkIPoint_fY'>fY</a>\)</code>.
+Returns <a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='SkIPoint_Reference#IPoint'>resulting</a> <a href='SkIPoint_Reference#IPoint'>from</a> <a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='#SkIPoint_add_operator_a'>a</a> <a href='#SkIPoint_add_operator_a'>offset</a> <a href='#SkIPoint_add_operator_a'>by</a> <a href='#IPoint_IVector'>IVector</a> <a href='#SkIPoint_add_operator_b'>b</a>, <a href='#SkIPoint_add_operator_b'>computed</a> <a href='#SkIPoint_add_operator_b'>as</a>:
+<code>(<a href='#SkIPoint_add_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> + <a href='#SkIPoint_add_operator_b'>b</a>.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_add_operator_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> + <a href='#SkIPoint_add_operator_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>)</code>.
 
-Can also be used to offset <a href='#IPoint'>IPoint</a> <a href='#SkIPoint_add_operator_b'>b</a> by <a href='#IVector'>IVector</a> <a href='#SkIPoint_add_operator_a'>a</a>, returning <a href='#IPoint'>IPoint</a>.
-Can also be used to add <a href='#IVector'>IVector</a> to <a href='#IVector'>IVector</a>, returning <a href='#IVector'>IVector</a>.
+Can also be used to offset <a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='#SkIPoint_add_operator_b'>b</a> <a href='#SkIPoint_add_operator_b'>by</a> <a href='#IPoint_IVector'>IVector</a> <a href='#SkIPoint_add_operator_a'>a</a>, <a href='#SkIPoint_add_operator_a'>returning</a> <a href='SkIPoint_Reference#IPoint'>IPoint</a>.
+<a href='SkIPoint_Reference#IPoint'>Can</a> <a href='SkIPoint_Reference#IPoint'>also</a> <a href='SkIPoint_Reference#IPoint'>be</a> <a href='SkIPoint_Reference#IPoint'>used</a> <a href='SkIPoint_Reference#IPoint'>to</a> <a href='SkIPoint_Reference#IPoint'>add</a> <a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>to</a> <a href='#IPoint_IVector'>IVector</a>, <a href='#IPoint_IVector'>returning</a> <a href='#IPoint_IVector'>IVector</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkIPoint_add_operator_a'><code><strong>a</strong></code></a></td>
-    <td><a href='#IPoint'>IPoint</a> or <a href='#IVector'>IVector</a> to add to</td>
+    <td><a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='SkIPoint_Reference#IPoint'>or</a> <a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>to</a> <a href='#IPoint_IVector'>add</a> <a href='#IPoint_IVector'>to</a></td>
   </tr>
   <tr>    <td><a name='SkIPoint_add_operator_b'><code><strong>b</strong></code></a></td>
-    <td><a href='#IPoint'>IPoint</a> or <a href='#IVector'>IVector</a> to add</td>
+    <td><a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='SkIPoint_Reference#IPoint'>or</a> <a href='#IPoint_IVector'>IVector</a> <a href='#IPoint_IVector'>to</a> <a href='#IPoint_IVector'>add</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='#IPoint'>IPoint</a> equal to <a href='#SkIPoint_add_operator_a'>a</a> offset by <a href='#SkIPoint_add_operator_b'>b</a>
+<a href='SkIPoint_Reference#IPoint'>IPoint</a> <a href='SkIPoint_Reference#IPoint'>equal</a> <a href='SkIPoint_Reference#IPoint'>to</a> <a href='#SkIPoint_add_operator_a'>a</a> <a href='#SkIPoint_add_operator_a'>offset</a> <a href='#SkIPoint_add_operator_a'>by</a> <a href='#SkIPoint_add_operator_b'>b</a>
 
 ### Example
 
@@ -507,8 +507,8 @@ Can also be used to add <a href='#IVector'>IVector</a> to <a href='#IVector'>IVe
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    typedef <a href='#SkIPoint'>SkIPoint</a> <a href='#SkIVector'>SkIVector</a>;
+    typedef <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> <a href='SkIPoint_Reference#SkIVector'>SkIVector</a>;
 </pre>
 
-<a href='#SkIVector'>SkIVector</a> provides an alternative name for <a href='#SkIPoint'>SkIPoint</a>. <a href='#SkIVector'>SkIVector</a> and <a href='#SkIPoint'>SkIPoint</a>
-can be used interchangeably for all purposes.
+<a href='SkIPoint_Reference#SkIVector'>SkIVector</a> <a href='SkIPoint_Reference#SkIVector'>provides</a> <a href='SkIPoint_Reference#SkIVector'>an</a> <a href='SkIPoint_Reference#SkIVector'>alternative</a> <a href='SkIPoint_Reference#SkIVector'>name</a> <a href='SkIPoint_Reference#SkIVector'>for</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>. <a href='SkIPoint_Reference#SkIVector'>SkIVector</a> <a href='SkIPoint_Reference#SkIVector'>and</a> <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>
+<a href='SkIPoint_Reference#SkIPoint'>can</a> <a href='SkIPoint_Reference#SkIPoint'>be</a> <a href='SkIPoint_Reference#SkIPoint'>used</a> <a href='SkIPoint_Reference#SkIPoint'>interchangeably</a> <a href='SkIPoint_Reference#SkIPoint'>for</a> <a href='SkIPoint_Reference#SkIPoint'>all</a> <a href='SkIPoint_Reference#SkIPoint'>purposes</a>.

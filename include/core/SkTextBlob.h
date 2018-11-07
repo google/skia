@@ -55,11 +55,7 @@ public:
 
     /** Creates SkTextBlob with a single run.
 
-        font contains attributes used to define the run text:
-        SkTypeface, SkPaint text size, SkPaint text scale x,
-        SkFont text skew x, SkPaint::Align, SkFont::Hinting, anti-alias, SkFont fake bold,
-        SkFont font embedded bitmaps, SkFont full hinting spacing, LCD text, SkFont linear text,
-        and SkFont subpixel text.
+        font contains attributes used to define the run text.
 
         @param text        character code points or glyphs drawn
         @param byteLength  byte length of text array
@@ -72,11 +68,7 @@ public:
     /** Creates SkTextBlob with a single run. string meaning depends on SkPaint::TextEncoding;
         by default, string is encoded as UTF-8.
 
-        font contains attributes used to define the run text:
-        SkTypeface, SkPaint text size, SkPaint text scale x,
-        SkFont text skew x, SkPaint::Align, SkFont::Hinting, anti-alias, SkFont fake bold,
-        SkFont font embedded bitmaps, SkFont full hinting spacing, LCD text, SkFont linear text,
-        and SkFont subpixel text.
+        font contains attributes used to define the run text.
 
         @param string  character code points or glyphs drawn
         @param font   text size, typeface, text scale, and so on, used to draw
@@ -209,9 +201,9 @@ public:
     /** \struct SkTextBlobBuilder::RunBuffer
         RunBuffer supplies storage for glyphs and positions within a run.
 
-        A run is a sequence of glyphs sharing SkFontMetrics and positioning.
+        A run is a sequence of glyphs sharing font metrics and positioning.
         Each run may position its glyphs in one of three ways:
-        by specifying where the first glyph is drawn, and allowing SkFontMetrics to
+        by specifying where the first glyph is drawn, and allowing font metrics to
         determine the advance to subsequent glyphs; by specifying a baseline, and
         the position on that baseline for each glyph in run; or by providing SkPoint
         array, one per glyph.
@@ -223,103 +215,99 @@ public:
         uint32_t*  clusters; //!< reserved for future use
     };
 
-#ifdef SK_SUPPORT_LEGACY_TEXTBLOBBUILD_WITH_PAINT
     /** Returns run with storage for glyphs. Caller must write count glyphs to
-        RunBuffer.glyphs() before next call to FontBlobBuilder.
+        RunBuffer::glyphs before next call to SkTextBlobBuilder.
 
-        RunBuffer.utf8text(), and RunBuffer.clusters() should be ignored.
+        RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
 
-        Glyphs share SkFontMetrics in font, including:
-        SkTypeface, SkPaint text size, SkPaint text scale x,
-        SkPaint text skew x, SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
-        SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
-        and SkPaint subpixel text.
+        Glyphs share metrics in font.
 
-        Glyphs are positioned on a baseline at (x, y), using font SkFontMetrics to
+        Glyphs are positioned on a baseline at (x, y), using font metrics to
         determine their relative placement.
 
         bounds defines an optional bounding box, used to suppress drawing when SkTextBlob
         bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
-        is computed from (x, y) and RunBuffer.glyphs() SkFontMetrics.
+        is computed from (x, y) and RunBuffer::glyphs metrics.
 
-        @param font    SkPaint used for this run
+        @param font    SkFont used for this run
         @param count   number of glyphs
         @param x       horizontal offset within the blob
         @param y       vertical offset within the blob
         @param bounds  optional run bounding box
         @return        writable glyph buffer
     */
-    const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
-                              const SkRect* bounds = nullptr) {
-        return this->allocRunText(font, count, x, y, 0, SkString(), bounds);
-    }
+    const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y,
+                              const SkRect* bounds = nullptr);
 
     /** Returns run with storage for glyphs and positions along baseline. Caller must
-        write count glyphs to RunBuffer.glyphs(), and count scalars to RunBuffer.pos();
-        before next call to FontBlobBuilder.
+        write count glyphs to RunBuffer::glyphs, and count scalars to RunBuffer::pos;
+        before next call to SkTextBlobBuilder.
 
-        RunBuffer.utf8text(), and RunBuffer.clusters() should be ignored.
+        RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
 
-        Glyphs share SkFontMetrics in font, including:
-        SkTypeface, SkPaint text size, SkPaint text scale x,
-        SkPaint text skew x, SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
-        SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
-        and SkPaint subpixel text.
+        Glyphs share metrics in font.
 
         Glyphs are positioned on a baseline at y, using x-axis positions written by
-        caller to RunBuffer.pos().
+        caller to RunBuffer::pos.
 
         bounds defines an optional bounding box, used to suppress drawing when SkTextBlob
         bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
-        is computed from y, RunBuffer.pos(), and RunBuffer.glyphs() SkFontMetrics.
+        is computed from y, RunBuffer::pos, and RunBuffer::glyphs metrics.
 
-        @param font    SkPaint used for this run
+        @param font    SkFont used for this run
         @param count   number of glyphs
         @param y       vertical offset within the blob
         @param bounds  optional run bounding box
         @return        writable glyph buffer and x-axis position buffer
     */
+    const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y,
+                                  const SkRect* bounds = nullptr);
+
+    /** Returns run with storage for glyphs and SkPoint positions. Caller must
+        write count glyphs to RunBuffer::glyphs, and count SkPoint to RunBuffer::pos;
+        before next call to SkTextBlobBuilder.
+
+        RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
+
+        Glyphs share metrics in font.
+
+        Glyphs are positioned using SkPoint written by caller to RunBuffer::pos, using
+        two scalar values for each SkPoint.
+
+        bounds defines an optional bounding box, used to suppress drawing when SkTextBlob
+        bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
+        is computed from RunBuffer::pos, and RunBuffer::glyphs metrics.
+
+        @param font    SkFont used for this run
+        @param count   number of glyphs
+        @param bounds  optional run bounding box
+        @return        writable glyph buffer and SkPoint buffer
+    */
+    const RunBuffer& allocRunPos(const SkFont& font, int count,
+                                 const SkRect* bounds = nullptr);
+
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOBBUILD_WITH_PAINT
+    /** Deprecated.
+     */
+    const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
+                              const SkRect* bounds = nullptr) {
+        return this->allocRunText(font, count, x, y, 0, SkString(), bounds);
+    }
+
+    /** Deprecated.
+     */
     const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
                                   const SkRect* bounds = nullptr) {
         return this->allocRunTextPosH(font, count, y, 0, SkString(), bounds);
     }
 
-    /** Returns run with storage for glyphs and SkPoint positions. Caller must
-        write count glyphs to RunBuffer.glyphs(), and count SkPoint to RunBuffer.pos();
-        before next call to FontBlobBuilder.
-
-        RunBuffer.utf8text(), and RunBuffer.clusters() should be ignored.
-
-        Glyphs share SkFontMetrics in font, including:
-        SkTypeface, SkPaint text size, SkPaint text scale x,
-        SkPaint text skew x, SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
-        SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
-        and SkPaint subpixel text.
-
-        Glyphs are positioned using SkPoint written by caller to RunBuffer.pos(), using
-        two scalar values for each SkPoint.
-
-        bounds defines an optional bounding box, used to suppress drawing when SkTextBlob
-        bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
-        is computed from RunBuffer.pos(), and RunBuffer.glyphs() SkFontMetrics.
-
-        @param font    SkPaint used for this run
-        @param count   number of glyphs
-        @param bounds  optional run bounding box
-        @return        writable glyph buffer and SkPoint buffer
-    */
+    /** Deprecated.
+     */
     const RunBuffer& allocRunPos(const SkPaint& font, int count,
                                  const SkRect* bounds = nullptr) {
         return this->allocRunTextPos(font, count, 0, SkString(), bounds);
     }
 #endif
-
-    const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y,
-                              const SkRect* bounds = nullptr);
-    const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y,
-                                  const SkRect* bounds = nullptr);
-    const RunBuffer& allocRunPos(const SkFont& font, int count,
-                                 const SkRect* bounds = nullptr);
 
 private:
     const RunBuffer& allocRunText(const SkPaint& font,

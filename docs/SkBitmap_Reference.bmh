@@ -1165,31 +1165,31 @@ subset: 100, 100, 412, 412
 Sets width, height, Alpha_Type, Color_Type, Color_Space, and optional
 rowBytes. Frees pixels, and returns true if successful.
 
-imageInfo.alphaType may be altered to a value permitted by imageInfo.colorSpace.
-If imageInfo.colorType is kUnknown_SkColorType, imageInfo.alphaType is
+imageInfo.alphaType() may be altered to a value permitted by imageInfo.colorSpace().
+If imageInfo.colorType() is kUnknown_SkColorType, imageInfo.alphaType() is
 set to kUnknown_SkAlphaType.
-If imageInfo.colorType is kAlpha_8_SkColorType and imageInfo.alphaType is
-kUnpremul_SkAlphaType, imageInfo.alphaType is replaced by kPremul_SkAlphaType.
-If imageInfo.colorType is kRGB_565_SkColorType or kGray_8_SkColorType,
-imageInfo.alphaType is set to kOpaque_SkAlphaType.
-If imageInfo.colorType is kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-kBGRA_8888_SkColorType, or kRGBA_F16_SkColorType: imageInfo.alphaType remains
+If imageInfo.colorType() is kAlpha_8_SkColorType and imageInfo.alphaType() is
+kUnpremul_SkAlphaType, imageInfo.alphaType() is replaced by kPremul_SkAlphaType.
+If imageInfo.colorType() is kRGB_565_SkColorType or kGray_8_SkColorType,
+imageInfo.alphaType() is set to kOpaque_SkAlphaType.
+If imageInfo.colorType() is kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
+kBGRA_8888_SkColorType, or kRGBA_F16_SkColorType: imageInfo.alphaType() remains
 unchanged.
 
-rowBytes must equal or exceed imageInfo.minRowBytes. If imageInfo.colorSpace is
+rowBytes must equal or exceed imageInfo.minRowBytes(). If imageInfo.colorSpace() is
 kUnknown_SkColorType, rowBytes is ignored and treated as zero; for all other
-Color_Space values, rowBytes of zero is treated as imageInfo.minRowBytes.
+Color_Space values, rowBytes of zero is treated as imageInfo.minRowBytes().
 
 Calls reset() and returns false if:
 #List
 # rowBytes exceeds 31 bits ##
 # imageInfo.width() is negative ##
 # imageInfo.height() is negative ##
-# rowBytes is positive and less than imageInfo.width() times imageInfo.bytesPerPixel ##
+# rowBytes is positive and less than imageInfo.width() times imageInfo.bytesPerPixel() ##
 ##
 
 #Param imageInfo  contains width, height, Alpha_Type, Color_Type, Color_Space ##
-#Param rowBytes   imageInfo.minRowBytes or larger; or zero ##
+#Param rowBytes   imageInfo.minRowBytes() or larger; or zero ##
 
 #Return  true if Image_Info set successfully ##
 
@@ -2012,7 +2012,7 @@ Unpremultiplied:
 #Line # returns Alpha normalized from zero to one ##
 
 Looks up the pixel at (x,y) and return its alpha component, normalized to [0..1].
-This is roughly equivalent to #Formula # SkGetColorA(getColor()) ##, but can be more efficent
+This is roughly equivalent to #Formula # SkGetColorA(getColor()) ##, but can be more efficient
 (and more precise if the pixels store more than 8 bits per component).
 
 #Param x  column index, zero or greater, and less than width() ##
@@ -2247,15 +2247,15 @@ destination. dstRowBytes specifics the gap from one destination row to the next.
 Returns true if pixels are copied. Returns false if:
 #List
 # dstInfo has no address ##
-# dstRowBytes is less than dstInfo.minRowBytes ##
+# dstRowBytes is less than dstInfo.minRowBytes() ##
 # Pixel_Ref is nullptr ##
 ##
 
 Pixels are copied only if pixel conversion is possible. If Bitmap colorType is
-kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType must match.
-If Bitmap colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
-If Bitmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
-match. If Bitmap colorSpace is nullptr, dstInfo.colorSpace must match. Returns
+kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType() must match.
+If Bitmap colorType is kGray_8_SkColorType, dstInfo.colorSpace() must match.
+If Bitmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType() must
+match. If Bitmap colorSpace is nullptr, dstInfo.colorSpace() must match. Returns
 false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns
@@ -2310,11 +2310,11 @@ Copies a Rect of pixels from Bitmap to dst. Copy starts at (srcX, srcY), and
 does not exceed Bitmap (width(), height()).
 
 dst specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
-and row bytes of destination. dst.rowBytes specifics the gap from one destination
+and row bytes of destination. dst.rowBytes() specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if:
 #List
 # dst pixel storage equals nullptr ##
-# dst.rowBytes is less than SkImageInfo::minRowBytes ##
+# dst.rowBytes() is less than SkImageInfo::minRowBytes() ##
 # Pixel_Ref is nullptr ##
 ##
 
@@ -2366,11 +2366,11 @@ Copies a Rect of pixels from Bitmap to dst. Copy starts at (0, 0), and
 does not exceed Bitmap (width(), height()).
 
 dst specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
-and row bytes of destination. dst.rowBytes specifics the gap from one destination
+and row bytes of destination. dst.rowBytes() specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if:
 #List
 # dst pixel storage equals nullptr ##
-# dst.rowBytes is less than SkImageInfo::minRowBytes ##
+# dst.rowBytes() is less than SkImageInfo::minRowBytes() ##
 # Pixel_Ref is nullptr ##
 ##
 
@@ -2416,11 +2416,11 @@ Copies a Rect of pixels from src. Copy starts at (dstX, dstY), and does not exce
 (src.width(), src.height()).
 
 src specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
-and row bytes of source. src.rowBytes specifics the gap from one source
+and row bytes of source. src.rowBytes() specifics the gap from one source
 row to the next. Returns true if pixels are copied. Returns false if:
 #List
 # src pixel storage equals nullptr ##
-# src.rowBytes is less than SkImageInfo::minRowBytes ##
+# src.rowBytes() is less than SkImageInfo::minRowBytes() ##
 # Pixel_Ref is nullptr ##
 ##
 
@@ -2475,11 +2475,11 @@ Copies a Rect of pixels from src. Copy starts at (0, 0), and does not exceed
 (src.width(), src.height()).
 
 src specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
-and row bytes of source. src.rowBytes specifics the gap from one source
+and row bytes of source. src.rowBytes() specifics the gap from one source
 row to the next. Returns true if pixels are copied. Returns false if:
 #List
 # src pixel storage equals nullptr ##
-# src.rowBytes is less than SkImageInfo::minRowBytes ##
+# src.rowBytes() is less than SkImageInfo::minRowBytes() ##
 # Pixel_Ref is nullptr ##
 ##
 

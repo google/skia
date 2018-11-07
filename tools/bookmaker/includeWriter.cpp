@@ -891,21 +891,35 @@ void IncludeWriter::methodOut(Definition* method, const Definition& child) {
         this->indentIn(IndentKind::kMethodOut);
         fIndentNext = false;
     }
+    if (string::npos != method->fName.find("validate")) {
+        SkDebugf("");
+    }
     if (method->fChildren.end() != std::find_if(method->fChildren.begin(), method->fChildren.end(),
             [](const Definition* def) { return MarkType::kPopulate == def->fMarkType; } )) {
-        int commentIndex = child.fParentIndex;
-        auto iter = child.fParent->fTokens.begin();
-        std::advance(iter, commentIndex);
-        SkDEBUGCODE(bool sawMethod = MarkType::kMethod == iter->fMarkType);
-        while (--commentIndex >= 0) {
-            std::advance(iter, -1);
-            if (Bracket::kSlashStar == iter->fBracket) {
-                SkASSERT(sawMethod);
+        std::list<Definition>::iterator iter;
+        const Definition* childPtr = &child;
+        SkDEBUGCODE(bool sawMethod = false);
+        do {
+            int commentIndex = childPtr->fParentIndex;
+            iter = childPtr->fParent->fTokens.begin();
+            std::advance(iter, commentIndex);
+            SkDEBUGCODE(sawMethod |= MarkType::kMethod == iter->fMarkType);
+            while (--commentIndex >= 0) {
+                std::advance(iter, -1);
+                if (Bracket::kSlashStar == iter->fBracket) {
+                    SkASSERT(sawMethod);
+                    break;
+                }
+                SkASSERT(!sawMethod);
+                SkDEBUGCODE(sawMethod |= MarkType::kMethod == iter->fMarkType);
+            }
+            if (MarkType::kMethod != iter->fMarkType) {
                 break;
             }
-            SkASSERT(!sawMethod);
-            SkDEBUGCODE(sawMethod = MarkType::kMethod == iter->fMarkType);
-        }
+            childPtr = childPtr->fParent;
+            SkDEBUGCODE(sawMethod = true);
+        } while (true);
+        SkASSERT(Bracket::kSlashSlash == iter->fBracket || Bracket::kSlashStar == iter->fBracket);
         this->lf(2);
         this->writeString("/");
         this->writeBlock(iter->length(), iter->fContentStart);

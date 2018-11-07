@@ -17,7 +17,7 @@ Components are independent of the others if defined with kUnpremul_SkAlphaType;
 fA Alpha is may be greater or smaller than fG green, fB blue, or fR red.
 SkColor4f is shorthand for Unpremultiplied SkRGBA4f.
 
-Components are connnected if defined with kPremul_SkAlphaType; 
+Components are connected if defined with kPremul_SkAlphaType; 
 fA Alpha is equal to or larger than fG green, fB blue, and fR red. The values
 stored in fG, fB, and fR combine the color component with the Alpha component.
 

@@ -352,7 +352,7 @@ pixmap height: 32  info height: 32
 ##
 ##
 
-#SeeAlso width() ImageInfo::height()
+#SeeAlso width SkImageInfo::height
 
 ##
 
@@ -689,7 +689,7 @@ Unpremultiplied:
 #Line # returns Alpha normalized from zero to one ##
 
 Looks up the pixel at (x,y) and return its alpha component, normalized to [0..1].
-This is roughly equivalent to #Formula # SkGetColorA(getColor()) ##, but can be more efficent
+This is roughly equivalent to #Formula # SkGetColorA(getColor()) ##, but can be more efficient
 (and more precise if the pixels store more than 8 bits per component).
 
 #Param x  column index, zero or greater, and less than width() ##
@@ -1276,13 +1276,13 @@ exceed Pixmap (width(), height()).
 dstInfo specifies width, height, Color_Type, Alpha_Type, and
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
-dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
+dstInfo has no address, or dstRowBytes is less than dstInfo.minRowBytes().
 
 Pixels are copied only if pixel conversion is possible. If Pixmap colorType is
-kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType must match.
-If Pixmap colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
-If Pixmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
-match. If Pixmap colorSpace is nullptr, dstInfo.colorSpace must match. Returns
+kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType() must match.
+If Pixmap colorType is kGray_8_SkColorType, dstInfo.colorSpace() must match.
+If Pixmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType() must
+match. If Pixmap colorSpace is nullptr, dstInfo.colorSpace() must match. Returns
 false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns
@@ -1331,14 +1331,14 @@ void draw(SkCanvas* canvas) {
 Copies a Rect of pixels to dst. Copy starts at (srcX, srcY), and does not
 exceed Pixmap (width(), height()). dst specifies width, height, Color_Type,
 Alpha_Type, and Color_Space of destination.  Returns true if pixels are copied.
-Returns false if dst.addr() equals nullptr, or dst.rowBytes is less than
+Returns false if dst.addr() equals nullptr, or dst.rowBytes() is less than
 dst SkImageInfo::minRowBytes.
 
 Pixels are copied only if pixel conversion is possible. If Pixmap colorType is
-kGray_8_SkColorType, or kAlpha_8_SkColorType; dst.info().colorType must match.
-If Pixmap colorType is kGray_8_SkColorType, dst.info().colorSpace must match.
-If Pixmap alphaType is kOpaque_SkAlphaType, dst.info().alphaType must
-match. If Pixmap colorSpace is nullptr, dst.info().colorSpace must match. Returns
+kGray_8_SkColorType, or kAlpha_8_SkColorType; dst.info().colorType() must match.
+If Pixmap colorType is kGray_8_SkColorType, dst.info().colorSpace() must match.
+If Pixmap alphaType is kOpaque_SkAlphaType, dst.info().alphaType() must
+match. If Pixmap colorSpace is nullptr, dst.info().colorSpace() must match. Returns
 false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns

@@ -420,7 +420,7 @@ kRGBA_8888_SkColorType.
     the drawn result is undefined.
 
     If paired with kUnpremul_SkAlphaType: alpha, blue, green, and red components
-    may have any value. There may be a performance penalty with Unpremultipled
+    may have any value. There may be a performance penalty with Unpremultiplied
     pixels.
 
     If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
@@ -469,7 +469,7 @@ kRGBA_8888_SkColorType.
     the drawn result is undefined.
 
     If paired with kUnpremul_SkAlphaType: alpha, red, green, and blue components
-    may have any value. There may be a performance penalty with Unpremultipled
+    may have any value. There may be a performance penalty with Unpremultiplied
     pixels.
 
     If paired with kOpaque_SkAlphaType: all alpha component values are at the maximum;
@@ -1024,7 +1024,7 @@ with studio range of 16 to 235 range for components.
 #Populate
 ##
 
-Describes pixel dimensions and encoding. Bitmap, Image, PixMap, and Surface
+Describes pixel dimensions and encoding. Bitmap, Image, Pixmap, and Surface
 can be created from Image_Info. Image_Info can be retrieved from Bitmap and
 Pixmap, but not from Image and Surface. For example, Image and Surface
 implementations may defer pixel depth, so may not completely specify Image_Info.

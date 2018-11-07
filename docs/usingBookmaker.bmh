@@ -1,13 +1,19 @@
 #External
-SkXXX
-docs/SkIRect_Reference
-docs/SkSurface_Reference
-include/core/SkSurface
+SkXXX.md 
+SkXXX.bmh
+docs/SkIRect_Reference.bmh
+docs/SkSurface_Reference.bmh
+docs/status.json
+include/core/SkSurface.h
 SkSurface.h
+fiddle.json
+fiddleout.json
+status.json
 CL
 Go
 Visual_Studio
 Completed InProgress
+skia.org
 ##
 
 #Topic Bookmaker

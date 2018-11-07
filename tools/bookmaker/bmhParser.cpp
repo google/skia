@@ -294,6 +294,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     definition->fFiddle = parent->fFiddle + '_';
                 }
                 rootDefinition->fNames.fName = rootDefinition->fName;
+                rootDefinition->fNames.fParent = &fGlobalNames;
                 definition->fFiddle += Definition::NormalizedName(typeNameBuilder[0]);
                 this->setAsParent(definition);
             }
@@ -1281,13 +1282,21 @@ void BmhParser::setUpGlobalSubstitutes() {
     fclose(file);
     int i = 0;
     int start = i;
+    string last = " ";
     string word;
     do {
         if (' ' < buffer[i]) {
             ++i;
             continue;
         }
+        last = word;
         word = string(&buffer[start], i - start);
+#ifdef SK_DEBUG
+        SkASSERT(last.compare(word) < 0);
+        for (char c : word) {
+            SkASSERT(islower(c) || '-' == c);
+        }
+#endif
         if (fGlobalNames.fRefMap.end() == fGlobalNames.fRefMap.find(word)) {
             fGlobalNames.fRefMap[word] = nullptr;
         } else {
@@ -1320,23 +1329,14 @@ void BmhParser::setUpSubstitutes(const Definition* parent, NameMap* names) {
                 continue;
             }
         }
-        size_t lastUnder = name.rfind('_');
-        if (string::npos != lastUnder && ++lastUnder < name.length()) {
-            bool numbers = true;
-            for (size_t index = lastUnder; index < name.length(); ++index) {
-                numbers &= (bool) isdigit(name[index]);
-            }
-            if (numbers) {
-                continue;
-            }
-        }
         string ref;
         if (&fGlobalNames == names) {
             ref = ParserCommon::HtmlFileName(child->fFileName);
         }
         ref += '#' + child->fFiddle;
         if (MarkType::kClass == markType || MarkType::kStruct == markType
-                || MarkType::kMethod == markType || MarkType::kEnum == markType
+                || (MarkType::kMethod == markType && !child->fClone)
+                || MarkType::kEnum == markType
                 || MarkType::kEnumClass == markType || MarkType::kConst == markType
                 || MarkType::kMember == markType || MarkType::kDefine == markType
                 || MarkType::kTypedef == markType) {
@@ -1354,6 +1354,28 @@ void BmhParser::setUpSubstitutes(const Definition* parent, NameMap* names) {
         }
         if (MarkType::kEnum == markType) {
             this->setUpSubstitutes(child, names);
+        }
+        if (MarkType::kMethod == markType) {
+            if (child->fClone || child->fCloned) {
+                TextParser parser(child->fFileName, child->fStart, child->fContentStart,
+                        child->fLineCount);
+                parser.skipExact("#Method");
+                parser.skipSpace();
+                string name = child->methodName();
+                const char* nameInParser = parser.strnstr(name.c_str(), parser.fEnd);
+                parser.skipTo(nameInParser);
+                const char* paren = parser.strnchr('(', parser.fEnd);
+                parser.skipTo(paren);
+                parser.skipToBalancedEndBracket('(', ')');
+                if ("()" != string(paren, parser.fChar - paren)) {
+                    string fullName =
+                            trim_inline_spaces(string(nameInParser, parser.fChar - nameInParser));
+                    SkASSERT(names->fLinkMap.end() == names->fLinkMap.find(fullName));
+                    names->fLinkMap[fullName] = ref;
+                    SkASSERT(names->fRefMap.end() == names->fRefMap.find(fullName));
+                    names->fRefMap[fullName] = child;
+                }
+            }
         }
         if (MarkType::kSubtopic == markType) {
             if (&fGlobalNames != names && string::npos != child->fName.find('_')) {

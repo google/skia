@@ -2723,7 +2723,7 @@ private:
 class SkAutoCanvasRestore {
 public:
 
-    /** Preserves SkCanvas save count. Optionally saves SkCanvas clip and SkCanvas matrix.
+    /** Preserves SkCanvas::save() count. Optionally saves SkCanvas clip and SkCanvas matrix.
 
         @param canvas  SkCanvas to guard
         @param doSave  call SkCanvas::save()

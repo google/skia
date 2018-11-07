@@ -373,3 +373,38 @@ void NameMap::copyToParent(NameMap* parent) const {
         }
     }
 }
+
+void NameMap::setParams(Definition* bmhDef, Definition* iMethod) {
+    Definition* pParent = bmhDef->csParent();
+    string parentName;
+    if (pParent) {
+        parentName = pParent->fName + "::";
+        fParent = &pParent->asRoot()->fNames;
+    }
+    fName = parentName + iMethod->fName;
+    TextParser methParams(iMethod);
+    for (auto& param : iMethod->fTokens) {
+        if (MarkType::kComment != param.fMarkType) {
+            continue;
+        }
+        TextParser paramParser(&param);
+        if (!paramParser.skipExact("@param ")) { // write parameters, if any
+            continue;
+        }
+        paramParser.skipSpace();
+        const char* start = paramParser.fChar;
+        paramParser.skipToSpace();
+        string paramName(start, paramParser.fChar - start);
+    #ifdef SK_DEBUG
+        for (char c : paramName) {
+            SkASSERT(isalnum(c) || '_' == c);
+        }
+    #endif
+        if (!methParams.containsWord(paramName.c_str(), methParams.fEnd, nullptr)) {
+            param.reportError<void>("mismatched param name");
+        }
+        fRefMap[paramName] = &param;
+        fLinkMap[paramName] = '#' + bmhDef->fFiddle + '_' + paramName;
+    }
+}
+

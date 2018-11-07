@@ -319,23 +319,23 @@ as the Font_Engine.
     to 26.6 fractional pixels.
 ##
 #Const kSlight_Hinting 1
-#Line # minimal modification to improve constrast ##
-    Modifies glyph outlines minimally to improve constrast.
+#Line # minimal modification to improve contrast ##
+    Modifies glyph outlines minimally to improve contrast.
     With FreeType, this is equivalent in spirit to the
     FT_LOAD_TARGET_LIGHT value supplied to FT_Load_Glyph. It chooses a
     lighter hinting algorithm for non-monochrome modes.
     Generated Glyphs may be fuzzy but better resemble their original shape.
 ##
 #Const kNormal_Hinting 2
-#Line # glyph outlines modified to improve constrast ##
-    Modifies glyph outlines to improve constrast. This is the default.
+#Line # glyph outlines modified to improve contrast ##
+    Modifies glyph outlines to improve contrast. This is the default.
     With FreeType, this supplies FT_LOAD_TARGET_NORMAL to FT_Load_Glyph,
     choosing the default hinting algorithm, which is optimized for standard
     gray-level rendering.
 ##
 #Const kFull_Hinting 3
-#Line # modifies glyph outlines for maximum constrast ##
-    Modifies glyph outlines for maximum constrast. With FreeType, this selects
+#Line # modifies glyph outlines for maximum contrast ##
+    Modifies glyph outlines for maximum contrast. With FreeType, this selects
     FT_LOAD_TARGET_LCD or FT_LOAD_TARGET_LCD_V if kLCDRenderText_Flag is set.
     FT_LOAD_TARGET_LCD is a variant of FT_LOAD_TARGET_NORMAL optimized for
     horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a
@@ -3284,30 +3284,8 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-
-#Method SkRect getFontBounds() const
-
-#In Font_Metrics
-#Line # returns union all glyph bounds ##
-#Populate
-
-#Example
-    SkPaint paint;
-    SkFontMetrics fm;
-    paint.getFontMetrics(&fm);
-    SkRect fb = paint.getFontBounds();
-    SkDebugf("metrics bounds = { %g, %g, %g, %g }\n", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );
-    SkDebugf("font bounds    = { %g, %g, %g, %g }\n", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );
-
-    #StdOut
-        metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }
-        font bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }
-    ##
-##
-
-##
-
 #Subtopic Font_Metrics ##
+
 # ------------------------------------------------------------------------------
 
 #Method int textToGlyphs(const void* text, size_t byteLength,
@@ -3780,6 +3758,28 @@ void draw(SkCanvas* canvas) {
 #Subtopic Text_Intercepts ##
 # ------------------------------------------------------------------------------
 
+#Method SkRect getFontBounds() const
+
+#In Font_Metrics
+#Line # returns union all glyph bounds ##
+#Populate
+
+#Example
+    SkPaint paint;
+    SkPaint::FontMetrics fm;
+    paint.getFontMetrics(&fm);
+    SkRect fb = paint.getFontBounds();
+    SkDebugf("metrics bounds = { %g, %g, %g, %g }\n", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );
+    SkDebugf("font bounds    = { %g, %g, %g, %g }\n", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );
+
+    #StdOut
+        metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }
+        font bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }
+    ##
+##
+
+##
+
 #Method bool nothingToDraw() const
 #In Utility
 #Line # returns true if Paint prevents all drawing ##
@@ -3844,9 +3844,9 @@ Paint may draw to.
     (to be made private)
     ##
 
-    Only call this if canComputeFastBounds returned true. This takes a
-    raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
-    effects in the paint (e.g. stroking). If needed, it uses the storage
+    Only call if canComputeFastBounds returned true. This takes a
+    raw rectangle, the raw bounds of a shape; and adjusts it for stylistic
+    effects in the paint, such as stroking. If needed, it uses the storage
     parameter. It returns the adjusted bounds that can then be used
     for SkCanvas::quickReject tests.
 

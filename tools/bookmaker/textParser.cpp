@@ -6,6 +6,7 @@
  */
 
 #include "definition.h"
+#include "textParser.h"
 
 #ifdef SK_BUILD_FOR_WIN
 #include <Windows.h>

@@ -528,7 +528,7 @@ large height: inf
 ##
 ##
 
-#SeeAlso SkRect.height width getBounds
+#SeeAlso SkRect::height width getBounds
 
 #Method ##
 
@@ -1181,7 +1181,7 @@ left corner: (25) 12.5
 #Const kSizeInMemory 48
 #Line # storage space for Round_Rect ##
 
-Space required to serialize SkRRect into a buffer. Always a multiple of four.
+Space required to write the contents of SkRRect into a buffer; always a multiple of four.
 
 #Const ##
 

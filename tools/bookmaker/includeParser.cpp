@@ -1854,6 +1854,10 @@ Definition* IncludeParser::findIncludeObject(const Definition& includeDef, MarkT
 }
 
 Definition* IncludeParser::findMethod(const Definition& bmhDef) {
+    if (std::any_of(bmhDef.fChildren.begin(), bmhDef.fChildren.end(), [](Definition* def) {
+            return MarkType::kDeprecated == def->fMarkType; } )) {
+        return nullptr;
+    }
     auto doubleColon = bmhDef.fName.rfind("::");
     if (string::npos == doubleColon) {
         const auto& iGlobalMethod = fIFunctionMap.find(bmhDef.fName);
@@ -1862,7 +1866,9 @@ Definition* IncludeParser::findMethod(const Definition& bmhDef) {
     }
     string className = bmhDef.fName.substr(0, doubleColon);
     const auto& iClass = fIClassMap.find(className);
-    SkASSERT(fIClassMap.end() != iClass);
+    if (fIClassMap.end() == iClass) {
+        return nullptr;
+    }
     string methodName = bmhDef.fName.substr(doubleColon + 2);
     auto& iTokens = iClass->second.fTokens;
     const auto& iMethod = std::find_if(iTokens.begin(), iTokens.end(),

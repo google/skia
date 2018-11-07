@@ -623,6 +623,24 @@ static inline void trim_start_end(string& s) {
     trim_end(s);
 }
 
+static inline string trim_inline_spaces(string s) {
+    bool lastSpace = false;
+    string trimmed;
+    for (const char* ptr = &s.front(); ptr <= &s.back(); ++ptr) {
+        char c = *ptr;
+        if (' ' >= c) {
+            if (!lastSpace) {
+                trimmed += ' ';
+            }
+            lastSpace = true;
+            continue;
+        }
+        lastSpace = false;
+        trimmed += c;
+    }
+    return trimmed;
+}
+
 class EscapeParser : public TextParser {
 public:
     EscapeParser(const char* start, const char* end) :

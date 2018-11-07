@@ -1158,16 +1158,16 @@ dstInfo specifies width, height, Color_Type, Alpha_Type, and Color_Space of
 destination. dstRowBytes specifics the gap from one destination row to the next.
 Returns true if pixels are copied. Returns false if:
 #List
-# dstInfo.addr() equals nullptr ##
-# dstRowBytes is less than dstInfo.minRowBytes ##
+# dstInfo has no address ##
+# dstRowBytes is less than dstInfo.minRowBytes() ##
 # Pixel_Ref is nullptr ##
 ##
 
 Pixels are copied only if pixel conversion is possible. If Image Color_Type is
-kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType must match.
-If Image Color_Type is kGray_8_SkColorType, dstInfo.colorSpace must match.
-If Image Alpha_Type is kOpaque_SkAlphaType, dstInfo.alphaType must
-match. If Image Color_Space is nullptr, dstInfo.colorSpace must match. Returns
+kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType() must match.
+If Image Color_Type is kGray_8_SkColorType, dstInfo.colorSpace() must match.
+If Image Alpha_Type is kOpaque_SkAlphaType, dstInfo.alphaType() must
+match. If Image Color_Space is nullptr, dstInfo.colorSpace() must match. Returns
 false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns
@@ -1221,19 +1221,19 @@ Copies a Rect of pixels from Image to dst. Copy starts at (srcX, srcY), and
 does not exceed Image (width(), height()).
 
 dst specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
-and row bytes of destination. dst.rowBytes specifics the gap from one destination
+and row bytes of destination. dst.rowBytes() specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if:
 #List
 # dst pixel storage equals nullptr ##
-# dst.rowBytes is less than SkImageInfo::minRowBytes ##
+# dst.rowBytes() is less than SkImageInfo::minRowBytes ##
 # Pixel_Ref is nullptr ##
 ##
 
 Pixels are copied only if pixel conversion is possible. If Image Color_Type is
-kGray_8_SkColorType, or kAlpha_8_SkColorType; dst.colorType must match.
-If Image Color_Type is kGray_8_SkColorType, dst.colorSpace must match.
-If Image Alpha_Type is kOpaque_SkAlphaType, dst.alphaType must
-match. If Image Color_Space is nullptr, dst.colorSpace must match. Returns
+kGray_8_SkColorType, or kAlpha_8_SkColorType; dst.colorType() must match.
+If Image Color_Type is kGray_8_SkColorType, dst.colorSpace() must match.
+If Image Alpha_Type is kOpaque_SkAlphaType, dst.alphaType() must
+match. If Image Color_Space is nullptr, dst.colorSpace() must match. Returns
 false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns
@@ -1734,7 +1734,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso isTextureBacked MakeNonTextureImage
+#SeeAlso isTextureBacked makeNonTextureImage
 
 #Method ##
 
@@ -1758,7 +1758,7 @@ void draw(SkCanvas* canvas) {
     }
 ##
 
-#SeeAlso MakeFromPixture MakeFromTexture
+#SeeAlso MakeFromPicture MakeFromTexture
 
 #Method ##
 
