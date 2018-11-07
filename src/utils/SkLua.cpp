@@ -818,7 +818,7 @@ static int lpaint_setTypeface(lua_State* L) {
 }
 
 static int lpaint_getHinting(lua_State* L) {
-    SkLua(L).pushU32((unsigned)get_obj<SkPaint>(L, 1)->getHinting());
+    SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getHinting());
     return 1;
 }
 

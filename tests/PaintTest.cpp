@@ -208,11 +208,11 @@ DEF_TEST(Paint_flattening, reporter) {
         kMedium_SkFilterQuality,
         kHigh_SkFilterQuality,
     };
-    const SkFontHinting hinting[] = {
-        kNo_SkFontHinting,
-        kSlight_SkFontHinting,
-        kNormal_SkFontHinting,
-        kFull_SkFontHinting,
+    const SkPaint::Hinting hinting[] = {
+        SkPaint::kNo_Hinting,
+        SkPaint::kSlight_Hinting,
+        SkPaint::kNormal_Hinting,
+        SkPaint::kFull_Hinting,
     };
     const SkPaint::Cap caps[] = {
         SkPaint::kButt_Cap,
@@ -329,9 +329,9 @@ DEF_TEST(Paint_getHash, r) {
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 
     // This is part of fBitfields, the last field we hash.
-    paint.setHinting(kSlight_SkFontHinting);
+    paint.setHinting(SkPaint::kSlight_Hinting);
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
-    paint.setHinting(kNormal_SkFontHinting);
+    paint.setHinting(SkPaint::kNormal_Hinting);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 }
 

@@ -59,7 +59,7 @@ SkPaint::SkPaint() {
     fBitfields.fJoinType     = kDefault_Join;
     fBitfields.fStyle        = kFill_Style;
     fBitfields.fTextEncoding = kUTF8_TextEncoding;
-    fBitfields.fHinting      = static_cast<unsigned>(SkPaintDefaults_Hinting);
+    fBitfields.fHinting      = SkPaintDefaults_Hinting;
 }
 
 SkPaint::SkPaint(const SkPaint& src)
@@ -394,8 +394,7 @@ static inline int BPF_Mask(int bits) {
     return (1 << bits) - 1;
 }
 
-static uint32_t pack_paint_flags(unsigned flags, unsigned hint, unsigned filter,
-                                 unsigned flatFlags) {
+static uint32_t pack_paint_flags(unsigned flags, unsigned hint, unsigned filter, unsigned flatFlags) {
     ASSERT_FITS_IN(flags, kFlags_BPF);
     ASSERT_FITS_IN(hint, kHint_BPF);
     ASSERT_FITS_IN(filter, kFilter_BPF);
@@ -410,7 +409,7 @@ static uint32_t pack_paint_flags(unsigned flags, unsigned hint, unsigned filter,
 
 static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
     paint->setFlags(packed >> 16);
-    paint->setHinting((SkFontHinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
+    paint->setHinting((SkPaint::Hinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
     paint->setFilterQuality((SkFilterQuality)((packed >> 10) & BPF_Mask(kFilter_BPF)));
     return (FlatFlags)(packed & kFlatFlagMask);
 }
@@ -442,7 +441,7 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     buffer.writeScalar(paint.getStrokeMiter());
     buffer.writeColor4f(paint.getColor4f());
 
-    buffer.writeUInt(pack_paint_flags(paint.getFlags(), static_cast<unsigned>(paint.getHinting()),
+    buffer.writeUInt(pack_paint_flags(paint.getFlags(), paint.getHinting(),
                                       paint.getFilterQuality(), flatFlags));
     buffer.writeUInt(pack_4(paint.getStrokeCap(), paint.getStrokeJoin(),
                             (paint.getStyle() << 4) | paint.getTextEncoding(),
