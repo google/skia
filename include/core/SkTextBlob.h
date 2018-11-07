@@ -209,9 +209,9 @@ public:
     /** \struct SkTextBlobBuilder::RunBuffer
         RunBuffer supplies storage for glyphs and positions within a run.
 
-        A run is a sequence of glyphs sharing SkPaint::FontMetrics and positioning.
+        A run is a sequence of glyphs sharing SkFontMetrics and positioning.
         Each run may position its glyphs in one of three ways:
-        by specifying where the first glyph is drawn, and allowing SkPaint::FontMetrics to
+        by specifying where the first glyph is drawn, and allowing SkFontMetrics to
         determine the advance to subsequent glyphs; by specifying a baseline, and
         the position on that baseline for each glyph in run; or by providing SkPoint
         array, one per glyph.
@@ -229,18 +229,18 @@ public:
 
         RunBuffer.utf8text(), and RunBuffer.clusters() should be ignored.
 
-        Glyphs share SkPaint::FontMetrics in font, including:
+        Glyphs share SkFontMetrics in font, including:
         SkTypeface, SkPaint text size, SkPaint text scale x,
         SkPaint text skew x, SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
         SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
         and SkPaint subpixel text.
 
-        Glyphs are positioned on a baseline at (x, y), using font SkPaint::FontMetrics to
+        Glyphs are positioned on a baseline at (x, y), using font SkFontMetrics to
         determine their relative placement.
 
         bounds defines an optional bounding box, used to suppress drawing when SkTextBlob
         bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
-        is computed from (x, y) and RunBuffer.glyphs() SkPaint::FontMetrics.
+        is computed from (x, y) and RunBuffer.glyphs() SkFontMetrics.
 
         @param font    SkPaint used for this run
         @param count   number of glyphs
@@ -260,7 +260,7 @@ public:
 
         RunBuffer.utf8text(), and RunBuffer.clusters() should be ignored.
 
-        Glyphs share SkPaint::FontMetrics in font, including:
+        Glyphs share SkFontMetrics in font, including:
         SkTypeface, SkPaint text size, SkPaint text scale x,
         SkPaint text skew x, SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
         SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
@@ -271,7 +271,7 @@ public:
 
         bounds defines an optional bounding box, used to suppress drawing when SkTextBlob
         bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
-        is computed from y, RunBuffer.pos(), and RunBuffer.glyphs() SkPaint::FontMetrics.
+        is computed from y, RunBuffer.pos(), and RunBuffer.glyphs() SkFontMetrics.
 
         @param font    SkPaint used for this run
         @param count   number of glyphs
@@ -290,7 +290,7 @@ public:
 
         RunBuffer.utf8text(), and RunBuffer.clusters() should be ignored.
 
-        Glyphs share SkPaint::FontMetrics in font, including:
+        Glyphs share SkFontMetrics in font, including:
         SkTypeface, SkPaint text size, SkPaint text scale x,
         SkPaint text skew x, SkPaint::Align, SkPaint::Hinting, anti-alias, SkPaint fake bold,
         SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
@@ -301,7 +301,7 @@ public:
 
         bounds defines an optional bounding box, used to suppress drawing when SkTextBlob
         bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
-        is computed from RunBuffer.pos(), and RunBuffer.glyphs() SkPaint::FontMetrics.
+        is computed from RunBuffer.pos(), and RunBuffer.glyphs() SkFontMetrics.
 
         @param font    SkPaint used for this run
         @param count   number of glyphs
