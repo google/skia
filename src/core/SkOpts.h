@@ -60,8 +60,8 @@ namespace SkOpts {
     extern StageFn stages_highp[SK_RASTER_PIPELINE_STAGES(M)], just_return_highp;
     extern StageFn stages_lowp [SK_RASTER_PIPELINE_STAGES(M)], just_return_lowp;
 
-    extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, void**);
-    extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
+    extern void (*start_pipeline_highp)(void*,size_t, size_t,size_t,size_t,size_t, void**);
+    extern void (*start_pipeline_lowp )(void*,size_t, size_t,size_t,size_t,size_t, void**);
 #undef M
 }
 

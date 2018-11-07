@@ -806,22 +806,27 @@ static const size_t N = sizeof(F) / sizeof(float);
 
 #if JUMPER_NARROW_STAGES
     struct Params {
+        SkRasterPipeline_MemoryCtx dst;
         size_t dx, dy, tail;
         F dr,dg,db,da;
     };
     using Stage = void(ABI*)(Params*, void** program, F r, F g, F b, F a);
 #else
     // We keep program the second argument, so that it's passed in rsi for load_and_inc().
-    using Stage = void(ABI*)(size_t tail, void** program, size_t dx, size_t dy, F,F,F,F, F,F,F,F);
+    using Stage = void(ABI*)(const SkRasterPipeline_MemoryCtx& dst,
+                             void** program,
+                             size_t dx, size_t dy, size_t tail, F,F,F,F, F,F,F,F);
 #endif
 
 
-static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, void** program) {
+static void start_pipeline(void* dst, size_t rb,
+                           size_t dx, size_t dy, size_t xlimit, size_t ylimit,
+                           void** program) {
     auto start = (Stage)load_and_inc(program);
     const size_t x0 = dx;
     for (; dy < ylimit; dy++) {
     #if JUMPER_NARROW_STAGES
-        Params params = { x0,dy,0, 0,0,0,0 };
+        Params params = { {dst,rb}, x0,dy,0, 0,0,0,0 };
         while (params.dx + N <= xlimit) {
             start(&params,program, 0,0,0,0);
             params.dx += N;
@@ -833,11 +838,11 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
     #else
         dx = x0;
         while (dx + N <= xlimit) {
-            start(0,program,dx,dy,    0,0,0,0, 0,0,0,0);
+            start({dst,rb}, program, dx,dy,0,    0,0,0,0, 0,0,0,0);
             dx += N;
         }
         if (size_t tail = xlimit - dx) {
-            start(tail,program,dx,dy, 0,0,0,0, 0,0,0,0);
+            start({dst,rb}, program, dx,dy,tail, 0,0,0,0, 0,0,0,0);
         }
     #endif
     }
@@ -858,15 +863,18 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #else
     #define STAGE(name, ...)                                                         \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,             \
+        SI void name##_k(__VA_ARGS__, const SkRasterPipeline_MemoryCtx& dst,         \
+                         size_t dx, size_t dy, size_t tail,                          \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);        \
-        static void ABI name(size_t tail, void** program, size_t dx, size_t dy,      \
+        static void ABI name(const SkRasterPipeline_MemoryCtx& dst, void** program,  \
+                             size_t dx, size_t dy, size_t tail,                      \
                              F r, F g, F b, F a, F dr, F dg, F db, F da) {           \
-            name##_k(Ctx{program},dx,dy,tail, r,g,b,a, dr,dg,db,da);                 \
+            name##_k(Ctx{program},dst, dx,dy,tail, r,g,b,a, dr,dg,db,da);            \
             auto next = (Stage)load_and_inc(program);                                \
-            next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                          \
+            next(dst,program,dx,dy,tail, r,g,b,a, dr,dg,db,da);                      \
         }                                                                            \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,             \
+        SI void name##_k(__VA_ARGS__, const SkRasterPipeline_MemoryCtx& dst,         \
+                         size_t dx, size_t dy, size_t tail,                          \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #endif
 
@@ -876,7 +884,8 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
 #if JUMPER_NARROW_STAGES
     static void ABI just_return(Params*, void**, F,F,F,F) {}
 #else
-    static void ABI just_return(size_t, void**, size_t,size_t, F,F,F,F, F,F,F,F) {}
+    static void ABI just_return(const SkRasterPipeline_MemoryCtx&, void**,
+                                size_t,size_t,size_t, F,F,F,F, F,F,F,F) {}
 #endif
 
 
@@ -1272,11 +1281,11 @@ STAGE(luminosity, Ctx::None) {
 STAGE(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
 
-    U32 dst = load<U32>(ptr, tail);
-    dr = cast((dst      ) & 0xff);
-    dg = cast((dst >>  8) & 0xff);
-    db = cast((dst >> 16) & 0xff);
-    da = cast((dst >> 24)       );
+    U32 px = load<U32>(ptr, tail);
+    dr = cast((px      ) & 0xff);
+    dg = cast((px >>  8) & 0xff);
+    db = cast((px >> 16) & 0xff);
+    da = cast((px >> 24)       );
     // {dr,dg,db,da} are in [0,255]
     // { r, g, b, a} are in [0,  1] (but may be out of gamut)
 
@@ -1287,11 +1296,11 @@ STAGE(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     // { r, g, b, a} are now in [0,255]  (but may be out of gamut)
 
     // to_unorm() clamps back to gamut.  Scaling by 1 since we're already 255-biased.
-    dst = to_unorm(r, 1, 255)
+    px = to_unorm(r, 1, 255)
         | to_unorm(g, 1, 255) <<  8
         | to_unorm(b, 1, 255) << 16
         | to_unorm(a, 1, 255) << 24;
-    store(ptr, dst, tail);
+    store(ptr, px, tail);
 }
 
 STAGE(clamp_0, Ctx::None) {
@@ -2250,7 +2259,7 @@ namespace lowp {
     #undef M
     static void (*just_return)(void) = nullptr;
 
-    static void start_pipeline(size_t,size_t,size_t,size_t, void**) {}
+    static void start_pipeline(void*,size_t, size_t,size_t,size_t,size_t, void**) {}
 
 #else  // We are compiling vector code with Clang... let's make some lowp stages!
 
@@ -2277,23 +2286,27 @@ static const size_t N = sizeof(U16) / sizeof(uint16_t);
 // It's exactly the same decision and implementation strategy as the F stages above.
 #if JUMPER_NARROW_STAGES
     struct Params {
+        SkRasterPipeline_MemoryCtx dst;
         size_t dx, dy, tail;
         U16 dr,dg,db,da;
     };
     using Stage = void(ABI*)(Params*, void** program, U16 r, U16 g, U16 b, U16 a);
 #else
     // We pass program as the second argument so that load_and_inc() will find it in %rsi on x86-64.
-    using Stage = void (ABI*)(size_t tail, void** program, size_t dx, size_t dy,
+    using Stage = void (ABI*)(const SkRasterPipeline_MemoryCtx& dst, void** program,
+                              size_t dx, size_t dy, size_t tail,
                               U16  r, U16  g, U16  b, U16  a,
                               U16 dr, U16 dg, U16 db, U16 da);
 #endif
 
-static void start_pipeline(const size_t x0,     const size_t y0,
-                           const size_t xlimit, const size_t ylimit, void** program) {
+static void start_pipeline(void* dst, size_t rb,
+                           const size_t x0,     const size_t y0,
+                           const size_t xlimit, const size_t ylimit,
+                           void** program) {
     auto start = (Stage)load_and_inc(program);
     for (size_t dy = y0; dy < ylimit; dy++) {
     #if JUMPER_NARROW_STAGES
-        Params params = { x0,dy,0, 0,0,0,0 };
+        Params params = { {dst,rb}, x0,dy,0, 0,0,0,0 };
         for (; params.dx + N <= xlimit; params.dx += N) {
             start(&params,program, 0,0,0,0);
         }
@@ -2304,10 +2317,10 @@ static void start_pipeline(const size_t x0,     const size_t y0,
     #else
         size_t dx = x0;
         for (; dx + N <= xlimit; dx += N) {
-            start(   0,program,dx,dy, 0,0,0,0, 0,0,0,0);
+            start({dst,rb},program, dx,dy,0,    0,0,0,0, 0,0,0,0);
         }
         if (size_t tail = xlimit - dx) {
-            start(tail,program,dx,dy, 0,0,0,0, 0,0,0,0);
+            start({dst,rb},program, dx,dy,tail, 0,0,0,0, 0,0,0,0);
         }
     #endif
     }
@@ -2316,7 +2329,9 @@ static void start_pipeline(const size_t x0,     const size_t y0,
 #if JUMPER_NARROW_STAGES
     static void ABI just_return(Params*, void**, U16,U16,U16,U16) {}
 #else
-    static void ABI just_return(size_t,void**,size_t,size_t, U16,U16,U16,U16, U16,U16,U16,U16) {}
+    static void ABI just_return(const SkRasterPipeline_MemoryCtx&, void**,
+                                size_t,size_t,size_t,
+                                U16,U16,U16,U16, U16,U16,U16,U16) {}
 #endif
 
 // All stages use the same function call ABI to chain into each other, but there are three types:
@@ -2360,22 +2375,25 @@ static void start_pipeline(const size_t x0,     const size_t y0,
                          U16& dr, U16& dg, U16& db, U16& da)
 
     #define STAGE_PP(name, ...)                                                            \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
+        SI void name##_k(__VA_ARGS__, const SkRasterPipeline_MemoryCtx& dst,               \
+                         size_t dx, size_t dy, size_t tail,                                \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da);                              \
         static void ABI name(Params* params, void** program, U16 r, U16 g, U16 b, U16 a) { \
-            name##_k(Ctx{program}, params->dx,params->dy,params->tail, r,g,b,a,            \
-                     params->dr,params->dg,params->db,params->da);                         \
+            name##_k(Ctx{program}, params->dst, params->dx,params->dy,params->tail,        \
+                     r,g,b,a, params->dr,params->dg,params->db,params->da);                \
             auto next = (Stage)load_and_inc(program);                                      \
             next(params,program, r,g,b,a);                                                 \
         }                                                                                  \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
+        SI void name##_k(__VA_ARGS__, const SkRasterPipeline_MemoryCtx& dst,               \
+                         size_t dx, size_t dy, size_t tail,                                \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da)
 #else
     #define STAGE_GG(name, ...)                                                            \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y);      \
-        static void ABI name(size_t tail, void** program, size_t dx, size_t dy,            \
+        static void ABI name(const SkRasterPipeline_MemoryCtx& dst, void** program,        \
+                             size_t dx, size_t dy, size_t tail,                            \
                              U16  r, U16  g, U16  b, U16  a,                               \
                              U16 dr, U16 dg, U16 db, U16 da) {                             \
             auto x = join<F>(r,g),                                                         \
@@ -2384,7 +2402,7 @@ static void start_pipeline(const size_t x0,     const size_t y0,
             split(x, &r,&g);                                                               \
             split(y, &b,&a);                                                               \
             auto next = (Stage)load_and_inc(program);                                      \
-            next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                                \
+            next(dst,program, dx,dy,tail, r,g,b,a, dr,dg,db,da);                           \
         }                                                                                  \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y)
 
@@ -2392,31 +2410,35 @@ static void start_pipeline(const size_t x0,     const size_t y0,
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F x, F y,         \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da);                              \
-        static void ABI name(size_t tail, void** program, size_t dx, size_t dy,            \
+        static void ABI name(const SkRasterPipeline_MemoryCtx& dst, void** program,        \
+                             size_t dx, size_t dy, size_t tail,                            \
                              U16  r, U16  g, U16  b, U16  a,                               \
                              U16 dr, U16 dg, U16 db, U16 da) {                             \
             auto x = join<F>(r,g),                                                         \
                  y = join<F>(b,a);                                                         \
             name##_k(Ctx{program}, dx,dy,tail, x,y, r,g,b,a, dr,dg,db,da);                 \
             auto next = (Stage)load_and_inc(program);                                      \
-            next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                                \
+            next(dst,program, dx,dy,tail, r,g,b,a, dr,dg,db,da);                           \
         }                                                                                  \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F x, F y,         \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da)
 
     #define STAGE_PP(name, ...)                                                            \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
+        SI void name##_k(__VA_ARGS__, const SkRasterPipeline_MemoryCtx& dst,               \
+                         size_t dx, size_t dy, size_t tail,                                \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da);                              \
-        static void ABI name(size_t tail, void** program, size_t dx, size_t dy,            \
+        static void ABI name(const SkRasterPipeline_MemoryCtx& dst, void** program,        \
+                             size_t dx, size_t dy, size_t tail,                            \
                              U16  r, U16  g, U16  b, U16  a,                               \
                              U16 dr, U16 dg, U16 db, U16 da) {                             \
-            name##_k(Ctx{program}, dx,dy,tail, r,g,b,a, dr,dg,db,da);                      \
+            name##_k(Ctx{program},dst, dx,dy,tail, r,g,b,a, dr,dg,db,da);                  \
             auto next = (Stage)load_and_inc(program);                                      \
-            next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                                \
+            next(dst,program, dx,dy,tail, r,g,b,a, dr,dg,db,da);                           \
         }                                                                                  \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
+        SI void name##_k(__VA_ARGS__, const SkRasterPipeline_MemoryCtx& dst,               \
+                         size_t dx, size_t dy, size_t tail,                                \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da)
 #endif

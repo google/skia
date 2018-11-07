@@ -337,7 +337,7 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
     SkAutoSTMalloc<64, void*> program(fSlotsNeeded);
 
     auto start_pipeline = this->build_pipeline(program.get() + fSlotsNeeded);
-    start_pipeline(x,y,x+w,y+h, program.get());
+    start_pipeline(nullptr,0, x,y,x+w,y+h, program.get());
 }
 
 std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() const {
@@ -349,6 +349,6 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
 
     auto start_pipeline = this->build_pipeline(program + fSlotsNeeded);
     return [=](size_t x, size_t y, size_t w, size_t h) {
-        start_pipeline(x,y,x+w,y+h, program);
+        start_pipeline(nullptr,0, x,y,x+w,y+h, program);
     };
 }
