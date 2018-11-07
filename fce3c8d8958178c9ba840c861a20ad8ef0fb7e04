@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aab127e2_dc7ee9da",
+        "filename": "src/codec/SkCodecImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-07T16:26:28Z",
+      "side": 1,
+      "message": "nit: this guy could call the new guy",
+      "range": {
+        "startLine": 19,
+        "startChar": 16,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "fce3c8d8958178c9ba840c861a20ad8ef0fb7e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
