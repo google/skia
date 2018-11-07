@@ -1492,8 +1492,8 @@
         "stdout": "(SkPaint::kAntiAlias_Flag & paint.getFlags()) != 0\\n"
     },
         "SkPaint_getFontBounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPaint::FontMetrics fm;\n    paint.getFontMetrics(&fm);\n    SkRect fb = paint.getFontBounds();\n    SkDebugf(\"metrics bounds = { %g, %g, %g, %g }\\n\", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );\n    SkDebugf(\"font bounds    = { %g, %g, %g, %g }\\n\", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );\n}",
-    "hash": "facaddeec7943bc491988e345e27e65f",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkFontMetrics fm;\n    paint.getFontMetrics(&fm);\n    SkRect fb = paint.getFontBounds();\n    SkDebugf(\"metrics bounds = { %g, %g, %g, %g }\\n\", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );\n    SkDebugf(\"font bounds    = { %g, %g, %g, %g }\\n\", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );\n}",
+    "hash": "f29d005a75efd4746c6744004a0cb421",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getFontBounds",
         "stdout": "metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }\\nfont bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }\\n"
@@ -1842,10 +1842,17 @@
         "stdout": "paint.isAntiAlias()\\npaint.isDither()\\n"
     },
         "SkPaint_setHinting": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint2.setHinting(kNormal_SkFontHinting);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : ':');\n}",
+    "hash": "197268a89c3343f600b9bade61c513ae",
+    "file": "SkPaint_Reference",
+    "name": "SkPaint::setHinting",
+        "stdout": "paint1 == paint2\\n"
+    },
+        "SkPaint_setHinting_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint2.setHinting(SkPaint::kNormal_Hinting);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : ':');\n}",
     "hash": "78153fbd3f1000cb33b97bbe831ed34e",
     "file": "SkPaint_Reference",
-    "name": "SkPaint::setHinting",
+    "name": "SkPaint::setHinting_2",
         "stdout": "paint1 == paint2\\n"
     },
         "SkPaint_setLCDRenderText": {
@@ -4194,14 +4201,6 @@
     "hash": "69369cff2f5b145a6f616092513266a0",
     "file": "SkPaint_Reference",
     "name": "Filter_Quality_Methods"
-},
-    "Paint_Font_Metrics": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(120);\n    SkPaint::FontMetrics fm;\n    SkScalar lineHeight = paint.getFontMetrics(&fm);\n    SkPoint pt = { 70, 180 };\n    canvas->drawString(\"M\", pt.fX, pt.fY, paint);\n    canvas->drawLine(pt.fX, pt.fY, pt.fX, pt.fY + fm.fTop, paint);\n    SkScalar ascent = pt.fY + fm.fAscent;\n    canvas->drawLine(pt.fX - 25, ascent, pt.fX - 25, ascent + lineHeight, paint);\n    canvas->drawLine(pt.fX - 50, pt.fY, pt.fX - 50, pt.fY + fm.fDescent, paint);\n    canvas->drawLine(pt.fX + 100, pt.fY, pt.fX + 100, pt.fY + fm.fAscent, paint);\n    canvas->drawLine(pt.fX + 125, pt.fY, pt.fX + 125, pt.fY - fm.fXHeight, paint);\n    canvas->drawLine(pt.fX + 150, pt.fY, pt.fX + 150, pt.fY - fm.fCapHeight, paint);\n    canvas->drawLine(pt.fX + 5, pt.fY, pt.fX + 5, pt.fY + fm.fBottom, paint);\n    SkScalar xmin = pt.fX + fm.fXMin;\n    canvas->drawLine(xmin, pt.fY + 60, xmin + fm.fMaxCharWidth, pt.fY + 60, paint);\n    canvas->drawLine(xmin, pt.fY - 145, pt.fX, pt.fY - 145, paint);\n    canvas->drawLine(pt.fX + fm.fXMax, pt.fY - 160, pt.fX, pt.fY - 160, paint);\n    SkScalar upos = pt.fY + fm.fUnderlinePosition;\n    canvas->drawLine(pt.fX + 25, upos, pt.fX + 160, upos, paint);\n    SkScalar ut = fm.fUnderlineThickness;\n    canvas->drawLine(pt.fX + 130, upos + ut, pt.fX + 160, upos + ut, paint);\n    paint.setTextSize(12);\n    canvas->drawString(\"x-min\",          pt.fX - 50, pt.fY - 148, paint);\n    canvas->drawString(\"x-max\",          pt.fX + 140, pt.fY - 150, paint);\n    canvas->drawString(\"max char width\", pt.fX + 120, pt.fY + 57, paint);\n    canvas->drawString(\"underline position\", pt.fX + 30, pt.fY + 22, paint);\n    canvas->drawString(\"underline thickness\", pt.fX + 162, pt.fY + 13, paint);\n    canvas->rotate(-90);\n    canvas->drawString(\"descent\",     -pt.fY - 30, pt.fX - 54,  paint);\n    canvas->drawString(\"line height\", -pt.fY,      pt.fX - 29,  paint);\n    canvas->drawString(\"top\",         -pt.fY + 30, pt.fX - 4,   paint);\n    canvas->drawString(\"ascent\",      -pt.fY,      pt.fX + 110, paint);\n    canvas->drawString(\"x-height\",    -pt.fY,      pt.fX + 135, paint);\n    canvas->drawString(\"cap-height\",  -pt.fY,      pt.fX + 160, paint);\n    canvas->drawString(\"bottom\",      -pt.fY - 50, pt.fX + 15,  paint);\n}\n",
-    "width": 512,
-    "height": 256,
-    "hash": "2bfa3783719fcd769af177a1b244e171",
-    "file": "SkPaint_Reference",
-    "name": "Font_Metrics"
 },
     "Paint_Image_Filter_Methods": {
     "code": "#include \"SkBlurImageFilter.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(2);\n    SkRegion region;\n    region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);\n    region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);\n    paint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr));\n    canvas->drawRegion(region, paint);\n    paint.setImageFilter(nullptr);\n    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5));\n    canvas->translate(100, 100);\n    canvas->drawRegion(region, paint);\n}\n",
@@ -7124,10 +7123,10 @@
     "name": "SkPaint::getFillPath_2"
 },
     "SkPaint_getFontMetrics": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    SkScalar lineHeight = paint.getFontMetrics(nullptr);\n    canvas->drawString(\"line 1\", 10, 40, paint);\n    canvas->drawString(\"line 2\", 10, 40 + lineHeight, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(10);\n    lineHeight = paint.getFontMetrics(nullptr, 1.10f);  // account for stroke height\n    canvas->drawString(\"line 3\", 120, 40, paint);\n    canvas->drawString(\"line 4\", 120, 40 + lineHeight, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    SkScalar lineHeight = paint.getFontMetrics(nullptr);\n    canvas->drawString(\"line 1\", 10, 40, paint);\n    canvas->drawString(\"line 2\", 10, 40 + lineHeight, paint);\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "b899d84caba6607340322d317992d070",
+    "hash": "59d9b8249afa1c2af6186711250ce240",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getFontMetrics"
 },

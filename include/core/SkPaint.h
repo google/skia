@@ -936,8 +936,8 @@ public:
     */
     void setTextEncoding(TextEncoding encoding);
 
-    /** \struct SkPaint::FontMetrics
-        FontMetrics is filled out by getFontMetrics(). FontMetrics contents reflect the values
+    /**
+        SkFontMetrics is filled out by getFontMetrics(). SkFontMetrics contents reflect the values
         computed by font manager using SkTypeface. Values are set to zero if they are
         not available.
 
@@ -953,15 +953,15 @@ public:
     */
     typedef SkFontMetrics FontMetrics;
 
-    /** Returns SkPaint::FontMetrics associated with SkTypeface.
+    /** Returns SkFontMetrics associated with SkTypeface.
         The return value is the recommended spacing between lines: the sum of metrics
         descent, ascent, and leading.
-        If metrics is not nullptr, SkPaint::FontMetrics is copied to metrics.
+        If metrics is not nullptr, SkFontMetrics is copied to metrics.
         Results are scaled by text size but does not take into account
         dimensions required by text scale x, text skew x, fake bold,
         style stroke, and SkPathEffect.
 
-        @param metrics  storage for SkPaint::FontMetrics from SkTypeface; may be nullptr
+        @param metrics  storage for SkFontMetrics; may be nullptr
         @return         recommended spacing between lines
     */
     SkScalar getFontMetrics(SkFontMetrics* metrics) const;
@@ -1228,7 +1228,7 @@ public:
 
         If text size is large, text scale x is one, and text skew x is zero,
         returns the same bounds as:
-        { FontMetrics::fXMin, FontMetrics::fTop, FontMetrics::fXMax, FontMetrics::fBottom }.
+        { SkFontMetrics::fXMin, SkFontMetrics::fTop, SkFontMetrics::fXMax, SkFontMetrics::fBottom }.
 
         @return  union of bounds of all glyphs
     */

@@ -354,6 +354,172 @@ FT_Load_Glyph
 #Const kFull_SkFontHinting 3
 ##
 ##
+#Struct SkFontMetrics
+#Line # values computed by Font_Manager using Typeface ##
+
+    SkFontMetrics is filled out by SkPaint::getFontMetrics. SkFontMetrics contents
+    reflect the values
+    computed by Font_Manager using Typeface. Values are set to zero if they are
+    not available.
+
+    All vertical values are relative to the baseline, on a y-axis pointing down.
+    Zero is on the baseline, negative values are above the baseline, and positive
+    values are below the baseline.
+
+    fUnderlineThickness and fUnderlinePosition have a bit set in fFlags if their values
+    are valid, since their value may be zero.
+
+    fStrikeoutThickness and fStrikeoutPosition have a bit set in fFlags if their values
+    are valid, since their value may be zero.
+
+    #Enum FontMetricsFlags
+    #Line # valid Font_Metrics ##
+
+    FontMetricsFlags are set in fFlags when underline and strikeout metrics are valid;
+    the underline or strikeout metric may be valid and zero.
+    Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
+
+        #Const kUnderlineThicknessIsValid_Flag 0x0001
+        #Line # set if fUnderlineThickness is valid ##
+        ##
+        #Const kUnderlinePositionIsValid_Flag  0x0002
+        #Line # set if fUnderlinePosition is valid ##
+        ##
+        #Const kStrikeoutThicknessIsValid_Flag 0x0004
+        #Line # set if fStrikeoutThickness is valid ##
+        ##
+        #Const kStrikeoutPositionIsValid_Flag  0x0008
+        #Line # set if fStrikeoutPosition is valid ##
+        ##
+
+    #Enum ##
+
+    #Member uint32_t    fFlags
+    #Line # is set to FontMetricsFlags when metrics are valid ##
+    ##
+
+    #Member SkScalar    fTop
+    #Line # extent above baseline ##
+        Greatest extent above the baseline for any glyph.
+        Typically less than zero.
+    ##
+
+    #Member SkScalar    fAscent
+    #Line # distance to reserve above baseline ##
+        Recommended distance above the baseline to reserve for a line of text.
+        Typically less than zero.
+    ##
+
+    #Member SkScalar    fDescent
+    #Line # distance to reserve below baseline ##
+        Recommended distance below the baseline to reserve for a line of text.
+        Typically greater than zero.
+    ##
+
+    #Member SkScalar    fBottom
+    #Line # extent below baseline ##
+        Greatest extent below the baseline for any glyph.
+        Typically greater than zero.
+    ##
+
+    #Member SkScalar    fLeading
+    #Line # distance to add between lines ##
+        Recommended distance to add between lines of text.
+        Typically greater than or equal to zero.
+    ##
+
+    #Member SkScalar    fAvgCharWidth
+    #Line # average character width ##
+        Average character width, if it is available.
+        Zero if no average width is stored in the font.
+    ##
+
+    #Member SkScalar    fMaxCharWidth
+    #Line # maximum character width ##
+    ##
+
+    #Member SkScalar    fXMin
+    #Line # minimum x ##
+        Minimum bounding box x-axis value for all Glyphs.
+        Typically less than zero.
+    ##
+
+    #Member SkScalar    fXMax
+    #Line # maximum x ##
+        Maximum bounding box x-axis value for all Glyphs.
+        Typically greater than zero.
+    ##
+
+    #Member SkScalar    fXHeight
+    #Line # height of lower-case 'x' ##
+        May be zero if no lower-case height is stored in the font.
+    ##
+
+    #Member SkScalar    fCapHeight
+    #Line # height of an upper-case letter ##
+        May be zero if no upper-case height is stored in the font.
+    ##
+
+    #Member SkScalar    fUnderlineThickness
+    #Line # underline thickness ##
+        If the metric is valid, the kUnderlineThicknessIsValid_Flag is set in fFlags.
+        If kUnderlineThicknessIsValid_Flag is clear, fUnderlineThickness is zero.
+    ##
+
+    #Member SkScalar    fUnderlinePosition
+    #Line # underline position relative to baseline ##
+       Position of the top of the underline stroke relative to the baseline.
+       Typically positive when valid.
+
+       If the metric is valid, the kUnderlinePositionIsValid_Flag is set in fFlags.
+       If kUnderlinePositionIsValid_Flag is clear, fUnderlinePosition is zero.
+    ##
+
+    #Member SkScalar    fStrikeoutThickness
+    #Line # strikeout thickness ##
+
+        If the metric is valid, the kStrikeoutThicknessIsValid_Flag is set in fFlags.
+        If kStrikeoutThicknessIsValid_Flag is clear, fStrikeoutThickness is zero.
+    ##
+
+    #Member SkScalar    fStrikeoutPosition
+    #Line # strikeout position relative to baseline ##
+        Position of the bottom of the strikeout stroke relative to the baseline.
+        Typically negative when valid.
+
+        If the metric is valid, the kStrikeoutPositionIsValid_Flag is set in fFlags.
+        If kStrikeoutPositionIsValid_Flag is clear, fStrikeoutPosition is zero.
+    ##
+
+    #Method bool hasUnderlineThickness(SkScalar* thickness) const
+    #Line # returns underline thickness if set ##
+
+#NoExample
+        ##
+    ##
+
+    #Method bool hasUnderlinePosition(SkScalar* position) const
+    #Line # returns underline position if set ##
+
+#NoExample
+        ##
+    ##
+
+    #Method bool hasStrikeoutThickness(SkScalar* thickness) const
+    #Line # returns strikeout thickness if set ##
+
+#NoExample
+        ##
+    ##
+
+    #Method bool hasStrikeoutPosition(SkScalar* position) const
+    #Line # returns strikeout position if set ##
+
+#NoExample
+        ##
+    ##
+
+#Struct ##
 #Topic ##
 
 #Topic Font_Manager

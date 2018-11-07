@@ -20,7 +20,7 @@ public:
     uint32_t <a href='#SkPaint_getHash'>getHash</a>() const;
     void <a href='#SkPaint_reset'>reset</a>();
 
-    enum <a href='#SkPaint_Hinting'>Hinting</a> {
+    enum <a href='#SkPaint_Hinting'>Hinting</a> : uint8_t {
         <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a> = 0,
         <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a> = 1,
         <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a> = 2,
@@ -69,7 +69,7 @@ public:
     <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> <a href='#SkPaint_getFilterQuality'>getFilterQuality</a>() const;
     void <a href='#SkPaint_setFilterQuality'>setFilterQuality</a>(<a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality);
 
-    enum <a href='#SkPaint_Style'>Style</a> {
+    enum <a href='#SkPaint_Style'>Style</a> : uint8_t {
         <a href='#SkPaint_kFill_Style'>kFill_Style</a>,
         <a href='#SkPaint_kStroke_Style'>kStroke_Style</a>,
         <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill_Style</a>,
@@ -101,7 +101,7 @@ public:
 
     static constexpr int <a href='#SkPaint_kCapCount'>kCapCount</a> = <a href='#SkPaint_kLast_Cap'>kLast_Cap</a> + 1;
 
-    enum <a href='#SkPaint_Join'>Join</a> {
+    enum <a href='#SkPaint_Join'>Join</a> : uint8_t {
         <a href='#SkPaint_kMiter_Join'>kMiter_Join</a>,
         <a href='#SkPaint_kRound_Join'>kRound_Join</a>,
         <a href='#SkPaint_kBevel_Join'>kBevel_Join</a>,
@@ -151,7 +151,7 @@ public:
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSkewX'>getTextSkewX</a>() const;
     void <a href='#SkPaint_setTextSkewX'>setTextSkewX</a>(<a href='undocumented#SkScalar'>SkScalar</a> skewX);
 
-    enum <a href='#SkPaint_TextEncoding'>TextEncoding</a> {
+    enum <a href='#SkPaint_TextEncoding'>TextEncoding</a> : uint8_t {
         <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a>,
         <a href='#SkPaint_kUTF16_TextEncoding'>kUTF16_TextEncoding</a>,
         <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>,
@@ -161,38 +161,9 @@ public:
     <a href='#SkPaint_TextEncoding'>TextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>() const;
     void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='#SkPaint_TextEncoding'>TextEncoding</a> encoding);
 
-    struct <a href='#SkPaint_FontMetrics'>FontMetrics</a> {
+    typedef <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> <a href='#SkPaint_FontMetrics'>FontMetrics</a>;
 
-        enum <a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a> {
-            <a href='#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag'>kUnderlineThicknessIsValid_Flag</a> = 1 << 0,
-            <a href='#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag'>kUnderlinePositionIsValid_Flag</a> = 1 << 1,
-            <a href='#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag'>kStrikeoutThicknessIsValid_Flag</a> = 1 << 2,
-            <a href='#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'>kStrikeoutPositionIsValid_Flag</a> = 1 << 3,
-        };
-
-        uint32_t <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fTop'>fTop</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fAscent'>fAscent</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fDescent'>fDescent</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fBottom'>fBottom</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fLeading'>fLeading</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fAvgCharWidth'>fAvgCharWidth</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fMaxCharWidth'>fMaxCharWidth</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fXMin'>fXMin</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fXMax'>fXMax</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fXHeight'>fXHeight</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fCapHeight'>fCapHeight</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fUnderlineThickness'>fUnderlineThickness</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fUnderlinePosition'>fUnderlinePosition</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a>;
-        bool <a href='#SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const;
-        bool <a href='#SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const;
-        bool <a href='#SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const;
-        bool <a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const;
-    };
-
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics) const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='undocumented#SkFontMetrics'>SkFontMetrics</a>* metrics) const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>() const;
     int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* text, size_t byteLength,
                      <a href='undocumented#SkGlyphID'>SkGlyphID</a> glyphs[]) const;
@@ -628,7 +599,7 @@ paint1.getHash() == paint2.getHash()
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkPaint_Hinting'>Hinting</a> {
+    enum <a href='#SkPaint_Hinting'>Hinting</a> : uint8_t {
         <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a> = 0,
         <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a> = 1,
         <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a> = 2,
@@ -2089,7 +2060,7 @@ while stroking.
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkPaint_Style'>Style</a> {
+    enum <a href='#SkPaint_Style'>Style</a> : uint8_t {
         <a href='#SkPaint_kFill_Style'>kFill_Style</a>,
         <a href='#SkPaint_kStroke_Style'>kStroke_Style</a>,
         <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill_Style</a>,
@@ -2578,7 +2549,7 @@ the following curve, the pair of curves meet at <a href='#Stroke_Join'>Stroke Jo
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkPaint_Join'>Join</a> {
+    enum <a href='#SkPaint_Join'>Join</a> : uint8_t {
         <a href='#SkPaint_kMiter_Join'>kMiter_Join</a>,
         <a href='#SkPaint_kRound_Join'>kRound_Join</a>,
         <a href='#SkPaint_kBevel_Join'>kBevel_Join</a>,
@@ -3798,7 +3769,7 @@ Default value is zero.
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkPaint_TextEncoding'>TextEncoding</a> {
+    enum <a href='#SkPaint_TextEncoding'>TextEncoding</a> : uint8_t {
         <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a>,
         <a href='#SkPaint_kUTF16_TextEncoding'>kUTF16_TextEncoding</a>,
         <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>,
@@ -3927,360 +3898,24 @@ Invalid values for <a href='#SkPaint_setTextEncoding_encoding'>encoding</a> are 
 
 </fiddle-embed></div>
 
-<a name='Font_Metrics'></a>
-
----
-
-<a href='#Font_Metrics'>Font Metrics</a> describe dimensions common to the <a href='undocumented#Glyph'>Glyphs</a> in <a href='undocumented#Typeface'>Typeface</a>.
-The dimensions are computed by <a href='undocumented#Font_Manager'>Font Manager</a> from font data and do not take
-<a href='#Paint'>Paint</a> settings other than <a href='#Text_Size'>Text Size</a> into account.
-
-<a href='undocumented#Font'>Font</a> dimensions specify the anchor to the left of the glyph at baseline as the origin.
-X-axis values to the left of the glyph are negative, and to the right of the left glyph edge
-are positive.
-Y-axis values above the baseline are negative, and below the baseline are positive.
-
-### Example
-
-<div><fiddle-embed name="2bfa3783719fcd769af177a1b244e171"></fiddle-embed></div>
-
 <a name='SkPaint_FontMetrics'></a>
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    struct <a href='#SkPaint_FontMetrics'>FontMetrics</a> {
-        enum <a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a> {
-            <a href='#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag'>kUnderlineThicknessIsValid_Flag</a> = 1 << 0,
-            <a href='#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag'>kUnderlinePositionIsValid_Flag</a> = 1 << 1,
-            <a href='#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag'>kStrikeoutThicknessIsValid_Flag</a> = 1 << 2,
-            <a href='#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'>kStrikeoutPositionIsValid_Flag</a> = 1 << 3,
-        };
-
-        uint32_t <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fTop'>fTop</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fAscent'>fAscent</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fDescent'>fDescent</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fBottom'>fBottom</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fLeading'>fLeading</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fAvgCharWidth'>fAvgCharWidth</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fMaxCharWidth'>fMaxCharWidth</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fXMin'>fXMin</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fXMax'>fXMax</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fXHeight'>fXHeight</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fCapHeight'>fCapHeight</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fUnderlineThickness'>fUnderlineThickness</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fUnderlinePosition'>fUnderlinePosition</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a>;
-
-        bool <a href='#SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const;
-        bool <a href='#SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const;
-        bool <a href='#SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const;
-        bool <a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const;
-    };
-</pre>
-
-<a href='#SkPaint_FontMetrics'>FontMetrics</a> is filled out by <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>. <a href='#SkPaint_FontMetrics'>FontMetrics</a> contents reflect the values
-computed by <a href='undocumented#Font_Manager'>Font Manager</a> using <a href='undocumented#Typeface'>Typeface</a>. Values are set to zero if they are
-not available.
-
-All vertical values are relative to the baseline, on a y-axis pointing down.
-Zero is on the baseline, negative values are above the baseline, and positive
-values are below the baseline.
-
-<a href='#SkPaint_FontMetrics_fUnderlineThickness'>fUnderlineThickness</a> and <a href='#SkPaint_FontMetrics_fUnderlinePosition'>fUnderlinePosition</a> have a bit set in <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a> if their values
-are valid, since their value may be zero.
-
-<a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a> and <a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a> have a bit set in <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a> if their values
-are valid, since their value may be zero.
-
-<a name='SkPaint_FontMetrics_FontMetricsFlags'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-        enum <a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a> {
-            <a href='#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag'>kUnderlineThicknessIsValid_Flag</a> = 1 << 0,
-            <a href='#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag'>kUnderlinePositionIsValid_Flag</a> = 1 << 1,
-            <a href='#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag'>kStrikeoutThicknessIsValid_Flag</a> = 1 << 2,
-            <a href='#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'>kStrikeoutPositionIsValid_Flag</a> = 1 << 3,
-        };
-</pre>
-
-<a href='#SkPaint_FontMetrics_FontMetricsFlags'>FontMetricsFlags</a> are set in <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a> when underline and strikeout metrics are valid;
-the underline or strikeout metric may be valid and zero.
-Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag'><code>SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0001</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-set if fUnderlineThickness is valid</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag'><code>SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0002</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-set if fUnderlinePosition is valid</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag'><code>SkPaint::FontMetrics::kStrikeoutThicknessIsValid_Flag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0004</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-set if fStrikeoutThickness is valid</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'><code>SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0008</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-set if fStrikeoutPosition is valid</td>
-  </tr>
-</table><table style='border-collapse: collapse; width: 62.5em'>
-
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uint32_t</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fFlags'><code>fFlags</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-is set to FontMetricsFlags when metrics are valid</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fTop'><code>fTop</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Greatest extent above the baseline for any glyph.
-Typically less than zero.
-</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fAscent'><code>fAscent</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Recommended distance above the baseline to reserve for a line of text.
-Typically less than zero.
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fDescent'><code>fDescent</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Recommended distance below the baseline to reserve for a line of text.
-Typically greater than zero.
-</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fBottom'><code>fBottom</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Greatest extent below the baseline for any glyph.
-Typically greater than zero.
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fLeading'><code>fLeading</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Recommended distance to add between lines of text.
-Typically greater than or equal to zero.
-</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fAvgCharWidth'><code>fAvgCharWidth</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Average character width, if it is available.
-Zero if no average width is stored in the font.
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fMaxCharWidth'><code>fMaxCharWidth</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-maximum character width</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fXMin'><code>fXMin</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Minimum bounding box x-axis value for all <a href='undocumented#Glyph'>Glyphs</a>.
-Typically less than zero.
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fXMax'><code>fXMax</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Maximum bounding box x-axis value for all <a href='undocumented#Glyph'>Glyphs</a>.
-Typically greater than zero.
-</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fXHeight'><code>fXHeight</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-May be zero if no lower-case height is stored in the font.
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fCapHeight'><code>fCapHeight</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-May be zero if no upper-case height is stored in the font.
-</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fUnderlineThickness'><code>fUnderlineThickness</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-If the metric is valid, the <a href='#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag'>kUnderlineThicknessIsValid Flag</a> is set in <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a>.
-If <a href='#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag'>kUnderlineThicknessIsValid Flag</a> is clear, <a href='#SkPaint_FontMetrics_fUnderlineThickness'>fUnderlineThickness</a> is zero.
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fUnderlinePosition'><code>fUnderlinePosition</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Position of the top of the underline stroke relative to the baseline.
-Typically positive when valid.
-
-If the metric is valid, the <a href='#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag'>kUnderlinePositionIsValid Flag</a> is set in <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a>.
-If <a href='#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag'>kUnderlinePositionIsValid Flag</a> is clear, <a href='#SkPaint_FontMetrics_fUnderlinePosition'>fUnderlinePosition</a> is zero.
-</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fStrikeoutThickness'><code>fStrikeoutThickness</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-If the metric is valid, the <a href='#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag'>kStrikeoutThicknessIsValid Flag</a> is set in <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a>.
-If <a href='#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag'>kStrikeoutThicknessIsValid Flag</a> is clear, <a href='#SkPaint_FontMetrics_fStrikeoutThickness'>fStrikeoutThickness</a> is zero.
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkScalar</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_FontMetrics_fStrikeoutPosition'><code>fStrikeoutPosition</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Position of the bottom of the strikeout stroke relative to the baseline.
-Typically negative when valid.
-
-If the metric is valid, the <a href='#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'>kStrikeoutPositionIsValid Flag</a> is set in <a href='#SkPaint_FontMetrics_fFlags'>fFlags</a>.
-If <a href='#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'>kStrikeoutPositionIsValid Flag</a> is clear, <a href='#SkPaint_FontMetrics_fStrikeoutPosition'>fStrikeoutPosition</a> is zero.
-</td>
-  </tr>
-</table>
-
-<a name='SkPaint_FontMetrics_hasUnderlineThickness'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const
-</pre>
-
-Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> has a valid underline <a href='#SkPaint_FontMetrics_hasUnderlineThickness_thickness'>thickness</a>, and sets
-<a href='#SkPaint_FontMetrics_hasUnderlineThickness_thickness'>thickness</a> to that value. If the underline <a href='#SkPaint_FontMetrics_hasUnderlineThickness_thickness'>thickness</a> is not valid,
-return false, and ignore <a href='#SkPaint_FontMetrics_hasUnderlineThickness_thickness'>thickness</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_FontMetrics_hasUnderlineThickness_thickness'><code><strong>thickness</strong></code></a></td>
-    <td>storage for underline width</td>
-  </tr>
-</table>
-
-### Return Value
-
-true if <a href='undocumented#Font'>font</a> specifies underline width
-
-<a name='SkPaint_FontMetrics_hasUnderlinePosition'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const
-</pre>
-
-Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> has a valid underline <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a>, and sets
-<a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a> to that value. If the underline <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a> is not valid,
-return false, and ignore <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_FontMetrics_hasUnderlinePosition_position'><code><strong>position</strong></code></a></td>
-    <td>storage for underline <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a></td>
-  </tr>
-</table>
-
-### Return Value
-
-true if <a href='undocumented#Font'>font</a> specifies underline <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a>
-
-<a name='SkPaint_FontMetrics_hasStrikeoutThickness'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const
-</pre>
-
-Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> has a valid strikeout <a href='#SkPaint_FontMetrics_hasStrikeoutThickness_thickness'>thickness</a>, and sets
-<a href='#SkPaint_FontMetrics_hasStrikeoutThickness_thickness'>thickness</a> to that value. If the underline <a href='#SkPaint_FontMetrics_hasStrikeoutThickness_thickness'>thickness</a> is not valid,
-return false, and ignore <a href='#SkPaint_FontMetrics_hasStrikeoutThickness_thickness'>thickness</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_FontMetrics_hasStrikeoutThickness_thickness'><code><strong>thickness</strong></code></a></td>
-    <td>storage for strikeout width</td>
-  </tr>
-</table>
-
-### Return Value
-
-true if <a href='undocumented#Font'>font</a> specifies strikeout width
-
-<a name='SkPaint_FontMetrics_hasStrikeoutPosition'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const
-</pre>
-
-Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> has a valid strikeout <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a>, and sets
-<a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a> to that value. If the underline <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a> is not valid,
-return false, and ignore <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_FontMetrics_hasStrikeoutPosition_position'><code><strong>position</strong></code></a></td>
-    <td>storage for strikeout <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a></td>
-  </tr>
-</table>
-
-### Return Value
-
-true if <a href='undocumented#Font'>font</a> specifies strikeout <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a>
+<a name='Font_Metrics'></a>
 
 <a name='SkPaint_getFontMetrics'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='#SkPaint_FontMetrics'>FontMetrics</a>* metrics) const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='undocumented#SkFontMetrics'>SkFontMetrics</a>* metrics) const
 </pre>
 
-Returns <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> associated with <a href='undocumented#SkTypeface'>SkTypeface</a>.
+Returns <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> associated with <a href='undocumented#SkTypeface'>SkTypeface</a>.
 The return value is the recommended spacing between <a href='undocumented#Line'>lines</a>: the sum of <a href='#SkPaint_getFontMetrics_metrics'>metrics</a>
 descent, ascent, and leading.
-If <a href='#SkPaint_getFontMetrics_metrics'>metrics</a> is not nullptr, <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> is copied to <a href='#SkPaint_getFontMetrics_metrics'>metrics</a>.
+If <a href='#SkPaint_getFontMetrics_metrics'>metrics</a> is not nullptr, <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> is copied to <a href='#SkPaint_getFontMetrics_metrics'>metrics</a>.
 Results are scaled by  <a href='#Text_Size'>text size</a> but does not take into account
 dimensions required by   <a href='#Text_Scale_X'>text scale x</a>,   <a href='#Text_Skew_X'>text skew x</a>,  <a href='#Fake_Bold'>fake bold</a>,
 <a href='#Style_Stroke'>style stroke</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
@@ -4288,7 +3923,7 @@ dimensions required by   <a href='#Text_Scale_X'>text scale x</a>,   <a href='#T
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_getFontMetrics_metrics'><code><strong>metrics</strong></code></a></td>
-    <td>storage for <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_FontMetrics'>FontMetrics</a> from <a href='undocumented#SkTypeface'>SkTypeface</a>; may be nullptr</td>
+    <td>storage for <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>; may be nullptr</td>
   </tr>
 </table>
 
@@ -4352,7 +3987,7 @@ and   <a href='#Text_Skew_X'>text skew x</a>, but not  <a href='#Fake_Bold'>fake
 
 If  <a href='#Text_Size'>text size</a> is large,   <a href='#Text_Scale_X'>text scale x</a> is one, and   <a href='#Text_Skew_X'>text skew x</a> is zero,
 returns the same bounds as:
-{ <a href='#SkPaint_FontMetrics'>FontMetrics</a>::<a href='#SkPaint_FontMetrics_fXMin'>fXMin</a>, <a href='#SkPaint_FontMetrics'>FontMetrics</a>::<a href='#SkPaint_FontMetrics_fTop'>fTop</a>, <a href='#SkPaint_FontMetrics'>FontMetrics</a>::<a href='#SkPaint_FontMetrics_fXMax'>fXMax</a>, <a href='#SkPaint_FontMetrics'>FontMetrics</a>::<a href='#SkPaint_FontMetrics_fBottom'>fBottom</a> }.
+{ <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>::<a href='#SkFontMetrics_fXMin'>fXMin</a>, <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>::<a href='#SkFontMetrics_fTop'>fTop</a>, <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>::<a href='#SkFontMetrics_fXMax'>fXMax</a>, <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>::<a href='#SkFontMetrics_fBottom'>fBottom</a> }.
 
 ### Return Value
 
@@ -4360,7 +3995,7 @@ union of bounds of all <a href='undocumented#Glyph'>glyphs</a>
 
 ### Example
 
-<div><fiddle-embed name="facaddeec7943bc491988e345e27e65f">
+<div><fiddle-embed name="f29d005a75efd4746c6744004a0cb421">
 
 #### Example Output
 

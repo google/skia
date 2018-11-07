@@ -93,8 +93,6 @@ public:
     bool <a href='#SkBitmap_readPixels_3'>readPixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst) const;
     bool <a href='#SkBitmap_writePixels'>writePixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& src, int dstX, int dstY);
     bool <a href='#SkBitmap_writePixels_2'>writePixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& src);
-    bool <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>() const;
-    void <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a>(bool hasHardwareMipMap);
     bool <a href='#SkBitmap_extractAlpha'>extractAlpha</a>(<a href='#SkBitmap'>SkBitmap</a>* dst) const;
     bool <a href='#SkBitmap_extractAlpha_2'>extractAlpha</a>(<a href='#SkBitmap'>SkBitmap</a>* dst, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
                       <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>* offset) const;
@@ -3208,45 +3206,6 @@ true if <a href='#SkBitmap_writePixels_2_src'>src</a> pixels are copied to <a hr
 ### See Also
 
 <a href='#SkBitmap_readPixels'>readPixels</a><sup><a href='#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='#SkBitmap_readPixels_3'>[3]</a></sup>
-
-<a name='SkBitmap_hasHardwareMipMap'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>() const
-</pre>
-
-For use by Android framework only.
-
-### Return Value
-
-true if <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a>() has been called with true
-
-### See Also
-
-<a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a>
-
-<a name='SkBitmap_setHasHardwareMipMap'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkBitmap_setHasHardwareMipMap'>setHasHardwareMipMap</a>(bool <a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>)
-</pre>
-
-For use by Android framework only.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkBitmap_setHasHardwareMipMap_hasHardwareMipMap'><code><strong>hasHardwareMipMap</strong></code></a></td>
-    <td>sets state</td>
-  </tr>
-</table>
-
-### See Also
-
-<a href='#SkBitmap_hasHardwareMipMap'>hasHardwareMipMap</a>
 
 <a name='SkBitmap_extractAlpha'></a>
 
