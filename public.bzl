@@ -618,14 +618,12 @@ def base_defines(os_conditions):
                 "SK_BUILD_FOR_UNIX",
                 "SK_SAMPLES_FOR_X",
                 "SK_PDF_USE_SFNTLY",
-                "SK_CODEC_DECODES_RAW",
                 "SK_HAS_PNG_LIBRARY",
                 "SK_HAS_WEBP_LIBRARY",
             ],
             # ANDROID
             [
                 "SK_BUILD_FOR_ANDROID",
-                "SK_CODEC_DECODES_RAW",
                 "SK_HAS_PNG_LIBRARY",
                 "SK_HAS_WEBP_LIBRARY",
             ],
