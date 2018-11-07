@@ -99,7 +99,7 @@ DEF_TEST(SkPDF_tagged, r) {
     SkPaint paint;
     paint.setColor(SK_ColorBLACK);
     paint.setSubpixelText(true);
-    paint.setHinting(SkPaint::kNo_Hinting);
+    paint.setHinting(kNo_SkFontHinting);
 
     // First page.
     SkCanvas* canvas =

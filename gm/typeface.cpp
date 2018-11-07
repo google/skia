@@ -184,10 +184,12 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
     // Odd sizes have embedded bitmaps.
     constexpr SkScalar textSizes[] = { 9, 10, 11, 12, 13, 14, 15, 16 };
 
-    constexpr SkPaint::Hinting hintingTypes[] = { SkPaint::kNo_Hinting,
-                                                    SkPaint::kSlight_Hinting,
-                                                    SkPaint::kNormal_Hinting,
-                                                    SkPaint::kFull_Hinting };
+    constexpr SkFontHinting hintingTypes[] = {
+        kNo_SkFontHinting,
+        kSlight_SkFontHinting,
+        kNormal_SkFontHinting,
+        kFull_SkFontHinting
+    };
 
     struct SubpixelType {
         bool requested;
@@ -228,7 +230,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
 
                     SkScalar dy = SkScalarCeilToScalar(paint.getFontMetrics(nullptr));
                     y += dy;
-                    for (const SkPaint::Hinting& hinting : hintingTypes) {
+                    for (const SkFontHinting& hinting : hintingTypes) {
                         paint.setHinting(hinting);
 
                         for (const bool& rotateABit : rotateABitTypes) {

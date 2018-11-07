@@ -212,7 +212,7 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     SkPaint font;
     font.setTypeface(fText.fTypeface);
     font.setTextSize(fText.fTextSize);
-    font.setHinting(SkPaint::kNo_Hinting);
+    font.setHinting(kNo_SkFontHinting);
     font.setSubpixelText(true);
     font.setAntiAlias(true);
     font.setTextEncoding(SkPaint::kUTF8_TextEncoding);
