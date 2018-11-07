@@ -7,6 +7,7 @@
 
 #include "SkAnimCodecPlayer.h"
 #include "SkCodec.h"
+#include "SkCodecImageGenerator.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include <algorithm>
@@ -23,6 +24,14 @@ SkAnimCodecPlayer::SkAnimCodecPlayer(std::unique_ptr<SkCodec> codec) : fCodec(st
         f.fDuration = dur;
     }
     fTotalDuration = dur;
+
+    if (!fTotalDuration) {
+        // Static image -- may or may not have returned a single frame info.
+        fFrameInfos.clear();
+        fImages.clear();
+        fImages.push_back(SkImage::MakeFromGenerator(
+                              SkCodecImageGenerator::MakeFromCodec(std::move(fCodec))));
+    }
 }
 
 SkAnimCodecPlayer::~SkAnimCodecPlayer() {}
@@ -61,10 +70,18 @@ sk_sp<SkImage> SkAnimCodecPlayer::getFrameAt(int index) {
 }
 
 sk_sp<SkImage> SkAnimCodecPlayer::getFrame() {
-    return this->getFrameAt(fCurrIndex);
+    SkASSERT(fTotalDuration > 0 || fImages.size() == 1);
+
+    return fTotalDuration > 0
+        ? this->getFrameAt(fCurrIndex)
+        : fImages.front();
 }
 
 bool SkAnimCodecPlayer::seek(uint32_t msec) {
+    if (!fTotalDuration) {
+        return false;
+    }
+
     msec %= fTotalDuration;
 
     auto lower = std::lower_bound(fFrameInfos.begin(), fFrameInfos.end(), msec,

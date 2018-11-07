@@ -19,6 +19,8 @@ public:
      */
     static std::unique_ptr<SkImageGenerator> MakeFromEncodedCodec(sk_sp<SkData>);
 
+    static std::unique_ptr<SkImageGenerator> MakeFromCodec(std::unique_ptr<SkCodec>);
+
 protected:
     sk_sp<SkData> onRefEncodedData() override;
 

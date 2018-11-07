@@ -8,11 +8,13 @@
 #include "CodecPriv.h"
 #include "Resources.h"
 #include "SkAndroidCodec.h"
+#include "SkAnimCodecPlayer.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkCodecAnimation.h"
 #include "SkData.h"
 #include "SkImageInfo.h"
+#include "SkMakeUnique.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
@@ -447,5 +449,38 @@ DEF_TEST(AndroidCodec_animated, r) {
                 }
             }
         }
+    }
+}
+
+DEF_TEST(AnimCodecPlayer, r) {
+    static constexpr struct {
+        const char* fFile;
+        uint32_t    fDuration;
+        SkISize     fSize;
+    } gTests[] = {
+        { "images/alphabetAnim.gif", 1300, {100, 100} },
+        { "images/randPixels.gif"  ,    0, {  8,   8} },
+        { "images/randPixels.jpg"  ,    0, {  8,   8} },
+        { "images/randPixels.png"  ,    0, {  8,   8} },
+    };
+
+    for (const auto& test : gTests) {
+        auto codec = SkCodec::MakeFromData(GetResourceAsData(test.fFile));
+        REPORTER_ASSERT(r, codec);
+
+        auto player = skstd::make_unique<SkAnimCodecPlayer>(std::move(codec));
+        if (player->duration() != test.fDuration) {
+            printf("*** %d vs %d\n", player->duration(), test.fDuration);
+        }
+        REPORTER_ASSERT(r, player->duration() == test.fDuration);
+
+        auto f0 = player->getFrame();
+        REPORTER_ASSERT(r, f0);
+        REPORTER_ASSERT(r, f0->bounds().size() == test.fSize);
+
+        player->seek(500);
+        auto f1 = player->getFrame();
+        REPORTER_ASSERT(r, f1);
+        REPORTER_ASSERT(r, f1->bounds().size() == test.fSize);
     }
 }

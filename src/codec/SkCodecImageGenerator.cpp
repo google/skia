@@ -19,6 +19,13 @@ std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk
     return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), data));
 }
 
+std::unique_ptr<SkImageGenerator>
+SkCodecImageGenerator::MakeFromCodec(std::unique_ptr<SkCodec> codec) {
+    return codec
+        ? std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), nullptr))
+        : nullptr;
+}
+
 static SkImageInfo adjust_info(SkCodec* codec) {
     SkImageInfo info = codec->getInfo();
     if (kUnpremul_SkAlphaType == info.alphaType()) {
