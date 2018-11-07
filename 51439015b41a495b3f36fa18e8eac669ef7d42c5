@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "60c86eb0_9f201d56",
+        "filename": "bench/DecodeBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T03:35:05Z",
+      "side": 1,
+      "message": "OK, I got the infra/bots/assets/skimage/download.py script to work, and I have three folders. But I can\u0027t get any numbers from nanobench:\n\n```\n$ ls ~/etc/nanobench/ | head\n01_original.jpg\n122224874ic_lockscreen_emergencycall_pressed.png\n1.bmp\n2014_dog.png\nartificial.jpg\nart.jpg\nbattery_charge_background.png\nBH_LMC.png\nblast.gif\ndesk_yahoonews_0.jpg\n\n$ out/rel/nanobench --images ~/etc/nanobench/ --match Codec\nTimer overhead: 20.9ns\ncurr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\tsamples   \tconfig\tbench\n```\n\nIs \"--match Codec\" right??",
+      "parentUuid": "95a05d97_bd9152c0",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 17
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "052809ac_28015086",
         "filename": "bench/DecodeBench.cpp",
         "patchSetId": 1
