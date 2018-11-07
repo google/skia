@@ -55,7 +55,7 @@ Samples
   <figure>
     <canvas id=patheffect width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/89604becd6101263113cb7c35156432b8b5c2f7857eed4a18df06b577f431dfa"
+      <a href="https://jsfiddle.skia.org/canvaskit/bb98ad306a0c826b6dc8e8b8f709fca75fee95210c529679def945f0be7ed90c"
           target=_blank rel=noopener>
         Star JSFiddle</a>
     </figcaption>
@@ -63,7 +63,7 @@ Samples
   <figure>
     <canvas id=ink width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/aca160254b841c6d5aed7f49a244200cf55282b898a7d503a27bbb69685cecf6"
+      <a href="https://jsfiddle.skia.org/canvaskit/43475699d6d7d3d7dad1004c29f84015752a6a6dee2bb90f2e891b53e31d45cc"
           target=_blank rel=noopener>
         Ink JSFiddle</a>
     </figcaption>
@@ -102,7 +102,7 @@ Samples
   var locate_file = '';
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported!');
-    locate_file = 'https://storage.googleapis.com/skia-cdn/canvaskit-wasm/0.1.1/bin/';
+    locate_file = 'https://storage.googleapis.com/skia-cdn/canvaskit-wasm/0.2.0/bin/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser.');
     document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";
@@ -221,7 +221,7 @@ Samples
       i++;
 
       paint.setPathEffect(dpe);
-      paint.setStyle(CanvasKit.PaintStyle.STROKE);
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
       paint.setStrokeWidth(5.0 + -3 * Math.cos(i/30));
       paint.setAntiAlias(true);
       paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
@@ -265,7 +265,7 @@ Samples
     let paint = new CanvasKit.SkPaint();
     paint.setAntiAlias(true);
     paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
-    paint.setStyle(CanvasKit.PaintStyle.STROKE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setStrokeWidth(4.0);
     // This effect smooths out the drawn lines a bit.
     paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(50));
