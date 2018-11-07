@@ -122,7 +122,7 @@ font contains attributes used to define the run text: #paint_font_metrics#.
     canvas->drawTextBlob(blob, 20, 20, canvasPaint);
 ##
 
-#SeeAlso MakeFromString TextBlobBuilder
+#SeeAlso MakeFromString SkTextBlobBuilder
 
 ##
 
@@ -157,7 +157,7 @@ font contains Paint_Font_Metrics used to define the run text: #paint_font_metric
     canvas->drawTextBlob(blob, 20, 20, canvasPaint);
 ##
 
-#SeeAlso MakeFromText TextBlobBuilder
+#SeeAlso MakeFromText SkTextBlobBuilder
 
 ##
 
