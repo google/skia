@@ -130,9 +130,6 @@ config("skia_public") {
   }
   if (skia_enable_flutter_defines) {
     defines += flutter_defines
-
-    # Flutter always wants this https://github.com/flutter/flutter/issues/11402
-    defines += [ "SK_ENABLE_DUMP_GPU" ]
   }
   if (!skia_enable_gpu) {
     defines += [ "SK_SUPPORT_GPU=0" ]
