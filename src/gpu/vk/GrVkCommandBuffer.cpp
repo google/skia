@@ -40,7 +40,7 @@ void GrVkCommandBuffer::invalidateState() {
     }
 }
 
-void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkCommandBuffer::freeGPUData(GrVkGpu* gpu) const {
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->unref(gpu);
@@ -54,10 +54,9 @@ void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
         fTrackedRecordingResources[i]->unref(gpu);
     }
 
-    GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), gpu->cmdPool(),
-                                                      1, &fCmdBuffer));
-
     this->onFreeGPUData(gpu);
+
+    commandPool()->unref(gpu);
 }
 
 void GrVkCommandBuffer::abandonGPUData() const {
@@ -73,9 +72,12 @@ void GrVkCommandBuffer::abandonGPUData() const {
     for (int i = 0; i < fTrackedRecordingResources.count(); ++i) {
         fTrackedRecordingResources[i]->unrefAndAbandon();
     }
+
+    commandPool()->unrefAndAbandon();
 }
 
 void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
+    SkASSERT(fCmdPool->vkCommandPool() != VK_NULL_HANDLE);
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->unref(gpu);
@@ -102,12 +104,7 @@ void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
         fTrackedRecordingResources.rewind();
     }
 
-
     this->invalidateState();
-
-    // we will retain resources for later use
-    VkCommandBufferResetFlags flags = 0;
-    GR_VK_CALL(gpu->vkInterface(), ResetCommandBuffer(fCmdBuffer, flags));
 
     this->onReset(gpu);
 }
@@ -358,11 +355,11 @@ GrVkPrimaryCommandBuffer::~GrVkPrimaryCommandBuffer() {
 }
 
 GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(const GrVkGpu* gpu,
-                                                           VkCommandPool cmdPool) {
+                                                           GrVkCommandPool* cmdPool) {
     const VkCommandBufferAllocateInfo cmdInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
         nullptr,                                          // pNext
-        cmdPool,                                          // commandPool
+        cmdPool->vkCommandPool(),                         // commandPool
         VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // level
         1                                                 // bufferCount
     };
@@ -374,7 +371,7 @@ GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(const GrVkGpu* gpu,
     if (err) {
         return nullptr;
     }
-    return new GrVkPrimaryCommandBuffer(cmdBuffer);
+    return new GrVkPrimaryCommandBuffer(cmdBuffer, cmdPool);
 }
 
 void GrVkPrimaryCommandBuffer::begin(const GrVkGpu* gpu) {
@@ -391,7 +388,7 @@ void GrVkPrimaryCommandBuffer::begin(const GrVkGpu* gpu) {
     fIsActive = true;
 }
 
-void GrVkPrimaryCommandBuffer::end(const GrVkGpu* gpu) {
+void GrVkPrimaryCommandBuffer::end(GrVkGpu* gpu) {
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), EndCommandBuffer(fCmdBuffer));
@@ -790,7 +787,12 @@ void GrVkPrimaryCommandBuffer::resolveImage(GrVkGpu* gpu,
                                                    regions));
 }
 
-void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
+void GrVkPrimaryCommandBuffer::onFreeGPUData(GrVkGpu* gpu) const {
+    SkASSERT(fCmdPool->vkCommandPool() != VK_NULL_HANDLE);
+    GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(),
+                                                      fCmdPool->vkCommandPool(),
+                                                      1,
+                                                      &fCmdBuffer));
     SkASSERT(!fActiveRenderPass);
     // Destroy the fence, if any
     if (VK_NULL_HANDLE != fSubmitFence) {
@@ -803,11 +805,11 @@ void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gpu,
-                                                               VkCommandPool cmdPool) {
+                                                               GrVkCommandPool* cmdPool) {
     const VkCommandBufferAllocateInfo cmdInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
         nullptr,                                          // pNext
-        cmdPool,                                          // commandPool
+        cmdPool->vkCommandPool(),                         // commandPool
         VK_COMMAND_BUFFER_LEVEL_SECONDARY,                // level
         1                                                 // bufferCount
     };
@@ -819,7 +821,7 @@ GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gp
     if (err) {
         return nullptr;
     }
-    return new GrVkSecondaryCommandBuffer(cmdBuffer);
+    return new GrVkSecondaryCommandBuffer(cmdBuffer, cmdPool);
 }
 
 

@@ -17,13 +17,71 @@
 #include "GrVkUniformBuffer.h"
 #include "GrVkUtil.h"
 
+#include "GrContextPriv.h"
+
 #ifdef SK_TRACE_VK_RESOURCES
 uint32_t GrVkResource::fKeyCounter = 0;
 #endif
 
+static void background_thread(GrVkGpu* gpu,
+                              SkTArray<GrVkResourceProvider::BackgroundTask>* backgroundTasks,
+                              SkSTArray<4, GrVkPrimaryCommandBuffer*, true>* availableBuffers,
+                              SkSTArray<4, GrVkCommandPool*, true>* availablePools,
+                              std::mutex* mutex,
+                              std::condition_variable* cv) {
+    for (;;) {
+        GrVkResourceProvider::BackgroundTask task;
+        {
+            std::unique_lock<std::mutex> lock(*mutex);
+            while (!backgroundTasks->count()) {
+                cv->wait(lock);
+            }
+            task = (*backgroundTasks)[0];
+            backgroundTasks->removeShuffle(0);
+        }
+        switch (task.fKind) {
+            case GrVkResourceProvider::BackgroundTask::kResetCommandBuffer: {
+                GrVkPrimaryCommandBuffer* buffer = (GrVkPrimaryCommandBuffer*) task.fTarget;
+                buffer->reset(gpu);
+                {
+                    std::unique_lock<std::mutex> lock(*mutex);
+                    availableBuffers->push_back(buffer);
+                }
+                break;
+            }
+            case GrVkResourceProvider::BackgroundTask::kUnrefCommandBuffer: {
+                GrVkPrimaryCommandBuffer* buffer = (GrVkPrimaryCommandBuffer*) task.fTarget;
+                buffer->unref(gpu);
+                break;
+            }
+            case GrVkResourceProvider::BackgroundTask::kUnrefCommandPool: {
+                GrVkCommandPool* pool = (GrVkCommandPool*) task.fTarget;
+                if (pool->unique()) {
+                    pool->reset(gpu);
+                    {
+                        std::unique_lock<std::mutex> lock(*mutex);
+                        availablePools->push_back(pool);
+                    }
+                } else {
+                    pool->unref(gpu);
+                }
+                break;
+            }
+            case GrVkResourceProvider::BackgroundTask::kTerminate:
+                return;
+        }
+        {
+            std::unique_lock<std::mutex> lock(*mutex);
+            cv->notify_all();
+        }
+    }
+}
+
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
     : fGpu(gpu)
-    , fPipelineCache(VK_NULL_HANDLE) {
+    , fPipelineCache(VK_NULL_HANDLE)
+    , fBackgroundThread(background_thread, gpu, &fBackgroundTasks, &fAvailableCommandBuffers,
+                        &fAvailableCommandPools, &fBackgroundMutex, &fBackgroundCV) {
     fPipelineStateCache = new PipelineStateCache(gpu);
 }
 
@@ -31,6 +89,8 @@ GrVkResourceProvider::~GrVkResourceProvider() {
     SkASSERT(0 == fRenderPassArray.count());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
     delete fPipelineStateCache;
+    this->finish();
+    SkASSERT(0 == fBackgroundTasks.count());
 }
 
 void GrVkResourceProvider::init() {
@@ -255,7 +315,28 @@ void GrVkResourceProvider::recycleDescriptorSet(const GrVkDescriptorSet* descSet
     fDescriptorSetManagers[managerIdx]->recycleDescriptorSet(descSet);
 }
 
+GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
+    std::unique_lock<std::mutex> lock(fBackgroundMutex);
+    if (fAvailableCommandPools.count()) {
+        GrVkCommandPool* result = fAvailableCommandPools.back();
+        fAvailableCommandPools.pop_back();
+        return result;
+    }
+    const VkCommandPoolCreateInfo cmdPoolInfo = {
+        VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,      // sType
+        nullptr,                                         // pNext
+        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |
+        VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // CmdPoolCreateFlags
+        fGpu->queueIndex(),                              // queueFamilyIndex
+    };
+    VkCommandPool pool;
+    GR_VK_CALL_ERRCHECK(fGpu->vkInterface(), CreateCommandPool(fGpu->device(), &cmdPoolInfo,
+                                                               nullptr, &pool));
+    return new GrVkCommandPool(pool);
+}
+
 GrVkPrimaryCommandBuffer* GrVkResourceProvider::findOrCreatePrimaryCommandBuffer() {
+    std::unique_lock<std::mutex> lock(fBackgroundMutex);
     GrVkPrimaryCommandBuffer* cmdBuffer = nullptr;
     int count = fAvailableCommandBuffers.count();
     if (count > 0) {
@@ -274,9 +355,8 @@ void GrVkResourceProvider::checkCommandBuffers() {
     for (int i = fActiveCommandBuffers.count()-1; i >= 0; --i) {
         if (fActiveCommandBuffers[i]->finished(fGpu)) {
             GrVkPrimaryCommandBuffer* cmdBuffer = fActiveCommandBuffers[i];
-            cmdBuffer->reset(fGpu);
-            fAvailableCommandBuffers.push_back(cmdBuffer);
             fActiveCommandBuffers.removeShuffle(i);
+            this->backgroundReset(cmdBuffer);
         }
     }
 }
@@ -315,14 +395,16 @@ void GrVkResourceProvider::recycleStandardUniformBufferResource(const GrVkResour
 }
 
 void GrVkResourceProvider::destroyResources(bool deviceLost) {
+    this->waitForBackgroundTasks();
+
     // release our active command buffers
     for (int i = 0; i < fActiveCommandBuffers.count(); ++i) {
         SkASSERT(deviceLost || fActiveCommandBuffers[i]->finished(fGpu));
         SkASSERT(fActiveCommandBuffers[i]->unique());
-        fActiveCommandBuffers[i]->reset(fGpu);
         fActiveCommandBuffers[i]->unref(fGpu);
     }
     fActiveCommandBuffers.reset();
+
     // release our available command buffers
     for (int i = 0; i < fAvailableCommandBuffers.count(); ++i) {
         SkASSERT(deviceLost || fAvailableCommandBuffers[i]->finished(fGpu));
@@ -337,6 +419,15 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
         fAvailableSecondaryCommandBuffers[i]->unref(fGpu);
     }
     fAvailableSecondaryCommandBuffers.reset();
+
+    this->waitForBackgroundTasks();
+
+    // release our available command pools
+    for (int i = 0; i < fAvailableCommandPools.count(); ++i) {
+        SkASSERT(fAvailableCommandPools[i]->unique());
+        fAvailableCommandPools[i]->unref(fGpu);
+    }
+    fAvailableCommandPools.reset();
 
     // Release all copy pipelines
     for (int i = 0; i < fCopyPipelines.count(); ++i) {
@@ -377,6 +468,8 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
 }
 
 void GrVkResourceProvider::abandonResources() {
+    this->waitForBackgroundTasks();
+
     // release our active command buffers
     for (int i = 0; i < fActiveCommandBuffers.count(); ++i) {
         SkASSERT(fActiveCommandBuffers[i]->unique());
@@ -396,6 +489,17 @@ void GrVkResourceProvider::abandonResources() {
         fAvailableSecondaryCommandBuffers[i]->unrefAndAbandon();
     }
     fAvailableSecondaryCommandBuffers.reset();
+
+    this->waitForBackgroundTasks();
+
+    // release our available command pools
+    for (int i = 0; i < fAvailableCommandPools.count(); ++i) {
+        SkASSERT(fAvailableCommandPools[i]->unique());
+        fAvailableCommandPools[i]->unref(fGpu);
+    }
+    fAvailableCommandPools.reset();
+
+    // Release all copy pipelines
 
     // Abandon all copy pipelines
     for (int i = 0; i < fCopyPipelines.count(); ++i) {
@@ -434,6 +538,48 @@ void GrVkResourceProvider::abandonResources() {
     fAvailableUniformBufferResources.reset();
 }
 
+void GrVkResourceProvider::pushBackgroundTask(BackgroundTask task) {
+    SkASSERT(task.fKind == BackgroundTask::kTerminate || !fFinished);
+    std::unique_lock<std::mutex> lock = std::unique_lock<std::mutex>(fBackgroundMutex);
+    fBackgroundTasks.push_back(task);
+    fBackgroundCV.notify_all();
+}
+
+void GrVkResourceProvider::backgroundReset(GrVkPrimaryCommandBuffer* buffer) {
+    buffer->reset(fGpu);
+    this->pushBackgroundTask({ BackgroundTask::kResetCommandBuffer, buffer });
+}
+
+void GrVkResourceProvider::backgroundUnref(GrVkPrimaryCommandBuffer* buffer) {
+    this->pushBackgroundTask({ BackgroundTask::kUnrefCommandBuffer, buffer });
+}
+
+void GrVkResourceProvider::backgroundUnref(GrVkCommandPool* pool) {
+    this->pushBackgroundTask({ BackgroundTask::kUnrefCommandPool, pool });
+}
+
+void GrVkResourceProvider::waitForBackgroundTasks() {
+    std::unique_lock<std::mutex> lock(fBackgroundMutex);
+    while (fBackgroundTasks.count()) {
+        fBackgroundCV.wait(lock);
+    }
+}
+
+void GrVkResourceProvider::finish() {
+    {
+        std::unique_lock<std::mutex> lock(fBackgroundMutex);
+        if (!fBackgroundThread.joinable()) {
+            return;
+        }
+        while (fBackgroundTasks.count()) {
+            fBackgroundCV.wait(lock);
+        }
+        SkDEBUGCODE(fFinished = true;)
+    }
+    this->pushBackgroundTask({ BackgroundTask::kTerminate, nullptr });
+    fBackgroundThread.join();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkResourceProvider::CompatibleRenderPassSet::CompatibleRenderPassSet(
@@ -469,7 +615,7 @@ GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
     return renderPass;
 }
 
-void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources(const GrVkGpu* gpu) {
+void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources(GrVkGpu* gpu) {
     for (int i = 0; i < fRenderPasses.count(); ++i) {
         if (fRenderPasses[i]) {
             fRenderPasses[i]->unref(gpu);
