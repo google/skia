@@ -89,19 +89,13 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
     }
 
     switch ((SkEncodedImageFormat)codec->getEncodedFormat()) {
-#ifdef SK_HAS_PNG_LIBRARY
         case SkEncodedImageFormat::kPNG:
         case SkEncodedImageFormat::kICO:
-#endif
-#ifdef SK_HAS_JPEG_LIBRARY
         case SkEncodedImageFormat::kJPEG:
-#endif
         case SkEncodedImageFormat::kGIF:
         case SkEncodedImageFormat::kBMP:
         case SkEncodedImageFormat::kWBMP:
-#ifdef SK_HAS_HEIF_LIBRARY
         case SkEncodedImageFormat::kHEIF:
-#endif
             return skstd::make_unique<SkSampledCodec>(codec.release(), orientationBehavior);
 #ifdef SK_HAS_WEBP_LIBRARY
         case SkEncodedImageFormat::kWEBP:
