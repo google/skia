@@ -26,7 +26,7 @@ const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::textureSampler
 
 const GrPrimitiveProcessor::Attribute& GrPrimitiveProcessor::vertexAttribute(int i) const {
     SkASSERT(i >= 0 && i < this->numVertexAttributes());
-    const auto& result = this->onVertexAttribute(i);
+    const auto& result = fVertexAttributes[i];
     SkASSERT(result.isInitialized());
     return result;
 }
@@ -41,8 +41,8 @@ const GrPrimitiveProcessor::Attribute& GrPrimitiveProcessor::instanceAttribute(i
 #ifdef SK_DEBUG
 size_t GrPrimitiveProcessor::debugOnly_vertexStride() const {
     size_t stride = 0;
-    for (int i = 0; i < fVertexAttributeCnt; ++i) {
-        stride += this->vertexAttribute(i).sizeAlign4();
+    for (int i = 0; i < fVertexAttributeCount; ++i) {
+        stride += fVertexAttributes[i].sizeAlign4();
     }
     return stride;
 }
@@ -56,10 +56,10 @@ size_t GrPrimitiveProcessor::debugOnly_instanceStride() const {
 }
 
 size_t GrPrimitiveProcessor::debugOnly_vertexAttributeOffset(int i) const {
-    SkASSERT(i >= 0 && i < fVertexAttributeCnt);
+    SkASSERT(i >= 0 && i < fVertexAttributeCount);
     size_t offset = 0;
     for (int j = 0; j < i; ++j) {
-        offset += this->vertexAttribute(j).sizeAlign4();
+        offset += fVertexAttributes[j].sizeAlign4();
     }
     return offset;
 }

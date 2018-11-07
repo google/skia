@@ -206,8 +206,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-constexpr GrPrimitiveProcessor::Attribute GrDistanceFieldA8TextGeoProc::kInColor;
-
 GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& caps,
                                                            const sk_sp<GrTextureProxy>* proxies,
                                                            int numProxies,
@@ -227,14 +225,16 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& c
     SkASSERT(numProxies <= kMaxTextures);
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
 
+    AttributeBuilder attrs(fAttributes, SK_ARRAY_COUNT(fAttributes));
     if (flags & kPerspective_DistanceFieldEffectFlag) {
-        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        attrs.append({"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType});
     } else {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        attrs.append({"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType});
     }
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
-    this->setVertexAttributeCnt(3);
+    attrs.append({ "inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType });
+    attrs.append({"inTextureCoords", kUShort2_GrVertexAttribType,
+                                     caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType});
+    this->setVertexAttributes(fAttributes, SK_ARRAY_COUNT(fAttributes));
 
     if (numProxies) {
         fAtlasSize = proxies[0]->isize();
@@ -509,8 +509,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-constexpr GrPrimitiveProcessor::Attribute GrDistanceFieldPathGeoProc::kInPosition;
-constexpr GrPrimitiveProcessor::Attribute GrDistanceFieldPathGeoProc::kInColor;
 
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
                                                        const SkMatrix& matrix,
@@ -524,9 +522,13 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
     SkASSERT(numProxies <= kMaxTextures);
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
 
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
-    this->setVertexAttributeCnt(3);
+    AttributeBuilder attrs(fAttributes, SK_ARRAY_COUNT(fAttributes));
+    attrs.append({"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType});
+    attrs.append({"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType});
+
+    attrs.append({"inTextureCoords", kUShort2_GrVertexAttribType,
+                                     caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType});
+    this->setVertexAttributes(fAttributes, SK_ARRAY_COUNT(fAttributes));
 
     if (numProxies) {
         fAtlasSize = proxies[0]->isize();
@@ -568,10 +570,6 @@ void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
 GrGLSLPrimitiveProcessor*
 GrDistanceFieldPathGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldPathGeoProc();
-}
-
-const GrPrimitiveProcessor::Attribute& GrDistanceFieldPathGeoProc::onVertexAttribute(int i) const {
-    return IthAttribute(i, kInPosition, kInColor, fInTextureCoords);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -828,8 +826,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-constexpr GrPrimitiveProcessor::Attribute GrDistanceFieldLCDTextGeoProc::kInColor;
-
 GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps& caps,
                                                              const sk_sp<GrTextureProxy>* proxies,
                                                              int numProxies,
@@ -844,14 +840,16 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps&
     SkASSERT(numProxies <= kMaxTextures);
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
 
+    AttributeBuilder attrs(fAttributes, SK_ARRAY_COUNT(fAttributes));
     if (fFlags & kPerspective_DistanceFieldEffectFlag) {
-        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        attrs.append({"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType});
     } else {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        attrs.append({"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType});
     }
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
-    this->setVertexAttributeCnt(3);
+    attrs.append({"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType});
+    attrs.append({"inTextureCoords", kUShort2_GrVertexAttribType,
+                                     caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType});
+    this->setVertexAttributes(fAttributes, SK_ARRAY_COUNT(fAttributes));
 
     if (numProxies) {
         fAtlasSize = proxies[0]->isize();
@@ -892,11 +890,6 @@ void GrDistanceFieldLCDTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps
 
 GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldLCDTextGeoProc();
-}
-
-const GrPrimitiveProcessor::Attribute& GrDistanceFieldLCDTextGeoProc::onVertexAttribute(
-        int i) const {
-    return IthAttribute(i, fInPosition, kInColor, fInTextureCoords);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

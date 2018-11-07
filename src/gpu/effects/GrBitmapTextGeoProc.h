@@ -37,12 +37,16 @@ public:
 
     const char* name() const override { return "Texture"; }
 
-    const Attribute& inPosition() const { return fInPosition; }
-    const Attribute& inColor() const { return fInColor; }
-    const Attribute& inTextureCoords() const { return fInTextureCoords; }
+    const Attribute& inPosition() const { return fAttributes[0]; }
+    const Attribute& inColor() const {
+        return fInColor >= 0 ? fAttributes[fInColor] : Attribute();
+    }
+    const Attribute& inTextureCoords() const {
+        return fInTextureCoords >= 0 ? fAttributes[fInTextureCoords] : Attribute();
+    }
     GrMaskFormat maskFormat() const { return fMaskFormat; }
     const SkPMColor4f& color() const { return fColor; }
-    bool hasVertexColor() const { return fInColor.isInitialized(); }
+    bool hasVertexColor() const { return fInColor >= 0; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesW() const { return fUsesW; }
     const SkISize& atlasSize() const { return fAtlasSize; }
@@ -59,7 +63,6 @@ private:
                         const GrSamplerState& params, GrMaskFormat format,
                         const SkMatrix& localMatrix, bool usesW);
 
-    const Attribute& onVertexAttribute(int i) const override;
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     SkPMColor4f      fColor;
@@ -67,9 +70,9 @@ private:
     bool             fUsesW;
     SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
     TextureSampler   fTextureSamplers[kMaxTextures];
-    Attribute        fInPosition;
-    Attribute        fInColor;
-    Attribute        fInTextureCoords;
+    Attribute        fAttributes[3];
+    int              fInColor         = -1;
+    int              fInTextureCoords = -1;
     GrMaskFormat     fMaskFormat;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST

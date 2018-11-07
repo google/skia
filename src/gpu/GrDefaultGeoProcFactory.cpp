@@ -55,12 +55,12 @@ public:
     const char* name() const override { return "DefaultGeometryProcessor"; }
 
     const SkPMColor4f& color() const { return fColor; }
-    bool hasVertexColor() const { return fInColor.isInitialized(); }
+    bool hasVertexColor() const { return fFlags & kColorAttribute_GPFlag; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool localCoordsWillBeRead() const { return fLocalCoordsWillBeRead; }
     uint8_t coverage() const { return fCoverage; }
-    bool hasVertexCoverage() const { return fInCoverage.isInitialized(); }
+    bool hasVertexCoverage() const { return fFlags & kCoverageAttribute_GPFlag;; }
     const float* bones() const { return fBones; }
     int boneCount() const { return fBoneCount; }
     bool hasBones() const { return SkToBool(fBones); }
@@ -88,7 +88,7 @@ public:
                 varyingHandler->addVarying("color", &varying);
 
                 // There are several optional steps to process the color. Start with the attribute:
-                vertBuilder->codeAppendf("half4 color = %s;", gp.fInColor.name());
+                vertBuilder->codeAppendf("half4 color = %s;", gp.fAttributes[gp.fInColor].name());
 
                 // For SkColor, do a red/blue swap, possible color space conversion, and premul
                 if (gp.fFlags & kColorAttributeIsSkColor_GPFlag) {
@@ -118,7 +118,7 @@ public:
             // reasonable cases of skinned vertices, the overhead involved in copying and uploading
             // bone data makes performing the transformations on the CPU faster than doing so on
             // the GPU. This is being kept here in case that changes.
-            const char* transformedPositionName = gp.fInPosition.name();
+            const char* transformedPositionName = gp.fAttributes[kInPosition].name();
             if (gp.hasBones()) {
                 // Set up the uniform for the bones.
                 const char* vertBonesUniformName;
@@ -140,18 +140,18 @@ public:
                         "float2 transformedPosition = float2(0, 0);"
                         "for (int i = 0; i < 4; i++) {",
                         applyBoneFunctionName.c_str(),
-                        gp.fInPosition.name());
+                        gp.fAttributes[kInPosition].name());
 
                 // If the GPU supports unsigned integers, then we can read the index. Otherwise,
                 // we have to estimate it given the float representation.
                 if (args.fShaderCaps->unsignedSupport()) {
                     vertBuilder->codeAppendf(
                         "    byte index = %s[i];",
-                        gp.fInBoneIndices.name());
+                        gp.fAttributes[gp.fInBoneIndices].name());
                 } else {
                     vertBuilder->codeAppendf(
                         "    byte index = byte(floor(%s[i] * 255 + 0.5));",
-                        gp.fInBoneIndices.name());
+                        gp.fAttributes[gp.fInBoneIndices].name());
                 }
 
                 // Get the weight and apply the transformation.
@@ -159,7 +159,7 @@ public:
                         "    float weight = %s[i];"
                         "    transformedPosition += %s(index, worldPosition) * weight;"
                         "}",
-                        gp.fInBoneWeights.name(),
+                        gp.fAttributes[gp.fInBoneWeights].name(),
                         applyBoneFunctionName.c_str());
                 transformedPositionName = "transformedPosition";
             }
@@ -172,12 +172,12 @@ public:
                                       gp.viewMatrix(),
                                       &fViewMatrixUniform);
 
-            if (gp.fInLocalCoords.isInitialized()) {
+            if (gp.fFlags & kLocalCoordAttribute_GPFlag) {
                 // emit transforms with explicit local coords
                 this->emitTransforms(vertBuilder,
                                      varyingHandler,
                                      uniformHandler,
-                                     gp.fInLocalCoords.asShaderVar(),
+                                     gp.fAttributes[gp.fInLocalCoords].asShaderVar(),
                                      gp.localMatrix(),
                                      args.fFPCoordTransformHandler);
             } else {
@@ -185,7 +185,7 @@ public:
                 this->emitTransforms(vertBuilder,
                                      varyingHandler,
                                      uniformHandler,
-                                     gp.fInPosition.asShaderVar(),
+                                     gp.fAttributes[kInPosition].asShaderVar(),
                                      gp.localMatrix(),
                                      args.fFPCoordTransformHandler);
             }
@@ -193,7 +193,7 @@ public:
             // Setup coverage as pass through
             if (gp.hasVertexCoverage()) {
                 fragBuilder->codeAppendf("half alpha = 1.0;");
-                varyingHandler->addPassThroughAttribute(gp.fInCoverage, "alpha");
+                varyingHandler->addPassThroughAttribute(gp.fAttributes[gp.fInCoverage], "alpha");
                 fragBuilder->codeAppendf("%s = half4(alpha);", args.fOutputCoverage);
             } else if (gp.coverage() == 0xff) {
                 fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
@@ -321,20 +321,17 @@ private:
             , fColorSpaceXform(std::move(colorSpaceXform))
             , fBones(bones)
             , fBoneCount(boneCount) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        int cnt = 1;
+        AttributeBuilder attrs(fAttributes, SK_ARRAY_COUNT(fAttributes));
+        attrs.append({"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType});
         if (fFlags & kColorAttribute_GPFlag) {
-            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-            ++cnt;
+            fInColor = attrs.append({"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType});
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
-            fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType,
-                                              kFloat2_GrSLType};
-            ++cnt;
+            fInLocalCoords = attrs.append({"inLocalCoord", kFloat2_GrVertexAttribType,
+                                                           kFloat2_GrSLType});
         }
         if (fFlags & kCoverageAttribute_GPFlag) {
-            fInCoverage = {"inCoverage", kFloat_GrVertexAttribType, kHalf_GrSLType};
-            ++cnt;
+            fInCoverage = attrs.append({"inCoverage", kFloat_GrVertexAttribType, kHalf_GrSLType});
         }
         if (fFlags & kBonesAttribute_GPFlag) {
             SkASSERT(bones && (boneCount > 0));
@@ -345,31 +342,19 @@ private:
                 indicesCPUType = kUByte4_norm_GrVertexAttribType;
                 indicesGPUType = kHalf4_GrSLType;
             }
-            fInBoneIndices = {"inBoneIndices", indicesCPUType, indicesGPUType};
-            ++cnt;
-            fInBoneWeights = {"inBoneWeights", kUByte4_norm_GrVertexAttribType,
-                                               kHalf4_GrSLType};
-            ++cnt;
+            fInBoneIndices = attrs.append({"inBoneIndices", indicesCPUType, indicesGPUType});
+            fInBoneWeights = attrs.append({"inBoneWeights", kUByte4_norm_GrVertexAttribType,
+                                                            kHalf4_GrSLType});
         }
-        this->setVertexAttributeCnt(cnt);
     }
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthInitializedAttribute(i,
-                                       fInPosition,
-                                       fInColor,
-                                       fInLocalCoords,
-                                       fInCoverage,
-                                       fInBoneIndices,
-                                       fInBoneWeights);
-    }
-
-    Attribute fInPosition;
-    Attribute fInColor;
-    Attribute fInLocalCoords;
-    Attribute fInCoverage;
-    Attribute fInBoneIndices;
-    Attribute fInBoneWeights;
+    Attribute fAttributes[6];
+    static constexpr int kInPosition = 0;
+    int fInColor;
+    int fInLocalCoords;
+    int fInCoverage;
+    int fInBoneIndices;
+    int fInBoneWeights;
     SkPMColor4f fColor;
     SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;

@@ -39,20 +39,21 @@ public:
             : INHERITED(kVertexColorSpaceBenchGP_ClassID)
             , fMode(mode)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fAttributes[kInPosition] = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         switch (fMode) {
             case kBaseline_Mode:
             case kShader_Mode:
-                fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+                fAttributes[kInColor] =
+                        {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
                 break;
             case kFloat_Mode:
-                fInColor = {"inColor", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
+                fAttributes[kInColor] = {"inColor", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
                 break;
             case kHalf_Mode:
-                fInColor = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
+                fAttributes[kInColor] = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
                 break;
         }
-        this->setVertexAttributeCnt(2);
+        this->setVertexAttributes(fAttributes, SK_ARRAY_COUNT(fAttributes));
     }
     const char* name() const override { return "VertexColorXformGP"; }
 
@@ -109,15 +110,14 @@ public:
     }
 
 private:
-    const GrPrimitiveProcessor::Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, fInPosition, fInColor);
-    }
-
     Mode fMode;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
-    Attribute fInPosition;
-    Attribute fInColor;
+    enum {
+        kInPosition,
+        kInColor,
+    };
+    Attribute fAttributes[2];
 
     typedef GrGeometryProcessor INHERITED;
 };
