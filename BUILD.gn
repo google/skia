@@ -217,6 +217,7 @@ skia_library_configs = [
 
 # Use for CPU-specific Skia code that needs particular compiler flags.
 template("opts") {
+  visibility = [ ":*" ]
   if (invoker.enabled) {
     source_set(target_name) {
       forward_variables_from(invoker, "*")
@@ -331,6 +332,7 @@ opts("hsw") {
 
 # Any feature of Skia that requires third-party code should be optional and use this template.
 template("optional") {
+  visibility = [ ":*" ]
   if (invoker.enabled) {
     config(target_name + "_public") {
       if (defined(invoker.public_defines)) {
