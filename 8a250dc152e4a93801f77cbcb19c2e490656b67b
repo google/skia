@@ -529,6 +529,24 @@
       "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2877b4b1_01363b4a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T01:44:32Z",
+      "side": 1,
+      "message": "Oh, I see. From my previous example, if sampleY is 16 and the unscaled height is 30, then row 24 would pass the rowNeeded check, but its dstY (24 / 16, which is 1) would equal or exceed the scaledHeight (1).\n\nIf we rationalized the get_scaled_dimension + rowNeeded + get_start_coord formulae, as per my other comment, we could possibly remove this check...",
+      "parentUuid": "970ab650_e31a9a13",
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
