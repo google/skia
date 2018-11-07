@@ -308,8 +308,11 @@ struct BraceState {
     int fBraceCount;
 };
 
-bool MdOut::hasWordSpace(string wordSpace) const {
-    for (NameMap* names = fNames; names; names = names->fParent) {
+bool MdOut::DefinedState::hasWordSpace(string wordSpace) const {
+    if (!fNames->fRefMap.size()) {
+        return false;
+    }
+    for (const NameMap* names = fNames; names; names = names->fParent) {
         if (names->fRefMap.end() != names->fRefMap.find(wordSpace)) {
             return true;
         }
@@ -317,558 +320,332 @@ bool MdOut::hasWordSpace(string wordSpace) const {
     return false;
 }
 
-bool MdOut::phraseContinues(string phrase, string* priorWord, string* priorLink) const {
-    for (NameMap* names = fNames; names; names = names->fParent) {
+bool MdOut::DefinedState::phraseContinues(string phrase, string* priorWord,
+        string* priorLink) const {
+    for (const NameMap* names = fNames; names; names = names->fParent) {
         if (names->fRefMap.end() != names->fRefMap.find(phrase + ' ')) {
             *priorWord = phrase;
             return true;
         }
         if (names->fRefMap.end() != names->fRefMap.find(phrase)) {
             *priorWord = phrase;
-            *priorLink = names->fLinkMap.end() == names->fLinkMap.find(phrase) ? "" :
-                    names->fLinkMap[phrase];
+            auto linkIter = names->fLinkMap.find(phrase);
+            *priorLink = names->fLinkMap.end() == linkIter ? "" : linkIter->second;
             return true;
         }
     }
     return false;
 }
 
-// adds spaces to see if found word is part of registered phrase
-// adds parens to see if found word is all-lowercase function (parens must be in source as well)
-string MdOut::addIncludeReferences(const char* refStart, const char* refEnd) {
-    TextParser matrixParser(fMethod->fFileName, refStart, refEnd, fMethod->fLineCount);
-    const char* bracket = matrixParser.anyOf("|=\n");
-    bool inMatrix = bracket && ('|' == bracket[0] || '=' == bracket[0]);
-    auto& globals = fBmhParser.fGlobalNames;
-    string result;
-    const char* start = refStart;
-    string priorWord;
-    string priorLink;
-    string priorSeparator;
-    do {
-        const char* separatorStart = start;
-        bool whiteSpace = start < refEnd && ' ' >= start[0];
-        while (start < refEnd && !isalpha(start[0])) {
-            whiteSpace &= ' ' >= start[0];
-            ++start;
-        }
-        bool priorSpace = false;
-        string separator(separatorStart, start - separatorStart);
-        if ("" != priorWord && whiteSpace) {
-            string wordSpace = priorWord + ' ';
-            if (this->hasWordSpace(wordSpace)) {
-                priorWord = wordSpace;
-                priorSpace = true;
-            }
-        }
-        if ("()" == separator.substr(0, 2)) {
-            string funcRef = priorWord + "()";
-            if (this->findLink(funcRef, &priorLink)) {
-                priorWord = funcRef;
-                separator = separator.substr(2);
-            }
-        }
-        result += priorSeparator;
-        priorSeparator = separator;
-        const char* end = start;
-        do {
-            while (end < refEnd && (isalnum(end[0]) || '-' == end[0] || '_' == end[0])) {
-                ++end;
-            }
-            if (end + 1 >= refEnd || '/' != end[0] || start == end || !isalpha(end[-1])
-                    || !isalpha(end[1])) {
-                break;  // stop unless pattern is xxx/xxx as in I/O
-            }
-            ++end; // skip slash
-        } while (true);
-        while (start != end && '-' == end[-1]) {
-            --end;
-        }
-        if (start != end && end + 2 < refEnd && "()" == string(end, 2)) {
-            string check = string(start, end - start);
-            if (std::all_of(check.begin(), check.end(), [](char c) { return islower(c); })) {
-                end += 2;
-            }
-        }
-        if (start == end) {
-            break;
-        }
-        string word(start, end - start);
-        if (priorSpace) {
-            string phrase = priorWord + word;
-            if (this->phraseContinues(phrase, &priorWord, &priorLink)) {
-                start = end;
-                continue;
-            }
-            priorWord = priorWord.substr(0, priorWord.length() - 1);
-        }
-        string link;
-        bool found;
-        // TODO: operators have complicated parsing possibilities; handle the easiest for now
-        if ("operator" == priorWord && '(' == separator.back()) {
-            TextParser parser(fMethod->fFileName, separatorStart, refEnd, fMethod->fLineCount);
-            parser.skipToEndBracket('(');
-            const char* parenStart = parser.fChar;
-            parser.skipToBalancedEndBracket('(', ')');
-            word = priorWord + separator + string(parenStart + 1, parser.fChar - parenStart - 1);
-            end = parser.fChar;
-            priorWord = "";
-            priorLink = "";
-            priorSeparator = "";
-        }
-        {
-            auto paramIter = fNames->fRefMap.find(word);
-            if ((found = fNames->fRefMap.end() != paramIter) && paramIter->second) {
-                SkAssertResult(fNames->fLinkMap.end() != fNames->fLinkMap.find(word));
-                link = fNames->fLinkMap[word];
-            }
-        }
-        if (!found && ("." == separator || "->" == separator || "()." == separator
-                    || "()->" == separator)) {
-            if (('f' == word[0] && isupper(word[1])) || "()" == word.substr(word.length() - 2)
-                    || (end + 2 <= refEnd && "()" == string(end, 2))) {
-                if (fNames->fRefMap.end() != fNames->fRefMap.find(priorWord)) {
-            // find prior word's type in fMethod
-                    TextParser parser(fMethod);
-                    SkAssertResult(parser.containsWord(priorWord.c_str(), parser.fEnd,
-                            &parser.fChar));
-            // look up class or struct; trival lookup only class/struct [& * const]
-                    while (parser.back(" ") || parser.back("&") || parser.back("*")
-                            || parser.back("const"))
-                        ;
-                    const char* structEnd = parser.fChar;
-                    parser.backupWord();
-                    if (structEnd != parser.fChar) {
-                        string structName(parser.fChar, structEnd - parser.fChar);
-                        if ("SkVector" == structName) {
-                            // TODO: populate global refmap with typedefs as well as structs
-                            structName = "SkPoint";
-                        }
-                        structName += "::" + word;
-            // look for word as member of class or struct
-                        auto defIter = globals.fRefMap.find(structName);
-                        if (globals.fRefMap.end() == defIter) {
-                            structName += "()";
-                            defIter = globals.fRefMap.find(structName);
-                        }
-                        if (globals.fRefMap.end() != defIter) {
-                            found = true;
-                            SkASSERT(globals.fLinkMap.end() != globals.fLinkMap.find(structName));
-                            link = globals.fLinkMap[structName];
-                        } else {
-                            SkDebugf("probably missing struct or class member in bmh: ");
-                            SkDebugf("%s\n", structName.c_str());
-                        }
-                    }
-                }
-                if (!found) {
-                    auto& parentRefMap = fNames->fParent->fRefMap;
-                    auto priorIter = parentRefMap.find(priorWord);
-                    if (parentRefMap.end() == priorIter) {
-                        priorIter = parentRefMap.find(priorWord + "()");
-                    }
-                    if (parentRefMap.end() != priorIter) {
-                        Definition* priorDef = priorIter->second;
-                        TextParser parser(priorDef->fFileName, priorDef->fStart,
-                                priorDef->fContentStart, priorDef->fLineCount);
-                        parser.skipExact("#Method ");
-                        parser.skipSpace();
-                        parser.skipExact("const ");  // optional
-                        parser.skipSpace();
-                        const char* start = parser.fChar;
-                        parser.skipToNonAlphaNum();
-                        string structName(start, parser.fChar - start);
-                        structName += "::" + word;
-                        auto defIter = globals.fRefMap.find(structName);
-                        if (globals.fRefMap.end() != defIter) {
-                            found = true;
-                            SkASSERT(globals.fLinkMap.end() != globals.fLinkMap.find(structName));
-                            link = globals.fLinkMap[structName];
-                        }
-                    }
-                }
-            } else {
-                SkDebugf("probably missing () after function:");
-                const char* debugStart = end - 20 < refStart ? refStart : end - 20;
-                const char* debugEnd = end + 10 > refEnd ? refEnd : end + 10;
-                SkDebugf("%.*s\n", debugEnd - debugStart, debugStart);
-                SkDebugf("");
-            }
-        }
-        if (!found && "::" == separator) {
-            string fullRef = priorWord + "::" + word;
-            found = this->findLink(fullRef, &link);
-        }
-        if (!found) {
-            found = this->findLink(word, &link);
-        }
-        if (!found) {
-            found = globals.fRefMap.end() != globals.fRefMap.find(word + ' ');
-        }
-        if (!found) {
-            found = globals.fRefMap.end() != globals.fRefMap.find(word + "()");
-        }
-        if (!found) {
-            if (!inMatrix) {
-                SkDebugf("word %s not found\n", word.c_str());
-                fBmhParser.fGlobalNames.fRefMap[word] = nullptr;
-            }
-        }
-        result += "" == priorLink ? priorWord : this->anchorRef(priorLink, priorWord);
-        priorWord = word;
-        priorLink = link;
-        start = end;
-    } while (true);
-    result += "" == priorLink ? priorWord : this->anchorRef(priorLink, priorWord);
-    result += priorSeparator;
-    return result;
-}
-
-// FIXME: preserve inter-line spaces and don't add new ones
-string MdOut::addReferences(const char* refStart, const char* refEnd,
-        Resolvable resolvable) {
-    if (Resolvable::kInclude == resolvable) {  // test include resolving
-        return this->addIncludeReferences(refStart, refEnd);
+bool MdOut::DefinedState::isDefined() {
+    // TODO: operators have complicated parsing possibilities; handle the easiest for now
+    if (fMethod && "operator" == fPriorWord && '(' == fSeparator.back()) {
+        TextParser parser(fMethod->fFileName, fSeparatorStart, fRefEnd, fMethod->fLineCount);
+        parser.skipToEndBracket('(');
+        const char* parenStart = parser.fChar;
+        parser.skipToBalancedEndBracket('(', ')');
+        parser.skipExact("_const");
+        // consume whether we find it or not
+        fWord = fPriorWord + fSeparator + string(parenStart + 1, parser.fChar - parenStart - 1);
+        fEnd = parser.fChar;
+        this->backup();
     }
-    string result;
-    MethodParser t(fRoot ? fRoot->fName : string(), fFileName, refStart, refEnd, fLineCount);
-    bool lineStart = true;
-//    bool structClassSet = false;
-    string ref;
-    string leadingSpaces;
-    int distFromParam = 99;
-    const char* lastLine = nullptr;
-    vector<BraceState> braceStack;
-    KeyWord lastKeyWord = KeyWord::kNone;
-    KeyWord keyWord = KeyWord::kNone;
-    if (Resolvable::kCode == resolvable) {
-        braceStack.push_back({fRoot, fRoot->fName, t.fChar, lastKeyWord, keyWord, 0});
+    // TODO: constructors also have complicated parsing possibilities; handle the easiest
+    else if (fMethod && fRoot && fRoot->isStructOrClass() && fRoot->fName == fPriorWord
+            && '(' == fSeparator.back()) {
+        TextParser parser(fMethod->fFileName, fSeparatorStart, fRefEnd, fMethod->fLineCount);
+        parser.skipToEndBracket('(');
+        const char* parenStart = parser.fChar;
+        parser.skipToBalancedEndBracket('(', ')');
+        string testWord = fPriorWord + fSeparator
+                + string(parenStart + 1, parser.fChar - parenStart - 1);
+        string testLink;
+        if (this->findLink(testWord, &testLink, false)) {
+            // consume only if we find it
+            fWord = testWord;
+            fLink = testLink;
+            fEnd = parser.fChar;
+            this->backup();
+            return true;
+        }
     }
-    do {
-        ++distFromParam;
-        const char* base = t.fChar;
-        t.skipWhiteSpace();
-        const char* wordStart = t.fChar;
-        if (formula_or_code(resolvable) && !t.eof() && '"' == t.peek()) {
-            t.next();
-            t.skipToEndBracket('"');
-            t.next();
-            continue;
+    // look to see if text following ref is method qualifier
+    else if ((Resolvable::kYes == fResolvable || Resolvable::kClone == fResolvable)
+            && "(" == fSeparator && "" != fPriorLink) {
+        TextParser parser(fLastDef->fFileName, fSeparatorStart, fRefEnd, fLastDef->fLineCount);
+        parser.skipToBalancedEndBracket('(', ')');
+        string fullMethod = fPriorWord + string(parser.fStart, parser.fChar - parser.fStart);
+        string trimmed = trim_inline_spaces(fullMethod);
+        string testLink;
+        if (findLink(trimmed, &testLink, false)) {
+            fMethodName = fullMethod;
+            fWord = trimmed;
+            fLink = testLink;
+            fEnd = parser.fChar;
+            this->backup();
+            return true;
         }
-        if (Resolvable::kCode == resolvable) {
-            int priorBrace = braceStack.back().fBraceCount;
-            int braceCount = priorBrace + t.skipToMethodStart();
-            if (braceCount > priorBrace) {
-                string name;
-                if (KeyWord::kClass == keyWord || KeyWord::kStruct == keyWord) {
-                    name = ref;
-                } else if (KeyWord::kClass == lastKeyWord && KeyWord::kPublic == keyWord) {
-                    SkASSERT(lastLine);
-                    TextParser parser(t.fFileName, lastLine, t.fChar, t.fLineCount);
-                    parser.skipSpace();
-                    SkAssertResult(parser.skipExact("class "));
-                    parser.skipSpace();
-                    const char* nameStart = parser.fChar;
-                    parser.skipToSpace();
-                    name = string(nameStart, parser.fChar - nameStart);
-                }
-                if ("" != name) {
-                    const Definition* classDef = this->isDefined(t, name, resolvable);
-                    if (!classDef) {
-                        string className = fRoot->csParent()->fName;
-                        string withRoot = className + "::" + name;
-                        classDef = this->isDefined(t, withRoot, resolvable);
-                        SkASSERT(classDef);
+    }
+    if ("." == fSeparator || "->" == fSeparator || "()." == fSeparator || "()->" == fSeparator) {
+        bool foundField = fWord.length() >= 2 && (('f' == fWord[0] && isupper(fWord[1]))
+                || "()" == fWord.substr(fWord.length() - 2)
+                || (fEnd + 2 <= fRefEnd && "()" == string(fEnd, 2)));
+        if (foundField) {
+            if (fMethod && fNames->fRefMap.end() != fNames->fRefMap.find(fPriorWord)) {
+        // find prior fWord's type in fMethod
+                TextParser parser(fMethod);
+                SkAssertResult(parser.containsWord(fPriorWord.c_str(), parser.fEnd,
+                        &parser.fChar));
+        // look up class or struct; trival lookup only class/struct [& * const]
+                while (parser.back(" ") || parser.back("&") || parser.back("*")
+                        || parser.back("const"))
+                    ;
+                const char* structEnd = parser.fChar;
+                parser.backupWord();
+                if (structEnd != parser.fChar) {
+                    string structName(parser.fChar, structEnd - parser.fChar);
+                    if ("SkVector" == structName) {
+                        // TODO: populate global refmap with typedefs as well as structs
+                        structName = "SkPoint";
+                    } else if ("SkIVector" == structName) {
+                        structName = "SkIPoint";
                     }
-                    if (classDef->isRoot()) {
-                        fRoot = const_cast<Definition*>(classDef)->asRoot();
-                        t.setLocalName(name);
+                    structName += "::" + fWord;
+        // look for fWord as member of class or struct
+                    auto defIter = fGlobals->fRefMap.find(structName);
+                    if (fGlobals->fRefMap.end() == defIter) {
+                        structName += "()";
+                        defIter = fGlobals->fRefMap.find(structName);
                     }
-                }
-                braceStack.push_back({fRoot, name, t.fChar, lastKeyWord, keyWord, braceCount});
-            } else if (braceCount < priorBrace) {
-                lastKeyWord = braceStack.back().fLastKey;
-                keyWord = braceStack.back().fKeyWord;
-                braceStack.pop_back();
-                if (KeyWord::kClass == keyWord || KeyWord::kStruct == keyWord) {
-                    fRoot = braceStack.back().fRoot;
-                    t.setLocalName(braceStack.back().fName);
-                }
-            }
-        } else {
-            (void) t.skipToMethodStart();
-        }
-        const char* start = t.fChar;
-        if (fParamEnd <= start) {
-            fParamEnd = nullptr;
-        }
-        if (wordStart < start) {
-            if (lineStart) {
-                lineStart = false;
-            } else {
-                wordStart = base;
-            }
-            string nonWord = string(wordStart, start - wordStart);
-            if (Resolvable::kFormula == resolvable) {
-                string unbreakable;
-                bool comma = false;
-                for (char c : nonWord) {
-                    if (string::npos != string("\\`*_{}[]()#+-.!").find(c)) {
-                        unbreakable += '\\';
-                    }
-                    if (' ' == c && !comma) {
-                        unbreakable += "&nbsp;";
+                    if (fGlobals->fRefMap.end() != defIter) {
+                        // example: dstInfo.width()
+                        auto structIter = fGlobals->fLinkMap.find(structName);
+                        SkASSERT(fGlobals->fLinkMap.end() != structIter);
+                        fLink = structIter->second;
+                        return true;
                     } else {
-                        unbreakable += c;
+                        SkDebugf("probably missing struct or class member in bmh: ");
+                        SkDebugf("%s\n", structName.c_str());
                     }
-                    comma = ',' == c;
-                }
-                nonWord = unbreakable;
-            }
-            result += nonWord;
-            if ('\n' != result.back()) {
-                while (start > wordStart && '\n' == start[-1]) {
-                    result += '\n';
-                    --start;
                 }
             }
-        }
-        if (lineStart) {
-            lineStart = false;
+            auto& parentRefMap = fNames->fParent->fRefMap;
+            auto priorIter = parentRefMap.find(fPriorWord);
+            if (parentRefMap.end() == priorIter) {
+                priorIter = parentRefMap.find(fPriorWord + "()");
+            }
+            if (parentRefMap.end() != priorIter) {
+                Definition* priorDef = priorIter->second;
+                if (priorDef) {
+                    TextParser parser(priorDef->fFileName, priorDef->fStart,
+                            priorDef->fContentStart, priorDef->fLineCount);
+                    parser.skipExact("#Method ");
+                    parser.skipSpace();
+                    parser.skipExact("const ");  // optional
+                    parser.skipSpace();
+                    const char* start = parser.fChar;
+                    parser.skipToNonAlphaNum();
+                    string structName(start, parser.fChar - start);
+                    structName += "::" + fWord;
+                    auto defIter = fGlobals->fRefMap.find(structName);
+                    if (fGlobals->fRefMap.end() != defIter) {
+                        // example: imageInfo().width()
+                        auto globalIter = fGlobals->fLinkMap.find(structName);
+                        SkASSERT(fGlobals->fLinkMap.end() != globalIter);
+                        fLink = globalIter->second;
+                        return true;
+                    }
+                }
+            }
         } else {
-            leadingSpaces = string(base, wordStart - base);
+            string fullRef = fPriorWord + fSeparator + fWord;
+            if (this->findLink(fullRef, &fLink, false)) {
+                return true;
+            }
+            if (Resolvable::kCode != fResolvable) {
+                SkDebugf("probably missing () after function:");
+                const char* debugStart = fEnd - 20 < fRefStart ? fRefStart : fEnd - 20;
+                const char* debugEnd = fEnd + 10 > fRefEnd ? fRefEnd : fEnd + 10;
+                SkDebugf("%.*s\n", debugEnd - debugStart, debugStart);
+                SkDebugf(""); // convenient place to set a breakpoint
+            }
         }
-        t.skipToMethodEnd(resolvable);
-        if (base == t.fChar) {
-            if (!t.eof() && '~' == base[0] && !isalnum(base[1])) {
-                t.next();
-            } else {
+    }
+    // example: SkCanvas::restoreToCount
+    if ("::" == fSeparator) {
+        string fullRef = fPriorWord + "::" + fWord;
+        if (this->findLink(fullRef, &fLink, fAddParens)) {
+            return true;
+        }
+    }
+    // look in parent fNames and above for match
+    if (fNames) {
+        if (this->findLink(fWord, &fLink, Resolvable::kClone == fResolvable && fAddParens)) {
+            return true;
+        }
+    }
+    // example : sqrt as in "sqrt(x * x + y * y)"
+    // example : erase in seeAlso
+    if (Resolvable::kClone == fResolvable || (fEnd + 1 < fRefEnd && '(' == fEnd[0])) {
+        if (fAddParens && this->findLink(fWord + "()", &fLink, false)) {
+            return true;
+        }
+    }
+    // example: Color_Type
+    if (this->findLink(fWord, &fLink, fBmhParser->fAliasMap)) {
+        return true;
+    }
+    if (Resolvable::kInclude != fResolvable && string::npos != fWord.find('_')) {
+        // example: Blend_Mode
+        if (this->findLink(fWord, &fLink, fBmhParser->fTopicMap)) {
+            return true;
+        }
+        if (fSubtopic) {
+            // example: Fake_Bold
+            if (fSubtopic->fName == fWord) {
+                fLink = '#' + fSubtopic->fFiddle;
+                return true;
+            }
+            const Definition* rootTopic = fSubtopic->subtopicParent();
+            if (rootTopic) {
+                if (rootTopic->fFiddle == fWord) {
+                    fLink = '#' + rootTopic->fFiddle;
+                    return true;
+                }
+                string globName = rootTopic->fFiddle + '_' + fWord;
+                if (this->findLink(globName, &fLink, fBmhParser->fTopicMap)) {
+                    return true;
+                }
+            }
+        }
+        if (fRoot) {
+            string test = fRoot->fName + "::" + fWord;
+            auto rootIter = fRoot->fLeaves.find(test);
+            // example: restoreToCount in subtopic State_Stack
+            if (fRoot->fLeaves.end() != rootIter) {
+                fLink = '#' + rootIter->second.fFiddle;
+                return true;
+            }
+        }
+    }
+    if (isupper(fWord[0]) && string::npos != fWord.find('_')) {
+        const Definition* topical = fSubtopic;
+        do {
+            string subtopic = topical->fName + '_' + fWord;
+            // example: Stroke_Width
+            if (this->findLink(subtopic, &fLink, fBmhParser->fTopicMap)) {
+                return true;
+            }
+        } while ((topical = topical->topicParent()));
+    }
+    // treat hex constants as known words
+    if (fSeparator.size() > 0 && '0' == fSeparator.back() && 'x' == fWord[0]) {
+        bool allHex = true;
+        for (size_t index = 1; index < fWord.size(); ++index) {
+            char c = fWord[index];
+            if (('0' > c || '9' < c) && ('A' > c || 'F' < c)) {
+                allHex = false;
                 break;
             }
         }
-        if (start >= t.fChar) {
-            continue;
+        if (allHex) {
+            return true;
         }
-        if (!t.eof() && '"' == t.peek() && start > wordStart && '"' == start[-1]) {
-            continue;
+    }
+    // treat floating constants as known words
+    if ("e" == fWord) {
+        if (std::all_of(fSeparator.begin(), fSeparator.end(), [](char c) {
+            return isdigit(c) || '.' == c || '-' == c || ' ' >= c;
+        })) {
+            return true;
         }
-        ref = string(start, t.fChar - start);
-        if (fParamEnd
-                && islower(start[0]) && ('k' != start[0] || !isupper(start[1]))) {
-            if (' ' == start[-1] && ' ' != result.back()) {
-                result += ' ';
+    }
+    // stop short of parsing example; just look to see if it contains fWord in description
+    if (fLastDef && MarkType::kDescription == fLastDef->fMarkType) {
+        Definition* example = fLastDef->fParent;
+        if (MarkType::kExample == example->fMarkType) {
+            // example text is blocked by last child before std out, if it exists
+            const char* exStart = example->fChildren.back()->fContentEnd;
+            const char* exEnd = example->fContentEnd;
+            if (MarkType::kStdOut == example->fChildren.back()->fMarkType) {
+                exStart = example->fChildren[example->fChildren.size() - 2]->fContentEnd;
+                exEnd = example->fChildren.back()->fContentStart;
             }
-            result += ref;
-            continue;
-        }
-        if (Resolvable::kCode == resolvable) {
-            fixup_const_function_name(&ref);
-        }
-        if (Definition* def = this->isDefined(t, ref, resolvable)) {
-            if (MarkType::kExternal == def->fMarkType) {
-                (void) this->anchorRef("undocumented#" + ref, "");   // for anchor validate
-                add_ref(leadingSpaces, ref, &result);
-                continue;
-            }
-            SkASSERT(def->fFiddle.length());
-            if (Resolvable::kSimple != resolvable
-                    && Resolvable::kInclude != resolvable
-                    && !t.eof() && '(' == t.peek() && t.strnchr(')', t.fEnd)) {
-                TextParserSave tSave(&t);
-                if (!t.skipToBalancedEndBracket('(', ')')) {
-                    tSave.restore();
-                    t.reportError("missing close paren");
-                    fAddRefFailed = true;
-                    return result;
-                }
-//                t.next();
-                SkASSERT(')' == t.fChar[-1]);
-                fParamEnd = t.fChar - 1;    // don't resolve lower case words til param end
-                string fullRef = string(start, t.fChar - start);
-                // if _2 etc alternates are defined, look for paren match
-                // may ignore () if ref is all lower case and resolvable is not code
-                // otherwise flag as error
-                int suffix = '2';
-                bool foundMatch = false;
-                Definition* altDef = def;
-                while (altDef && suffix <= '9') {
-                    if ((foundMatch = altDef->paramsMatch(fullRef, ref))) {
-                        def = altDef;
-                        ref = fullRef;
-                        break;
-                    }
-                    string altTest = ref + '_';
-                    altTest += suffix++;
-                    altDef = this->isDefined(t, altTest, Resolvable::kOut);
-                }
-                if (suffix > '9') {
-                    t.reportError("too many alts");
-                    fAddRefFailed = true;
-                    return result;
-                }
-                if (!foundMatch) {
-                    if (!(def = this->isDefined(t, fullRef, resolvable))) {
-                        if (formula_or_code(resolvable)) {
-                            // TODO: look for looser mapping -- if methods name match, look for
-                            //   unique mapping based on number of parameters
-                            // for now, just look for function name match
-                            def = this->isDefined(t, ref, resolvable);
-                        }
-                        if (!def && !result.size()) {
-                            t.reportError("missing method");
-                            fAddRefFailed = true;
-                            return result;
-                        }
-                    }
-                    ref = fullRef;
-                }
-                ref = ref.substr(0, ref.find('('));
-                tSave.restore();
-			} else if (Resolvable::kClone != resolvable &&
-					all_lower(ref) && (t.eof() || '(' != t.peek())) {
-				add_ref(leadingSpaces, ref, &result);
-				continue;
-			}
-            if (!def) {
-                t.reportError("missing method");
-                fAddRefFailed = true;
-                return result;
-            }
-			result += linkRef(leadingSpaces, def, ref, resolvable);
-            if (!t.eof() && '(' == t.peek()) {
-                if (Resolvable::kInclude == resolvable
-                       && std::any_of(ref.begin(), ref.end(), [](char c){ return !islower(c); } )) {
-                    t.next();  // skip open paren
-                    SkAssertResult(')' == t.next());  // skip close paren
-                    continue;
-                }
-                result += t.next();  // skip open paren
-            }
-            continue;
-        }
-        if (!t.eof() && '(' == t.peek()) {
-            if (!t.skipToEndBracket(')')) {
-                t.reportError("missing close paren");
-                fAddRefFailed = true;
-                return result;
-            }
-            t.next();
-            ref = string(start, t.fChar - start);
-            if (Definition* def = this->isDefined(t, ref, Resolvable::kYes)) {
-                SkASSERT(def->fFiddle.length());
-				result += linkRef(leadingSpaces, def, ref, resolvable);
-                continue;
+            // maybe need a general function that searches block text excluding children
+            TextParser exParse(example->fFileName, exStart, exEnd, example->fLineCount);
+            if (exParse.containsWord(fWord.c_str(), exParse.fEnd, nullptr)) {
+                return true;
             }
         }
-// class, struct, and enum start with capitals
-// methods may start with upper (static) or lower (most)
+    }
+    // example: (x1, y1) after arcTo(SkScalar x1, ...
+    if (Resolvable::kYes == fResolvable && ('(' == fSeparator.back() || ',' == fSeparator[0])
+            && string::npos != fMethodName.find(fWord)) {
+        return true;
+    }
+    // example: <sup>  (skip html)
+    if (Resolvable::kYes == fResolvable && fEnd + 1 < fRefEnd && '>' == fEnd[0]
+            && ('<' == fSeparator.back() || (fSeparator.size() >= 2
+            && "</" == fSeparator.substr(fSeparator.size() - 2)))) {
+        return true;
+    }
+    // TODO: can probably resolve formulae, but need a way for formula to define new reference
+    // for example: Given: #Formula # Sa ## as source Alpha,
+    // for example: where #Formula # m = Da > 0 ? Dc / Da : 0 ##;
+    if (!fInProgress && Resolvable::kSimple != fResolvable
+            && Resolvable::kCode != fResolvable && Resolvable::kFormula != fResolvable) {
+        // example: Coons as in "Coons patch"
+        bool withSpace = fEnd + 1 < fRefEnd && ' ' == fEnd[0]
+                && fGlobals->fRefMap.end() != fGlobals->fRefMap.find(fWord + ' ');
+        if (!withSpace && (Resolvable::kInclude == fResolvable ? !fInMatrix :
+                '"' != fPriorSeparator.back() || '"' != fSeparator.back())) {
+            SkDebugf("fWord %s not found\n", fWord.c_str());
+            fBmhParser->fGlobalNames.fRefMap[fWord] = nullptr;
+        }
+    }
+    return false;
+}
 
-        // see if this should have been a findable reference
 
-            // look for Sk / sk / SK ..
-        if (!ref.compare(0, 2, "Sk") && ref != "Skew" && ref != "Skews" && ref != "Skewing"
-              && ref != "Skip" && ref != "Skips") {
-            if (Resolvable::kOut != resolvable && !formula_or_code(resolvable)) {
-                t.reportError("missed Sk prefixed");
-                fAddRefFailed = true;
-                return result;
-            }
+string MdOut::addReferences(const char* refStart, const char* refEnd, Resolvable resolvable) {
+    DefinedState s;
+    string result;
+    const char* start = refStart;
+    s.fBmhParser = &fBmhParser;
+    s.fNames = fNames;
+    s.fGlobals = &fBmhParser.fGlobalNames;
+    s.fLastDef = fLastDef;
+    s.fMethod = fMethod;
+    s.fSubtopic = fSubtopic;
+    s.fRoot = fRoot;
+    s.fRefStart = refStart;
+    s.fRefEnd = refEnd;
+    s.fResolvable = resolvable;
+    TextParser matrixParser(fLastDef->fFileName, refStart, refEnd, fLastDef->fLineCount);
+    const char* bracket = matrixParser.anyOf("|=\n");
+    s.fInMatrix = bracket && ('|' == bracket[0] || '=' == bracket[0]);
+    s.fInProgress = fInProgress;
+    do {
+        s.fSeparatorStart = start;
+        start = s.skipWhiteSpace(start, refEnd);
+        s.skipParens();
+        result += s.nextSeparator(start);
+        s.findEnd(start, refEnd);
+        if (start == s.fEnd) {
+            break;
         }
-        if (!ref.compare(0, 2, "SK")) {
-            if (Resolvable::kOut != resolvable && !formula_or_code(resolvable)) {
-                t.reportError("missed SK prefixed");
-                fAddRefFailed = true;
-                return result;
-            }
-        }
-        if (!isupper(start[0])) {
-            // TODO:
-            // look for all lowercase w/o trailing parens as mistaken method matches
-            // will also need to see if Example Description matches var in example
-            Definition* def = nullptr;
-            if (fMethod && (def = fMethod->hasParam(ref))) {
-				result += linkRef(leadingSpaces, def, ref, resolvable);
-                fLastParam = def;
-                distFromParam = 0;
-                continue;
-            } else if (!fInDescription && ref[0] != '0'
-                    && string::npos != ref.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ")) {
-                // FIXME: see isDefined(); check to see if fXX is a member of xx.fXX
-                if (('f' != ref[0] && string::npos == ref.find("()"))
-//                        || '.' != t.backup(ref.c_str())
-                        && ('k' != ref[0] && string::npos == ref.find("_Private"))) {
-                    if ('.' == wordStart[0] && (distFromParam >= 1 && distFromParam <= 16)) {
-                        Definition* paramType = this->findParamType();
-                        if (paramType) {
-                            string fullName = paramType->fName + "::" + ref;
-                            if (paramType->hasMatch(fullName)) {
-								result += linkRef(leadingSpaces, paramType, ref, resolvable);
-                                continue;
-                            }
-                        }
-                    }
-                    if (Resolvable::kSimple != resolvable
-                            && Resolvable::kInclude != resolvable
-                            && Resolvable::kOut != resolvable
-                            && !formula_or_code(resolvable)) {
-                        t.reportError("missed camelCase");
-                        fAddRefFailed = true;
-                        return result;
-                    }
-                }
-            }
-            KeyWord newKeyWord = IncludeParser::FindKey(start, start + ref.length());
-            lastLine = nullptr;
-            if (KeyWord::kPrivate != newKeyWord && KeyWord::kProtected != newKeyWord
-                    && KeyWord::kPublic != newKeyWord) {
-                lastKeyWord = keyWord;
-                keyWord = newKeyWord;
-            } else if (Resolvable::kCode == resolvable && ':' != t.peek()) {
-                lastLine = t.fLine;
-                lastKeyWord = keyWord;
-                keyWord = newKeyWord;
-            }
-            add_ref(leadingSpaces, ref, &result);
+        s.fWord = string(start, s.fEnd - start);
+        s.fAddParens = false;
+        s.setLower(refEnd);
+        if (s.setPriorSpaceWord(&start)) {
             continue;
         }
-        auto topicIter = fBmhParser.fTopicMap.find(ref);
-        if (topicIter != fBmhParser.fTopicMap.end()) {
-			result += linkRef(leadingSpaces, topicIter->second, ref, resolvable);
-            continue;
-        }
-        bool startsSentence = t.sentenceEnd(start);
-        if (!t.eof() && ' ' != t.peek()) {
-			add_ref(leadingSpaces, ref, &result);
-            continue;
-        }
-        if (t.fChar + 1 >= t.fEnd || (!isupper(t.fChar[1]) && startsSentence)) {
-			add_ref(leadingSpaces, ref, &result);
-            continue;
-        }
-        if (isupper(t.fChar[1]) && startsSentence) {
-            TextParser next(t.fFileName, &t.fChar[1], t.fEnd, t.fLineCount);
-            string nextWord(next.fChar, next.wordEnd() - next.fChar);
-            if (this->isDefined(t, nextWord, Resolvable::kYes)) {
-				add_ref(leadingSpaces, ref, &result);
-                continue;
-            }
-        }
-        Definition* def = this->checkParentsForMatch(fSubtopic, ref);
-        if (!def) {
-            def = this->checkParentsForMatch(fRoot, ref);
-        }
-        if (def) {
- 			result += this->linkRef(leadingSpaces, def, ref, resolvable);
-            continue;
-        }
-        if (Resolvable::kOut != resolvable &&
-                !formula_or_code(resolvable)) {
-            t.reportError("undefined reference");
-            fAddRefFailed = true;
-        } else {
-			add_ref(leadingSpaces, ref, &result);
-        }
-    } while (!t.eof());
+        s.setLink();
+        result += "" == s.fPriorLink ? s.fPriorWord : this->anchorRef(s.fPriorLink, s.fPriorWord);
+        start = s.nextWord();
+    } while (true);
+    result += "" == s.fPriorLink ? s.fPriorWord : this->anchorRef(s.fPriorLink, s.fPriorWord);
+    result += s.fPriorSeparator;
     return result;
 }
 
@@ -916,6 +693,9 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
         return true;
     }
     if (SkStrEndsWith(name, "illustrations.bmh")) {  // don't look inside this for now
+        return true;
+    }
+    if (SkStrEndsWith(name, "undocumented.bmh")) {  // don't look inside this for now
         return true;
     }
     fFileName = string(name);
@@ -1115,6 +895,9 @@ void MdOut::childrenOut(Definition* def, const char* start) {
         }
         end = child->fStart;
         if (Resolvable::kNo != resolvable) {
+            if (def->isStructOrClass() || MarkType::kEnumClass == def->fMarkType) {
+                fNames = &def->asRoot()->fNames;
+            }
             this->resolveOut(start, end, resolvable);
         }
         this->markTypeOut(child, &prior);
@@ -1202,29 +985,55 @@ Definition* MdOut::csParent() {
     return csParent;
 }
 
-bool MdOut::findLink(string word, string* linkPtr) {
-    NameMap* names = fNames;
-    while ((names = names->fParent)) {
+bool MdOut::DefinedState::findLink(string word, string* linkPtr, bool addParens) {
+    const NameMap* names = fNames;
+    do {
         auto localIter = names->fRefMap.find(word);
         if (names->fRefMap.end() != localIter) {
             if (localIter->second) {
-                SkAssertResult(names->fLinkMap.end() != names->fLinkMap.find(word));
-                *linkPtr = names->fLinkMap[word];
+                auto linkIter = names->fLinkMap.find(word);
+                SkAssertResult(names->fLinkMap.end() != linkIter);
+                *linkPtr = linkIter->second;
             }
             return true;
         }
         if (!names->fParent && isupper(word[0])) {
-            SkASSERT(names == &fBmhParser.fGlobalNames);
+            SkASSERT(names == &fBmhParser->fGlobalNames);
             string lower = (char) tolower(word[0]) + word.substr(1);
             auto globalIter = names->fRefMap.find(lower);
             if (names->fRefMap.end() != globalIter) {
                 if (globalIter->second) {
-                    SkAssertResult(names->fLinkMap.end() != names->fLinkMap.find(lower));
-                    *linkPtr = names->fLinkMap[lower];
+                    auto lowerIter = names->fLinkMap.find(lower);
+                    SkAssertResult(names->fLinkMap.end() != lowerIter);
+                    *linkPtr = lowerIter->second;
                 }
                 return true;
             }
         }
+        if (addParens) {
+            string parenWord = word + "()";
+            auto paramIter = names->fRefMap.find(parenWord);
+            if (names->fRefMap.end() != paramIter) {
+                if (paramIter->second) {
+                    auto parenIter = names->fLinkMap.find(parenWord);
+                    SkAssertResult(names->fLinkMap.end() != parenIter);
+                    *linkPtr = parenIter->second;
+                }
+                return true;
+            }
+        }
+    } while ((names = names->fParent));
+    return false;
+}
+
+bool MdOut::DefinedState::findLink(string word, string* linkPtr,
+        unordered_map<string, Definition*>& map) {
+    auto mapIter = map.find(word);
+    if (map.end() != mapIter) {
+        if (mapIter->second) {
+            *linkPtr = '#' + mapIter->second->fFiddle;
+        }
+        return true;
     }
     return false;
 }
@@ -1773,6 +1582,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         fTableState = TableState::kNone;
     }
     fLastDef = def;
+    NameMap paramMap;
     switch (def->fMarkType) {
         case MarkType::kAlias:
             break;
@@ -2041,6 +1851,18 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             this->lf(2);
             fTableState = TableState::kNone;
             fMethod = def;
+            if ("SkTextBlobBuilder::allocRun_2" == def->fName) {
+                SkDebugf("");
+            }
+            Definition* iMethod = fIncludeParser.findMethod(*def);
+            if (iMethod) {
+                fMethod = iMethod;
+                paramMap.fParent = &fBmhParser.fGlobalNames;
+                paramMap.setParams(def, iMethod);
+                fNames = &paramMap;
+            } else {
+                SkDebugf("");
+            }
             } break;
         case MarkType::kNoExample:
             break;
@@ -2180,45 +2002,9 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 SkASSERT(MarkType::kMethod == parent->fMarkType);
                 // retrieve parameters, return, description from include
                 Definition* iMethod = fIncludeParser.findMethod(*parent);
+                SkASSERT(iMethod);  // deprecated or 'in progress' functions should not include populate
                 bool wroteParam = false;
-                fMethod = iMethod;
-                NameMap paramMap;
-                Definition* pParent = def->csParent();
-                string parentName;
-                NameMap* parentMap;
-                if (pParent) {
-                    parentName = pParent->fName + "::";
-                    parentMap = &pParent->asRoot()->fNames;
-                } else {
-                    parentMap = &fBmhParser.fGlobalNames;
-                }
-                paramMap.fName = parentName + iMethod->fName;
-                paramMap.fParent = parentMap;
-                fNames = &paramMap;
-                TextParser methParams(iMethod);
-                for (auto& param : iMethod->fTokens) {
-                    if (MarkType::kComment != param.fMarkType) {
-                        continue;
-                    }
-                    TextParser paramParser(&param);
-                    if (!paramParser.skipExact("@param ")) { // write parameters, if any
-                        continue;
-                    }
-                    paramParser.skipSpace();
-                    const char* start = paramParser.fChar;
-                    paramParser.skipToSpace();
-                    string paramName(start, paramParser.fChar - start);
-                #ifdef SK_DEBUG
-                    for (char c : paramName) {
-                        SkASSERT(isalnum(c) || '_' == c);
-                    }
-                #endif
-                    if (!methParams.containsWord(paramName.c_str(), methParams.fEnd, nullptr)) {
-                        param.reportError<void>("mismatched param name");
-                    }
-                    paramMap.fRefMap[paramName] = &param;
-                    paramMap.fLinkMap[paramName] = '#' + def->fFiddle + '_' + paramName;
-                }
+                SkASSERT(fMethod == iMethod);
                 for (auto& entry : iMethod->fTokens) {
                     if (MarkType::kComment != entry.fMarkType) {
                         continue;
@@ -2262,8 +2048,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                             Resolvable::kInclude);  // write description
                     this->lf(1);
                 }
-                fMethod = nullptr;
-                fNames = fNames->fParent;
             }
             } break;
         case MarkType::kPrivate:
@@ -2482,6 +2266,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             } break;
         case MarkType::kMethod:
             fMethod = nullptr;
+            fNames = fNames->fParent;
             break;
         case MarkType::kConst:
         case MarkType::kMember:

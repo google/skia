@@ -1439,7 +1439,7 @@ public:
         Returned value is the same as calling rectStaysRect().
 
         @param rect  rectangle to map, and storage for bounds of mapped corners
-        @return      true if result is equivalent to mapped src
+        @return      true if result is equivalent to mapped rect
     */
     bool mapRect(SkRect* rect) const {
         return this->mapRect(rect, *rect);
