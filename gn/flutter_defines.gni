@@ -4,7 +4,6 @@
 # found in the LICENSE file.
 flutter_defines = [
   "SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION",
-  "SK_LEGACY_SKCODEC_NONE_ENUM",
 
   # Flutter always wants this https://github.com/flutter/flutter/issues/11402
   "SK_ENABLE_DUMP_GPU",
