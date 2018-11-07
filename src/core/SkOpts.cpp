@@ -78,14 +78,14 @@ namespace SkOpts {
 #define M(st) (StageFn)SK_OPTS_NS::st,
     StageFn stages_highp[] = { SK_RASTER_PIPELINE_STAGES(M) };
     StageFn just_return_highp = (StageFn)SK_OPTS_NS::just_return;
-    void (*start_pipeline_highp)(size_t,size_t,size_t,size_t,void**)
+    void (*start_pipeline_highp)(void*,int, size_t,size_t,size_t,size_t,void**)
         = SK_OPTS_NS::start_pipeline;
 #undef M
 
 #define M(st) (StageFn)SK_OPTS_NS::lowp::st,
     StageFn stages_lowp[] = { SK_RASTER_PIPELINE_STAGES(M) };
     StageFn just_return_lowp = (StageFn)SK_OPTS_NS::lowp::just_return;
-    void (*start_pipeline_lowp)(size_t,size_t,size_t,size_t,void**)
+    void (*start_pipeline_lowp)(void*,int, size_t,size_t,size_t,size_t,void**)
         = SK_OPTS_NS::lowp::start_pipeline;
 #undef M
 

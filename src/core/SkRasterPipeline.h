@@ -249,7 +249,7 @@ private:
         bool       rawFunction;
     };
 
-    using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, void** program);
+    using StartPipelineFn = void(*)(void*,int, size_t,size_t,size_t,size_t, void** program);
     StartPipelineFn build_pipeline(void**) const;
 
     void unchecked_append(StockStage, void*);
