@@ -859,27 +859,30 @@ component("skia") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
 
+  public_deps = [
+    ":effects",
+    ":gpu",
+    ":pdf",
+    ":skcms",
+  ]
+
   deps = [
     ":arm64",
     ":armv7",
     ":avx",
     ":crc32",
     ":effect_deserialization",
-    ":effects",
     ":fontmgr_android",
     ":fontmgr_custom",
     ":fontmgr_empty",
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
-    ":gpu",
     ":heif",
     ":hsw",
     ":jpeg",
     ":none",
-    ":pdf",
     ":png",
     ":raw",
-    ":skcms",
     ":sse2",
     ":sse41",
     ":sse42",
