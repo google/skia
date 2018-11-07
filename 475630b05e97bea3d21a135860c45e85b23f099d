@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbe11475_39268a72",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-07T15:16:24Z",
+      "side": 1,
+      "message": "Would the color average also make sense for other repeating gradients when the domain is squashed (linear with p0 \u003d\u003d p1, radial with endRadius \u003d\u003d 0, sweep with startAngle \u003d\u003d endAngle)?\n\nDoesn\u0027t have to be this CL, maybe we can generalize in a follow up.",
+      "range": {
+        "startLine": 758,
+        "startChar": 28,
+        "endLine": 758,
+        "endChar": 50
+      },
+      "revId": "475630b05e97bea3d21a135860c45e85b23f099d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
