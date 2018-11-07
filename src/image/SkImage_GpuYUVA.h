@@ -49,7 +49,7 @@ public:
         return true;
     }
 
-    bool canBeMipmapped(GrContext* context) const;
+    bool setupMipmapsForPlanes() const;
 
     // Returns a ref-ed texture proxy with miplevels
     sk_sp<GrTextureProxy> asMippedTextureProxyRef() const;
@@ -112,7 +112,7 @@ public:
 private:
     // This array will usually only be sparsely populated.
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
-    sk_sp<GrTextureProxy>            fProxies[4];
+    mutable sk_sp<GrTextureProxy>    fProxies[4];
     SkYUVAIndex                      fYUVAIndices[4];
     // This is only allocated when the image needs to be flattened rather than
     // using the separate YUVA planes. From thence forth we will only use the
