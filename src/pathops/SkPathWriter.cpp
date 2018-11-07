@@ -354,7 +354,9 @@ void SkPathWriter::assemble() {
             const SkPath& contour = fPartials[rIndex];
             if (!first) {
                 SkPoint prior, next;
-                SkAssertResult(fPathPtr->getLastPt(&prior));
+                if (!fPathPtr->getLastPt(&prior)) {
+                    return;
+                }
                 if (forward) {
                     next = contour.getPoint(0);
                 } else {

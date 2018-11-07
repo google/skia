@@ -860,7 +860,7 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
                 }
             } else if (outerOpp == innerCoin) {
                 const SkOpPtT* ooe = outer->oppPtTEnd();
-                SkASSERT(!ooe->deleted());
+                FAIL_IF(ooe->deleted());
                 const SkOpPtT* ice = inner->coinPtTEnd();
                 SkASSERT(!ice->deleted());
                 SkASSERT(outerCoin != innerOpp);

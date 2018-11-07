@@ -260,7 +260,7 @@ public:
         return winding;
     }
 
-    void containerContains(Contour& contour, Contour& test) {
+    bool containerContains(Contour& contour, Contour& test) {
         // find outside point on lesser contour
         // arbitrarily, choose non-horizontal edge where point <= bounds left
         // note that if leftmost point is control point, may need tight bounds
@@ -273,8 +273,8 @@ public:
         int winding = this->nextEdge(contour, Edge::kCompare);
         // if edge is up, mark contour cw, otherwise, ccw
         // sum of greater edges direction should be cw, 0, ccw
-        SkASSERT(-1 <= winding && winding <= 1);
         test.fContained = winding != 0;
+        return -1 <= winding && winding <= 1;
     }
 
     void inParent(Contour& contour, Contour& parent) {
@@ -297,13 +297,18 @@ public:
         parent.fChildren.push_back(&contour);
     }
 
-    void checkContainerChildren(Contour* parent, Contour* child) {
+    bool checkContainerChildren(Contour* parent, Contour* child) {
         for (auto grandChild : child->fChildren) {
-            checkContainerChildren(child, grandChild);
+            if (!checkContainerChildren(child, grandChild)) {
+                return false;
+            }
         }
         if (parent) {
-            containerContains(*parent, *child);
+            if (!containerContains(*parent, *child)) {
+                return false;
+            }
         }
+        return true;
     }
 
     bool markReverse(Contour* parent, Contour* child) {
@@ -402,7 +407,9 @@ bool SK_API AsWinding(const SkPath& path, SkPath* result) {
     // starting with outermost and moving inward, see if one path contains another
     for (auto contour : sorted.fChildren) {
         winder.nextEdge(*contour, OpAsWinding::Edge::kInitial);
-        winder.checkContainerChildren(nullptr, contour);
+        if (!winder.checkContainerChildren(nullptr, contour)) {
+            return false;
+        }
     }
     // starting with outermost and moving inward, mark paths to reverse
     bool reversed = false;
