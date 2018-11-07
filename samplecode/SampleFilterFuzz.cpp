@@ -159,8 +159,8 @@ static SkBlendMode make_xfermode() {
     return static_cast<SkBlendMode>(R((int)SkBlendMode::kLastMode+1));
 }
 
-static SkPaint::Hinting make_paint_hinting() {
-    return static_cast<SkPaint::Hinting>(R(SkPaint::kFull_Hinting+1));
+static SkFontHinting make_paint_hinting() {
+    return static_cast<SkFontHinting>(R(static_cast<unsigned>(kFull_SkFontHinting)+1));
 }
 
 static SkPaint::Style make_paint_style() {

@@ -1103,7 +1103,7 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     SkPaint paint(srcPaint);
     remove_color_filter(&paint);
     replace_srcmode_on_opaque_paint(&paint);
-    paint.setHinting(SkPaint::kNo_Hinting);
+    paint.setHinting(kNo_SkFontHinting);
     if (!paint.getTypeface()) {
         paint.setTypeface(SkTypeface::MakeDefault());
     }
