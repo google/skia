@@ -249,18 +249,18 @@ static void test_advances(skiatest::Reporter* reporter) {
     };
 
     static const struct {
-        SkFontHinting   hinting;
-        unsigned        flags;
+        SkPaint::Hinting    hinting;
+        unsigned            flags;
     } settings[] = {
-        { kNo_SkFontHinting,     0                               },
-        { kNo_SkFontHinting,     SkPaint::kLinearText_Flag       },
-        { kNo_SkFontHinting,     SkPaint::kSubpixelText_Flag     },
-        { kSlight_SkFontHinting, 0                               },
-        { kSlight_SkFontHinting, SkPaint::kLinearText_Flag       },
-        { kSlight_SkFontHinting, SkPaint::kSubpixelText_Flag     },
-        { kNormal_SkFontHinting, 0                               },
-        { kNormal_SkFontHinting, SkPaint::kLinearText_Flag       },
-        { kNormal_SkFontHinting, SkPaint::kSubpixelText_Flag     },
+        { SkPaint::kNo_Hinting,     0                               },
+        { SkPaint::kNo_Hinting,     SkPaint::kLinearText_Flag       },
+        { SkPaint::kNo_Hinting,     SkPaint::kSubpixelText_Flag     },
+        { SkPaint::kSlight_Hinting, 0                               },
+        { SkPaint::kSlight_Hinting, SkPaint::kLinearText_Flag       },
+        { SkPaint::kSlight_Hinting, SkPaint::kSubpixelText_Flag     },
+        { SkPaint::kNormal_Hinting, 0                               },
+        { SkPaint::kNormal_Hinting, SkPaint::kLinearText_Flag       },
+        { SkPaint::kNormal_Hinting, SkPaint::kSubpixelText_Flag     },
     };
 
     static const struct {

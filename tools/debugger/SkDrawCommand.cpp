@@ -791,19 +791,19 @@ bool SkDrawCommand::flatten(const SkBitmap& bitmap, Json::Value* target,
 }
 
 static void apply_paint_hinting(const SkPaint& paint, Json::Value* target) {
-    SkFontHinting hinting = (SkFontHinting)paint.getHinting();
+    SkPaint::Hinting hinting = paint.getHinting();
     if (hinting != SkPaintDefaults_Hinting) {
         switch (hinting) {
-            case kNo_SkFontHinting:
+            case SkPaint::kNo_Hinting:
                 (*target)[SKDEBUGCANVAS_ATTRIBUTE_HINTING] = SKDEBUGCANVAS_HINTING_NONE;
                 break;
-            case kSlight_SkFontHinting:
+            case SkPaint::kSlight_Hinting:
                 (*target)[SKDEBUGCANVAS_ATTRIBUTE_HINTING] = SKDEBUGCANVAS_HINTING_SLIGHT;
                 break;
-            case kNormal_SkFontHinting:
+            case SkPaint::kNormal_Hinting:
                 (*target)[SKDEBUGCANVAS_ATTRIBUTE_HINTING] = SKDEBUGCANVAS_HINTING_NORMAL;
                 break;
-            case kFull_SkFontHinting:
+            case SkPaint::kFull_Hinting:
                 (*target)[SKDEBUGCANVAS_ATTRIBUTE_HINTING] = SKDEBUGCANVAS_HINTING_FULL;
                 break;
         }

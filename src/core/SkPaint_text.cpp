@@ -291,7 +291,7 @@ SkScalar SkPaint::setupForAsPaths() {
     flags |= SkPaint::kSubpixelText_Flag;
 
     this->setFlags(flags);
-    this->setHinting(kNo_SkFontHinting);
+    this->setHinting(SkPaint::kNo_Hinting);
     this->setStyle(SkPaint::kFill_Style);
     this->setPathEffect(nullptr);
 
