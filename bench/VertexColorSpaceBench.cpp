@@ -52,7 +52,8 @@ public:
                 fInColor = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
                 break;
         }
-        this->setVertexAttributeCnt(2);
+        this->addVertexAttribute(fInPosition);
+        this->addVertexAttribute(fInColor);
     }
     const char* name() const override { return "VertexColorXformGP"; }
 
@@ -109,10 +110,6 @@ public:
     }
 
 private:
-    const GrPrimitiveProcessor::Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, fInPosition, fInColor);
-    }
-
     Mode fMode;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 

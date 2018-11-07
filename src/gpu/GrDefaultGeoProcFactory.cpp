@@ -322,19 +322,19 @@ private:
             , fBones(bones)
             , fBoneCount(boneCount) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        int cnt = 1;
+        this->addVertexAttribute(fInPosition);
         if (fFlags & kColorAttribute_GPFlag) {
             fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-            ++cnt;
+            this->addVertexAttribute(fInColor);
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
             fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType,
                                               kFloat2_GrSLType};
-            ++cnt;
+            this->addVertexAttribute(fInLocalCoords);
         }
         if (fFlags & kCoverageAttribute_GPFlag) {
             fInCoverage = {"inCoverage", kFloat_GrVertexAttribType, kHalf_GrSLType};
-            ++cnt;
+            this->addVertexAttribute(fInCoverage);
         }
         if (fFlags & kBonesAttribute_GPFlag) {
             SkASSERT(bones && (boneCount > 0));
@@ -346,22 +346,11 @@ private:
                 indicesGPUType = kHalf4_GrSLType;
             }
             fInBoneIndices = {"inBoneIndices", indicesCPUType, indicesGPUType};
-            ++cnt;
             fInBoneWeights = {"inBoneWeights", kUByte4_norm_GrVertexAttribType,
                                                kHalf4_GrSLType};
-            ++cnt;
+            this->addVertexAttribute(fInBoneIndices);
+            this->addVertexAttribute(fInBoneWeights);
         }
-        this->setVertexAttributeCnt(cnt);
-    }
-
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthInitializedAttribute(i,
-                                       fInPosition,
-                                       fInColor,
-                                       fInLocalCoords,
-                                       fInCoverage,
-                                       fInBoneIndices,
-                                       fInBoneWeights);
     }
 
     Attribute fInPosition;

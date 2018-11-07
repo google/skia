@@ -84,13 +84,13 @@ public:
 
     int numTextureSamplers() const { return fTextureSamplerCnt; }
     const TextureSampler& textureSampler(int index) const;
-    int numVertexAttributes() const { return fVertexAttributeCnt; }
+    int numVertexAttributes() const { return fVertexAttributeCount; }
     const Attribute& vertexAttribute(int i) const;
-    int numInstanceAttributes() const { return fInstanceAttributeCnt; }
+    int numInstanceAttributes() const { return fAttributes.count() - fVertexAttributeCount; }
     const Attribute& instanceAttribute(int i) const;
 
-    bool hasVertexAttributes() const { return SkToBool(fVertexAttributeCnt); }
-    bool hasInstanceAttributes() const { return SkToBool(fInstanceAttributeCnt); }
+    bool hasVertexAttributes() const { return SkToBool(this->numVertexAttributes()); }
+    bool hasInstanceAttributes() const { return SkToBool(this->numInstanceAttributes()); }
 
 #ifdef SK_DEBUG
     /**
@@ -146,13 +146,28 @@ public:
     virtual float getSampleShading() const { return 0.0; }
 
 protected:
-    void setVertexAttributeCnt(int cnt) {
-        SkASSERT(cnt >= 0);
-        fVertexAttributeCnt = cnt;
+    void addVertexAttribute(const Attribute& attr) {
+        SkASSERT(attr.isInitialized());
+        SkASSERT(fVertexAttributeCount == fAttributes.count() &&
+                 "Add vertex attributes before instance attributes");
+        fAttributes.push_back(&attr);
+        ++fVertexAttributeCount;
+#ifdef SK_DEBUG
+        // fAttributes is sized to hold the worst-case GP across all of Skia, except one unit test.
+        if (fAttributes.count() > 8) {
+            SkDebugf("WARNING: Attributes overflowed to the heap.");
+        }
+#endif
     }
-    void setInstanceAttributeCnt(int cnt) {
-        SkASSERT(cnt >= 0);
-        fInstanceAttributeCnt = cnt;
+    void addInstanceAttribute(const Attribute& attr) {
+        SkASSERT(attr.isInitialized());
+        fAttributes.push_back(&attr);
+#ifdef SK_DEBUG
+        // fAttributes is sized to hold the worst-case GP across all of Skia, except one unit test.
+        if (fAttributes.count() > 8) {
+            SkDebugf("WARNING: Attributes overflowed to the heap.");
+        }
+#endif
     }
     void setTextureSamplerCnt(int cnt) {
         SkASSERT(cnt >= 0);
@@ -171,22 +186,11 @@ protected:
     inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
-    virtual const Attribute& onVertexAttribute(int) const {
-        SK_ABORT("No vertex attributes");
-        static constexpr Attribute kBogus;
-        return kBogus;
-    }
-
-    virtual const Attribute& onInstanceAttribute(int i) const {
-        SK_ABORT("No instanced attributes");
-        static constexpr Attribute kBogus;
-        return kBogus;
-    }
-
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
 
-    int fVertexAttributeCnt = 0;
-    int fInstanceAttributeCnt = 0;
+    // Vertex attributes, then instance attributes
+    SkSTArray<8, const Attribute*, true> fAttributes;
+    int fVertexAttributeCount = 0;
     int fTextureSamplerCnt = 0;
     typedef GrProcessor INHERITED;
 };

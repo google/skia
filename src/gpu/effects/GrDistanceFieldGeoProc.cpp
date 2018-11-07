@@ -234,7 +234,9 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& c
     }
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
                         caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
-    this->setVertexAttributeCnt(3);
+    this->addVertexAttribute(fInPosition);
+    this->addVertexAttribute(kInColor);
+    this->addVertexAttribute(fInTextureCoords);
 
     if (numProxies) {
         fAtlasSize = proxies[0]->isize();
@@ -526,7 +528,9 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
 
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
                         caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
-    this->setVertexAttributeCnt(3);
+    this->addVertexAttribute(kInPosition);
+    this->addVertexAttribute(kInColor);
+    this->addVertexAttribute(fInTextureCoords);
 
     if (numProxies) {
         fAtlasSize = proxies[0]->isize();
@@ -568,10 +572,6 @@ void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
 GrGLSLPrimitiveProcessor*
 GrDistanceFieldPathGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldPathGeoProc();
-}
-
-const GrPrimitiveProcessor::Attribute& GrDistanceFieldPathGeoProc::onVertexAttribute(int i) const {
-    return IthAttribute(i, kInPosition, kInColor, fInTextureCoords);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -851,7 +851,9 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps&
     }
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
                         caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
-    this->setVertexAttributeCnt(3);
+    this->addVertexAttribute(fInPosition);
+    this->addVertexAttribute(kInColor);
+    this->addVertexAttribute(fInTextureCoords);
 
     if (numProxies) {
         fAtlasSize = proxies[0]->isize();
@@ -892,11 +894,6 @@ void GrDistanceFieldLCDTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps
 
 GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldLCDTextGeoProc();
-}
-
-const GrPrimitiveProcessor::Attribute& GrDistanceFieldLCDTextGeoProc::onVertexAttribute(
-        int i) const {
-    return IthAttribute(i, fInPosition, kInColor, fInTextureCoords);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

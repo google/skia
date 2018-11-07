@@ -57,7 +57,8 @@ class GrPipelineDynamicStateTestProcessor : public GrGeometryProcessor {
 public:
     GrPipelineDynamicStateTestProcessor()
             : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID) {
-        this->setVertexAttributeCnt(2);
+        this->addVertexAttribute(kVertex);
+        this->addVertexAttribute(kColor);
     }
 
     const char* name() const override { return "GrPipelineDynamicStateTest Processor"; }
@@ -67,10 +68,6 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kVertex, kColor);
-    }
-
     static constexpr Attribute kVertex =
             {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
     static constexpr Attribute kColor =

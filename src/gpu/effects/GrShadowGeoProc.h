@@ -37,10 +37,6 @@ public:
 private:
     GrRRectShadowGeoProc();
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInShadowParams);
-    }
-
     GrColor          fColor;
 
     static constexpr Attribute kInPosition =
