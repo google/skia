@@ -997,7 +997,9 @@ int SkTSect::intersects(SkTSpan* span,
                 hullResult = 1;
             }
             if (!oppSpan->fBounded || !oppSpan->fBounded->fNext) {
-                SkASSERT(!oppSpan->fBounded || oppSpan->fBounded->fBounded == span);
+                if (oppSpan->fBounded && oppSpan->fBounded->fBounded != span) {
+                    return 0;
+                }
                 if (oppStart) {
                     oppSpan->fEndT = oppSpan->fStartT;
                 } else {
