@@ -83,7 +83,14 @@ GrCCPathProcessor::GrCCPathProcessor(const GrTextureProxy* atlas,
         , fAtlasSize(atlas->isize())
         , fAtlasOrigin(atlas->origin()) {
     // TODO: Can we just assert that atlas has GrCCAtlas::kTextureOrigin and remove fAtlasOrigin?
-    this->setInstanceAttributeCnt(kNumInstanceAttribs);
+
+    this->addVertexAttribute(kEdgeNormsAttrib);
+
+    this->addInstanceAttribute(kInstanceAttribs[0]);
+    this->addInstanceAttribute(kInstanceAttribs[1]);
+    this->addInstanceAttribute(kInstanceAttribs[2]);
+    this->addInstanceAttribute(kInstanceAttribs[3]);
+
     // Check that instance attributes exactly match Instance struct layout.
     SkASSERT(!strcmp(this->instanceAttribute(0).name(), "devbounds"));
     SkASSERT(!strcmp(this->instanceAttribute(1).name(), "devbounds45"));
@@ -95,7 +102,6 @@ GrCCPathProcessor::GrCCPathProcessor(const GrTextureProxy* atlas,
     SkASSERT(this->debugOnly_instanceAttributeOffset(3) == offsetof(Instance, fColor));
     SkASSERT(this->debugOnly_instanceStride() == sizeof(Instance));
 
-    this->setVertexAttributeCnt(1);
     this->setTextureSamplerCnt(1);
 
     if (!viewMatrixIfUsingLocalCoords.invert(&fLocalMatrix)) {

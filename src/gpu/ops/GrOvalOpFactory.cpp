@@ -75,27 +75,29 @@ public:
             : INHERITED(kCircleGeometryProcessor_ClassID)
             , fLocalMatrix(localMatrix)
             , fStroke(stroke) {
-        int cnt = 3;
+        this->addVertexAttribute(kInPosition);
+        this->addVertexAttribute(kInColor);
+        this->addVertexAttribute(kInCircleEdge);
+
         if (clipPlane) {
             fInClipPlane = {"inClipPlane", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
-            ++cnt;
+            this->addVertexAttribute(fInClipPlane);
         }
         if (isectPlane) {
             fInIsectPlane = {"inIsectPlane", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
-            ++cnt;
+            this->addVertexAttribute(fInIsectPlane);
         }
         if (unionPlane) {
             fInUnionPlane = {"inUnionPlane", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
-            ++cnt;
+            this->addVertexAttribute(fInUnionPlane);
         }
         if (roundCaps) {
             SkASSERT(stroke);
             SkASSERT(clipPlane);
             fInRoundCapCenters =
                     {"inRoundCapCenters", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-            ++cnt;
+            this->addVertexAttribute(fInRoundCapCenters);
         }
-        this->setVertexAttributeCnt(cnt);
     }
 
     ~CircleGeometryProcessor() override {}
@@ -231,11 +233,6 @@ private:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthInitializedAttribute(i, kInPosition, kInColor, kInCircleEdge, fInClipPlane,
-                                       fInIsectPlane, fInUnionPlane, fInRoundCapCenters);
-    }
-
     SkMatrix fLocalMatrix;
 
     static constexpr Attribute kInPosition =
@@ -279,7 +276,10 @@ class ButtCapDashedCircleGeometryProcessor : public GrGeometryProcessor {
 public:
     ButtCapDashedCircleGeometryProcessor(const SkMatrix& localMatrix)
             : INHERITED(kButtCapStrokedCircleGeometryProcessor_ClassID), fLocalMatrix(localMatrix) {
-        this->setVertexAttributeCnt(4);
+        this->addVertexAttribute(kInPosition);
+        this->addVertexAttribute(kInColor);
+        this->addVertexAttribute(kInCircleEdge);
+        this->addVertexAttribute(kInDashParams);
     }
 
     ~ButtCapDashedCircleGeometryProcessor() override {}
@@ -488,10 +488,6 @@ private:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInCircleEdge, kInDashParams);
-    }
-
     SkMatrix fLocalMatrix;
     static constexpr Attribute kInPosition =
             {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
@@ -533,7 +529,10 @@ public:
     EllipseGeometryProcessor(bool stroke, const SkMatrix& localMatrix)
     : INHERITED(kEllipseGeometryProcessor_ClassID)
     , fLocalMatrix(localMatrix) {
-        this->setVertexAttributeCnt(4);
+        this->addVertexAttribute(kInPosition);
+        this->addVertexAttribute(kInColor);
+        this->addVertexAttribute(kInEllipseOffset);
+        this->addVertexAttribute(kInEllipseRadii);
         fStroke = stroke;
     }
 
@@ -639,10 +638,6 @@ private:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInEllipseOffset, kInEllipseRadii);
-    }
-
     static constexpr Attribute kInPosition =
             {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     static constexpr Attribute kInColor =
@@ -692,7 +687,10 @@ public:
             : INHERITED(kDIEllipseGeometryProcessor_ClassID)
             , fViewMatrix(viewMatrix) {
         fStyle = style;
-        this->setVertexAttributeCnt(4);
+        this->addVertexAttribute(kInPosition);
+        this->addVertexAttribute(kInColor);
+        this->addVertexAttribute(kInEllipseOffsets0);
+        this->addVertexAttribute(kInEllipseOffsets1);
     }
 
     ~DIEllipseGeometryProcessor() override {}
@@ -814,10 +812,6 @@ private:
 
         typedef GrGLSLGeometryProcessor INHERITED;
     };
-
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInEllipseOffsets0, kInEllipseOffsets1);
-    }
 
     static constexpr Attribute kInPosition =
             {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
