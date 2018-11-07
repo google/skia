@@ -215,10 +215,6 @@ BASE_SRCS_ALL = struct(
         "src/**/*.h",
         "src/**/*.cpp",
         "src/**/*.inc",
-
-        # Third Party
-        "third_party/gif/*.cpp",
-        "third_party/gif/*.h",
     ],
     exclude = [
         # Exclude platform-dependent files.
@@ -281,7 +277,7 @@ def codec_srcs(limited):
             "src/codec/*Png*",
             "src/codec/*Raw*.cpp",
         ]
-    return native.glob(["src/codec/*.cpp"], exclude = exclude)
+    return native.glob(["src/codec/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
 
 # Platform-dependent SRCS for google3-default platform.
 BASE_SRCS_UNIX = struct(
