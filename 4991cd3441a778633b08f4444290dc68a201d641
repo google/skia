@@ -39,6 +39,30 @@
       "revId": "4991cd3441a778633b08f4444290dc68a201d641",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1afe6436_cc116e4a",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-07T16:41:59Z",
+      "side": 1,
+      "message": "Yeah, seems to all be fine.",
+      "parentUuid": "53e32a4b_8eace506",
+      "range": {
+        "startLine": 280,
+        "startChar": 43,
+        "endLine": 280,
+        "endChar": 66
+      },
+      "revId": "4991cd3441a778633b08f4444290dc68a201d641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
