@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd02b648_d2c5f096",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-07T14:26:43Z",
+      "side": 1,
+      "message": "sk_memset32(fColorTable, 0, 256); ?\nor even sk_memset32(fColorTable, 0, SK_ARRAY_COUNT(fColorTable))",
+      "range": {
+        "startLine": 331,
+        "startChar": 0,
+        "endLine": 334,
+        "endChar": 0
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
