@@ -9,7 +9,7 @@ SkPath Reference
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='#SkPath'>SkPath</a> {
 public:
-    enum <a href='#SkPath_Direction'>Direction</a> {
+    enum <a href='#SkPath_Direction'>Direction</a> : int {
         <a href='#SkPath_kCW_Direction'>kCW_Direction</a>,
         <a href='#SkPath_kCCW_Direction'>kCCW_Direction</a>,
     };
@@ -351,7 +351,7 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkPath_Direction'>Direction</a> {
+    enum <a href='#SkPath_Direction'>Direction</a> : int {
         <a href='#SkPath_kCW_Direction'>kCW_Direction</a>,
         <a href='#SkPath_kCCW_Direction'>kCCW_Direction</a>,
     };
