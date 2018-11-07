@@ -461,7 +461,7 @@ SkFontHinting SkScalerContextRec::getHinting() const {
 
 void SkScalerContextRec::setHinting(SkFontHinting hinting) {
     fFlags = (fFlags & ~SkScalerContext::kHinting_Mask) |
-                                (hinting << SkScalerContext::kHinting_Shift);
+                        (static_cast<unsigned>(hinting) << SkScalerContext::kHinting_Shift);
 }
 
 

@@ -197,7 +197,7 @@ void SkPaint::setFilterQuality(SkFilterQuality quality) {
 }
 
 void SkPaint::setHinting(SkFontHinting hintingLevel) {
-    fBitfields.fHinting = hintingLevel;
+    fBitfields.fHinting = static_cast<unsigned>(hintingLevel);
 }
 
 void SkPaint::setFlags(uint32_t flags) {
