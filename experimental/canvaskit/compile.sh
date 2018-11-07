@@ -101,7 +101,6 @@ echo "Compiling bitcode"
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_DAA\", \"-DSK_DISABLE_READBUFFER\",
-    \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
   ] \
@@ -131,6 +130,7 @@ echo "Compiling bitcode"
   skia_enable_nvpr=false \
   skia_enable_skpicture=false \
   ${GN_NIMA} \
+  skia_enable_effect_deserialization = false \
   ${GN_GPU} \
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
