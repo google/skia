@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "354bc428_62f3d977",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T01:38:31Z",
+      "side": 1,
+      "message": "\u003e That seems a little extra tricky to me.\n\nI updated https://skia-review.googlesource.com/c/skia/+/165640 \"Have SkWuffsCodec use a SkSwizzler\" (my version) to do this. It didn\u0027t seem that tricky. Look for \"fSpySampler\" in the latest patch set.\n\n\n\u003e SkWebpAdapterCodec doesn\u0027t do anything particularly interesting.\n\nAh, I finally opened SkWebpAdapterCodec.* in my editor. It was... much shorter than I expected. :-) But because there\u0027s so little to it, I don\u0027t really understand what it does. Is it that SkWebpCodec (or libwebp??) does its own subsetting or sampling or both, and so we don\u0027t use a SkSampledCodec for WebP (or RAW)?",
+      "parentUuid": "bd619ff7_34707b33",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 69
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c395aa9_34567f54",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 2
@@ -138,6 +162,47 @@
         "endLine": 333,
         "endChar": 5
       },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d400c0e_b5a920dc",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T01:38:31Z",
+      "side": 1,
+      "message": "\u003e oSID can be called multiple times if it returns kIncompleteInput.\n\nYou obviously know the src/codec code better than I do, but I\u0027m still confused. IIUC, your recent https://skia-review.googlesource.com/c/skia/+/165526 \"Treat start(Incremental/Scanline)Decode errors as failures\" says that oSID returning kIncompleteInput means failure, not retry, right?\n\nIn SkCodec.h, the documentation comment for incrementalDecode (ID) says \"Start/continue... After the first call, should only be called again if etc\", which implies that ID can be can be called multiple times. In contrast, the documentation comment for startIncrementalDecode (SID) doesn\u0027t say anything about calling it multiple times being legitimate.\n\nI\u0027m still tempted to assume that SID is called only once, and therefore use the spy sampler approach as per https://skia-review.googlesource.com/c/skia/+/165640 \"Have SkWuffsCodec use a SkSwizzler\" (my version).",
+      "parentUuid": "0dcdc587_b9b2d66d",
+      "range": {
+        "startLine": 325,
+        "startChar": 0,
+        "endLine": 333,
+        "endChar": 5
+      },
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14a932f7_a5d742b6",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T01:38:31Z",
+      "side": 1,
+      "message": "I don\u0027t fully understand the get_scaled_dimension implementation (and how I should re-implement it in Wuffs). It says:\n\n```\nstatic inline int get_scaled_dimension(int srcDimension, int sampleSize) {\n    if (sampleSize \u003e srcDimension) {\n        return 1;\n    }\n    return srcDimension / sampleSize;\n}\n```\n\nSo, if sampleSize is 16 and the original height (srcDimension) is 5, then it will return 1. But elsewhere, SkSampler::rowNeeded is:\n\n```\nbool rowNeeded(int row) const {\n    return (row - get_start_coord(fSampleY)) % fSampleY \u003d\u003d 0;\n}\n```\n\nand get_start_coord is:\n\n```\nstatic inline int get_start_coord(int sampleFactor) { return sampleFactor / 2; };\n```\n\nSo when sampleSize or sampleFactor is 16, get_start_coord returns 8, but none of the 5 rows (in the range [0..4]) have rowNeeded return true, because only rows 8, 24, 40, 56, etc are needed. This seems inconsistent.\n\nIn another inconsistency, if the (unscaled) image instead had 30 rows, get_scaled_dimension would return 1, but there are two rows for which rowNeeded would return true: row 8 and row 24.\n\nShould get_scaled_dimension instead return 0 in the 5-row case? Does Skia allow empty (0-width and/or 0-height) images? Or should get_start_coord instead return 0 instead of (sampleFactor / 2), so that sampling a non-empty image (including 1-pixel high images) always has at least one participating row (one where rowNeeded returns true)? Furthermore, should get_scaled_dimension round up instead of round down?\n\n```\nstatic inline int get_scaled_dimension(int srcDimension, int sampleSize) {\n    return (srcDimension + sampleSize - 1) / sampleSize;\n}\n```",
       "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -444,6 +509,23 @@
       "side": 1,
       "message": "It\u0027s not currently enforced, though getSampler is private, and can only be called by friends. The way we compute sampleY in SkSampledCodec, it should never be 0. Here\u0027s where we compute it [1]:\n\n    const int sampleY \u003d subsetHeight / info.height();\n\nIt\u0027s not obvious from that line, but info.height() is the height of the output, meaning we have already sampled and/or subsetted as necessary. subsetHeight takes into account subsetting, but not sampling, so it will always be bigger than info.height(), so sampleY will be at least one.\n\n(Not to say that I don\u0027t think we should enforce it; just that I don\u0027t think we currently have an issue.)\n\n[1] https://skia.googlesource.com/skia.git/+/32526b5cb0e3ad65610f3be68f9e54ae1f0cd88a/src/codec/SkSampledCodec.cpp#208",
       "parentUuid": "e6df0841_a914c22f",
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "970ab650_e31a9a13",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T01:38:31Z",
+      "side": 1,
+      "message": "When would (dstY \u003e\u003d scaledHeight)? Or is this a paranoid defensive check??\n\nOr is this something like, even without sampling, you can pass in a dstInfo smaller than the underlying image file\u0027s dimensions, and we automatically crop (without buffer overflow). But if that\u0027s the case, shouldn\u0027t we do this regardless of whether (sampleY !\u003d 1)?",
       "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
