@@ -176,12 +176,16 @@ private:
         }                            \
     } while (0)
 
-// SK_DO_NOT_REGISTER_NONGPU_UNIT_TESTS is experimental and does not work with
-// compilers that don't understand `__attribute__ ((unused))`.
 #ifdef SK_DO_NOT_REGISTER_NONGPU_UNIT_TESTS
-#define DEF_TEST(name, reporter)                                                        \
-    __attribute__ ((unused))                                                            \
-    static void test_##name(skiatest::Reporter* reporter, const GrContextOptions&)
+namespace skiatest {
+struct NonRegister {
+    NonRegister(TestProc) {}
+};
+}
+#define DEF_TEST(name, reporter)                                                \
+    static void test_##name(skiatest::Reporter*, const GrContextOptions&);      \
+    static skiatest::NonRegister name##_NonTestRegistry(test_##name);           \
+    void test_##name(skiatest::Reporter* reporter, const GrContextOptions&)
 #else
 #define DEF_TEST(name, reporter)                                                          \
     static void test_##name(skiatest::Reporter*, const GrContextOptions&);                \
