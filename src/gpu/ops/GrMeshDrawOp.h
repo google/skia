@@ -26,6 +26,19 @@ public:
     /** Abstract interface that represents a destination for a GrMeshDrawOp. */
     class Target;
 
+    /**
+     * Helpers for writing vertex data to a buffer.
+     */
+    template <typename T, typename... Args>
+    static void* SK_WARN_UNUSED_RESULT writeVertexData(void* verts, const T& val,
+                                                       const Args&... remainder) {
+        static_assert(!std::is_array<T>::value, "Passing arrays will produce wrong size");
+        memcpy(verts, &val, sizeof(T));
+        return writeVertexData((char*)verts + sizeof(T), remainder...);
+    }
+
+    static void* SK_WARN_UNUSED_RESULT writeVertexData(void* verts) { return verts; }
+
 protected:
     GrMeshDrawOp(uint32_t classID);
 
