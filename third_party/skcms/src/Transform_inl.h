@@ -1220,12 +1220,11 @@ static void run_program(const Op* program, const void** arguments,
         n -= N;
     }
     if (n > 0) {
-        char tmp_src[4*4*N] = {0},
-             tmp_dst[4*4*N] = {0};
+        char tmp[4*4*N] = {0};
 
-        memcpy(tmp_src, (const char*)src + (size_t)i*src_bpp, (size_t)n*src_bpp);
-        exec_ops(program, arguments, tmp_src, tmp_dst, 0);
-        memcpy((char*)dst + (size_t)i*dst_bpp, tmp_dst, (size_t)n*dst_bpp);
+        memcpy(tmp, (const char*)src + (size_t)i*src_bpp, (size_t)n*src_bpp);
+        exec_ops(program, arguments, tmp, tmp, 0);
+        memcpy((char*)dst + (size_t)i*dst_bpp, tmp, (size_t)n*dst_bpp);
     }
 }
 
