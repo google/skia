@@ -13,6 +13,12 @@
 #include "SkWebpEncoder.h"
 #include "SkStream.h"
 
+// Like other Benchmark subclasses, Encoder benchmarks are run by:
+// nanobench --match ^Encode_
+//
+// There is no corresponding DecodeBench class. Decoder benchmarks are run by:
+// nanobench --benchType skcodec --images your_images_directory
+
 class EncodeBench : public Benchmark {
 public:
     using Encoder = bool (*)(SkWStream*, const SkPixmap&);
