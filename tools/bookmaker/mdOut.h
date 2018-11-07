@@ -45,9 +45,159 @@ private:
         MarkType fMarkType;
     };
 
+    struct DefinedState {
+        DefinedState(const MdOut& mdOut, const char* refStart, const char* refEnd,
+                Resolvable resolvable)
+            : fBmhParser(&mdOut.fBmhParser)
+            , fNames(mdOut.fNames)
+            , fGlobals(&mdOut.fBmhParser.fGlobalNames)
+            , fLastDef(mdOut.fLastDef)
+            , fMethod(mdOut.fMethod)
+            , fSubtopic(mdOut.fSubtopic)
+            , fRoot(mdOut.fRoot)
+            , fRefStart(refStart)
+            , fRefEnd(refEnd)
+            , fResolvable(resolvable)
+            , fInProgress(mdOut.fInProgress) {
+            TextParser matrixParser(fLastDef->fFileName, refStart, refEnd, fLastDef->fLineCount);
+            const char* bracket = matrixParser.anyOf("|=\n");
+            fInMatrix = bracket && ('|' == bracket[0] || '=' == bracket[0]);
+        }
+
+        void backup() {
+            fPriorWord = fBack2Word;
+            fPriorLink = "";
+            fPriorSeparator = "";
+            fSeparator = fBack2Separator;
+        }
+
+        bool findEnd(const char* start) {
+            do {
+                while (fEnd < fRefEnd && (isalnum(fEnd[0]) || '-' == fEnd[0] || '_' == fEnd[0])) {
+                    ++fEnd;
+                }
+                if (fEnd + 1 >= fRefEnd || '/' != fEnd[0] || start == fEnd || !isalpha(fEnd[-1])
+                        || !isalpha(fEnd[1])) {
+                    break;  // stop unless pattern is xxx/xxx as in I/O
+                }
+                ++fEnd; // skip slash
+            } while (true);
+            while (start != fEnd && '-' == fEnd[-1]) {
+                --fEnd;
+            }
+            return start == fEnd;
+        }
+
+        bool findLink(string ref, string* linkPtr, bool addParens);
+        bool findLink(string ref, string* linkPtr, unordered_map<string, Definition*>& map);
+        bool hasWordSpace(string wordSpace) const;
+        void setLink();
+
+        string nextSeparator(const char* start) {
+            fBack2Separator = fPriorSeparator;
+            fPriorSeparator = fSeparator;
+            fEnd = start;
+            return fBack2Separator;
+        }
+
+        const char* nextWord() {
+            fBack2Word = fPriorWord;
+            fPriorWord = fWord;
+            fPriorLink = fLink;
+            return fEnd;
+        }
+
+        bool phraseContinues(string phrase, string* priorWord, string* priorLink) const;
+
+        void setLower() {
+            fAddParens = false;
+            bool allLower = std::all_of(fWord.begin(), fWord.end(), [](char c) {
+                return islower(c);
+            });
+            bool hasParens = fEnd + 2 <= fRefEnd && "()" == string(fEnd, 2);
+            if (hasParens) {
+                if (allLower) {
+                    fWord += "()";
+                    fEnd += 2;
+                }
+            } else if (allLower) {
+                fAddParens = true;
+            }
+        }
+
+        bool setPriorSpaceWord(const char** startPtr) {
+            if (!fPriorSpace) {
+                return false;
+            }
+            string phrase = fPriorWord + fWord;
+            if (this->phraseContinues(phrase, &fPriorWord, &fPriorLink)) {
+                *startPtr = fEnd;
+                return true;
+            }
+            fPriorWord = fPriorWord.substr(0, fPriorWord.length() - 1);
+            return false;
+        }
+
+        void skipParens() {
+            if ("()" == fSeparator.substr(0, 2)) {
+                string funcRef = fPriorWord + "()";
+                if (this->findLink(funcRef, &fPriorLink, false)) {
+                    fPriorWord = funcRef;
+                    fSeparator = fSeparator.substr(2);
+                }
+            }
+        }
+
+        const char* skipWhiteSpace() {
+            const char* start = fSeparatorStart;
+            bool whiteSpace = start < fRefEnd && ' ' >= start[0];
+            while (start < fRefEnd && !isalpha(start[0])) {
+                whiteSpace &= ' ' >= start[0];
+                ++start;
+            }
+            fPriorSpace = false;
+            fSeparator = string(fSeparatorStart, start - fSeparatorStart);
+            if ("" != fPriorWord && whiteSpace) {
+                string wordSpace = fPriorWord + ' ';
+                if (this->hasWordSpace(wordSpace)) {
+                    fPriorWord = wordSpace;
+                    fPriorSpace = true;
+                }
+            }
+            return start;
+        }
+
+        string fRef;
+        string fBack2Word;
+        string fBack2Separator;
+        string fPriorWord;
+        string fPriorLink;
+        string fPriorSeparator;
+        string fWord;
+        string fLink;
+        string fSeparator;
+        string fMethodName;
+        BmhParser* fBmhParser;
+        const NameMap* fNames;
+        const NameMap* fGlobals;
+        const Definition* fLastDef;
+        const Definition* fMethod;
+        const Definition* fSubtopic;
+        const Definition* fPriorDef;
+        const RootDefinition* fRoot;
+        const char* fSeparatorStart;
+        const char* fRefStart;
+        const char* fRefEnd;
+        const char* fEnd;
+        Resolvable fResolvable;
+        bool fAddParens;
+        bool fInMatrix;
+        bool fInProgress;
+        bool fPriorSpace;
+    };
+
     void addCodeBlock(const Definition* def, string& str) const;
     void addPopulators();
-    string addIncludeReferences(const char* refStart, const char* refEnd);
     string addReferences(const char* start, const char* end, Resolvable );
     string anchorDef(string def, string name);
     string anchorLocalRef(string ref, string name);
@@ -57,23 +207,19 @@ private:
     Definition* checkParentsForMatch(Definition* test, string ref) const;
     void childrenOut(Definition* def, const char* contentStart);
     Definition* csParent();
-    bool findLink(string ref, string* link);
-    Definition* findParamType();
+    const Definition* findParamType();
     string getMemberTypeName(const Definition* def, string* memberType);
     static bool HasDetails(const Definition* def);
-    bool hasWordSpace(string ) const;
     void htmlOut(string );
-    Definition* isDefined(const TextParser& , string ref, Resolvable );
-    Definition* isDefinedByParent(RootDefinition* root, string ref);
+    bool isDefined(DefinedState& s);
+    const Definition* isDefined(const TextParser& , Resolvable );
     string linkName(const Definition* ) const;
-    string linkRef(string leadingSpaces, Definition*, string ref, Resolvable );
     void markTypeOut(Definition* , const Definition** prior);
     void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); }
     void mdHeaderOutLF(int depth, int lf);
     void parameterHeaderOut(TextParser& paramParser, const Definition** prior, Definition* def);
     void parameterTrailerOut();
     bool parseFromFile(const char* path) override { return true; }
-    bool phraseContinues(string phrase, string* priorWord, string* priorLink) const;
     void populateOne(Definition* def,
             unordered_map<string, RootDefinition::SubtopicContents>& populator);
     void populateTables(const Definition* def, RootDefinition* );
