@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ddd8e43_1326ec0c",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-07T21:54:16Z",
+      "side": 1,
+      "message": "Probably a \u0027W\u0027 if it\u0027s static.",
+      "range": {
+        "startLine": 33,
+        "startChar": 39,
+        "endLine": 33,
+        "endChar": 40
+      },
+      "revId": "82cdbcb7d510c585add1af389b4134a715c299df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d959c54_82fe1475",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-07T21:54:16Z",
+      "side": 1,
+      "message": "Are there any others we want to add here to start out strong and safe, like std::is_trivially_copyable\u003cT\u003e or alignof(T) \u003d\u003d 4?   !std:is_pointer?",
+      "revId": "82cdbcb7d510c585add1af389b4134a715c299df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac2b5a45_f893236c",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-07T21:54:16Z",
+      "side": 1,
+      "message": "Oh, man, the way this recursion handles the return value is beautiful.",
+      "revId": "82cdbcb7d510c585add1af389b4134a715c299df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
