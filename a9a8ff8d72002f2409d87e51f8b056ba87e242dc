@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "776c2773_f2f09a13",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-07T19:31:56Z",
+      "side": 1,
+      "message": "Sorry I changed this. You probably want to restore your original commit message?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 12
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cde767c7_2ffef30d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-07T19:31:56Z",
+      "side": 1,
+      "message": "nit: this-\u003esetSampleY(1)",
+      "range": {
+        "startLine": 275,
+        "startChar": 4,
+        "endLine": 275,
+        "endChar": 14
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae582ff6_a9a48d1d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-07T19:31:56Z",
+      "side": 1,
+      "message": "No, the image width is correct. (SkSwizzler records this as fDstWidth and performs the same calculation.)",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 66
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fd02b648_d2c5f096",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 8
@@ -18,6 +87,29 @@
         "startChar": 0,
         "endLine": 334,
         "endChar": 0
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "919e233c_435a0107",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-07T19:31:56Z",
+      "side": 1,
+      "message": "This is so that fillWidth will be correct? FWIW, I don\u0027t think SpySampler\u0027s fillWidth() will ever be called.",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 479,
+        "endChar": 52
       },
       "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
