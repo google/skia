@@ -11,7 +11,6 @@
 #include "SkPDFCanon.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFUtils.h"
-#include "SkPaint.h"
 #include "SkTo.h"
 
 static const char* as_pdf_blend_mode_name(SkBlendMode mode) {
@@ -20,24 +19,22 @@ static const char* as_pdf_blend_mode_name(SkBlendMode mode) {
     return name;
 }
 
-static int to_stroke_cap(uint8_t cap) {
+static int to_stroke_cap(SkPaint::Cap cap) {
     // PDF32000.book section 8.4.3.3 "Line Cap Style"
-    switch ((SkPaint::Cap)cap) {
-        case SkPaint::kButt_Cap:   return 0;
-        case SkPaint::kRound_Cap:  return 1;
-        case SkPaint::kSquare_Cap: return 2;
-        default: SkASSERT(false);  return 0;
-    }
+    static_assert((int)SkPaint::kButt_Cap   == 0, "");
+    static_assert((int)SkPaint::kRound_Cap  == 1, "");
+    static_assert((int)SkPaint::kSquare_Cap == 2, "");
+    SkASSERT((unsigned)cap < 3);
+    return (int)cap;
 }
 
-static int to_stroke_join(uint8_t join) {
+static int to_stroke_join(SkPaint::Join join) {
     // PDF32000.book section 8.4.3.4 "Line Join Style"
-    switch ((SkPaint::Join)join) {
-        case SkPaint::kMiter_Join: return 0;
-        case SkPaint::kRound_Join: return 1;
-        case SkPaint::kBevel_Join: return 2;
-        default: SkASSERT(false);  return 0;
-    }
+    static_assert((int)SkPaint::kMiter_Join == 0, "");
+    static_assert((int)SkPaint::kRound_Join == 1, "");
+    static_assert((int)SkPaint::kBevel_Join == 2, "");
+    SkASSERT((unsigned)join < 3);
+    return (int)join;
 }
 
 // If a SkXfermode is unsupported in PDF, this function returns
@@ -72,8 +69,8 @@ sk_sp<SkPDFDict> SkPDFGraphicState::GetGraphicStateForPaint(SkPDFCanon* canon,
             p.getStrokeWidth(),
             p.getStrokeMiter(),
             p.getColor4f().fA,
-            SkToU8(p.getStrokeCap()),
-            SkToU8(p.getStrokeJoin()),
+            p.getStrokeCap(),
+            p.getStrokeJoin(),
             pdf_blend_mode(p.getBlendMode())
         };
         auto& sMap = canon->fStrokeGSMap;

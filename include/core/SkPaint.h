@@ -567,7 +567,7 @@ public:
     /** \enum SkPaint::Cap
         Cap draws at the beginning and end of an open path contour.
     */
-    enum Cap {
+    enum Cap : uint8_t {
         kButt_Cap,                  //!< no stroke extension
         kRound_Cap,                 //!< adds circle
         kSquare_Cap,                //!< adds square

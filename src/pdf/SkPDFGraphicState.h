@@ -4,14 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef SkPDFGraphicState_DEFINED
 #define SkPDFGraphicState_DEFINED
 
 #include "SkMacros.h"
 #include "SkOpts.h"
 #include "SkPDFTypes.h"
+#include "SkPaint.h"
 
 class SkPaint;
 class SkPDFCanon;
@@ -46,13 +45,16 @@ namespace SkPDFGraphicState {
     sk_sp<SkPDFStream> MakeInvertFunction();
 }
 
+static_assert(sizeof(SkPaint::Cap)  == sizeof(uint8_t), "");
+static_assert(sizeof(SkPaint::Join) == sizeof(uint8_t), "");
+
 SK_BEGIN_REQUIRE_DENSE
 struct SkPDFStrokeGraphicState {
     SkScalar fStrokeWidth;
     SkScalar fStrokeMiter;
     SkScalar fAlpha;
-    uint8_t fStrokeCap;   // SkPaint::Cap
-    uint8_t fStrokeJoin;  // SkPaint::Join
+    SkPaint::Cap fStrokeCap;
+    SkPaint::Join fStrokeJoin;
     uint8_t fBlendMode;   // SkBlendMode
     uint8_t fPADDING = 0;
     bool operator==(const SkPDFStrokeGraphicState& o) const { return !memcmp(this, &o, sizeof(o)); }
