@@ -24,6 +24,7 @@ skia_use_lua = false
 skia_use_piex = false
 skia_skqp_enable_driver_correctness_workarounds = {enable_workarounds}
 skia_tools_require_resources = true
+extra_cflags = [ "-DSK_DO_NOT_REGISTER_NONGPU_UNIT_TESTS" ]
 '''
 
 def parse_args():
