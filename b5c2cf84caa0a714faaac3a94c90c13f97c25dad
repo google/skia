@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a88c780a_f57fe6fd",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-11-07T16:38:44Z",
+      "side": 1,
+      "message": "This will be removed in a later change?",
+      "range": {
+        "startLine": 278,
+        "startChar": 12,
+        "endLine": 278,
+        "endChar": 33
+      },
+      "revId": "b5c2cf84caa0a714faaac3a94c90c13f97c25dad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
