@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "312b5fb5_003b2a40",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieAnimation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-11-07T15:14:28Z",
+      "side": 1,
+      "message": "done.",
+      "parentUuid": "3eb50a41_0c0aa03a",
+      "range": {
+        "startLine": 5,
+        "startChar": 17,
+        "endLine": 5,
+        "endChar": 33
+      },
+      "revId": "b602f2acbad1c562484bb53122beaa694160b7a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74df6264_8df29ad5",
         "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieAnimation.java",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "b602f2acbad1c562484bb53122beaa694160b7a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0500750d_d86150b6",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieAnimation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-11-07T15:14:28Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "74df6264_8df29ad5",
+      "range": {
+        "startLine": 40,
+        "startChar": 20,
+        "endLine": 40,
+        "endChar": 30
+      },
+      "revId": "b602f2acbad1c562484bb53122beaa694160b7a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
