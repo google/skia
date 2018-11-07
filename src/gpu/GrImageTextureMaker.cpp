@@ -98,11 +98,10 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
                                                         filterOrNullForBicubic);
     }
 
-    // Check to see if the client has given us pre-mipped textures
+    // Check to see if the client has given us pre-mipped textures or we can generate them
     // If not, fall back to bilerp
-    // TODO: investigate flattening the image and generating miplevels
     GrSamplerState::Filter filter = *filterOrNullForBicubic;
-    if (GrSamplerState::Filter::kMipMap == filter && !fImage->canBeMipmapped(fContext)) {
+    if (GrSamplerState::Filter::kMipMap == filter && !fImage->setupMipmapsForPlanes()) {
         filter = GrSamplerState::Filter::kBilerp;
     }
 
@@ -110,4 +109,3 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
                                   fImage->fYUVColorSpace, filter);
 
 }
-

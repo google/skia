@@ -56,7 +56,7 @@ SkImageInfo SkImage_GpuYUVA::onImageInfo() const {
                              fAlphaType, fColorSpace);
 }
 
-bool SkImage_GpuYUVA::canBeMipmapped(GrContext* context) const {
+bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
     int numTextures;
     if (!SkYUVAIndex::AreValidIndices(fYUVAIndices, &numTextures)) {
         return false;
@@ -69,7 +69,11 @@ bool SkImage_GpuYUVA::canBeMipmapped(GrContext* context) const {
                                                     fProxies[i].get(),
                                                     GrSamplerState::Filter::kMipMap,
                                                     &copyParams)) {
-            return false;
+            auto mippedProxy = GrCopyBaseMipMapToTextureProxy(fContext.get(), fProxies[i].get());
+            if (!mippedProxy) {
+                return false;
+            }
+            fProxies[i] = mippedProxy;
         }
     }
     return true;
