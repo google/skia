@@ -29,6 +29,25 @@ source_set("skottie") {
 }
 
 if (defined(is_skia_standalone)) {
+  config("utils_config") {
+    include_dirs = [ "utils" ]
+  }
+  source_set("utils") {
+    if (skia_enable_skottie) {
+      testonly = true
+
+      public_configs = [ ":utils_config" ]
+      configs += [ "../../:skia_private" ]
+      sources = [
+        "utils/SkottieUtils.cpp",
+      ]
+      deps = [
+        ":skottie",
+        "../..:skia",
+      ]
+    }
+  }
+
   source_set("tests") {
     if (skia_enable_skottie) {
       testonly = true
@@ -83,6 +102,7 @@ if (defined(is_skia_standalone)) {
 
     public_deps = [
       ":skottie",
+      ":utils",
     ]
   }
 
@@ -100,6 +120,7 @@ if (defined(is_skia_standalone)) {
 
       deps = [
         ":skottie",
+        ":utils",
         "../..:gpu_tool_utils",
         "../..:skia",
         "../..:tool_utils",
