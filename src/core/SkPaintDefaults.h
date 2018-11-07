@@ -25,7 +25,7 @@
 #endif
 
 #ifndef SkPaintDefaults_Hinting
-    #define SkPaintDefaults_Hinting         kNormal_SkFontHinting
+    #define SkPaintDefaults_Hinting         SkPaint::kNormal_Hinting
 #endif
 
 #ifndef SkPaintDefaults_MiterLimit

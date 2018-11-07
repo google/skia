@@ -359,20 +359,20 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('H', "Paint", "Hinting mode", [this]() {
         if (!fPaintOverrides.fHinting) {
             fPaintOverrides.fHinting = true;
-            fPaint.setHinting(kNo_SkFontHinting);
+            fPaint.setHinting(SkPaint::kNo_Hinting);
         } else {
-            switch ((SkFontHinting)fPaint.getHinting()) {
-                case kNo_SkFontHinting:
-                    fPaint.setHinting(kSlight_SkFontHinting);
+            switch (fPaint.getHinting()) {
+                case SkPaint::kNo_Hinting:
+                    fPaint.setHinting(SkPaint::kSlight_Hinting);
                     break;
-                case kSlight_SkFontHinting:
-                    fPaint.setHinting(kNormal_SkFontHinting);
+                case SkPaint::kSlight_Hinting:
+                    fPaint.setHinting(SkPaint::kNormal_Hinting);
                     break;
-                case kNormal_SkFontHinting:
-                    fPaint.setHinting(kFull_SkFontHinting);
+                case SkPaint::kNormal_Hinting:
+                    fPaint.setHinting(SkPaint::kFull_Hinting);
                     break;
-                case kFull_SkFontHinting:
-                    fPaint.setHinting(kNo_SkFontHinting);
+                case SkPaint::kFull_Hinting:
+                    fPaint.setHinting(SkPaint::kNo_Hinting);
                     fPaintOverrides.fHinting = false;
                     break;
             }
@@ -710,17 +710,17 @@ void Viewer::updateTitle() {
               "Force Autohint", "No Force Autohint");
 
     if (fPaintOverrides.fHinting) {
-        switch ((SkFontHinting)fPaint.getHinting()) {
-            case kNo_SkFontHinting:
+        switch (fPaint.getHinting()) {
+            case SkPaint::kNo_Hinting:
                 paintTitle.append("No Hinting");
                 break;
-            case kSlight_SkFontHinting:
+            case SkPaint::kSlight_Hinting:
                 paintTitle.append("Slight Hinting");
                 break;
-            case kNormal_SkFontHinting:
+            case SkPaint::kNormal_Hinting:
                 paintTitle.append("Normal Hinting");
                 break;
-            case kFull_SkFontHinting:
+            case SkPaint::kFull_Hinting:
                 paintTitle.append("Full Hinting");
                 break;
         }
@@ -1614,17 +1614,17 @@ void Viewer::drawImGui() {
             if (ImGui::CollapsingHeader("Paint")) {
                 int hintingIdx = 0;
                 if (fPaintOverrides.fHinting) {
-                    hintingIdx = static_cast<unsigned>(fPaint.getHinting()) + 1;
+                    hintingIdx = fPaint.getHinting() + 1;
                 }
                 if (ImGui::Combo("Hinting", &hintingIdx,
                                  "Default\0None\0Slight\0Normal\0Full\0\0"))
                 {
                     if (hintingIdx == 0) {
                         fPaintOverrides.fHinting = false;
-                        fPaint.setHinting(kNo_SkFontHinting);
+                        fPaint.setHinting(SkPaint::kNo_Hinting);
                     } else {
                         fPaintOverrides.fHinting = true;
-                        SkFontHinting hinting = SkTo<SkFontHinting>(hintingIdx - 1);
+                        SkPaint::Hinting hinting = SkTo<SkPaint::Hinting>(hintingIdx - 1);
                         fPaint.setHinting(hinting);
                     }
                     paramsChanged = true;
