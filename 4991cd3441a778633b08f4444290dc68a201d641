@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5543d791_f0bff9ad",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-11-07T16:41:11Z",
+      "side": 1,
+      "message": "Maybe this should be modified to exclude gif?",
+      "revId": "4991cd3441a778633b08f4444290dc68a201d641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53e32a4b_8eace506",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-11-07T16:41:11Z",
+      "side": 1,
+      "message": "Does it compile without the .h listed in srcs?",
+      "range": {
+        "startLine": 280,
+        "startChar": 43,
+        "endLine": 280,
+        "endChar": 66
+      },
+      "revId": "4991cd3441a778633b08f4444290dc68a201d641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
