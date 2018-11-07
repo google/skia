@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "fec84426_f4d82e09",
+        "filename": "bench/DecodeBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-07T19:45:56Z",
+      "side": 1,
+      "message": "Sorry, you need \"--benchtype skcodec\" instead of \"--match Codec\".",
+      "parentUuid": "60c86eb0_9f201d56",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 17
+      },
+      "revId": "51439015b41a495b3f36fa18e8eac669ef7d42c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "052809ac_28015086",
         "filename": "bench/DecodeBench.cpp",
         "patchSetId": 1
