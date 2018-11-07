@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ddfabcda_3864763e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T23:43:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "776c2773_f2f09a13",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 12
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cde767c7_2ffef30d",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc8a7570_8ebe572c",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T23:43:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cde767c7_2ffef30d",
+      "range": {
+        "startLine": 275,
+        "startChar": 4,
+        "endLine": 275,
+        "endChar": 14
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1ab815c6_7bef7cff",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T23:43:28Z",
+      "side": 1,
+      "message": "TODO comment deleted.",
+      "parentUuid": "ae582ff6_a9a48d1d",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 66
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fd02b648_d2c5f096",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 8
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "b71541f6_b413880e",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T23:43:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd02b648_d2c5f096",
+      "range": {
+        "startLine": 331,
+        "startChar": 0,
+        "endLine": 334,
+        "endChar": 0
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "919e233c_435a0107",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 8
@@ -105,6 +201,30 @@
       "writtenOn": "2018-11-07T19:31:56Z",
       "side": 1,
       "message": "This is so that fillWidth will be correct? FWIW, I don\u0027t think SpySampler\u0027s fillWidth() will ever be called.",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 479,
+        "endChar": 52
+      },
+      "revId": "a9a8ff8d72002f2409d87e51f8b056ba87e242dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b2db553_abafc78c",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-07T23:43:28Z",
+      "side": 1,
+      "message": "Yeah, it\u0027s so that fillWidth will be correct. It might not ever be called, but it\u0027s easy to do, and I wasn\u0027t 100% sure if it won\u0027t ever be called. For example, SkCodec::fillIncompleteImage calls getSampler(false) followed by sampler-\u003efillWidth().\n\nIn any case, I added a comment here, and updated getSampler to sometimes return nullptr. PTAL.",
+      "parentUuid": "919e233c_435a0107",
       "range": {
         "startLine": 478,
         "startChar": 0,
