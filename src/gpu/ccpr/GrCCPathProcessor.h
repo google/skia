@@ -91,8 +91,6 @@ public:
                    const SkRect& bounds) const;
 
 private:
-    const Attribute& onVertexAttribute(int i) const override { return kEdgeNormsAttrib; }
-    const Attribute& onInstanceAttribute(int i) const override { return kInstanceAttribs[i]; }
     const TextureSampler& onTextureSampler(int) const override { return fAtlasAccess; }
 
     const TextureSampler fAtlasAccess;

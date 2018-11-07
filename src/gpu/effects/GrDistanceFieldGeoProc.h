@@ -106,10 +106,6 @@ private:
 #endif
                                  uint32_t flags, const SkMatrix& localMatrix);
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, fInPosition, kInColor, fInTextureCoords);
-    }
-
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     TextureSampler   fTextureSamplers[kMaxTextures];
@@ -174,7 +170,6 @@ private:
                                int numActiveProxies,
                                const GrSamplerState&, uint32_t flags);
 
-    const Attribute& onVertexAttribute(int i) const override;
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     SkMatrix         fMatrix;     // view matrix if perspective, local matrix otherwise
@@ -252,7 +247,6 @@ private:
                                   int numActiveProxies, const GrSamplerState& params,
                                   DistanceAdjust wa, uint32_t flags, const SkMatrix& localMatrix);
 
-    const Attribute& onVertexAttribute(int) const override;
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     TextureSampler   fTextureSamplers[kMaxTextures];
