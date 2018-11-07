@@ -42,14 +42,6 @@ steps:
     args: ['make', 'release_ci']
     timeout: 600s
 
-  - name: 'gcr.io/skia-public/infra:prod'
-    dir: '/home/skia/golib/src/go.skia.org/infra/jsfiddle'
-    env:
-      - 'ROOT=/workspace/__jsfiddle_staging'
-      - 'SKIP_BUILD=1'
-    args: ['make', 'release']
-    timeout: 600s
-
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA', '/workspace/__fiddler_staging']
     timeout: 600s
@@ -61,15 +53,10 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA', '/workspace/__debugger_staging']
     timeout: 600s
-
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA', '/workspace/__jsfiddle_staging']
-    timeout: 600s
 images:
   - 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA'
-  - 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skia-release:prod'
   - 'gcr.io/$PROJECT_ID/skia-wasm-release:prod'
 timeout: 7200s
