@@ -1,5 +1,5 @@
 # Dockerfile for building the WASM libraries used by jsfiddle.skia.org
-FROM gcr.io/skia-public/emsdk-release:prod
+FROM gcr.io/skia-public/emsdk-release:prod as builder
 
 RUN cd /tmp \
   && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' \
@@ -16,3 +16,23 @@ RUN /tmp/skia/skia/modules/pathkit/compile.sh
 
 # CanvasKit should be in /tmp/skia/skia/out/canvaskit_wasm
 RUN /tmp/skia/skia/experimental/canvaskit/compile.sh
+
+RUN cd /tmp/skia/skia && git rev-parse HEAD > /tmp/VERSION
+
+#############################################################################
+# Multi-stage build part 2, in which we only have the compiled results and
+# a VERSION in /tmp
+# See https://docs.docker.com/develop/develop-images/multistage-build/
+#############################################################################
+
+FROM alpine:latest
+
+WORKDIR /tmp/
+
+RUN mkdir /tmp/pathkit /tmp/canvaskit
+
+COPY --from=builder /tmp/VERSION /tmp/VERSION
+
+COPY --from=builder /tmp/skia/skia/out/pathkit/pathkit* /tmp/pathkit/
+
+COPY --from=builder /tmp/skia/skia/out/canvaskit_wasm/canvaskit* /tmp/canvaskit/
