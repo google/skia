@@ -22,6 +22,30 @@
       "revId": "475630b05e97bea3d21a135860c45e85b23f099d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36a29248_196cc28b",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 6135
+      },
+      "writtenOn": "2018-11-07T16:49:44Z",
+      "side": 1,
+      "message": "(Just noting here that for repeating CSS gradients, this is the behavior defined for \"narrow\" gradients: https://drafts.csswg.org/css-images/#repeating-gradients after the images/examples; see also https://drafts.csswg.org/css-images/#degenerate-radials for some related bits.)",
+      "parentUuid": "dbe11475_39268a72",
+      "range": {
+        "startLine": 758,
+        "startChar": 28,
+        "endLine": 758,
+        "endChar": 50
+      },
+      "revId": "475630b05e97bea3d21a135860c45e85b23f099d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
