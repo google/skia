@@ -275,6 +275,24 @@
     },
     {
       "key": {
+        "uuid": "66b72725_d7b894f7",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-08T00:56:51Z",
+      "side": 1,
+      "message": "Thanks for the explanation.\n\nI think we\u0027ll go with this (sampling Wuffs/GIF via SkSampledCodec) for now, in the mirror CL: https://skia-review.googlesource.com/c/skia/+/165640 \"Have SkWuffsCodec use a SkSwizzler\" (my version).\n\nIn the future, I\u0027d like Wuffs to have its own subsetting and sampling. I think I\u0027ll go with, IIUC, an API similar to libwebp\u0027s, in which you pass dst dimensions (which differ from src dimensions) instead of an explicit (integer only) sampling factor. That should bypass this whole \"should get_start_coord return 0 or sampleSize/2; should get_scaled_dimension round up or down\" discussion. It will mean that the (to be written) SkWuffsAdapterCodec won\u0027t give exactly the same scaled pixels as a SkSampledCodec, but if that\u0027s OK for WebP, I think that\u0027ll be OK for GIF.",
+      "parentUuid": "971e9a3f_04eab5dd",
+      "revId": "8a250dc152e4a93801f77cbcb19c2e490656b67b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "61615f4a_44cc74d0",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 2
