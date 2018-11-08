@@ -70,7 +70,7 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
     font.setTypeface(tf);
     font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
     font.setStyle(SkPaint::kFill_Style);
-    font.setHinting(SkPaint::kNormal_Hinting);
+    font.setHinting(kNormal_SkFontHinting);
     font.setTextSize(1u);
     font.setAntiAlias(true);
     font.setSubpixelText(true);
@@ -432,7 +432,7 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     paint.setTextSize(96);
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
     paint.setStyle(SkPaint::kFill_Style);
-    paint.setHinting(SkPaint::kNormal_Hinting);
+    paint.setHinting(kNormal_SkFontHinting);
 
     paint.setTypeface(targetTf);
 

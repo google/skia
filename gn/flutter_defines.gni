@@ -13,6 +13,10 @@ flutter_defines = [
   "SK_DISABLE_AAA",
   "SK_DISABLE_DAA",
 
+  # API staging
+  "SK_SUPPORT_LEGACY_NONCLASS_HINTINGENUM",
+  "SK_SUPPORT_LEGACY_NESTED_HINTINGENUM",
+
   # Flutter doesn't deserialize anything.
   "SK_DISABLE_READBUFFER",
   "SK_DISABLE_EFFECT_DESERIALIZATION",
