@@ -1187,10 +1187,6 @@ private:
             SkScalar fHalfPlanes[3][3];
         };
 
-        int numPlanes = (int)fClipPlane + fClipPlaneIsect + fClipPlaneUnion;
-        auto vertexCapCenters = [numPlanes](CircleVertex* v) {
-            return (void*)(v->fHalfPlanes + numPlanes);
-        };
         size_t vertexStride = sizeof(CircleVertex) - (fClipPlane ? 0 : 3 * sizeof(SkScalar)) -
                               (fClipPlaneIsect ? 0 : 3 * sizeof(SkScalar)) -
                               (fClipPlaneUnion ? 0 : 3 * sizeof(SkScalar)) +
@@ -1199,7 +1195,7 @@ private:
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        char* vertices = (char*)target->makeVertexSpace(vertexStride, fVertCount, &vertexBuffer,
+        void* vertices = (char*)target->makeVertexSpace(vertexStride, fVertCount, &vertexBuffer,
                                                         &firstVertex);
         if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
@@ -1222,21 +1218,11 @@ private:
             GrColor color = circle.fColor.toBytes_RGBA();
             const SkRect& bounds = circle.fDevBounds;
 
-            CircleVertex* v0 = reinterpret_cast<CircleVertex*>(vertices + 0 * vertexStride);
-            CircleVertex* v1 = reinterpret_cast<CircleVertex*>(vertices + 1 * vertexStride);
-            CircleVertex* v2 = reinterpret_cast<CircleVertex*>(vertices + 2 * vertexStride);
-            CircleVertex* v3 = reinterpret_cast<CircleVertex*>(vertices + 3 * vertexStride);
-            CircleVertex* v4 = reinterpret_cast<CircleVertex*>(vertices + 4 * vertexStride);
-            CircleVertex* v5 = reinterpret_cast<CircleVertex*>(vertices + 5 * vertexStride);
-            CircleVertex* v6 = reinterpret_cast<CircleVertex*>(vertices + 6 * vertexStride);
-            CircleVertex* v7 = reinterpret_cast<CircleVertex*>(vertices + 7 * vertexStride);
-
             // The inner radius in the vertex data must be specified in normalized space.
             innerRadius = innerRadius / outerRadius;
 
             SkPoint center = SkPoint::Make(bounds.centerX(), bounds.centerY());
             SkScalar halfWidth = 0.5f * bounds.width();
-            SkScalar octOffset = 0.41421356237f;  // sqrt(2) - 1
 
             SkVector geoClipPlane = { 0, 0 };
             SkScalar offsetClipDist = SK_Scalar1;
@@ -1253,228 +1239,87 @@ private:
                 offsetClipDist = 0.5f / halfWidth;
             }
 
-            auto clipOffset = [geoClipPlane, offsetClipDist](const SkPoint& p) {
-                // This clips the normalized offset to the half-plane we computed above. Then we
-                // compute the vertex position from this.
-                SkScalar dist = SkTMin(p.dot(geoClipPlane) + offsetClipDist, 0.0f);
-                return p - geoClipPlane * dist;
+            constexpr SkScalar octOffset = 0.41421356237f;  // sqrt(2) - 1
+            static constexpr SkPoint kOffsets[] = {
+                SkPoint::Make(-octOffset, -1),
+                SkPoint::Make(octOffset, -1),
+                SkPoint::Make(1, -octOffset),
+                SkPoint::Make(1, octOffset),
+                SkPoint::Make(octOffset, 1),
+                SkPoint::Make(-octOffset, 1),
+                SkPoint::Make(-1, octOffset),
+                SkPoint::Make(-1, -octOffset),
             };
 
-            v0->fOffset = clipOffset(SkPoint::Make(-octOffset, -1));
-            v0->fPos = center + v0->fOffset * halfWidth;
-            v0->fColor = color;
-            v0->fOuterRadius = outerRadius;
-            v0->fInnerRadius = innerRadius;
-
-            v1->fOffset = clipOffset(SkPoint::Make(octOffset, -1));
-            v1->fPos = center + v1->fOffset * halfWidth;
-            v1->fColor = color;
-            v1->fOuterRadius = outerRadius;
-            v1->fInnerRadius = innerRadius;
-
-            v2->fOffset = clipOffset(SkPoint::Make(1, -octOffset));
-            v2->fPos = center + v2->fOffset * halfWidth;
-            v2->fColor = color;
-            v2->fOuterRadius = outerRadius;
-            v2->fInnerRadius = innerRadius;
-
-            v3->fOffset = clipOffset(SkPoint::Make(1, octOffset));
-            v3->fPos = center + v3->fOffset * halfWidth;
-            v3->fColor = color;
-            v3->fOuterRadius = outerRadius;
-            v3->fInnerRadius = innerRadius;
-
-            v4->fOffset = clipOffset(SkPoint::Make(octOffset, 1));
-            v4->fPos = center + v4->fOffset * halfWidth;
-            v4->fColor = color;
-            v4->fOuterRadius = outerRadius;
-            v4->fInnerRadius = innerRadius;
-
-            v5->fOffset = clipOffset(SkPoint::Make(-octOffset, 1));
-            v5->fPos = center + v5->fOffset * halfWidth;
-            v5->fColor = color;
-            v5->fOuterRadius = outerRadius;
-            v5->fInnerRadius = innerRadius;
-
-            v6->fOffset = clipOffset(SkPoint::Make(-1, octOffset));
-            v6->fPos = center + v6->fOffset * halfWidth;
-            v6->fColor = color;
-            v6->fOuterRadius = outerRadius;
-            v6->fInnerRadius = innerRadius;
-
-            v7->fOffset = clipOffset(SkPoint::Make(-1, -octOffset));
-            v7->fPos = center + v7->fOffset * halfWidth;
-            v7->fColor = color;
-            v7->fOuterRadius = outerRadius;
-            v7->fInnerRadius = innerRadius;
-
-            if (fClipPlane) {
-                memcpy(v0->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                memcpy(v1->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                memcpy(v2->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                memcpy(v3->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                memcpy(v4->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                memcpy(v5->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                memcpy(v6->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                memcpy(v7->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-            }
-            int unionIdx = 1;
-            if (fClipPlaneIsect) {
-                memcpy(v0->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                memcpy(v1->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                memcpy(v2->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                memcpy(v3->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                memcpy(v4->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                memcpy(v5->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                memcpy(v6->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                memcpy(v7->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                unionIdx = 2;
-            }
-            if (fClipPlaneUnion) {
-                memcpy(v0->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                memcpy(v1->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                memcpy(v2->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                memcpy(v3->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                memcpy(v4->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                memcpy(v5->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                memcpy(v6->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                memcpy(v7->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-            }
-            if (fRoundCaps) {
-                memcpy(vertexCapCenters(v0), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                memcpy(vertexCapCenters(v1), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                memcpy(vertexCapCenters(v2), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                memcpy(vertexCapCenters(v3), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                memcpy(vertexCapCenters(v4), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                memcpy(vertexCapCenters(v5), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                memcpy(vertexCapCenters(v6), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                memcpy(vertexCapCenters(v7), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+            for (int i = 0; i < 8; ++i) {
+                // This clips the normalized offset to the half-plane we computed above. Then we
+                // compute the vertex position from this.
+                SkScalar dist = SkTMin(kOffsets[i].dot(geoClipPlane) + offsetClipDist, 0.0f);
+                SkVector offset = kOffsets[i] - geoClipPlane * dist;
+                vertices = WriteVertexData(vertices, center + offset * halfWidth, color, offset,
+                                           outerRadius, innerRadius);
+                if (fClipPlane) {
+                    vertices = WriteVertexData(vertices, circle.fClipPlane);
+                }
+                if (fClipPlaneIsect) {
+                    vertices = WriteVertexData(vertices, circle.fIsectPlane);
+                }
+                if (fClipPlaneUnion) {
+                    vertices = WriteVertexData(vertices, circle.fUnionPlane);
+                }
+                if (fRoundCaps) {
+                    vertices = WriteVertexData(vertices, circle.fRoundCapCenters);
+                }
             }
 
             if (circle.fStroked) {
                 // compute the inner ring
-                CircleVertex* v0 = reinterpret_cast<CircleVertex*>(vertices + 8 * vertexStride);
-                CircleVertex* v1 = reinterpret_cast<CircleVertex*>(vertices + 9 * vertexStride);
-                CircleVertex* v2 = reinterpret_cast<CircleVertex*>(vertices + 10 * vertexStride);
-                CircleVertex* v3 = reinterpret_cast<CircleVertex*>(vertices + 11 * vertexStride);
-                CircleVertex* v4 = reinterpret_cast<CircleVertex*>(vertices + 12 * vertexStride);
-                CircleVertex* v5 = reinterpret_cast<CircleVertex*>(vertices + 13 * vertexStride);
-                CircleVertex* v6 = reinterpret_cast<CircleVertex*>(vertices + 14 * vertexStride);
-                CircleVertex* v7 = reinterpret_cast<CircleVertex*>(vertices + 15 * vertexStride);
 
                 // cosine and sine of pi/8
-                SkScalar c = 0.923579533f;
-                SkScalar s = 0.382683432f;
-                SkScalar r = circle.fInnerRadius;
+                constexpr SkScalar c = 0.923579533f;
+                constexpr SkScalar s = 0.382683432f;
+                static constexpr SkPoint kRingPoints[] = {
+                    SkPoint::Make( -s, -c ),
+                    SkPoint::Make(  s, -c ),
+                    SkPoint::Make(  c, -s ),
+                    SkPoint::Make(  c,  s ),
+                    SkPoint::Make(  s,  c ),
+                    SkPoint::Make( -s,  c ),
+                    SkPoint::Make( -c,  s ),
+                    SkPoint::Make( -c, -s ),
+                };
 
-                v0->fPos = center + SkPoint::Make(-s * r, -c * r);
-                v0->fColor = color;
-                v0->fOffset = SkPoint::Make(-s * innerRadius, -c * innerRadius);
-                v0->fOuterRadius = outerRadius;
-                v0->fInnerRadius = innerRadius;
-
-                v1->fPos = center + SkPoint::Make(s * r, -c * r);
-                v1->fColor = color;
-                v1->fOffset = SkPoint::Make(s * innerRadius, -c * innerRadius);
-                v1->fOuterRadius = outerRadius;
-                v1->fInnerRadius = innerRadius;
-
-                v2->fPos = center + SkPoint::Make(c * r, -s * r);
-                v2->fColor = color;
-                v2->fOffset = SkPoint::Make(c * innerRadius, -s * innerRadius);
-                v2->fOuterRadius = outerRadius;
-                v2->fInnerRadius = innerRadius;
-
-                v3->fPos = center + SkPoint::Make(c * r, s * r);
-                v3->fColor = color;
-                v3->fOffset = SkPoint::Make(c * innerRadius, s * innerRadius);
-                v3->fOuterRadius = outerRadius;
-                v3->fInnerRadius = innerRadius;
-
-                v4->fPos = center + SkPoint::Make(s * r, c * r);
-                v4->fColor = color;
-                v4->fOffset = SkPoint::Make(s * innerRadius, c * innerRadius);
-                v4->fOuterRadius = outerRadius;
-                v4->fInnerRadius = innerRadius;
-
-                v5->fPos = center + SkPoint::Make(-s * r, c * r);
-                v5->fColor = color;
-                v5->fOffset = SkPoint::Make(-s * innerRadius, c * innerRadius);
-                v5->fOuterRadius = outerRadius;
-                v5->fInnerRadius = innerRadius;
-
-                v6->fPos = center + SkPoint::Make(-c * r, s * r);
-                v6->fColor = color;
-                v6->fOffset = SkPoint::Make(-c * innerRadius, s * innerRadius);
-                v6->fOuterRadius = outerRadius;
-                v6->fInnerRadius = innerRadius;
-
-                v7->fPos = center + SkPoint::Make(-c * r, -s * r);
-                v7->fColor = color;
-                v7->fOffset = SkPoint::Make(-c * innerRadius, -s * innerRadius);
-                v7->fOuterRadius = outerRadius;
-                v7->fInnerRadius = innerRadius;
-
-                if (fClipPlane) {
-                    memcpy(v0->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                    memcpy(v1->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                    memcpy(v2->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                    memcpy(v3->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                    memcpy(v4->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                    memcpy(v5->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                    memcpy(v6->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                    memcpy(v7->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
-                }
-                int unionIdx = 1;
-                if (fClipPlaneIsect) {
-                    memcpy(v0->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                    memcpy(v1->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                    memcpy(v2->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                    memcpy(v3->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                    memcpy(v4->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                    memcpy(v5->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                    memcpy(v6->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                    memcpy(v7->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                    unionIdx = 2;
-                }
-                if (fClipPlaneUnion) {
-                    memcpy(v0->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                    memcpy(v1->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                    memcpy(v2->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                    memcpy(v3->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                    memcpy(v4->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                    memcpy(v5->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                    memcpy(v6->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                    memcpy(v7->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
-                }
-                if (fRoundCaps) {
-                    memcpy(vertexCapCenters(v0), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                    memcpy(vertexCapCenters(v1), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                    memcpy(vertexCapCenters(v2), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                    memcpy(vertexCapCenters(v3), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                    memcpy(vertexCapCenters(v4), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                    memcpy(vertexCapCenters(v5), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                    memcpy(vertexCapCenters(v6), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
-                    memcpy(vertexCapCenters(v7), circle.fRoundCapCenters, 2 * sizeof(SkPoint));
+                for (int i = 0; i < 8; ++i) {
+                    vertices = WriteVertexData(vertices,
+                                               center + kRingPoints[i] * circle.fInnerRadius,
+                                               color,
+                                               kRingPoints[i] * innerRadius,
+                                               outerRadius, innerRadius);
+                    if (fClipPlane) {
+                        vertices = WriteVertexData(vertices, circle.fClipPlane);
+                    }
+                    if (fClipPlaneIsect) {
+                        vertices = WriteVertexData(vertices, circle.fIsectPlane);
+                    }
+                    if (fClipPlaneUnion) {
+                        vertices = WriteVertexData(vertices, circle.fUnionPlane);
+                    }
+                    if (fRoundCaps) {
+                        vertices = WriteVertexData(vertices, circle.fRoundCapCenters);
+                    }
                 }
             } else {
                 // filled
-                CircleVertex* v8 = reinterpret_cast<CircleVertex*>(vertices + 8 * vertexStride);
-                v8->fPos = center;
-                v8->fColor = color;
-                v8->fOffset = SkPoint::Make(0, 0);
-                v8->fOuterRadius = outerRadius;
-                v8->fInnerRadius = innerRadius;
+                vertices = WriteVertexData(vertices, center, color, SkPoint::Make(0, 0),
+                                           outerRadius, innerRadius);
                 if (fClipPlane) {
-                    memcpy(v8->fHalfPlanes[0], circle.fClipPlane, 3 * sizeof(SkScalar));
+                    vertices = WriteVertexData(vertices, circle.fClipPlane);
                 }
-                int unionIdx = 1;
                 if (fClipPlaneIsect) {
-                    memcpy(v8->fHalfPlanes[1], circle.fIsectPlane, 3 * sizeof(SkScalar));
-                    unionIdx = 2;
+                    vertices = WriteVertexData(vertices, circle.fIsectPlane);
                 }
                 if (fClipPlaneUnion) {
-                    memcpy(v8->fHalfPlanes[unionIdx], circle.fUnionPlane, 3 * sizeof(SkScalar));
+                    vertices = WriteVertexData(vertices, circle.fUnionPlane);
                 }
                 SkASSERT(!fRoundCaps);
             }
@@ -1486,7 +1331,6 @@ private:
             }
 
             currStartVertex += circle_type_to_vert_count(circle.fStroked);
-            vertices += circle_type_to_vert_count(circle.fStroked) * vertexStride;
         }
 
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
