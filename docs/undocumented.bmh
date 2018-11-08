@@ -347,12 +347,35 @@ FT_Load_Glyph
 ##
 #EnumClass SkFontHinting
 #Const kNone 0
+#Line # glyph outlines unchanged ##
+    Leaves glyph outlines unchanged from their native representation.
+    With FreeType, this is equivalent to the FT_LOAD_NO_HINTING
+    bit-field constant supplied to FT_Load_Glyph, which indicates that the vector
+    outline being loaded should not be fitted to the pixel grid but simply scaled
+    to 26.6 fractional pixels.
 ##
 #Const kSlight 1
+#Line # minimal modification to improve contrast ##
+    Modifies glyph outlines minimally to improve contrast.
+    With FreeType, this is equivalent in spirit to the
+    FT_LOAD_TARGET_LIGHT value supplied to FT_Load_Glyph. It chooses a
+    lighter hinting algorithm for non-monochrome modes.
+    Generated Glyphs may be fuzzy but better resemble their original shape.
 ##
 #Const kNormal 2
+#Line # glyph outlines modified to improve contrast ##
+    Modifies glyph outlines to improve contrast. This is the default.
+    With FreeType, this supplies FT_LOAD_TARGET_NORMAL to FT_Load_Glyph,
+    choosing the default hinting algorithm, which is optimized for standard
+    gray-level rendering.
 ##
 #Const kFull 3
+#Line # modifies glyph outlines for maximum contrast ##
+    Modifies glyph outlines for maximum contrast. With FreeType, this selects
+    FT_LOAD_TARGET_LCD or FT_LOAD_TARGET_LCD_V if kLCDRenderText_Flag is set.
+    FT_LOAD_TARGET_LCD is a variant of FT_LOAD_TARGET_NORMAL optimized for
+    horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a
+    variant of FT_LOAD_TARGET_NORMAL optimized for vertically decimated LCD displays.
 ##
 ##
 #Struct SkFontMetrics

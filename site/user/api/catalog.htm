@@ -1513,11 +1513,11 @@
         "stdout": "paint1 == paint2\\npaint1.getHash() == paint2.getHash()\\n"
     },
         "SkPaint_getHinting": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"SkPaint::kNormal_Hinting %c= paint.getHinting()\\n\",\n            SkPaint::kNormal_Hinting == paint.getHinting() ? '=' : ':');\n}",
-    "hash": "329e2e5a5919ac431e1c58878a5b99e0",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"SkFontHinting::kNormal %c= paint.getHinting()\\n\",\n            SkFontHinting::kNormal == paint.getHinting() ? '=' : ':');\n}",
+    "hash": "b56b70c7ea2453c41bfa58b626953bed",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getHinting",
-        "stdout": "SkPaint::kNormal_Hinting == paint.getHinting()\\n"
+        "stdout": "SkFontHinting::kNormal == paint.getHinting()\\n"
     },
         "SkPaint_getImageFilter": {
     "code": "#include \"SkBlurImageFilter.h\"\n\nvoid draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n   paint.setImageFilter(SkBlurImageFilter::Make(kOuter_SkBlurStyle, 3, nullptr, nullptr));\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n}\n",
@@ -1849,8 +1849,8 @@
         "stdout": "paint1 == paint2\\n"
     },
         "SkPaint_setHinting_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint2.setHinting(SkPaint::kNormal_Hinting);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : ':');\n}",
-    "hash": "78153fbd3f1000cb33b97bbe831ed34e",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint2.setHinting(SkFontHinting::kNormal);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : ':');\n}",
+    "hash": "bb179ec5698ec1398ff18f3657ab73f7",
     "file": "SkPaint_Reference",
     "name": "SkPaint::setHinting_2",
         "stdout": "paint1 == paint2\\n"
