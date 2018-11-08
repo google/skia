@@ -14,6 +14,7 @@
 #include "SkOTTable_OS_2.h"
 #include "SkOnce.h"
 #include "SkStream.h"
+#include "SkSurfacePriv.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
 
@@ -401,10 +402,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     SkScalerContextRec rec;
     SkScalerContextEffects effects;
 
-    const SkSurfaceProps* defaultProps = nullptr;
-    const SkMatrix* noDeviceMatrix = nullptr;
-    SkScalerContext::MakeRecAndEffectsUsingDefaultPaint(
-        font, defaultProps, noDeviceMatrix, SkScalerContextFlags::kNone, &rec, &effects);
+    SkScalerContext::MakeRecAndEffectsFromFont(font, &rec, &effects);
 
     SkAutoDescriptor ad;
     SkScalerContextEffects noeffects;
