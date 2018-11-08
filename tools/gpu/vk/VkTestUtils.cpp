@@ -383,7 +383,6 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
             return false;
         }
     }
-    SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
 
     VkPhysicalDevice physDev;
     VkDevice device;
