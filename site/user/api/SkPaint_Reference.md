@@ -27,9 +27,10 @@ public:
         <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a> = 3,
     };
 
-    <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
     void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> hintingLevel);
-   void <a href='#SkPaint_setHinting_2'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel);
+    <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
+    void <a href='#SkPaint_setHinting_2'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> h);
+    <a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
 
     enum <a href='#SkPaint_Flags'>Flags</a> {
         <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a> = 0x01,
@@ -683,12 +684,6 @@ Set <a href='undocumented#SkPaintDefaults_Hinting'>SkPaintDefaults Hinting</a> a
 <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const
 </pre>
 
-Returns level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
-
-### Return Value
-
-one of: <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>, <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a>, <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a>, <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a>
-
 ### Example
 
 <div><fiddle-embed name="329e2e5a5919ac431e1c58878a5b99e0">
@@ -738,18 +733,8 @@ paint1 == paint2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> hintingLevel)
+void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> h)
 </pre>
-
-Sets level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
-Does not check for valid values of <a href='#SkPaint_setHinting_2_hintingLevel'>hintingLevel</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_setHinting_2_hintingLevel'><code><strong>hintingLevel</strong></code></a></td>
-    <td>one of: <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>, <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a>, <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a>, <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a></td>
-  </tr>
-</table>
 
 ### Example
 
