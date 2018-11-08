@@ -453,7 +453,7 @@ public:
     bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op);
 
 #ifdef SK_BUILD_FOR_ANDROID
-    /** Android framework only.
+    /** Private. Android framework only.
 
         @return  string representation of SkRegion
     */

@@ -468,11 +468,8 @@ bool Definition::checkMethod() const {
     }
     bool expectReturn = this->methodHasReturn(name, &methodParser);
     bool foundReturn = false;
-    bool foundException = false;
     bool foundPopulate = false;
     for (auto& child : fChildren) {
-        foundException |= MarkType::kDeprecated == child->fMarkType
-                || MarkType::kExperimental == child->fMarkType;
         foundPopulate |= MarkType::kPopulate == child->fMarkType;
         if (MarkType::kReturn != child->fMarkType) {
             if (MarkType::kParam == child->fMarkType) {
@@ -488,7 +485,7 @@ bool Definition::checkMethod() const {
         }
         foundReturn = true;
     }
-    if (expectReturn && !foundReturn && !foundException && !foundPopulate) {
+    if (expectReturn && !foundReturn && !foundPopulate) {
         return methodParser.reportError<bool>("missing #Return marker");
     }
     const char* paren = methodParser.strnchr('(', methodParser.fEnd);
@@ -522,7 +519,7 @@ bool Definition::checkMethod() const {
             foundParam = true;
 
         }
-        if (!foundParam && !foundException && !foundPopulate) {
+        if (!foundParam && !foundPopulate) {
             return methodParser.reportError<bool>("no #Param found");
         }
         if (')' == nextEnd[0]) {
@@ -552,12 +549,6 @@ bool Definition::checkMethod() const {
             priorDef = child;
             continue;
         }
-        if (MarkType::kDeprecated == child->fMarkType) {
-            return true;
-        }
-        if (MarkType::kExperimental == child->fMarkType) {
-            return true;
-        }
         if (MarkType::kFormula == child->fMarkType) {
             continue;
         }
@@ -575,9 +566,6 @@ bool Definition::checkMethod() const {
         }
         if (MarkType::kPhraseRef == child->fMarkType) {
             continue;
-        }
-        if (MarkType::kPrivate == child->fMarkType) {
-            return true;
         }
         TextParser emptyCheck(fFileName, descStart, child->fStart, child->fLineCount);
         if (!emptyCheck.eof() && emptyCheck.skipWhiteSpace()) {
@@ -931,31 +919,6 @@ bool Definition::hasMatch(string name) const {
         }
     }
     return false;
-}
-
-string Definition::incompleteMessage(DetailsType detailsType) const {
-    SkASSERT(!IncompleteAllowed(fMarkType));
-    auto iter = std::find_if(fChildren.begin(), fChildren.end(),
-            [](const Definition* test) { return IncompleteAllowed(test->fMarkType); });
-    SkASSERT(fChildren.end() != iter);
-    SkASSERT(Details::kNone == (*iter)->fDetails);
-    string message = MarkType::kExperimental == (*iter)->fMarkType ?
-            "Experimental." : "Deprecated.";
-    if (Details::kDoNotUse_Experiment == fDetails) {
-        message += " Do not use.";
-    } else if (Details::kNotReady_Experiment == fDetails) {
-        message += " Not ready for general use.";
-    } else if (Details::kSoonToBe_Deprecated == fDetails) {
-        message = "To be deprecated soon.";
-    } else if (Details::kTestingOnly_Experiment == fDetails) {
-        message += " For testing only.";
-    }
-    if (DetailsType::kPhrase == detailsType) {
-        message = message.substr(0, message.length() - 1);  // remove trailing period
-        std::replace(message.begin(), message.end(), '.', ':');
-        std::transform(message.begin(), message.end(), message.begin(), ::tolower);
-    }
-    return message;
 }
 
 bool Definition::isStructOrClass() const {

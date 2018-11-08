@@ -85,24 +85,11 @@ To fix this, edit the docs file corresponding to the changed include file.
 For instance, if the change was made to <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, <a href='SkIRect_Reference#SkIRect'>edit</a> <a href='SkIRect_Reference#SkIRect'>docs/SkIRect_Reference</a>.<a href='SkIRect_Reference#SkIRect'>bmh</a>.
 <a href='SkIRect_Reference#SkIRect'>Checking</a> <a href='SkIRect_Reference#SkIRect'>in</a> <a href='SkIRect_Reference#SkIRect'>the</a> <a href='SkIRect_Reference#SkIRect'>edited</a> <a href='SkIRect_Reference#SkIRect'>docs/SkIRect_Reference</a>.<a href='SkIRect_Reference#SkIRect'>bmh</a> <a href='SkIRect_Reference#SkIRect'>will</a> <a href='SkIRect_Reference#SkIRect'>fix</a> <a href='SkIRect_Reference#SkIRect'>the</a> <a href='SkIRect_Reference#SkIRect'>bot</a>.
 
-<a href='SkIRect_Reference#SkIRect'>If</a> <a href='SkIRect_Reference#SkIRect'>the</a> <a href='SkIRect_Reference#SkIRect'>interface</a> <a href='SkIRect_Reference#SkIRect'>is</a> <a href='SkIRect_Reference#SkIRect'>deprecated</a>, <a href='SkIRect_Reference#SkIRect'>but</a> <a href='SkIRect_Reference#SkIRect'>still</a> <a href='SkIRect_Reference#SkIRect'>present</a> <a href='SkIRect_Reference#SkIRect'>in</a> <a href='SkIRect_Reference#SkIRect'>the</a> <a href='SkIRect_Reference#SkIRect'>interface</a>, <a href='SkIRect_Reference#SkIRect'>mark-up</a> <a href='SkIRect_Reference#SkIRect'>the</a>
-<a href='SkIRect_Reference#SkIRect'>documentation</a> <a href='SkIRect_Reference#SkIRect'>to</a> <a href='SkIRect_Reference#SkIRect'>be</a> <a href='SkIRect_Reference#SkIRect'>deprecated</a> <a href='SkIRect_Reference#SkIRect'>as</a> <a href='SkIRect_Reference#SkIRect'>well</a>.
+<a href='SkIRect_Reference#SkIRect'>If</a> <a href='SkIRect_Reference#SkIRect'>the</a> <a href='SkIRect_Reference#SkIRect'>interface</a> <a href='SkIRect_Reference#SkIRect'>is</a> <a href='SkIRect_Reference#SkIRect'>deprecated</a>, <a href='SkIRect_Reference#SkIRect'>private</a>, <a href='SkIRect_Reference#SkIRect'>or</a> <a href='SkIRect_Reference#SkIRect'>experimental</a>, <a href='SkIRect_Reference#SkIRect'>documentation</a> <a href='SkIRect_Reference#SkIRect'>is</a> <a href='SkIRect_Reference#SkIRect'>not</a>
+<a href='SkIRect_Reference#SkIRect'>required</a>. <a href='SkIRect_Reference#SkIRect'>Put</a> <a href='SkIRect_Reference#SkIRect'>the</a> <a href='SkIRect_Reference#SkIRect'>word</a> "<a href='SkIRect_Reference#SkIRect'>Deprecated</a>", "<a href='SkIRect_Reference#SkIRect'>Private</a>", <a href='SkIRect_Reference#SkIRect'>or</a> "<a href='SkIRect_Reference#SkIRect'>Experimental</a>"; <a href='SkIRect_Reference#SkIRect'>upper</a> <a href='SkIRect_Reference#SkIRect'>or</a> <a href='SkIRect_Reference#SkIRect'>lower</a>
+<a href='SkIRect_Reference#SkIRect'>case</a>, <a href='SkIRect_Reference#SkIRect'>in</a> <a href='SkIRect_Reference#SkIRect'>a</a> <a href='SkIRect_Reference#SkIRect'>comment</a> <a href='SkIRect_Reference#SkIRect'>just</a> <a href='SkIRect_Reference#SkIRect'>before</a> <a href='SkIRect_Reference#SkIRect'>the</a> <a href='SkIRect_Reference#SkIRect'>symbol</a> <a href='SkIRect_Reference#SkIRect'>to</a> <a href='SkIRect_Reference#SkIRect'>be</a> <a href='SkIRect_Reference#SkIRect'>ignored</a>.
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#Method void someMethodThatIsNowDeprecated()
-#Deprecated
-##
-</pre>
-
-Use
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#Deprecated soon
-</pre>
-
-if the change is soon to be deprecated.
-
-If
+<a href='SkIRect_Reference#SkIRect'>If</a>
 <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> bot is red, one of several things may have gone wrong:
 
 <table>  <tr>

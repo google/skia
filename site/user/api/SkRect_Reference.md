@@ -994,15 +994,14 @@ test with NaN is not equal to itself
 void <a href='#SkRect_toQuad'>toQuad</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='SkPath_Reference#Quad'>quad</a>[4]) <a href='SkPath_Reference#Quad'>const</a>
 </pre>
 
-Returns four <a href='SkPoint_Reference#Point'>points</a> <a href='SkPoint_Reference#Point'>in</a> <a href='#SkRect_toQuad_quad'>quad</a> <a href='#SkRect_toQuad_quad'>that</a> <a href='#SkRect_toQuad_quad'>enclose</a> <a href='SkRect_Reference#Rect'>Rect</a> <a href='SkRect_Reference#Rect'>ordered</a> <a href='SkRect_Reference#Rect'>as</a>: <a href='SkRect_Reference#Rect'>top-left</a>, <a href='SkRect_Reference#Rect'>top-right</a>,
-<a href='SkRect_Reference#Rect'>bottom-right</a>, <a href='SkRect_Reference#Rect'>bottom-left</a>.
-
-Private: Consider adding param to control whether quad is clockwise or counterclockwise.
+Returns four <a href='SkPoint_Reference#Point'>points</a> <a href='SkPoint_Reference#Point'>in</a> <a href='#SkRect_toQuad_quad'>quad</a> <a href='#SkRect_toQuad_quad'>that</a> <a href='#SkRect_toQuad_quad'>enclose</a> <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='SkRect_Reference#SkRect'>ordered</a> <a href='SkRect_Reference#SkRect'>as</a>: <a href='SkRect_Reference#SkRect'>top-left</a>, <a href='SkRect_Reference#SkRect'>top-right</a>,
+bottom-right, bottom-left.
+Consider adding parameter to control whether <a href='#SkRect_toQuad_quad'>quad</a> <a href='#SkRect_toQuad_quad'>is</a> <a href='#SkRect_toQuad_quad'>clockwise</a> <a href='#SkRect_toQuad_quad'>or</a> <a href='#SkRect_toQuad_quad'>counterclockwise</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_toQuad_quad'><code><strong>quad</strong></code></a></td>
-    <td>storage for corners of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>storage for corners of <a href='SkRect_Reference#SkRect'>SkRect</a></td>
   </tr>
 </table>
 

@@ -177,12 +177,6 @@ is not unique
 
 # ------------------------------------------------------------------------------
 
-#Method bool reset(const SkMask& mask)
-#Deprecated soon
-##
-
-# ------------------------------------------------------------------------------
-
 #Method bool extractSubset(SkPixmap* subset, const SkIRect& area) const
 
 #In Initialization

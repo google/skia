@@ -22,9 +22,9 @@ class <a href='SkPath_Reference#SkPath'>SkPath</a> {
     <a href='SkPath_Reference#SkPath'>friend</a> <a href='SkPath_Reference#SkPath'>bool</a> <a href='SkPath_Reference#SkPath'>operator</a>!=(<a href='SkPath_Reference#SkPath'>const</a> <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#SkPath'>a</a>, <a href='SkPath_Reference#SkPath'>const</a> <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#SkPath'>b</a>);
     <a href='SkPath_Reference#SkPath'>bool</a> <a href='#SkPath_isInterpolatable'>isInterpolatable</a>(<a href='#SkPath_isInterpolatable'>const</a> <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#SkPath'>compare</a>) <a href='SkPath_Reference#SkPath'>const</a>;
     <a href='SkPath_Reference#SkPath'>bool</a> <a href='SkPath_Reference#SkPath'>interpolate</a>(<a href='SkPath_Reference#SkPath'>const</a> <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#SkPath'>ending</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#SkScalar'>weight</a>, <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#SkPath'>out</a>) <a href='SkPath_Reference#SkPath'>const</a>;
-    <a href='SkPath_Reference#SkPath'>bool</a> <a href='#SkPath_unique'>unique()</a> <a href='#SkPath_unique'>const</a>;
+    <a href='SkPath_Reference#SkPath'>bool</a> <a href='SkPath_Reference#SkPath'>unique()</a> <a href='SkPath_Reference#SkPath'>const</a>;
 
-    <a href='#SkPath_unique'>enum</a> <a href='#SkPath_FillType'>FillType</a> {
+    <a href='SkPath_Reference#SkPath'>enum</a> <a href='#SkPath_FillType'>FillType</a> {
         <a href='#SkPath_kWinding_FillType'>kWinding_FillType</a>,
         <a href='#SkPath_kEvenOdd_FillType'>kEvenOdd_FillType</a>,
         <a href='#SkPath_kInverseWinding_FillType'>kInverseWinding_FillType</a>,
@@ -201,7 +201,7 @@ class <a href='SkPath_Reference#SkPath'>SkPath</a> {
     <a href='#SkPath_readFromMemory'>uint32_t</a> <a href='#SkPath_getGenerationID'>getGenerationID</a>() <a href='#SkPath_getGenerationID'>const</a>;
     <a href='#SkPath_getGenerationID'>bool</a> <a href='#SkPath_isValid'>isValid</a>() <a href='#SkPath_isValid'>const</a>;
     <a href='#SkPath_isValid'>bool</a> <a href='#SkPath_isValid'>isValid</a>() <a href='#SkPath_isValid'>const</a>;
-    <a href='#SkPath_isValid'>bool</a> <a href='#SkPath_pathRefIsValid'>pathRefIsValid</a>() <a href='#SkPath_pathRefIsValid'>const</a>;
+    <a href='#SkPath_isValid'>bool</a> <a href='#SkPath_isValid'>pathRefIsValid</a>() <a href='#SkPath_isValid'>const</a>;
 };
 </pre>
 
@@ -722,18 +722,6 @@ true if <a href='SkPath_Reference#Path'>Paths</a> <a href='SkPath_Reference#Path
 ### See Also
 
 <a href='#SkPath_isInterpolatable'>isInterpolatable</a>
-
-<a name='SkPath_unique'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_unique'>unique()</a> <a href='#SkPath_unique'>const</a>
-</pre>
-
-To be deprecated soon.
-
-Only valid for Android framework.
 
 <a name='Fill_Type'></a>
 
@@ -5009,16 +4997,6 @@ array dimensions.
 ### Return Value
 
 true if <a href='SkPath_Reference#SkPath'>SkPath</a> <a href='undocumented#Data'>data</a> <a href='undocumented#Data'>is</a> <a href='undocumented#Data'>consistent</a>
-
-<a name='SkPath_pathRefIsValid'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_pathRefIsValid'>pathRefIsValid</a>() <a href='#SkPath_pathRefIsValid'>const</a>
-</pre>
-
-To be deprecated soon.
 
 <a name='SkPath_Iter'></a>
 

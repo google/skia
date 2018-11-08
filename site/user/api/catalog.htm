@@ -4723,28 +4723,20 @@
     "name": "SkCanvas::clipPath_3"
 },
     "SkCanvas_clipRRect": {
-    "code": "void draw(SkCanvas* canvas) {\n    canvas->clear(SK_ColorWHITE);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setColor(0x8055aaff);\n    SkRRect oval;\n    oval.setOval({10, 20, 90, 100});\n    canvas->clipRRect(oval, SkClipOp::kIntersect, true);\n    canvas->drawCircle(70, 100, 60, paint);\n}\n",
-    "width": 256,
-    "height": 128,
-    "hash": "182ef48ab5e04ba3578496fda8d9fa36",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::clipRRect"
-},
-    "SkCanvas_clipRRect_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setColor(0x8055aaff);\n    auto oval = SkRRect::MakeOval({10, 20, 90, 100});\n    canvas->clipRRect(oval, SkClipOp::kIntersect);\n    canvas->drawCircle(70, 100, 60, paint);\n}\n",
     "width": 256,
     "height": 128,
     "hash": "ef6ae2eaae6761130ce38065d0364abd",
     "file": "SkCanvas_Reference",
-    "name": "SkCanvas::clipRRect_2"
+    "name": "SkCanvas::clipRRect"
 },
-    "SkCanvas_clipRRect_3": {
+    "SkCanvas_clipRRect_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    auto oval = SkRRect::MakeRectXY({10, 20, 90, 100}, 9, 13);\n    canvas->clipRRect(oval, true);\n    canvas->drawCircle(70, 100, 60, paint);\n}\n",
     "width": 256,
     "height": 128,
     "hash": "f583114580b2176fe3e75b0994476a84",
     "file": "SkCanvas_Reference",
-    "name": "SkCanvas::clipRRect_3"
+    "name": "SkCanvas::clipRRect_2"
 },
     "SkCanvas_clipRect": {
     "code": "void draw(SkCanvas* canvas) {\n    canvas->rotate(10);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    for (auto alias: { false, true } ) {\n        canvas->save();\n        canvas->clipRect(SkRect::MakeWH(90, 80), SkClipOp::kIntersect, alias);\n        canvas->drawCircle(100, 60, 60, paint);\n        canvas->restore();\n        canvas->translate(80, 0);\n    }\n}\n",
@@ -6106,14 +6098,6 @@
     "file": "SkImage_Reference",
     "name": "SkImage::alphaType"
 },
-    "SkImage_asLegacyBitmap": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitImage;\n    if (image->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 0, 0);\n    }\n    GrContext* grContext = canvas->getGrContext();\n    if (!grContext) {\n        return;\n    }\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(grContext, backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,\n                                kOpaque_SkAlphaType, nullptr));\n    canvas->drawImage(textureImage, 45, 45);\n    if (textureImage->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 90, 90);\n    }\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "78374702fa113076ddc6070053ab5cd4",
-    "file": "SkImage_Reference",
-    "name": "SkImage::asLegacyBitmap"
-},
     "SkImage_bounds": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect bounds = image->bounds();\n    for (int x : { 0, bounds.width() } ) {\n        for (int y : { 0, bounds.height() } ) {\n            canvas->drawImage(image, x, y);\n        }\n    }\n}",
     "width": 256,
@@ -7049,14 +7033,6 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkMemoryStream_Reference",
     "name": "SkMemoryStream::setMemory"
-},
-    "SkMemoryStream_setMemoryOwned": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkMemoryStream_Reference",
-    "name": "SkMemoryStream::setMemoryOwned"
 },
     "SkMemoryStream_skipToAlign4": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
