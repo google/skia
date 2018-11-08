@@ -132,36 +132,18 @@ public:
     void setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
     void setHasBitmap() { fTextType |= kHasBitmap_TextType; }
 
-    int runCount() const { return fRunCount; }
+    int runCountLimit() const { return fRunCountLimit; }
 
-    void pushBackRun(int currRun) {
-        SkASSERT(currRun < fRunCount);
-        if (currRun > 0) {
-            Run::SubRunInfo& newRun = fRuns[currRun].fSubRunInfo.back();
-            Run::SubRunInfo& lastRun = fRuns[currRun - 1].fSubRunInfo.back();
+    Run* pushBackRun() {
+        SkASSERT(fRunCount < fRunCountLimit);
+        if (fRunCount > 0) {
+            Run::SubRunInfo& newRun = fRuns[fRunCount].fSubRunInfo.back();
+            Run::SubRunInfo& lastRun = fRuns[fRunCount - 1].fSubRunInfo.back();
             newRun.setAsSuccessor(lastRun);
         }
-    }
 
-    // sets the last subrun of runIndex to use distance field text
-    void setSubRunHasDistanceFields(int runIndex, bool hasLCD, bool isAntiAlias, bool hasWCoord) {
-        Run& run = fRuns[runIndex];
-        Run::SubRunInfo& subRun = run.fSubRunInfo.back();
-        subRun.setUseLCDText(hasLCD);
-        subRun.setAntiAliased(isAntiAlias);
-        subRun.setDrawAsDistanceFields();
-        subRun.setHasWCoord(hasWCoord);
-    }
-
-    // sets the last subrun of runIndex to use w values
-    void setSubRunHasW(int runIndex, bool hasWCoord) {
-        Run& run = fRuns[runIndex];
-        Run::SubRunInfo& subRun = run.fSubRunInfo.back();
-        subRun.setHasWCoord(hasWCoord);
-    }
-
-    void setRunPaintFlags(int runIndex, uint16_t paintFlags) {
-        fRuns[runIndex].fPaintFlags = paintFlags & Run::kPaintFlagsMask;
+        fRunCount++;
+        return &fRuns[fRunCount - 1];
     }
 
     void setMinAndMaxScale(SkScalar scaledMax, SkScalar scaledMin) {
@@ -169,33 +151,6 @@ public:
         fMaxMinScale = SkMaxScalar(scaledMax, fMaxMinScale);
         fMinMaxScale = SkMinScalar(scaledMin, fMinMaxScale);
     }
-
-    // inits the override descriptor on the current run.  All following subruns must use this
-    // descriptor
-    void initOverride(int runIndex) {
-        Run& run = fRuns[runIndex];
-        // Push back a new subrun to fill and set the override descriptor
-        run.push_back();
-        run.fOverrideDescriptor.reset(new SkAutoDescriptor);
-    }
-
-    SkExclusiveStrikePtr setupCache(int runIndex,
-                                    const SkPaint& skPaint,
-                                    const SkSurfaceProps& props,
-                                    SkScalerContextFlags scalerContextFlags,
-                                    const SkMatrix& viewMatrix);
-
-    // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
-    // as a path.
-    void appendGlyph(int runIndex,
-                     const SkRect& positions,
-                     const SkPMColor4f& color,
-                     const sk_sp<GrTextStrike>& strike,
-                     GrGlyph* glyph, bool preTransformed);
-
-    // Appends a glyph to the blob as a path only.
-    void appendPathGlyph(int runIndex, const SkPath& path,
-                         SkScalar x, SkScalar y, SkScalar scale, bool preTransformed);
 
     static size_t GetVertexStride(GrMaskFormat maskFormat, bool hasWCoord) {
         switch (maskFormat) {
@@ -280,7 +235,7 @@ public:
     size_t size() const { return fSize; }
 
     ~GrTextBlob() {
-        for (int i = 0; i < fRunCount; i++) {
+        for (int i = 0; i < fRunCountLimit; i++) {
             fRuns[i].~Run();
         }
     }
@@ -313,7 +268,7 @@ private:
         fInitialY = y;
 
         // make sure all initial subruns have the correct VM and X/Y applied
-        for (int i = 0; i < fRunCount; i++) {
+        for (int i = 0; i < fRunCountLimit; i++) {
             fRuns[i].fSubRunInfo[0].init(fInitialViewMatrix, x, y);
         }
     }
@@ -474,7 +429,52 @@ private:
             uint32_t fFlags;
         };  // SubRunInfo
 
-        SubRunInfo& push_back() {
+        // sets the last subrun of runIndex to use w values
+        void setSubRunHasW(bool hasWCoord) {
+            Run::SubRunInfo& subRun = this->fSubRunInfo.back();
+            subRun.setHasWCoord(hasWCoord);
+        }
+
+        // inits the override descriptor on the current run.  All following subruns must use this
+        // descriptor
+        void initOverride() {
+            // Push back a new subrun to fill and set the override descriptor
+            this->pushBackSubRun();
+            fOverrideDescriptor.reset(new SkAutoDescriptor);
+        }
+
+        // Appends a glyph to the blob as a path only.
+        void appendPathGlyph(
+                const SkPath& path, SkPoint position, SkScalar scale, bool preTransformed);
+
+        // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
+        // as a path.
+        void appendGlyph(GrTextBlob* blob,
+                         const sk_sp<GrTextStrike>& strike,
+                         const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
+                         SkPoint origin,
+                         const SkPMColor4f& color, SkGlyphCache* skGlyphCache,
+                         SkScalar textRatio, bool needsTransform);
+
+        SkExclusiveStrikePtr setupCache(const SkPaint& skPaint,
+                                        const SkSurfaceProps& props,
+                                        SkScalerContextFlags scalerContextFlags,
+                                        const SkMatrix& viewMatrix);
+
+        void setRunPaintFlags(uint16_t paintFlags) {
+            fPaintFlags = paintFlags & Run::kPaintFlagsMask;
+        }
+
+        // sets the last subrun of runIndex to use distance field text
+        void setSubRunHasDistanceFields(bool hasLCD, bool isAntiAlias, bool hasWCoord) {
+            Run::SubRunInfo& subRun = fSubRunInfo.back();
+            subRun.setUseLCDText(hasLCD);
+            subRun.setAntiAliased(isAntiAlias);
+            subRun.setDrawAsDistanceFields();
+            subRun.setHasWCoord(hasWCoord);
+        }
+
+        SubRunInfo& pushBackSubRun() {
             // Forward glyph / vertex information to seed the new sub run
             SubRunInfo& newSubRun = fSubRunInfo.push_back();
             const SubRunInfo& prevSubRun = fSubRunInfo.fromBack(1);
@@ -559,7 +559,8 @@ private:
     // maximum minimum scale, and minimum maximum scale, we can support before we need to regen
     SkScalar fMaxMinScale;
     SkScalar fMinMaxScale;
-    int fRunCount;
+    int fRunCount{0};
+    int fRunCountLimit;
     uint8_t fTextType;
 };
 
