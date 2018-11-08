@@ -5,24 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
+#include "SkAndroidCodecAdapter.h"
 #include "SkCodecPriv.h"
-#include "SkWebpAdapterCodec.h"
 
-SkWebpAdapterCodec::SkWebpAdapterCodec(SkWebpCodec* codec, ExifOrientationBehavior behavior)
+SkAndroidCodecAdapter::SkAndroidCodecAdapter(SkCodec* codec, ExifOrientationBehavior behavior)
     : INHERITED(codec, behavior)
 {}
 
-SkISize SkWebpAdapterCodec::onGetSampledDimensions(int sampleSize) const {
+SkISize SkAndroidCodecAdapter::onGetSampledDimensions(int sampleSize) const {
     float scale = get_scale_from_sample_size(sampleSize);
     return this->codec()->getScaledDimensions(scale);
 }
 
-bool SkWebpAdapterCodec::onGetSupportedSubset(SkIRect* desiredSubset) const {
+bool SkAndroidCodecAdapter::onGetSupportedSubset(SkIRect* desiredSubset) const {
     return this->codec()->getValidSubset(desiredSubset);
 }
 
-SkCodec::Result SkWebpAdapterCodec::onGetAndroidPixels(const SkImageInfo& info, void* pixels,
+SkCodec::Result SkAndroidCodecAdapter::onGetAndroidPixels(const SkImageInfo& info, void* pixels,
         size_t rowBytes, const AndroidOptions& options) {
     SkCodec::Options codecOptions;
     codecOptions.fZeroInitialized = options.fZeroInitialized;
