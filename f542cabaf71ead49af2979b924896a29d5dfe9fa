@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "809850c2_c6fdd07e",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-08T20:41:49Z",
+      "side": 0,
+      "message": "This code never produces empty, and has been removed in other cases. So, removing it here.",
+      "range": {
+        "startLine": 398,
+        "startChar": 15,
+        "endLine": 398,
+        "endChar": 65
+      },
+      "revId": "f542cabaf71ead49af2979b924896a29d5dfe9fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
