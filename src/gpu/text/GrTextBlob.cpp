@@ -54,96 +54,133 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
     for (int i = 0; i < runCount; i++) {
         new (&cacheBlob->fRuns[i]) GrTextBlob::Run;
     }
-    cacheBlob->fRunCount = runCount;
+    cacheBlob->fRunCountLimit = runCount;
     return cacheBlob;
 }
 
-SkExclusiveStrikePtr GrTextBlob::setupCache(int runIndex,
-                                            const SkPaint& skPaint,
-                                            const SkSurfaceProps& props,
-                                            SkScalerContextFlags scalerContextFlags,
-                                            const SkMatrix& viewMatrix) {
-    GrTextBlob::Run* run = &fRuns[runIndex];
+SkExclusiveStrikePtr GrTextBlob::Run::setupCache(const SkPaint& skPaint,
+                                                 const SkSurfaceProps& props,
+                                                 SkScalerContextFlags scalerContextFlags,
+                                                 const SkMatrix& viewMatrix) {
 
     // if we have an override descriptor for the run, then we should use that
-    SkAutoDescriptor* desc = run->fOverrideDescriptor.get() ? run->fOverrideDescriptor.get() :
-                                                              &run->fDescriptor;
+    SkAutoDescriptor* desc = fOverrideDescriptor.get() ? fOverrideDescriptor.get() : &fDescriptor;
     SkScalerContextEffects effects;
     SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
         skPaint, props, scalerContextFlags, viewMatrix, desc, &effects);
-    run->fTypeface = SkPaintPriv::RefTypefaceOrDefault(skPaint);
-    run->fPathEffect = sk_ref_sp(effects.fPathEffect);
-    run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);
-    return SkStrikeCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *run->fTypeface);
+    fTypeface = SkPaintPriv::RefTypefaceOrDefault(skPaint);
+    fPathEffect = sk_ref_sp(effects.fPathEffect);
+    fMaskFilter = sk_ref_sp(effects.fMaskFilter);
+    return SkStrikeCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *fTypeface);
 }
 
-void GrTextBlob::appendGlyph(int runIndex,
-                             const SkRect& positions,
-                             const SkPMColor4f& color4f,
-                             const sk_sp<GrTextStrike>& strike,
-                             GrGlyph* glyph, bool preTransformed) {
-    // TODO4F: Preserve float colors
-    GrColor color = color4f.toBytes_RGBA();
+static SkRect rect_to_draw(
+        const SkGlyph& glyph, SkPoint origin, SkScalar textScale, bool isDFT) {
 
-    Run& run = fRuns[runIndex];
-    GrMaskFormat format = glyph->fMaskFormat;
+    SkScalar dx = SkIntToScalar(glyph.fLeft);
+    SkScalar dy = SkIntToScalar(glyph.fTop);
+    SkScalar width = SkIntToScalar(glyph.fWidth);
+    SkScalar height = SkIntToScalar(glyph.fHeight);
 
-    Run::SubRunInfo* subRun = &run.fSubRunInfo.back();
-    if (run.fInitialized && subRun->maskFormat() != format) {
-        subRun = &run.push_back();
-        subRun->setStrike(strike);
-    } else if (!run.fInitialized) {
-        subRun->setStrike(strike);
+    if (isDFT) {
+        dx += SK_DistanceFieldInset;
+        dy += SK_DistanceFieldInset;
+        width -= 2 * SK_DistanceFieldInset;
+        height -= 2 * SK_DistanceFieldInset;
     }
 
-    run.fInitialized = true;
+    dx *= textScale;
+    dy *= textScale;
+    width *= textScale;
+    height *= textScale;
 
-    bool hasW = subRun->hasWCoord();
-    // glyphs drawn in perspective must always have a w coord.
-    SkASSERT(hasW || !fInitialViewMatrix.hasPerspective());
-
-    size_t vertexStride = GetVertexStride(format, hasW);
-
-    subRun->setMaskFormat(format);
-
-    subRun->joinGlyphBounds(positions);
-    subRun->setColor(color);
-
-    intptr_t vertex = reinterpret_cast<intptr_t>(this->fVertices + subRun->vertexEndIndex());
-
-    // We always write the third position component used by SDFs. If it is unused it gets
-    // overwritten. Similarly, we always write the color and the blob will later overwrite it
-    // with texture coords if it is unused.
-    size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
-    // V0
-    *reinterpret_cast<SkPoint3*>(vertex) = {positions.fLeft, positions.fTop, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
-    vertex += vertexStride;
-
-    // V1
-    *reinterpret_cast<SkPoint3*>(vertex) = {positions.fLeft, positions.fBottom, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
-    vertex += vertexStride;
-
-    // V2
-    *reinterpret_cast<SkPoint3*>(vertex) = {positions.fRight, positions.fTop, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
-    vertex += vertexStride;
-
-    // V3
-    *reinterpret_cast<SkPoint3*>(vertex) = {positions.fRight, positions.fBottom, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
-
-    subRun->appendVertices(vertexStride);
-    fGlyphs[subRun->glyphEndIndex()] = glyph;
-    subRun->glyphAppended();
-    subRun->setNeedsTransform(!preTransformed);
+    return SkRect::MakeXYWH(origin.x() + dx, origin.y() + dy, width, height);
 }
 
-void GrTextBlob::appendPathGlyph(int runIndex, const SkPath& path, SkScalar x, SkScalar y,
+void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
+                                  const sk_sp<GrTextStrike>& strike,
+                                  const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
+                                  SkPoint origin,
+                                  const SkPMColor4f& color4f, SkGlyphCache* skGlyphCache,
+                                  SkScalar textRatio, bool needsTransform) {
+
+    GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
+                                         skGlyph.getSubXFixed(),
+                                         skGlyph.getSubYFixed(),
+                                         maskStyle);
+    GrGlyph* glyph = strike->getGlyph(skGlyph, id, skGlyphCache);
+    if (!glyph) {
+        return;
+    }
+
+    SkASSERT(skGlyph.fWidth == glyph->width());
+    SkASSERT(skGlyph.fHeight == glyph->height());
+
+    bool isDFT = maskStyle == GrGlyph::kDistance_MaskStyle;
+
+    SkRect glyphRect = rect_to_draw(skGlyph, origin, textRatio, isDFT);
+    if (!glyphRect.isEmpty()) {
+        // TODO4F: Preserve float colors
+        GrColor color = color4f.toBytes_RGBA();
+
+        GrMaskFormat format = glyph->fMaskFormat;
+
+        Run::SubRunInfo* subRun = &fSubRunInfo.back();
+        if (fInitialized && subRun->maskFormat() != format) {
+            subRun = &pushBackSubRun();
+            subRun->setStrike(strike);
+        } else if (!fInitialized) {
+            subRun->setStrike(strike);
+        }
+
+        fInitialized = true;
+
+        bool hasW = subRun->hasWCoord();
+        // glyphs drawn in perspective must always have a w coord.
+        SkASSERT(hasW || !blob->fInitialViewMatrix.hasPerspective());
+
+        size_t vertexStride = GetVertexStride(format, hasW);
+
+        subRun->setMaskFormat(format);
+
+        subRun->joinGlyphBounds(glyphRect);
+        subRun->setColor(color);
+
+        intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + subRun->vertexEndIndex());
+
+        // We always write the third position component used by SDFs. If it is unused it gets
+        // overwritten. Similarly, we always write the color and the blob will later overwrite it
+        // with texture coords if it is unused.
+        size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
+        // V0
+        *reinterpret_cast<SkPoint3*>(vertex) = {glyphRect.fLeft, glyphRect.fTop, 1.f};
+        *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
+        vertex += vertexStride;
+
+        // V1
+        *reinterpret_cast<SkPoint3*>(vertex) = {glyphRect.fLeft, glyphRect.fBottom, 1.f};
+        *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
+        vertex += vertexStride;
+
+        // V2
+        *reinterpret_cast<SkPoint3*>(vertex) = {glyphRect.fRight, glyphRect.fTop, 1.f};
+        *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
+        vertex += vertexStride;
+
+        // V3
+        *reinterpret_cast<SkPoint3*>(vertex) = {glyphRect.fRight, glyphRect.fBottom, 1.f};
+        *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
+
+        subRun->appendVertices(vertexStride);
+        blob->fGlyphs[subRun->glyphEndIndex()] = glyph;
+        subRun->glyphAppended();
+        subRun->setNeedsTransform(needsTransform);
+    }
+}
+
+void GrTextBlob::Run::appendPathGlyph(const SkPath& path, SkPoint position,
                                       SkScalar scale, bool preTransformed) {
-    Run& run = fRuns[runIndex];
-    run.fPathGlyphs.push_back(GrTextBlob::Run::PathGlyph(path, x, y, scale, preTransformed));
+    fPathGlyphs.push_back(PathGlyph(path, position.x(), position.y(), scale, preTransformed));
 }
 
 bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosition,
@@ -294,7 +331,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 
     // GrTextBlob::makeOp only takes uint16_t values for run and subRun indices.
     // Encountering something larger than this is highly unlikely, so we'll just not draw it.
-    int lastRun = SkTMin(fRunCount, (1 << 16)) - 1;
+    int lastRun = SkTMin(fRunCountLimit, (1 << 16)) - 1;
     // For each run in the GrTextBlob we're going to churn through all the glyphs.
     // Each run is broken into a path part and a Mask / DFT / ARGB part.
     for (int runIndex = 0; runIndex <= lastRun; runIndex++) {
@@ -465,8 +502,8 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
     SkASSERT_RELEASE(l.fMinMaxScale == r.fMinMaxScale);
     SkASSERT_RELEASE(l.fTextType == r.fTextType);
 
-    SkASSERT_RELEASE(l.fRunCount == r.fRunCount);
-    for (int i = 0; i < l.fRunCount; i++) {
+    SkASSERT_RELEASE(l.fRunCountLimit == r.fRunCountLimit);
+    for (int i = 0; i < l.fRunCountLimit; i++) {
         const Run& lRun = l.fRuns[i];
         const Run& rRun = r.fRuns[i];
 
