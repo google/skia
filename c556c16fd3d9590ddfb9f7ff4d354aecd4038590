@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76b89a9a_22be5b9f",
+        "filename": "src/codec/SkRawAdapterCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-08T23:20:19Z",
+      "side": 0,
+      "message": "In the Webp adapter (and the new, merged SkAndroidCodecAdapter), the equivalent line is:\n\nfloat scale \u003d get_scale_from_sample_size(sampleSize);",
+      "revId": "c556c16fd3d9590ddfb9f7ff4d354aecd4038590",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dc2163f_265dc233",
+        "filename": "src/codec/SkRawAdapterCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-08T23:20:19Z",
+      "side": 0,
+      "message": "This is hard-coded here (and the argument ignored). In the merged SkAndroidCodecAdapter implementation, it falls through to:\n\nreturn this-\u003ecodec()-\u003egetValidSubset(desiredSubset);\n\nand SkRawCodec does not override the SkCodec default implementation:\n\nvirtual bool onGetValidSubset(SkIRect*) const { return false; }",
+      "revId": "c556c16fd3d9590ddfb9f7ff4d354aecd4038590",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

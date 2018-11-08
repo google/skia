@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "762fb8a8_deaf520d",
+        "filename": "src/codec/SkAndroidCodecAdapter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-08T23:20:19Z",
+      "side": 1,
+      "message": "Not sure why gerrit didn\u0027t pick this up, but this file is \"git mv SkWebpAdapterCodec.h SkAndroidCodecAdapter.h\" followed by some trivial edits. The command line \"git diff\" says:\n\n```\ndiff --git a/src/codec/SkWebpAdapterCodec.h b/src/codec/SkAndroidCodecAdapter.h\nsimilarity index 52%\nrename from src/codec/SkWebpAdapterCodec.h\nrename to src/codec/SkAndroidCodecAdapter.h\nindex fc8328cf56..ac494c970c 100644\n--- a/src/codec/SkWebpAdapterCodec.h\n+++ b/src/codec/SkAndroidCodecAdapter.h\n@@ -4,22 +4,22 @@\n  * Use of this source code is governed by a BSD-style license that can be\n  * found in the LICENSE file.\n  */\n-#ifndef SkWebpAdapterCodec_DEFINED\n-#define SkWebpAdapterCodec_DEFINED\n+#ifndef SkAndroidCodecAdapter_DEFINED\n+#define SkAndroidCodecAdapter_DEFINED\n \n #include \"SkAndroidCodec.h\"\n-#include \"SkWebpCodec.h\"\n \n /**\n- *  This class implements the functionality of SkAndroidCodec.  It uses an\n- *  SkWebpCodec.\n+ *  This class wraps SkCodec to implement the functionality of SkAndroidCodec.\n+ *  The underlying SkCodec implements sampled decodes.  SkCodec\u0027s that do not\n+ *  implement that are wrapped with SkSampledCodec instead.\n  */\n-class SkWebpAdapterCodec : public SkAndroidCodec {\n+class SkAndroidCodecAdapter : public SkAndroidCodec {\n public:\n \n-    explicit SkWebpAdapterCodec(SkWebpCodec*, ExifOrientationBehavior);\n+    explicit SkAndroidCodecAdapter(SkCodec*, ExifOrientationBehavior);\n \n-    ~SkWebpAdapterCodec() override {}\n+    ~SkAndroidCodecAdapter() override {}\n \n protected:\n \n@@ -34,4 +34,4 @@ private:\n \n     typedef SkAndroidCodec INHERITED;\n };\n-#endif // SkWebpAdapterCodec_DEFINED\n+#endif // SkAndroidCodecAdapter_DEFINED\n```",
+      "revId": "144b5d4c81dbed1753286b27042c1490ef6f5eef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
