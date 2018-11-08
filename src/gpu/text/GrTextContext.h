@@ -10,7 +10,6 @@
 
 #include "GrDistanceFieldAdjustTable.h"
 #include "GrGeometryProcessor.h"
-#include "GrTextBlob.h"
 #include "GrTextTarget.h"
 #include "SkGlyphRun.h"
 
@@ -21,6 +20,7 @@
 class GrDrawOp;
 class GrTextBlobCache;
 class SkGlyph;
+class GrTextBlob;
 
 /*
  * Renders text using some kind of an atlas, ie BitmapText or DistanceField text
@@ -75,24 +75,6 @@ private:
     static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     // Determines if we need to use fake gamma (and contrast boost):
     static SkScalerContextFlags ComputeScalerContextFlags(const GrColorSpaceInfo&);
-
-    void regenerateGlyphRunList(GrTextBlob* bmp,
-                            GrGlyphCache*,
-                            const GrShaderCaps&,
-                            const SkPaint&,
-                            const SkPMColor4f& filteredColor,
-                            SkScalerContextFlags scalerContextFlags,
-                            const SkMatrix& viewMatrix,
-                            const SkSurfaceProps&,
-                            const SkGlyphRunList& glyphRunList,
-                            SkGlyphRunListPainter* glyphPainter);
-
-    static void AppendGlyph(GrTextBlob*, int runIndex,
-                            const sk_sp<GrTextStrike>&, const SkGlyph&,
-                            GrGlyph::MaskStyle maskStyle, SkScalar sx, SkScalar sy,
-                            const SkPMColor4f& color, SkGlyphCache*, SkScalar textRatio,
-                            bool needsTransform);
-
 
     const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable.get(); }
 

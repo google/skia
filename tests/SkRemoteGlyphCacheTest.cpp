@@ -7,6 +7,7 @@
 
 #include "Resources.h"
 #include "SkDraw.h"
+#include "SkGlyphCache.h"
 #include "SkGraphics.h"
 #include "SkMutex.h"
 #include "SkRemoteGlyphCache.h"
