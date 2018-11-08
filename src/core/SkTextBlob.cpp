@@ -27,7 +27,7 @@ SkRunFont::SkRunFont(const SkPaint& paint)
         , fScaleX(paint.getTextScaleX())
         , fTypeface(SkPaintPriv::RefTypefaceOrDefault(paint))
         , fSkewX(paint.getTextSkewX())
-        , fHinting(paint.getHinting())
+        , fHinting(static_cast<unsigned>(paint.getHinting()))
         , fFlags(paint.getFlags() & kFlagsMask) { }
 
 void SkRunFont::applyToPaint(SkPaint* paint) const {
@@ -36,7 +36,7 @@ void SkRunFont::applyToPaint(SkPaint* paint) const {
     paint->setTextSize(fSize);
     paint->setTextScaleX(fScaleX);
     paint->setTextSkewX(fSkewX);
-    paint->setHinting(static_cast<SkPaint::Hinting>(fHinting));
+    paint->setHinting(static_cast<SkFontHinting>(fHinting));
 
     paint->setFlags((paint->getFlags() & ~kFlagsMask) | fFlags);
 }

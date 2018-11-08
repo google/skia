@@ -92,7 +92,7 @@ private:
     sk_sp<SkTypeface>        fTypeface;
     SkScalar                 fSkewX;
 
-    static_assert(SkPaint::kFull_Hinting < 4, "insufficient_hinting_bits");
+    static_assert(static_cast<unsigned>(kFull_SkFontHinting) < 4, "insufficient_hinting_bits");
     uint32_t                 fHinting : 2;
     static_assert((kFlagsMask & 0xffff) == kFlagsMask, "insufficient_flags_bits");
     uint32_t                 fFlags : 16;
