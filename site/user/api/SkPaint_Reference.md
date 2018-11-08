@@ -250,7 +250,7 @@ Constructs <a href='SkPaint_Reference#Paint'>Paint</a> <a href='SkPaint_Referenc
 | <a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> | false |
 | <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a> | false |
 | <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> | false |
-| <a href='#SkPaint_Hinting'>Hinting</a> | <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a> |
+| <a href='#SkPaint_Hinting'>Hinting</a> | <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> |
 | <a href='#Image_Filter'>Image_Filter</a> | nullptr |
 | <a href='#Paint_LCD_Text'>LCD_Text</a> | false |
 | <a href='#Paint_Linear_Text'>Linear_Text</a> | false |
@@ -673,8 +673,8 @@ On <a href='#OS_X'>OS_X</a> <a href='#OS_X'>and</a> <a href='#OS_X'>iOS</a>, <a 
 
 <a href='#SkPaint_kLCDRenderText_Flag'>On</a> <a href='#SkPaint_kLCDRenderText_Flag'>Windows</a> <a href='#SkPaint_kLCDRenderText_Flag'>with</a> <a href='#SkPaint_kLCDRenderText_Flag'>DirectWrite</a>, <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>has</a> <a href='#SkPaint_Hinting'>no</a> <a href='#SkPaint_Hinting'>effect</a>.
 
-<a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>defaults</a> <a href='#SkPaint_Hinting'>to</a> <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a>.
-<a href='#SkPaint_kNormal_Hinting'>Set</a> <a href='undocumented#SkPaintDefaults_Hinting'>SkPaintDefaults_Hinting</a> <a href='undocumented#SkPaintDefaults_Hinting'>at</a> <a href='undocumented#SkPaintDefaults_Hinting'>compile</a> <a href='undocumented#SkPaintDefaults_Hinting'>time</a> <a href='undocumented#SkPaintDefaults_Hinting'>to</a> <a href='undocumented#SkPaintDefaults_Hinting'>change</a> <a href='undocumented#SkPaintDefaults_Hinting'>the</a> <a href='undocumented#SkPaintDefaults_Hinting'>default</a> <a href='undocumented#SkPaintDefaults_Hinting'>setting</a>.
+<a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>defaults</a> <a href='#SkPaint_Hinting'>to</a> <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>.
+<a href='#SkFontHinting_kNormal'>Set</a> <a href='undocumented#SkPaintDefaults_Hinting'>SkPaintDefaults_Hinting</a> <a href='undocumented#SkPaintDefaults_Hinting'>at</a> <a href='undocumented#SkPaintDefaults_Hinting'>compile</a> <a href='undocumented#SkPaintDefaults_Hinting'>time</a> <a href='undocumented#SkPaintDefaults_Hinting'>to</a> <a href='undocumented#SkPaintDefaults_Hinting'>change</a> <a href='undocumented#SkPaintDefaults_Hinting'>the</a> <a href='undocumented#SkPaintDefaults_Hinting'>default</a> <a href='undocumented#SkPaintDefaults_Hinting'>setting</a>.
 
 <a name='SkPaint_getHinting'></a>
 
@@ -692,12 +692,12 @@ one of: <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>, <a href='#SkPaint_kSligh
 
 ### Example
 
-<div><fiddle-embed name="329e2e5a5919ac431e1c58878a5b99e0">
+<div><fiddle-embed name="b56b70c7ea2453c41bfa58b626953bed">
 
 #### Example Output
 
 ~~~~
-SkPaint::kNormal_Hinting == paint.getHinting()
+SkFontHinting::kNormal == paint.getHinting()
 ~~~~
 
 </fiddle-embed></div>
@@ -754,7 +754,7 @@ Does not check for valid values of <a href='#SkPaint_setHinting_2_h'>h</a>.
 
 ### Example
 
-<div><fiddle-embed name="78153fbd3f1000cb33b97bbe831ed34e">
+<div><fiddle-embed name="bb179ec5698ec1398ff18f3657ab73f7">
 
 #### Example Output
 
@@ -1179,8 +1179,8 @@ paint1 == paint2
 <a name='Linear_Text'></a>
 
 <a href='#Paint_Linear_Text'>Linear_Text</a> <a href='#Paint_Linear_Text'>selects</a> <a href='#Paint_Linear_Text'>whether</a> <a href='undocumented#Text'>text</a> <a href='undocumented#Text'>is</a> <a href='undocumented#Text'>rendered</a> <a href='undocumented#Text'>as</a> <a href='undocumented#Text'>a</a> <a href='undocumented#Glyph'>Glyph</a> <a href='undocumented#Glyph'>or</a> <a href='undocumented#Glyph'>as</a> <a href='undocumented#Glyph'>a</a> <a href='SkPath_Reference#Path'>Path</a>.
-<a href='SkPath_Reference#Path'>If</a> <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> <a href='#SkPaint_kLinearText_Flag'>is</a> <a href='#SkPaint_kLinearText_Flag'>set</a>, <a href='#SkPaint_kLinearText_Flag'>it</a> <a href='#SkPaint_kLinearText_Flag'>has</a> <a href='#SkPaint_kLinearText_Flag'>the</a> <a href='#SkPaint_kLinearText_Flag'>same</a> <a href='#SkPaint_kLinearText_Flag'>effect</a> <a href='#SkPaint_kLinearText_Flag'>as</a> <a href='#SkPaint_kLinearText_Flag'>setting</a> <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>to</a> <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a>.
-<a href='#SkPaint_kNormal_Hinting'>If</a> <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> <a href='#SkPaint_kLinearText_Flag'>is</a> <a href='#SkPaint_kLinearText_Flag'>clear</a>, <a href='#SkPaint_kLinearText_Flag'>it</a> <a href='#SkPaint_kLinearText_Flag'>is</a> <a href='#SkPaint_kLinearText_Flag'>the</a> <a href='#SkPaint_kLinearText_Flag'>same</a> <a href='#SkPaint_kLinearText_Flag'>as</a> <a href='#SkPaint_kLinearText_Flag'>setting</a> <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>to</a> <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>.
+<a href='SkPath_Reference#Path'>If</a> <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> <a href='#SkPaint_kLinearText_Flag'>is</a> <a href='#SkPaint_kLinearText_Flag'>set</a>, <a href='#SkPaint_kLinearText_Flag'>it</a> <a href='#SkPaint_kLinearText_Flag'>has</a> <a href='#SkPaint_kLinearText_Flag'>the</a> <a href='#SkPaint_kLinearText_Flag'>same</a> <a href='#SkPaint_kLinearText_Flag'>effect</a> <a href='#SkPaint_kLinearText_Flag'>as</a> <a href='#SkPaint_kLinearText_Flag'>setting</a> <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>to</a> <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>.
+<a href='#SkFontHinting_kNormal'>If</a> <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> <a href='#SkPaint_kLinearText_Flag'>is</a> <a href='#SkPaint_kLinearText_Flag'>clear</a>, <a href='#SkPaint_kLinearText_Flag'>it</a> <a href='#SkPaint_kLinearText_Flag'>is</a> <a href='#SkPaint_kLinearText_Flag'>the</a> <a href='#SkPaint_kLinearText_Flag'>same</a> <a href='#SkPaint_kLinearText_Flag'>as</a> <a href='#SkPaint_kLinearText_Flag'>setting</a> <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>to</a> <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>.
 
 <a name='SkPaint_isLinearText'></a>
 
@@ -1476,7 +1476,7 @@ paint1 == paint2
 
 <a name='Automatic_Hinting'></a>
 
-If <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>is</a> <a href='#SkPaint_Hinting'>set</a> <a href='#SkPaint_Hinting'>to</a> <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a> <a href='#SkPaint_kNormal_Hinting'>or</a> <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a>, <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a>
+If <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>is</a> <a href='#SkPaint_Hinting'>set</a> <a href='#SkPaint_Hinting'>to</a> <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> <a href='#SkFontHinting_kNormal'>or</a> <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a>
 <a href='#Paint_Automatic_Hinting'>instructs</a> <a href='#Paint_Automatic_Hinting'>the</a> <a href='#Font_Manager'>Font_Manager</a> <a href='#Font_Manager'>to</a> <a href='#Font_Manager'>always</a> <a href='#Font_Manager'>hint</a> <a href='undocumented#Glyph'>Glyphs</a>.
 <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a> <a href='#Paint_Automatic_Hinting'>has</a> <a href='#Paint_Automatic_Hinting'>no</a> <a href='#Paint_Automatic_Hinting'>effect</a> <a href='#Paint_Automatic_Hinting'>if</a> <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>is</a> <a href='#SkPaint_Hinting'>set</a> <a href='#SkPaint_Hinting'>to</a> <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a> <a href='#SkPaint_kNo_Hinting'>or</a>
 <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a>.

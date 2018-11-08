@@ -60,7 +60,7 @@ Constructs Paint with default values.
 # Font_Embedded_Bitmaps  # false                    ##
 # Automatic_Hinting      # false                    ##
 # Full_Hinting_Spacing   # false                    ##
-# Hinting                # kNormal_Hinting          ##
+# Hinting                # SkFontHinting::kNormal   ##
 # Image_Filter           # nullptr                  ##
 # LCD_Text               # false                    ##
 # Linear_Text            # false                    ##
@@ -350,7 +350,7 @@ the LCD output is reduced to a single grayscale channel.
 
 On Windows with DirectWrite, Hinting has no effect.
 
-Hinting defaults to kNormal_Hinting.
+Hinting defaults to SkFontHinting::kNormal.
 Set SkPaintDefaults_Hinting at compile time to change the default setting.
 
 #ToDo add an illustration? linux running GM:typefacerendering is best for this
@@ -366,11 +366,11 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
 
 #Example
         SkPaint paint;
-        SkDebugf("SkPaint::kNormal_Hinting %c= paint.getHinting()\n",
-                SkPaint::kNormal_Hinting == paint.getHinting() ? '=' : ':');
+        SkDebugf("SkFontHinting::kNormal %c= paint.getHinting()\n",
+                SkFontHinting::kNormal == paint.getHinting() ? '=' : ':');
 
         #StdOut
-            SkPaint::kNormal_Hinting == paint.getHinting()
+            SkFontHinting::kNormal == paint.getHinting()
         ##
     ##
 ##
@@ -397,7 +397,7 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
 
     #Example
         SkPaint paint1, paint2;
-        paint2.setHinting(SkPaint::kNormal_Hinting);
+        paint2.setHinting(SkFontHinting::kNormal);
         SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : ':');
 
         #StdOut
@@ -790,8 +790,8 @@ kLCDRenderText_Flag or kSubpixelText_Flag (or both) at compile time.
 #Line # selects text rendering as Glyph or Path ##
 
 Linear_Text selects whether text is rendered as a Glyph or as a Path.
-If kLinearText_Flag is set, it has the same effect as setting Hinting to kNormal_Hinting.
-If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
+If kLinearText_Flag is set, it has the same effect as setting Hinting to SkFontHinting::kNormal.
+If kLinearText_Flag is clear, it is the same as setting Hinting to SkFontHinting::kNone.
 #Subtopic Linear_Text ##
 
 #Method bool isLinearText() const
@@ -1048,7 +1048,7 @@ kEmbeddedBitmapText_Flag at compile time.
 #Line # always adjust glyph paths ##
 #Substitute auto-hinting
 
-If Hinting is set to kNormal_Hinting or kFull_Hinting, Automatic_Hinting
+If Hinting is set to SkFontHinting::kNormal or SkFontHinting::kFull, Automatic_Hinting
 instructs the Font_Manager to always hint Glyphs.
 Automatic_Hinting has no effect if Hinting is set to kNo_Hinting or
 kSlight_Hinting.
