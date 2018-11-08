@@ -27,11 +27,12 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
         <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a> = 3,
     };
 
+    <a href='#SkPaint_kFull_Hinting'>void</a> <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='undocumented#SkFontHinting'>hintingLevel</a>);
     <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() <a href='#SkPaint_getHinting'>const</a>;
-    <a href='#SkPaint_getHinting'>void</a> <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='undocumented#SkFontHinting'>hintingLevel</a>);
-   <a href='undocumented#SkFontHinting'>void</a> <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>hintingLevel</a>);
+    <a href='#SkPaint_getHinting'>void</a> <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>h</a>);
+    <a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() <a href='#SkPaint_getHinting'>const</a>;
 
-    <a href='#SkPaint_Hinting'>enum</a> <a href='#SkPaint_Flags'>Flags</a> {
+    <a href='#SkPaint_getHinting'>enum</a> <a href='#SkPaint_Flags'>Flags</a> {
         <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a> = 0<a href='#SkPaint_kAntiAlias_Flag'>x01</a>,
         <a href='#SkPaint_kDither_Flag'>kDither_Flag</a> = 0<a href='#SkPaint_kDither_Flag'>x04</a>,
         <a href='#SkPaint_kFakeBoldText_Flag'>kFakeBoldText_Flag</a> = 0<a href='#SkPaint_kFakeBoldText_Flag'>x20</a>,
@@ -715,11 +716,11 @@ Does not check for valid values of <a href='#SkPaint_setHinting_hintingLevel'>hi
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_setHinting_hintingLevel'><code><strong>hintingLevel</strong></code></a></td>
-    <td>one of: <a href='undocumented#kNo_SkFontHinting'>kNo_SkFontHinting</a>, <a href='undocumented#kSlight_SkFontHinting'>kSlight_SkFontHinting</a>,</td>
+    <td>one of: <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>,</td>
   </tr>
 </table>
 
-<a href='undocumented#kNormal_SkFontHinting'>kNormal_SkFontHinting</a>, <a href='undocumented#kFull_SkFontHinting'>kFull_SkFontHinting</a>
+<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
 
 ### Example
 
@@ -738,15 +739,15 @@ paint1 == paint2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>hintingLevel</a>)
+void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_Hinting'>h</a>)
 </pre>
 
 Sets level of <a href='undocumented#Glyph'>glyph</a> <a href='undocumented#Glyph'>outline</a> <a href='undocumented#Glyph'>adjustment</a>.
-Does not check for valid values of <a href='#SkPaint_setHinting_2_hintingLevel'>hintingLevel</a>.
+Does not check for valid values of <a href='#SkPaint_setHinting_2_h'>h</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name='SkPaint_setHinting_2_hintingLevel'><code><strong>hintingLevel</strong></code></a></td>
+<table>  <tr>    <td><a name='SkPaint_setHinting_2_h'><code><strong>h</strong></code></a></td>
     <td>one of: <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>, <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a>, <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a>, <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a></td>
   </tr>
 </table>

@@ -345,14 +345,14 @@ FT_Load_Glyph
 ##
 #Class SkFont
 ##
-#Enum SkFontHinting
-#Const kNo_SkFontHinting 0
+#EnumClass SkFontHinting
+#Const kNone 0
 ##
-#Const kSlight_SkFontHinting 1
+#Const kSlight 1
 ##
-#Const kNormal_SkFontHinting 2
+#Const kNormal 2
 ##
-#Const kFull_SkFontHinting 3
+#Const kFull 3
 ##
 ##
 #Struct SkFontMetrics
