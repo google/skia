@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e61fce90_32a3a023",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-08T14:44:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ddd8e43_1326ec0c",
+      "range": {
+        "startLine": 33,
+        "startChar": 39,
+        "endLine": 33,
+        "endChar": 40
+      },
+      "revId": "82cdbcb7d510c585add1af389b4134a715c299df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d959c54_82fe1475",
         "filename": "src/gpu/ops/GrMeshDrawOp.h",
         "patchSetId": 2
@@ -65,6 +89,48 @@
     },
     {
       "key": {
+        "uuid": "b285a202_8f1ffe4a",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-08T14:44:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97eb1ecc_f9316c1e",
+      "range": {
+        "startLine": 35,
+        "startChar": 22,
+        "endLine": 35,
+        "endChar": 46
+      },
+      "revId": "82cdbcb7d510c585add1af389b4134a715c299df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6fbd1477_8bacc6c8",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-08T14:44:29Z",
+      "side": 1,
+      "message": "Yup. I almost did alignof(T) \u003c\u003d 4, which more accurately reflects the behavior of our other code, but we don\u0027t currently use any attribute types that don\u0027t have 4 byte alignment (I think?) If we did, then this would need to be something like:\n\nmemcpy(...)\nreturn WriteVertexData((char*)verts + SkAlign4(sizeof(T)), remainder...)\n\nProbably easier to just assert that everything is four-byte aligned for now, until I hit a case that isn\u0027t.",
+      "parentUuid": "1d959c54_82fe1475",
+      "revId": "82cdbcb7d510c585add1af389b4134a715c299df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac2b5a45_f893236c",
         "filename": "src/gpu/ops/GrMeshDrawOp.h",
         "patchSetId": 2
@@ -93,6 +159,30 @@
       "writtenOn": "2018-11-07T21:56:23Z",
       "side": 1,
       "message": "This pattern also has me wondering if we want to write this as\n\n   vertices \u003d writeVertexDataIf(fClipPlane,      vertices, circle.fClipPlane);\n   vertices \u003d writeVertexDataIf(fClipPlaneIsect, vertices, circle.fISectPlane);\n   ...",
+      "range": {
+        "startLine": 1261,
+        "startChar": 12,
+        "endLine": 1263,
+        "endChar": 17
+      },
+      "revId": "82cdbcb7d510c585add1af389b4134a715c299df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93505e0c_a15dd70e",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-08T14:44:29Z",
+      "side": 1,
+      "message": "How much do we want to abuse the compiler? Paired bool/T variadic arguments would allow:\n\nWriteVertexDataIf(vertices,\n                  true, position,\n                  true, color,\n                  ...\n                  fClipPlane, circle.fClipPlane,\n                  fClipPlaneIsect, circle.fIsectPlane,\n                  ...);\n\nThough the upcoming color changes are likely to result in branchy code (with varying types for the attribute). Again, unless we add another helper? The version I posted is probably overkill, but your WriteVertexDataIf might be nice, and then leads to something like:\n\ntemplate \u003ctypename T, typename U\u003e\nvoid* WriteVertexDataIfElse(void*, bool cond, const T\u0026 v0, const T\u0026 v1) {\n}",
+      "parentUuid": "9334c11a_31f66b96",
       "range": {
         "startLine": 1261,
         "startChar": 12,
