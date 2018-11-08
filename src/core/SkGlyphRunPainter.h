@@ -40,7 +40,6 @@ public:
     static bool GlyphTooBigForAtlas(const SkGlyph& glyph);
 };
 
-
 class SkGlyphRunListPainter {
 public:
     // Constructor for SkBitmpapDevice.

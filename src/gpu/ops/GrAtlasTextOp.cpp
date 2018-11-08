@@ -126,7 +126,7 @@ SkString GrAtlasTextOp::dumpInfo() const {
                     fGeoData[i].fColor.toBytes_RGBA(),
                     fGeoData[i].fX,
                     fGeoData[i].fY,
-                    fGeoData[i].fBlob->runCount());
+                    fGeoData[i].fBlob->runCountLimit());
     }
 
     str += fProcessors.dumpProcessors();
