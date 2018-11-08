@@ -696,28 +696,18 @@ GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 // extract the result vertices and indices from the GrAAConvexTessellator
 static void extract_lines_only_verts(const GrAAConvexTessellator& tess,
                                      void* vertices,
-                                     size_t vertexStride,
                                      GrColor color,
                                      uint16_t* idxs,
                                      bool tweakAlphaForCoverage) {
-    intptr_t verts = reinterpret_cast<intptr_t>(vertices);
-
     for (int i = 0; i < tess.numPts(); ++i) {
-        *((SkPoint*)((intptr_t)verts + i * vertexStride)) = tess.point(i);
-    }
-
-    // Make 'verts' point to the colors
-    verts += sizeof(SkPoint);
-    for (int i = 0; i < tess.numPts(); ++i) {
+        vertices = GrMeshDrawOp::WriteVertexData(vertices, tess.point(i));
         if (tweakAlphaForCoverage) {
             SkASSERT(SkScalarRoundToInt(255.0f * tess.coverage(i)) <= 255);
             unsigned scale = SkScalarRoundToInt(255.0f * tess.coverage(i));
             GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
-            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
+            vertices = GrMeshDrawOp::WriteVertexData(vertices, scaledColor);
         } else {
-            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
-            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) =
-                    tess.coverage(i);
+            vertices = GrMeshDrawOp::WriteVertexData(vertices, color, tess.coverage(i));
         }
     }
 
@@ -845,7 +835,7 @@ private:
             }
 
             // TODO4F: Preserve float colors
-            extract_lines_only_verts(tess, verts, vertexStride, args.fColor.toBytes_RGBA(), idxs,
+            extract_lines_only_verts(tess, verts, args.fColor.toBytes_RGBA(), idxs,
                                      fHelper.compatibleWithAlphaAsCoverage());
 
             GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
