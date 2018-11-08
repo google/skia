@@ -158,7 +158,7 @@ void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar tex
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-            *this, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
+            *this, props, SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
 
     for (int index = 0; index < count; index++) {
         textData[index] = cache->glyphToUnichar(glyphs[index]);
@@ -486,7 +486,8 @@ SkScalar SkPaint::getFontMetrics(SkFontMetrics* metrics) const {
     SkScalerContextEffects effects;
 
     auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        paint, nullptr, SkScalerContextFlags::kNone, nullptr, &ad, &effects);
+        paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
+        SkScalerContextFlags::kNone, SkMatrix::I(), &ad, &effects);
 
     {
         auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
@@ -788,8 +789,8 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
 
     // SRGBTODO: Is this correct?
     fCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-        fPaint, nullptr,
-        SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
+        fPaint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
+        SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
 
     SkPaint::Style  style = SkPaint::kFill_Style;
     sk_sp<SkPathEffect> pe;
