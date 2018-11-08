@@ -21,7 +21,8 @@ static void do_font_stuff(SkPaint* paint) {
     for (SkScalar i = 8; i < 64; i++) {
         paint->setTextSize(i);
         auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                *paint, nullptr, SkScalerContextFlags::kNone, nullptr);
+                *paint,  SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                SkScalerContextFlags::kNone, SkMatrix::I());
         uint16_t glyphs['z'];
         for (int c = ' '; c < 'z'; c++) {
             glyphs[c] = cache->unicharToGlyph(c);

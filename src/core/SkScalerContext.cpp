@@ -900,15 +900,14 @@ static SkFontHinting computeHinting(const SkFont& font) {
 
 // The only reason this is not file static is because it needs the context of SkScalerContext to
 // access SkPaint::computeLuminanceColor.
-void SkScalerContext::MakeRecAndEffects(const SkFont& font,
-                                        const SkPaint& paint,
-                                        const SkSurfaceProps* surfaceProps,
-                                        const SkMatrix* deviceMatrix,
+void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint,
+                                        const SkSurfaceProps& surfaceProps,
                                         SkScalerContextFlags scalerContextFlags,
+                                        const SkMatrix& deviceMatrix,
                                         SkScalerContextRec* rec,
                                         SkScalerContextEffects* effects,
                                         bool enableTypefaceFiltering) {
-    SkASSERT(deviceMatrix == nullptr || !deviceMatrix->hasPerspective());
+    SkASSERT(!deviceMatrix.hasPerspective());
 
     sk_bzero(rec, sizeof(SkScalerContextRec));
 
@@ -921,24 +920,19 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font,
 
     bool checkPost2x2 = false;
 
-    if (deviceMatrix) {
-        const SkMatrix::TypeMask mask = deviceMatrix->getType();
-        if (mask & SkMatrix::kScale_Mask) {
-            rec->fPost2x2[0][0] = sk_relax(deviceMatrix->getScaleX());
-            rec->fPost2x2[1][1] = sk_relax(deviceMatrix->getScaleY());
-            checkPost2x2 = true;
-        } else {
-            rec->fPost2x2[0][0] = rec->fPost2x2[1][1] = SK_Scalar1;
-        }
-        if (mask & SkMatrix::kAffine_Mask) {
-            rec->fPost2x2[0][1] = sk_relax(deviceMatrix->getSkewX());
-            rec->fPost2x2[1][0] = sk_relax(deviceMatrix->getSkewY());
-            checkPost2x2 = true;
-        } else {
-            rec->fPost2x2[0][1] = rec->fPost2x2[1][0] = 0;
-        }
+    const SkMatrix::TypeMask mask = deviceMatrix.getType();
+    if (mask & SkMatrix::kScale_Mask) {
+        rec->fPost2x2[0][0] = sk_relax(deviceMatrix.getScaleX());
+        rec->fPost2x2[1][1] = sk_relax(deviceMatrix.getScaleY());
+        checkPost2x2 = true;
     } else {
         rec->fPost2x2[0][0] = rec->fPost2x2[1][1] = SK_Scalar1;
+    }
+    if (mask & SkMatrix::kAffine_Mask) {
+        rec->fPost2x2[0][1] = sk_relax(deviceMatrix.getSkewX());
+        rec->fPost2x2[1][0] = sk_relax(deviceMatrix.getSkewY());
+        checkPost2x2 = true;
+    } else {
         rec->fPost2x2[0][1] = rec->fPost2x2[1][0] = 0;
     }
 
@@ -989,9 +983,8 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font,
             rec->fMaskFormat = SkMask::kA8_Format;
             flags |= SkScalerContext::kGenA8FromLCD_Flag;
         } else {
-            SkPixelGeometry geometry = surfaceProps
-                                       ? surfaceProps->pixelGeometry()
-                                       : SkSurfacePropsDefaultPixelGeometry();
+            SkPixelGeometry geometry = surfaceProps.pixelGeometry();
+
             switch (geometry) {
                 case kUnknown_SkPixelGeometry:
                     // eeek, can't support LCD
@@ -1113,14 +1106,14 @@ SkDescriptor* SkScalerContext::MakeDescriptorForPaths(SkFontID typefaceID,
 }
 
 SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-    const SkPaint& paint, const SkSurfaceProps* surfaceProps,
+    const SkPaint& paint, const SkSurfaceProps& surfaceProps,
     SkScalerContextFlags scalerContextFlags,
-    const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
+    const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,
     SkScalerContextEffects* effects) {
 
     SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     SkScalerContextRec rec;
-    MakeRecAndEffects(font, paint, surfaceProps, deviceMatrix, scalerContextFlags, &rec, effects);
+    MakeRecAndEffects(font, paint, surfaceProps, scalerContextFlags, deviceMatrix, &rec, effects);
     return AutoDescriptorGivenRecAndEffects(rec, *effects, ad);
 }
 

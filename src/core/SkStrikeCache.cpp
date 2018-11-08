@@ -148,9 +148,9 @@ SkExclusiveStrikePtr SkStrikeCache::findOrCreateStrikeExclusive(
 
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
         const SkPaint& paint,
-        const SkSurfaceProps* surfaceProps,
+        const SkSurfaceProps& surfaceProps,
         SkScalerContextFlags scalerContextFlags,
-        const SkMatrix* deviceMatrix)
+        const SkMatrix& deviceMatrix)
 {
     SkAutoDescriptor ad;
     SkScalerContextEffects effects;
@@ -163,9 +163,10 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
     return FindOrCreateStrikeExclusive(*desc, effects, *tf);
 }
 
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(const SkPaint& paint) {
+SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(const SkPaint& paint) {
     return FindOrCreateStrikeExclusive(
-            paint, nullptr, kFakeGammaAndBoostContrast, nullptr);
+            paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
+            kFakeGammaAndBoostContrast, SkMatrix::I());
 }
 
 void SkStrikeCache::PurgeAll() {
