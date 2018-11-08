@@ -242,8 +242,7 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y, dstType dst[], int coun
     while (count > 0) {
         // What we really want here is SkTPin(advance, 1, count)
         // but that's a significant perf hit for >> stops; investigate.
-        const int n = SkScalarTruncToInt(
-            SkTMin<SkScalar>(proc.currentAdvance() + 1, SkIntToScalar(count)));
+        const int n = SkTMin(SkScalarTruncToInt(proc.currentAdvance() + 1), count);
 
         // The current interval advance can be +inf (e.g. when reaching
         // the clamp mode end intervals) - when that happens, we expect to
