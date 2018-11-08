@@ -46,6 +46,30 @@
       "revId": "475630b05e97bea3d21a135860c45e85b23f099d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d568dbbf_626bec61",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-08T18:35:46Z",
+      "side": 1,
+      "message": "Done in latest patchset",
+      "parentUuid": "36a29248_196cc28b",
+      "range": {
+        "startLine": 758,
+        "startChar": 28,
+        "endLine": 758,
+        "endChar": 50
+      },
+      "revId": "475630b05e97bea3d21a135860c45e85b23f099d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
