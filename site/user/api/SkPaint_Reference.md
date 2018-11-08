@@ -692,7 +692,7 @@ one of: <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>, <a href='#SkPaint_kSligh
 
 ### Example
 
-<div><fiddle-embed name="329e2e5a5919ac431e1c58878a5b99e0">
+<div><fiddle-embed name="b56b70c7ea2453c41bfa58b626953bed">
 
 #### Example Output
 
@@ -754,7 +754,7 @@ Does not check for valid values of <a href='#SkPaint_setHinting_2_h'>h</a>.
 
 ### Example
 
-<div><fiddle-embed name="78153fbd3f1000cb33b97bbe831ed34e">
+<div><fiddle-embed name="bb179ec5698ec1398ff18f3657ab73f7">
 
 #### Example Output
 
