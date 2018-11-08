@@ -9,7 +9,7 @@
 #define GrAtlasTextOp_DEFINED
 
 #include "ops/GrMeshDrawOp.h"
-#include "text/GrTextContext.h"
+#include "text/GrTextBlob.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 #include "text/GrGlyphCache.h"
 

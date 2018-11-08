@@ -12,6 +12,7 @@
 #include "GrDrawOpAtlas.h"
 #include "GrGlyphCache.h"
 #include "GrTextTarget.h"
+#include "text/GrTextContext.h"
 #include "SkDescriptor.h"
 #include "SkMaskFilterBase.h"
 #include "SkOpts.h"
@@ -48,10 +49,22 @@ class SkTextBlobRunIterator;
  * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
 class GrTextBlob : public SkNVRefCnt<GrTextBlob> {
+    struct Run;
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
 
     class VertexRegenerator;
+
+    void generateFromGlyphRunList(GrGlyphCache* glyphCache,
+                                  const GrShaderCaps& shaderCaps,
+                                  const GrTextContext::Options& options,
+                                  const SkPaint& paint,
+                                  const SkPMColor4f& filteredColor,
+                                  SkScalerContextFlags scalerContextFlags,
+                                  const SkMatrix& viewMatrix,
+                                  const SkSurfaceProps& props,
+                                  const SkGlyphRunList& glyphRunList,
+                                  SkGlyphRunListPainter* glyphPainter);
 
     static sk_sp<GrTextBlob> Make(int glyphCount, int runCount);
 
@@ -119,10 +132,10 @@ public:
     void setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
     void setHasBitmap() { fTextType |= kHasBitmap_TextType; }
 
-    int runCount() const { return fRunCount; }
+    int runCount() const { return fRunCountLimit; }
 
-    void push_back_run(int currRun) {
-        SkASSERT(currRun < fRunCount);
+    void pushBackRun(int currRun) {
+        SkASSERT(currRun < fRunCountLimit);
         if (currRun > 0) {
             Run::SubRunInfo& newRun = fRuns[currRun].fSubRunInfo.back();
             Run::SubRunInfo& lastRun = fRuns[currRun - 1].fSubRunInfo.back();
@@ -267,7 +280,7 @@ public:
     size_t size() const { return fSize; }
 
     ~GrTextBlob() {
-        for (int i = 0; i < fRunCount; i++) {
+        for (int i = 0; i < fRunCountLimit; i++) {
             fRuns[i].~Run();
         }
     }
@@ -300,7 +313,7 @@ private:
         fInitialY = y;
 
         // make sure all initial subruns have the correct VM and X/Y applied
-        for (int i = 0; i < fRunCount; i++) {
+        for (int i = 0; i < fRunCountLimit; i++) {
             fRuns[i].fSubRunInfo[0].init(fInitialViewMatrix, x, y);
         }
     }
@@ -546,7 +559,7 @@ private:
     // maximum minimum scale, and minimum maximum scale, we can support before we need to regen
     SkScalar fMaxMinScale;
     SkScalar fMinMaxScale;
-    int fRunCount;
+    int fRunCountLimit;
     uint8_t fTextType;
 };
 

@@ -54,7 +54,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
     for (int i = 0; i < runCount; i++) {
         new (&cacheBlob->fRuns[i]) GrTextBlob::Run;
     }
-    cacheBlob->fRunCount = runCount;
+    cacheBlob->fRunCountLimit = runCount;
     return cacheBlob;
 }
 
@@ -294,7 +294,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 
     // GrTextBlob::makeOp only takes uint16_t values for run and subRun indices.
     // Encountering something larger than this is highly unlikely, so we'll just not draw it.
-    int lastRun = SkTMin(fRunCount, (1 << 16)) - 1;
+    int lastRun = SkTMin(fRunCountLimit, (1 << 16)) - 1;
     // For each run in the GrTextBlob we're going to churn through all the glyphs.
     // Each run is broken into a path part and a Mask / DFT / ARGB part.
     for (int runIndex = 0; runIndex <= lastRun; runIndex++) {
@@ -465,8 +465,8 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
     SkASSERT_RELEASE(l.fMinMaxScale == r.fMinMaxScale);
     SkASSERT_RELEASE(l.fTextType == r.fTextType);
 
-    SkASSERT_RELEASE(l.fRunCount == r.fRunCount);
-    for (int i = 0; i < l.fRunCount; i++) {
+    SkASSERT_RELEASE(l.fRunCountLimit == r.fRunCountLimit);
+    for (int i = 0; i < l.fRunCountLimit; i++) {
         const Run& lRun = l.fRuns[i];
         const Run& rRun = r.fRuns[i];
 
