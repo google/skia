@@ -12,6 +12,7 @@
 #include "GrDrawOp.h"
 #include "GrGeometryProcessor.h"
 #include "GrMesh.h"
+#include <type_traits>
 
 class GrAtlasManager;
 class GrCaps;
@@ -25,6 +26,35 @@ class GrMeshDrawOp : public GrDrawOp {
 public:
     /** Abstract interface that represents a destination for a GrMeshDrawOp. */
     class Target;
+
+    /**
+     * Helpers for writing vertex data to a buffer. Usage:
+     *  void* vertices = ...;
+     *  vertices = WriteVertexData(vertices, A0, B0, C0, ...);
+     *  vertices = WriteVertexData(vertices, A1, B1, C1, ...);
+     *
+     * Supports any number of arguments. Each argument must be trivially copyable (or an array
+     * thereof).
+     */
+    template <typename T, typename... Args>
+    static inline void* SK_WARN_UNUSED_RESULT WriteVertexData(void* verts, const T& val,
+                                                              const Args&... remainder) {
+        static_assert(std::is_pod<T>::value, "");
+        static_assert(alignof(T) == 4, "");
+        memcpy(verts, &val, sizeof(T));
+        return WriteVertexData((char*)verts + sizeof(T), remainder...);
+    }
+
+    template <typename T, size_t N, typename... Args>
+    static inline void* SK_WARN_UNUSED_RESULT WriteVertexData(void* verts, const T (&val)[N],
+                                                              const Args&... remainder) {
+        static_assert(std::is_pod<T>::value, "");
+        static_assert(alignof(T) == 4, "");
+        memcpy(verts, val, N * sizeof(T));
+        return WriteVertexData((char*)verts + (N * sizeof(T)), remainder...);
+    }
+
+    static inline void* SK_WARN_UNUSED_RESULT WriteVertexData(void* verts) { return verts; }
 
 protected:
     GrMeshDrawOp(uint32_t classID);
