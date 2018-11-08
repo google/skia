@@ -108,7 +108,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
         sk_sp<GrRenderTargetContext> renderTargetContext(
             fContext->contextPriv().makeDeferredRenderTargetContext(
                 format, SkBackingFit::kExact, this->width(), this->height(),
-                kRGBA_8888_GrPixelConfig, std::move(fColorSpace), 1, GrMipMapped::kNo, fOrigin));
+                kRGBA_8888_GrPixelConfig, fColorSpace, 1, GrMipMapped::kNo, fOrigin));
         if (!renderTargetContext) {
             return nullptr;
         }
