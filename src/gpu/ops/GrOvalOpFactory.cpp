@@ -1553,8 +1553,8 @@ private:
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        char* vertices = (char*)target->makeVertexSpace(kVertexStride, fVertCount, &vertexBuffer,
-                                                        &firstVertex);
+        void* vertices = target->makeVertexSpace(kVertexStride, fVertCount, &vertexBuffer,
+                                                 &firstVertex);
         if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1577,9 +1577,11 @@ private:
             const SkRect& bounds = circle.fDevBounds;
             bool reflect = false;
             SkScalar totalAngle = circle.fTotalAngle;
+            SkScalar startAngle = circle.fStartAngle;
             if (totalAngle < 0) {
                 reflect = true;
                 totalAngle = -totalAngle;
+                startAngle = -startAngle;
             }
 
             // TODO4F: Preserve float colors
@@ -1588,61 +1590,58 @@ private:
             // The bounding geometry for the circle is composed of an outer bounding octagon and
             // an inner bounded octagon.
 
-            // Initializes the attributes that are the same at each vertex. Also applies reflection.
-            auto init_const_attrs_and_reflect = [&](CircleVertex* v) {
-                v->fColor = color;
-                v->fOuterRadius = circle.fOuterRadius;
-                v->fInnerRadius = normInnerRadius;
-                v->fOnAngle = circle.fOnAngle;
-                v->fTotalAngle = totalAngle;
-                v->fStartAngle = circle.fStartAngle;
-                v->fPhaseAngle = circle.fPhaseAngle;
-                if (reflect) {
-                    v->fStartAngle = -v->fStartAngle;
-                    v->fOffset.fY = -v->fOffset.fY;
-                }
-            };
-
             // Compute the vertices of the outer octagon.
             SkPoint center = SkPoint::Make(bounds.centerX(), bounds.centerY());
             SkScalar halfWidth = 0.5f * bounds.width();
-            auto init_outer_vertex = [&](int idx, SkScalar x, SkScalar y) {
-                CircleVertex* v = reinterpret_cast<CircleVertex*>(vertices + idx * kVertexStride);
-                v->fPos = center + SkPoint{x * halfWidth, y * halfWidth};
-                v->fOffset = {x, y};
-                init_const_attrs_and_reflect(v);
+            auto init_outer_vertex = [&](SkScalar x, SkScalar y) {
+                vertices = WriteVertexData(vertices,
+                                           center + SkPoint{ x, y } * halfWidth,
+                                           color,
+                                           SkPoint{ x, reflect ? -y : y },
+                                           circle.fOuterRadius,
+                                           normInnerRadius,
+                                           circle.fOnAngle,
+                                           totalAngle,
+                                           startAngle,
+                                           circle.fPhaseAngle);
             };
+
             static constexpr SkScalar kOctOffset = 0.41421356237f;  // sqrt(2) - 1
-            init_outer_vertex(0, -kOctOffset, -1);
-            init_outer_vertex(1, kOctOffset, -1);
-            init_outer_vertex(2, 1, -kOctOffset);
-            init_outer_vertex(3, 1, kOctOffset);
-            init_outer_vertex(4, kOctOffset, 1);
-            init_outer_vertex(5, -kOctOffset, 1);
-            init_outer_vertex(6, -1, kOctOffset);
-            init_outer_vertex(7, -1, -kOctOffset);
+            init_outer_vertex(-kOctOffset, -1);
+            init_outer_vertex(kOctOffset, -1);
+            init_outer_vertex(1, -kOctOffset);
+            init_outer_vertex(1, kOctOffset);
+            init_outer_vertex(kOctOffset, 1);
+            init_outer_vertex(-kOctOffset, 1);
+            init_outer_vertex(-1, kOctOffset);
+            init_outer_vertex(-1, -kOctOffset);
 
             // Compute the vertices of the inner octagon.
-            auto init_inner_vertex = [&](int idx, SkScalar x, SkScalar y) {
-                CircleVertex* v =
-                        reinterpret_cast<CircleVertex*>(vertices + (idx + 8) * kVertexStride);
-                v->fPos = center + SkPoint{x * circle.fInnerRadius, y * circle.fInnerRadius};
-                v->fOffset = {x * normInnerRadius, y * normInnerRadius};
-                init_const_attrs_and_reflect(v);
+            auto init_inner_vertex = [&](SkScalar x, SkScalar y) {
+                vertices = WriteVertexData(vertices,
+                                           center + SkPoint{ x, y } * circle.fInnerRadius,
+                                           color,
+                                           SkPoint{ x, (reflect ? -y : y) } * normInnerRadius,
+                                           circle.fOuterRadius,
+                                           normInnerRadius,
+                                           circle.fOnAngle,
+                                           totalAngle,
+                                           startAngle,
+                                           circle.fPhaseAngle);
             };
 
             // cosine and sine of pi/8
             static constexpr SkScalar kCos = 0.923579533f;
             static constexpr SkScalar kSin = 0.382683432f;
 
-            init_inner_vertex(0, -kSin, -kCos);
-            init_inner_vertex(1,  kSin, -kCos);
-            init_inner_vertex(2,  kCos, -kSin);
-            init_inner_vertex(3,  kCos,  kSin);
-            init_inner_vertex(4,  kSin,  kCos);
-            init_inner_vertex(5, -kSin,  kCos);
-            init_inner_vertex(6, -kCos,  kSin);
-            init_inner_vertex(7, -kCos, -kSin);
+            init_inner_vertex(-kSin, -kCos);
+            init_inner_vertex( kSin, -kCos);
+            init_inner_vertex( kCos, -kSin);
+            init_inner_vertex( kCos,  kSin);
+            init_inner_vertex( kSin,  kCos);
+            init_inner_vertex(-kSin,  kCos);
+            init_inner_vertex(-kCos,  kSin);
+            init_inner_vertex(-kCos, -kSin);
 
             const uint16_t* primIndices = circle_type_to_indices(true);
             const int primIndexCount = circle_type_to_index_count(true);
@@ -1651,7 +1650,6 @@ private:
             }
 
             currStartVertex += circle_type_to_vert_count(true);
-            vertices += circle_type_to_vert_count(true) * kVertexStride;
         }
 
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
