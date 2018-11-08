@@ -64,7 +64,7 @@ static const SkDescriptor* create_descriptor(
     SkScalerContextRec deviceRec;
     bool enableTypefaceFiltering = (type == kDevice);
     SkScalerContext::MakeRecAndEffects(
-            font, paint, &props, &m, flags, &deviceRec, effects, enableTypefaceFiltering);
+            font, paint, props, flags, m, &deviceRec, effects, enableTypefaceFiltering);
     return SkScalerContext::AutoDescriptorGivenRecAndEffects(deviceRec, *effects, ad);
 }
 
