@@ -42,9 +42,6 @@ declare_args() {
   skia_enable_ccpr = true
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_discrete_gpu = true
-  skia_enable_effects = true
-  skia_enable_effects_imagefilters = true
-  skia_enable_effect_deserialization = !skia_enable_flutter_defines
   skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
   skia_enable_nima = false
@@ -375,38 +372,6 @@ template("optional") {
       configs += skia_library_configs
     }
   }
-}
-
-optional("effects") {
-  enabled = skia_enable_effects
-  deps = [
-    ":compile_processors",
-  ]
-  sources = skia_effects_sources
-  if (skia_enable_effects_imagefilters) {
-    sources += skia_effects_imagefilter_sources_no_global_initialization
-    if (!skia_enable_skpicture) {
-      sources -= [ "//src/effects/imagefilters/SkPictureImageFilter.cpp" ]
-    }
-  }
-}
-
-optional("effect_deserialization") {
-  enabled = skia_enable_effects && skia_enable_effect_deserialization
-
-  sources = [
-    "src/ports/SkGlobalInitialization_default.cpp",
-  ]
-  if (skia_enable_effects_imagefilters) {
-    sources += [ "src/ports/SkGlobalInitialization_default_imagefilters.cpp" ]
-  } else {
-    sources += [ "src/ports/SkGlobalInitialization_none_imagefilters.cpp" ]
-  }
-
-  sources_when_disabled = [
-    "src/ports/SkGlobalInitialization_none.cpp",
-    "src/ports/SkGlobalInitialization_none_imagefilters.cpp",
-  ]
 }
 
 optional("fontmgr_android") {
@@ -862,7 +827,6 @@ component("skia") {
   configs += skia_library_configs
 
   public_deps = [
-    ":effects",
     ":gpu",
     ":pdf",
     ":skcms",
@@ -872,8 +836,8 @@ component("skia") {
     ":arm64",
     ":armv7",
     ":avx",
+    ":compile_processors",
     ":crc32",
-    ":effect_deserialization",
     ":fontmgr_android",
     ":fontmgr_custom",
     ":fontmgr_empty",
@@ -907,6 +871,8 @@ component("skia") {
   sources += skia_core_sources
   sources += skia_utils_sources
   sources += skia_xps_sources
+  sources += skia_effects_sources
+  sources += skia_effects_imagefilter_sources
   sources += [
     "src/android/SkAndroidFrameworkUtils.cpp",
     "src/android/SkAnimatedImage.cpp",
@@ -932,6 +898,7 @@ component("skia") {
     "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
+    "src/ports/SkGlobalInitialization_default.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
     "src/ports/SkMemory_malloc.cpp",
     "src/ports/SkOSFile_stdio.cpp",
@@ -945,6 +912,7 @@ component("skia") {
   if (!skia_enable_skpicture) {
     defines = [ "SK_DISABLE_SKPICTURE" ]
     sources -= skia_skpicture_sources
+    sources -= [ "//src/effects/imagefilters/SkPictureImageFilter.cpp" ]
     sources += [ "src/core/SkPicture_none.cpp" ]
   }
 
