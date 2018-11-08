@@ -126,8 +126,8 @@ class <a href='SkImage_Reference#SkImage'>SkImage</a> : <a href='SkImage_Referen
                                <a href='#SkShader_TileMode'>const</a> <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* <a href='SkMatrix_Reference#SkMatrix'>localMatrix</a> = <a href='SkMatrix_Reference#SkMatrix'>nullptr</a>) <a href='SkMatrix_Reference#SkMatrix'>const</a>;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkShader'>SkShader</a>> <a href='#SkImage_makeShader'>makeShader</a>(<a href='#SkImage_makeShader'>const</a> <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* <a href='SkMatrix_Reference#SkMatrix'>localMatrix</a> = <a href='SkMatrix_Reference#SkMatrix'>nullptr</a>) <a href='SkMatrix_Reference#SkMatrix'>const</a>;
     <a href='SkMatrix_Reference#SkMatrix'>bool</a> <a href='#SkImage_peekPixels'>peekPixels</a>(<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>* <a href='SkPixmap_Reference#Pixmap'>pixmap</a>) <a href='SkPixmap_Reference#Pixmap'>const</a>;
-    <a href='SkPixmap_Reference#Pixmap'>GrTexture</a>* <a href='#SkImage_getTexture'>getTexture</a>() <a href='#SkImage_getTexture'>const</a>;
-    <a href='#SkImage_getTexture'>bool</a> <a href='#SkImage_isTextureBacked'>isTextureBacked</a>() <a href='#SkImage_isTextureBacked'>const</a>;
+    <a href='SkPixmap_Reference#Pixmap'>GrTexture</a>* <a href='SkPixmap_Reference#Pixmap'>getTexture</a>() <a href='SkPixmap_Reference#Pixmap'>const</a>;
+    <a href='SkPixmap_Reference#Pixmap'>bool</a> <a href='#SkImage_isTextureBacked'>isTextureBacked</a>() <a href='#SkImage_isTextureBacked'>const</a>;
     <a href='#SkImage_isTextureBacked'>bool</a> <a href='#SkImage_isValid'>isValid</a>(<a href='undocumented#GrContext'>GrContext</a>* <a href='undocumented#GrContext'>context</a>) <a href='undocumented#GrContext'>const</a>;
     <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> <a href='#SkImage_getBackendTexture'>getBackendTexture</a>(<a href='#SkImage_getBackendTexture'>bool</a> <a href='#SkImage_getBackendTexture'>flushPendingGrContextIO</a>,
                                        <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a>* <a href='undocumented#GrSurfaceOrigin'>origin</a> = <a href='undocumented#GrSurfaceOrigin'>nullptr</a>) <a href='undocumented#GrSurfaceOrigin'>const</a>;
@@ -162,13 +162,13 @@ class <a href='SkImage_Reference#SkImage'>SkImage</a> : <a href='SkImage_Referen
                                               <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>* <a href='undocumented#GrBackendTexture'>backendTexture</a>,
                                               <a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a>* <a href='#SkImage_BackendTextureReleaseProc'>backendTextureReleaseProc</a>);
 
-    <a href='#SkImage_BackendTextureReleaseProc'>enum</a> <a href='#SkImage_LegacyBitmapMode'>LegacyBitmapMode</a> {
-        <a href='#SkImage_kRO_LegacyBitmapMode'>kRO_LegacyBitmapMode</a>,
+    <a href='#SkImage_BackendTextureReleaseProc'>enum</a> <a href='#SkImage_BackendTextureReleaseProc'>LegacyBitmapMode</a> {
+        <a href='#SkImage_BackendTextureReleaseProc'>kRO_LegacyBitmapMode</a>,
     };
 
-    <a href='#SkImage_kRO_LegacyBitmapMode'>bool</a> <a href='#SkImage_asLegacyBitmap'>asLegacyBitmap</a>(<a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>* <a href='SkBitmap_Reference#Bitmap'>bitmap</a>,
-                        <a href='#SkImage_LegacyBitmapMode'>LegacyBitmapMode</a> <a href='#SkImage_LegacyBitmapMode'>legacyBitmapMode</a> = <a href='#SkImage_kRO_LegacyBitmapMode'>kRO_LegacyBitmapMode</a>) <a href='#SkImage_kRO_LegacyBitmapMode'>const</a>;
-    <a href='#SkImage_kRO_LegacyBitmapMode'>bool</a> <a href='#SkImage_isLazyGenerated'>isLazyGenerated</a>() <a href='#SkImage_isLazyGenerated'>const</a>;
+    <a href='#SkImage_BackendTextureReleaseProc'>bool</a> <a href='#SkImage_BackendTextureReleaseProc'>asLegacyBitmap</a>(<a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>* <a href='SkBitmap_Reference#Bitmap'>bitmap</a>,
+                        <a href='SkBitmap_Reference#Bitmap'>LegacyBitmapMode</a> <a href='SkBitmap_Reference#Bitmap'>legacyBitmapMode</a> = <a href='SkBitmap_Reference#Bitmap'>kRO_LegacyBitmapMode</a>) <a href='SkBitmap_Reference#Bitmap'>const</a>;
+    <a href='SkBitmap_Reference#Bitmap'>bool</a> <a href='#SkImage_isLazyGenerated'>isLazyGenerated</a>() <a href='#SkImage_isLazyGenerated'>const</a>;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkImage_makeColorSpace'>makeColorSpace</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkColorSpace'>SkColorSpace</a>> <a href='undocumented#SkColorSpace'>target</a>) <a href='undocumented#SkColorSpace'>const</a>;
 };
 </pre>
@@ -1834,16 +1834,6 @@ true if <a href='SkImage_Reference#SkImage'>SkImage</a> <a href='SkImage_Referen
 
 <a href='#SkImage_readPixels'>readPixels</a>
 
-<a name='SkImage_getTexture'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-GrTexture* <a href='#SkImage_getTexture'>getTexture</a>() <a href='#SkImage_getTexture'>const</a>
-</pre>
-
-Deprecated.
-
 <a name='SkImage_isTextureBacked'></a>
 
 ---
@@ -2546,67 +2536,6 @@ true if back-end <a href='undocumented#Texture'>texture</a> <a href='undocumente
 ### See Also
 
 <a href='#SkImage_MakeFromTexture'>MakeFromTexture</a> <a href='#SkImage_makeTextureImage'>makeTextureImage</a>
-
-<a name='SkImage_LegacyBitmapMode'></a>
-
----
-
-To be deprecated soon.
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkImage_LegacyBitmapMode'>LegacyBitmapMode</a> {
-        <a href='#SkImage_kRO_LegacyBitmapMode'>kRO_LegacyBitmapMode</a>,
-    };
-</pre>
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkImage_kRO_LegacyBitmapMode'><code>SkImage::kRO_LegacyBitmapMode</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-returned bitmap is read-only and immutable</td>
-  </tr>
-</table>
-
-<a name='SkImage_asLegacyBitmap'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkImage_asLegacyBitmap'>asLegacyBitmap</a>(<a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>* <a href='SkBitmap_Reference#Bitmap'>bitmap</a>, <a href='#SkImage_LegacyBitmapMode'>LegacyBitmapMode</a> <a href='#SkImage_LegacyBitmapMode'>legacyBitmapMode</a> = <a href='#SkImage_kRO_LegacyBitmapMode'>kRO_LegacyBitmapMode</a>) <a href='#SkImage_kRO_LegacyBitmapMode'>const</a>
-</pre>
-
-Creates raster <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a> <a href='SkBitmap_Reference#SkBitmap'>with</a> <a href='SkBitmap_Reference#SkBitmap'>same</a> <a href='SkBitmap_Reference#SkBitmap'>pixels</a> <a href='SkBitmap_Reference#SkBitmap'>as</a> <a href='SkImage_Reference#SkImage'>SkImage</a>. <a href='SkImage_Reference#SkImage'>If</a> <a href='#SkImage_asLegacyBitmap_legacyBitmapMode'>legacyBitmapMode</a> <a href='#SkImage_asLegacyBitmap_legacyBitmapMode'>is</a>
-<a href='#SkImage_kRO_LegacyBitmapMode'>kRO_LegacyBitmapMode</a>, <a href='#SkImage_kRO_LegacyBitmapMode'>returned</a> <a href='#SkImage_asLegacyBitmap_bitmap'>bitmap</a> <a href='#SkImage_asLegacyBitmap_bitmap'>is</a> <a href='#SkImage_asLegacyBitmap_bitmap'>read-only</a> <a href='#SkImage_asLegacyBitmap_bitmap'>and</a> <a href='#SkImage_asLegacyBitmap_bitmap'>immutable</a>.
-Returns true if <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a> <a href='SkBitmap_Reference#SkBitmap'>is</a> <a href='SkBitmap_Reference#SkBitmap'>stored</a> <a href='SkBitmap_Reference#SkBitmap'>in</a> <a href='#SkImage_asLegacyBitmap_bitmap'>bitmap</a>. <a href='#SkImage_asLegacyBitmap_bitmap'>Returns</a> <a href='#SkImage_asLegacyBitmap_bitmap'>false</a> <a href='#SkImage_asLegacyBitmap_bitmap'>and</a> <a href='#SkImage_asLegacyBitmap_bitmap'>resets</a> <a href='#SkImage_asLegacyBitmap_bitmap'>bitmap</a> <a href='#SkImage_asLegacyBitmap_bitmap'>if</a>
-<a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a> <a href='SkBitmap_Reference#SkBitmap'>write</a> <a href='SkBitmap_Reference#SkBitmap'>did</a> <a href='SkBitmap_Reference#SkBitmap'>not</a> <a href='SkBitmap_Reference#SkBitmap'>succeed</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkImage_asLegacyBitmap_bitmap'><code><strong>bitmap</strong></code></a></td>
-    <td>storage for legacy <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a></td>
-  </tr>
-  <tr>    <td><a name='SkImage_asLegacyBitmap_legacyBitmapMode'><code><strong>legacyBitmapMode</strong></code></a></td>
-    <td>to be deprecated</td>
-  </tr>
-</table>
-
-### Return Value
-
-true if <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a> <a href='SkBitmap_Reference#SkBitmap'>was</a> <a href='SkBitmap_Reference#SkBitmap'>created</a>
-
-### Example
-
-<div><fiddle-embed name="78374702fa113076ddc6070053ab5cd4" gpu="true"></fiddle-embed></div>
-
-### See Also
-
-<a href='#SkImage_MakeRasterData'>MakeRasterData</a> <a href='#SkImage_makeRasterImage'>makeRasterImage</a> <a href='#SkImage_makeNonTextureImage'>makeNonTextureImage</a>
 
 <a name='SkImage_isLazyGenerated'></a>
 

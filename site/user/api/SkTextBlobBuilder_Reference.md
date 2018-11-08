@@ -334,35 +334,3 @@ writable <a href='undocumented#Glyph'>glyph</a> <a href='undocumented#Glyph'>buf
 
 <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a> <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>
 
-<a name='SkTextBlobBuilder_allocRun_2'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(<a href='#SkTextBlobBuilder_allocRun'>const</a> <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='undocumented#Font'>font</a>, <a href='undocumented#Font'>int</a> <a href='undocumented#Font'>count</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#SkScalar'>x</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#SkScalar'>y</a>,
-                          <a href='undocumented#SkScalar'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>bounds</a> = <a href='SkRect_Reference#SkRect'>nullptr</a>)
-</pre>
-
-Deprecated.
-
-<a name='SkTextBlobBuilder_allocRunPosH_2'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(<a href='#SkTextBlobBuilder_allocRunPosH'>const</a> <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='undocumented#Font'>font</a>, <a href='undocumented#Font'>int</a> <a href='undocumented#Font'>count</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#SkScalar'>y</a>,
-                              <a href='undocumented#SkScalar'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>bounds</a> = <a href='SkRect_Reference#SkRect'>nullptr</a>)
-</pre>
-
-Deprecated.
-
-<a name='SkTextBlobBuilder_allocRunPos_2'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(<a href='#SkTextBlobBuilder_allocRunPos'>const</a> <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='undocumented#Font'>font</a>, <a href='undocumented#Font'>int</a> <a href='undocumented#Font'>count</a>, <a href='undocumented#Font'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>bounds</a> = <a href='SkRect_Reference#SkRect'>nullptr</a>)
-</pre>
-
-Deprecated.
-

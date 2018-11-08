@@ -72,11 +72,11 @@ class <a href='SkSurface_Reference#SkSurface'>SkSurface</a> : <a href='SkSurface
         <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>kDiscardWrite_BackendHandleAccess</a>,
     };
 
-    <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>static</a> <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_kFlushRead_TextureHandleAccess'>kFlushRead_TextureHandleAccess</a> =
+    <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>static</a> <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_BackendHandleAccess'>kFlushRead_TextureHandleAccess</a> =
             <a href='#SkSurface_kFlushRead_BackendHandleAccess'>kFlushRead_BackendHandleAccess</a>;
-    <a href='#SkSurface_kFlushRead_BackendHandleAccess'>static</a> <a href='#SkSurface_kFlushRead_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_kFlushWrite_TextureHandleAccess'>kFlushWrite_TextureHandleAccess</a> =
+    <a href='#SkSurface_kFlushRead_BackendHandleAccess'>static</a> <a href='#SkSurface_kFlushRead_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_BackendHandleAccess'>kFlushWrite_TextureHandleAccess</a> =
             <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>kFlushWrite_BackendHandleAccess</a>;
-    <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>static</a> <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_kDiscardWrite_TextureHandleAccess'>kDiscardWrite_TextureHandleAccess</a> =
+    <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>static</a> <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_BackendHandleAccess'>kDiscardWrite_TextureHandleAccess</a> =
             <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>kDiscardWrite_BackendHandleAccess</a>;
     <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> <a href='#SkSurface_getBackendTexture'>getBackendTexture</a>(<a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_BackendHandleAccess'>backendHandleAccess</a>);
     <a href='undocumented#GrBackendRenderTarget'>GrBackendRenderTarget</a> <a href='#SkSurface_getBackendRenderTarget'>getBackendRenderTarget</a>(<a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_BackendHandleAccess'>backendHandleAccess</a>);
@@ -92,8 +92,8 @@ class <a href='SkSurface_Reference#SkSurface'>SkSurface</a> : <a href='SkSurface
     <a href='SkBitmap_Reference#SkBitmap'>void</a> <a href='#SkSurface_writePixels'>writePixels</a>(<a href='#SkSurface_writePixels'>const</a> <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& <a href='SkPixmap_Reference#SkPixmap'>src</a>, <a href='SkPixmap_Reference#SkPixmap'>int</a> <a href='SkPixmap_Reference#SkPixmap'>dstX</a>, <a href='SkPixmap_Reference#SkPixmap'>int</a> <a href='SkPixmap_Reference#SkPixmap'>dstY</a>);
     <a href='SkPixmap_Reference#SkPixmap'>void</a> <a href='#SkSurface_writePixels'>writePixels</a>(<a href='#SkSurface_writePixels'>const</a> <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& <a href='SkBitmap_Reference#SkBitmap'>src</a>, <a href='SkBitmap_Reference#SkBitmap'>int</a> <a href='SkBitmap_Reference#SkBitmap'>dstX</a>, <a href='SkBitmap_Reference#SkBitmap'>int</a> <a href='SkBitmap_Reference#SkBitmap'>dstY</a>);
     <a href='SkBitmap_Reference#SkBitmap'>const</a> <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>& <a href='#SkSurface_props'>props()</a> <a href='#SkSurface_props'>const</a>;
-    <a href='#SkSurface_props'>void</a> <a href='#SkSurface_prepareForExternalIO'>prepareForExternalIO</a>();
-    <a href='#SkSurface_prepareForExternalIO'>void</a> <a href='#SkSurface_flush'>flush()</a>;
+    <a href='#SkSurface_props'>void</a> <a href='#SkSurface_props'>prepareForExternalIO</a>();
+    <a href='#SkSurface_props'>void</a> <a href='#SkSurface_flush'>flush()</a>;
     <a href='undocumented#GrSemaphoresSubmitted'>GrSemaphoresSubmitted</a> <a href='#SkSurface_flushAndSignalSemaphores'>flushAndSignalSemaphores</a>(<a href='#SkSurface_flushAndSignalSemaphores'>int</a> <a href='#SkSurface_flushAndSignalSemaphores'>numSemaphores</a>,
                                                    <a href='undocumented#GrBackendSemaphore'>GrBackendSemaphore</a> <a href='undocumented#GrBackendSemaphore'>signalSemaphores</a>[]);
     <a href='undocumented#GrBackendSemaphore'>bool</a> <a href='undocumented#GrBackendSemaphore'>wait</a>(<a href='undocumented#GrBackendSemaphore'>int</a> <a href='undocumented#GrBackendSemaphore'>numSemaphores</a>, <a href='undocumented#GrBackendSemaphore'>const</a> <a href='undocumented#GrBackendSemaphore'>GrBackendSemaphore</a>* <a href='undocumented#GrBackendSemaphore'>waitSemaphores</a>);
@@ -1080,12 +1080,11 @@ Pass to <a href='#SkSurface_notifyContentWillChange'>notifyContentWillChange</a>
 void <a href='#SkSurface_notifyContentWillChange'>notifyContentWillChange</a>(<a href='#SkSurface_ContentChangeMode'>ContentChangeMode</a> <a href='#SkSurface_ContentChangeMode'>mode</a>)
 </pre>
 
-Notifies that <a href='SkSurface_Reference#Surface'>Surface</a> <a href='SkSurface_Reference#Surface'>contents</a> <a href='SkSurface_Reference#Surface'>will</a> <a href='SkSurface_Reference#Surface'>be</a> <a href='SkSurface_Reference#Surface'>changed</a> <a href='SkSurface_Reference#Surface'>by</a> <a href='SkSurface_Reference#Surface'>code</a> <a href='SkSurface_Reference#Surface'>outside</a> <a href='SkSurface_Reference#Surface'>of</a> <a href='SkSurface_Reference#Surface'>Skia</a>.
-<a href='SkSurface_Reference#Surface'>Subsequent</a> <a href='SkSurface_Reference#Surface'>calls</a> <a href='SkSurface_Reference#Surface'>to</a> <a href='#SkSurface_generationID'>generationID</a> <a href='#SkSurface_generationID'>return</a> <a href='#SkSurface_generationID'>a</a> <a href='#SkSurface_generationID'>different</a> <a href='#SkSurface_generationID'>value</a>.
+Notifies that <a href='SkSurface_Reference#SkSurface'>SkSurface</a> <a href='SkSurface_Reference#SkSurface'>contents</a> <a href='SkSurface_Reference#SkSurface'>will</a> <a href='SkSurface_Reference#SkSurface'>be</a> <a href='SkSurface_Reference#SkSurface'>changed</a> <a href='SkSurface_Reference#SkSurface'>by</a> <a href='SkSurface_Reference#SkSurface'>code</a> <a href='SkSurface_Reference#SkSurface'>outside</a> <a href='SkSurface_Reference#SkSurface'>of</a> <a href='SkSurface_Reference#SkSurface'>Skia</a>.
+Subsequent calls to <a href='#SkSurface_generationID'>generationID</a>() <a href='#SkSurface_generationID'>return</a> <a href='#SkSurface_generationID'>a</a> <a href='#SkSurface_generationID'>different</a> <a href='#SkSurface_generationID'>value</a>.
 
-<a href='#SkSurface_notifyContentWillChange_mode'>mode</a> <a href='#SkSurface_notifyContentWillChange_mode'>is</a> <a href='#SkSurface_notifyContentWillChange_mode'>normally</a> <a href='#SkSurface_notifyContentWillChange_mode'>passed</a> <a href='#SkSurface_notifyContentWillChange_mode'>as</a> <a href='#SkSurface_kRetain_ContentChangeMode'>kRetain_ContentChangeMode</a>.
-
-Private: Can we deprecate this?
+Since <a href='#SkSurface_notifyContentWillChange_mode'>mode</a> <a href='#SkSurface_notifyContentWillChange_mode'>is</a> <a href='#SkSurface_notifyContentWillChange_mode'>normally</a> <a href='#SkSurface_notifyContentWillChange_mode'>passed</a> <a href='#SkSurface_notifyContentWillChange_mode'>as</a> <a href='#SkSurface_kRetain_ContentChangeMode'>kRetain_ContentChangeMode</a>,
+this parameter may be removed in the future.
 
 ### Parameters
 
@@ -1113,11 +1112,11 @@ Private: Can we deprecate this?
         <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>kDiscardWrite_BackendHandleAccess</a>,
     };
 
-    <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>static</a> <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_kFlushRead_TextureHandleAccess'>kFlushRead_TextureHandleAccess</a> =
+    <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>static</a> <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_BackendHandleAccess'>kFlushRead_TextureHandleAccess</a> =
             <a href='#SkSurface_kFlushRead_BackendHandleAccess'>kFlushRead_BackendHandleAccess</a>;
-    <a href='#SkSurface_kFlushRead_BackendHandleAccess'>static</a> <a href='#SkSurface_kFlushRead_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_kFlushWrite_TextureHandleAccess'>kFlushWrite_TextureHandleAccess</a> =
+    <a href='#SkSurface_kFlushRead_BackendHandleAccess'>static</a> <a href='#SkSurface_kFlushRead_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_BackendHandleAccess'>kFlushWrite_TextureHandleAccess</a> =
             <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>kFlushWrite_BackendHandleAccess</a>;
-    <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>static</a> <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_kDiscardWrite_TextureHandleAccess'>kDiscardWrite_TextureHandleAccess</a> =
+    <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>static</a> <a href='#SkSurface_kFlushWrite_BackendHandleAccess'>const</a> <a href='#SkSurface_BackendHandleAccess'>BackendHandleAccess</a> <a href='#SkSurface_BackendHandleAccess'>kDiscardWrite_TextureHandleAccess</a> =
             <a href='#SkSurface_kDiscardWrite_BackendHandleAccess'>kDiscardWrite_BackendHandleAccess</a>;
 </pre>
 
@@ -1146,30 +1145,6 @@ Caller may write to the back-end object.
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Caller must overwrite the entire back-end object.
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkSurface_kFlushRead_TextureHandleAccess'><code>SkSurface::kFlushRead_TextureHandleAccess</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
-
-</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkSurface_kFlushWrite_TextureHandleAccess'><code>SkSurface::kFlushWrite_TextureHandleAccess</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
-
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkSurface_kDiscardWrite_TextureHandleAccess'><code>SkSurface::kDiscardWrite_TextureHandleAccess</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
-
 </td>
   </tr>
 </table>
@@ -1700,16 +1675,6 @@ surf.props(): kRGB_H_SkPixelGeometry
 ### See Also
 
 <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>
-
-<a name='SkSurface_prepareForExternalIO'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkSurface_prepareForExternalIO'>prepareForExternalIO</a>()
-</pre>
-
-To be deprecated soon.
 
 <a name='Utility'></a>
 

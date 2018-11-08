@@ -58,6 +58,31 @@ public:
         return nullptr;
     }
 
+    // words must be alpha only
+    bool anyWord(const char* wordList[], size_t wordListCount) const {
+        const char* matchStart = fChar;
+        do {
+            while (matchStart < fEnd && !isalpha(matchStart[0])) {
+                ++matchStart;
+            }
+            const char* matchEnd = matchStart;
+            while (matchEnd < fEnd && isalpha(matchEnd[0])) {
+                ++matchEnd;
+            }
+            size_t matchLen = matchEnd - matchStart;
+            const char** wordPtr = wordList;
+            const char** wordEnd = wordPtr + wordListCount;
+            while (wordPtr < wordEnd) {
+                const char* word = *wordPtr++;
+                if (strlen(word) == matchLen && !strncmp(matchStart, word, matchLen)) {
+                    return true;
+                }
+            }
+            matchStart = matchEnd;
+        } while (matchStart < fEnd);
+        return false;
+    }
+
     bool back(const char* pattern) {
         size_t len = strlen(pattern);
         const char* start = fChar - len;

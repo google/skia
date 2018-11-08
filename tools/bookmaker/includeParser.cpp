@@ -644,6 +644,9 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
         }
     }
     for (auto& classMapper : fIClassMap) {
+        if (classMapper.second.fUndocumented) {
+           continue;
+        }
         string className = classMapper.first;
         std::istringstream iss(className);
         string classStr;
@@ -769,17 +772,12 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         def = root->find(withParens, RootDefinition::AllowParens::kNo);
                     }
                     if (!def) {
-                        if (!root->fDeprecated) {
-                            SkDebugf("method missing from bmh: %s\n", fullName.c_str());
-                            fFailed = true;
-                        }
+                        SkDebugf("method missing from bmh: %s\n", fullName.c_str());
+                        fFailed = true;
                         break;
                     }
                     if (def->crossCheck2(token)) {
                         def->fVisited = true;
-                        if (token.fDeprecated && !def->fDeprecated) {
-                            fFailed = !def->reportError<bool>("expect bmh to be marked deprecated");
-                        }
                     } else {
                        SkDebugf("method differs from bmh: %s\n", fullName.c_str());
                        fFailed = true;
@@ -818,10 +816,8 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                             def = root->find(anonName, RootDefinition::AllowParens::kYes);
                         }
                         if (!def) {
-                            if (!root->fDeprecated) {
-                                SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
-                                fFailed = true;
-                            }
+                            SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
+                            fFailed = true;
                             break;
                         }
                     }
@@ -841,10 +837,8 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                     }
                     if (!hasCode) {
-                        if (!root->fDeprecated) {
-                            SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
-                            fFailed = true;
-                        }
+                        SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
+                        fFailed = true;
                         break;
                     }
                     if (!hasPopulate) {
@@ -865,12 +859,8 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                             def = root->find(innerName, RootDefinition::AllowParens::kYes);
                         }
                         if (!def) {
-                            if (string::npos == child->fName.find("Legacy_")) {
-                                if (!root->fDeprecated) {
-                                    SkDebugf("const missing from bmh: %s\n", constName.c_str());
-                                    fFailed = true;
-                                }
-                            }
+                            SkDebugf("const missing from bmh: %s\n", constName.c_str());
+                            fFailed = true;
                         } else {
                             def->fVisited = true;
                         }
@@ -879,7 +869,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 case MarkType::kMember:
                     if (def) {
                         def->fVisited = true;
-                    } else if (!root->fDeprecated) {
+                    } else {
                         SkDebugf("member missing from bmh: %s\n", fullName.c_str());
                         fFailed = true;
                     }
@@ -887,7 +877,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 case MarkType::kTypedef:
                     if (def) {
                         def->fVisited = true;
-                    } else if (!root->fDeprecated) {
+                    } else {
                         SkDebugf("typedef missing from bmh: %s\n", fullName.c_str());
                         fFailed = true;
                     }
@@ -895,7 +885,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 case MarkType::kConst:
                     if (def) {
                         def->fVisited = true;
-                    } else if (!root->fDeprecated) {
+                    } else {
                         SkDebugf("const missing from bmh: %s\n", fullName.c_str());
                         fFailed = true;
                     }
@@ -966,6 +956,14 @@ IClassDefinition* IncludeParser::defineClass(const Definition& includeDef,
             MarkType::kStruct : MarkType::kClass;
     markupDef.fKeyWord = includeDef.fKeyWord;
     markupDef.fType = Definition::Type::kMark;
+    auto tokenIter = includeDef.fParent->fTokens.begin();
+    SkASSERT(includeDef.fParentIndex > 0);
+    std::advance(tokenIter, includeDef.fParentIndex - 1);
+    const Definition* priorComment = &*tokenIter;
+    markupDef.fUndocumented = priorComment->fUndocumented;
+    if (markupDef.fUndocumented) {
+        SkDebugf("");
+    }
     fParent = &markupDef;
     return &markupDef;
 }
@@ -1445,6 +1443,9 @@ bool IncludeParser::isConstructor(const Definition& token, string className) {
 }
 
 bool IncludeParser::isInternalName(const Definition& token) {
+    if (token.fUndocumented) {
+        return true;
+    }
     string name = token.fName;
     // exception for this SkCanvas function .. for now
     if (0 == token.fName.find("androidFramework_setDeviceClipRestriction")) {
@@ -1854,10 +1855,6 @@ Definition* IncludeParser::findIncludeObject(const Definition& includeDef, MarkT
 }
 
 Definition* IncludeParser::findMethod(const Definition& bmhDef) {
-    if (std::any_of(bmhDef.fChildren.begin(), bmhDef.fChildren.end(), [](Definition* def) {
-            return MarkType::kDeprecated == def->fMarkType; } )) {
-        return nullptr;
-    }
     auto doubleColon = bmhDef.fName.rfind("::");
     if (string::npos == doubleColon) {
         const auto& iGlobalMethod = fIFunctionMap.find(bmhDef.fName);
@@ -2110,6 +2107,12 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
 bool IncludeParser::parseComment(string filename, const char* start, const char* end,
         int lineCount, Definition* markupDef) {
     TextParser parser(filename, start, end, lineCount);
+    const char* skipWords[] = { "experimental", "Experimental", "EXPERIMENTAL",
+                                "deprecated", "Deprecated", "DEPRECATED",
+                                "private", "Private", "PRIVATE" };
+    if (parser.anyWord(skipWords, SK_ARRAY_COUNT(skipWords))) {
+        markupDef->fUndocumented = true;
+    }
     // parse doxygen if present
     if (parser.startsWith("**")) {
         parser.next();
@@ -2141,6 +2144,7 @@ bool IncludeParser::parseComment(string filename, const char* start, const char*
     }
     // remove leading '*' if present
     Definition* parent = markupDef->fTokens.size() ? &markupDef->fTokens.back() : markupDef;
+    bool undocumented = false;
     while (!parser.eof() && parser.skipWhiteSpace()) {
         while ('*' == parser.peek()) {
             parser.next();

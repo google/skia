@@ -180,8 +180,6 @@ bool SpellCheck::check(Definition* def) {
         } break;
         case MarkType::kDefine:
             break;
-        case MarkType::kDeprecated:
-            break;
         case MarkType::kDescription:
             fInDescription = true;
             break;
@@ -194,8 +192,6 @@ bool SpellCheck::check(Definition* def) {
             this->wordCheck(def->fName);
             break;
         case MarkType::kExample:
-            break;
-        case MarkType::kExperimental:
             break;
         case MarkType::kExternal:
             break;
@@ -269,8 +265,6 @@ bool SpellCheck::check(Definition* def) {
         case MarkType::kPlatform:
             break;
         case MarkType::kPopulate:
-            break;
-        case MarkType::kPrivate:
             break;
         case MarkType::kReturn:
             break;

@@ -43,12 +43,12 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
         <a href='#SkPaint_kAllFlags'>kAllFlags</a> = 0<a href='#SkPaint_kAllFlags'>xFFFF</a>,
     };
 
-    <a href='#SkPaint_kAllFlags'>enum</a> <a href='#SkPaint_ReserveFlags'>ReserveFlags</a> {
-        <a href='#SkPaint_kUnderlineText_ReserveFlag'>kUnderlineText_ReserveFlag</a> = 0<a href='#SkPaint_kUnderlineText_ReserveFlag'>x08</a>,
-        <a href='#SkPaint_kStrikeThruText_ReserveFlag'>kStrikeThruText_ReserveFlag</a> = 0<a href='#SkPaint_kStrikeThruText_ReserveFlag'>x10</a>,
+    <a href='#SkPaint_kAllFlags'>enum</a> <a href='#SkPaint_kAllFlags'>ReserveFlags</a> {
+        <a href='#SkPaint_kAllFlags'>kUnderlineText_ReserveFlag</a> = 0<a href='#SkPaint_kAllFlags'>x08</a>,
+        <a href='#SkPaint_kAllFlags'>kStrikeThruText_ReserveFlag</a> = 0<a href='#SkPaint_kAllFlags'>x10</a>,
     };
 
-    <a href='#SkPaint_kStrikeThruText_ReserveFlag'>uint32_t</a> <a href='#SkPaint_getFlags'>getFlags</a>() <a href='#SkPaint_getFlags'>const</a>;
+    <a href='#SkPaint_kAllFlags'>uint32_t</a> <a href='#SkPaint_getFlags'>getFlags</a>() <a href='#SkPaint_getFlags'>const</a>;
     <a href='#SkPaint_getFlags'>void</a> <a href='#SkPaint_setFlags'>setFlags</a>(<a href='#SkPaint_setFlags'>uint32_t</a> <a href='#SkPaint_setFlags'>flags</a>);
     <a href='#SkPaint_setFlags'>bool</a> <a href='#SkPaint_isAntiAlias'>isAntiAlias</a>() <a href='#SkPaint_isAntiAlias'>const</a>;
     <a href='#SkPaint_isAntiAlias'>void</a> <a href='#SkPaint_setAntiAlias'>setAntiAlias</a>(<a href='#SkPaint_setAntiAlias'>bool</a> <a href='#SkPaint_setAntiAlias'>aa</a>);
@@ -141,9 +141,9 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
     <a href='#SkPaint_refImageFilter'>void</a> <a href='#SkPaint_setImageFilter'>setImageFilter</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkImageFilter'>SkImageFilter</a>> <a href='undocumented#SkImageFilter'>imageFilter</a>);
     <a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='#SkPaint_getDrawLooper'>getDrawLooper</a>() <a href='#SkPaint_getDrawLooper'>const</a>;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> <a href='#SkPaint_refDrawLooper'>refDrawLooper</a>() <a href='#SkPaint_refDrawLooper'>const</a>;
-    <a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='#SkPaint_getLooper'>getLooper</a>() <a href='#SkPaint_getLooper'>const</a>;
-    <a href='#SkPaint_getLooper'>void</a> <a href='#SkPaint_setDrawLooper'>setDrawLooper</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> <a href='undocumented#SkDrawLooper'>drawLooper</a>);
-    <a href='undocumented#SkDrawLooper'>void</a> <a href='#SkPaint_setLooper'>setLooper</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> <a href='undocumented#SkDrawLooper'>drawLooper</a>);
+    <a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='undocumented#SkDrawLooper'>getLooper</a>() <a href='undocumented#SkDrawLooper'>const</a>;
+    <a href='undocumented#SkDrawLooper'>void</a> <a href='#SkPaint_setDrawLooper'>setDrawLooper</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> <a href='undocumented#SkDrawLooper'>drawLooper</a>);
+    <a href='undocumented#SkDrawLooper'>void</a> <a href='undocumented#SkDrawLooper'>setLooper</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> <a href='undocumented#SkDrawLooper'>drawLooper</a>);
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSize'>getTextSize</a>() <a href='#SkPaint_getTextSize'>const</a>;
     <a href='#SkPaint_getTextSize'>void</a> <a href='#SkPaint_setTextSize'>setTextSize</a>(<a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#SkScalar'>textSize</a>);
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextScaleX'>getTextScaleX</a>() <a href='#SkPaint_getTextScaleX'>const</a>;
@@ -190,11 +190,11 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
                               <a href='undocumented#SkScalar'>SkScalar</a>* <a href='undocumented#SkScalar'>intervals</a>) <a href='undocumented#SkScalar'>const</a>;
     <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>() <a href='#SkPaint_getFontBounds'>const</a>;
     <a href='#SkPaint_getFontBounds'>bool</a> <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>() <a href='#SkPaint_nothingToDraw'>const</a>;
-    <a href='#SkPaint_nothingToDraw'>bool</a> <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a>() <a href='#SkPaint_canComputeFastBounds'>const</a>;
-    <a href='#SkPaint_canComputeFastBounds'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastBounds'>computeFastBounds</a>(<a href='#SkPaint_computeFastBounds'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>orig</a>, <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>storage</a>) <a href='SkRect_Reference#SkRect'>const</a>;
-    <a href='SkRect_Reference#SkRect'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastStrokeBounds'>computeFastStrokeBounds</a>(<a href='#SkPaint_computeFastStrokeBounds'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>orig</a>,
+    <a href='#SkPaint_nothingToDraw'>bool</a> <a href='#SkPaint_nothingToDraw'>canComputeFastBounds</a>() <a href='#SkPaint_nothingToDraw'>const</a>;
+    <a href='#SkPaint_nothingToDraw'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>computeFastBounds</a>(<a href='SkRect_Reference#SkRect'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>orig</a>, <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>storage</a>) <a href='SkRect_Reference#SkRect'>const</a>;
+    <a href='SkRect_Reference#SkRect'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>computeFastStrokeBounds</a>(<a href='SkRect_Reference#SkRect'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>orig</a>,
                                           <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>storage</a>) <a href='SkRect_Reference#SkRect'>const</a>;
-    <a href='SkRect_Reference#SkRect'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_doComputeFastBounds'>doComputeFastBounds</a>(<a href='#SkPaint_doComputeFastBounds'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>orig</a>, <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>storage</a>,
+    <a href='SkRect_Reference#SkRect'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>doComputeFastBounds</a>(<a href='SkRect_Reference#SkRect'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>orig</a>, <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>storage</a>,
                                       <a href='#SkPaint_Style'>Style</a> <a href='#SkPaint_Style'>style</a>) <a href='#SkPaint_Style'>const</a>;
 };
 </pre>
@@ -851,45 +851,6 @@ mask of all <a href='#SkPaint_Flags'>Flags</a>, <a href='#SkPaint_Flags'>includi
 </td>
   </tr>
 <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_Flags'>default</a> <a href='#SkPaint_Flags'>to</a> <a href='#SkPaint_Flags'>all</a> <a href='#SkPaint_Flags'>flags</a> <a href='#SkPaint_Flags'>clear</a>, <a href='#SkPaint_Flags'>disabling</a> <a href='#SkPaint_Flags'>the</a> <a href='#SkPaint_Flags'>associated</a> <a href='#SkPaint_Flags'>feature</a>.
-</table>
-
-<a name='SkPaint_ReserveFlags'></a>
-
----
-
-To be deprecated soon.
-
-Only valid for Android framework.
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkPaint_ReserveFlags'>ReserveFlags</a> {
-        <a href='#SkPaint_kUnderlineText_ReserveFlag'>kUnderlineText_ReserveFlag</a> = 0<a href='#SkPaint_kUnderlineText_ReserveFlag'>x08</a>,
-        <a href='#SkPaint_kStrikeThruText_ReserveFlag'>kStrikeThruText_ReserveFlag</a> = 0<a href='#SkPaint_kStrikeThruText_ReserveFlag'>x10</a>,
-    };
-</pre>
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kUnderlineText_ReserveFlag'><code>SkPaint::kUnderlineText_ReserveFlag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0008</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-To be deprecated soon.
-
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kStrikeThruText_ReserveFlag'><code>SkPaint::kStrikeThruText_ReserveFlag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0010</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-To be deprecated soon.
-
-</td>
-  </tr>
 </table>
 
 <a name='SkPaint_getFlags'></a>
@@ -3553,22 +3514,12 @@ draw looper unique: false
 
 </fiddle-embed></div>
 
-<a name='SkPaint_getLooper'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='#SkPaint_getLooper'>getLooper</a>() <a href='#SkPaint_getLooper'>const</a>
-</pre>
-
-Deprecated.
-
 <a name='SkPaint_setDrawLooper'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void setDrawLooper(<a href='undocumented#sk_sp'>sk_sp</a>&<a href='undocumented#sk_sp'>lt</a>;<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>&<a href='undocumented#SkDrawLooper'>gt</a>; <a href='undocumented#SkDrawLooper'>drawLooper</a>)
+void <a href='#SkPaint_setDrawLooper'>setDrawLooper</a>(<a href='undocumented#sk_sp'>sk_sp</a>&<a href='undocumented#sk_sp'>lt</a>;<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>&<a href='undocumented#SkDrawLooper'>gt</a>; <a href='undocumented#SkDrawLooper'>drawLooper</a>)
 </pre>
 
 Sets <a href='undocumented#SkDrawLooper'>SkDrawLooper</a> <a href='undocumented#SkDrawLooper'>to</a> <a href='#SkPaint_setDrawLooper_drawLooper'>drawLooper</a>, <a href='#SkPaint_setDrawLooper_drawLooper'>decreasing</a> <a href='undocumented#SkRefCnt'>SkRefCnt</a> <a href='undocumented#SkRefCnt'>of</a> <a href='undocumented#SkRefCnt'>the</a> <a href='undocumented#SkRefCnt'>previous</a>
@@ -3587,16 +3538,6 @@ Increments <a href='#SkPaint_setDrawLooper_drawLooper'>drawLooper</a> <a href='u
 ### Example
 
 <div><fiddle-embed name="bf10f838b330f0a3a3266d42ea68a638"></fiddle-embed></div>
-
-<a name='SkPaint_setLooper'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setLooper'>setLooper</a>(<a href='undocumented#sk_sp'>sk_sp</a>&<a href='undocumented#sk_sp'>lt</a>;<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>&<a href='undocumented#SkDrawLooper'>gt</a>; <a href='undocumented#SkDrawLooper'>drawLooper</a>)
-</pre>
-
-Deprecated.
 
 <a name='Text_Size'></a>
 
@@ -4663,130 +4604,6 @@ alpha 0 nothing to draw: true
 ~~~~
 
 </fiddle-embed></div>
-
-<a name='Fast_Bounds'></a>
-
-Private: To be made private.
-
-<a href='#Paint_Fast_Bounds'>Fast_Bounds</a> <a href='#Paint_Fast_Bounds'>functions</a> <a href='#Paint_Fast_Bounds'>conservatively</a> <a href='#Paint_Fast_Bounds'>outset</a> <a href='#Paint_Fast_Bounds'>a</a> <a href='#Paint_Fast_Bounds'>drawing</a> <a href='#Paint_Fast_Bounds'>bounds</a> <a href='#Paint_Fast_Bounds'>by</a> <a href='#Paint_Fast_Bounds'>additional</a> <a href='#Paint_Fast_Bounds'>area</a>
-<a href='SkPaint_Reference#Paint'>Paint</a> <a href='SkPaint_Reference#Paint'>may</a> <a href='SkPaint_Reference#Paint'>draw</a> <a href='SkPaint_Reference#Paint'>to</a>.
-
-<a name='SkPaint_canComputeFastBounds'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a>() <a href='#SkPaint_canComputeFastBounds'>const</a>
-</pre>
-
-Private: (to be made private)
-
-Returns true if <a href='SkPaint_Reference#Paint'>Paint</a> <a href='SkPaint_Reference#Paint'>does</a> <a href='SkPaint_Reference#Paint'>not</a> <a href='SkPaint_Reference#Paint'>include</a> <a href='SkPaint_Reference#Paint'>elements</a> <a href='SkPaint_Reference#Paint'>requiring</a> <a href='SkPaint_Reference#Paint'>extensive</a> <a href='SkPaint_Reference#Paint'>computation</a>
-<a href='SkPaint_Reference#Paint'>to</a> <a href='SkPaint_Reference#Paint'>compute</a> <a href='undocumented#Device'>Device</a> <a href='undocumented#Device'>bounds</a> <a href='undocumented#Device'>of</a> <a href='undocumented#Device'>drawn</a> <a href='undocumented#Device'>geometry</a>. <a href='undocumented#Device'>For</a> <a href='undocumented#Device'>instance</a>, <a href='SkPaint_Reference#Paint'>Paint</a> <a href='SkPaint_Reference#Paint'>with</a> <a href='#Path_Effect'>Path_Effect</a>
-<a href='#Path_Effect'>always</a> <a href='#Path_Effect'>returns</a> <a href='#Path_Effect'>false</a>.
-
-### Return Value
-
-true if <a href='SkPaint_Reference#Paint'>Paint</a> <a href='SkPaint_Reference#Paint'>allows</a> <a href='SkPaint_Reference#Paint'>for</a> <a href='SkPaint_Reference#Paint'>fast</a> <a href='SkPaint_Reference#Paint'>computation</a> <a href='SkPaint_Reference#Paint'>of</a> <a href='SkPaint_Reference#Paint'>bounds</a>
-
-<a name='SkPaint_computeFastBounds'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastBounds'>computeFastBounds</a>(<a href='#SkPaint_computeFastBounds'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>orig</a>, <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>storage</a>) <a href='SkRect_Reference#SkRect'>const</a>
-</pre>
-
-Private: (to be made private)
-
-Only call if <a href='#SkPaint_canComputeFastBounds'>canComputeFastBounds</a> <a href='#SkPaint_canComputeFastBounds'>returned</a> <a href='#SkPaint_canComputeFastBounds'>true</a>. <a href='#SkPaint_canComputeFastBounds'>This</a> <a href='#SkPaint_canComputeFastBounds'>takes</a> <a href='#SkPaint_canComputeFastBounds'>a</a>
-<a href='#SkPaint_canComputeFastBounds'>raw</a> <a href='#SkPaint_canComputeFastBounds'>rectangle</a>, <a href='#SkPaint_canComputeFastBounds'>the</a> <a href='#SkPaint_canComputeFastBounds'>raw</a> <a href='#SkPaint_canComputeFastBounds'>bounds</a> <a href='#SkPaint_canComputeFastBounds'>of</a> <a href='#SkPaint_canComputeFastBounds'>a</a> <a href='#SkPaint_canComputeFastBounds'>shape</a>; <a href='#SkPaint_canComputeFastBounds'>and</a> <a href='#SkPaint_canComputeFastBounds'>adjusts</a> <a href='#SkPaint_canComputeFastBounds'>it</a> <a href='#SkPaint_canComputeFastBounds'>for</a> <a href='#SkPaint_canComputeFastBounds'>stylistic</a>
-<a href='#SkPaint_canComputeFastBounds'>effects</a> <a href='#SkPaint_canComputeFastBounds'>in</a> <a href='#SkPaint_canComputeFastBounds'>the</a> <a href='SkPaint_Reference#Paint'>paint</a>, <a href='SkPaint_Reference#Paint'>such</a> <a href='SkPaint_Reference#Paint'>as</a> <a href='SkPaint_Reference#Paint'>stroking</a>. <a href='SkPaint_Reference#Paint'>If</a> <a href='SkPaint_Reference#Paint'>needed</a>, <a href='SkPaint_Reference#Paint'>it</a> <a href='SkPaint_Reference#Paint'>uses</a> <a href='SkPaint_Reference#Paint'>the</a> <a href='#SkPaint_computeFastBounds_storage'>storage</a>
-<a href='#SkPaint_computeFastBounds_storage'>parameter</a>. <a href='#SkPaint_computeFastBounds_storage'>It</a> <a href='#SkPaint_computeFastBounds_storage'>returns</a> <a href='#SkPaint_computeFastBounds_storage'>the</a> <a href='#SkPaint_computeFastBounds_storage'>adjusted</a> <a href='#SkPaint_computeFastBounds_storage'>bounds</a> <a href='#SkPaint_computeFastBounds_storage'>that</a> <a href='#SkPaint_computeFastBounds_storage'>can</a> <a href='#SkPaint_computeFastBounds_storage'>then</a> <a href='#SkPaint_computeFastBounds_storage'>be</a> <a href='#SkPaint_computeFastBounds_storage'>used</a>
-<a href='#SkPaint_computeFastBounds_storage'>for</a> <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_quickReject'>quickReject</a> <a href='#SkCanvas_quickReject'>tests</a>.
-
-<a href='#SkCanvas_quickReject'>The</a> <a href='#SkCanvas_quickReject'>returned</a> <a href='SkRect_Reference#Rect'>Rect</a> <a href='SkRect_Reference#Rect'>will</a> <a href='SkRect_Reference#Rect'>either</a> <a href='SkRect_Reference#Rect'>be</a> <a href='#SkPaint_computeFastBounds_orig'>orig</a> <a href='#SkPaint_computeFastBounds_orig'>or</a> <a href='#SkPaint_computeFastBounds_storage'>storage</a>, <a href='#SkPaint_computeFastBounds_storage'>thus</a> <a href='#SkPaint_computeFastBounds_storage'>the</a> <a href='#SkPaint_computeFastBounds_storage'>caller</a>
-<a href='#SkPaint_computeFastBounds_storage'>should</a> <a href='#SkPaint_computeFastBounds_storage'>not</a> <a href='#SkPaint_computeFastBounds_storage'>rely</a> <a href='#SkPaint_computeFastBounds_storage'>on</a> <a href='#SkPaint_computeFastBounds_storage'>storage</a> <a href='#SkPaint_computeFastBounds_storage'>being</a> <a href='#SkPaint_computeFastBounds_storage'>set</a> <a href='#SkPaint_computeFastBounds_storage'>to</a> <a href='#SkPaint_computeFastBounds_storage'>the</a> <a href='#SkPaint_computeFastBounds_storage'>result</a>, <a href='#SkPaint_computeFastBounds_storage'>but</a> <a href='#SkPaint_computeFastBounds_storage'>should</a> <a href='#SkPaint_computeFastBounds_storage'>always</a>
-<a href='#SkPaint_computeFastBounds_storage'>use</a> <a href='#SkPaint_computeFastBounds_storage'>the</a> <a href='#SkPaint_computeFastBounds_storage'>returned</a> <a href='#SkPaint_computeFastBounds_storage'>value</a>. <a href='#SkPaint_computeFastBounds_storage'>It</a> <a href='#SkPaint_computeFastBounds_storage'>is</a> <a href='#SkPaint_computeFastBounds_storage'>legal</a> <a href='#SkPaint_computeFastBounds_storage'>for</a> <a href='#SkPaint_computeFastBounds_orig'>orig</a> <a href='#SkPaint_computeFastBounds_orig'>and</a> <a href='#SkPaint_computeFastBounds_storage'>storage</a> <a href='#SkPaint_computeFastBounds_storage'>to</a> <a href='#SkPaint_computeFastBounds_storage'>be</a> <a href='#SkPaint_computeFastBounds_storage'>the</a> <a href='#SkPaint_computeFastBounds_storage'>same</a>
-<a href='SkRect_Reference#Rect'>Rect</a>.
-
-Private: For example:
-    if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
-        SkRect storage;
-        if (canvas->quickReject(paint.computeFastBounds(path.getBounds(), &storage))) {
-            return; // do not draw the path
-        }
-    }
-    // draw the path
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_computeFastBounds_orig'><code><strong>orig</strong></code></a></td>
-    <td>geometry modified by <a href='SkPaint_Reference#Paint'>Paint</a> <a href='SkPaint_Reference#Paint'>when</a> <a href='SkPaint_Reference#Paint'>drawn</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_computeFastBounds_storage'><code><strong>storage</strong></code></a></td>
-    <td>computed bounds of geometry; may not be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-fast computed bounds
-
-<a name='SkPaint_computeFastStrokeBounds'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_computeFastStrokeBounds'>computeFastStrokeBounds</a>(<a href='#SkPaint_computeFastStrokeBounds'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>orig</a>, <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>storage</a>) <a href='SkRect_Reference#SkRect'>const</a>
-</pre>
-
-Private: (to be made private)
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_computeFastStrokeBounds_orig'><code><strong>orig</strong></code></a></td>
-    <td>geometry modified by <a href='SkPaint_Reference#Paint'>Paint</a> <a href='SkPaint_Reference#Paint'>when</a> <a href='SkPaint_Reference#Paint'>drawn</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_computeFastStrokeBounds_storage'><code><strong>storage</strong></code></a></td>
-    <td>computed bounds of geometry</td>
-  </tr>
-</table>
-
-### Return Value
-
-fast computed bounds
-
-<a name='SkPaint_doComputeFastBounds'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPaint_doComputeFastBounds'>doComputeFastBounds</a>(<a href='#SkPaint_doComputeFastBounds'>const</a> <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#SkRect'>orig</a>, <a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#SkRect'>storage</a>, <a href='#SkPaint_Style'>Style</a> <a href='#SkPaint_Style'>style</a>) <a href='#SkPaint_Style'>const</a>
-</pre>
-
-Private: (to be made private)
-
-Computes the bounds, overriding the <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkPaint_Style'>Style</a>. <a href='#SkPaint_Style'>This</a> <a href='#SkPaint_Style'>can</a> <a href='#SkPaint_Style'>be</a> <a href='#SkPaint_Style'>used</a> <a href='#SkPaint_Style'>to</a>
-<a href='#SkPaint_Style'>account</a> <a href='#SkPaint_Style'>for</a> <a href='#SkPaint_Style'>additional</a> <a href='#SkPaint_Style'>width</a> <a href='#SkPaint_Style'>required</a> <a href='#SkPaint_Style'>by</a> <a href='#SkPaint_Style'>stroking</a> <a href='#SkPaint_doComputeFastBounds_orig'>orig</a>, <a href='#SkPaint_doComputeFastBounds_orig'>without</a>
-<a href='#SkPaint_doComputeFastBounds_orig'>altering</a> <a href='#SkPaint_Style'>Style</a> <a href='#SkPaint_Style'>set</a> <a href='#SkPaint_Style'>to</a> <a href='#SkPaint_Style'>fill</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_doComputeFastBounds_orig'><code><strong>orig</strong></code></a></td>
-    <td>geometry modified by <a href='SkPaint_Reference#Paint'>Paint</a> <a href='SkPaint_Reference#Paint'>when</a> <a href='SkPaint_Reference#Paint'>drawn</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_doComputeFastBounds_storage'><code><strong>storage</strong></code></a></td>
-    <td>computed bounds of geometry</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_doComputeFastBounds_style'><code><strong>style</strong></code></a></td>
-    <td>overrides <a href='#SkPaint_Style'>Style</a></td>
-  </tr>
-</table>
-
-### Return Value
-
-fast computed bounds
 
 <a name='Utility'></a>
 

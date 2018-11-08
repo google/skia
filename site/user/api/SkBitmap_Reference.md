@@ -64,7 +64,7 @@ class <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a> {
                        <a href='#SkBitmap_rowBytes'>void</a> (*<a href='#SkBitmap_rowBytes'>releaseProc</a>)(<a href='#SkBitmap_rowBytes'>void</a>* <a href='#SkBitmap_rowBytes'>addr</a>, <a href='#SkBitmap_rowBytes'>void</a>* <a href='#SkBitmap_rowBytes'>context</a>), <a href='#SkBitmap_rowBytes'>void</a>* <a href='#SkBitmap_rowBytes'>context</a>);
     <a href='#SkBitmap_rowBytes'>bool</a> <a href='#SkBitmap_installPixels'>installPixels</a>(<a href='#SkBitmap_installPixels'>const</a> <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& <a href='SkImageInfo_Reference#SkImageInfo'>info</a>, <a href='SkImageInfo_Reference#SkImageInfo'>void</a>* <a href='SkImageInfo_Reference#SkImageInfo'>pixels</a>, <a href='SkImageInfo_Reference#SkImageInfo'>size_t</a> <a href='#SkBitmap_rowBytes'>rowBytes</a>);
     <a href='#SkBitmap_rowBytes'>bool</a> <a href='#SkBitmap_installPixels'>installPixels</a>(<a href='#SkBitmap_installPixels'>const</a> <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& <a href='SkPixmap_Reference#Pixmap'>pixmap</a>);
-    <a href='SkPixmap_Reference#Pixmap'>bool</a> <a href='#SkBitmap_installMaskPixels'>installMaskPixels</a>(<a href='#SkBitmap_installMaskPixels'>const</a> <a href='undocumented#SkMask'>SkMask</a>& <a href='undocumented#SkMask'>mask</a>);
+    <a href='SkPixmap_Reference#Pixmap'>bool</a> <a href='SkPixmap_Reference#Pixmap'>installMaskPixels</a>(<a href='SkPixmap_Reference#Pixmap'>const</a> <a href='undocumented#SkMask'>SkMask</a>& <a href='undocumented#SkMask'>mask</a>);
     <a href='undocumented#SkMask'>void</a> <a href='#SkBitmap_setPixels'>setPixels</a>(<a href='#SkBitmap_setPixels'>void</a>* <a href='#SkBitmap_setPixels'>pixels</a>);
     <a href='#SkBitmap_setPixels'>bool</a> <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a>();
     <a href='#SkBitmap_tryAllocPixels'>void</a> <a href='#SkBitmap_allocPixels'>allocPixels</a>();
@@ -79,7 +79,7 @@ class <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a> {
     <a href='#SkBitmap_notifyPixelsChanged'>void</a> <a href='#SkBitmap_eraseColor'>eraseColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor_Reference#SkColor'>c</a>) <a href='SkColor_Reference#SkColor'>const</a>;
     <a href='SkColor_Reference#SkColor'>void</a> <a href='#SkBitmap_eraseARGB'>eraseARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> <a href='undocumented#U8CPU'>a</a>, <a href='undocumented#U8CPU'>U8CPU</a> <a href='undocumented#U8CPU'>r</a>, <a href='undocumented#U8CPU'>U8CPU</a> <a href='undocumented#U8CPU'>g</a>, <a href='undocumented#U8CPU'>U8CPU</a> <a href='undocumented#U8CPU'>b</a>) <a href='undocumented#U8CPU'>const</a>;
     <a href='undocumented#U8CPU'>void</a> <a href='#SkBitmap_erase'>erase</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor_Reference#SkColor'>c</a>, <a href='SkColor_Reference#SkColor'>const</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkIRect_Reference#SkIRect'>area</a>) <a href='SkIRect_Reference#SkIRect'>const</a>;
-    <a href='SkIRect_Reference#SkIRect'>void</a> <a href='#SkBitmap_eraseArea'>eraseArea</a>(<a href='#SkBitmap_eraseArea'>const</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkIRect_Reference#SkIRect'>area</a>, <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor_Reference#SkColor'>c</a>) <a href='SkColor_Reference#SkColor'>const</a>;
+    <a href='SkIRect_Reference#SkIRect'>void</a> <a href='SkIRect_Reference#SkIRect'>eraseArea</a>(<a href='SkIRect_Reference#SkIRect'>const</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkIRect_Reference#SkIRect'>area</a>, <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor_Reference#SkColor'>c</a>) <a href='SkColor_Reference#SkColor'>const</a>;
     <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkBitmap_getColor'>getColor</a>(<a href='#SkBitmap_getColor'>int</a> <a href='#SkBitmap_getColor'>x</a>, <a href='#SkBitmap_getColor'>int</a> <a href='#SkBitmap_getColor'>y</a>) <a href='#SkBitmap_getColor'>const</a>;
     <a href='#SkBitmap_getColor'>float</a> <a href='#SkBitmap_getAlphaf'>getAlphaf</a>(<a href='#SkBitmap_getAlphaf'>int</a> <a href='#SkBitmap_getAlphaf'>x</a>, <a href='#SkBitmap_getAlphaf'>int</a> <a href='#SkBitmap_getAlphaf'>y</a>) <a href='#SkBitmap_getAlphaf'>const</a>;
     <a href='#SkBitmap_getAlphaf'>void</a>* <a href='#SkBitmap_getAddr'>getAddr</a>(<a href='#SkBitmap_getAddr'>int</a> <a href='#SkBitmap_getAddr'>x</a>, <a href='#SkBitmap_getAddr'>int</a> <a href='#SkBitmap_getAddr'>y</a>) <a href='#SkBitmap_getAddr'>const</a>;
@@ -2101,16 +2101,6 @@ true if <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> <a href='SkI
 
 <a href='#SkBitmap_allocPixels'>allocPixels</a>
 
-<a name='SkBitmap_installMaskPixels'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkBitmap_installMaskPixels'>installMaskPixels</a>(<a href='#SkBitmap_installMaskPixels'>const</a> <a href='undocumented#SkMask'>SkMask</a>& <a href='undocumented#SkMask'>mask</a>)
-</pre>
-
-To be deprecated soon.
-
 <a name='Pixels'></a>
 
 <a name='SkBitmap_setPixels'></a>
@@ -2548,16 +2538,6 @@ then RGB is ignored.
 ### See Also
 
 <a href='#SkBitmap_eraseColor'>eraseColor</a> <a href='#SkBitmap_eraseARGB'>eraseARGB</a> <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_drawRect'>drawRect</a>
-
-<a name='SkBitmap_eraseArea'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkBitmap_eraseArea'>eraseArea</a>(<a href='#SkBitmap_eraseArea'>const</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkIRect_Reference#SkIRect'>area</a>, <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor_Reference#SkColor'>c</a>) <a href='SkColor_Reference#SkColor'>const</a>
-</pre>
-
-Deprecated.
 
 <a name='SkBitmap_getColor'></a>
 

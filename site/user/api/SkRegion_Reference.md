@@ -69,9 +69,9 @@ class <a href='SkRegion_Reference#SkRegion'>SkRegion</a> {
     <a href='#SkRegion_Op'>bool</a> <a href='#SkRegion_op'>op</a>(<a href='#SkRegion_op'>const</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>, <a href='SkRect_Reference#Rect'>const</a> <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#SkRegion'>rgn</a>, <a href='#SkRegion_Op'>Op</a> <a href='#SkRegion_Op'>op</a>);
     <a href='#SkRegion_Op'>bool</a> <a href='#SkRegion_op'>op</a>(<a href='#SkRegion_op'>const</a> <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#SkRegion'>rgn</a>, <a href='SkRegion_Reference#SkRegion'>const</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>, <a href='#SkRegion_Op'>Op</a> <a href='#SkRegion_Op'>op</a>);
     <a href='#SkRegion_Op'>bool</a> <a href='#SkRegion_op'>op</a>(<a href='#SkRegion_op'>const</a> <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#SkRegion'>rgna</a>, <a href='SkRegion_Reference#SkRegion'>const</a> <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#SkRegion'>rgnb</a>, <a href='#SkRegion_Op'>Op</a> <a href='#SkRegion_Op'>op</a>);
-    <a href='#SkRegion_Op'>char</a>* <a href='#SkRegion_toString'>toString</a>();
+    <a href='#SkRegion_Op'>char</a>* <a href='#SkRegion_Op'>toString</a>();
 
-    <a href='#SkRegion_toString'>class</a> <a href='#SkRegion_Iterator'>Iterator</a> {
+    <a href='#SkRegion_Op'>class</a> <a href='#SkRegion_Iterator'>Iterator</a> {
     <a href='#SkRegion_Iterator'>public</a>:
         <a href='#SkRegion_Iterator'>Iterator</a>();
         <a href='#SkRegion_Iterator'>Iterator</a>(<a href='#SkRegion_Iterator'>const</a> <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>);
@@ -2125,20 +2125,6 @@ false if result is empty
 ### See Also
 
 <a href='#SkRegion_setRects'>setRects</a> <a href='#SkRegion_Op'>Op</a>
-
-<a name='SkRegion_toString'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-char* <a href='#SkRegion_toString'>toString</a>()
-</pre>
-
-Private: Android framework only.
-
-### Return Value
-
-<a href='undocumented#String'>string</a> <a href='undocumented#String'>representation</a> <a href='undocumented#String'>of</a> <a href='SkRegion_Reference#Region'>Region</a>
 
 <a name='SkRegion_writeToMemory'></a>
 

@@ -273,22 +273,12 @@ is not unique
 
 <a href='#Color_Space'>Color_Space</a> <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>::<a href='#SkImageInfo_makeColorSpace'>makeColorSpace</a>
 
-<a name='SkPixmap_reset_3'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool reset(const <a href='undocumented#SkMask'>SkMask</a>& <a href='undocumented#SkMask'>mask</a>)
-</pre>
-
-To be deprecated soon.
-
 <a name='SkPixmap_extractSubset'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool extractSubset(<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>* <a href='SkPixmap_Reference#SkPixmap'>subset</a>, <a href='SkPixmap_Reference#SkPixmap'>const</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkIRect_Reference#SkIRect'>area</a>) <a href='SkIRect_Reference#SkIRect'>const</a>
+bool <a href='#SkPixmap_extractSubset'>extractSubset</a>(<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>* <a href='SkPixmap_Reference#SkPixmap'>subset</a>, <a href='SkPixmap_Reference#SkPixmap'>const</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkIRect_Reference#SkIRect'>area</a>) <a href='SkIRect_Reference#SkIRect'>const</a>
 </pre>
 
 Sets <a href='#SkPixmap_extractSubset_subset'>subset</a> <a href='#SkPixmap_extractSubset_subset'>width</a>, <a href='#SkPixmap_extractSubset_subset'>height</a>, <a href='undocumented#Pixel'>pixel</a> <a href='undocumented#Pixel'>address</a> <a href='undocumented#Pixel'>to</a> <a href='undocumented#Pixel'>intersection</a> <a href='undocumented#Pixel'>of</a> <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> <a href='SkPixmap_Reference#SkPixmap'>with</a> <a href='#SkPixmap_extractSubset_area'>area</a>,
