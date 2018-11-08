@@ -67,8 +67,8 @@ private:
     SkRasterPipeline_EmbossCtx fEmbossCtx;  // Used only for k3D_Format masks.
 
     // We may be able to specialize blitH() or blitRect() into a memset.
-    bool     fCanMemsetInBlitRect = false;
-    uint64_t fMemsetColor      = 0;     // Big enough for largest dst format, F16.
+    void   (*fMemset2D)(SkPixmap*, int x,int y, int w,int h, uint64_t color) = nullptr;
+    uint64_t fMemsetColor = 0;   // Big enough for largest memsettable dst format, F16.
 
     // Built lazily on first use.
     std::function<void(size_t, size_t, size_t, size_t)> fBlitRect,
@@ -223,8 +223,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // When we're drawing a constant color in Src mode, we can sometimes just memset.
     // (The previous two optimizations help find more opportunities for this one.)
-    if (is_constant && blitter->fBlend == SkBlendMode::kSrc
-                    && blitter->fDst.shiftPerPixel() <= 3 /*TODO: F32*/) {
+    if (is_constant && blitter->fBlend == SkBlendMode::kSrc) {
         // Run our color pipeline all the way through to produce what we'd memset when we can.
         // Not all blits can memset, so we need to keep colorPipeline too.
         SkRasterPipeline_<256> p;
@@ -234,7 +233,44 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         blitter->append_store(&p);
         p.run(0,0,1,1);
 
-        blitter->fCanMemsetInBlitRect = true;
+        switch (blitter->fDst.shiftPerPixel()) {
+            case 0: blitter->fMemset2D = [](SkPixmap* dst, int x,int y, int w,int h, uint64_t c) {
+                void* p = dst->writable_addr(x,y);
+                while (h --> 0) {
+                    memset(p, c, w);
+                    p = SkTAddOffset<void>(p, dst->rowBytes());
+                }
+            }; break;
+
+            case 1: blitter->fMemset2D = [](SkPixmap* dst, int x,int y, int w,int h, uint64_t c) {
+                uint16_t* p = dst->writable_addr16(x,y);
+                auto fn = SkOpts::memset16;
+                while (h --> 0) {
+                    fn(p, c, w);
+                    p = SkTAddOffset<uint16_t>(p, dst->rowBytes());
+                }
+            }; break;
+
+            case 2: blitter->fMemset2D = [](SkPixmap* dst, int x,int y, int w,int h, uint64_t c) {
+                uint32_t* p = dst->writable_addr32(x,y);
+                auto fn = SkOpts::memset32;
+                while (h --> 0) {
+                    fn(p, c, w);
+                    p = SkTAddOffset<uint32_t>(p, dst->rowBytes());
+                }
+            }; break;
+
+            case 3: blitter->fMemset2D = [](SkPixmap* dst, int x,int y, int w,int h, uint64_t c) {
+                uint64_t* p = dst->writable_addr64(x,y);
+                auto fn = SkOpts::memset64;
+                while (h --> 0) {
+                    fn(p, c, w);
+                    p = SkTAddOffset<uint64_t>(p, dst->rowBytes());
+                }
+            }; break;
+
+            // TODO(F32)?
+        }
     }
 
     blitter->fDstPtr = SkRasterPipeline_MemoryCtx{
@@ -278,16 +314,8 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
 }
 
 void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
-    if (fCanMemsetInBlitRect) {
-        for (int ylimit = y+h; y < ylimit; y++) {
-            switch (fDst.shiftPerPixel()) {
-                case 0:    memset  (fDst.writable_addr8 (x,y), fMemsetColor, w); break;
-                case 1: sk_memset16(fDst.writable_addr16(x,y), fMemsetColor, w); break;
-                case 2: sk_memset32(fDst.writable_addr32(x,y), fMemsetColor, w); break;
-                case 3: sk_memset64(fDst.writable_addr64(x,y), fMemsetColor, w); break;
-                default: SkASSERT(false); break;
-            }
-        }
+    if (fMemset2D) {
+        fMemset2D(&fDst, x,y, w,h, fMemsetColor);
         return;
     }
 
