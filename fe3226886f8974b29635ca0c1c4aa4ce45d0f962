@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d934e19_5f13926b",
+        "filename": "bench/EncodeBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-08T17:48:47Z",
+      "side": 1,
+      "message": "FWIW, you can use directories or files, and you can put more than one file/directory here, separated by spaces. I\u0027m not sure of a concise way to say that.",
+      "range": {
+        "startLine": 20,
+        "startChar": 42,
+        "endLine": 21,
+        "endChar": 0
+      },
+      "revId": "fe3226886f8974b29635ca0c1c4aa4ce45d0f962",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
