@@ -192,6 +192,30 @@
       "revId": "82cdbcb7d510c585add1af389b4134a715c299df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de52e29c_29b0dafe",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-08T14:52:19Z",
+      "side": 1,
+      "message": "Is there a way we can squeeze the compiler so that something like one of these can compile?\n\nverts \u003d WriteVertexData(verts,\n                        position,\n                        color,\n                        If(fClipPlane, circle.fClipPlane),\n                        fClipPlaneISect ? circle.fISectPlane : Nothing,\n                        ...)",
+      "parentUuid": "93505e0c_a15dd70e",
+      "range": {
+        "startLine": 1261,
+        "startChar": 12,
+        "endLine": 1263,
+        "endChar": 17
+      },
+      "revId": "82cdbcb7d510c585add1af389b4134a715c299df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
