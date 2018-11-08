@@ -903,7 +903,7 @@ void IncludeWriter::methodOut(Definition* method, const Definition& child) {
                 SkASSERT(sawMethod);
                 break;
             }
-            SkASSERT(!sawMethod);
+//            SkASSERT(!sawMethod);
             SkDEBUGCODE(sawMethod = MarkType::kMethod == iter->fMarkType);
         }
         this->lf(2);

@@ -391,7 +391,7 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
     ##
 ##
 
-#Method void setHinting(Hinting hintingLevel)
+#Method void setHinting(Hinting h)
 #In Hinting
 #Populate
 
