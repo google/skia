@@ -66,7 +66,7 @@ struct SkSize {
      */
     bool isZero() const { return 0 == fWidth && 0 == fHeight; }
 
-    /** Returns true if either widht or height are <= 0 */
+    /** Returns true if either width or height are <= 0 */
     bool isEmpty() const { return fWidth <= 0 || fHeight <= 0; }
 
     /** Set the width and height to 0 */
