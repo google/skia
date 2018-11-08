@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "601fa5d3_658c873b",
+        "filename": "src/core/SkPaint_text.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-08T22:27:19Z",
+      "side": 1,
+      "message": "This wants to be SkSurfaceProps(), but that\u0027s currently private, I think until we can get rid of the legacy globals. This should explicitly be SkSurfaceProps(0, kUnknown_SkPixelGeometry). I think the idea of using the legacy one was to try to get more hits on the caches, but we want to remove these globals anyway and this also doesn\u0027t take the actual matrix anyhow.",
+      "range": {
+        "startLine": 489,
+        "startChar": 15,
+        "endLine": 489,
+        "endChar": 71
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b62b4e95_defe503b",
+        "filename": "src/core/SkPaint_text.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-08T22:27:19Z",
+      "side": 1,
+      "message": "This should also be SkSurfaceProps(0, kUnknown_SkPixelGeometry). The paint doesn\u0027t have this information, so don\u0027t try to infer it.",
+      "range": {
+        "startLine": 792,
+        "startChar": 16,
+        "endLine": 792,
+        "endChar": 72
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d244215_351ac9a7",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-08T22:27:19Z",
+      "side": 1,
+      "message": "nit: why the extra indent?",
+      "range": {
+        "startLine": 315,
+        "startChar": 34,
+        "endLine": 315,
+        "endChar": 37
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81f62424_81563a85",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-08T22:27:19Z",
+      "side": 1,
+      "message": "This appears to be used in PathTextBench and once in SamplePathText. Can those calls just use the other more explicit FindOrCreateStrikeExclusive and pass in \"SkSurfaceProps(0, kUnknown_SkPixelGeometry), kFakeGammaAndBoostContrast, SkMatrix::I()\"?",
+      "range": {
+        "startLine": 166,
+        "startChar": 36,
+        "endLine": 166,
+        "endChar": 63
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb0614b0_52206110",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-08T22:27:19Z",
+      "side": 1,
+      "message": "SkSurfaceProps(0, kUnknown_SkPixelGeometry)\n\nThis method needs to be deprecated now anyhow...",
+      "range": {
+        "startLine": 406,
+        "startChar": 14,
+        "endLine": 406,
+        "endChar": 70
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43cac6b0_5b663459",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-08T22:27:19Z",
+      "side": 1,
+      "message": "It\u0027s a test so doesn\u0027t matter so much, but to prevent use...\n\nSkSurfaceProps(0, kUnknown_SkPixelGeometry)",
+      "range": {
+        "startLine": 652,
+        "startChar": 29,
+        "endLine": 652,
+        "endChar": 85
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
