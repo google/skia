@@ -648,7 +648,9 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
         SkScalerContextRec rec;
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
-        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(
+                font, paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags,
+                SkMatrix::I(), &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto fallbackCache = strikeCache.findOrCreateStrikeExclusive(*desc, effects, *clientTf);
@@ -666,7 +668,9 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
         SkScalerContextRec rec;
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
-        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(
+                font, paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags,
+                SkMatrix::I(), &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
         auto testCache = strikeCache.findStrikeExclusive(*desc);
         REPORTER_ASSERT(reporter, !(testCache == nullptr));
@@ -678,7 +682,10 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     SkScalerContextRec rec;
     SkScalerContextEffects effects;
     SkScalerContextFlags flags = SkScalerContextFlags::kNone;
-    SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
+    SkScalerContext::MakeRecAndEffects(
+            font, paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags,
+            SkMatrix::I(),
+            &rec, &effects, false);
     auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
     testCache = strikeCache.findStrikeExclusive(*desc);
     REPORTER_ASSERT(reporter, testCache == nullptr);
@@ -754,7 +761,9 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         paint.setTypeface(serverTf);
-        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(
+                font, paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags,
+                SkMatrix::I(), &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto context = serverTf->createScalerContext(effects, desc, false);
@@ -772,7 +781,9 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         paint.setTypeface(clientTf);
-        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(
+                font, paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags,
+                SkMatrix::I(), &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto fallbackCache = strikeCache.findOrCreateStrikeExclusive(*desc, effects, *clientTf);
@@ -809,7 +820,9 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         paint.setTypeface(clientTf);
-        SkScalerContext::MakeRecAndEffects(font, paint, nullptr, nullptr, flags, &rec, &effects, false);
+        SkScalerContext::MakeRecAndEffects(
+                font, paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType), flags,
+                SkMatrix::I(), &rec, &effects, false);
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto fallbackCache = strikeCache.findStrikeExclusive(*desc);

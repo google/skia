@@ -183,7 +183,7 @@ public:
                                     const SkSurfaceProps& props,
                                     SkScalerContextFlags scalerContextFlags,
                                     const SkPaint& skPaint,
-                                    const SkMatrix* viewMatrix);
+                                    const SkMatrix& viewMatrix);
 
     // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
     // as a path.

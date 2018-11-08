@@ -104,9 +104,9 @@ public:
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
             const SkPaint& paint,
-            const SkSurfaceProps* surfaceProps,
+            const SkSurfaceProps& surfaceProps,
             SkScalerContextFlags scalerContextFlags,
-            const SkMatrix* deviceMatrix);
+            const SkMatrix& deviceMatrix);
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(const SkPaint& paint);
 
