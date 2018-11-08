@@ -35,7 +35,7 @@ protected:
         paint.setLCDRenderText(true);
         //With freetype the default (normal hinting) can be really ugly.
         //Most distros now set slight (vertical hinting only) in any event.
-        paint.setHinting(SkPaint::kSlight_Hinting);
+        paint.setHinting(kSlight_SkFontHinting);
 
         const char* text = "Hamburgefons ooo mmm";
         const size_t textLen = strlen(text);
