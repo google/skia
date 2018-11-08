@@ -6,14 +6,13 @@
  */
 
 #include "SkAndroidCodec.h"
+#include "SkAndroidCodecAdapter.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkMakeUnique.h"
 #include "SkPixmap.h"
 #include "SkPixmapPriv.h"
-#include "SkRawAdapterCodec.h"
 #include "SkSampledCodec.h"
-#include "SkWebpAdapterCodec.h"
 
 static bool is_valid_sample_size(int sampleSize) {
     // FIXME: As Leon has mentioned elsewhere, surely there is also a maximum sampleSize?
@@ -97,16 +96,17 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
         case SkEncodedImageFormat::kWBMP:
         case SkEncodedImageFormat::kHEIF:
             return skstd::make_unique<SkSampledCodec>(codec.release(), orientationBehavior);
+
 #ifdef SK_HAS_WEBP_LIBRARY
         case SkEncodedImageFormat::kWEBP:
-            return skstd::make_unique<SkWebpAdapterCodec>((SkWebpCodec*) codec.release(),
-                    orientationBehavior);
 #endif
 #ifdef SK_CODEC_DECODES_RAW
         case SkEncodedImageFormat::kDNG:
-            return skstd::make_unique<SkRawAdapterCodec>((SkRawCodec*)codec.release(),
-                    orientationBehavior);
 #endif
+#if defined(SK_HAS_WEBP_LIBRARY) || defined(SK_CODEC_DECODES_RAW)
+            return skstd::make_unique<SkAndroidCodecAdapter>(codec.release(), orientationBehavior);
+#endif
+
         default:
             return nullptr;
     }

@@ -4,22 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkWebpAdapterCodec_DEFINED
-#define SkWebpAdapterCodec_DEFINED
+#ifndef SkAndroidCodecAdapter_DEFINED
+#define SkAndroidCodecAdapter_DEFINED
 
 #include "SkAndroidCodec.h"
-#include "SkWebpCodec.h"
 
 /**
- *  This class implements the functionality of SkAndroidCodec.  It uses an
- *  SkWebpCodec.
+ *  This class wraps SkCodec to implement the functionality of SkAndroidCodec.
+ *  The underlying SkCodec implements sampled decodes.  SkCodec's that do not
+ *  implement that are wrapped with SkSampledCodec instead.
  */
-class SkWebpAdapterCodec : public SkAndroidCodec {
+class SkAndroidCodecAdapter : public SkAndroidCodec {
 public:
 
-    explicit SkWebpAdapterCodec(SkWebpCodec*, ExifOrientationBehavior);
+    explicit SkAndroidCodecAdapter(SkCodec*, ExifOrientationBehavior);
 
-    ~SkWebpAdapterCodec() override {}
+    ~SkAndroidCodecAdapter() override {}
 
 protected:
 
@@ -34,4 +34,4 @@ private:
 
     typedef SkAndroidCodec INHERITED;
 };
-#endif // SkWebpAdapterCodec_DEFINED
+#endif // SkAndroidCodecAdapter_DEFINED

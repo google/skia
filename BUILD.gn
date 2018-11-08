@@ -721,7 +721,6 @@ optional("raw") {
   configs_to_remove = [ "//gn:no_exceptions" ]
 
   sources = [
-    "src/codec/SkRawAdapterCodec.cpp",
     "src/codec/SkRawCodec.cpp",
   ]
 }
@@ -762,7 +761,6 @@ optional("webp") {
     "//third_party/libwebp",
   ]
   sources = [
-    "src/codec/SkWebpAdapterCodec.cpp",
     "src/codec/SkWebpCodec.cpp",
     "src/images/SkWebpEncoder.cpp",
   ]
@@ -879,6 +877,7 @@ component("skia") {
     "src/android/SkBitmapRegionCodec.cpp",
     "src/android/SkBitmapRegionDecoder.cpp",
     "src/codec/SkAndroidCodec.cpp",
+    "src/codec/SkAndroidCodecAdapter.cpp",
     "src/codec/SkBmpBaseCodec.cpp",
     "src/codec/SkBmpCodec.cpp",
     "src/codec/SkBmpMaskCodec.cpp",
