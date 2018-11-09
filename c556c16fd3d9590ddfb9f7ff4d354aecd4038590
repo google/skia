@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b0c18bc0_09c0ed3a",
+        "filename": "src/codec/SkRawAdapterCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-09T14:22:35Z",
+      "side": 0,
+      "message": "Ack",
+      "parentUuid": "76b89a9a_22be5b9f",
+      "revId": "c556c16fd3d9590ddfb9f7ff4d354aecd4038590",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5dc2163f_265dc233",
         "filename": "src/codec/SkRawAdapterCodec.h",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "c556c16fd3d9590ddfb9f7ff4d354aecd4038590",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e2966ce_3c0c7dc0",
+        "filename": "src/codec/SkRawAdapterCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-09T14:22:35Z",
+      "side": 0,
+      "message": "Ack",
+      "parentUuid": "5dc2163f_265dc233",
+      "revId": "c556c16fd3d9590ddfb9f7ff4d354aecd4038590",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
