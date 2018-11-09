@@ -10,4 +10,9 @@
 #ifdef SK_BUILD_FOR_ANDROID
 // This is needed to get android extensions for external memory
 #include "vulkan/vulkan_android.h"
+
+#ifndef VK_VERSION_1_1
+#error Skia requires the use of Vulkan 1.1 headers
+#endif
+
 #endif
