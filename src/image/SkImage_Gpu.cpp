@@ -121,81 +121,22 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
         SkBudgeted isBudgeted, GrRenderTargetContext* renderTargetContext) {
     SkASSERT(renderTargetContext);
 
-    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
-
-    // We need to make a copy of the input backend textures because we need to preserve the result
-    // of validate_backend_texture.
-    GrBackendTexture yuvaTexturesCopy[4];
-
-    for (int i = 0; i < 4; ++i) {
-        // Validate that the yuvaIndices refer to valid backend textures.
-        const SkYUVAIndex& yuvaIndex = yuvaIndices[i];
-        if (i == 3 && yuvaIndex.fIndex == -1) {
-            // Meaning the A plane isn't passed in.
-            continue;
-        }
-        if (yuvaIndex.fIndex == -1 || yuvaIndex.fIndex > 3) {
-            // Y plane, U plane, and V plane must refer to image sources being passed in. There are
-            // at most 4 images sources being passed in, could not have a index more than 3.
-            return nullptr;
-        }
-
-        if (!yuvaTexturesCopy[yuvaIndex.fIndex].isValid()) {
-            yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
-
-            if (!ctx->contextPriv().caps()->getYUVAConfigFromBackendTexture(
-                                                yuvaTexturesCopy[yuvaIndex.fIndex],
-                                                &yuvaTexturesCopy[yuvaIndex.fIndex].fConfig)) {
-                return nullptr;
-            }
-        }
-
-        // TODO: Check that for each plane, the channel actually exist in the image source we are
-        // reading from.
-    }
-
-    sk_sp<GrTextureProxy> tempTextureProxies[4];
-    for (int i = 0; i < 4; ++i) {
-        // Fill in tempTextureProxies to avoid duplicate texture proxies.
-        int textureIndex = yuvaIndices[i].fIndex;
-
-        // Safely ignore since this means we are missing the A plane.
-        if (textureIndex == -1) {
-            SkASSERT(SkYUVAIndex::kA_Index == i);
-            continue;
-        }
-
-        if (!tempTextureProxies[textureIndex]) {
-            SkASSERT(yuvaTexturesCopy[textureIndex].isValid());
-            tempTextureProxies[textureIndex] =
-                    proxyProvider->wrapBackendTexture(yuvaTexturesCopy[textureIndex], origin);
-            if (!tempTextureProxies[textureIndex]) {
-                return nullptr;
-            }
-        }
-    }
-
-    const int width = size.width();
-    const int height = size.height();
-
-    GrPaint paint;
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    // TODO: Modify the fragment processor to sample from different channel instead of taking nv12
-    // bool.
-    paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(tempTextureProxies, yuvaIndices,
-                                                           yuvColorSpace,
-                                                           GrSamplerState::Filter::kNearest));
-
-    const SkRect rect = SkRect::MakeIWH(width, height);
-
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
-
-    if (!renderTargetContext->asSurfaceProxy()) {
+    int numTextures;
+    if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
         return nullptr;
     }
 
-    // DDL TODO: in the promise image version we must not flush here
-    ctx->contextPriv().flushSurfaceWrites(renderTargetContext->asSurfaceProxy());
+    sk_sp<GrTextureProxy> tempTextureProxies[4];
+    if (!SkImage_GpuBase::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, origin,
+                                                 tempTextureProxies)) {
+        return nullptr;
+    }
+
+    const SkRect rect = SkRect::MakeIWH(size.width(), size.height());
+    if (!RenderYUVAToRGBA(ctx, renderTargetContext, rect, yuvColorSpace,
+                          tempTextureProxies, yuvaIndices)) {
+        return nullptr;
+    }
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
