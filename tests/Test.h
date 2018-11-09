@@ -176,22 +176,10 @@ private:
         }                            \
     } while (0)
 
-#ifdef SK_DO_NOT_REGISTER_NONGPU_UNIT_TESTS
-namespace skiatest {
-struct NonRegister {
-    NonRegister(TestProc) {}
-};
-}
-#define DEF_TEST(name, reporter)                                                \
-    static void test_##name(skiatest::Reporter*, const GrContextOptions&);      \
-    static skiatest::NonRegister name##_NonTestRegistry(test_##name);           \
-    void test_##name(skiatest::Reporter* reporter, const GrContextOptions&)
-#else
 #define DEF_TEST(name, reporter)                                                          \
     static void test_##name(skiatest::Reporter*, const GrContextOptions&);                \
     skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, false, test_##name)); \
     void test_##name(skiatest::Reporter* reporter, const GrContextOptions&)
-#endif
 
 #define DEF_GPUTEST(name, reporter, options)                                             \
     static void test_##name(skiatest::Reporter*, const GrContextOptions&);               \
