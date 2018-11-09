@@ -84,10 +84,13 @@ def make_apk(architectures,
     assert os.path.exists(android_ndk)
     assert os.path.exists(android_home)
     assert os.path.exists(skia_dir)
-    assert os.path.exists(build_dir)
     assert architectures
     assert all(arch in skia_to_android_arch_name_map
                for arch in architectures)
+
+    for d in [build_dir, final_output_dir]:
+        if not os.path.exists(d):
+            os.makedirs(d)
 
     os.chdir(skia_dir)
     apps_dir = 'platform_tools/android/apps'
@@ -205,6 +208,7 @@ def main():
                  ('SKQP_BUILD_DIR', build_dir),
                  ('Architectures', architectures)]:
         sys.stdout.write('%s = %r\n' % (k, v))
+    sys.stdout.flush()
     make_apk(architectures,
              android_ndk,
              android_home,
