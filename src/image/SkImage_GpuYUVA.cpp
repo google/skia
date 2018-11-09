@@ -32,8 +32,7 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, int width, int height
                     // If an alpha channel is present we always switch to kPremul. This is because,
                     // although the planar data is always un-premul, the final interleaved RGB image
                     // is/would-be premul.
-                    -1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex ? kPremul_SkAlphaType
-                                                                    : kOpaque_SkAlphaType,
+                    GetAlphaTypeFromYUVAIndices(yuvaIndices),
                     budgeted, imageColorSpace)
         , fNumProxies(numProxies)
         , fYUVColorSpace(colorSpace)
@@ -132,13 +131,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
     }
 
     sk_sp<GrTextureProxy> tempTextureProxies[4];
-    if (!SkImage_GpuBase::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, imageOrigin,
-                                                 tempTextureProxies)) {
+    if (!SkImage_GpuBase::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, yuvaIndices,
+                                                 imageOrigin, tempTextureProxies)) {
         return nullptr;
     }
-
-    // TODO: Check that for each plane, the channel actually exist in the image source we are
-    // reading from.
 
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(ctx), imageSize.width(), imageSize.height(),
                                        kNeedNewImageUniqueID, colorSpace, tempTextureProxies,

@@ -39,7 +39,6 @@
 #include "SkImage_Gpu.h"
 #include "SkMipMap.h"
 #include "SkTraceEvent.h"
-#include "SkYUVAIndex.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "gl/GrGLTexture.h"
 
@@ -127,8 +126,8 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
     }
 
     sk_sp<GrTextureProxy> tempTextureProxies[4];
-    if (!SkImage_GpuBase::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, origin,
-                                                 tempTextureProxies)) {
+    if (!SkImage_GpuBase::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, yuvaIndices,
+                                                 origin, tempTextureProxies)) {
         return nullptr;
     }
 
@@ -138,8 +137,9 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
         return nullptr;
     }
 
+    SkAlphaType at = GetAlphaTypeFromYUVAIndices(yuvaIndices);
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at,
                                    renderTargetContext->asTextureProxyRef(),
                                    renderTargetContext->colorSpaceInfo().refColorSpace(),
                                    isBudgeted);
@@ -180,8 +180,9 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
         sk_sp<SkColorSpace> imageColorSpace) {
     GrBackendTexture backendTextureCopy = backendTexture;
 
+    SkAlphaType at = SkImage_GpuBase::GetAlphaTypeFromYUVAIndices(yuvaIndices);
     if (!SkImage_Gpu::ValidateBackendTexture(ctx, backendTextureCopy, &backendTextureCopy.fConfig,
-                                             kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr)) {
+                                             kRGBA_8888_SkColorType, at, nullptr)) {
         return nullptr;
     }
 

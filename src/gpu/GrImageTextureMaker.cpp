@@ -90,6 +90,9 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     const GrSamplerState::Filter* filterOrNullForBicubic) {
 
     // Check simple cases to see if we need to fall back to flattening the image
+    // TODO: See if we can relax this -- for example, if filterConstraint
+    //       is kYes_FilterConstraint we still may not need a TextureDomain
+    //       in some cases.
     if (!textureMatrix.isIdentity() || kNo_FilterConstraint != filterConstraint ||
         !coordsLimitedToConstraintRect || !filterOrNullForBicubic) {
         return this->INHERITED::createFragmentProcessor(textureMatrix, constraintRect,

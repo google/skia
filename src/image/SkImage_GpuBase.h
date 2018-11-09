@@ -11,6 +11,7 @@
 #include "GrBackendSurface.h"
 #include "GrTypesPriv.h"
 #include "SkImage_Base.h"
+#include "SkYUVAIndex.h"
 
 class GrContext;
 class SkColorSpace;
@@ -62,8 +63,14 @@ public:
                                        GrPixelConfig* config, SkColorType ct, SkAlphaType at,
                                        sk_sp<SkColorSpace> cs);
     static bool MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
-                                       int numTextures, GrSurfaceOrigin imageOrigin,
+                                       int numTextures, const SkYUVAIndex [4],
+                                       GrSurfaceOrigin imageOrigin,
                                        sk_sp<GrTextureProxy> tempTextureProxies[4]);
+
+    static SkAlphaType GetAlphaTypeFromYUVAIndices(const SkYUVAIndex yuvaIndices[4]) {
+        return -1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex ? kPremul_SkAlphaType
+                                                               : kOpaque_SkAlphaType;
+    }
 
     typedef ReleaseContext TextureContext;
     typedef void(*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);

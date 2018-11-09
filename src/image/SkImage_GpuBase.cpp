@@ -291,7 +291,8 @@ bool SkImage_GpuBase::onIsValid(GrContext* context) const {
 }
 
 bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
-                                             int numTextures, GrSurfaceOrigin imageOrigin,
+                                             int numTextures, const SkYUVAIndex yuvaIndices[4],
+                                             GrSurfaceOrigin imageOrigin,
                                              sk_sp<GrTextureProxy> tempTextureProxies[4]) {
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
 
@@ -312,6 +313,33 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
         if (!tempTextureProxies[textureIndex]) {
             return false;
         }
+
+        // Check that each texture contains the channel data for the corresponding YUVA index
+        GrPixelConfig config = yuvaTexturesCopy[textureIndex].fConfig;
+        for (int yuvaIndex = 0; yuvaIndex < SkYUVAIndex::kIndexCount; ++yuvaIndex) {
+            if (yuvaIndices[yuvaIndex].fIndex == textureIndex) {
+                switch (yuvaIndices[yuvaIndex].fChannel) {
+                    case SkColorChannel::kR:
+                        if (kAlpha_8_as_Alpha_GrPixelConfig == config) {
+                            return false;
+                        }
+                        break;
+                    case SkColorChannel::kG:
+                    case SkColorChannel::kB:
+                        if (kAlpha_8_as_Alpha_GrPixelConfig == config ||
+                            kAlpha_8_as_Red_GrPixelConfig == config) {
+                            return false;
+                        }
+                        break;
+                    case SkColorChannel::kA:
+                    default:
+                        if (kRGB_888_GrPixelConfig == config) {
+                            return false;
+                        }
+                        break;
+                }
+            }
+        }
     }
 
     return true;
@@ -329,8 +357,6 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    // TODO: modify the YUVtoRGBEffect to do premul if needed
-    // (e.g., if SkImage_GpuYUVA::fImageAlphaType is kPremul_AlphaType)
     paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
                                                            yuvColorSpace,
                                                            GrSamplerState::Filter::kNearest));

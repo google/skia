@@ -12,7 +12,6 @@
 #include "GrContext.h"
 #include "SkCachedData.h"
 #include "SkImage_GpuBase.h"
-#include "SkYUVAIndex.h"
 
 class GrTexture;
 struct SkYUVASizeInfo;
