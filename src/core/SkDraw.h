@@ -123,6 +123,8 @@ public:
                                     SkPoint* strokeSize);
 
     static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&, SkScalar sizeLimit = 1024);
+    static bool ShouldDrawTextAsPaths(const SkFont&, const SkPaint&, const SkMatrix&,
+                                      SkScalar sizeLimit = 1024);
 
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:

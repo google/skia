@@ -13,6 +13,7 @@
 #include "SkTypeface.h"
 
 class SkPaint;
+struct SkFontMetrics;
 
 class SK_API SkFont {
 public:
@@ -137,6 +138,9 @@ public:
 
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding) const;
 
+    SkScalar getMetrics(SkFontMetrics* metrics) const;
+    SkScalar getSpacing() const { return this->getMetrics(nullptr); }
+
     void LEGACY_applyToPaint(SkPaint*) const;
     static SkFont LEGACY_ExtractFromPaint(const SkPaint&);
 
@@ -149,6 +153,10 @@ private:
     SkScalar    fSkewX;
     uint8_t     fFlags;
     uint8_t     fHinting;
+
+    SkScalar setupForAsPaths(SkPaint*);
+
+    friend class SkCanonicalizeFont;
 };
 
 #endif
