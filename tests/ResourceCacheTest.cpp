@@ -1580,6 +1580,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
 }
 
 static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
+                                               const GrCaps* caps,
                                                GrSurfaceDescFlags descFlags,
                                                int width, int height,
                                                int sampleCnt) {
@@ -1590,10 +1591,11 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
+    const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     auto origin = (descFlags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
                                                             : kTopLeft_GrSurfaceOrigin;
 
-    return proxyProvider->createMipMapProxy(desc, origin, SkBudgeted::kYes);
+    return proxyProvider->createMipMapProxy(format, desc, origin, SkBudgeted::kYes);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,
@@ -1632,18 +1634,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
 
 
     // Mipmapped versions
-    if (context->contextPriv().caps()->mipMapSupport()) {
+    const GrCaps* caps  = context->contextPriv().caps();
+    if (caps->mipMapSupport()) {
         sk_sp<GrTextureProxy> proxy;
 
-        proxy = make_mipmap_proxy(proxyProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 1);
+        proxy = make_mipmap_proxy(proxyProvider, caps, kRenderTarget_GrSurfaceFlag, kSize, kSize,
+                                  1);
         size_t size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
 
         size_t sampleCount = (size_t)context->contextPriv().caps()->getRenderTargetSampleCount(
                 4, kRGBA_8888_GrPixelConfig);
         if (sampleCount >= 4) {
-            proxy = make_mipmap_proxy(proxyProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize,
-                                      sampleCount);
+            proxy = make_mipmap_proxy(proxyProvider, caps, kRenderTarget_GrSurfaceFlag, kSize,
+                                      kSize, sampleCount);
             size = proxy->gpuMemorySize();
             REPORTER_ASSERT(reporter,
                kSize*kSize*4+(kSize*kSize*4)/3 == size ||                 // msaa4 failed
@@ -1651,7 +1655,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
                kSize*kSize*4*(sampleCount+1)+(kSize*kSize*4)/3 == size);  // explicit resolve buffer
         }
 
-        proxy = make_mipmap_proxy(proxyProvider, kNone_GrSurfaceFlags, kSize, kSize, 1);
+        proxy = make_mipmap_proxy(proxyProvider, caps, kNone_GrSurfaceFlags, kSize, kSize, 1);
         size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
     }
