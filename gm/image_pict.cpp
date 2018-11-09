@@ -184,8 +184,7 @@ protected:
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
         sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
-                fProxy->backendFormat(), desc, fProxy->origin(), mipMapped, SkBackingFit::kExact,
-                SkBudgeted::kYes));
+                desc, fProxy->origin(), mipMapped, SkBackingFit::kExact, SkBudgeted::kYes));
         if (!dstContext) {
             return nullptr;
         }

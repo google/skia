@@ -214,12 +214,9 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
         gTextContext = GrTextContext::Make(GrTextContext::Options());
     }
 
-    const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     // Setup dummy SkPaint / GrPaint / GrRenderTargetContext
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
-        format, SkBackingFit::kApprox, 1024, 1024, kRGBA_8888_GrPixelConfig, nullptr));
+        SkBackingFit::kApprox, 1024, 1024, kRGBA_8888_GrPixelConfig, nullptr));
 
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
 

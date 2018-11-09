@@ -300,11 +300,8 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context,
     desc.fConfig = c.config();
     desc.fSampleCnt = c.stencilCount();
 
-    const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(c.colorType());
-
     sk_sp<GrSurfaceContext> sc(
-            context->contextPriv().makeDeferredSurfaceContext(format, desc, c.origin(),
+            context->contextPriv().makeDeferredSurfaceContext(desc, c.origin(),
                                                               GrMipMapped(c.isMipMapped()),
                                                               SkBackingFit::kExact, budgeted,
                                                               c.refColorSpace(),

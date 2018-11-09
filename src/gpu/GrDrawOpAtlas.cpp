@@ -34,13 +34,12 @@ void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvid
 }
 
 std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvider,
-                                                   const GrBackendFormat& format,
                                                    GrPixelConfig config, int width,
                                                    int height, int numPlotsX, int numPlotsY,
                                                    AllowMultitexturing allowMultitexturing,
                                                    GrDrawOpAtlas::EvictionFunc func, void* data) {
-    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, config, width,
-                                                           height, numPlotsX, numPlotsY,
+    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, config, width, height,
+                                                           numPlotsX, numPlotsY,
                                                            allowMultitexturing));
     if (!atlas->getProxies()[0]) {
         return nullptr;
@@ -179,11 +178,10 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendFormat& format,
+GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider,
                              GrPixelConfig config, int width, int height,
                              int numPlotsX, int numPlotsY, AllowMultitexturing allowMultitexturing)
-        : fFormat(format)
-        , fPixelConfig(config)
+        : fPixelConfig(config)
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1)
@@ -523,7 +521,7 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     int numPlotsY = fTextureHeight/fPlotHeight;
 
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        fProxies[i] = proxyProvider->createProxy(fFormat, desc, kTopLeft_GrSurfaceOrigin,
+        fProxies[i] = proxyProvider->createProxy(desc, kTopLeft_GrSurfaceOrigin,
                 SkBackingFit::kExact, SkBudgeted::kYes, GrInternalSurfaceFlags::kNoPendingIO);
         if (!fProxies[i]) {
             return false;
@@ -649,3 +647,4 @@ int GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(int maxDimension) {
 
 constexpr int GrDrawOpAtlasConfig::kMaxDistanceFieldDim;
 constexpr int GrDrawOpAtlasConfig::kPlotSize;
+

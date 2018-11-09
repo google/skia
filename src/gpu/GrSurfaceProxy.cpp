@@ -49,11 +49,9 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 
 // Lazy-callback version
 GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
-                               const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                               GrSurfaceOrigin origin, SkBackingFit fit,
+                               const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit,
                                SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
         : fSurfaceFlags(surfaceFlags)
-        , fFormat(format)
         , fConfig(desc.fConfig)
         , fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
@@ -65,7 +63,6 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
         , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
-    SkASSERT(fFormat.isValid());
     // NOTE: the default fUniqueID ctor pulls a value from the same pool as the GrGpuResources.
     if (fLazyInstantiateCallback) {
         SkASSERT(is_valid_fully_lazy(desc, fit) || is_valid_partially_lazy(desc));
@@ -78,7 +75,6 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit)
         : INHERITED(std::move(surface))
         , fSurfaceFlags(fTarget->surfacePriv().flags())
-        , fFormat(fTarget->backendFormat())
         , fConfig(fTarget->config())
         , fWidth(fTarget->width())
         , fHeight(fTarget->height())
@@ -89,7 +85,6 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
-    SkASSERT(fFormat.isValid());
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -341,13 +336,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
     dstDesc.fHeight = srcRect.height();
     dstDesc.fConfig = src->config();
 
-    GrBackendFormat format = src->backendFormat().makeTexture2D();
-    if (!format.isValid()) {
-        return nullptr;
-    }
-
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
-            format, dstDesc, src->origin(), mipMapped, SkBackingFit::kExact, budgeted));
+            dstDesc, src->origin(), mipMapped, SkBackingFit::kExact, budgeted));
     if (!dstContext) {
         return nullptr;
     }
@@ -368,14 +358,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context, GrSurfaceProxy* s
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
                                                  GrSurfaceOrigin origin, GrSurfaceProxy* srcProxy) {
     SkASSERT(LazyState::kFully != srcProxy->lazyInstantiationState());
-
-    GrBackendFormat format = srcProxy->backendFormat().makeTexture2D();
-    if (!format.isValid()) {
-        return nullptr;
-    }
-
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
-            format, dstDesc, origin, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes));
+            dstDesc, origin, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes));
     if (!dstContext) {
         return nullptr;
     }

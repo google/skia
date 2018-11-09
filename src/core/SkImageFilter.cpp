@@ -248,12 +248,9 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
 
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = SkColorType2GrPixelConfig(outputProperties.colorType());
-    GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(
-                    outputProperties.colorType());
     sk_sp<GrRenderTargetContext> renderTargetContext(
         context->contextPriv().makeDeferredRenderTargetContext(
-                                format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
+                                SkBackingFit::kApprox, bounds.width(), bounds.height(),
                                 config, std::move(colorSpace)));
     if (!renderTargetContext) {
         return nullptr;

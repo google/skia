@@ -436,11 +436,8 @@ public:
             return nullptr;
         }
 
-        GrBackendFormat format =
-            fContext->contextPriv().caps()->getBackendFormatFromColorType(outProps.colorType());
-
         return SkSpecialSurface::MakeRenderTarget(
-            fContext, format, size.width(), size.height(),
+            fContext, size.width(), size.height(),
             SkColorType2GrPixelConfig(outProps.colorType()), sk_ref_sp(outProps.colorSpace()),
             props);
     }

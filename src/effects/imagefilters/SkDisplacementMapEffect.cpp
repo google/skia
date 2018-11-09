@@ -300,15 +300,12 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
-        SkColorType colorType = ctx.outputProperties().colorType();
-        GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-        GrBackendFormat format =
-                context->contextPriv().caps()->getBackendFormatFromColorType(colorType);
+        GrPixelConfig config = SkColorType2GrPixelConfig(ctx.outputProperties().colorType());
 
         sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->contextPriv().makeDeferredRenderTargetContext(
-                    format, SkBackingFit::kApprox, bounds.width(), bounds.height(), config,
-                    sk_ref_sp(colorSpace)));
+            context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                     bounds.width(), bounds.height(),
+                                                     config, sk_ref_sp(colorSpace)));
         if (!renderTargetContext) {
             return nullptr;
         }

@@ -19,11 +19,10 @@
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
 // cases to make the sampleConfig/numSamples stuff more rational.
-GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendFormat& format,
-                                         const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
-                                         SkBackingFit fit, SkBudgeted budgeted,
-                                         GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(format, desc, origin, fit, budgeted, surfaceFlags)
+GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
+                                         GrSurfaceOrigin origin, SkBackingFit fit,
+                                         SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
+        : INHERITED(desc, origin, fit, budgeted, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false) {
     // Since we know the newly created render target will be internal, we are able to precompute
@@ -38,12 +37,10 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
 
 // Lazy-callback version
 GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
-                                         LazyInstantiationType lazyType,
-                                         const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                                         GrSurfaceOrigin origin,  SkBackingFit fit,
+                                         LazyInstantiationType lazyType, const GrSurfaceDesc& desc,
+                                         GrSurfaceOrigin origin, SkBackingFit fit,
                                          SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(std::move(callback), lazyType, format, desc, origin, fit, budgeted,
-                    surfaceFlags)
+        : INHERITED(std::move(callback), lazyType, desc, origin, fit, budgeted, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false) {
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));

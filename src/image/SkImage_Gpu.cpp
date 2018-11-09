@@ -214,13 +214,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
     const int width = imageSize.width();
     const int height = imageSize.height();
 
-    const GrBackendFormat format =
-            ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
     sk_sp<GrRenderTargetContext> renderTargetContext(
             ctx->contextPriv().makeDeferredRenderTargetContext(
-                    format, SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
+                    SkBackingFit::kExact, width, height, kRGBA_8888_GrPixelConfig,
                     std::move(imageColorSpace), 1, GrMipMapped::kNo, imageOrigin));
     if (!renderTargetContext) {
         return nullptr;
@@ -373,6 +370,13 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+static GrTextureType TextureTypeFromBackendFormat(const GrBackendFormat& backendFormat) {
+    if (const GrGLenum* target = backendFormat.getGLTarget()) {
+        return GrGLTexture::TextureTypeFromTarget(*target);
+    }
+    return GrTextureType::k2D;
+}
+
 sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                                const GrBackendFormat& backendFormat,
                                                int width,
@@ -417,8 +421,9 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    if (mipMapped == GrMipMapped::kYes &&
-        GrTextureTypeHasRestrictedSampling(backendFormat.textureType())) {
+    GrTextureType textureType = TextureTypeFromBackendFormat(backendFormat);
+
+    if (mipMapped == GrMipMapped::kYes && GrTextureTypeHasRestrictedSampling(textureType)) {
         // It is invalid to have a GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE and have mips as
         // well.
         return nullptr;
@@ -440,7 +445,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
                 return promiseHelper.getTexture(resourceProvider, config);
             },
-            backendFormat, desc, origin, mipMapped, GrInternalSurfaceFlags::kNone,
+            desc, origin, mipMapped, textureType, GrInternalSurfaceFlags::kNone,
             SkBackingFit::kExact, SkBudgeted::kNo,
             GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 
@@ -590,8 +595,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
                 return sk_ref_sp<GrTexture>(tmp->getTexture());
 #endif
             },
-            yuvaFormats[yuvaIndices[SkYUVAIndex::kY_Index].fIndex],
-            desc, imageOrigin, GrMipMapped::kNo,
+            desc, imageOrigin, GrMipMapped::kNo, GrTextureType::k2D,
             GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo,
             GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 

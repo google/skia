@@ -10,7 +10,6 @@
 
 #include "GrVkResource.h"
 
-#include "GrBackendSurface.h"
 #include "GrTypesPriv.h"
 #include "GrVkImageLayout.h"
 #include "SkTypes.h"
@@ -43,9 +42,6 @@ public:
     VkImage image() const { return fInfo.fImage; }
     const GrVkAlloc& alloc() const { return fInfo.fAlloc; }
     VkFormat imageFormat() const { return fInfo.fFormat; }
-    GrBackendFormat getBackendFormat() const {
-        return GrBackendFormat::MakeVk(this->imageFormat());
-    }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
     const Resource* resource() const { return fResource; }
     bool isLinearTiled() const {
