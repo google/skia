@@ -13,6 +13,7 @@
 
 #include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkHalf.h"
 
 /**
  * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. Whether the color is
@@ -89,5 +90,24 @@ static inline float GrNormalizeByteToFloat(uint8_t value) {
     static const float ONE_OVER_255 = 1.f / 255.f;
     return value * ONE_OVER_255;
 }
+
+/**
+ * GrColor4h is 8 bytes (four half-floats), in RGBA order. This type exists just for use in vertex
+ * structs and vertex-generation code. Note that the SkHalf conversion code generates uint64_t, but
+ * we assume that the maximum alignment needed for any vertex attribute is 32-bits, so we can't
+ * directly put uint64_t in a vertex struct, or we'll get stride/offset errors.
+ */
+struct GrColor4h {
+    static GrColor4h FromFloats(const float* rgba) {
+        GrColor4h c4h;
+        SkFloatToHalf_finite_ftz(Sk4f::Load(rgba)).store(&c4h);
+        return c4h;
+    }
+
+    SkHalf fR;
+    SkHalf fG;
+    SkHalf fB;
+    SkHalf fA;
+};
 
 #endif

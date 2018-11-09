@@ -322,6 +322,18 @@ struct SkRGBA4f {
         return fA == 1.0f;
     }
 
+    /** Returns true if SkRGBA4f is a normalized color, with all components in [0, 1].
+        Asserts if fA is out of range and SK_DEBUG is defined.
+
+        @return       true is SkRGBA4f is normalized
+    */
+    bool isNormalized() const {
+        SkASSERT(fA >= 0.0f && fA <= 1.0f);
+        return fR >= 0.0f && fR <= 1.0f &&
+               fG >= 0.0f && fG <= 1.0f &&
+               fB >= 0.0f && fB <= 1.0f;
+    }
+
     /** Returns closest SkRGBA4f to SkColor. Only allowed if SkRGBA4f is unpremultiplied.
 
         @return       SkColor as SkRGBA4f

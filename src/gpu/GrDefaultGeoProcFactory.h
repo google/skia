@@ -31,12 +31,12 @@ namespace GrDefaultGeoProcFactory {
 
     struct PositionColorAttr {
         SkPoint fPosition;
-        SkColor fColor;
+        GrColor fColor;
     };
 
     struct PositionColorCoverageAttr {
         SkPoint fPosition;
-        SkColor fColor;
+        GrColor fColor;
         float   fCoverage;
     };
 
