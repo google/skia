@@ -22,6 +22,30 @@
       "revId": "237d7a2360004b34503d4470a970e4dc13006fd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18ff2f22_95e00dfd",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-11-09T21:19:22Z",
+      "side": 1,
+      "message": "Yeah, this list is limited to the configs that are returned by getYUVAConfigFromBackendTexture.",
+      "parentUuid": "e2946cd0_c2c2ee6c",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 340,
+        "endChar": 0
+      },
+      "revId": "237d7a2360004b34503d4470a970e4dc13006fd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
