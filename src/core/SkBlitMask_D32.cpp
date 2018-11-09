@@ -234,12 +234,6 @@ static void LCD16_RowProc_Opaque(
 SkBlitMask::RowProc SkBlitMask::RowFactory(SkColorType ct,
                                            SkMask::Format format,
                                            RowFlags flags) {
-// make this opt-in until chrome can rebaseline
-    RowProc proc = PlatformRowProcs(ct, format, flags);
-    if (proc) {
-        return proc;
-    }
-
     static const RowProc gProcs[] = {
         (RowProc)A8_RowProc_Blend,      (RowProc)A8_RowProc_Opaque,
         (RowProc)LCD16_RowProc_Blend,   (RowProc)LCD16_RowProc_Opaque,

@@ -67,12 +67,6 @@ public:
      *  May return nullptr if config or format are not supported.
      */
     static RowProc RowFactory(SkColorType, SkMask::Format, RowFlags);
-
-    /**
-     *  Return either platform specific optimized blitmask RowProc,
-     *  or nullptr if no optimized routine is available.
-     */
-    static RowProc PlatformRowProcs(SkColorType, SkMask::Format, RowFlags);
 };
 
 #endif
