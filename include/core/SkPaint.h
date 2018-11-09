@@ -183,12 +183,20 @@ public:
     */
     void reset();
 
-    /** Returns level of glyph outline adjustment.
+    /** \enum SkPaint::Hinting
+        Hinting adjusts the glyph outlines so that the shape provides a uniform
+        look at a given point size on font engines that support it. Hinting may have a
+        muted effect or no effect at all depending on the platform.
 
-     @return  one of: SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal,
-     SkFontHinting::kFull
-     */
-    SkFontHinting getHinting() const { return (SkFontHinting)fBitfields.fHinting; }
+        The four levels roughly control corresponding features on platforms that use FreeType
+        as the font engine.
+    */
+    enum Hinting : uint8_t {
+        kNo_Hinting     = 0, //!< glyph outlines unchanged
+        kSlight_Hinting = 1, //!< minimal modification to improve constrast
+        kNormal_Hinting = 2, //!< glyph outlines modified to improve constrast
+        kFull_Hinting   = 3, //!< modifies glyph outlines for maximum constrast
+    };
 
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
@@ -197,6 +205,30 @@ public:
                                      SkFontHinting::kNormal, SkFontHinting::kFull
     */
     void setHinting(SkFontHinting hintingLevel);
+
+#ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
+    /** Returns level of glyph outline adjustment.
+
+        @return  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
+     */
+    Hinting getHinting() const { return (Hinting)fBitfields.fHinting; }
+
+    /** Sets level of glyph outline adjustment.
+        Does not check for valid values of h.
+
+        @param h  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
+    */
+    void setHinting(Hinting h) {
+        this->setHinting((SkFontHinting)h);
+    }
+#else
+    /** Returns level of glyph outline adjustment.
+
+        @return  one of: SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal,
+                         SkFontHinting::kFull
+     */
+    SkFontHinting getHinting() const { return (SkFontHinting)fBitfields.fHinting; }
+#endif
 
     /** \enum SkPaint::Flags
         The bit values stored in Flags.

@@ -47,7 +47,7 @@ static void init_paint(Fuzz* fuzz, SkPaint* p) {
     fuzz->nextRange(&tmp_u8, 0, (int)kHigh_SkFilterQuality);
     p->setFilterQuality(static_cast<SkFilterQuality>(tmp_u8));
 
-    fuzz->nextRange(&tmp_u8, 0, (int)SkFontHinting::kFull);
+    fuzz->nextRange(&tmp_u8, 0, (int)SkPaint::kFull_Hinting);
     p->setHinting(static_cast<SkFontHinting>(tmp_u8));
 
     fuzz->nextRange(&tmp_u8, 0, (int)SkPaint::kLast_Cap);

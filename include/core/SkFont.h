@@ -66,8 +66,16 @@ public:
     void DEPRECATED_setAntiAlias(bool);
     void DEPRECATED_setLCDRender(bool);
 
-    SkFontHinting getHinting() const { return (SkFontHinting)fHinting; }
     void setHinting(SkFontHinting);
+
+#ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
+    Hinting getHinting() const { return (Hinting)fHinting; }
+    void setHinting(Hinting hinting) {
+        this->setHinting((SkFontHinting)hinting);
+    }
+#else
+    SkFontHinting getHinting() const { return (SkFontHinting)fHinting; }
+#endif
 
     /**
      *  Return a font with the same attributes of this font, but with the specified size.
