@@ -76,13 +76,13 @@ public:
     static ExclusiveStrikePtr CreateStrikeExclusive(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
-            SkPaint::FontMetrics* maybeMetrics = nullptr,
+            SkFontMetrics* maybeMetrics = nullptr,
             std::unique_ptr<SkStrikePinner> = nullptr);
 
     ExclusiveStrikePtr createStrikeExclusive(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
-            SkPaint::FontMetrics* maybeMetrics = nullptr,
+            SkFontMetrics* maybeMetrics = nullptr,
             std::unique_ptr<SkStrikePinner> = nullptr);
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(

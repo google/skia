@@ -1113,15 +1113,35 @@ SkDescriptor* SkScalerContext::MakeDescriptorForPaths(SkFontID typefaceID,
 }
 
 SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+    const SkFont& font, const SkPaint& paint, const SkSurfaceProps* surfaceProps,
+    SkScalerContextFlags scalerContextFlags, const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
+    SkScalerContextEffects* effects)
+{
+    SkScalerContextRec rec;
+    MakeRecAndEffects(font, paint, surfaceProps, deviceMatrix, scalerContextFlags, &rec, effects);
+    return AutoDescriptorGivenRecAndEffects(rec, *effects, ad);
+}
+
+SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
     const SkPaint& paint, const SkSurfaceProps* surfaceProps,
     SkScalerContextFlags scalerContextFlags,
     const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
     SkScalerContextEffects* effects) {
 
     SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-    SkScalerContextRec rec;
-    MakeRecAndEffects(font, paint, surfaceProps, deviceMatrix, scalerContextFlags, &rec, effects);
-    return AutoDescriptorGivenRecAndEffects(rec, *effects, ad);
+    return CreateDescriptorAndEffectsUsingPaint(SkFont::LEGACY_ExtractFromPaint(paint), paint,
+                                                surfaceProps, scalerContextFlags,
+                                                deviceMatrix, ad, effects);
+}
+
+SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(
+    const SkFont& font, const SkSurfaceProps* surfaceProps,
+    SkScalerContextFlags scalerContextFlags,
+    const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
+    SkScalerContextEffects* effects)
+{
+    return CreateDescriptorAndEffectsUsingPaint(font, SkPaint(), surfaceProps, scalerContextFlags,
+                                                deviceMatrix, ad, effects);
 }
 
 static size_t calculate_size_and_flatten(const SkScalerContextRec& rec,
