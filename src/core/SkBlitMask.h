@@ -31,14 +31,6 @@ public:
                                      SkPMColor opaqueDst);
 
     /**
-     *  Function pointer that blits a row of src colors through a row of a mask
-     *  onto a row of dst colors. The RowFactory that returns this function ptr
-     *  will have been told the formats for the mask and the dst.
-     */
-    typedef void (*RowProc)(SkPMColor* dst, const void* mask,
-                            const SkPMColor* src, int width);
-
-    /**
      *  Public entry-point to return a blitcolor BlitLCD16RowProc.
      */
     static BlitLCD16RowProc BlitLCD16RowFactory(bool isOpaque);
@@ -48,16 +40,6 @@ public:
      *  or nullptr if no optimized routine is available.
      */
     static BlitLCD16RowProc PlatformBlitRowProcs16(bool isOpaque);
-
-    enum RowFlags {
-        kSrcIsOpaque_RowFlag    = 1 << 0
-    };
-
-    /**
-     *  Public entry-point to return a blitmask RowProc.
-     *  May return nullptr if config or format are not supported.
-     */
-    static RowProc RowFactory(SkColorType, SkMask::Format, RowFlags);
 };
 
 #endif

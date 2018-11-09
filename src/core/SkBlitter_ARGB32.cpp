@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkCoreBlitters.h"
+#include "Sk4px.h"
+#include "SkBlitMask.h"
 #include "SkColorData.h"
+#include "SkCoreBlitters.h"
 #include "SkShader.h"
 #include "SkUtils.h"
 #include "SkXfermodePriv.h"
-#include "SkBlitMask.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -524,6 +525,101 @@ void SkARGB32_Shader_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
     }
 }
 
+static void blend_row_A8(SkPMColor* dst, const void* vmask, const SkPMColor* src, int n) {
+    auto mask = (const uint8_t*)vmask;
+
+    Sk4px::MapDstSrcAlpha(n, dst, src, mask, [](const Sk4px& d, const Sk4px& s, const Sk4px& aa) {
+        const auto s_aa = s.approxMulDiv255(aa);
+        return s_aa + d.approxMulDiv255(s_aa.alphas().inv());
+    });
+}
+
+static void blend_row_A8_opaque(SkPMColor* dst, const void* vmask, const SkPMColor* src, int n) {
+    auto mask = (const uint8_t*)vmask;
+
+    Sk4px::MapDstSrcAlpha(n, dst, src, mask, [](const Sk4px& d, const Sk4px& s, const Sk4px& aa) {
+        return (s * aa + d * aa.inv()).div255();
+    });
+}
+
+static void blend_row_LCD16(SkPMColor* dst, const void* vmask, const SkPMColor* src, int n) {
+    auto src_alpha_blend = [](int s, int d, int sa, int m) {
+        return d + SkAlphaMul(s - SkAlphaMul(sa, d), m);
+    };
+
+    auto upscale_31_to_255 = [](int v) {
+        return (v << 3) | (v >> 2);
+    };
+
+    auto mask = (const uint16_t*)vmask;
+    for (int i = 0; i < n; ++i) {
+        uint16_t m = mask[i];
+        if (0 == m) {
+            continue;
+        }
+
+        SkPMColor s = src[i];
+        SkPMColor d = dst[i];
+
+        int srcA = SkGetPackedA32(s);
+        int srcR = SkGetPackedR32(s);
+        int srcG = SkGetPackedG32(s);
+        int srcB = SkGetPackedB32(s);
+
+        srcA += srcA >> 7;
+
+        // We're ignoring the least significant bit of the green coverage channel here.
+        int maskR = SkGetPackedR16(m) >> (SK_R16_BITS - 5);
+        int maskG = SkGetPackedG16(m) >> (SK_G16_BITS - 5);
+        int maskB = SkGetPackedB16(m) >> (SK_B16_BITS - 5);
+
+        // Scale up to 8-bit coverage to work with SkAlphaMul() in src_alpha_blend().
+        maskR = upscale_31_to_255(maskR);
+        maskG = upscale_31_to_255(maskG);
+        maskB = upscale_31_to_255(maskB);
+
+        // This LCD blit routine only works if the destination is opaque.
+        dst[i] = SkPackARGB32(0xFF,
+                              src_alpha_blend(srcR, SkGetPackedR32(d), srcA, maskR),
+                              src_alpha_blend(srcG, SkGetPackedG32(d), srcA, maskG),
+                              src_alpha_blend(srcB, SkGetPackedB32(d), srcA, maskB));
+    }
+}
+
+static void blend_row_LCD16_opaque(SkPMColor* dst, const void* vmask, const SkPMColor* src, int n) {
+    auto mask = (const uint16_t*)vmask;
+
+    for (int i = 0; i < n; ++i) {
+        uint16_t m = mask[i];
+        if (0 == m) {
+            continue;
+        }
+
+        SkPMColor s = src[i];
+        SkPMColor d = dst[i];
+
+        int srcR = SkGetPackedR32(s);
+        int srcG = SkGetPackedG32(s);
+        int srcB = SkGetPackedB32(s);
+
+        // We're ignoring the least significant bit of the green coverage channel here.
+        int maskR = SkGetPackedR16(m) >> (SK_R16_BITS - 5);
+        int maskG = SkGetPackedG16(m) >> (SK_G16_BITS - 5);
+        int maskB = SkGetPackedB16(m) >> (SK_B16_BITS - 5);
+
+        // Now upscale them to 0..32, so we can use SkBlend32.
+        maskR = SkUpscale31To32(maskR);
+        maskG = SkUpscale31To32(maskG);
+        maskB = SkUpscale31To32(maskB);
+
+        // This LCD blit routine only works if the destination is opaque.
+        dst[i] = SkPackARGB32(0xFF,
+                              SkBlend32(srcR, SkGetPackedR32(d), maskR),
+                              SkBlend32(srcG, SkGetPackedG32(d), maskG),
+                              SkBlend32(srcB, SkGetPackedB32(d), maskB));
+    }
+}
+
 void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     // we only handle kA8 with an xfermode
     if (fXfermode && (SkMask::kA8_Format != mask.fFormat)) {
@@ -533,16 +629,20 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
 
     SkASSERT(mask.fBounds.contains(clip));
 
-    auto* shaderContext = fShaderContext;
-    SkBlitMask::RowProc proc = nullptr;
+    void (*blend_row)(SkPMColor*, const void* mask, const SkPMColor*, int) = nullptr;
+
     if (!fXfermode) {
-        unsigned flags = 0;
-        if (shaderContext->getFlags() & SkShaderBase::kOpaqueAlpha_Flag) {
-            flags |= SkBlitMask::kSrcIsOpaque_RowFlag;
-        }
-        proc = SkBlitMask::RowFactory(kN32_SkColorType, mask.fFormat,
-                                      (SkBlitMask::RowFlags)flags);
-        if (nullptr == proc) {
+        bool opaque = (fShaderContext->getFlags() & SkShaderBase::kOpaqueAlpha_Flag);
+
+        if (mask.fFormat == SkMask::kA8_Format && opaque) {
+            blend_row = blend_row_A8_opaque;
+        } else if (mask.fFormat == SkMask::kA8_Format) {
+            blend_row = blend_row_A8;
+        } else if (mask.fFormat == SkMask::kLCD16_Format && opaque) {
+            blend_row = blend_row_LCD16_opaque;
+        } else if (mask.fFormat == SkMask::kLCD16_Format) {
+            blend_row = blend_row_LCD16;
+        } else {
             this->INHERITED::blitMask(mask, clip);
             return;
         }
@@ -564,16 +664,17 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         SkASSERT(SkMask::kA8_Format == mask.fFormat);
         SkXfermode* xfer = fXfermode;
         do {
-            shaderContext->shadeSpan(x, y, span, width);
+            fShaderContext->shadeSpan(x, y, span, width);
             xfer->xfer32(reinterpret_cast<SkPMColor*>(dstRow), span, width, maskRow);
             dstRow += dstRB;
             maskRow += maskRB;
             y += 1;
         } while (--height > 0);
     } else {
+        SkASSERT(blend_row);
         do {
-            shaderContext->shadeSpan(x, y, span, width);
-            proc(reinterpret_cast<SkPMColor*>(dstRow), maskRow, span, width);
+            fShaderContext->shadeSpan(x, y, span, width);
+            blend_row(reinterpret_cast<SkPMColor*>(dstRow), maskRow, span, width);
             dstRow += dstRB;
             maskRow += maskRB;
             y += 1;
@@ -586,11 +687,10 @@ void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
 
     uint32_t* device = fDevice.writable_addr32(x, y);
     size_t    deviceRB = fDevice.rowBytes();
-    auto*     shaderContext = fShaderContext;
 
     if (fConstInY) {
         SkPMColor c;
-        shaderContext->shadeSpan(x, y, &c, 1);
+        fShaderContext->shadeSpan(x, y, &c, 1);
 
         if (fShadeDirectlyIntoDevice) {
             if (255 == alpha) {
@@ -625,14 +725,14 @@ void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     if (fShadeDirectlyIntoDevice) {
         if (255 == alpha) {
             do {
-                shaderContext->shadeSpan(x, y, device, 1);
+                fShaderContext->shadeSpan(x, y, device, 1);
                 y += 1;
                 device = (uint32_t*)((char*)device + deviceRB);
             } while (--height > 0);
         } else {
             do {
                 SkPMColor c;
-                shaderContext->shadeSpan(x, y, &c, 1);
+                fShaderContext->shadeSpan(x, y, &c, 1);
                 *device = SkFourByteInterp(c, *device, alpha);
                 y += 1;
                 device = (uint32_t*)((char*)device + deviceRB);
@@ -643,7 +743,7 @@ void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
         SkXfermode* xfer = fXfermode;
         if (xfer) {
             do {
-                shaderContext->shadeSpan(x, y, span, 1);
+                fShaderContext->shadeSpan(x, y, span, 1);
                 xfer->xfer32(device, span, 1, &alpha);
                 y += 1;
                 device = (uint32_t*)((char*)device + deviceRB);
@@ -651,7 +751,7 @@ void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
         } else {
             SkBlitRow::Proc32 proc = (255 == alpha) ? fProc32 : fProc32Blend;
             do {
-                shaderContext->shadeSpan(x, y, span, 1);
+                fShaderContext->shadeSpan(x, y, span, 1);
                 proc(device, span, 1, alpha);
                 y += 1;
                 device = (uint32_t*)((char*)device + deviceRB);
