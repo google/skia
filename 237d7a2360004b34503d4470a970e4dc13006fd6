@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2946cd0_c2c2ee6c",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-09T20:55:30Z",
+      "side": 1,
+      "message": "Seems like there are plenty of other configs that could be invalid? I\u0027m guessing this list is tailored to current usage?\n\nIt would be nice if we had something like SkColorTypeComponentFlags for GrPixelConfig.",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 340,
+        "endChar": 0
+      },
+      "revId": "237d7a2360004b34503d4470a970e4dc13006fd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
