@@ -29,6 +29,7 @@ public:
 
     const char* name() const override { return "Clear"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
@@ -42,6 +43,7 @@ public:
         string.appendf("], Color: 0x%08x\n", fColor.toBytes_RGBA());
         return string;
     }
+#endif
 
     const SkPMColor4f& color() const { return fColor; }
     void setColor(const SkPMColor4f& color) { fColor = color; }

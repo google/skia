@@ -597,10 +597,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             // Finished analyzing the entire image, see if the number of pixel failures meets the
             // threshold for an FP violating the optimization requirements.
             if (failedPixelCount > kMaxAcceptableFailedPixels) {
+#ifdef SK_DEBUG
+                SkString fpInfo = fp->dumpInfo();
+#else
+                SkString fpInfo = "<Processor information unavailable>";
+#endif
                 ERRORF(reporter, "Processor violated %d of %d pixels, seed: 0x%08x, processor: %s"
                        ", first failing pixel details are below:",
-                       failedPixelCount, kRenderSize * kRenderSize, seed,
-                       fp->dumpInfo().c_str());
+                       failedPixelCount, kRenderSize * kRenderSize, seed, fpInfo.c_str());
 
                 // Print first failing pixel's details.
                 if (!coverageMessage.isEmpty()) {
@@ -626,9 +630,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 }
             } else if(failedPixelCount > 0) {
                 // Don't trigger an error, but don't just hide the failures either.
+#ifdef SK_DEBUG
+                SkString fpInfo = fp->dumpInfo();
+#else
+                SkString fpInfo = "<Processor information unavailable>";
+#endif
                 INFOF(reporter, "Processor violated %d of %d pixels (below error threshold), seed: "
-                      "0x%08x, processor: %s", failedPixelCount, kRenderSize * kRenderSize,
-                      seed, fp->dumpInfo().c_str());
+                      "0x%08x, processor: %s", failedPixelCount, kRenderSize * kRenderSize, seed,
+                      fpInfo.c_str());
                 if (!coverageMessage.isEmpty()) {
                     INFOF(reporter, coverageMessage.c_str());
                 }
