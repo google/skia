@@ -21,12 +21,14 @@ GrDrawPathOpBase::GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix,
         , fAAType(aaType)
         , fProcessorSet(std::move(paint)) {}
 
+#ifdef SK_DEBUG
 SkString GrDrawPathOp::dumpInfo() const {
     SkString string;
     string.printf("PATH: 0x%p", fPath.get());
     string.append(INHERITED::dumpInfo());
     return string;
 }
+#endif
 
 GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& state) {
     static constexpr GrUserStencilSettings kCoverPass{

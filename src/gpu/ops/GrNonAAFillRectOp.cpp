@@ -154,6 +154,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
         str.append(GrMeshDrawOp::dumpInfo());
@@ -168,6 +169,7 @@ public:
         str += INHERITED::dumpInfo();
         return str;
     }
+#endif
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkPMColor4f* color = &fRects.front().fColor;
@@ -284,6 +286,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# combined: %d\n", fRects.count());
@@ -297,6 +300,7 @@ public:
         str += INHERITED::dumpInfo();
         return str;
     }
+#endif
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkPMColor4f* color = &fRects.front().fColor;

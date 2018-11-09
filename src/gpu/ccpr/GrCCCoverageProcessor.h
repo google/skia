@@ -82,9 +82,11 @@ public:
 
     // GrPrimitiveProcessor overrides.
     const char* name() const override { return PrimitiveTypeName(fPrimitiveType); }
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         return SkStringPrintf("%s\n%s", this->name(), this->INHERITED::dumpInfo().c_str());
     }
+#endif
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 

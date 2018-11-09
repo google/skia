@@ -82,7 +82,9 @@ public:
 
     const char* name() const override { return "DrawPath"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
+#endif
 
 private:
     friend class GrOpMemoryPool; // for ctor
