@@ -355,9 +355,9 @@ public:
     */
     void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
 
-    /** Returns true if SkPaint::Hinting is set to kNormal_Hinting or kFull_Hinting, and if
-        platform uses FreeType as the font manager. If true, instructs
-        the font manager to always hint glyphs.
+    /** Returns true if SkPaint::Hinting is set to SkFontHinting::kNormal or
+        SkFontHinting::kFull, and if platform uses FreeType as the font manager.
+        If true, instructs the font manager to always hint glyphs.
 
         Equivalent to getFlags() masked with kAutoHinting_Flag.
 
@@ -368,10 +368,10 @@ public:
     }
 
     /** Sets whether to always hint glyphs.
-        If SkPaint::Hinting is set to kNormal_Hinting or kFull_Hinting and useAutohinter is set,
-        instructs the font manager to always hint glyphs.
-        auto-hinting has no effect if SkPaint::Hinting is set to kNo_Hinting or
-        kSlight_Hinting.
+        If SkPaint::Hinting is set to SkFontHinting::kNormal or SkFontHinting::kFull
+        and useAutohinter is set, instructs the font manager to always hint glyphs.
+        auto-hinting has no effect if SkPaint::Hinting is set to SkFontHinting::kNone or
+        SkFontHinting::kSlight.
 
         Only affects platforms that use FreeType as the font manager.
 

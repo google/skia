@@ -1848,13 +1848,6 @@
     "name": "SkPaint::setHinting",
         "stdout": "paint1 == paint2\\n"
     },
-        "SkPaint_setHinting_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint2.setHinting(SkFontHinting::kNormal);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : ':');\n}",
-    "hash": "bb179ec5698ec1398ff18f3657ab73f7",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::setHinting_2",
-        "stdout": "paint1 == paint2\\n"
-    },
         "SkPaint_setLCDRenderText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setLCDRenderText(true);\n    paint2.setFlags(paint2.getFlags() | SkPaint::kLCDRenderText_Flag);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : '!');\n}",
     "hash": "50dedf8450159571a3edaf4f0050defe",
