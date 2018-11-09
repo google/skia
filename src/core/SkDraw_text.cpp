@@ -6,7 +6,7 @@
  */
 
 #include "SkDraw.h"
-
+#include "SkFontPriv.h"
 #include "SkGlyphCache.h"
 #include "SkPaintPriv.h"
 #include "SkRasterClip.h"
@@ -28,6 +28,21 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm, Sk
     SkMatrix textM;
     SkPaintPriv::MakeTextMatrix(&textM, paint);
     return SkPaint::TooBigToUseCache(ctm, textM, sizeLimit);
+}
+
+bool SkDraw::ShouldDrawTextAsPaths(const SkFont& font, const SkPaint& paint,
+                                   const SkMatrix& ctm, SkScalar sizeLimit) {
+    // hairline glyphs are fast enough so we don't need to cache them
+    if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
+        return true;
+    }
+
+    // we don't cache perspective
+    if (ctm.hasPerspective()) {
+        return true;
+    }
+
+    return SkPaint::TooBigToUseCache(ctm, SkFontPriv::MakeTextMatrix(font), sizeLimit);
 }
 
 // disable warning : local variable used without having been initialized
