@@ -127,6 +127,8 @@ public:
             fragBuilder->codeAppendf(
                 "float a = tmp%d.%c;", _outer.yuvaIndex(3).fIndex,
                                        kChannelToChar[(int)_outer.yuvaIndex(3).fChannel]);
+            // premultiply alpha
+            fragBuilder->codeAppend("yuvOne *= a;");
         } else {
             fragBuilder->codeAppendf("float a = 1.0;");
         }
