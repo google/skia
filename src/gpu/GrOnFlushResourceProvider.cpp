@@ -14,6 +14,48 @@
 #include "GrSurfaceProxy.h"
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
+        const GrSurfaceDesc& desc,
+        GrSurfaceOrigin origin,
+        sk_sp<SkColorSpace> colorSpace,
+        const SkSurfaceProps* props) {
+    GrSurfaceDesc tmpDesc = desc;
+    tmpDesc.fFlags |= kRenderTarget_GrSurfaceFlag;
+
+    auto proxyProvider = fDrawingMgr->getContext()->contextPriv().proxyProvider();
+    auto resourceProvider = fDrawingMgr->getContext()->contextPriv().resourceProvider();
+
+    // Because this is being allocated at the start of a flush we must ensure the proxy
+    // will, when instantiated, have no pending IO.
+    // TODO: fold the kNoPendingIO_Flag into GrSurfaceFlags?
+    sk_sp<GrSurfaceProxy> proxy =
+            proxyProvider->createProxy(tmpDesc, origin, SkBackingFit::kExact, SkBudgeted::kYes,
+                                       GrInternalSurfaceFlags::kNoPendingIO);
+    if (!proxy || !proxy->asRenderTargetProxy()) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        fDrawingMgr->makeRenderTargetContext(std::move(proxy),
+                                             std::move(colorSpace),
+                                             props, false));
+
+    if (!renderTargetContext) {
+        return nullptr;
+    }
+
+    // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
+    // we have to manually ensure it is allocated here. The proxy had best have been created
+    // with the kNoPendingIO flag!
+    if (!renderTargetContext->asSurfaceProxy()->instantiate(resourceProvider)) {
+        return nullptr;
+    }
+
+    renderTargetContext->discard();
+
+    return renderTargetContext;
+}
+
+sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
                                                         sk_sp<GrSurfaceProxy> proxy,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
