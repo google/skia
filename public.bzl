@@ -602,6 +602,8 @@ def base_defines(os_conditions):
         "SK_DISABLE_LOWP_RASTER_PIPELINE",
         # JPEG is in codec_limited
         "SK_HAS_JPEG_LIBRARY",
+        "SK_SUPPORT_LEGACY_NONCLASS_HINTINGENUM",
+        "SK_SUPPORT_LEGACY_NESTED_HINTINGENUM",
     ] + skia_select(
         os_conditions,
         [
