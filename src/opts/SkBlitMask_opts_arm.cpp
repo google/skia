@@ -18,9 +18,3 @@ SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
         return SK_ARM_NEON_WRAP(SkBlitLCD16Row);
     }
 }
-
-SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkColorType dstCT,
-                                                 SkMask::Format maskFormat,
-                                                 RowFlags flags) {
-    return nullptr;
-}
