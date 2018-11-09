@@ -26,7 +26,7 @@ public:
     friend class GrYUVAImageTextureMaker;
 
     SkImage_GpuYUVA(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkYUVColorSpace,
-                    sk_sp<GrTextureProxy> proxies[], const SkYUVAIndex yuvaIndices[4],
+                    sk_sp<GrTextureProxy> proxies[], int numProxies, const SkYUVAIndex [4],
                     GrSurfaceOrigin, sk_sp<SkColorSpace>, SkBudgeted);
     ~SkImage_GpuYUVA() override;
 
@@ -113,14 +113,15 @@ private:
     // This array will usually only be sparsely populated.
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
     mutable sk_sp<GrTextureProxy>    fProxies[4];
+    int                              fNumProxies;
     SkYUVAIndex                      fYUVAIndices[4];
+    const SkYUVColorSpace            fYUVColorSpace;
+    GrSurfaceOrigin                  fOrigin;
+
     // This is only allocated when the image needs to be flattened rather than
     // using the separate YUVA planes. From thence forth we will only use the
     // the RGBProxy.
     mutable sk_sp<GrTextureProxy>    fRGBProxy;
-    const SkYUVColorSpace            fYUVColorSpace;
-    GrSurfaceOrigin                  fOrigin;
-
     typedef SkImage_GpuBase INHERITED;
 };
 

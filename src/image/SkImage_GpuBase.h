@@ -61,12 +61,20 @@ public:
     static bool ValidateBackendTexture(GrContext* ctx, const GrBackendTexture& tex,
                                        GrPixelConfig* config, SkColorType ct, SkAlphaType at,
                                        sk_sp<SkColorSpace> cs);
+    static bool MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
+                                       int numTextures, GrSurfaceOrigin imageOrigin,
+                                       sk_sp<GrTextureProxy> tempTextureProxies[4]);
 
     typedef ReleaseContext TextureContext;
     typedef void(*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
     typedef void(*PromiseDoneProc)(TextureContext textureContext);
 
 protected:
+    static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
+                                 const SkRect& rect, SkYUVColorSpace yuvColorSpace,
+                                 const sk_sp<GrTextureProxy> proxies[4],
+                                 const SkYUVAIndex yuvaIndices[4]);
+
     sk_sp<GrContext>      fContext;
     const SkAlphaType     fAlphaType;  // alpha type for final image
     const SkBudgeted      fBudgeted;
