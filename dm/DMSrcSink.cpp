@@ -883,7 +883,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     std::unique_ptr<SkImageGenerator> gen(nullptr);
     switch (fMode) {
         case kCodec_Mode:
-            gen = SkCodecImageGenerator::MakeFromEncodedCodec(encoded);
+            gen = SkCodecImageGenerator::Make(nullptr, encoded);
             if (!gen) {
                 return "Could not create codec image generator.";
             }

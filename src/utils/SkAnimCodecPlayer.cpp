@@ -30,7 +30,7 @@ SkAnimCodecPlayer::SkAnimCodecPlayer(std::unique_ptr<SkCodec> codec) : fCodec(st
         fFrameInfos.clear();
         fImages.clear();
         fImages.push_back(SkImage::MakeFromGenerator(
-                              SkCodecImageGenerator::MakeFromCodec(std::move(fCodec))));
+                              SkCodecImageGenerator::Make(std::move(fCodec), nullptr)));
     }
 }
 

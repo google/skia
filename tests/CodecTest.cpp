@@ -444,8 +444,7 @@ static void check(skiatest::Reporter* r,
         // Test SkCodecImageGenerator
         std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
         sk_sp<SkData> fullData(SkData::MakeFromStream(stream.get(), stream->getLength()));
-        std::unique_ptr<SkImageGenerator> gen(
-                SkCodecImageGenerator::MakeFromEncodedCodec(fullData));
+        std::unique_ptr<SkImageGenerator> gen(SkCodecImageGenerator::Make(nullptr, fullData));
         SkBitmap bm;
         bm.allocPixels(info);
         REPORTER_ASSERT(r, gen->getPixels(info, bm.getPixels(), bm.rowBytes()));

@@ -14,12 +14,11 @@
 class SkCodecImageGenerator : public SkImageGenerator {
 public:
     /*
-     * If this data represents an encoded image that we know how to decode,
-     * return an SkCodecImageGenerator.  Otherwise return nullptr.
+     * If |codec| is nullptr, we will attempt to create it from |encoded|.  If provided,
+     * |encoded| will also be stashed to support efficient SkImageGenerator::refEncodedData().
      */
-    static std::unique_ptr<SkImageGenerator> MakeFromEncodedCodec(sk_sp<SkData>);
-
-    static std::unique_ptr<SkImageGenerator> MakeFromCodec(std::unique_ptr<SkCodec>);
+    static std::unique_ptr<SkImageGenerator> Make(std::unique_ptr<SkCodec> codec,
+                                                  sk_sp<SkData> encoded);
 
 protected:
     sk_sp<SkData> onRefEncodedData() override;

@@ -9,5 +9,5 @@
 #include "SkCodecImageGenerator.h"
 
 std::unique_ptr<SkImageGenerator> SkImageGenerator::MakeFromEncodedImpl(sk_sp<SkData> data) {
-    return SkCodecImageGenerator::MakeFromEncodedCodec(std::move(data));
+    return SkCodecImageGenerator::Make(nullptr, std::move(data));
 }

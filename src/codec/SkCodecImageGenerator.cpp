@@ -10,19 +10,15 @@
 #include "SkPixmapPriv.h"
 #include "SkYUVAIndex.h"
 
-std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
-    auto codec = SkCodec::MakeFromData(data);
-    if (nullptr == codec) {
-        return nullptr;
+std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::Make(std::unique_ptr<SkCodec> codec,
+                                                              sk_sp<SkData> encoded) {
+    if (!codec) {
+        codec = SkCodec::MakeFromData(encoded);
     }
 
-    return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), data));
-}
-
-std::unique_ptr<SkImageGenerator>
-SkCodecImageGenerator::MakeFromCodec(std::unique_ptr<SkCodec> codec) {
     return codec
-        ? std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), nullptr))
+        ? std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec),
+                                                                      std::move(encoded)))
         : nullptr;
 }
 

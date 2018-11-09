@@ -212,7 +212,7 @@ DEF_TEST(AndroidCodec_orientation, r) {
     for (char i = '1'; i <= '8'; ++i) {
         SkString path = SkStringPrintf("images/orientation/%c.%s", i, ext);
         auto data = GetResourceAsData(path.c_str());
-        auto gen = SkCodecImageGenerator::MakeFromEncodedCodec(data);
+        auto gen = SkCodecImageGenerator::Make(nullptr, data);
         if (!gen) {
             ERRORF(r, "failed to decode %s", path.c_str());
             return;
