@@ -356,14 +356,10 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    SkColorType colorType = outputProperties.colorType();
-    GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(colorType);
-
     sk_sp<GrRenderTargetContext> renderTargetContext(
         context->contextPriv().makeDeferredRenderTargetContext(
-            format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
-            SkColorType2GrPixelConfig(colorType),
+            SkBackingFit::kApprox, bounds.width(), bounds.height(),
+            SkColorType2GrPixelConfig(outputProperties.colorType()),
             sk_ref_sp(outputProperties.colorSpace())));
     if (!renderTargetContext) {
         return nullptr;
