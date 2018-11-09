@@ -73,22 +73,6 @@ static inline uint16x8_t SkPixel32ToPixel16_neon8(uint8x8x4_t vsrc) {
     return ret;
 }
 
-/* This function blends 8 pixels of the same channel in the exact same way as
- * SkBlend32.
- */
-static inline uint8x8_t SkBlend32_neon8(uint8x8_t src, uint8x8_t dst, uint16x8_t scale) {
-    int16x8_t src_wide, dst_wide;
-
-    src_wide = vreinterpretq_s16_u16(vmovl_u8(src));
-    dst_wide = vreinterpretq_s16_u16(vmovl_u8(dst));
-
-    src_wide = (src_wide - dst_wide) * vreinterpretq_s16_u16(scale);
-
-    dst_wide += vshrq_n_s16(src_wide, 5);
-
-    return vmovn_u16(vreinterpretq_u16_s16(dst_wide));
-}
-
 static inline SkPMColor SkFourByteInterp256_neon(SkPMColor src, SkPMColor dst,
                                                  unsigned srcScale) {
     SkASSERT(srcScale <= 256);

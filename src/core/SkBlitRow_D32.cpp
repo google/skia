@@ -6,7 +6,6 @@
  */
 
 #include "Sk4px.h"
-#include "SkBlitMask.h"
 #include "SkBlitRow.h"
 #include "SkColorData.h"
 #include "SkOpts.h"

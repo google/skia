@@ -18,9 +18,4 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
                                const SkPMColor* SK_RESTRICT src,
                                int count, U8CPU alpha);
 
-void SkBlitLCD16Row_SSE2(SkPMColor dst[], const uint16_t src[],
-                         SkColor color, int width, SkPMColor);
-void SkBlitLCD16OpaqueRow_SSE2(SkPMColor dst[], const uint16_t src[],
-                               SkColor color, int width, SkPMColor opaqueDst);
-
 #endif
