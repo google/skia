@@ -245,7 +245,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
         const GrVkInterface* interface = gpu->vkInterface();
         VkDevice device = gpu->device();
         VkQueue queue = gpu->queue();
-        VkCommandPool cmdPool = gpu->cmdPool();
+        VkCommandPool cmdPool = gpu->cmdPool()->vkCommandPool();
         VkCommandBuffer cmdBuffer;
 
         // Create Command Buffer
