@@ -49,19 +49,17 @@ public:
     static sk_sp<GrGeometryProcessor> Make(GrTextureType textureType, GrPixelConfig textureConfig,
                                            const GrSamplerState::Filter filter,
                                            sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                                           sk_sp<GrColorSpaceXform> paintColorSpaceXform,
                                            int positionDim, GrAAType aa,  Domain domain,
-                                           const GrShaderCaps& caps) {
+                                           bool wideColor, const GrShaderCaps& caps) {
         return sk_sp<TextureGeometryProcessor>(new TextureGeometryProcessor(
                 textureType, textureConfig, filter, std::move(textureColorSpaceXform),
-                std::move(paintColorSpaceXform), positionDim, aa, domain, caps));
+                positionDim, aa, domain, wideColor, caps));
     }
 
     const char* name() const override { return "TextureGeometryProcessor"; }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
-        b->add32(GrColorSpaceXform::XformKey(fPaintColorSpaceXform.get()));
         b->add32(fAttrs.getKey());
     }
 
@@ -74,7 +72,6 @@ public:
                 this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
                 fTextureColorSpaceXformHelper.setData(
                         pdman, textureGP.fTextureColorSpaceXform.get());
-                fPaintColorSpaceXformHelper.setData(pdman, textureGP.fPaintColorSpaceXform.get());
             }
 
         private:
@@ -82,9 +79,6 @@ public:
                 const auto& textureGP = args.fGP.cast<TextureGeometryProcessor>();
                 fTextureColorSpaceXformHelper.emitCode(
                         args.fUniformHandler, textureGP.fTextureColorSpaceXform.get());
-                fPaintColorSpaceXformHelper.emitCode(
-                        args.fUniformHandler, textureGP.fPaintColorSpaceXform.get(),
-                        kVertex_GrShaderFlag);
                 if (!textureGP.fAttrs.needsPerspectiveInterpolation()) {
                     args.fVaryingHandler->setNoPerspective();
                 }
@@ -96,7 +90,7 @@ public:
                                      args.fUniformHandler,
                                      textureGP.fAttrs.localCoords().asShaderVar(),
                                      args.fFPCoordTransformHandler);
-                textureGP.fAttrs.emitColor(args, &fPaintColorSpaceXformHelper, "paintColor");
+                textureGP.fAttrs.emitColor(args, "paintColor");
                 textureGP.fAttrs.emitExplicitLocalCoords(args, "texCoord", "domain");
 
                 args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
@@ -108,7 +102,6 @@ public:
                 textureGP.fAttrs.emitCoverage(args, "aaDist");
             }
             GrGLSLColorSpaceXformHelper fTextureColorSpaceXformHelper;
-            GrGLSLColorSpaceXformHelper fPaintColorSpaceXformHelper;
         };
         return new GLSLProcessor;
     }
@@ -116,13 +109,11 @@ public:
 private:
     TextureGeometryProcessor(GrTextureType textureType, GrPixelConfig textureConfig,
                              GrSamplerState::Filter filter,
-                             sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                             sk_sp<GrColorSpaceXform> paintColorSpaceXform, int positionDim,
-                             GrAAType aa, Domain domain, const GrShaderCaps& caps)
+                             sk_sp<GrColorSpaceXform> textureColorSpaceXform, int positionDim,
+                             GrAAType aa, Domain domain, bool wideColor, const GrShaderCaps& caps)
             : INHERITED(kTextureGeometryProcessor_ClassID)
-            , fAttrs(positionDim, /* src dim */ 2, /* vertex color */ true, aa, domain)
+            , fAttrs(positionDim, /* src dim */ 2, /* vertex color */ wideColor ? 2 : 1, aa, domain)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
             , fSampler(textureType, textureConfig, filter) {
         this->setTextureSamplerCnt(1);
         this->setVertexAttributeCnt(fAttrs.vertexAttributeCount());
@@ -138,7 +129,6 @@ private:
 
     GrQuadPerEdgeAA::GPAttributes fAttrs;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
-    sk_sp<GrColorSpaceXform> fPaintColorSpaceXform;
     TextureSampler fSampler;
 
     typedef GrGeometryProcessor INHERITED;
@@ -213,33 +203,31 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           sk_sp<GrTextureProxy> proxy,
                                           GrSamplerState::Filter filter,
-                                          GrColor color,
+                                          const SkPMColor4f& color,
                                           const SkRect& srcRect,
                                           const SkRect& dstRect,
                                           GrAAType aaType,
                                           GrQuadAAFlags aaFlags,
                                           SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
-                                          sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                                          sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
+                                          sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
         return pool->allocate<TextureOp>(
                 std::move(proxy), filter, color, srcRect, dstRect, aaType, aaFlags, constraint,
-                viewMatrix, std::move(textureColorSpaceXform), std::move(paintColorSpaceXform));
+                viewMatrix, std::move(textureColorSpaceXform));
     }
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           const GrRenderTargetContext::TextureSetEntry set[],
-                                          int cnt, GrSamplerState::Filter filter, GrColor color,
-                                          GrAAType aaType, const SkMatrix& viewMatrix,
-                                          sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                                          sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
+                                          int cnt, GrSamplerState::Filter filter,
+                                          const SkPMColor4f& color, GrAAType aaType,
+                                          const SkMatrix& viewMatrix,
+                                          sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
         size_t size = sizeof(TextureOp) + sizeof(Proxy) * (cnt - 1);
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
         void* mem = pool->allocate(size);
         return std::unique_ptr<GrDrawOp>(new (mem) TextureOp(
-                set, cnt, filter, color, aaType, viewMatrix, std::move(textureColorSpaceXform),
-                std::move(paintColorSpaceXform)));
+                set, cnt, filter, color, aaType, viewMatrix, std::move(textureColorSpaceXform)));
     }
 
     ~TextureOp() override {
@@ -306,14 +294,12 @@ public:
 private:
     friend class ::GrOpMemoryPool;
 
-    TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter, GrColor color,
+    TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter, const SkPMColor4f& color,
               const SkRect& srcRect, const SkRect& dstRect, GrAAType aaType, GrQuadAAFlags aaFlags,
               SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
-              sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-              sk_sp<GrColorSpaceXform> paintColorSpaceXform)
+              sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
             , fFilter(static_cast<unsigned>(filter))
             , fFinalized(0) {
         GrQuadType quadType = GrQuadTypeForTransformedRect(viewMatrix);
@@ -350,16 +336,15 @@ private:
         auto bounds = quad.bounds();
         this->setBounds(bounds, HasAABloat(aaType == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(draw.domain());
+        fWideColor = !color.isNormalized();
         fCanSkipAllocatorGather =
                 static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
     }
     TextureOp(const GrRenderTargetContext::TextureSetEntry set[], int cnt,
-              GrSamplerState::Filter filter, GrColor color, GrAAType aaType,
-              const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-              sk_sp<GrColorSpaceXform> paintColorSpaceXform)
+              GrSamplerState::Filter filter, const SkPMColor4f& color, GrAAType aaType,
+              const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
             , fFilter(static_cast<unsigned>(filter))
             , fFinalized(0) {
         fQuads.reserve(cnt);
@@ -403,13 +388,27 @@ private:
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
         fPerspective = static_cast<unsigned>(viewMatrix.hasPerspective());
         fDomain = static_cast<unsigned>(false);
+        fWideColor = !color.isNormalized();
     }
 
-    template <int PosDim, Domain D, GrAA AA>
+    template <typename ColorType>
+    static ColorType ToVertexColor(const SkPMColor4f&);
+
+    template <>
+    static GrColor ToVertexColor<GrColor>(const SkPMColor4f& c) {
+        return c.toBytes_RGBA();
+    }
+
+    template <>
+    static GrColor4h ToVertexColor<GrColor4h>(const SkPMColor4f& c) {
+        return GrColor4h::FromFloats(c.vec());
+    }
+
+    template <int PosDim, typename ColorType, Domain D, GrAA AA>
     void tess(void* v, const GrGeometryProcessor* gp, const GrTextureProxy* proxy, int start,
               int cnt) const {
         TRACE_EVENT0("skia", TRACE_FUNC);
-        using Vertex = GrQuadPerEdgeAA::Vertex<PosDim, GrColor, 2, D, AA>;
+        using Vertex = GrQuadPerEdgeAA::Vertex<PosDim, ColorType, 2, D, AA>;
         SkASSERT(gp->debugOnly_vertexStride() == sizeof(Vertex));
         auto vertices = static_cast<Vertex*>(v);
         auto origin = proxy->origin();
@@ -422,7 +421,8 @@ private:
             GrPerspQuad srcQuad = compute_src_quad(origin, q.srcRect(), iw, ih);
             SkRect domain = compute_domain(q.domain(), this->filter(), origin, q.srcRect(), iw, ih);
             GrQuadPerEdgeAA::Tessellate<Vertex>(
-                    vertices, q.quad(), q.color(), srcQuad, domain, q.aaFlags());
+                    vertices, q.quad(), ToVertexColor<ColorType>(q.color()), srcQuad, domain,
+                    q.aaFlags());
             vertices += 4;
         }
     }
@@ -431,6 +431,7 @@ private:
         TRACE_EVENT0("skia", TRACE_FUNC);
         bool hasPerspective = false;
         Domain domain = Domain::kNo;
+        bool wideColor = false;
         int numProxies = 0;
         int numTotalQuads = 0;
         auto textureType = fProxies[0].fProxy->textureType();
@@ -441,6 +442,7 @@ private:
             if (op.fDomain) {
                 domain = Domain::kYes;
             }
+            wideColor |= op.fWideColor;
             numProxies += op.fProxyCnt;
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 numTotalQuads += op.fProxies[p].fQuadCnt;
@@ -459,8 +461,7 @@ private:
 
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
                 textureType, config, this->filter(), std::move(fTextureColorSpaceXform),
-                std::move(fPaintColorSpaceXform), hasPerspective ? 3 : 2, aaType, domain,
-                *target->caps().shaderCaps());
+                hasPerspective ? 3 : 2, aaType, domain, wideColor, *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();
@@ -484,30 +485,39 @@ private:
         }
         const auto* pipeline =
                 target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
-        using TessFn = decltype(&TextureOp::tess<2, Domain::kNo, GrAA::kNo>);
-#define TESS_FN_AND_VERTEX_SIZE(Point, Domain, AA)                          \
-    {                                                                       \
-        &TextureOp::tess<Point, Domain, AA>,                                \
-                sizeof(GrQuadPerEdgeAA::Vertex<Point, GrColor, 2, Domain, AA>) \
+        using TessFn = decltype(&TextureOp::tess<2, GrColor, Domain::kNo, GrAA::kNo>);
+#define TESS_FN_AND_VERTEX_SIZE(Point, Color, Domain, AA)                    \
+    {                                                                        \
+        &TextureOp::tess<Point, Color, Domain, AA>,                          \
+                sizeof(GrQuadPerEdgeAA::Vertex<Point, Color, 2, Domain, AA>) \
     }
         static constexpr struct {
             TessFn fTessFn;
             size_t fVertexSize;
         } kTessFnsAndVertexSizes[] = {
-                TESS_FN_AND_VERTEX_SIZE(2, Domain::kNo,  GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(2, Domain::kNo,  GrAA::kYes),
-                TESS_FN_AND_VERTEX_SIZE(2, Domain::kYes, GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(2, Domain::kYes, GrAA::kYes),
-                TESS_FN_AND_VERTEX_SIZE(3, Domain::kNo,  GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(3, Domain::kNo,  GrAA::kYes),
-                TESS_FN_AND_VERTEX_SIZE(3, Domain::kYes, GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(3, Domain::kYes, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(2, GrColor,   Domain::kNo,  GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(2, GrColor,   Domain::kNo,  GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(2, GrColor,   Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(2, GrColor,   Domain::kYes, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(3, GrColor,   Domain::kNo,  GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(3, GrColor,   Domain::kNo,  GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(3, GrColor,   Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(3, GrColor,   Domain::kYes, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(2, GrColor4h, Domain::kNo,  GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(2, GrColor4h, Domain::kNo,  GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(2, GrColor4h, Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(2, GrColor4h, Domain::kYes, GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(3, GrColor4h, Domain::kNo,  GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(3, GrColor4h, Domain::kNo,  GrAA::kYes),
+                TESS_FN_AND_VERTEX_SIZE(3, GrColor4h, Domain::kYes, GrAA::kNo),
+                TESS_FN_AND_VERTEX_SIZE(3, GrColor4h, Domain::kYes, GrAA::kYes),
         };
 #undef TESS_FN_AND_VERTEX_SIZE
         int tessFnIdx = 0;
         tessFnIdx |= (GrAAType::kCoverage == aaType) ? 0x1 : 0x0;
         tessFnIdx |= (domain == Domain::kYes)        ? 0x2 : 0x0;
         tessFnIdx |= hasPerspective                  ? 0x4 : 0x0;
+        tessFnIdx |= wideColor                       ? 0x8 : 0x0;
 
         size_t vertexSize = kTessFnsAndVertexSizes[tessFnIdx].fVertexSize;
         SkASSERT(vertexSize == gp->debugOnly_vertexStride());
@@ -580,10 +590,6 @@ private:
                                        that->fTextureColorSpaceXform.get())) {
             return CombineResult::kCannotCombine;
         }
-        if (!GrColorSpaceXform::Equals(fPaintColorSpaceXform.get(),
-                                       that->fPaintColorSpaceXform.get())) {
-            return CombineResult::kCannotCombine;
-        }
         bool upgradeToCoverageAAOnMerge = false;
         if (this->aaType() != that->aaType()) {
             if (!((this->aaType() == GrAAType::kCoverage && that->aaType() == GrAAType::kNone) ||
@@ -612,6 +618,7 @@ private:
         fQuads.push_back_n(that->fQuads.count(), that->fQuads.begin());
         fPerspective |= that->fPerspective;
         fDomain |= that->fDomain;
+        fWideColor |= that->fWideColor;
         if (upgradeToCoverageAAOnMerge) {
             fAAType = static_cast<unsigned>(GrAAType::kCoverage);
         }
@@ -624,7 +631,7 @@ private:
     class Quad {
     public:
         Quad(const SkRect& srcRect, const GrPerspQuad& quad, GrQuadAAFlags aaFlags,
-             SkCanvas::SrcRectConstraint constraint, GrColor color)
+             SkCanvas::SrcRectConstraint constraint, const SkPMColor4f& color)
                 : fSrcRect(srcRect)
                 , fQuad(quad)
                 , fColor(color)
@@ -634,14 +641,14 @@ private:
         }
         const GrPerspQuad& quad() const { return fQuad; }
         const SkRect& srcRect() const { return fSrcRect; }
-        GrColor color() const { return fColor; }
+        SkPMColor4f color() const { return fColor; }
         Domain domain() const { return Domain(fHasDomain); }
         GrQuadAAFlags aaFlags() const { return static_cast<GrQuadAAFlags>(fAAFlags); }
 
     private:
         SkRect fSrcRect;
         GrPerspQuad fQuad;
-        GrColor fColor;
+        SkPMColor4f fColor;
         unsigned fHasDomain : 1;
         unsigned fAAFlags : 4;
     };
@@ -651,11 +658,11 @@ private:
     };
     SkSTArray<1, Quad, true> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
-    sk_sp<GrColorSpaceXform> fPaintColorSpaceXform;
     unsigned fFilter : 2;
     unsigned fAAType : 2;
     unsigned fPerspective : 1;
     unsigned fDomain : 1;
+    unsigned fWideColor : 1;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
     unsigned fCanSkipAllocatorGather : 1;
@@ -672,31 +679,28 @@ namespace GrTextureOp {
 std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                sk_sp<GrTextureProxy> proxy,
                                GrSamplerState::Filter filter,
-                               GrColor color,
+                               const SkPMColor4f& color,
                                const SkRect& srcRect,
                                const SkRect& dstRect,
                                GrAAType aaType,
                                GrQuadAAFlags aaFlags,
                                SkCanvas::SrcRectConstraint constraint,
                                const SkMatrix& viewMatrix,
-                               sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                               sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
+                               sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
     return TextureOp::Make(context, std::move(proxy), filter, color, srcRect, dstRect, aaType,
-                           aaFlags, constraint, viewMatrix, std::move(textureColorSpaceXform),
-                           std::move(paintColorSpaceXform));
+                           aaFlags, constraint, viewMatrix, std::move(textureColorSpaceXform));
 }
 
 std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                const GrRenderTargetContext::TextureSetEntry set[],
                                int cnt,
                                GrSamplerState::Filter filter,
-                               GrColor color,
+                               const SkPMColor4f& color,
                                GrAAType aaType,
                                const SkMatrix& viewMatrix,
-                               sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                               sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
+                               sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
     return TextureOp::Make(context, set, cnt, filter, color, aaType, viewMatrix,
-                           std::move(textureColorSpaceXform), std::move(paintColorSpaceXform));
+                           std::move(textureColorSpaceXform));
 }
 
 }  // namespace GrTextureOp
@@ -730,7 +734,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     srcRect.fTop = random->nextRangeScalar(0.f, proxy->height() / 2.f);
     srcRect.fBottom = random->nextRangeScalar(0.f, proxy->height()) + proxy->height() / 2.f;
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
-    GrColor color = SkColorToPremulGrColor(random->nextU());
+    SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(SkColorToPremulGrColor(random->nextU()));
     GrSamplerState::Filter filter = (GrSamplerState::Filter)random->nextULessThan(
             static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
     while (mipMapped == GrMipMapped::kNo && filter == GrSamplerState::Filter::kMipMap) {
@@ -738,7 +742,6 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
                 static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
     }
     auto texXform = GrTest::TestColorXform(random);
-    auto paintXform = GrTest::TestColorXform(random);
     GrAAType aaType = GrAAType::kNone;
     if (random->nextBool()) {
         aaType = (fsaaType == GrFSAAType::kUnifiedMSAA) ? GrAAType::kMSAA : GrAAType::kCoverage;
@@ -751,8 +754,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     auto constraint = random->nextBool() ? SkCanvas::kStrict_SrcRectConstraint
                                          : SkCanvas::kFast_SrcRectConstraint;
     return GrTextureOp::Make(context, std::move(proxy), filter, color, srcRect, rect, aaType,
-                             aaFlags, constraint, viewMatrix, std::move(texXform),
-                             std::move(paintXform));
+                             aaFlags, constraint, viewMatrix, std::move(texXform));
 }
 
 #endif

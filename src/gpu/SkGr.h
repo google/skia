@@ -60,6 +60,10 @@ static inline GrColor SkColorToUnpremulGrColor(SkColor c) {
 /** Similar, but using SkPMColor4f. */
 SkPMColor4f SkColorToPMColor4f(SkColor, const GrColorSpaceInfo&);
 
+/** Converts an SkColor4f to the destination color space. Pins the color if the destination is
+    normalized, or the device does not support half-float vertex attributes. */
+SkColor4f SkColor4fPrepForDst(SkColor4f, const GrColorSpaceInfo&, const GrCaps&);
+
 ////////////////////////////////////////////////////////////////////////////////
 // Paint conversion
 

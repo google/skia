@@ -260,6 +260,21 @@ SkPMColor4f SkColorToPMColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo
     return color.premul();
 }
 
+SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorSpaceInfo& colorSpaceInfo,
+                              const GrCaps& caps) {
+    if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
+        color = xform->apply(color);
+    }
+    if (!GrPixelConfigIsFloatingPoint(colorSpaceInfo.config()) ||
+        !caps.halfFloatVertexAttributeSupport()) {
+        color = { SkTPin(color.fR, 0.0f, 1.0f),
+                  SkTPin(color.fG, 0.0f, 1.0f),
+                  SkTPin(color.fB, 0.0f, 1.0f),
+                         color.fA };
+    }
+    return color;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {
@@ -355,10 +370,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            SkBlendMode* primColorMode,
                                            GrPaint* grPaint) {
     // Convert SkPaint color to 4f format in the destination color space
-    SkColor4f origColor = skPaint.getColor4f();
-    if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
-        origColor = xform->apply(origColor);
-    }
+    SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), colorSpaceInfo,
+                                              *context->contextPriv().caps());
 
     const GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
 

@@ -800,13 +800,12 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
 }
 
 void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
-                                        GrSamplerState::Filter filter, GrColor color,
+                                        GrSamplerState::Filter filter, const SkPMColor4f& color,
                                         const SkRect& srcRect, const SkRect& dstRect,
                                         GrQuadAAFlags aaFlags,
                                         SkCanvas::SrcRectConstraint constraint,
                                         const SkMatrix& viewMatrix,
-                                        sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                                        sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
+                                        sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -825,22 +824,21 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
     }
     auto op = GrTextureOp::Make(fContext, std::move(proxy), filter, color, clippedSrcRect,
                                 clippedDstRect, aaType, aaFlags, constraint, viewMatrix,
-                                std::move(textureColorSpaceXform), std::move(paintColorSpaceXform));
+                                std::move(textureColorSpaceXform));
     this->addDrawOp(clip, std::move(op));
 }
 
 void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetEntry set[], int cnt,
-                                           GrSamplerState::Filter filter, GrColor color,
+                                           GrSamplerState::Filter filter, const SkPMColor4f& color,
                                            const SkMatrix& viewMatrix,
-                                           sk_sp<GrColorSpaceXform> texXform,
-                                           sk_sp<GrColorSpaceXform> colorXform) {
+                                           sk_sp<GrColorSpaceXform> texXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureSet", fContext);
     GrAAType aaType = this->chooseAAType(GrAA::kYes, GrAllowMixedSamples::kNo);
     auto op = GrTextureOp::Make(fContext, set, cnt, filter, color, aaType, viewMatrix,
-                                std::move(texXform), std::move(colorXform));
+                                std::move(texXform));
     this->addDrawOp(clip, std::move(op));
 }
 
