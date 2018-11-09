@@ -27,14 +27,6 @@ steps:
     timeout: 600s
 
   - name: 'gcr.io/skia-public/infra:prod'
-    dir: '/home/skia/golib/src/go.skia.org/infra/skottie'
-    env:
-      - 'ROOT=/workspace/__skottie_staging'
-      - 'SKIP_BUILD=1'
-    args: ['make', 'release_ci']
-    timeout: 600s
-
-  - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/debugger'
     env:
       - 'ROOT=/workspace/__debugger_staging'
@@ -56,6 +48,17 @@ steps:
            '--env', 'ROOT=/workspace/__jsfiddle_staging',
            '--env', 'SKIP_BUILD=1',
            '--workdir', '/home/skia/golib/src/go.skia.org/infra/jsfiddle',
+           'gcr.io/skia-public/infra:prod',
+           'make', 'release_ci']
+    dir: 'wasm-products'
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--volume', '/workspace/wasm-products:/OUT',
+           '--volume', '/workspace/__skottie_staging:/workspace/__skottie_staging',
+           '--env', 'ROOT=/workspace/__skottie_staging',
+           '--env', 'SKIP_BUILD=1',
+           '--workdir', '/home/skia/golib/src/go.skia.org/infra/skottie',
            'gcr.io/skia-public/infra:prod',
            'make', 'release_ci']
     dir: 'wasm-products'
