@@ -754,7 +754,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     desc.fSampleCnt =
             this->caps()->getRenderTargetSampleCount(backendRT.sampleCnt(), backendRT.config());
 
-    return GrGLRenderTarget::MakeWrapped(this, desc, info.fFormat, idDesc, backendRT.stencilBits());
+    return GrGLRenderTarget::MakeWrapped(this, desc, idDesc, backendRT.stencilBits());
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
@@ -783,7 +783,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!this->createRenderTargetObjects(surfDesc, info, &rtIDDesc)) {
         return nullptr;
     }
-    return GrGLRenderTarget::MakeWrapped(this, surfDesc, info.fFormat, rtIDDesc, 0);
+    return GrGLRenderTarget::MakeWrapped(this, surfDesc, rtIDDesc, 0);
 }
 
 static bool check_write_and_transfer_input(GrGLTexture* glTex) {

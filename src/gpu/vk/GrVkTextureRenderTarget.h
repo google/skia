@@ -38,8 +38,6 @@ public:
 
     bool updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo& newInfo);
 
-    GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
-
 protected:
     void onAbandon() override {
         GrVkRenderTarget::onAbandon();
