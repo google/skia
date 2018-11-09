@@ -312,6 +312,7 @@ bool MdOut::DefinedState::phraseContinues(string phrase, string* priorWord,
 }
 
 void MdOut::DefinedState::setLink() {
+    fLink = "";
     fPriorDef = nullptr;
     // TODO: operators have complicated parsing possibilities; handle the easiest for now
     if (fMethod && "operator" == fPriorWord && '(' == fSeparator.back()) {
