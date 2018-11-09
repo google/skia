@@ -9,12 +9,12 @@
 #define GrSurfaceProxy_DEFINED
 
 #include "../private/SkNoncopyable.h"
-#include "GrBackendSurface.h"
 #include "GrGpuResource.h"
 #include "GrSurface.h"
 
 #include "SkRect.h"
 
+class GrBackendTexture;
 class GrCaps;
 class GrOpList;
 class GrProxyProvider;
@@ -265,10 +265,6 @@ public:
         return fOrigin;
     }
 
-    const GrBackendFormat& backendFormat() const { return fFormat; }
-
-    GrTextureType textureType() const { return fFormat.textureType(); }
-
     class UniqueID {
     public:
         static UniqueID InvalidID() {
@@ -417,10 +413,9 @@ public:
 
 protected:
     // Deferred version
-    GrSurfaceProxy(const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                   GrSurfaceOrigin origin, SkBackingFit fit,
+    GrSurfaceProxy(const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit,
                    SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
-            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, format, desc, origin, fit,
+            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, desc, origin, fit,
                              budgeted, surfaceFlags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
@@ -429,8 +424,8 @@ protected:
 
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&&, LazyInstantiationType,
-                   const GrBackendFormat& format, const GrSurfaceDesc&, GrSurfaceOrigin,
-                   SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
+                   const GrSurfaceDesc&, GrSurfaceOrigin, SkBackingFit,
+                   SkBudgeted, GrInternalSurfaceFlags);
 
     // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface>, GrSurfaceOrigin, SkBackingFit);
@@ -472,9 +467,8 @@ protected:
     GrInternalSurfaceFlags fSurfaceFlags;
 
 private:
-    // For wrapped resources, 'fFormat', 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always
-    // be filled in from the wrapped resource.
-    GrBackendFormat        fFormat;
+    // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always be filled in
+    // from the wrapped resource.
     GrPixelConfig          fConfig;
     int                    fWidth;
     int                    fHeight;

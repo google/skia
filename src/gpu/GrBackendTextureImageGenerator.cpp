@@ -133,10 +133,11 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     GrBackendTexture backendTexture = fBackendTexture;
     RefHelper* refHelper = fRefHelper;
 
-    GrBackendFormat format =
-            context->contextPriv().caps()->createFormatFromBackendTexture(backendTexture);
-    SkASSERT(format.isValid());
-
+    GrTextureType textureType = GrTextureType::k2D;
+    GrGLTextureInfo glInfo;
+    if (backendTexture.getGLTextureInfo(&glInfo)) {
+        textureType = GrGLTexture::TextureTypeFromTarget(glInfo.fTarget);
+    }
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [refHelper, releaseProcHelper, semaphore, backendTexture]
             (GrResourceProvider* resourceProvider) {
@@ -175,7 +176,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
                 return tex;
             },
-            format, desc, fSurfaceOrigin, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
+            desc, fSurfaceOrigin, mipMapped, textureType, SkBackingFit::kExact, SkBudgeted::kNo);
 
     if (!proxy) {
         return nullptr;
@@ -192,16 +193,10 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         // layout change in Vulkan and we do not change the layout of borrowed images.
         GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-        GrBackendFormat format = proxy->backendFormat().makeTexture2D();
-        if (!format.isValid()) {
-            return nullptr;
-        }
-
         sk_sp<GrRenderTargetContext> rtContext(
             context->contextPriv().makeDeferredRenderTargetContext(
-                format, SkBackingFit::kExact, info.width(), info.height(),
-                proxy->config(), nullptr, 1, mipMapped, proxy->origin(), nullptr,
-                SkBudgeted::kYes));
+                SkBackingFit::kExact, info.width(), info.height(), proxy->config(), nullptr, 1,
+                mipMapped, proxy->origin(), nullptr, SkBudgeted::kYes));
 
         if (!rtContext) {
             return nullptr;

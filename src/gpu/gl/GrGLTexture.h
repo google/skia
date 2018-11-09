@@ -66,8 +66,6 @@ public:
 
     GrBackendTexture getBackendTexture() const override;
 
-    GrBackendFormat backendFormat() const override;
-
     void textureParamsModified() override {
         fSamplerParams.invalidate();
         fNonSamplerParams.invalidate();

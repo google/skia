@@ -83,12 +83,9 @@ static void run_test(GrContext* context, const char* testName, skiatest::Reporte
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
-                                                 format, SkBackingFit::kExact, kImageWidth,
-                                                 kImageHeight, kRGBA_8888_GrPixelConfig, nullptr));
+                                                 SkBackingFit::kExact, kImageWidth, kImageHeight,
+                                                 kRGBA_8888_GrPixelConfig, nullptr));
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
         return;

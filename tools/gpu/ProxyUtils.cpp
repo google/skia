@@ -50,20 +50,13 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
             return nullptr;
         }
 
-        const GrBackendFormat format =
-                context->contextPriv().caps()->getBackendFormatFromGrColorType(colorType,
-                                                                               srgbEncoded);
-        if (!format.isValid()) {
-            return nullptr;
-        }
-
         GrSurfaceDesc desc;
         desc.fConfig = config;
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fFlags = isRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
         proxy = context->contextPriv().proxyProvider()->createProxy(
-                format, desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
+                desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
         if (!proxy) {
             return nullptr;
         }
