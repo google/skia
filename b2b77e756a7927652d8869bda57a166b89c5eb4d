@@ -22,6 +22,30 @@
       "revId": "b2b77e756a7927652d8869bda57a166b89c5eb4d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "006eb95b_24cf631f",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-11-09T17:04:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33b4c027_a3645030",
+      "range": {
+        "startLine": 347,
+        "startChar": 3,
+        "endLine": 349,
+        "endChar": 5
+      },
+      "revId": "b2b77e756a7927652d8869bda57a166b89c5eb4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
