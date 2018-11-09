@@ -22,15 +22,6 @@ public:
                           const SkIRect& clip, SkColor color);
 
     /**
-     *  Function pointer that blits the mask into a device (dst) colorized
-     *  by color. The number of pixels to blit is specified by width and height,
-     *  but each scanline is offset by dstRB (rowbytes) and srcRB respectively.
-     */
-    typedef void (*ColorProc)(void* dst, size_t dstRB,
-                              const void* mask, size_t maskRB,
-                              SkColor color, int width, int height);
-
-    /**
      *  Function pointer that blits a row of mask(lcd16) into a row of dst
      *  colorized by a single color. The number of pixels to blit is specified
      *  by width.
