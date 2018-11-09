@@ -770,6 +770,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Count: %d\n", fPaths.count());
@@ -777,6 +778,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
