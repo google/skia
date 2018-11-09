@@ -102,7 +102,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyp
         return SkToInt(byteLength >> 1);
     }
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(*this);
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*this);
 
     const void* stop = (const char*)textData + byteLength;
     uint16_t*   gptr = glyphs;
@@ -137,7 +137,7 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
         return true;
     }
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(*this);
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*this);
     const void* stop = (const char*)textData + byteLength;
     const SkTypeface::Encoding encoding = to_encoding(this->getTextEncoding());
     while (textData < stop) {
@@ -158,7 +158,7 @@ void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar tex
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-            *this, props, SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
+            *this, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 
     for (int index = 0; index < count; index++) {
         textData[index] = cache->glyphToUnichar(glyphs[index]);
@@ -390,7 +390,7 @@ SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bound
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(paint);
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
 
     SkScalar width = 0;
 
@@ -443,7 +443,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
         maxWidth /= scale;
     }
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(paint);
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
 
     GlyphCacheProc   glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                  false);
@@ -486,8 +486,7 @@ SkScalar SkPaint::getFontMetrics(SkFontMetrics* metrics) const {
     SkScalerContextEffects effects;
 
     auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        paint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
-        SkScalerContextFlags::kNone, SkMatrix::I(), &ad, &effects);
+        paint, nullptr, SkScalerContextFlags::kNone, nullptr, &ad, &effects);
 
     {
         auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
@@ -526,7 +525,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(paint);
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(paint);
     GlyphCacheProc      glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                     nullptr != bounds);
 
@@ -788,7 +787,9 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     }
 
     // SRGBTODO: Is this correct?
-    fCache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(fPaint);
+    fCache = SkStrikeCache::FindOrCreateStrikeExclusive(
+        fPaint, nullptr,
+        SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 
     SkPaint::Style  style = SkPaint::kFill_Style;
     sk_sp<SkPathEffect> pe;

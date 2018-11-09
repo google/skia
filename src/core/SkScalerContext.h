@@ -19,7 +19,6 @@
 #include "SkMaskGamma.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
-#include "SkSurfacePriv.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
@@ -312,23 +311,25 @@ public:
     static bool   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
                                   uint8_t* data);
 
-    static void MakeRecAndEffects(const SkFont& font, const SkPaint& paint,
-                                  const SkSurfaceProps& surfaceProps,
+    static void MakeRecAndEffects(const SkFont& font,
+                                  const SkPaint& paint,
+                                  const SkSurfaceProps* surfaceProps,
+                                  const SkMatrix* deviceMatrix,
                                   SkScalerContextFlags scalerContextFlags,
-                                  const SkMatrix& deviceMatrix,
                                   SkScalerContextRec* rec,
                                   SkScalerContextEffects* effects,
                                   bool enableTypefaceFiltering = true);
 
-    // If we are creating rec and effects from a font only, then there is no device around either.
-    static void MakeRecAndEffectsFromFont(const SkFont& font,
-                                          SkScalerContextRec* rec,
-                                          SkScalerContextEffects* effects,
-                                          bool enableTypefaceFiltering = true) {
+    static void MakeRecAndEffectsUsingDefaultPaint(const SkFont& font,
+                                  const SkSurfaceProps* surfaceProps,
+                                  const SkMatrix* deviceMatrix,
+                                  SkScalerContextFlags scalerContextFlags,
+                                  SkScalerContextRec* rec,
+                                  SkScalerContextEffects* effects,
+                                  bool enableTypefaceFiltering = true) {
         SkPaint paint;
-        return MakeRecAndEffects(
-                font, paint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
-                SkScalerContextFlags::kNone, SkMatrix::I(), rec, effects, enableTypefaceFiltering);
+        return MakeRecAndEffects(font, paint, surfaceProps, deviceMatrix, scalerContextFlags,
+                                 rec, effects, enableTypefaceFiltering);
     }
 
     static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
@@ -363,9 +364,9 @@ public:
     SkAxisAlignment computeAxisAlignmentForHText() const;
 
     static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
-        const SkPaint& paint, const SkSurfaceProps& surfaceProps,
+        const SkPaint& paint, const SkSurfaceProps* surfaceProps,
         SkScalerContextFlags scalerContextFlags,
-        const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,
+        const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
         SkScalerContextEffects* effects);
 
 protected:

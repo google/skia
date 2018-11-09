@@ -180,10 +180,10 @@ public:
     }
 
     SkExclusiveStrikePtr setupCache(int runIndex,
-                                    const SkPaint& skPaint,
                                     const SkSurfaceProps& props,
                                     SkScalerContextFlags scalerContextFlags,
-                                    const SkMatrix& viewMatrix);
+                                    const SkPaint& skPaint,
+                                    const SkMatrix* viewMatrix);
 
     // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
     // as a path.
