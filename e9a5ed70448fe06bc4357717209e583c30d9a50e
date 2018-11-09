@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bb78b60c_75b2c10a",
+        "filename": "src/core/SkPaint_text.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-09T17:07:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "601fa5d3_658c873b",
+      "range": {
+        "startLine": 489,
+        "startChar": 15,
+        "endLine": 489,
+        "endChar": 71
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b62b4e95_defe503b",
         "filename": "src/core/SkPaint_text.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c4a875c_18951ad8",
+        "filename": "src/core/SkPaint_text.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-09T17:07:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b62b4e95_defe503b",
+      "range": {
+        "startLine": 792,
+        "startChar": 16,
+        "endLine": 792,
+        "endChar": 72
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "191afeb7_8dc44e57",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-09T17:07:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d244215_351ac9a7",
+      "range": {
+        "startLine": 315,
+        "startChar": 34,
+        "endLine": 315,
+        "endChar": 37
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "81f62424_81563a85",
         "filename": "src/core/SkStrikeCache.cpp",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-11-08T22:27:19Z",
       "side": 1,
       "message": "This appears to be used in PathTextBench and once in SamplePathText. Can those calls just use the other more explicit FindOrCreateStrikeExclusive and pass in \"SkSurfaceProps(0, kUnknown_SkPixelGeometry), kFakeGammaAndBoostContrast, SkMatrix::I()\"?",
+      "range": {
+        "startLine": 166,
+        "startChar": 36,
+        "endLine": 166,
+        "endChar": 63
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3c3aafe_a948ebe0",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-09T17:07:25Z",
+      "side": 1,
+      "message": "This is used in many places. Changing name to encapsulate idiom.",
+      "parentUuid": "81f62424_81563a85",
       "range": {
         "startLine": 166,
         "startChar": 36,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "59ad0aff_5ba144f5",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-09T17:07:25Z",
+      "side": 1,
+      "message": "Changed this to MakeRecAndEffectsFromFont, and purpose build it for non-device and paint situations.",
+      "parentUuid": "eb0614b0_52206110",
+      "range": {
+        "startLine": 406,
+        "startChar": 14,
+        "endLine": 406,
+        "endChar": 70
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "43cac6b0_5b663459",
         "filename": "tests/SkRemoteGlyphCacheTest.cpp",
         "patchSetId": 2
@@ -137,6 +257,30 @@
       "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b95649e_105512f7",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-09T17:07:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43cac6b0_5b663459",
+      "range": {
+        "startLine": 652,
+        "startChar": 29,
+        "endLine": 652,
+        "endChar": 85
+      },
+      "revId": "e9a5ed70448fe06bc4357717209e583c30d9a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
