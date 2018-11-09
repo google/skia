@@ -11,7 +11,9 @@
 
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkOSPath.h"
 #include "Skottie.h"
+#include "SkottieUtils.h"
 
 #include <cmath>
 
@@ -95,7 +97,11 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     auto logger = sk_make_sp<Logger>();
     skottie::Animation::Builder builder;
 
-    fAnimation      = builder.setLogger(logger).makeFromFile(fPath.c_str());
+    fAnimation      = builder
+            .setLogger(logger)
+            .setResourceProvider(
+                skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str())))
+            .makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
     fWinSize        = SkSize::Make(w, h);
     fTimeBase       = 0; // force a time reset

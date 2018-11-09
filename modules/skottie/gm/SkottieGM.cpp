@@ -13,6 +13,7 @@
 #include "SkMakeUnique.h"
 #include "Skottie.h"
 #include "SkottieProperty.h"
+#include "SkottieUtils.h"
 
 #include <cmath>
 #include <vector>
@@ -213,33 +214,11 @@ protected:
     }
 
 private:
-    class MultiFrameImageAsset final : public skottie::ImageAsset {
-    public:
-        MultiFrameImageAsset() {
-            if (auto codec = SkCodec::MakeFromData(GetResourceAsData("images/flightAnim.gif"))) {
-                fPlayer = skstd::make_unique<SkAnimCodecPlayer>(std::move(codec));
-            }
-        }
-
-        bool isMultiFrame() override { return fPlayer ? fPlayer->duration() > 0 : false; }
-
-        sk_sp<SkImage> getFrame(float t) override {
-            if (!fPlayer) {
-                return nullptr;
-            }
-
-            fPlayer->seek(static_cast<uint32_t>(t * 1000));
-            return fPlayer->getFrame();
-        }
-
-    private:
-        std::unique_ptr<SkAnimCodecPlayer> fPlayer;
-    };
-
     class MultiFrameResourceProvider final : public skottie::ResourceProvider {
     public:
         sk_sp<ImageAsset> loadImageAsset(const char[], const char[]) const override {
-            return sk_make_sp<MultiFrameImageAsset>();
+            return skottie_utils::MultiFrameImageAsset::Make(
+                        GetResourceAsData("images/flightAnim.gif"));
         }
     };
 
