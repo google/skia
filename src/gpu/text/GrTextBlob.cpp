@@ -59,10 +59,10 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
 }
 
 SkExclusiveStrikePtr GrTextBlob::setupCache(int runIndex,
-                                            const SkPaint& skPaint,
-                                            const SkSurfaceProps& props,
-                                            SkScalerContextFlags scalerContextFlags,
-                                            const SkMatrix& viewMatrix) {
+                                                 const SkSurfaceProps& props,
+                                                 SkScalerContextFlags scalerContextFlags,
+                                                 const SkPaint& skPaint,
+                                                 const SkMatrix* viewMatrix) {
     GrTextBlob::Run* run = &fRuns[runIndex];
 
     // if we have an override descriptor for the run, then we should use that
@@ -70,7 +70,7 @@ SkExclusiveStrikePtr GrTextBlob::setupCache(int runIndex,
                                                               &run->fDescriptor;
     SkScalerContextEffects effects;
     SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        skPaint, props, scalerContextFlags, viewMatrix, desc, &effects);
+        skPaint, &props, scalerContextFlags, viewMatrix, desc, &effects);
     run->fTypeface = SkPaintPriv::RefTypefaceOrDefault(skPaint);
     run->fPathEffect = sk_ref_sp(effects.fPathEffect);
     run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);

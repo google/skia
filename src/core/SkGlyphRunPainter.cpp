@@ -180,7 +180,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             SkScalar textScale = pathPaint.setupForAsPaths();
 
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    pathPaint, props, fScalerContextFlags, SkMatrix::I());
+                    pathPaint, &props, fScalerContextFlags, nullptr);
 
             SkTDArray<PathAndPos> pathsAndPositions;
             pathsAndPositions.setReserve(runSize);
@@ -204,7 +204,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     paint);
         } else {
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    paint, props, fScalerContextFlags, deviceMatrix);
+                    paint, &props, fScalerContextFlags, &deviceMatrix);
 
             // Add rounding and origin.
             SkMatrix matrix = deviceMatrix;
@@ -599,8 +599,8 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             fBlob->setHasBitmap();
             fBlob->setSubRunHasW(fRunIndex, glyphCacheMatrix.hasPerspective());
             SkExclusiveStrikePtr fallbackCache =
-                    fBlob->setupCache(fRunIndex,
-                                      fallbackPaint, fProps, fScalerContextFlags, glyphCacheMatrix);
+                    fBlob->setupCache(fRunIndex, fProps, fScalerContextFlags,
+                                     fallbackPaint, &glyphCacheMatrix);
             sk_sp<GrTextStrike> strike = fGlyphCache->getStrike(fallbackCache.get());
             const SkPoint* glyphPos = positions.data();
             for (auto glyphID : glyphIDs) {
@@ -649,7 +649,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
 
             {
                 auto cache = this->setupCache(
-                        runIndex, distanceFieldPaint, props, flags, SkMatrix::I());
+                        runIndex, props, flags, distanceFieldPaint, &SkMatrix::I());
 
                 sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
 
@@ -698,7 +698,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
 
             SkScalar textScale = pathPaint.setupForAsPaths();
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    pathPaint, props, scalerContextFlags, SkMatrix::I());
+                    pathPaint, &props, scalerContextFlags, &SkMatrix::I());
 
             // Given a glyph that is not ARGB, draw it.
             auto perPath = [textScale, runIndex, this, &pathCache]
@@ -723,7 +723,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             this->setHasBitmap();
 
             auto cache = this->setupCache(
-                    runIndex, runPaint, props, scalerContextFlags, viewMatrix);
+                    runIndex, props, scalerContextFlags, runPaint, &viewMatrix);
 
             sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
 

@@ -368,7 +368,7 @@ void SkGlyphRunBuilder::simplifyDrawText(
     if (!glyphIDs.empty()) {
         fScratchAdvances.resize(runSize);
         {
-            auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(runPaint);
+            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(runPaint);
             cache->getAdvances(glyphIDs, fScratchAdvances.data());
         }
 
