@@ -12,6 +12,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "Skottie.h"
+#include "SkottieUtils.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkSurface.h"
@@ -187,6 +188,8 @@ int main(int argc, char** argv) {
 
     auto anim = skottie::Animation::Builder()
             .setLogger(logger)
+            .setResourceProvider(
+                skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(FLAGS_input[0])))
             .makeFromFile(FLAGS_input[0]);
     if (!anim) {
         SkDebugf("Could not load animation: '%s'.\n", FLAGS_input[0]);

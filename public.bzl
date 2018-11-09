@@ -662,11 +662,14 @@ def base_linkopts(os_conditions):
 ################################################################################
 
 SKOTTIE_TOOL_INCLUDES = [
+    "modules/skottie/utils",
     "tools/flags",
 ]
 
 SKOTTIE_TOOL_SRCS = [
     "modules/skottie/src/SkottieTool.cpp",
+    "modules/skottie/utils/SkottieUtils.cpp",
+    "modules/skottie/utils/SkottieUtils.h",
     # TODO(benjaminwagner): Add "flags" target.
     "tools/flags/SkCommandLineFlags.cpp",
     "tools/flags/SkCommandLineFlags.h",

@@ -12,7 +12,6 @@
 #include "SkFontMgr.h"
 #include "SkImage.h"
 #include "SkMakeUnique.h"
-#include "SkOSPath.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkSGColor.h"
@@ -389,58 +388,10 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
 }
 
 sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
-    class DirectoryResourceProvider final : public ResourceProvider {
-    public:
-        explicit DirectoryResourceProvider(SkString dir) : fDir(std::move(dir)) {}
-
-        sk_sp<SkData> load(const char resource_path[], const char resource_name[]) const override {
-            const auto full_dir  = SkOSPath::Join(fDir.c_str(), resource_path),
-                       full_path = SkOSPath::Join(full_dir.c_str(), resource_name);
-            return SkData::MakeFromFileName(full_path.c_str());
-        }
-
-        sk_sp<ImageAsset> loadImageAsset(const char resource_path[],
-                                         const char resource_name[]) const override {
-            auto data = this->load(resource_path, resource_name);
-
-            return data
-                ? sk_make_sp<StaticImageAsset>(SkImage::MakeFromEncoded(std::move(data)))
-                : nullptr;
-        }
-
-    private:
-        class StaticImageAsset final : public ImageAsset {
-        public:
-            explicit StaticImageAsset(sk_sp<SkImage> image)
-                : fImage(std::move(image)) {}
-
-            bool isMultiFrame() override { return false; }
-
-            sk_sp<SkImage> getFrame(float) override { return fImage; }
-
-        private:
-            sk_sp<SkImage> fImage;
-        };
-
-        const SkString fDir;
-    };
-
     const auto data = SkData::MakeFromFileName(path);
-    if (!data)
-        return nullptr;
 
-    const auto useLocalProvider = !fResourceProvider;
-    if (useLocalProvider) {
-        fResourceProvider = sk_make_sp<DirectoryResourceProvider>(SkOSPath::Dirname(path));
-    }
-
-    auto animation = this->make(static_cast<const char*>(data->data()), data->size());
-
-    if (useLocalProvider) {
-        fResourceProvider.reset();
-    }
-
-    return animation;
+    return data ? this->make(static_cast<const char*>(data->data()), data->size())
+                : nullptr;
 }
 
 Animation::Animation(std::unique_ptr<sksg::Scene> scene, SkString version, const SkSize& size,
