@@ -363,10 +363,23 @@ public:
     SkAxisAlignment computeAxisAlignmentForHText() const;
 
     static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
+        const SkFont&, const SkPaint&, const SkSurfaceProps&,
+        SkScalerContextFlags scalerContextFlags,
+        const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,
+        SkScalerContextEffects* effects);
+
+    static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
         const SkPaint& paint, const SkSurfaceProps& surfaceProps,
         SkScalerContextFlags scalerContextFlags,
         const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,
         SkScalerContextEffects* effects);
+
+    static SkDescriptor* CreateDescriptorAndEffectsUsingDefaultPaint(
+                                             const SkFont&,
+                                             const SkSurfaceProps& surfaceProps,
+                                             SkScalerContextFlags scalerContextFlags,
+                                             const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,
+                                             SkScalerContextEffects* effects);
 
 protected:
     SkScalerContextRec fRec;

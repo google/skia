@@ -1407,6 +1407,7 @@ private:
     friend class SkCanonicalizePaint;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkFont;
     friend class SkGlyphRunListPainter;
     friend class SkPaintPriv;
     friend class SkPDFDevice;

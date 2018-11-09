@@ -29,6 +29,8 @@ public:
         return MakeTextMatrix(font.getSize(), font.getScaleX(), font.getSkewX());
     }
 
+    static void ScaleFontMetrics(SkFontMetrics*, SkScalar);
+
     // returns -1 if buffer is invalid for specified encoding
     static int ValidCountText(const void* text, size_t length, SkTextEncoding);
 
@@ -39,6 +41,9 @@ public:
     static sk_sp<SkTypeface> RefTypefaceOrDefault(const SkFont& font) {
         return font.getTypeface() ? font.refTypeface() : SkTypeface::MakeDefault();
     }
+
+//    static void Flatten(const SkFont& font, SkWriteBuffer& buffer);
+//    static bool Unflatten(SkFont* font, SkReadBuffer& buffer);
 };
 
 #endif

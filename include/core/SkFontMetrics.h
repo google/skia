@@ -104,4 +104,3 @@ struct SK_API SkFontMetrics {
 };
 
 #endif
-

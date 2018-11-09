@@ -5,9 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkFont.h"
-
+#include "SkDraw.h"
+#include "SkFontPriv.h"
+#include "SkGlyphCache.h"
+#include "SkPaint.h"
+#include "SkScalerContext.h"
+#include "SkStrikeCache.h"
 #include "SkTo.h"
+#include "SkTLazy.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
 
@@ -93,6 +98,47 @@ SkFont SkFont::makeWithFlags(uint32_t newFlags) const {
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
+    constexpr uint32_t flagsToIgnore =  kLinearMetrics_Flag        |
+                                        kDEPRECATED_LCDRender_Flag |
+                                        kEmbeddedBitmaps_Flag      |
+                                        kForceAutoHinting_Flag;
+
+    uint32_t flags = (this->getFlags() & ~flagsToIgnore) | kSubpixel_Flag;
+
+    this->setFlags(flags);
+    this->setHinting(kNo_SkFontHinting);
+    if (paint) {
+       paint->setStyle(SkPaint::kFill_Style);
+        paint->setPathEffect(nullptr);
+    }
+    SkScalar textSize = fSize;
+    this->setSize(SkIntToScalar(SkPaint::kCanonicalTextSizeForPaths));
+    return textSize / SkPaint::kCanonicalTextSizeForPaths;
+}
+
+class SkCanonicalizeFont {
+public:
+    SkCanonicalizeFont(const SkFont& font) : fFont(&font), fScale(0) {
+        if (font.isLinearMetrics() ||
+            SkDraw::ShouldDrawTextAsPaths(font, SkPaint(), SkMatrix::I()))
+        {
+            SkFont* f = fLazy.set(font);
+            fScale = f->setupForAsPaths(nullptr);
+            fFont = f;
+        }
+    }
+
+    const SkFont& getFont() const { return *fFont; }
+    SkScalar getScale() const { return fScale; }
+
+private:
+    const SkFont*   fFont;
+    SkTLazy<SkFont> fLazy;
+    SkScalar        fScale;
+};
+
+
 int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                          uint16_t glyphs[], int maxGlyphCount) const {
     if (0 == byteLength) {
@@ -147,6 +193,34 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
 SkScalar SkFont::measureText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
     // TODO: need access to the cache
     return -1;
+}
+
+SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
+    SkCanonicalizeFont canon(*this);
+    const SkFont& font = canon.getFont();
+    SkScalar scale = canon.getScale();
+
+    SkFontMetrics storage;
+    if (nullptr == metrics) {
+        metrics = &storage;
+    }
+
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(font,
+             SkSurfaceProps(0, kUnknown_SkPixelGeometry), SkScalerContextFlags::kNone,
+             SkMatrix::I(), &ad, &effects);
+
+    {
+        auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
+        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+        *metrics = cache->getFontMetrics();
+    }
+    if (scale) {
+        SkPaintPriv::ScaleFontMetrics(metrics, scale);
+    }
+    return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
