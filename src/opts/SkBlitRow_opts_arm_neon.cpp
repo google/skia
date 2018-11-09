@@ -7,7 +7,6 @@
 
 #include "SkBlitRow_opts_arm_neon.h"
 
-#include "SkBlitMask.h"
 #include "SkBlitRow.h"
 #include "SkColorData.h"
 #include "SkMathPriv.h"

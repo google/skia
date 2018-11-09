@@ -7,7 +7,6 @@
 
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSSE3.h"
-#include "SkBlitMask.h"
 #include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkCpu.h"
@@ -78,19 +77,4 @@ SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
     } else {
         return nullptr;
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
-    if (SkCpu::Supports(SkCpu::SSE2)) {
-        if (isOpaque) {
-            return SkBlitLCD16OpaqueRow_SSE2;
-        } else {
-            return SkBlitLCD16Row_SSE2;
-        }
-    } else {
-        return nullptr;
-    }
-
 }
