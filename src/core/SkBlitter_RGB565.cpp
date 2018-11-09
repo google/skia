@@ -10,7 +10,6 @@
 #include "SkShader.h"
 #include "SkUTF.h"
 #include "SkXfermodePriv.h"
-#include "SkBlitMask.h"
 #include "SkColorData.h"
 
 #include "SkNx.h"
