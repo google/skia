@@ -109,6 +109,7 @@ GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, const SkPMColor
     this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
+#ifdef SK_DEBUG
 SkString GrDrawAtlasOp::dumpInfo() const {
     SkString string;
     for (const auto& geo : fGeoData) {
@@ -119,6 +120,7 @@ SkString GrDrawAtlasOp::dumpInfo() const {
     string += INHERITED::dumpInfo();
     return string;
 }
+#endif
 
 void GrDrawAtlasOp::onPrepareDraws(Target* target) {
     // Setup geometry processor
