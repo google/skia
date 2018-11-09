@@ -9,13 +9,11 @@ _src = get_path_info("../src", "abspath")
 none = [
   "$_src/opts/Sk4px_none.h",
   "$_src/opts/SkBitmapProcState_opts_none.cpp",
-  "$_src/opts/SkBlitMask_opts_none.cpp",
   "$_src/opts/SkBlitRow_opts_none.cpp",
 ]
 
 armv7 = [
   "$_src/opts/SkBitmapProcState_opts_none.cpp",
-  "$_src/opts/SkBlitMask_opts_arm.cpp",
   "$_src/opts/SkBlitRow_opts_arm.cpp",
 ]
 
@@ -25,8 +23,6 @@ neon = [
   "$_src/opts/SkBitmapProcState_filter_neon.h",
   "$_src/opts/SkBitmapProcState_matrixProcs_neon.cpp",
   "$_src/opts/SkBitmapProcState_matrix_neon.h",
-  "$_src/opts/SkBlitMask_opts_arm_neon.cpp",
-  "$_src/opts/SkBlitMask_opts_arm_neon.h",
   "$_src/opts/SkBlitRow_opts_arm_neon.h",
   "$_src/opts/SkBlitRow_opts_arm_neon.cpp",
   "$_src/opts/SkColor_opts_neon.h",
@@ -39,9 +35,6 @@ arm64 = [
   "$_src/opts/SkBitmapProcState_matrixProcs_neon.cpp",
   "$_src/opts/SkBitmapProcState_matrix_neon.h",
   "$_src/opts/SkBitmapProcState_opts_none.cpp",
-  "$_src/opts/SkBlitMask_opts_arm.cpp",
-  "$_src/opts/SkBlitMask_opts_arm_neon.cpp",
-  "$_src/opts/SkBlitMask_opts_arm_neon.h",
   "$_src/opts/SkBlitRow_opts_arm.cpp",
   "$_src/opts/SkBlitRow_opts_arm_neon.h",
   "$_src/opts/SkBlitRow_opts_arm_neon.cpp",
