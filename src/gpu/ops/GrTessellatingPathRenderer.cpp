@@ -188,6 +188,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Color 0x%08x, aa: %d\n", fColor.toBytes_RGBA(), fAntiAlias);
@@ -195,6 +196,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     TessellatingPathOp(Helper::MakeArgs helperArgs,
                        const SkPMColor4f& color,

@@ -600,7 +600,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 ERRORF(reporter, "Processor violated %d of %d pixels, seed: 0x%08x, processor: %s"
                        ", first failing pixel details are below:",
                        failedPixelCount, kRenderSize * kRenderSize, seed,
-                       fp->dumpInfo().c_str());
+#ifdef SK_DEBUG
+                       fp->dumpInfo().c_str()
+#else
+                       "<Processor information unavailable>"
+#endif
+                );
 
                 // Print first failing pixel's details.
                 if (!coverageMessage.isEmpty()) {
@@ -627,8 +632,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             } else if(failedPixelCount > 0) {
                 // Don't trigger an error, but don't just hide the failures either.
                 INFOF(reporter, "Processor violated %d of %d pixels (below error threshold), seed: "
-                      "0x%08x, processor: %s", failedPixelCount, kRenderSize * kRenderSize,
-                      seed, fp->dumpInfo().c_str());
+                      "0x%08x, processor: %s", failedPixelCount, kRenderSize * kRenderSize, seed,
+#ifdef SK_DEBUG
+                      fp->dumpInfo().c_str()
+#else
+                      "<Processor information unavailable>"
+#endif
+                );
                 if (!coverageMessage.isEmpty()) {
                     INFOF(reporter, coverageMessage.c_str());
                 }

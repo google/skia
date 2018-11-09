@@ -174,11 +174,13 @@ public:
     virtual const char* name() const = 0;
 
     /** Human-readable dump of all information */
+#ifdef SK_DEBUG
     virtual SkString dumpInfo() const {
         SkString str;
         str.appendf("Missing data");
         return str;
     }
+#endif
 
     void* operator new(size_t size);
     void operator delete(void* target);

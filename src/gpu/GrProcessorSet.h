@@ -150,7 +150,9 @@ public:
     static GrProcessorSet MakeEmptySet();
     static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
 
+#ifdef SK_DEBUG
     SkString dumpProcessors() const;
+#endif
 
     void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
         for (int i = 0; i < this->numFragmentProcessors(); ++i) {

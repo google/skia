@@ -25,6 +25,7 @@ public:
 
     const char* name() const override { return "ClearStencilClip"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string("Scissor [");
         if (fClip.scissorEnabled()) {
@@ -37,6 +38,7 @@ public:
         string.append(INHERITED::dumpInfo());
         return string;
     }
+#endif
 
 private:
     friend class GrOpMemoryPool; // for ctor

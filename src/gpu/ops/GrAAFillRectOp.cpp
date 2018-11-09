@@ -211,6 +211,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
         str.append(INHERITED::dumpInfo());
@@ -227,6 +228,7 @@ public:
         str += INHERITED::dumpInfo();
         return str;
     }
+#endif
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
