@@ -157,7 +157,6 @@ gm_sources = [
   "$_gm/gradient_matrix.cpp",
   "$_gm/gradientDirtyLaundry.cpp",
   "$_gm/gradients.cpp",
-  "$_gm/gradients_degenerate.cpp",
   "$_gm/gradients_2pt_conical.cpp",
   "$_gm/gradients_no_texture.cpp",
   "$_gm/gradtext.cpp",
