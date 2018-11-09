@@ -77,7 +77,7 @@ public:
     public:
         using Attribute = GrPrimitiveProcessor::Attribute;
 
-        GPAttributes(int posDim, int localDim, bool hasColor, GrAAType aa, Domain domain);
+        GPAttributes(int posDim, int localDim, int colorBpp, GrAAType aa, Domain domain);
 
         const Attribute& positions() const { return fPositions; }
         const Attribute& colors() const { return fColors; }
@@ -105,9 +105,7 @@ public:
         // variables the emitted code must declare, so that the calling GP can ensure there's no
         // naming conflicts with their own code.
 
-        void emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args,
-                       GrGLSLColorSpaceXformHelper* colorSpaceXformHelper,
-                       const char* colorVarName) const;
+        void emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args, const char* colorVarName) const;
 
         // localCoordName will be declared as a float2, with any domain applied after any
         // perspective division is performed.
