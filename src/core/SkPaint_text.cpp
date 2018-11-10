@@ -249,8 +249,8 @@ static const SkGlyph& sk_getAdvance_glyph_next(SkGlyphCache* cache,
     return cache->getGlyphIDAdvance(glyphID);
 }
 
-SkPaint::GlyphCacheProc SkPaint::GetGlyphCacheProc(TextEncoding encoding,
-                                                  bool needFullMetrics) {
+SkFontPriv::GlyphCacheProc SkFontPriv::GetGlyphCacheProc(SkTextEncoding encoding,
+                                                         bool needFullMetrics) {
     static const GlyphCacheProc gGlyphCacheProcs[] = {
         sk_getMetrics_utf8_next,
         sk_getMetrics_utf16_next,
@@ -355,8 +355,8 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
         return 0;
     }
 
-    GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(this->getTextEncoding(),
-                                                               nullptr != bounds);
+    SkFontPriv::GlyphCacheProc glyphCacheProc = SkFontPriv::GetGlyphCacheProc(
+                    static_cast<SkTextEncoding>(this->getTextEncoding()), nullptr != bounds);
 
     int         n = 1;
     const char* stop = (const char*)text + byteLength;
@@ -445,9 +445,9 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
 
     auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(paint);
 
-    GlyphCacheProc   glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
-                                                                 false);
-    SkScalar         width = 0;
+    SkFontPriv::GlyphCacheProc glyphCacheProc = SkFontPriv::GetGlyphCacheProc(
+                                  static_cast<SkTextEncoding>(paint.getTextEncoding()), false);
+    SkScalar width = 0;
 
     while (text < stop) {
         const char* curr = text;
@@ -527,8 +527,8 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     SkScalar scale = canon.getScale();
 
     auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(paint);
-    GlyphCacheProc      glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
-                                                                    nullptr != bounds);
+    SkFontPriv::GlyphCacheProc glyphCacheProc = SkFontPriv::GetGlyphCacheProc(
+                      static_cast<SkTextEncoding>(paint.getTextEncoding()), nullptr != bounds);
 
     const char* text = (const char*)textData;
     const char* stop = text + byteLength;
@@ -758,7 +758,8 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
                                    const SkPaint& paint,
                                    bool applyStrokeAndPathEffects)
     : fPaint(paint) {
-    fGlyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(), true);
+    fGlyphCacheProc = SkFontPriv::GetGlyphCacheProc(
+                                    static_cast<SkTextEncoding>(paint.getTextEncoding()), true);
 
     fPaint.setLinearText(true);
     fPaint.setMaskFilter(nullptr);   // don't want this affecting our path-cache lookup

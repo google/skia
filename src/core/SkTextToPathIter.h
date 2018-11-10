@@ -8,6 +8,7 @@
 #ifndef SkTextToPathIter_DEFINED
 #define SkTextToPathIter_DEFINED
 
+#include "SkFontPriv.h"
 #include "SkPaint.h"
 #include "SkStrikeCache.h"
 
@@ -22,7 +23,7 @@ protected:
     SkScalar             fPrevAdvance;
     const char*          fText;
     const char*          fStop;
-    SkPaint::GlyphCacheProc fGlyphCacheProc;
+    SkFontPriv::GlyphCacheProc fGlyphCacheProc;
 
     SkScalar        fXPos;      // accumulated xpos, returned in next
 };
