@@ -42,8 +42,9 @@ public:
         return font.getTypeface() ? font.refTypeface() : SkTypeface::MakeDefault();
     }
 
-//    static void Flatten(const SkFont& font, SkWriteBuffer& buffer);
-//    static bool Unflatten(SkFont* font, SkReadBuffer& buffer);
+    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**, const char*);
+
+    static GlyphCacheProc GetGlyphCacheProc(SkTextEncoding encoding, bool needFullMetrics);
 };
 
 #endif

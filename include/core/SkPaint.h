@@ -1329,7 +1329,6 @@ private:
     friend class SkGlyphRun;
     friend class SkGlyphRunBuilder;
     SkPaint(const SkPaint&, const SkRunFont&);
-    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**, const char*);
 
     sk_sp<SkTypeface>     fTypeface;
     sk_sp<SkPathEffect>   fPathEffect;
@@ -1360,9 +1359,6 @@ private:
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };
-
-    static GlyphCacheProc GetGlyphCacheProc(TextEncoding encoding,
-                                            bool needFullMetrics);
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
