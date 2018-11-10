@@ -190,9 +190,71 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
     return count;
 }
 
-SkScalar SkFont::measureText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
-    // TODO: need access to the cache
-    return -1;
+static void set_bounds(const SkGlyph& g, SkRect* bounds) {
+    bounds->set(SkIntToScalar(g.fLeft),
+                SkIntToScalar(g.fTop),
+                SkIntToScalar(g.fLeft + g.fWidth),
+                SkIntToScalar(g.fTop + g.fHeight));
+}
+
+static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
+    bounds->join(SkIntToScalar(g.fLeft) + dx,
+                 SkIntToScalar(g.fTop),
+                 SkIntToScalar(g.fLeft + g.fWidth) + dx,
+                 SkIntToScalar(g.fTop + g.fHeight));
+}
+
+SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding encoding,
+                             SkRect* bounds) const {
+    if (length == 0) {
+        if (bounds) {
+            bounds->setEmpty();
+        }
+        return 0;
+    }
+
+    SkCanonicalizeFont canon(*this);
+    const SkFont& font = canon.getFont();
+    SkScalar scale = canon.getScale();
+
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(font,
+                         SkSurfaceProps(0, kUnknown_SkPixelGeometry), SkScalerContextFlags::kNone,
+                         SkMatrix::I(), &ad, &effects);
+    auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+
+    const char* text = static_cast<const char*>(textD);
+    const char* stop = text + length;
+    auto glyphCacheProc = SkFontPriv::GetGlyphCacheProc(encoding, nullptr != bounds);
+    const SkGlyph* g = &glyphCacheProc(cache.get(), &text, stop);
+    SkScalar width = g->fAdvanceX;
+
+    if (nullptr == bounds) {
+        while (text < stop) {
+            width += glyphCacheProc(cache.get(), &text, stop).fAdvanceX;
+        }
+    } else {
+        set_bounds(*g, bounds);
+        while (text < stop) {
+            g = &glyphCacheProc(cache.get(), &text, stop);
+            join_bounds_x(*g, bounds, width);
+            width += g->fAdvanceX;
+        }
+    }
+    SkASSERT(text == stop);
+
+    if (scale) {
+        width *= scale;
+        if (bounds) {
+            bounds->fLeft *= scale;
+            bounds->fTop *= scale;
+            bounds->fRight *= scale;
+            bounds->fBottom *= scale;
+        }
+    }
+    return width;
 }
 
 SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {

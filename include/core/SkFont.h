@@ -136,7 +136,8 @@ public:
         return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);
     }
 
-    SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding) const;
+    SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding,
+                         SkRect* bounds = nullptr) const;
 
     SkScalar getMetrics(SkFontMetrics* metrics) const;
     SkScalar getSpacing() const { return this->getMetrics(nullptr); }
