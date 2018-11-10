@@ -34,23 +34,6 @@ static void test_cachedfont(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, paint.getHinting() == p.getHinting());
 }
 
-static void test_fontmetrics(skiatest::Reporter* reporter,
-                             const SkPaint& paint, const SkFont& font) {
-    SkFontMetrics fm0, fm1;
-    SkScalar h0 = paint.getFontMetrics(&fm0);
-    SkScalar h1 = font.getMetrics(&fm1);
-
-    REPORTER_ASSERT(reporter, h0 == h1);
-#define CMP(field) REPORTER_ASSERT(reporter, fm0.field == fm1.field)
-    CMP(fFlags);
-    CMP(fTop);
-    CMP(fAscent);
-    CMP(fDescent);
-    CMP(fBottom);
-    CMP(fLeading);
-#undef CMP
-}
-
 static void test_cachedfont(skiatest::Reporter* reporter) {
     static const char* const faces[] = {
         nullptr,   // default font
@@ -102,7 +85,6 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
                 const SkFont font(SkFont::LEGACY_ExtractFromPaint(paint));
 
                 test_cachedfont(reporter, paint, font);
-                test_fontmetrics(reporter, paint, font);
 
                 SkRect bounds;
 
