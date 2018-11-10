@@ -383,6 +383,10 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
 }
 
 SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bounds) const {
+#if 1
+    SkFont font = SkFont::ExtractFromPaint(*this);
+    return font.measureText(textData, length, (SkTextEncoding)this->getTextEncoding());
+#else
     const char* text = (const char*)textData;
     SkASSERT(text != nullptr || length == 0);
 
@@ -412,6 +416,7 @@ SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bound
         bounds->setEmpty();
     }
     return width;
+#endif
 }
 
 size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,

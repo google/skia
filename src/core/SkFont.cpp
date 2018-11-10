@@ -190,9 +190,95 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
     return count;
 }
 
-SkScalar SkFont::measureText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
-    // TODO: need access to the cache
-    return -1;
+SkScalar SkFont::setupForPath() {
+    constexpr uint32_t flagsToIgnore = SkFont::kLinearMetrics_Flag          |
+                                       SkFont::kDEPRECATED_LCDRender_Flag   |
+                                       SkFont::kEmbeddedBitmaps_Flag        |
+                                       SkFont::kForceAutoHinting_Flag;
+
+    uint32_t flags = (this->getFlags() & ~flagsToIgnore) | SkFont::kSubpixel_Flag;
+
+    this->setFlags(flags);
+    this->setHinting(SkFont::kNo_Hinting);
+
+    SkScalar textSize = this->getSize();
+    this->setSize(SkPaint::kCanonicalTextSizeForPaths);
+    return textSize / SkPaint::kCanonicalTextSizeForPaths;
+}
+
+SkScalar SkFont::canonicalizeForPath() {
+    if (this->isLinearMetrics() || SkDraw::ShouldDrawTextAsPath(*this, SkMatrix::I())) {
+        return this->setupForPath();
+    }
+    return 1;
+}
+
+static SkScalar measure_text(const SkFont& font, SkTextEncoding encoding, SkGlyphCache* cache,
+                             const char* text, size_t byteLength, int* count, SkRect* bounds) {
+    SkASSERT(count);
+    if (byteLength == 0) {
+        *count = 0;
+        if (bounds) {
+            bounds->setEmpty();
+        }
+        return 0;
+    }
+
+    GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(encoding, nullptr != bounds);
+
+    int         n = 1;
+    const char* stop = (const char*)text + byteLength;
+    const SkGlyph* g = &glyphCacheProc(cache, &text, stop);
+    SkScalar x = advance(*g);
+
+    if (nullptr == bounds) {
+        for (; text < stop; n++) {
+            x += advance(glyphCacheProc(cache, &text, stop));
+        }
+    } else {
+        set_bounds(*g, bounds);
+
+        for (; text < stop; n++) {
+            g = &glyphCacheProc(cache, &text, stop);
+            join_bounds_x(*g, bounds, x);
+            x += advance(*g);
+        }
+    }
+    SkASSERT(text == stop);
+
+    *count = n;
+    return x;
+}
+
+SkScalar SkFont::measureText(const void* textData, size_t length, SkTextEncoding encoding) const {
+    const char* text = (const char*)textData;
+    SkASSERT(text != nullptr || length == 0);
+
+    SkFont font = *this;
+    SkScalar scale = font.canonicalizeForPath();
+
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(font);
+
+    SkScalar width = 0;
+
+    if (length > 0) {
+        int tempCount;
+
+        width = paint.measure_text(font, encoding, cache.get(), text, length, &tempCount, bounds);
+        if (scale) {
+            width *= scale;
+            if (bounds) {
+                bounds->fLeft *= scale;
+                bounds->fTop *= scale;
+                bounds->fRight *= scale;
+                bounds->fBottom *= scale;
+            }
+        }
+    } else if (bounds) {
+        // ensure that even if we don't measure_text we still update the bounds
+        bounds->setEmpty();
+    }
+    return width;
 }
 
 SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
