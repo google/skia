@@ -25,7 +25,7 @@ SK_C_API sk_imagefilter_t* sk_imagefilter_new_matrix(
     sk_filter_quality_t quality, 
     sk_imagefilter_t* input /*NULL*/);
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_alpha_threshold(
-    const sk_irect_t* region,
+    const sk_region_t* region,
     float innerThreshold,
     float outerThreshold, 
     sk_imagefilter_t* input /*NULL*/);

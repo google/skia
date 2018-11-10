@@ -85,10 +85,7 @@ typedef enum {
     USE_DEVICE_INDEPENDENT_FONTS_SK_SURFACE_PROPS_FLAGS = 1 << 0,
 } sk_surfaceprops_flags_t;
 
-typedef struct {
-    sk_pixelgeometry_t pixelGeometry;
-    sk_surfaceprops_flags_t flags;
-} sk_surfaceprops_t;
+typedef struct sk_surfaceprops_t sk_surfaceprops_t;
 
 typedef struct {
     float   x;

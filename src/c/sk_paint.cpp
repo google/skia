@@ -20,16 +20,18 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_paint_t* sk_paint_new() { return (sk_paint_t*)new SkPaint; }
+sk_paint_t* sk_paint_new() {
+    return ToPaint(new SkPaint());
+}
 
 sk_paint_t* sk_paint_clone(sk_paint_t* paint) {
-    return (sk_paint_t*)new SkPaint(AsPaint(*paint));
+    return ToPaint(new SkPaint(*AsPaint(paint)));
 }
 
 void sk_paint_delete(sk_paint_t* cpaint) { delete AsPaint(cpaint); }
 
 bool sk_paint_is_antialias(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).isAntiAlias();
+    return AsPaint(cpaint)->isAntiAlias();
 }
 
 void sk_paint_set_antialias(sk_paint_t* cpaint, bool aa) {
@@ -37,7 +39,7 @@ void sk_paint_set_antialias(sk_paint_t* cpaint, bool aa) {
 }
 
 sk_color_t sk_paint_get_color(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).getColor();
+    return AsPaint(cpaint)->getColor();
 }
 
 void sk_paint_set_color(sk_paint_t* cpaint, sk_color_t c) {
@@ -53,7 +55,7 @@ void sk_paint_set_maskfilter(sk_paint_t* cpaint, sk_maskfilter_t* cfilter) {
 }
 
 sk_paint_style_t sk_paint_get_style(const sk_paint_t* cpaint) {
-    return (sk_paint_style_t)AsPaint(*cpaint).getStyle();
+    return (sk_paint_style_t)AsPaint(cpaint)->getStyle();
 }
 
 void sk_paint_set_style(sk_paint_t* cpaint, sk_paint_style_t style) {
@@ -61,7 +63,7 @@ void sk_paint_set_style(sk_paint_t* cpaint, sk_paint_style_t style) {
 }
 
 float sk_paint_get_stroke_width(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).getStrokeWidth();
+    return AsPaint(cpaint)->getStrokeWidth();
 }
 
 void sk_paint_set_stroke_width(sk_paint_t* cpaint, float width) {
@@ -69,7 +71,7 @@ void sk_paint_set_stroke_width(sk_paint_t* cpaint, float width) {
 }
 
 float sk_paint_get_stroke_miter(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).getStrokeMiter();
+    return AsPaint(cpaint)->getStrokeMiter();
 }
 
 void sk_paint_set_stroke_miter(sk_paint_t* cpaint, float miter) {
@@ -77,7 +79,7 @@ void sk_paint_set_stroke_miter(sk_paint_t* cpaint, float miter) {
 }
 
 sk_stroke_cap_t sk_paint_get_stroke_cap(const sk_paint_t* cpaint) {
-    return (sk_stroke_cap_t)AsPaint(*cpaint).getStrokeCap();
+    return (sk_stroke_cap_t)AsPaint(cpaint)->getStrokeCap();
 }
 
 void sk_paint_set_stroke_cap(sk_paint_t* cpaint, sk_stroke_cap_t ccap) {
@@ -85,7 +87,7 @@ void sk_paint_set_stroke_cap(sk_paint_t* cpaint, sk_stroke_cap_t ccap) {
 }
 
 sk_stroke_join_t sk_paint_get_stroke_join(const sk_paint_t* cpaint) {
-    return (sk_stroke_join_t)AsPaint(*cpaint).getStrokeJoin();
+    return (sk_stroke_join_t)AsPaint(cpaint)->getStrokeJoin();
 }
 
 void sk_paint_set_stroke_join(sk_paint_t* cpaint, sk_stroke_join_t cjoin) {
@@ -93,12 +95,11 @@ void sk_paint_set_stroke_join(sk_paint_t* cpaint, sk_stroke_join_t cjoin) {
 }
 
 void sk_paint_set_blendmode(sk_paint_t* paint, sk_blendmode_t mode) {
-    SkASSERT(paint);
     AsPaint(paint)->setBlendMode((SkBlendMode)mode);
 }
 
 bool sk_paint_is_dither(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).isDither();
+    return AsPaint(cpaint)->isDither();
 }
 
 void sk_paint_set_dither(sk_paint_t* cpaint, bool isdither) {
@@ -106,7 +107,7 @@ void sk_paint_set_dither(sk_paint_t* cpaint, bool isdither) {
 }
 
 bool sk_paint_is_verticaltext(const sk_paint_t* cpaint) {
-    return AsPaint(*cpaint).isVerticalText();
+    return AsPaint(cpaint)->isVerticalText();
 }
 
 void sk_paint_set_verticaltext(sk_paint_t* cpaint, bool vt) {
@@ -138,44 +139,35 @@ sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t* cpaint) {
 }
 
 sk_blendmode_t sk_paint_get_blendmode(sk_paint_t* paint) {
-    SkASSERT(paint);
     return (sk_blendmode_t)AsPaint(paint)->getBlendMode();
 }
 
-void sk_paint_set_filter_quality(sk_paint_t* cpaint, sk_filter_quality_t filterQuality)
-{
-    SkASSERT(cpaint);
+void sk_paint_set_filter_quality(sk_paint_t* cpaint, sk_filter_quality_t filterQuality) {
     AsPaint(cpaint)->setFilterQuality((SkFilterQuality)filterQuality);
 }
 
-sk_filter_quality_t sk_paint_get_filter_quality(sk_paint_t* cpaint)
-{
-    SkASSERT(cpaint);
+sk_filter_quality_t sk_paint_get_filter_quality(sk_paint_t* cpaint) {
     return (sk_filter_quality_t)AsPaint(cpaint)->getFilterQuality();
 }
 
-sk_typeface_t* sk_paint_get_typeface(sk_paint_t* paint)
-{
+sk_typeface_t* sk_paint_get_typeface(sk_paint_t* paint) {
     return ToTypeface(AsPaint(paint)->getTypeface());
 }
 
-void sk_paint_set_typeface(sk_paint_t* paint, sk_typeface_t* typeface)
-{
+void sk_paint_set_typeface(sk_paint_t* paint, sk_typeface_t* typeface) {
     AsPaint(paint)->setTypeface(sk_ref_sp(AsTypeface(typeface)));
 }
 
-float sk_paint_get_textsize(sk_paint_t* paint)
-{
+float sk_paint_get_textsize(sk_paint_t* paint) {
     return AsPaint(paint)->getTextSize();
 }
 
-void sk_paint_set_textsize(sk_paint_t* paint, float size)
-{
+void sk_paint_set_textsize(sk_paint_t* paint, float size) {
     AsPaint(paint)->setTextSize(size);
 }
 
 sk_text_align_t sk_paint_get_text_align(const sk_paint_t* cpaint) {
-    return (sk_text_align_t)AsPaint(*cpaint).getTextAlign();
+    return (sk_text_align_t)AsPaint(cpaint)->getTextAlign();
 }
 
 void sk_paint_set_text_align(sk_paint_t* cpaint, sk_text_align_t calign) {
@@ -183,7 +175,7 @@ void sk_paint_set_text_align(sk_paint_t* cpaint, sk_text_align_t calign) {
 }
 
 sk_text_encoding_t sk_paint_get_text_encoding(const sk_paint_t* cpaint) {
-    return (sk_text_encoding_t)AsPaint(*cpaint).getTextEncoding();
+    return (sk_text_encoding_t)AsPaint(cpaint)->getTextEncoding();
 }
 
 void sk_paint_set_text_encoding(sk_paint_t* cpaint, sk_text_encoding_t cencoding) {
@@ -226,10 +218,8 @@ sk_path_t* sk_paint_get_pos_text_path(sk_paint_t* cpaint, const void* text, size
     return ToPath(path);
 }
 
-float sk_paint_get_fontmetrics(sk_paint_t* cpaint, sk_fontmetrics_t* cfontmetrics, float scale)
-{
-    SkPaint *paint = AsPaint(cpaint);
-    return paint->getFontMetrics(AsFontMetrics(cfontmetrics), scale);
+float sk_paint_get_fontmetrics(sk_paint_t* cpaint, sk_fontmetrics_t* cfontmetrics, float scale) {
+    return AsPaint(cpaint)->getFontMetrics(AsFontMetrics(cfontmetrics), scale);
 }
 
 sk_path_effect_t* sk_paint_get_path_effect(sk_paint_t* cpaint) {
@@ -305,5 +295,5 @@ void sk_paint_set_dev_kern_text(sk_paint_t* cpaint, bool devKernText) {
 }
 
 bool sk_paint_get_fill_path(const sk_paint_t* cpaint, const sk_path_t* src, sk_path_t* dst, const sk_rect_t* cullRect, float resScale) {
-    return AsPaint(cpaint)->getFillPath(AsPath(*src), AsPath(dst), AsRect(cullRect), resScale);
+    return AsPaint(cpaint)->getFillPath(*AsPath(src), AsPath(dst), AsRect(cullRect), resScale);
 }

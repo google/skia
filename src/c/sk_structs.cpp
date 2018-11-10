@@ -36,8 +36,6 @@
 #define ASSERT_MSG(SK, C) "ABI changed, you must update the C structure for " TOSTRING(#SK) " to " TOSTRING(#C) "."
 
 // custom mappings:
-//  - sk_imageinfo_t
-//  - sk_surfaceprops_t
 //  - sk_matrix_t
 //  - sk_document_pdf_metadata_t
 
@@ -48,6 +46,7 @@ static_assert (sizeof (sk_rect_t) == sizeof (SkRect), ASSERT_MSG(SkRect, sk_rect
 static_assert (sizeof (sk_isize_t) == sizeof (SkISize), ASSERT_MSG(SkISize, sk_isize_t));
 static_assert (sizeof (sk_size_t) == sizeof (SkSize), ASSERT_MSG(SkSize, sk_size_t));
 static_assert (sizeof (sk_point3_t) == sizeof (SkPoint3), ASSERT_MSG(SkPoint3, sk_point3_t));
+static_assert (sizeof (sk_imageinfo_t) == sizeof (SkImageInfo), ASSERT_MSG(SkImageInfo, sk_imageinfo_t));
 static_assert (sizeof (sk_fontmetrics_t) == sizeof (SkPaint::FontMetrics), ASSERT_MSG(SkPaint::FontMetrics, sk_fontmetrics_t));
 static_assert (sizeof (sk_codec_options_t) == sizeof (SkCodec::Options), ASSERT_MSG(SkCodec::Options, sk_codec_options_t));
 static_assert (sizeof (sk_mask_t) == sizeof (SkMask), ASSERT_MSG(SkMask, sk_mask_t));

@@ -96,6 +96,7 @@ DEF_CLASS_MAP(SkStreamAsset, sk_stream_asset_t, StreamAsset)
 DEF_CLASS_MAP(SkStreamRewindable, sk_stream_streamrewindable_t, StreamRewindable)
 DEF_CLASS_MAP(SkString, sk_string_t, String)
 DEF_CLASS_MAP(SkSurface, sk_surface_t, Surface)
+DEF_CLASS_MAP(SkSurfaceProps, sk_surfaceprops_t, SurfaceProps)
 DEF_CLASS_MAP(SkTypeface, sk_typeface_t, Typeface)
 DEF_CLASS_MAP(SkVertices, sk_vertices_t, Vertices)
 DEF_CLASS_MAP(SkWStream, sk_wstream_t, WStream)
@@ -164,59 +165,42 @@ static inline void from_sk(const SkMatrix* matrix, sk_matrix_t* cmatrix) {
 }
 
 #include "SkImageInfo.h"
-static inline void from_c(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
-    if (info) { 
-        *info = SkImageInfo::Make(
-            cinfo.width,
-            cinfo.height,
-            (SkColorType)cinfo.colorType,
-            (SkAlphaType)cinfo.alphaType,
-            sk_ref_sp(AsColorSpace(cinfo.colorspace))); 
-    } 
-} 
-static inline void from_sk(const SkImageInfo& info, sk_imageinfo_t* cinfo) {
-    if (cinfo) { 
-        *cinfo = {
-            ToColorSpace(info.refColorSpace().release()),
-            info.width(),
-            info.height(),
-            (sk_colortype_t)info.colorType(),
-            (sk_alphatype_t)info.alphaType(),
-        }; 
-    } 
-} 
+static inline SkImageInfo AsImageInfo(const sk_imageinfo_t* info) {
+    return SkImageInfo::Make(
+        info->width,
+        info->height,
+        (SkColorType)info->colorType,
+        (SkAlphaType)info->alphaType,
+        sk_ref_sp(AsColorSpace(info->colorspace))); 
+}
+static inline sk_imageinfo_t ToImageInfo(const SkImageInfo info) {
+    return {
+        ToColorSpace(info.refColorSpace().release()),
+        info.width(),
+        info.height(),
+        (sk_colortype_t)info.colorType(),
+        (sk_alphatype_t)info.alphaType(),
+    };
+}
 
 #include "SkDocument.h"
 static inline void from_c(const sk_document_pdf_metadata_t& cmetadata, SkDocument::PDFMetadata* metadata) {
-    if (metadata) {
-        SkDocument::PDFMetadata md;
-        if (cmetadata.fTitle) md.fTitle = AsString(*cmetadata.fTitle);
-        if (cmetadata.fAuthor) md.fAuthor = AsString(*cmetadata.fAuthor);
-        if (cmetadata.fSubject) md.fSubject = AsString(*cmetadata.fSubject);
-        if (cmetadata.fKeywords) md.fKeywords = AsString(*cmetadata.fKeywords);
-        if (cmetadata.fCreator) md.fCreator = AsString(*cmetadata.fCreator);
-        if (cmetadata.fProducer) md.fProducer = AsString(*cmetadata.fProducer);
-        if (cmetadata.fCreation) {
-            md.fCreation.fEnabled = true;
-            md.fCreation.fDateTime = AsTimeDateTime(*cmetadata.fCreation);
-        }
-        if (cmetadata.fModified) {
-            md.fModified.fEnabled = true;
-            md.fModified.fDateTime = AsTimeDateTime(*cmetadata.fModified);
-        }
-        *metadata = md;
-    } 
-} 
-
-#include "SkSurfaceProps.h"
-static inline void from_c(const sk_surfaceprops_t* cprops, SkSurfaceProps* props) {
-    *props = SkSurfaceProps(cprops->flags, (SkPixelGeometry)cprops->pixelGeometry);
-}
-static inline void from_sk(const SkSurfaceProps* props, sk_surfaceprops_t* cprops) {
-    *cprops = {
-        (sk_pixelgeometry_t)props->pixelGeometry(),
-        (sk_surfaceprops_flags_t)props->flags()
-    };
+    SkDocument::PDFMetadata md;
+    if (cmetadata.fTitle) md.fTitle = AsString(*cmetadata.fTitle);
+    if (cmetadata.fAuthor) md.fAuthor = AsString(*cmetadata.fAuthor);
+    if (cmetadata.fSubject) md.fSubject = AsString(*cmetadata.fSubject);
+    if (cmetadata.fKeywords) md.fKeywords = AsString(*cmetadata.fKeywords);
+    if (cmetadata.fCreator) md.fCreator = AsString(*cmetadata.fCreator);
+    if (cmetadata.fProducer) md.fProducer = AsString(*cmetadata.fProducer);
+    if (cmetadata.fCreation) {
+        md.fCreation.fEnabled = true;
+        md.fCreation.fDateTime = AsTimeDateTime(*cmetadata.fCreation);
+    }
+    if (cmetadata.fModified) {
+        md.fModified.fEnabled = true;
+        md.fModified.fDateTime = AsTimeDateTime(*cmetadata.fModified);
+    }
+    *metadata = md;
 }
 
 #endif

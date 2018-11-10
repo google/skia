@@ -15,12 +15,10 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_xmlstreamwriter_t* sk_xmlstreamwriter_new(sk_wstream_t* stream)
-{
+sk_xmlstreamwriter_t* sk_xmlstreamwriter_new(sk_wstream_t* stream) {
     return ToXMLStreamWriter(new SkXMLStreamWriter(AsWStream(stream)));
 }
 
-void sk_xmlstreamwriter_delete(sk_xmlstreamwriter_t* writer)
-{
+void sk_xmlstreamwriter_delete(sk_xmlstreamwriter_t* writer) {
     delete AsXMLStreamWriter(writer);
 }

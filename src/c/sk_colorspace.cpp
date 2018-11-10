@@ -38,11 +38,11 @@ sk_colorspace_t* sk_colorspace_new_rgb_with_gamma_and_gamut(sk_colorspace_render
 }
 
 sk_colorspace_t* sk_colorspace_new_rgb_with_coeffs(const sk_colorspace_transfer_fn_t* coeffs, const sk_matrix44_t* toXYZD50) {
-    return ToColorSpace(SkColorSpace::MakeRGB(AsColorSpaceTransferFn(*coeffs), AsMatrix44(*toXYZD50)).release());
+    return ToColorSpace(SkColorSpace::MakeRGB(*AsColorSpaceTransferFn(coeffs), AsMatrix44(*toXYZD50)).release());
 }
 
 sk_colorspace_t* sk_colorspace_new_rgb_with_coeffs_and_gamut(const sk_colorspace_transfer_fn_t* coeffs, sk_colorspace_gamut_t gamut) {
-    return ToColorSpace(SkColorSpace::MakeRGB(AsColorSpaceTransferFn(*coeffs), (SkColorSpace::Gamut)gamut).release());
+    return ToColorSpace(SkColorSpace::MakeRGB(*AsColorSpaceTransferFn(coeffs), (SkColorSpace::Gamut)gamut).release());
 }
 
 bool sk_colorspace_gamma_close_to_srgb(const sk_colorspace_t* cColorSpace) {

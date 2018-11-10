@@ -19,46 +19,43 @@
 
 #include "sk_types_priv.h"
 
-static inline void copyAlpha8ToColor(size_t size, const uint8_t* pixels, sk_color_t* colors)
-{
+// converters
+
+static inline void copyAlpha8ToColor(size_t size, const uint8_t* pixels, sk_color_t* colors) {
     while (size-- != 0) {
         const uint8_t* addr = pixels++;
         *colors++ = SkColorSetA(0, *addr);
     }
 }
 
-static inline void copyGray8ToColor(size_t size, const uint8_t* pixels, sk_color_t* colors)
-{
+static inline void copyGray8ToColor(size_t size, const uint8_t* pixels, sk_color_t* colors) {
     while (size-- != 0) {
         const uint8_t* addr = pixels++;
         *colors++ = SkColorSetRGB(*addr, *addr, *addr);
     }
 }
 
-static inline void copyRgb565ToColor(size_t size, const uint16_t* pixels, sk_color_t* colors)
-{
+static inline void copyRgb565ToColor(size_t size, const uint16_t* pixels, sk_color_t* colors) {
     while (size-- != 0) {
         const uint16_t* addr = pixels++;
         *colors++ = SkPixel16ToColor(*addr);
     }
 }
-static inline void copy8888ToColor(size_t size, const uint32_t* pixels, sk_color_t* colors)
-{
+
+static inline void copy8888ToColor(size_t size, const uint32_t* pixels, sk_color_t* colors) {
     while (size-- != 0) {
         const uint32_t* addr = pixels++;
         *colors++ = SkUnPreMultiply::PMColorToColor(*addr);
     }
 }
 
-static inline void copyAlpha8FromColor(size_t size, const sk_color_t* colors, uint8_t* pixels)
-{
+static inline void copyAlpha8FromColor(size_t size, const sk_color_t* colors, uint8_t* pixels) {
     while (size-- != 0) {
         *pixels++ = SkColorGetA(*colors++);
     }
 }
 
-static inline void copyGray8FromColor(size_t size, const sk_color_t* colors, uint8_t* pixels)
-{
+static inline void copyGray8FromColor(size_t size, const sk_color_t* colors, uint8_t* pixels) {
     while (size-- != 0) {
         SkColor c = *colors++;
 
@@ -75,8 +72,7 @@ static inline void copyGray8FromColor(size_t size, const sk_color_t* colors, uin
     }
 }
 
-static inline void copyRgb565FromColor(size_t width, size_t height, const sk_color_t* colors, uint16_t* pixels)
-{
+static inline void copyRgb565FromColor(size_t width, size_t height, const sk_color_t* colors, uint16_t* pixels) {
     for (size_t y = 0; y < height; y++) {
         DITHER_565_SCAN(y);
         for (size_t x = 0; x < width; x++) {
@@ -85,113 +81,94 @@ static inline void copyRgb565FromColor(size_t width, size_t height, const sk_col
         }
     }
 }
-static inline void copy8888FromColor(size_t size, const sk_color_t* colors, uint32_t* pixels)
-{
+
+static inline void copy8888FromColor(size_t size, const sk_color_t* colors, uint32_t* pixels) {
     while (size-- != 0) {
         *pixels++ = SkPreMultiplyColor(*colors++);
     }
 }
 
+// C API
 
-void sk_bitmap_destructor(sk_bitmap_t* cbitmap)
-{
+void sk_bitmap_destructor(sk_bitmap_t* cbitmap) {
     delete AsBitmap(cbitmap);
 }
 
-sk_bitmap_t* sk_bitmap_new()
-{
-    return (sk_bitmap_t*) new SkBitmap();
+sk_bitmap_t* sk_bitmap_new() {
+    return ToBitmap(new SkBitmap());
 }
 
-void sk_bitmap_get_info(sk_bitmap_t* cbitmap, sk_imageinfo_t* info)
-{
-    from_sk(AsBitmap(cbitmap)->info(), info);
+void sk_bitmap_get_info(sk_bitmap_t* cbitmap, sk_imageinfo_t* info) {
+    *info = ToImageInfo(AsBitmap(cbitmap)->info());
 }
 
-void* sk_bitmap_get_pixels(sk_bitmap_t* cbitmap, size_t* length)
-{
+void* sk_bitmap_get_pixels(sk_bitmap_t* cbitmap, size_t* length) {
     SkBitmap* bmp = AsBitmap(cbitmap);
     *length = bmp->computeByteSize();
     return bmp->getPixels();
 }
 
-size_t sk_bitmap_get_row_bytes(sk_bitmap_t* cbitmap)
-{
+size_t sk_bitmap_get_row_bytes(sk_bitmap_t* cbitmap) {
     return AsBitmap(cbitmap)->rowBytes();
 }
 
-size_t sk_bitmap_get_byte_count(sk_bitmap_t* cbitmap)
-{
+size_t sk_bitmap_get_byte_count(sk_bitmap_t* cbitmap) {
     return AsBitmap(cbitmap)->computeByteSize();
 }
 
-void sk_bitmap_reset(sk_bitmap_t* cbitmap)
-{
+void sk_bitmap_reset(sk_bitmap_t* cbitmap) {
     AsBitmap(cbitmap)->reset();
 }
 
-bool sk_bitmap_is_null(sk_bitmap_t* cbitmap)
-{
+bool sk_bitmap_is_null(sk_bitmap_t* cbitmap) {
     return AsBitmap(cbitmap)->isNull();
 }
 
-bool sk_bitmap_is_immutable(sk_bitmap_t* cbitmap)
-{
+bool sk_bitmap_is_immutable(sk_bitmap_t* cbitmap) {
     return AsBitmap(cbitmap)->isImmutable();
 }
 
-void sk_bitmap_set_immutable(sk_bitmap_t* cbitmap)
-{
+void sk_bitmap_set_immutable(sk_bitmap_t* cbitmap) {
     AsBitmap(cbitmap)->setImmutable();
 }
 
-bool sk_bitmap_is_volatile(sk_bitmap_t* cbitmap)
-{
+bool sk_bitmap_is_volatile(sk_bitmap_t* cbitmap) {
     return AsBitmap(cbitmap)->isVolatile();
 }
 
-void sk_bitmap_set_volatile(sk_bitmap_t* cbitmap, bool value)
-{
+void sk_bitmap_set_volatile(sk_bitmap_t* cbitmap, bool value) {
     AsBitmap(cbitmap)->setIsVolatile(value);
 }
 
-void sk_bitmap_erase(sk_bitmap_t* cbitmap, sk_color_t color)
-{
+void sk_bitmap_erase(sk_bitmap_t* cbitmap, sk_color_t color) {
     AsBitmap(cbitmap)->eraseColor(color);
 }
 
-void sk_bitmap_erase_rect(sk_bitmap_t* cbitmap, sk_color_t color, sk_irect_t* rect)
-{
-    AsBitmap(cbitmap)->erase(color, AsIRect(*rect));
+void sk_bitmap_erase_rect(sk_bitmap_t* cbitmap, sk_color_t color, sk_irect_t* rect) {
+    AsBitmap(cbitmap)->erase(color, *AsIRect(rect));
 }
 
-uint8_t sk_bitmap_get_addr_8(sk_bitmap_t* cbitmap, int x, int y)
-{
+uint8_t sk_bitmap_get_addr_8(sk_bitmap_t* cbitmap, int x, int y) {
     return *(AsBitmap(cbitmap)->getAddr8(x, y));
 }
 
-uint16_t sk_bitmap_get_addr_16(sk_bitmap_t* cbitmap, int x, int y)
-{
+uint16_t sk_bitmap_get_addr_16(sk_bitmap_t* cbitmap, int x, int y) {
     return *(AsBitmap(cbitmap)->getAddr16(x, y));
 }
 
-uint32_t sk_bitmap_get_addr_32(sk_bitmap_t* cbitmap, int x, int y)
-{
+uint32_t sk_bitmap_get_addr_32(sk_bitmap_t* cbitmap, int x, int y) {
     return *(AsBitmap(cbitmap)->getAddr32(x, y));
 }
 
-void* sk_bitmap_get_addr(sk_bitmap_t* cbitmap, int x, int y)
-{
+void* sk_bitmap_get_addr(sk_bitmap_t* cbitmap, int x, int y) {
     return AsBitmap(cbitmap)->getAddr(x, y);
 }
 
-sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y)
-{
+sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y) {
     return AsBitmap(cbitmap)->getColor(x, y);
 }
 
-void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t color)
-{
+void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t color) {
     SkBitmap* bmp = AsBitmap(cbitmap);
 
     switch (bmp->colorType()) {
@@ -213,13 +190,11 @@ void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t co
     }
 }
 
-bool sk_bitmap_ready_to_draw(sk_bitmap_t* cbitmap)
-{
+bool sk_bitmap_ready_to_draw(sk_bitmap_t* cbitmap) {
     return AsBitmap(cbitmap)->readyToDraw();
 }
 
-void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors)
-{
+void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors) {
     SkBitmap* bmp = AsBitmap(cbitmap);
 
     size_t size = bmp->height() * bmp->width();
@@ -244,8 +219,7 @@ void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors)
     }
 }
 
-void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors)
-{
+void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors) {
     SkBitmap* bmp = AsBitmap(cbitmap);
 
     size_t width = bmp->width();
@@ -272,80 +246,46 @@ void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors)
     }
 }
 
-bool sk_bitmap_install_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_bitmap_release_proc releaseProc, void* context)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-
-    SkImageInfo info;
-    from_c(*cinfo, &info);
-
-    return bmp->installPixels(info, pixels, rowBytes, releaseProc, context);
+bool sk_bitmap_install_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_bitmap_release_proc releaseProc, void* context) {
+    return AsBitmap(cbitmap)->installPixels(AsImageInfo(cinfo), pixels, rowBytes, releaseProc, context);
 }
 
-bool sk_bitmap_install_pixels_with_pixmap(sk_bitmap_t* cbitmap, const sk_pixmap_t* cpixmap)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-    return bmp->installPixels(AsPixmap(*cpixmap));
+bool sk_bitmap_install_pixels_with_pixmap(sk_bitmap_t* cbitmap, const sk_pixmap_t* cpixmap) {
+    return AsBitmap(cbitmap)->installPixels(*AsPixmap(cpixmap));
 }
 
 SK_API bool sk_bitmap_install_mask_pixels(sk_bitmap_t* cbitmap, const sk_mask_t* cmask) {
-    SkBitmap* bmp = AsBitmap(cbitmap);
-    const SkMask* mask = AsMask(cmask);
-    return bmp->installMaskPixels(*mask);
+    return AsBitmap(cbitmap)->installMaskPixels(*AsMask(cmask));
 }
 
-bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-
-    SkImageInfo info;
-    from_c(*requestedInfo, &info);
-
-    return bmp->tryAllocPixels(info, rowBytes);
+bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes) {
+    return AsBitmap(cbitmap)->tryAllocPixels(AsImageInfo(requestedInfo), rowBytes);
 }
 
-bool sk_bitmap_try_alloc_pixels_with_flags(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, uint32_t flags)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-
-    SkImageInfo info;
-    from_c(*requestedInfo, &info);
-
-    return bmp->tryAllocPixelsFlags(info, flags);
+bool sk_bitmap_try_alloc_pixels_with_flags(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, uint32_t flags) {
+    return AsBitmap(cbitmap)->tryAllocPixelsFlags(AsImageInfo(requestedInfo), flags);
 }
 
-void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-    bmp->setPixels(pixels);
+void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels) {
+    AsBitmap(cbitmap)->setPixels(pixels);
 }
 
-bool sk_bitmap_peek_pixels(sk_bitmap_t* cbitmap, sk_pixmap_t* cpixmap)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-    return bmp->peekPixels(AsPixmap(cpixmap));
+bool sk_bitmap_peek_pixels(sk_bitmap_t* cbitmap, sk_pixmap_t* cpixmap) {
+    return AsBitmap(cbitmap)->peekPixels(AsPixmap(cpixmap));
 }
 
-bool sk_bitmap_extract_subset(sk_bitmap_t* cbitmap, sk_bitmap_t* cdst, sk_irect_t* subset)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-    SkBitmap* dst = AsBitmap(cdst);
-    return bmp->extractSubset(dst, AsIRect(*subset));
+bool sk_bitmap_extract_subset(sk_bitmap_t* cbitmap, sk_bitmap_t* cdst, sk_irect_t* subset) {
+    return AsBitmap(cbitmap)->extractSubset(AsBitmap(cdst), *AsIRect(subset));
 }
 
-bool sk_bitmap_extract_alpha(sk_bitmap_t* cbitmap, sk_bitmap_t* cdst, const sk_paint_t* paint, sk_ipoint_t* offset)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-    SkBitmap* dst = AsBitmap(cdst);
-    return bmp->extractAlpha(dst, AsPaint(paint), AsIPoint(offset));
+bool sk_bitmap_extract_alpha(sk_bitmap_t* cbitmap, sk_bitmap_t* cdst, const sk_paint_t* paint, sk_ipoint_t* offset) {
+    return AsBitmap(cbitmap)->extractAlpha(AsBitmap(cdst), AsPaint(paint), AsIPoint(offset));
 }
 
-void sk_bitmap_notify_pixels_changed(sk_bitmap_t* cbitmap)
-{
+void sk_bitmap_notify_pixels_changed(sk_bitmap_t* cbitmap) {
     AsBitmap(cbitmap)->notifyPixelsChanged();
 }
 
-void sk_bitmap_swap(sk_bitmap_t* cbitmap, sk_bitmap_t* cother)
-{
-    AsBitmap(cbitmap)->swap(AsBitmap(*cother));
+void sk_bitmap_swap(sk_bitmap_t* cbitmap, sk_bitmap_t* cother) {
+    AsBitmap(cbitmap)->swap(*AsBitmap(cother));
 }

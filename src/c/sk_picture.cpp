@@ -22,9 +22,8 @@ void sk_picture_recorder_delete(sk_picture_recorder_t* crec) {
     delete AsPictureRecorder(crec);
 }
 
-sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t* crec,
-                                                 const sk_rect_t* cbounds) {
-    return ToCanvas(AsPictureRecorder(crec)->beginRecording(AsRect(*cbounds)));
+sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t* crec, const sk_rect_t* cbounds) {
+    return ToCanvas(AsPictureRecorder(crec)->beginRecording(*AsRect(cbounds)));
 }
 
 sk_picture_t* sk_picture_recorder_end_recording(sk_picture_recorder_t* crec) {
@@ -48,7 +47,5 @@ uint32_t sk_picture_get_unique_id(sk_picture_t* cpic) {
 }
 
 void sk_picture_get_cull_rect(sk_picture_t* cpic, sk_rect_t* crect) {
-    if (crect) {
-        *crect = ToRect(AsPicture(cpic)->cullRect());
-    }
+    *crect = ToRect(AsPicture(cpic)->cullRect());
 }
