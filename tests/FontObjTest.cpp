@@ -98,9 +98,7 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, width1 == width2);
 
                 SkScalar font_width1 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
-                // measureText not yet implemented...
-                REPORTER_ASSERT(reporter, font_width1 == -1);
-//                REPORTER_ASSERT(reporter, width1 == font_width1);
+                REPORTER_ASSERT(reporter, width1 == font_width1);
             }
         }
     }
