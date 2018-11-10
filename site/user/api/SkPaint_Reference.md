@@ -19,8 +19,18 @@ public:
     friend bool operator!=(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b);
     uint32_t <a href='#SkPaint_getHash'>getHash</a>() const;
     void <a href='#SkPaint_reset'>reset()</a>;
-    <a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
+
+    enum <a href='#SkPaint_Hinting'>Hinting</a> : uint8_t {
+        <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a> = 0,
+        <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a> = 1,
+        <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a> = 2,
+        <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a> = 3,
+    };
+
     void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> hintingLevel);
+    <a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
+    void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> h);
+    <a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
 
     enum <a href='#SkPaint_Flags'>Flags</a> {
         <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a> = 0x01,
@@ -240,7 +250,7 @@ Constructs <a href='SkPaint_Reference#Paint'>Paint</a> with default values.
 | <a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> | false |
 | <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a> | false |
 | <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> | false |
-| Hinting | <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> |
+| <a href='#SkPaint_Hinting'>Hinting</a> | <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> |
 | <a href='#Image_Filter'>Image_Filter</a> | nullptr |
 | <a href='#Paint_LCD_Text'>LCD_Text</a> | false |
 | <a href='#Paint_Linear_Text'>Linear_Text</a> | false |
@@ -585,33 +595,58 @@ paint1.getHash() == paint2.getHash()
 
 <a name='Hinting'></a>
 
-<a name='SkPaint_getHinting'></a>
+<a name='SkPaint_Hinting'></a>
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    enum <a href='#SkPaint_Hinting'>Hinting</a> : uint8_t {
+        <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a> = 0,
+        <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a> = 1,
+        <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a> = 2,
+        <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a> = 3,
+    };
 </pre>
 
-Returns level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
+### Constants
 
-### Return Value
+<table style='border-collapse: collapse; width: 62.5em'>
+  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
+<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
+<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kNo_Hinting'><code>SkPaint::kNo_Hinting</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Deprecated.
 
-one of: <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>, <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>,
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kSlight_Hinting'><code>SkPaint::kSlight_Hinting</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Deprecated.
 
-<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
+</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kNormal_Hinting'><code>SkPaint::kNormal_Hinting</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Deprecated.
 
-### Example
+</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kFull_Hinting'><code>SkPaint::kFull_Hinting</code></a></td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
+Deprecated.
 
-<div><fiddle-embed name="b56b70c7ea2453c41bfa58b626953bed">
-
-#### Example Output
-
-~~~~
-SkFontHinting::kNormal == paint.getHinting()
-~~~~
-
-</fiddle-embed></div>
+</td>
+  </tr>
+</table>
 
 <a name='SkPaint_setHinting'></a>
 
@@ -644,6 +679,38 @@ paint1 == paint2
 ~~~~
 
 </fiddle-embed></div>
+
+<a name='SkPaint_getHinting'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkPaint_Hinting'>Hinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const
+</pre>
+
+Returns level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
+
+### Return Value
+
+one of: <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>, <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a>, <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a>, <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a>
+
+<a name='SkPaint_setHinting_2'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='#SkPaint_Hinting'>Hinting</a> h)
+</pre>
+
+Sets level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
+Does not check for valid values of <a href='#SkPaint_setHinting_2_h'>h</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkPaint_setHinting_2_h'><code><strong>h</strong></code></a></td>
+    <td>one of: <a href='#SkPaint_kNo_Hinting'>kNo_Hinting</a>, <a href='#SkPaint_kSlight_Hinting'>kSlight_Hinting</a>, <a href='#SkPaint_kNormal_Hinting'>kNormal_Hinting</a>, <a href='#SkPaint_kFull_Hinting'>kFull_Hinting</a></td>
+  </tr>
+</table>
 
 <a name='Flags'></a>
 
@@ -1060,8 +1127,8 @@ When <a href='#Paint_Subpixel_Text'>Subpixel_Text</a> is enabled, the comma <a h
 <a name='Linear_Text'></a>
 
 <a href='#Paint_Linear_Text'>Linear_Text</a> selects whether <a href='undocumented#Text'>text</a> is rendered as a <a href='undocumented#Glyph'>Glyph</a> or as a <a href='SkPath_Reference#Path'>Path</a>.
-If <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> is set, it has the same effect as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>.
-If <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> is clear, it is the same as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>.
+If <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> is set, it has the same effect as setting <a href='#SkPaint_Hinting'>Hinting</a> to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>.
+If <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> is clear, it is the same as setting <a href='#SkPaint_Hinting'>Hinting</a> to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>.
 
 <a name='SkPaint_isLinearText'></a>
 
@@ -1085,7 +1152,7 @@ Equivalent to <a href='#SkPaint_getFlags'>getFlags</a>() masked with <a href='#S
 
 ### See Also
 
-<a href='#SkPaint_setLinearText'>setLinearText</a> Hinting
+<a href='#SkPaint_setLinearText'>setLinearText</a> <a href='#SkPaint_Hinting'>Hinting</a>
 
 <a name='SkPaint_setLinearText'></a>
 
@@ -1114,7 +1181,7 @@ Clears <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> if <a href='#SkP
 
 ### See Also
 
-<a href='#SkPaint_isLinearText'>isLinearText</a> Hinting
+<a href='#SkPaint_isLinearText'>isLinearText</a> <a href='#SkPaint_Hinting'>Hinting</a>
 
 <a name='Subpixel_Text'></a>
 
@@ -1357,9 +1424,9 @@ paint1 == paint2
 
 <a name='Automatic_Hinting'></a>
 
-If Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a>
+If <a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a>
 instructs the <a href='#Font_Manager'>Font_Manager</a> to always hint <a href='undocumented#Glyph'>Glyphs</a>.
-<a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a> has no effect if Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
+<a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a> has no effect if <a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>.
 
 <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a> only affects platforms that use FreeType as the <a href='#Font_Manager'>Font_Manager</a>.
@@ -1372,7 +1439,7 @@ instructs the <a href='#Font_Manager'>Font_Manager</a> to always hint <a href='u
 bool <a href='#SkPaint_isAutohinted'>isAutohinted</a>() const
 </pre>
 
-Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or
+Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, and if platform uses FreeType as the <a href='undocumented#Font'>font</a> manager.
 If true, instructs the <a href='undocumented#Font'>font</a> manager to always hint <a href='undocumented#Glyph'>glyphs</a>.
 
@@ -1397,7 +1464,7 @@ paint.isAutohinted() == !!(paint.getFlags() & SkPaint::kAutoHinting_Flag)
 
 ### See Also
 
-<a href='#SkPaint_setAutohinted'>setAutohinted</a> Hinting
+<a href='#SkPaint_setAutohinted'>setAutohinted</a> <a href='#SkPaint_Hinting'>Hinting</a>
 
 <a name='SkPaint_setAutohinted'></a>
 
@@ -1408,9 +1475,9 @@ void <a href='#SkPaint_setAutohinted'>setAutohinted</a>(bool useAutohinter)
 </pre>
 
 Sets whether to always hint <a href='undocumented#Glyph'>glyphs</a>.
-If <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
+If <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
 and <a href='#SkPaint_setAutohinted_useAutohinter'>useAutohinter</a> is set, instructs the  <a href='undocumented#Font_Manager'>font manager</a> to always hint <a href='undocumented#Glyph'>glyphs</a>.
-<a href='SkPaint_Reference#Automatic_Hinting'>auto-hinting</a> has no effect if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
+<a href='SkPaint_Reference#Automatic_Hinting'>auto-hinting</a> has no effect if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>.
 
 Only affects platforms that use FreeType as the  <a href='undocumented#Font_Manager'>font manager</a>.
@@ -1431,7 +1498,7 @@ Clears <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a> if <a href='#S
 
 ### See Also
 
-<a href='#SkPaint_isAutohinted'>isAutohinted</a> Hinting
+<a href='#SkPaint_isAutohinted'>isAutohinted</a> <a href='#SkPaint_Hinting'>Hinting</a>
 
 <a name='Fake_Bold'></a>
 
@@ -1518,7 +1585,7 @@ paint1 == paint2
 
 <a name='Full_Hinting_Spacing'></a>
 
-if Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> adjusts the character
+if <a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> adjusts the character
 spacing by the difference of the hinted and unhinted <a href='#Left_Side_Bearing'>Left_Side_Bearing</a> and
 <a href='#Right_Side_Bearing'>Right_Side_Bearing</a>. <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> only applies to platforms that use
 FreeType as their <a href='#Font_Engine'>Font_Engine</a>.
@@ -4490,7 +4557,7 @@ number of intersections; may be zero
 
 Returns the union of bounds of all <a href='undocumented#Glyph'>glyphs</a>.
 Returned dimensions are computed by <a href='undocumented#Font'>font</a> manager from <a href='undocumented#Font'>font</a> <a href='undocumented#Data'>data</a>,
-ignoring <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting. Includes <a href='undocumented#Font'>font</a> metrics, but not fake bold or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
+ignoring <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Hinting'>Hinting</a>. Includes <a href='undocumented#Font'>font</a> metrics, but not fake bold or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
 
 If <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a> is large, <a href='undocumented#Text'>text</a> scale is one, and <a href='undocumented#Text'>text</a> skew is zero,
 returns the bounds as:

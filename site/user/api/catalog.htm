@@ -1512,13 +1512,6 @@
     "name": "SkPaint::getHash",
         "stdout": "paint1 == paint2\\npaint1.getHash() == paint2.getHash()\\n"
     },
-        "SkPaint_getHinting": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"SkFontHinting::kNormal %c= paint.getHinting()\\n\",\n            SkFontHinting::kNormal == paint.getHinting() ? '=' : ':');\n}",
-    "hash": "b56b70c7ea2453c41bfa58b626953bed",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getHinting",
-        "stdout": "SkFontHinting::kNormal == paint.getHinting()\\n"
-    },
         "SkPaint_getImageFilter": {
     "code": "#include \"SkBlurImageFilter.h\"\n\nvoid draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n   paint.setImageFilter(SkBlurImageFilter::Make(kOuter_SkBlurStyle, 3, nullptr, nullptr));\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n}\n",
     "hash": "c11f8eaa1dd149bc18db21e23ce26904",

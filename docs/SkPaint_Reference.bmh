@@ -296,20 +296,26 @@ $$$#  # restore original markup character
 #Line # glyph outline adjustment ##
 ##
 
-#Method SkFontHinting getHinting() const
-#In Hinting
-#Line # returns Hinting, glyph outline adjustment level ##
+#Enum Hinting
+#Line # level of glyph outline adjustment ##
+
+#Code
 #Populate
+##
 
-#Example
-        SkPaint paint;
-        SkDebugf("SkFontHinting::kNormal %c= paint.getHinting()\n",
-                SkFontHinting::kNormal == paint.getHinting() ? '=' : ':');
+#Const kNo_Hinting  0
+#Deprecated
+##
+#Const kSlight_Hinting  1
+#Deprecated
+##
+#Const kNormal_Hinting  2
+#Deprecated
+##
+#Const kFull_Hinting  3
+#Deprecated
+##
 
-        #StdOut
-            SkFontHinting::kNormal == paint.getHinting()
-        ##
-    ##
 ##
 
 #Method void setHinting(SkFontHinting hintingLevel)
@@ -327,6 +333,45 @@ $$$#  # restore original markup character
         ##
     ##
 ##
+
+#Method Hinting getHinting() const
+#In Hinting
+#Line # returns Hinting, glyph outline adjustment level ##
+#Populate
+#NoExample
+##
+##
+
+#Method void setHinting(Hinting h)
+#In Hinting
+#Line # returns Hinting, glyph outline adjustment level ##
+#Populate
+#NoExample
+##
+##
+
+# Disable for now
+#ToDo no spelling errors
+###$ block comment
+
+#Method SkFontHinting getHinting() const
+#In Hinting
+#Line # returns Hinting, glyph outline adjustment level ##
+#Populate
+
+    #Example
+        SkPaint paint;
+        SkDebugf("SkFontHinting::kNormal %c= paint.getHinting()\n",
+                SkFontHinting::kNormal == paint.getHinting() ? '=' : ':');
+
+        #StdOut
+            SkFontHinting::kNormal == paint.getHinting()
+        ##
+    ##
+##
+
+$$$# end of block comment
+#ToDo ##
 
 # ------------------------------------------------------------------------------
 #Subtopic Flags
