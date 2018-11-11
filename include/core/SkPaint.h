@@ -1123,21 +1123,6 @@ public:
     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const;
 
-    /** Returns the geometry as SkPath equivalent to the drawn text.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
-        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        All of the glyph paths are stored in path.
-        Uses pos array to position path.
-        pos contains a position for each glyph.
-
-        @param text    character codes or glyph indices
-        @param length  number of bytes of text
-        @param pos     positions of each glyph
-        @param path    geometry of the glyphs
-    */
-    void getPosTextPath(const void* text, size_t length,
-                        const SkPoint pos[], SkPath* path) const;
-
     /** Returns the number of intervals that intersect bounds.
         bounds describes a pair of lines parallel to the text advance.
         The return count is zero or a multiple of two, and is at most twice the number of glyphs in
