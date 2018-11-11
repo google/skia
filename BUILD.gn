@@ -560,7 +560,7 @@ if (skia_compile_processors) {
   }
 }
 
-optional("gpu") {
+optional("gpu_for_real") {
   enabled = skia_enable_gpu
   deps = [
     ":compile_processors",
@@ -820,12 +820,19 @@ if (skia_enable_gpu && skia_generate_workarounds) {
   }
 }
 
+# Temporary fake targets so Flutter-in-Fuchsia can "depend" on them.
+# TODO: rename :gpu_for_real back to :gpu when cleaning up.
+source_set("effects") {
+}
+source_set("gpu") {
+}
+
 component("skia") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
 
   public_deps = [
-    ":gpu",
+    ":gpu_for_real",
     ":pdf",
     ":skcms",
   ]
