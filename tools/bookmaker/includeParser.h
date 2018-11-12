@@ -175,6 +175,7 @@ public:
     bool isInternalName(const Definition& token);
     bool isMember(const Definition& token) const;
     bool isOperator(const Definition& token);
+    bool isUndocumentable(string filename, const char* start, const char* end, int lineCount);
     Definition* parentBracket(Definition* parent) const;
     bool parseChar();
     bool parseComment(string filename, const char* start, const char* end, int lineCount,
@@ -215,6 +216,9 @@ public:
     }
 
     void pushBracket(Bracket bracket) {
+        if ("#else" == string(fChar, 5)) {
+            SkDebugf("");
+        }
         this->setBracketShortCuts(bracket);
         fParent->fTokens.emplace_back(bracket, fChar, fLineCount, fParent, '\0');
         Definition* container = &fParent->fTokens.back();

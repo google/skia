@@ -20,15 +20,6 @@ bool IncludeWriter::checkChildCommentLength(const Definition* parent, MarkType c
         oneMember = true;
         int lineLen = 0;
         for (auto& itemChild : item->fChildren) {
-            if (MarkType::kExperimental == itemChild->fMarkType) {
-                lineLen = sizeof("experimental") - 1;
-                break;
-            }
-            if (MarkType::kDeprecated == itemChild->fMarkType) {
-                lineLen = sizeof("deprecated") - 1;
-                // todo: look for 'soon'
-                break;
-            }
             if (MarkType::kLine == itemChild->fMarkType) {
                 lineLen = itemChild->length();
                 break;
@@ -100,15 +91,6 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
     int commentLen = (int) (def->fContentEnd - commentStart);
     bool breakOut = false;
     SkDEBUGCODE(bool wroteCode = false);
-    if (def->fDeprecated) {
-        if (fReturnOnWrite) {
-            return true;
-        }
-        string message = def->incompleteMessage(Definition::DetailsType::kSentence);
-        this->writeString(message);
-        this->lfcr();
-        wroteSomething = true;
-    }
     const Definition* lastDescription = def;
     for (auto prop : def->fChildren) {
         fLastDescription = lastDescription;
@@ -169,61 +151,6 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 this->lfcr();
                 wroteSomething = true;
             }
-            case MarkType::kDeprecated:
-            case MarkType::kPrivate:
-                commentLen = (int) (prop->fStart - commentStart);
-                if (commentLen > 0) {
-                    SkASSERT(commentLen < 1000);
-                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
-                        if (fReturnOnWrite) {
-                            return true;
-                        }
-                        this->lfcr();
-                        wroteSomething = true;
-                    }
-                }
-                commentStart = prop->fContentStart;
-                if (MarkType::kPrivate != prop->fMarkType && ' ' < commentStart[0]) {
-                    commentStart = strchr(commentStart, '\n');
-                }
-                if (MarkType::kBug == prop->fMarkType) {
-                    commentStart = prop->fContentEnd;
-                }
-                commentLen = (int) (prop->fContentEnd - commentStart);
-                if (commentLen > 0) {
-                    wroteSomething |= this->writeBlockIndent(commentLen, commentStart, false);
-                    if (wroteSomething && fReturnOnWrite) {
-                        return true;
-                    }
-                    const char* end = commentStart + commentLen;
-                    while (end > commentStart && ' ' == end[-1]) {
-                        --end;
-                    }
-                    if (end > commentStart && '\n' == end[-1]) {
-                        this->lfcr();
-                    }
-                }
-                commentStart = prop->fTerminator;
-                commentLen = (int) (def->fContentEnd - commentStart);
-                break;
-            case MarkType::kExperimental:
-                commentStart = prop->fContentStart;
-                if (' ' < commentStart[0]) {
-                    commentStart = strchr(commentStart, '\n');
-                }
-                commentLen = (int) (prop->fContentEnd - commentStart);
-                if (commentLen > 0) {
-                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
-                        if (fReturnOnWrite) {
-                            return true;
-                        }
-                        this->lfcr();
-                        wroteSomething = true;
-                    }
-                }
-                commentStart = prop->fTerminator;
-                commentLen = (int) (def->fContentEnd - commentStart);
-                break;
             case MarkType::kFormula: {
                 commentLen = prop->fStart - commentStart;
                 if (commentLen > 0) {
@@ -382,7 +309,7 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
     if (!breakOut) {
         commentLen = (int) (def->fContentEnd - commentStart);
     }
-    SkASSERT(wroteCode || (commentLen > 0 && commentLen < 1500) || def->fDeprecated);
+    SkASSERT(wroteCode || (commentLen > 0 && commentLen < 1500));
     if (commentLen > 0) {
         if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, phrase)) {
             if (fReturnOnWrite) {
@@ -543,9 +470,7 @@ void IncludeWriter::enumHeaderOut(RootDefinition* root, const Definition& child)
 
 const Definition* IncludeWriter::enumMemberForComment(const Definition* currentEnumItem) const {
     for (auto constItem : currentEnumItem->fChildren) {
-        if (MarkType::kLine == constItem->fMarkType
-                || MarkType::kExperimental == constItem->fMarkType
-                || MarkType::kDeprecated == constItem->fMarkType) {
+        if (MarkType::kLine == constItem->fMarkType) {
             return constItem;
         }
     }
@@ -561,9 +486,6 @@ string IncludeWriter::enumMemberComment(const Definition* currentEnumItem,
         if (MarkType::kLine == constItem->fMarkType) {
             shortComment = string(constItem->fContentStart, constItem->length());
             break;
-        }
-        if (IncompleteAllowed(constItem->fMarkType)) {
-            shortComment = constItem->fParent->incompleteMessage(Definition::DetailsType::kPhrase);
         }
     }
     if (!shortComment.length()) {
@@ -982,11 +904,7 @@ void IncludeWriter::structOut(const Definition* root, const Definition& child,
     this->writeString(child.fName.c_str());
     fIndent += 4;
     this->lfcr();
-    if (child.fDeprecated) {
-        this->writeString(child.incompleteMessage(Definition::DetailsType::kSentence));
-    } else {
-        this->rewriteBlock((int)(commentEnd - commentStart), commentStart, Phrase::kNo);
-    }
+    this->rewriteBlock((int)(commentEnd - commentStart), commentStart, Phrase::kNo);
     fIndent -= 4;
     this->lfcr();
     this->writeCommentTrailer(OneLine::kNo);
@@ -1519,10 +1437,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 }
                 method = this->findMethod(methodName, root);
                 if (!method) {
-                    if (fBmhStructDef && fBmhStructDef->fDeprecated) {
-                        fContinuation = nullptr;
-                        continue;
-                    }
                     return child.reportError<bool>("method not found");
                 }
                 this->methodOut(method, child);
@@ -1545,9 +1459,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 }
                 this->methodOut(method, child);
                 sawConst = false;
-                continue;
-            } else if (fBmhStructDef && fBmhStructDef->fDeprecated) {
-                fContinuation = nullptr;
                 continue;
             }
             if (KeyWord::kTemplate == child.fParent->fKeyWord) {
@@ -1745,34 +1656,32 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 priorBlock = test;
                             }
                       // FIXME: trigger error earlier if inner #Struct or #Class is missing #Code
-                            if (!fBmhStructDef->fDeprecated) {
-                                SkASSERT(codeBlock);
-                                SkASSERT(nextBlock);  // FIXME: check enum for correct order earlier
-                                const char* commentStart = codeBlock->fTerminator;
-                                const char* commentEnd = nextBlock->fStart;
-                      // FIXME: trigger error if #Code is present but comment is before it earlier
-                                SkASSERT(priorBlock); // code always preceded by #Line (I think)
-                                TextParser priorComment(priorBlock->fFileName,
-                                        priorBlock->fTerminator, codeBlock->fStart,
-                                        priorBlock->fLineCount);
-                                priorComment.trimEnd();
-                                if (!priorComment.eof()) {
-                                    return priorBlock->reportError<bool>(
-                                            "expect no comment before #Code");
-                                }
-                                TextParser nextComment(codeBlock->fFileName, commentStart,
-                                        commentEnd, codeBlock->fLineCount);
-                                nextComment.trimEnd();
-                                if (!priorComment.eof()) {
-                                    return priorBlock->reportError<bool>(
-                                            "expect comment after #Code");
-                                }
-                                if (!nextComment.eof()) {
-
-                                }
-                                fIndentNext = true;
-                                this->structOut(root, *fBmhStructDef, commentStart, commentEnd);
+                            SkASSERT(codeBlock);
+                            SkASSERT(nextBlock);  // FIXME: check enum for correct order earlier
+                            const char* commentStart = codeBlock->fTerminator;
+                            const char* commentEnd = nextBlock->fStart;
+                    // FIXME: trigger error if #Code is present but comment is before it earlier
+                            SkASSERT(priorBlock); // code always preceded by #Line (I think)
+                            TextParser priorComment(priorBlock->fFileName,
+                                    priorBlock->fTerminator, codeBlock->fStart,
+                                    priorBlock->fLineCount);
+                            priorComment.trimEnd();
+                            if (!priorComment.eof()) {
+                                return priorBlock->reportError<bool>(
+                                        "expect no comment before #Code");
                             }
+                            TextParser nextComment(codeBlock->fFileName, commentStart,
+                                    commentEnd, codeBlock->fLineCount);
+                            nextComment.trimEnd();
+                            if (!priorComment.eof()) {
+                                return priorBlock->reportError<bool>(
+                                        "expect comment after #Code");
+                            }
+                            if (!nextComment.eof()) {
+
+                            }
+                            fIndentNext = true;
+                            this->structOut(root, *fBmhStructDef, commentStart, commentEnd);
                         }
                         fDeferComment = nullptr;
                     } else {
@@ -1957,14 +1866,11 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     fIndentNext = true;
                 }
                 SkASSERT(fBmhStructDef);
-                if (!fBmhStructDef->fDeprecated) {
-                    memberEnd = this->structMemberOut(memberStart, child);
-                    startDef = &child;
-                    this->setStart(child.fContentEnd + 1, &child);
-                    fDeferComment = nullptr;
-                }
-            } else if (MarkType::kNone == child.fMarkType && sawConst
-                    && fEnumDef && !fEnumDef->fDeprecated) {
+                memberEnd = this->structMemberOut(memberStart, child);
+                startDef = &child;
+                this->setStart(child.fContentEnd + 1, &child);
+                fDeferComment = nullptr;
+            } else if (MarkType::kNone == child.fMarkType && sawConst && fEnumDef) {
                 const Definition* bmhConst = nullptr;
                 string match;
                 if (root) {

@@ -296,28 +296,6 @@ $$$#  # restore original markup character
 #Line # glyph outline adjustment ##
 ##
 
-#Enum Hinting
-#Line # level of glyph outline adjustment ##
-
-#Code
-#Populate
-##
-
-#Const kNo_Hinting  0
-#Deprecated
-##
-#Const kSlight_Hinting  1
-#Deprecated
-##
-#Const kNormal_Hinting  2
-#Deprecated
-##
-#Const kFull_Hinting  3
-#Deprecated
-##
-
-##
-
 #Method void setHinting(SkFontHinting hintingLevel)
 #In Hinting
 #Line # sets Hinting, glyph outline adjustment level ##
@@ -334,26 +312,6 @@ $$$#  # restore original markup character
     ##
 ##
 
-#Method Hinting getHinting() const
-#In Hinting
-#Line # returns Hinting, glyph outline adjustment level ##
-#Populate
-#NoExample
-##
-##
-
-#Method void setHinting(Hinting h)
-#In Hinting
-#Line # returns Hinting, glyph outline adjustment level ##
-#Populate
-#NoExample
-##
-##
-
-# Disable for now
-#ToDo no spelling errors
-###$ block comment
-
 #Method SkFontHinting getHinting() const
 #In Hinting
 #Line # returns Hinting, glyph outline adjustment level ##
@@ -369,9 +327,6 @@ $$$#  # restore original markup character
         ##
     ##
 ##
-
-$$$# end of block comment
-#ToDo ##
 
 # ------------------------------------------------------------------------------
 #Subtopic Flags
@@ -423,23 +378,6 @@ multiple settings at once.
 Flags default to all flags clear, disabling the associated feature.
 
 #Enum ##
-
-#Enum ReserveFlags
-#Deprecated soon
-
-Only valid for Android framework.
-
-#Code
-#Populate
-##
-
-#Const kUnderlineText_ReserveFlag   0x0008
-#Deprecated soon
-##
-#Const kStrikeThruText_ReserveFlag  0x0010
-#Deprecated soon
-##
-##
 
 #Method uint32_t getFlags() const
 #In Flags
@@ -2893,11 +2831,6 @@ Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw.
 
 ##
 
-#Method SkDrawLooper* getLooper() const
-#Bug 6259
-#Deprecated
-##
-
 #Method void setDrawLooper(sk_sp<SkDrawLooper> drawLooper)
 #In Draw_Looper_Methods
 #Line # sets Draw_Looper, multiple layers ##
@@ -2916,11 +2849,6 @@ Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw.
         }
     ##
 
-##
-
-#Method void setLooper(sk_sp<SkDrawLooper> drawLooper)
-#Bug 6259
-#Deprecated
 ##
 
 #Subtopic Draw_Looper_Methods ##
@@ -3777,102 +3705,6 @@ void draw(SkCanvas* canvas) {
     ##
 
 ##
-
-# ------------------------------------------------------------------------------
-#Subtopic Fast_Bounds
-#Line # approximate area required by Paint ##
-    #Private
-    To be made private.
-    ##
-
-Fast_Bounds functions conservatively outset a drawing bounds by additional area
-Paint may draw to.
-
-#Method bool canComputeFastBounds() const
-
-#In Fast_Bounds
-#Line # returns true if settings allow for fast bounds computation ##
-    #Private
-    (to be made private)
-    ##
-
-    Returns true if Paint does not include elements requiring extensive computation
-    to compute Device bounds of drawn geometry. For instance, Paint with Path_Effect
-    always returns false.
-
-    #Return  true if Paint allows for fast computation of bounds ##
-##
-
-#Method const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const
-
-#In Fast_Bounds
-#Line # returns fill bounds for quick reject tests ##
-    #Private
-    (to be made private)
-    ##
-
-    Only call if canComputeFastBounds returned true. This takes a
-    raw rectangle, the raw bounds of a shape; and adjusts it for stylistic
-    effects in the paint, such as stroking. If needed, it uses the storage
-    parameter. It returns the adjusted bounds that can then be used
-    for SkCanvas::quickReject tests.
-
-    The returned Rect will either be orig or storage, thus the caller
-    should not rely on storage being set to the result, but should always
-    use the returned value. It is legal for orig and storage to be the same
-    Rect.
-
-    #Private
-    For example:
-    if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
-        SkRect storage;
-        if (canvas->quickReject(paint.computeFastBounds(path.getBounds(), &storage))) {
-            return; // do not draw the path
-        }
-    }
-    // draw the path
-    ##
-
-    #Param orig     geometry modified by Paint when drawn ##
-    #Param storage  computed bounds of geometry; may not be nullptr  ##
-
-    #Return  fast computed bounds ##
-##
-
-#Method const SkRect& computeFastStrokeBounds(const SkRect& orig,
-                                              SkRect* storage) const
-#In Fast_Bounds
-#Line # returns stroke bounds for quick reject tests ##
-    #Private
-    (to be made private)
-    ##
-
-    #Param orig     geometry modified by Paint when drawn ##
-    #Param storage  computed bounds of geometry  ##
-
-    #Return  fast computed bounds ##
-##
-
-#Method const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
-                                          Style style) const
-#In Fast_Bounds
-#Line # returns bounds for quick reject tests ##
-    #Private
-    (to be made private)
-    ##
-
-    Computes the bounds, overriding the Paint Style. This can be used to
-    account for additional width required by stroking orig, without
-    altering Style set to fill.
-
-    #Param orig     geometry modified by Paint when drawn ##
-    #Param storage  computed bounds of geometry  ##
-    #Param style    overrides Style ##
-
-    #Return  fast computed bounds ##
-##
-
-#Subtopic Fast_Bounds ##
 
 # ------------------------------------------------------------------------------
 #Subtopic Utility

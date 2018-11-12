@@ -184,6 +184,7 @@ public:
     void reset();
 
     /** \enum SkPaint::Hinting
+        Deprecated.
         Hinting adjusts the glyph outlines so that the shape provides a uniform
         look at a given point size on font engines that support it. Hinting may have a
         muted effect or no effect at all depending on the platform.
@@ -207,13 +208,13 @@ public:
     void setHinting(SkFontHinting hintingLevel);
 
 #ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
-    /** Returns level of glyph outline adjustment.
+    /** Deprecated. Returns level of glyph outline adjustment.
 
         @return  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
      */
     Hinting getHinting() const { return (Hinting)fBitfields.fHinting; }
 
-    /** Sets level of glyph outline adjustment.
+    /** Deprecated. Sets level of glyph outline adjustment.
         Does not check for valid values of h.
 
         @param h  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
@@ -251,6 +252,8 @@ public:
     };
 
     #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    /** Private.
+     */
     enum ReserveFlags {
         kUnderlineText_ReserveFlag  = 0x08, //!< to be deprecated soon
         kStrikeThruText_ReserveFlag = 0x10, //!< to be deprecated soon
