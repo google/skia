@@ -541,7 +541,7 @@ private:
         sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make();
 
         int instanceCount = fGeoData.count();
-        SkASSERT(sizeof(CircleVertex) == gp->debugOnly_vertexStride());
+        SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
 
         const GrBuffer* vertexBuffer;
         int firstVertex;

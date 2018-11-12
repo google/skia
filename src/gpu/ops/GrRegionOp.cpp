@@ -119,8 +119,7 @@ private:
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
-        static constexpr size_t kVertexStride = sizeof(GrDefaultGeoProcFactory::PositionColorAttr);
-        SkASSERT(kVertexStride == gp->debugOnly_vertexStride());
+        size_t kVertexStride = gp->vertexStride();
 
         int numRegions = fRegions.count();
         int numRects = 0;

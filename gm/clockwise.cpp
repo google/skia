@@ -45,7 +45,7 @@ public:
     ClockwiseTestProcessor(bool readSkFragCoord)
             : GrGeometryProcessor(kClockwiseTestProcessor_ClassID)
             , fReadSkFragCoord(readSkFragCoord) {
-        this->setVertexAttributeCnt(1);
+        this->setVertexAttributes(&gVertex, 1);
     }
     const char* name() const override { return "ClockwiseTestProcessor"; }
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
@@ -54,8 +54,6 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
-    const Attribute& onVertexAttribute(int i) const override { return gVertex; }
-
     const bool fReadSkFragCoord;
 
     friend class GLSLClockwiseTestProcessor;

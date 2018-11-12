@@ -226,14 +226,8 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
                                                  &hasLocalCoordsAttribute,
                                                  &hasBoneAttribute);
 
-    // Calculate the stride.
-    size_t vertexStride = sizeof(SkPoint) +
-                          (hasColorAttribute ? sizeof(uint32_t) : 0) +
-                          (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0) +
-                          (hasBoneAttribute ? 4 * (sizeof(int8_t) + sizeof(uint8_t)) : 0);
-    SkASSERT(vertexStride == gp->debugOnly_vertexStride());
-
     // Allocate buffers.
+    size_t vertexStride = gp->vertexStride();
     const GrBuffer* vertexBuffer = nullptr;
     int firstVertex = 0;
     void* verts = target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex);
@@ -303,14 +297,8 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
         return;
     }
 
-    // Calculate the stride.
-    size_t vertexStride = sizeof(SkPoint) +
-                          (hasColorAttribute ? sizeof(uint32_t) : 0) +
-                          (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0) +
-                          (hasBoneAttribute ? 4 * (sizeof(int8_t) + sizeof(uint8_t)) : 0);
-    SkASSERT(vertexStride == gp->debugOnly_vertexStride());
-
     // Allocate vertex buffer.
+    size_t vertexStride = gp->vertexStride();
     vertexBuffer.reset(rp->createBuffer(fVertexCount * vertexStride,
                                         kVertex_GrBufferType,
                                         kStatic_GrAccessPattern,

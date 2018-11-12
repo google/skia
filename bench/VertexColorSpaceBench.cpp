@@ -52,7 +52,7 @@ public:
                 fInColor = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
                 break;
         }
-        this->setVertexAttributeCnt(2);
+        this->setVertexAttributes(&fInPosition, 2);
     }
     const char* name() const override { return "VertexColorXformGP"; }
 
@@ -109,10 +109,6 @@ public:
     }
 
 private:
-    const GrPrimitiveProcessor::Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, fInPosition, fInColor);
-    }
-
     Mode fMode;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
@@ -165,19 +161,7 @@ private:
     void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp(new GP(fMode, fColorSpaceXform));
 
-        size_t vertexStride = sizeof(SkPoint);
-        switch (fMode) {
-            case kFloat_Mode:
-                vertexStride += sizeof(SkColor4f);
-                break;
-            case kHalf_Mode:
-                vertexStride += sizeof(uint64_t);
-                break;
-            default:
-                vertexStride += sizeof(uint32_t);
-        }
-        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
-
+        size_t vertexStride = gp->vertexStride();
         const int kVertexCount = 1024;
         const GrBuffer* vertexBuffer = nullptr;
         int firstVertex = 0;

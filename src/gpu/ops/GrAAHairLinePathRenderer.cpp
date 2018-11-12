@@ -976,7 +976,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
-        SkASSERT(sizeof(LineVertex) == lineGP->debugOnly_vertexStride());
+        SkASSERT(sizeof(LineVertex) == lineGP->vertexStride());
         int vertexCount = kLineSegNumVertices * lineCount;
         LineVertex* verts = reinterpret_cast<LineVertex*>(target->makeVertexSpace(
                 sizeof(LineVertex), vertexCount, &vertexBuffer, &firstVertex));
@@ -1019,8 +1019,8 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
 
         sk_sp<const GrBuffer> quadsIndexBuffer = get_quads_index_buffer(target->resourceProvider());
 
-        SkASSERT(sizeof(BezierVertex) == quadGP->debugOnly_vertexStride());
-        SkASSERT(sizeof(BezierVertex) == conicGP->debugOnly_vertexStride());
+        SkASSERT(sizeof(BezierVertex) == quadGP->vertexStride());
+        SkASSERT(sizeof(BezierVertex) == conicGP->vertexStride());
         int vertexCount = kQuadNumVertices * quadAndConicCount;
         void* vertices = target->makeVertexSpace(sizeof(BezierVertex), vertexCount, &vertexBuffer,
                                                  &firstVertex);

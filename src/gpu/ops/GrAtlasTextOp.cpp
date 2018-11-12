@@ -326,8 +326,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     }
 
     flushInfo.fGlyphsToFlush = 0;
-    size_t vertexStride = GrTextBlob::GetVertexStride(maskFormat, vmPerspective);
-    SkASSERT(vertexStride == flushInfo.fGeometryProcessor->debugOnly_vertexStride());
+    size_t vertexStride = flushInfo.fGeometryProcessor->vertexStride();
 
     int glyphCount = this->numGlyphs();
     const GrBuffer* vertexBuffer;

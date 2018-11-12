@@ -125,13 +125,7 @@ private:
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
             , fSampler(textureType, textureConfig, filter) {
         this->setTextureSamplerCnt(1);
-        this->setVertexAttributeCnt(fAttrs.vertexAttributeCount());
-    }
-
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthInitializedAttribute(i, fAttrs.positions(), fAttrs.colors(), fAttrs.localCoords(),
-                                       fAttrs.domain(), fAttrs.edges(0), fAttrs.edges(1),
-                                       fAttrs.edges(2), fAttrs.edges(3));
+        this->setVertexAttributes(fAttrs.attributes(), fAttrs.attributeCount());
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }
@@ -412,7 +406,7 @@ private:
               int cnt) const {
         TRACE_EVENT0("skia", TRACE_FUNC);
         using Vertex = GrQuadPerEdgeAA::Vertex<PosDim, GrColor, 2, D, AA>;
-        SkASSERT(gp->debugOnly_vertexStride() == sizeof(Vertex));
+        SkASSERT(gp->vertexStride() == sizeof(Vertex));
         auto vertices = static_cast<Vertex*>(v);
         auto origin = proxy->origin();
         const auto* texture = proxy->peekTexture();
@@ -512,7 +506,7 @@ private:
         tessFnIdx |= hasPerspective                  ? 0x4 : 0x0;
 
         size_t vertexSize = kTessFnsAndVertexSizes[tessFnIdx].fVertexSize;
-        SkASSERT(vertexSize == gp->debugOnly_vertexStride());
+        SkASSERT(vertexSize == gp->vertexStride());
 
         GrMesh* meshes = target->allocMeshes(numProxies);
         const GrBuffer* vbuffer;

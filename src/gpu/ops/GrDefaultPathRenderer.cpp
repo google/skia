@@ -415,7 +415,7 @@ private:
                                                this->viewMatrix());
         }
 
-        SkASSERT(gp->debugOnly_vertexStride() == sizeof(SkPoint));
+        SkASSERT(gp->vertexStride() == sizeof(SkPoint));
 
         int instanceCount = fPaths.count();
 

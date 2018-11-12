@@ -72,7 +72,7 @@ public:
     // using the localCoords() attribute as the 4th argument; it must set the transform data helper
     // to use the identity matrix; it must manage the color space transform for the quad's paint
     // color; it should include getKey() in the geometry processor's key builder; and it should
-    // return these managed attributes from its onVertexAttribute() function.
+    // add these attributes at construction time.
     class GPAttributes {
     public:
         using Attribute = GrPrimitiveProcessor::Attribute;
@@ -95,7 +95,8 @@ public:
 
         bool needsPerspectiveInterpolation() const;
 
-        int vertexAttributeCount() const;
+        const Attribute* attributes() const { return &fPositions; }
+        int attributeCount() const { return 8; }
 
         uint32_t getKey() const;
 

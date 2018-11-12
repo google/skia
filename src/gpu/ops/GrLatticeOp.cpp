@@ -62,19 +62,20 @@ public:
                                                 latticeGP.fColorSpaceXform.get());
 
                 args.fVaryingHandler->emitAttributes(latticeGP);
-                this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.kPositions.name());
+                this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.fInPosition.name());
                 this->emitTransforms(args.fVertBuilder,
                                      args.fVaryingHandler,
                                      args.fUniformHandler,
-                                     latticeGP.kTextureCoords.asShaderVar(),
+                                     latticeGP.fInTextureCoords.asShaderVar(),
                                      args.fFPCoordTransformHandler);
                 args.fFragBuilder->codeAppend("float2 textureCoords;");
-                args.fVaryingHandler->addPassThroughAttribute(latticeGP.kTextureCoords,
+                args.fVaryingHandler->addPassThroughAttribute(latticeGP.fInTextureCoords,
                                                               "textureCoords");
                 args.fFragBuilder->codeAppend("float4 textureDomain;");
                 args.fVaryingHandler->addPassThroughAttribute(
-                        latticeGP.kTextureDomain, "textureDomain", Interpolation::kCanBeFlat);
-                args.fVaryingHandler->addPassThroughAttribute(latticeGP.kColors, args.fOutputColor,
+                        latticeGP.fInTextureDomain, "textureDomain", Interpolation::kCanBeFlat);
+                args.fVaryingHandler->addPassThroughAttribute(latticeGP.fInColor,
+                                                              args.fOutputColor,
                                                               Interpolation::kCanBeFlat);
                 args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
                 args.fFragBuilder->appendTextureLookupAndModulate(
@@ -97,34 +98,25 @@ private:
             : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
         fSampler.reset(proxy->textureType(), proxy->config(), filter);
         this->setTextureSamplerCnt(1);
-        this->setVertexAttributeCnt(4);
-    }
-
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kPositions, kTextureCoords, kTextureDomain, kColors);
+        fInPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInTextureDomain = {"textureDomain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        fInColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+        this->setVertexAttributes(&fInPosition, 4);
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }
 
-    static constexpr Attribute kPositions =
-            {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    static constexpr Attribute kTextureCoords =
-            {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    static constexpr Attribute kTextureDomain =
-            {"textureDomain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-    static constexpr Attribute kColors =
-            {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    Attribute fInPosition;
+    Attribute fInTextureCoords;
+    Attribute fInTextureDomain;
+    Attribute fInColor;
 
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     TextureSampler fSampler;
 
     typedef GrGeometryProcessor INHERITED;
 };
-
-constexpr GrPrimitiveProcessor::Attribute LatticeGP::kPositions;
-constexpr GrPrimitiveProcessor::Attribute LatticeGP::kTextureCoords;
-constexpr GrPrimitiveProcessor::Attribute LatticeGP::kTextureDomain;
-constexpr GrPrimitiveProcessor::Attribute LatticeGP::kColors;
 
 class NonAALatticeOp final : public GrMeshDrawOp {
 private:
@@ -214,9 +206,7 @@ private:
             return;
         }
 
-        static constexpr size_t kVertexStide =
-                sizeof(SkPoint) + sizeof(SkPoint) + sizeof(SkRect) + sizeof(uint32_t);
-        SkASSERT(kVertexStide == gp->debugOnly_vertexStride());
+        size_t kVertexStride = gp->vertexStride();
 
         int patchCnt = fPatches.count();
         int numRects = 0;
@@ -229,7 +219,7 @@ private:
         }
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStide, indexBuffer.get(),
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStride, indexBuffer.get(),
                              kVertsPerRect, kIndicesPerRect, numRects);
         void* vertices = helper.vertices();
         if (!vertices || !indexBuffer) {
@@ -260,7 +250,7 @@ private:
             static const Sk4f kFlipMuls(1.f, -1.f, 1.f, -1.f);
             while (patch.fIter->next(&srcR, &dstR)) {
                 auto vertices = reinterpret_cast<LatticeGP::Vertex*>(verts);
-                SkPointPriv::SetRectTriStrip(&vertices->fPosition, dstR, kVertexStide);
+                SkPointPriv::SetRectTriStrip(&vertices->fPosition, dstR, kVertexStride);
                 Sk4f coords(SkIntToScalar(srcR.fLeft), SkIntToScalar(srcR.fTop),
                             SkIntToScalar(srcR.fRight), SkIntToScalar(srcR.fBottom));
                 Sk4f domain = coords + kDomainOffsets;
@@ -271,7 +261,7 @@ private:
                     domain = SkNx_shuffle<0, 3, 2, 1>(kFlipMuls * domain + kFlipOffsets);
                 }
                 SkPointPriv::SetRectTriStrip(&vertices->fTextureCoords, coords[0], coords[1],
-                                             coords[2], coords[3], kVertexStide);
+                                             coords[2], coords[3], kVertexStride);
                 for (int j = 0; j < kVertsPerRect; ++j) {
                     vertices[j].fTextureDomain = {domain[0], domain[1], domain[2], domain[3]};
                 }
@@ -279,13 +269,13 @@ private:
                 for (int j = 0; j < kVertsPerRect; ++j) {
                     vertices[j].fColor = patchColor;
                 }
-                verts += kVertsPerRect * kVertexStide;
+                verts += kVertsPerRect * kVertexStride;
             }
 
             // If we didn't handle it above, apply the matrix here.
             if (!isScaleTranslate) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(patchVerts);
-                SkMatrixPriv::MapPointsWithStride(patch.fViewMatrix, positions, kVertexStide,
+                SkMatrixPriv::MapPointsWithStride(patch.fViewMatrix, positions, kVertexStride,
                                                   kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }

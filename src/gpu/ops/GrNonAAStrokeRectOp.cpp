@@ -155,10 +155,7 @@ private:
                                                fViewMatrix);
         }
 
-        static constexpr size_t kVertexStride = sizeof(GrDefaultGeoProcFactory::PositionAttr);
-
-        SkASSERT(kVertexStride == gp->debugOnly_vertexStride());
-
+        size_t kVertexStride = gp->vertexStride();
         int vertexCount = kVertsPerHairlineRect;
         if (fStrokeWidth > 0) {
             vertexCount = kVertsPerStrokeRect;

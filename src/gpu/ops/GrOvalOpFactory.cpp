@@ -75,27 +75,26 @@ public:
             : INHERITED(kCircleGeometryProcessor_ClassID)
             , fLocalMatrix(localMatrix)
             , fStroke(stroke) {
-        int cnt = 3;
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+        fInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+
         if (clipPlane) {
             fInClipPlane = {"inClipPlane", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
-            ++cnt;
         }
         if (isectPlane) {
             fInIsectPlane = {"inIsectPlane", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
-            ++cnt;
         }
         if (unionPlane) {
             fInUnionPlane = {"inUnionPlane", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
-            ++cnt;
         }
         if (roundCaps) {
             SkASSERT(stroke);
             SkASSERT(clipPlane);
             fInRoundCapCenters =
                     {"inRoundCapCenters", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-            ++cnt;
         }
-        this->setVertexAttributeCnt(cnt);
+        this->setVertexAttributes(&fInPosition, 7);
     }
 
     ~CircleGeometryProcessor() override {}
@@ -125,7 +124,7 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(cgp);
             fragBuilder->codeAppend("float4 circleEdge;");
-            varyingHandler->addPassThroughAttribute(cgp.kInCircleEdge, "circleEdge");
+            varyingHandler->addPassThroughAttribute(cgp.fInCircleEdge, "circleEdge");
             if (cgp.fInClipPlane.isInitialized()) {
                 fragBuilder->codeAppend("half3 clipPlane;");
                 varyingHandler->addPassThroughAttribute(cgp.fInClipPlane, "clipPlane");
@@ -148,20 +147,20 @@ private:
                 // This is the cap radius in normalized space where the outer radius is 1 and
                 // circledEdge.w is the normalized inner radius.
                 vertBuilder->codeAppendf("%s = (1.0 - %s.w) / 2.0;", capRadius.vsOut(),
-                                         cgp.kInCircleEdge.name());
+                                         cgp.fInCircleEdge.name());
             }
 
             // setup pass through color
-            varyingHandler->addPassThroughAttribute(cgp.kInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(cgp.fInColor, args.fOutputColor);
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, cgp.kInPosition.name());
+            this->writeOutputPosition(vertBuilder, gpArgs, cgp.fInPosition.name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 cgp.kInPosition.asShaderVar(),
+                                 cgp.fInPosition.asShaderVar(),
                                  cgp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
@@ -231,20 +230,11 @@ private:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthInitializedAttribute(i, kInPosition, kInColor, kInCircleEdge, fInClipPlane,
-                                       fInIsectPlane, fInUnionPlane, fInRoundCapCenters);
-    }
-
     SkMatrix fLocalMatrix;
 
-    static constexpr Attribute kInPosition =
-            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    static constexpr Attribute kInColor =
-            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    static constexpr Attribute kInCircleEdge =
-            {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-
+    Attribute fInPosition;
+    Attribute fInColor;
+    Attribute fInCircleEdge;
     // Optional attributes.
     Attribute fInClipPlane;
     Attribute fInIsectPlane;
@@ -256,9 +246,6 @@ private:
 
     typedef GrGeometryProcessor INHERITED;
 };
-constexpr GrPrimitiveProcessor::Attribute CircleGeometryProcessor::kInPosition;
-constexpr GrPrimitiveProcessor::Attribute CircleGeometryProcessor::kInColor;
-constexpr GrPrimitiveProcessor::Attribute CircleGeometryProcessor::kInCircleEdge;
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor);
 
@@ -279,7 +266,11 @@ class ButtCapDashedCircleGeometryProcessor : public GrGeometryProcessor {
 public:
     ButtCapDashedCircleGeometryProcessor(const SkMatrix& localMatrix)
             : INHERITED(kButtCapStrokedCircleGeometryProcessor_ClassID), fLocalMatrix(localMatrix) {
-        this->setVertexAttributeCnt(4);
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+        fInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        fInDashParams = {"inDashParams", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        this->setVertexAttributes(&fInPosition, 4);
     }
 
     ~ButtCapDashedCircleGeometryProcessor() override {}
@@ -310,11 +301,11 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(bcscgp);
             fragBuilder->codeAppend("float4 circleEdge;");
-            varyingHandler->addPassThroughAttribute(bcscgp.kInCircleEdge, "circleEdge");
+            varyingHandler->addPassThroughAttribute(bcscgp.fInCircleEdge, "circleEdge");
 
             fragBuilder->codeAppend("float4 dashParams;");
             varyingHandler->addPassThroughAttribute(
-                    bcscgp.kInDashParams, "dashParams",
+                    bcscgp.fInDashParams, "dashParams",
                     GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
             GrGLSLVarying wrapDashes(kHalf4_GrSLType);
             varyingHandler->addVarying("wrapDashes", &wrapDashes,
@@ -322,7 +313,7 @@ private:
             GrGLSLVarying lastIntervalLength(kHalf_GrSLType);
             varyingHandler->addVarying("lastIntervalLength", &lastIntervalLength,
                                        GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-            vertBuilder->codeAppendf("float4 dashParams = %s;", bcscgp.kInDashParams.name());
+            vertBuilder->codeAppendf("float4 dashParams = %s;", bcscgp.fInDashParams.name());
             // Our fragment shader works in on/off intervals as specified by dashParams.xy:
             //     x = length of on interval, y = length of on + off.
             // There are two other parameters in dashParams.zw:
@@ -384,17 +375,17 @@ private:
 
             // setup pass through color
             varyingHandler->addPassThroughAttribute(
-                    bcscgp.kInColor, args.fOutputColor,
+                    bcscgp.fInColor, args.fOutputColor,
                     GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, bcscgp.kInPosition.name());
+            this->writeOutputPosition(vertBuilder, gpArgs, bcscgp.fInPosition.name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 bcscgp.kInPosition.asShaderVar(),
+                                 bcscgp.fInPosition.asShaderVar(),
                                  bcscgp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
             GrShaderVar fnArgs[] = {
@@ -488,28 +479,16 @@ private:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInCircleEdge, kInDashParams);
-    }
-
     SkMatrix fLocalMatrix;
-    static constexpr Attribute kInPosition =
-            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    static constexpr Attribute kInColor =
-            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    static constexpr Attribute kInCircleEdge =
-            {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-    static constexpr Attribute kInDashParams =
-            {"inDashParams", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+    Attribute fInPosition;
+    Attribute fInColor;
+    Attribute fInCircleEdge;
+    Attribute fInDashParams;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
-constexpr GrPrimitiveProcessor::Attribute ButtCapDashedCircleGeometryProcessor::kInPosition;
-constexpr GrPrimitiveProcessor::Attribute ButtCapDashedCircleGeometryProcessor::kInColor;
-constexpr GrPrimitiveProcessor::Attribute ButtCapDashedCircleGeometryProcessor::kInCircleEdge;
-constexpr GrPrimitiveProcessor::Attribute ButtCapDashedCircleGeometryProcessor::kInDashParams;
 
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> ButtCapDashedCircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
@@ -533,7 +512,11 @@ public:
     EllipseGeometryProcessor(bool stroke, const SkMatrix& localMatrix)
     : INHERITED(kEllipseGeometryProcessor_ClassID)
     , fLocalMatrix(localMatrix) {
-        this->setVertexAttributeCnt(4);
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+        fInEllipseOffset = {"inEllipseOffset", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+        fInEllipseRadii = {"inEllipseRadii", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
+        this->setVertexAttributes(&fInPosition, 4);
         fStroke = stroke;
     }
 
@@ -566,24 +549,24 @@ private:
             GrGLSLVarying ellipseOffsets(kHalf2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
             vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
-                                     egp.kInEllipseOffset.name());
+                                     egp.fInEllipseOffset.name());
 
             GrGLSLVarying ellipseRadii(kHalf4_GrSLType);
             varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
-            vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(), egp.kInEllipseRadii.name());
+            vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(), egp.fInEllipseRadii.name());
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
-            varyingHandler->addPassThroughAttribute(egp.kInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(egp.fInColor, args.fOutputColor);
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, egp.kInPosition.name());
+            this->writeOutputPosition(vertBuilder, gpArgs, egp.fInPosition.name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 egp.kInPosition.asShaderVar(),
+                                 egp.fInPosition.asShaderVar(),
                                  egp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
             // For stroked ellipses, we use the full ellipse equation (x^2/a^2 + y^2/b^2 = 1)
@@ -639,18 +622,10 @@ private:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInEllipseOffset, kInEllipseRadii);
-    }
-
-    static constexpr Attribute kInPosition =
-            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    static constexpr Attribute kInColor =
-            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    static constexpr Attribute kInEllipseOffset =
-            {"inEllipseOffset", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-    static constexpr Attribute kInEllipseRadii =
-            {"inEllipseRadii", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
+    Attribute fInPosition;
+    Attribute fInColor;
+    Attribute fInEllipseOffset;
+    Attribute fInEllipseRadii;
 
     SkMatrix fLocalMatrix;
     bool fStroke;
@@ -659,10 +634,6 @@ private:
 
     typedef GrGeometryProcessor INHERITED;
 };
-constexpr GrPrimitiveProcessor::Attribute EllipseGeometryProcessor::kInPosition;
-constexpr GrPrimitiveProcessor::Attribute EllipseGeometryProcessor::kInColor;
-constexpr GrPrimitiveProcessor::Attribute EllipseGeometryProcessor::kInEllipseOffset;
-constexpr GrPrimitiveProcessor::Attribute EllipseGeometryProcessor::kInEllipseRadii;
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor);
 
@@ -692,7 +663,11 @@ public:
             : INHERITED(kDIEllipseGeometryProcessor_ClassID)
             , fViewMatrix(viewMatrix) {
         fStyle = style;
-        this->setVertexAttributeCnt(4);
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+        fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+        fInEllipseOffsets1 = {"inEllipseOffsets1", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+        this->setVertexAttributes(&fInPosition, 4);
     }
 
     ~DIEllipseGeometryProcessor() override {}
@@ -723,20 +698,20 @@ private:
 
             GrGLSLVarying offsets0(kHalf2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets0", &offsets0);
-            vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(), diegp.kInEllipseOffsets0.name());
+            vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(), diegp.fInEllipseOffsets0.name());
 
             GrGLSLVarying offsets1(kHalf2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets1", &offsets1);
-            vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(), diegp.kInEllipseOffsets1.name());
+            vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(), diegp.fInEllipseOffsets1.name());
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            varyingHandler->addPassThroughAttribute(diegp.kInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(diegp.fInColor, args.fOutputColor);
 
             // Setup position
             this->writeOutputPosition(vertBuilder,
                                       uniformHandler,
                                       gpArgs,
-                                      diegp.kInPosition.name(),
+                                      diegp.fInPosition.name(),
                                       diegp.fViewMatrix,
                                       &fViewMatrixUniform);
 
@@ -744,7 +719,7 @@ private:
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 diegp.kInPosition.asShaderVar(),
+                                 diegp.fInPosition.asShaderVar(),
                                  args.fFPCoordTransformHandler);
 
             // for outer curve
@@ -815,20 +790,11 @@ private:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInEllipseOffsets0, kInEllipseOffsets1);
-    }
 
-    static constexpr Attribute kInPosition =
-            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    static constexpr Attribute kInColor =
-            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    static constexpr Attribute kInEllipseOffsets0 = {"inEllipseOffsets0",
-                                                     kFloat2_GrVertexAttribType,
-                                                     kHalf2_GrSLType};
-    static constexpr Attribute kInEllipseOffsets1 = {"inEllipseOffsets1",
-                                                     kFloat2_GrVertexAttribType,
-                                                     kHalf2_GrSLType};
+    Attribute fInPosition;
+    Attribute fInColor;
+    Attribute fInEllipseOffsets0;
+    Attribute fInEllipseOffsets1;
 
     SkMatrix fViewMatrix;
     DIEllipseStyle fStyle;
@@ -837,10 +803,6 @@ private:
 
     typedef GrGeometryProcessor INHERITED;
 };
-constexpr GrPrimitiveProcessor::Attribute DIEllipseGeometryProcessor::kInPosition;
-constexpr GrPrimitiveProcessor::Attribute DIEllipseGeometryProcessor::kInColor;
-constexpr GrPrimitiveProcessor::Attribute DIEllipseGeometryProcessor::kInEllipseOffsets0;
-constexpr GrPrimitiveProcessor::Attribute DIEllipseGeometryProcessor::kInEllipseOffsets1;
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
 
@@ -1179,21 +1141,7 @@ private:
         sk_sp<GrGeometryProcessor> gp(new CircleGeometryProcessor(
                 !fAllFill, fClipPlane, fClipPlaneIsect, fClipPlaneUnion, fRoundCaps, localMatrix));
 
-        struct CircleVertex {
-            SkPoint fPos;
-            GrColor fColor;
-            SkPoint fOffset;
-            SkScalar fOuterRadius;
-            SkScalar fInnerRadius;
-            // These planes may or may not be present in the vertex buffer.
-            SkScalar fHalfPlanes[3][3];
-        };
-
-        size_t vertexStride = sizeof(CircleVertex) - (fClipPlane ? 0 : 3 * sizeof(SkScalar)) -
-                              (fClipPlaneIsect ? 0 : 3 * sizeof(SkScalar)) -
-                              (fClipPlaneUnion ? 0 : 3 * sizeof(SkScalar)) +
-                              (fRoundCaps ? 2 * sizeof(SkPoint) : 0);
-        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
+        size_t vertexStride = gp->vertexStride();
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
@@ -1553,7 +1501,7 @@ private:
         };
 
         static constexpr size_t kVertexStride = sizeof(CircleVertex);
-        SkASSERT(kVertexStride == gp->debugOnly_vertexStride());
+        SkASSERT(kVertexStride == gp->vertexStride());
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
@@ -1858,7 +1806,7 @@ private:
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
-        SkASSERT(sizeof(EllipseVertex) == gp->debugOnly_vertexStride());
+        SkASSERT(sizeof(EllipseVertex) == gp->vertexStride());
         QuadHelper helper(target, sizeof(EllipseVertex), fEllipses.count());
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(helper.vertices());
         if (!verts) {
@@ -2093,7 +2041,7 @@ private:
         sk_sp<GrGeometryProcessor> gp(
                 new DIEllipseGeometryProcessor(this->viewMatrix(), this->style()));
 
-        SkASSERT(sizeof(DIEllipseVertex) == gp->debugOnly_vertexStride());
+        SkASSERT(sizeof(DIEllipseVertex) == gp->vertexStride());
         QuadHelper helper(target, sizeof(DIEllipseVertex), fEllipses.count());
         DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(helper.vertices());
         if (!verts) {
@@ -2510,7 +2458,7 @@ private:
         sk_sp<GrGeometryProcessor> gp(
                 new CircleGeometryProcessor(!fAllFill, false, false, false, false, localMatrix));
 
-        SkASSERT(sizeof(CircleVertex) == gp->debugOnly_vertexStride());
+        SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
@@ -2800,7 +2748,7 @@ private:
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
-        SkASSERT(sizeof(EllipseVertex) == gp->debugOnly_vertexStride());
+        SkASSERT(sizeof(EllipseVertex) == gp->vertexStride());
 
         // drop out the middle quad if we're stroked
         int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerFillRRect;

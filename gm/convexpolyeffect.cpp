@@ -85,7 +85,7 @@ private:
                 LocalCoords::kUnused_Type,
                 SkMatrix::I()));
 
-        SkASSERT(gp->debugOnly_vertexStride() == sizeof(SkPoint));
+        SkASSERT(gp->vertexStride() == sizeof(SkPoint));
         QuadHelper helper(target, sizeof(SkPoint), 1);
         SkPoint* verts = reinterpret_cast<SkPoint*>(helper.vertices());
         if (!verts) {

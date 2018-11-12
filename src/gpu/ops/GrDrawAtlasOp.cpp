@@ -130,9 +130,7 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
                                           this->viewMatrix()));
 
     int instanceCount = fGeoData.count();
-    size_t vertexStride =
-            sizeof(SkPoint) + sizeof(SkPoint) + (this->hasColors() ? sizeof(GrColor) : 0);
-    SkASSERT(vertexStride == gp->debugOnly_vertexStride());
+    size_t vertexStride = gp->vertexStride();
 
     int numQuads = this->quadCount();
     QuadHelper helper(target, vertexStride, numQuads);

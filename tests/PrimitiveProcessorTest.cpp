@@ -65,7 +65,7 @@ private:
                     fAttributes[i] = {fAttribNames[i].c_str(), kFloat2_GrVertexAttribType,
                                                                kFloat2_GrSLType};
                 }
-                this->setVertexAttributeCnt(numAttribs);
+                this->setVertexAttributes(fAttributes.get(), numAttribs);
             }
             const char* name() const override { return "Dummy GP"; }
 
@@ -93,10 +93,6 @@ private:
             }
 
         private:
-            const GrPrimitiveProcessor::Attribute& onVertexAttribute(int i) const override {
-                return fAttributes[i];
-            }
-
             int fNumAttribs;
             std::unique_ptr<SkString[]> fAttribNames;
             std::unique_ptr<Attribute[]> fAttributes;
@@ -104,8 +100,7 @@ private:
             typedef GrGeometryProcessor INHERITED;
         };
         sk_sp<GrGeometryProcessor> gp(new GP(fNumAttribs));
-        size_t vertexStride = fNumAttribs * GrVertexAttribTypeSize(kFloat2_GrVertexAttribType);
-        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
+        size_t vertexStride = gp->vertexStride();
         QuadHelper helper(target, vertexStride, 1);
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.vertices());
         SkPointPriv::SetRectTriStrip(vertices, 0.f, 0.f, 1.f, 1.f, vertexStride);

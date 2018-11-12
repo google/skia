@@ -412,12 +412,6 @@ bool GrQuadPerEdgeAA::GPAttributes::needsPerspectiveInterpolation() const {
     return fPositions.cpuType() == kFloat3_GrVertexAttribType;
 }
 
-int GrQuadPerEdgeAA::GPAttributes::vertexAttributeCount() const {
-    // Always has position, hence 1+
-    return (1 + this->hasLocalCoords() + this->hasVertexColors() + this->hasDomain() +
-            4 * this->usesCoverageAA());
-}
-
 uint32_t GrQuadPerEdgeAA::GPAttributes::getKey() const {
     // aa, color, domain are single bit flags
     uint32_t x = this->usesCoverageAA() ? 0 : 1;
