@@ -56,7 +56,7 @@ static void drawFadingText(SkCanvas* canvas,
                            const SkPaint& paint) {
     // Need a bounds for the text
     SkRect bounds;
-    SkPaint::FontMetrics fm;
+    SkFontMetrics fm;
 
     paint.getFontMetrics(&fm);
     bounds.set(x, y + fm.fTop, x + paint.measureText(text, len), y + fm.fBottom);

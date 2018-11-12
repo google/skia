@@ -1186,7 +1186,7 @@ const SkFixed LiberationSansNormalWidths[] = {
 
 const size_t LiberationSansNormalCharCodesCount = SK_ARRAY_COUNT(LiberationSansNormalCharCodes);
 
-const SkPaint::FontMetrics LiberationSansNormalMetrics = {
+const SkFontMetrics LiberationSansNormalMetrics = {
 0x0000000f, -0.910156f, -0.905273f, 0.211914f, 0.303223f, 0.0327148f, 0.589355f, 1.25342f,
 -0.203125f, 1.05029f, 0.52832f, 0.687988f, 0.0732422f, 0.105957f, 0.0498047f, -0.258789f
 };
@@ -2350,7 +2350,7 @@ const SkFixed LiberationSansBoldWidths[] = {
 
 const size_t LiberationSansBoldCharCodesCount = SK_ARRAY_COUNT(LiberationSansBoldCharCodes);
 
-const SkPaint::FontMetrics LiberationSansBoldMetrics = {
+const SkFontMetrics LiberationSansBoldMetrics = {
 0x0000000f, -1.0332f, -0.905273f, 0.211914f, 0.303223f, 0.0327148f, 0.612305f, 1.24609f,
 -0.184082f, 1.06201f, 0.52832f, 0.687988f, 0.10498f, 0.105957f, 0.0498047f, -0.258789f
 };
@@ -3591,7 +3591,7 @@ const SkFixed LiberationSansItalicWidths[] = {
 
 const size_t LiberationSansItalicCharCodesCount = SK_ARRAY_COUNT(LiberationSansItalicCharCodes);
 
-const SkPaint::FontMetrics LiberationSansItalicMetrics = {
+const SkFontMetrics LiberationSansItalicMetrics = {
 0x0000000f, -1.01416f, -0.905273f, 0.211914f, 0.303223f, 0.0327148f, 0.590332f, 1.33447f,
 -0.271973f, 1.0625f, 0.52832f, 0.687988f, 0.0732422f, 0.105957f, 0.0498047f, -0.258789f
 };
@@ -4851,7 +4851,7 @@ const SkFixed LiberationSansBoldItalicWidths[] = {
 
 const size_t LiberationSansBoldItalicCharCodesCount = SK_ARRAY_COUNT(LiberationSansBoldItalicCharCodes);
 
-const SkPaint::FontMetrics LiberationSansBoldItalicMetrics = {
+const SkFontMetrics LiberationSansBoldItalicMetrics = {
 0x0000000f, -1.02979f, -0.905273f, 0.211914f, 0.303223f, 0.0327148f, 0.61377f, 1.3374f,
 -0.208984f, 1.12842f, 0.52832f, 0.687988f, 0.10498f, 0.105957f, 0.0498047f, -0.258789f
 };

@@ -502,7 +502,7 @@ protected:
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(SkGlyphID glyphID, SkPath* path) override;
-    void generateFontMetrics(SkPaint::FontMetrics*) override;
+    void generateFontMetrics(SkFontMetrics*) override;
     SkUnichar generateGlyphToChar(uint16_t glyph) override;
 
 private:
@@ -1388,7 +1388,7 @@ bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     return true;
 }
 
-void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics) {
+void SkScalerContext_FreeType::generateFontMetrics(SkFontMetrics* metrics) {
     if (nullptr == metrics) {
         return;
     }
@@ -1416,8 +1416,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
         avgCharWidth = SkIntToScalar(os2->xAvgCharWidth) / upem;
         strikeoutThickness = SkIntToScalar(os2->yStrikeoutSize) / upem;
         strikeoutPosition = -SkIntToScalar(os2->yStrikeoutPosition) / upem;
-        metrics->fFlags |= SkPaint::FontMetrics::kStrikeoutThicknessIsValid_Flag;
-        metrics->fFlags |= SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag;
+        metrics->fFlags |= SkFontMetrics::kStrikeoutThicknessIsValid_Flag;
+        metrics->fFlags |= SkFontMetrics::kStrikeoutPositionIsValid_Flag;
         if (os2->version != 0xFFFF && os2->version >= 2) {
             cap_height = SkIntToScalar(os2->sCapHeight) / upem * fScale.y();
         }
@@ -1449,8 +1449,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
         underlinePosition = -SkIntToScalar(face->underline_position +
                                            face->underline_thickness / 2) / upem;
 
-        metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag;
-        metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+        metrics->fFlags |= SkFontMetrics::kUnderlineThicknessIsValid_Flag;
+        metrics->fFlags |= SkFontMetrics::kUnderlinePositionIsValid_Flag;
 
         // we may be able to synthesize x_height and cap_height from outline
         if (!x_height) {
@@ -1477,15 +1477,15 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
         ymax = ascent;
         underlineThickness = 0;
         underlinePosition = 0;
-        metrics->fFlags &= ~SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag;
-        metrics->fFlags &= ~SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+        metrics->fFlags &= ~SkFontMetrics::kUnderlineThicknessIsValid_Flag;
+        metrics->fFlags &= ~SkFontMetrics::kUnderlinePositionIsValid_Flag;
 
         TT_Postscript* post = (TT_Postscript*) FT_Get_Sfnt_Table(face, ft_sfnt_post);
         if (post) {
             underlineThickness = SkIntToScalar(post->underlineThickness) / upem;
             underlinePosition = -SkIntToScalar(post->underlinePosition) / upem;
-            metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag;
-            metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+            metrics->fFlags |= SkFontMetrics::kUnderlineThicknessIsValid_Flag;
+            metrics->fFlags |= SkFontMetrics::kUnderlinePositionIsValid_Flag;
         }
     } else {
         sk_bzero(metrics, sizeof(*metrics));

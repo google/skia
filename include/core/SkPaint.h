@@ -27,6 +27,8 @@
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
+#define SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
+
 class GrTextBlob;
 class SkAutoDescriptor;
 class SkColorFilter;
@@ -943,6 +945,7 @@ public:
     */
     void setTextEncoding(TextEncoding encoding);
 
+#ifdef SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
     /**
         SkFontMetrics is filled out by getFontMetrics(). SkFontMetrics contents reflect the values
         computed by font manager using SkTypeface. Values are set to zero if they are
@@ -959,6 +962,7 @@ public:
         are valid, since their value may be zero.
     */
     typedef SkFontMetrics FontMetrics;
+#endif
 
     /** Returns SkFontMetrics associated with SkTypeface.
         The return value is the recommended spacing between lines: the sum of metrics

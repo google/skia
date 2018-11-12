@@ -22,7 +22,7 @@ static void call_measure() {
         text[j] = (uint16_t)((rand.nextU() & 0xFF) + 32);
 
     for (int i = 9; i < 36; i++) {
-        SkPaint::FontMetrics m;
+        SkFontMetrics m;
 
         paint.setTextSize(SkIntToScalar(i));
         paint.getFontMetrics(&m);
@@ -46,7 +46,7 @@ static void call_draw(SkCanvas* canvas) {
     canvas->drawColor(SK_ColorWHITE);
     for (int i = 9; i < 36; i++)
     {
-        SkPaint::FontMetrics m;
+        SkFontMetrics m;
 
         paint.setTextSize(SkIntToScalar(i));
         paint.getFontMetrics(&m);

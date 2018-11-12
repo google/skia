@@ -477,7 +477,7 @@ SkScalar SkPaint::getFontMetrics(SkFontMetrics* metrics) const {
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
 
-    FontMetrics storage;
+    SkFontMetrics storage;
     if (nullptr == metrics) {
         metrics = &storage;
     }

@@ -12,7 +12,7 @@
 
 struct SK_API SkFontMetrics {
 
-    /** \enum SkPaint::FontMetrics::FontMetricsFlags
+    /** \enum FontMetricsFlags
      FontMetricsFlags are set in fFlags when underline and strikeout metrics are valid;
      the underline or strikeout metric may be valid and zero.
      Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
@@ -41,7 +41,7 @@ struct SK_API SkFontMetrics {
     SkScalar fStrikeoutThickness; //!< strikeout thickness
     SkScalar fStrikeoutPosition;  //!< strikeout position relative to baseline
 
-    /** Returns true if SkPaint::FontMetrics has a valid underline thickness, and sets
+    /** Returns true if SkFontMetrics has a valid underline thickness, and sets
      thickness to that value. If the underline thickness is not valid,
      return false, and ignore thickness.
 
@@ -56,7 +56,7 @@ struct SK_API SkFontMetrics {
         return false;
     }
 
-    /** Returns true if SkPaint::FontMetrics has a valid underline position, and sets
+    /** Returns true if SkFontMetrics has a valid underline position, and sets
      position to that value. If the underline position is not valid,
      return false, and ignore position.
 
@@ -71,7 +71,7 @@ struct SK_API SkFontMetrics {
         return false;
     }
 
-    /** Returns true if SkPaint::FontMetrics has a valid strikeout thickness, and sets
+    /** Returns true if SkFontMetrics has a valid strikeout thickness, and sets
      thickness to that value. If the underline thickness is not valid,
      return false, and ignore thickness.
 
@@ -86,7 +86,7 @@ struct SK_API SkFontMetrics {
         return false;
     }
 
-    /** Returns true if SkPaint::FontMetrics has a valid strikeout position, and sets
+    /** Returns true if SkFontMetrics has a valid strikeout position, and sets
      position to that value. If the underline position is not valid,
      return false, and ignore position.
 

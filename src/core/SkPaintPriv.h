@@ -50,7 +50,7 @@ public:
      */
     static bool Overwrites(const SkImage*, const SkPaint* paint);
 
-    static void ScaleFontMetrics(SkPaint::FontMetrics*, SkScalar);
+    static void ScaleFontMetrics(SkFontMetrics*, SkScalar);
 
     /**
      *  Return a matrix that applies the paint's text values: size, scale, skew

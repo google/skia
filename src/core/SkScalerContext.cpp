@@ -550,7 +550,7 @@ bool SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
     return this->internalGetPath(glyphID, path);
 }
 
-void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* fm) {
+void SkScalerContext::getFontMetrics(SkFontMetrics* fm) {
     SkASSERT(fm);
     this->generateFontMetrics(fm);
 }
@@ -820,7 +820,7 @@ protected:
         path->reset();
         return false;
     }
-    void generateFontMetrics(SkPaint::FontMetrics* metrics) override {
+    void generateFontMetrics(SkFontMetrics* metrics) override {
         if (metrics) {
             sk_bzero(metrics, sizeof(*metrics));
         }
