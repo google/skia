@@ -134,47 +134,11 @@ void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
         }
 
         fInitialized = true;
-
-        bool hasW = subRun->hasWCoord();
-        // glyphs drawn in perspective must always have a w coord.
-        SkASSERT(hasW || !blob->fInitialViewMatrix.hasPerspective());
-
-        size_t vertexStride = GetVertexStride(format, hasW);
-
         subRun->setMaskFormat(format);
-
-        subRun->joinGlyphBounds(glyphRect);
         subRun->setColor(color);
-
-        intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + subRun->vertexEndIndex());
-
-        // We always write the third position component used by SDFs. If it is unused it gets
-        // overwritten. Similarly, we always write the color and the blob will later overwrite it
-        // with texture coords if it is unused.
-        size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
-        // V0
-        *reinterpret_cast<SkPoint3*>(vertex) = {glyphRect.fLeft, glyphRect.fTop, 1.f};
-        *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
-        vertex += vertexStride;
-
-        // V1
-        *reinterpret_cast<SkPoint3*>(vertex) = {glyphRect.fLeft, glyphRect.fBottom, 1.f};
-        *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
-        vertex += vertexStride;
-
-        // V2
-        *reinterpret_cast<SkPoint3*>(vertex) = {glyphRect.fRight, glyphRect.fTop, 1.f};
-        *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
-        vertex += vertexStride;
-
-        // V3
-        *reinterpret_cast<SkPoint3*>(vertex) = {glyphRect.fRight, glyphRect.fBottom, 1.f};
-        *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
-
-        subRun->appendVertices(vertexStride);
-        blob->fGlyphs[subRun->glyphEndIndex()] = glyph;
-        subRun->glyphAppended();
         subRun->setNeedsTransform(needsTransform);
+
+        subRun->appendGlyph(blob, glyph, glyphRect);
     }
 }
 
