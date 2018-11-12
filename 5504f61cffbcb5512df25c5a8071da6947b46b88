@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29417786_fec5b0a9",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-12T17:03:44Z",
+      "side": 1,
+      "message": "Please can we call this kSubpixelAntiAlias? I know it is a bit longer, but it\u0027s more accurate and aligns better with other APIs.",
+      "range": {
+        "startLine": 44,
+        "startChar": 9,
+        "endLine": 44,
+        "endChar": 12
+      },
+      "revId": "5504f61cffbcb5512df25c5a8071da6947b46b88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
