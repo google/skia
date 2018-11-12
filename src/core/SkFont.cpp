@@ -257,6 +257,48 @@ SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding en
     return width;
 }
 
+static void set_bounds(const SkGlyph& g, SkRect* bounds, SkScalar scale) {
+    bounds->set(g.fLeft * scale,
+                g.fTop * scale,
+                (g.fLeft + g.fWidth) * scale,
+                (g.fTop + g.fHeight) * scale);
+}
+
+void SkFont::getWidths(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[]) const {
+    if (count <= 0 || (!widths && !bounds)) {
+        return;
+    }
+
+    SkCanonicalizeFont canon(*this);
+    const SkFont& font = canon.getFont();
+    SkScalar scale = canon.getScale();
+    if (!scale) {
+        scale = 1;
+    }
+
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(font,
+                         SkSurfaceProps(0, kUnknown_SkPixelGeometry), SkScalerContextFlags::kNone,
+                                                                     SkMatrix::I(), &ad, &effects);
+    auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+
+    auto glyphCacheProc = SkFontPriv::GetGlyphCacheProc(kGlyphID_SkTextEncoding, nullptr != bounds);
+
+    const char* text = reinterpret_cast<const char*>(glyphs);
+    const char* stop = text + (count << 1);
+    for (int i = 0; i < count; ++i) {
+        const SkGlyph& g = glyphCacheProc(cache.get(), &text, stop);
+        if (widths) {
+            *widths++ = g.fAdvanceX * scale;
+        }
+        if (bounds) {
+            set_bounds(g, bounds++, scale);
+        }
+    }
+}
+
 SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
     SkCanonicalizeFont canon(*this);
     const SkFont& font = canon.getFont();
