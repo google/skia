@@ -14,10 +14,6 @@ class SkDashImpl : public SkPathEffect {
 public:
     SkDashImpl(const SkScalar intervals[], int count, SkScalar phase);
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool exposedInAndroidJavaAPI() const override { return true; }
-#endif
-
 protected:
     ~SkDashImpl() override;
     void flatten(SkWriteBuffer&) const override;

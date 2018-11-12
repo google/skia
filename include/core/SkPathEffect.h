@@ -161,11 +161,6 @@ public:
                                   kSkPathEffect_Type, data, size, procs).release()));
     }
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    /// Override for subclasses as appropriate.
-    virtual bool exposedInAndroidJavaAPI() const { return false; }
-#endif
-
 protected:
     SkPathEffect() {}
 
