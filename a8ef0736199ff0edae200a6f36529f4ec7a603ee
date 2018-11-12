@@ -22,6 +22,30 @@
       "revId": "a8ef0736199ff0edae200a6f36529f4ec7a603ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65b16a50_f8f5f5e6",
+        "filename": "src/gpu/ops/GrAAConvexPathRenderer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-12T22:01:35Z",
+      "side": 1,
+      "message": "At the moment, this could be done with an array (I had that at one point). I went this way because optional half-float color is going to force them to be per-instance anyway, so I figured I\u0027d do the refactor of how they\u0027re stored once, and the subsequent changes would be simpler. (I had sort of given up on offsets, but you\u0027re right - this does make it much simpler if we want to put those back.)",
+      "parentUuid": "5c8f7a28_93326e49",
+      "range": {
+        "startLine": 656,
+        "startChar": 4,
+        "endLine": 658,
+        "endChar": 26
+      },
+      "revId": "a8ef0736199ff0edae200a6f36529f4ec7a603ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
