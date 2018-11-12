@@ -25,9 +25,9 @@ public:
 
     const char* name() const override { return "RRectShadow"; }
 
-    const Attribute& inPosition() const { return kInPosition; }
-    const Attribute& inColor() const { return kInColor; }
-    const Attribute& inShadowParams() const { return kInShadowParams; }
+    const Attribute& inPosition() const { return fInPosition; }
+    const Attribute& inColor() const { return fInColor; }
+    const Attribute& inShadowParams() const { return fInShadowParams; }
     GrColor color() const { return fColor; }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
@@ -37,18 +37,11 @@ public:
 private:
     GrRRectShadowGeoProc();
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInShadowParams);
-    }
-
     GrColor          fColor;
 
-    static constexpr Attribute kInPosition =
-            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    static constexpr Attribute kInColor =
-            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    static constexpr Attribute kInShadowParams =
-            {"inShadowParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
+    Attribute fInPosition;
+    Attribute fInColor;
+    Attribute fInShadowParams;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 

@@ -316,11 +316,8 @@ private:
 
     void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp;
-        size_t vertexStride;
         {
             using namespace GrDefaultGeoProcFactory;
-
-            vertexStride = sizeof(SkPoint);  // position
 
             Color color(fColor);
             LocalCoords::Type localCoordsType = fHelper.usesLocalCoords()
@@ -329,12 +326,10 @@ private:
             Coverage::Type coverageType;
             if (fAntiAlias) {
                 color = Color(Color::kPremulGrColorAttribute_Type);
-                vertexStride += sizeof(uint32_t);
                 if (fHelper.compatibleWithAlphaAsCoverage()) {
                     coverageType = Coverage::kSolid_Type;
                 } else {
                     coverageType = Coverage::kAttribute_Type;
-                    vertexStride += 4;
                 }
             } else {
                 coverageType = Coverage::kSolid_Type;
@@ -352,7 +347,7 @@ private:
         if (!gp.get()) {
             return;
         }
-        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
+        size_t vertexStride = gp->vertexStride();
         if (fAntiAlias) {
             this->drawAA(target, std::move(gp), vertexStride);
         } else {
