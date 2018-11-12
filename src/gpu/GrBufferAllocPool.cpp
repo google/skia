@@ -151,13 +151,18 @@ void* GrBufferAllocPool::makeSpace(size_t size,
         BufferBlock& back = fBlocks.back();
         size_t usedBytes = back.fBuffer->gpuMemorySize() - back.fBytesFree;
         size_t pad = GrSizeAlignUpPad(usedBytes, alignment);
-        if ((size + pad) <= back.fBytesFree) {
+        SkSafeMath safeMath;
+        size_t alignedSize = safeMath.add(pad, size);
+        if (!safeMath.ok()) {
+            return nullptr;
+        }
+        if (alignedSize <= back.fBytesFree) {
             memset((void*)(reinterpret_cast<intptr_t>(fBufferPtr) + usedBytes), 0, pad);
             usedBytes += pad;
             *offset = usedBytes;
             *buffer = back.fBuffer;
-            back.fBytesFree -= size + pad;
-            fBytesInUse += size + pad;
+            back.fBytesFree -= alignedSize;
+            fBytesInUse += alignedSize;
             VALIDATE();
             return (void*)(reinterpret_cast<intptr_t>(fBufferPtr) + usedBytes);
         }
