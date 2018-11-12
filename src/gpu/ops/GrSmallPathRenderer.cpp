@@ -367,9 +367,7 @@ private:
         }
 
         // allocate vertices
-        static constexpr size_t kVertexStride =
-                sizeof(SkPoint) + sizeof(GrColor) + 2 * sizeof(uint16_t);
-        SkASSERT(kVertexStride == flushInfo.fGeometryProcessor->debugOnly_vertexStride());
+        size_t kVertexStride = flushInfo.fGeometryProcessor->vertexStride();
 
         const GrBuffer* vertexBuffer;
 

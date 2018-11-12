@@ -244,17 +244,14 @@ private:
     void onPrepareDraws(Target* target) override {
         using namespace GrDefaultGeoProcFactory;
 
-        size_t vertexStride = sizeof(SkPoint) + sizeof(GrColor);
         Color color(Color::kPremulGrColorAttribute_Type);
         Coverage::Type coverageType = Coverage::kSolid_Type;
         if (!fHelper.compatibleWithAlphaAsCoverage()) {
             coverageType = Coverage::kAttribute_Type;
-            vertexStride += sizeof(float);
         }
         LocalCoords lc = LocalCoords::kUnused_Type;
         if (fHelper.usesLocalCoords()) {
             lc = LocalCoords::kHasExplicit_Type;
-            vertexStride += sizeof(SkPoint);
         }
 
         sk_sp<GrGeometryProcessor> gp =
@@ -265,7 +262,7 @@ private:
             return;
         }
 
-        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
+        size_t vertexStride = gp->vertexStride();
 
         sk_sp<const GrBuffer> indexBuffer = get_index_buffer(target->resourceProvider());
         PatternHelper helper(target, GrPrimitiveType::kTriangles, vertexStride, indexBuffer.get(),

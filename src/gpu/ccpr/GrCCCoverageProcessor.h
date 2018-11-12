@@ -250,13 +250,6 @@ private:
     void initGS();
     void initVS(GrResourceProvider*);
 
-    const Attribute& onVertexAttribute(int i) const override { return fVertexAttribute; }
-
-    const Attribute& onInstanceAttribute(int i) const override {
-        SkASSERT(fImpl == Impl::kVertexShader);
-        return fInstanceAttributes[i];
-    }
-
     void appendGSMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
                       SkTArray<GrMesh>* out) const;
     void appendVSMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
