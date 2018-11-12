@@ -1,3 +1,26 @@
+//#if defined(SK_BUILD_FOR_IOS) || defined(SK_BUILD_FOR_MAC)
+#include "SkFontMgr.h"
+#include "Test.h"
+#include "SkCanvas.h"
+#include "SkPDFDocument.h"
+#include "SkStream.h"
+DEF_TEST(apple_color_emoji, r) {
+    sk_sp<SkFontMgr> mgr = SkFontMgr::RefDefault();
+    SkASSERT(mgr);
+    sk_sp<SkTypeface> face(mgr->matchFamilyStyle("Apple Color Emoji", SkFontStyle()));
+    SkASSERT(face);
+    SkGlyphID glyph = 1820;
+    SkFILEWStream file("/tmp/apple_color_emoji.pdf");
+    auto doc = SkPDF::MakeDocument(&file);
+    SkASSERT(doc);
+    SkCanvas* c = doc->beginPage(612, 792);
+    SkPaint paint;
+    paint.setTypeface(std::move(face));
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
+    c->drawText(&glyph, sizeof(glyph), 100, 100, paint);
+}
+//      #endif
+
 /*
  * Copyright 2013 Google Inc.
  *
