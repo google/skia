@@ -101,10 +101,9 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
         vkAttrib.binding = vertexBinding;
         vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
         vkAttrib.offset = vertexAttributeOffset;
-        SkASSERT(vkAttrib.offset == primProc.debugOnly_vertexAttributeOffset(attribIndex));
         vertexAttributeOffset += attrib.sizeAlign4();
     }
-    SkASSERT(vertexAttributeOffset == primProc.debugOnly_vertexStride());
+    SkASSERT(vertexAttributeOffset == primProc.vertexStride());
 
     int iaCount = primProc.numInstanceAttributes();
     size_t instanceAttributeOffset = 0;
@@ -115,10 +114,9 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
         vkAttrib.binding = instanceBinding;
         vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
         vkAttrib.offset = instanceAttributeOffset;
-        SkASSERT(vkAttrib.offset == primProc.debugOnly_instanceAttributeOffset(iaIndex));
         instanceAttributeOffset += attrib.sizeAlign4();
     }
-    SkASSERT(instanceAttributeOffset == primProc.debugOnly_instanceStride());
+    SkASSERT(instanceAttributeOffset == primProc.instanceStride());
 
     if (primProc.hasVertexAttributes()) {
         bindingDescs->push_back() = {

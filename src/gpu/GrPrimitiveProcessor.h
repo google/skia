@@ -84,30 +84,21 @@ public:
 
     int numTextureSamplers() const { return fTextureSamplerCnt; }
     const TextureSampler& textureSampler(int index) const;
-    int numVertexAttributes() const { return fVertexAttributeCnt; }
+    int numVertexAttributes() const { return fVertexAttributeCount; }
     const Attribute& vertexAttribute(int i) const;
-    int numInstanceAttributes() const { return fInstanceAttributeCnt; }
+    int numInstanceAttributes() const { return fInstanceAttributeCount; }
     const Attribute& instanceAttribute(int i) const;
 
-    bool hasVertexAttributes() const { return SkToBool(fVertexAttributeCnt); }
-    bool hasInstanceAttributes() const { return SkToBool(fInstanceAttributeCnt); }
+    bool hasVertexAttributes() const { return SkToBool(fVertexAttributeCount); }
+    bool hasInstanceAttributes() const { return SkToBool(fInstanceAttributeCount); }
 
-#ifdef SK_DEBUG
     /**
      * A common practice is to populate the the vertex/instance's memory using an implicit array of
      * structs. In this case, it is best to assert that:
-     *     debugOnly_stride == sizeof(struct) and
-     *     offsetof(struct, field[i]) == debugOnly_AttributeOffset(i)
-     * In general having Op subclasses assert that attribute offsets and strides agree with their
-     * tessellation code's expectations is good practice.
-     * However, these functions walk the attributes to compute offsets and call virtual functions
-     * to access the attributes. Thus, they are only available in debug builds.
+     *     stride == sizeof(struct)
      */
-    size_t debugOnly_vertexStride() const;
-    size_t debugOnly_instanceStride() const;
-    size_t debugOnly_vertexAttributeOffset(int) const;
-    size_t debugOnly_instanceAttributeOffset(int) const;
-#endif
+    size_t vertexStride() const { return fVertexStride; }
+    size_t instanceStride() const { return fInstanceStride; }
 
     // Only the GrGeometryProcessor subclass actually has a geo shader or vertex attributes, but
     // we put these calls on the base class to prevent having to cast
@@ -146,13 +137,28 @@ public:
     virtual float getSampleShading() const { return 0.0; }
 
 protected:
-    void setVertexAttributeCnt(int cnt) {
-        SkASSERT(cnt >= 0);
-        fVertexAttributeCnt = cnt;
+    void setVertexAttributes(const Attribute* attrs, int attrCount) {
+        fVertexAttributes = attrs;
+        fVertexAttributeCount = 0;
+        fVertexStride = 0;
+        for (int i = 0; i < attrCount; ++i) {
+            if (attrs[i].isInitialized()) {
+                fVertexAttributeCount++;
+                fVertexStride += attrs[i].sizeAlign4();
+            }
+        }
     }
-    void setInstanceAttributeCnt(int cnt) {
-        SkASSERT(cnt >= 0);
-        fInstanceAttributeCnt = cnt;
+    void setInstanceAttributes(const Attribute* attrs, int attrCount) {
+        SkASSERT(attrCount >= 0);
+        fInstanceAttributes = attrs;
+        fInstanceAttributeCount = 0;
+        fInstanceStride = 0;
+        for (int i = 0; i < attrCount; ++i) {
+            if (attrs[i].isInitialized()) {
+                fInstanceAttributeCount++;
+                fInstanceStride += attrs[i].sizeAlign4();
+            }
+        }
     }
     void setTextureSamplerCnt(int cnt) {
         SkASSERT(cnt >= 0);
@@ -171,22 +177,15 @@ protected:
     inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
-    virtual const Attribute& onVertexAttribute(int) const {
-        SK_ABORT("No vertex attributes");
-        static constexpr Attribute kBogus;
-        return kBogus;
-    }
-
-    virtual const Attribute& onInstanceAttribute(int i) const {
-        SK_ABORT("No instanced attributes");
-        static constexpr Attribute kBogus;
-        return kBogus;
-    }
-
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
 
-    int fVertexAttributeCnt = 0;
-    int fInstanceAttributeCnt = 0;
+    const Attribute* fVertexAttributes = nullptr;
+    const Attribute* fInstanceAttributes = nullptr;
+    int fVertexAttributeCount = 0;
+    int fInstanceAttributeCount = 0;
+    size_t fVertexStride = 0;
+    size_t fInstanceStride = 0;
+
     int fTextureSamplerCnt = 0;
     typedef GrProcessor INHERITED;
 };

@@ -149,15 +149,13 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
     int i = 0;
     for (; i < fVertexAttributeCnt; i++) {
         addAttr(i, primProc.vertexAttribute(i), &fVertexStride);
-        SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_vertexAttributeOffset(i));
     }
-    SkASSERT(fVertexStride == primProc.debugOnly_vertexStride());
+    SkASSERT(fVertexStride == primProc.vertexStride());
     fInstanceStride = 0;
     for (int j = 0; j < fInstanceAttributeCnt; j++, ++i) {
         addAttr(i, primProc.instanceAttribute(j), &fInstanceStride);
-        SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_instanceAttributeOffset(j));
     }
-    SkASSERT(fInstanceStride == primProc.debugOnly_instanceStride());
+    SkASSERT(fInstanceStride == primProc.instanceStride());
 }
 
 void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
