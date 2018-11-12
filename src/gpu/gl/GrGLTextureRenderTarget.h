@@ -39,6 +39,12 @@ public:
                                                       const GrGLTexture::IDDesc& texIDDesc,
                                                       const GrGLRenderTarget::IDDesc& rtIDDesc,
                                                       GrMipMapsStatus);
+
+    GrBackendFormat backendFormat() const override {
+        // It doesn't matter if we take the texture or render target path, so just pick texture.
+        return GrGLTexture::backendFormat();
+    }
+
 protected:
     void onAbandon() override {
         GrGLRenderTarget::onAbandon();

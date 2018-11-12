@@ -160,8 +160,13 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTexturePr
     desc.fConfig = baseProxy->config();
     desc.fSampleCnt = 1;
 
+    GrBackendFormat format = baseProxy->backendFormat().makeTexture2D();
+    if (!format.isValid()) {
+        return nullptr;
+    }
+
     sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createMipMapProxy(desc, baseProxy->origin(), SkBudgeted::kYes);
+            proxyProvider->createMipMapProxy(format, desc, baseProxy->origin(), SkBudgeted::kYes);
     if (!proxy) {
         return nullptr;
     }

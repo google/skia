@@ -12,6 +12,7 @@
 #include "GrShaderCaps.h"
 #include "GrVkInterface.h"
 #include "GrVkUtil.h"
+#include "SkGr.h"
 #include "vk/GrVkBackendContext.h"
 #include "vk/GrVkExtensions.h"
 
@@ -823,12 +824,23 @@ bool GrVkCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
     return get_yuva_config(*vkFormat, config);
 }
 
-#ifdef GR_TEST_UTILS
 GrBackendFormat GrVkCaps::onCreateFormatFromBackendTexture(
         const GrBackendTexture& backendTex) const {
     GrVkImageInfo vkInfo;
     SkAssertResult(backendTex.getVkImageInfo(&vkInfo));
     return GrBackendFormat::MakeVk(vkInfo.fFormat);
 }
-#endif
+
+GrBackendFormat GrVkCaps::getBackendFormatFromGrColorType(GrColorType ct,
+                                                          GrSRGBEncoded srgbEncoded) const {
+    GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);
+    if (config == kUnknown_GrPixelConfig) {
+        return GrBackendFormat();
+    }
+    VkFormat format;
+    if (!GrPixelConfigToVkFormat(config, &format)) {
+        return GrBackendFormat();
+    }
+    return GrBackendFormat::MakeVk(format);
+}
 
