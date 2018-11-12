@@ -473,7 +473,32 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkScalar SkPaint::getFontMetrics(SkFontMetrics* metrics) const {
-    return SkFont::LEGACY_ExtractFromPaint(*this).getMetrics(metrics);
+    SkCanonicalizePaint canon(*this);
+    const SkPaint& paint = canon.getPaint();
+    SkScalar scale = canon.getScale();
+
+    FontMetrics storage;
+    if (nullptr == metrics) {
+        metrics = &storage;
+    }
+
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+        paint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+        SkScalerContextFlags::kNone, SkMatrix::I(), &ad, &effects);
+
+    {
+        auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
+        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+        *metrics = cache->getFontMetrics();
+    }
+
+    if (scale) {
+        SkPaintPriv::ScaleFontMetrics(metrics, scale);
+    }
+    return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
