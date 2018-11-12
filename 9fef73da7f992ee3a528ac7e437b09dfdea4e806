@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bfdf90de_e6acc13a",
+        "filename": "include/android/SkAndroidFrameworkUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-11-12T19:55:26Z",
+      "side": 1,
+      "message": "clipWithStencil is used by framework only. I don\u0027t know why this was defined \"SK_BUILD_FOR_ANDROID\". Maybe so that more build bots compile it?",
+      "parentUuid": "70e8fb3d_7b9ebba6",
+      "range": {
+        "startLine": 13,
+        "startChar": 7,
+        "endLine": 13,
+        "endChar": 37
+      },
+      "revId": "9fef73da7f992ee3a528ac7e437b09dfdea4e806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "93f53219_2b749420",
         "filename": "include/android/SkAndroidFrameworkUtils.h",
         "patchSetId": 1
