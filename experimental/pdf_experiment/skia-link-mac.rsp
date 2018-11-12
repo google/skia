@@ -1,0 +1,6 @@
+../../out/default//libskia.a
+../../out/default/libsksg.a
+-ldl
+-framework AppKit
+-framework ApplicationServices
+-framework OpenGL
