@@ -114,6 +114,7 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkP
     }
 }
 
+#ifdef SK_DEBUG
 SkString GrDrawVerticesOp::dumpInfo() const {
     SkString string;
     string.appendf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n", (int)fPrimitiveType,
@@ -122,6 +123,7 @@ SkString GrDrawVerticesOp::dumpInfo() const {
     string += INHERITED::dumpInfo();
     return string;
 }
+#endif
 
 GrDrawOp::FixedFunctionFlags GrDrawVerticesOp::fixedFunctionFlags() const {
     return fHelper.fixedFunctionFlags();

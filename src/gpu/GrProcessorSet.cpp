@@ -77,6 +77,7 @@ GrProcessorSet::~GrProcessorSet() {
     }
 }
 
+#ifdef SK_DEBUG
 SkString dump_fragment_processor_tree(const GrFragmentProcessor* fp, int indentCnt) {
     SkString result;
     SkString indentString;
@@ -126,6 +127,7 @@ SkString GrProcessorSet::dumpProcessors() const {
     }
     return result;
 }
+#endif
 
 bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
     SkASSERT(this->isFinalized());
