@@ -47,7 +47,7 @@ public:
         INHERITED::makeClosed(caps);
     }
 
-    bool isEmpty() const { return fRecordedOps.empty(); }
+    bool isEmpty() const { return fOpChains.empty(); }
 
     /**
      * Empties the draw buffer of any queued up draws.
@@ -118,36 +118,38 @@ private:
 
     void deleteOps();
 
-    struct RecordedOp {
-        RecordedOp(std::unique_ptr<GrOp> op, GrAppliedClip* appliedClip, const DstProxy* dstProxy)
-                : fOp(std::move(op)), fAppliedClip(appliedClip) {
-            if (dstProxy) {
-                fDstProxy = *dstProxy;
-            }
-        }
+    class OpChain {
+    public:
+        OpChain(const OpChain&) = delete;
+        OpChain& operator=(const OpChain&) = delete;
+        OpChain(std::unique_ptr<GrOp>, GrAppliedClip*, const DstProxy*);
 
-        ~RecordedOp() {
+        ~OpChain() {
             // The ops are stored in a GrMemoryPool so had better have been handled separately
-            SkASSERT(!fOp);
+            SkASSERT(!fHead && !fTail);
         }
 
-        void deleteOp(GrOpMemoryPool* opMemoryPool);
+        void visitProxies(const GrOp::VisitProxyFunc&, GrOp::VisitorType) const;
 
-        void visitProxies(const GrOp::VisitProxyFunc& func, GrOp::VisitorType visitor) const {
-            if (fOp) {
-                fOp->visitProxies(func, visitor);
-            }
-            if (fDstProxy.proxy()) {
-                func(fDstProxy.proxy());
-            }
-            if (fAppliedClip) {
-                fAppliedClip->visitProxies(func);
-            }
-        }
+        GrOp* head() const { return fHead.get(); }
 
-        std::unique_ptr<GrOp> fOp;
-        DstProxy              fDstProxy;
-        GrAppliedClip*        fAppliedClip;
+        GrAppliedClip* appliedClip() const { return fAppliedClip; }
+        const DstProxy& dstProxy() const { return fDstProxy; }
+        const SkRect& bounds() const { return fBounds; }
+
+        void deleteOps(GrOpMemoryPool* pool);
+
+        bool prependChain(OpChain*, const GrCaps& caps, GrOpMemoryPool* pool);
+        std::unique_ptr<GrOp> appendOp(std::unique_ptr<GrOp> op, const DstProxy* dstProxy,
+                                       const GrAppliedClip* applidClip, const GrCaps& caps,
+                                       GrOpMemoryPool* pool);
+
+    private:
+        std::unique_ptr<GrOp> fHead;
+        GrOp* fTail;
+        DstProxy fDstProxy;
+        GrAppliedClip* fAppliedClip;
+        SkRect fBounds;
     };
 
     void purgeOpsWithUninstantiatedProxies() override;
@@ -159,15 +161,12 @@ private:
 
     void forwardCombine(const GrCaps&);
 
-    GrOp::CombineResult combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
-                                          const DstProxy* bDstTexture, const GrCaps&);
-
     uint32_t                       fLastClipStackGenID;
     SkIRect                        fLastDevClipBounds;
     int                            fLastClipNumAnalyticFPs;
 
     // For ops/opList we have mean: 5 stdDev: 28
-    SkSTArray<25, RecordedOp, true> fRecordedOps;
+    SkSTArray<25, OpChain, true> fOpChains;
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.

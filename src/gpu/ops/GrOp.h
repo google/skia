@@ -41,7 +41,7 @@ class GrRenderTargetOpList;
  * The bounds are used in determining which clip elements must be applied and thus the bounds cannot
  * in turn depend upon the clip.
  */
-#define GR_OP_SPEW 0
+#define GR_OP_SPEW 1
 #if GR_OP_SPEW
     #define GrOP_SPEW(code) code
     #define GrOP_INFO(...) SkDebugf(__VA_ARGS__)
@@ -62,7 +62,7 @@ class GrRenderTargetOpList;
 
 class GrOp : private SkNoncopyable {
 public:
-    virtual ~GrOp();
+    virtual ~GrOp() = default;
 
     virtual const char* name() const = 0;
 
@@ -197,37 +197,48 @@ public:
      *         // ...
      *     }
      */
-    template <typename OpSubclass> class ChainRange {
+    template <typename OpSubclass = GrOp> class ChainRange {
     private:
         class Iter {
         public:
-            explicit Iter(const GrOp* head) : fCurr(head) {}
-            inline Iter& operator++() { return *this = Iter(fCurr->nextInChain()); }
-            const OpSubclass& operator*() const { return fCurr->cast<OpSubclass>(); }
+            explicit Iter(const OpSubclass* head) : fCurr(head) {}
+            inline Iter& operator++() {
+                return *this = Iter(static_cast<const OpSubclass*>(fCurr->nextInChain()));
+            }
+            const OpSubclass& operator*() const { return *fCurr; }
             bool operator!=(const Iter& that) const { return fCurr != that.fCurr; }
 
         private:
-            const GrOp* fCurr;
+            const OpSubclass* fCurr;
         };
-        const GrOp* fHead;
+        const OpSubclass* fHead;
 
     public:
-        explicit ChainRange(const GrOp* head) : fHead(head) {}
+        explicit ChainRange(const OpSubclass* head) : fHead(head) {}
         Iter begin() { return Iter(fHead); }
         Iter end() { return Iter(nullptr); }
     };
 
-    void setNextInChain(GrOp*);
+    /**
+     * Concatenates two op chains. This op must be a tail and the passed op must be a head. The ops
+     * must be of the same subclass.
+     */
+    void chainConcat(std::unique_ptr<GrOp>);
     /** Returns true if this is the head of a chain (including a length 1 chain). */
-    bool isChainHead() const { return !fChainHead || (fChainHead == this); }
-    /** Gets the head op of the chain. */
-    const GrOp* chainHead() const { return fChainHead ? fChainHead : this; }
+    bool isChainHead() const { return !fPrevInChain; }
     /** Returns true if this is the tail of a chain (including a length 1 chain). */
     bool isChainTail() const { return !fNextInChain; }
-    /** Returns true if this is part of chain with length > 1. */
-    bool isChained() const { return SkToBool(fChainHead); }
     /** The next op in the chain. */
-    const GrOp* nextInChain() const { return fNextInChain; }
+    GrOp* nextInChain() const { return fNextInChain.get(); }
+    /** The previous op in the chain. */
+    GrOp* prevInChain() const { return fPrevInChain; }
+    /**
+     * Cuts the chain after this op. The returned op is the op that was previously next in the
+     * chain. or null if this was already a tail.
+     */
+    std::unique_ptr<GrOp> cutChain();
+    SkDEBUGCODE(void validateChain(GrOp* expectedTail = nullptr) const);
+
 
 #ifdef SK_DEBUG
     virtual void validate() const {}
@@ -315,8 +326,8 @@ private:
         SkDEBUGCODE(kUninitialized_BoundsFlag   = 0x4)
     };
 
-    GrOp*                               fNextInChain = nullptr;
-    GrOp*                               fChainHead = nullptr;    // null if this is not in a chain.
+    std::unique_ptr<GrOp>               fNextInChain;
+    GrOp*                               fPrevInChain = nullptr;
     const uint16_t                      fClassID;
     uint16_t                            fBoundsFlags;
 
