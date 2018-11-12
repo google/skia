@@ -11,8 +11,10 @@
 
 #include "SkTypes.h"
 
-#ifndef VULKAN_H_
 #include "../../../third_party/vulkan/SkiaVulkan.h"
+
+#ifndef VK_VERSION_1_1
+#error Skia requires the use of Vulkan 1.1 headers
 #endif
 
 #endif
