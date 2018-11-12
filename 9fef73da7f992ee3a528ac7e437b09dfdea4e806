@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70e8fb3d_7b9ebba6",
+        "filename": "include/android/SkAndroidFrameworkUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-12T18:55:22Z",
+      "side": 1,
+      "message": "This change isn\u0027t strictly necessary (or necessarily a part of this CL), but I think we only want this stuff defined when building for the framework, rather than just for Android?",
+      "range": {
+        "startLine": 13,
+        "startChar": 7,
+        "endLine": 13,
+        "endChar": 37
+      },
+      "revId": "9fef73da7f992ee3a528ac7e437b09dfdea4e806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93f53219_2b749420",
+        "filename": "include/android/SkAndroidFrameworkUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-12T18:55:22Z",
+      "side": 1,
+      "message": "This probably deserves a comment. Something like:\n\n    /**\n     *  Log an event to SafetyNet.\n     *  @param bugId ID of the relevant bug.\n     */\n    static void SafetyNetLog(const char* bugId);",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 42
+      },
+      "revId": "9fef73da7f992ee3a528ac7e437b09dfdea4e806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1614817_47941555",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-12T18:55:22Z",
+      "side": 1,
+      "message": "My original thought was that I would have a method which would do nothing if SK_BUILD_FOR_ANDROID_FRAMEWORK was not defined, so I wouldn\u0027t have to ifdef here. I switched when I discovered SkAndroidFrameworkUtils already existed, and figured I would stick with the way it works. WDYT?",
+      "range": {
+        "startLine": 484,
+        "startChar": 0,
+        "endLine": 486,
+        "endChar": 6
+      },
+      "revId": "9fef73da7f992ee3a528ac7e437b09dfdea4e806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
