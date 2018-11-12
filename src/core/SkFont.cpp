@@ -18,6 +18,7 @@
 
 #define kDefault_Size       12
 #define kDefault_Flags      0
+#define kDefault_Edging     SkFont::Edging::kAntiAlias
 #define kDefault_Hinting    kNormal_SkFontHinting
 
 static inline SkScalar valid_size(SkScalar size) {
@@ -31,6 +32,7 @@ SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar 
     , fScaleX(scaleX)
     , fSkewX(skewX)
     , fFlags(flags & kAllFlags)
+    , fEdging(static_cast<unsigned>(kDefault_Edging))
     , fHinting(static_cast<unsigned>(kDefault_Hinting))
 {}
 
@@ -62,12 +64,30 @@ void SkFont::setEmbolden(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kEmbolden_Flag);
 }
 
-void SkFont::DEPRECATED_setAntiAlias(bool predicate) {
-    fFlags = set_clear_mask(fFlags, predicate, kDEPRECATED_Antialias_Flag);
+void SkFont::DEPRECATED_setAntiAlias(bool doAA) {
+    if (!doAA) {
+        this->setEdging(Edging::kAlias);
+    } else {
+        if (this->getEdging() == Edging::kAlias) {
+            this->setEdging(Edging::kAntiAlias);
+        }
+        // else leave the current fEdging as is
+    }
 }
 
-void SkFont::DEPRECATED_setLCDRender(bool predicate) {
-    fFlags = set_clear_mask(fFlags, predicate, kDEPRECATED_LCDRender_Flag);
+void SkFont::DEPRECATED_setLCDRender(bool doLCD) {
+    if (doLCD) {
+        this->setEdging(Edging::kLCDAntiAlias);
+    } else {
+        if (this->getEdging() == Edging::kLCDAntiAlias) {
+            this->setEdging(Edging::kAntiAlias);
+        }
+        // else leave the current fEdging as is
+    }
+}
+
+void SkFont::setEdging(Edging e) {
+    fEdging = SkToU8(e);
 }
 
 void SkFont::setHinting(SkFontHinting h) {
@@ -342,8 +362,16 @@ void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
     paint->setAutohinted(SkToBool(fFlags & kForceAutoHinting_Flag));
     paint->setSubpixelText(SkToBool(fFlags & kSubpixel_Flag));
     paint->setLinearText(SkToBool(fFlags & kLinearMetrics_Flag));
-    paint->setAntiAlias(SkToBool(fFlags & kDEPRECATED_Antialias_Flag));
-    paint->setLCDRenderText(SkToBool(fFlags & kDEPRECATED_LCDRender_Flag));
+
+    bool doAA = false,
+         doLCD = false;
+    switch (this->getEdging()) {
+        case Edging::kAlias:                                   break;
+        case Edging::kAntiAlias:    doAA = true;               break;
+        case Edging::kLCDAntiAlias: doAA = true; doLCD = true; break;
+    }
+    paint->setAntiAlias(doAA);
+    paint->setLCDRenderText(doLCD);
 
     paint->setHinting((SkFontHinting)this->getHinting());
 }
@@ -366,15 +394,17 @@ SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
         flags |= kLinearMetrics_Flag;
     }
 
+    Edging edging = Edging::kAlias;
     if (paint.isAntiAlias()) {
-        flags |= kDEPRECATED_Antialias_Flag;
+        edging = Edging::kAntiAlias;
     }
     if (paint.isLCDRenderText()) {
-        flags |= kDEPRECATED_LCDRender_Flag;
+        edging = Edging::kLCDAntiAlias;
     }
 
     SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
                 paint.getTextSkewX(), flags);
+    font.setEdging(edging);
     font.setHinting((SkFontHinting)paint.getHinting());
     return font;
 }
